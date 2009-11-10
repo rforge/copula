@@ -8,6 +8,7 @@ rstable1 <- function(n, alpha, beta, gamma = 1, delta = 0)
               -1 <= beta, beta <= 1)
 
     ## if(pm == 1) ##  "S" aka "S1" or "1" Parametrization
+    ## [[ if you drop this, you have the "S0" or "0" parametrization ]]
     delta <- delta + beta * gamma *
         ifelse(alpha == 1, (2/pi)*log(gamma), tan(pi*alpha/2))
 
@@ -18,8 +19,11 @@ rstable1 <- function(n, alpha, beta, gamma = 1, delta = 0)
     else {
         ## Calculate uniform and exponential distributed random numbers:
         theta <- pi * (runif(n)-1/2)
-        w <- -log(runif(n))
+        w <- rexp(n) ## -log(runif(n))
 
+        ## FIXME: for alpha == 1, b.tan.pa <- Inf , but that needs different code
+        ##        N.B.: Do this such that it vectorizes in alpha, too
+        ## FIXME(2): ditto for    | alpha - 1 | << 1
         b.tan.pa <- beta*tan(pi*alpha/2)
         c. <- (1 + b.tan.pa^2)^(1/(2*alpha))
         th0 <- atan(b.tan.pa) / alpha
