@@ -19,7 +19,8 @@ rstable1 <- function(n, alpha, beta, gamma = 1, delta = 0)
     else {
         ## Calculate uniform and exponential distributed random numbers:
         theta <- pi * (runif(n)-1/2)
-        w <- rexp(n) ## -log(runif(n))
+        w <- rexp(n)
+        ##   ^^^^^^ was "-log(runif(n))"; rexp() is faster, giving different numbers
 
         ## FIXME: for alpha == 1, b.tan.pa <- Inf , but that needs different code
         ##        N.B.: Do this such that it vectorizes in alpha, too
@@ -30,7 +31,7 @@ rstable1 <- function(n, alpha, beta, gamma = 1, delta = 0)
         a.tht <- alpha*(theta+th0)
         res <- c.* sin(a.tht) / cos(theta)^(1/alpha) *
             (cos(theta-a.tht)/w)^((1-alpha)/alpha)
-        ## Using parametrization 0:
+
         res <- res - b.tan.pa
     }
 
