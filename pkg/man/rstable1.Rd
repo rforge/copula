@@ -7,17 +7,16 @@
   using its  \dQuote{S1}- (or \dQuote{1})-parametrization.
 }
 \usage{
-rstable1(n, alpha, beta, gamma = 1, delta = 0)
+rstable1(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
 }
 \arguments{
-    \item{alpha, beta, gamma, delta}{
-        value of the index parameter \code{alpha} with \code{alpha = (0,2]};
-        skewness parameter \code{beta}, in the range [-1, 1];
-        scale parameter \code{gamma}; and
-        shift or location parameter \code{delta}.
-        }
+    \item{alpha}{stable \dQuote{index} parameter in interval \eqn{(0,2]}.}
+    \item{beta}{skewness parameter, \eqn{\beta \in [-1, 1]}.}
+    \item{gamma}{scale parameter, \eqn{\gamma > 0}.}
+    \item{delta}{location parameter.}
+    \item{pm}{0 or 1, denoting which parametrization (as by Nolan) is used.}
     \item{n}{an integer, the number of observations to generate.}
-}
+  }
 
 \value{
   a \code{\link{numeric}} vector of length \code{n}.
@@ -35,10 +34,11 @@ rstable1(n, alpha, beta, gamma = 1, delta = 0)
 }
 \author{
   Diethelm Wuertz wrote \code{\link[fBasics]{rstable}} for Rmetrics;
-  Martin Maechler vectorized it and sped it up.
+  Martin Maechler vectorized it (also in \code{alpha},\dots), fixed it
+  for \eqn{\alpha=1,\beta!=0} and sped it up.
 }
-\seealso{\code{\link[fBasics]{rstable}} which allows other
-  parametrizations than the \dQuote{S1} one.
+\seealso{\code{\link[fBasics]{rstable}} which also allows the  other
+  2-parametrization and has further distribution functionality for these.
 }
 \references{
   Chambers J.M., Mallows, C.L. and Stuck, B.W. (1976);
@@ -69,8 +69,11 @@ rstable1(n, alpha, beta, gamma = 1, delta = 0)
    set.seed(1953)
    r <- rstable1(n = 1000, alpha = 1.9, beta = 0.3)
    plot(r, type = "l", main = "stable: alpha=1.9 beta=0.3",
-        col = "steelblue")
-   grid()
+        col = "steelblue"); grid()
+
+   hist(r, "Scott", prob=TRUE, ylim = c(0,0.3),
+        main = "Stable S(1.9, 0.3; 1)")
+   lines(density(r), col="red2", lwd=2)
 }
 \keyword{distribution}
 
