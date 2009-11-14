@@ -22,23 +22,31 @@ rstable1(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
   a \code{\link{numeric}} vector of length \code{n}.
 }
 \details{
-    \bold{Skew Stable Distribution:}
+  We use the approach of J.P. Nolan for general
+  stable distributions.  \code{rstable1} provides its two basic
+  parametrizations, by default,
+  \cr
+  \code{pm = 1}, the so called \dQuote{S}, \dQuote{S1}, or \dQuote{1}
+  parameterization, It is the parameterization used by Samorodnitsky and
+  Taqqu in the book \emph{Stable Non-Gaussian Random Processes}, and is
+  a slight modification of Zolotarev's (A) parameterization.
 
-    The function uses the approach of J.P. Nolan for general
-    stable distributions.  \code{rstable1} only uses the so called
-    \dQuote{S}, \dQuote{S1}, or \dQuote{1} parameterization:
-    \cr
-    It is the parameterization used by Samorodnitsky and Taqqu in the
-    book \emph{Stable Non-Gaussian Random Processes}, and is a slight
-    modification of Zolotarev's (A) parameterization.
+  \code{pm = 0} is the "S0" parameterization: based on the (M)
+  representation of Zolotarev for an alpha stable distribution with
+  skewness beta. Unlike the Zolotarev (M) parameterization, gamma and
+  delta are straightforward scale and shift parameters. This
+  representation is continuous in all 4 parameters, and gives an
+  intuitive meaning to gamma and delta that is lacking in other
+  parameterizations.
 }
 \author{
   Diethelm Wuertz wrote \code{\link[fBasics]{rstable}} for Rmetrics;
   Martin Maechler vectorized it (also in \code{alpha},\dots), fixed it
-  for \eqn{\alpha=1,\beta!=0} and sped it up.
+  for \eqn{\alpha=1,\beta \ne 0}{alpha = 1, beta != 0} and sped it up.
 }
-\seealso{\code{\link[fBasics]{rstable}} which also allows the  other
-  2-parametrization and has further distribution functionality for these.
+\seealso{\code{\link[fBasics]{rstable}} which also allows the
+  2-parametrization and has further distribution functionality for
+  stable.
 }
 \references{
   Chambers J.M., Mallows, C.L. and Stuck, B.W. (1976);

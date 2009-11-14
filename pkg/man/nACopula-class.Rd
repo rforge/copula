@@ -4,33 +4,41 @@
 \alias{nACopula-class}
 \alias{dim,nACopula-method}
 
-\title{Class "nACopula" ~~~ }
-\description{	 ~~ A concise (1-5 lines) description of what the class is.  ~~}
+\title{Class "nACopula" of Nested Archimedean Copulas}
+\description{
+  The class of Nested Archimedean Copulas, \code{"nACopula"},
+
+  ..........
+}
 \section{Objects from the Class}{
-Objects can be created by calls of the form \code{new("nACopula", ...)}.
-	 ~~ describe objects here ~~
+  Objects can be created by calls of the form \code{new("nACopula", ...)},
+  which is only for experts; rather they are typically constructed by
+
+  ................
 }
 \section{Slots}{
   \describe{
-    \item{\code{copula}:}{Object of class \code{"ACopula"} ~~ }
-    \item{\code{comp}:}{Object of class \code{"integer"} ~~ }
-    \item{\code{childCops}:}{Object of class \code{"list"} ~~ }
+    \item{\code{copula}:}{an object of class
+      \code{"\linkS4class{ACopula}"}, denoting the top-level copula of
+      the NAC.}
+    \item{\code{comp}:}{an \code{\link{integer}} vector (possibly of
+      length 0) of \bold{comp}onent indices from \code{1:d} where
+      \eqn{d} is the \emph{dimension} (of the random variables), see the
+      \code{dim()} method below.}
+    \item{\code{childCops}:}{A \code{\link{list}} (possibly empty) of
+      further NACs, i.e., objects of class \code{"nACopula"}.}
   }
 }
 \section{Methods}{
   \describe{
-    \item{dim}{\code{signature(x = "nACopula")}: ... }
-	 }
+    \item{dim}{\code{signature(x = "nACopula")}: returns the dimension
+      \eqn{d} of the random variables, i.e., the dimension of \eqn{u}
+      when the NAC describes the distribution of \eqn{U = u}.}
+  }
 }
-\references{ ~put references to the literature/web site here ~ }
-\author{ ~~who you are~~ }
-\note{ ~~further notes~~ }
-
- ~Make other sections like Warning with \section{Warning }{....} ~
-
+% \note{ ~~further notes~~ }
 \seealso{
-	~~objects to See Also as \code{\link{~~fun~~}}, ~~~
-	or \code{\linkS4class{CLASSNAME}} for links to other classes
+  \code{\linkS4class{ACopula}}.
 }
 \examples{
 showClass("nACopula")

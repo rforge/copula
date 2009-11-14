@@ -4,10 +4,13 @@
 \alias{ACopula-class}
 
 \title{Class "ACopula" of Archimedean Copula Families}
-\description{	 ~~ A concise (1-5 lines) description of what the class is.  ~~}
+\description{
+  This class \code{"ACopula"} Archimedean Copula Families
+  is mainly used for providing objects of known A.copula families
+  with all related functions.
+}
 \section{Objects from the Class}{
-Objects can be created by calls of the form \code{new("ACopula", ...)}.
-
+  Objects can be created by calls of the form \code{new("ACopula", ...)}.
 }
 \section{Slots}{
   \describe{
