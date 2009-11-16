@@ -13,6 +13,7 @@ copAMH <-
         ## parameter constraint
         paraConstr = function(theta) {
             length(theta) == 1 && 0 <= theta && theta < 1 },
+			paraInterval = interval("[0,1)"),
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             copAMH@paraConstr(theta0) &&
