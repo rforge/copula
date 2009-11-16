@@ -7,10 +7,12 @@
   Specific \code{"\linkS4class{ACopula}"} family objects are part of
   package \pkg{nacopula}.
 }
-\usage{copAMH}
-\usage{copClayton}
+\usage{
+copAMH
+copClayton
+}
 \format{
-  All these are objects of formal class \code{"\linkS4class{ACopula}"}
+  All these are objects of formal class \code{"\linkS4class{ACopula}"}.
   with 13 slots
   ..@ name      : chr "AMH"  (or "Clayton" ....)
   ..@ psi       :function (t, theta)
@@ -26,9 +28,12 @@
   ..@ nestConstr:function (theta0, theta1)
   ..@ V01       :function (V0, theta0, theta1)
 }
-% \details{
-% ....
-% }
+\details{
+  \code{copAMH} : ....
+
+  \code{copClayton}:
+
+}
 \references{
 Marius Hofert
 }

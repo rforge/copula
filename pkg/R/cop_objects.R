@@ -11,9 +11,10 @@ copAMH <-
         ## generator inverse:
         psiInv = function(t,theta) { log((1-theta*(1-t))/t) },
         ## parameter constraint
-        paraConstr = function(theta) {
-            length(theta) == 1 && 0 <= theta && theta < 1 },
-			paraInterval = interval("[0,1)"),
+ ## This is now *AUTOMAGICALLY* constructed (!) --> "initialize" in ./AllClass.R
+ ## paraConstr = function(theta) {
+ ##     length(theta) == 1 && 0 <= theta && theta < 1 },
+        paraInterval = interval("[0,1)"),
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             copAMH@paraConstr(theta0) &&
@@ -65,12 +66,10 @@ copAMH <-
 
 copClayton <-
     new("ACopula", name = "Clayton",
-        ## generator:
+        ## generator and its inverse:
         psi = function(t,theta) { (1+t)^(-1/theta) },
-        ## generator inverse:
         psiInv = function(t,theta) { t^(-theta) - 1 },
-        ## parameter constraint
-        paraConstr = function(theta) length(theta) == 1 && theta > 0,
+        paraInterval = interval("(0, Inf)"),
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             constrC(theta0) && constrC(theta1) && theta1 >= theta0

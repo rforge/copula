@@ -1,9 +1,12 @@
 \name{ACopula-class}
 \Rdversion{1.1}
+\title{Class "ACopula" of Archimedean Copula Families}
 \docType{class}
 \alias{ACopula-class}
-
-\title{Class "ACopula" of Archimedean Copula Families}
+%
+\alias{initialize,ACopula-method}
+\alias{theta<-,ACopula-method}
+%
 \description{
   This class \code{"ACopula"} Archimedean Copula Families
   is mainly used for providing objects of known A.copula families
@@ -18,8 +21,18 @@
       the copula family.}
     \item{\code{psi}, \code{psiInv}:}{\eqn{psi}, the generator
       \code{\link{function}} and its inverse.}
-    ## to do
-    \item{\code{paraConstr}:}{Object of class \code{"function"} ~~ }
+    \item{\code{theta}:}{parameter value, a \code{\link{numeric}}, where
+      \code{NA} means \dQuote{unspecified}.}
+    \item{\code{paraInterval}:}{Either \code{\link{NULL}} or object of class
+      \code{\linkS4class{"interval"}}, typically from a call such as
+      \code{\link{interval}("[a,b)")}.}
+    \item{\code{paraConstr}:}{A function of \code{theta} returning
+      \code{TRUE} iff \code{theta} is a valid parameter value.  Note
+      that \code{paraConstr} is built automatically from the interval,
+      whenever the \code{paraInt} slot is a valid
+      \code{\linkS4class{"interval"}}.}
+
+%% TODO:
     \item{\code{V0}:}{Object of class \code{"function"} ~~ }
     \item{\code{tau}:}{Object of class \code{"function"} ~~ }
     \item{\code{tauInv}:}{Object of class \code{"function"} ~~ }
@@ -32,7 +45,16 @@
   }
 }
 \section{Methods}{
-No methods defined with class "ACopula" in the signature.
+  \describe{
+    \item{initialize}{\code{signature(.Object = "ACopula")}: is used to
+      automatically construct the \code{paraConstr} function slot, when
+      the \code{paraInterval} is provided (typically via
+      \code{\link{interval}()}).}
+
+    \item{theta<-}{\code{signature(x = "ACopula")}: To set or change the
+      parameter \eqn{\theta} (\code{theta}) of such an object, say
+      \code{myCop}, use \code{theta(myCop) <- <value>}.}
+  }
 }
 % \references{ ~put references to the literature/web site here ~ }
 % \author{Martin Maechler}
