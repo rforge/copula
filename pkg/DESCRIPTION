@@ -2,7 +2,10 @@ Package: nacopula
 Version: 0.1-0
 Date: 2009-11-09
 Title: Nested Archimedean Copulas
-Description: An R package for nested Archimedean copulas, providing a procedure for computing function values, characteristics such as Kendall's tau and tail dependence coefficients, as well as sampling algorithms for generating random variates.
+Description: An R package for nested Archimedean copulas, providing a
+ procedure for computing function values, characteristics such as Kendall's
+ tau and tail dependence coefficients, as well as sampling algorithms for
+ generating random variates.
 Author: Marius Hofert <marius.hofert@math.ethz.ch> and Martin Maechler
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Depends: methods, R (>= 2.9.1)

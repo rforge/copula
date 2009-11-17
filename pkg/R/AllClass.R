@@ -102,22 +102,28 @@ setClass("nACopula",
              ic <- object@comp
              if((lc <- length(ic)) > d)
                  return("more components than the dimension")
+ if(FALSE)##___ CHECK THIS ON ANOTHER LEVEL
              if(any(ic < 1) || any(ic > d))
                  return(paste("components (indices) must be in 1:d, d=",d))
              if(!all(ok <- "nACopula" == sapply(object@childCops, class)))
                  return("All 'childCops' elements must be 'nACopula' objects")
-             iChilds <- unlist(lapply(object@childCops, comp))
-             allC <- sort(c(ic, iChilds))
+             iChilds <- unlist(lapply(object@childCops, slot, "comp"))
+             allC <- c(ic, iChilds)
              if(length(allC) != d)
                  return("must have d coordinates (from 'comps' and child copulas)")
-             if(!all(allC == 1:d))
+ if(FALSE)##___ CHECK THIS ON ANOTHER LEVEL
+             if(!all(sort(allC) == 1:d))
                  return(paste("The implicit coordinates are not identical to 1:d; instead\n  ",
                               paste(allC, collapse=", ")))
              ##
              TRUE
          })
 
+## FIXME: Maybe define a "strict_dim_NAC" class which has the extra checks
+## -----  for the "nACopula"s that appear as *SUB*-copulas, we do NOT want to
+## require that their { components } are == { 1:d }
+
 
 ## The dim() method is nicely defined  *recursive*ly :
 setMethod("dim", signature(x = "nACopula"),
-	  function(x) length(x@comp) + sum(sapply(x@childCops, dim)))
+	  function(x) length(x@comp) + sum(unlist(lapply(x@childCops, dim))))
