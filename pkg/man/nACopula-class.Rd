@@ -1,6 +1,7 @@
 \name{nACopula-class}
 \Rdversion{1.1}
 \docType{class}
+\alias{final_nACopula-class}
 \alias{nACopula-class}
 \alias{dim,nACopula-method}
 
@@ -8,6 +9,7 @@
 \description{
   The class of Nested Archimedean Copulas, \code{"nACopula"},
 
+  and its \emph{specialization} \code{"final_nACopula"},
   ..........
 }
 \section{Objects from the Class}{
@@ -42,5 +44,6 @@
 }
 \examples{
 showClass("nACopula")
+showClass("final_nACopula")
 }
 \keyword{classes}

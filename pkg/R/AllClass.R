@@ -102,14 +102,11 @@ setClass("nACopula",
              ic <- object@comp
              if((lc <- length(ic)) > d)
                  return("more components than the dimension")
- if(FALSE)##___ CHECK THIS ON ANOTHER LEVEL
-             if(any(ic < 1) || any(ic > d))
-                 return(paste("components (indices) must be in 1:d, d=",d))
              if(!all(ok <- "nACopula" == sapply(object@childCops, class)))
                  return("All 'childCops' elements must be 'nACopula' objects")
-## FIXME: we need to recursively apply a "comp" function 
-             iChilds <- unlist(lapply(object@childCops, slot, "comp"))
-             allC <- c(ic, iChilds)
+## FIXME: we need to recursively apply a "comp" function
+
+             allC <- allComp(object)
              if(length(allC) != d)
                  return("must have d coordinates (from 'comps' and child copulas)")
  if(FALSE)##___ CHECK THIS ON ANOTHER LEVEL
@@ -120,11 +117,33 @@ setClass("nACopula",
              TRUE
          })
 
+
 ## FIXME: Maybe define a "strict_dim_NAC" class which has the extra checks
 ## -----  for the "nACopula"s that appear as *SUB*-copulas, we do NOT want to
 ## require that their { components } are == { 1:d }
+### Nested Archimedean Copulas with *specified* dimension(s)
+setClass("final_nACopula", contains = "nACopula",
+         validity = function(object) {
+             ## *Extra* checks in addition to those of "nACopula" :
+             d <- dim(object)
+             ic <- object@comp
+             allC <- allComp(object)
+             if(length(allC) != d)
+                 return("must have d coordinates (from 'comps' and child copulas)")
+             if(!all(sort(allC) == 1:d))
+                 return(paste("The implicit coordinates are not identical to 1:d; instead\n  ",
+                              paste(allC, collapse=", ")))
+             ##
+             TRUE
+         })
 
 
 ## The dim() method is nicely defined  *recursive*ly :
 setMethod("dim", signature(x = "nACopula"),
 	  function(x) length(x@comp) + sum(unlist(lapply(x@childCops, dim))))
+
+## also needed in validity above -- defined recursively, too :
+allComp <- function(x) {
+    stopifnot(is(x, "nACopula"))
+    c(x@comp, unlist(lapply(x@childCops, allComp)))
+}
