@@ -7,46 +7,46 @@
 copAMH <-
     new("ACopula", name = "AMH",
         ## generator
-        psi = function(t,theta) { (1-theta)/(exp(t)-theta) },
-        psiInv = function(t,theta) { log((1-theta*(1-t))/t) },
+        psi <- function(t,theta) { (1-theta)/(exp(t)-theta) },
+        psiInv <- function(t,theta) { log((1-theta*(1-t))/t) },
         ## parameter interval
-        paraInterval = interval("[0,1)"),
+        paraInterval <- interval("[0,1)"),
         ## nesting constraint
-        nestConstr = function(theta0,theta1) {
+        nestConstr <- function(theta0,theta1) {
             copAMH@paraConstr(theta0) &&
             copAMH@paraConstr(theta1) && theta1 >= theta0
         },
 				## V0 and V01
-        V0 = function(n,theta) { rgeom(n, 1-theta) + 1 },
-        V01 = function(V0,theta0,theta1) { ## MM: FIXME?? do without sapply ! 
+        V0 <- function(n,theta) { rgeom(n, 1-theta) + 1 },
+        V01 <- function(V0,theta0,theta1) { ## MM: FIXME?? do without sapply ! 
 						##MH: this should be a V0-fold sum of rgeom(prob) random variates
-            variates <- sapply(V0, rgeom, prob = (1-theta1)/(1-theta0))
+            variates <- sapply(V0, rgeom, prob <- (1-theta1)/(1-theta0))
             sapply(variates,sum) + V0
         },
 				## Kendall's tau
-        tau = function(theta) {
+        tau <- function(theta) {
             1 - 2*((1-theta)*(1-theta)*log(1-theta)+theta)/(3*theta*theta)
         },
-        tauInv = function(tau) {
+        tauInv <- function(tau) {
             if(tau > 1/3) {
                 stop("It is not possible for an Ali-Mikhail-Haq copula to attain such Kendall's tau")
             } else {
                 r <- uniroot(function(t.) copAMH@tau(t.) - tau,
-                             interval = c(1e-12, 1-1e-12))
+                             interval <- c(1e-12, 1-1e-12))
                 ## FIXME: check for convergence
                 r$root
             }
         },
         ## lower tail dependence coefficient lambda_l
-        lTDC = function(theta) { 0*theta },
-        lTDCInv = function(lambda) {
+        lTDC <- function(theta) { 0*theta },
+        lTDCInv <- function(lambda) {
             if(any(lambda != 0))
                 stop("Any parameter for an Ali-Mikhail-Haq copula gives a zero lower tail dependence coefficient")
             NA * lambda
         },
         ## upper tail dependence coefficient lambda_u
-        uTDC = function(theta) { 0*theta },
-        uTDCInv = function(lambda) {
+        uTDC <- function(theta) { 0*theta },
+        uTDCInv <- function(lambda) {
             if(any(lambda != 0))
                 stop("Any parameter for an Ali-Mikhail-Haq copula gives a zero upper tail dependence coefficient")
             NA * lambda
@@ -58,27 +58,27 @@ stopifnot(validObject(copAMH))# ok
 copClayton <-
     new("ACopula", name = "Clayton",
         ## generator 
-        psi = function(t,theta) { (1+t)^(-1/theta) },
-        psiInv = function(t,theta) { t^(-theta) - 1 },
+        psi <- function(t,theta) { (1+t)^(-1/theta) },
+        psiInv <- function(t,theta) { t^(-theta) - 1 },
 				## parameter interval
-        paraInterval = interval("(0,Inf)"),
+        paraInterval <- interval("(0,Inf)"),
         ## nesting constraint
-        nestConstr = function(theta0,theta1) {
+        nestConstr <- function(theta0,theta1) {
             copClayton@paraConstr(theta0) &&
             copClayton@paraConstr(theta1) && theta1 >= theta0
         },
 				## V0 and V01
-        V0 = function(n,theta) { rgamma(n, shape = 1/theta) },
-        V01 = function(V0,theta0,theta1) { retstable(theta0/theta1,V0,1) },
+        V0 <- function(n,theta) { rgamma(n, shape <- 1/theta) },
+        V01 <- function(V0,theta0,theta1) { retstable(theta0/theta1,V0,1) },
 				## Kendall's tau
-        tau = function(theta) { theta/(theta+2) },
-        tauInv = function(tau) { 2*tau/(1-tau) },
+        tau <- function(theta) { theta/(theta+2) },
+        tauInv <- function(tau) { 2*tau/(1-tau) },
 				## lower tail dependence coefficient lambda_l
-        lTDC = function(theta) { 2^(-1/theta) },
-        lTDCInv = function(lambda) { -1/log2(lambda) },
+        lTDC <- function(theta) { 2^(-1/theta) },
+        lTDCInv <- function(lambda) { -1/log2(lambda) },
         ## upper tail dependence coefficient lambda_u
-        uTDC = function(theta) { 0*theta },
-        uTDCInv = function(lambda) {
+        uTDC <- function(theta) { 0*theta },
+        uTDCInv <- function(lambda) {
             if(any(lambda != 0))
                 stop("Any parameter for a CLayton copula gives a zero upper tail dependence coefficient")
             NA * lambda
@@ -90,17 +90,17 @@ stopifnot(validObject(copClayton))# ok
 copFrank <-
     new("ACopula", name = "Frank",
         ## generator 
-        psi = function(t,theta) { -log(1-(1-exp(-theta))*exp(-t))/theta },
-        psiInv = function(t,theta) { -log((exp(-theta*t)-1)/(exp(-theta)-1)) },
+        psi <- function(t,theta) { -log(1-(1-exp(-theta))*exp(-t))/theta },
+        psiInv <- function(t,theta) { -log((exp(-theta*t)-1)/(exp(-theta)-1)) },
 				## parameter interval
-        paraInterval = interval("(0,Inf)"),
+        paraInterval <- interval("(0,Inf)"),
         ## nesting constraint
-        nestConstr = function(theta0,theta1) {
+        nestConstr <- function(theta0,theta1) {
             copFrank@paraConstr(theta0) &&
             copFrank@paraConstr(theta1) && theta1 >= theta0
         },
 				## V0 (algorithm of Devroye (1986, p. 548)) and V01
-        V0 = function(n,theta) { 
+        V0 <- function(n,theta) { 
 					W <- runif(1)
 			    if(W >= 1-exp(-theta)) {
 			        1
@@ -116,10 +116,10 @@ copFrank <-
 			        }
 			    }
 				},
-        V01 = function(V0,theta0,theta1) { 
+        V01 <- function(V0,theta0,theta1) { 
 					## compute the function values of the discrete distribution up to 1-eps and maximal noValues-many values
-					eps = 1e-8, 
-					noValues = 500000
+					eps <- 1e-5
+					noValues <- 500000
 				  Fvalues <- numeric(noValues)
 			    alpha <- theta0/theta1
 			    c0 <- 1-exp(-theta0)
@@ -156,25 +156,25 @@ copFrank <-
 			    variates	
 	 			},
 				## Kendall's tau
-        tau = function(theta) { 1+(4/theta)*(1/theta)*
+        tau <- function(theta) { 1+(4/theta)*(1/theta)*
 			           								integrate(function(t) t/(exp(t)-1),
-			                     								lower = 0, upper = theta)[[1]]-1 },
-			  tauInv = function(tau) {
+			                     								lower <- 0, upper <- theta)[[1]]-1 },
+			  tauInv <- function(tau) {
           r <- uniroot(function(t.) copFrank@tau(t.) - tau,
-                       interval = c(0.001,100))
+                       interval <- c(0.001,100))
           ## FIXME: check for convergence
           r$root
         },
 				## lower tail dependence coefficient lambda_l
-        lTDC = function(theta) { 0*theta },
-        lTDCInv = function(lambda) {
+        lTDC <- function(theta) { 0*theta },
+        lTDCInv <- function(lambda) {
             if(any(lambda != 0))
                 stop("Any parameter for a Frank copula gives a zero lower tail dependence coefficient")
             NA * lambda
         },
         ## upper tail dependence coefficient lambda_u
-        uTDC = function(theta) { 0*theta },
-        uTDCInv = function(lambda) {
+        uTDC <- function(theta) { 0*theta },
+        uTDCInv <- function(lambda) {
             if(any(lambda != 0))
                 stop("Any parameter for a Frank copula gives a zero upper tail dependence coefficient")
             NA * lambda
@@ -186,17 +186,17 @@ stopifnot(validObject(copFrank))# ok
 copGumbel <-
     new("ACopula", name = "Gumbel",
         ## generator 
-        psi = function(t,theta) { exp(-t^(1/theta)) },
-        psiInv = function(t,theta) { (-log(t))^theta },
+        psi <- function(t,theta) { exp(-t^(1/theta)) },
+        psiInv <- function(t,theta) { (-log(t))^theta },
 				## parameter interval
-        paraInterval = interval("[1,Inf)"),
+        paraInterval <- interval("[1,Inf)"),
         ## nesting constraint
-        nestConstr = function(theta0,theta1) {
+        nestConstr <- function(theta0,theta1) {
             copGumbel@paraConstr(theta0) &&
             copGumbel@paraConstr(theta1) && theta1 >= theta0
         },
 				## V0 and V01
-        V0 = function(n,theta) {  
+        V0 <- function(n,theta) {  
 					if(theta == 1) {
 				       ## Sample from S(1,1,0,1;1) with Laplace-Stieltjes transform exp(-t)
 			        rep.int(1., n)
@@ -208,7 +208,7 @@ copGumbel <-
 			                 gamma = cos(alpha*pi/2)^(1/alpha))
 			    }
 				},
-        V01 = function(V0,theta0,theta1) { 
+        V01 <- function(V0,theta0,theta1) { 
 				  n <- length(V0)
 			    variates <- numeric(n)
 			    alpha <- theta0/theta1
@@ -224,18 +224,18 @@ copGumbel <-
 			    variates	
 	 			},
 				## Kendall's tau
-        tau = function(theta) { (theta-1)/theta },
-        tauInv = function(tau) { 1/(1-tau) },
+        tau <- function(theta) { (theta-1)/theta },
+        tauInv <- function(tau) { 1/(1-tau) },
 				## lower tail dependence coefficient lambda_l
-        lTDC = function(theta) { 0*theta },
-        lTDCInv = function(lambda) { 
+        lTDC <- function(theta) { 0*theta },
+        lTDCInv <- function(lambda) { 
 					if(any(lambda != 0))
               stop("Any parameter for a Gumbel copula gives a zero lower tail dependence coefficient")
           NA * lambda
 	 			},
         ## upper tail dependence coefficient lambda_u
-        uTDC = function(theta) { 2 - 2^(1/theta) },
-        uTDCInv = function(lambda) { 1/log2(2-lambda) })
+        uTDC <- function(theta) { 2 - 2^(1/theta) },
+        uTDCInv <- function(lambda) { 1/log2(2-lambda) })
 
 stopifnot(validObject(copGumbel))# ok
 
@@ -243,32 +243,28 @@ stopifnot(validObject(copGumbel))# ok
 copJoe <-
     new("ACopula", name = "Joe",
         ## generator 
-        psi = function(t,theta) { 1 - (1-exp(-t))^(1/theta) },
-        psiInv = function(t,theta) { -log(1-(1-t)^theta) },
+        psi <- function(t,theta) { 1 - (1-exp(-t))^(1/theta) },
+        psiInv <- function(t,theta) { -log(1-(1-t)^theta) },
 				## parameter interval
-        paraInterval = interval("[1,Inf)"),
+        paraInterval <- interval("[1,Inf)"),
         ## nesting constraint
-        nestConstr = function(theta0,theta1) {
+        nestConstr <- function(theta0,theta1) {
             copJoe@paraConstr(theta0) &&
             copJoe@paraConstr(theta1) && theta1 >= theta0
         },
 				## define auxiliary function for computing the mass functions for V0J and V01J
-				auxJ <- function(alpha, eps = 1e-8, noValues = 500000) {
-				    Fvalues <- numeric(noValues)
-				    ysum <- alpha# y_1
-				    expsum <- log(alpha)
-				    k <- 1
-				    while(ysum < 1-eps && k <= noValues) {
-				        Fvalues[k] <- ysum
-				        k <- k+1
-				        ## compute y_k
-				        expsum <- expsum+log(k-1-alpha)
-				        ysum <- ysum+exp(expsum-log(factorial(k)))
-				    }
-				    return(Fvalues)
-				}
+				auxJ <- function(alpha, eps = 1e-5, noValues = 500000) {
+				  Fvalues < - numeric(noValues)
+				  k <- 1
+				  F[1] <- alpha #y_1
+          while(F[k] < 1-eps && k <= noValues) {
+            k <- k+1
+            F[k] <- F[k-1]+choose(alpha,k)*(-1)^(k-1)
+          }
+				  Fvalues
+				},
 				## V0 (algorithm of Devroye (1986, p. 548)) and V01
-        V0 = function(n,theta) { 
+        V0 <- function(n,theta) { 
 			    ## compute the function values of the discrete distribution
 			    Fvalues <- auxJ(1/theta)
 			    m <- length(Fvalues)
@@ -284,10 +280,10 @@ copJoe <-
 			    }
 					variates
 				},
-        V01 = function(V0,theta0,theta1) { 
+        V01 <- function(V0,theta0,theta1) { 
 					## compute the function values of the discrete distribution up to 1-eps and maximal noValues-many values
-					eps = 1e-8, 
-					noValues = 500000
+					eps <- 1e-5
+					noValues <- 500000
 					## compute the function values of the discrete distribution
 			    alpha <- theta0/theta1
 			    Fvalues <- auxJ(alpha)
@@ -311,25 +307,25 @@ copJoe <-
 			    variates	
 	 			},
 				## Kendall's tau
-        tau = function(theta) { 
+        tau <- function(theta,noTerms=100000) { 
 											k <- seq_len(noTerms)
 									    1 - 4*sum(1/(k*(theta*k+2)*(theta*(k-1)+2)))
 				},
-			  tauInv = function(tau) {
+			  tauInv <- function(tau) {
          	 r <- uniroot(function(th) tauJ(th) - tau,
-				                 interval = c(1.001, 100))
+				                 interval <- c(1.001, 100))
 				   ## FIXME: check for convergence
 				   r$root
         },
 				## lower tail dependence coefficient lambda_l
-        lTDC = function(theta) { 0*theta },
-        lTDCInv = function(lambda) {
+        lTDC <- function(theta) { 0*theta },
+        lTDCInv <- function(lambda) {
             if(any(lambda != 0))
                 stop("Any parameter for a Joe copula gives a zero lower tail dependence coefficient")
             NA * lambda
         },
         ## upper tail dependence coefficient lambda_u
-        uTDC = function(theta) { 2-2^(1/theta) },
-        uTDCInv = function(lambda) { log(2)/log(2-lambda) })
+        uTDC <- function(theta) { 2-2^(1/theta) },
+        uTDCInv <- function(lambda) { log(2)/log(2-lambda) })
 
 stopifnot(validObject(copJoe))# ok
