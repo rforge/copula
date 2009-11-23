@@ -107,6 +107,7 @@ setClass("nACopula",
                  return(paste("components (indices) must be in 1:d, d=",d))
              if(!all(ok <- "nACopula" == sapply(object@childCops, class)))
                  return("All 'childCops' elements must be 'nACopula' objects")
+## FIXME: we need to recursively apply a "comp" function 
              iChilds <- unlist(lapply(object@childCops, slot, "comp"))
              allC <- c(ic, iChilds)
              if(length(allC) != d)
