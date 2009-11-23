@@ -30,3 +30,10 @@ p.Tau <- function(cop, n = 201, xlim = pmin(paraI, 50), ...) {
 }
 
 p.Tau(copAMH)
+p.Tau(copClayton)
+if(FALSE) ## FIXME
+p.Tau(copFrank)# -> error in integrate !
+p.Tau(copGumbel)
+if(FALSE) ## FIXME
+p.Tau(copJoe)# another error
+

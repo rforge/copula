@@ -6,31 +6,31 @@ library(nacopula)
 set.seed(1) # V0() use random numbers
 
 copAMH@psi(1, 0.5)
-psiinvA(0.5, 0.5)
-nconstrA(0.5, 0.2)
-V0A(10, 0.5)
-V01A(10, 0.5, 0.8)
-tauA(0.5)
-tauinvA(0.2)
-lambdalA(0.5)
+copAMH@psiInv(0.5, 0.5)
+copAMH@nestConstr(0.5, 0.2)
+copAMH@V0(10, 0.5)
+copAMH@V01(10, 0.5, 0.8)
+copAMH@tau(0.5)
+copAMH@tauInv(0.2)
+copAMH@lTDC(0.5)
 
-psiC(1, 0.5)
-psiinvC(0.5, 0.5)
-nconstrC(0.2, 0.5)
-(V0 <- V0C(10, 0.5))
-V01C(V0,  0.5,  0.8)
-tauC(0.5)
-tauinvC(0.2)
-lambdalC(0.5)
-lambdalinvC(0.5)
+copClayton@psi(1, 0.5)
+copClayton@psiInv(0.5, 0.5)
+copClayton@nestConstr(0.2, 0.5)
+(V0 <- copClayton@V0(10, 0.5))
+copClayton@V01(V0,  0.5,  0.8)
+copClayton@tau(0.5)
+copClayton@tauInv(0.2)
+copClayton@lTDC(0.5)
+copClayton@lTDCInv(0.5)
 
 n <- 1000
-(theta0 <- tauinvC(0.05))
-(theta1 <- tauinvC(0.1))
-(V0 <- V0C(n, theta0)) ## fast
+(theta0 <- copClayton@tauInv(0.05))
+(theta1 <- copClayton@tauInv(0.1))
+(V0 <- copClayton@V0(n, theta0)) ## fast
 startclock <- proc.time()
 cat('Time elapsed: ', startclock,'\n')
-V01 <- V01C(V0, theta0, theta1) ## slow
+V01 <- copClayton@V01(V0, theta0, theta1) ## slow
 runtime <- proc.time()-startclock
 V01
 cat('Time elapsed: ', runtime,'\n') # for ``statistical reasons''
