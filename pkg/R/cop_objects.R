@@ -100,22 +100,25 @@ copFrank <-
             copFrank@paraConstr(theta0) &&
             copFrank@paraConstr(theta1) && theta1 >= theta0
         },
-        ## V0 (algorithm of Devroye (1986, p. 548)) and V01
+        ## V0 (algorithm of Kemp (1981)) and V01
         V0 = function(n,theta) {
-            W <- runif(1)
-            if(W >= 1-exp(-theta)) {
-                1
-            } else {
-                q <- 1-exp(theta*runif(1))
-                qsquared <- q*q
-                if(W <= qsquared) {
-                    floor(1+log(W)/log(q))
-                } else if(qsquared < W && W <= q) {
-                    1
-                } else {
-                    2
-                }
+            oneV0=function(theta){
+              W <- runif(1)
+               if(W > 1-exp(-theta)) {
+                   1
+               } else {
+                   q <- 1-exp(-theta*runif(1))
+                   qsquared <- q*q
+                   if(W < qsquared) { 
+                     floor(1+log(W)/log(q))
+                   } else if(W>q){ 
+                     1 
+                   } else{
+                     2
+                   }
+               }
             }
+            sapply(rep(theta,n),oneV0)
         },
         V01 = function(V0,theta0,theta1) {
             ## compute the function values of the discrete distribution up to 1-eps and maximal noValues-many values
