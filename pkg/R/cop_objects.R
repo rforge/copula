@@ -20,6 +20,7 @@ copAMH <-
         V0 = function(n,theta) { rgeom(n, 1-theta) + 1 },
         V01 = function(V0,theta0,theta1) { ## MM: FIXME?? do without sapply !
             ##MH: this should be a V0-fold sum of rgeom(prob) random variates
+            ##MH: for 1 V0, this should be sum(rgeom(V0,prob=(1-theta1)/(1-theta0)))
             variates <- sapply(V0, rgeom, prob = (1-theta1)/(1-theta0))
             sapply(variates,sum) + V0
         },
@@ -28,27 +29,27 @@ copAMH <-
             1 - 2*((1-theta)*(1-theta)*log(1-theta)+theta)/(3*theta*theta)
         },
         tauInv = function(tau) {
-            if(tau > 1/3) {
-                stop("It is not possible for an Ali-Mikhail-Haq copula to attain such Kendall's tau")
-            } else {
-                r <- uniroot(function(t.) copAMH@tau(t.) - tau,
-                             interval = c(1e-12, 1-1e-12))
-                ## FIXME: check for convergence
-                r$root
-            }
-        },
+                if(any(tau>1/3)){
+                  stop("It is not possible for an AMH copula to attain a Kendall's tau larger than 1/3")
+                }
+                sapply(tau,function(tau){
+                                    r <- uniroot(function(th) copAMH@tau(th) - tau,
+                                                 interval = c(1e-12, 1-1e-12))
+                                    r$root## FIXME: check for convergence
+                                    })
+        },     
         ## lower tail dependence coefficient lambda_l
         lTDC = function(theta) { 0*theta },
         lTDCInv = function(lambda) {
             if(any(lambda != 0))
-                stop("Any parameter for an Ali-Mikhail-Haq copula gives a zero lower tail dependence coefficient")
+                stop("Any parameter for an Ali-Mikhail-Haq copula gives zero lower tail dependence coefficient")
             NA * lambda
         },
         ## upper tail dependence coefficient lambda_u
         uTDC = function(theta) { 0*theta },
         uTDCInv = function(lambda) {
             if(any(lambda != 0))
-                stop("Any parameter for an Ali-Mikhail-Haq copula gives a zero upper tail dependence coefficient")
+                stop("Any parameter for an Ali-Mikhail-Haq copula gives zero upper tail dependence coefficient")
             NA * lambda
         })
 
@@ -81,7 +82,7 @@ copClayton <-
         uTDC = function(theta) { 0*theta },
         uTDCInv = function(lambda) {
             if(any(lambda != 0))
-                stop("Any parameter for a CLayton copula gives a zero upper tail dependence coefficient")
+                stop("Any parameter for a CLayton copula gives zero upper tail dependence coefficient")
             NA * lambda
         })
 
@@ -108,8 +109,7 @@ copFrank <-
                    1
                } else {
                    q <- 1-exp(-theta*runif(1))
-                   qsquared <- q*q
-                   if(W < qsquared) { 
+                   if(W < q*q) { 
                      floor(1+log(W)/log(q))
                    } else if(W>q){ 
                      1 
@@ -124,7 +124,7 @@ copFrank <-
             ## compute the function values of the discrete distribution up to 1-eps and maximal noValues-many values
             eps <- 1e-5
             noValues <- 500000
-            Fvalues <- numeric(noValues)
+            Fvalues <- rep(1,noValues)
             alpha <- theta0/theta1
             c0 <- 1-exp(-theta0)
             c1 <- 1-exp(-theta1)
@@ -160,27 +160,30 @@ copFrank <-
             variates
         },
         ## Kendall's tau
-        tau = function(theta) { 1+(4/theta)*(1/theta)*
-                                    integrate(function(t) t/(exp(t)-1),
-                                              lower = 0, upper = theta)[[1]]-1 },
-        tauInv = function(tau) {
-            r <- uniroot(function(t.) copFrank@tau(t.) - tau,
-                         interval = c(0.001,100))
-            ## FIXME: check for convergence
-            r$root
+        ##todo: replace (1/theta)*integrate(f=function(t) t/(exp(t)-1),lower=0,upper=theta)[[1]] by debye_1(theta)
+        ## tau should be: 1+(4/theta)*(D1(theta)-1), where D1 denotes the Debye function of order 1
+        tau = function(theta) { sapply(theta,function(theta) { 
+                                                      1+(4/theta)*((1/theta)*integrate(f=function(t) t/(exp(t)-1),
+                                                      lower=0,upper=theta)[[1]]-1) })},
+        tauInv = function(tau) { sapply(tau,function(tau){
+                                                      r <- uniroot(function(th) copFrank@tau(th) - tau,
+                                                                   interval = c(0.001,100))
+                                                      ## FIXME: check for convergence
+                                                      r$root
+                                })          
         },
         ## lower tail dependence coefficient lambda_l
         lTDC = function(theta) { 0*theta },
         lTDCInv = function(lambda) {
             if(any(lambda != 0))
-                stop("Any parameter for a Frank copula gives a zero lower tail dependence coefficient")
+                stop("Any parameter for a Frank copula gives zero lower tail dependence coefficient")
             NA * lambda
         },
         ## upper tail dependence coefficient lambda_u
         uTDC = function(theta) { 0*theta },
         uTDCInv = function(lambda) {
             if(any(lambda != 0))
-                stop("Any parameter for a Frank copula gives a zero upper tail dependence coefficient")
+                stop("Any parameter for a Frank copula gives zero upper tail dependence coefficient")
             NA * lambda
         })
 
@@ -234,7 +237,7 @@ copGumbel <-
         lTDC = function(theta) { 0*theta },
         lTDCInv = function(lambda) {
 					if(any(lambda != 0))
-              stop("Any parameter for a Gumbel copula gives a zero lower tail dependence coefficient")
+              stop("Any parameter for a Gumbel copula gives zero lower tail dependence coefficient")
           NA * lambda
 	 			},
         ## upper tail dependence coefficient lambda_u
@@ -245,7 +248,7 @@ stopifnot(validObject(copGumbel))# ok
 
 ## define auxiliary function for computing the mass functions for V0J and V01J
 auxJoeC <- function(alpha, eps = 1e-5, noValues = 500000) {
-    F <- numeric(noValues)
+    F <- rep(1,noValues)
     F[k <- 1] <- alpha                  # y_1
     ## MM: FIXME  vectorize -- at least in chunks;  choose() !
     while(F[k] < 1-eps && k <= noValues) {
@@ -313,21 +316,24 @@ copJoe <-
             variates
         },
         ## Kendall's tau
-        tau = function(theta,noTerms=100000) {
-            k <- seq_len(noTerms)
-            1 - 4*sum(1/(k*(theta*k+2)*(theta*(k-1)+2)))
+        tau = function(theta,noTerms=100000) { sapply(theta,
+                                function(theta,noTerms=100000){
+                                    k <- seq_len(noTerms)
+                                    1 - 4*sum(1/(k*(theta*k+2)*(theta*(k-1)+2)))
+                                })       
         },
-        tauInv = function(tau) {
-            r <- uniroot(function(th) tauJ(th) - tau,
-                         interval = c(1.001, 100))
-            ## FIXME: check for convergence
-            r$root
+        tauInv = function(tau) { sapply(tau,function(tau){
+                        r <- uniroot(function(th) copJoe@tau(th) - tau,
+                                       interval = c(1.001, 100))
+                          ## FIXME: check for convergence
+                          r$root
+                        })
         },
         ## lower tail dependence coefficient lambda_l
         lTDC = function(theta) { 0*theta },
         lTDCInv = function(lambda) {
             if(any(lambda != 0))
-                stop("Any parameter for a Joe copula gives a zero lower tail dependence coefficient")
+                stop("Any parameter for a Joe copula gives zero lower tail dependence coefficient")
             NA * lambda
         },
         ## upper tail dependence coefficient lambda_u
