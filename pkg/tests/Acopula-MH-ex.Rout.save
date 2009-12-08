@@ -1,5 +1,5 @@
 
-R version 2.10.0 Patched (2009-11-10 r50388)
+R version 2.11.0 Under development (unstable) (2009-12-07 r50688)
 Copyright (C) 2009 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -16,6 +16,15 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 Type 'q()' to quit R.
 
 > library(nacopula)
+Loading required package: gsl
+
+Attaching package: 'gsl'
+
+
+	The following object(s) are masked from package:stats :
+
+	 sd 
+
 > 
 > 
 > ##==== Original "Tests" from Marius ====
@@ -24,48 +33,48 @@ Type 'q()' to quit R.
 > 
 > copAMH@psi(1, 0.5)
 [1] 0.2253997
-> psiinvA(0.5, 0.5)
+> copAMH@psiInv(0.5, 0.5)
 [1] 0.4054651
-> nconstrA(0.5, 0.2)
+> copAMH@nestConstr(0.5, 0.2)
 [1] FALSE
-> V0A(10, 0.5)
+> copAMH@V0(10, 0.5)
  [1] 1 2 5 1 2 1 1 4 3 1
-> V01A(10, 0.5, 0.8)
+> copAMH@V01(10, 0.5, 0.8)
  [1] 11 15 10 11 10 10 11 11 10 16
-> tauA(0.5)
+> copAMH@tau(0.5)
 [1] 0.1287648
-> tauinvA(0.2)
+> copAMH@tauInv(0.2)
 [1] 0.7135001
-> lambdalA(0.5)
+> copAMH@lTDC(0.5)
 [1] 0
 > 
-> psiC(1, 0.5)
+> copClayton@psi(1, 0.5)
 [1] 0.25
-> psiinvC(0.5, 0.5)
+> copClayton@psiInv(0.5, 0.5)
 [1] 0.4142136
-> nconstrC(0.2, 0.5)
+> copClayton@nestConstr(0.2, 0.5)
 [1] TRUE
-> (V0 <- V0C(10, 0.5))
+> (V0 <- copClayton@V0(10, 0.5))
  [1] 2.3551744 1.4320442 0.7731121 0.9715450 1.2252090 1.3767526 0.8100163
  [8] 0.2875266 2.9612389 1.0200764
-> V01C(V0,  0.5,  0.8)
+> copClayton@V01(V0,  0.5,  0.8)
  [1] 0.5567368 0.4261840 0.1224464 1.1135937 0.7771233 0.6665368 0.2232544
  [8] 0.1705746 2.1150557 0.2716528
-> tauC(0.5)
+> copClayton@tau(0.5)
 [1] 0.2
-> tauinvC(0.2)
+> copClayton@tauInv(0.2)
 [1] 0.5
-> lambdalC(0.5)
+> copClayton@lTDC(0.5)
 [1] 0.25
-> lambdalinvC(0.5)
+> copClayton@lTDCInv(0.5)
 [1] 1
 > 
 > n <- 1000
-> (theta0 <- tauinvC(0.05))
+> (theta0 <- copClayton@tauInv(0.05))
 [1] 0.1052632
-> (theta1 <- tauinvC(0.1))
+> (theta1 <- copClayton@tauInv(0.1))
 [1] 0.2222222
-> (V0 <- V0C(n, theta0)) ## fast
+> (V0 <- copClayton@V0(n, theta0)) ## fast
    [1]  7.629477 10.665111  5.021198  6.360890  8.119718  6.579782  8.830119
    [8]  9.206708  8.054951  7.663124  6.844005 16.350566  9.052263 14.697633
   [15]  8.712754  6.427842  8.259350 12.250101  7.232693  7.910565 10.320479
@@ -211,8 +220,8 @@ Type 'q()' to quit R.
  [995]  8.185410 11.975960 16.766797 12.124306 11.363029  9.112419
 > startclock <- proc.time()
 > cat('Time elapsed: ', startclock,'\n')
-Time elapsed:  0.358 0.042 0.456 0 0 
-> V01 <- V01C(V0, theta0, theta1) ## slow
+Time elapsed:  0.449 0.059 0.586 0 0 
+> V01 <- copClayton@V01(V0, theta0, theta1) ## slow
 > runtime <- proc.time()-startclock
 > V01
    [1]  7.2062256  3.9634324  1.8042450  3.1560106  2.8833281  2.4811328
@@ -383,5 +392,5 @@ Time elapsed:  0.358 0.042 0.456 0 0
  [991]  5.1703704  2.7160233  1.2977613  3.7817016  2.8084833  4.4432946
  [997]  5.6544272  6.1441090  6.2444604  4.6114093
 > cat('Time elapsed: ', runtime,'\n') # for ``statistical reasons''
-Time elapsed:  2.4 0 2.403 0 0 
+Time elapsed:  3.719 0.003 3.724 0 0 
 > 

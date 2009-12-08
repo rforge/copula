@@ -29,15 +29,14 @@ copAMH <-
             1 - 2*((1-theta)*(1-theta)*log(1-theta)+theta)/(3*theta*theta)
         },
         tauInv = function(tau) {
-                if(any(tau>1/3)){
-                  stop("It is not possible for an AMH copula to attain a Kendall's tau larger than 1/3")
-                }
-                sapply(tau,function(tau){
-                                    r <- uniroot(function(th) copAMH@tau(th) - tau,
-                                                 interval = c(1e-12, 1-1e-12))
-                                    r$root## FIXME: check for convergence
-                                    })
-        },     
+            if(any(tau > 1/3))
+                stop("Impossible for AMH copula to attain a Kendall's tau larger than 1/3")
+            sapply(tau,function(tau) {
+                r <- uniroot(function(th) copAMH@tau(th) - tau,
+                             interval = c(1e-12, 1-1e-12))
+                r$root ## FIXME: check for convergence
+            })
+        },
         ## lower tail dependence coefficient lambda_l
         lTDC = function(theta) { 0*theta },
         lTDCInv = function(lambda) {
@@ -103,27 +102,30 @@ copFrank <-
         },
         ## V0 (algorithm of Kemp (1981)) and V01
         V0 = function(n,theta) {
-            oneV0=function(theta){
-              W <- runif(1)
-               if(W > 1-exp(-theta)) {
-                   1
-               } else {
-                   q <- 1-exp(-theta*runif(1))
-                   if(W < q*q) { 
-                     floor(1+log(W)/log(q))
-                   } else if(W>q){ 
-                     1 
-                   } else{
-                     2
-                   }
-               }
+            oneV0 <- function(theta) {
+                W <- runif(1)
+                if(W > 1-exp(-theta)) {
+                    1
+                } else {
+                    q <- 1-exp(-theta*runif(1))
+                    if(W < q*q) {
+                        floor(1+log(W)/log(q))
+                    } else if(W>q) {
+                        1
+                    } else{
+                        2
+                    }
+                }
             }
-            sapply(rep(theta,n),oneV0)
+            sapply(rep(theta, length.out = n),
+                   oneV0)
         },
         V01 = function(V0,theta0,theta1) {
-            ## compute the function values of the discrete distribution up to 1-eps and maximal noValues-many values
+            ## compute the function values of the discrete distribution
+            ## up to 1-eps and maximal noValues-many values -- FIXME (MM)
             eps <- 1e-5
             noValues <- 500000
+            ##
             Fvalues <- rep(1,noValues)
             alpha <- theta0/theta1
             c0 <- 1-exp(-theta0)
@@ -159,18 +161,15 @@ copFrank <-
             }
             variates
         },
-        ## Kendall's tau
-        ##todo: replace (1/theta)*integrate(f=function(t) t/(exp(t)-1),lower=0,upper=theta)[[1]] by debye_1(theta)
-        ## tau should be: 1+(4/theta)*(D1(theta)-1), where D1 denotes the Debye function of order 1
-        tau = function(theta) { sapply(theta,function(theta) { 
-                                                      1+(4/theta)*((1/theta)*integrate(f=function(t) t/(exp(t)-1),
-                                                      lower=0,upper=theta)[[1]]-1) })},
-        tauInv = function(tau) { sapply(tau,function(tau){
-                                                      r <- uniroot(function(th) copFrank@tau(th) - tau,
-                                                                   interval = c(0.001,100))
-                                                      ## FIXME: check for convergence
-                                                      r$root
-                                })          
+        ## Kendall's tau; debye_1() is from package 'gsl' :
+        tau = function(theta) 1 + 4*(debye_1(theta) - 1)/theta,
+        tauInv = function(tau) {
+            sapply(tau, function(tau) {
+                r <- uniroot(function(th) copFrank@tau(th) - tau,
+                             interval = c(0.001,100))
+                ## FIXME: check for convergence
+                r$root
+            })
         },
         ## lower tail dependence coefficient lambda_l
         lTDC = function(theta) { 0*theta },
@@ -202,44 +201,44 @@ copGumbel <-
             copGumbel@paraConstr(theta0) &&
             copGumbel@paraConstr(theta1) && theta1 >= theta0
         },
-				## V0 and V01
+        ## V0 and V01
         V0 = function(n,theta) {
-					if(theta == 1) {
-				       ## Sample from S(1,1,0,1;1) with Laplace-Stieltjes transform exp(-t)
-			        rep.int(1., n)
-			    } else {
-			        alpha <- 1/theta
-			        ## Sample from S(alpha,1,(cos(alpha*pi/2))^(1/alpha),0;1)
-			        ## with Laplace-Stieltjes transform exp(-t^alpha)
-			        rstable1(n, alpha, beta=1,
-			                 gamma = cos(alpha*pi/2)^(1/alpha))
-			    }
-				},
+            if(theta == 1) {
+                ## Sample from S(1,1,0,1;1) with Laplace-Stieltjes transform exp(-t)
+                rep.int(1., n)
+            } else {
+                alpha <- 1/theta
+                ## Sample from S(alpha,1,(cos(alpha*pi/2))^(1/alpha),0;1)
+                ## with Laplace-Stieltjes transform exp(-t^alpha)
+                rstable1(n, alpha, beta=1,
+                         gamma = cos(alpha*pi/2)^(1/alpha))
+            }
+        },
         V01 = function(V0,theta0,theta1) {
-				  n <- length(V0)
-			    variates <- numeric(n)
-			    alpha <- theta0/theta1
-			    if(alpha == 1) {
-			        return(V0) # sample from S(1,1,0,V0;1) with Laplace-Stieltjes transform exp(-V0*t)
-			    } else {
-			        for(i in 1:n) {
-			            variates[i] <- rstable1(1, alpha, beta=1,
-			                                   gamma = (cos(alpha*pi/2)*V0[i])^(1/alpha))
-			            ## sample from S(alpha,1,(cos(alpha*pi/2)V0)^(1/alpha),0;1) with Laplace-Stieltjes transform exp(-V0*t^alpha)
-			        }
-			    }
-			    variates
-	 			},
-				## Kendall's tau
+            n <- length(V0)
+            variates <- numeric(n)
+            alpha <- theta0/theta1
+            if(alpha == 1) {
+                return(V0) # sample from S(1,1,0,V0;1) with Laplace-Stieltjes transform exp(-V0*t)
+            } else {
+                for(i in 1:n) {
+                    variates[i] <- rstable1(1, alpha, beta=1,
+                                            gamma = (cos(alpha*pi/2)*V0[i])^(1/alpha))
+                    ## sample from S(alpha,1,(cos(alpha*pi/2)V0)^(1/alpha),0;1) with Laplace-Stieltjes transform exp(-V0*t^alpha)
+                }
+            }
+            variates
+        },
+        ## Kendall's tau
         tau = function(theta) { (theta-1)/theta },
         tauInv = function(tau) { 1/(1-tau) },
-				## lower tail dependence coefficient lambda_l
+        ## lower tail dependence coefficient lambda_l
         lTDC = function(theta) { 0*theta },
         lTDCInv = function(lambda) {
-					if(any(lambda != 0))
-              stop("Any parameter for a Gumbel copula gives zero lower tail dependence coefficient")
-          NA * lambda
-	 			},
+            if(any(lambda != 0))
+                stop("Any parameter for a Gumbel copula gives zero lower tail dependence coefficient")
+            NA * lambda
+        },
         ## upper tail dependence coefficient lambda_u
         uTDC = function(theta) { 2 - 2^(1/theta) },
         uTDCInv = function(lambda) { 1/log2(2-lambda) })
@@ -316,18 +315,20 @@ copJoe <-
             variates
         },
         ## Kendall's tau
-        tau = function(theta,noTerms=100000) { sapply(theta,
-                                function(theta,noTerms=100000){
-                                    k <- seq_len(noTerms)
-                                    1 - 4*sum(1/(k*(theta*k+2)*(theta*(k-1)+2)))
-                                })       
+        tau = function(theta,noTerms=100000) {
+            sapply(theta,
+                   function(theta,noTerms=100000) {
+                       k <- seq_len(noTerms)
+                       1 - 4*sum(1/(k*(theta*k+2)*(theta*(k-1)+2)))
+                   })
         },
-        tauInv = function(tau) { sapply(tau,function(tau){
-                        r <- uniroot(function(th) copJoe@tau(th) - tau,
-                                       interval = c(1.001, 100))
-                          ## FIXME: check for convergence
-                          r$root
-                        })
+        tauInv = function(tau) {
+            sapply(tau,function(tau) {
+                r <- uniroot(function(th) copJoe@tau(th) - tau,
+                             interval = c(1.001, 100))
+                ## FIXME: check for convergence
+                r$root
+            })
         },
         ## lower tail dependence coefficient lambda_l
         lTDC = function(theta) { 0*theta },

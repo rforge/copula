@@ -1,6 +1,6 @@
 Package: nacopula
-Version: 0.1-0
-Date: 2009-11-09
+Version: 0.1-1
+Date: 2009-12-08
 Title: Nested Archimedean Copulas
 Description: An R package for nested Archimedean copulas, providing a
  procedure for computing function values, characteristics such as Kendall's
@@ -8,6 +8,6 @@ Description: An R package for nested Archimedean copulas, providing a
  generating random variates.
 Author: Marius Hofert <marius.hofert@math.ethz.ch> and Martin Maechler
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
-Depends: methods, R (>= 2.9.1)
+Depends: methods, gsl, R (>= 2.9.1)
 License: GPL (>= 2)
 LazyData: yes
