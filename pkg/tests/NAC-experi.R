@@ -13,3 +13,9 @@ d <- dim(c3)
 stopifnot(d == 3,
 	  allComp(c3) == 1:3,
 	  allComp(c3@childCops[[1]]) == 2:3)
+
+
+#====test value function====
+value(c3, u = c(.3, .4, .5))
+
+

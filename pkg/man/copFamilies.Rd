@@ -1,6 +1,9 @@
 \name{copFamilies}
 \alias{copAMH}
 \alias{copClayton}
+\alias{copFrank}
+\alias{copGumbel}
+\alias{copJoe}
 \docType{data}
 \title{Specific "ACopula" Family Objects}
 \description{
@@ -10,6 +13,9 @@
 \usage{
 copAMH
 copClayton
+copFrank
+copGumbel
+copJoe
 }
 \format{
   All these are objects of formal class \code{"\linkS4class{ACopula}"}.
@@ -31,13 +37,25 @@ copClayton
 \details{
   \code{copAMH} : ....
 
-  \code{copClayton}:
+  \code{copClayton}: ....
+
+  \code{copFrank}: ....
+
+  \code{copGumbel}: ....
+
+  \code{copJoe}: ....
 
 }
 \references{
 Marius Hofert
 }
 \examples{
+%% FIXME : use something more interesting / reasonable
+%% ----   keep at least one example per family
 copAMH
+copClayton
+copFrank
+copGumbel
+copJoe
 }
 \keyword{datasets}
