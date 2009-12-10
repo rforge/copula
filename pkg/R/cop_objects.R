@@ -28,12 +28,12 @@ copAMH <-
         tau = function(theta) {
             1 - 2*((1-theta)*(1-theta)*log(1-theta)+theta)/(3*theta*theta)
         },
-        tauInv = function(tau) {
+        tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
             if(any(tau > 1/3))
                 stop("Impossible for AMH copula to attain a Kendall's tau larger than 1/3")
             sapply(tau,function(tau) {
-                r <- uniroot(function(th) copAMH@tau(th) - tau,
-                             interval = c(1e-12, 1-1e-12))
+		r <- safeUroot(function(th) copAMH@tau(th) - tau,
+			       interval = c(1e-12, 1-1e-12), Sig = +1, tol = tol, ...)
                 r$root ## FIXME: check for convergence
             })
         },
@@ -163,10 +163,10 @@ copFrank <-
         },
         ## Kendall's tau; debye_1() is from package 'gsl' :
         tau = function(theta) 1 + 4*(debye_1(theta) - 1)/theta,
-        tauInv = function(tau) {
-            sapply(tau, function(tau) {
-                r <- uniroot(function(th) copFrank@tau(th) - tau,
-                             interval = c(0.001,100))
+	tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
+	    sapply(tau, function(tau) {
+		r <- safeUroot(function(th) copFrank@tau(th) - tau,
+			       interval = c(0.001,100), Sig = +1, tol=tol, ...)
                 ## FIXME: check for convergence
                 r$root
             })
@@ -322,10 +322,10 @@ copJoe <-
                        1 - 4*sum(1/(k*(theta*k+2)*(theta*(k-1)+2)))
                    })
         },
-        tauInv = function(tau) {
+        tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
             sapply(tau,function(tau) {
-                r <- uniroot(function(th) copJoe@tau(th) - tau,
-                             interval = c(1.001, 100))
+		r <- safeUroot(function(th) copJoe@tau(th) - tau,
+			       interval = c(1.001, 100), Sig = +1, tol = tol, ...)
                 ## FIXME: check for convergence
                 r$root
             })
