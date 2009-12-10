@@ -19,11 +19,6 @@ curve(psi(myCop)(x), 0, 4)
 curve(myCop@psi(x, theta = myCop@theta),  0, 4, col = 2, add = TRUE)
 
 ## Kendall's tau --
-(ii <- copClayton@paraInterval) # upper bound Inf
-th <- seq(ii[1], 50, length = 201)
-plot(th, copClayton@tau(th), type = "l",
-     main = expression(tau["Clayton"](theta)))
-
 p.Tau <- function(cop, n = 201, xlim = pmin(paraI, 50), ...) {
     stopifnot(is(cop, "ACopula"))
     paraI <- cop@paraInterval
@@ -34,64 +29,84 @@ p.Tau <- function(cop, n = 201, xlim = pmin(paraI, 50), ...) {
 
 p.Tau(copAMH)
 p.Tau(copClayton)
-if(FALSE) ## FIXME
-p.Tau(copFrank)# -> error in integrate !
+p.Tau(copFrank)# now works via debye_1()
 p.Tau(copGumbel)
 p.Tau(copJoe)# << now works (somewhat slowly)
 
 ##====test function====
 
-tstCop <- function(cop, theta1, thetavec,
+tstCop <- function(cop, theta1 = cop@theta,
+                   thetavec = cop@theta,
+                   i10 = 1:10, nRnd = 50,
+                   t01 = (1:63)/64, ## exact binary fractions
+                   ## V01() is still too for Frank & Joe (FIXME) :
+                   doV01 = !(cop@name %in% c("Frank", "Joe")),
                    lTDCvec = NA_real_, uTDCvec = NA_real_)
 {
     stopifnot(is(cop, "ACopula"))
-    i10 <- 1:10
-    t01 <- (1:15)/16 ## exact binary fractions
-    n0 <- numeric(0)
-    n <- 20
-
     cat0 <- function(...) cat(..., "\n", sep = "")
-
+    n0 <- numeric(0)
     theta0 <- cop@theta
+    CT <- list()
     cat0(sprintf("(1) copula family: %10s, theta0 = %g",
                  cop@name, theta0))
     cat("\n(2) values of psi at i10:\n")
-    print(cop@psi(i10,theta = theta0))
+    CT <- c(CT, list(psi = system.time(p.i <- cop@psi(i10,theta = theta0))))
+    print(p.i)
     cat("psiInv(numeric(0)) must be n..(0):\n")
     stopifnot(identical(n0, cop@psiInv(n0, theta = theta0)))
     cat("values of psiInv at t01:\n")
-    print(cop@psiInv(t01,theta = theta0))
-    cat0("check if psiInv(psi(i10))==i10: ",
-         all.equal(cop@psiInv(cop@psi(i10,theta = theta0),theta = theta0),i10))
-    cat0("check if psi(psiInv(t01))==t01: ",
-         all.equal(cop@psi(cop@psiInv(t01,theta = theta0),theta = theta0),t01))
+    CT <- c(CT, list(psiI = system.time(pi.t <- cop@psiInv(t01,theta = theta0))))
+    print(pi.t)
+    CT[["psiI"]] <- CT[["psiI"]] + system.time(pi.pi <- cop@psiInv(p.i, theta = theta0))
+    CT[["psi" ]] <- CT[["psi" ]] + system.time(p.pit <- cop@psi(pi.t,  theta = theta0))
+    cat0("check if psiInv(psi(i10))==i10: ", all.equal(pi.pi, i10))
+    cat0("check if psi(psiInv(t01))==t01: ", all.equal(p.pit, t01))
     cat("\n(3) parameter interval:\n")
     print(cop@paraInterval)
     cat0("nesting condition for theta0 and theta1 fulfilled: ",
          cop@nestConstr(theta0,theta1))
-    V0 <- cop@V0(n,theta0)
-    cat0("\n(4) ",n," generated V0's:")
-    print(V0)
-    ## V01=cop@V01(V0,theta0,theta1)#todo: too slow for frank and joe
-    ## cat(n," generated V01's:\n",sep="")
-    ## print(V01)
+    CT <- c(CT, list(V0 = system.time(V0 <- cop@V0(nRnd,theta0))))
+    cat0("\n(4) ",nRnd," generated V0's:")
+    print(summary(V0))
+    if(doV01) { ## FIXME: too slow for frank and joe
+        CT <- c(CT, list(V01 = system.time(V01 <- cop@V01(V0,theta0,theta1))))
+        cat0(nRnd," generated V01's:"); print(summary(V01))
+    } else
+        cat("skipping  V01()  [probably too *slow* ..] for",cop@name, "\n")
     nt <- length(thetavec)
     cat("\n(5) tau at thetavec:\n")
-    print(cop@tau(thetavec))
-    cat0("check if tauInv(tau(thetavec))==thetavec: ",
-        all.equal(cop@tauInv(cop@tau(thetavec)),thetavec))
+    CT <- c(CT, list(tau = system.time(ta <- cop@tau(thetavec))))
+    print(ta)
+    CT <- c(CT, list(tauI = system.time(ta.I <- cop@tauInv(ta))))
+    cat0("check if tauInv(tau(thetavec))==thetavec: ", all.equal(ta.I, thetavec))
     lTDCvec <- rep(as.double(lTDCvec), length.out= nt)
     uTDCvec <- rep(as.double(uTDCvec), length.out= nt)
     cat("\n(6) lTDC at thetavec:\n")
-    print(cop@lTDC(thetavec))
-    cat0("check if lTDCInv(lTDC(thetavec))==lTDCvec: ",
-         all.equal(cop@lTDCInv(cop@lTDC(thetavec)), lTDCvec))
+    CT <- c(CT, list(lTDC = system.time(lT <- cop@lTDC(thetavec))))
+    CT <- c(CT, list(lT.I = system.time(lT.I <- cop@lTDCInv(lT))))
+    print(lT)
+    cat0("check if lTDCInv(lTDC(thetavec))==lTDCvec: ", all.equal(lT.I, lTDCvec))
     cat("\n(7) uTDC at thetavec:\n")
-    print(cop@uTDC(thetavec))
-    cat0("check if uTDCInv(uTDC(thetavec))==uTDCvec: ",
-         all.equal(cop@uTDCInv(cop@uTDC(thetavec)), uTDCvec))
-    invisible()
+    CT <- c(CT, list(uTDC = system.time(uT <- cop@uTDC(thetavec))))
+    CT <- c(CT, list(uT.I = system.time(uT.I <- cop@uTDCInv(uT))))
+    print(uT)
+    cat0("check if uTDCInv(uTDC(thetavec))==uTDCvec: ", all.equal(uT.I, uTDCvec))
+    ## return the list of CPU-time measurements
+    ## as a classed object with a convenient print method:
+    class(CT) <- "proc_time_list"
+    CT
 }
+
+print.proc_time_list <- function (x, ...) {
+    stopifnot(is.list(x), !is.null(nx <- names(x)))
+    for(nm in nx)
+	if(!all(x[[nm]] == 0)) {
+	    cat(nm,":\n"); print(x[[nm]], ...)
+	}
+    invisible(x)
+}
+
 
 ##====test setup====
 
@@ -127,6 +142,8 @@ thetavec <- c(0.5,1,2,5,10)
 tau.th <- c(0.055417, 0.11002, 0.21389, 0.4567, 0.66578)
 tau.F <- myFrank@tau(thetavec)
 stopifnot(all.equal(tau.th, tau.F, tol = 0.0001),
+	  ## now works thanks to using safeUroot():
+	  all.equal(.9999, copFrank@tau(copFrank@tauInv(0.9999))),
 	  all.equal(myFrank@tauInv(tau.F),
 		    thetavec, tol = 5e-5))# tauInv() using uniroot()
 
