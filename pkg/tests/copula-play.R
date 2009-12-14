@@ -39,7 +39,7 @@ tstCop <- function(cop, theta1 = cop@theta,
                    thetavec = cop@theta,
                    i10 = 1:10, nRnd = 50,
                    t01 = (1:63)/64, ## exact binary fractions
-                   ## V01() is still too for Frank & Joe (FIXME) :
+                   ## V01() is still too slow for Frank & Joe (FIXME) :
                    doV01 = !(cop@name %in% c("Frank", "Joe")),
                    lTDCvec = NA_real_, uTDCvec = NA_real_)
 {
@@ -53,9 +53,16 @@ tstCop <- function(cop, theta1 = cop@theta,
     cat("\n(2) values of psi at i10:\n")
     CT <- c(CT, list(psi = system.time(p.i <- cop@psi(i10,theta = theta0))))
     print(p.i)
-    cat("psiInv(numeric(0)) must be n..(0):\n")
+    cat("check if psi(Inf)=0: ")
+    stopifnot(cop@psi(Inf, theta = theta0)==0)  
+    cat0("TRUE")
+    cat("check if psiInv(numeric(0)) is numeric(0): ")
     stopifnot(identical(n0, cop@psiInv(n0, theta = theta0)))
-    cat("values of psiInv at t01:\n")
+    cat0("TRUE")
+    cat("check if psiInv(0)=Inf: ")
+    stopifnot(cop@psiInv(0, theta = theta0)==Inf)
+    cat0("TRUE")
+    cat0("values of psiInv at t01:\n")
     CT <- c(CT, list(psiI = system.time(pi.t <- cop@psiInv(t01,theta = theta0))))
     print(pi.t)
     CT[["psiI"]] <- CT[["psiI"]] + system.time(pi.pi <- cop@psiInv(p.i, theta = theta0))
@@ -64,6 +71,7 @@ tstCop <- function(cop, theta1 = cop@theta,
     cat0("check if psi(psiInv(t01))==t01: ", all.equal(p.pit, t01))
     cat("\n(3) parameter interval:\n")
     print(cop@paraInterval)
+    cat0("theta1=",theta1)
     cat0("nesting condition for theta0 and theta1 fulfilled: ",
          cop@nestConstr(theta0,theta1))
     CT <- c(CT, list(V0 = system.time(V0 <- cop@V0(nRnd,theta0))))
