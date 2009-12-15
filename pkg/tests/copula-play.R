@@ -40,7 +40,7 @@ tstCop <- function(cop, theta1 = cop@theta,
                    i10 = 1:10, nRnd = 50,
                    t01 = (1:63)/64, ## exact binary fractions
                    ## V01() is still too slow for Frank & Joe (FIXME) :
-                   doV01 = !(cop@name %in% c("Frank", "Joe")),
+                   doV01 = !(cop@name %in% c("Frank")),
                    lTDCvec = NA_real_, uTDCvec = NA_real_)
 {
     stopifnot(is(cop, "ACopula"))
