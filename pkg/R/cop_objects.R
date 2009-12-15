@@ -245,16 +245,16 @@ copGumbel <-
 
 stopifnot(validObject(copGumbel))# ok
 
-## define auxiliary function for computing the mass functions for V0J and V01J
-auxJoeC <- function(alpha, eps = 1e-5, noValues = 500000) {
-    F <- rep(1,noValues)
-    F[k <- 1] <- alpha                  # y_1
-    ## MM: FIXME  vectorize -- at least in chunks;  choose() !
-    while(F[k] < 1-eps && k <= noValues) {
-        k <- k+1
-        F[k] <- F[k-1] + choose(alpha,k)*(-1)^(k-1)
-    }
-    F
+## random number generator for Joe
+rJoe <- function(n,alpha){
+  c=pi/sin(pi*(1-alpha))
+  variates=runif(n)
+  vec=c*variates
+  rootfun=function(value,alpha){
+          uniroot(f=function(x,alpha,value) beta(x+1-alpha,alpha)-value,
+                  interval=c(1e-12,1e12),alpha=alpha,value=value)$root
+  }
+  ceiling(sapply(vec,rootfun,alpha=alpha))
 }
 
 ### ====Joe, see Nelsen (2007) p. 116, # 6====
@@ -270,49 +270,15 @@ copJoe <-
             copJoe@paraConstr(theta0) &&
             copJoe@paraConstr(theta1) && theta1 >= theta0
         },
-        ## V0 (algorithm of Devroye (1986, p. 548)) and V01
-        ## --- NB: Use auxiliary function  auxJoeC()  << FIXME give reasonable name !!
+        ## V0 and V01
         V0 = function(n,theta) {
-            ## compute the function values of the discrete distribution
-            Fvalues <- auxJoeC(1/theta)
-            m <- length(Fvalues)
-            ## sample by finding quantiles
-            uniformvariates <- runif(n)
-            variates <- apply(outer(uniformvariates,Fvalues,">"),1,sum)+1
-            ## warning
-            numoftruncations <- length(variates[variates == m+1])
-            if(numoftruncations > 0) {
-                warning("The distribution function corresponding to Joe's family is truncated ",
-                        numoftruncations," times at ",m+1,
-                        " as the largest computed value of F is ",Fvalues[m])
-            }
-            variates
+          rJoe(n,1/theta)
         },
         V01 = function(V0,theta0,theta1) {
-            ## compute the function values of the discrete distribution up to 1-eps and maximal noValues-many values
-            eps <- 1e-5
-            noValues <- 500000
-            ## compute the function values of the discrete distribution
-            alpha <- theta0/theta1
-            Fvalues <- auxJoeC(alpha, eps = eps, noValues = noValues)
-            m <- length(Fvalues)
-            ## sample by finding quantiles
-            n <- length(V0)
-            variates <- numeric(n)
-            ## consider warnings
-            n_trunc <- 0
-            for(i in 1:n) {
-                U.v0.i <- runif(V0[i])
-                variatesfromF <- apply(outer(U.v0.i,Fvalues,">"),1,sum)+1 # sample the summands of the sums involved
-                n_trunc <- n_trunc+length(variatesfromF[variatesfromF == m+1])
-                variates[i] <- sum(variatesfromF)
-            }
-            if(n_trunc > 0) {
-                warning("The distribution function F involved in sampling the inner distribution function for nested Joe copulas is truncated ",
-                        n_trunc," times at ",m+1,
-                        " as the largest computed value of F is", Fvalues[m])
-            }
-            variates
+          n=length(V0)
+          alpha=theta0/theta1
+          variates=sapply(sapply(V0,rJoe,alpha),sum)
+          variates
         },
         ## Kendall's tau
         tau = function(theta,noTerms=100000) {
