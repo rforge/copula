@@ -18,11 +18,8 @@ copAMH <-
         },
         ## V0 and V01
         V0 = function(n,theta) { rgeom(n, 1-theta) + 1 },
-        V01 = function(V0,theta0,theta1) { ## MM: FIXME?? do without sapply !
-            ##MH: this should be a V0-fold sum of rgeom(prob) random variates
-            ##MH: for 1 V0, this should be sum(rgeom(V0,prob=(1-theta1)/(1-theta0)))
-            variates <- sapply(V0, rgeom, prob = (1-theta1)/(1-theta0))
-            sapply(variates,sum) + V0
+        V01 = function(V0,theta0,theta1) {
+          rnbinom(length(V0),V0,(1-theta1)/(1-theta0))+V0  
         },
         ## Kendall's tau
         tau = function(theta) {
