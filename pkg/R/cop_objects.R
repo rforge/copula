@@ -85,6 +85,48 @@ copClayton <-
 stopifnot(validObject(copClayton))# ok
 
 ### ====Frank, see Nelsen (2007) p. 116, # 5====
+
+## rng log(p) distribution
+rlog=function(n,p){
+  h=log(1-p)
+  rn=numeric(n)
+  for(i in 1:n){
+    u2=runif(1)
+    if(u2>p){
+      rn[i]=1
+    }else{
+      u1=runif(1)
+      q=1-(1-p)^u1
+      if(u2<q*q){
+        rn[i]=floor(1+log(u2)/log(q))
+      }else if(u2>q){
+        rn[i]=1
+      }else{
+        rn[i]=2
+      }
+    }
+  }
+  rn
+}
+
+## rng F Frank
+rF=function(n,theta0,theta1){
+  c=theta0/(1-exp(-theta0))
+  ptheta1=1-exp(-theta1)
+  alpha=theta0/theta1
+  rn=numeric(n)
+  for(i in 1:n){
+    while(1==1){
+      U=runif(1)
+      X=rlog(1,ptheta1)
+      if(U<=abs(choose(alpha,X))*X/alpha) break
+    }
+    rn[i]=X
+  }
+  rn
+}
+
+## Frank object
 copFrank <-
     new("ACopula", name = "Frank",
         ## generator
@@ -99,64 +141,11 @@ copFrank <-
         },
         ## V0 (algorithm of Kemp (1981)) and V01
         V0 = function(n,theta) {
-            oneV0 <- function(theta) {
-                W <- runif(1)
-                if(W > 1-exp(-theta)) {
-                    1
-                } else {
-                    q <- 1-exp(-theta*runif(1))
-                    if(W < q*q) {
-                        floor(1+log(W)/log(q))
-                    } else if(W>q) {
-                        1
-                    } else{
-                        2
-                    }
-                }
-            }
-            sapply(rep(theta, length.out = n),
-                   oneV0)
+          p=1-exp(-theta)
+          rlog(n,p)
         },
         V01 = function(V0,theta0,theta1) {
-            ## compute the function values of the discrete distribution
-            ## up to 1-eps and maximal noValues-many values -- FIXME (MM)
-            eps <- 1e-5
-            noValues <- 500000
-            ##
-            Fvalues <- rep(1,noValues)
-            alpha <- theta0/theta1
-            c0 <- 1-exp(-theta0)
-            c1 <- 1-exp(-theta1)
-            ysum <- (alpha/c0)*c1       # y_1
-            expsum <- log(alpha)
-            logc1 <- log(c1)
-            k <- 1
-            while(ysum < 1-eps && k <= noValues) {
-                Fvalues[k] <- ysum
-                k <- k+1
-                ## compute y_k
-                expsum <- expsum+log(k-1-alpha)
-                ysum <- ysum+exp(expsum+k*logc1-log(factorial(k)))/c0
-            }
-            m <- length(Fvalues)
-            ## sample by finding quantiles
-            n <- length(V0)
-            variates <- numeric(n)
-            ## warning
-            numoftruncations <- 0
-            for(i in 1:n) {
-                uniformvariates <- runif(V0[i])
-                ## sample the summands of the sums involved
-                variatesfromF <- apply(outer(uniformvariates,Fvalues,">"),1,sum)+1
-                numoftruncations <- numoftruncations+length(variatesfromF[variatesfromF == m+1])
-                variates[i] <- sum(variatesfromF)
-            }
-            if(numoftruncations > 0) {
-                warning("The distribution function F involved in sampling the inner distribution function for nested Frank copulas is truncated ",
-                        numoftruncations," times at ",m+1,
-                        " as the largest computed value of F is ",Fvalues[m])
-            }
-            variates
+          sapply(sapply(V0,rF,theta0=theta0,theta1=theta1),sum)
         },
         ## Kendall's tau; debye_1() is from package 'gsl' :
         tau = function(theta) 1 + 4*(debye_1(theta) - 1)/theta,
@@ -242,19 +231,18 @@ copGumbel <-
 
 stopifnot(validObject(copGumbel))# ok
 
-## random number generator for Joe
-rJoe <- function(n,alpha){
-  c=pi/sin(pi*(1-alpha))
-  variates=runif(n)
-  vec=c*variates
-  rootfun=function(value,alpha){
-          uniroot(f=function(x,alpha,value) beta(x+1-alpha,alpha)-value,
-                  interval=c(1e-12,1e12),alpha=alpha,value=value)$root
-  }
-  ceiling(sapply(vec,rootfun,alpha=alpha))
-}
-
 ### ====Joe, see Nelsen (2007) p. 116, # 6====
+
+## compute Gamma constant
+gammaconst=function(alpha) gamma(1-alpha)^(-1/alpha)
+
+## define quantile function FinvJoe; gconst=gamma(1-alpha)^(-1/alpha)
+FinvJoe=function(y,alpha,gconst) ifelse(y<alpha,1,floor((1-y)^(-1/alpha)*gconst))
+
+## rng F Joe
+rJoe=function(n,alpha,gconst) sapply(runif(n),FinvJoe,alpha=alpha,gconst=gconst)
+
+## Joe object
 copJoe <-
     new("ACopula", name = "Joe",
         ## generator
@@ -269,13 +257,14 @@ copJoe <-
         },
         ## V0 and V01
         V0 = function(n,theta) {
-          rJoe(n,1/theta)
+          alpha=1/theta
+          gconst=gammaconst(alpha)
+          rJoe(n,alpha,gconst)
         },
         V01 = function(V0,theta0,theta1) {
-          n=length(V0)
           alpha=theta0/theta1
-          variates=sapply(sapply(V0,rJoe,alpha),sum)
-          variates
+          gconst=gammaconst(alpha)
+          sapply(sapply(V0,rJoe,alpha=alpha,gconst=gconst),sum)
         },
         ## Kendall's tau
         tau = function(theta,noTerms=100000) {
