@@ -87,44 +87,43 @@ stopifnot(validObject(copClayton))# ok
 ### ====Frank, see Nelsen (2007) p. 116, # 5====
 
 ## rng log(p) distribution
-rlog=function(n,p){
-  h=log(1-p)
-  rn=numeric(n)
-  for(i in 1:n){
-    u2=runif(1)
-    if(u2>p){
-      rn[i]=1
+rlog=function(p){
+  u=runif(1)
+  if(u>p){
+    1
+  }else{
+    q=1-(1-p)^runif(1)
+    qsquared=q*q
+    if(u<qsquared){
+      floor(1+log(u)/log(q))
+    }else if(u>q){
+      1
     }else{
-      u1=runif(1)
-      q=1-(1-p)^u1
-      if(u2<q*q){
-        rn[i]=floor(1+log(u2)/log(q))
-      }else if(u2>q){
-        rn[i]=1
-      }else{
-        rn[i]=2
-      }
+      2
     }
   }
-  rn
 }
 
-## rng F Frank
-rF=function(n,theta0,theta1){
-  c=theta0/(1-exp(-theta0))
-  ptheta1=1-exp(-theta1)
-  alpha=theta0/theta1
-  rn=numeric(n)
-  for(i in 1:n){
+## rejection for F for Frank's family
+rejFFrank=function(p,alpha,theta0le1){
+  if(theta0le1){
     while(1==1){
-      U=runif(1)
-      X=rlog(1,ptheta1)
-      if(U<=abs(choose(alpha,X))*X/alpha) break
+      u=runif(1)
+      x=rlog(p)
+      if(u<=1/((x-alpha)*beta(x,1-alpha))) break
     }
-    rn[i]=X
+  }else{
+    while(1==1){
+      u=runif(1)
+      x=rngFJoe(alpha)
+      if(u<=p^(x-1)) break
+    }
   }
-  rn
+  x
 }
+
+## sample F for Frank 
+rFFrank=function(n,theta0,theta1){ sapply(rep(1-exp(-theta1),n),rejFFrank,alpha=theta0/theta1,theta0le1=ifelse(theta0<=1,TRUE,FALSE)) }
 
 ## Frank object
 copFrank <-
@@ -140,12 +139,9 @@ copFrank <-
             copFrank@paraConstr(theta1) && theta1 >= theta0
         },
         ## V0 (algorithm of Kemp (1981)) and V01
-        V0 = function(n,theta) {
-          p=1-exp(-theta)
-          rlog(n,p)
-        },
+        V0 = function(n,theta) { sapply(rep(1-exp(-theta),n),rlog) },
         V01 = function(V0,theta0,theta1) {
-          sapply(sapply(V0,rF,theta0=theta0,theta1=theta1),sum)
+          sapply(sapply(V0,rFFrank,theta0=theta0,theta1=theta1),sum) ##FIXME: build in approximation for large theta0 (code similar to V01 from Joe)
         },
         ## Kendall's tau; debye_1() is from package 'gsl' :
         tau = function(theta) 1 + 4*(debye_1(theta) - 1)/theta,
@@ -233,14 +229,21 @@ stopifnot(validObject(copGumbel))# ok
 
 ### ====Joe, see Nelsen (2007) p. 116, # 6====
 
-## compute Gamma constant
-gammaconst=function(alpha) gamma(1-alpha)^(-1/alpha)
+rngFJoe=function(alpha){
+  u=runif(1)
+  if(u<=alpha) 1
+  else{
+    Ginv=((1-u)*gamma(1-alpha))^(-1/alpha)
+    floorGinv=floor(Ginv)
+    if(1-1/(floorGinv*beta(floorGinv,1-alpha))<u) ceiling(Ginv)
+    else floorGinv
+  }
+}
 
-## define quantile function FinvJoe; gconst=gamma(1-alpha)^(-1/alpha)
-FinvJoe=function(y,alpha,gconst) ifelse(y<alpha,1,floor((1-y)^(-1/alpha)*gconst))
-
-## rng F Joe
-rJoe=function(n,alpha,gconst) sapply(runif(n),FinvJoe,alpha=alpha,gconst=gconst)
+rFJoe=function(n,alpha){
+  vec=rep(alpha,n)
+  sapply(vec,rngFJoe)
+}
 
 ## Joe object
 copJoe <-
@@ -256,15 +259,13 @@ copJoe <-
             copJoe@paraConstr(theta1) && theta1 >= theta0
         },
         ## V0 and V01
-        V0 = function(n,theta) {
-          alpha=1/theta
-          gconst=gammaconst(alpha)
-          rJoe(n,alpha,gconst)
-        },
-        V01 = function(V0,theta0,theta1) {
+        V0 = function(n,theta) { rFJoe(n,1/theta) },
+        V01 = function(V0,theta0,theta1,approx=100000) {
           alpha=theta0/theta1
-          gconst=gammaconst(alpha)
-          sapply(sapply(V0,rJoe,alpha=alpha,gconst=gconst),sum)
+          V01=V0 
+          V01[V0>approx]=V0[V0>approx]^(1/alpha)*rstable1(1,alpha,1,(cos(alpha*pi/2))^(1/alpha),ifelse(alpha==1,1,0))
+          V01[V0<=approx]=sapply(sapply(V0[V0<=approx],rFJoe,alpha=alpha),sum) 
+          V01
         },
         ## Kendall's tau
         tau = function(theta,noTerms=100000) {
