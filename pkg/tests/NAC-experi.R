@@ -40,7 +40,7 @@ c9 <- new("final_nACopula", copula = setTheta(copClayton, 0.5),
 
 d <- dim(c9)
 stopifnot(d == 9,
-    allComp(c9) == 1:9,#output of allComp(c9): 3 6 1 9 2 7 5 8 4
+    allComp(c9) == c(3,6,1,9,2,7,5,8,4),#output of allComp(c9): 3 6 1 9 2 7 5 8 4
     allComp(c9@childCops[[1]]) == c(9,2,7,5,8,4),##FIXME: the output of c9@childCops[[1]] is c(9,2,7,5,8,4) but then allComp(c9) == 1:9 is not fulfilled anymore
     allComp(c9@childCops[[1]]@childCops[[1]]) == c(8,4))
 
