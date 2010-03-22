@@ -48,7 +48,7 @@ setMethod("rnchild", signature(x ="nACopula"),
 	      dns <- length(x@comp)#dimension of the non-sectorial part
         r <- matrix(runif(n*dns),nrow=n,ncol=dns)#generate the non-sectorial part
         mat <- cbind(r, do.call(cbind, childdat$U))#put pieces together
-        dat <- exp(-V*psi0Inv(C@psi(-log(mat),theta1),theta0))#transform
+        dat <- exp(-V0*psi0Inv(C@psi(-log(mat),theta1),theta0))#transform
         j <- c(x@comp,childdat$indCol)#get correct sorting order
         list(U = dat, indCol = j)#get list and return
     })
