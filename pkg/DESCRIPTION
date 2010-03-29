@@ -1,6 +1,6 @@
 Package: nacopula
-Version: 0.1-1
-Date: 2009-12-08
+Version: 0.2-0
+Date: 2010-03-29
 Title: Nested Archimedean Copulas
 Description: An R package for nested Archimedean copulas, providing a
  procedure for computing function values, characteristics such as Kendall's

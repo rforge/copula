@@ -39,13 +39,12 @@ tstCop <- function(cop, theta1 = cop@theta,
                    thetavec = cop@theta,
                    i10 = 1:10, nRnd = 50,
                    t01 = (1:63)/64, ## exact binary fractions
-                   ## V01() is still too slow for Frank & Joe (FIXME) :
+                   ## V01() is still too slow for Frank (FIXME) :
                    doV01 = !(cop@name %in% c("Frank")),
                    lTDCvec = NA_real_, uTDCvec = NA_real_)
 {
     stopifnot(is(cop, "ACopula"))
     cat0 <- function(...) cat(..., "\n", sep = "")
-    n0 <- numeric(0)
     theta0 <- cop@theta
     CT <- list()
     cat0(sprintf("(1) copula family: %10s, theta0 = %g",
@@ -54,9 +53,10 @@ tstCop <- function(cop, theta1 = cop@theta,
     CT <- c(CT, list(psi = system.time(p.i <- cop@psi(i10,theta = theta0))))
     print(p.i)
     cat("check if psi(Inf)=0: ")
-    stopifnot(cop@psi(Inf, theta = theta0)==0)  
+    stopifnot(cop@psi(Inf, theta = theta0)==0)
     cat0("TRUE")
     cat("check if psiInv(numeric(0)) is numeric(0): ")
+    n0 <- numeric(0)
     stopifnot(identical(n0, cop@psiInv(n0, theta = theta0)))
     cat0("TRUE")
     cat("check if psiInv(0)=Inf: ")
@@ -81,7 +81,7 @@ tstCop <- function(cop, theta1 = cop@theta,
         CT <- c(CT, list(V01 = system.time(V01 <- cop@V01(V0,theta0,theta1))))
         cat0(nRnd," generated V01's:"); print(summary(V01))
     } else
-        cat("skipping  V01()  [probably too *slow* ..] for",cop@name, "\n")
+    cat("skipping  V01()  [probably too *slow* ..] for",cop@name, "\n")
     nt <- length(thetavec)
     cat("\n(5) tau at thetavec:\n")
     CT <- c(CT, list(tau = system.time(ta <- cop@tau(thetavec))))
