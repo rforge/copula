@@ -21,7 +21,7 @@ setMethod("value", signature(x ="nACopula"),
 ### returns U : matrix(*,n,d)
 setGeneric("rn", function(x,n,...) standardGeneric("rn"))
 
-setMethod("rn", signature(x ="final_nACopula"),
+setMethod("rn", signature(x ="outer_nACopula"),
     function(x,n,...) {
 	      Cout <- x@copula#outer copula
 	      theta <- Cout@theta#theta for outer copula
