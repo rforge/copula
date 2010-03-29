@@ -19,7 +19,7 @@ value(x, u)
   \item{u}{numeric vector length \eqn{d}.}
 }
 \details{
-.... %%
+.... %% FIXME
 }
 \value{
   a number (for now; if parallelized, allowing \code{u} to be a
