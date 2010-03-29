@@ -5,7 +5,8 @@
 \alias{ACopula-class}
 %
 \alias{initialize,ACopula-method}
-\alias{theta<-,ACopula-method}
+\alias{setTheta}
+\alias{setTheta,ACopula-method}
 %
 \description{
   This class \code{"ACopula"} Archimedean Copula Families
@@ -14,6 +15,8 @@
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("ACopula", ...)}.
+  For half dozen known important copula families, the \pkg{nacopula}
+  package already provides such family objects
 }
 \section{Slots}{
   \describe{
@@ -51,9 +54,12 @@
       the \code{paraInterval} is provided (typically via
       \code{\link{interval}()}).}
 
-    \item{theta<-}{\code{signature(x = "ACopula")}: To set or change the
+    \item{SetTheta}{\code{signature(x = "ACopula")}: To set or change the
       parameter \eqn{\theta} (\code{theta}) of such an object, say
-      \code{myCop}, use \code{theta(myCop) <- <value>}.}
+      \code{myCop}, use \code{setTheta(myCop, <value>)}.  This is used
+      for construction of actual copula \dQuote{models} with a specified
+      parameter.
+    }
   }
 }
 % \references{ ~put references to the literature/web site here ~ }
@@ -64,5 +70,6 @@
 }
 \examples{
 showClass("ACopula")
+str(copClayton)
 }
 \keyword{classes}

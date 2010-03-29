@@ -23,7 +23,11 @@ stopifnot(all.equal(v,
                     tol = 1e-14))
 
 ## test rn()
-rn(c3,100)
+nn <- 2000
+rC3 <- rn(c3,nn)
+stopifnot(is.numeric(rC3), is.matrix(rC3),
+	  dim(rC3) == c(nn, 3))
+pairs(rC3, panel = function(...) {par(new=TRUE); smoothScatter(...)})
 
 ## 9d Clayton copula example
 c9 <- new("outer_nACopula", copula = setTheta(copClayton, 0.5),
@@ -54,21 +58,24 @@ u <- seq(0.1,0.9,by=0.1)
 ## by hand
 psi <- function(t,theta) { (1+t)^(-1/theta) }
 psiInv <- function(t,theta) { t^(-theta) - 1 }
-theta0 <- 0.5
-theta1 <- 2
-theta2 <- 3
-level2 <- psi(psiInv(u[8],theta2) + psiInv(u[4],theta2), theta2)
-level1 <- psi(psiInv(u[9],theta1)+
-              psiInv(u[2],theta1)+
-              psiInv(u[7],theta1)+
-              psiInv(u[5],theta1) +
-              psiInv(level2, theta1), theta1)
-level0 <- psi(psiInv(u[3],theta0)+
-              psiInv(u[6],theta0)+
-              psiInv(u[1],theta0)+
-              psiInv(level1, theta0), theta0)
+t0 <- 0.5
+t1 <- 2
+t2 <- 3
+level2 <- psi(psiInv(u[8],t2) + psiInv(u[4],t2), t2)
+level1 <- psi(psiInv(u[9],t1)+
+              psiInv(u[2],t1)+
+              psiInv(u[7],t1)+
+              psiInv(u[5],t1) +
+              psiInv(level2, t1), t1)
+level0 <- psi(psiInv(u[3],t0)+
+              psiInv(u[6],t0)+
+              psiInv(u[1],t0)+
+              psiInv(level1, t0), t0)
 stopifnot(all.equal(v, level0, tol = 1e-14))
 
 ## test rn()
-rn(c9,100)
-
+rC9 <- rn(c9,100)
+stopifnot(dim(rC9) == c(100, 9))
+C9 <- cor(rC9); round(C9, 3)
+pairs(rC9, gap = .01,
+      main = "n = 100 -- 9-dim. nested Clayton Archi.Copula")

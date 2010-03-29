@@ -3,11 +3,7 @@ library(nacopula)
 if(!dev.interactive())
     pdf("copula-play.pdf")
 
-myCop <- copAMH
-theta(myCop) <- 0.5
-
-cop2 <- setTheta(copAMH, value = 0.5) # is maybe more natural
-stopifnot( identical(cop2, myCop) )
+myCop <- setTheta(copAMH, value = 0.5) # is maybe more natural
 
 setGeneric("psi", function(cop) standardGeneric("psi"))
 setMethod(psi, "ACopula",
@@ -106,6 +102,7 @@ tstCop <- function(cop, theta1 = cop@theta,
     CT
 }
 
+## print() method for the tstCop() results
 print.proc_time_list <- function (x, ...) {
     stopifnot(is.list(x), !is.null(nx <- names(x)))
     for(nm in nx)
@@ -122,29 +119,28 @@ set.seed(1)
 
 ##====copAMH====
 
-##define object
-myAMH <- copAMH
-theta(myAMH) <- 0.7135001
+## define object
+myAMH <- setTheta(copAMH, 0.7135001)
 thetavec <- c(0.1,0.3,0.5,0.7,0.9)
 
-##call test function
+## call test function
 tstCop(myAMH, 0.9429679, thetavec = thetavec)
 
 ##====copClayton====
 
-##define object
-myClayton <- copClayton
-theta(myClayton) <- 0.5
+## define object
+myAMH <- setTheta(copAMH, 0.7135001)
+
+myClayton <- setTheta(copClayton, 0.5)
 thetavec <- c(0.5,1,2,5,10)
 
-##call test function
+## call test function
 tstCop(myClayton, 2, thetavec, lTDC = thetavec, uTDC = NA)
 
 ##====copFrank===
 
-##define object
-myFrank <- copFrank
-theta(myFrank) <- 1.860884
+## define object
+myFrank <- setTheta(copFrank, 1.860884)
 thetavec <- c(0.5,1,2,5,10)
 
 tau.th <- c(0.055417, 0.11002, 0.21389, 0.4567, 0.66578)
@@ -159,20 +155,18 @@ tstCop(myFrank, 5.736283, thetavec)
 
 ##====copGumbel===
 
-##define object
-myGumbel <- copGumbel
-theta(myGumbel) <- 1.25
+## define object
+myGumbel <- setTheta(copGumbel, 1.25)
 thetavec <- c(1,2,4,6,10)
 
-##call test function
+## call test function
 tstCop(myGumbel,2, thetavec, lTDC = NA, uTDC = thetavec)
 
 ##====copJoe===
 
-##define object
-myJoe <- copJoe
-theta(myJoe) <- 1.25
+## define object
+myJoe <- setTheta(copJoe, 1.25)
 thetavec <- c(1.1,2,4,6,10)
 
-##call test function
+## call test function
 tstCop(myJoe, 2, thetavec, lTDC = NA, uTDC = thetavec)

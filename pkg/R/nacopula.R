@@ -27,14 +27,20 @@ setMethod("rn", signature(x = "outer_nACopula"),
 	  Cp <- x@copula		# outer copula
 	  theta <- Cp@theta		# theta for outer copula
 	  V0 <- Cp@V0(n,theta)		# generate V0's
-	  childdat <- lapply(x@childCops, rnchild, # <-- start recursion
+	  childL <- lapply(x@childCops, rnchild, # <-- start recursion
 			     n=n,psi0Inv=Cp@psiInv,theta0=theta,V0=V0,...)
 	  dns <- length(x@comp)	 # dimension of the non-sectorial part
 	  r <- matrix(runif(n*dns), n, dns) # generate the non-sectorial part
-	  mat <- cbind(r, do.call(cbind,lapply(childdat, `[[`, "U"))) # put pieces together
-	  dat <- Cp@psi(-log(mat)/V0,theta=theta) # transform
-	  j <- c(x@comp, childdat$indCol) # get correct sorting order
-	  Cp@psi(dat[,j], theta)	  # permute data and return
+	  mat <- cbind(r, do.call(cbind,lapply(childL, `[[`, "U"))) # put pieces together
+	  mat <- Cp@psi(-log(mat)/V0, theta=theta) # transform
+          ## get correct sorting order:
+	  j <- c(x@comp, unlist(lapply(childL, `[[`, "indCol")))
+	  ## extra checks -- comment later:
+	  stopifnot(length(j) == ncol(mat))
+	  m <- Cp@psi(mat[,j], theta)	  # permute data and return
+	  ## extra checks:
+	  stopifnot(length(dm <- dim(m)) == 2, dm == dim(mat))
+	  m
       })
 
 ### returns list(U = matrix(*,n,d), indCol = vector of length d)
@@ -51,14 +57,22 @@ setMethod("rnchild", signature(x ="nACopula"),
 		    is.numeric(theta0))
 	  theta1 <- Cp@theta		    # theta_1 for inner copula
 	  V01 <- Cp@V01(V0, theta0,theta1,...)	 # generate V01's
-	  childdat <- lapply(x@childCops, rnchild, # <-- recursion
+	  childL <- lapply(x@childCops, rnchild, # <-- recursion
 			     n=n, psi0Inv = Cp@psiInv, theta0=theta1, V0=V01,...)
 	  dns <- length(x@comp)	 # dimension of the non-sectorial part
 	  r <- matrix(runif(n*dns), n, dns) # generate the non-sectorial part
 	  ## put pieces together: first own comp.s, then the children's :
-	  mat <- cbind(r, do.call(cbind, lapply(childdat, `[[`, "U")))
-	  dat <- exp(-V0* psi0Inv(Cp@psi(-log(mat), theta1),
+	  mat <- cbind(r, do.call(cbind, lapply(childL, `[[`, "U")))
+	  mat <- exp(-V0* psi0Inv(Cp@psi(-log(mat), theta1),
 				  theta0)) # transform
-	  j <- c(x@comp, childdat$indCol)   # get correct sorting order
-	  list(U = dat, indCol = j)	   # get list and return
+          ## get correct sorting order:
+	  j <- c(x@comp, unlist(lapply(childL, `[[`, "indCol")))
+	  list(U = mat, indCol = j)	   # get list and return
       })
+
+if(FALSE) { ## evaluate the following into your R session if you need debugging:
+trace(rn,      browser, exit=browser, signature=signature(x ="outer_nACopula"))
+
+trace(rnchild, browser, exit=browser, signature=signature(x ="nACopula"))
+
+}

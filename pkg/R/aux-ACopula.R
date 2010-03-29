@@ -68,10 +68,6 @@ retstable <- function(alpha,V0,h) {
 
 
 
-## such that a useR can have	myCop <- copAMH; theta(myCop) <- 3  :
-
-setGeneric("theta<-", function(x, value) standardGeneric("theta<-"))
-
 setTheta <- function(x, value) {
     stopifnot(is(x, "ACopula"),
 	      is.na(value) || is.numeric(value))
@@ -82,9 +78,11 @@ setTheta <- function(x, value) {
     x
 }
 
-
+## such that a useR can have	myCop <- copAMH; theta(myCop) <- 3  :
+if(FALSE) {## this is just "didactical", not really useful:
+setGeneric("theta<-", function(x, value) standardGeneric("theta<-"))
 setMethod("theta<-", "ACopula", setTheta)
-
+}
 
 mkParaConstr <- function(int) {
     ## Purpose: Construct  'paraConstr' function from an "interval"

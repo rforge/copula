@@ -1,0 +1,20 @@
+2010-03-29  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Imports): gsl [no longer in 'Depends']
+
+	* NAMESPACE: newly added.
+
+2010-03-29  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.2-0 {up from 0.1-1}
+
+	* R/nacopula.R: rn() methods now "work", checked in
+	* tests/NAC-experi.R: (but not checked yet, for correctness)
+
+
+
+
+2009-11-10  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/MH-Acopula.r: original code of Marius Hofert
+

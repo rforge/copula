@@ -1,0 +1,23 @@
+importFrom("gsl", debye_1)
+
+exportClasses("ACopula",
+              "nACopula", "outer_nACopula",
+              "interval", "maybeInterval"
+              )
+
+## Generics, functions and ACopula - family objects defined in this package
+export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
+       ,"value", "rn" ,"rnchild"
+       ,"interval"
+       ,"rstable1"
+       ,"setTheta"
+       ,"allComp" # <- maybe keep private ?
+       ,"safeUroot"
+       )
+
+exportMethods(## for both own and "other" generics:
+	      "value", "rn", "rnchild",
+	      "dim",
+	      "format"
+	      )
+
