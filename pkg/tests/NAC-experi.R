@@ -2,7 +2,7 @@ library(nacopula)
 
 ## 3d Clayton copula example
 c3 <-
-    new("final_nACopula", copula = setTheta(copClayton, 0.5),
+    new("outer_nACopula", copula = setTheta(copClayton, 0.5),
         comp = as.integer( 1 ),
         childCops = list(new("nACopula",
                              copula = setTheta(copClayton, 2),
@@ -26,7 +26,7 @@ stopifnot(all.equal(v,
 rn(c3,100)              
 
 ## 9d Clayton copula example
-c9 <- new("final_nACopula", copula = setTheta(copClayton, 0.5),
+c9 <- new("outer_nACopula", copula = setTheta(copClayton, 0.5),
          comp = as.integer(c(3,6,1)),
          childCops = list(new("nACopula",
                              copula = setTheta(copClayton, 2),
