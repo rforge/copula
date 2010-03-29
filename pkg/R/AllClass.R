@@ -122,7 +122,7 @@ setClass("nACopula",
 ## -----  for the "nACopula"s that appear as *SUB*-copulas, we do NOT want to
 ## require that their { components } are == { 1:d }
 ### Nested Archimedean Copulas with *specified* dimension(s)
-setClass("final_nACopula", contains = "nACopula",
+setClass("outer_nACopula", contains = "nACopula",
          validity = function(object) {
              ## *Extra* checks in addition to those of "nACopula" :
              d <- dim(object)
