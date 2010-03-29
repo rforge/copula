@@ -15,7 +15,7 @@ value(x, u)
   \item{x}{an \R object \dQuote{at which evaluation should happen};
     currently must be of class
     \code{\linkS4class{nACopula}}, typically of (subclass)
-    \code{\linkS4class{final_nACopula}}.}
+    \code{\linkS4class{outer_nACopula}}.}
   \item{u}{numeric vector length \eqn{d}.}
 }
 \details{
