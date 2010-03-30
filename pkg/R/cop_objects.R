@@ -95,17 +95,17 @@ rlog=function(n,p){
   vec[i1]=1
   l2=!l1
   i2=(1:n)[l2]
-  q=1-(1-p)^runif(length(i2))
-  l3=(u[i2]<q*q)
+  q=1-(1-p)^runif(n)
+  l3=(u[i2]<q[i2]*q[i2])
   i3=i2[l3]
   vec[i3]=floor(1+log(u[i3])/log(q[i3]))
-  l4=(u[i2]>q)
+  l4=(u[i2]>q[i2])
   i4=i2[l4]
   vec[i4]=rep(1,length(i4))
   l5=!(l3|l4)
   i5=i2[l5]
   vec[i5]=rep(2,length(i5))
-  vec  
+  vec 
 }
 
 ## rejection for F for Frank's family
