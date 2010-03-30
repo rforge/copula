@@ -27,6 +27,8 @@ nn <- 2000
 rC3 <- rn(c3,nn)
 stopifnot(is.numeric(rC3), is.matrix(rC3),
 	  dim(rC3) == c(nn, 3))
+C3 <- cor(rC3,method="kendall")
+round(C3, 3)#theoretical values: C3_{12}=0.2, C3_{13}=0.2, C3_{23}=0.5
 pairs(rC3, panel = function(...) {par(new=TRUE); smoothScatter(...)})
 
 ## 9d Clayton copula example
@@ -58,24 +60,34 @@ u <- seq(0.1,0.9,by=0.1)
 ## by hand
 psi <- function(t,theta) { (1+t)^(-1/theta) }
 psiInv <- function(t,theta) { t^(-theta) - 1 }
-t0 <- 0.5
-t1 <- 2
-t2 <- 3
-level2 <- psi(psiInv(u[8],t2) + psiInv(u[4],t2), t2)
-level1 <- psi(psiInv(u[9],t1)+
-              psiInv(u[2],t1)+
-              psiInv(u[7],t1)+
-              psiInv(u[5],t1) +
-              psiInv(level2, t1), t1)
-level0 <- psi(psiInv(u[3],t0)+
-              psiInv(u[6],t0)+
-              psiInv(u[1],t0)+
-              psiInv(level1, t0), t0)
+th0 <- 0.5
+th1 <- 2
+th2 <- 3
+level2 <- psi(psiInv(u[8],th2) + psiInv(u[4],th2), th2)
+level1 <- psi(psiInv(u[9],th1)+
+              psiInv(u[2],th1)+
+              psiInv(u[7],th1)+
+              psiInv(u[5],th1) +
+              psiInv(level2, th1), th1)
+level0 <- psi(psiInv(u[3],th0)+
+              psiInv(u[6],th0)+
+              psiInv(u[1],th0)+
+              psiInv(level1, th0), th0)
 stopifnot(all.equal(v, level0, tol = 1e-14))
 
 ## test rn()
 rC9 <- rn(c9,100)
 stopifnot(dim(rC9) == c(100, 9))
-C9 <- cor(rC9); round(C9, 3)
+C9 <- cor(rC9,method="kendall")
+round(C9, 3)
+#theoretical values: 
+#C9_{12}=0.2, C9_{13}=0.2, C9_{14}=0.2, C9_{15}=0.2, C9_{16}=0.2, C9_{17}=0.2, C9_{18}=0.2, C9_{19}=0.2
+#             C9_{23}=0.2, C9_{24}=0.5, C9_{25}=0.5, C9_{26}=0.2, C9_{27}=0.5, C9_{28}=0.5, C9_{29}=0.5
+#                          C9_{34}=0.2, C9_{35}=0.2, C9_{36}=0.2, C9_{37}=0.2, C9_{38}=0.2, C9_{39}=0.2
+#                                       C9_{45}=0.5, C9_{46}=0.2, C9_{47}=0.5, C9_{48}=0.6, C9_{49}=0.5
+#                                                    C9_{56}=0.2, C9_{57}=0.5, C9_{58}=0.5, C9_{59}=0.5
+#                                                                 C9_{67}=0.2, C9_{68}=0.2, C9_{69}=0.2
+#                                                                              C9_{78}=0.5, C9_{79}=0.5
+#                                                                                           C9_{89}=0.5
 pairs(rC9, gap = .01,
       main = "n = 100 -- 9-dim. nested Clayton Archi.Copula")
