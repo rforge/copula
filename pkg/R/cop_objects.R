@@ -272,7 +272,7 @@ copJoe <-
           ia=(V0>approx)
           ie=!ia
           V01=numeric(length(V0))
-          V01[ia]=V0[ia]^(1/alpha)*rstable1(length(ia),alpha,1,(cos(alpha*pi/2))^(1/alpha),ifelse(alpha==1,1,0))
+          V01[ia]=V0[ia]^(1/alpha)*rstable1(sum(ia),alpha,1,(cos(alpha*pi/2))^(1/alpha),ifelse(alpha==1,1,0))
           V01[ie]=sapply(lapply(V0[ie],rFJoe,alpha=alpha),sum) 
           V01
         },
