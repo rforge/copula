@@ -201,19 +201,14 @@ copGumbel <-
             }
         },
         V01 = function(V0,theta0,theta1) {
-            n <- length(V0)
-            variates <- numeric(n)
             alpha <- theta0/theta1
             if(alpha == 1) {
-                return(V0) # sample from S(1,1,0,V0;1) with Laplace-Stieltjes transform exp(-V0*t)
+                V0 # sample from S(1,1,0,V0;1) with Laplace-Stieltjes transform exp(-V0*t)
             } else {
-                for(i in 1:n) {
-                    variates[i] <- rstable1(1, alpha, beta=1,
-                                            gamma = (cos(alpha*pi/2)*V0[i])^(1/alpha))
-                    ## sample from S(alpha,1,(cos(alpha*pi/2)V0)^(1/alpha),0;1) with Laplace-Stieltjes transform exp(-V0*t^alpha)
-                }
+                rstable1(length(V0), alpha, beta=1,
+                         gamma = (cos(alpha*pi/2)*V0)^(1/alpha))
+                ## sample from S(alpha,1,(cos(alpha*pi/2)V0)^(1/alpha),0;1) with Laplace-Stieltjes transform exp(-V0*t^alpha)
             }
-            variates
         },
         ## Kendall's tau
         tau = function(theta) { (theta-1)/theta },
