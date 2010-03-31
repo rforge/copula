@@ -1,5 +1,37 @@
 library(nacopula)
 
+#====3d examples: generate data by hand to check if V0 and V01 are correct========================================
+
+#correlation check function
+corcheck=function(n,th0,th1,cop){
+  mat <- matrix(0,nrow=n,ncol=3)
+  cat("Run time V0:\n")
+  print(system.time(V0 <- cop@V0(n,th0)))
+  cat("\n")
+  mat[,1] <- runif(n)
+  cat("Run time V01:\n")
+  print(system.time(V01 <- cop@V01(V0,th0,th1)))
+  cat("\n")
+  mat[,2] <- exp(-V0*cop@psiInv(cop@psi(rexp(n)/V01,th1),th0))
+  mat[,3] <- exp(-V0*cop@psiInv(cop@psi(rexp(n)/V01,th1),th0))
+  mat[,] <- cop@psi(-log(mat[,])/V0,th0)
+  cat("Estimated matrix of pairwise Kendall's tau:\n")
+  print(formatC(round(cor(mat,method="kendall"), 3),format="f",digits=3),quote=F)
+}
+
+nn <- 2000
+
+#AMH
+corcheck(nn,0.7135,0.9430,copAMH)#tau_{12}=tau_{13}=0.2, tau_{23}=0.3
+#C
+corcheck(nn,0.5,2,copClayton)#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
+#F
+corcheck(nn,1.8609,5.7363,copFrank)#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
+#G
+corcheck(nn,1.25,2,copGumbel)#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
+#J
+corcheck(nn,1.4438,2.8562,copJoe)#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
+
 #====2d Clayton copula example========================================
 c2 <-
     new("outer_nACopula", copula = setTheta(copClayton, 0.5),
