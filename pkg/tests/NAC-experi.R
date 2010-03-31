@@ -19,7 +19,7 @@ corcheck=function(n,th0,th1,cop){
   print(formatC(round(cor(mat,method="kendall"), 3),format="f",digits=3),quote=F)
 }
 
-nn <- 2000
+nn <- 5000
 
 #AMH
 corcheck(nn,0.7135,0.9430,copAMH)#tau_{12}=tau_{13}=0.2, tau_{23}=0.3
@@ -51,7 +51,6 @@ stopifnot(all.equal(v,
                     tol = 1e-14))
 
 ## test rn()
-nn <- 2000
 rC2 <- rn(c2,nn)
 stopifnot(is.numeric(rC2), is.matrix(rC2),
 	  dim(rC2) == c(nn, 2))
@@ -88,7 +87,6 @@ level0 <- psi(psiInv(u[1],th0) + psiInv(level1, th0), th0)
 stopifnot(all.equal(v, level0, tol = 1e-14))
 
 ## test rn()
-nn <- 2000
 rC3 <- rn(c3,nn)
 stopifnot(is.numeric(rC3), is.matrix(rC3),
 	  dim(rC3) == c(nn, 3))
@@ -119,7 +117,6 @@ stopifnot(all.equal(v,
                     tol = 1e-14))
 
 ## test rn()
-nn <- 2000
 rC3 <- rn(c3,nn)
 stopifnot(is.numeric(rC3), is.matrix(rC3),
 	  dim(rC3) == c(nn, 3))
@@ -172,8 +169,8 @@ level0 <- psi(psiInv(u[3],th0)+
 stopifnot(all.equal(v, level0, tol = 1e-14))
 
 ## test rn()
-rC9 <- rn(c9,100)
-stopifnot(dim(rC9) == c(100, 9))
+rC9 <- rn(c9,nn)
+stopifnot(dim(rC9) == c(nn, 9))
 C9 <- cor(rC9,method="kendall")
 formatC(round(C9, 3),format="f",digits=3)
 #theoretical values: 
@@ -186,4 +183,4 @@ formatC(round(C9, 3),format="f",digits=3)
 #                                                                              C9_{78}=0.5, C9_{79}=0.5
 #                                                                                           C9_{89}=0.5
 pairs(rC9, gap = .01,
-      main = "n = 100 -- 9-dim. nested Clayton Archi.Copula")
+      main = paste(nn," vectors of a ",d,"-dimensional nested Clayton copula",sep=""))
