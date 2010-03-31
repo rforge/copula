@@ -1,4 +1,13 @@
-% Marius' packages :
+%document related info
+\newcommand*{\mytitle}{The\ nacopula\ package} 
+\newcommand*{\myauthorone}{Marius\ Hofert}
+\newcommand*{\mycontactone}{Department\ of\ Mathematics,\ ETH\ Zurich,\ 8092\ Zurich,\ Switzerland,\ \href{mailto:marius.hofert@math.ethz.ch}{\nolinkurl{marius.hofert@math.ethz.ch}}}
+\newcommand*{\myauthortwo}{Martin\ M\"achler}
+\newcommand*{\mycontacttwo}{Department\ of\ Mathematics,\ ETH\ Zurich,\ 8092\ Zurich,\ Switzerland,\ \href{mailto:maechler@stat.math.ethz.ch}{\nolinkurl{maechler@stat.math.ethz.ch}}}
+\newcommand*{\mysubject}{Article}
+\newcommand*{\mydate}{March\ 2010}
+%
+% Marius' packages:
 \RequirePackage[T1]{fontenc}%for correct hyphenation and T1 encoding
 \RequirePackage{lmodern}%latin modern font
 \RequirePackage[american]{babel}%for American English
@@ -9,15 +18,21 @@
 \RequirePackage{bm}%for bold math symbols: \bm (= bold math)
 \RequirePackage{bbm}%only for indicator functions
 \RequirePackage{enumitem}%for automatic numbering of new enumerate environments
-\RequirePackage{graphicx}%for including figures
-\RequirePackage{grffile}%extending the file name processing of graphicx
-\RequirePackage{tikz}%sophisticated graphics package
+% \RequirePackage{graphicx}%for including figures
+% \RequirePackage{grffile}%extending the file name processing of graphicx
+% \RequirePackage{tikz}%sophisticated graphics package
+\RequirePackage[
+  format=hang,
+  labelsep=space,
+  justification=justified,
+  singlelinecheck=false,
+  labelfont=bf
+]{caption}%for captions
 \RequirePackage{tabularx}%for special table environment (tabularx-table)
-\RequirePackage{rotating}%for rotating text, tables, and figures
-\RequirePackage{dcolumn}%for aligning tabular entries with respect to a certain char, e.g. decimal point
+% \RequirePackage{dcolumn}%for aligning tabular entries with respect to a certain char, e.g. decimal point
 \RequirePackage{booktabs}%for table layout
-\RequirePackage{multirow}%for table entries spanning several rows
-\RequirePackage[notref,notcite]{showkeys}%for showing keys
+% \RequirePackage{multirow}%for table entries spanning several rows
+% \RequirePackage[notref,notcite]{showkeys}%for showing keys
 \RequirePackage[
 	pdftex,%driver
 	hypertexnames=false,%for correct links (duplicate-error solution)
@@ -26,13 +41,10 @@
   pdfstartview=Fit,%fit page to pdf viewer
 	bookmarksopen=true,%expand all bookmarks in adobe reader
 	bookmarksnumbered=true,%number bookmarks in adobe reader
-% MM: those give errors
-	% pdfauthor=\myauthor,%pdf info
-	% pdftitle=\mytitle,%pdf info
-	% pdfsubject=\mysubject%pdf info
+	pdfauthor={\myauthorone,\ \myauthortwo},%pdf info
+	pdftitle=\mytitle,%pdf info
+	pdfsubject=\mysubject%pdf info
 ]{hyperref}%all links stay black and are thus invisible
-% MM's (when not above):
-\RequirePackage{url}
 %
 \newcommand{\Slang}{\textsf{S} language}
 \newcommand{\RR}{\textsf{R}}
@@ -74,7 +86,7 @@
 %------------------------------------------------------------------------------------
 %
 %Marius' settings
-%MM:probl \renewcommand*{\tabularxcolumn}[1]{m{#1}}%vertically centers entries of a tabularx-table
+\renewcommand*{\tabularxcolumn}[1]{m{#1}}%vertically centers entries of a tabularx-table
 \newcolumntype{d}[2]{D{.}{.}{#1.#2}}%aligns the entry at "." of a column if "d" is used as column type where the arguments specify the number of digits to the left and right for which space is kept in a column (always set to the maximal numbers that appear in the whole table)
 \setlength{\heavyrulewidth}{0.4pt}%sets width of toprule and bottomrule in booktabs-tables
 \setlength{\lightrulewidth}{0.4pt}%sets width of midrule in booktabs-tables
@@ -184,3 +196,4 @@
 \newcommand*{\DDL}[1]{{\text{DDL}_{#1}}}
 \newcommand*{\bEDPL}[1]{{\overline{\text{EDPL}}_{#1}}}
 \newcommand*{\bEDDL}[1]{{\overline{\text{EDDL}}_{#1}}}
+\hyphenation{Ar-chi-me-dean}
