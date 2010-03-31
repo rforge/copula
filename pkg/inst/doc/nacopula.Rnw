@@ -2,45 +2,41 @@
 %
 \usepackage{fullpage}% save trees ;-)
 \usepackage{Sweave}
-\usepackage{myVignette}% includes Marius' stuff (!)
+\usepackage{myVignette}% includes Marius' definitions
 \usepackage[authoryear,round]{natbib}
+\setlength{\bibsep}{0pt}
 \bibliographystyle{plainnat}
-% \newcommand{\noFootnote}[1]{{\small (\textit{#1})}}
-% \newcommand{\myOp}[1]{{$\left\langle\ensuremath{#1}\right\rangle$}}
-%
 \hyphenation{Ar-chi-me-dean}
-%
-%%\VignetteIndexEntry{The nacopula package}
-%%\VignetteDepends{}
 \SweaveOpts{engine=R,eps=FALSE,pdf=TRUE,width=7,height=4,strip.white=TRUE,keep.source=TRUE}
 %
-\title{The nacopula package}
-\author{Marius Hofert and Martin Maechler\\ Department of Mathematics, ETH Zurich, 8092 Zurich, Switzerland
-  \\\email{marius.hofert@math.ethz.ch}, \email{maechler@stat.math.ethz.ch}}
-\date{March 2010 ({\tiny typeset on \tiny\today})}
-%
 \begin{document}
-\maketitle
+\thispagestyle{plain}
+\begin{center}
+	{\bfseries\LARGE\mytitle\par}
+	\bigskip
+	{\Large\myauthorone\footnote{\mycontactone},\ \myauthortwo\footnote{\mycontacttwo}\par
+	\bigskip
+	\mydate\par}
+\end{center}
+\par\bigskip
 \begin{abstract}
 % \emph{\Large Why should you want to work with this package and what
 %   does it do for you?}
-  Sampling algorithms for multivariate distributions are indispensable for many applications in the areas of statistics and finance. By Sklar's Theorem, it suffices to sample the common dependence structure, given by a copula, and transform the obtained variates to the correct margins with the univariate distributions involved. Therefore, the sampling problem boils down to sampling the copula under consideration. Besides elliptical copulas, Archimedean copulas are among the most famous classes of copulas. These copulas can be generalized to the class of nested Archimedean copulas, which allows for asymmetries and is therefore more flexible.
-  \par
+  \noindent Sampling algorithms for multivariate distributions are indispensable for many applications in the areas of statistics and finance. By Sklar's Theorem, it suffices to sample the common dependence structure, given by a copula, and transform the obtained variates to the correct margins with the corresponding univariate distributions. Therefore, the sampling problem boils down to sampling the copula under consideration. Besides elliptical copulas, Archimedean copulas are among the most famous classes of copulas. These copulas can be generalized to the class of nested Archimedean copulas, which allows for asymmetries and is therefore more flexible.
+  \par\noindent
   The \pkg{nacopula} package provides procedures for computing function values, characteristics such as Kendall's tau and tail dependence coefficients, as well as sampling algorithms for generating random variates from nested Archimedean copulas.
 \end{abstract}
-
 %% Note: These are explained in '?RweaveLatex' :
 <<preliminaries, echo=FALSE>>=
 options(width=75)
 @
-
 \section{Introduction}\label{sec:Intro}
 \subsection{Archimedean copulas and their properties}
   \textit{Copulas} are distribution functions with standard uniform univariate margins. An \textit{Archimedean generator}, or simply \textit{generator}, is a continuous, decreasing function $\psi:[0,\infty]\to[0,1]$ which satisfies $\psi(0)=1$, $\psi(\infty):=\lim_{t\to\infty}\psi(t)=0$, and which is strictly decreasing on $[0,\inf\{t:\psi(t)=0\}]$. A $d$-dimensional copula $C$ is called \textit{Archimedean} if it permits the representation
 	\begin{align}
 		C(\bm{u})=C(\bm{u};\psi):=\psi(\psii(u_1)+\dots+\psii(u_d)),\ \bm{u}\in I^d,\label{16}
 	\end{align}
-	for some generator $\psi$ with inverse $\psii:[0,1]\to[0,\infty]$, where $\psii(0):=\inf\{t:\psi(t)=0\}$. \citet{mcneilneslehova2009} show that a generator defines an Archimedean copula if and only if $\psi$ is $d$\textit{-monotone}, i.e., $\psi$ is continuous on $[0,\infty]$, admits derivatives up to the order $d-2$ satisfying $\smash[t]{(-1)^k\frac{d^k}{dt^k}\psi(t)\ge 0}$ for all $k\in\{0,\dots,d-2\}$, $t\in(0,\infty)$, and $\smash[t]{(-1)^{d-2}\frac{d^{d-2}}{dt^{d-2}}\psi(t)}$ is decreasing and convex on $(0,\infty)$. Throughout this work we assume $\psi$ to be \textit{completely monotone}, i.e., $\psi$ is continuous on $[0,\infty]$ and $\smash[t]{(-1)^k\frac{d^k}{dt^k}\psi(t)\ge 0}$ for all $k\in\IN_{0}$, $t\in(0,\infty)$, so that $\psi$ is the Laplace-Stieltjes transform of a distribution function $F$ on the positive real line, i.e., $\psi=\LS[F]$, see Bernstein's Theorem in \citet[p.\ 439]{feller1971}. The class of all such generators is denoted by $\Psi_\infty$.
+	for some generator $\psi$ with inverse $\psii:[0,1]\to[0,\infty]$, where $\psii(0):=\inf\{t:\psi(t)=0\}$. \citet{mcneilneslehova2009} show that a generator defines an Archimedean copula if and only if $\psi$ is $d$\textit{-monotone}, i.e., $\psi$ is continuous on $[0,\infty]$, admits derivatives up to the order $d-2$ satisfying $\smash[t]{(-1)^k\frac{d^k}{dt^k}\psi(t)\ge 0}$ for all $k\in\{0,\dots,d-2\}$, $t\in(0,\infty)$, and $\smash[t]{(-1)^{d-2}\frac{d^{d-2}}{dt^{d-2}}\psi(t)}$ is decreasing and convex on $(0,\infty)$. Throughout this work we assume $\psi$ to be \textit{completely monotone}, i.e., $\psi$ is continuous on $[0,\infty]$ and $\smash[t]{(-1)^k\frac{d^k}{dt^k}\psi(t)\ge 0}$ for all $k\in\IN_{0}$, $t\in(0,\infty)$, so that $\psi$ is the Laplace-Stieltjes transform of a distribution function $F$ on the positive real line, i.e., $\psi=\LS[F]$, see Bernstein's Theorem in \citet[p.\ 439]{feller1971}. 
 	\par
 	If we know how to efficiently sample $F=\LSi[\psi]$, the following algorithm by \citet{marshallolkin1988} easily generates vectors of random variates following the Archimedean copula generated by $\psi$ in all dimensions $d$. As usual, ``i.i.d.'' means ``independent and identically distributed''.
 	\begin{algorithm}[\citet{marshallolkin1988}]\label{21}
@@ -55,7 +51,7 @@ options(width=75)
 	\begin{align*}
 		\tau:=\IE[\sgn((X_1-X_1^\prime)(X_2-X_2^\prime))],
 	\end{align*}
-	where $(X_1,X_2)^T$ is a vector of two continuously distributed random variables, $(X_1^\prime,X_2^\prime)^T$ is an independent and identically distributed copy of $(X_1,X_2)^T$, and $\sgn(x):=\I_{(0,\infty)}(x)-\I_{(-\infty,0)}(x)$. Kendall's tau is often used to measure the overall degree of dependence between two random variables. To be more precise, it is a measure of concordance, see \citet{scarsini1984}, and therefore, informally, measures the likelihood, as a number in $[-1,1]$, with which large values of one variable are associated with large values of the other. It can be expressed in terms of the copula $C$ corresponding to $(X_1,X_2)^T$ by
+	where $(X_1,X_2)^T$ is a vector of two continuously distributed random variables, $(X_1^\prime,X_2^\prime)^T$ is an i.i.d.\ copy of $(X_1,X_2)^T$, and $\sgn(x):=\I_{(0,\infty)}(x)-\I_{(-\infty,0)}(x)$. Kendall's tau is often used to measure the overall degree of dependence between two random variables. To be more precise, it is a measure of concordance, see \citet{scarsini1984}, and therefore, informally, measures the likelihood, as a number in $[-1,1]$, with which large values of one variable are associated with large values of the other. It can be expressed in terms of the copula $C$ corresponding to $(X_1,X_2)^T$ by
 	\begin{align*}
 	  \tau=4\int_{I^2}C(\bm{u})\,dC(\bm{u})-1,
 	\end{align*}
@@ -67,34 +63,31 @@ options(width=75)
 	\par
 	Tail dependence measures the probability that one random variable takes on values in its tail, given the other one takes on values in its tail. To be more precise, if $X_j\sim F_j$, $j\in\{1,2\}$, are continuously distributed random variables, the \textit{lower tail-dependence coefficient}, respectively the \textit{upper tail-dependence coefficient}, of $X_1$ and $X_2$ are defined as
 	\begin{align*}
-		\lambda_l&:=\lim_{t\downarrow0}\IP(X_2\le F_2^-(t)\,\vert\,X_1\le F_1^-(t)),\\
-		\lambda_u&:=\lim_{t\uparrow1}\IP(X_2>F_2^-(t)\,\vert\,X_1>F_1^-(t)),
+		\lambda_l:=\lim_{t\downarrow0}\IP(X_2\le F_2^-(t)\,\vert\,X_1\le F_1^-(t)),\quad\lambda_u:=\lim_{t\uparrow1}\IP(X_2>F_2^-(t)\,\vert\,X_1>F_1^-(t)),
 	\end{align*}
 	provided that the limits exist. These measures of association can also be expressed in terms of the copula $C$ corresponding to $(X_1,X_2)^T$ by
 	\begin{align*}
-		\lambda_l&=\lim_{t\downarrow0}\frac{C(t,t)}{t},\\
-		\lambda_u&=\lim_{t\uparrow1}\frac{1-2t+C(t,t)}{1-t},
+		\lambda_l=\lim_{t\downarrow0}\frac{C(t,t)}{t},\quad\lambda_u=\lim_{t\uparrow1}\frac{1-2t+C(t,t)}{1-t},
 	\end{align*}
-	where the appearing limits on the right-hand side exist if and only if $\lambda_l$ and $\lambda_u$ exist. If $C$ is a bivariate Archimedean copula generated by $\psi$ with $\psi(t)>0$, $t\in[0,\infty)$, then
+	where the appearing limits exist if and only if $\lambda_l$ and $\lambda_u$ exist. If $C$ is a bivariate Archimedean copula generated by $\psi$ with $\psi(t)>0$, $t\in[0,\infty)$, then
 	\begin{align*}
-		\lambda_l&=\lim_{t\to\infty}\frac{\psi(2t)}{\psi(t)}=2\lim_{t\to\infty}\frac{\psi^\prime(2t)}{\psi^\prime(t)},\\
-		\lambda_u&=2-\lim_{t\downarrow0}\frac{1-\psi(2t)}{1-\psi(t)}=2-2\lim_{t\downarrow0}\frac{\psi^\prime(2t)}{\psi^\prime(t)},
+		\lambda_l=\lim_{t\to\infty}\frac{\psi(2t)}{\psi(t)}=2\lim_{t\to\infty}\frac{\psi^\prime(2t)}{\psi^\prime(t)},\quad\lambda_u=2-\lim_{t\downarrow0}\frac{1-\psi(2t)}{1-\psi(t)}=2-2\lim_{t\downarrow0}\frac{\psi^\prime(2t)}{\psi^\prime(t)},
 	\end{align*}
-	where the equalities on the right-hand side are obtained by l'H\^opital's rule and therefore the corresponding assumptions are required to hold.
+	where the equalities involving derivatives are obtained by l'H\^opital's rule and therefore the corresponding assumptions are required to hold.
 \subsection{Nested Archimedean copulas}
-  In contrast to elliptical copulas, Archimedean copulas are not restricted to radial symmetry, which implies that they can capture different tail dependencies. Further, they are given explicitly in terms of the generator, hence function evaluations are usually easy to establish. As a drawback of this copula class, note that the functional symmetry of Archimedean copulas implies that all margins of the same dimension are equal. For modeling purposes, this becomes an increasingly strong assumption in the dimension. Asymmetries, thus more realistic dependencies, can be modeled by a hierarchical structure of Archimedean copulas, obtained by plugging in Archimedean copulas into each other. This construction leads to nested Archimedean copulas.
+  In contrast to elliptical copulas, Archimedean copulas are not restricted to radial symmetry, which implies that they can capture different tail dependencies, i.e., $\lambda_l\neq\lambda_u$. Further, they are given explicitly, see (\ref{16}), hence function evaluations are usually easy to establish. Note that the functional symmetry of Archimedean copulas implies that all margins of the same dimension are equal. For modeling purposes, this becomes an increasingly strong assumption in the dimension. Asymmetries, thus more realistic dependencies, can be modeled by a hierarchical structure of Archimedean copulas, obtained by plugging in Archimedean copulas into each other. This construction leads to nested Archimedean copulas.
 	\par
 	A $d$-dimensional copula $C$ is called \textit{nested Archimedean} if it is an Archimedean copula with arguments possibly replaced by other nested Archimedean copulas. If $C$ is given recursively by (\ref{16}) for $d=2$ and
 	\begin{align}
 		C(\bm{u};\psi_0,\dots,\psi_{d-2}):=\psi_0\bigl(\psiis{0}(u_1)+\psiis{0}(C(u_2,\dots,u_d;\psi_{1},\dots,\psi_{d-2}))\bigr),\ \bm{u}\in I^d,\label{18}
 	\end{align}
-	for $d\ge3$, $C$ is called \textit{fully-nested Archimedean copula} with $d-1$ \textit{nesting levels} or \textit{hierarchies}. Otherwise, $C$ is called \textit{partially-nested Archimedean copula}. Fully- and partially-nested Archimedean copulas are summarized as \textit{nested} (or \textit{hierarchical}) \textit{Archimedean copulas}.
+	for $d\ge3$, $C$ is called \textit{fully-nested Archimedean copula} with $d-1$ \textit{nesting levels} or \textit{hierarchies}. Fully-nested Archimedean copulas may also be obtained by nesting in one of the other arguments, not necessarily in the last one as done in (\ref{18}). Otherwise, $C$ is called \textit{partially-nested Archimedean copula}. 
 	\par
-	In order for (\ref{18}) being indeed a proper copula, \citet[p.\ 88]{joe1997} and \citet{mcneil2008} present the sufficient \textit{nesting condition} that $\psiis{i}\circ\psi_{j}$ have completely monotone derivatives for all nodes appearing in a nested Archimedean copula. This condition can be derived from a mixture representation of $C$ based on the \textit{outer distribution function} $F_0:=\LSi[\psi_0]$ corresponding to the \textit{outer generator} $\psi_0$ and the \textit{inner distribution functions} $F_{ij}:=\LSi[\psi_{ij}(\cdot\,;V_0)]$ corresponding to the \textit{inner generators} $\psi_{ij}(t;x):=\exp\bigl(-x\psiis{i}(\psi_{j}(t))\bigr)$, $x>0$, for every $i,j$ appearing in the Archimedean structure.
+	In order for (\ref{18}) being indeed a proper copula, \citet[p.\ 88]{joe1997} and \citet{mcneil2008} present the sufficient \textit{nesting condition} that $\psiis{i}\circ\psi_{j}$ have completely monotone derivatives for all nodes appearing in a nested Archimedean copula. This condition can be derived from a mixture representation of $C$ based on the \textit{outer distribution function} $F_0:=\LSi[\psi_0]$ corresponding to the \textit{outer generator} $\psi_0$ and the \textit{inner distribution functions} $F_{ij}:=\LSi[\psi_{ij}(\cdot\,;V_0)]$ corresponding to the \textit{inner generators} $\psi_{ij}(t;x):=\exp\bigl(-x\psiis{i}(\psi_{j}(t))\bigr)$, $x>0$, appearing in the Archimedean structure.
 	\par
-	Nested Archimedean copulas combine the nice properties of Archimedean copulas as mentioned above with the ability to model asymmetries. They are therefore a class of interesting copulas for both theory and applications. Since the bivariate margins of a nested Archimedean copula are Archimedean copulas, the formulas for Kendall's tau and the tail-dependence coefficients as given above readily take over.
+	Nested Archimedean copulas combine the nice properties of Archimedean copulas as mentioned above with the ability to model asymmetries. They are therefore of interest from both a theoretical point of view and for applications. Since the bivariate margins of a nested Archimedean copula are Archimedean copulas, the formulas for Kendall's tau and the tail-dependence coefficients as given above readily take over.
 	\par
-	For sampling fully-nested Archimedean copulas of Type (\ref{18}), \citet{mcneil2008} presented the following algorithm based on a mixture representation for $C$.
+	For sampling fully-nested Archimedean copulas of Type (\ref{18}), \citet{mcneil2008} presented the following algorithm.
 	\begin{algorithm}[\citet{mcneil2008}]
 		\myskip
 		\begin{enumerate}[label=(\arabic*),leftmargin=*,align=left,itemsep=0mm,topsep=1mm]
@@ -103,32 +96,89 @@ options(width=75)
 			\item Return $\bm{U}$, where $U_j:=\psi_0(-\log(X_j)/V_0)$, $j\in\{1,\dots,d\}$.
 		\end{enumerate}
 	\end{algorithm}
-	Similar to this algorithm for sampling (\ref{18}), a general procedure for sampling all kinds of nested Archimedean copulas can be derived. The idea is to first draw $V_0\sim F_0$ and then to descend down in the nested structure and sample the appearing nested Archimedean copulas there. On the lowest level, this involves sampling an Archimedean copula, which can be achieved with the Marshall-Olkin algorithm. Note that for sampling the nested Archimedean copulas appearing in Step \ref{201} of McNeil's algorithm when all generators involved belong to the same parametric family, it suffices to know how to sample $F_{01}=\LSi[\psi_{01}(\cdot\,;V_0)]$, $V_0>0$, as all inner distribution functions $F_{ij}$ are of the same type as $F_{01}$, only the parameter $V_0$ obtained as a random variate from an earlier step of the algorithm might be different. Hence, the main ingredients for sampling nested Archimedean copulas are
+	Similar to this algorithm for sampling (\ref{18}), a general procedure for sampling all kinds of nested Archimedean copulas can be derived. The idea is to first draw $V_0\sim F_0$ and then to descend downwards in the nested structure and sample the appearing nested Archimedean copulas there. On the lowest level, this involves sampling an Archimedean copula, which can be achieved with the Marshall-Olkin algorithm. Note that for sampling the nested Archimedean copulas appearing in Step \ref{201} of McNeil's algorithm when all generators involved belong to the same parametric family, it suffices to know how to sample $F_{01}=\LSi[\psi_{01}(\cdot\,;V_0)]$, $V_0>0$, as all inner distribution functions $F_{ij}$ take the same form as $F_{01}$, only the parameters might differ. Hence, the main ingredients for sampling nested Archimedean copulas are
 	\begin{align*}
-		V_0\sim F_0=\LSi[\psi_0]\ \text{and}\ V_{01}\sim F_{01}=\LSi[\psi_{01}(\cdot\,;V_0)]
+		V_0\sim F_0=\LSi[\psi_0]\ \text{and}\ V_{01}\sim F_{01}=\LSi[\psi_{01}(\cdot\,;V_0)].
 	\end{align*}
-	For sampling strategies for these two distributions for many known Archimedean generators, see \citet{hofert2008}, \citet{hofert2010c}, and \citet{hofert2010a}.
+	For sampling strategies for these two distributions for many known Archimedean generators, see \citet{hofert2008}, \citet{hofert2010a}, and \citet{hofert2010c}.
 \section{The implemented Archimedean families}
-  There are several known one-parametric Archimedean families, including the ones of Ali-Mikhail-Haq (``A''), Clayton (``C''), Frank (``F''), Gumbel (``G''), and Joe (``J''), see, e.g., \citet[pp.\ 116]{nelsen2007}. For simplicity, we choose a slightly different generator for Clayton's family. Table \ref{familytable} lists these generators with Kendall's tau, tail-dependence coefficients, conditions such that the sufficient nesting condition holds, and instructions for sampling $V_0$ and $V_{01}$.
-  \begin{sidewaystable}
-    \centering
-		\begin{tabularx}{\textwidth}{@{\extracolsep{0mm}}ccccccccc}
+  Among the most widely used one-parametric Archimedean families are the ones of Ali-Mikhail-Haq (``A''), Clayton (``C''), Frank (``F''), Gumbel (``G''), and Joe (``J''), see, e.g., \citet[pp.\ 116]{nelsen2007}. For simplicity, we choose a slightly different generator for Clayton's family. Tables \ref{table1}, \ref{table2}, and \ref{table3} list these generators with corresponding inverses, Kendall's tau, tail-dependence coefficients, conditions on two parameters $\vt_0$ and $\vt_1$ such that $\psi_{01}$ fulfills the sufficient nesting condition, and instructions for sampling $V_0$ and $V_{01}$.
+	\begin{table}[htbp] 
+		\centering
+		\begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}c@{\extracolsep{-1pt}}c@{\extracolsep{3pt}}c@{\extracolsep{8pt}}c@{\extracolsep{-30pt}}c}
 			\toprule
-			\multicolumn{1}{c}{Family}&\multicolumn{1}{c}{$\vt$}&\multicolumn{1}{c}{$\psi(t)$}&\multicolumn{1}{c}{$\tau$}&\multicolumn{1}{c}{$\lambda_l$}&\multicolumn{1}{c}{$\lambda_u$}&$(\psiis{0}\circ\psi_{1})^\prime$ c.m.&$V_0$&$V_{01}$\\
+			\multicolumn{1}{c}{Family}&\multicolumn{1}{c}{$\vt$}&\multicolumn{1}{c}{$\psi(t)$}&\multicolumn{1}{c}{$\psii(t)$}&\multicolumn{1}{c}{$V\sim F=\LSi[\psi]$}\\
 			\midrule
-			A&$[0,1)$&$(1-\vt)/(\exp(t)-\vt)$&$\Geo(1-\vt)$&$1-2(\vt+(1-\vt)^2\log(1-\vt))/(3\vt^2)$&0&0&$\vt_0\le\vt_1$&$\Geo(1-\vt_0)$&\\
-			C&$(0,\infty)$&$(1+t)^{-{1/\vt}}$&$\Gamma(1/\vt,1)$&$\vt/(\vt+2)$&$2^{-1/\vt}$&0&$\vt_0\le\vt_1$&$\Gamma(1/\vt_0,1)$&$\tS(\vt_0/\vt_1,1,(\cos(\pi\vt_0/(2\vt_1))V_0)^{\vt_1/\vt_0},V_0\I_{\{\vt_0=\vt_1\}},\I_{\{\vt_0\neq\vt_1\}};1)$\\
-			F&$(0,\infty)$&$-\log\bigl(1-(1-e^{-\vt})\exp(-t)\bigr)/\vt$&$\Log(1-e^{-\vt})$&$1+4(D_1(\vt)-1)/\vt$&0&0&$\vt_0\le\vt_1$&$\Log(1-e^{-\vt})$&\\
-			G&$[1,\infty)$&$\exp(-t^{1/\vt})$&$\S(1/\vt,1,\cos^\vt(\pi/(2\vt)),\I_{\{\vt=1\}};1)$&$(\vt-1)/\vt$&0&$2-2^{1/\vt}$&$\vt_0\le\vt_1$&$\S(1/\vt,1,\cos^\vt(\pi/(2\vt)),\I_{\{\vt=1\}};1)$&\\
-			J&$[1,\infty)$&$1-(1-\exp(-t))^{1/\vt}$&$\binom{1/\vt}{k}(-1)^{k-1},\ k\in\IN$&$\sum_{k=1}^\infty 1/(k(\vt k+2)(\vt(k-1)+2))$&0&$2-2^{1/\vt}$&$\vt_0\le\vt_1$&$\binom{1/\vt}{k}(-1)^{k-1},\ k\in\IN$&\\
+			A&$[0,1)$&$(1-\vt)/(\exp(t)-\vt)$&$\log((1-\vt(1-t))/t)$&$\Geo(1-\vt)$\\
+			C&$(0,\infty)$&$(1+t)^{-{1/\vt}}$&$t^{-\vt}-1$&$\Gamma(1/\vt,1)$\\
+			F&$(0,\infty)$&$-\log\bigl(1-(1-e^{-\vt})\exp(-t)\bigr)/\vt$&$-\log((1-\exp(-\vt t))/(1-e^{-\vt}))$&$\Log(1-e^{-\vt})$\\
+			G&$[1,\infty)$&$\exp(-t^{1/\vt})$&$(-\log(t))^{\vt}$&$\S(1/\vt,1,\cos^\vt(\pi/(2\vt)),\I_{\{\vt=1\}};1)$\\
+			J&$[1,\infty)$&$1-(1-\exp(-t))^{1/\vt}$&$-\log(1-(1-t)^{\vt})$&$\binom{1/\vt}{k}(-1)^{k-1},\ k\in\IN$\\
+      % 12&$[1,\infty)$&$(1+t^{1/\vt})^{-1}$&$\S(1/\vt,1,\cos^{\vt}(\pi/(2\vt)),\I_{\{\vt=1\}};1)\Exp(1)^\vt$\\
+      % 13&$[1,\infty)$&$\exp(1-(1+t)^{1/\vt})$&$\tS(1/\vt,1,\cos^{\vt}(\pi/(2\vt)),\I_{\{\vt=1\}},\I_{\{\vt\neq1\}};1)$\\
+      % 14&$[1,\infty)$&$(1+t^{1/\vt})^{-\vt}$&$\S(1/\vt,1,\cos^{\vt}(\pi/(2\vt)),\I_{\{\vt=1\}};1)\Gamma(\vt,1)^\vt$\\
+      % 19&$(0,\infty)$&$\vt/\log(t+e^\vt)$&$\Gamma(\Exp(1)/\vt,e^{\vt})$\\
+      % 20&$(0,\infty)$&$\log^{-{1/\vt}}(t+e)$&$\Gamma(\Gamma(1/\vt,1),e)$\\
+			\bottomrule 
+		\end{tabularx}
+		\caption{Commonly used one-parameter Archimedean generators.}
+		\label{table1}
+	\end{table}
+	\par
+	The last column of Table \ref{table1} contains the distributions $F$ to be sampled for the first step of the Marshall-Olkin algorithm. Note that this is the same distribution as $F_0$ which has to be drawn for sampling a nested Archimedean copulas with McNeil's algorithm, simply replace $\vt$ by $\vt_0$. For the family of Ali-Mikhail-Haq, $\Geo(p)$ denotes a \textit{geometric distribution} with success probability $p\in(0,1]$ and mass function $p_k=p(1-p)^{k-1}$ at $k\in\IN$. For Clayton's family, $\Gamma(\alpha,\beta)$ denotes the \textit{gamma distribution} with shape $\alpha\in(0,\infty)$, scale $\beta\in(0,\infty)$, and density $f(x)=\beta^\alpha x^{\alpha-1}\exp(-\beta x)/\Gamma(\alpha)$, $x\in(0,\infty)$. For the family of Frank, $\Log(p)$ denotes a \textit{logarithmic distribution} with parameter $p\in(0,1)$ and mass function $p_k=p^k/(-k\log(1-p))$ at $k\in\IN$. For sampling logarithmic distributions, the sampling algorithm ``LK'' of \citet{kemp1981} can be applied. For Gumbel's family, $F$ corresponds to a stable distribution, see \citet[p.\ 8]{nolan2009} for the parameterization. An efficient algorithm for sampling stable distributions is given in \citet{chambersmallowsstuck1976}. For the family of Joe, $p_k=\binom{1/\vt}{k}(-1)^{k-1}$ at $k\in\IN$, with $\vt\in[1,\infty)$. This distribution can be sampled with an algorithm found in \citet{hofert2010a}.
+	\begin{table}[htbp] 
+		\centering
+		\begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}ccccc}
+			\toprule
+				\multicolumn{1}{c}{Family}&\multicolumn{1}{c}{$\vt$}&\multicolumn{1}{c}{$\tau$}&\multicolumn{1}{c}{$\lambda_l$}&\multicolumn{1}{c}{$\lambda_u$}\\
+			\midrule
+			A&$[0,1)$&$1-2(\vt+(1-\vt)^2\log(1-\vt))/(3\vt^2)$&0&0\\
+			C&$(0,\infty)$&$\vt/(\vt+2)$&$2^{-1/\vt}$&0\\
+			F&$(0,\infty)$&$1+4(D_1(\vt)-1)/\vt$&0&0\\
+			G&$[1,\infty)$&$(\vt-1)/\vt$&0&$2-2^{1/\vt}$\\
+			J&$[1,\infty)$&$\sum_{k=1}^\infty 1/(k(\vt k+2)(\vt(k-1)+2))$&0&$2-2^{1/\vt}$\\
+      % 12&$[1,\infty)$&$1-2/(3\vt)$&$2^{-1/\vt}$&$2-2^{1/\vt}$\\
+      % 13&$[1,\infty)$&$1-(3-2^{\vt}e^2\Gamma(2-\vt,2))/\vt$&0&0\\
+      % 14&$[1,\infty)$&$1-2/(1+2\vt)$&$1/2$&$2-2^{1/\vt}$\\
+      % 19&$(0,\infty)$&$1/3+2\vt(1-\vt e^\vt E_1(\vt))/3$&1&0\\
+      % 20&$(0,\infty)$&$-$&1&0\\
+			\bottomrule 
+		\end{tabularx}
+		\caption{Kendall's tau and tail-dependence coefficients for commonly used one-parameter Archimedean generators.}
+		\label{table2}
+	\end{table}
+  \par
+  Table \ref{table2} contains formulas for the concordance measure Kendall's tau and the lower and upper tail-dependence coefficient. For Frank's family, $D_1(\vt):=\int_0^\vt t/(\exp(t)-1)\,dt/\vt$ denotes the \textit{Debye function of order one}.
+	\begin{table}[htbp] 
+		\centering
+		\begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}ccc}
+			\toprule
+			\multicolumn{1}{c}{Family}&\multicolumn{1}{c}{nesting condition}&$V_{01}\sim F_{01}=\LSi[\psi_{01}(\cdot\,;V_0)]$\\ 
+			\midrule
+			A&$\vt_0\le\vt_1$&$V_0+X$, $X\sim\NB(V_0,(1-\vt_1)/(1-\vt_0))$\\
+			C&$\vt_0\le\vt_1$&$\tS(\vt_0/\vt_1,1,(\cos(\pi\vt_0/(2\vt_1))V_0)^{\vt_1/\vt_0},V_0\I_{\{\vt_0=\vt_1\}},\I_{\{\vt_0\neq\vt_1\}};1)$\\
+			F&$\vt_0\le\vt_1$&$\sum_{k=1}^{V_0}V_k$\\
+			G&$\vt_0\le\vt_1$&$\S(\vt_0/\vt_1,1,(\cos(\pi\vt_0/(2\vt_1))V_{0})^{\vt_1/\vt_0},\I_{\{\vt_0=\vt_1\}};1)$\\
+			J&$\vt_0\le\vt_1$&$\sum_{k=1}^{V_0}V_k$\\
+      % 12&$\vt_0\le\vt_1$&$\S(\vt_0/\vt_1,1,(\cos(\pi\vt_0/(2\vt_1))V_{0})^{\vt_1/\vt_0},\I_{\{\vt_0=\vt_1\}};1)$\\
+      % 13&$\vt_0\le\vt_1$&$\tS(\vt_0/\vt_1,1,(\cos(\pi\vt_0/(2\vt_1))V_0)^{\vt_1/\vt_0},V_0\I_{\{\vt_0=\vt_1\}},\I_{\{\vt_0\neq\vt_1\}};1)$\\
+      % 14&$-$&$-$\\
+      % 19&$\vt_0\le\vt_1$&$\tS(\vt_0/\vt_1,1,(\cos(\pi\vt_0/(2\vt_1))V_0)^{\vt_1/\vt_0},V_0\I_{\{\vt_0=\vt_1\}},e^{\vt_1}\I_{\{\vt_0\neq\vt_1\}};1)$\\
+      % 20&$\vt_0\le\vt_1$&$-$\\
 			\bottomrule
 		\end{tabularx}
-		\caption{One-parameter Archimedean generators with Kendall's tau, tail-dependence coefficients, nesting condition, $V_0$, and $V_{01}$.}
-		\label{familytable}
-  \end{sidewaystable}
+		\caption{Nesting conditions and inverse Laplace-Stieltjes transforms corresponding to the inner generator $\psi_{01}(\cdot\,;V_0)$.}
+		\label{table3}
+	\end{table}
+  \par
+  Table \ref{table3} contains instructions for sampling $V_{01}$ as required for sampling nested Archimedean copulas with McNeil's algorithm. The distribution of $V_{01}$ for Gumbel's family is addressed in \citet{mcneil2008}, all other results can be found in \citet{hofert2010a}. For Ali-Mikhail-Haq's family, $\NB(r,p)$, $r\in(0,\infty)$, $p\in(0,1)$, denotes the negative binomial distribution with mass function $p_k=\binom{k+r-1}{r-1}p^r(1-p)^k$, $k\in\IN_0$. For Clayton's family, $V_{01}$ follows an \textit{exponentially tilted stable distribution} of the form $\tS(\alpha,1,(\cos(\alpha\pi/2)V_0)^{1/\alpha},V_0\I_{\{\alpha=1\}},h\I_{\{\alpha\neq1\}};1)$ with Laplace-Stieltjes transform $\tilde{\psi}(t)=\exp\bigl(-V_0((h+t)^{\alpha}-h^{\alpha})\bigr)$, see \citet{hofert2010a} for more details and an efficient sampling algorithm for these distributions. For the families of Frank and Joe, $V_{01}$ can be sampled as a $V_0$-fold sum of i.i.d.\ random variables, see \citet{hofert2010a} for sampling algorithms for the distributions of the summands $V_k$, $k\in\{1,\dots,V_0\}$. 
 \section{Working with nested Archimedean copulas}
-  evaluating, sampling, kendall's tau, plots (?)
-\section{Examples}
+
+  todo: include details about the procedure for generating stable random numbers
+  \par
+  todo: introduce classes, technical stuff
+  \par
+  todo: evaluating, sampling, kendall's tau, plots (?) => examples
 
 % The most automatic way to use the \pkg{Matrix} package is via the
 % \Rfun{Matrix} function which is very similar to the standard \RR\ function
@@ -523,5 +573,5 @@ options(width=75)
 % @
 %
 % \bibliography{Matrix}
-
+\bibliography{mybibliographybibtex}
 \end{document}
