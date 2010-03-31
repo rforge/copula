@@ -56,14 +56,15 @@ setMethod("rnchild", signature(x ="nACopula"),
 		    is.function(psi0Inv), is.numeric(V0), length(V0) == n,
 		    is.numeric(theta0))
 	  theta1 <- Cp@theta		    # theta_1 for inner copula
-	  V01 <- Cp@V01(V0, theta0,theta1,...)	 # generate V01's
+	  V01 <- Cp@V01(V0, theta0,theta1,...)	 # generate V01's (only for one sector since the 
+	                                         # recursion in rn() takes care of all sectors)
 	  childL <- lapply(x@childCops, rnchild, # <-- recursion
 			     n=n, psi0Inv = Cp@psiInv, theta0=theta1, V0=V01,...)
 	  dns <- length(x@comp)	 # dimension of the non-sectorial part
 	  r <- matrix(runif(n*dns), n, dns) # generate the non-sectorial part
 	  ## put pieces together: first own comp.s, then the children's :
 	  mat <- cbind(r, do.call(cbind, lapply(childL, `[[`, "U")))
-	  mat <- exp(-V0* psi0Inv(Cp@psi(-log(mat), theta1),
+	  mat <- exp(-V0* psi0Inv(Cp@psi(-log(mat)/V01, theta1),
 				  theta0)) # transform
           ## get correct sorting order:
 	  j <- c(x@comp, unlist(lapply(childL, `[[`, "indCol")))
