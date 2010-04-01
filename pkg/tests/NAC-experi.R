@@ -1,7 +1,7 @@
 library(nacopula)
 set.seed(1) 
 n <- 2000
-taueps <- 0.04
+taueps <- 0.06
 
 #====3d examples: generate data by hand to check if V0 and V01 are correct========================================
 
