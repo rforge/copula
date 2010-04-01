@@ -5,12 +5,12 @@
 ## standard rejection algorithm for sampling
 ## S(alpha,1,(cos(alpha*pi/2)V0/m)^(1/alpha),0;1) with
 ## Laplace-Stieltjes transform exp(-(V0/m)*t^alpha) 
-retstablerej1 <- function(m,V0,alpha,h){#gets one integer m and one real V0>0
+retstablerej1 <- function(m,V0,alpha){#gets one integer m and one real V0>0
   repeat{
       Vtilde <- rstable1(1, alpha, beta=1,
                          gamma = (cos(alpha*pi/2)*V0/m)^(1/alpha))
       u <- runif(1)
-      if(u <= exp(-h*Vtilde)) {
+      if(u <= exp(-Vtilde)) {
           variate <- Vtilde
           break
       }
@@ -20,36 +20,28 @@ retstablerej1 <- function(m,V0,alpha,h){#gets one integer m and one real V0>0
 
 ## standard rejection algorithm for sampling the m-fold sum of variates
 ## from the distribution with Laplace-Stieltjes transform
-## exp(-(V0/m)*((h+t)^alpha-h^alpha))
+## exp(-(V0/m)*((1+t)^alpha-1))
 ## calls retstablerej1 m times for given m and evaluates the sum of the results
-retstablerej <- function(m,V0,alpha,h){#gets one integer m and one real V0>0
-  sum(unlist(lapply(rep(m,m),retstablerej1,V0=V0,alpha=alpha,h=h)))
+retstablerej <- function(m,V0,alpha){#gets one integer m and one real V0>0
+  sum(unlist(lapply(rep(m,m),retstablerej1,V0=V0,alpha=alpha)))
 }
 
 ## compute random variates from an exponentially-tilted Stable distribution
-## \tilde{S}(alpha,1,(cos(alpha*pi/2)V0)^(1/alpha),V0*Indicator(alpha==1),h*Indicator(alpha!=1);1)
-## with corresponding Laplace-Stieltjes transform exp(-V0*((h+t)^alpha-h^alpha))
-retstable <- function(alpha,V0,h) {
+## \tilde{S}(alpha,1,(cos(alpha*pi/2)V0)^(1/alpha),V0*Indicator(alpha==1),Indicator(alpha!=1);1)
+## with corresponding Laplace-Stieltjes transform exp(-V0*((1+t)^alpha-1))
+retstable <- function(alpha,V0) {
     n <- length(V0)
     stopifnot(n >= 1,
-              length(alpha) == 1, alpha >= 0,
-              length(h) == 1, h >= 0)
+              length(alpha) == 1, alpha >= 0)
     ## case alpha==1
     if(alpha == 1) {
         V0 # sample from S(1,1,0,V0;1) with Laplace-Stieltjes transform exp(-V0*t)
     }
     variates <- numeric(n)
-    ## case alpha!=1 and h==0
-    if(h == 0) {
-      rstable1(n, alpha, beta=1,
-               gamma = (cos(alpha*pi/2)*V0)^(1/alpha))
-               ## sample from S(alpha,1,(cos(alpha*pi/2)V0)^(1/alpha),0;1)
-               ## with Laplace-Stieltjes transform exp(-V0*t^alpha)
-    }
-    ## case alpha!=1 and h!=0
+    ## case alpha!=1 
     ## call fast rejection algorithm
     ## determine optimal constant m for the fast rejection algorithm
-    logc <- V0*h^alpha
+    logc <- V0
     floorlogc <- floor(logc)
     ceilinglogc <- ceiling(logc)
     c <- exp(logc)
@@ -68,7 +60,7 @@ retstable <- function(alpha,V0,h) {
     i4=i2[l4]
     m[i4]=ceilinglogc[i4]
     ## call rejection with these m
-    mapply(retstablerej,m=m,V0=V0,alpha=alpha,h=h)
+    mapply(retstablerej,m=m,V0=V0,alpha=alpha)
 }
 
 setTheta <- function(x, value) {
