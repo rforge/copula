@@ -1,7 +1,10 @@
 library(nacopula)
+set.seed(1)
 
 if(!dev.interactive())
     pdf("copula-play.pdf")
+
+##====testing psi====
 
 myCop <- setTheta(copAMH, value = 0.5) # is maybe more natural
 
@@ -14,7 +17,8 @@ curve(psi(myCop)(x), 0, 4)
 ## but this can also be done directly [ => same curve "on top" :]
 curve(myCop@psi(x, theta = myCop@theta),  0, 4, col = 2, add = TRUE)
 
-## Kendall's tau --
+##====testing Kendall's tau====
+
 p.Tau <- function(cop, n = 201, xlim = pmin(paraI, 50), ...) {
     stopifnot(is(cop, "ACopula"))
     paraI <- cop@paraInterval
@@ -25,9 +29,9 @@ p.Tau <- function(cop, n = 201, xlim = pmin(paraI, 50), ...) {
 
 p.Tau(copAMH)
 p.Tau(copClayton)
-p.Tau(copFrank)# now works via debye_1()
+p.Tau(copFrank)
 p.Tau(copGumbel)
-p.Tau(copJoe)# << now works (somewhat slowly)
+p.Tau(copJoe)
 
 ##====test function====
 
@@ -35,8 +39,6 @@ tstCop <- function(cop, theta1 = cop@theta,
                    thetavec = cop@theta,
                    i10 = 1:10, nRnd = 50,
                    t01 = (1:63)/64, ## exact binary fractions
-                   ## V01() is still too slow for Frank (FIXME) :
-                   doV01 = !(cop@name %in% c("Frank")),
                    lTDCvec = NA_real_, uTDCvec = NA_real_)
 {
     stopifnot(is(cop, "ACopula"))
@@ -73,11 +75,9 @@ tstCop <- function(cop, theta1 = cop@theta,
     CT <- c(CT, list(V0 = system.time(V0 <- cop@V0(nRnd,theta0))))
     cat0("\n(4) ",nRnd," generated V0's:")
     print(summary(V0))
-    if(doV01) { ## FIXME: too slow for frank and joe
-        CT <- c(CT, list(V01 = system.time(V01 <- cop@V01(V0,theta0,theta1))))
-        cat0(nRnd," generated V01's:"); print(summary(V01))
-    } else
-    cat("skipping  V01()  [probably too *slow* ..] for",cop@name, "\n")
+    CT <- c(CT, list(V01 = system.time(V01 <- cop@V01(V0,theta0,theta1))))
+    cat0(nRnd," generated V01's:")
+    print(summary(V01))
     nt <- length(thetavec)
     cat("\n(5) tau at thetavec:\n")
     CT <- c(CT, list(tau = system.time(ta <- cop@tau(thetavec))))
@@ -112,11 +112,6 @@ print.proc_time_list <- function (x, ...) {
     invisible(x)
 }
 
-
-##====test setup====
-
-set.seed(1)
-
 ##====copAMH====
 
 ## define object
@@ -143,14 +138,7 @@ tstCop(myClayton, 2, thetavec, lTDC = thetavec, uTDC = NA)
 myFrank <- setTheta(copFrank, 1.860884)
 thetavec <- c(0.5,1,2,5,10)
 
-tau.th <- c(0.055417, 0.11002, 0.21389, 0.4567, 0.66578)
-tau.F <- myFrank@tau(thetavec)
-stopifnot(all.equal(tau.th, tau.F, tol = 0.0001),
-	  ## now works thanks to using safeUroot():
-	  all.equal(.9999, copFrank@tau(copFrank@tauInv(0.9999))),
-	  all.equal(myFrank@tauInv(tau.F),
-		    thetavec, tol = 5e-5))# tauInv() using uniroot()
-
+## call test function
 tstCop(myFrank, 5.736283, thetavec)
 
 ##====copGumbel===
