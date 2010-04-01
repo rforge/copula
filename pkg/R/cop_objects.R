@@ -271,9 +271,9 @@ copJoe <-
           V01
         },
         ## Kendall's tau
-        tau = function(theta,noTerms=100000) {
+        tau = function(theta,noTerms=446) { #even for theta==0, the approximation error is < 10^(-5)
             sapply(theta,
-                   function(theta,noTerms=100000) {
+                   function(theta,noTerms=446) {
                        k <- seq_len(noTerms)
                        1 - 4*sum(1/(k*(theta*k+2)*(theta*(k-1)+2)))
                    })
