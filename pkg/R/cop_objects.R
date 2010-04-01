@@ -111,13 +111,13 @@ rlog=function(n,p){
 ## rejection for F for Frank's family
 rejFFrank=function(p,alpha,theta0le1){
   if(theta0le1){
-    while(1==1){
+    repeat{
       u=runif(1)
       x=rlog(p)
       if(u<=1/((x-alpha)*beta(x,1-alpha))) break
     }
   }else{
-    while(1==1){
+    repeat{
       u=runif(1)
       x=rFJoe(1,alpha)
       if(u<=p^(x-1)) break
