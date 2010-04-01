@@ -19,7 +19,7 @@ copAMH <-
         ## V0 and V01
         V0 = function(n,theta) { rgeom(n, 1-theta) + 1 },
         V01 = function(V0,theta0,theta1) {
-          rnbinom(length(V0),V0,(1-theta1)/(1-theta0))+V0  
+          rnbinom(length(V0),V0,(1-theta1)/(1-theta0))+V0
         },
         ## Kendall's tau
         tau = function(theta) {
@@ -87,25 +87,24 @@ stopifnot(validObject(copClayton))# ok
 ### ====Frank, see Nelsen (2007) p. 116, # 5====
 
 ## rng Log(p) distribution
-rlog=function(n,p){
-  vec=numeric(n)
-  u=runif(n)
-  l1=(u>p)
-  i1=(1:n)[l1]
-  vec[i1]=1
-  l2=!l1
-  i2=(1:n)[l2]
-  q=1-(1-p)^runif(n)
-  l3=(u[i2]<q[i2]*q[i2])
-  i3=i2[l3]
-  vec[i3]=floor(1+log(u[i3])/log(q[i3]))
-  l4=(u[i2]>q[i2])
-  i4=i2[l4]
-  vec[i4]=rep(1,length(i4))
-  l5=!(l3|l4)
-  i5=i2[l5]
-  vec[i5]=rep(2,length(i5))
-  vec 
+rlog <- function(n,p) {
+    stopifnot((n <- as.integer(n)) >= 0)
+    vec <- numeric(n)
+    if(n >= 1) {
+        u <- runif(n)
+        l1 <- u > p
+        vec[l1] <- 1
+        i2 <- which( !l1 ) # of shorter length, say n2
+        q2 <- 1-(1-p)^runif(length(i2)) # length n2
+        l3 <- u[i2] < q2*q2
+        i3 <- i2[l3]
+        vec[i3] <- floor(1+log(u[i3])/log(q2[l3]))
+        l4 <- u[i2] > q2
+        vec[i2[l4]] <- 1
+        l5 <- ! (l3 | l4)#  q2^2 <= u[i2] <= q2
+        vec[i2[l5]] <- 2
+    }
+    vec
 }
 
 ## rejection for F for Frank's family
@@ -126,7 +125,7 @@ rejFFrank=function(p,alpha,theta0le1){
   x
 }
 
-## sample F for Frank 
+## sample F for Frank
 rFFrank=function(n,theta0,theta1){ sapply(rep(1-exp(-theta1),n),rejFFrank,alpha=theta0/theta1,theta0le1=ifelse(theta0<=1,TRUE,FALSE)) }
 
 ## Frank object
@@ -268,7 +267,7 @@ copJoe <-
           ie=!ia
           V01=numeric(length(V0))
           V01[ia]=V0[ia]^(1/alpha)*rstable1(sum(ia),alpha,1,(cos(alpha*pi/2))^(1/alpha),ifelse(alpha==1,1,0))
-          V01[ie]=sapply(lapply(V0[ie],rFJoe,alpha=alpha),sum) 
+          V01[ie]=sapply(lapply(V0[ie],rFJoe,alpha=alpha),sum)
           V01
         },
         ## Kendall's tau

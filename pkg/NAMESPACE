@@ -10,6 +10,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"value", "rn" ,"rnchild"
        ,"interval"
        ,"rstable1"
+       ,"rlog"
        ,"setTheta"
        ,"allComp" # <- maybe keep private ?
        ,"safeUroot"
