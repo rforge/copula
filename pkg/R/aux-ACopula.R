@@ -2,6 +2,30 @@
 
 ### ====general functions====
 
+## standard rejection algorithm for sampling
+## S(alpha,1,(cos(alpha*pi/2)V0/m)^(1/alpha),0;1) with
+## Laplace-Stieltjes transform exp(-(V0/m)*t^alpha) 
+retstablerej1 <- function(m,V0,alpha,h){#gets one integer m and one real V0>0
+  repeat{
+      Vtilde <- rstable1(1, alpha, beta=1,
+                         gamma = (cos(alpha*pi/2)*V0/m)^(1/alpha))
+      u <- runif(1)
+      if(u <= exp(-h*Vtilde)) {
+          variate <- Vtilde
+          break
+      }
+  }
+  variate
+}
+
+## standard rejection algorithm for sampling the m-fold sum of variates
+## from the distribution with Laplace-Stieltjes transform
+## exp(-(V0/m)*((h+t)^alpha-h^alpha))
+## calls retstablerej1 m times for given m and evaluates the sum of the results
+retstablerej <- function(m,V0,alpha,h){#gets one integer m and one real V0>0
+  sum(unlist(lapply(rep(m,m),retstablerej1,V0=V0,alpha=alpha,h=h)))
+}
+
 ## compute random variates from an exponentially-tilted Stable distribution
 ## \tilde{S}(alpha,1,(cos(alpha*pi/2)V0)^(1/alpha),V0*Indicator(alpha==1),h*Indicator(alpha!=1);1)
 ## with corresponding Laplace-Stieltjes transform exp(-V0*((h+t)^alpha-h^alpha))
@@ -12,61 +36,40 @@ retstable <- function(alpha,V0,h) {
               length(h) == 1, h >= 0)
     ## case alpha==1
     if(alpha == 1) {
-        return(V0) # sample from S(1,1,0,V0;1) with Laplace-Stieltjes transform exp(-V0*t)
+        V0 # sample from S(1,1,0,V0;1) with Laplace-Stieltjes transform exp(-V0*t)
     }
     variates <- numeric(n)
     ## case alpha!=1 and h==0
     if(h == 0) {
-        for(i in 1:n) {
-            ## sample from S(alpha,1,(cos(alpha*pi/2)V0)^(1/alpha),0;1)
-            ## with Laplace-Stieltjes transform exp(-V0*t^alpha)
-            variates[i] <- rstable1(1, alpha, beta=1,
-                                    gamma = (cos(alpha*pi/2)*V0[i])^(1/alpha))
-        }
-        return(variates)
+      rstable1(n, alpha, beta=1,
+               gamma = (cos(alpha*pi/2)*V0)^(1/alpha))
+               ## sample from S(alpha,1,(cos(alpha*pi/2)V0)^(1/alpha),0;1)
+               ## with Laplace-Stieltjes transform exp(-V0*t^alpha)
     }
-    ## FIXME: move parts out of loop below:
-    ## determine optimal constant m (*vector*) for the fast rejection algorithm
-
     ## case alpha!=1 and h!=0
     ## call fast rejection algorithm
-    for(i in 1:n) {
-        ## determine optimal constant m for the fast rejection algorithm
-        logc <- V0[i]*h^alpha
-        floorlogc <- floor(logc)
-        ceilinglogc <- ceiling(logc)
-        c <- exp(logc)
-        floorvalue <- floorlogc*c^(1/floorlogc)
-        ceilingvalue <- ceilinglogc*c^(1/ceilinglogc)
-        if(logc <= 1) {
-            m <- 1
-        } else if(logc > 1 && floorvalue <= ceilingvalue) {
-            m <- floorlogc
-        } else {
-            m <- ceilinglogc
-        }
-        ## apply standard rejection algorithm to sample the m-fold sum of variates
-        ## from the distribution with Laplace-Stieltjes transform
-        ## exp(-(V0/m)*((h+t)^alpha-h^alpha))
-        variates[i] <- 0
-        for(j in 1:m) {
-            repeat{
-                ## sample from S(alpha,1,(cos(alpha*pi/2)V0/m)^(1/alpha),0;1) with
-                ## Laplace-Stieltjes transform exp(-(V0/m)*t^alpha)
-                Vtilde <- rstable1(1, alpha, beta=1,
-                                   gamma = (cos(alpha*pi/2)*V0[i]/m)^(1/alpha))
-                u <- runif(1)
-                if(u <= exp(-h*Vtilde)) {
-                    variates[i] <- variates[i]+Vtilde
-                    break
-                }
-            }
-        }
-    }
-    return(variates)
+    ## determine optimal constant m for the fast rejection algorithm
+    logc <- V0*h^alpha
+    floorlogc <- floor(logc)
+    ceilinglogc <- ceiling(logc)
+    c <- exp(logc)
+    floorvalue <- floorlogc*c^(1/floorlogc)
+    ceilingvalue <- ceilinglogc*c^(1/ceilinglogc)
+    m=numeric(n)
+    l1=(logc<=1)
+    i1=(1:n)[l1]
+    m[i1]=1
+    l2=!l1
+    i2=(1:n)[l2]
+    l3=(logc[i2]>1 && floorvalue[i2]<=ceilingvalue[i2])
+    i3=i2[l3]
+    m[i3]=floorlogc[i3]
+    l4=!l3
+    i4=i2[l4]
+    m[i4]=ceilinglogc[i4]
+    ## call rejection with these m
+    mapply(retstablerej,m=m,V0=V0,alpha=alpha,h=h)
 }
-
-
 
 setTheta <- function(x, value) {
     stopifnot(is(x, "ACopula"),
