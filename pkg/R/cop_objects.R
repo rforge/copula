@@ -112,7 +112,7 @@ rejFFrank=function(p,alpha,theta0le1){
   if(theta0le1){
     repeat{
       u=runif(1)
-      x=rlog(p)
+      x=rlog(1,p)
       if(u<=1/((x-alpha)*beta(x,1-alpha))) break
     }
   }else{
@@ -144,7 +144,7 @@ copFrank <-
         ## V0 (algorithm of Kemp (1981)) and V01
         V0 = function(n,theta) { rlog(n,1-exp(-theta)) },
         V01 = function(V0,theta0,theta1) {
-          sapply(lapply(V0,rFFrank,theta0=theta0,theta1=theta1),sum) ##FIXME: how to approximate when V0 large? not solved theoretically
+          sapply(lapply(V0,rFFrank,theta0=theta0,theta1=theta1),sum) ##FIXME: how to approximate when V0 large? not theoretically solved yet
         },
         ## Kendall's tau; debye_1() is from package 'gsl' :
         tau = function(theta) 1 + 4*(debye_1(theta) - 1)/theta,
@@ -228,22 +228,23 @@ stopifnot(validObject(copGumbel))# ok
 ### ====Joe, see Nelsen (2007) p. 116, # 6====
 
 rFJoe=function(n,alpha){
-  vec=numeric(n)
-  u=runif(n)
-  l1=(u<=alpha)
-  i1=(1:n)[l1]
-  vec[i1]=1
-  l2=!l1
-  i2=(1:n)[l2]
-  Ginv=((1-u[i2])*gamma(1-alpha))^(-1/alpha)
-  floorGinv=floor(Ginv)
-  l3=(1-1/(floorGinv*beta(floorGinv,1-alpha))<u[i2])
-  i3=i2[l3]
-  vec[i3]=ceiling(Ginv[l3])
-  l4=!l3
-  i4=i2[l4]
-  vec[i4]=floorGinv[l4]
-  vec
+  stopifnot((n <- as.integer(n)) >= 0)
+  vec <- numeric(n)
+  if(n >= 1) {
+    u <- runif(n)
+    l1 <- u <= alpha
+    vec[l1] <- 1
+    i2 <- which(!l1)
+    Ginv <- ((1-u[i2])*gamma(1-alpha))^(-1/alpha)
+    floorGinv <- floor(Ginv)
+    l3 <- (1-1/(floorGinv*beta(floorGinv,1-alpha))<u[i2])
+    i3 <- i2[l3]
+    vec[i3] <- ceiling(Ginv[l3])
+    l4 <- !l3
+    i4 <- i2[l4]
+    vec[i4] <- floorGinv[l4]
+  }
+  vec 
 }
 
 ## Joe object
