@@ -113,7 +113,7 @@ rejFFrank=function(p,alpha,theta0le1){
     repeat{
       u=runif(1)
       x=rlog(1,p)
-      if(u<=1/((x-alpha)*beta(x,1-alpha))) break
+      if(u*(x-alpha)<=1/beta(x,1-alpha)) break
     }
   }else{
     repeat{
