@@ -88,7 +88,7 @@ stopifnot(validObject(copClayton))# ok
 
 ## rng Log(p) distribution
 rlog <- function(n,p) {
-    stopifnot((n <- as.integer(n)) >= 0)
+    stopifnot((n <- as.integer(n)) >= 0, 0 < p < 1)
     vec <- numeric(n)
     if(n >= 1) {
         u <- runif(n)
