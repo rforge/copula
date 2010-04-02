@@ -88,7 +88,7 @@ stopifnot(validObject(copClayton))# ok
 
 ## rng Log(p) distribution
 rlog <- function(n,p) {
-    stopifnot((n <- as.integer(n)) >= 0, 0 < p < 1)
+    stopifnot((n <- as.integer(n)) >= 0, 0 < p, p < 1)
     vec <- numeric(n)
     if(n >= 1) {
         u <- runif(n)
@@ -237,15 +237,21 @@ rFJoe=function(n,alpha){
       u <- runif(n)
       l1 <- u <= alpha
       vec[l1] <- 1
-      i2 <- which(!l1)
-      Ginv <- ((1-u[i2])*gamma(1-alpha))^(-1/alpha)
-      floorGinv <- floor(Ginv)
-      l3 <- (1-1/(floorGinv*beta(floorGinv,1-alpha))<u[i2])
-      i3 <- i2[l3]
-      vec[i3] <- ceiling(Ginv[l3])
-      l4 <- !l3
-      i4 <- i2[l4]
-      vec[i4] <- floorGinv[l4]
+      i1 <- which(!l1)
+      Ginv <- ((1-u[i1])*gamma(1-alpha))^(-1/alpha)
+      l2 <- is.infinite(Ginv) ## check if gamma returned a value leading to Ginv=Inf
+      i2 <- i1[l2] ## indices where vec has to be Inf
+      vec[i2] <- Inf ## directly set vec to Inf ##FIXME: or set it to largest value 1.80e+308?
+      l3 <- !l2 ## Ginv[l3] is finite
+      i3 <- i1[l3] ## remaining indices where vec has to be filled
+      Ginv <- Ginv[l3]
+      floorGinv <- floor(Ginv) ## also finite
+      l4 <- (1-1/(floorGinv*beta(floorGinv,1-alpha))<u[i3])
+      i4 <- i3[l4]
+      vec[i4] <- ceiling(Ginv[l4])
+      l5 <- !l4
+      i5 <- i3[l5]
+      vec[i5] <- floorGinv[l5]
     }
   }
   vec 
