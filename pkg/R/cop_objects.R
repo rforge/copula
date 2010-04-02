@@ -98,7 +98,7 @@ rlog <- function(n,p) {
         q2 <- 1-(1-p)^runif(length(i2)) # length n2
         l3 <- u[i2] < q2*q2
         i3 <- i2[l3]
-        vec[i3] <- floor(1+log(u[i3])/log(q2[l3]))
+        vec[i3] <- floor(1+abs(log(u[i3])/log(q2[l3])))
         l4 <- u[i2] > q2
         vec[i2[l4]] <- 1
         l5 <- ! (l3 | l4)#  q2^2 <= u[i2] <= q2
@@ -231,18 +231,22 @@ rFJoe=function(n,alpha){
   stopifnot((n <- as.integer(n)) >= 0)
   vec <- numeric(n)
   if(n >= 1) {
-    u <- runif(n)
-    l1 <- u <= alpha
-    vec[l1] <- 1
-    i2 <- which(!l1)
-    Ginv <- ((1-u[i2])*gamma(1-alpha))^(-1/alpha)
-    floorGinv <- floor(Ginv)
-    l3 <- (1-1/(floorGinv*beta(floorGinv,1-alpha))<u[i2])
-    i3 <- i2[l3]
-    vec[i3] <- ceiling(Ginv[l3])
-    l4 <- !l3
-    i4 <- i2[l4]
-    vec[i4] <- floorGinv[l4]
+    if(alpha==1){
+      vec <- rep(1,n)
+    }else{
+      u <- runif(n)
+      l1 <- u <= alpha
+      vec[l1] <- 1
+      i2 <- which(!l1)
+      Ginv <- ((1-u[i2])*gamma(1-alpha))^(-1/alpha)
+      floorGinv <- floor(Ginv)
+      l3 <- (1-1/(floorGinv*beta(floorGinv,1-alpha))<u[i2])
+      i3 <- i2[l3]
+      vec[i3] <- ceiling(Ginv[l3])
+      l4 <- !l3
+      i4 <- i2[l4]
+      vec[i4] <- floorGinv[l4]
+    }
   }
   vec 
 }
