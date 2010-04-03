@@ -16,7 +16,7 @@
 \RequirePackage{amssymb}%sophisticated mathematical symbols with amstex (includes \mathbb{})
 \RequirePackage{amsthm}%theorem environments
 \RequirePackage{bm}%for bold math symbols: \bm (= bold math)
-\RequirePackage{bbm}%only for indicator functions
+%NON-STANDARD:\RequirePackage{bbm}%only for indicator functions
 \RequirePackage{enumitem}%for automatic numbering of new enumerate environments
 % \RequirePackage{graphicx}%for including figures
 % \RequirePackage{grffile}%extending the file name processing of graphicx
@@ -33,30 +33,30 @@
 \RequirePackage{booktabs}%for table layout
 % \RequirePackage{multirow}%for table entries spanning several rows
 % \RequirePackage[notref,notcite]{showkeys}%for showing keys
-\RequirePackage[
-	pdftex,%driver
-	hypertexnames=false,%for correct links (duplicate-error solution)
-	setpagesize=false,%necessary in order to not change text-/paperformat for the document
-	pdfborder={0 0 0},%removes border around links
-  pdfstartview=Fit,%fit page to pdf viewer
-	bookmarksopen=true,%expand all bookmarks in adobe reader
-	bookmarksnumbered=true,%number bookmarks in adobe reader
-	pdfauthor={\myauthorone,\ \myauthortwo},%pdf info
-	pdftitle=\mytitle,%pdf info
-	pdfsubject=\mysubject%pdf info
-]{hyperref}%all links stay black and are thus invisible
+% \RequirePackage[
+% 	pdftex,%driver
+% 	hypertexnames=false,%for correct links (duplicate-error solution)
+% 	setpagesize=false,%necessary in order to not change text-/paperformat for the document
+% 	pdfborder={0 0 0},%removes border around links
+%   pdfstartview=Fit,%fit page to pdf viewer
+% 	bookmarksopen=true,%expand all bookmarks in adobe reader
+% 	bookmarksnumbered=true,%number bookmarks in adobe reader
+% 	pdfauthor={\myauthorone,\ \myauthortwo},%pdf info
+% 	pdftitle=\mytitle,%pdf info
+% 	pdfsubject=\mysubject%pdf info
+% ]{hyperref}%all links stay black and are thus invisible
 %
 \newcommand{\Slang}{\textsf{S} language}
 \newcommand{\RR}{\textsf{R}}
-\newcommand{\email}[1]{\href{mailto:#1}{\normalfont\texttt{#1}}}
+% \newcommand{\email}[1]{\href{mailto:#1}{\normalfont\texttt{#1}}}
 %- R programming markup
-\newcommand\code{\bgroup\@codex}
-\def\@codex#1{{\normalfont\ttfamily\hyphenchar\font=-1 #1}\egroup}
-\let\env=\code
-\let\command=\code
+% \newcommand\code{\bgroup\@codex}
+% \def\@codex#1{{\normalfont\ttfamily\hyphenchar\font=-1 #1}\egroup}
+% \let\env=\code
+% \let\command=\code
 \newcommand*{\Rfun}[1]{\code{#1()}\index{\RR~function #1}}
 \newcommand*{\class}[1]{\code{#1}\index{class #1}}%
-\newcommand*{\pkg}[1]{\code{#1}\index{\RR~package #1}}
+% \newcommand*{\pkg}[1]{\code{#1}\index{\RR~package #1}}
 %
 \newcommand{\kbd}[1]{{\normalfont\texttt{#1}}}
 \newcommand{\key}[1]{{\normalfont\texttt{\uppercase{#1}}}}
@@ -68,7 +68,7 @@
 \newcommand{\dfn}[1]{{\normalfont\textsl{#1}}}
 \newcommand{\acronym}[1]{{\normalfont\textsc{\lowercase{#1}}}}
 \newcommand{\strong}[1]{{\normalfont\fontseries{b}\selectfont #1}}
-\let\pkg=\strong
+% \let\pkg=\strong
 %
 \RequirePackage{alltt}
 \newenvironment{example}{\begin{alltt}}{\end{alltt}}
@@ -127,12 +127,10 @@
 \makeatother
 %
 %Marius' commands
-% used in ./mybibliographybibtex.bib :
-\newcommand*{\burl}[1]{\url{#1}}
-
 \newcommand*{\myitem}{\raisebox{1pt}{\tikz\fill[sharp corners](0,0)rectangle+(3.4pt,3.4pt);}}
 \newcommand*{\eps}{\varepsilon}
-\newcommand*{\I}{\mathbbm{1}}
+%NON-STANDARD{bbm}:\newcommand*{\I}{\mathbbm{1}}
+\newcommand*{\I}{\mathbb{1}}
 \newcommand*{\IN}{\mathbb{N}}
 \newcommand*{\IK}{\mathbb{K}}
 \newcommand*{\IR}{\mathbb{R}}
@@ -164,7 +162,7 @@
 \newcommand*{\Geo}{\operatorname*{Geo}}
 \newcommand*{\Exp}{\operatorname*{Exp}}
 \newcommand*{\Log}{\operatorname*{Log}}
-\newcommand*{\E}{\operatorname*{E}}
+%already \newcommand*{\E}{\operatorname*{E}}
 \newcommand*{\U}{\operatorname*{U}}
 \newcommand*{\B}{\operatorname*{B}}
 \newcommand*{\NB}{\operatorname*{NB}}
@@ -198,4 +196,5 @@
 \newcommand*{\DDL}[1]{{\text{DDL}_{#1}}}
 \newcommand*{\bEDPL}[1]{{\overline{\text{EDPL}}_{#1}}}
 \newcommand*{\bEDDL}[1]{{\overline{\text{EDDL}}_{#1}}}
+
 \hyphenation{Ar-chi-me-dean}

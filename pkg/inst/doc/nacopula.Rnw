@@ -1,4 +1,6 @@
-\documentclass[article]{jss}
+\documentclass[article,nojss]{jss}
+
+\usepackage{myVignette}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -47,102 +49,11 @@
 %% Telephone: +43/1/31336-5053
 %% Fax: +43/1/31336-734
 
-%% for those who use Sweave please include the following line (with % symbols):
-%% MM: this is already part of  jss.cls  (??)
+% put it *commented* here, (so   R CMD Sweave ..   does not?)
+% as "it" is already in  jss.cls !!
 %\usepackage{Sweave}
 
-%% Marius' packages
-\usepackage[american]{babel}%for American English
-\usepackage{amsmath}%sophisticated mathematical formulas with amstex (includes \text{})
-\usepackage{amssymb}%sophisticated mathematical symbols with amstex (includes \mathbb{})
-\usepackage{amsthm}%theorem environments
-\usepackage{bm}%for bold math symbols: \bm (= bold math)
-\usepackage{bbm}%only for indicator functions
-\usepackage{enumitem}%for automatic numbering of new enumerate environments
-\usepackage[
-  format=hang,
-  labelsep=space,
-  justification=justified,
-  singlelinecheck=false,
-  labelfont=bf
-]{caption}%for captions
-\usepackage{tabularx}%for special table environment (tabularx-table)
-\usepackage{booktabs}%for table layout
-
-%% Marius' environments
-\newtheoremstyle{mythmstyle}%
-	{0.5em}%space above
-	{0.5em}%space below
-	{}%body font
-	{}%indent amount
-	{\bfseries}%head font
-	{}%punctuation after head
-	{\newline}%space after head
-	{\thmname{#1}\ \thmnumber{#2}\ \thmnote{(#3)}}%head spec
-\newcommand*{\myskip}{~\vspace{-1.4em}}%skip and space when environment begins with enumerate
-\theoremstyle{mythmstyle}
-\newtheorem{definition}{Definition}[section]%number all environments in a sequence (for every section)
-\newtheorem{proposition}[definition]{Proposition}
-\newtheorem{lemma}[definition]{Lemma}
-\newtheorem{theorem}[definition]{Theorem}
-\newtheorem{corollary}[definition]{Corollary}
-\newtheorem{remark}[definition]{Remark}
-\newtheorem{example}[definition]{Example}
-\newtheorem{algorithm}[definition]{Algorithm}
-\renewcommand*\proofname{Proof}
-\makeatletter%correct qed adjustment
-\renewenvironment{proof}[1][\proofname]{\par
-  \pushQED{\qed}%
-  \normalfont\topsep2\p@\@plus2\p@\relax
-  \trivlist
-  \item[\hskip\labelsep
-     \bfseries #1]~\newline\ignorespaces
-}{%
-  \popQED\endtrivlist\@endpefalse
-}
-\makeatother
-
-%% Marius' commands
-\newcommand*{\eps}{\varepsilon}
-\newcommand*{\I}{\mathbbm{1}}
-\newcommand*{\IN}{\mathbb{N}}
-\newcommand*{\IK}{\mathbb{K}}
-\newcommand*{\IR}{\mathbb{R}}
-\newcommand*{\IC}{\mathbb{C}}
-\newcommand*{\IP}{\mathbb{P}}
-\newcommand*{\IE}{\mathbb{E}}
-\newcommand*{\V}{\operatorname*{V}}
-\newcommand*{\abs}{\operatorname*{abs}}
-\renewcommand*{\S}{\operatorname*{S}}
-\newcommand*{\tS}{\operatorname*{\tilde{S}}}
-\newcommand*{\ran}{\operatorname*{ran}}
-\newcommand*{\sgn}{\operatorname*{sgn}}
-\newcommand*{\vt}{\vartheta}
-\newcommand*{\vp}{\varphi}
-\newcommand*{\vpi}{{\varphi^{-1}}}
-\newcommand*{\vppi}{{\varphi^{[-1]}}}
-\newcommand*{\psii}{{\psi^{-1}}}
-\newcommand*{\psiis}[1]{{\psi_{#1}^{-1}}}
-\renewcommand*{\L}{\mathcal{L}}
-\newcommand*{\Li}{\mathcal{L}^{-1}}
-\newcommand*{\LS}{\mathcal{LS}}
-\newcommand*{\LSi}{\LS^{-1}}
-\renewcommand*{\O}{\mathcal{O}}
-\newcommand*{\Geo}{\operatorname*{Geo}}
-\newcommand*{\Exp}{\operatorname*{Exp}}
-\newcommand*{\Log}{\operatorname*{Log}}
-\newcommand*{\U}{\operatorname*{U}}
-\newcommand*{\B}{\operatorname*{B}}
-\newcommand*{\NB}{\operatorname*{NB}}
-\newcommand*{\N}{\operatorname*{N}}
-\renewcommand*{\t}{\text{t}}
-\newcommand*{\Var}{\operatorname*{Var}}
-\newcommand*{\Cov}{\operatorname*{Cov}}
-\newcommand*{\Cor}{\operatorname*{Cor}}
-\hyphenation{Ar-chi-me-dean}
-
 %% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 \begin{document}
 %% include your article here, just as usual
@@ -158,7 +69,7 @@ options(width=75)
 	\begin{align}
 		C(\bm{u})=C(\bm{u};\psi):=\psi(\psii(u_1)+\dots+\psii(u_d)),\ \bm{u}\in I^d,\label{16}
 	\end{align}
-	for some generator $\psi$ with inverse $\psii:[0,1]\to[0,\infty]$, where $\psii(0):=\inf\{t:\psi(t)=0\}$. \citet{mcneilneslehova2009} show that a generator defines an Archimedean copula if and only if $\psi$ is $d$\textit{-monotone}, i.e., $\psi$ is continuous on $[0,\infty]$, admits derivatives up to the order $d-2$ satisfying $\smash[t]{(-1)^k\frac{d^k}{dt^k}\psi(t)\ge 0}$ for all $k\in\{0,\dots,d-2\}$, $t\in(0,\infty)$, and $\smash[t]{(-1)^{d-2}\frac{d^{d-2}}{dt^{d-2}}\psi(t)}$ is decreasing and convex on $(0,\infty)$. Throughout this work we assume $\psi$ to be \textit{completely monotone}, i.e., $\psi$ is continuous on $[0,\infty]$ and $\smash[t]{(-1)^k\frac{d^k}{dt^k}\psi(t)\ge 0}$ for all $k\in\IN_{0}$, $t\in(0,\infty)$, so that $\psi$ is the Laplace-Stieltjes transform of a distribution function $F$ on the positive real line, i.e., $\psi=\LS[F]$, see Bernstein's Theorem in \citet[p.\ 439]{feller1971}. 
+	for some generator $\psi$ with inverse $\psii:[0,1]\to[0,\infty]$, where $\psii(0):=\inf\{t:\psi(t)=0\}$. \citet{mcneilneslehova2009} show that a generator defines an Archimedean copula if and only if $\psi$ is $d$\textit{-monotone}, i.e., $\psi$ is continuous on $[0,\infty]$, admits derivatives up to the order $d-2$ satisfying $\smash[t]{(-1)^k\frac{d^k}{dt^k}\psi(t)\ge 0}$ for all $k\in\{0,\dots,d-2\}$, $t\in(0,\infty)$, and $\smash[t]{(-1)^{d-2}\frac{d^{d-2}}{dt^{d-2}}\psi(t)}$ is decreasing and convex on $(0,\infty)$. Throughout this work we assume $\psi$ to be \textit{completely monotone}, i.e., $\psi$ is continuous on $[0,\infty]$ and $\smash[t]{(-1)^k\frac{d^k}{dt^k}\psi(t)\ge 0}$ for all $k\in\IN_{0}$, $t\in(0,\infty)$, so that $\psi$ is the Laplace-Stieltjes transform of a distribution function $F$ on the positive real line, i.e., $\psi=\LS[F]$, see Bernstein's Theorem in \citet[p.\ 439]{feller1971}.
 	\par
 	If we know how to efficiently sample $F=\LSi[\psi]$, the following algorithm by \citet{marshallolkin1988} easily generates vectors of random variates following the Archimedean copula generated by $\psi$ in all dimensions $d$. As usual, ``i.i.d.'' means ``independent and identically distributed''.
 	\begin{algorithm}[\citet{marshallolkin1988}]\label{21}
@@ -203,7 +114,7 @@ options(width=75)
 	\begin{align}
 		C(\bm{u};\psi_0,\dots,\psi_{d-2}):=\psi_0\bigl(\psiis{0}(u_1)+\psiis{0}(C(u_2,\dots,u_d;\psi_{1},\dots,\psi_{d-2}))\bigr),\ \bm{u}\in I^d,\label{18}
 	\end{align}
-	for $d\ge3$, $C$ is called \textit{fully-nested Archimedean copula} with $d-1$ \textit{nesting levels} or \textit{hierarchies}. Fully-nested Archimedean copulas may also be obtained by nesting in one of the other arguments, not necessarily in the last one as done in (\ref{18}). Otherwise, $C$ is called \textit{partially-nested Archimedean copula}. 
+	for $d\ge3$, $C$ is called \textit{fully-nested Archimedean copula} with $d-1$ \textit{nesting levels} or \textit{hierarchies}. Fully-nested Archimedean copulas may also be obtained by nesting in one of the other arguments, not necessarily in the last one as done in (\ref{18}). Otherwise, $C$ is called \textit{partially-nested Archimedean copula}.
 	\par
 	In order for (\ref{18}) being indeed a proper copula, \citet[p.\ 88]{joe1997} and \citet{mcneil2008} present the sufficient \textit{nesting condition} that $\psiis{i}\circ\psi_{j}$ have completely monotone derivatives for all nodes appearing in a nested Archimedean copula. This condition can be derived from a mixture representation of $C$ based on the \textit{outer distribution function} $F_0:=\LSi[\psi_0]$ corresponding to the \textit{outer generator} $\psi_0$ and the \textit{inner distribution functions} $F_{ij}:=\LSi[\psi_{ij}(\cdot\,;V_0)]$ corresponding to the \textit{inner generators} $\psi_{ij}(t;x):=\exp\bigl(-x\psiis{i}(\psi_{j}(t))\bigr)$, $x>0$, appearing in the Archimedean structure.
 	\par
@@ -225,7 +136,7 @@ options(width=75)
 	For sampling strategies for these two distributions for many known Archimedean generators, see \citet{hofert2008}, \citet{hofert2010a}, and \citet{hofert2010c}.
 \section{The implemented Archimedean families}
   Among the most widely used one-parametric Archimedean families are the ones of Ali-Mikhail-Haq (``A''), Clayton (``C''), Frank (``F''), Gumbel (``G''), and Joe (``J''), see, e.g., \citet[pp.\ 116]{nelsen2007}. For simplicity, we choose a slightly different generator for Clayton's family. Tables \ref{table1}, \ref{table2}, and \ref{table3} list these generators with corresponding Kendall's tau, tail-dependence coefficients, conditions on two parameters $\vt_0$ and $\vt_1$ such that $\psi_{01}$ fulfills the sufficient nesting condition, and instructions for sampling $V_0$ and $V_{01}$.
-	\begin{table}[htbp] 
+	\begin{table}[htbp]
 		\centering
 		\begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}cccc}
 			\toprule
@@ -241,14 +152,14 @@ options(width=75)
       % 14&$[1,\infty)$&$(1+t^{1/\vt})^{-\vt}$&$\S(1/\vt,1,\cos^{\vt}(\pi/(2\vt)),\I_{\{\vt=1\}};1)\Gamma(\vt,1)^\vt$\\
       % 19&$(0,\infty)$&$\vt/\log(t+e^\vt)$&$\Gamma(\Exp(1)/\vt,e^{\vt})$\\
       % 20&$(0,\infty)$&$\log^{-{1/\vt}}(t+e)$&$\Gamma(\Gamma(1/\vt,1),e)$\\
-			\bottomrule 
+			\bottomrule
 		\end{tabularx}
 		\caption{Commonly used one-parameter Archimedean generators.}
 		\label{table1}
 	\end{table}
 	\par
 	The last column of Table \ref{table1} contains the distributions $F$ to be sampled for the first step of the Marshall-Olkin algorithm. Note that this is the same distribution as $F_0$ which has to be drawn for sampling a nested Archimedean copulas with McNeil's algorithm, simply replace $\vt$ by $\vt_0$. For the family of Ali-Mikhail-Haq, $\Geo(p)$ denotes a \textit{geometric distribution} with success probability $p\in(0,1]$ and mass function $p_k=p(1-p)^{k-1}$ at $k\in\IN$. For Clayton's family, $\Gamma(\alpha,\beta)$ denotes the \textit{gamma distribution} with shape $\alpha\in(0,\infty)$, scale $\beta\in(0,\infty)$, and density $f(x)=\beta^\alpha x^{\alpha-1}\exp(-\beta x)/\Gamma(\alpha)$, $x\in(0,\infty)$. For the family of Frank, $\Log(p)$ denotes a \textit{logarithmic distribution} with parameter $p\in(0,1)$ and mass function $p_k=p^k/(-k\log(1-p))$ at $k\in\IN$. For sampling logarithmic distributions, the sampling algorithm ``LK'' of \citet{kemp1981} can be applied. For Gumbel's family, $F$ corresponds to a stable distribution, see \citet[p.\ 8]{nolan2009} for the parameterization. An efficient algorithm for sampling stable distributions is given in \citet{chambersmallowsstuck1976}. For the family of Joe, $p_k=\binom{1/\vt}{k}(-1)^{k-1}$ at $k\in\IN$, with $\vt\in[1,\infty)$. This distribution can be sampled with an algorithm found in \citet{hofert2010a}.
-	\begin{table}[htbp] 
+	\begin{table}[htbp]
 		\centering
 		\begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}ccccc}
 			\toprule
@@ -264,18 +175,18 @@ options(width=75)
       % 14&$[1,\infty)$&$1-2/(1+2\vt)$&$1/2$&$2-2^{1/\vt}$\\
       % 19&$(0,\infty)$&$1/3+2\vt(1-\vt e^\vt E_1(\vt))/3$&1&0\\
       % 20&$(0,\infty)$&$-$&1&0\\
-			\bottomrule 
+			\bottomrule
 		\end{tabularx}
 		\caption{Kendall's tau and tail-dependence coefficients for commonly used one-parameter Archimedean generators.}
 		\label{table2}
 	\end{table}
   \par
   Table \ref{table2} contains formulas for the concordance measure Kendall's tau and the lower and upper tail-dependence coefficient. For Frank's family, $D_1(\vt):=\int_0^\vt t/(\exp(t)-1)\,dt/\vt$ denotes the \textit{Debye function of order one}.
-	\begin{table}[htbp] 
+	\begin{table}[htbp]
 		\centering
 		\begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}ccc}
 			\toprule
-			\multicolumn{1}{c}{Family}&\multicolumn{1}{c}{nesting condition}&$V_{01}\sim F_{01}=\LSi[\psi_{01}(\cdot\,;V_0)]$\\ 
+			\multicolumn{1}{c}{Family}&\multicolumn{1}{c}{nesting condition}&$V_{01}\sim F_{01}=\LSi[\psi_{01}(\cdot\,;V_0)]$\\
 			\midrule
 			A&$\vt_0\le\vt_1$&$V_0+X$, $X\sim\NB(V_0,(1-\vt_1)/(1-\vt_0))$\\
 			C&$\vt_0\le\vt_1$&$\tS(\vt_0/\vt_1,1,(\cos(\pi\vt_0/(2\vt_1))V_0)^{\vt_1/\vt_0},V_0\I_{\{\vt_0=\vt_1\}},\I_{\{\vt_0\neq\vt_1\}};1)$\\
@@ -293,7 +204,7 @@ options(width=75)
 		\label{table3}
 	\end{table}
   \par
-  Table \ref{table3} contains instructions for sampling $V_{01}$ as required for sampling nested Archimedean copulas with McNeil's algorithm. The distribution of $V_{01}$ for Gumbel's family is addressed in \citet{mcneil2008}, all other results can be found in \citet{hofert2010a}. For Ali-Mikhail-Haq's family, $\NB(r,p)$, $r\in(0,\infty)$, $p\in(0,1)$, denotes the negative binomial distribution with mass function $p_k=\binom{k+r-1}{r-1}p^r(1-p)^k$, $k\in\IN_0$. For Clayton's family, $V_{01}$ follows an \textit{exponentially tilted stable distribution} of the form $\tS(\alpha,1,(\cos(\alpha\pi/2)V_0)^{1/\alpha},V_0\I_{\{\alpha=1\}},h\I_{\{\alpha\neq1\}};1)$ with Laplace-Stieltjes transform $\tilde{\psi}(t)=\exp\bigl(-V_0((h+t)^{\alpha}-h^{\alpha})\bigr)$, see \citet{hofert2010a} for more details and an efficient sampling algorithm for these distributions. For the families of Frank and Joe, $V_{01}$ can be sampled as a $V_0$-fold sum of i.i.d.\ random variables, see \citet{hofert2010a} for sampling algorithms for the distributions of the summands $V_k$, $k\in\{1,\dots,V_0\}$. 
+  Table \ref{table3} contains instructions for sampling $V_{01}$ as required for sampling nested Archimedean copulas with McNeil's algorithm. The distribution of $V_{01}$ for Gumbel's family is addressed in \citet{mcneil2008}, all other results can be found in \citet{hofert2010a}. For Ali-Mikhail-Haq's family, $\NB(r,p)$, $r\in(0,\infty)$, $p\in(0,1)$, denotes the negative binomial distribution with mass function $p_k=\binom{k+r-1}{r-1}p^r(1-p)^k$, $k\in\IN_0$. For Clayton's family, $V_{01}$ follows an \textit{exponentially tilted stable distribution} of the form $\tS(\alpha,1,(\cos(\alpha\pi/2)V_0)^{1/\alpha},V_0\I_{\{\alpha=1\}},h\I_{\{\alpha\neq1\}};1)$ with Laplace-Stieltjes transform $\tilde{\psi}(t)=\exp\bigl(-V_0((h+t)^{\alpha}-h^{\alpha})\bigr)$, see \citet{hofert2010a} for more details and an efficient sampling algorithm for these distributions. For the families of Frank and Joe, $V_{01}$ can be sampled as a $V_0$-fold sum of i.i.d.\ random variables, see \citet{hofert2010a} for sampling algorithms for the distributions of the summands $V_k$, $k\in\{1,\dots,V_0\}$.
 \section{Working with nested Archimedean copulas}
 
   todo: include details about the procedure for generating stable random numbers
@@ -301,6 +212,6 @@ options(width=75)
   todo: introduce classes, technical stuff
   \par
   todo: evaluating, sampling, kendall's tau, plots (?) => examples
-  
+
 \bibliography{mybibliographybibtex}
 \end{document}
