@@ -3,7 +3,7 @@
 ### FIXME: Not "nice" that the names have to be used
 ###   probably: use *same* environment for  (tau, tauInv, paraConstr, nestConstr) ?
 
-### ====Ali-Mikhail-Haq, see Nelsen (2007) p. 116, # 3====
+### ==== Ali-Mikhail-Haq, see Nelsen (2007) p. 116, # 3 ====
 copAMH <-
     new("ACopula", name = "AMH",
         ## generator
@@ -52,7 +52,7 @@ copAMH <-
 stopifnot(validObject(copAMH))# ok
 
 ### === Clayton, see Nelsen (2007) p. 116, #1
-### 	but we use a slightly simpler form of the generator====
+### 	but we use a slightly simpler form of the generator ====
 copClayton <-
     new("ACopula", name = "Clayton",
         ## generator
@@ -84,7 +84,7 @@ copClayton <-
 
 stopifnot(validObject(copClayton))# ok
 
-### ====Frank, see Nelsen (2007) p. 116, # 5====
+### ==== Frank, see Nelsen (2007) p. 116, # 5 ====
 
 ## rng Log(p) distribution
 rlog <- function(n,p) {
@@ -173,7 +173,7 @@ copFrank <-
 
 stopifnot(validObject(copFrank))# ok
 
-### ====Gumbel, see Nelsen (2007) p. 116, # 4====
+### ==== Gumbel, see Nelsen (2007) p. 116, # 4 ====
 copGumbel <-
     new("ACopula", name = "Gumbel",
         ## generator
@@ -225,36 +225,29 @@ copGumbel <-
 
 stopifnot(validObject(copGumbel))# ok
 
-### ====Joe, see Nelsen (2007) p. 116, # 6====
+### ==== Joe, see Nelsen (2007) p. 116, # 6 ====
 
-rFJoe=function(n,alpha){
+rFJoe <- function(n,alpha) {
   stopifnot((n <- as.integer(n)) >= 0)
   vec <- numeric(n)
   if(n >= 1) {
-    if(alpha==1){
-      vec <- rep(1,n)
-    }else{
+    if(alpha==1) {
+      vec <- rep.int(1, n)
+    } else {
       u <- runif(n)
+      ## FIXME(MM): (for alpha not too close to 1): re-express using 1-u !
       l1 <- u <= alpha
       vec[l1] <- 1
-      i1 <- which(!l1)
-      Ginv <- ((1-u[i1])*gamma(1-alpha))^(-1/alpha)
-      l2 <- is.infinite(Ginv) ## check if gamma returned a value leading to Ginv=Inf
-      i2 <- i1[l2] ## indices where vec has to be Inf
-      vec[i2] <- Inf ## directly set vec to Inf ##FIXME: or set it to largest value 1.80e+308?
-      l3 <- !l2 ## Ginv[l3] is finite
-      i3 <- i1[l3] ## remaining indices where vec has to be filled
-      Ginv <- Ginv[l3]
-      floorGinv <- floor(Ginv) ## also finite
-      l4 <- (1-1/(floorGinv*beta(floorGinv,1-alpha))<u[i3])
-      i4 <- i3[l4]
-      vec[i4] <- ceiling(Ginv[l4])
-      l5 <- !l4
-      i5 <- i3[l5]
-      vec[i5] <- floorGinv[l5]
+      i2 <- which(!l1)
+      Ginv <- ((1-u[i2])*gamma(1-alpha))^(-1/alpha)
+      floorGinv <- floor(Ginv)
+      l3 <- (1-1/(floorGinv*beta(floorGinv,1-alpha)) < u[i2])
+      vec[i2[l3]] <- ceiling(Ginv[l3])
+      i4 <- which(!l3)
+      vec[i2[i4]] <- floorGinv[i4]
     }
   }
-  vec 
+  vec
 }
 
 ## Joe object
@@ -271,22 +264,27 @@ copJoe <-
             copJoe@paraConstr(theta1) && theta1 >= theta0
         },
         ## V0 and V01
-        V0 = function(n,theta) { rFJoe(n,1/theta) },
-        V01 = function(V0,theta0,theta1,approx=100000) {
-          alpha=theta0/theta1
-          ia=(V0>approx)
-          ie=!ia
-          V01=numeric(length(V0))
-          V01[ia]=V0[ia]^(1/alpha)*rstable1(sum(ia),alpha,1,(cos(alpha*pi/2))^(1/alpha),ifelse(alpha==1,1,0))
-          V01[ie]=sapply(lapply(V0[ie],rFJoe,alpha=alpha),sum)
+        V0 = function(n,theta) rFJoe(n,1/theta),
+        V01 = function(V0,theta0,theta1, approx=100000) {
+          alpha <- theta0/theta1
+          ia <- (V0 > approx)
+          ie <- !ia
+          V01 <- V0 #numeric(length(V0))
+          V01[ia] <- V0[ia]^(1/alpha) *
+              rstable1(sum(ia),alpha, beta=1, gamma = cos(alpha*pi/2)^(1/alpha),
+                       delta = as.integer(alpha==1))
+          V01[ie] <- sapply(lapply(V0[ie], rFJoe, alpha=alpha),sum)
           V01
         },
         ## Kendall's tau
-        tau = function(theta,noTerms=446) { #even for theta==0, the approximation error is < 10^(-5)
+        ## noTerms: even for theta==0, the approximation error is < 10^(-5)
+        tau = function(theta, noTerms=446) {
+            k <- seq_len(noTerms)
             sapply(theta,
-                   function(theta,noTerms=446) {
-                       k <- seq_len(noTerms)
-                       1 - 4*sum(1/(k*(theta*k+2)*(theta*(k-1)+2)))
+                   function(th) {
+                       tk2 <- th*k + 2
+                       1 - 4*sum(1/(k*tk2*(tk2 - th)))
+                       ## ==... (1/(k*(th*k+2)*(th*(k-1)+2)))
                    })
         },
         tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {

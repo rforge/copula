@@ -25,13 +25,14 @@ p.Tau <- function(cop, n = 201, xlim = pmin(paraI, 50), ...) {
     theta <- seq(xlim[1], xlim[2], length.out = n)
     tit <- substitute(tau[NAME](theta), list(NAME = cop@name))
     plot(theta, cop@tau(theta), type = "l", main = tit, ...)
+    abline(h = c(0,1), lty = 3, col = "gray20")
 }
 
 p.Tau(copAMH)
 p.Tau(copClayton)
-p.Tau(copFrank)
+p.Tau(copFrank, xlim = c(0, 80), ylim= 0:1)# fast via debye_1()
 p.Tau(copGumbel)
-p.Tau(copJoe)
+p.Tau(copJoe, ylim = 0:1, yaxs="i")
 
 ##====test function====
 
@@ -140,6 +141,14 @@ thetavec <- c(0.5,1,2,5,10)
 
 ## call test function
 tstCop(myFrank, 5.736283, thetavec)
+
+## with a slightly more extensive test:
+tau.th <- c(0.055417, 0.11002, 0.21389, 0.4567, 0.66578)
+tau.F <- myFrank@tau(thetavec)
+stopifnot(all.equal(tau.th, tau.F, tol = 0.0001),
+	  all.equal(.9999, copFrank@tau(copFrank@tauInv(0.9999))),
+	  all.equal(myFrank@tauInv(tau.F, tol = 1e-14), thetavec, tol=1e-11))
+
 
 ##====copGumbel===
 

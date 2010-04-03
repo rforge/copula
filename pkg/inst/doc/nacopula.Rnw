@@ -6,6 +6,8 @@
 \usepackage[authoryear,round]{natbib}
 \setlength{\bibsep}{0pt}
 \bibliographystyle{plainnat}
+%%\VignetteIndexEntry{nacopula R package}
+%%\VignetteDepends{nacopula}
 \hyphenation{Ar-chi-me-dean}
 \SweaveOpts{engine=R,eps=FALSE,pdf=TRUE,width=7,height=4,strip.white=TRUE,keep.source=TRUE}
 %
