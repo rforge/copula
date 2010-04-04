@@ -37,7 +37,7 @@ setMethod("rn", signature(x = "outer_nACopula"),
 	  j <- c(x@comp, unlist(lapply(childL, `[[`, "indCol")))
 	  ## extra checks -- comment later:
 	  stopifnot(length(j) == ncol(mat))
-	  m <- Cp@psi(mat[,order(j)], theta)	  # permute data and return
+	  m <- mat[,order(j)]	  # permute data and return
 	  ## extra checks:
 	  stopifnot(length(dm <- dim(m)) == 2, dm == dim(mat))
 	  m
