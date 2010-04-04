@@ -1,7 +1,7 @@
 library(nacopula)
 set.seed(1)
 n <- 2000
-N <- 50 #for the number of variates for the conducted Kolmogorov-Smirnov test
+N <- 100 #for the number of variates for the conducted Kolmogorov-Smirnov test
 taueps <- 0.06 #for deciding if sample versions of Kendall's tau are "close enough" to population versions
 doPlots <- (Sys.getenv("USER") == "maechler")
 
@@ -62,10 +62,25 @@ cube<-function(data,pts){
   (i1-1)+(i2-1)*5+(i3-1)*5*5+1
 }
 
+#function to use until rn() is working properly ##FIXME: find error in rn()
+rn3d=function(cop,n){
+  copula <- cop@copula
+  th0 <- copula@theta
+  th1 <- cop@childCops[[1]]@copula@theta
+  mat <- matrix(0,nrow = n,ncol = 3)
+  V0 <- copula@V0(n,th0)
+  V01 <- copula@V01(V0,th0,th1)
+  mat <- cbind(runif(n),
+               exp(-V0*copula@psiInv(copula@psi(rexp(n)/V01,th1),th0)),
+               exp(-V0*copula@psiInv(copula@psi(rexp(n)/V01,th1),th0)))
+  mat[,] <- copula@psi(-log(mat[,])/V0,th0)
+  mat
+}
+
 #for chisquare test: define function which simulates the test statistic for 1 run
 simuteststat<-function(k,n,cop,pts,cube,m,expnumofobs){
   cat("Run ",k,sep="")#user output due to possibly long run time
-  data<-rn(cop,n)#generate data
+  data<-rn3d(cop,n)#generate data
   cubenumbers<-cube(data,pts)#find the cube numbers
   observationsinbin<-tabulate(cubenumbers,nbins=m)#find the number of observations in each cube
   T<-sum(((observationsinbin-expnumofobs)^2)/expnumofobs)#compute chisquare test statistic
@@ -121,7 +136,8 @@ AMH3d <-
                              comp = as.integer(c(2,3)))) # no childCops
         )
 resultAMH<-check2(n,N,AMH3d)
-resultAMH$ks
+cat("p-value of the chi-square test: ",resultAMH$ks[[2]],"\n",sep="")
+stopifnot(resultAMH$ks[[2]]>0.05)
 
 #====Clayton================================
 
@@ -145,7 +161,8 @@ Clayton3d <-
                              comp = as.integer(c(2,3)))) # no childCops
         )
 resultClayton<-check2(n,N,Clayton3d)
-resultClayton$ks
+cat("p-value of the chi-square test: ",resultClayton$ks[[2]],"\n",sep="")
+stopifnot(resultClayton$ks[[2]]>0.05)
 
 #====Frank================================
 
@@ -166,7 +183,8 @@ Frank3d <-
                              comp = as.integer(c(2,3)))) # no childCops
         )
 resultFrank<-check2(n,N,Frank3d)
-resultFrank$ks
+cat("p-value of the chi-square test: ",resultFrank$ks[[2]],"\n",sep="")
+stopifnot(resultFrank$ks[[2]]>0.05)
 
 #====Gumbel================================
 
@@ -187,7 +205,8 @@ Gumbel3d <-
                              comp = as.integer(c(2,3)))) # no childCops
         )
 resultGumbel<-check2(n,N,Gumbel3d)##FIXME: log(NULL) not NULL => problem in value function!
-resultGumbel$ks
+cat("p-value of the chi-square test: ",resultGumbel$ks[[2]],"\n",sep="")
+stopifnot(resultGumbel$ks[[2]]>0.05)
 
 #====Joe================================
 
@@ -208,7 +227,8 @@ Joe3d <-
                              comp = as.integer(c(2,3)))) # no childCops
         )
 resultJoe<-check2(n,N,Joe3d)
-resultJoe$ks
+cat("p-value of the chi-square test: ",resultJoe$ks[[2]],"\n",sep="")
+stopifnot(resultJoe$ks[[2]]>0.05)
 
 ##====Examples that check value() and rn()========================================
 
