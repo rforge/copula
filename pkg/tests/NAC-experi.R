@@ -1,17 +1,18 @@
 library(nacopula)
 set.seed(1)
 n <- 2000
-taueps <- 0.06 #--
+N <- 50 #for the number of variates for the conducted Kolmogorov-Smirnov test
+taueps <- 0.06 #for deciding if sample versions of Kendall's tau are "close enough" to population versions
 doPlots <- (Sys.getenv("USER") == "maechler")
 
-##==== 3d examples: generate data by hand to check if V0 and V01 are correct=======================
+##====3d check functions=======================
 
-##' correlation check function (copula sampled "by hand")
+##' correlation check function and run time measuring
 ##' @param n
 ##' @param th0
 ##' @param th1
 ##' @param cop
-corcheck <- function(n,th0,th1,cop) {
+check1 <- function(n,th0,th1,cop) {
   mat <- matrix(0,nrow = n,ncol = 3)
   V0time <- system.time(V0 <- cop@V0(n,th0))
   V01time <- system.time(V01 <- cop@V01(V0,th0,th1))
@@ -30,44 +31,186 @@ prt.tau.diff <- function(c1, c2) {
               max(delta.c), mean(delta.c)))
   invisible()
 }
-corcheckout <- function(x,family,trCorr) {
+check1out <- function(x,family,trCorr) {
   cat(sprintf("Run time [ms] V0  for '%s': %7.1f\n", family, 1000*x[[1]][1]))
   cat(sprintf("Run time [ms] V01 for '%s': %7.1f\n", family, 1000*x[[2]][1]))
   prt.tau.diff(x[["cor"]], trCorr) ; cat("\n")
 }
 
-## AMH
-corcheckAMH <- corcheck(n,0.7135,0.9430,copAMH)
+#for chisquare test: find the mass in each cube
+cubemass<-function(mygridrow,cop,mesh){
+  uc<-as.numeric(mygridrow)
+  lc<-uc-mesh
+  massincube<-value(cop,uc)-
+              value(cop,c(lc[1],uc[2],uc[3]))-
+              value(cop,c(uc[1],lc[2],uc[3]))-
+              value(cop,c(uc[1],uc[2],lc[3]))+
+              value(cop,c(lc[1],lc[2],uc[3]))+
+              value(cop,c(lc[1],uc[2],lc[3]))+
+              value(cop,c(uc[1],lc[2],lc[3]))-
+              value(cop,lc)
+  massincube
+}
+
+#for chisquare test: build a function that returns the cube number for each data point
+cube<-function(data,pts){
+  intervals<-as.numeric(cut(data,breaks=pts,include.lowest=TRUE,labels=1:(length(pts)-1)))
+  l<-length(intervals)/3
+  i1<-intervals[1:l]
+  i2<-intervals[(l+1):(2*l)]
+  i3<-intervals[(2*l+1):(3*l)]
+  (i1-1)+(i2-1)*5+(i3-1)*5*5+1
+}
+
+#for chisquare test: define function which simulates the test statistic for 1 run
+simuteststat<-function(k,n,cop,pts,cube,m,expnumofobs){
+  cat("Run ",k,sep="")#user output due to possibly long run time
+  data<-rn(cop,n)#generate data
+  cubenumbers<-cube(data,pts)#find the cube numbers
+  observationsinbin<-tabulate(cubenumbers,nbins=m)#find the number of observations in each cube
+  T<-sum(((observationsinbin-expnumofobs)^2)/expnumofobs)#compute chisquare test statistic
+  cat(" done\n")
+  T
+}
+
+#chisquare test check function (3d only)
+check2<-function(n,N,cop){
+
+  #setup grid
+  mesh<-0.2
+  pts<-seq(0,1,by=mesh)#division points per dimension
+  mygridall<-expand.grid(x=pts,y=pts,z=pts)#build cube upper corners
+  mygrid<-mygridall[mygridall[,1]!=0 & mygridall[,2]!=0 & mygridall[,3]!=0,]#sort out those cubes with zero Lebesgue measure
+  m<-length(mygrid[,1])
+  row.names(mygrid)=1:m#adjust row names
+  
+  #determine the expected number of observations in each cube 
+  masscube<-apply(mygrid,1,cubemass,cop=cop,mesh=mesh)#mass in each cube with upper corner determined by the rows of mygrid
+  expnumofobs<-masscube*n#expected number of observations in each cube
+  mygrid<-cbind(mygrid,expnumofobs=expnumofobs)#update grid with expected number of observations in each cube
+  percentrot<-(sum(expnumofobs>=5)/m)*100#percentage of cubes that fulfill the rule of thumb
+  
+  #now simulate data, count observations in each cube, and compute test statistic
+  T=unlist(lapply(1:N,simuteststat,n=n,cop=cop,pts=pts,cube=cube,m=m,expnumofobs=expnumofobs))
+  ksresult<-ks.test(T,"pchisq",df=m-1)#compute the result of the Kolmogorov-Smirnov test based on the N realizations of the chisquare test statistics
+  list(ks=ksresult,T=T,percentrot=percentrot)#return result
+  
+}
+
+##====3d examples=======================
+
+#====AMH================================
+
+theta0<-0.7135#tau_{12}=tau_{13}=0.2, tau_{23}=0.3
+theta1<-0.9430
+
+#check 1
+check1AMH <- check1(n,theta0,theta1,copAMH)
 trCorr <- rbind(c(1,0.2,0.2),
                 c(0.2,1,0.3),
-                c(0.2,0.3,1))#tau_{12}=tau_{13}=0.2, tau_{23}=0.3
-corcheckout(corcheckAMH,"AMH",trCorr)
-stopifnot(max(abs(corcheckAMH[["cor"]]-trCorr)) < taueps)
+                c(0.2,0.3,1))
+check1out(check1AMH,"AMH",trCorr)
+stopifnot(max(abs(check1AMH[["cor"]]-trCorr)) < taueps)
 
-## Clayton
-corcheckClayton <- corcheck(n,0.5,2,copClayton)#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
+#check 2
+AMH3d <-
+    new("outer_nACopula", copula = setTheta(copAMH, theta0),
+        comp = as.integer( 1 ),
+        childCops = list(new("nACopula",
+                             copula = setTheta(copAMH, theta1),
+                             comp = as.integer(c(2,3)))) # no childCops
+        )
+resultAMH<-check2(n,N,AMH3d)
+resultAMH$ks
+
+#====Clayton================================
+
+theta0<-0.5#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
+theta1<-2
+
+#check 1
+check1Clayton <- check1(n,theta0,theta1,copClayton)
 trCorr <- rbind(c(1,0.2,0.2),
                 c(0.2,1,0.5),
-                c(0.2,0.5,1))#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
-corcheckout(corcheckClayton,"Clayton",trCorr)
-stopifnot(max(abs(corcheckClayton[["cor"]]-trCorr)) < taueps)
+                c(0.2,0.5,1))
+check1out(check1Clayton,"Clayton",trCorr)
+stopifnot(max(abs(check1Clayton[["cor"]]-trCorr)) < taueps)
 
-## Frank
-corcheckFrank <- corcheck(n,1.8609,5.7363,copFrank)#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
-corcheckout(corcheckFrank,"Frank",trCorr)
-stopifnot(max(abs(corcheckFrank[["cor"]]-trCorr)) < taueps)
+#check 2
+Clayton3d <-
+    new("outer_nACopula", copula = setTheta(copClayton, theta0),
+        comp = as.integer( 1 ),
+        childCops = list(new("nACopula",
+                             copula = setTheta(copClayton, theta1),
+                             comp = as.integer(c(2,3)))) # no childCops
+        )
+resultClayton<-check2(n,N,Clayton3d)
+resultClayton$ks
 
-## Gumbel
-corcheckGumbel <- corcheck(n,1.25,2,copGumbel)#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
-corcheckout(corcheckGumbel,"Gumbel",trCorr)
-stopifnot(max(abs(corcheckGumbel[["cor"]]-trCorr)) < taueps)
+#====Frank================================
 
-## Joe
-corcheckJoe <- corcheck(n,1.4438,2.8562,copJoe)#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
-corcheckout(corcheckJoe,"Joe",trCorr)
-stopifnot(max(abs(corcheckJoe[["cor"]]-trCorr)) < taueps)
+theta0<-1.8609#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
+theta1<-5.7363
 
-##==== Examples that check value() and rn()========================================
+#check 1
+check1Frank <- check1(n,theta0,theta1,copFrank)
+check1out(check1Frank,"Frank",trCorr)
+stopifnot(max(abs(check1Frank[["cor"]]-trCorr)) < taueps)
+
+#check 2
+Frank3d <-
+    new("outer_nACopula", copula = setTheta(copFrank, theta0),
+        comp = as.integer( 1 ),
+        childCops = list(new("nACopula",
+                             copula = setTheta(copFrank, theta1),
+                             comp = as.integer(c(2,3)))) # no childCops
+        )
+resultFrank<-check2(n,N,Frank3d)
+resultFrank$ks
+
+#====Gumbel================================
+
+theta0<-1.25#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
+theta1<-2
+
+#check 1
+check1Gumbel <- check1(n,theta0,theta1,copGumbel)
+check1out(check1Gumbel,"Gumbel",trCorr)
+stopifnot(max(abs(check1Gumbel[["cor"]]-trCorr)) < taueps)
+
+#check 2
+Gumbel3d <-
+    new("outer_nACopula", copula = setTheta(copGumbel, theta0),
+        comp = as.integer( 1 ),
+        childCops = list(new("nACopula",
+                             copula = setTheta(copGumbel, theta1),
+                             comp = as.integer(c(2,3)))) # no childCops
+        )
+resultGumbel<-check2(n,N,Gumbel3d)##FIXME: log(NULL) not NULL => problem in value function!
+resultGumbel$ks
+
+#====Joe================================
+
+theta0<-1.4438#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
+theta1<-2.8562
+
+#check 1
+check1Joe <- check1(n,theta0,theta1,copJoe)
+check1out(check1Joe,"Joe",trCorr)
+stopifnot(max(abs(check1Joe[["cor"]]-trCorr)) < taueps)
+
+#check 2
+Joe3d <-
+    new("outer_nACopula", copula = setTheta(copJoe, theta0),
+        comp = as.integer( 1 ),
+        childCops = list(new("nACopula",
+                             copula = setTheta(copJoe, theta1),
+                             comp = as.integer(c(2,3)))) # no childCops
+        )
+resultJoe<-check2(n,N,Joe3d)
+resultJoe$ks
+
+##====Examples that check value() and rn()========================================
 
 ##generate output for the examples
 prt.stats <- function(c1,c2, rt) {
