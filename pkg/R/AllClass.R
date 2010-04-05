@@ -1,17 +1,6 @@
 
 ###  ???? Should we try to be compatible to  'Copula' package ??
 
-if(FALSE) ## rather the one below ..
-setClass("interval",
-         representation(range = "numeric", # of length 2
-                        open  = "logical"),# of length 2
-	 validity = function(object) {
-	     if(length(rng <- object@range) != 2) "'range' must be of length 2"
-	     else if(length(object@open) != 2) "'open' must be of length 2"
-	     else if(rng[2] < rng[1]) "'range[2]' must not be smaller than range[1]"
-	     else TRUE
-	 })
-
 ## This has advantage that arithmetic with scalars works "for free" already:
 setClass("interval", contains =  "numeric", # of length 2
          representation(open  = "logical"),# of length 2
@@ -50,18 +39,37 @@ setClass("ACopula",
 	 validity = function(object) {
 	     if (length(nm <- object@name) != 1 || nchar(nm) < 1)
 		 return("'name' must be a string (of at least 1 character)")
-             checkFun <- function(sName, nArgs) {
-                 f <- slot(object, sName)
-                 if (length(formals(f)) == nArgs)
-                     TRUE
-                 else
-                     paste("slot '",sName,"' must be a function of ",nArgs,
-                           " arguments", sep="")
-             }
+             th <- tryCatch(validTheta(object), error = function(e) e)
+             if(is(th, "error")) return(th $ message)
+
+	     checkFun <- function(sName, nArgs, chkVectorizing=TRUE) {
+		 f <- slot(object, sName)
+		 if (length(formals(f)) < nArgs)
+		     paste("slot '",sName,"' must be a function of at least ",nArgs,
+			   " arguments", sep="")
+		 else if(chkVectorizing && nArgs <= 2) {
+		     ## test that the function can be called with NULL
+		     r0 <- tryCatch(if(nArgs == 2) f(NULL, theta = th) else f(NULL),
+                                    error = function(e) e)
+		     if(is(r0, "error"))
+			 sprintf("calling %s(NULL, %g) fails: %s",
+				 sName, th, r0$message)
+		     else if(!identical(r0,
+                                        {n0 <- numeric(0)
+                                         if(nArgs == 2) f(n0, theta = th) else f(n0) }))
+			 sprintf("%s(NULL ..) is not the same as %s(num(0) ..)",
+				 sName, sName)
+		     else TRUE
+		 } else TRUE
+	     } ## {checkFun}
+
              if(!isTRUE(tt <- checkFun("psi", 2)))	return(tt)
              if(!isTRUE(tt <- checkFun("psiInv", 2)))	return(tt)
-             if(!isTRUE(tt <- checkFun("paraConstr", 1))) return(tt)
-             if(!isTRUE(tt <- checkFun("nestConstr", 2))) return(tt)
+             if(!isTRUE(tt <- checkFun("tau", 1)))	return(tt)
+
+             if(!isTRUE(tt <- checkFun("paraConstr", 1, chkVect=FALSE))) return(tt)
+             if(!isTRUE(tt <- checkFun("nestConstr", 2, chkVect=FALSE))) return(tt)
+
              ## ...
              ## ... (TODO)
 
@@ -89,6 +97,30 @@ setMethod("initialize", signature(.Object = "ACopula"),
 	  })
 
 
+## A utility, not yet exported _ TODO ? _
+
+setGeneric("validTheta", function(x, u) standardGeneric("validTheta"))
+setMethod("validTheta", signature(x = "ACopula"),
+	  function(x) {
+	      if(is((int <- x@paraInterval), "interval")) {
+		  if(is.finite(d <- diff(as.numeric(int)))) # take mid-value in interval
+		      int[1] + d/2
+		  else if (all(iinf <- is.infinite(is.finite(int)))) ##	 (-Inf, Inf)
+		      1/2
+		  else { ## at least one end is finite
+		      if(int[2] == Inf) int[1] + 1
+		      else if(int[1] == -Inf) int[2] - 1
+		      else stop("invalid paraInterval slot??")
+		  }
+	      } else  { ## need to use parameter-contraint function and "random search":
+		  f.c <- x@paraConstr
+		  for (th in c(1/2, (0:16)/16, round(exp(rnorm(20)),2)))
+		      if(f.th <- f.c(th)) break
+		  if(f.th) th else stop("could not find validTheta(<c>) for this copula")
+	      }
+	  })
+
+
 ### Nested Archimedean Copulas with *specified* dimension(s)
 setClass("nACopula",
 	 representation(copula = "ACopula",
@@ -109,10 +141,6 @@ setClass("nACopula",
              allC <- allComp(object)
              if(length(allC) != d)
                  return("must have d coordinates (from 'comps' and child copulas)")
- if(FALSE)##___ CHECK THIS ON ANOTHER LEVEL
-             if(!all(sort(allC) == 1:d))
-                 return(paste("The implicit coordinates are not identical to 1:d; instead\n  ",
-                              paste(allC, collapse=", ")))
              ##
              TRUE
          })

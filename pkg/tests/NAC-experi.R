@@ -2,7 +2,11 @@ library(nacopula)
 set.seed(1)
 n <- 2000
 N <- 100 #for the number of variates for the conducted Kolmogorov-Smirnov test
-taueps <- 0.06 #for deciding if sample versions of Kendall's tau are "close enough" to population versions
+##
+## maximal deviation for deciding if sample versions of Kendall's tau are
+## "close enough" to population versions; NB: depends on 'n'
+eps.tau <- 0.06
+
 doPlots <- (Sys.getenv("USER") == "maechler")
 
 ##====3d check functions=======================
@@ -12,7 +16,7 @@ doPlots <- (Sys.getenv("USER") == "maechler")
 ##' @param th0
 ##' @param th1
 ##' @param cop
-check1 <- function(n,th0,th1,cop) {
+corCheck <- function(n,th0,th1,cop) {
   mat <- matrix(0,nrow = n,ncol = 3)
   V0time <- system.time(V0 <- cop@V0(n,th0))
   V01time <- system.time(V01 <- cop@V01(V0,th0,th1))
@@ -31,88 +35,132 @@ prt.tau.diff <- function(c1, c2) {
               max(delta.c), mean(delta.c)))
   invisible()
 }
-check1out <- function(x,family,trCorr) {
+corCheckout <- function(x,family,trCorr) {
   cat(sprintf("Run time [ms] V0  for '%s': %7.1f\n", family, 1000*x[[1]][1]))
   cat(sprintf("Run time [ms] V01 for '%s': %7.1f\n", family, 1000*x[[2]][1]))
   prt.tau.diff(x[["cor"]], trCorr) ; cat("\n")
 }
 
-#for chisquare test: find the mass in each cube
-cubemass<-function(mygridrow,cop,mesh){
-  uc<-as.numeric(mygridrow)
-  lc<-uc-mesh
-  massincube<-value(cop,uc)-
-              value(cop,c(lc[1],uc[2],uc[3]))-
-              value(cop,c(uc[1],lc[2],uc[3]))-
-              value(cop,c(uc[1],uc[2],lc[3]))+
-              value(cop,c(lc[1],lc[2],uc[3]))+
-              value(cop,c(lc[1],uc[2],lc[3]))+
-              value(cop,c(uc[1],lc[2],lc[3]))-
-              value(cop,lc)
-  massincube
+## for chisquare test: find the mass in each cube
+cubemass <- function(mygridrow, cop, mesh) {
+  uc <- as.numeric(mygridrow)
+  lc <- uc-mesh
+  ## massincube :=
+  value(cop,uc)+
+      - value(cop,c(lc[1],uc[2],uc[3]))+
+      - value(cop,c(uc[1],lc[2],uc[3]))+
+      - value(cop,c(uc[1],uc[2],lc[3]))+
+      + value(cop,c(lc[1],lc[2],uc[3]))+
+      + value(cop,c(lc[1],uc[2],lc[3]))+
+      + value(cop,c(uc[1],lc[2],lc[3]))+
+      - value(cop,lc)
 }
 
-#for chisquare test: build a function that returns the cube number for each data point
-cube<-function(data,pts){
-  intervals<-as.numeric(cut(data,breaks=pts,include.lowest=TRUE,labels=1:(length(pts)-1)))
-  l<-length(intervals)/3
-  i1<-intervals[1:l]
-  i2<-intervals[(l+1):(2*l)]
-  i3<-intervals[(2*l+1):(3*l)]
-  (i1-1)+(i2-1)*5+(i3-1)*5*5+1
+## for chisquare test: build a function that returns the cube number
+## for each data point
+cube <- function(data,pts) {
+  intervals <- as.numeric(cut(data, breaks = pts,include.lowest = TRUE,labels = 1:(length(pts)-1)))
+  l <- length(intervals)/3
+  i1 <- intervals[1:l]
+  i2 <- intervals[(l+1):(2*l)]
+  i3 <- intervals[(2*l+1):(3*l)]
+  (i1-1) + (i2-1)*5 + (i3-1)*5*5 + 1
 }
 
-#for chisquare test: define function which simulates the test statistic for 1 run
-simuteststat<-function(k,n,cop,pts,cube,m,expnumofobs){
-  cat("Run ",k,sep="")#user output due to possibly long run time
-  data<-rn(cop,n)#generate data
-  cubenumbers<-cube(data,pts)#find the cube numbers
-  observationsinbin<-tabulate(cubenumbers,nbins=m)#find the number of observations in each cube
-  T<-sum(((observationsinbin-expnumofobs)^2)/expnumofobs)#compute chisquare test statistic
-  cat(" done\n")
-  T
+## for chisquare test: define function which simulates the test
+## statistic for 1 run
+simuteststat <- function(n,cop,pts,cube, nbins, E_nObs) {
+    data <- rn(cop,n)       #generate data
+    cubenumbers <- cube(data,pts)       #find the cube numbers
+    ## Number of observations in each cube:
+    observationsinbin <- tabulate(cubenumbers, nbins = nbins)
+    sum(((observationsinbin-E_nObs)^2)/E_nObs) #compute chisquare test statistic
 }
 
-#chisquare test check function (3d only)
-check2<-function(n,N,cop){
+##' <description>
+##'
+##' <details>
+##' @title Chisquare test check function (3d only)
+##' @param n [integer] sample size
+##' @param N [integer] number of replications
+##' @param cop NACopula to generate from
+##' @param mesh positive: the Delta_x used for the grid
+##' @return a list(...) -- FIXME: use class with print method
+chiSq_check_cop3d <- function(n,N,cop, mesh = 0.2, verbose = interactive())
+{
+    copName <- deparse(substitute(cop))
+    pts <- seq(0,1, by=mesh)
+    ## setup grid --
+    mygrid <- expand.grid(x = pts,y = pts,z = pts) #build cube upper corners
+    ## sort out those cubes with zero Lebesgue measure:
+    mygrid <- mygrid[apply(mygrid, 1, function(r) all(r != 0)), ]
+    m <- nrow(mygrid)
+    ##> row.names(mygrid) <- 1:m             #adjust row names
 
-  #setup grid
-  mesh<-0.2
-  pts<-seq(0,1,by=mesh)#division points per dimension
-  mygridall<-expand.grid(x=pts,y=pts,z=pts)#build cube upper corners
-  mygrid<-mygridall[mygridall[,1]!=0 & mygridall[,2]!=0 & mygridall[,3]!=0,]#sort out those cubes with zero Lebesgue measure
-  m<-length(mygrid[,1])
-  row.names(mygrid)=1:m#adjust row names
-  
-  #determine the expected number of observations in each cube 
-  masscube<-apply(mygrid,1,cubemass,cop=cop,mesh=mesh)#mass in each cube with upper corner determined by the rows of mygrid
-  expnumofobs<-masscube*n#expected number of observations in each cube
-  mygrid<-cbind(mygrid,expnumofobs=expnumofobs)#update grid with expected number of observations in each cube
-  percentrot<-(sum(expnumofobs>=5)/m)*100#percentage of cubes that fulfill the rule of thumb
-  
-  #now simulate data, count observations in each cube, and compute test statistic
-  T=unlist(lapply(1:N,simuteststat,n=n,cop=cop,pts=pts,cube=cube,m=m,expnumofobs=expnumofobs))
-  ksresult<-ks.test(T,"pchisq",df=m-1)#compute the result of the Kolmogorov-Smirnov test based on the N realizations of the chisquare test statistics
-  list(ks=ksresult,T=T,percentrot=percentrot)#return result
-  
+    ## determine the expected number of observations in each cube
+    ## mass in each cube with upper corner determined by the rows of mygrid:
+    masscube <- apply(mygrid, 1, cubemass, cop = cop, mesh = mesh)
+    E_nobs <- n * masscube # expected number of observations in each cube
+    ##> update grid with expected number of observations in each cube
+    ##> mygrid <- cbind(mygrid,E_nobs = E_nobs)
+
+    ## now simulate data, count observations in each cube, and compute test statistic
+    k <- 0
+    ## T  <- unlist(lapply(1:N,simuteststat,n = n,cop = cop,pts = pts,cube = cube,nbins = m,E_nObs = E_nobs))
+    CPU <- system.time({
+        T <- replicate(N, {
+            if(verbose) cat(sprintf("%2d%1s",{k <<- k+1}, if(k %% 20)"" else "\n"))
+
+            data <- rn(cop,n)       # generate data
+            cubenumbers <- cube(data,pts)       # find the cube numbers
+            ## Number of observations in each cube:
+            nobs <- tabulate(cubenumbers, nbins = m)
+            sum((nobs - E_nobs)^2 / E_nobs) # Chi^2 test statistic
+        }); if(verbose) cat("done\n")
+    })[1]
+
+    structure(class = "chiSqChk_cop3d",
+              list( ## compute the result of the Kolmogorov-Smirnov test based on the
+                   ## N realizations of the chisquare test statistics:
+                   ks = ks.test(T, "pchisq", df = m-1),
+                   T = T, CPU = CPU,
+                   n=n, N=N, copName = copName, m = m,
+                   ## percentage of cubes that fulfill the rule of thumb:
+                   percentrot = (sum(E_nobs >= 5)/m)*100
+                   ))
+}## {chiSq_check_cop3d}
+
+## now a print method for this class:
+print.chiSqChk_cop3d <- function(x, ...) {
+    stopifnot(is.list(x), all(c("ks","T","CPU","n","N") %in% names(x)),
+	      is.numeric(pv <- x$ks[[2]]))
+    cat(sprintf("%s (3d)NAcopula (n=%d):\n -- %s (N=%d): %s\n -- ",
+		x$copName, x$n,
+                "P-value of the chi-square test", x$N, format.pval(pv)),
+        sprintf("Percentage fulfilling chi^2 rule of thumb: %4.1f\n -- ",
+                x$percentrot),
+        sprintf("CPU (user) time needed = c(N,n; cop) = %8.1f [ms]\n",
+		1000 * x$CPU), sep="")
+    stopifnot(pv > 0.05)
+    invisible(x)
 }
 
-##====3d examples=======================
+##==== 3d examples =======================
 
-#====AMH================================
+##==== AMH ================================
 
-theta0<-0.7135#tau_{12}=tau_{13}=0.2, tau_{23}=0.3
-theta1<-0.9430
+theta0 <- 0.7135 # tau_{12}=tau_{13}=0.2, tau_{23}=0.3
+theta1 <- 0.9430
 
-#check 1
-check1AMH <- check1(n,theta0,theta1,copAMH)
+##check 1
+corCheckAMH <- corCheck(n,theta0,theta1,copAMH)
 trCorr <- rbind(c(1,0.2,0.2),
                 c(0.2,1,0.3),
                 c(0.2,0.3,1))
-check1out(check1AMH,"AMH",trCorr)
-stopifnot(max(abs(check1AMH[["cor"]]-trCorr)) < taueps)
+corCheckout(corCheckAMH,"AMH",trCorr)
+stopifnot(max(abs(corCheckAMH[["cor"]]-trCorr)) < eps.tau)
 
-#check 2
+##check 2
 AMH3d <-
     new("outer_nACopula", copula = setTheta(copAMH, theta0),
         comp = as.integer( 1 ),
@@ -120,24 +168,23 @@ AMH3d <-
                              copula = setTheta(copAMH, theta1),
                              comp = as.integer(c(2,3)))) # no childCops
         )
-resultAMH<-check2(n,N,AMH3d)
-cat("p-value of the chi-square test: ",resultAMH$ks[[2]],"\n",sep="")
-stopifnot(resultAMH$ks[[2]]>0.05)
+(chkAMH <- chiSq_check_cop3d(n,N,AMH3d))
 
-#====Clayton================================
 
-theta0<-0.5#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
-theta1<-2
+##====Clayton================================
 
-#check 1
-check1Clayton <- check1(n,theta0,theta1,copClayton)
+theta0 <- 0.5#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
+theta1 <- 2
+
+##check 1
+corCheckClayton <- corCheck(n,theta0,theta1,copClayton)
 trCorr <- rbind(c(1,0.2,0.2),
                 c(0.2,1,0.5),
                 c(0.2,0.5,1))
-check1out(check1Clayton,"Clayton",trCorr)
-stopifnot(max(abs(check1Clayton[["cor"]]-trCorr)) < taueps)
+corCheckout(corCheckClayton,"Clayton",trCorr)
+stopifnot(max(abs(corCheckClayton[["cor"]]-trCorr)) < eps.tau)
 
-#check 2
+##check 2
 Clayton3d <-
     new("outer_nACopula", copula = setTheta(copClayton, theta0),
         comp = as.integer( 1 ),
@@ -145,21 +192,19 @@ Clayton3d <-
                              copula = setTheta(copClayton, theta1),
                              comp = as.integer(c(2,3)))) # no childCops
         )
-resultClayton<-check2(n,N,Clayton3d)
-cat("p-value of the chi-square test: ",resultClayton$ks[[2]],"\n",sep="")
-stopifnot(resultClayton$ks[[2]]>0.05)
+(chkClayton <- chiSq_check_cop3d(n = 512, N = 100, Clayton3d))
 
-#====Frank================================
+##====Frank================================
 
-theta0<-1.8609#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
-theta1<-5.7363
+theta0 <- 1.8609#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
+theta1 <- 5.7363
 
-#check 1
-check1Frank <- check1(n,theta0,theta1,copFrank)
-check1out(check1Frank,"Frank",trCorr)
-stopifnot(max(abs(check1Frank[["cor"]]-trCorr)) < taueps)
+##check 1
+corCheckFrank <- corCheck(n,theta0,theta1,copFrank)
+corCheckout(corCheckFrank,"Frank",trCorr)
+stopifnot(max(abs(corCheckFrank[["cor"]]-trCorr)) < eps.tau)
 
-#check 2
+##check 2
 Frank3d <-
     new("outer_nACopula", copula = setTheta(copFrank, theta0),
         comp = as.integer( 1 ),
@@ -167,21 +212,19 @@ Frank3d <-
                              copula = setTheta(copFrank, theta1),
                              comp = as.integer(c(2,3)))) # no childCops
         )
-resultFrank<-check2(n,N,Frank3d)
-cat("p-value of the chi-square test: ",resultFrank$ks[[2]],"\n",sep="")
-stopifnot(resultFrank$ks[[2]]>0.05)
+(chkFrank <- chiSq_check_cop3d(n,N,Frank3d))
 
-#====Gumbel================================
+##====Gumbel================================
 
-theta0<-1.25#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
-theta1<-2
+theta0 <- 1.25 # tau_{12}=tau_{13}=0.2, tau_{23}=0.5
+theta1 <- 2
 
-#check 1
-check1Gumbel <- check1(n,theta0,theta1,copGumbel)
-check1out(check1Gumbel,"Gumbel",trCorr)
-stopifnot(max(abs(check1Gumbel[["cor"]]-trCorr)) < taueps)
+##check 1
+corCheckGumbel <- corCheck(n,theta0,theta1,copGumbel)
+corCheckout(corCheckGumbel,"Gumbel",trCorr)
+stopifnot(max(abs(corCheckGumbel[["cor"]]-trCorr)) < eps.tau)
 
-#check 2
+##check 2
 Gumbel3d <-
     new("outer_nACopula", copula = setTheta(copGumbel, theta0),
         comp = as.integer( 1 ),
@@ -189,21 +232,20 @@ Gumbel3d <-
                              copula = setTheta(copGumbel, theta1),
                              comp = as.integer(c(2,3)))) # no childCops
         )
-# resultGumbel<-check2(n,N,Gumbel3d)##FIXME: log(NULL) not NULL => problem in value function!
-# cat("p-value of the chi-square test: ",resultGumbel$ks[[2]],"\n",sep="")
-# stopifnot(resultGumbel$ks[[2]]>0.05)
+##
+(chkGumbel <- chiSq_check_cop3d(n,N,Gumbel3d))
 
-#====Joe================================
+##====Joe================================
 
-theta0<-1.4438#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
-theta1<-2.8562
+theta0 <- 1.4438#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
+theta1 <- 2.8562
 
-#check 1
-check1Joe <- check1(n,theta0,theta1,copJoe)
-check1out(check1Joe,"Joe",trCorr)
-stopifnot(max(abs(check1Joe[["cor"]]-trCorr)) < taueps)
+##check 1
+corCheckJoe <- corCheck(n,theta0,theta1,copJoe)
+corCheckout(corCheckJoe,"Joe",trCorr)
+stopifnot(max(abs(corCheckJoe[["cor"]]-trCorr)) < eps.tau)
 
-#check 2
+##check 2
 Joe3d <-
     new("outer_nACopula", copula = setTheta(copJoe, theta0),
         comp = as.integer( 1 ),
@@ -211,9 +253,8 @@ Joe3d <-
                              copula = setTheta(copJoe, theta1),
                              comp = as.integer(c(2,3)))) # no childCops
         )
-resultJoe<-check2(n,N,Joe3d)
-cat("p-value of the chi-square test: ",resultJoe$ks[[2]],"\n",sep="")
-stopifnot(resultJoe$ks[[2]]>0.05)
+(chkJoe <- chiSq_check_cop3d(n,N,Joe3d))
+
 
 ##====Examples that check value() and rn()========================================
 
@@ -260,7 +301,7 @@ trCorr <- rbind(c(1,0.2,0.2),
                 c(0.2,1,0.3),
                 c(0.2,0.3,1))#tau_{12}=tau_{13}=0.2, tau_{23}=0.3
 stopifnot(is.numeric(rC3), is.matrix(rC3),
-	  dim(rC3) == c(n, 3),max(abs(C3-trCorr)) < taueps)
+	  dim(rC3) == c(n, 3),max(abs(C3-trCorr)) < eps.tau)
 prt.stats(C3,trCorr,rt)
 if(doPlots)
     pairs(rC3, panel = function(...) { par(new = TRUE); smoothScatter(...) })
@@ -290,7 +331,7 @@ C2 <- cor(rC2,method = "kendall")
 trCorr <- rbind(c(1,0.2),
                 c(0.2,1))# tau_{12}=0.2
 stopifnot(is.numeric(rC2), is.matrix(rC2),
-	  dim(rC2) == c(n, 2), max(abs(C2-trCorr)) < taueps)
+	  dim(rC2) == c(n, 2), max(abs(C2-trCorr)) < eps.tau)
 prt.stats(C2,trCorr,rt)
 if(doPlots)
     smoothScatter(rC2)
@@ -323,7 +364,7 @@ rt <- system.time(rC3 <- rn(c3,n))
 C3 <- cor(rC3,method = "kendall")
 trCorr <- matrix(c(1,0.2,0.2,0.2,1,0.5,0.2,0.5,1),nrow = 3,byrow = TRUE)#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
 stopifnot(is.numeric(rC3), is.matrix(rC3),
-	  dim(rC3) == c(n, 3),max(abs(C3-trCorr)) < taueps)
+	  dim(rC3) == c(n, 3),max(abs(C3-trCorr)) < eps.tau)
 prt.stats(C3,trCorr,rt)
 
 if(doPlots)
@@ -397,7 +438,7 @@ C9.true <- rbind(c(1. ,rep(0.2,8)),
                  c(0.2,0.5,0.2,0.6,0.5,0.2,0.5,1. ,0.5),
                  c(0.2,0.5,0.2,0.5,0.5,0.2,0.5,0.5,1. ))
 stopifnot(dim(rC9) == c(n, 9),
-          max(abs(C9-C9.true)) < taueps)
+          max(abs(C9-C9.true)) < eps.tau)
 prt.stats(C9,C9.true,rt)
 if(doPlots && dev.interactive()) ## -> "large"
     pairs(rC9, gap = .1, pch = 20, cex = 0.2, col = rgb(.2,.1,.7, alpha = .5),

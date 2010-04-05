@@ -1,13 +1,19 @@
 #### Construct our "list" of supported Archimedean Copulas
 
-### FIXME: Not "nice" that the names have to be used
-###   probably: use *same* environment for  (tau, tauInv, paraConstr, nestConstr) ?
+## FIXME: Not "nice" that the names of the copula objects must be be used
+##	inside some of their components.
+## Possible solution:
+##	use *same* environment for  (tau, tauInv, paraConstr, nestConstr)
+
+## NOTA BENE:  Write psi(), tau(), ... functions such that they *vectorize*
+## ---------   *and* do work even for (non-numeric) NULL argument
+##           {is now checked in the "ACopula" validityMethod -- see ./AllClass.R }
 
 ### ==== Ali-Mikhail-Haq, see Nelsen (2007) p. 116, # 3 ====
 copAMH <-
     new("ACopula", name = "AMH",
         ## generator
-        psi = function(t,theta) { (1-theta)/(exp(t)-theta) },
+        psi = function(t,theta) { (1-theta)/(exp(t+0)-theta) },
         psiInv = function(t,theta) { log((1-theta*(1-t))/t) },
         ## parameter interval
         paraInterval = interval("[0,1)"),
@@ -49,7 +55,8 @@ copAMH <-
             NA * lambda
         })
 
-stopifnot(validObject(copAMH))# ok
+##  Validity is already ehecked from new(...) above !
+##stopifnot(validObject(copAMH))# ok
 
 ### === Clayton, see Nelsen (2007) p. 116, #1
 ### 	but we use a slightly simpler form of the generator ====
@@ -82,7 +89,6 @@ copClayton <-
             NA * lambda
         })
 
-stopifnot(validObject(copClayton))# ok
 
 ### ==== Frank, see Nelsen (2007) p. 116, # 5 ====
 
@@ -107,33 +113,43 @@ rlog <- function(n,p) {
     vec
 }
 
-## rejection for F for Frank's family
-rejFFrank=function(p,alpha,theta0le1){
-  if(theta0le1){
-    repeat{
-      u=runif(1)
-      x=rlog(1,p)
-      if(u*(x-alpha)<=1/beta(x,1-alpha)) break
+##' rejection for F for Frank's family
+rejFFrank <- function(p,alpha,theta0le1) {
+    if(theta0le1) {
+	repeat{
+	    U <- runif(1)
+	    X <- rlog(1,p)
+	    if(U*(X-alpha) <= 1/beta(X,1-alpha)) break
+	}
+    } else {
+	repeat{
+	    U <- runif(1)
+	    X <- rFJoe(1,alpha)
+	    if(U <= p^(X-1)) break
+	}
     }
-  }else{
-    repeat{
-      u=runif(1)
-      x=rFJoe(1,alpha)
-      if(u<=p^(x-1)) break
-    }
-  }
-  x
+    X
 }
 
 ## sample F for Frank
-rFFrank=function(n,theta0,theta1){ sapply(rep(1-exp(-theta1),n),rejFFrank,alpha=theta0/theta1,theta0le1=ifelse(theta0<=1,TRUE,FALSE)) }
+rFFrank <- function(n,theta0,theta1) {
+    sapply(rep.int(-expm1(-theta1), n), rejFFrank,
+           alpha = theta0/theta1,
+           theta0le1 = (theta0 <= 1))
+}
 
 ## Frank object
 copFrank <-
     new("ACopula", name = "Frank",
         ## generator
-        psi = function(t,theta) { -log(1-(1-exp(-theta))*exp(-t))/theta },
-        psiInv = function(t,theta) { -log((exp(-theta*t)-1)/(exp(-theta)-1)) },
+	psi = function(t,theta) {
+	    -log1p(expm1(-theta)*exp(0-t))/theta
+	    ## == -log(1-(1-exp(-theta))*exp(-t))/theta
+	},
+	psiInv = function(t,theta) {
+	    -log(expm1(-theta*t)/expm1(-theta))
+	    ## == -log((exp(-theta*t)-1)/(exp(-theta)-1))
+	},
         ## parameter interval
         paraInterval = interval("(0,Inf)"),
         ## nesting constraint
@@ -171,14 +187,13 @@ copFrank <-
             NA * lambda
         })
 
-stopifnot(validObject(copFrank))# ok
 
 ### ==== Gumbel, see Nelsen (2007) p. 116, # 4 ====
 copGumbel <-
     new("ACopula", name = "Gumbel",
-        ## generator
+        ## generator (and inverse)
         psi = function(t,theta) { exp(-t^(1/theta)) },
-        psiInv = function(t,theta) { (-log(t))^theta },
+        psiInv = function(t,theta) { (-log(t+0))^theta },
         ## parameter interval
         paraInterval = interval("[1,Inf)"),
         ## nesting constraint
@@ -221,18 +236,25 @@ copGumbel <-
         },
         ## upper tail dependence coefficient lambda_u
         uTDC = function(theta) { 2 - 2^(1/theta) },
-        uTDCInv = function(lambda) { 1/log2(2-lambda) })
-
-stopifnot(validObject(copGumbel))# ok
+        uTDCInv = function(lambda) { 1/log2(2-lambda) }
+        )## {copGumbel}
 
 ### ==== Joe, see Nelsen (2007) p. 116, # 6 ====
 
+##' <description>
+##'
+##' <details>
+##' @title Sample from Joe's Copula ---
+##' 	Note: should be *fast* as it is used as building block in many places
+##' @param n  sample size
+##' @param alpha parametetr
+##' @return numeric(n) vector
 rFJoe <- function(n,alpha) {
   stopifnot((n <- as.integer(n)) >= 0)
   vec <- numeric(n)
   if(n >= 1) {
-    if(alpha==1) {
-      vec <- rep.int(1, n)
+    if(alpha == 1) {
+      vec[] <- 1
     } else {
       u <- runif(n)
       ## FIXME(MM): (for alpha not too close to 1): re-express using 1-u !
@@ -254,8 +276,11 @@ rFJoe <- function(n,alpha) {
 copJoe <-
     new("ACopula", name = "Joe",
         ## generator
-        psi = function(t,theta) { 1 - (1-exp(-t))^(1/theta) },
-        psiInv = function(t,theta) { -log(1-(1-t)^theta) },
+        psi = function(t,theta) {
+            1 - (-expm1(0-t))^(1/theta)
+            ## == 1 - (1-exp(-t))^(1/theta)
+        },
+        psiInv = function(t,theta) { -log1p(-(1-t)^theta) },
         ## parameter interval
         paraInterval = interval("[1,Inf)"),
         ## nesting constraint
@@ -264,7 +289,7 @@ copJoe <-
             copJoe@paraConstr(theta1) && theta1 >= theta0
         },
         ## V0 and V01
-        V0 = function(n,theta) rFJoe(n,1/theta),
+        V0 = function(n,theta) rFJoe(n, 1/theta),
         V01 = function(V0,theta0,theta1, approx=100000) {
           alpha <- theta0/theta1
           ia <- (V0 > approx)
@@ -304,6 +329,5 @@ copJoe <-
         },
         ## upper tail dependence coefficient lambda_u
         uTDC = function(theta) { 2-2^(1/theta) },
-        uTDCInv = function(lambda) { log(2)/log(2-lambda) })
-
-stopifnot(validObject(copJoe))# ok
+        uTDCInv = function(lambda) { log(2)/log(2-lambda) }
+        ) ## {copJoe}
