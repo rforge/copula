@@ -1,3 +1,5 @@
+useDynLib(nacopula)# TODO (MM), .registration=TRUE)
+
 importFrom("gsl", debye_1)
 
 exportClasses("ACopula",

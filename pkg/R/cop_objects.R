@@ -114,6 +114,9 @@ rlog <- function(n,p) {
 }
 
 ##' rejection for F for Frank's family
+##' @param p
+##' @param alpha
+##' @param theta0le1
 rejFFrank <- function(p,alpha,theta0le1) {
     if(theta0le1) {
 	repeat{
@@ -244,12 +247,11 @@ copGumbel <-
 ##' <description>
 ##'
 ##' <details>
-##' @title Sample from Joe's Copula ---
-##' 	Note: should be *fast* as it is used as building block in many places
+##' @title Sample from Joe's Copula --- R-only "reference implementation
 ##' @param n  sample size
-##' @param alpha parametetr
+##' @param alpha parameter
 ##' @return numeric(n) vector
-rFJoe <- function(n,alpha) {
+rFJoeR <- function(n,alpha) {
   stopifnot((n <- as.integer(n)) >= 0)
   vec <- numeric(n)
   if(n >= 1) {
@@ -270,6 +272,18 @@ rFJoe <- function(n,alpha) {
     }
   }
   vec
+}
+
+##' <description>
+##'
+##' <details>
+##' @title Sample from Joe's Copula --- version using C
+##' @param n  sample size
+##' @param alpha parameter
+##' @return numeric(n) vector
+rFJoe <- function(n,alpha) {
+  stopifnot(is.numeric(n), n >= 0)
+  .Call("rFJoe", n, alpha, PACKAGE="nacopula")
 }
 
 ## Joe object

@@ -28,7 +28,7 @@ setMethod("rn", signature(x = "outer_nACopula"),
 	  theta <- Cp@theta		# theta for outer copula
 	  V0 <- Cp@V0(n,theta)		# generate V0's
 	  childL <- lapply(x@childCops, rnchild, # <-- start recursion
-			     n=n,psi0Inv=Cp@psiInv,theta0=theta,V0=V0,...)
+                           n=n,psi0Inv=Cp@psiInv,theta0=theta,V0=V0,...)
 	  dns <- length(x@comp)	 # dimension of the non-sectorial part
 	  r <- matrix(runif(n*dns), n, dns) # generate the non-sectorial part
 	  mat <- cbind(r, do.call(cbind,lapply(childL, `[[`, "U"))) # put pieces together
