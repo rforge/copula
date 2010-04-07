@@ -15,35 +15,51 @@
 * @param alpha parameter
 * @return numeric(n) vector
 */
-SEXP retstable(SEXP V0, SEXP alpha)
-{
-    double V01, V=asReal(V0), alpha=asReal(alpha);
+SEXP retstable(SEXP V0, SEXP alpha, SEXP rstable1)
+{    
+    /*get arguments*/
+    double V=asReal(V0);
+    double alp=asReal(alpha);
     
+    /*declare result*/
+    SEXP res = PROTECT(allocVector(REALSXP,1));
+    double* V01 = REAL(res);
+  
     /*find the optimal number of summands*/
-    int m;
+    double m;
   	if(V<=1) 
-  	  m=1;
-  	else if(floor(V)*pow(exp(-V),-1.0/floor(V))<=ceil(V)*pow(exp(-V),-1.0/ceil(V)))
-  		m=int(floor(V));
-  	else 
-  	  m=int(ceil(V));
-
+  	  m=1.0;
+  	else{
+      double fV=floor(V);
+      double cV=ceil(V);
+  	  if(pow(exp(-V),1.0/cV-1.0/fV)<=cV/fV){
+   		  m=fV;
+   		}
+  	  else{
+  	    m=cV;
+  	  }
+    }
+    
     /*apply standard rejection m times*/
-    int k,V01k;
-    double U, mygamma=pow(cos((M_PI_2)*alpha)*V0/double(m),1.0/alpha);
+    int k;
+    double V01k;
+    double U;
+    double mygamma=pow(cos(M_PI_2*alp)*V/m,1.0/alp);
     GetRNGstate();
     for(k=0;k<m;k++){
-  		//standard rejection
+  		/*standard rejection*/
   		do{
   		  /*sample from the distribution corresponding to the Laplace-Stieltjes
-  		  /*transform exp(-(V_0/m)*t^alpha)*/
-  			V01k=rtstable1(1,alpha,beta=1,mygamma);
+  		    transform exp(-(V_0/m)*t^alpha)*/
+        V01k=REAL(eval(rstable1,1,alpha=alpha,beta=1,gamma=myamma));
   			U=unif_rand();
   		}
   		while(U>exp(-V01k));
-  		V01+=V01k;/*update sum*/
+  		V01[0]+=V01k;/*update sum*/
   	}
   	PutRNGstate();
-    return(V01);
+  	UNPROTECT(1);
+    
+    return(res);
 }  	
     
