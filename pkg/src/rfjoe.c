@@ -1,14 +1,15 @@
-#include <R.h>
-#include <Rinternals.h>
 #include <Rmath.h>
+
+#include "nacopula.h"
 
 /**
 * <description>
 *
 * <details>
-* @title Sample from Joe's Copula ---
+* @title Sample F with probability mass function p_k=\binom{alpha}{k}(-1)^{k-1},
+*   k in IN, for Joe's family
 * 	Note: should be *fast* as it is used as building block in many places
-* @param n  sample size
+* @param n sample size
 * @param alpha parameter
 * @return numeric(n) vector
 */
