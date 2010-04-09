@@ -4,7 +4,7 @@
 #include <R.h>
 #include <Rinternals.h>
 
-SEXP rFJoe(SEXP n, SEXP alpha);
-SEXP retstable(SEXP V0, SEXP alpha);
+SEXP rFJoe_c(SEXP n, SEXP alpha);
+SEXP retstable_c(SEXP V0, SEXP alpha);
 
 #endif

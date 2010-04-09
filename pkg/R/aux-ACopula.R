@@ -2,66 +2,85 @@
 
 ### ====general functions====
 
-## standard rejection algorithm for sampling
-## S(alpha,1,(cos(alpha*pi/2)V0/m)^(1/alpha),0;1) with
-## Laplace-Stieltjes transform exp(-(V0/m)*t^alpha) 
-retstablerej1 <- function(m,V0,alpha){#gets one integer m and one real V0>0
-  repeat{
-      Vtilde <- rstable1(1, alpha, beta=1,
-                         gamma = (cos(alpha*pi/2)*V0/m)^(1/alpha))
-      u <- runif(1)
-      if(u <= exp(-Vtilde)) {
-          variate <- Vtilde
-          break
-      }
-  }
-  variate
-}
 
 ## standard rejection algorithm for sampling the m-fold sum of variates
 ## from the distribution with Laplace-Stieltjes transform
 ## exp(-(V0/m)*((1+t)^alpha-1))
-## calls retstablerej1 m times for given m and evaluates the sum of the results
-retstablerej <- function(m,V0,alpha){#gets one integer m and one real V0>0
-  sum(unlist(lapply(rep(m,m),retstablerej1,V0=V0,alpha=alpha)))
+## calls sampler  m times for given m and evaluates the sum of the results
+retstablerej <- function(m,V0,alpha){ #gets one integer m and one real V0>0
+  gamm. <- (cos(alpha*pi/2)*V0/m)^(1/alpha)
+  sum(unlist(lapply(integer(m),
+                    function(.) {
+                        repeat {
+                            V__ <- rstable1(1, alpha, beta=1, gamma = gamm.)
+                            if(runif(1) <= exp(-V__))
+                                return(V__)
+                        }})
+             ))
+}
+
+##' <description>
+##' --- Note: this is mainly to show that this function can be very
+##'     ====  well approximated much more simply :
+##'           namely, just using   m <- round(V0)   !!
+##' <details>
+##' @title determine optimal constant m for the fast rejection algorithm
+##' @param V0 numeric vector >= 0
+##' @return integer vector, typically >= V0
+##' @author Martin Maechler (based on Marius' code)
+m.opt.retst <- function(V0)
+{
+    n <- length(V0)
+    fV <- floor(V0)
+    cV <- ceiling(V0)
+    v1 <- fV*exp(V0/fV)
+    v2 <- cV*exp(V0/cV)
+
+    m <- integer(n)
+    l1 <- (V0 <= 1)
+    m[which(l1)] <- 1L
+
+    i2 <- which(!l1) ## those with V0 > 1
+    l3 <- (v1[i2] <= v2[i2])
+    i3 <- i2[l3]
+    m[i3] <- fV[i3]
+    i4 <- i2[!l3]
+    m[i4] <- cV[i4]
+    m
 }
 
 ## compute random variates from an exponentially-tilted Stable distribution
 ## \tilde{S}(alpha,1,(cos(alpha*pi/2)V0)^(1/alpha),V0*Indicator(alpha==1),Indicator(alpha!=1);1)
 ## with corresponding Laplace-Stieltjes transform exp(-V0*((1+t)^alpha-1))
-retstable <- function(alpha,V0) {
+retstableR <- function(alpha,V0) {
     n <- length(V0)
-    stopifnot(n >= 1,
-              length(alpha) == 1, alpha >= 0)
+    stopifnot(n >= 1, is.numeric(alpha), length(alpha) == 1,
+              0 <= alpha, alpha <= 1) ## <- alpha > 1 ==> cos(pi/2 *alpha) < 0
     ## case alpha==1
     if(alpha == 1) {
-        V0 # sample from S(1,1,0,V0;1) with Laplace-Stieltjes transform exp(-V0*t)
+       return(V0) # sample from S(1,1,0,V0;1) with Laplace-Stieltjes transform exp(-V0*t)
     }
-    variates <- numeric(n)
-    ## case alpha!=1 
-    ## call fast rejection algorithm
-    ## determine optimal constant m for the fast rejection algorithm
-    logc <- V0
-    floorlogc <- floor(logc)
-    ceilinglogc <- ceiling(logc)
-    c <- exp(logc)
-    floorvalue <- floorlogc*c^(1/floorlogc)
-    ceilingvalue <- ceilinglogc*c^(1/ceilinglogc)
-    m=numeric(n)
-    l1=(logc<=1)
-    i1=(1:n)[l1]
-    m[i1]=1
-    l2=!l1
-    i2=(1:n)[l2]
-    l3=(logc[i2]>1 && floorvalue[i2]<=ceilingvalue[i2])
-    i3=i2[l3]
-    m[i3]=floorlogc[i3]
-    l4=!l3
-    i4=i2[l4]
-    m[i4]=ceilinglogc[i4]
+    ## else alpha != 1 : call fast rejection algorithm
+
+    m <- m.opt.retst(V0)
     ## call rejection with these m
-    mapply(retstablerej,m=m,V0=V0,alpha=alpha)
+    mapply(retstablerej, m=m, V0=V0, alpha=alpha)
 }
+
+retstableC <- function(alpha, V0) {
+    n <- length(V0)
+    stopifnot(n >= 1, is.numeric(alpha), length(alpha) == 1,
+              0 <= alpha, alpha <= 1) ## <- alpha > 1 ==> cos(pi/2 *alpha) < 0
+    if(alpha == 1)
+	V0 # sample from S(1,1,0,V0;1) with Laplace-Stieltjes transform exp(-V0*t)
+    else
+	.Call(retstable_c, V0, alpha)
+    ## REAL PROBLEM: This gives *different* result than the pure R version !
+}
+
+## For now --- FIXME
+retstable <- retstableR
+
 
 setTheta <- function(x, value) {
     stopifnot(is(x, "ACopula"),

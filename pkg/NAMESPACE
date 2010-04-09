@@ -1,4 +1,4 @@
-useDynLib(nacopula)# TODO (MM), .registration=TRUE)
+useDynLib(nacopula, .registration=TRUE)
 
 importFrom("gsl", debye_1)
 
@@ -11,8 +11,12 @@ exportClasses("ACopula",
 export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"value", "rn" ,"rnchild"
        ,"interval"
+       ## Should we provide these in a separate (very small) R package ?
        ,"rstable1"
+       ,"retstable", "retstableR"
+       ,"rFJoe", "rFJoeR"
        ,"rlog"
+
        ,"setTheta"
        ,"allComp" # <- maybe keep private ?
        ,"safeUroot"

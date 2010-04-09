@@ -13,7 +13,7 @@
 * @param alpha parameter
 * @return numeric(n) vector
 */
-SEXP rFJoe(SEXP n, SEXP alpha)
+SEXP rFJoe_c(SEXP n, SEXP alpha)
 {
     int nn = asInteger(n), i;
     double alp = asReal(alpha);

@@ -74,7 +74,7 @@ copClayton <-
         },
         ## V0 and V01
         V0 = function(n,theta) { rgamma(n, shape = 1/theta) },
-        V01 = function(V0,theta0,theta1) { retstable(theta0/theta1,V0) },
+        V01 = function(V0,theta0,theta1) { retstable(theta0/theta1, V0) },
         ## Kendall's tau
         tau = function(theta) { theta/(theta+2) },
         tauInv = function(tau) { 2*tau/(1-tau) },
@@ -247,31 +247,31 @@ copGumbel <-
 ##' <description>
 ##'
 ##' <details>
-##' @title Sample from Joe's Copula --- R-only "reference implementation
+##' @title Sample from Joe's Copula --- R-only "reference implementation"
 ##' @param n  sample size
 ##' @param alpha parameter
 ##' @return numeric(n) vector
 rFJoeR <- function(n,alpha) {
   stopifnot((n <- as.integer(n)) >= 0)
-  vec <- numeric(n)
+  V <- numeric(n)
   if(n >= 1) {
     if(alpha == 1) {
-      vec[] <- 1
+      V[] <- 1
     } else {
       u <- runif(n)
       ## FIXME(MM): (for alpha not too close to 1): re-express using 1-u !
       l1 <- u <= alpha
-      vec[l1] <- 1
+      V[l1] <- 1
       i2 <- which(!l1)
       Ginv <- ((1-u[i2])*gamma(1-alpha))^(-1/alpha)
       floorGinv <- floor(Ginv)
       l3 <- (1-1/(floorGinv*beta(floorGinv,1-alpha)) < u[i2])
-      vec[i2[l3]] <- ceiling(Ginv[l3])
+      V[i2[l3]] <- ceiling(Ginv[l3])
       i4 <- which(!l3)
-      vec[i2[i4]] <- floorGinv[i4]
+      V[i2[i4]] <- floorGinv[i4]
     }
   }
-  vec
+  V
 }
 
 ##' <description>
@@ -283,7 +283,7 @@ rFJoeR <- function(n,alpha) {
 ##' @return numeric(n) vector
 rFJoe <- function(n,alpha) {
   stopifnot(is.numeric(n), n >= 0)
-  .Call("rFJoe", n, alpha, PACKAGE="nacopula")
+  .Call(rFJoe_c, n, alpha)
 }
 
 ## Joe object

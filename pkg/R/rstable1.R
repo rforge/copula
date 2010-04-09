@@ -10,6 +10,24 @@ tanpi <- function(x) {
     r
 }
 
+##' @title  cos(pi/2 * x)
+##' @param x  numeric vector
+
+##' @return cos(pi/2 *x)	but exact for integer x
+##' @author Martin Maechler
+cospi2 <- function(x) {
+    r <- x
+    if(any(i <- x == round(x))) {
+        xi.4 <- x[i] %% 4
+	r[xi.4 == 0     ] <-  1
+	r[xi.4 == 2     ] <- -1
+	r[xi.4 %% 2 != 0] <-  0
+    }
+    io <- which(!i)
+    r[io] <- cos(pi/2 * x[io])
+    r
+}
+
 
 rstable1 <- function(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
 {
