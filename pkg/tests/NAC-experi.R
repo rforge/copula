@@ -486,7 +486,8 @@ stopifnot(d == 125,
 
 ## test rn()
 rt <- system.time(rC125 <- rn(c125,n))
-stopifnot(is.numeric(rC125), is.matrix(rC125),
-	  dim(rC125) == c(n, 125))
-cat("Run time for generating ",n," vectors of variates:\n",sep = "")
+stopifnot(is.numeric(rC125), is.matrix(rC125), dim(rC125) == c(n, 125))
+cat("Time elapsed for generating ",n," vectors of variates:\n",sep = "")
 rt
+
+cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
