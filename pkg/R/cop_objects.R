@@ -345,3 +345,14 @@ copJoe <-
         uTDC = function(theta) { 2-2^(1/theta) },
         uTDCInv = function(lambda) { log(2)/log(2-lambda) }
         ) ## {copJoe}
+
+
+cNms <- c("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe")
+## == dput(ls("package:nacopula",pat="^cop"))
+nmsC <- unlist(lapply(cNms, function(.)get(.)@name))
+sNms <- abbreviate(nmsC, 1)
+## keep these {hidden, for now}:
+c_shortNames <- structure(sNms, names = nmsC)
+c_longNames  <- structure(nmsC, names = sNms)
+c_objNames   <- structure(cNms, names = nmsC)
+rm(cNms, nmsC, sNms)

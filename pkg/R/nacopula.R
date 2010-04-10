@@ -78,3 +78,39 @@ trace(rn,      browser, exit=browser, signature=signature(x ="outer_nACopula"))
 trace(rnchild, browser, exit=browser, signature=signature(x ="nACopula"))
 
 }
+
+###--- NACopula constructor
+
+##' <description>
+##'
+##' <details>
+##' @title THE outer_nACopula constructor function
+##' @param family character string: short or longer form of copula family name
+##' @param nACform a "formula" of the form C(th, comp, list(C(..), C(..)))
+##' @return a valid outer_nACopula object
+##' @author Martin Maechler
+onACopula <- function(family, nACform) {
+    nacl <- substitute(nACform)
+    stopifnot(is.character(family), length(family) == 1,
+              identical(nacl[[1]], as.symbol("C")))
+    nacl[[1]] <- as.symbol("oC")
+    if(nchar(family) <= 2)# it's a short name
+        family <- c_longNames[family]
+    stopifnot(is(COP <- get(c_objNames[family]),#, envir = "package:nacopula"
+                 "ACopula"))
+    mkC <- function(cClass, a,b,c) {
+        if(missing(b) || length(b) == 0) b <- integer()
+        if(missing(c) || length(c) == 0) c <- list()
+        else if(length(c) == 1 && !is.list(c)) c <- list(c)
+        else stopifnot(is.list(c))
+        stopifnot(is.numeric(a), length(a) == 1, is.numeric(b))
+        if(any(sapply(c, class) != "nACopula"))
+            stop("third entry of 'nACform' must be NULL or) list of 'C(..)' terms")
+        new(cClass, copula = setTheta(COP, a),
+            comp = as.integer(b), childCops = c)
+    }
+    C <- function(a,b,c) mkC("nACopula", a,b,c)
+    oC <- function(a,b,c) mkC("outer_nACopula", a,b,c)
+
+    eval(nacl)
+}

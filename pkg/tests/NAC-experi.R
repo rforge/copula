@@ -168,6 +168,15 @@ AMH3d <-
                              copula = setTheta(copAMH, theta1),
                              comp = as.integer(c(2,3)))) # no childCops
         )
+
+## constructor forms of the above:
+rr <- onACopula("A",   C(0.7135, 1, list(C(0.943, 2:3, NULL))))
+r0 <- onACopula("A",   C(0.7135, 1,      C(0.943, 2:3, NULL)))
+r1 <- onACopula("A",   C(0.7135, 1,      C(0.943, 2:3, )))
+r2 <- onACopula("AMH", C(0.7135, 1,      C(0.943, 2:3  )))
+stopifnot(identical(AMH3d, rr), identical(rr, r0),
+          identical(r0, r1), identical(r1, r2))
+
 (chkAMH <- chiSq_check_cop3d(n,N,AMH3d))
 
 
@@ -185,13 +194,7 @@ corCheckout(corCheckClayton,"Clayton",trCorr)
 stopifnot(max(abs(corCheckClayton[["cor"]]-trCorr)) < eps.tau)
 
 ##check 2
-Clayton3d <-
-    new("outer_nACopula", copula = setTheta(copClayton, theta0),
-        comp = as.integer( 1 ),
-        childCops = list(new("nACopula",
-                             copula = setTheta(copClayton, theta1),
-                             comp = as.integer(c(2,3)))) # no childCops
-        )
+Clayton3d <- onACopula("Clayton", C(theta0, 1, C(theta1, 2:3)))
 (chkClayton <- chiSq_check_cop3d(n = 512, N = 100, Clayton3d))
 
 ##====Frank================================
@@ -205,13 +208,7 @@ corCheckout(corCheckFrank,"Frank",trCorr)
 stopifnot(max(abs(corCheckFrank[["cor"]]-trCorr)) < eps.tau)
 
 ##check 2
-Frank3d <-
-    new("outer_nACopula", copula = setTheta(copFrank, theta0),
-        comp = as.integer( 1 ),
-        childCops = list(new("nACopula",
-                             copula = setTheta(copFrank, theta1),
-                             comp = as.integer(c(2,3)))) # no childCops
-        )
+Frank3d <- onACopula("F", C(theta0, 1, C(theta1, 2:3)))
 (chkFrank <- chiSq_check_cop3d(n,N,Frank3d))
 
 ##====Gumbel================================
@@ -225,14 +222,7 @@ corCheckout(corCheckGumbel,"Gumbel",trCorr)
 stopifnot(max(abs(corCheckGumbel[["cor"]]-trCorr)) < eps.tau)
 
 ##check 2
-Gumbel3d <-
-    new("outer_nACopula", copula = setTheta(copGumbel, theta0),
-        comp = as.integer( 1 ),
-        childCops = list(new("nACopula",
-                             copula = setTheta(copGumbel, theta1),
-                             comp = as.integer(c(2,3)))) # no childCops
-        )
-##
+Gumbel3d <- onACopula("Gumbel", C(theta0, 1, C(theta1, 2:3)))
 (chkGumbel <- chiSq_check_cop3d(n,N,Gumbel3d))
 
 ##====Joe================================
@@ -246,13 +236,7 @@ corCheckout(corCheckJoe,"Joe",trCorr)
 stopifnot(max(abs(corCheckJoe[["cor"]]-trCorr)) < eps.tau)
 
 ##check 2
-Joe3d <-
-    new("outer_nACopula", copula = setTheta(copJoe, theta0),
-        comp = as.integer( 1 ),
-        childCops = list(new("nACopula",
-                             copula = setTheta(copJoe, theta1),
-                             comp = as.integer(c(2,3)))) # no childCops
-        )
+Joe3d <- onACopula("J", C(theta0, 1, C(theta1, 2:3)))
 (chkJoe <- chiSq_check_cop3d(n,N,Joe3d))
 
 
@@ -267,13 +251,7 @@ prt.stats <- function(c1,c2, rt) {
 
 ##====3d Ali-Mikhail-Haq copula example========================================
 
-c3 <-
-    new("outer_nACopula", copula = setTheta(copAMH, 0.7135),
-        comp = as.integer( 1 ),
-        childCops = list(new("nACopula",
-                             copula = setTheta(copAMH, 0.9430),
-                             comp = as.integer(c(2,3)))) # no childCops
-        )
+c3 <- onACopula("A", C(0.7135, 1, list(C(0.943, 2:3))))
 
 ## basic check
 d <- dim(c3)
@@ -308,10 +286,7 @@ if(doPlots)
 
 ##====2d Clayton copula example========================================
 
-c2 <-
-    new("outer_nACopula", copula = setTheta(copClayton, 0.5),
-        comp = as.integer(c(1,2)) # no childCops
-        )
+c2 <- onACopula("Clayton", C(0.5, c(1,2))) # no childCops
 
 ## basic check
 d <- dim(c2)
@@ -338,13 +313,7 @@ if(doPlots)
 
 ##====3d Clayton copula example========================================
 
-c3 <-
-    new("outer_nACopula", copula = setTheta(copClayton, 0.5),
-        comp = as.integer( 1 ),
-        childCops = list(new("nACopula",
-                             copula = setTheta(copClayton, 2),
-                             comp = as.integer(c(2,3)))) # no childCops
-        )
+c3 <- onACopula("C", C(0.5, 1, C(2., c(2,3))))
 
 ## basic check
 d <- dim(c3)
@@ -372,19 +341,9 @@ if(doPlots)
 
 ##====9d Clayton copula example========================================
 
-c9 <- new("outer_nACopula", copula = setTheta(copClayton, 0.5),
-         comp = as.integer(c(3,6,1)),
-         childCops = list(new("nACopula",
-                             copula = setTheta(copClayton, 2),
-                             comp = as.integer(c(9,2,7,5)),
-                             childCops = list(new("nACopula",
-                                                  copula = setTheta(copClayton, 3),
-                                                  comp = as.integer(c(8,4)) # no childCops
-                                                 )
-                                             )
-                            )
-                        )
-         )
+c9 <- onACopula("Clayton", C(0.5, c(3,6,1),
+			     C(2., c(9,2,7,5),
+			       C(3., c(8,4)))))
 
 ## basic check
 d <- dim(c9)
@@ -448,29 +407,13 @@ if(doPlots && dev.interactive()) ## -> "large"
 
 ##====125d Clayton copula example========================================
 
-c125 <-
-    new("outer_nACopula", copula = setTheta(copClayton, 0.5),
-        comp = as.integer(),
-        childCops = list(new("nACopula",
-                             copula = setTheta(copClayton, 2),
-                             comp = as.integer(1:10)),
-                         new("nACopula",
-                             copula = setTheta(copClayton, 3),
-                             comp = as.integer(11:40)),
-                         new("nACopula",
-                              copula = setTheta(copClayton, 2),
-                              comp = as.integer(41:60)),
-                         new("nACopula",
-                              copula = setTheta(copClayton, 2),
-                              comp = as.integer(61:85)),
-                         new("nACopula",
-                              copula = setTheta(copClayton, 3),
-                              comp = as.integer(86:105)),
-                         new("nACopula",
-                              copula = setTheta(copClayton, 2),
-                              comp = as.integer(106:125))
-                         ) # no childCops
-        )
+c125 <- onACopula("Clayton", C(0.5, , # < no direct components
+                               list(C(2,  1:10),
+                                    C(3, 11:40),
+                                    C(2, 41:60),
+                                    C(2, 61:85),
+                                    C(3, 86:105),
+                                    C(2,106:125))))
 
 ## basic check
 d <- dim(c125)

@@ -10,6 +10,7 @@ exportClasses("ACopula",
 ## Generics, functions and ACopula - family objects defined in this package
 export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"value", "rn" ,"rnchild"
+       ,"onACopula"
        ,"interval"
        ## Should we provide these in a separate (very small) R package ?
        ,"rstable1"

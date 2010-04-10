@@ -1,11 +1,14 @@
 \name{copFamilies}
+\title{Specific "ACopula" Family Objects}
+\concept{copula Families}
+\concept{Archimedean copula family}
+\alias{ACopula-families}
 \alias{copAMH}
 \alias{copClayton}
 \alias{copFrank}
 \alias{copGumbel}
 \alias{copJoe}
 \docType{data}
-\title{Specific "ACopula" Family Objects}
 \description{
   Specific \code{"\linkS4class{ACopula}"} family objects are part of
   package \pkg{nacopula}.
