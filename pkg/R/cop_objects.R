@@ -162,9 +162,10 @@ copFrank <-
         },
         ## V0 (algorithm of Kemp (1981)) and V01
         V0 = function(n,theta) { rlog(n,1-exp(-theta)) },
-        V01 = function(V0,theta0,theta1) {
-          sapply(lapply(V0,rFFrank,theta0=theta0,theta1=theta1),sum) ##FIXME: how to approximate when V0 large? not theoretically solved yet
-        },
+	V01 = function(V0,theta0,theta1) {
+	## FIXME: how to approximate when V0 large? not yet solved theoretically
+	  sapply(lapply(V0, rFFrank, theta0=theta0,theta1=theta1), sum)
+	},
         ## Kendall's tau; debye_1() is from package 'gsl' :
         tau = function(theta) 1 + 4*(debye_1(theta) - 1)/theta,
 	tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
