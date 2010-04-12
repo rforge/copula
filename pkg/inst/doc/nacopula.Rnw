@@ -6,12 +6,12 @@
 
 %% almost as usual
 \author{Marius Hofert\\ETH Zurich \And Martin M\"achler\\ETH Zurich}
-\title{The \pkg{nacopula} package}
+\title{Sampling Nested Archimedean Copulas -- The R package \pkg{nacopula}}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{Marius Hofert, Martin M\"achler} %% comma-separated
-\Plaintitle{The nacopula Package} %% without formatting
-% \Shorttitle{} %% a short title (if necessary)
+\Plaintitle{Nested Archimedean Copulas -- The R package \pkg{nacopula}} %% without formatting
+\Shorttitle{Nested Archimedean Copulas -- \pkg{nacopula}}
 %\VignetteIndexEntry{pcalg}
 
 %% an abstract and keywords
