@@ -287,6 +287,8 @@ if(doPlots)
 ##====2d Clayton copula example========================================
 
 c2 <- onACopula("Clayton", C(0.5, c(1,2))) # no childCops
+## or simply
+## c2 <- onACopula("Clayton", C(0.5, 1:2))
 
 ## basic check
 d <- dim(c2)
