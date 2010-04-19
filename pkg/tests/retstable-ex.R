@@ -73,6 +73,7 @@ for(i in seq_along(alphas)) {
     lines(apply(N.st, 2, mean, trim=.05) ~ V0s, col = 2, lwd=2)
 }
 par(op)
+
 str(Nst.mns <- apply(Nstat, 3:2, mean, trim=.05))
 str(Nst.q95 <- apply(Nstat, 3:2, quantile, prob=.95))
 str(Nst.max <- apply(Nstat, 3:2, max))

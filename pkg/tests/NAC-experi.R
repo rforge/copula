@@ -81,15 +81,15 @@ chiSq_check_cop3d <- function(n,N,cop, mesh = 0.2, verbose = interactive())
       (i1-1) + (i2-1)*5 + (i3-1)*5*5 + 1
     }
 
-    ## for chisquare test: define function which simulates the test
-    ## statistic for 1 run
-    simuteststat <- function(n,cop,pts,cube, nbins, E_nObs) {
-        data <- rn(cop,n)       #generate data
-        cubenumbers <- cube(data,pts)       #find the cube numbers
-        ## Number of observations in each cube:
-        observationsinbin <- tabulate(cubenumbers, nbins = nbins)
-        sum(((observationsinbin-E_nObs)^2)/E_nObs) #compute chisquare test statistic
-    }
+    ## ## for chisquare test: define function which simulates the test
+    ## ## statistic for 1 run
+    ## simuteststat <- function(n,cop,pts,cube, nbins, E_nObs) {
+    ##     data <- rn(cop,n)       #generate data
+    ##     cubenumbers <- cube(data,pts)       #find the cube numbers
+    ##     ## Number of observations in each cube:
+    ##     observationsinbin <- tabulate(cubenumbers, nbins = nbins)
+    ##     sum(((observationsinbin-E_nObs)^2)/E_nObs) #compute chisquare test statistic
+    ## }
 
     pts <- seq(0,1, by=mesh)
     ## setup grid --

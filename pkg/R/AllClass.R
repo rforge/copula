@@ -146,14 +146,12 @@ setClass("nACopula",
          })
 
 
-## FIXME: Maybe define a "strict_dim_NAC" class which has the extra checks
-## -----  for the "nACopula"s that appear as *SUB*-copulas, we do NOT want to
-## require that their { components } are == { 1:d }
 ### Nested Archimedean Copulas with *specified* dimension(s)
 setClass("outer_nACopula", contains = "nACopula",
          validity = function(object) {
              ## *Extra* checks in addition to those of "nACopula" :
              d <- dim(object)
+### FIXME -- use a 'dim' slot which is *initialized* automatically
              ic <- object@comp
              allC <- allComp(object)
              if(length(allC) != d)
