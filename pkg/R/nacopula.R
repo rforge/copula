@@ -18,6 +18,35 @@ setMethod("value", signature(x ="nACopula"),
 	      theta=th)
     })
 
+setGeneric("prob", function(x, l,u) standardGeneric("prob"))
+
+setMethod("prob", signature(x ="outer_nACopula"),
+    function(x, l,u) {
+        d <- dim(x)
+        ## TODO: maybe allow  l & u to be  k x d matrices
+        ##        --> return vector of probabilities of length k
+	stopifnot(is.numeric(l), is.numeric(u),
+		  length(u) == d, d == length(l),
+                  0 <= l, l <= u, u <= 1)
+        D <- 2^d
+        m <- 0:(D - 1)
+        ## digitsBase() from package 'sfsmisc' {slightly simplified} :
+        ## Purpose: Use binary representation of 0:N
+        ## Author: Martin Maechler, Date:  Wed Dec  4 14:10:27 1991
+        II <- matrix(0, nrow = D, ncol = d)
+        for (i in d:1L) {
+            II[,i] <- m %% 2L + 1L
+            if (i > 1) m <- m %/% 2L
+        }
+        ## Sign: the ("u","u",...,"u") case has +1; = c(2,2,...,2)
+        Sign <- c(1,-1)[1L + (- rowSums(II)) %% 2]
+        U <- array(cbind(l,u)[cbind(c(col(II)), c(II))], dim = dim(II))
+        sum(Sign * apply(U, 1, value, x=x))
+    })
+
+
+
+
 ### returns U : matrix(*,n,d)
 setGeneric("rn", function(x,n,...) standardGeneric("rn"))
 
