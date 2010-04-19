@@ -41,42 +41,6 @@ corCheckout <- function(x,family,trCorr) {
   prt.tau.diff(x[["cor"]], trCorr) ; cat("\n")
 }
 
-## for chisquare test: find the mass in each cube
-cubemass <- function(mygridrow, cop, mesh) {
-  uc <- as.numeric(mygridrow)
-  lc <- uc-mesh
-  ## massincube :=
-  value(cop,uc)+
-      - value(cop,c(lc[1],uc[2],uc[3]))+
-      - value(cop,c(uc[1],lc[2],uc[3]))+
-      - value(cop,c(uc[1],uc[2],lc[3]))+
-      + value(cop,c(lc[1],lc[2],uc[3]))+
-      + value(cop,c(lc[1],uc[2],lc[3]))+
-      + value(cop,c(uc[1],lc[2],lc[3]))+
-      - value(cop,lc)
-}
-
-## for chisquare test: build a function that returns the cube number
-## for each data point
-cube <- function(data,pts) {
-  intervals <- as.numeric(cut(data, breaks = pts,include.lowest = TRUE,labels = 1:(length(pts)-1)))
-  l <- length(intervals)/3
-  i1 <- intervals[1:l]
-  i2 <- intervals[(l+1):(2*l)]
-  i3 <- intervals[(2*l+1):(3*l)]
-  (i1-1) + (i2-1)*5 + (i3-1)*5*5 + 1
-}
-
-## for chisquare test: define function which simulates the test
-## statistic for 1 run
-simuteststat <- function(n,cop,pts,cube, nbins, E_nObs) {
-    data <- rn(cop,n)       #generate data
-    cubenumbers <- cube(data,pts)       #find the cube numbers
-    ## Number of observations in each cube:
-    observationsinbin <- tabulate(cubenumbers, nbins = nbins)
-    sum(((observationsinbin-E_nObs)^2)/E_nObs) #compute chisquare test statistic
-}
-
 ##' <description>
 ##'
 ##' <details>
@@ -89,6 +53,44 @@ simuteststat <- function(n,cop,pts,cube, nbins, E_nObs) {
 chiSq_check_cop3d <- function(n,N,cop, mesh = 0.2, verbose = interactive())
 {
     copName <- deparse(substitute(cop))
+
+    ## for chisquare test: find the mass in each cube
+    cubemass <- function(mygridrow, cop, mesh) {
+      uc <- as.numeric(mygridrow)
+      lc <- uc-mesh
+      ## massincube :=
+      value(cop,uc)+
+          - value(cop,c(lc[1],uc[2],uc[3]))+
+          - value(cop,c(uc[1],lc[2],uc[3]))+
+          - value(cop,c(uc[1],uc[2],lc[3]))+
+          + value(cop,c(lc[1],lc[2],uc[3]))+
+          + value(cop,c(lc[1],uc[2],lc[3]))+
+          + value(cop,c(uc[1],lc[2],lc[3]))+
+          - value(cop,lc)
+    }
+
+    ## for chisquare test: build a function that returns the cube number
+    ## for each data point
+    cube <- function(data,pts) {
+        ## FIXME: this ("5") is only correct for  mesh = 1/5 !!!
+      intervals <- cut(data, breaks = pts,include.lowest = TRUE, labels = FALSE)
+      l <- length(intervals)/3
+      i1 <- intervals[1:l]
+      i2 <- intervals[(l+1):(2*l)]
+      i3 <- intervals[(2*l+1):(3*l)]
+      (i1-1) + (i2-1)*5 + (i3-1)*5*5 + 1
+    }
+
+    ## for chisquare test: define function which simulates the test
+    ## statistic for 1 run
+    simuteststat <- function(n,cop,pts,cube, nbins, E_nObs) {
+        data <- rn(cop,n)       #generate data
+        cubenumbers <- cube(data,pts)       #find the cube numbers
+        ## Number of observations in each cube:
+        observationsinbin <- tabulate(cubenumbers, nbins = nbins)
+        sum(((observationsinbin-E_nObs)^2)/E_nObs) #compute chisquare test statistic
+    }
+
     pts <- seq(0,1, by=mesh)
     ## setup grid --
     mygrid <- expand.grid(x = pts,y = pts,z = pts) #build cube upper corners
