@@ -49,34 +49,37 @@ corCheckout <- function(x,family,trCorr) {
 ##' @param N [integer] number of replications
 ##' @param cop NACopula to generate from
 ##' @param nInt positive integer: the number of intervals used for each grid dim
-##' @return a list(...) -- FIXME: use class with print method
-chiSq_check_cop <- function(n,N,cop,nInt,verbose = interactive())
+##' @return an "chiSqChk_cop3d" object; just a list(...) + a print method
+chiSq_check_cop <- function(n,N,cop,nInt, verbose = interactive())
 {
     copName <- deparse(substitute(cop)) # copula name
     d <- dim(cop) # copula dimension
-    pts <- seq(1/nInt,1,length.out=nInt) # division points 
-    D <- nInt^d # grid length
-    mygrid <- do.call("expand.grid", rep(list(pts), d)) # build grid
-    
+    stopifnot(is.numeric(d), d >= 1, is.numeric(nInt), nInt >= 1)
+    pts <- (1:nInt)/nInt # (upper) division points [lower = upper - h = {0, ..., 1-h}; h=1/nInt]
+    mygrid <- do.call("expand.grid", rep.int(list(pts), d)) # build grid
+    m <- nInt^d # == grid length == nrow(mygrid)
+    v.cube <- nInt^(0:(d-1))
+
     ## build a function that returns the number of the cube in which each row of U falls
-    cube <- function(U,pts){
-      n <- length(U[,1])
-      intervals <- matrix(cut(U, breaks = pts,include.lowest = TRUE, 
-                          labels = FALSE),nrow=n) # find "interval number" for
-                          # each component of U; these numbers are in {NA,1,2,3,...,nInt-1}
-      intervals[is.na(intervals)] <- 0 # NAs correspond to smallest interval 
-      v <- c(1,nInt,nInt*nInt)
-      as.vector((intervals %*% v) + 1)
+    cube <- function(U, pts) {
+      di <- dim(U)
+      intervals <- array(cut(U, breaks = pts, include.lowest = TRUE,
+			     labels = FALSE), # find "interval number" for
+					# each component of U; these numbers are in {NA,1,2,3,...,nInt-1}
+			 dim = di)
+      intervals[is.na(intervals)] <- 0 # NAs correspond to smallest interval
+      as.vector(intervals %*% v.cube) + 1
     }
 
     ## determine the expected number of observations in each cube
-    ## mass in each cube with upper corner determined by the rows of mygrid
-    wrapper <- function(u){
-      mesh <- 1/nInt
-      l <- u - mesh
-      prob(cop, l, u)##FIXME: why am I not found? :-(
+
+    prob_up <- function(u) {
+        ## probability mass in cube with upper corner 'u'
+        mesh <- 1/nInt
+        l <- u - mesh
+        prob(cop, l, u)
     }
-    masscube <- apply(mygrid, 1, wrapper)
+    masscube <- apply(mygrid, 1, prob_up)
     E_nobs <- n * masscube # expected number of observations in each cube
 
     ## now simulate data, count observations in each cube, and compute test statistic
@@ -84,9 +87,9 @@ chiSq_check_cop <- function(n,N,cop,nInt,verbose = interactive())
     CPU <- system.time({
         T <- replicate(N, {
             if(verbose) cat(sprintf("%2d%1s",{k <<- k+1}, if(k %% 20)"" else "\n"))
-            U <- rn(cop,n)       # generate data
-            cubenumbers <- cube(U,pts) # for each row vector of U, find the 
-            # number of the cube in which the vector falls
+            U <- rn(cop,n)             # generate data
+            cubenumbers <- cube(U,pts) # for each row vector of U, find the
+                                        # number of the cube in which the vector falls
             nobs <- tabulate(cubenumbers, nbins = m) # number of observations in each cube
             sum((nobs - E_nobs)^2 / E_nobs) # Chi^2 test statistic
         }); if(verbose) cat("done\n")
@@ -167,9 +170,10 @@ stopifnot(identical(AMH3d, rr), identical(rr, r0),
 (chkAMH <- chiSq_check_cop(n,N,AMH3d,5))
 
 ## check probability
-l <- c(0.1,0.05,0.3)
-u <- c(0.4,0.7,0.6)
-stopifnot(identical(prob(AMH3d,l,u), probin3dcube(AMH3d,l,u)))
+l <- c(.1, .05, .3)
+u <- c(.4, .7,  .6)
+stopifnot(all.equal(print(  prob(AMH3d,l,u)),
+		    probin3dcube(AMH3d,l,u), tol=1e-14))
 
 ##====Clayton================================
 
@@ -189,7 +193,8 @@ Clayton3d <- onACopula("Clayton", C(theta0, 1, C(theta1, 2:3)))
 (chkClayton <- chiSq_check_cop(512,100,Clayton3d,5))
 
 ## check probability
-stopifnot(identical(prob(Clayton3d,l,u), probin3dcube(Clayton3d,l,u)))
+stopifnot(all.equal(print(  prob(Clayton3d,l,u)),
+		    probin3dcube(Clayton3d,l,u), tol=1e-14))
 
 ##====Frank================================
 
@@ -206,7 +211,8 @@ Frank3d <- onACopula("F", C(theta0, 1, C(theta1, 2:3)))
 (chkFrank <- chiSq_check_cop(n,N,Frank3d,5))
 
 ## check probability
-stopifnot(identical(prob(Frank3d,l,u), probin3dcube(Frank3d,l,u)))
+stopifnot(all.equal(print(  prob(Frank3d,l,u)),
+		    probin3dcube(Frank3d,l,u), tol=1e-14))
 
 ##====Gumbel================================
 
@@ -223,7 +229,8 @@ Gumbel3d <- onACopula("Gumbel", C(theta0, 1, C(theta1, 2:3)))
 (chkGumbel <- chiSq_check_cop(n,N,Gumbel3d,5))
 
 ## check probability
-stopifnot(identical(prob(Gumbel3d,l,u), probin3dcube(Gumbel3d,l,u)))
+stopifnot(all.equal(print(  prob(Gumbel3d,l,u)),
+		    probin3dcube(Gumbel3d,l,u), tol=1e-14))
 
 ##====Joe================================
 
@@ -240,7 +247,8 @@ Joe3d <- onACopula("J", C(theta0, 1, C(theta1, 2:3)))
 (chkJoe <- chiSq_check_cop(n,N,Joe3d,5))
 
 ## check probability
-stopifnot(identical(prob(Joe3d,l,u), probin3dcube(Joe3d,l,u)))
+stopifnot(all.equal(print(  prob(Joe3d,l,u)),
+		    probin3dcube(Joe3d,l,u), tol=1e-14))
 
 ##====Examples that check value() and rn()========================================
 
