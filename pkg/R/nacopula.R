@@ -7,7 +7,7 @@ setGeneric("value", function(x, u) standardGeneric("value"))
 
 setMethod("value", signature(x ="nACopula"),
     function(x,u) {
-	stopifnot(is.numeric(u), all(u)>=0, all(u)<=1,
+	stopifnot(is.numeric(u), 0 <= u, u <= 1,
 		  length(u) >= dim(x))	# can be larger
 	C <- x@copula
 	th <- C@theta
@@ -17,10 +17,16 @@ setMethod("value", signature(x ="nACopula"),
 			   theta=th)),
 	      theta=th)
     })
-    
-### returns the probability that a random vector following the given copula
-### falls in the hypercube with lower and upper corner "l" and "u", 
-### respectively
+
+##' <description>
+##'
+##' <details>
+##' @title Probability P[l <= U <= u]  where U ~ copula x
+##' @param x outer nested archimedean copula
+##' @param l d-vector of lower "integration" limits
+##' @param u d-vector of upper "integration" limits
+##' @return the probability that a random vector following the given copula
+##' falls in the hypercube with lower and upper corner 'l' and 'u', respectively.
 setGeneric("prob", function(x, l, u) standardGeneric("prob"))
 
 setMethod("prob", signature(x ="outer_nACopula"),
@@ -31,6 +37,8 @@ setMethod("prob", signature(x ="outer_nACopula"),
 	stopifnot(is.numeric(l), is.numeric(u),
 		  length(u) == d, d == length(l),
                   0 <= l, l <= u, u <= 1)
+	if(d > 30)
+	    stop("prob() for copula dimensions > 30 are not supported (yet)")
         D <- 2^d
         m <- 0:(D - 1)
         ## digitsBase() from package 'sfsmisc' {slightly simplified} :
