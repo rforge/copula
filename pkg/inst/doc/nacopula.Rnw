@@ -201,11 +201,11 @@ options(width=75)
 \subsection{Nested Archimedean copulas}
   In contrast to elliptical copulas, Archimedean copulas are not restricted to radial symmetry, which implies that they can capture different tail dependencies, i.e., $\lambda_l\neq\lambda_u$. Further, they are given explicitly, see (\ref{16}), hence function evaluations are usually easy to establish. Note that the functional symmetry of Archimedean copulas implies that all margins of the same dimension are equal. For modeling purposes, this becomes an increasingly strong assumption in the dimension. Asymmetries, thus more realistic dependencies, can be modeled by a hierarchical structure of Archimedean copulas, obtained by plugging in Archimedean copulas into each other. This construction leads to nested Archimedean copulas.
 	\par
-	A $d$-dimensional copula $C$ is called \textit{nested Archimedean} if it is an Archimedean copula with arguments possibly replaced by other nested Archimedean copulas. If $C$ is given recursively by (\ref{16}) for $d=2$ and
+	A $d$-dimensional copula $C$ is called \textit{nested Archimedean} if it is an Archimedean copula with arguments possibly replaced by other nested Archimedean copulas. If $C$ is given recursively by (\ref{16}) for $d=2$ and, up to permutation of the arguments, by
 	\begin{align}
 		C(\bm{u};\psi_0,\dots,\psi_{d-2}):=\psi_0\bigl(\psiis{0}(u_1)+\psiis{0}(C(u_2,\dots,u_d;\psi_{1},\dots,\psi_{d-2}))\bigr),\ \bm{u}\in I^d,\label{18}
-	\end{align}
-	for $d\ge3$, $C$ is called \textit{fully-nested Archimedean copula} with $d-1$ \textit{nesting levels} or \textit{hierarchies}. Fully-nested Archimedean copulas may also be obtained by nesting in one of the other arguments, not necessarily in the last one as done in (\ref{18}). Otherwise, $C$ is called \textit{partially-nested Archimedean copula}.
+	\end{align}		
+	for $d\ge3$, $C$ is called \textit{fully-nested Archimedean copula} with $d-1$ \textit{nesting levels} or \textit{hierarchies}. Otherwise, $C$ is called \textit{partially-nested Archimedean copula}. Fully- and partially-nested Archimedean copulas are summarized as \textit{nested} (or \textit{hierarchical}) \textit{Archimedean copulas}.
 	\par
 	In order for (\ref{18}) being indeed a proper copula, \citet[p.\ 88]{joe1997} and \citet{mcneil2008} present the sufficient \textit{nesting condition} that $\psiis{i}\circ\psi_{j}$ have completely monotone derivatives for all nodes appearing in a nested Archimedean copula. This condition can be derived from a mixture representation of $C$ based on the \textit{outer distribution function} $F_0:=\LSi[\psi_0]$ corresponding to the \textit{outer generator} $\psi_0$ and the \textit{inner distribution functions} $F_{ij}:=\LSi[\psi_{ij}(\cdot\,;V_0)]$ corresponding to the \textit{inner generators} $\psi_{ij}(t;x):=\exp\bigl(-x\psiis{i}(\psi_{j}(t))\bigr)$, $x>0$, appearing in the Archimedean structure.
 	\par
