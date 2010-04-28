@@ -92,8 +92,8 @@ copClayton <-
 
 ### ==== Frank, see Nelsen (2007) p. 116, # 5 ====
 
-## rng Log(p) distribution
-rlog <- function(n,p) {
+## rng Log(p) distribution -- pure_R-version
+rlogR <- function(n,p) {
     stopifnot((n <- as.integer(n)) >= 0, 0 < p, p < 1)
     vec <- numeric(n)
     if(n >= 1) {
@@ -112,12 +112,17 @@ rlog <- function(n,p) {
     }
     vec
 }
+## rng Log(p) distribution -- C-version
+rlog <- function(n,p) {
+    stopifnot(n >= 0,  0 < p, p < 1)
+    .Call(rLog_c, n, p)
+}
 
 ##' rejection for F for Frank's family
 ##' @param p
 ##' @param alpha
 ##' @param theta0le1
-rejFFrank <- function(p,alpha,theta0le1) {
+rejFFrankR <- function(p,alpha,theta0le1) {
     if(theta0le1) {
 	repeat{
 	    U <- runif(1)
@@ -134,11 +139,16 @@ rejFFrank <- function(p,alpha,theta0le1) {
     X
 }
 
-## sample F for Frank
-rFFrank <- function(n,theta0,theta1) {
-    sapply(rep.int(-expm1(-theta1), n), rejFFrank,
+## sample F for Frank  --  pure-R - version
+rFFrankR <- function(n,theta0,theta1) {
+    sapply(rep.int(-expm1(-theta1), n), rejFFrankR,
            alpha = theta0/theta1,
            theta0le1 = (theta0 <= 1))
+}
+
+## sample F for Frank  --  C-version
+rFFrank <- function(n,theta0,theta1) {
+    .Call(rFFrank_c, n, theta0, theta1);
 }
 
 ## Frank object

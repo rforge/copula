@@ -5,7 +5,9 @@
 #define CALLDEF(name, n)  {#name, (DL_FUNC) &name, n}
 
 static R_CallMethodDef CallEntries[] = {
+    CALLDEF(rFFrank_c, 3),
     CALLDEF(rFJoe_c, 2),
+    CALLDEF(rLog_c, 2),
     CALLDEF(retstable_c, 2),
 
     {NULL, NULL, 0}
