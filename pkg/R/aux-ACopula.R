@@ -78,8 +78,10 @@ retstableC <- function(alpha, V0) {
     ## REAL PROBLEM: This gives *different* result than the pure R version !
 }
 
-## For now --- FIXME
+## if(FALSE)## no longer use R version
 retstable <- retstableR
+if(FALSE)## the C version is "wrong" (tau- corrTest):
+retstable <- retstableC
 
 
 setTheta <- function(x, value) {
