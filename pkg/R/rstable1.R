@@ -29,7 +29,7 @@ cospi2 <- function(x) {
 }
 
 
-rstable1 <- function(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
+rstable1R <- function(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
 {
     ## Purpose: Random Numbers of Stable distribution in
     ## "0"- or "1" - parametrization
@@ -109,5 +109,45 @@ rstable1 <- function(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
 
     # Result: Location - Scale trafo -- only now using (gamma, delta):
     Z * gamma + delta
+}
+
+rstable1C <- function(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
+{
+    ## Purpose: Random Numbers of Stable distribution in
+    ## Using the  'pm == 1'  parametrization only
+    ## ----------------------------------------------------------------------
+    ## Author: Martin Maechler
+
+    stopifnot((la <- length(alpha)) >= 1, (lb <- length(beta)) >= 1,
+	      length(gamma) >= 1, length(delta) >= 1,
+	      0 < alpha, alpha <= 2, abs(beta) <= 1,
+              length(pm) == 1, pm %in% 0:1)
+
+    if(beta == 1 && pm == 1) ## use the C version
+        .Call(rstable_b1, n, alpha, gamma) + delta
+    else rstable1R(n, alpha=alpha, beta=beta,
+                   gamma=gamma, delta=delta, pm=pm)
+}
+
+### ?? BUG ???
+## --- I can test compare the above and all looks fine (see tests below)
+
+rstable1 <- rstable1R
+## but if I use  rstable1C() instead of rstable1R(),
+## the correlation (tau) tests fail for "Gumbel"
+##  and Gumbel uses rstable1(*, beta=1) directly .. ???
+
+if(FALSE) {
+    r1R <- nacopula:::rstable1R
+    r1C <- nacopula:::rstable1C
+    ## speed is *very* similar (!):
+    system.time(Z  <- r1R(10000, .2, beta=1, gamma= 45))
+    system.time(Z. <- r1C(10000, .2, beta=1, gamma= 45))
+
+    ks.test(Z, Z.)# P-value ~ 0.50  they "are the same"
+    qqplot(Z, Z., log = "xy")## looks nice
+    acf(log(Z))  # "nice"
+    acf(log(Z.)) # ditto
+
 }
 

@@ -2,6 +2,43 @@
 
 library(nacopula)
 
+### ---  Zolotarev's function, etc:
+p.A <- function(ialpha, x = seq(0, 3.1, length=100), col = "tomato") {
+    stopifnot(0 <= ialpha, ialpha <= 1, 0 <= x, x <= pi)
+    if(is.unsorted(x)) x <- sort(x)
+    tit <- substitute(list("Zolotarev's  "* {A(x, alpha) - 1} , "  "* 1-alpha == IA),
+                      list(IA = ialpha))
+    alpha <- 1 - ialpha
+    A1 <-  .Call(nacopula:::A_Zolotarev, x, alpha, ialpha) - 1
+    A1d <- .Call(nacopula:::A_Zolotarev, x, alpha, 1-alpha) - 1
+    plot(x, A1, ylim = range(A1, A1d), ylab = expression(A(x,alpha) - 1),
+         col = col, main = tit, type ="o")
+    abline(h=0, lty=2)
+    ## add the "dumb" version that just works with alpha
+    gray <- rgb(.4, .5, .6, alpha = .3)# opaque color
+    lines(x, A1d, col = gray, lwd = 3)
+}
+
+## A(.) --> 1
+par(mfrow = c(2,2), mar = .1+c(4,4,4,1), mgp = c(1.5, .6, 0))
+p.A(1e-7)
+p.A(1e-9)
+p.A(1e-12)
+p.A(1e-14) ## still fine, visually
+p.A( 1e-15) ## wiggliness!
+p.A(.8e-15) ## more wiggliness; dumb version very slightly differs
+p.A(.5e-15) # more -- dumb version differs clearly
+p.A(.2e-15) # ditto
+p.A(.1e-15) # even more -- but this is already < .Machine$double.eps:
+.Machine$double.eps / .1e-15
+p.A(.08e-15) # = 8e-17
+p.A(.06e-15) # = 6e-17 still just wiggliness
+p.A(.05e-15) # complete breakdown
+
+## Conclusion: for the small range of  1-alpha in [0.6, 8] * 10^-17
+## ----------  using 'accurate 1-alpha' instead of just compute "1 - alpha"
+##             *is* somewhat more accurate
+
 ### investigate the  m(V0) = "optimal m" : ----------------------
 
 V0 <- seq(0, 40, by = 1/256)

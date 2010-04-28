@@ -79,9 +79,9 @@ retstableC <- function(alpha, V0) {
 }
 
 ## if(FALSE)## no longer use R version
-retstable <- retstableR
-if(FALSE)## the C version is "wrong" (tau- corrTest):
-retstable <- retstableC
+    retstable <- retstableR
+if(FALSE)## the C version was "wrong" (tau- corrTest):
+    retstable <- retstableC
 
 
 setTheta <- function(x, value) {
