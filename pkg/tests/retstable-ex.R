@@ -2,15 +2,15 @@
 
 library(nacopula)
 
-### ---  Zolotarev's function, etc:
+### ---  Zolotarev's function (to the power 1-alpha), etc:
 p.A <- function(ialpha, x = seq(0, 3.1, length=100), col = "tomato") {
     stopifnot(0 <= ialpha, ialpha <= 1, 0 <= x, x <= pi)
     if(is.unsorted(x)) x <- sort(x)
     tit <- substitute(list("Zolotarev's  "* {A(x, alpha) - 1} , "  "* 1-alpha == IA),
                       list(IA = ialpha))
     alpha <- 1 - ialpha
-    A1 <-  .Call(nacopula:::A_Zolotarev, x, alpha, ialpha) - 1
-    A1d <- .Call(nacopula:::A_Zolotarev, x, alpha, 1-alpha) - 1
+    A1 <-  .Call(nacopula:::A__c, x, alpha, ialpha) - 1
+    A1d <- .Call(nacopula:::A__c, x, alpha, 1-alpha) - 1
     plot(x, A1, ylim = range(A1, A1d), ylab = expression(A(x,alpha) - 1),
          col = col, main = tit, type ="o")
     abline(h=0, lty=2)

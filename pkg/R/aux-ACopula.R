@@ -74,7 +74,7 @@ retstableC <- function(alpha, V0) {
     if(alpha == 1)
 	V0 # sample from S(1,1,0,V0;1) with Laplace-Stieltjes transform exp(-V0*t)
     else
-	.Call(retstable_c, V0, alpha)
+	.Call(retstable_MH_c, V0, alpha)
     ## REAL PROBLEM: This gives *different* result than the pure R version !
 }
 

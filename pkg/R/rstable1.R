@@ -124,7 +124,7 @@ rstable1C <- function(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
               length(pm) == 1, pm %in% 0:1)
 
     if(beta == 1 && pm == 1) ## use the C version
-        .Call(rstable_b1, n, alpha, gamma) + delta
+        .Call(rstable_c, n, alpha, gamma) + delta
     else rstable1R(n, alpha=alpha, beta=beta,
                    gamma=gamma, delta=delta, pm=pm)
 }
