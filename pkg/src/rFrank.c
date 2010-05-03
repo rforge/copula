@@ -11,24 +11,24 @@
  */
 double rFFrank(double p, double alpha, double iAlpha /* == 1 - alpha */, int theta_0_le_1)
 {
-    double U, X;
+    double U, V;
     if(theta_0_le_1) {
 	do {
 	    U = unif_rand();
-	    X = rLog(p);
-	} while (U*(X-alpha) > 1./beta(X, iAlpha));
+	    V = rLog(p);
+	} while (U*(V-alpha) > 1./beta(V, iAlpha));
 
     } else {
 	double gamma_1_a = gammafn(iAlpha);
 	do {
 	    U = unif_rand();
-	    X = rFJoe(alpha, iAlpha, gamma_1_a);
-	} while(U > pow(p, X-1.));
+	    V = rFJoe(alpha, iAlpha, gamma_1_a);
+	} while(U > pow(p, V-1.));
     }
-    return X;
+    return V;
 }
 
-void rFFrank_vec(double *X, const int n,
+void rFFrank_vec(double *V, const int n,
 		 const double theta_0, const double theta_1)
 {
     double p  =  - expm1(-theta_1),
@@ -39,7 +39,7 @@ void rFFrank_vec(double *X, const int n,
 	GetRNGstate();
 
 	for(int i=0; i < n; i++)
-	    X[i] = rFFrank(p, alpha, iAlpha, th_0_le_1);
+	    V[i] = rFFrank(p, alpha, iAlpha, th_0_le_1);
 
 	PutRNGstate();
     }

@@ -5,7 +5,7 @@
 /* From: Marius Hofert <marius.hofert@math.ethz.ch>
  * Date: Mon, 26 Apr 2010 12:15:51 +0200 */
 
-/* sample a Log(p) distribution, see Kemp (1981) : */
+/* sample a Log(p) distribution, see Kemp (1981), algorithm ``LK'' : */
 double rLog(double p) {
 
     /* NOTA BENE: the *caller* of this function *MUST* use
