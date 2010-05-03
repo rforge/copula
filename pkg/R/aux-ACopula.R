@@ -78,11 +78,10 @@ retstableC <- function(alpha, V0) {
     ## REAL PROBLEM: This gives *different* result than the pure R version !
 }
 
-## if(FALSE)## no longer use R version
+if(FALSE)## no longer use R version
     retstable <- retstableR
 if(FALSE)## the C version was "wrong" (tau- corrTest):
     retstable <- retstableC
-
 
 setTheta <- function(x, value) {
     stopifnot(is(x, "ACopula"),

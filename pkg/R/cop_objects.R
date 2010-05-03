@@ -74,7 +74,13 @@ copClayton <-
         },
         ## V0 and V01
         V0 = function(n,theta) { rgamma(n, shape = 1/theta) },
-        V01 = function(V0,theta0,theta1) { retstable(theta0/theta1, V0) },
+        V01 = function(V0,theta0,theta1) { 
+                alpha <- theta0/theta1
+                if(alpha == 1)
+        	        V0 # sample from S(1,1,0,V0;1) with Laplace-Stieltjes 
+        	           # transform exp(-V0*t)
+                else .Call(retstable_MH_c, V0, 1, alpha)
+        },
         ## Kendall's tau
         tau = function(theta) { theta/(theta+2) },
         tauInv = function(tau) { 2*tau/(1-tau) },
