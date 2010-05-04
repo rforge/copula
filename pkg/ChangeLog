@@ -1,5 +1,11 @@
 2010-05-04  Martin Maechler  <maechler@stat.math.ethz.ch>
 
+	* src/retstable.c (retstable_c): with 'method', instead of
+	retstable_MH_c() etc.
+	* tests/retstable-ex.R (histSt): add first comparisons "MH"  <--> "LD"
+	LD is much faster but looks wrong.
+
+
 	* DESCRIPTION (Version): 0.3-0
 	* R/aux-ACopula.R (retstableC): finally switch to retstableC()
 	which now works; new 'method' argument, in tests only using

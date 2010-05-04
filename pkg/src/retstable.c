@@ -122,32 +122,6 @@ void retstable_MH(double *St, const double V0[], double h, double alpha, int n)
     return;
 }
 
-/**
-* <description>
-* @title Sample length(V0) variates from exponentially-tilted Stable distribution
-*
-* <details> call retstable_MH for sampling St ~ \tilde{S}(alpha, 1,
-*	(cos(alpha*pi/2)*V_0)^{1/alpha}, V_0*I_{alpha = 1}, h*I_{alpha != 1}; 1)
-* with Laplace-Stieltjes transform exp(-V_0((h+t)^alpha-h^alpha))
-*
-* @param V0_  numeric(n) {R vector}
-* @param h parameter {R numeric(1)}
-* @param alpha parameter {R numeric(1)}
-* @return R numeric(n) vector
-*/
-SEXP retstable_MH_c(SEXP V0_, SEXP h, SEXP alpha)
-{
-    int n = LENGTH(PROTECT(V0_ = coerceVector(V0_, REALSXP)));
-    double h_ = asReal(h), alp = asReal(alpha);
-    SEXP St = allocVector(REALSXP, n); /* the result */
-    PROTECT(St);
-
-    retstable_MH(REAL(St), REAL(V0_), h_, alp, n);
-
-    UNPROTECT(2);
-    return(St);
-}
-
 /**  Sinc(x) :  sin(x)/x , including the limit at x = 0, fast and accurately
  *
  * @param x any (double precision) number
@@ -223,117 +197,136 @@ double BdB0(double x,double alpha) {
 */
 void retstable_LD(double *St, const double V0[], double h, double alpha, int n)
 {
-	/* variables not depending on V0 : */
-    	const double c1 = sqrt(M_PI_2);
-    	const double c2 = 2.+c1;
-    	double b = (1.-alpha)/alpha;
+    /* variables not depending on V0 : */
+    const double c1 = sqrt(M_PI_2);
+    const double c2 = 2.+c1;
+    double b = (1.-alpha)/alpha;
 
-	for(int i = 0; i < n; i++) { /* for each of the n required variates */
+    for(int i = 0; i < n; i++) { /* for each of the n required variates */
 
-		/* set lambda for our parameterization */
-		double V0alpha = pow(V0[i],1./alpha);
-		double lambda = h*V0alpha;
+	/* alpha ==1 => St corresponds to a point mass at V0 with
+	 * Laplace-Stieltjes transform exp(-V0*t) */
+	if(alpha == 1.){
+	    St[i] = V0[i];
+	    continue;
+	}
+	/* set lambda for our parameterization */
+	double V0alpha = pow(V0[i],1./alpha);
+	double lambda = h*V0alpha;
 
-		/* apply the algorithm of Devroye (2009) to draw from
-		* \tilde{S}(alpha, 1, (cos(alpha*pi/2))^{1/alpha}, I_{alpha = 1},
-		* lambda*I_{alpha != 1};1) with Laplace-Stieltjes transform
-		* exp(-((lambda+t)^alpha-lambda^alpha)) */
-		double gamma = pow(lambda,alpha)*alpha*(1.-alpha);
-		double sgamma = sqrt(gamma);
-		double c3 = c2* sgamma;
-		double xi = 1. + M_SQRT2/M_PI * c3;
-		double psi = c3*exp(-gamma*M_PI*M_PI/8.)/M_SQRT_PI;
-		double w1 = c1*xi/sgamma;
-		double w2 = 2.*M_SQRT_PI * psi;
-		double w3 = xi*M_PI;
-		double X, c, E;
-	 	do {
-			double U, z, Z; /* <--- will be the "product" of the
-					* inner rejection sample */
-			do {
-		    	    double W_ = unif_rand(), V = unif_rand();
-			    if(gamma >= 1) {
-				if(V < w1/(w1+w2)) U = fabs(norm_rand())/sgamma;
-				else U = M_PI*(1.-W_*W_);
-			    }
-			    else{
-				if(V < w3/(w2+w3)) U = M_PI*W_;
-				else U = M_PI*(1.-W_*W_);
-			    }
-			    double W = unif_rand();
-			    double zeta = sqrt(BdB0(U,alpha));
-			    double phi = pow(sgamma+alpha*zeta,1./alpha);
-			    z = phi/(phi-pow(sgamma,1./alpha));
-			    /* compute rho */
-			    double rho = M_PI*exp(-pow(lambda,alpha)*(1.-1. \
-				         /(zeta*zeta))) / ((1.+c1)*sgamma/zeta \
-				 	 + z);
-			    double d = 0.;
-			    if(U >= 0 && gamma >= 1) d += xi*exp(-gamma*U*U/2.);
-			    if(U > 0 && U < M_PI) d += psi/sqrt(M_PI-U);
-			    if(U >= 0 && U <= M_PI && gamma < 1) d += xi;
-			    rho *= d;
-			    Z = W*rho;
-			    /* check rejection condition */
-			} while( !(U < M_PI && Z <= 1.));
+	/* apply the algorithm of Devroye (2009) to draw from
+	 * \tilde{S}(alpha, 1, (cos(alpha*pi/2))^{1/alpha}, I_{alpha = 1},
+	 * lambda*I_{alpha != 1};1) with Laplace-Stieltjes transform
+	 * exp(-((lambda+t)^alpha-lambda^alpha)) */
+	double gamma = pow(lambda,alpha)*alpha*(1.-alpha);
+	double sgamma = sqrt(gamma);
+	double c3 = c2* sgamma;
+	double xi = 1. + M_SQRT2/M_PI * c3;
+	double psi = c3*exp(-gamma*M_PI*M_PI/8.)/M_SQRT_PI;
+	double w1 = c1*xi/sgamma;
+	double w2 = 2.*M_SQRT_PI * psi;
+	double w3 = xi*M_PI;
+	double X, c, E;
+	do {
+	    double U, z, Z; /* <--- will be the "product" of the
+			     * inner rejection sample */
+	    do {
+		double W_ = unif_rand(), V = unif_rand();
+		if(gamma >= 1) {
+		    if(V < w1/(w1+w2)) U = fabs(norm_rand())/sgamma;
+		    else U = M_PI*(1.-W_*W_);
+		}
+		else{
+		    if(V < w3/(w2+w3)) U = M_PI*W_;
+		    else U = M_PI*(1.-W_*W_);
+		}
+		double W = unif_rand();
+		double zeta = sqrt(BdB0(U,alpha));
+		double phi = pow(sgamma+alpha*zeta,1./alpha);
+		z = phi/(phi-pow(sgamma,1./alpha));
+		/* compute rho */
+		double rho = M_PI*exp(-pow(lambda,alpha)*(1.-1. \
+							  /(zeta*zeta))) / ((1.+c1)*sgamma/zeta \
+									    + z);
+		double d = 0.;
+		if(U >= 0 && gamma >= 1) d += xi*exp(-gamma*U*U/2.);
+		if(U > 0 && U < M_PI) d += psi/sqrt(M_PI-U);
+		if(U >= 0 && U <= M_PI && gamma < 1) d += xi;
+		rho *= d;
+		Z = W*rho;
+		/* check rejection condition */
+	    } while( !(U < M_PI && Z <= 1.));
 
-			double
-			    a = pow(A_(U,alpha), 1./(1.-alpha)),
-			    m = pow(b*lambda/a,alpha),
-			    delta = sqrt(m*alpha/a),
-			    a1 = delta*c1,
-			    a3 = z/a,
-			    s = a1+delta+a3;
-			double V_ = unif_rand(), N_ = 0., E_ = 0. /* -Wall */;
-			if(V_ < a1/s) {
-			    N_ = norm_rand();
-			    X = m-delta*fabs(N_);
-			} else {
-			    if(V_ < delta/s)
-				X = m+delta*unif_rand();
-			    else {
-				E_ = exp_rand();
-				X = m+delta+E_*a3;
-			    }
-			}
-			E = -log(Z);
-			/* check rejection condition */
-			c = a*(X-m)+lambda*(pow(X,-b)-pow(m,-b));
-			if(X < m) c -= N_*N_/2.;
-			else if(X > m+delta) c -= E_;
+	    double
+		a = pow(A_(U,alpha), 1./(1.-alpha)),
+		m = pow(b*lambda/a,alpha),
+		delta = sqrt(m*alpha/a),
+		a1 = delta*c1,
+		a3 = z/a,
+		s = a1+delta+a3;
+	    double V_ = unif_rand(), N_ = 0., E_ = 0. /* -Wall */;
+	    if(V_ < a1/s) {
+		N_ = norm_rand();
+		X = m-delta*fabs(N_);
+	    } else {
+		if(V_ < delta/s)
+		    X = m+delta*unif_rand();
+		else {
+		    E_ = exp_rand();
+		    X = m+delta+E_*a3;
+		}
+	    }
+	    E = -log(Z);
+	    /* check rejection condition */
+	    c = a*(X-m)+lambda*(pow(X,-b)-pow(m,-b));
+	    if(X < m) c -= N_*N_/2.;
+	    else if(X > m+delta) c -= E_;
 
-	   	} while (!(X >= 0 && c <= E));
+	} while (!(X >= 0 && c <= E));
 
-		/* transform variates from exp(-((lambda+t)^alpha-lambda^alpha))
-		* to those of exp(-V_0((h+t)^alpha-h^alpha)) */
-		St[i] = V0alpha / pow(X,b);
+	/* transform variates from exp(-((lambda+t)^alpha-lambda^alpha))
+	 * to those of exp(-V_0((h+t)^alpha-h^alpha)) */
+	St[i] = V0alpha / pow(X,b);
 
-	} /* end for(i=0 .. n-1) */
-	return;
+    } /* end for(i=0 .. n-1) */
+    return;
 }
 
 /**
 * <description>
 * @title Sample length(V0) variates from exponentially-tilted Stable distribution
 *
-* <details> call retstable_LD for sampling St ~ \tilde{S}(alpha, 1,
+* <details> call retstable_MH for sampling St ~ \tilde{S}(alpha, 1,
 *	(cos(alpha*pi/2)*V_0)^{1/alpha}, V_0*I_{alpha = 1}, h*I_{alpha != 1}; 1)
 * with Laplace-Stieltjes transform exp(-V_0((h+t)^alpha-h^alpha))
 *
 * @param V0_  numeric(n) {R vector}
 * @param h parameter {R numeric(1)}
 * @param alpha parameter {R numeric(1)}
+* @param method {R "string", i.e. character(1)}
 * @return R numeric(n) vector
 */
-SEXP retstable_LD_c(SEXP V0_, SEXP h, SEXP alpha)
+
+SEXP retstable_c(SEXP V0_, SEXP h, SEXP alpha, SEXP method)
 {
     int n = LENGTH(PROTECT(V0_ = coerceVector(V0_, REALSXP)));
-    double h_ = asReal(h);
-    double alp = asReal(alpha);
-    SEXP St = allocVector(REALSXP, n); /* the result */
-    PROTECT(St);
-
-    retstable_LD(REAL(St), REAL(V0_), h_, alp, n);
+    const char* meth_ch = CHAR(STRING_ELT(method, 0));
+    enum method_kind { MH, LD
+    } meth_typ = ((!strcmp(meth_ch, "MH")) ? MH :
+		  ((!strcmp(meth_ch, "LD")) ? LD :
+		   -1));
+    SEXP St; /* the result */
+    PROTECT(St = allocVector(REALSXP, n));
+    switch(meth_typ) {
+    case MH:
+	retstable_MH(REAL(St), REAL(V0_), asReal(h), asReal(alpha), n);
+	break;
+    case LD:
+	retstable_LD(REAL(St), REAL(V0_), asReal(h), asReal(alpha), n);
+	break;
+    default:
+	error(_("retstable_c(): invalid '%s'"), "method");
+    }
 
     UNPROTECT(2);
     return(St);

@@ -176,34 +176,68 @@ nV <- length(V0s)      # V0s <- c(1:4, 5*(1:10), 10*(6:20)))
 nAlph <- length(alphas)# alphas <- (1:9)/10)
 ## nSim <- 1024
 
-if(!exists("Nst.c")) { ## compute those
+set.seed(47)
+if(!exists("St.c")) { ## compute those
 
-    Nst.c <- array(dim = c(nSim, nAlph, nV, length(methods)),
-                   dimnames = list(NULL,NULL,NULL, methods))
-    CPU.c <- array(dim = c(      nAlph, nV, length(methods)),
-                   dimnames = list(     NULL,NULL, methods))
+    dnS <- list(paste("V0", formatC(V0s), sep="="),
+                NULL,
+                paste("alpha", alphas, sep="="),
+                methods)
+    St.c <- array(dim = c(nV, nSim, nAlph, length(methods)), dimnames=dnS)
+    CPU.c <- array(dim = dim(St.c)[-(1:2)], dimnames = dnS[-(1:2)])
 
-    for(iV0 in 1:nV) {
-        V0 <- V0s[iV0]
-        cat(sprintf("V0 = %5d :", V0))
-        for(ia in 1:nAlph) {
-            alpha <- alphas[ia]
-            for(meth in methods) {
-                CPU.c[ia, iV0, meth] <-
-                    system.time({
-                        Nst.c[, ia, iV0, meth] <-
-                            replicate(nSim, retstable(alphas[ia], V0 = V0, method = meth))
-                    })[1]
-            }
+    for(ia in 1:nAlph) {
+        alpha <- alphas[ia]
+        cat(" alpha=", alpha, "")
+        for(meth in methods) {
+            CPU.c[ia, meth] <-
+                system.time({
+                    St.c[, , ia, meth] <-
+                        replicate(nSim, retstable(alphas[ia], V0 = V0s, method = meth))
+                })[1]
             cat(".")
         }
-        cat("\n")
-    }
+    }; cat("\n")
 
-    save(Nst.c, CPU.c, ## <- new ones
+    save(St.c, CPU.c, ## <- new ones
          V0s, alphas, nSim, Nstat,
          file = saveFile)
+
+} else { ## we have precomputed it ...
+
+    load(saveFile)
 }
 
 ## ---> Compare  CPU.c for the two methods,
-## --- statistically compare  Nstat [R based] with Nst.c,  notably the two methods
+## --- statistically compare the two methods for St.c
+
+if(getOption("width") < 100) options(width=100)
+
+## Times for 1024 replicates and V0 = V0s[]
+CPU.c
+## LD is *MUCH* faster {and speed seems independent of alpha}
+
+## hmm, how do the RN s look like?
+histSt <- function(V0lab, alphalab) {
+    stopifnot(is.character(V0lab), is.character(alphalab),
+              any(V0lab == dimnames(St.c)[[1]]),
+              any(alphalab == dimnames(St.c)[[3]]))
+    op <- mult.fig(mfrow= c(length(methods),1),
+                   main = paste("n=", nSim, "  Exponentially Tilted Stable RN's"))$old.par
+    on.exit(par(op))
+
+    S. <- St.c[V0lab, , alphalab, ]
+    breaks <- pretty(range(S.), n = 20)
+    for(meth in methods) {
+        hist(S.[, meth], breaks = breaks,
+             main=paste(meth, ":  ", V0lab, ", ", alphalab, sep = ""),
+             xlab = expression(tilde(S)), freq=FALSE)
+        lines(density(S.[, meth]), col=2, lwd=2)
+    }
+}
+
+histSt("V0=10", "alpha=0.3") ## "LD" seems plain wrong
+
+histSt("V0=1", "alpha=0.5") ##  more ok
+
+histSt("V0=100", "alpha=0.1")## "LD" is bimodal too

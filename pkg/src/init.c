@@ -9,8 +9,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(A__c, 3),
 
     CALLDEF(rstable_c, 3),
-    CALLDEF(retstable_MH_c, 3),
-    CALLDEF(retstable_LD_c, 3),
+    CALLDEF(retstable_c, 4),
 
     CALLDEF(rLog_c, 2),
     CALLDEF(rFJoe_c, 2),

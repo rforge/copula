@@ -4,12 +4,20 @@
 #include <R.h>
 #include <Rinternals.h>
 
+/* For internationalized messages: */
+#ifdef ENABLE_NLS
+#include <libintl.h>
+#define _(String) dgettext ("Matrix", String)
+#else
+#define _(String) (String)
+#define dngettext(pkg, String, StringP, N) (N > 1 ? StringP : String)
+#endif
+
 SEXP sinc_c(SEXP x_);
 SEXP A__c(SEXP x_, SEXP alpha, SEXP I_alpha);
 
 SEXP rstable_c(SEXP n, SEXP alpha, SEXP gamma);
-SEXP retstable_MH_c(SEXP V0_, SEXP h, SEXP alpha);
-SEXP retstable_LD_c(SEXP V0_, SEXP h, SEXP alpha);
+SEXP retstable_c(SEXP V0_, SEXP h, SEXP alpha, SEXP method);
 
 SEXP rLog_c     (SEXP n, SEXP p);
 SEXP rFJoe_c    (SEXP n, SEXP alpha);

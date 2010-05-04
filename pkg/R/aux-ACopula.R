@@ -52,7 +52,7 @@ m.opt.retst <- function(V0)
 ## compute random variates from an exponentially-tilted Stable distribution
 ## \tilde{S}(alpha,1,(cos(alpha*pi/2)V0)^(1/alpha),V0*Indicator(alpha==1),Indicator(alpha!=1);1)
 ## with corresponding Laplace-Stieltjes transform exp(-V0*((1+t)^alpha-1))
-retstableR <- function(alpha,V0) {
+retstableR <- function(alpha,V0, h = 1) {
     n <- length(V0)
     stopifnot(n >= 1, is.numeric(alpha), length(alpha) == 1,
               0 <= alpha, alpha <= 1) ## <- alpha > 1 ==> cos(pi/2 *alpha) < 0
@@ -67,21 +67,17 @@ retstableR <- function(alpha,V0) {
     mapply(retstablerej, m=m, V0=V0, alpha=alpha)
 }
 
-retstableC <- function(alpha, V0, method = c("MH","LD")) {
+retstableC <- function(alpha, V0, h = 1, method = c("MH","LD")) {
     n <- length(V0)
     stopifnot(n >= 1, is.numeric(alpha), length(alpha) == 1,
-              0 <= alpha, alpha <= 1) ## <- alpha > 1 ==> cos(pi/2 *alpha) < 0
+              0 <= alpha, alpha <= 1, ## <- alpha > 1 ==> cos(pi/2 *alpha) < 0
+              is.numeric(h), length(h) == 1, h > 0)
     if(alpha == 1)
 	V0 # sample from S(1,1,0,V0;1) with Laplace-Stieltjes transform exp(-V0*t)
     else {
 	method <- match.arg(method)
-	.Call(switch(method,
-		     "MH" = retstable_MH_c,
-		     "LD" = retstable_LD_c,
-		     stop("invalid 'method'")),
-	      V0, h = 1., alpha)
+	.Call(retstable_c, V0, h = h, alpha, method)
     }
-    ## REAL PROBLEM: This gives *different* result than the pure R version !
 }
 
 if(FALSE)## no longer use R version
