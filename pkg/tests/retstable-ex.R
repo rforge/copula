@@ -1,6 +1,12 @@
-#### Experiments with retstableR()
+####  Generating Exponentially Tilted Stable Random Vars (r ET stable)
+####  ==================================================
+####  --> Experiments with retstable*() versions
 
 library(nacopula)
+
+### --- ======      --------------------------#--
+### --- Part I ---  Experiments with retstableR()
+### --- ======      --------------------------#--
 
 ### ---  Zolotarev's function (to the power 1-alpha), etc:
 p.A <- function(ialpha, x = seq(0, 3.1, length=100), col = "tomato") {
@@ -18,6 +24,9 @@ p.A <- function(ialpha, x = seq(0, 3.1, length=100), col = "tomato") {
     gray <- rgb(.4, .5, .6, alpha = .3)# opaque color
     lines(x, A1d, col = gray, lwd = 3)
 }
+
+if(!dev.interactive())
+    pdf("retstable-ex.pdf")
 
 ## A(.) --> 1
 par(mfrow = c(2,2), mar = .1+c(4,4,4,1), mgp = c(1.5, .6, 0))
@@ -99,7 +108,9 @@ if(file.exists(saveFile)) {
 boxplot(Nstat[,1,], range=2)
 
 ## Log log scale
-op <- sfsmisc::mult.fig(length(alphas))$old.par
+op <- if(require("sfsmisc"))
+    sfsmisc::mult.fig(length(alphas))$old.par else { ## less nicely looking
+        m <- length(alphas); par(mfrow= c(3, ceiling(m/3))) }
 for(i in seq_along(alphas)) {
     N.st <- Nstat[,i,]
     plot(NA,NA, xlim = range(V0s), ylim=range(N.st),
@@ -152,3 +163,47 @@ matlines(V0s, Nst.q95, col = "gray80", lty=3)
 ## or just the "residuals"
 matplot(V0s, Nst.mns / V0s, type = "b", lty=1, log = "x")
 rug(V0s)
+
+if(!dev.interactive()) { dev.off(); pdf("retstable-ex-2.pdf") }
+
+
+### --- =======      --------------------------#-----------
+### --- Part II ---  Experiments with retstableC() methods
+### --- =======      --------------------------#-----------
+
+methods <- c("MH", "LD")
+nV <- length(V0s)      # V0s <- c(1:4, 5*(1:10), 10*(6:20)))
+nAlph <- length(alphas)# alphas <- (1:9)/10)
+## nSim <- 1024
+
+if(!exists("Nst.c")) { ## compute those
+
+    Nst.c <- array(dim = c(nSim, nAlph, nV, length(methods)),
+                   dimnames = list(NULL,NULL,NULL, methods))
+    CPU.c <- array(dim = c(      nAlph, nV, length(methods)),
+                   dimnames = list(     NULL,NULL, methods))
+
+    for(iV0 in 1:nV) {
+        V0 <- V0s[iV0]
+        cat(sprintf("V0 = %5d :", V0))
+        for(ia in 1:nAlph) {
+            alpha <- alphas[ia]
+            for(meth in methods) {
+                CPU.c[ia, iV0, meth] <-
+                    system.time({
+                        Nst.c[, ia, iV0, meth] <-
+                            replicate(nSim, retstable(alphas[ia], V0 = V0, method = meth))
+                    })[1]
+            }
+            cat(".")
+        }
+        cat("\n")
+    }
+
+    save(Nst.c, CPU.c, ## <- new ones
+         V0s, alphas, nSim, Nstat,
+         file = saveFile)
+}
+
+## ---> Compare  CPU.c for the two methods,
+## --- statistically compare  Nstat [R based] with Nst.c,  notably the two methods
