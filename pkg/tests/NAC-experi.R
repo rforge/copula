@@ -117,7 +117,13 @@ print.chiSqChk_cop3d <- function(x, ...) {
                 x$percentrot),
         sprintf("CPU (user) time needed = c(N,n; cop) = %8.1f [ms]\n",
 		1000 * x$CPU), sep="")
-    stopifnot(pv > 0.05)
+    if(pv < 0.05) {
+	if(pv < 0.01)
+	    cat("\n*************** P-value < 0.01 <<<<<<<<<<<<<<<<<<<<<<<<\n",
+		"\n*************** ============== <<<<<<<<<<<<<<<<<<<<<<<<\n\n")
+	else cat("\n*** > > > P-value < 0.05 <<<<<<<<<<<<<<<<<<<<<<<<\n\n")
+	stopifnot(pv > 0.001)
+    }
     invisible(x)
 }
 

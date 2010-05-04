@@ -67,21 +67,26 @@ retstableR <- function(alpha,V0) {
     mapply(retstablerej, m=m, V0=V0, alpha=alpha)
 }
 
-retstableC <- function(alpha, V0) {
+retstableC <- function(alpha, V0, method = c("MH","LD")) {
     n <- length(V0)
     stopifnot(n >= 1, is.numeric(alpha), length(alpha) == 1,
               0 <= alpha, alpha <= 1) ## <- alpha > 1 ==> cos(pi/2 *alpha) < 0
     if(alpha == 1)
 	V0 # sample from S(1,1,0,V0;1) with Laplace-Stieltjes transform exp(-V0*t)
-    else
-	.Call(retstable_MH_c, V0, alpha)
+    else {
+	method <- match.arg(method)
+	.Call(switch(method,
+		     "MH" = retstable_MH_c,
+		     "LD" = retstable_LD_c,
+		     stop("invalid 'method'")),
+	      V0, h = 1., alpha)
+    }
     ## REAL PROBLEM: This gives *different* result than the pure R version !
 }
 
 if(FALSE)## no longer use R version
     retstable <- retstableR
-if(FALSE)## the C version was "wrong" (tau- corrTest):
-    retstable <- retstableC
+retstable <- retstableC
 
 setTheta <- function(x, value) {
     stopifnot(is(x, "ACopula"),

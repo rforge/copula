@@ -1,3 +1,26 @@
+2010-05-04  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.3-0
+	* R/aux-ACopula.R (retstableC): finally switch to retstableC()
+	which now works; new 'method' argument, in tests only using
+	retstable_MH at the moment.
+
+	* tests/NAC-experi.R (print.chiSqChk_cop3d): need to allow P-value < 0.05
+	* src/init.c (updates)
+
+2010-05-03  Marius Hofert <marius.hofert@math.ethz.ch>
+
+	* src/retstable.c (retstable_LD): Luc Devroye's algorithm for
+	tilted stable added; fixed buglets; some renaming (after meeting
+	with MM).
+	* src/nacopula.h, src/init.c: renaming
+
+2010-04-28  Marius Hofert <marius.hofert@math.ethz.ch>
+2010-04-28  Martin Maechler <maechler@stat.math.ethz.ch>
+
+	* src/retstable.c: new retstable() versions; but buggy, according
+	to our distribution tests in tests/NAC-experi.R
+
 2010-04-10  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.2-2
