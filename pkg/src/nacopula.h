@@ -16,7 +16,7 @@
 SEXP sinc_c(SEXP x_);
 SEXP A__c(SEXP x_, SEXP alpha, SEXP I_alpha);
 
-SEXP rstable_c(SEXP n, SEXP alpha, SEXP gamma);
+SEXP rstable_c(SEXP n, SEXP alpha);
 SEXP retstable_c(SEXP V0_, SEXP h, SEXP alpha, SEXP method);
 
 SEXP rLog_c     (SEXP n, SEXP p);
@@ -29,9 +29,8 @@ double A_(double x, double alpha);
 double BdB0(double x, double alpha);
 
 double rstable0(double alpha);
-double rstable (double alpha, double gamma);
-void rstable_vec(double S[], const int n,
-		 const double alpha, const double gamma);
+double rstable (double alpha);
+void rstable_vec(double S[], const int n, const double alpha);
 void retstable_MH(double *St, const double V0[], double h, double alpha, int n);
 void retstable_LD(double *St, const double V0[], double h, double alpha, int n);
 

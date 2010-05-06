@@ -14,6 +14,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"interval"
        ,"prob"
        ## Should we provide these in a separate (very small) R package ?
+       ,"sinc", "A..Z"
        ,"rstable1"
        ,"retstable", "retstableR"
        ,"rFJoe", "rFJoeR"

@@ -15,8 +15,8 @@ p.A <- function(ialpha, x = seq(0, 3.1, length=100), col = "tomato") {
     tit <- substitute(list("Zolotarev's  "* {A(x, alpha) - 1} , "  "* 1-alpha == IA),
                       list(IA = ialpha))
     alpha <- 1 - ialpha
-    A1 <-  .Call(nacopula:::A__c, x, alpha, ialpha) - 1
-    A1d <- .Call(nacopula:::A__c, x, alpha, 1-alpha) - 1
+    A1 <-  A..Z(x, alpha, ialpha) - 1
+    A1d <- A..Z(x, alpha, 1-alpha) - 1
     plot(x, A1, ylim = range(A1, A1d), ylab = expression(A(x,alpha) - 1),
          col = col, main = tit, type ="o")
     abline(h=0, lty=2)
@@ -241,3 +241,6 @@ histSt("V0=10", "alpha=0.3") ## "LD" seems plain wrong
 histSt("V0=1", "alpha=0.5") ##  more ok
 
 histSt("V0=100", "alpha=0.1")## "LD" is bimodal too
+
+
+cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

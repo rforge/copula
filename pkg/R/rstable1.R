@@ -1,6 +1,14 @@
-##' @param x  numeric vector
+sinc <- function(x) .Call(sinc_c, x)
 
-##' @return tan(pi *x)	but exact for integer x
+A..Z <- function(x, alpha, I.alpha = 1 - alpha)
+    .Call(nacopula:::A__c, x, alpha, I.alpha)
+
+##' <description>
+##'
+##' @title tan(pi *x) exact for integer x
+##' @param x  numeric vector
+##' @return   numeric vector as x
+##' @author Martin Maechler
 tanpi <- function(x) {
     r <- x
     if(any(i <- x == round(x)))
@@ -94,7 +102,8 @@ rstable1R <- function(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
 	}
     }
 
-    if(pm == 0) ## delta_1 := delta_0 - ....   [Nolan, chapt.1, (1.7)], since above 1-parametr.
+    if(pm == 0)
+        ## delta_1 := delta_0 - .. [Nolan, chapt.1, (1.7)], since above 1-parametr.
 	delta <- delta - gamma * {
 	    if(a.is.vec) {
 		d.of <- numeric(n)
@@ -124,30 +133,20 @@ rstable1C <- function(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
               length(pm) == 1, pm %in% 0:1)
 
     if(beta == 1 && pm == 1) ## use the C version
-        .Call(rstable_c, n, alpha, gamma) + delta
+        .Call(rstable_c, n, alpha) * gamma + delta
     else rstable1R(n, alpha=alpha, beta=beta,
                    gamma=gamma, delta=delta, pm=pm)
 }
 
-### ?? BUG ???
-## --- I can test compare the above and all looks fine (see tests below)
-
 rstable1 <- rstable1R
-## but if I use  rstable1C() instead of rstable1R(),
+
+### ?? BUG ???
+## --- I can test compare the above and all looks fine,
+##    see ks.test() in ../tests/rstable-ex.R
+##
+## if(FALSE) ## but if we do
+rstable1 <- rstable1C
 ## the correlation (tau) tests fail for "Gumbel"
-##  and Gumbel uses rstable1(*, beta=1) directly .. ???
-
-if(FALSE) {
-    r1R <- nacopula:::rstable1R
-    r1C <- nacopula:::rstable1C
-    ## speed is *very* similar (!):
-    system.time(Z  <- r1R(10000, .2, beta=1, gamma= 45))
-    system.time(Z. <- r1C(10000, .2, beta=1, gamma= 45))
-
-    ks.test(Z, Z.)# P-value ~ 0.50  they "are the same"
-    qqplot(Z, Z., log = "xy")## looks nice
-    acf(log(Z))  # "nice"
-    acf(log(Z.)) # ditto
-
-}
+##>> ../tests/NAC-experi.R
+##>> stopifnot(max(abs(corCheckGumbel[["cor"]]-trCorr)) < eps.tau)
 

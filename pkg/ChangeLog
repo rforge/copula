@@ -1,3 +1,9 @@
+2010-05-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/rstable1.R (rstable1C): use rstable1 := rstable1C
+	and look at it --> do *NOT* pass gamma to C as it is sometimes a vector.
+	* src/retstable.c (rstable_c, ...): corresponding changes
+
 2010-05-04  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/retstable.c (retstable_c): with 'method', instead of

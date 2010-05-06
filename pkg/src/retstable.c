@@ -19,7 +19,7 @@ static SEXP lang5(SEXP s, SEXP t, SEXP u, SEXP v, SEXP w)
 */
 double rstable0(double alpha){
 	/* S(1, 1, 0, 1; 1) with Laplace-Stieltjes transform exp(-t) */
-	if(alpha == 1.) return 1.;
+	if(alpha == 1.) return 1./0.;
 
 	/* alpha in (0,1) */
 	double U = unif_rand();
@@ -29,42 +29,46 @@ double rstable0(double alpha){
 }
 
 /* sample S ~ S(alpha, 1, gamma, 0; 1)
-* with characteristic function exp(-gamma^alpha*|t|^alpha*(1-i*sgn(t)
-*                                  *tan(alpha*pi/2))), see Nolan's book for the
-* parameterization
+ * with characteristic function exp(-gamma^alpha*|t|^alpha*(1-i*sgn(t)
+ *                                  *tan(alpha*pi/2))),
+ * see Nolan's book for the parametrization
 */
-double rstable(double alpha, double gamma){
-	if(alpha == 1.) return gamma/0.;
-	else return (gamma/pow(cos(M_PI_2*alpha),1./alpha))*rstable0(alpha);
+double rstable(double alpha) {
+    if(alpha == 1.)
+	return 1./0.; /* Inf or NaN */
+    else
+	return pow(cos(M_PI_2*alpha), -1./alpha) * rstable0(alpha);
 }
 
 /* for vectorizing rstable */
-void rstable_vec(double S[], const int n, const double alpha, const double gamma){
-	if(n >= 1){
+void rstable_vec(double S[], const int n, const double alpha)
+{
+    if(n >= 1) {
+	double cf = pow(cos(M_PI_2*alpha), -1./alpha);
 	GetRNGstate();
-		for(int i=0; i < n; i++) S[i] = rstable(alpha, gamma);
+	for(int i=0; i < n; i++)
+	    S[i] = cf * rstable0(alpha);
 	PutRNGstate();
-	}
-	return;
+    }
+    return;
 }
 
 /**
 * <description>
-*
+*  Sample Stable Random Numbers ~ S(alpha, beta = 1, gamma = 1)
+*  If you want  S(a,, gamma), use  gamma * S(.)
 * <details>
-* @title Sample Stable S(alpha, beta = 1, gamma)
+* @title Sample Stable S(alpha, beta = 1, gamma = 1)
 * @param n sample size
 * @param alpha parameter
-* @param gamma parameter
 * @return numeric(n) vector
 */
-SEXP rstable_c(SEXP n, SEXP alpha, SEXP gamma)
+SEXP rstable_c(SEXP n, SEXP alpha)
 {
     int nn = asInteger(n);
-    double alp = asReal(alpha), gamm = asReal(gamma);
     SEXP res = PROTECT(allocVector(REALSXP, nn));
 
-    rstable_vec(REAL(res), nn, alp, gamm);
+    rstable_vec(REAL(res), nn, asReal(alpha));
     UNPROTECT(1);
     return(res);
 }
@@ -104,7 +108,7 @@ void retstable_MH(double *St, const double V0[], double h, double alpha, int n)
 		/* sample St_k~S(alpha, 1, (cos(alpha*pi/2)*V_0/m)^{1/alpha},
 		*		 (V_0/m)*I_{\alpha = 1}; 1) with
 		* Laplace-Stieltjes transform exp(-(V_0/m)*t^alpha) */
-		St_k = rstable(alpha, gamma);
+		St_k = gamma * rstable(alpha);
 		U = unif_rand();
 
 	    } while (U > exp(- St_k));

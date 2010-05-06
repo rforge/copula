@@ -222,10 +222,12 @@ stopifnot(all.equal(print(  prob(Frank3d,l,u)),
 
 ##====Gumbel================================
 
-theta0 <- 1.25 # tau_{12}=tau_{13}=0.2, tau_{23}=0.5
-theta1 <- 2
-
-##check 1
+theta0 <- 1.25
+theta1 <- 2    #--> tau_{12}=tau_{13}=0.2, tau_{23}=0.5
+trCorr <- rbind(c(1,0.2,0.2),
+                c(0.2,1,0.5),
+                c(0.2,0.5,1))
+## check 1
 corCheckGumbel <- corCheck(n,theta0,theta1,copGumbel)
 corCheckout(corCheckGumbel,"Gumbel",trCorr)
 stopifnot(max(abs(corCheckGumbel[["cor"]]-trCorr)) < eps.tau)
