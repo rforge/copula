@@ -216,28 +216,32 @@ copGumbel <-
             copGumbel@paraConstr(theta1) && theta1 >= theta0
         },
         ## V0 and V01
-        V0 = function(n,theta) {
-            if(theta == 1) {
-                ## Sample from S(1,1,0,1;1) with Laplace-Stieltjes transform exp(-t)
-                rep.int(1., n)
-            } else {
-                alpha <- 1/theta
-                ## Sample from S(alpha,1,(cos(alpha*pi/2))^(1/alpha),0;1)
-                ## with Laplace-Stieltjes transform exp(-t^alpha)
-                rstable1(n, alpha, beta=1,
-                         gamma = cos(alpha*pi/2)^(1/alpha))
-            }
-        },
-        V01 = function(V0,theta0,theta1) {
-            alpha <- theta0/theta1
-            if(alpha == 1) {
-                V0 # sample from S(1,1,0,V0;1) with Laplace-Stieltjes transform exp(-V0*t)
-            } else {
-                rstable1(length(V0), alpha, beta=1,
-                         gamma = (cos(alpha*pi/2)*V0)^(1/alpha))
-                ## sample from S(alpha,1,(cos(alpha*pi/2)V0)^(1/alpha),0;1) with Laplace-Stieltjes transform exp(-V0*t^alpha)
-            }
-        },
+	V0 = function(n,theta) {
+	    if(theta == 1) {
+		## Sample from S(1,1,0,1;1)
+		## with Laplace-Stieltjes transform exp(-t)
+		rep.int(1., n)
+	    } else {
+		alpha <- 1/theta
+		## Sample from S(alpha,1,(cos(alpha*pi/2))^(1/alpha),0;1)
+		## with Laplace-Stieltjes transform exp(-t^alpha)
+		rstable1(n, alpha, beta=1,
+			 gamma = cos(alpha*pi/2)^(1/alpha))
+	    }
+	},
+	V01 = function(V0,theta0,theta1) {
+	    alpha <- theta0/theta1
+	    if(alpha == 1) {
+		## Sample from S(1,1,0,V0; 1)
+		## with Laplace-Stieltjes transform exp(-V0*t)
+		V0
+	    } else {
+		rstable1(length(V0), alpha, beta=1,
+			 gamma = (cos(alpha*pi/2)*V0)^(1/alpha))
+		## Sample from S(alpha,1,(cos(alpha*pi/2)V0)^(1/alpha),0;1)
+		## with Laplace-Stieltjes transform exp(-V0*t^alpha)
+	    }
+	},
         ## Kendall's tau
         tau = function(theta) { (theta-1)/theta },
         tauInv = function(tau) { 1/(1-tau) },
