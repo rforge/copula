@@ -225,7 +225,7 @@ void retstable_LD(double *St, const double V0[], double h, double alpha, int n)
 	double gamma = pow(lambda,alpha)*alpha*(1.-alpha);
 	double sgamma = sqrt(gamma);
 	double c3 = c2* sgamma;
-	double xi = 1. + M_SQRT2/M_PI * c3;
+	double xi = (1. + M_SQRT2 * c3)/M_PI; /* according to John Lau's code */
 	double psi = c3*exp(-gamma*M_PI*M_PI/8.)/M_SQRT_PI;
 	double w1 = c1*xi/sgamma;
 	double w2 = 2.*M_SQRT_PI * psi;
@@ -273,7 +273,7 @@ void retstable_LD(double *St, const double V0[], double h, double alpha, int n)
 		N_ = norm_rand();
 		X = m-delta*fabs(N_);
 	    } else {
-		if(V_ < delta/s)
+		if(V_ < (a1+delta)/s) /* according to John Lau's code */
 		    X = m+delta*unif_rand();
 		else {
 		    E_ = exp_rand();
