@@ -57,7 +57,7 @@ stopifnot( all.equal(m[c(iJmp,nm)], 1:40) )
 iKept <- c(1, rbind(iJmp, iJmp+1), nm)
 
 V0. <- V0[iKept]
- m. <-  m[iKept]
+m. <-  m[iKept]
 
 V0[iJmp] - m[iJmp]     ## 0.3828125 0.4296875 0.4492188 0.4609375 .... converging to 0.5
 V0[iJmp+1] - m[iJmp+1] ## .... converging to -0.5
@@ -73,34 +73,34 @@ saveFile <- "retstable_Nstat.rda"
 if(file.exists(saveFile)) {
     load      (saveFile)
 } else {
-  .e <- new.env()
-  ## our tracer function is just a "counter":
-  rstTR <- function() .e$N <- if(is.null(.e$N)) 0L else .e$N + 1L
-  trace(rstable1, rstTR, print=FALSE)
+    .e <- new.env()
+    ## our tracer function is just a "counter":
+    rstTR <- function() .e$N <- if(is.null(.e$N)) 0L else .e$N + 1L
+    trace(rstable1, rstTR, print=FALSE)
 
-  ## For now, we use the R (reliable / correct) version:
+    ## For now, we use the R (reliable / correct) version:
 
-  nV <- length(V0s <- c(1:4, 5*(1:10), 10*(6:20)))
-  nAlph <- length(alphas <- (1:9)/10)
-  nSim <- 1024
+    nV <- length(V0s <- c(1:4, 5*(1:10), 10*(6:20)))
+    nAlph <- length(alphas <- (1:9)/10)
+    nSim <- 1024
 
-  Nstat <- array(dim = c(nSim, nAlph, nV))
-  for(iV0 in 1:nV) {
-      V0 <- V0s[iV0]
-      cat(sprintf("V0 = %5d :", V0))
-      for(ia in 1:nAlph) {
-          alpha <- alphas[ia]
-          Nstat[, ia, iV0] <- replicate(nSim,
-                                    { .e$N <- 0L # start counting ...
-                                      RR <- retstableR(alphas[ia], V0 = V0)
-                                      .e$N }
-                                        )
-          cat(".")
-      }
-      cat("\n")
-  }
+    Nstat <- array(dim = c(nSim, nAlph, nV))
+    for(iV0 in 1:nV) {
+        V0 <- V0s[iV0]
+        cat(sprintf("V0 = %5d :", V0))
+        for(ia in 1:nAlph) {
+            alpha <- alphas[ia]
+            Nstat[, ia, iV0] <- replicate(nSim,
+                                      { .e$N <- 0L # start counting ...
+                                        RR <- retstableR(alphas[ia], V0 = V0)
+                                        .e$N }
+                                          )
+            cat(".")
+        }
+        cat("\n")
+    }
 
-  save(V0s,alphas, nSim, Nstat, file = saveFile)
+    save(V0s,alphas, nSim, Nstat, file = saveFile)
 }
 
 ## Visualize  'Nstat' -- can do this after loading the file
@@ -115,7 +115,7 @@ for(i in seq_along(alphas)) {
     N.st <- Nstat[,i,]
     plot(NA,NA, xlim = range(V0s), ylim=range(N.st),
          main = substitute(N == no({"calls to_ " * rstable1()}) * " for  " * { alpha == A },
-                           list(A = alphas[i])),
+         list(A = alphas[i])),
          xlab=expression(V[0]), ylab = "Nstat", type = "n", log="xy")
     boxplot(N.st, at = V0s, range=2, add = TRUE)
     lines(apply(N.st, 2, mean, trim=.05) ~ V0s, col = 2, lwd=2)
@@ -171,37 +171,50 @@ if(!dev.interactive()) { dev.off(); pdf("retstable-ex-2.pdf") }
 ### --- Part II ---  Experiments with retstableC() methods
 ### --- =======      --------------------------#-----------
 
-methods <- c("MH", "LD")
-nV <- length(V0s)      # V0s <- c(1:4, 5*(1:10), 10*(6:20)))
-nAlph <- length(alphas)# alphas <- (1:9)/10)
-## nSim <- 1024
+require(nacopula)
 
+alpha <- c(0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95)
+nalpha <- length(alpha) 
+V0 <- c(0.2,0.5,1,2,5,10)
+nV0 <- length(V0)
+h <- c(0.5,1,2,5,10)
+nh <- length(h)  
+meth <- c("MH", "LD")
+nmeth <- length(meth)
+nsim <- 100000
+
+## generate the output by calling both algorithms
 set.seed(47)
 if(!exists("St.c")) { ## compute those
 
-    dnS <- list(paste("V0", formatC(V0s), sep="="),
-                NULL,
-                paste("alpha", alphas, sep="="),
-                methods)
-    St.c <- array(dim = c(nV, nSim, nAlph, length(methods)), dimnames=dnS)
-    CPU.c <- array(dim = dim(St.c)[-(1:2)], dimnames = dnS[-(1:2)])
+    dnS <- list(paste("alpha", alpha, sep="="),
+		paste("V0", formatC(V0), sep="="),
+		paste("h", formatC(h), sep="="),
+                meth,NULL)
+    St.c <- array(dim = c(nalpha, nV0, nh, nmeth, nsim), dimnames=dnS)
+    CPU.c <- array(dim = dim(St.c)[1:4], dimnames = dnS[1:4])
 
-    for(ia in 1:nAlph) {
-        alpha <- alphas[ia]
-        cat(" alpha=", alpha, "")
-        for(meth in methods) {
-            CPU.c[ia, meth] <-
-                system.time({
-                    St.c[, , ia, meth] <-
-                        replicate(nSim, retstable(alphas[ia], V0 = V0s, method = meth))
-                })[1]
-            cat(".")
-        }
-    }; cat("\n")
+    count <- 1
+    for(ia in 1:nalpha) {
+	for(iV0 in 1:nV0) {
+            for(ih in 1:nh) {
+		cat("alpha=",alpha[ia],", V0=",V0[iV0],", h=",h[ih],"\n",sep="")
+                for(imeth in 1:nmeth) {
+                    CPU.c[ia, iV0, ih, imeth] <-
+                        system.time({
+                            St.c[ia, iV0, ih, imeth, ] <- retstable(alpha[ia],
+                                                                    rep(V0[iV0],nsim), 
+                                                                    h[ih], meth[imeth])
+                        })[1]
+                }; 
+            }; 
+            cat("\n",round(100*count/(nalpha*nV0)),"% done\n\n",sep="")
+            count <- count + 1
+	};
+    };
 
     save(St.c, CPU.c, ## <- new ones
-         V0s, alphas, nSim, Nstat,
-         file = saveFile)
+         alpha, V0, h, nsim, file = saveFile)
 
 } else { ## we have precomputed it ...
 
@@ -213,34 +226,29 @@ if(!exists("St.c")) { ## compute those
 
 if(getOption("width") < 100) options(width=100)
 
-## Times for 1024 replicates and V0 = V0s[]
-CPU.c
-## LD is *MUCH* faster {and speed seems independent of alpha}
-
-## hmm, how do the RN s look like?
-histSt <- function(V0lab, alphalab) {
-    stopifnot(is.character(V0lab), is.character(alphalab),
-              any(V0lab == dimnames(St.c)[[1]]),
-              any(alphalab == dimnames(St.c)[[3]]))
-    op <- mult.fig(mfrow= c(length(methods),1),
-                   main = paste("n=", nSim, "  Exponentially Tilted Stable RN's"))$old.par
+## check the random variates
+require(sfsmisc)
+histSt <- function(alphalab, V0lab, hlab) {
+    stopifnot(is.character(alphalab), is.character(V0lab), is.character(hlab),
+              any(alphalab == dimnames(St.c)[[1]]),
+              any(V0lab == dimnames(St.c)[[2]]),
+              any(hlab == dimnames(St.c)[[3]]))              
+    op <- mult.fig(mfrow= c(nmeth,1),
+                   main = paste(nsim,"  exponentially tilted stable random numbers with ",alphalab,", ",V0lab,", ",hlab,sep = ""))$old.par
     on.exit(par(op))
 
-    S. <- St.c[V0lab, , alphalab, ]
+    S. <- St.c[alphalab, V0lab, hlab, , ]
     breaks <- pretty(range(S.), n = 20)
-    for(meth in methods) {
-        hist(S.[, meth], breaks = breaks,
-             main=paste(meth, ":  ", V0lab, ", ", alphalab, sep = ""),
+    for(imeth in 1:nmeth) {
+        hist(S.[imeth,], breaks = breaks,
+             main = paste(meth[imeth]),
              xlab = expression(tilde(S)), freq=FALSE)
-        lines(density(S.[, meth]), col=2, lwd=2)
+        lines(density(S.[imeth,]), col=2, lwd=2)
     }
 }
+histSt("alpha=0.3", "V0=5", "h=1") 
+histSt("alpha=0.5", "V0=1", "h=1")
+histSt("alpha=0.1", "V0=0.5", "h=1")
 
-histSt("V0=10", "alpha=0.3") ## "LD" seems plain wrong
-
-histSt("V0=1", "alpha=0.5") ##  more ok
-
-histSt("V0=100", "alpha=0.1")## "LD" is bimodal too
-
-
-cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
+## Times for nsim replicates for given alphas, V0s, hs, and methods
+MHfaster <- CPU.c[,,,"MH"]<CPU.c[,,,"LD"]
