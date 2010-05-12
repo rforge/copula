@@ -2,7 +2,7 @@
 ####  ==================================================
 ####  --> Experiments with retstable*() versions
 
-library(nacopula)
+require(nacopula)
 
 ### --- ======      --------------------------#--
 ### --- Part I ---  Experiments with retstableR()
@@ -173,23 +173,25 @@ if(!dev.interactive()) { dev.off(); pdf("retstable-ex-2.pdf") }
 require(nacopula)
 
 nalpha <- length(alpha <- c(0.05, (1:9)/10, 0.95))
-nV0    <- length(  V0 <- c(0.2,0.5,1,2,5,10))
-nh     <- length(   h <- c(0.5,1,2,5,10))
+nV0    <- length(  V0 <- c(0.2,0.5,1,2:5,10))
+nh     <- length(   h <- c(0.5, 0.75, 1, 1.5, 2, 5, 10))
 meth <- c("MH", "LD")
 nsim <- 100000 # a lot
 
 saveFile2 <- "retstable_st2.rda"
+saveFile3 <- "retstable_CPU2.rda"
 
 if(file.exists(saveFile2)) {  ## we have precomputed it ...
     load      (saveFile2)
+    load      (saveFile3)
 } else {
     ## generate the output by calling both algorithms
     set.seed(47)
 
-    dnS <- list(paste("alpha", alpha, sep="="),
-		paste("V0", formatC(V0), sep="="),
-		paste("h", formatC(h), sep="="),
-                meth, NULL)
+    dnS <- list(alpha = paste("alpha", alpha, sep="="),
+		V0 = paste("V0", formatC(V0), sep="="),
+		h = paste("h", formatC(h), sep="="),
+                meth = meth, NULL)
     St.c <- array(dim = c(nalpha, nV0, nh, length(meth), nsim),
                   dimnames = dnS)
     CPU.c <- array(dim = dim(St.c)[1:4], dimnames = dnS[1:4])
@@ -215,8 +217,10 @@ if(file.exists(saveFile2)) {  ## we have precomputed it ...
             count <- count + 1
 	}
     }
-    save(St.c, CPU.c,
-         alpha, V0, h, meth, nsim, file = saveFile2)
+    ## St.c is *huge* -- FIXME, just store histograms ..
+    ## ---- but be smart to use breaks
+    save(St.c,  alpha, V0, h, meth, nsim, file = saveFile2)
+    save(CPU.c, alpha, V0, h, meth, nsim, file = saveFile3)
 }
 
 
@@ -227,7 +231,7 @@ if(getOption("width") < 100) options(width=100)
 
 ## check the random variates
 require(sfsmisc)
-histSt <- function(alphalab, V0lab, hlab, main, nBreaks = 20) {
+histSt <- function(alphalab, V0lab, hlab, main, nBreaks = 100, log = TRUE) {
     stopifnot(## the "globals":
               is.array(St.c), length(dnS <- dimnames(St.c)) == 5, is.character(meth),
               ## the arguments
@@ -235,28 +239,130 @@ histSt <- function(alphalab, V0lab, hlab, main, nBreaks = 20) {
 	      any(alphalab == dnS[[1]]), any(V0lab == dnS[[2]]),
 	      any(hlab == dnS[[3]]))
     if(missing(main) || is.null(main))
-	main <- paste(nsim,
-		      "	 exponentially tilted stable random numbers with ",
-		      alphalab,", ",V0lab,", ",hlab, sep = "")
+	main <- paste(format(nsim, sci=FALSE),
+		      "	 expo.tilted stable vars w/ ",
+		      alphalab,", ",V0lab,", ",hlab,
+                      if(log) "  LOG scale", sep = "")
     nmeth <- length(meth)
     op <- mult.fig(mfrow= c(nmeth,1), main = main)$old.par
     on.exit(par(op))
 
     S. <- St.c[alphalab, V0lab, hlab, , ]
+    if(log) {
+        S. <- log(S.)
+        xl <- expression( log( tilde(S) ) )
+    } else
+        xl <- expression( tilde(S) )
     breaks <- pretty(range(S.), n = nBreaks)
     for(me in meth) {
-        hist(S.[me,], breaks = breaks,
-             main = me, xlab = expression(tilde(S)), freq=FALSE)
+        hist(S.[me,], breaks = breaks, main = me, xlab = xl, freq=FALSE)
         lines(density(S.[me,]), col=2, lwd=2)
     }
 }
 
+histSt("alpha=0.3", "V0=5", "h=1", log = FALSE)
 histSt("alpha=0.3", "V0=5", "h=1")
+
 histSt("alpha=0.5", "V0=1", "h=1")
 histSt("alpha=0.1", "V0=0.5", "h=1")
 
-## Times for nsim replicates for given alphas, V0s, hs, and methods
-MHfaster <- CPU.c[,,,"MH"] < CPU.c[,,,"LD"]
+## For  h != 1
+## Hmm:  MH and LD  look different here : this is suspicious:
+histSt("alpha=0.1", "V0=10", "h=2")
+histSt("alpha=0.1", "V0=5", "h=5")
 
+histSt("alpha=0.8", "V0=10", "h=2")
+
+histSt("alpha=0.8", "V0=5",  "h=10")## OOOPS! very different
+
+histSt("alpha=0.9", "V0=5",  "h=10")## OOOPS!
+
+## no problem for  h == 1 :
+histSt("alpha=0.9", "V0=5",  "h=1",  log = TRUE)
+
+
+
+## Times for nsim replicates for given alphas, V0s, hs, and methods
+## ratio of the two methods : decision at  r == 1   <==>   log(r) == 0
+CPUr <- CPU.c[,,,"MH"] / CPU.c[,,,"LD"]
+
+plot(density(log10(CPUr), log="x"), xaxt = "n")
+rug(log10(CPUr))
+## x-range  in log-scale and back-transformed
+x.r <- 10^(xLr <- par("usr")[1:2])
+require(sfsmisc)
+(x. <- floor(xLr[1]):ceiling(xLr[2]))
+x. <- sort(outer(10^x., c(1,2,5))); x. <- x.[(10^xLr[1] <= x.) & (x. <= 10^xLr[2])]
+x.
+axis(1, at = log10(x.), label = x.)
+abline(v=0, col = "skyblue", lty=2)
+
+signif(CPUr[,, "h=1"], 3)
+## --> the boundary is simply between V0=2 and V0 =5 (!)
+signif(CPUr[,, "h=5"], 2) # slightly different picture
+
+
+## or use the lattice equivalent
+filled.contour(alpha, V0, log10(CPUr[,, "h=1"]))
+filled.contour(alpha, V0, log10(CPUr[,, "h=5"]))
+
+
+## Theory:  expect boundary   h^alpha * V0  <= c
+##                            ------------------
+str(dCPU <- cbind(expand.grid(alpha=alpha, V0=V0, h=h), CPUr = c(CPUr)))
+plot  (CPUr ~ I(h^alpha * V0), data = dCPU); abline(h=1, col="tomato") # original scale
+
+p.cpu <- function(log = "", do.h.eq.1 = TRUE,
+                  main = expression(t[CPU](MH) / t[CPU](LD) * "  as " * f(h, alpha, V[0])),
+                  ...) {
+    ## if(any("col" == names(list(...)))) ## set palette
+    plot  (CPUr ~ I(h^alpha * V0), main=main, xlab = expression(h ^ alpha %*% V[0]),
+           data = dCPU, log=log, ...)
+    abline(h = 1, lty=2, col="tomato") #  ratio == 1  <==> "MH" as fast as "LD"
+    if(do.h.eq.1) {
+        points(CPUr ~ I(h^alpha * V0), data = dCPU, pch = 2, col = "red",
+               subset= h == 1)
+        legend("bottom", "h = 1", pch = 2, col = "red", inset=.01)
+    }
+}
+
+p.cpu()
+p.cpu(log="xy")
+##- cool! -- the formula seems correct!
+
+a.c <- as.numeric(as.factor(dCPU[,"alpha"]))
+V.c <- as.numeric(as.factor(dCPU[,"V0"]))
+h.c <- as.numeric(as.factor(dCPU[,"h"]))
+require(RColorBrewer)
+
+
+oPal <- palette(brewer.pal(10,"Spectral"))
+p.cpu(log="xy", col = 1 + a.c, pch = V.c)
+legend("topleft",     legend=dimnames(CPUr)[["alpha"]], col = 1+unique(a.c), pch = 1, inset=.01)
+legend("bottomright", legend=dimnames(CPUr)[["V0"]], col = 1, pch = unique(V.c), inset=.01)
+## revert to previous color palette:
+palette(oPal)
+
+
+
+summary(mod1 <- lm(log(CPUr) ~ I(alpha*log(h)) + log(V0), data = dCPU))
+plot(mod1)
+summary(mod2 <- lm(log(CPUr) ~ alpha*log(h) + log(V0), data = dCPU))
+plot(mod2)
+anova(mod1,mod2)# -> second model is not better
+plot(residuals(mod1) ~ alpha, data=dCPU)
+plot(residuals(mod1) ~ h, data=dCPU)
+plot(residuals(mod1) ~ I(alpha*log(h)), data=dCPU)
+
+## Only look "around"  CPUr == 1   as we want to choose for that
+dim(s.CPU <- with(dCPU, dCPU[1 <= V0 & V0 <= 5,]))# - only 165 obs
+summary(mod.1 <- lm(log(CPUr) ~ I(alpha*log(h)) + I((alpha*log(h))^2) + log(V0), data = s.CPU))
+## coefficient of log(V0) is ~= 1 ---> set it == 1  :
+summary(mod.2 <- lm(log(CPUr / V0) ~ I(alpha*log(h)) + I((alpha*log(h))^2), data = s.CPU))
+## or even better
+summary(mod.3 <- lm(log(CPUr / V0) ~ I(alpha*log(h)^2), data = s.CPU))
+
+plot(mod.1)
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
+
