@@ -280,6 +280,22 @@ histSt("alpha=0.9", "V0=5",  "h=10")## OOOPS!
 ## no problem for  h == 1 :
 histSt("alpha=0.9", "V0=5",  "h=1",  log = TRUE)
 
+ksTestSt <- function(hlab) {
+    dnS <- dimnames(St.c)
+    stopifnot(is.character(hlab), any(hlab == dnS[[3]]))
+    Pv <- St.c[,,1,1,1]
+    for(c.a in dnS[["alpha"]])
+        for(c.V in dnS[["V0"]])
+            Pv[c.a, c.V] <- ks.test(St.c[c.a,c.V, hlab, "MH",],
+                                    St.c[c.a,c.V, hlab, "LD",])$p.value
+    Pv
+}
+
+Pv1 <- ksTestSt("h=1")
+hist(as.vector(Pv1))## -- U[0,1] -- i.e. for  h == 1  eveything is ok.
+
+Pv0.5 <- ksTestSt("h=0.5")
+summary(as.vector(Pv0.5))##--- all are, mostly *HIGHLY*  *different*
 
 
 ## Times for nsim replicates for given alphas, V0s, hs, and methods
@@ -365,4 +381,3 @@ summary(mod.3 <- lm(log(CPUr / V0) ~ I(alpha*log(h)^2), data = s.CPU))
 plot(mod.1)
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-
