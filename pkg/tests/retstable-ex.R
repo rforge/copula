@@ -278,7 +278,7 @@ histSt("alpha=0.8", "V0=5",  "h=10")## OOOPS! very different
 histSt("alpha=0.9", "V0=5",  "h=10")## OOOPS!
 
 ## no problem for  h == 1 :
-histSt("alpha=0.9", "V0=5",  "h=1",  log = TRUE)
+histSt("alpha=0.9", "V0=5",  "h=1")
 
 ksTestSt <- function(hlab) {
     dnS <- dimnames(St.c)
@@ -302,8 +302,11 @@ summary(as.vector(Pv0.5))##--- all are, mostly *HIGHLY*  *different*
 ## ratio of the two methods : decision at  r == 1   <==>   log(r) == 0
 CPUr <- CPU.c[,,,"MH"] / CPU.c[,,,"LD"]
 
-plot(density(log10(CPUr), log="x"), xaxt = "n")
+plot(density(log10(CPUr))); rug(log10(CPUr))
+if(FALSE) { # hmm, not sensical yet
+plot(density(log10(CPUr)), log="x", xaxt = "n")
 rug(log10(CPUr))
+}
 ## x-range  in log-scale and back-transformed
 x.r <- 10^(xLr <- par("usr")[1:2])
 require(sfsmisc)
@@ -317,6 +320,10 @@ signif(CPUr[,, "h=1"], 3)
 ## --> the boundary is simply between V0=2 and V0 =5 (!)
 signif(CPUr[,, "h=5"], 2) # slightly different picture
 
+
+## Workaround for now:
+(V0 <- as.numeric(sub("^V0=","", dimnames(CPUr)[[2]])))
+(h  <- as.numeric(sub("^h=","",  dimnames(CPUr)[[3]])))
 
 ## or use the lattice equivalent
 filled.contour(alpha, V0, log10(CPUr[,, "h=1"]))
