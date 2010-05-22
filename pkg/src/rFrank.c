@@ -2,17 +2,21 @@
 
 #include "nacopula.h"
 
-/** rejection for F for Frank's family
- * @param p
- * @param alpha
- * @param theta0le1
-
- * @return
- */
-double rFFrank(double p, double alpha, double iAlpha /* == 1 - alpha */, int theta_0_le_1)
-{
+/**
+ * Sample V ~ F with Laplace-Stieltjes transform 
+ * (1-(1-exp(-t)*(1-e^(-theta1)))^alpha)/(1-e^(-theta0))
+ * via the algorithm of Hofert (2010). C version.
+ * @param p parameter 1-e^(-theta1)
+ * @param alpha parameter theta0/theta1 in (0,1]
+ * @param iAlpha 1-alpha 
+ * @param theta0_le_1 in {0,1} with 1 if and only if theta0 <= 1
+ * @return a random variate from F
+ * @author Marius Hofert, Martin Maechler
+*/
+double rFFrank(double p, double alpha, double iAlpha /**< == 1 - alpha */, 
+	       int theta0_le_1){
     double U, V;
-    if(theta_0_le_1) {
+    if(theta0_le_1) {
 	do {
 	    U = unif_rand();
 	    V = rLog(p);
@@ -28,9 +32,19 @@ double rFFrank(double p, double alpha, double iAlpha /* == 1 - alpha */, int the
     return V;
 }
 
-void rFFrank_vec(double *V, const int n,
-		 const double theta_0, const double theta_1)
-{
+/** 
+ * Vectorize rFFrank. Generate a vector of variates 
+ * V ~ F with Laplace-Stieltjes transform 
+ * (1-(1-exp(-t)*(1-e^(-theta1)))^alpha)/(1-e^(-theta0)).
+ * @param V vector of random variates from F (result)
+ * @param n length of the vector V
+ * @param theta_0 parameter theta0 in (0,infinity)
+ * @param theta_1 parameter theta1 in [theta0, infinity)
+ * @return none
+ * @author Marius Hofert, Martin Maechler
+*/
+void rFFrank_vec(double *V, const int n, const double theta_0, 
+		 const double theta_1){
     double p  =  - expm1(-theta_1),
 	alpha = theta_0 / theta_1, iAlpha = (theta_1 - theta_0) / theta_1;
     int th_0_le_1 = (theta_0 <= theta_1);
@@ -46,7 +60,16 @@ void rFFrank_vec(double *V, const int n,
     return;
 }
 
-SEXP rFFrank_c(SEXP n_, SEXP theta_0_, SEXP theta_1_) {
+/**
+ * Generate a vector of variates V ~ F with Laplace-Stieltjes transform 
+ * (1-(1-exp(-t)*(1-e^(-theta1)))^alpha)/(1-e^(-theta0)).
+ * @param n sample size
+ * @param theta_0 parameter theta0 in (0,infinity)
+ * @param theta_1 parameter theta1 in [theta0, infinity)
+ * @return vector of random variates V
+ * @author Martin Maechler
+*/
+SEXP rFFrank_c(SEXP n_, SEXP theta_0_, SEXP theta_1_){
     int n = asInteger(n_);
     double theta_0 = asReal(theta_0_),
 	   theta_1 = asReal(theta_1_);

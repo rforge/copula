@@ -4,7 +4,7 @@
 #include <R.h>
 #include <Rinternals.h>
 
-/* For internationalized messages: */
+/**< For internationalized messages */
 #ifdef ENABLE_NLS
 #include <libintl.h>
 #define _(String) dgettext ("Matrix", String)
@@ -23,7 +23,10 @@ SEXP rLog_c     (SEXP n, SEXP p);
 SEXP rFJoe_c    (SEXP n, SEXP alpha);
 SEXP rFFrank_c  (SEXP n, SEXP theta_0, SEXP theta_1);
 
-/* -- C API --- for "us" but maybe other R packages ---> need to "export" it via ../inst/include/ */
+/**
+ * C API---for "us" but maybe also other R packages
+ * "export" it via ../inst/include/ 
+*/
 double sinc_MM(double x);
 double A_(double x, double alpha);
 double BdB0(double x, double alpha);
@@ -36,11 +39,11 @@ void retstable_LD(double *St, const double V0[], double h, double alpha, int n);
 
 double rLog(double p);
 double rFJoe(double alpha,
-	     double iAlpha,     /* := 1 - alpha */
-	     double gamma_1_a); /* == Gamma(1 - alpha) == Gamma(iALpha) */
+	     double iAlpha,     /**< := 1 - alpha */
+	     double gamma_1_a); /**< == Gamma(1 - alpha) == Gamma(iALpha) */
 void rFJoe_vec(double V[], const int n,
-	       const double alpha, const double iAlpha /* := 1 - alpha */);
-double rFFrank(double p, double alpha, double iAlpha /* == 1 - alpha */,
+	       const double alpha, const double iAlpha /**< := 1 - alpha */);
+double rFFrank(double p, double alpha, double iAlpha /**< == 1 - alpha */,
 	       int theta_0_le_1);
 void rFFrank_vec(double *X, const int n,
 		 const double theta_0, const double theta_1);

@@ -1,11 +1,11 @@
 library(nacopula)
 
-###  See  limit  alpha --> 1  for fixed gamma :
+##'  See  limit  alpha --> 1  for fixed gamma :
 set.seed(101)
 X <- rstable1(1e4, alpha=.9999, beta=1, gamma= .25, delta=1)
 summary(X)
-##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-##   1592    1592    1593    1594    1593    2092
+##'    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+##'   1592    1592    1593    1594    1593    2092
 stopifnot(all(X > 1500))
 X <- rstable1(1e4, alpha=.999999, beta=1, gamma= .25, delta=1)
 stopifnot(150000 < X, X < 170000)
@@ -14,15 +14,15 @@ r1R <- nacopula:::rstable1R
 r1C <- nacopula:::rstable1C
 set.seed(123)
 
-## speed is *very* similar (!):
+##' speed is *very* similar (!):
 system.time(Z  <- r1R(10000, .2, beta=1, gamma= 45))
 system.time(Z. <- r1C(10000, .2, beta=1, gamma= 45))
 
-ks.test(Z, Z.)# P-value ~ 0.50  they "are the same"
+ks.test(Z, Z.) #' p-value ~ 0.50  they "are the same"
 
 pdf("rstable-ex.pdf")
-qqplot(Z, Z., log = "xy")## looks nice
-acf(log(Z))  # "nice"
-acf(log(Z.)) # ditto
+qqplot(Z, Z., log = "xy") #' looks nice
+acf(log(Z))  #' "nice"
+acf(log(Z.)) #' ditto
 
-cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
+cat('Time elapsed: ', proc.time(),'\n') #' for ``statistical reasons''

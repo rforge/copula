@@ -18,6 +18,12 @@ static R_CallMethodDef CallEntries[] = {
     {NULL, NULL, 0}
 };
 
+/**
+ * register routines 
+ * @param dll pointer
+ * @return none
+ * @author Martin Maechler
+*/
 void
 #ifdef HAVE_VISIBILITY_ATTRIBUTE
 __attribute__ ((visibility ("default")))

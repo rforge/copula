@@ -1,10 +1,9 @@
-###  'interval'	 class utilities
-###  =========================== these are small and simple
-###   use library(package= "Intervals")	 if you want serious interval "work"
-
+##'  'interval'	 class utilities
+##'  =========================== these are small and simple
+##'   use library(package= "Intervals")	 if you want serious interval "work"
 interval <- function(ch) {
-    ## Purpose: "interval" object constructor from string  "[ a, b)", ...
-    ## Author: Martin Maechler, Date: 16 Nov 2009
+    ##' Purpose: "interval" object constructor from string  "[ a, b)", ...
+    ##' Author: Martin Maechler, Date: 16 Nov 2009
     stopifnot(is.character(ch), length(ch) == 1L)
     sp <- strsplit(ch, ", *")[[1]]
     if(length(sp) != 2L) stop("'ch' must contain exactly one \",\"")
@@ -26,8 +25,9 @@ setMethod("format", "interval",
 })
 
 setMethod("show", "interval",
-	  function(object) cat("'interval' object  ", format(object), "\n", sep=''))
+	  function(object) cat("'interval' object  ", format(object), "\n", 
+	sep=''))
 
-## "Summary"  group method:  range(), min(), max(), [sum(), prod(), any(), all()] :
+##' Summary group method: range(), min(), max(), [sum(), prod(), any(), all()] :
 setMethod("Summary", signature(x = "interval", na.rm = "ANY"),
 	  function(x, ..., na.rm) callGeneric(x@.Data, ..., na.rm=na.rm))

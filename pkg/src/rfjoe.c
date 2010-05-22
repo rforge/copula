@@ -2,21 +2,26 @@
 
 #include "nacopula.h"
 
-double rFJoe(double alpha,
-	     double iAlpha,    /* := 1 - alpha */
-	     double gamma_1_a) /* == Gamma(1 - alpha) == Gamma(iALpha) */
-{
+/**
+ * Sample V ~ F with F(n) = 1-1/(n*B(n,1-alpha)), n in IN, with 
+ * Laplace-Stieltjes transform 1-(1-exp(-t))^alpha via the algorithm of 
+ * Hofert (2010).
+ * Note: The caller of this function must use GetRNGstate() and PutRNGstate().
+ * @param alpha parameter theta0/theta1 in (0,1]
+ * @param iAlpha 1-alpha 
+ * @param gamma_1_a Gamma(1-alpha)
+ * @return a random variate from F
+ * @author Marius Hofert, Martin Maechler
+*/
+double rFJoe(double alpha, double iAlpha /**< := 1 - alpha */, 
+	     double gamma_1_a /**< == Gamma(1 - alpha) == Gamma(iALpha) */){ 
     double U, I_al = 1./alpha;
 
-    /* NOTA BENE: the *caller* of this function *MUST* use
-     * --------- GetRNGstate(); .... ; PutRNGstate();
-     */
-
-    /* FIXME(MM): (for alpha not too close to 1): re-express using 1-U !*/
+    /**< FIXME(MM): (for alpha not too close to 1): re-express using 1-U */
     U = unif_rand();
     if(U <= alpha)
 	return 1.;
-    else { /* alpha < U < 1 */
+    else { /**< alpha < U < 1 */
 	double Ginv = pow((1-U)*gamma_1_a, -I_al);
 	double fGinv = floor(Ginv);
 	if(1-U < 1./(fGinv*beta(fGinv, iAlpha)))
@@ -25,9 +30,19 @@ double rFJoe(double alpha,
     }
 }
 
+/** 
+ * Vectorize rFJoe. Generate a vector of variates 
+ * V ~ F with F(n) = 1-1/(n*B(n,1-alpha)), n in IN, with Laplace-Stieltjes 
+ * transform 1-(1-exp(-t))^alpha.
+ * @param V vector of random variates from F (result)
+ * @param n length of the vector V
+ * @param alpha parameter theta0/theta1 in (0,1]
+ * @param iAlpha 1-alpha 
+ * @return none
+ * @author Marius Hofert, Martin Maechler
+*/
 void rFJoe_vec(double V[], const int n,
-	       const double alpha, const double iAlpha /* := 1 - alpha */)
-{
+	       const double alpha, const double iAlpha /**< := 1 - alpha */){
     if(n >= 1) {
 	double G1_a = gammafn(iAlpha);
 	GetRNGstate();
@@ -40,17 +55,15 @@ void rFJoe_vec(double V[], const int n,
     return;
 }
 
-
 /**
-* <description>
-*
-* <details>
-* @title Sample F with probability mass function p_k=\binom{alpha}{k}(-1)^{k-1},
-*   k in IN, for Joe's family
-* 	Note: should be *fast* as it is used as building block in many places
-* @param n sample size
-* @param alpha parameter
-* @return numeric(n) vector
+ * Generate a vector of variates 
+ * V ~ F with F(n) = 1-1/(n*B(n,1-alpha)), n in IN, with Laplace-Stieltjes 
+ * transform 1-(1-exp(-t))^alpha.
+ * Note: Should be fast as it is used as a building block in different places.
+ * @param n sample size
+ * @param alpha parameter theta0/theta1 in (0,1]
+ * @return vector of random variates V
+ * @author Martin Maechler
 */
 SEXP rFJoe_c(SEXP n, SEXP alpha)
 {
