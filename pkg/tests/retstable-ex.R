@@ -293,12 +293,11 @@ histSt <- function(alphalab, V0lab, hlab, main, nBreaks = 100, log = TRUE) {
     ##f breaks <- pretty(range(S.), n = nBreaks)
     for(me in meth) {
         ## hist(S.[me,], breaks = breaks, main = me, xlab = xl, freq=FALSE)
-        plot(S.[me], main = me, xlab = xl, freq=FALSE)
+        plot(S.[[me]], main = me, xlab = xl, freq=FALSE)
         ##f lines(density(S.[me]), col=2, lwd=2)
     }
 }
 
-histSt("alpha=0.3", "V0=5", "h=1", log = FALSE)
 histSt("alpha=0.3", "V0=5", "h=1")
 
 histSt("alpha=0.5", "V0=1", "h=1")
