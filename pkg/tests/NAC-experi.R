@@ -1,20 +1,20 @@
 library(nacopula)
 set.seed(1)
 n <- 2000
-N <- 100 #' number of variates for the conducted Kolmogorov-Smirnov test
+N <- 100 # number of variates for the conducted Kolmogorov-Smirnov test
 
-##' maximal deviation for deciding if sample versions of Kendall's tau are
-##' "close enough" to population versions; NB: depends on 'n'
+## maximal deviation for deciding if sample versions of Kendall's tau are
+## "close enough" to population versions; NB: depends on 'n'
 eps.tau <- 0.06
 
 doPlots <- (Sys.getenv("USER") == "maechler")
 
-##' ==== 3d check functions =======================
+## ==== 3d check functions =======================
 
 ##' correlation check function and run time measuring
 ##' @param n number of variates to be drawn
-##' @param th0 theta0 
-##' @param th1 theta1 
+##' @param th0 theta0
+##' @param th1 theta1
 ##' @param cop copula
 ##' @return a list containing run times for V0 and V01 and Kendall's taus
 ##' @author Marius Hofert, Martin Maechler
@@ -33,7 +33,7 @@ corCheck <- function(n,th0,th1,cop){
 prt.tau.diff <- function(c1, c2){
     stopifnot(is.matrix(c1))
     delta.c <- 1000 * abs(c1 - c2)
-    cat(sprintf("Max & Mean distance * 1000 to true pairwise Kendall's taus: 
+    cat(sprintf("Max & Mean distance * 1000 to true pairwise Kendall's taus:
 	%7.1f %7.1f\n",max(delta.c), mean(delta.c)))
     invisible()
 }
@@ -49,72 +49,72 @@ corCheckout <- function(x,family,trCorr){
 ##' @param n [integer] sample size
 ##' @param N [integer] number of replications
 ##' @param cop NACopula to generate from
-##' @param nInt positive integer: the number of intervals used for each grid 
+##' @param nInt positive integer: the number of intervals used for each grid
 ##' dimension
 ##' @return an "chiSqChk_cop" object; just a list(...) and a print method
 ##' @author Marius Hofert, Martin Maechler
 chiSq_check_cop <- function(n,N,cop,nInt, verbose = interactive()){
-    copName <- deparse(substitute(cop)) #' copula name
-    d <- dim(cop) #' copula dimension
+    copName <- deparse(substitute(cop)) # copula name
+    d <- dim(cop) # copula dimension
     stopifnot(is.numeric(d), d >= 1, is.numeric(nInt), nInt >= 1)
-    pts <- (1:nInt)/nInt #' (upper) division points [lower = upper - h 
-                                        #' = {0, ..., 1-h}; h=1/nInt]
+    pts <- (1:nInt)/nInt # (upper) division points [lower = upper - h
+                                        # = {0, ..., 1-h}; h=1/nInt]
     mygrid <- do.call("expand.grid", rep.int(list(pts), d)) # build grid
-    m <- nInt^d #' == grid length == nrow(mygrid)
+    m <- nInt^d # == grid length == nrow(mygrid)
     v.cube <- nInt^(0:(d-1))
 
-    ##' build a function that returns the number of the cube in which each row 
-    ##' of U falls
+    ## build a function that returns the number of the cube in which each row
+    ## of U falls
     cube <- function(U, pts) {
         di <- dim(U)
         intervals <- array(cut(U, breaks = pts, include.lowest = TRUE,
-                               labels = FALSE), #' find "interval number" for
-					#' each component of U; these numbers 
-					#' are in {NA,1,2,3,...,nInt-1}
+                               labels = FALSE), # find "interval number" for
+					# each component of U; these numbers
+					# are in {NA,1,2,3,...,nInt-1}
                            dim = di)
-        intervals[is.na(intervals)] <- 0 #' NAs correspond to smallest interval
+        intervals[is.na(intervals)] <- 0 # NAs correspond to smallest interval
         as.vector(intervals %*% v.cube) + 1
     }
 
-    ##' determine the expected number of observations in each cube
+    ## determine the expected number of observations in each cube
     prob_up <- function(u) {
-        ##' probability mass in cube with upper corner 'u'
+        ## probability mass in cube with upper corner 'u'
         mesh <- 1/nInt
         l <- u - mesh
         prob(cop, l, u)
     }
     masscube <- apply(mygrid, 1, prob_up)
-    E_nobs <- n * masscube #' expected number of observations in each cube
+    E_nobs <- n * masscube # expected number of observations in each cube
 
-    ##' now simulate data, count observations in each cube, and compute test 
-    ##' statistic
+    ## now simulate data, count observations in each cube, and compute test
+    ## statistic
     k <- 0
     CPU <- system.time({
         T <- replicate(N, {
-            if(verbose) cat(sprintf("%2d%1s",{k <<- k+1}, if(k %% 20)"" 
+            if(verbose) cat(sprintf("%2d%1s",{k <<- k+1}, if(k %% 20)""
             else "\n"))
-            U <- rn(cop,n) #' generate data
-            cubenumbers <- cube(U,pts) #' for each row vector of U, find the
-                                        #' number of the cube in which the 
-					#' vector falls
-            nobs <- tabulate(cubenumbers, nbins = m) #' number of observations 
-                                        #' in each cube
-            sum((nobs - E_nobs)^2 / E_nobs) #' chi^2 test statistic
+            U <- rn(cop,n) # generate data
+            cubenumbers <- cube(U,pts) # for each row vector of U, find the
+                                        # number of the cube in which the
+					# vector falls
+            nobs <- tabulate(cubenumbers, nbins = m) # number of observations
+                                        # in each cube
+            sum((nobs - E_nobs)^2 / E_nobs) # chi^2 test statistic
         }); if(verbose) cat("done\n")
     })[1]
 
     structure(class = "chiSqChk_cop",
-              list( ##' compute the result of the Kolmogorov-Smirnov test based 
-                   ##' on the N realizations of the chi^2 test statistics:
+              list( ## compute the result of the Kolmogorov-Smirnov test based
+                   ## on the N realizations of the chi^2 test statistics:
                    ks = ks.test(T, "pchisq", df = m-1),
                    T = T, CPU = CPU,
                    n=n, N=N, copName = copName, m = m,
-                   ##' percentage of cubes that fulfill the rule of thumb:
+                   ## percentage of cubes that fulfill the rule of thumb:
                    percentrot = (sum(E_nobs >= 5)/m)*100
                    ))
 }
 
-##' now a print method for this class:
+##' a print method for this class:
 print.chiSqChk_cop <- function(x, ...) {
     stopifnot(is.list(x), all(c("ks","T","CPU","n","N") %in% names(x)),
 	      is.numeric(pv <- x$ks[[2]]))
@@ -148,14 +148,14 @@ probin3dcube <- function(cop,l,u) {
                                 - value(cop,l)
 }
 
-##' ==== 3d examples =======================
+## ==== 3d examples =======================
 
-##' ==== AMH ================================
+## ==== AMH ================================
 
 theta0 <- 0.7135 # tau_{12}=tau_{13}=0.2, tau_{23}=0.3
 theta1 <- 0.9430
 
-##' check 1
+## check 1
 corCheckAMH <- corCheck(n,theta0,theta1,copAMH)
 trCorr <- rbind(c(1,0.2,0.2),
                 c(0.2,1,0.3),
@@ -163,16 +163,16 @@ trCorr <- rbind(c(1,0.2,0.2),
 corCheckout(corCheckAMH,"AMH",trCorr)
 stopifnot(max(abs(corCheckAMH[["cor"]]-trCorr)) < eps.tau)
 
-##' check 2
+## check 2
 AMH3d <-
     new("outer_nACopula", copula = setTheta(copAMH, theta0),
         comp = as.integer( 1 ),
         childCops = list(new("nACopula",
         copula = setTheta(copAMH, theta1),
-        comp = as.integer(c(2,3)))) #' no childCops
+        comp = as.integer(c(2,3)))) # no childCops
         )
 
-##' constructor forms of the above:
+## constructor forms of the above:
 rr <- onACopula("A",   C(0.7135, 1, list(C(0.943, 2:3, NULL))))
 r0 <- onACopula("A",   C(0.7135, 1,      C(0.943, 2:3, NULL)))
 r1 <- onACopula("A",   C(0.7135, 1,      C(0.943, 2:3, )))
@@ -180,21 +180,21 @@ r2 <- onACopula("AMH", C(0.7135, 1,      C(0.943, 2:3  )))
 stopifnot(identical(AMH3d, rr), identical(rr, r0),
           identical(r0, r1), identical(r1, r2))
 
-##' check
+## check
 (chkAMH <- chiSq_check_cop(n,N,AMH3d,5))
 
-##' check probability
+## check probability
 l <- c(.1, .05, .3)
 u <- c(.4, .7,  .6)
 stopifnot(all.equal(print(  prob(AMH3d,l,u)),
 		    probin3dcube(AMH3d,l,u), tol=1e-14))
 
-##' ==== Clayton ================================
+## ==== Clayton ================================
 
-theta0 <- 0.5 #' tau_{12}=tau_{13}=0.2, tau_{23}=0.5
+theta0 <- 0.5 # tau_{12}=tau_{13}=0.2, tau_{23}=0.5
 theta1 <- 2
 
-##' check 1
+## check 1
 corCheckClayton <- corCheck(n,theta0,theta1,copClayton)
 trCorr <- rbind(c(1,0.2,0.2),
                 c(0.2,1,0.5),
@@ -202,94 +202,94 @@ trCorr <- rbind(c(1,0.2,0.2),
 corCheckout(corCheckClayton,"Clayton",trCorr)
 stopifnot(max(abs(corCheckClayton[["cor"]]-trCorr)) < eps.tau)
 
-##' check 2
+## check 2
 Clayton3d <- onACopula("Clayton", C(theta0, 1, C(theta1, 2:3)))
 (chkClayton <- chiSq_check_cop(512,100,Clayton3d,5))
 
-##' check probability
+## check probability
 stopifnot(all.equal(print(  prob(Clayton3d,l,u)),
 		    probin3dcube(Clayton3d,l,u), tol=1e-14))
 
-##' ==== Frank ================================
+## ==== Frank ================================
 
 theta0 <- 1.8609#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
 theta1 <- 5.7363
 
-##' check 1
+## check 1
 corCheckFrank <- corCheck(n,theta0,theta1,copFrank)
 corCheckout(corCheckFrank,"Frank",trCorr)
 stopifnot(max(abs(corCheckFrank[["cor"]]-trCorr)) < eps.tau)
 
-##' check 2
+## check 2
 Frank3d <- onACopula("F", C(theta0, 1, C(theta1, 2:3)))
 (chkFrank <- chiSq_check_cop(n,N,Frank3d,5))
 
-##' check probability
+## check probability
 stopifnot(all.equal(print(  prob(Frank3d,l,u)),
 		    probin3dcube(Frank3d,l,u), tol=1e-14))
 
-##' ==== Gumbel ================================
+## ==== Gumbel ================================
 
 theta0 <- 1.25
 theta1 <- 2    #--> tau_{12}=tau_{13}=0.2, tau_{23}=0.5
 trCorr <- rbind(c(1,0.2,0.2),
                 c(0.2,1,0.5),
                 c(0.2,0.5,1))
-##' check 1
+## check 1
 corCheckGumbel <- corCheck(n,theta0,theta1,copGumbel)
 corCheckout(corCheckGumbel,"Gumbel",trCorr)
 stopifnot(max(abs(corCheckGumbel[["cor"]]-trCorr)) < eps.tau)
 
-##' check 2
+## check 2
 Gumbel3d <- onACopula("Gumbel", C(theta0, 1, C(theta1, 2:3)))
 (chkGumbel <- chiSq_check_cop(n,N,Gumbel3d,5))
 
-##' check probability
+## check probability
 stopifnot(all.equal(print(  prob(Gumbel3d,l,u)),
 		    probin3dcube(Gumbel3d,l,u), tol=1e-14))
 
-##' ==== Joe ================================
+## ==== Joe ================================
 
 theta0 <- 1.4438#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
 theta1 <- 2.8562
 
-##' check 1
+## check 1
 corCheckJoe <- corCheck(n,theta0,theta1,copJoe)
 corCheckout(corCheckJoe,"Joe",trCorr)
 stopifnot(max(abs(corCheckJoe[["cor"]]-trCorr)) < eps.tau)
 
-##' check 2
+## check 2
 Joe3d <- onACopula("J", C(theta0, 1, C(theta1, 2:3)))
 (chkJoe <- chiSq_check_cop(n,N,Joe3d,5))
 
-##' check probability
+## check probability
 stopifnot(all.equal(print(  prob(Joe3d,l,u)),
 		    probin3dcube(Joe3d,l,u), tol=1e-14))
 
-##' ==== Examples that check value() and rn() ============================
+## ==== Examples that check value() and rn() ============================
 
-##' generate output for the examples
+## generate output for the examples
 prt.stats <- function(c1,c2, rt) {
     cat("Run time [ms] for generating", n,
         "vectors of variates:  ", round(1000*rt[1],1), "\n")
     prt.tau.diff(c1, c2) ; cat("\n")
 }
 
-##' ==== 3d Ali-Mikhail-Haq copula example ===============================
+## ==== 3d Ali-Mikhail-Haq copula example ===============================
 
 c3 <- onACopula("A", C(0.7135, 1, list(C(0.943, 2:3))))
 
-##' basic check
+## basic check
 d <- dim(c3)
 stopifnot(d == 3,
 	  allComp(c3) == 1:3,
 	  allComp(c3@childCops[[1]]) == 2:3)
 
-##' test value()
+## test value()
 u <- c(.3, .4, .5)
-##' with value function:
+## with value function:
 v <- value(c3, u)
-##' by hand
+## by hand
 psi <- function(t,theta) { (1-theta)/(exp(t)-theta) }
 psiInv <- function(t,theta) { log((1-theta*(1-t))/t) }
 th0 <- 0.7135
@@ -298,68 +298,68 @@ level1 <- psi(psiInv(u[2],th1) + psiInv(u[3],th1), th1)
 level0 <- psi(psiInv(u[1],th0) + psiInv(level1, th0), th0)
 stopifnot(all.equal(v, level0, tol = 1e-14))
 
-##' test rn()
+## test rn()
 rt <- system.time(rC3 <- rn(c3,n))
 C3 <- cor(rC3,method = "kendall")
 trCorr <- rbind(c(1,0.2,0.2),
                 c(0.2,1,0.3),
-                c(0.2,0.3,1)) #' tau_{12}=tau_{13}=0.2, tau_{23}=0.3
+                c(0.2,0.3,1)) # tau_{12}=tau_{13}=0.2, tau_{23}=0.3
 stopifnot(is.numeric(rC3), is.matrix(rC3),
 	  dim(rC3) == c(n, 3),max(abs(C3-trCorr)) < eps.tau)
 prt.stats(C3,trCorr,rt)
 if(doPlots)
     pairs(rC3, panel = function(...) { par(new = TRUE); smoothScatter(...) })
 
-##' ==== 2d Clayton copula example ========================================
+## ==== 2d Clayton copula example ========================================
 
-c2 <- onACopula("Clayton", C(0.5, c(1,2))) #' no childCops
-##' or simply c2 <- onACopula("Clayton", C(0.5, 1:2))
+c2 <- onACopula("Clayton", C(0.5, c(1,2))) # no childCops
+## or simply c2 <- onACopula("Clayton", C(0.5, 1:2))
 
-##' basic check
+## basic check
 d <- dim(c2)
 stopifnot(d ==  2,
 	  allComp(c2) == 1:2)
 
-##' test value()
+## test value()
 v <- value(c2, u = c(.3, .4))
 stopifnot(all.equal(v,
                     local( { u1 <- .3; u2 <- .4
                              (u1^(-1/2)+u2^(-1/2)-1)^(-2) }),
                     tol = 1e-14))
 
-##' test rn()
+## test rn()
 rt <- system.time(rC2 <- rn(c2,n))
 C2 <- cor(rC2,method = "kendall")
 trCorr <- rbind(c(1,0.2),
-                c(0.2,1)) #' tau_{12}=0.2
+                c(0.2,1)) # tau_{12}=0.2
 stopifnot(is.numeric(rC2), is.matrix(rC2),
 	  dim(rC2) == c(n, 2), max(abs(C2-trCorr)) < eps.tau)
 prt.stats(C2,trCorr,rt)
 if(doPlots)
     smoothScatter(rC2)
 
-##' ==== 3d Clayton copula example ========================================
+## ==== 3d Clayton copula example ========================================
 
 c3 <- onACopula("C", C(0.5, 1, C(2., c(2,3))))
 
-##' basic check
+## basic check
 d <- dim(c3)
 stopifnot(d == 3,
 	  allComp(c3) == 1:3,
 	  allComp(c3@childCops[[1]]) == 2:3)
 
-##' test value()
+## test value()
 v <- value(c3, u = c(.3, .4, .5))
 stopifnot(all.equal(v,
                     local( { u1 <- .3; u2 <- .4; u3 <- .5
                              1/((1/u2^2 +1/u3^2 -1)^(1/4) -1 +1/sqrt(u1))^2 }),
                     tol = 1e-14))
 
-##' test rn()
+## test rn()
 rt <- system.time(rC3 <- rn(c3,n))
 C3 <- cor(rC3,method = "kendall")
 trCorr <- matrix(c(1,0.2,0.2,0.2,1,0.5,0.2,0.5,1),nrow = 3,byrow = TRUE)
-                                        #' tau_{12}=tau_{13}=0.2, tau_{23}=0.5
+                                        # tau_{12}=tau_{13}=0.2, tau_{23}=0.5
 stopifnot(is.numeric(rC3), is.matrix(rC3),
 	  dim(rC3) == c(n, 3),max(abs(C3-trCorr)) < eps.tau)
 prt.stats(C3,trCorr,rt)
@@ -367,24 +367,24 @@ prt.stats(C3,trCorr,rt)
 if(doPlots)
     pairs(rC3, panel = function(...) { par(new = TRUE); smoothScatter(...) })
 
-##' ==== 9d Clayton copula example ========================================
+## ==== 9d Clayton copula example ========================================
 
 c9 <- onACopula("Clayton", C(0.5, c(3,6,1),
 			     C(2., c(9,2,7,5),
 			       C(3., c(8,4)))))
 
-##' basic check
+## basic check
 d <- dim(c9)
 stopifnot(d == 9,
           allComp(c9) == c(3,6,1,9,2,7,5,8,4),
           allComp(c9@childCops[[1]]) == c(9,2,7,5,8,4),
           allComp(c9@childCops[[1]]@childCops[[1]]) == c(8,4))
 
-##' test value()
+## test value()
 u <- seq(0.1,0.9,by = 0.1)
-##' with value function:
+## with value function:
 v <- value(c9, u)
-##' by hand
+## by hand
 psi <- function(t,theta) { (1+t)^(-1/theta) }
 psiInv <- function(t,theta) { t^(-theta) - 1 }
 th0 <- 0.5
@@ -402,19 +402,19 @@ level0 <- psi(psiInv(u[3],th0)+
               psiInv(level1, th0), th0)
 stopifnot(all.equal(v, level0, tol = 1e-14))
 
-##' test rn()
+## test rn()
 rt <- system.time(rC9 <- rn(c9,n))
 C9 <- cor(rC9,method = "kendall")
 
-##' Theoretical values:
-##' (11,12,13,14,15,16,17,18,19)=(1,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2)
-##'    (22,23,24,25,26,27,28,29)=(1,0.2,0.5,0.5,0.2,0.5,0.5,0.5)
-##'       (33,34,35,36,37,38,39)=(1,0.2,0.2,0.2,0.2,0.2,0.2)
-##'          (44,45,46,47,48,49)=(1,0.5,0.2,0.5,0.6,0.5)
-##'             (55,56,57,58,59)=(1,0.2,0.5,0.5,0.5)
-##'                (66,67,68,69)=(1,0.2,0.2,0.2)
-##'                   (77,78,79)=(1,0.5,0.5)
-##'                      (88,89)=(1,0.5)
+## Theoretical values:
+## (11,12,13,14,15,16,17,18,19)=(1,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2)
+##    (22,23,24,25,26,27,28,29)=(1,0.2,0.5,0.5,0.2,0.5,0.5,0.5)
+##       (33,34,35,36,37,38,39)=(1,0.2,0.2,0.2,0.2,0.2,0.2)
+##          (44,45,46,47,48,49)=(1,0.5,0.2,0.5,0.6,0.5)
+##             (55,56,57,58,59)=(1,0.2,0.5,0.5,0.5)
+##                (66,67,68,69)=(1,0.2,0.2,0.2)
+##                   (77,78,79)=(1,0.5,0.5)
+##                      (88,89)=(1,0.5)
 
 C9.true <- rbind(c(1. ,rep(0.2,8)),
                  c(0.2,1. ,0.2,0.5,0.5,0.2, rep(0.5,3)),
@@ -428,14 +428,14 @@ C9.true <- rbind(c(1. ,rep(0.2,8)),
 stopifnot(dim(rC9) == c(n, 9),
           max(abs(C9-C9.true)) < eps.tau)
 prt.stats(C9,C9.true,rt)
-if(doPlots && dev.interactive()) #' "large"
+if(doPlots && dev.interactive()) # "large"
     pairs(rC9, gap = .1, pch = 20, cex = 0.2, col = rgb(.2,.1,.7, alpha = .5),
           main = paste(n," vectors of a ",d,
           "-dimensional nested Clayton copula",sep = ""))
 
-##' ==== 125d Clayton copula example ========================================
+## ==== 125d Clayton copula example ========================================
 
-c125 <- onACopula("Clayton", C(0.5, , #' no direct components
+c125 <- onACopula("Clayton", C(0.5, , # no direct components
                                list(C(2,  1:10),
                                     C(3, 11:40),
                                     C(2, 41:60),
@@ -443,7 +443,7 @@ c125 <- onACopula("Clayton", C(0.5, , #' no direct components
                                     C(3, 86:105),
                                     C(2,106:125))))
 
-##' basic check
+## basic check
 d <- dim(c125)
 stopifnot(d == 125,
 	  allComp(c125) == 1:125,
@@ -455,10 +455,10 @@ stopifnot(d == 125,
 	  allComp(c125@childCops[[6]]) == 106:125
 	  )
 
-##' test rn()
+## test rn()
 rt <- system.time(rC125 <- rn(c125,n))
 stopifnot(is.numeric(rC125), is.matrix(rC125), dim(rC125) == c(n, 125))
 cat("Time elapsed for generating ",n," vectors of variates:\n",sep = "")
 rt
 
-cat('Time elapsed: ', proc.time(),'\n') #' for ``statistical reasons''
+cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

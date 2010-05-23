@@ -1,7 +1,7 @@
 ##' Find a root
-##' @param f function 
+##' @param f function
 ##' @param interval interval
-##' @param lower lower endpoint 
+##' @param lower lower endpoint
 ##' @param upper upper endpoint
 ##' @param f.lower function value at lower endpoint
 ##' @param f.upper function value at upper endpoint
@@ -19,7 +19,7 @@ safeUroot <- function(f, interval, lower = min(interval), upper = max(interval),
     if(trace >= 2)
 	cat(sprintf("search in [%g,%g]\n", lower, upper))
 
-    ##' make sure we have Sig*f(lower) < 0 and Sig*f(upper) > 0:
+    ## make sure we have Sig*f(lower) < 0 and Sig*f(upper) > 0:
     delta.r <- 0.01*max(1e-7, abs(lower))
     f.lo <- f.lower
     while(Sig*f.lo > 0) {
@@ -37,7 +37,7 @@ safeUroot <- function(f, interval, lower = min(interval), upper = max(interval),
 	delta.r <- 2 * delta.r
     }
 
-    ##' here, we require R >= 2.6.0 with the improved uniroot():
+    ## here, we require R >= 2.6.0 with the improved uniroot():
     uniroot(f, lower=lower, upper=upper,
 	    f.lower = f.lo, f.upper = f.up,
 	    tol=tol, maxiter=maxiter, ...)
