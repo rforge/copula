@@ -175,7 +175,7 @@ matlines(V0s, Nst.q95, col = "gray80", lty=3)
 matplot(V0s, Nst.mns / V0s, type = "b", lty=1, log = "x")
 rug(V0s)
 
-if(!dev.interactive()) { dev.off(); pdf("retstable-ex-2.pdf") }
+if(dev.interactive()) par(mfrow=c(1,1)) else { dev.off(); pdf("retstable-ex-2.pdf") }
 
 ### --- =======      --------------------------#-----------
 ### --- Part II ---  Experiments with retstableC() methods
@@ -310,34 +310,19 @@ histSt("alpha=0.1", "V0=5", "h=5")
 
 histSt("alpha=0.8", "V0=10", "h=2")
 
-histSt("alpha=0.8", "V0=5",  "h=10") ## OOOPS! very different
-
-histSt("alpha=0.9", "V0=5",  "h=10") ## OOOPS!
+histSt("alpha=0.8", "V0=5",  "h=10")
+histSt("alpha=0.9", "V0=5",  "h=10")
 
 ## no problem for  h == 1 :
 histSt("alpha=0.9", "V0=5",  "h=1")
 
-##' Kolmogorov-Smirnov test
-##' @param hlab h label
-##' @return p-value
-##' @author Martin Maechler
-ksTestSt <- function(hlab) {
-    dnS <- dimnames(St.c)
-    stopifnot(is.character(hlab), any(hlab == dnS[[3]]))
-    Pv <- St.c[,,1,1,1]
-    for(c.a in dnS[["alpha"]])
-        for(c.V in dnS[["V0"]])
-            Pv[c.a, c.V] <- ks.test(St.c[c.a,c.V, hlab, "MH",],
-                                    St.c[c.a,c.V, hlab, "LD",])$p.value
-    Pv
-}
-
-Pv1 <- ksTestSt("h=1")
-hist(as.vector(Pv1)) ## -- U[0,1] -- i.e. for  h == 1  eveything is ok.
-
-Pv0.5 <- ksTestSt("h=0.5")
-summary(as.vector(Pv0.5)) ## --- all are, mostly *HIGHLY*  *different*
-
+## Instead of "just" the plots, now also look at the P-values:
+## For both tests, the P-values look like ~ U[0,1]  as they should:
+hist(c(KS.pval))
+hist(c(tt.pval))
+## More formally, they do look like uniform ([0,1]):
+ks.test(tt.pval, "punif")
+ks.test(KS.pval, "punif")
 
 ## Times for nsim replicates for given alphas, V0s, hs, and methods
 ## ratio of the two methods : decision at  r == 1   <==>   log(r) == 0
@@ -375,6 +360,7 @@ filled.contour(alpha, V0, log10(CPUr[,, "h=5"]))
 ## Theory:  expect boundary   h^alpha * V0  <= c
 ##                            ------------------
 str(dCPU <- cbind(expand.grid(alpha=alpha, V0=V0, h=h), CPUr = c(CPUr)))
+rm(CPUr)# (so we know that dCPU is used below)
 ## original scale
 plot  (CPUr ~ I(h^alpha * V0), data = dCPU); abline(h=1, col="tomato")
 
@@ -382,41 +368,83 @@ plot  (CPUr ~ I(h^alpha * V0), data = dCPU); abline(h=1, col="tomato")
 ##' @param log scale
 ##' @param do.h.eq.1 h == 1
 ##' @param main title
+##' @param data a dataframe "like 'dCPU'" (typically subset of it)
+##' @param col vector of colors,
+##' @param pch vector of point characters
+##' @param ... further arguments to plot()
 ##' @return plot of CPU times
 ##' @author Martin Maechler
 p.cpu <- function(log = "", do.h.eq.1 = TRUE,
 		  main = expression(t[CPU](MH) / t[CPU](LD) *
-		      "  as " * f(h, alpha, V[0])), ...)
+		      "	 as " * f(h, alpha, V[0])),
+		  data = dCPU, colT = NULL, pchT = NULL,
+		  pal = brewer.pal(length(alpha), "RdYlGn"),# "Spectral"
+		  ... )
 {
-    ## if(any("col" == names(list(...)))) ## set palette
+    doCol <- !is.null(colT) ; if(!doCol) col <- par("col")
+    doPch <- !is.null(pchT) ; if(!doPch) pch <- par("pch")
+    if(doCol || doPch) {
+	stopifnot(colT %in% c("V0","alpha","h"))
+	stopifnot(pchT %in% c("V0","alpha","h"))
+	a.c <- as.numeric(a.f <- as.factor(data[,"alpha"]))
+	V.c <- as.numeric(V.f <- as.factor(data[,"V0"]))
+	h.c <- as.numeric(h.f <- as.factor(data[,"h"]))
+        a.f <- paste("alpha", levels(a.f), sep="=")
+        V.f <- paste("V0", levels(V.f), sep="=")
+        h.f <- paste("h", levels(h.f), sep="=")
+	getC <- function(typ)
+	    switch(typ, "V0" = V.c, "alpha" = a.c, "h" = h.c)
+	getL <- function(typ)
+	    switch(typ, "V0" = V.f, "alpha" = a.f, "h" = h.f)
+	if(doPch) {
+	    pch <- getC(pchT)
+	    pLabs <- getL(pchT)
+	}
+	if(doCol) {
+	    col <- 1 + getC(colT)
+	    cLabs <- getL(colT)
+	    ## also set palette()!
+	    oPal <- palette(pal)
+	    ## on exit, revert to previous color palette:
+	    on.exit(palette(oPal))
+	}
+    }
     plot(CPUr ~ I(h^alpha * V0), main=main, xlab =
-	 expression(h ^ alpha %*% V[0]), data = dCPU, log=log, ...)
+	 expression(h ^ alpha %*% V[0]), data=data, log=log,
+         col=col, pch=pch, ...)
     abline(h = 1, lty=2, col="tomato") # ratio == 1  <==> "MH" as fast as "LD"
     if(do.h.eq.1) {
-	points(CPUr ~ I(h^alpha * V0), data = dCPU, pch = 2, col = "red",
+	points(CPUr ~ I(h^alpha * V0), data=data, pch = 2, col = "red",
 	       subset= h == 1)
 	legend("bottom", "h = 1", pch = 2, col = "red", inset=.01)
     }
+    if(doPch)
+	legend("bottomright", legend = pLabs,
+	       col = par("col"), pch = unique(pch), inset=.01)
+    if(doCol)
+	legend("topleft", legend = cLabs,
+	       pch = par("pch"), col = unique(col), inset=.01)
 }
 
 p.cpu()
 p.cpu(log="xy")
 ## cool! -- the formula seems correct!
 
-a.c <- as.numeric(as.factor(dCPU[,"alpha"]))
-V.c <- as.numeric(as.factor(dCPU[,"V0"]))
-h.c <- as.numeric(as.factor(dCPU[,"h"]))
 require(RColorBrewer)
 
+p.cpu(log="xy", colT = "alpha", pchT = "V0")
+## Zoom in:
+p.cpu(log="xy", data = subset(dCPU, subset = 3 <= V0 & V0 <= 5),
+      do.h.eq.1=FALSE, colT = "alpha", pchT = "V0")# still a bit wide x-range
+mtext("3 <= V0 <= 5")
 
-oPal <- palette(brewer.pal(10,"Spectral"))
-p.cpu(log="xy", col = 1 + a.c, pch = V.c)
-legend("topleft",     legend=dimnames(CPUr)[["alpha"]], col = 1+unique(a.c),
-       pch = 1, inset=.01)
-legend("bottomright", legend=dimnames(CPUr)[["V0"]], col = 1, pch = unique(V.c),
-       inset=.01)
-## revert to previous color palette:
-palette(oPal)
+## zoom in more, no longer log-scaled:
+p.cpu(data = subset(dCPU, subset = 3 <= V0 & V0 <= 5),
+      xlim = c(2,5), ylim=c(0.5,2), # restricting range
+      do.h.eq.1=FALSE, colT = "alpha", pchT = "V0")
+mtext("3 <= V0 <= 5")
+
+
 
 
 summary(mod1 <- lm(log(CPUr) ~ I(alpha*log(h)) + log(V0), data = dCPU))
