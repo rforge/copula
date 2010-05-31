@@ -1,20 +1,20 @@
-\name{ACopula-class}
+\name{acopula-class}
 \Rdversion{1.1}
-\title{Class "ACopula" of Archimedean Copula Families}
+\title{Class "acopula" of Archimedean Copula Families}
 \docType{class}
-\alias{ACopula-class}
+\alias{acopula-class}
 %
-\alias{initialize,ACopula-method}
+\alias{initialize,acopula-method}
 \alias{setTheta}
-\alias{setTheta,ACopula-method}
+\alias{setTheta,acopula-method}
 %
 \description{
-  This class \code{"ACopula"} Archimedean Copula Families
+  This class \code{"acopula"} Archimedean Copula Families
   is mainly used for providing objects of known A.copula families
   with all related functions.
 }
 \section{Objects from the Class}{
-  Objects can be created by calls of the form \code{new("ACopula", ...)}.
+  Objects can be created by calls of the form \code{new("acopula", ...)}.
   For half dozen known important copula families, the \pkg{nacopula}
   package already provides such family objects
 }
@@ -49,12 +49,12 @@
 }
 \section{Methods}{
   \describe{
-    \item{initialize}{\code{signature(.Object = "ACopula")}: is used to
+    \item{initialize}{\code{signature(.Object = "acopula")}: is used to
       automatically construct the \code{paraConstr} function slot, when
       the \code{paraInterval} is provided (typically via
       \code{\link{interval}()}).}
 
-    \item{SetTheta}{\code{signature(x = "ACopula")}: To set or change the
+    \item{SetTheta}{\code{signature(x = "acopula")}: To set or change the
       parameter \eqn{\theta} (\code{theta}) of such an object, say
       \code{myCop}, use \code{setTheta(myCop, <value>)}.  This is used
       for construction of actual copula \dQuote{models} with a specified
@@ -69,7 +69,7 @@
   \code{\link{copAMH}}, \code{\link{copClayton}}, etc.
 }
 \examples{
-showClass("ACopula")
+showClass("acopula")
 str(copClayton)
 }
 \keyword{classes}

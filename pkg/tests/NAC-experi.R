@@ -48,7 +48,7 @@ corCheckout <- function(x,family,trCorr){
 ##' Function implementing the chi^2 test
 ##' @param n [integer] sample size
 ##' @param N [integer] number of replications
-##' @param cop NACopula to generate from
+##' @param cop nacopula to generate from
 ##' @param nInt positive integer: the number of intervals used for each grid
 ##' dimension
 ##' @return an "chiSqChk_cop" object; just a list(...) and a print method
@@ -93,7 +93,7 @@ chiSq_check_cop <- function(n,N,cop,nInt, verbose = interactive()){
         T <- replicate(N, {
             if(verbose) cat(sprintf("%2d%1s",{k <<- k+1}, if(k %% 20)""
             else "\n"))
-            U <- rn(cop,n) # generate data
+            U <- rnacopula(cop,n) # generate data
             cubenumbers <- cube(U,pts) # for each row vector of U, find the
                                         # number of the cube in which the
 					# vector falls
@@ -138,14 +138,14 @@ print.chiSqChk_cop <- function(x, ...) {
 ##' compute the probability to fall in a cube with lower point l and upper point
 ##' u for d=3
 probin3dcube <- function(cop,l,u) {
-    value(cop,u)+
-        - value(cop,c(l[1],u[2],u[3]))+
-            - value(cop,c(u[1],l[2],u[3]))+
-                - value(cop,c(u[1],u[2],l[3]))+
-                    + value(cop,c(l[1],l[2],u[3]))+
-                        + value(cop,c(l[1],u[2],l[3]))+
-                            + value(cop,c(u[1],l[2],l[3]))+
-                                - value(cop,l)
+    pnacopula(cop,u)+
+        - pnacopula(cop,c(l[1],u[2],u[3]))+
+            - pnacopula(cop,c(u[1],l[2],u[3]))+
+                - pnacopula(cop,c(u[1],u[2],l[3]))+
+                    + pnacopula(cop,c(l[1],l[2],u[3]))+
+                        + pnacopula(cop,c(l[1],u[2],l[3]))+
+                            + pnacopula(cop,c(u[1],l[2],l[3]))+
+                                - pnacopula(cop,l)
 }
 
 ## ==== 3d examples ============================================================
@@ -165,18 +165,18 @@ stopifnot(max(abs(corCheckAMH[["cor"]]-trCorr)) < eps.tau)
 
 ## check 2
 AMH3d <-
-    new("outer_nACopula", copula = setTheta(copAMH, theta0),
+    new("outer_nacopula", copula = setTheta(copAMH, theta0),
         comp = as.integer( 1 ),
-        childCops = list(new("nACopula",
+        childCops = list(new("nacopula",
         copula = setTheta(copAMH, theta1),
         comp = as.integer(c(2,3)))) # no childCops
         )
 
 ## constructor forms of the above:
-rr <- onACopula("A",   C(0.7135, 1, list(C(0.943, 2:3, NULL))))
-r0 <- onACopula("A",   C(0.7135, 1,      C(0.943, 2:3, NULL)))
-r1 <- onACopula("A",   C(0.7135, 1,      C(0.943, 2:3, )))
-r2 <- onACopula("AMH", C(0.7135, 1,      C(0.943, 2:3  )))
+rr <- onacopula("A",   C(0.7135, 1, list(C(0.943, 2:3, NULL))))
+r0 <- onacopula("A",   C(0.7135, 1,      C(0.943, 2:3, NULL)))
+r1 <- onacopula("A",   C(0.7135, 1,      C(0.943, 2:3, )))
+r2 <- onacopula("AMH", C(0.7135, 1,      C(0.943, 2:3  )))
 stopifnot(identical(AMH3d, rr), identical(rr, r0),
           identical(r0, r1), identical(r1, r2))
 
@@ -203,7 +203,7 @@ corCheckout(corCheckClayton,"Clayton",trCorr)
 stopifnot(max(abs(corCheckClayton[["cor"]]-trCorr)) < eps.tau)
 
 ## check 2
-Clayton3d <- onACopula("Clayton", C(theta0, 1, C(theta1, 2:3)))
+Clayton3d <- onacopula("Clayton", C(theta0, 1, C(theta1, 2:3)))
 (chkClayton <- chiSq_check_cop(512,100,Clayton3d,5))
 
 ## check probability
@@ -221,7 +221,7 @@ corCheckout(corCheckFrank,"Frank",trCorr)
 stopifnot(max(abs(corCheckFrank[["cor"]]-trCorr)) < eps.tau)
 
 ## check 2
-Frank3d <- onACopula("F", C(theta0, 1, C(theta1, 2:3)))
+Frank3d <- onacopula("F", C(theta0, 1, C(theta1, 2:3)))
 (chkFrank <- chiSq_check_cop(n,N,Frank3d,5))
 
 ## check probability
@@ -241,7 +241,7 @@ corCheckout(corCheckGumbel,"Gumbel",trCorr)
 stopifnot(max(abs(corCheckGumbel[["cor"]]-trCorr)) < eps.tau)
 
 ## check 2
-Gumbel3d <- onACopula("Gumbel", C(theta0, 1, C(theta1, 2:3)))
+Gumbel3d <- onacopula("Gumbel", C(theta0, 1, C(theta1, 2:3)))
 (chkGumbel <- chiSq_check_cop(n,N,Gumbel3d,5))
 
 ## check probability
@@ -259,14 +259,14 @@ corCheckout(corCheckJoe,"Joe",trCorr)
 stopifnot(max(abs(corCheckJoe[["cor"]]-trCorr)) < eps.tau)
 
 ## check 2
-Joe3d <- onACopula("J", C(theta0, 1, C(theta1, 2:3)))
+Joe3d <- onacopula("J", C(theta0, 1, C(theta1, 2:3)))
 (chkJoe <- chiSq_check_cop(n,N,Joe3d,5))
 
 ## check probability
 stopifnot(all.equal(print(  prob(Joe3d,l,u)),
 		    probin3dcube(Joe3d,l,u), tol=1e-14))
 
-## ==== Examples that check value() and rn() ===================================
+## ==== Examples that check pnacopula() and rnacopula() ===================================
 
 ## generate output for the examples
 prt.stats <- function(c1,c2, rt) {
@@ -277,7 +277,7 @@ prt.stats <- function(c1,c2, rt) {
 
 ## ==== 3d Ali-Mikhail-Haq copula example ======================================
 
-c3 <- onACopula("A", C(0.7135, 1, list(C(0.943, 2:3))))
+c3 <- onacopula("A", C(0.7135, 1, list(C(0.943, 2:3))))
 
 ## basic check
 d <- dim(c3)
@@ -285,10 +285,10 @@ stopifnot(d == 3,
 	  allComp(c3) == 1:3,
 	  allComp(c3@childCops[[1]]) == 2:3)
 
-## test value()
+## test pnacopula()
 u <- c(.3, .4, .5)
-## with value function:
-v <- value(c3, u)
+## with function:
+v <- pnacopula(c3, u)
 ## by hand
 psi <- function(t,theta) { (1-theta)/(exp(t)-theta) }
 psiInv <- function(t,theta) { log((1-theta*(1-t))/t) }
@@ -298,8 +298,8 @@ level1 <- psi(psiInv(u[2],th1) + psiInv(u[3],th1), th1)
 level0 <- psi(psiInv(u[1],th0) + psiInv(level1, th0), th0)
 stopifnot(all.equal(v, level0, tol = 1e-14))
 
-## test rn()
-rt <- system.time(rC3 <- rn(c3,n))
+## test rnacopula()
+rt <- system.time(rC3 <- rnacopula(c3,n))
 C3 <- cor(rC3,method = "kendall")
 trCorr <- rbind(c(1,0.2,0.2),
                 c(0.2,1,0.3),
@@ -312,23 +312,23 @@ if(doPlots)
 
 ## ==== 2d Clayton copula example ==============================================
 
-c2 <- onACopula("Clayton", C(0.5, c(1,2))) # no childCops
-## or simply c2 <- onACopula("Clayton", C(0.5, 1:2))
+c2 <- onacopula("Clayton", C(0.5, c(1,2))) # no childCops
+## or simply c2 <- onacopula("Clayton", C(0.5, 1:2))
 
 ## basic check
 d <- dim(c2)
 stopifnot(d ==  2,
 	  allComp(c2) == 1:2)
 
-## test value()
-v <- value(c2, u = c(.3, .4))
+## test pnacopula()
+v <- pnacopula(c2, u = c(.3, .4))
 stopifnot(all.equal(v,
                     local( { u1 <- .3; u2 <- .4
                              (u1^(-1/2)+u2^(-1/2)-1)^(-2) }),
                     tol = 1e-14))
 
-## test rn()
-rt <- system.time(rC2 <- rn(c2,n))
+## test rnacopula()
+rt <- system.time(rC2 <- rnacopula(c2,n))
 C2 <- cor(rC2,method = "kendall")
 trCorr <- rbind(c(1,0.2),
                 c(0.2,1)) # tau_{12}=0.2
@@ -340,7 +340,7 @@ if(doPlots)
 
 ## ==== 3d Clayton copula example ==============================================
 
-c3 <- onACopula("C", C(0.5, 1, C(2., c(2,3))))
+c3 <- onacopula("C", C(0.5, 1, C(2., c(2,3))))
 
 ## basic check
 d <- dim(c3)
@@ -348,15 +348,15 @@ stopifnot(d == 3,
 	  allComp(c3) == 1:3,
 	  allComp(c3@childCops[[1]]) == 2:3)
 
-## test value()
-v <- value(c3, u = c(.3, .4, .5))
+## test pnacopula()
+v <- pnacopula(c3, u = c(.3, .4, .5))
 stopifnot(all.equal(v,
                     local( { u1 <- .3; u2 <- .4; u3 <- .5
                              1/((1/u2^2 +1/u3^2 -1)^(1/4) -1 +1/sqrt(u1))^2 }),
                     tol = 1e-14))
 
-## test rn()
-rt <- system.time(rC3 <- rn(c3,n))
+## test rnacopula()
+rt <- system.time(rC3 <- rnacopula(c3,n))
 C3 <- cor(rC3,method = "kendall")
 trCorr <- matrix(c(1,0.2,0.2,0.2,1,0.5,0.2,0.5,1),nrow = 3,byrow = TRUE)
                                         # tau_{12}=tau_{13}=0.2, tau_{23}=0.5
@@ -369,7 +369,7 @@ if(doPlots)
 
 ## ==== 9d Clayton copula example ==============================================
 
-c9 <- onACopula("Clayton", C(0.5, c(3,6,1),
+c9 <- onacopula("Clayton", C(0.5, c(3,6,1),
 			     C(2., c(9,2,7,5),
 			       C(3., c(8,4)))))
 
@@ -380,10 +380,10 @@ stopifnot(d == 9,
           allComp(c9@childCops[[1]]) == c(9,2,7,5,8,4),
           allComp(c9@childCops[[1]]@childCops[[1]]) == c(8,4))
 
-## test value()
+## test pnacopula()
 u <- seq(0.1,0.9,by = 0.1)
-## with value function:
-v <- value(c9, u)
+## with pnacopula function:
+v <- pnacopula(c9, u)
 ## by hand
 psi <- function(t,theta) { (1+t)^(-1/theta) }
 psiInv <- function(t,theta) { t^(-theta) - 1 }
@@ -402,8 +402,8 @@ level0 <- psi(psiInv(u[3],th0)+
               psiInv(level1, th0), th0)
 stopifnot(all.equal(v, level0, tol = 1e-14))
 
-## test rn()
-rt <- system.time(rC9 <- rn(c9,n))
+## test rnacopula()
+rt <- system.time(rC9 <- rnacopula(c9,n))
 C9 <- cor(rC9,method = "kendall")
 
 ## Theoretical values:
@@ -435,7 +435,7 @@ if(doPlots && dev.interactive()) # "large"
 
 ## ==== 125d Clayton copula example ============================================
 
-c125 <- onACopula("Clayton", C(0.5, , # no direct components
+c125 <- onacopula("Clayton", C(0.5, , # no direct components
                                list(C(2,  1:10),
                                     C(3, 11:40),
                                     C(2, 41:60),
@@ -455,8 +455,8 @@ stopifnot(d == 125,
 	  allComp(c125@childCops[[6]]) == 106:125
 	  )
 
-## test rn()
-rt <- system.time(rC125 <- rn(c125,n))
+## test rnacopula()
+rt <- system.time(rC125 <- rnacopula(c125,n))
 stopifnot(is.numeric(rC125), is.matrix(rC125), dim(rC125) == c(n, 125))
 cat("Time elapsed for generating ",n," vectors of variates:\n",sep = "")
 rt

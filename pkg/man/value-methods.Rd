@@ -1,21 +1,21 @@
-\name{value-methods}
+\name{pnacopula-methods}
 \docType{methods}
-\alias{value}
-\alias{value-methods}
-\alias{value,nACopula-method}
-\title{Nested A.Copula Evaluation -- value() Generic Function and Methods}
+\alias{pnacopula}
+\alias{pnacopula-methods}
+\alias{pnacopula,nacopula-method}
+\title{Nested A.Copula Evaluation -- pnacopula() Generic Function and Methods}
 \description{
-  \code{value(<NAC>, u)} evaluates a nested Archimedean copula (an
-  object of class \code{\linkS4class{nACopula}}) at \code{u}.
+  \code{pnacopula(<nac>, u)} evaluates a nested Archimedean copula (an
+  object of class \code{\linkS4class{nacopula}}) at \code{u}.
 }
 \usage{
-value(x, u)
+pnacopula(x, u)
 }
 \arguments{
   \item{x}{an \R object \dQuote{at which evaluation should happen};
     currently must be of class
-    \code{\linkS4class{nACopula}}, typically of (subclass)
-    \code{\linkS4class{outer_nACopula}}.}
+    \code{\linkS4class{nacopula}}, typically of (subclass)
+    \code{\linkS4class{outer_nacopula}}.}
   \item{u}{numeric vector length \eqn{d}.}
 }
 \details{
@@ -31,7 +31,7 @@ value(x, u)
 }
 \section{Methods}{
   \describe{
-    \item{\code{signature(x = "nACopula")}}{ ... (see above) ... }
+    \item{\code{signature(x = "nacopula")}}{ ... (see above) ... }
   }
 }
 \examples{

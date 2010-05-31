@@ -6,12 +6,12 @@
 ##	use *same* environment for  (tau, tauInv, paraConstr, nestConstr)
 ## NOTA BENE:  Write psi(), tau(), ... functions such that they *vectorize*
 ## ---------   *and* do work even for (non-numeric) NULL argument
-##          	{now checked in "ACopula" validityMethod -- see ./AllClass.R }
+##          	{now checked in "acopula" validityMethod -- see ./AllClass.R }
 
 ### ==== Ali-Mikhail-Haq, see Nelsen (2007) p. 116, # 3 ========================
 
 copAMH <-
-    new("ACopula", name = "AMH",
+    new("acopula", name = "AMH",
         ## generator
         psi = function(t,theta) { (1-theta)/(exp(t+0)-theta) },
         psiInv = function(t,theta) { log((1-theta*(1-t))/t) },
@@ -59,7 +59,7 @@ copAMH <-
 ### ==== Clayton, see Nelsen (2007) p. 116, #1 (slightly simpler form here) ====
 
 copClayton <-
-    new("ACopula", name = "Clayton",
+    new("acopula", name = "Clayton",
         ## generator
         psi = function(t,theta) { (1+t)^(-1/theta) },
         psiInv = function(t,theta) { t^(-theta) - 1 },
@@ -91,7 +91,7 @@ copClayton <-
 
 ##' Frank object
 copFrank <-
-    new("ACopula", name = "Frank",
+    new("acopula", name = "Frank",
         ## generator
 	psi = function(t,theta) {
 	    -log1p(expm1(-theta)*exp(0-t))/theta
@@ -143,7 +143,7 @@ copFrank <-
 ### ==== Gumbel, see Nelsen (2007) p. 116, # 4 =================================
 
 copGumbel <-
-    new("ACopula", name = "Gumbel",
+    new("acopula", name = "Gumbel",
         ## generator
         psi = function(t,theta) { exp(-t^(1/theta)) },
         psiInv = function(t,theta) { (-log(t+0))^theta },
@@ -200,7 +200,7 @@ copGumbel <-
 
 ##' Joe object
 copJoe <-
-    new("ACopula", name = "Joe",
+    new("acopula", name = "Joe",
         ## generator
         psi = function(t,theta) {
             1 - (-expm1(0-t))^(1/theta)

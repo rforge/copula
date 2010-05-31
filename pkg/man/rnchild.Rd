@@ -1,8 +1,8 @@
 \name{rnchild}
-\title{Random Vector Generation For (Child) 'nACopula's}
+\title{Random Vector Generation For (Child) 'nacopula's}
 \alias{rnchild}
 \alias{rnchild-methods}
-\alias{rnchild,nACopula-method}
+\alias{rnchild,nacopula-method}
 \description{
   Methods for random vector (number) generation of nested archimedean
   copulas.
@@ -13,7 +13,7 @@ rnchild(x, n, psi0Inv, theta0, V0, ...)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{an \R object of \code{\link{class}}
-    \code{"\linkS4class{nACopula}"}.% typically produced by .....
+    \code{"\linkS4class{nacopula}"}.% typically produced by .....
     % once we *HAVE* a function to create these !
   }
   \item{n}{integer specifying the sample size, i.e., the number of
@@ -31,7 +31,7 @@ rnchild(x, n, psi0Inv, theta0, V0, ...)
 }
 \section{Methods}{
   \describe{
-    \item{\code{signature(x = "nACopula")}}{ ... %% FIXME
+    \item{\code{signature(x = "nacopula")}}{ ... %% FIXME
     }
   }
 }
@@ -50,7 +50,7 @@ rnchild(x, n, psi0Inv, theta0, V0, ...)
 % %% ~put references to the literature/web site here ~
 % }
 \seealso{
-  \code{\link{rn}},   \code{"\linkS4class{nACopula}"}. %% more
+  \code{\link{rnacopula}},   \code{"\linkS4class{nacopula}"}. %% more
 }
 \examples{
 ## .........

@@ -1,8 +1,8 @@
 \name{prob}
 \alias{prob}
 \alias{prob-methods}
-\alias{prob,outer_nACopula-method}
-\title{Probability of "nACopula" (in a Hypercube)}
+\alias{prob,outer_nacopula-method}
+\title{Probability of "nacopula" (in a Hypercube)}
 \description{
   Compute probabilities \eqn{U \in [l,u]}{U in [l,u]}, where U is
   (\eqn{d}-dimensionally) distributed according to the nested
@@ -15,7 +15,7 @@ prob(x, l, u)
 }
 \arguments{
   \item{x}{a (nested) Archimedean copula object, i.e., from class
-    \code{\linkS4class{nACopula}}, typically the result of \code{\link{onACopula}(..)}.}
+    \code{\linkS4class{nacopula}}, typically the result of \code{\link{onacopula}(..)}.}
   \item{l, u}{numeric \eqn{d}-dimensional interval boundaries,
     \eqn{0 \le l_i \le u_i \le 1}{0 <= l_i <= u_i <= 1}, for \eqn{i = 1,\dots,d}.}
 }
@@ -24,7 +24,7 @@ prob(x, l, u)
 }
 \section{Methods}{
   \describe{
-    \item{\code{signature(x = "outer_nACopula")}}{
+    \item{\code{signature(x = "outer_nacopula")}}{
     }
   }
 }
@@ -36,12 +36,12 @@ prob(x, l, u)
 % }
 % \author{Marius Hofert}
 \seealso{
-  \code{\link{onACopula}()} for construction;
-  the class, \code{\linkS4class{nACopula}}, and e.g., evaluation of
-  copulae, \code{\link{value}(.)}.
+  \code{\link{onacopula}()} for construction;
+  the class, \code{\linkS4class{nacopula}}, and e.g., evaluation of
+  copulas, \code{\link{pnacopula}(.)}.
 }
 \examples{
-C3d.AMH <- onACopula("AMH", C(0.7135, 1, C(0.943, 2:3)))
+C3d.AMH <- onacopula("AMH", C(0.7135, 1, C(0.943, 2:3)))
 prob(C3d.AMH, l = c(.1, .2, .3),
               u = c(.3, .3, .5))
 ##-> 0.005662

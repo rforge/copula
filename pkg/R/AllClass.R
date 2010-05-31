@@ -30,7 +30,7 @@ setClassUnion("maybeInterval", c("interval", "NULL"))
 
 ### Mother class of all (simple, *NON*-nested) Archimedean Copula Types
 ### for *any* dimension d
-setClass("ACopula",
+setClass("acopula",
 	 representation(name = "character",
                         psi = "function",    # of (t, theta) -- the generator
                         psiInv = "function", # of (p, theta) -- psi_inverse: \psi^{-1}(p) = t
@@ -102,7 +102,7 @@ setClass("ACopula",
 	 })
 
 ## Construct 'paraConstr' slot automatically from 'paraInterval' :
-setMethod("initialize", signature(.Object = "ACopula"),
+setMethod("initialize", signature(.Object = "acopula"),
 	  function(.Object, paraInterval, ...) {
 	      if(!missing(paraInterval) && is(paraInterval, "interval")) {
 		  .Object@paraConstr <- mkParaConstr(paraInterval)
@@ -115,7 +115,7 @@ setMethod("initialize", signature(.Object = "ACopula"),
 ## A utility, not yet exported _ TODO ? _
 
 setGeneric("validTheta", function(x, u) standardGeneric("validTheta"))
-setMethod("validTheta", signature(x = "ACopula"),
+setMethod("validTheta", signature(x = "acopula"),
 	  function(x) {
 	      if(is((int <- x@paraInterval), "interval")) {
 		  if(is.finite(d <- diff(as.numeric(int)))) # take mid-value in interval
@@ -137,10 +137,10 @@ setMethod("validTheta", signature(x = "ACopula"),
 
 
 ### Nested Archimedean Copulas with *specified* dimension(s)
-setClass("nACopula",
-	 representation(copula = "ACopula",
+setClass("nacopula",
+	 representation(copula = "acopula",
                         comp = "integer", # from 1:d -- of length in [0,d]
-                        childCops = "list" #of nACopulas, possibly empty
+                        childCops = "list" #of nacopulas, possibly empty
                         ## TODO? nesting properties (V01,..) for specific mother-child relations
                         ),
          validity = function(object) {
@@ -149,8 +149,8 @@ setClass("nACopula",
              ic <- object@comp
              if((lc <- length(ic)) > d)
                  return("more components than the dimension")
-             if(!all(ok <- "nACopula" == sapply(object@childCops, class)))
-                 return("All 'childCops' elements must be 'nACopula' objects")
+             if(!all(ok <- "nacopula" == sapply(object@childCops, class)))
+                 return("All 'childCops' elements must be 'nacopula' objects")
 ## FIXME: we need to recursively apply a "comp" function
 
              allC <- allComp(object)
@@ -161,13 +161,13 @@ setClass("nACopula",
          })
 
 
-## FIXME: Maybe define a "strict_dim_NAC" class which has the extra checks
-## -----  for the "nACopula"s that appear as *SUB*-copulas, we do NOT want to
+## FIXME: Maybe define a "strict_dim_nac" class which has the extra checks
+## -----  for the "nacopula"s that appear as *SUB*-copulas, we do NOT want to
 ## require that their { components } are == { 1:d }
 ### Nested Archimedean Copulas with *specified* dimension(s)
-setClass("outer_nACopula", contains = "nACopula",
+setClass("outer_nacopula", contains = "nacopula",
          validity = function(object) {
-             ## *Extra* checks in addition to those of "nACopula" :
+             ## *Extra* checks in addition to those of "nacopula" :
              d <- dim(object)
              ic <- object@comp
              allC <- allComp(object)
@@ -182,11 +182,11 @@ setClass("outer_nACopula", contains = "nACopula",
 
 
 ## The dim() method is nicely defined  *recursive*ly :
-setMethod("dim", signature(x = "nACopula"),
+setMethod("dim", signature(x = "nacopula"),
 	  function(x) length(x@comp) + sum(unlist(lapply(x@childCops, dim))))
 
 ## also needed in validity above -- defined recursively, too :
 allComp <- function(x) {
-    stopifnot(is(x, "nACopula"))
+    stopifnot(is(x, "nacopula"))
     c(x@comp, unlist(lapply(x@childCops, allComp)))
 }

@@ -1,8 +1,8 @@
 \name{copFamilies}
-\title{Specific "ACopula" Family Objects}
+\title{Specific "acopula" Family Objects}
 \concept{copula Families}
 \concept{Archimedean copula family}
-\alias{ACopula-families}
+\alias{acopula-families}
 \alias{copAMH}
 \alias{copClayton}
 \alias{copFrank}
@@ -10,7 +10,7 @@
 \alias{copJoe}
 \docType{data}
 \description{
-  Specific \code{"\linkS4class{ACopula}"} family objects are part of
+  Specific \code{"\linkS4class{acopula}"} family objects are part of
   package \pkg{nacopula}.
 }
 \usage{
@@ -21,7 +21,7 @@ copGumbel
 copJoe
 }
 \format{
-  All these are objects of formal class \code{"\linkS4class{ACopula}"}.
+  All these are objects of formal class \code{"\linkS4class{acopula}"}.
   with 13 slots
   ..@ name      : chr "AMH"  (or "Clayton" ....)
   ..@ psi       :function (t, theta)

@@ -2,15 +2,15 @@ useDynLib(nacopula, .registration=TRUE)
 
 importFrom("gsl", debye_1)
 
-exportClasses("ACopula",
-              "nACopula", "outer_nACopula",
+exportClasses("acopula",
+              "nacopula", "outer_nacopula",
               "interval", "maybeInterval"
               )
 
-## Generics, functions and ACopula - family objects defined in this package
+## Generics, functions and acopula - family objects defined in this package
 export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
-       ,"value", "rn" ,"rnchild"
-       ,"onACopula"
+       ,"pnacopula", "rnacopula" ,"rnchild"
+       ,"onacopula"
        ,"interval"
        ,"prob"
        ## Should we provide these in a separate (very small) R package ?
@@ -26,7 +26,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        )
 
 exportMethods(## for both own and "other" generics:
-	      "value", "prob", "rn",
+	      "pnacopula", "prob", "rnacopula",
 	      "dim",
 	      "format"
 	      )

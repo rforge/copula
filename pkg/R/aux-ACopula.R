@@ -1,4 +1,4 @@
-#### Functions and Methods for "ACopula" objects
+#### Functions and Methods for "acopula" objects
 #### class definition in ./AllClass.R
 
 ### ==== Clayton ===============================================================
@@ -247,13 +247,13 @@ rFJoe <- function(n,alpha) {
 
 ### ==== other stuff ===========================================================
 
-##' Function for setting the parameter in an ACopula
-##' @param x ACopula
+##' Function for setting the parameter in an acopula
+##' @param x acopula
 ##' @param value parameter value
-##' @return ACopula with theta set to value
+##' @return acopula with theta set to value
 ##' @author Martin Maechler
 setTheta <- function(x, value){
-    stopifnot(is(x, "ACopula"),
+    stopifnot(is(x, "acopula"),
 	      is.na(value) || is.numeric(value))
     if(x@paraConstr(value)) ## parameter constraints are fulfilled
 	x@theta <- value
@@ -265,7 +265,7 @@ setTheta <- function(x, value){
 ## such that a user can have, e.g., myCop <- copAMH; theta(myCop) <- 3
 if(FALSE) { ## this is just "didactical", not really useful
     setGeneric("theta<-", function(x, value) standardGeneric("theta<-"))
-    setMethod("theta<-", "ACopula", setTheta)
+    setMethod("theta<-", "acopula", setTheta)
 }
 
 ##' Construct "paraConstr" function from an "interval"

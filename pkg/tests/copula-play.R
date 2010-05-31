@@ -9,7 +9,7 @@ if(!dev.interactive())
 myCop <- setTheta(copAMH, value = 0.5) # is maybe more natural
 
 setGeneric("psi", function(cop) standardGeneric("psi"))
-setMethod(psi, "ACopula",
+setMethod(psi, "acopula",
           function(cop) { function(t) cop@psi(t, theta = cop@theta) })
 psi(myCop) # is a function
 psi(myCop)(0:4)
@@ -20,7 +20,7 @@ curve(myCop@psi(x, theta = myCop@theta),  0, 4, col = 2, add = TRUE)
 ##' ==== testing Kendall's tau ====
 
 p.Tau <- function(cop, n = 201, xlim = pmin(paraI, 50), ...) {
-    stopifnot(is(cop, "ACopula"))
+    stopifnot(is(cop, "acopula"))
     paraI <- cop@paraInterval
     theta <- seq(xlim[1], xlim[2], length.out = n)
     tit <- substitute(tau[NAME](theta), list(NAME = cop@name))
@@ -51,7 +51,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
                    nRnd = 50, t01 = (1:63)/64, # exact binary fractions
                    lTDCvec = NA_real_, uTDCvec = NA_real_)
 {
-    stopifnot(is(cop, "ACopula"))
+    stopifnot(is(cop, "acopula"))
     cat0 <- function(...) cat(..., "\n", sep = "")
     theta0 <- cop@theta
     CT <- list()

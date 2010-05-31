@@ -2,14 +2,14 @@
 #### nested Archimedean copulas
 
 ##' Returns the copula value at a certain vector u
-##' @param x nACopula
+##' @param x nacopula
 ##' @param u argument of the copula x
 ##' @return x(u)
 ##' @author Marius Hofert, Martin Maechler
 ## FIXME: maybe make this applicable to a matrix of u's?
-setGeneric("value", function(x, u) standardGeneric("value"))
+setGeneric("pnacopula", function(x, u) standardGeneric("pnacopula"))
 
-setMethod("value", signature(x ="nACopula"),
+setMethod("pnacopula", signature(x ="nacopula"),
           function(x,u) {
               stopifnot(is.numeric(u), 0 <= u, u <= 1,
                         length(u) >= dim(x))	# can be larger
@@ -17,7 +17,7 @@ setMethod("value", signature(x ="nACopula"),
               th <- C@theta
               ## Now use u[j] for the direct components 'comp'
               C@psi(sum(unlist(lapply(u[x@comp], C@psiInv, theta=th)),
-                        C@psiInv(unlist(lapply(x@childCops, value, u = u)),
+                        C@psiInv(unlist(lapply(x@childCops, pnacopula, u = u)),
                                  theta=th)),
                     theta=th)
           })
@@ -31,7 +31,7 @@ setMethod("value", signature(x ="nACopula"),
 ##' @author Marius Hofert, Martin Maechler
 setGeneric("prob", function(x, l, u) standardGeneric("prob"))
 
-setMethod("prob", signature(x ="outer_nACopula"),
+setMethod("prob", signature(x ="outer_nacopula"),
           function(x, l,u) {
               d <- dim(x)
               ## TODO: maybe allow  l & u to be  k x d matrices
@@ -54,17 +54,17 @@ setMethod("prob", signature(x ="outer_nACopula"),
               ## Sign: the ("u","u",...,"u") case has +1; = c(2,2,...,2)
               Sign <- c(1,-1)[1L + (- rowSums(II)) %% 2]
               U <- array(cbind(l,u)[cbind(c(col(II)), c(II))], dim = dim(II))
-              sum(Sign * apply(U, 1, value, x=x))
+              sum(Sign * apply(U, 1, pnacopula, x=x))
           })
 
 ##' Returns (n x d)-matrix of random variates
-##' @param x outer_nACopula
+##' @param x outer_nacopula
 ##' @param n number of vectors of random variates to generate
 ##' @return matrix of random variates
 ##' @author Marius Hofert, Martin Maechler
-setGeneric("rn", function(x,n,...) standardGeneric("rn"))
+setGeneric("rnacopula", function(x,n,...) standardGeneric("rnacopula"))
 
-setMethod("rn", signature(x = "outer_nACopula"),
+setMethod("rnacopula", signature(x = "outer_nacopula"),
 	  function(x, n, ...)
       {
 	  Cp <- x@copula		# outer copula
@@ -89,7 +89,7 @@ setMethod("rn", signature(x = "outer_nACopula"),
 
 ##' Returns a list with an (n x d)-matrix of random variates and a vector of
 ##' indices.
-##' @param x nACopula
+##' @param x nacopula
 ##' @param n number of vectors of random variates to generate
 ##' @param psi0Inv function psi^{-1}
 ##' @param theta0 parameter theta0
@@ -100,12 +100,12 @@ rnchild <- function(x, n, psi0Inv, theta0, V0,...)
 {
     Cp <- x@copula # inner copula
     ## Consistency checks -- for now {comment later} :
-    stopifnot(is(Cp, "ACopula"), is.numeric(n), n == as.integer(n),
+    stopifnot(is(Cp, "acopula"), is.numeric(n), n == as.integer(n),
               is.function(psi0Inv), is.numeric(V0), length(V0) == n,
               is.numeric(theta0))
     theta1 <- Cp@theta # theta_1 for inner copula
     ## generate V01's (only for one sector since the
-    ## recursion in rn() takes care of all sectors):
+    ## recursion in rnacopula() takes care of all sectors):
     V01 <- Cp@V01(V0, theta0,theta1,...)
     childL <- lapply(x@childCops, rnchild, # <-- recursion
                      n=n, psi0Inv = Cp@psiInv, theta0=theta1, V0=V01,...)
@@ -121,37 +121,37 @@ rnchild <- function(x, n, psi0Inv, theta0, V0,...)
 }
 
 if(FALSE) { # evaluate the following into your R session if you need debugging:
-    trace(rn, browser, exit=browser, signature=signature(x ="outer_nACopula"))
+    trace(rnacopula, browser, exit=browser, signature=signature(x ="outer_nacopula"))
 
     debug(rnchild)
 }
 
-##' Constructor for outer_nACopula
+##' Constructor for outer_nacopula
 ##' @param family character string: short or longer form of copula family name
-##' @param nACform a "formula" of the form C(th, comp, list(C(..), C(..)))
-##' @return a valid outer_nACopula object
+##' @param nacform a "formula" of the form C(th, comp, list(C(..), C(..)))
+##' @return a valid outer_nacopula object
 ##' @author Martin Maechler
-onACopula <- function(family, nACform) {
-    nacl <- substitute(nACform)
+onacopula <- function(family, nacform) {
+    nacl <- substitute(nacform)
     stopifnot(is.character(family), length(family) == 1,
               identical(nacl[[1]], as.symbol("C")))
     nacl[[1]] <- as.symbol("oC")
     if(nchar(family) <= 2) # it's a short name
         family <- c_longNames[family]
     stopifnot(is(COP <- get(c_objNames[family]), # envir = "package:nacopula"
-                 "ACopula"))
+                 "acopula"))
     mkC <- function(cClass, a,b,c) {
         if(missing(b) || length(b) == 0) b <- integer()
         if(missing(c) || length(c) == 0) c <- list()
         else if(length(c) == 1 && !is.list(c)) c <- list(c)
         else stopifnot(is.list(c))
         stopifnot(is.numeric(a), length(a) == 1, is.numeric(b))
-        if(any(sapply(c, class) != "nACopula"))
-            stop("third entry of 'nACform' must be NULL or) list of 'C(..)' terms")
+        if(any(sapply(c, class) != "nacopula"))
+            stop("third entry of 'nacform' must be NULL or) list of 'C(..)' terms")
         new(cClass, copula = setTheta(COP, a),
             comp = as.integer(b), childCops = c)
     }
-    C <- function(a,b,c) mkC("nACopula", a,b,c)
-    oC <- function(a,b,c) mkC("outer_nACopula", a,b,c)
+    C <- function(a,b,c) mkC("nacopula", a,b,c)
+    oC <- function(a,b,c) mkC("outer_nacopula", a,b,c)
     eval(nacl)
 }
