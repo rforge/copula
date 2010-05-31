@@ -93,7 +93,7 @@ chiSq_check_cop <- function(n,N,cop,nInt, verbose = interactive()){
         T <- replicate(N, {
             if(verbose) cat(sprintf("%2d%1s",{k <<- k+1}, if(k %% 20)""
             else "\n"))
-            U <- rnacopula(cop,n) # generate data
+            U <- rnacopula(n,cop) # generate data
             cubenumbers <- cube(U,pts) # for each row vector of U, find the
                                         # number of the cube in which the
 					# vector falls
@@ -299,7 +299,7 @@ level0 <- psi(psiInv(u[1],th0) + psiInv(level1, th0), th0)
 stopifnot(all.equal(v, level0, tol = 1e-14))
 
 ## test rnacopula()
-rt <- system.time(rC3 <- rnacopula(c3,n))
+rt <- system.time(rC3 <- rnacopula(n,c3))
 C3 <- cor(rC3,method = "kendall")
 trCorr <- rbind(c(1,0.2,0.2),
                 c(0.2,1,0.3),
@@ -328,7 +328,7 @@ stopifnot(all.equal(v,
                     tol = 1e-14))
 
 ## test rnacopula()
-rt <- system.time(rC2 <- rnacopula(c2,n))
+rt <- system.time(rC2 <- rnacopula(n,c2))
 C2 <- cor(rC2,method = "kendall")
 trCorr <- rbind(c(1,0.2),
                 c(0.2,1)) # tau_{12}=0.2
@@ -356,7 +356,7 @@ stopifnot(all.equal(v,
                     tol = 1e-14))
 
 ## test rnacopula()
-rt <- system.time(rC3 <- rnacopula(c3,n))
+rt <- system.time(rC3 <- rnacopula(n,c3))
 C3 <- cor(rC3,method = "kendall")
 trCorr <- matrix(c(1,0.2,0.2,0.2,1,0.5,0.2,0.5,1),nrow = 3,byrow = TRUE)
                                         # tau_{12}=tau_{13}=0.2, tau_{23}=0.5
@@ -403,7 +403,7 @@ level0 <- psi(psiInv(u[3],th0)+
 stopifnot(all.equal(v, level0, tol = 1e-14))
 
 ## test rnacopula()
-rt <- system.time(rC9 <- rnacopula(c9,n))
+rt <- system.time(rC9 <- rnacopula(n,c9))
 C9 <- cor(rC9,method = "kendall")
 
 ## Theoretical values:
@@ -456,7 +456,7 @@ stopifnot(d == 125,
 	  )
 
 ## test rnacopula()
-rt <- system.time(rC125 <- rnacopula(c125,n))
+rt <- system.time(rC125 <- rnacopula(n,c125))
 stopifnot(is.numeric(rC125), is.matrix(rC125), dim(rC125) == c(n, 125))
 cat("Time elapsed for generating ",n," vectors of variates:\n",sep = "")
 rt

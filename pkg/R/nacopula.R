@@ -62,10 +62,10 @@ setMethod("prob", signature(x ="outer_nacopula"),
 ##' @param n number of vectors of random variates to generate
 ##' @return matrix of random variates
 ##' @author Marius Hofert, Martin Maechler
-setGeneric("rnacopula", function(x,n,...) standardGeneric("rnacopula"))
+setGeneric("rnacopula", function(n,x,...) standardGeneric("rnacopula"))
 
 setMethod("rnacopula", signature(x = "outer_nacopula"),
-	  function(x, n, ...)
+	  function(n, x, ...)
       {
 	  Cp <- x@copula		# outer copula
 	  theta <- Cp@theta		# theta for outer copula
