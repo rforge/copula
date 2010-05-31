@@ -40,8 +40,7 @@ setMethod("prob", signature(x ="outer_nACopula"),
                         length(u) == d, d == length(l),
                         0 <= l, l <= u, u <= 1)
               if(d > 30)
-                  stop("prob() for copula dimensions > 30 are not supported
-(yet)")
+                  stop("prob() for copula dimensions > 30 are not supported (yet)")
               D <- 2^d
               m <- 0:(D - 1)
               ## digitsBase() from package 'sfsmisc' {slightly simplified} :
@@ -97,11 +96,7 @@ setMethod("rn", signature(x = "outer_nACopula"),
 ##' @param V0 vector of V0's
 ##' @return list(U = matrix(*,n,d), indCol = vector of length d)
 ##' @author Marius Hofert, Martin Maechler
-setGeneric("rnchild", function(x, n, psi0Inv, theta0, V0, ...)
-           standardGeneric("rnchild"))
-
-setMethod("rnchild", signature(x ="nACopula"),
-	  function(x, n, psi0Inv, theta0, V0,...)
+rnchild <- function(x, n, psi0Inv, theta0, V0,...)
       {
 	  Cp <- x@copula # inner copula
 	  ## Consistency checks -- for now {comment later} :
@@ -123,13 +118,12 @@ setMethod("rnchild", signature(x ="nACopula"),
           ## get correct sorting order:
 	  j <- c(x@comp, unlist(lapply(childL, `[[`, "indCol")))
 	  list(U = mat, indCol = j) # get list and return
-      })
+      }
 
 if(FALSE) { # evaluate the following into your R session if you need debugging:
     trace(rn, browser, exit=browser, signature=signature(x ="outer_nACopula"))
 
-    trace(rnchild, browser, exit=browser, signature=signature(x ="nACopula"))
-
+    debug(rnchild)
 }
 
 ##' Constructor for outer_nACopula
@@ -153,8 +147,7 @@ onACopula <- function(family, nACform) {
         else stopifnot(is.list(c))
         stopifnot(is.numeric(a), length(a) == 1, is.numeric(b))
         if(any(sapply(c, class) != "nACopula"))
-            stop("third entry of 'nACform' must be NULL or) list of 'C(..)'
-terms")
+            stop("third entry of 'nACform' must be NULL or) list of 'C(..)' terms")
         new(cClass, copula = setTheta(COP, a),
             comp = as.integer(b), childCops = c)
     }
