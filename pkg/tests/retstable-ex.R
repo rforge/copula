@@ -1,5 +1,5 @@
 ####  Generating Exponentially Tilted Stable Random Vars (r ET stable)
-####  ==================================================
+####  ================================================================
 ####  --> Experiments with retstable*() versions
 
 require(nacopula)
@@ -376,7 +376,7 @@ plot  (CPUr ~ I(h^alpha * V0), data = dCPU); abline(h=1, col="tomato")
 ##' @author Martin Maechler
 p.cpu <- function(log = "", do.h.eq.1 = TRUE,
 		  main = expression(t[CPU](MH) / t[CPU](LD) *
-		      "	 as " * f(h, alpha, V[0])),
+		      " as " * f(h, alpha, V[0])),
 		  data = dCPU, colT = NULL, pchT = NULL,
 		  pal = brewer.pal(length(alpha), "RdYlGn"),# "Spectral"
 		  ... )
@@ -456,7 +456,7 @@ plot(residuals(mod1) ~ alpha, data=dCPU)
 plot(residuals(mod1) ~ h, data=dCPU)
 plot(residuals(mod1) ~ I(alpha*log(h)), data=dCPU)
 
-## Only look "around"  CPUr == 1   as we want to choose for that
+## Only look "around"  CPUr == 1  as we want to choose for that
 dim(s.CPU <- with(dCPU, dCPU[1 <= V0 & V0 <= 5,])) # - only 165 obs
 summary(mod.1 <- lm(log(CPUr) ~ I(alpha*log(h)) + I((alpha*log(h))^2) + log(V0),
                     data = s.CPU))
