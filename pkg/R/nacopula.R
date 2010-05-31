@@ -97,28 +97,28 @@ setMethod("rn", signature(x = "outer_nACopula"),
 ##' @return list(U = matrix(*,n,d), indCol = vector of length d)
 ##' @author Marius Hofert, Martin Maechler
 rnchild <- function(x, n, psi0Inv, theta0, V0,...)
-      {
-	  Cp <- x@copula # inner copula
-	  ## Consistency checks -- for now {comment later} :
-	  stopifnot(is(Cp, "ACopula"), is.numeric(n), n == as.integer(n),
-		    is.function(psi0Inv), is.numeric(V0), length(V0) == n,
-		    is.numeric(theta0))
-	  theta1 <- Cp@theta # theta_1 for inner copula
-          ## generate V01's (only for one sector since the
-          ## recursion in rn() takes care of all sectors):
-	  V01 <- Cp@V01(V0, theta0,theta1,...)
-	  childL <- lapply(x@childCops, rnchild, # <-- recursion
-                           n=n, psi0Inv = Cp@psiInv, theta0=theta1, V0=V01,...)
-	  dns <- length(x@comp)	# dimension of the non-sectorial part
-	  r <- matrix(runif(n*dns), n, dns) # generate the non-sectorial part
-	  ## put pieces together: first own comp.s, then the children's :
-	  mat <- cbind(r, do.call(cbind, lapply(childL, `[[`, "U")))
-	  mat <- exp(-V0* psi0Inv(Cp@psi(-log(mat)/V01, theta1),
-				  theta0)) # transform
-          ## get correct sorting order:
-	  j <- c(x@comp, unlist(lapply(childL, `[[`, "indCol")))
-	  list(U = mat, indCol = j) # get list and return
-      }
+{
+    Cp <- x@copula # inner copula
+    ## Consistency checks -- for now {comment later} :
+    stopifnot(is(Cp, "ACopula"), is.numeric(n), n == as.integer(n),
+              is.function(psi0Inv), is.numeric(V0), length(V0) == n,
+              is.numeric(theta0))
+    theta1 <- Cp@theta # theta_1 for inner copula
+    ## generate V01's (only for one sector since the
+    ## recursion in rn() takes care of all sectors):
+    V01 <- Cp@V01(V0, theta0,theta1,...)
+    childL <- lapply(x@childCops, rnchild, # <-- recursion
+                     n=n, psi0Inv = Cp@psiInv, theta0=theta1, V0=V01,...)
+    dns <- length(x@comp)	# dimension of the non-sectorial part
+    r <- matrix(runif(n*dns), n, dns) # generate the non-sectorial part
+    ## put pieces together: first own comp.s, then the children's :
+    mat <- cbind(r, do.call(cbind, lapply(childL, `[[`, "U")))
+    mat <- exp(-V0* psi0Inv(Cp@psi(-log(mat)/V01, theta1),
+                            theta0)) # transform
+    ## get correct sorting order:
+    j <- c(x@comp, unlist(lapply(childL, `[[`, "indCol")))
+    list(U = mat, indCol = j) # get list and return
+}
 
 if(FALSE) { # evaluate the following into your R session if you need debugging:
     trace(rn, browser, exit=browser, signature=signature(x ="outer_nACopula"))
