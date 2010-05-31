@@ -33,8 +33,8 @@ corCheck <- function(n,th0,th1,cop){
 prt.tau.diff <- function(c1, c2){
     stopifnot(is.matrix(c1))
     delta.c <- 1000 * abs(c1 - c2)
-    cat(sprintf("Max & Mean distance * 1000 to true pairwise Kendall's taus:
-	%7.1f %7.1f\n",max(delta.c), mean(delta.c)))
+    cat(sprintf("Max & Mean distance * 1000 to true pairwise Kendall's taus: %7.1f %7.1f\n",
+                max(delta.c), mean(delta.c)))
     invisible()
 }
 
