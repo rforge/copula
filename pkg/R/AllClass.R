@@ -1,20 +1,19 @@
-## Copyright (C) 2009-2010 Marius Hofert and Martin Maechler
+## Copyright (C) 2010 Marius Hofert and Martin Maechler
 ##
-##  This program is free software; you can redistribute it and/or modify
-##  it under the terms of the GNU General Public License as published by
-##  the Free Software Foundation; either version 2 or 3 of the License
-##  (at your option).
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later 
+## version.
 ##
-##  This program is distributed in the hope that it will be useful,
-##  but WITHOUT ANY WARRANTY; without even the implied warranty of
-##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##  GNU General Public License for more details.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
 ##
-##  A copy of the GNU General Public License is available at
-##  http://www.r-project.org/Licenses/
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
 
-
-###  ???? Should we try to be compatible to  'Copula' package ??
+### TODO Should we try to be compatible to  'Copula' package ??
 
 ## This has advantage that arithmetic with scalars works "for free" already:
 setClass("interval", contains =  "numeric", # of length 2
