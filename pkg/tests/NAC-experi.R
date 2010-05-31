@@ -9,7 +9,7 @@ eps.tau <- 0.06
 
 doPlots <- (Sys.getenv("USER") == "maechler")
 
-## ==== 3d check functions =======================
+## ==== 3d check functions =====================================================
 
 ##' correlation check function and run time measuring
 ##' @param n number of variates to be drawn
@@ -148,9 +148,9 @@ probin3dcube <- function(cop,l,u) {
                                 - value(cop,l)
 }
 
-## ==== 3d examples =======================
+## ==== 3d examples ============================================================
 
-## ==== AMH ================================
+## ==== AMH ====================================================================
 
 theta0 <- 0.7135 # tau_{12}=tau_{13}=0.2, tau_{23}=0.3
 theta1 <- 0.9430
@@ -189,7 +189,7 @@ u <- c(.4, .7,  .6)
 stopifnot(all.equal(print(  prob(AMH3d,l,u)),
 		    probin3dcube(AMH3d,l,u), tol=1e-14))
 
-## ==== Clayton ================================
+## ==== Clayton ================================================================
 
 theta0 <- 0.5 # tau_{12}=tau_{13}=0.2, tau_{23}=0.5
 theta1 <- 2
@@ -210,7 +210,7 @@ Clayton3d <- onACopula("Clayton", C(theta0, 1, C(theta1, 2:3)))
 stopifnot(all.equal(print(  prob(Clayton3d,l,u)),
 		    probin3dcube(Clayton3d,l,u), tol=1e-14))
 
-## ==== Frank ================================
+## ==== Frank ==================================================================
 
 theta0 <- 1.8609#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
 theta1 <- 5.7363
@@ -228,7 +228,7 @@ Frank3d <- onACopula("F", C(theta0, 1, C(theta1, 2:3)))
 stopifnot(all.equal(print(  prob(Frank3d,l,u)),
 		    probin3dcube(Frank3d,l,u), tol=1e-14))
 
-## ==== Gumbel ================================
+## ==== Gumbel =================================================================
 
 theta0 <- 1.25
 theta1 <- 2    #--> tau_{12}=tau_{13}=0.2, tau_{23}=0.5
@@ -248,7 +248,7 @@ Gumbel3d <- onACopula("Gumbel", C(theta0, 1, C(theta1, 2:3)))
 stopifnot(all.equal(print(  prob(Gumbel3d,l,u)),
 		    probin3dcube(Gumbel3d,l,u), tol=1e-14))
 
-## ==== Joe ================================
+## ==== Joe ====================================================================
 
 theta0 <- 1.4438#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
 theta1 <- 2.8562
@@ -266,7 +266,7 @@ Joe3d <- onACopula("J", C(theta0, 1, C(theta1, 2:3)))
 stopifnot(all.equal(print(  prob(Joe3d,l,u)),
 		    probin3dcube(Joe3d,l,u), tol=1e-14))
 
-## ==== Examples that check value() and rn() ============================
+## ==== Examples that check value() and rn() ===================================
 
 ## generate output for the examples
 prt.stats <- function(c1,c2, rt) {
@@ -275,7 +275,7 @@ prt.stats <- function(c1,c2, rt) {
     prt.tau.diff(c1, c2) ; cat("\n")
 }
 
-## ==== 3d Ali-Mikhail-Haq copula example ===============================
+## ==== 3d Ali-Mikhail-Haq copula example ======================================
 
 c3 <- onACopula("A", C(0.7135, 1, list(C(0.943, 2:3))))
 
@@ -310,7 +310,7 @@ prt.stats(C3,trCorr,rt)
 if(doPlots)
     pairs(rC3, panel = function(...) { par(new = TRUE); smoothScatter(...) })
 
-## ==== 2d Clayton copula example ========================================
+## ==== 2d Clayton copula example ==============================================
 
 c2 <- onACopula("Clayton", C(0.5, c(1,2))) # no childCops
 ## or simply c2 <- onACopula("Clayton", C(0.5, 1:2))
@@ -338,7 +338,7 @@ prt.stats(C2,trCorr,rt)
 if(doPlots)
     smoothScatter(rC2)
 
-## ==== 3d Clayton copula example ========================================
+## ==== 3d Clayton copula example ==============================================
 
 c3 <- onACopula("C", C(0.5, 1, C(2., c(2,3))))
 
@@ -367,7 +367,7 @@ prt.stats(C3,trCorr,rt)
 if(doPlots)
     pairs(rC3, panel = function(...) { par(new = TRUE); smoothScatter(...) })
 
-## ==== 9d Clayton copula example ========================================
+## ==== 9d Clayton copula example ==============================================
 
 c9 <- onACopula("Clayton", C(0.5, c(3,6,1),
 			     C(2., c(9,2,7,5),
@@ -433,7 +433,7 @@ if(doPlots && dev.interactive()) # "large"
           main = paste(n," vectors of a ",d,
           "-dimensional nested Clayton copula",sep = ""))
 
-## ==== 125d Clayton copula example ========================================
+## ==== 125d Clayton copula example ============================================
 
 c125 <- onACopula("Clayton", C(0.5, , # no direct components
                                list(C(2,  1:10),
