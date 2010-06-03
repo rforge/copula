@@ -73,8 +73,8 @@ setMethod("prob", signature(x ="outer_nacopula"),
           })
 
 ##' Returns (n x d)-matrix of random variates
-##' @param x outer_nacopula
 ##' @param n number of vectors of random variates to generate
+##' @param x outer_nacopula
 ##' @return matrix of random variates
 ##' @author Marius Hofert, Martin Maechler
 setGeneric("rnacopula", function(n,x,...) standardGeneric("rnacopula"))
