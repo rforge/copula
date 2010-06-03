@@ -186,7 +186,7 @@ copGumbel <-
 	V01 = function(V0,theta0,theta1) {
 	    alpha <- theta0/theta1
 	    if(alpha == 1) {
-		## Sample from S(1,1,0,V0; 1)
+		## Sample from S(1,1,0,V0;1)
 		## with Laplace-Stieltjes transform exp(-V0*t)
 		V0
 	    } else {
@@ -274,7 +274,7 @@ copJoe <-
         uTDCInv = function(lambda) { log(2)/log(2-lambda) }
         ) ## {copJoe}
 
-### ==== other stuff ===========================================================
+### ==== naming stuff ==========================================================
 
 cNms <- c("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe")
 ## == dput(ls("package:nacopula",pat="^cop"))
@@ -285,3 +285,88 @@ c_shortNames <- structure(sNms, names = nmsC)
 c_longNames  <- structure(nmsC, names = sNms)
 c_objNames   <- structure(cNms, names = nmsC)
 rm(cNms, nmsC, sNms)
+
+### ==== outer power families ==================================================
+
+op <- function(copbase, thetabase, theta){
+    new("acopula", name = paste("op",name,sep=""),
+        ## generator
+        psi = function(t,theta) { copbase@psi(t^(1/theta), thetabase) },
+        psiInv = function(t,theta) { copbase@psiInv(t, thetabase)^theta },
+        ## parameter interval
+        paraInterval = interval("[1,Inf)"),
+        ## nesting constraint
+        nestConstr = function(theta0,theta1) {
+            copbase@paraConstr(theta0) &&
+            copbase@paraConstr(theta1) && theta1 >= theta0
+        },
+        ## V0 and V01
+        V0 = function(n,theta) {  
+            if(theta == 1) {
+                ## Sample from S(1,1,0,1;1)
+                ## with Laplace-Stieltjes transform exp(-t)
+                rep.int(1., n)
+            } else {
+                V0base <- copbase@V0(n,thetabase) # draw from the base generator
+                alpha <- 1/theta
+                ## Sample from S(alpha,1,(cos(alpha*pi/2))^(1/alpha),0;1)
+                ## with Laplace-Stieltjes transform exp(-t^alpha)
+                S <- rstable1(length(V0), alpha, beta=1,
+                              gamma = (cos(alpha*pi/2))^(1/alpha))
+                S*V0base^thetabase   
+            }   
+        },
+        V01 = function(V0,theta0,theta1) {
+            alpha <- theta0/theta1
+            if(alpha == 1) {
+                ## Sample from S(1,1,0,V0;1)
+                ## with Laplace-Stieltjes transform exp(-V0*t)
+                V0
+            } else {
+                rstable1(length(V0), alpha, beta=1,
+                         gamma = (cos(alpha*pi/2)*V0)^(1/alpha))
+                ## Sample from S(alpha,1,(cos(alpha*pi/2)V0)^(1/alpha),0;1)
+                ## with Laplace-Stieltjes transform exp(-V0*t^alpha)
+            }
+        },
+        ## Kendall's tau
+        tau = function(theta) {
+            1-(1-copbase@tau(thetabase))/theta
+        },
+        tauInv = function(tau) {
+            (1-copbase@tau(thetabase))/(1-tau)
+        },
+        ## lower tail dependence coefficient lambda_l
+        lTDC = function(theta) { 
+            if(copbase@name=="copClayton") 2^(-1/(thetabase*theta))
+            else 0*theta	
+	},
+        lTDCInv = function(lambda) {
+            if(copbase@name=="copClayton") {
+		if(lambda >= 2^(-1/thetabase)) -1/(thetabase*log2(lambda))
+		else {
+                    stop("The provided lambda has to be greater than or equal to 2^(-1/thetabase)")
+                    NA * lambda
+                }
+            } else {
+                if(any(lambda != 0))
+                    stop("Any parameter for this outer power copula gives zero lower tail dependence coefficient")
+                NA * lambda
+            }
+        },
+        ## upper tail dependence coefficient lambda_u
+        uTDC = function(theta) { 
+            if(copbase@name=="copGumbel" | copbase@name=="copJoe"){
+                2-2^(1/(thetabase*theta))
+            } else 2-2^(1/(theta))
+	},
+        uTDCInv = function(lambda) {
+            if(copbase@name=="copGumbel" | copbase@name=="copJoe"){
+                if(lambda >= 2-2^(1/thetabase)) 1/(thetabase*log2(2-lambda))
+                else {
+                    stop("The provided lambda has to be greater than or equal to 2-2^(1/thetabase)")
+                    NA * lambda	
+                }
+            } else 1/log2(2-lambda)
+        })
+}
