@@ -8,7 +8,7 @@
   copulas.
 }
 \usage{
-rnchild(x, n, psi0Inv, theta0, V0, ...)
+rnchild(x, theta0, V0, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -16,14 +16,8 @@ rnchild(x, n, psi0Inv, theta0, V0, ...)
     \code{"\linkS4class{nacopula}"}.% typically produced by .....
     % once we *HAVE* a function to create these !
   }
-  \item{n}{integer specifying the sample size, i.e., the number of
-    copula-distributed random vectors \eqn{\mathbf{U}_i}, to be generated.
-  }
-  \item{psi0Inv}{
-    the function \eqn{\psi_0^{-1}}{psi0^(-1)} for ... ... %FIXME
-  }
   \item{theta0}{the parameter (vector) of the copula.}
-  \item{V0}{a numeric vector of length \code{n}, ...}
+  \item{V0}{a numeric vector of length, ...}
   \item{\dots}{further arguments, for some copula families,
     .......
     ....... %% FIXME
