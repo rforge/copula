@@ -84,4 +84,3 @@ rstable1(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
    lines(density(r), col="red2", lwd=2)
 }
 \keyword{distribution}
-

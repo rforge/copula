@@ -1,7 +1,7 @@
 \name{rnacopula}
 \alias{rnacopula}
 \alias{rnacopula-methods}
-\alias{rnacopula,outer_nacopula-method}
+\alias{rnacopula,ANY,outer_nacopula-method}
 \title{Random Vector Generation For 'outer_nacopula's}
 \description{
   Methods for random vector (number) generation of nested archimedean
@@ -10,7 +10,6 @@
 \usage{
 rnacopula(n, x, ...)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{an \R object of \code{\link{class}}
     \code{"\linkS4class{outer_nacopula}"}.% typically produced by .....

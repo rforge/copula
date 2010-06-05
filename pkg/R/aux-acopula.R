@@ -2,7 +2,7 @@
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
-## Foundation; either version 3 of the License, or (at your option) any later 
+## Foundation; either version 3 of the License, or (at your option) any later
 ## version.
 ##
 ## This program is distributed in the hope that it will be useful, but WITHOUT
@@ -109,8 +109,7 @@ retstableR <- function(alpha,V0, h = 1){
 ##' @param method which method to call ("Marius Hofert", "Luc Devroye")
 ##' @return vector of variates St
 ##' @author Martin Maechler
-## FIXME: find sophisticated default-method
-retstableC <- function(alpha, V0, h = 1, method = c("MH","LD")){
+retstableC <- function(alpha, V0, h = 1, method = NULL){
     n <- length(V0)
     stopifnot(n >= 1, is.numeric(alpha), length(alpha) == 1,
               0 < alpha, alpha <= 1,
@@ -119,7 +118,11 @@ retstableC <- function(alpha, V0, h = 1, method = c("MH","LD")){
 	V0 # Laplace-Stieltjes transform exp(-V0*t)
     }
     else {
-	method <- match.arg(method)
+	method <-
+	    if(is.null(method)) {
+		## smart default:
+		if(V0 * h^alpha < 4) "MH" else "LD"
+	    } else match.arg(method, c("MH","LD"))
 	.Call(retstable_c, V0, h = h, alpha, method)
     }
 }
