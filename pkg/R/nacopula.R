@@ -88,10 +88,10 @@ setMethod("rnacopula", signature(x = "outer_nacopula"),
 	  childL <- lapply(x@childCops, rnchild, # <-- start recursion
                            n=n,psi0Inv=Cp@psiInv,theta0=theta,V0=V0,...)
 	  dns <- length(x@comp)	# dimension of the non-sectorial part
-	  r <- matrix(runif(n*dns), n, dns) # generate the non-sectorial part
+	  r <- matrix(rexp(n*dns), n, dns) # generate the non-sectorial part
           ## put pieces together
-	  mat <- cbind(r, do.call(cbind,lapply(childL, `[[`, "U")))
-	  mat <- Cp@psi(-log(mat)/V0, theta=theta) # transform
+          mat <- Cp@psi(r/V0, theta=theta) # transform
+          mat <- cbind(mat, do.call(cbind,lapply(childL, `[[`, "U")))
           ## get correct sorting order:
 	  j <- c(x@comp, unlist(lapply(childL, `[[`, "indCol")))
 	  ## extra checks TODO: comment
@@ -125,11 +125,10 @@ rnchild <- function(x, n, psi0Inv, theta0, V0,...)
     childL <- lapply(x@childCops, rnchild, # <-- recursion
                      n=n, psi0Inv = Cp@psiInv, theta0=theta1, V0=V01,...)
     dns <- length(x@comp)	# dimension of the non-sectorial part
-    r <- matrix(runif(n*dns), n, dns) # generate the non-sectorial part
+    r <- matrix(rexp(n*dns), n, dns) # generate the non-sectorial part
     ## put pieces together: first own comp.s, then the children's :
-    mat <- cbind(r, do.call(cbind, lapply(childL, `[[`, "U")))
-    mat <- exp(-V0* psi0Inv(Cp@psi(-log(mat)/V01, theta1),
-                            theta0)) # transform
+    mat <- Cp@psi(r/V01, theta1) # transform
+    mat <- cbind(mat, do.call(cbind, lapply(childL, `[[`, "U")))
     ## get correct sorting order:
     j <- c(x@comp, unlist(lapply(childL, `[[`, "indCol")))
     list(U = mat, indCol = j) # get list and return
