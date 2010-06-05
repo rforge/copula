@@ -86,7 +86,7 @@ setMethod("rnacopula", signature(x = "outer_nacopula"),
 	  theta <- Cp@theta		# theta for outer copula
 	  V0 <- Cp@V0(n,theta)		# generate V0's
 	  childL <- lapply(x@childCops, rnchild, # <-- start recursion
-                           n=n,psi0Inv=Cp@psiInv,theta0=theta,V0=V0,...)
+                           theta0=theta,V0=V0,...)
 	  dns <- length(x@comp)	# dimension of the non-sectorial part
 	  r <- matrix(rexp(n*dns), n, dns) # generate the non-sectorial part
           ## put pieces together
@@ -106,24 +106,23 @@ setMethod("rnacopula", signature(x = "outer_nacopula"),
 ##' indices.
 ##' @param x nacopula
 ##' @param n number of vectors of random variates to generate
-##' @param psi0Inv function psi^{-1}
 ##' @param theta0 parameter theta0
 ##' @param V0 vector of V0's
 ##' @return list(U = matrix(*,n,d), indCol = vector of length d)
 ##' @author Marius Hofert, Martin Maechler
-rnchild <- function(x, n, psi0Inv, theta0, V0,...)
+rnchild <- function(x, theta0, V0,...)
 {
+    n <- length(V0)
     Cp <- x@copula # inner copula
     ## Consistency checks -- for now {comment later} :
     stopifnot(is(Cp, "acopula"), is.numeric(n), n == as.integer(n),
-              is.function(psi0Inv), is.numeric(V0), length(V0) == n,
-              is.numeric(theta0))
+              is.numeric(V0), length(V0) == n, is.numeric(theta0))
     theta1 <- Cp@theta # theta_1 for inner copula
     ## generate V01's (only for one sector since the
     ## recursion in rnacopula() takes care of all sectors):
     V01 <- Cp@V01(V0, theta0,theta1,...)
     childL <- lapply(x@childCops, rnchild, # <-- recursion
-                     n=n, psi0Inv = Cp@psiInv, theta0=theta1, V0=V01,...)
+                     theta0=theta1, V0=V01,...)
     dns <- length(x@comp)	# dimension of the non-sectorial part
     r <- matrix(rexp(n*dns), n, dns) # generate the non-sectorial part
     ## put pieces together: first own comp.s, then the children's :
