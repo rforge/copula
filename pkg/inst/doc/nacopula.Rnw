@@ -82,7 +82,7 @@
 
 %% for those who use Sweave please include the following line (with % symbols):
 %% MM: this is already part of  jss.cls  (??)
-%\usepackage{Sweave}
+%% need no \usepackage{Sweave.sty}
 
 %% Marius' packages
 \usepackage[american]{babel}%for American English
