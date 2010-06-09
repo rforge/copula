@@ -4,7 +4,8 @@
 \usage{
 safeUroot(f, interval, \dots,
        lower = min(interval), upper = max(interval),
-       f.lower = f(lower), f.upper = f(upper), Sig = NULL,
+       f.lower = f(lower), f.upper = f(upper),
+       Sig = NULL, check.conv = FALSE,
        tol = .Machine$double.eps^0.25, maxiter = 1000, trace = 0)
 }
 \description{
@@ -26,6 +27,8 @@ safeUroot(f, interval, \dots,
   \item{f.lower, f.upper}{function value at \code{lower} or \code{upper}
     endpoint, respectively.}
   \item{Sig}{\emph{desired} sign of \code{f(upper)}, or \code{\link{NULL}}.}
+  \item{check.conv}{logical indicating if a convergence warning from the
+    underlying \code{\link{uniroot}} should be caught as an error.}
   \item{tol}{the desired accuracy, i.e., convergence tolerance.}
   \item{maxiter}{maximal number of iterations}
   \item{trace}{number determining tracing}
@@ -68,5 +71,13 @@ try(uniroot(f2, c(0,2)))
 ## where as safeUroot() simply first enlarges the search interval:
 safeUroot(f1, c(0,10),trace=1)
 safeUroot(f2, c(0,2), trace=2)
+
+## no way to find a zero of a positive function:
+try( safeUroot(exp, c(0,2), trace=TRUE) )
+
+## Convergence checking :
+safeUroot(sinc, c(0,5), maxiter=4) #-> "just" a warning
+try( # an error, now with  check.conv=TRUE
+  safeUroot(sinc, c(0,5), maxiter=4, check.conv=TRUE) )
 }
 \keyword{optimize}

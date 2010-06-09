@@ -29,7 +29,8 @@
 safeUroot <-
     function(f, interval, ...,
 	     lower = min(interval), upper = max(interval),
-	     f.lower = f(lower), f.upper = f(upper), Sig = NULL,
+	     f.lower = f(lower), f.upper = f(upper),
+	     Sig = NULL, check.conv = FALSE,
 	     tol = .Machine$double.eps^0.25, maxiter = 1000, trace = 0)
 {
     if(	  is.null(Sig) && f.lower * f.upper > 0 ||
@@ -42,7 +43,7 @@ safeUroot <-
 	if(is.null(Sig)) {
 	    ## case 1)	'Sig' unspecified --> extend (lower, upper) at the same time
 	    delta <- Delta(c(lower,upper))
-	    while(f.lower*f.upper > 0 && any(iF <- is.finite(c(lower,upper)))) {
+	    while(isTRUE(f.lower*f.upper > 0) && any(iF <- is.finite(c(lower,upper)))) {
 		if(iF[1]) f.lower <- f(lower <- lower - delta[1])
 		if(iF[2]) f.upper <- f(upper <- upper + delta[2])
 		if(trace >= 2)
@@ -54,21 +55,34 @@ safeUroot <-
 	    ## case 2) 'Sig' specified --> typically change only *one* of lower, upper
 	    ## make sure we have Sig*f(lower) < 0 and Sig*f(upper) > 0:
 	    delta <- Delta(lower)
-	    while(Sig*f.lower > 0) {
+	    while(isTRUE(Sig*f.lower > 0)) {
 		f.lower <- f(lower <- lower - delta)
 		if(trace) cat(sprintf(" .. modified lower: %g\n",lower))
 		delta <- 2 * delta
 	    }
 	    delta <- Delta(upper)
-	    while(Sig*f.upper < 0) {
+	    while(isTRUE(Sig*f.upper < 0)) {
 		f.upper <- f(upper <- upper + delta)
 		if(trace) cat(sprintf(" .. modified upper: %g\n",upper))
 		delta <- 2 * delta
 	    }
 	}
 	if(trace && trace < 2)
-	    cat(sprintf("extended to [%g,%g]\n", lower, upper))
+	    cat(sprintf("extended to [%g, %g]\n", lower, upper))
     }
-    uniroot(f, ..., lower=lower, upper=upper, f.lower = f.lower, f.upper = f.upper,
-	    tol=tol, maxiter=maxiter)
+    if(!isTRUE(f.lower * f.upper <= 0))
+	stop("did not succeed extending the interval endpoints for f(lower) * f(upper) <= 0")
+    if(check.conv) {
+	r <- tryCatch(uniroot(f, ..., lower=lower, upper=upper,
+			      f.lower = f.lower, f.upper = f.upper,
+			      tol=tol, maxiter=maxiter),
+		      warning = function(w)w)
+	if(inherits(r,"warning"))
+	    stop("convergence problem in zero finding: ", r$message)
+	else r
+    }
+    else
+	uniroot(f, ..., lower=lower, upper=upper,
+		f.lower = f.lower, f.upper = f.upper,
+		tol=tol, maxiter=maxiter)
 }

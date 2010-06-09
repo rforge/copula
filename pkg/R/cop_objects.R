@@ -2,7 +2,7 @@
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
-## Foundation; either version 3 of the License, or (at your option) any later 
+## Foundation; either version 3 of the License, or (at your option) any later
 ## version.
 ##
 ## This program is distributed in the hope that it will be useful, but WITHOUT
@@ -52,8 +52,8 @@ copAMH <-
             sapply(tau,function(tau) {
 		r <- safeUroot(function(th) copAMH@tau(th) - tau,
 			       interval = c(1e-12, 1-1e-12), Sig = +1,
-                               tol = tol, ...)
-                r$root ## FIXME: check for convergence
+                               tol = tol, check.conv=TRUE, ...)
+                r$root
             })
         },
         ## lower tail dependence coefficient lambda_l
@@ -135,8 +135,8 @@ copFrank <-
 	tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
 	    sapply(tau, function(tau) {
 		r <- safeUroot(function(th) copFrank@tau(th) - tau,
-			       interval = c(0.001,100), Sig = +1, tol=tol, ...)
-                ## FIXME: check for convergence
+			       interval = c(0.001,100), Sig = +1, tol=tol,
+			       check.conv=TRUE, ...)
                 r$root
             })
         },
@@ -257,8 +257,8 @@ copJoe <-
         tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
             sapply(tau,function(tau) {
 		r <- safeUroot(function(th) copJoe@tau(th) - tau,
-			       interval = c(1.001, 100), Sig = +1, tol=tol, ...)
-                ## FIXME: check for convergence
+			       interval = c(1.001, 100), Sig = +1, tol=tol,
+			       check.conv=TRUE, ...)
                 r$root
             })
         },

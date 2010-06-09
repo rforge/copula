@@ -1,3 +1,7 @@
+2010-06-09  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/safeUroot.R: add 'check.conv' argument.
+
 2010-05-06  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/rstable1.R (rstable1C): use rstable1 := rstable1C
