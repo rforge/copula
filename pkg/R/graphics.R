@@ -2,7 +2,7 @@
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
-## Foundation; either version 3 of the License, or (at your option) any later 
+## Foundation; either version 3 of the License, or (at your option) any later
 ## version.
 ##
 ## This program is distributed in the hope that it will be useful, but WITHOUT
@@ -15,42 +15,55 @@
 
 ##' Plots a scatterplot matrix of the provided data
 ##' @param data data matrix
-##' @param device
-##' @param color bool if the plot is colored
-##' @param outfilename name of the outfile (without file ending)
+##' @param device graphic device to be used - as in trellis.device()
+##' @param color  - logical indicating if the plot is colored (as in trellis.device)
+##' @param outfilename name of the output file (without file ending)
 ##' @param varnames variable names to be printed on the diagonal
 ##' @param ... additional arguments passed to the splom call
-##' @return none
+##' @return the lattice / grid plot object, invisibly
 ##' @author Marius Hofert, Martin Maechler
-require(lattice)
-spm <- function(data, dev = c("pdf", "postscript", "png"), 
-                color = !(dev.name == "postscript"), outfilename = "plot", ...){
-    data <- as.matrix(data)
-    stopifnot(is.matrix(data), # check data coercion  
-              all(dev %in% c("pdf", "postscript", "png")), # check device 
-              all(color %in% c(TRUE,FALSE)), # check color
-              is.character(outfilename) # check outfile name
-              ) 
-    
-    d <- dim(data)[2] # get the dimension of the data
-    ## if(varnames argument to splom is not provided){ # build default vector of varnames
-    vec <- "U[1]"
-    for(i in 2:d) vec <- c(vec,paste("U[",i,"]",sep=""))
-    varnames <- expression(vec)
-    ## }
-    outfile <- getwd() # build outfile path
-    outfile <- paste(outfile,outfilename,sep="")
-    if(dev == "pdf"){
-	outfile <- paste(outfile,".pdf",sep="")
-    } else if(dev == "postscript"){
-	outfile <- paste(outfile,".ps",sep="")
-    } else {
-	outfile <- paste(outfile,".png",sep="")
+splom2 <- function(data, device = getOption("device"),
+		   color = !(dev.name == "postscript"),
+		   useKerning = FALSE, ## <--- FIXME  wieso ???
+		   varnames = NULL, Vname = "U", outfilename = "splom2", ...)
+{
+    stopifnot(require(lattice),
+	      is.numeric(data <- as.matrix(data)),
+	      (d <- ncol(data)) >= 1, # numeric matrix
+	      is.character(outfilename))
+
+    dev.name <-
+        if (is.character(device)) device else deparse(substitute(device))
+    if(is.null(varnames)) {
+	varnames <- do.call(expression,
+			    lapply(1:d, function(i)
+				   substitute(A[I], list(A = as.name(Vname), I=0+i))))
     }
-    ## call splom
-    trellis.device(device = dev, color = color,file = outfile, 
-                   useKerning = FALSE)
-    print(splom(~data[,1:d], ...))
-    dev.off()
+    isdeviceFile <- dev.name %in% c("pdf", "postscript", "png")
+
+    ## AAARGH:  splom() will *NOT* work with  expression  varnames
+    ## but the simple pairs() actually does:
+    ## pairs(data, varNames, gap=0)   # ok
+
+    if(isdeviceFile) {
+        file <- paste(outfilename,
+                      switch(device,
+                             pdf = "pdf",
+                             postscript = "ps",
+                             png = "png"),
+                      sep = ".")
+        trellis.device(device = device, color = color, file = file,
+                       useKerning=useKerning)
+    }
+    else
+        trellis.device(device = device, color = color)
+
+    print(G <- splom(~data[,1:d], varnames = varnames, ...))
+
+    if(isdeviceFile) {
+        cat("closing trellis.device",.Device, "\n")
+        dev.off()
+    }
+    invisible(G)
 }
 
