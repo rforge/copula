@@ -3,9 +3,8 @@
 \title{All Components of a (Inner or Outer) Nested Archimedean Copula}
 \description{
   Return Integer Vector of the \emph{indices} of all components for
-  which the nested archimedean copula \code{x} is defined.
-  %% TODO, the above is too imprecise
-  \cr
+  which the nested archimedean copula \code{x} is defined.\cr
+  %% FIXME, the above is too imprecise
   This is typically only used by programmers investigating the exact
   nesting structure.
 

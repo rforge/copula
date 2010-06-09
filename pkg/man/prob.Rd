@@ -20,7 +20,7 @@ prob(x, l, u)
     \eqn{0 \le l_i \le u_i \le 1}{0 <= l_i <= u_i <= 1}, for \eqn{i = 1,\dots,d}.}
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+ ... %% FIXME
 }
 \section{Methods}{
   \describe{
@@ -46,6 +46,5 @@ prob(C3d.AMH, l = c(.1, .2, .3),
               u = c(.3, .3, .5))
 ##-> 0.005662
 }
-\keyword{ ~kwd1 }
 \keyword{methods}
 

@@ -38,4 +38,3 @@ pnacopula(x, u)
 %% TODO
 }
 \keyword{methods}
-
