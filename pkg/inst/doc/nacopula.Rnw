@@ -4,9 +4,7 @@
 %%%%%%%%%%%%
 
 %% almost as usual
-\author{Marius Hofert\footnote{The author (Willis Research Fellow) thanks Willis
-    Re for financial support while this paper was completed.}% todo: footnote does not appear
-  \\ETH Zurich \And
+\author{Marius Hofert \\ETH Zurich \And
  Martin M\"achler \\ ETH Zurich}
 \title{Nested Archimedean Copulas---The R package \pkg{nacopula}}
 
@@ -21,27 +19,27 @@
 
 %% an abstract and keywords
 \Abstract{
-  Sampling algorithms for multivariate distributions are indispensable for many
- applications in the areas of statistics and finance. By Sklar's Theorem, it
- suffices to sample the common dependence structure, given by a copula, and
- transform the obtained variates to the correct margins with the corresponding
- univariate distributions. Therefore, the sampling problem boils down to
- sampling the copula under consideration. Besides elliptical copulas,
- Archimedean copulas are among the most famous classes of copulas. These copulas
- can be generalized to the class of nested Archimedean copulas, which allows for
- hierarchical structures, i.e., asymmetries, and is therefore more flexible.
- Hierarchical structures of the kind implied by nested Archimedean copulas often
- appear in models for high-dimensional portfolios, e.g., in risk-management
- applications.
-  \par
-  The \pkg{nacopula} package provides procedures for constructing arbitrary
- nested Archimedean copulas (with any kind of nesting structure in any kind of
- dimension), generating vectors of random variates from nested Archimedean
- copulas and drawing scatter-plot matrices, computing function values and
- probabilities of falling into hypercubes, as well as evaluation of
- characteristics such as Kendall's tau and tail-dependence coefficients. As a
- by-product, algorithms for different distributions, including exponentially
- tilted stable distributions, are implemented. Detailed examples are given.
+Sampling algorithms for multivariate distributions are indispensable for many
+applications in the areas of statistics and finance. By Sklar's Theorem, it
+suffices to sample the common dependence structure, given by a copula, and
+transform the obtained variates to the correct margins with the corresponding
+univariate distributions. Therefore, the sampling problem usually boils down to
+sampling the copula under consideration. Besides elliptical copulas,
+Archimedean copulas are among the most important classes of copulas. These 
+copulas can be generalized to the class of nested Archimedean copulas, which
+allows for hierarchical structures, i.e., asymmetries, and is therefore more
+flexible. Hierarchical structures of the kind implied by nested Archimedean
+copulas often appear in models for high-dimensional portfolios, e.g., in
+risk-management applications.
+\par
+The \pkg{nacopula} package provides procedures for constructing arbitrary
+nested Archimedean copulas (with any kind of nesting structure in any
+dimension), generating vectors of random variates from nested Archimedean
+copulas, computing function values and probabilities of falling into hypercubes,
+as well as evaluation of characteristics such as Kendall's tau and
+tail-dependence coefficients. As a by-product, algorithms for different
+distributions, including exponentially tilted stable distributions, are
+implemented. Detailed examples are given.
 }
 \Keywords{Archimedean copulas, nested Archimedean copulas, sampling algorithms,
  Kendall's tau, tail-dependence coefficients, exponentially tilted stable
@@ -409,8 +407,8 @@ copClayton @ tau(theta) # 0.5 because theta was chosen in this way !
 round(cor(U3, method="kendall"), 3) # off-diagonal entries should be close to .5
 
 ## the lower and upper tail-dependence coefficients:
-c(copClayton @ lTDC(theta),
-  copClayton @ uTDC(theta))
+c(copClayton @ lambdaL(theta),
+  copClayton @ lambdaU(theta))
 @
 
 
@@ -691,7 +689,11 @@ the package \pkg{nacopula}.
 \end{figure}
 
 todo marius: 9d nested Clayton copula beschreiben
-
+todo mcneil algo wieder einbauen
+todo lambdas im code
+todo *alles* committen (auch bib file)
+todo \footnote{The author (Willis Research Fellow) thanks Willis
+    Re for financial support while this paper was completed.}
 todo Martin: introduce classes, technical stuff important for the paper
 %%   =======
 
@@ -702,7 +704,7 @@ toLatex(sessionInfo())
 @
 
 \section{conclusion}
-	todo marius: write!
-
+The package \pkg{nacopula} allows to easily construct and and work with nested
+Archimedean copulas. First and foremost, sampling algorithms for these copulas are implemented. As a by-products, the package implements, e.g., an efficient sampling algorithm for exponentially tilted stable distributions. Further features include the evaluation of nested Archimedean copulas, as well as computing probabilities of a random vector falling into a given hypercube. Concerning measures of association, Kendall's tau and the tail-dependence coefficients are implemented. Currently supported Archimedean families include the one of Ali-Mikhail-Haq, Clayton, Frank, Gumbel, and Joe.
 \bibliography{mh-biblio}
 \end{document}

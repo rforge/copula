@@ -57,15 +57,15 @@ copAMH <-
             })
         },
         ## lower tail dependence coefficient lambda_l
-        lTDC = function(theta) { 0*theta },
-        lTDCInv = function(lambda) {
+        lambdaL = function(theta) { 0*theta },
+        lambdaLInv = function(lambda) {
             if(any(lambda != 0))
                 stop("Any parameter for an Ali-Mikhail-Haq copula gives zero lower tail dependence coefficient")
             NA * lambda
         },
         ## upper tail dependence coefficient lambda_u
-        uTDC = function(theta) { 0*theta },
-        uTDCInv = function(lambda) {
+        lambdaU = function(theta) { 0*theta },
+        lambdaUInv = function(lambda) {
             if(any(lambda != 0))
                 stop("Any parameter for an Ali-Mikhail-Haq copula gives zero upper tail dependence coefficient")
             NA * lambda
@@ -92,11 +92,11 @@ copClayton <-
         tau = function(theta) { theta/(theta+2) },
         tauInv = function(tau) { 2*tau/(1-tau) },
         ## lower tail dependence coefficient lambda_l
-        lTDC = function(theta) { 2^(-1/theta) },
-        lTDCInv = function(lambda) { -1/log2(lambda) },
+        lambdaL = function(theta) { 2^(-1/theta) },
+        lambdaLInv = function(lambda) { -1/log2(lambda) },
         ## upper tail dependence coefficient lambda_u
-        uTDC = function(theta) { 0*theta },
-        uTDCInv = function(lambda) {
+        lambdaU = function(theta) { 0*theta },
+        lambdaUInv = function(lambda) {
             if(any(lambda != 0))
                 stop("Any parameter for a CLayton copula gives zero upper tail dependence coefficient")
             NA * lambda
@@ -141,15 +141,15 @@ copFrank <-
             })
         },
         ## lower tail dependence coefficient lambda_l
-        lTDC = function(theta) { 0*theta },
-        lTDCInv = function(lambda) {
+        lambdaL = function(theta) { 0*theta },
+        lambdaLInv = function(lambda) {
             if(any(lambda != 0))
                 stop("Any parameter for a Frank copula gives zero lower tail dependence coefficient")
             NA * lambda
         },
         ## upper tail dependence coefficient lambda_u
-        uTDC = function(theta) { 0*theta },
-        uTDCInv = function(lambda) {
+        lambdaU = function(theta) { 0*theta },
+        lambdaUInv = function(lambda) {
             if(any(lambda != 0))
                 stop("Any parameter for a Frank copula gives zero upper tail dependence coefficient")
             NA * lambda
@@ -200,15 +200,15 @@ copGumbel <-
         tau = function(theta) { (theta-1)/theta },
         tauInv = function(tau) { 1/(1-tau) },
         ## lower tail dependence coefficient lambda_l
-        lTDC = function(theta) { 0*theta },
-        lTDCInv = function(lambda) {
+        lambdaL = function(theta) { 0*theta },
+        lambdaLInv = function(lambda) {
             if(any(lambda != 0))
                 stop("Any parameter for a Gumbel copula gives zero lower tail dependence coefficient")
             NA * lambda
         },
         ## upper tail dependence coefficient lambda_u
-        uTDC = function(theta) { 2 - 2^(1/theta) },
-        uTDCInv = function(lambda) { 1/log2(2-lambda) }
+        lambdaU = function(theta) { 2 - 2^(1/theta) },
+        lambdaUInv = function(lambda) { 1/log2(2-lambda) }
         ) # {copGumbel}
 
 ### ==== Joe, see Nelsen (2007) p. 116, # 6 ====================================
@@ -263,15 +263,15 @@ copJoe <-
             })
         },
         ## lower tail dependence coefficient lambda_l
-        lTDC = function(theta) { 0*theta },
-        lTDCInv = function(lambda) {
+        lambdaL = function(theta) { 0*theta },
+        lambdaLInv = function(lambda) {
             if(any(lambda != 0))
                 stop("Any parameter for a Joe copula gives zero lower tail dependence coefficient")
             NA * lambda
         },
         ## upper tail dependence coefficient lambda_u
-        uTDC = function(theta) { 2-2^(1/theta) },
-        uTDCInv = function(lambda) { log(2)/log(2-lambda) }
+        lambdaU = function(theta) { 2-2^(1/theta) },
+        lambdaUInv = function(lambda) { log(2)/log(2-lambda) }
         ) ## {copJoe}
 
 ### ==== naming stuff ==========================================================

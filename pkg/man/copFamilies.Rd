@@ -23,19 +23,19 @@ copJoe
 \format{
   All these are objects of formal class \code{"\linkS4class{acopula}"}.
   with 13 slots
-  ..@ name      : chr "AMH"  (or "Clayton" ....)
-  ..@ psi       :function (t, theta)
-  ..@ psiInv    :function (t, theta)
-  ..@ paraConstr:function (theta)
-  ..@ V0        :function (n, theta)
-  ..@ tau       :function (theta)
-  ..@ tauInv    :function (tau)
-  ..@ lTDC      :function (theta)
-  ..@ lTDCInv   :function (lambda)
-  ..@ uTDC      :function (theta)
-  ..@ uTDCInv   :function (lambda)
-  ..@ nestConstr:function (theta0, theta1)
-  ..@ V01       :function (V0, theta0, theta1)
+  ..@ name      	 :chr "AMH"  (or "Clayton" ....)
+  ..@ psi       	 :function (t, theta)
+  ..@ psiInv    	 :function (t, theta)
+  ..@ paraConstr	 :function (theta)
+  ..@ V0        	 :function (n, theta)
+  ..@ tau       	 :function (theta)
+  ..@ tauInv       :function (tau)
+  ..@ lambdaL      :function (theta)
+  ..@ lambdaLInv   :function (lambda)
+  ..@ lambdaU      :function (theta)
+  ..@ lambdaUInv   :function (lambda)
+  ..@ nestConstr	 :function (theta0, theta1)
+  ..@ V01       	 :function (V0, theta0, theta1)
 }
 \details{
   \code{copAMH} : ....

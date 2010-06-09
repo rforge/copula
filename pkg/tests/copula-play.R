@@ -58,13 +58,13 @@ p.Tau(copJoe, ylim = 0:1, yaxs="i")
 ##' @param i10 values where psi is evaluated
 ##' @param nRnd number of generated V0's and V01's
 ##' @param t01 values where psiinv is evaluated
-##' @param lTDCvec vector of lower tail-dependence coefficients
-##' @param uTDCvec vector of upper tail-dependence coefficients
+##' @param lambdaLvec vector of lower tail-dependence coefficients
+##' @param lambdaUvec vector of upper tail-dependence coefficients
 ##' @return list of measurements
 ##' @author Marius Hofert, Martin Maechler
 tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
                    nRnd = 50, t01 = (1:63)/64, # exact binary fractions
-                   lTDCvec = NA_real_, uTDCvec = NA_real_)
+                   lambdaLvec = NA_real_, lambdaUvec = NA_real_)
 {
     stopifnot(is(cop, "acopula"))
     cat0 <- function(...) cat(..., "\n", sep = "")
@@ -113,20 +113,20 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     CT <- c(CT, list(tauI = system.time(ta.I <- cop@tauInv(ta))))
     cat0("check if tauInv(tau(thetavec))==thetavec: ",
          all.equal(ta.I, thetavec))
-    lTDCvec <- rep(as.double(lTDCvec), length.out= nt)
-    uTDCvec <- rep(as.double(uTDCvec), length.out= nt)
-    cat("\n(6) lTDC at thetavec:\n")
-    CT <- c(CT, list(lTDC = system.time(lT <- cop@lTDC(thetavec))))
-    CT <- c(CT, list(lT.I = system.time(lT.I <- cop@lTDCInv(lT))))
+    lambdaLvec <- rep(as.double(lambdaLvec), length.out= nt)
+    lambdaUvec <- rep(as.double(lambdaUvec), length.out= nt)
+    cat("\n(6) lambdaL at thetavec:\n")
+    CT <- c(CT, list(lambdaL = system.time(lT <- cop@lambdaL(thetavec))))
+    CT <- c(CT, list(lT.I = system.time(lT.I <- cop@lambdaLInv(lT))))
     print(lT)
-    cat0("check if lTDCInv(lTDC(thetavec))==lTDCvec: ", 
-         all.equal(lT.I, lTDCvec))
-    cat("\n(7) uTDC at thetavec:\n")
-    CT <- c(CT, list(uTDC = system.time(uT <- cop@uTDC(thetavec))))
-    CT <- c(CT, list(uT.I = system.time(uT.I <- cop@uTDCInv(uT))))
+    cat0("check if lambdaLInv(lambdaL(thetavec))==lambdaLvec: ", 
+         all.equal(lT.I, lambdaLvec))
+    cat("\n(7) lambdaU at thetavec:\n")
+    CT <- c(CT, list(lambdaU = system.time(uT <- cop@lambdaU(thetavec))))
+    CT <- c(CT, list(uT.I = system.time(uT.I <- cop@lambdaUInv(uT))))
     print(uT)
-    cat0("check if uTDCInv(uTDC(thetavec))==uTDCvec: ",
-         all.equal(uT.I, uTDCvec))
+    cat0("check if lambdaUInv(lambdaU(thetavec))==lambdaUvec: ",
+         all.equal(uT.I, lambdaUvec))
     class(CT) <- "proc_time_list"
     CT
 }
@@ -151,7 +151,7 @@ tstCop(myAMH, 0.9429679, thetavec = thetavec)
 
 myClayton <- setTheta(copClayton, 0.5)
 thetavec <- c(0.5,1,2,5,10)
-tstCop(myClayton, 2, thetavec, lTDC = thetavec, uTDC = NA)
+tstCop(myClayton, 2, thetavec, lambdaL = thetavec, lambdaU = NA)
 
 ##' ==== copFrank ===
 
@@ -171,10 +171,10 @@ stopifnot(all.equal(tau.th, tau.F, tol = 0.0001),
 
 myGumbel <- setTheta(copGumbel, 1.25)
 thetavec <- c(1,2,4,6,10)
-tstCop(myGumbel,2, thetavec, lTDC = NA, uTDC = thetavec)
+tstCop(myGumbel,2, thetavec, lambdaL = NA, lambdaU = thetavec)
 
 ##' ==== copJoe ===
 
 myJoe <- setTheta(copJoe, 1.25)
 thetavec <- c(1.1,2,4,6,10)
-tstCop(myJoe, 2, thetavec, lTDC = NA, uTDC = thetavec)
+tstCop(myJoe, 2, thetavec, lambdaL = NA, lambdaU = thetavec)

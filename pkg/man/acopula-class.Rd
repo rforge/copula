@@ -39,10 +39,10 @@
     \item{\code{V0}:}{Object of class \code{"function"} ~~ }
     \item{\code{tau}:}{Object of class \code{"function"} ~~ }
     \item{\code{tauInv}:}{Object of class \code{"function"} ~~ }
-    \item{\code{lTDC}:}{Object of class \code{"function"} ~~ }
-    \item{\code{lTDCInv}:}{Object of class \code{"function"} ~~ }
-    \item{\code{uTDC}:}{Object of class \code{"function"} ~~ }
-    \item{\code{uTDCInv}:}{Object of class \code{"function"} ~~ }
+    \item{\code{lambdaL}:}{Object of class \code{"function"} ~~ }
+    \item{\code{lambdaLInv}:}{Object of class \code{"function"} ~~ }
+    \item{\code{lambdaU}:}{Object of class \code{"function"} ~~ }
+    \item{\code{lambdaUInv}:}{Object of class \code{"function"} ~~ }
     \item{\code{nestConstr}:}{Object of class \code{"function"} ~~ }
     \item{\code{V01}:}{Object of class \code{"function"} ~~ }
   }

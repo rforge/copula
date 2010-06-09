@@ -40,10 +40,10 @@ setClass("acopula",
                         V0 = "function",	# of (n,theta) -- RNGenerator
                         tau= "function",	# of (theta)
                         tauInv = "function",    # of (tau)
-                        lTDC = "function",    # of (theta) lower bound  \lambda_l
-                        lTDCInv = "function", # of (lambda) - Inverse of \lambda_l
-                        uTDC = "function",    # of (theta)  - upper bound  \lambda_u
-                        uTDCInv = "function", # of (lambda) - Inverse of \lambda_u
+                        lambdaL = "function",    # of (theta) lower bound  \lambda_l
+                        lambdaLInv = "function", # of (lambda) - Inverse of \lambda_l
+                        lambdaU = "function",    # of (theta)  - upper bound  \lambda_u
+                        lambdaUInv = "function", # of (lambda) - Inverse of \lambda_u
 
                         ## Nesting properties if the child copulas are of the same family :
                         nestConstr = "function", # of (th0, th1) ; TRUE <==> "fulfilled"
