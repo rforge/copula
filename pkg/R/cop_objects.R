@@ -60,14 +60,14 @@ copAMH <-
         lambdaL = function(theta) { 0*theta },
         lambdaLInv = function(lambda) {
             if(any(lambda != 0))
-                stop("Any parameter for an Ali-Mikhail-Haq copula gives zero lower tail dependence coefficient")
+                stop("Any parameter for an Ali-Mikhail-Haq copula gives lambdaL = 0")
             NA * lambda
         },
         ## upper tail dependence coefficient lambda_u
         lambdaU = function(theta) { 0*theta },
         lambdaUInv = function(lambda) {
             if(any(lambda != 0))
-                stop("Any parameter for an Ali-Mikhail-Haq copula gives zero upper tail dependence coefficient")
+                stop("Any parameter for an Ali-Mikhail-Haq copula gives lambdaU = 0")
             NA * lambda
         })
 
@@ -98,7 +98,7 @@ copClayton <-
         lambdaU = function(theta) { 0*theta },
         lambdaUInv = function(lambda) {
             if(any(lambda != 0))
-                stop("Any parameter for a CLayton copula gives zero upper tail dependence coefficient")
+                stop("Any parameter for a CLayton copula gives lambdaU = 0")
             NA * lambda
         })
 
@@ -144,14 +144,14 @@ copFrank <-
         lambdaL = function(theta) { 0*theta },
         lambdaLInv = function(lambda) {
             if(any(lambda != 0))
-                stop("Any parameter for a Frank copula gives zero lower tail dependence coefficient")
+                stop("Any parameter for a Frank copula gives lambdaL = 0")
             NA * lambda
         },
         ## upper tail dependence coefficient lambda_u
         lambdaU = function(theta) { 0*theta },
         lambdaUInv = function(lambda) {
             if(any(lambda != 0))
-                stop("Any parameter for a Frank copula gives zero upper tail dependence coefficient")
+                stop("Any parameter for a Frank copula gives lambdaU = 0")
             NA * lambda
         })
 
@@ -203,7 +203,7 @@ copGumbel <-
         lambdaL = function(theta) { 0*theta },
         lambdaLInv = function(lambda) {
             if(any(lambda != 0))
-                stop("Any parameter for a Gumbel copula gives zero lower tail dependence coefficient")
+                stop("Any parameter for a Gumbel copula gives lambdaL = 0")
             NA * lambda
         },
         ## upper tail dependence coefficient lambda_u
@@ -266,7 +266,7 @@ copJoe <-
         lambdaL = function(theta) { 0*theta },
         lambdaLInv = function(lambda) {
             if(any(lambda != 0))
-                stop("Any parameter for a Joe copula gives zero lower tail dependence coefficient")
+                stop("Any parameter for a Joe copula gives lambdaL = 0")
             NA * lambda
         },
         ## upper tail dependence coefficient lambda_u
