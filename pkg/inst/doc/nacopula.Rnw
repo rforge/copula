@@ -395,8 +395,7 @@ and visualize the generated data with a scatter-plot matrix.
 <<ex1-splom, fig=TRUE, height=5>>=
 set.seed(1)
 dim(U3 <- rnacopula(500, claytonCop))
-require(lattice)
-print(splom(~ U3, varnames = paste("U", 1:3, sep="_"), cex = 0.4))
+print(splom2(U3, cex = 0.4))
 @
 %% "FIXME" : maybe use something like our  splom2 in the future (everywhere)
 
@@ -726,9 +725,13 @@ distributions) and visualize the generated data with a scatter-plot matrix.
 <<ex2-splom, fig=TRUE, height=9>>=
 set.seed(1)
 dim(U9 <- rnacopula(500, C_9_clayton))
+## For plotting, re-order the columns, according to their copula "neigborhood":
+j <- allComp(C_9_clayton)
+(vnames <- do.call(expression,
+                   lapply(j, function(i) substitute( U[I], list(I=0+i)))))
 require(lattice)
-print(splom(~ U9, varnames = paste("U", 1:9, sep="_"),
-            cex = 0.4, pscales = 0))
+print(splom2(U9[, j], varnames= vnames,
+             cex = 0.4, pscales = 0))
 @
 
 The population version of Kendall's tau for $(U_4,U_5)\tr$ is 0.5. Let us check
@@ -789,7 +792,6 @@ First, we define the outer power transformation \texttt{op} which generates an
 outer power family based on the provided copula family \texttt{copbase} with
 corresponding parameter \texttt{thetabase}.
 <<ex3-definition>>=
-require(nacopula)
 op <- function(copbase, thetabase){
     new("acopula", name = paste("op", copbase@name, sep=""),
         ## generator
@@ -901,8 +903,7 @@ if(FALSE){
 
     ## Sample 500 random variates from this copula and plot the data
     dim(U3 <- rnacopula(500, opClayton))
-    splom(~ U3, varnames = paste("U", 1:3, sep="_"), cex = 0.4)
-
+    splom2(U3, cex = 0.4)
 }
 ## currently not supported (end)
 @
@@ -914,16 +915,15 @@ set.seed(1)
 V0 <- opClayton@V0(500, theta0)
 V01 <- opClayton@V01(V0, theta0, theta1)
 ## (2) build U
-U1 <- opClayton@psi(rexp(500)/V0, theta0)
-U2 <- opClayton@psi(rexp(500)/V01, theta1)
-U3 <- opClayton@psi(rexp(500)/V01, theta1)
-U <- cbind(U1, U2, U3)
+U <- cbind(
+           opClayton@psi(rexp(500)/V0,  theta0),
+           opClayton@psi(rexp(500)/V01, theta1),
+           opClayton@psi(rexp(500)/V01, theta1))
 @
 
 Let us visualize the generated data with a scatter-plot matrix.
 <<ex3-splom, fig=TRUE, height=5>>=
-require(lattice)
-print(splom(~ U, varnames = paste("U", 1:3, sep="_"), cex = 0.4))
+print(splom2(U, cex = 0.4))
 @
 
 Further, we can compare the population and sample versions of Kendall's tau for

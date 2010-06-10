@@ -4,7 +4,8 @@
 \alias{outer_nacopula-class}
 \alias{nacopula-class}
 \alias{dim,nacopula-method}
-
+\alias{show,acopula-method}
+%
 \title{Class "nacopula" of Nested Archimedean Copulas}
 \description{
   The class of Nested Archimedean Copulas, \code{"nacopula"},
@@ -36,6 +37,7 @@
     \item{dim}{\code{signature(x = "nacopula")}: returns the dimension
       \eqn{d} of the random variables, i.e., the dimension of \eqn{u}
       when the nac describes the distribution of \eqn{U = u}.}
+    \item{show}{\code{signature("acopula")}: compact overview of the copula.}
   }
 }
 % \note{ ~~further notes~~ }

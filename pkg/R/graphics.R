@@ -13,6 +13,31 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
+##' @title A scatterplot matrix [SPLOM] with nice variable names
+##' @param data numeric matrix or as.matrix(.)able
+##' @param varnames variable names, typically unspecified
+##' @param Vname character string to become "root variable name"
+##' @param ... further arguments to splom()
+##' @return a splom() object
+##' @author Martin Maechler
+splom2 <- function(data, varnames = NULL, Vname = "U", ...)
+{
+    stopifnot(require(lattice),
+	      is.numeric(data <- as.matrix(data)),
+	      (d <- ncol(data)) >= 1)
+    if(is.null(varnames)) {
+	varnames <- do.call(expression,
+			    lapply(1:d, function(i)
+				   substitute(A[I], list(A = as.name(Vname), I=0+i))))
+    }
+    ## From Deepayan Sarkar, working around missing feature
+    ##		(which should be in next release) of lattice
+    my.diag.panel <- function(x, varname, ...)
+        diag.panel.splom(x, varname = parse(text = varname), ...)
+    splom(~data[,1:d], varnames = varnames, diag.panel = my.diag.panel, ...)
+}
+
+
 ##' Plots a scatterplot matrix of the provided data
 ##' @param data data matrix
 ##' @param device graphic device to be used - as in trellis.device()
@@ -22,7 +47,7 @@
 ##' @param ... additional arguments passed to the splom call
 ##' @return the lattice / grid plot object, invisibly
 ##' @author Marius Hofert, Martin Maechler
-splom2 <- function(data, device = getOption("device"),
+splomFOO <- function(data, device = getOption("device"),
 		   color = !(dev.name == "postscript"),
 		   useKerning = FALSE, ## <--- FIXME  wieso ???
 		   varnames = NULL, Vname = "U", outfilename = "splom2", ...)
