@@ -7,6 +7,7 @@
 \alias{initialize,acopula-method}
 \alias{setTheta}
 \alias{setTheta,acopula-method}
+\alias{show,acopula-method}
 %
 \description{
   This class \code{"acopula"} Archimedean Copula Families
@@ -60,6 +61,7 @@
       for construction of actual copula \dQuote{models} with a specified
       parameter.
     }
+    \item{show}{\code{signature("acopula")}: compact overview of the copula.}
   }
 }
 % \references{ ~put references to the literature/web site here ~ }
@@ -70,6 +72,7 @@
 }
 \examples{
 showClass("acopula")
+copClayton
 str(copClayton)
 }
 \keyword{classes}

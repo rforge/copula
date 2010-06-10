@@ -36,11 +36,12 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"setTheta"
        ,"allComp" # <- maybe keep private ?
        ,"safeUroot"
+       ## ,"splom2
        )
 
 exportMethods(## for both own and "other" generics:
 	      "pnacopula", "prob", "rnacopula",
 	      "dim",
-	      "format"
+	      "format", "show"
 	      )
 

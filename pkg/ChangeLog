@@ -1,3 +1,8 @@
+2010-06-10  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/aux-acopula.R (retstableC): maybe use *both* methods, when V0
+	is vector; new  printAcopula()
+
 2010-06-09  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/safeUroot.R: add 'check.conv' argument.

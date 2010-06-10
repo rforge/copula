@@ -118,11 +118,18 @@ retstableC <- function(alpha, V0, h = 1, method = NULL){
 	V0 # Laplace-Stieltjes transform exp(-V0*t)
     }
     else {
-	method <-
-	    if(is.null(method)) {
-		## smart default:
-		if(V0 * h^alpha < 4) "MH" else "LD"
-	    } else match.arg(method, c("MH","LD"))
+	if(is.null(method)) {
+	    if(any(diff(V.is.sml <- V0 * h^alpha < 4))) { ## use *both* methods
+		r <- numeric(n)
+		r[ V.is.sml] <- .Call(retstable_c, V0[ V.is.sml], h = h, alpha, "MH")
+		r[!V.is.sml] <- .Call(retstable_c, V0[!V.is.sml], h = h, alpha, "LD")
+		return(r)
+	    }
+	    else
+		method <- if(V.is.sml) "MH" else "LD"
+	}
+	else
+	    method <- match.arg(method, c("MH","LD"))
 	.Call(retstable_c, V0, h = h, alpha, method)
     }
 }
@@ -306,3 +313,27 @@ mkParaConstr <- function(int){
     ## body(r) <- bod
     ## r
 }
+
+printAcopula <- function(x, digits = getOption("digits"),
+                         width = getOption("width"), ...)
+{
+    cl <- class(x)
+    cld <- getClassDef(cl)
+    stopifnot(extends(cld, "acopula"))
+    ch.thet <- {
+	if(!all(is.na(x@theta)))## show theta
+	    paste(", theta= (",
+		  paste(sapply(x@theta, format, digits=digits), collapse=", "),
+		  ")", sep="")
+	else ""
+    }
+    cat(sprintf('Archimedean copula of class "%s", and family name "%s"%s\n',
+                cl, x@name, ch.thet))
+    nms <- slotNames(cld)
+    nms <- nms[!(nms %in% c("name", "theta"))]
+    cat(" It contains further slots, named",
+        strwrap(paste(dQuote(nms),collapse=", "),
+                width = 0.95 * (width-2)), sep="\n  ")
+    invisible(x)
+}
+setMethod(show, "acopula", function(object) printAcopula(object))

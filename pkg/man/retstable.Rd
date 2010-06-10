@@ -43,7 +43,9 @@ retstable(alpha, V0, h = 1, method = NULL)
  \code{\link{rstable1}}, ... % FIXME
 }
 \examples{
-set.seed(2); rETS. <- retstable (.2, V0=c(1:200))
+set.seed(2); rETS <- retstable (.2, V0=c(1:200))
+# in order to be comparable to *R(), specify method:
+set.seed(2); rETS. <- retstable (.2, V0=c(1:200), method = "MH")
 ## the R version takes  *much* longer:
 set.seed(2); rETS2 <- retstableR(.2, V0=c(1:200))
 stopifnot(all.equal(rETS., rETS2))
