@@ -314,12 +314,12 @@ mkParaConstr <- function(int){
     ## r
 }
 
-printAcopula <- function(x, digits = getOption("digits"),
-                         width = getOption("width"), ...)
+printAcopula <- function(x, slots = TRUE, indent = 0,
+                         digits = getOption("digits"), width = getOption("width"), ...)
 {
     cl <- class(x)
     cld <- getClassDef(cl)
-    stopifnot(extends(cld, "acopula"))
+    stopifnot(indent >= 0, extends(cld, "acopula"))
     ch.thet <- {
 	if(!all(is.na(x@theta)))## show theta
 	    paste(", theta= (",
@@ -327,13 +327,45 @@ printAcopula <- function(x, digits = getOption("digits"),
 		  ")", sep="")
 	else ""
     }
-    cat(sprintf('Archimedean copula of class "%s", and family name "%s"%s\n',
-                cl, x@name, ch.thet))
-    nms <- slotNames(cld)
-    nms <- nms[!(nms %in% c("name", "theta"))]
-    cat(" It contains further slots, named",
-        strwrap(paste(dQuote(nms),collapse=", "),
-                width = 0.95 * (width-2)), sep="\n  ")
+    bl <- paste(rep.int(" ",indent), collapse="")
+    cat(sprintf('%sArchimedean copula ("%s") and family "%s"%s\n',
+		bl, cl, x@name, ch.thet))
+    if(slots) {
+	nms <- slotNames(cld)
+	nms <- nms[!(nms %in% c("name", "theta"))]
+	i2 <- indent+2
+	cat(bl, " It contains further slots, named\n",
+	    paste(strwrap(paste(dQuote(nms),collapse=", "),
+			  width = 0.95 * (width-2), indent=i2, exdent=i2),
+		  collapse="\n"), "\n",
+	    sep="")
+    }
     invisible(x)
 }
 setMethod(show, "acopula", function(object) printAcopula(object))
+
+printNacopula <-
+    function(x, indent=0, digits = getOption("digits"), width = getOption("width"), ...)
+{
+    cl <- class(x)
+    stopifnot(indent >= 0, extends(cl, "nacopula"))
+    bl <- paste(rep.int(" ",indent), collapse="")
+    ch1 <- sprintf("%sNested Archimedean copula (\"%s\"), with ", bl, cl)
+    ch2 <- if(length(c.j <- x@comp)) {
+	sprintf("slot \n%s'comp'   = %s", bl,
+		paste("(",paste(c.j, collapse=", "),")", sep=""))
+    } else "empty slot 'comp'"
+    cat(ch1, ch2, sprintf("  and root\n%s'copula' = ", bl), sep="")
+    printAcopula(x@copula, slots=FALSE, digits=digits, width=width, ...)
+    nk <- length(kids <- x@childCops)
+    if(nk) {
+	cat(sprintf("%s and %d child copula%s\n", bl, nk, if(nk > 1)"s" else ""))
+	for(acop in kids)
+	    printNacopula(acop, indent=indent+5, digits=digits, width=width, ...)
+    }
+    else
+	cat(sprintf("%sand *no* child copulas\n", bl))
+    invisible(x)
+}
+
+setMethod(show, "nacopula", function(object) printNacopula(object))

@@ -2,6 +2,7 @@
 
 	* R/aux-acopula.R (retstableC): maybe use *both* methods, when V0
 	is vector; new  printAcopula()
+	(printNacopula): as well: now show(<nacopula>) is nice.
 
 2010-06-09  Martin Maechler  <maechler@stat.math.ethz.ch>
 
