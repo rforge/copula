@@ -4,20 +4,20 @@
 \alias{outer_nacopula-class}
 \alias{nacopula-class}
 \alias{dim,nacopula-method}
-\alias{show,acopula-method}
+\alias{show,nacopula-method}
 %
 \title{Class "nacopula" of Nested Archimedean Copulas}
 \description{
   The class of Nested Archimedean Copulas, \code{"nacopula"},
 
   and its \emph{specialization} \code{"outer_nacopula"},
-  ..........
+  differ only by the validition method, which is stricter for the
+  \dQuote{outermost} aka \dQuote{root} nested copula.
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("nacopula", ...)},
   which is only for experts; rather they are typically constructed by
-
-  ................
+  \code{\link{onacopula}(.)}.
 }
 \section{Slots}{
   \describe{
@@ -36,13 +36,14 @@
   \describe{
     \item{dim}{\code{signature(x = "nacopula")}: returns the dimension
       \eqn{d} of the random variables, i.e., the dimension of \eqn{u}
-      when the nac describes the distribution of \eqn{U = u}.}
-    \item{show}{\code{signature("acopula")}: compact overview of the copula.}
+      where \code{x} describes the distribution of \eqn{U = u}.}
+    \item{show}{\code{signature("nacopula")}: compact overview of the
+      nested copula.}
   }
 }
-% \note{ ~~further notes~~ }
 \seealso{
-  \code{\linkS4class{nacopula}}.
+  \code{\link{onacopula}} for building (outer)"nacopula" objects; the
+  class definition of the \code{copula} component, \code{\linkS4class{acopula}}.
 }
 \examples{
 showClass("nacopula")

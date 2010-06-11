@@ -64,15 +64,26 @@
     \item{show}{\code{signature("acopula")}: compact overview of the copula.}
   }
 }
-% \references{ ~put references to the literature/web site here ~ }
 % \author{Martin Maechler}
 \seealso{
   Concrete provided copula family objects, such as
   \code{\link{copAMH}}, \code{\link{copClayton}}, etc.
+
+  The special case of \emph{nested} Archimedean copula \emph{without}
+  child copulas, see class \code{\linkS4class{"nacopula"}},
+  is a (``proper'', unnested) Archimedean copula, and hence,
+  \code{\link{onacopula}()} can be used to construct a concrete
+  parametrized Archimedean copula, see the example below.
 }
 \examples{
 showClass("acopula")
 copClayton
 str(copClayton)
+
+C3 <- onacopula("Clayton", C(.25, 1:3))
+C3@copula # is an "acopula" *with* specific parameter theta = 0.25
+
+curve(C3@copula@psi(x, C3@copula@theta), 0, 3,
+      n=1000, col=2, xaxs="i",yaxs="i")
 }
 \keyword{classes}

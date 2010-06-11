@@ -27,6 +27,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"pnacopula", "rnacopula" ,"rnchild"
        ,"onacopula"
        ,"interval"
+       ,"opower"
        ,"prob"
        ## Should we provide these in a separate (very small) R package ?
        ,"sinc", "A..Z"
