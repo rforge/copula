@@ -2,9 +2,9 @@
 ##'
 ##' @title Outer Power Transformation of an Archimedean Copula
 ##' @param copbase a "base" copula, i.e. of class "acopula";
-##'    must be one of the 5 five predefined families (?? FIXME ??)
-##' @param thetabase the (univariate) parameter 'theta' for the base copula.
-##' @return a new "acopula" object; the outer power
+##'    must be one of the 5 five predefined families
+##' @param thetabase the (univariate) parameter 'theta' for the base copula
+##' @return a new "acopula" object; the outer power copula
 ##' @author Marius Hofert
 opower <- function(copbase, thetabase) {
     new("acopula", name = paste("opower", copbase@name, sep=":"),
@@ -52,7 +52,12 @@ opower <- function(copbase, thetabase) {
 	    1-(1-copbase@tau(thetabase))/theta
 	},
 	tauInv = function(tau) {
-	    (1-copbase@tau(thetabase))/(1-tau)
+            taubase <- copbase@tau(thetabase)
+            if(tau >= taubase) (1-taubase)/(1-tau)
+            else {
+                stop("The provided tau has to be >= taubase")
+                NA * tau
+            }
 	},
 	## lower tail dependence coefficient lambda_l
 	lambdaL = function(theta) {
