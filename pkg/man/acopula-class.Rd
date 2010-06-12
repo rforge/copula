@@ -10,43 +10,37 @@
 \alias{show,acopula-method}
 %
 \description{
-  This class \code{"acopula"} Archimedean Copula Families
-  is mainly used for providing objects of known A.copula families
+  This class \code{"acopula"} of Archimedean Copula Families
+  is mainly used for providing objects of known Archimedean families
   with all related functions.
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("acopula", ...)}.
-  For half dozen known important copula families, the \pkg{nacopula}
-  package already provides such family objects
+  For several well-known Archimedean copula families, the package \pkg{nacopula}
+  already provides such family objects.
 }
 \section{Slots}{
   \describe{
     \item{\code{name}:}{a string (class \code{"character"}) describing
-      the copula family.}
-    \item{\code{psi}, \code{psiInv}:}{\eqn{psi}, the generator
-      \code{\link{function}} and its inverse.}
+      the copula family, e.g., "AMH", "Clayton", "Frank", "Gumbel", or "Joe".}
+    \item{\code{psi}, \code{psiInv}:}{The Archimedean generator, a \code{\link{function}}, and its inverse.}
     \item{\code{theta}:}{parameter value, a \code{\link{numeric}}, where
       \code{NA} means \dQuote{unspecified}.}
     \item{\code{paraInterval}:}{Either \code{\link{NULL}} or object of class
       \code{\linkS4class{"interval"}}, typically from a call such as
       \code{\link{interval}("[a,b)")}.}
     \item{\code{paraConstr}:}{A function of \code{theta} returning
-      \code{TRUE} iff \code{theta} is a valid parameter value.  Note
+      \code{TRUE} if and only if \code{theta} is a valid parameter value. Note
       that \code{paraConstr} is built automatically from the interval,
-      whenever the \code{paraInt} slot is a valid
+      whenever the \code{paraInterval} slot is valid.
       \code{\linkS4class{"interval"}}.}
-
-%% TODO:
-    \item{\code{V0}:}{Object of class \code{"function"} ~~ }
-    \item{\code{tau}:}{Object of class \code{"function"} ~~ }
-    \item{\code{tauInv}:}{Object of class \code{"function"} ~~ }
-    \item{\code{lambdaL}:}{Object of class \code{"function"} ~~ }
-    \item{\code{lambdaLInv}:}{Object of class \code{"function"} ~~ }
-    \item{\code{lambdaU}:}{Object of class \code{"function"} ~~ }
-    \item{\code{lambdaUInv}:}{Object of class \code{"function"} ~~ }
-    \item{\code{nestConstr}:}{Object of class \code{"function"} ~~ }
-    \item{\code{V01}:}{Object of class \code{"function"} ~~ }
+	 \item{\code{nestConstr}:}{A \code{\link{function}}, which returns \code{TRUE} if and only if the two provided parameters \code{theta0} and \code{theta1} satisfy the sufficient nesting condition for this family.}
+    \item{\code{V0}:}{A \code{\link{function}} which samples \code{n} random variates from the distribution \eqn{F}{F} with Laplace-Stieltjes transform \eqn{\psi}{psi} and parameter \code{theta}.}
+    \item{\code{V01}:}{A \code{\link{function}} which obtains a vector of realizations of \code{V0} and two parameters \code{theta0}, \code{theta1} which satisfy the sufficient nesting condition for this family, and which returns a vector of the same length as \code{V0} with random variates from the distribution function \eqn{F_{01}}{F01} with Laplace-Stieltjes transform \eqn{\psi_{01}}{psi01} and parameters \eqn{\vartheta_0=\,}{theta0=}\code{theta0}, \eqn{\vartheta_1=\,}{theta1=}\code{theta1}.}
+    \item{\code{tau}, \code{tauInv}:}{Compute Kendall's tau of the bivariate Archimedean copula with generator \eqn{\psi}{psi} as a \code{\link{function}} of \code{theta}, respectively, \code{theta} as a function of Kendall's tau.}
+    \item{\code{lambdaL} (\code{lambdaU}), \code{lambdaLInv} (\code{lambdaUInv}):}{Compute the lower (upper) tail-dependence coefficient of the bivariate Archimedean copula with generator \eqn{\psi}{psi} as a \code{\link{function}} of \code{theta}, respectively, \code{theta} as a function of the lower (upper) tail-dependence coefficient.}
   }
+  For more details about Archimedean families, corresponding distributions and properties, see the references.
 }
 \section{Methods}{
   \describe{
@@ -55,10 +49,10 @@
       the \code{paraInterval} is provided (typically via
       \code{\link{interval}()}).}
 
-    \item{SetTheta}{\code{signature(x = "acopula")}: To set or change the
-      parameter \eqn{\theta} (\code{theta}) of such an object, say
+    \item{setTheta}{\code{signature(x = "acopula")}: To set or change the
+      parameter \eqn{\vartheta}{theta} (\code{theta}) of such an object, say
       \code{myCop}, use \code{setTheta(myCop, <value>)}.  This is used
-      for construction of actual copula \dQuote{models} with a specified
+      for construction of copula \dQuote{models} with a specified
       parameter.
     }
     \item{show}{\code{signature("acopula")}: compact overview of the copula.}
@@ -66,24 +60,64 @@
 }
 % \author{Martin Maechler}
 \seealso{
-  Concrete provided copula family objects, such as
-  \code{\link{copAMH}}, \code{\link{copClayton}}, etc.
+  Specific provided copula family objects, e.g.,
+  \code{\link{copAMH}}, \code{\link{copClayton}}, \code{\link{copFrank}},
+  \code{\link{copGumbel}}, \code{\link{copJoe}}.
 
-  The special case of \emph{nested} Archimedean copula \emph{without}
+  A \emph{nested} Archimedean copula \emph{without}
   child copulas, see class \code{\linkS4class{"nacopula"}},
-  is a (``proper'', unnested) Archimedean copula, and hence,
-  \code{\link{onacopula}()} can be used to construct a concrete
+  is a proper Archimedean copula, and hence,
+  \code{\link{onacopula}()} can be used to construct a specific
   parametrized Archimedean copula, see the example below.
 }
+\references{
+	Hofert, M. (2010a)
+	Efficiently sampling nested Archimedean copulas,
+	\emph{Computational Statistics & Data Analysis}, in press.
+	
+	Hofert, M. (2010b)
+	\emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing}.
+	Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
+}
 \examples{
+
+## Background information about Clayton copulas
 showClass("acopula")
 copClayton
 str(copClayton)
 
-C3 <- onacopula("Clayton", C(.25, 1:3))
-C3@copula # is an "acopula" *with* specific parameter theta = 0.25
+## What are admissible parameters for Clayton copulas?
+copClayton@paraInterval
 
-curve(C3@copula@psi(x, C3@copula@theta), 0, 3,
+## Can two Clayton copulas with parameters theta0 and theta1 be nested?
+## Case 1: theta0 = 3, theta1 = 2 
+theta0 <- 3; theta1 <- 2
+copClayton@nestConstr(theta0,theta1) # FALSE
+## Case 2: theta0 = 2, theta1 = 3 
+theta0 <- 2; theta1 <- 3
+copClayton@nestConstr(theta0,theta1) # TRUE
+
+## Construct a bivariate Clayton copula with parameter theta
+theta <- 2
+C2 <- onacopula("Clayton", C(theta, 1:2))
+C2@copula # is an "acopula" with specific parameter theta
+
+## Plot the corresponding generator 
+curve(C2@copula@psi(x, C2@copula@theta), 0, 5,
       n=1000, col=2, xaxs="i",yaxs="i")
-}
+
+## What is the corresponding Kendall's tau?
+C2@copula@tau(theta)
+
+## What are the corresponding tail-dependence coefficients?
+C2@copula@lambdaL(theta)
+C2@copula@lambdaU(theta)
+
+## Generate n pairs of random variates from this copula
+n <- 1000
+U <- rnacopula(n, C2)
+
+## Plot the generated pairs of random variates
+splom2(U)
+
 \keyword{classes}
