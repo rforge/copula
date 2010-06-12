@@ -250,14 +250,16 @@ dimensions $d$ is that $\psi$ is \textit{completely monotone}, i.e.,
 $(-1)^k\psi^{(k)}(t)\ge0$ for all $t\in(0,\infty)$ and $k\in\IN_0$, see
 \textcite{kimberling1974} in the context of t-norms or
 \textcite[p.\ 54]{hofert2010c} for a rework in terms of copulas.
-Recall that the most simple dependence model, namely, independence, is provided by
-$\psi(t)=\exp(-t)$, with $\psii(t)=\log(t)$, and corresponding \textit{independence} copula $C(\bm(u))=\prod_{j=1}^d u_j$.
+Recall that the most simple dependence model, namely, independence, is provided
+by $\psi(t)=\exp(-t)$, with $\psii(t)=\log(t)$, and corresponding
+\textit{independence} copula $C(\bm(u))=\prod_{j=1}^d u_j$.
 
 The class of all completely monotone Archimedean generators is denoted by
 $\Psi_\infty$ in what follows. By Bernstein's Theorem, see, e.g.,
 \textcite[p.\ 439]{feller1971}, this class coincides with the class of
 Laplace-Stieltjes transforms of distribution functions $F$ on the positive
-real line, where the Laplace-Stieltjes transform of $F$, also known as the \textit{Laplace transform of the distribution} $F$, is defined as
+real line, where the Laplace-Stieltjes transform of $F$, also known as the
+\textit{Laplace transform of the distribution} $F$, is defined as
 \begin{align*}
   \LS[F](t):=\int_0^\infty\exp(-tx)\,dF(x),\ t\in[0,\infty).
 \end{align*}
@@ -350,14 +352,18 @@ where
 			-2\log(\lvert t\rvert)/\pi,&\alpha=1,
 		\end{cases}
 \end{align*}
-see, e.g., \textcite[p.\ 8]{nolan2009} for this ``1-parameterization''. For sampling from $S(.)$, we provide
+see, e.g., \textcite[p.\ 8]{nolan2009} for this ``1-parameterization''. For
+sampling from $S(.)$, we provide
 \code{rstable1(., }$\alpha$,$\beta$,$\gamma$, $\delta$\code{, 1)},
 having implemented an algorithm for sampling stable distributions according
 to the ideas presented in \textcite{chambersmallowsstuck1976}, and
 improving on previous implementations in \R.
 %
-For the family of Joe, the mass function of $V$ is of the form $p_k=\binom{\alpha}{k}(-1)^{k-1}$ at $k\in\IN$ (take $\alpha:=1/\vt$), with
-$\alpha\in(0,1]$. This distribution can be sampled via the \R function \code{rFJoe(., }$\alpha$\code{)} which we implemented based on an algorithm presented in \textcite{hofert2010a}.
+For the family of Joe, the mass function of $V$ is of the form
+$p_k=\binom{\alpha}{k}(-1)^{k-1}$ at $k\in\IN$ (take $\alpha:=1/\vt$), with
+$\alpha\in(0,1]$. This distribution can be sampled via the \R function
+\code{rFJoe(., }$\alpha$\code{)} which we implemented based on an algorithm
+presented in \textcite{hofert2010a}.
 
 \subsubsection{The rank-correlation coefficient Kendall's tau}
 It is often desirable to measure the degree of dependence between random
@@ -369,7 +375,9 @@ pairs of random variables. One such measure is \textit{Kendall's tau}, defined b
 \end{align*}
 where $(X_1,X_2)\tr$ is a vector of two continuously distributed random
 variables, $(X_1^\prime,X_2^\prime)\tr$ is an independent and identically
-distributed copy of $(X_1,X_2)\tr$, and $\sign(x):=\I_{(0,\infty)}(x)-\I_{(-\infty,0)}(x)$ denotes the signum function (as \R's \code{sign(x)}). Kendall's tau is a measure of concordance, see
+distributed copy of $(X_1,X_2)\tr$, and
+$\sign(x):=\I_{(0,\infty)}(x)-\I_{(-\infty,0)}(x)$ denotes the signum function
+(as \R's \code{sign(x)}). Kendall's tau is a measure of concordance, see
 \textcite{scarsini1984}, and therefore,
 informally, measures the likelihood, as a number in $[-1,1]$, with which
 large values of one variable are associated with large values of the other.
@@ -822,7 +830,8 @@ referred to as \textit{outer power Archimedean copulas}. Note that two
 parametric Archimedean generators $\psi(t^{1/\vt_0})$, $\vt_0\in[1,\infty)$, and
 $\psi(t^{1/\vt_1})$, $\vt_1\in[1,\infty)$, of this type, constructed with the
 same ``base'' generator $\psi(t)$, $t\in[0,\infty)$, fulfill the nesting
-condition if $\vt_0\le\vt_1$. Therefore, one can build so-called \textit{nested outer power Archimedean copulas}. 
+condition if $\vt_0\le\vt_1$. Therefore, one can build so-called 
+\textit{nested outer power Archimedean copulas}. 
 \textcite{hofert2010a} derives some results for
 these copulas, including instructions for sampling the corresponding random
 variables $V_0$ and $V_{01}$, as well as an explicit formula for Kendall's tau
@@ -843,8 +852,8 @@ str(opower)
 We believe that it is both more natural and flexible
 to work with copula families that are \emph{generalizations} of our current
 families, each including the power as an extra parameter (such that
-\code{theta}, i.e., $\vartheta$, will become 2-dimensional), rather than using the
-\code{opower()} construction below. This section therefore should be
+\code{theta}, i.e., $\vartheta$, will become 2-dimensional), rather than 
+using the \code{opower()} construction below. This section therefore should be
 considered mainly as an outlook to further features of the package
 \pkg{nacopula}, where the typical use will change in the future.
 
