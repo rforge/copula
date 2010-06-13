@@ -26,7 +26,7 @@ rFFrank(n, theta0, theta1)
   \item{theta0, theta1}{parameters \eqn{\vartheta_0,\vartheta_1\in (0,\infty)}{theta0, theta1 in (0,Inf)} such that \eqn{\vartheta_0\le\vartheta_1}{theta0 <= theta1}.} 
 }
 \value{ 
-  A vector of positive \code{\link{integers}} of length \code{n} containing the generated random variates. 
+  A vector of positive \code{\link{integer}}s of length \code{n} containing the generated random variates. 
 }
 \details{
   For documentation (and didactical) purposes, all three functions are
