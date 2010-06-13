@@ -20,7 +20,6 @@ retstableR(alpha, V0, h = 1)
   \item{method}{a character string denoting the method to use, currently
     either \code{"MH"} (Marius Hofert's algorithm) or \code{"LD"} (Luc Devroye's algorithm). By default, when \code{NULL}, a smart choice is made to use the
     faster method depending on the specific values of \eqn{V_0}{V0}.}
-  }
 }
 \details{
   \code{retstableR} is version of \code{"MH"}, in a pure \R
