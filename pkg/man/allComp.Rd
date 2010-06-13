@@ -2,11 +2,7 @@
 \alias{allComp}
 \title{All Components of a (Inner or Outer) Nested Archimedean Copula}
 \description{
-  Return Integer Vector of the \emph{indices} of all components for
-  which the nested archimedean copula \code{x} is defined.\cr
-  %% FIXME, the above is too imprecise
-  This is typically only used by programmers investigating the exact
-  nesting structure.
+  Given the nested Archimedean copula \code{x}, return an integer vector of the \emph{indices} of all components of the corresponding \code{\linkS4class{outer_nacopula}} which are components of \code{x} (either direct components or components of possible child copulas). This is typically only used by programmers investigating the exact nesting structure.
 
   For an \code{\linkS4class{outer_nacopula}} object
   \code{x}, \code{allComp(x)} must be the same as
@@ -17,17 +13,16 @@
 allComp(x)
 }
 \arguments{
-  \item{x}{an \R object of inheriting from class \code{\linkS4class{nacopula}}.}
+  \item{x}{an \R object inheriting from class \code{\linkS4class{nacopula}}.}
 }
 \value{
-  an integer vector of indices \eqn{j} of all components \eqn{u_j} to
-  which the copula applies; .
+  An \code{\link{integer}} vector of indices \eqn{j} of all components \eqn{u_j} as described in the description above.
 }
 \author{Martin Maechler}
 \examples{
- example(onacopula)
- allComp(C3d.AMH) # -> 1:3
- allComp(C3d.AMH@childCops[[1]]) # only  (2, 3)
+ C3 <- onacopula("AMH", C(0.7135, 1, C(0.943, 2:3)))
+ allComp(C3) # components are 1:3
+ allComp(C3@childCops[[1]]) # for the child, only  (2, 3)
 }
 \keyword{manip}
 \keyword{utilities}

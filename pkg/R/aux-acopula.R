@@ -77,8 +77,8 @@ retstablerej <- function(m,V0,alpha){
 }
 
 ##' Sample a vector of random variates St ~ \tilde{S}(alpha, 1, (cos(alpha*pi/2)
-##' *V_0)^{1/alpha}, V_0*I_{alpha = 1}, I_{alpha != 1}; 1) with
-##' Laplace-Stieltjes transform exp(-V_0((1+t)^alpha-1)), see Nolan's book for
+##' *V_0)^{1/alpha}, V_0*I_{alpha = 1}, h*I_{alpha != 1}; 1) with
+##' Laplace-Stieltjes transform exp(-V_0((h+t)^alpha-h^alpha)), see Nolan's book for
 ##' the parametrization. This procedure calls retstablerej.
 ##' @param alpha parameter in (0,1]
 ##' @param V0 vector of random variates
@@ -98,11 +98,11 @@ retstableR <- function(alpha,V0, h = 1){
     mapply(retstablerej, m=m, V0=V0, alpha=alpha)
 }
 
-##' Sample a vector of random variates St ~ \tilde{S}(alpha, 1, (cos(alpha*pi/2)
-##' *V_0)^{1/alpha}, V_0*I_{alpha = 1}, I_{alpha != 1}; 1) with
-##' Laplace-Stieltjes transform exp(-V_0((1+t)^alpha-1)), see Nolan's book for
-##' the parametrization. This procedure is more efficient than retstableR since
-##' it calls the C function restable_c.
+##' Sample random variates St ~ \tilde{S}(alpha, 1, (cos(alpha*pi/2)
+##' *V_0)^{1/alpha}, V_0*I_{alpha = 1}, h*I_{alpha != 1}; 1) with
+##' Laplace-Stieltjes transform exp(-V_0((h+t)^alpha-h^alpha)), see Hofert (2010a).
+##' This procedure is more efficient than retstableR since it calls the C 
+##' function retstable_c.
 ##' @param alpha parameter in (0,1]
 ##' @param V0 vector of random variates
 ##' @param h non-negative real number
@@ -178,7 +178,7 @@ rlog <- function(n,p) {
 
 ##' Sample V ~ F with Laplace-Stieltjes transform
 ##' (1-(1-exp(-t)*(1-e^(-theta1)))^alpha)/(1-e^(-theta0))
-##' via the algorithm of Hofert (2010). R version.
+##' via the algorithm of Hofert (2010a). R version.
 ##' @param p parameter 1-e^(-theta1)
 ##' @param alpha parameter theta0/theta1 in (0,1]
 ##' @param theta0_le_1 in {0,1} with 1 if and only if theta0 <= 1
@@ -230,7 +230,7 @@ rFFrank <- function(n,theta0,theta1) {
 
 ##' Sample V ~ F with F(n) = 1-1/(n*B(n,1-alpha)), n in IN, with
 ##' Laplace-Stieltjes transform 1-(1-exp(-t))^alpha via the algorithm of
-##' Hofert (2010). R version.
+##' Hofert (2010a). R version.
 ##' @param n  sample size
 ##' @param alpha parameter
 ##' @return vector of random variates V
@@ -260,7 +260,7 @@ rFJoeR <- function(n,alpha) {
 
 ##' Sample V ~ F with F(n) = 1-1/(n*B(n,1-alpha)), n in IN, with
 ##' Laplace-Stieltjes transform 1-(1-exp(-t))^alpha via the algorithm of
-##' Hofert (2010). C version.
+##' Hofert (2010a). C version.
 ##' @param n  sample size
 ##' @param alpha parameter
 ##' @return vector of random variates V

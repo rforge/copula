@@ -12,8 +12,9 @@ interval(ch)
   \item{ch}{a character string specifying the interval.}
 }
 \value{
-  an  \code{\linkS4class{interval}} object.
+  an \code{\linkS4class{interval}} object.
 }
+\author{Martin Maechler}
 \seealso{
   the \code{\linkS4class{interval}} class documentation,
   notably its reference to more sophisticated interval classes available

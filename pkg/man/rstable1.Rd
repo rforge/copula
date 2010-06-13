@@ -1,86 +1,85 @@
 \name{rstable1}
-\title{Random Numbers from (Skew) Stable Distribution}
+\title{Random Numbers from (Skew) Stable Distributions}
 \alias{rstable1}
 \alias{rstable}
 \description{
-  Generate random numbers from the stable distribution,
-  using its  \dQuote{S1}- (or \dQuote{1})-parametrization.
+  Generate random numbers of the stable distribution \deqn{S(\alpha, \beta, \gamma, \delta; k)} with characteristic exponent \eqn{\alpha\in(0,2]}{alpha in (0,2]}, skewness \eqn{\beta\in[-1,1]}{beta in [-1,1]}, scale \eqn{\gamma\in[0,\infty)}{gamma in [0,Inf)}, and location \eqn{\delta\in\mathbf{R}}{delta in IR}, see Nolan (2010) for the parameterization \eqn{k\in\{0,1\}}{k in {0,1}}. The case \eqn{\gamma=0}{gamma = 0} is understood as the unit jump at \eqn{\delta}{delta}.
 }
 \usage{
 rstable1(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
 }
 \arguments{
-    \item{alpha}{stable \dQuote{index} parameter in interval \eqn{(0,2]}.}
-    \item{beta}{skewness parameter, \eqn{\beta \in [-1, 1]}.}
-    \item{gamma}{scale parameter, \eqn{\gamma > 0}.}
-    \item{delta}{location parameter.}
+	 \item{n}{an \code{\link{integer}}, the number of observations to generate.}
+    \item{alpha}{characteristic exponent \eqn{\alpha\in(0,2]}{alpha in (0,2]}.}
+    \item{beta}{skewness \eqn{\beta\in[-1,1]}{beta in [-1,1]}.}
+    \item{gamma}{scale \eqn{\gamma\in[0,\infty)}{gamma in [0,Inf)}.}
+    \item{delta}{location \eqn{\delta\in\mathbf{R}}{delta in IR}.}
     \item{pm}{0 or 1, denoting which parametrization (as by Nolan) is used.}
-    \item{n}{an integer, the number of observations to generate.}
-  }
-
+}
 \value{
-  a \code{\link{numeric}} vector of length \code{n}.
+  A \code{\link{numeric}} vector of length \code{n} containing the generated random variates.
 }
 \details{
-  We use the approach of J.P. Nolan for general
-  stable distributions.  \code{rstable1} provides its two basic
+  We use the approach of John Nolan for generating random variates of stable distributions. The function \code{rstable1} provides two basic
   parametrizations, by default,
-  \cr
-  \code{pm = 1}, the so called \dQuote{S}, \dQuote{S1}, or \dQuote{1}
-  parameterization, It is the parameterization used by Samorodnitsky and
-  Taqqu in the book \emph{Stable Non-Gaussian Random Processes}, and is
-  a slight modification of Zolotarev's (A) parameterization.
 
-  \code{pm = 0} is the "S0" parameterization: based on the (M)
+  \code{pm = 1}, the so called \dQuote{S}, \dQuote{S1}, or \dQuote{1}
+  parameterization. This is the parameterization used by Samorodnitsky and
+  Taqqu (1994), and is a slight modification of Zolotarev's (A) parameterization. It is the form with the most simple form of the characteristic function, see Nolan (2010, p. 8).
+
+  \code{pm = 0} is the \dQuote{S0} parameterization: based on the (M)
   representation of Zolotarev for an alpha stable distribution with
   skewness beta. Unlike the Zolotarev (M) parameterization, gamma and
   delta are straightforward scale and shift parameters. This
-  representation is continuous in all 4 parameters, and gives an
-  intuitive meaning to gamma and delta that is lacking in other
-  parameterizations.
+  representation is continuous in all 4 parameters.
 }
 \author{
   Diethelm Wuertz wrote \code{\link[fBasics]{rstable}} for Rmetrics;
   Martin Maechler vectorized it (also in \code{alpha},\dots), fixed it
-  for \eqn{\alpha=1,\beta \ne 0}{alpha = 1, beta != 0} and sped it up.
+  for \eqn{\alpha=1,\beta\ne 0}{alpha = 1, beta != 0} and sped it up.
 }
+\author{Martin Maechler}
 \seealso{\code{\link[fBasics]{rstable}} which also allows the
-  2-parametrization and has further distribution functionality for
-  stable.
+  2-parametrization and provides further functionality for
+  stable distributions.
 }
 \references{
-  Chambers J.M., Mallows, C.L. and Stuck, B.W. (1976);
-  \emph{A Method for Simulating Stable Random Variables},
-  J. Amer. Statist. Assoc. 71, 340--344.
+	Chambers J.M., Mallows, C.L. and Stuck, B.W. (1976),
+	\emph{A Method for Simulating Stable Random Variables},
+	J. Amer. Statist. Assoc. 71, 340--344.
 
-  Nolan J.P. (1999);
-  \emph{Stable Distributions},
-  Preprint, University Washington DC, 30 pages.
+	Nolan, J.P. (2010),
+	\emph{Stable Distributions---Models for Heavy Tailed Data},
+	Birkhaeuser.
+	
+	Samoridnitsky G., Taqqu M. S. (1994),
+   \emph{Stable Non-Gaussian Random Processes, Stochastic Models
+   with Infinite Variance},
+   Chapman and Hall, New York.
+	
+% Nolan, J.P. (1999),
+% \emph{Stable Distributions},
+% Preprint, University Washington DC, 30 pages.
 
-% Nolan J.P. (1999);
+% Nolan, J.P. (1999),
 %     \emph{Numerical Calculation of Stable Densities and Distribution
 %     Functions},
 %     Preprint, University Washington DC, 16 pages.
 
-% Samoridnitsky G., Taqqu M.S. (1994);
-%     \emph{Stable Non-Gaussian Random Processes, Stochastic Models
-%     with Infinite Variance},
-%     Chapman and Hall, New York, 632 pages.
-
-% Weron, A., Weron R. (1999);
+% Weron, A., Weron R. (1999),
 %     \emph{Computer Simulation of Levy alpha-Stable Variables and
 %     Processes},
 %     Preprint Technical Univeristy of Wroclaw, 13 pages.
 }
 \examples{
-   # Plot rvs Series
+   # Generate and plot a series of stable random variates
    set.seed(1953)
    r <- rstable1(n = 1000, alpha = 1.9, beta = 0.3)
    plot(r, type = "l", main = "stable: alpha=1.9 beta=0.3",
         col = "steelblue"); grid()
 
-   hist(r, "Scott", prob=TRUE, ylim = c(0,0.3),
+   hist(r, "Scott", prob = TRUE, ylim = c(0,0.3),
         main = "Stable S(1.9, 0.3; 1)")
-   lines(density(r), col="red2", lwd=2)
+   lines(density(r), col="red2", lwd = 2)
 }
 \keyword{distribution}

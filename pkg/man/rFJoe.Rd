@@ -5,73 +5,70 @@
 \alias{rFJoeR}
 \alias{rlog}
 \alias{rlogR}
-\title{Sample from Copula Related Univariate Distributions}
+\title{Sample from Univariate Distributions involved in nested Frank and Joe Copulas}
 \description{
-  \code{rFFrank}:
-  Generate a vector of variates V ~ F with Laplace-Stieltjes transform
-  (1-(1-exp(-t)*(1-e^(-theta1)))^alpha)/(1-e^(-theta0)).
+  \code{rlog}: Generating random variates of a Log(p) distribution with probability mass function \deqn{p_k=p(1-p)^{k-1},\ k\in\mathbf{N},}{p_k = p(1-p)^(k-1), k in IN,} where \eqn{p\in(0,1)}{p in (0,1)}. The implemented algorithm is the one named \dQuote{LK} in Kemp (1981).
 
-  \code{rFJoe}:
-  Sample V ~ F with F(n) = 1-1/(n*B(n,1-alpha)), n in IN, with
-  Laplace-Stieltjes transform \eqn{1-(1-e^{-t})^\alpha}{1-(1-exp(-t))^alpha}
-  via the   algorithm of Hofert (2010).
-
-  \code{rlog}:
-  Random number generator for a Log(p) distribution;
-  using the algorithm \code{"LK"} of Kemp (1981).
+  \code{rFJoe}: Generating random variates from the distribution with probability mass function \deqn{p_k={\alpha\choose k}(-1)^{k-1},\ k\in\mathbf{N},}{p_k = binom{alpha}{k}(-1)^(k-1), k in IN,} where \eqn{\alpha\in(0,1]}{alpha in (0,1]}. This distribution appears on sampling (nested) Joe copulas. Here, \eqn{F_0}{F0} and \eqn{F_{01}}{F01} belong to this class. The implemented algorithm is given in Hofert (2010a).
+	
+  \code{rFFrank}: Generating random variates from the distribution with probability mass function \deqn{p_k={\vartheta_0/\vartheta_1\choose k}(-1)^{k-1}(1-e^{-\vartheta_1})^k/(1-e^{-\vartheta_0}),\ k\in\mathbf{N},}{p_k = binom{theta0/theta1}{k}(-1)^(k-1)(1-e^(-theta1))^k/(1-e^(-theta0)), k in IN,} where \eqn{\vartheta_0,\vartheta_1\in(0,\infty)}{theta0, theta1 in (0,Inf)} such that \eqn{\vartheta_0\le\vartheta_1}{theta0 <= theta1}. This distribution appears on sampling nested Frank copulas. Here, \eqn{F_{01}}{F01} is a \eqn{V_0}{V0}-fold convolution of random variables from this distribution. The implemented algorithm is given in Hofert (2010a).
 }
 
 \usage{
+rlog(n, p)
+rFJoe(n, alpha)
 rFFrank(n, theta0, theta1)
-  rFJoe(n, alpha)
-   rlog(n, p)
 }
-\arguments{
-  \item{n}{sample size, i.e., length of resulting vector of random variates.}
-
-  \item{theta0}{parameter \eqn{\theta_0 \in (0,\infty)}{theta0 in (0,Inf)}.}
-  \item{theta1}{parameter \eqn{\theta_1 \in (\theta_0,\infty)}{theta1 in (theta0,Inf)}.}
-
-  \item{alpha}{parameter}
-
+\arguments{ 
+  \item{n}{sample size, i.e., length of the resulting vector of random variates.}
   \item{p}{parameter in \eqn{(0,1)}.}
+  \item{alpha}{parameter in \eqn{(0,1]}.}
+  \item{theta0, theta1}{parameters \eqn{\vartheta_0,\vartheta_1\in (0,\infty)}{theta0, theta1 in (0,Inf)} such that \eqn{\vartheta_0\le\vartheta_1}{theta0 <= theta1}.} 
+}
+\value{ 
+  A vector of positive \code{\link{integers}} of length \code{n} containing the generated random variates. 
 }
 \details{
   For documentation (and didactical) purposes, all three functions are
-  also provided in pure-\R implementation, \code{rFFrankR()},
-  \code{rFJoeR()}, and \code{rlogR()}.
-
-...
+  also provided in pure-\R implementation, \code{rlogR()},
+  \code{rFJoeR()}, and \code{rFFrankR()}.
 }
-\value{
-  a vector \code{n} values; note that these are integers from
-  \eqn{1,2,\ldots}{1,2,....}.
+\author{Marius Hofert, Martin Maechler}
+\seealso{
+  \code{\link{rnacopula}}
 }
 \references{
-  Kemp  ........... (1981).
+  	Kemp, A. W. (1981),
+	Efficient Generation of Logarithmically Distributed Pseudo-Random Variables,
+	\emph{Journal of the Royal Statistical Society: Series C (Applied Statistics)}, 30, 3, 249--253.
+	
+	Hofert, M. (2010a),
+	Efficiently sampling nested Archimedean copulas,
+	\emph{Computational Statistics & Data Analysis}, in press.
 
- ...
-}
-\seealso{
-  \code{\link{rnacopula}},
-  \code{\link{rexp}}
+	Hofert, M. (2010b),
+	\emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
+	Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
 }
 \examples{
-## Frank's F :
-## ... %FIXME
+## Sample n random variates from a Log(p) distribution and plot a 
+## histogram
+n <- 500
+p <- .5
+X <- rlog(n, p)
+hist(X, prob=TRUE)
 
-## Joe's F :
-set.seed(17); x1 <- rFJoe (1000, .4)
-set.seed(17); x2 <- rFJoeR(1000, .4)
-stopifnot(all.equal(x1,x2))
+## Sample the univariate distribution appearing when sampling nested
+## Joe copulas and plot a histogram
+alpha <- .4
+Y <- rFJoe(n, alpha)
+hist(log(Y), prob=TRUE); lines(density(log(Y)), col=2, lwd=2)
 
-hist(log(x1), prob=TRUE); lines(density(log(x1)), col=2, lwd=2)
-
-## Extreme Transformation:
-summary(llx <- log(1+ log(x1)))
-hist(llx, prob=TRUE); lines(density(llx), col=2, lwd=2)
-
-## Log(p) distribution:
-## ... %FIXME
+## Sample the univariate distribution appearing when sampling nested
+## Frank copulas and plot a histogram
+theta0 <- 3
+theta1 <- 8
+Z <- rFFrank(n, theta0, theta1)
+hist(log(Z), prob=TRUE); lines(density(log(Z)), col=2, lwd=2)
 }
 \keyword{distribution}

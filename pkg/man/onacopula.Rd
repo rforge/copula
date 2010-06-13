@@ -1,44 +1,56 @@
 \name{onacopula}
 \alias{onacopula}
-\title{(Outer) Nested Archimedean Copula Creation}
+\title{Constructing (Outer) Nested Archimedean Copulas}
 \description{
-  Creation of (outer) nested archimedean copulas (class
+  Constructing (outer) nested Archimedean copulas (class
   \code{\linkS4class{outer_nacopula}}) is most conveniently done via
   \code{onacopula()}, using a nested \eqn{C(...)} notation.
 }
 \usage{
-onacopula(family, nacform)
+onacopula(family, nacStructure)
 }
 \arguments{
   \item{family}{\code{\link{character}} string: the short or longer form
-    of copula family name, see the \code{\link{acopula-families}}
-    documentation.}
-  \item{nacform}{a \dQuote{formula} of the form
-    \deqn{C(\theta, c(i_1,\dots,i_c), list(C(..), ..., C(..))).}{C(th, c(i1,..ic), list(C(..), ..., C(..))).}
+    of the Archimedean family name (e.g., "Clayton" or simply "C"), see the \code{\link{acopula-families}} documentation.}
+  \item{nacStructure}{a \dQuote{formula} of the form
+    \deqn{C(\vartheta, c(i_1,\dots,i_c), list(C(..), ..., C(..))).}{C(th, c(i1,..ic), list(C(..), ..., C(..))).}
     Note that \eqn{C()} has (maximally) three arguments: the first is
-    the copula parameter (vector) \eqn{\theta}{theta}, the second a
-    vector (possibly empty) of integer component indices (for the
-    \code{comp} slot in \code{\linkS4class{nacopula}}s), and the third a
-    list (possibly empty) of sub-copulas, each specified with
-    \eqn{C(..)} notation themselves.}
+    the copula parameter (vector) \eqn{\vartheta}{theta}, the second a (possibly empty) vector of integer indices of components (for the
+    \code{comp} slot in \code{\linkS4class{nacopula}}s), and finally a (possibly empty) list of child copulas, each specified with in the \eqn{C(..)} notation themselves.}
 }
 \value{
-  an outer nested archimedean copula object, i.e., of class
+  An outer nested Archimedean copula object, i.e., of class
   \code{\linkS4class{"outer_nacopula"}}.
 }
-% \references{
-% %% ~put references to the literature/web site here ~
-% }
 \author{Martin Maechler}
 \seealso{
-  The class definitions \code{\linkS4class{"nacopula"}}
-  (and \code{"outer_nacopula"}) and \code{\linkS4class{"acopula"}}.
+  The class definitions \code{\linkS4class{"nacopula"}},
+  \code{\linkS4class{"outer_nacopula"}}, and \code{\linkS4class{"acopula"}}.
+}
+\references{
+	Hofert, M. (2010a),
+	Efficiently sampling nested Archimedean copulas,
+	\emph{Computational Statistics & Data Analysis}, in press.
+	
+	Hofert, M. (2010b),
+	\emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
+	Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
 }
 \examples{
-C3d.AMH <- onacopula("AMH", C(0.7135, 1, C(0.943, 2:3)))
-pnacopula(C3d.AMH, u = c(1/4, 1/2, 1/4))
+## Construct a three-dimensional nested Gumbel copula with parameters chosen
+## such that the Kendall's tau of the respective bivariate margins are
+## 0.2 and 0.5.
+theta0 <- copGumbel@tauInv(.2)
+theta1 <- copGumbel@tauInv(.5)
+C3 <- onacopula("G", C(theta0, 1, C(theta1, c(2,3))))
 
-## Good error message if the component ("coordinate") indices are wrong:
-err <- try(onacopula("AMH", C(0.7135, 2, C(0.943, c(3,2)))))
+## Good error message if the component ("coordinate") indices are wrong / do not match:
+err <- try(onacopula("G", C(theta0, 2, C(theta1, c(3,2)))))
+
+## Compute the probability of falling in the cube [0,.01]^3 for this copula
+pnacopula(C3, rep(.01,3))
+
+## Compute the probability of falling in the cube [.99,1]^3 
+prob(C3, rep(.99, 3), rep(1, 3))
 }
 \keyword{multivariate}

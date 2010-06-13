@@ -19,7 +19,7 @@
 sinc <- function(x) .Call(sinc_c, x)
 
 ##' Call C implementation of Zolotarev's function to the power 1-alpha.
-##' @param x argument
+##' @param x argument in [0,pi]
 ##' @param alpha parameter in (0,1]
 ##' @return sin(alpha*x)^alpha * sin((1-alpha)*x)^(1-alpha) / sin(x)
 ##' @author Martin Maechler
@@ -162,7 +162,7 @@ rstable1C <- function(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
 {
     stopifnot((la <- length(alpha)) >= 1, (lb <- length(beta)) >= 1,
 	      length(gamma) >= 1, length(delta) >= 1,
-	      0 < alpha, alpha <= 2, abs(beta) <= 1,
+	      0 < alpha, alpha <= 2, abs(beta) <= 1, gamma >= 0,
               length(pm) == 1, pm %in% 0:1)
 
     if(beta == 1 && pm == 1)

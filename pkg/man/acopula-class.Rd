@@ -22,7 +22,7 @@
 \section{Slots}{
   \describe{
     \item{\code{name}:}{a string (class \code{"character"}) describing
-      the copula family, e.g., "AMH", "Clayton", "Frank", "Gumbel", or "Joe".}
+      the copula family, e.g., "AMH" (or simply "A"), "Clayton" ("C"), "Frank" ("F"), "Gumbel" ("G"), or "Joe" ("J").}
     \item{\code{psi}, \code{psiInv}:}{The Archimedean generator, a \code{\link{function}}, and its inverse.}
     \item{\code{theta}:}{parameter value, a \code{\link{numeric}}, where
       \code{NA} means \dQuote{unspecified}.}
@@ -35,7 +35,7 @@
       whenever the \code{paraInterval} slot is valid.
       \code{\linkS4class{"interval"}}.}
 	 \item{\code{nestConstr}:}{A \code{\link{function}}, which returns \code{TRUE} if and only if the two provided parameters \code{theta0} and \code{theta1} satisfy the sufficient nesting condition for this family.}
-    \item{\code{V0}:}{A \code{\link{function}} which samples \code{n} random variates from the distribution \eqn{F}{F} with Laplace-Stieltjes transform \eqn{\psi}{psi} and parameter \code{theta}.}
+    \item{\code{V0}:}{A \code{\link{function}} which samples \code{n} random variates from the distribution \eqn{F} with Laplace-Stieltjes transform \eqn{\psi}{psi} and parameter \code{theta}.}
     \item{\code{V01}:}{A \code{\link{function}} which obtains a vector of realizations of \code{V0} and two parameters \code{theta0}, \code{theta1} which satisfy the sufficient nesting condition for this family, and which returns a vector of the same length as \code{V0} with random variates from the distribution function \eqn{F_{01}}{F01} with Laplace-Stieltjes transform \eqn{\psi_{01}}{psi01} and parameters \eqn{\vartheta_0=\,}{theta0=}\code{theta0}, \eqn{\vartheta_1=\,}{theta1=}\code{theta1}.}
     \item{\code{tau}, \code{tauInv}:}{Compute Kendall's tau of the bivariate Archimedean copula with generator \eqn{\psi}{psi} as a \code{\link{function}} of \code{theta}, respectively, \code{theta} as a function of Kendall's tau.}
     \item{\code{lambdaL} (\code{lambdaU}), \code{lambdaLInv} (\code{lambdaUInv}):}{Compute the lower (upper) tail-dependence coefficient of the bivariate Archimedean copula with generator \eqn{\psi}{psi} as a \code{\link{function}} of \code{theta}, respectively, \code{theta} as a function of the lower (upper) tail-dependence coefficient.}
@@ -58,7 +58,7 @@
     \item{show}{\code{signature("acopula")}: compact overview of the copula.}
   }
 }
-% \author{Martin Maechler}
+\author{Martin Maechler}
 \seealso{
   Specific provided copula family objects, e.g.,
   \code{\link{copAMH}}, \code{\link{copClayton}}, \code{\link{copFrank}},
@@ -71,18 +71,20 @@
   parametrized Archimedean copula, see the example below.
 }
 \references{
-	Hofert, M. (2010a)
+	Hofert, M. (2010a),
 	Efficiently sampling nested Archimedean copulas,
 	\emph{Computational Statistics & Data Analysis}, in press.
 	
-	Hofert, M. (2010b)
-	\emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing}.
+	Hofert, M. (2010b),
+	\emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
 	Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
 }
 \examples{
 
-## Background information about Clayton copulas
+## acopula class information
 showClass("acopula")
+
+## Information and structure of Clayton copulas
 copClayton
 str(copClayton)
 
@@ -103,8 +105,7 @@ C2 <- onacopula("Clayton", C(theta, 1:2))
 C2@copula # is an "acopula" with specific parameter theta
 
 ## Plot the corresponding generator 
-curve(C2@copula@psi(x, C2@copula@theta), 0, 5,
-      n=1000, col=2, xaxs="i",yaxs="i")
+curve(C2@copula@psi(x, C2@copula@theta), xlim = c(0,5), ylim = c(0,1), col = 4)
 
 ## What is the corresponding Kendall's tau?
 C2@copula@tau(theta)

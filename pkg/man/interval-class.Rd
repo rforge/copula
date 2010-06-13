@@ -41,12 +41,12 @@
       notably \code{\link{range}()}, \code{\link{min}()}, etc.}
   }
 }
-\author{Martin Maechler}
 \note{
   There are more sophisticated interval classes, functions and methods,
-  notably in package \pkg{Intervals}.  We only use this as a simple
+  notably in package \pkg{Intervals}. We only use this as a simple
   interface in order to specify our copula functions consistently.
 }
+\author{Martin Maechler}
 \seealso{
   \code{\link{interval}} constructs "interval" objects conveniently.
 }
