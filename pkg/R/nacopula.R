@@ -141,11 +141,11 @@ if(FALSE) { # evaluate the following into your R session if you need debugging:
 
 ##' Constructor for outer_nacopula
 ##' @param family character string: short or longer form of copula family name
-##' @param nacform a "formula" of the form C(th, comp, list(C(..), C(..)))
+##' @param nacStructure a "formula" of the form C(th, comp, list(C(..), C(..)))
 ##' @return a valid outer_nacopula object
 ##' @author Martin Maechler
-onacopula <- function(family, nacform) {
-    nacl <- substitute(nacform)
+onacopula <- function(family, nacStructure) {
+    nacl <- substitute(nacStructure)
     stopifnot(is.character(family), length(family) == 1,
               identical(nacl[[1]], as.symbol("C")))
     nacl[[1]] <- as.symbol("oC")
@@ -160,7 +160,7 @@ onacopula <- function(family, nacform) {
         else stopifnot(is.list(c))
         stopifnot(is.numeric(a), length(a) == 1, is.numeric(b))
         if(any(sapply(c, class) != "nacopula"))
-            stop("third entry of 'nacform' must be NULL or) list of 'C(..)' terms")
+            stop("third entry of 'nacStructure' must be NULL or) list of 'C(..)' terms")
         new(cClass, copula = setTheta(COP, a),
             comp = as.integer(b), childCops = c)
     }

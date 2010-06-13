@@ -120,5 +120,5 @@ U <- rnacopula(n, C2)
 
 ## Plot the generated pairs of random variates
 splom2(U)
-
+}
 \keyword{classes}
