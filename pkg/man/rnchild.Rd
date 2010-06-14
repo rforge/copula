@@ -12,39 +12,58 @@ rnchild(x, theta0, V0, ...)
 }
 \arguments{
   \item{x}{an \R object of \code{\link{class}}
-    \code{"\linkS4class{nacopula}"}, typically emerging from and \code{"\linkS4class{outer_nacopula}"} constructed with \code{\link{onacopula}()}.
-  }
-  \item{theta0}{the parameter (vector) of the parent Archimedean copula which contains \code{x} as a child.}
-  \item{V0}{a \code{\link{numeric}} vector of realizations of \eqn{V_{0}}{V0} following \eqn{F_{0}}{F0} whose length determines the number of generated vectors, i.e., for each realization \eqn{V_{0}}{V0}, a vector of variates from \code{x} is generated.}
+    \code{"\linkS4class{nacopula}"}, typically emerging from and
+    \code{"\linkS4class{outer_nacopula}"} constructed with
+    \code{\link{onacopula}()}.}
+  \item{theta0}{the parameter (vector) of the parent Archimedean copula
+    which contains \code{x} as a child.}
+  \item{V0}{a \code{\link{numeric}} vector of realizations of
+    \eqn{V_{0}}{V0} following \eqn{F_{0}}{F0} whose length determines the
+    number of generated vectors, i.e., for each realization
+    \eqn{V_{0}}{V0}, a vector of variates from \code{x} is generated.}
   \item{\dots}{possibly further arguments for the given copula family.}
 }
 \details{
-  The generation is done recursively, descending the tree implied by the nested Archimedean structure. The algorithm is based on a mixture representation and requires sampling \eqn{V_{01}\sim F_{01}}{V01 ~ F01} given random variates \eqn{V_0\sim F_{0}}{V0 ~ F0}. Calling \code{"rnchild"} is only intended for experts. The typical call of this function takes place through \code{\link{rnacopula}()}.
+  The generation is done recursively, descending the tree implied by the
+  nested Archimedean structure. The algorithm is based on a mixture
+  representation and requires sampling \eqn{V_{01}\sim F_{01}}{V01 ~ F01}
+  given random variates \eqn{V_0\sim F_{0}}{V0 ~ F0}. Calling
+  \code{"rnchild"} is only intended for experts. The typical call of
+  this function takes place through \code{\link{rnacopula}()}.
 }
 \value{
   a list with components
- \item{U}{a \code{\link{numeric}} matrix containing the vector of random variates from the child copula. The number of rows of this matrix therefore equals the length of \eqn{V_{0}}{V0} and the number of columns corresponds to the dimension of the child copula.}
- \item{indcol}{an \code{\link{integer}} vector of indices of \code{U} (the vector following a nested Archimedean copula of which \code{x} is a child) whose corresponding components of \code{U} are arguments of the nested Archimedean copula \code{x}.}
+  \item{U}{a \code{\link{numeric}} matrix containing the vector of random
+    variates from the child copula. The number of rows of this matrix
+    therefore equals the length of \eqn{V_{0}}{V0} and the number of
+    columns corresponds to the dimension of the child copula.}
+
+ \item{indcol}{an \code{\link{integer}} vector of indices of \code{U}
+   (the vector following a nested Archimedean copula of which \code{x} is
+   a child) whose corresponding components of \code{U} are arguments of
+   the nested Archimedean copula \code{x}.}
 }
 \author{Marius Hofert, Martin Maechler}
 \seealso{
-  \code{\link{rnacopula}}; classes \code{"\linkS4class{nacopula}"}  and \code{"\linkS4class{outer_nacopula}"}, see also \code{\link{onacopula}()}.
+  \code{\link{rnacopula}}; classes \code{"\linkS4class{nacopula}"}  and
+  \code{"\linkS4class{outer_nacopula}"}, see also
+  \code{\link{onacopula}()}.
 }
 \references{
-	Hofert, M. (2010a),
-	Efficiently sampling nested Archimedean copulas,
-	\emph{Computational Statistics & Data Analysis}, in press.
-	
-	Hofert, M. (2010b),
-	\emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
-	Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
-	
-	McNeil, A. J. (2008),
-	Sampling nested Archimedean copulas,
-	\emph{Journal of Statistical Computation and Simulation}, 78, 6, 567--581.
+  Hofert, M. (2010a),
+  Efficiently sampling nested Archimedean copulas,
+  \emph{Computational Statistics & Data Analysis}, in press.
+
+  Hofert, M. (2010b),
+  \emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
+  Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
+
+  McNeil, A. J. (2008),
+  Sampling nested Archimedean copulas,
+  \emph{Journal of Statistical Computation and Simulation} \bold{78}, 6, 567--581.
 }
 \examples{
-## Construct a three-dimensional nested Clayton copula with parameters 
+## Construct a three-dimensional nested Clayton copula with parameters
 ## chosen such that the Kendall's tau of the respective bivariate margins
 ## are 0.2 and 0.5.
 theta0 <- copClayton@tauInv(.2)
