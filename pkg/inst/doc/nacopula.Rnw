@@ -21,23 +21,9 @@ Willis Re for financial support while this paper was completed.} \\ETH Zurich
 
 %% an abstract and keywords
 \Abstract{
-  Sampling algorithms for multivariate distributions are indispensable for
-  many applications in the areas of statistics and finance.  By Sklar's
-  Theorem, it suffices to sample the common dependence structure, given by
-  a copula, and to transform the obtained variates to the correct marginals
-  with the corresponding univariate distributions.  Therefore, sampling
-  from such multivariate distributions usually boils down to sampling the
-  copula under consideration.  Besides elliptical copulas, Archimedean
-  copulas are among the most important classes of copulas. These copulas
-  can be generalized to the class of nested Archimedean copulas, which
-  allow for hierarchical structures, and hence, asymmetries, and are
-  therefore more flexible. Such hierarchical structures often appear in
-  models for high-dimensional portfolios, e.g., in risk-management
-  applications.
-
-  The package \pkg{nacopula} provides procedures for constructing arbitrary
-  nested Archimedean copulas with any kind of nesting structure and in any
-  dimension, generating vectors of random variates from the constructed
+  The package \pkg{nacopula} provides procedures for constructing 
+  nested Archimedean copulas in any dimensions and with any kind of nesting
+  structure, generating vectors of random variates from the constructed
   objects, computing function values and probabilities of falling into
   hypercubes, as well as evaluation of characteristics such as Kendall's
   tau and the tail-dependence coefficients. As a by-product, algorithms for
@@ -219,8 +205,34 @@ options(width=70, useFancyQuotes = FALSE)# "TeX" does not work, nicely
 @
 \section{Introduction}
 A \textit{copula} is a multivariate distribution function with standard
-uniform univariate margins. Standard references are \textcite{joe1997}
-and \textcite{nelsen2007}. Besides elliptical copulas, Archimedean
+uniform univariate margins. Standard references for an introduction
+are \textcite{joe1997} or \textcite{nelsen2007}. 
+
+\textcite{sklar1959} shows that for any multivariate
+distribution function $H$ with margins $F_j$, $j\in\{1,\dots,d\}$, there exists
+a copula $C$ such that 
+\begin{align}
+	H(x_1,\dots,x_d)=C(F_1(x_1),\dots,F_d(x_d)),\ \bm{x}\in\IR^d.\label{sklar}
+\end{align}
+Conversely, give a copula $C$ and any univariate distribution functions $F_j$,
+$j\in\{1,\dots,d\}$, $H$ defined by (\ref{sklar}) is a distribution function
+with marginals $F_j$, $j\in\{1,\dots,d\}$. On the one hand, Sklar's Theorem
+tells us that we can decompose any given multivariate distribution function into
+its margins and a copula. By this decomposition, copulas allow us to study
+multivariate distributions functions independently of the margins. This is of
+particular interest in statistics. On the other hand, Sklar's Theorem provides a
+tool for constructing multivariate distributions and is therefore often used for
+sampling multivariate distributions via copulas. This is indispensable for
+many applications in the areas of statistics and finance. For sampling the
+multivariate distribution $H$ it suffices to sample the common dependence
+structure, given by the copula $C$, and to transform the obtained variates to
+the correct margins $F_j$, $j\in\{1,\dots,d\}$. Since this transformation is
+usually easy to achieve (simply apply the \textit{generalized inverse}
+$F_j^-(y):=\inf\{x\in\IR:F_j(x)\ge y\}$ corresponding to $F_j$,
+$j\in\{1,\dots,d\}$, with the convention that $\inf\emptyset:=\infty$), sampling
+from $H$ usually boils down to sampling the copula $C$ under consideration.
+
+Besides elliptical copulas, Archimedean
 copulas play an important role in practical applications. In contrast to
 elliptical copulas, Archimedean copulas are given explicitly in terms of
 a generator and they are able to capture different kinds of tail dependencies,
@@ -228,10 +240,10 @@ e.g., upper, but not lower tail dependence. With the algorithm of
 \textcite{marshallolkin1988}, they are also usually easy to sample. Their
 functional symmetry, however, is often considered to be a drawback, e.g.,
 in risk-management applications where the considered portfolios are
-often high-dimensional. To circumvent this symmetry, Archimedean copulas
+typically high-dimensional. To circumvent this symmetry, Archimedean copulas
 can be nested into each other under certain conditions. The resulting
 copulas are referred to as nested Archimedean copulas and allow to model
-hierarchical dependence structures.
+hierarchical dependence structures. 
 
 \section{Archimedean copulas}
 \subsection{Archimedean copulas and their properties}
