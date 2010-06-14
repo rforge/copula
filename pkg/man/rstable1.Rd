@@ -46,7 +46,7 @@ rstable1(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
 \references{
 	Chambers J.M., Mallows, C.L. and Stuck, B.W. (1976),
 	\emph{A Method for Simulating Stable Random Variables},
-	J. Amer. Statist. Assoc. 71, 340--344.
+	J. Amer. Statist. Assoc. \bold{71}, 340--344.
 
 	Nolan, J.P. (2010),
 	\emph{Stable Distributions---Models for Heavy Tailed Data},

@@ -38,7 +38,7 @@ A..Z(x, alpha, I.alpha = 1 - alpha)
 \references{
   Devroye, L. (2009)
   Random variate generation for exponentially and polynomially tilted stable distributions,
-  \emph{ACM Transactions on Modeling and Computer Simulation}, 19, 18, 1--20.
+  \emph{ACM Transactions on Modeling and Computer Simulation} \bold{19}, 18, 1--20.
 }
 \examples{
 curve(sinc, -15,25); abline(h=0,v=0, lty=2)

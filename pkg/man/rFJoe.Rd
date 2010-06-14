@@ -40,7 +40,7 @@ rFFrank(n, theta0, theta1)
 \references{
   	Kemp, A. W. (1981),
 	Efficient Generation of Logarithmically Distributed Pseudo-Random Variables,
-	\emph{Journal of the Royal Statistical Society: Series C (Applied Statistics)}, 30, 3, 249--253.
+	\emph{Journal of the Royal Statistical Society: Series C (Applied Statistics)} \bold{30}, 3, 249--253.
 	
 	Hofert, M. (2010a),
 	Efficiently sampling nested Archimedean copulas,

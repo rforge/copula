@@ -39,7 +39,7 @@ rnacopula(n, x, ...)
 	
 	McNeil, A. J. (2008),
 	Sampling nested Archimedean copulas,
-	\emph{Journal of Statistical Computation and Simulation}, 78, 6, 567--581.
+	\emph{Journal of Statistical Computation and Simulation} \bold{78}, 6, 567--581.
 }
 \examples{
 ## Construct a three-dimensional nested Clayton copula with parameters 
