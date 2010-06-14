@@ -47,7 +47,7 @@ Willis Re for financial support while this paper was completed.} \\ETH Zurich
 
 \Keywords{Archimedean copulas, nested Archimedean copulas, sampling algorithms,
  Kendall's tau, tail-dependence coefficients, exponentially tilted stable
- distribution, \proglang{R}}
+ distribution, \R}
 \Plainkeywords{Archimedean copulas, nested Archimedean copulas, sampling
  algorithms, Kendall's tau, tail-dependence coefficients, exponentially tilted
  stable distribution, R} %% without formatting
@@ -157,7 +157,7 @@ Willis Re for financial support while this paper was completed.} \\ETH Zurich
 }
 \makeatother
 
-\newcommand*{\R}{\textsf{R}}
+\newcommand*{\R}{\proglang{R}}%{\textsf{R}}
 %% Marius' commands
 \newcommand*{\eps}{\varepsilon}
 %NON-STANDARD{bbm}:\newcommand*{\I}{\mathbbm{1}}
@@ -635,7 +635,7 @@ admits the stochastic representation $V_0+X$, where $X$ follows a negative
 binomial distribution with parameters as given in Table~\ref{table3}. The
 parameterization is $\NB(r,p)$, $r\in(0,\infty)$, $p\in(0,1)$, with mass
 function $p_k=\binom{k+r-1}{r-1}p^r(1-p)^k$, $k\in\IN_0$, as implemented in
-\proglang{R}.
+\R.
 
 For Clayton's family, $F_{01}$ can be interpreted as a special case (take
 $h:=1$, $\alpha:=\vt_0/\vt_1$) of the \textit{exponentially tilted stable
