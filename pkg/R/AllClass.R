@@ -2,7 +2,7 @@
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
-## Foundation; either version 3 of the License, or (at your option) any later 
+## Foundation; either version 3 of the License, or (at your option) any later
 ## version.
 ##
 ## This program is distributed in the hope that it will be useful, but WITHOUT
@@ -66,8 +66,9 @@ setClass("acopula",
 		     r0 <- tryCatch(if(nArgs == 2) f(NULL, theta = th) else f(NULL),
                                     error = function(e) e)
 		     if(is(r0, "error"))
-			 sprintf("calling %s(NULL, %g) fails: %s",
-				 sName, th, r0$message)
+			 sprintf("calling %s(NULL%s fails: %s", sName,
+				 if(nArgs == 2) sprintf(", %g)", th) else ")",
+				 r0$message)
 		     else if(!identical(r0,
                                         {n0 <- numeric(0)
                                          if(nArgs == 2) f(n0, theta = th) else f(n0) }))

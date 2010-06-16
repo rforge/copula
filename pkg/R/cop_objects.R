@@ -19,6 +19,7 @@
 ##	inside some of their components.
 ## Possible solution:
 ##	use *same* environment for  (tau, tauInv, paraConstr, nestConstr)
+
 ## NOTA BENE:  Write psi(), tau(), ... functions such that they *vectorize*
 ## ---------   *and* do work even for (non-numeric) NULL argument
 ##          	{now checked in "acopula" validityMethod -- see ./AllClass.R }
@@ -38,19 +39,19 @@ copAMH <-
             copAMH@paraConstr(theta1) && theta1 >= theta0
         },
         ## V0 and V01
-        V0 = function(n,theta) { rgeom(n, 1-theta) + 1 },
+        V0 = function(n,theta) rgeom(n, 1-theta) + 1,
         V01 = function(V0,theta0,theta1) {
             rnbinom(length(V0),V0,(1-theta1)/(1-theta0))+V0
         },
         ## Kendall's tau
-        tau = function(theta) {
-            1 - 2*((1-theta)*(1-theta)*log(1-theta)+theta)/(3*theta*theta)
-        },
+        tau = tauAMH, ##-> ./aux-acopula.R
+        ## function(th)  1 - 2*((1-th)*(1-th)*log(1-th)+th)/(3*th*th)
+        ## but numerically stable, including, theta -> 0
         tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
             if(any(tau > 1/3))
                 stop("Impossible for AMH copula to attain a Kendall's tau larger than 1/3")
             sapply(tau,function(tau) {
-		r <- safeUroot(function(th) copAMH@tau(th) - tau,
+		r <- safeUroot(function(th) tauAMH(th) - tau,
 			       interval = c(1e-12, 1-1e-12), Sig = +1,
                                tol = tol, check.conv=TRUE, ...)
                 r$root

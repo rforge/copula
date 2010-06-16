@@ -11,6 +11,7 @@ R_PROG = R
 R_CALL = ${R_PROG} --vanilla --silent
 #                  ^^^^^^^^^ also loses R_LIBS
 R_CALL = ${R_PROG} --no-init-file --no-save --silent
+R_CALL = ${R_PROG} --no-init-file --no-save --silent
 
 TPUTS = ${TEXINPUTS}:${R_LIB}/share/texmf//:${R_COURSE_MODULES}//
 
@@ -22,7 +23,8 @@ all: $(DRIVERS:=.pdf)
 
 ## I cannot yet set '--vanilla' when using 'R CMD Sweave' ...
 %.tex: %.Rnw
-	echo "library(tools); Sweave('$<')" | ${R_CALL}
+	${R_PROG} CMD Sweave $<
+##	echo "library(tools); Sweave('$<')" | ${R_CALL}
 
 %.pdf : %.tex
 	TEXINPUTS=${TPUTS} texi2dvi --pdf $<

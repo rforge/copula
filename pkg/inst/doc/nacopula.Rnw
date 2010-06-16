@@ -271,7 +271,8 @@ $\Psi_\infty$ in what follows. By Bernstein's Theorem, see, e.g.,
 \textcite[p.\ 439]{feller1971}, this class coincides with the class of
 Laplace-Stieltjes transforms of distribution functions $F$ on the positive
 real line, where the Laplace-Stieltjes transform of $F$, also known as the
-\textit{Laplace transform of the distribution} $F$, is defined as
+\textit{Laplace transform of the distribution},% <- hier kein $F$ (MM)
+is defined as
 \begin{align*}
   \LS[F](t):=\int_0^\infty\exp(-tx)\,dF(x),\ t\in[0,\infty).
 \end{align*}
@@ -319,7 +320,7 @@ may be derived for sampling Archimedean copulas, see
     (4) \> \textbf{return} $\bm{U}=(U_1,\dots,U_d)\tr$
   \end{tabbing}
 \end{algorithm}
-In order for this algorithm to be easily applied, we need to know how to sample the distribution functions $F=\LSi[\psi]$. For the families of Ali-Mikhail-Haq, Clayton, Frank, Gumbel, and Joe, see Table~\ref{table1}. 
+In order for this algorithm to be easily applied, we need to know how to sample the distribution functions $F=\LSi[\psi]$. For the families of Ali-Mikhail-Haq, Clayton, Frank, Gumbel, and Joe, see Table~\ref{table1}.
 \begin{table}[htbp]
   \centering
   \begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}X>{\hspace{-6mm}}cc>{\hspace{-4mm}}c}
@@ -357,7 +358,7 @@ For Gumbel's family, $F$ corresponds to a $S(\alpha, \beta, \gamma, \delta; 1)$,
 \begin{align}
 	\phi(t)=\exp\bigl(i\delta t-\gamma^\alpha\lvert t\rvert^\alpha(1-i\beta\sgn(t)w(t,\alpha))\bigr),\ t\in\IR,
 \end{align}
-where 
+where
 \begin{align*}
 	w(t,\alpha)=\begin{cases}
 			\tan(\alpha\pi/2),&\alpha\neq1,\\
@@ -793,7 +794,7 @@ distributions) and visualize the generated data with a scatter-plot matrix.
 <<ex2-splom, fig=TRUE, height=9>>=
 set.seed(1)
 dim(U9 <- rnacopula(500, C_9_clayton))
-## For plotting, re-order the columns according to the same strength 
+## For plotting, re-order the columns according to the same strength
 ## of dependence:
 j <- allComp(C_9_clayton)
 (vnames <- do.call(expression,
@@ -840,8 +841,8 @@ referred to as \textit{outer power Archimedean copulas}. Note that two
 parametric Archimedean generators $\psi(t^{1/\vt_0})$, $\vt_0\in[1,\infty)$, and
 $\psi(t^{1/\vt_1})$, $\vt_1\in[1,\infty)$, of this type, constructed with the
 same ``base'' generator $\psi(t)$, $t\in[0,\infty)$, fulfill the nesting
-condition if $\vt_0\le\vt_1$. Therefore, one can build so-called 
-\textit{nested outer power Archimedean copulas}. 
+condition if $\vt_0\le\vt_1$. Therefore, one can build so-called
+\textit{nested outer power Archimedean copulas}.
 \textcite{hofert2010a} derives some results for
 these copulas, including instructions for sampling the corresponding random
 variables $V_0$ and $V_{01}$, as well as an explicit formula for Kendall's tau
@@ -862,7 +863,7 @@ str(opower)
 We believe that it is both more natural and flexible
 to work with copula families that are \emph{generalizations} of our current
 families, each including the power as an extra parameter (such that
-\code{theta}, i.e., $\vartheta$, will become 2-dimensional), rather than 
+\code{theta}, i.e., $\vartheta$, will become 2-dimensional), rather than
 using the \code{opower()} construction below. This section therefore should be
 considered mainly as an outlook to further features of the package
 \pkg{nacopula}, where this transformation is not required anymore for working

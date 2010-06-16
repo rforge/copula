@@ -124,5 +124,27 @@ for(nm in famNms) { Cf <- get(nm)
          main=substitute(NAM * " " * tau(theta), list(NAM=Cf@name)))
 }
 par(op)
+
+## Construct a bivariate Clayton copula with parameter theta
+theta <- 2
+C2 <- onacopula("Clayton", C(theta, 1:2))
+C2@copula # is an "acopula" with specific parameter theta
+
+curve(C2@copula@psi(x, C2@copula@theta),
+      main = quote("Generator" ~~ psi ~~ " of Clayton A.copula"),
+      xlab = quote(theta1), ylab = quote(psi(theta1)),
+      xlim = c(0,5), ylim = c(0,1), col = 4)
+
+## What is the corresponding Kendall's tau?
+C2@copula@tau(theta) # 0.5
+
+## What are the corresponding tail-dependence coefficients?
+C2@copula@lambdaL(theta)
+C2@copula@lambdaU(theta)
+
+## Generate n pairs of random variates from this copula
+U <- rnacopula(n = 1000, C2)
+## and plot the generated pairs of random variates
+plot(U, asp=1, main = "n = 1000 from  Clayton(theta = 2)")
 }
 \keyword{datasets}

@@ -16,6 +16,35 @@
 #### Functions and Methods for "acopula" objects
 #### class definition in ./AllClass.R
 
+### ==== Ali-Mikhail-Haq == "AMH" ==============================================
+
+##' @title Ali-Mikhail-Haq ("AMH")'s  tau(theta)
+##' @param th
+##' @return 1 - 2*((1-th)*(1-th)*log(1-th)+th)/(3*th*th)
+##' numerically accurately, notably for th -> 0
+##'
+##' @author Martin Maechler
+tauAMH <- function(th) {
+    if(length(th) == 0) return(numeric(0)) # to work with NULL
+    r <- th
+    lrg <- th > 0.01
+    r[lrg] <- (function(t) 1 - 2*((1-t)*(1-t)*log1p(-t) + t)/(3*t*t))(th[lrg])
+    if(any(!lrg)) {
+	l1 <- !lrg & (ll1 <- th > 2e-4) ## --> k = 7
+	r[l1] <- (function(x) 2*x/9*(1+ x*(1/4 + x/10*(1 + x*(1/2 + x/3.5)))))(th[l1])
+	l2 <- !ll1 & (ll2 <- th > 1e-5)	 ## --> k = 6
+	r[l2] <- (function(x) 2*x/9*(1+ x*(1/4 + x/10*(1 + x/2))))(th[l2])
+	l3 <- !ll2 & (ll <- th > 2e-8)	## --> k = 5
+	r[l3] <- (function(x) 2*x/9*(1+ x*(1/4 + x/10)))(th[l3])
+	irem <- which(!ll)## rest: th <= 2e-8 : k == 4
+	r[irem] <- (function(x) 2*x/9*(1+ x/4))(th[irem])
+    }
+    r
+}
+
+
+
+
 ### ==== Clayton ===============================================================
 
 ##' Note: this is mainly to show that this function can be very well
@@ -58,22 +87,22 @@ m.opt.retst <- function(V0){
 retstablerej <- function(m,V0,alpha){
     gamm. <- (cos(alpha*pi/2)*V0/m)^(1/alpha)
     sum(unlist(lapply(integer(m),
-                      function(.) {
-                          ## apply standard rejection for sampling
-                          ## \tilde{S}(alpha, 1, (cos(alpha*pi/2)
-                          ##	*V_0/m)^{1/alpha}, (V_0/m)*I_{alpha = 1},
-                          ## h*I_{alpha != 1}; 1) with Laplace-Stieltjes
-                          ## transform exp(-(V_0/m)*((h+t)^alpha-h^alpha))
-                          repeat {
-                              V__ <- rstable1(1, alpha, beta=1, gamma = gamm.)
-                              if(runif(1) <= exp(-V__))
-                                  return(V__)
-                          }})
-               ## on acceptance, St_k ~ \tilde{S}(alpha, 1, (cos(alpha*pi/2)
-               ## *V_0/m)^{1/alpha}, (V_0/m)*I_{alpha = 1}, h*I_{alpha != 1};
-               ## 1) with Laplace-Stieltjes transform
-               ## exp(-(V_0/m)*((h+t)^alpha-h^alpha))
-               ))
+		      function(.) {
+			  ## apply standard rejection for sampling
+			  ## \tilde{S}(alpha, 1, (cos(alpha*pi/2)
+			  ##	*V_0/m)^{1/alpha}, (V_0/m)*I_{alpha = 1},
+			  ## h*I_{alpha != 1}; 1) with Laplace-Stieltjes
+			  ## transform exp(-(V_0/m)*((h+t)^alpha-h^alpha))
+			  repeat {
+			      V__ <- rstable1(1, alpha, beta=1, gamma = gamm.)
+			      if(runif(1) <= exp(-V__))
+				  return(V__)
+			  }})
+	       ## on acceptance, St_k ~ \tilde{S}(alpha, 1, (cos(alpha*pi/2)
+	       ## *V_0/m)^{1/alpha}, (V_0/m)*I_{alpha = 1}, h*I_{alpha != 1};
+	       ## 1) with Laplace-Stieltjes transform
+	       ## exp(-(V_0/m)*((h+t)^alpha-h^alpha))
+	       ))
 }
 
 ##' Sample a vector of random variates St ~ \tilde{S}(alpha, 1, (cos(alpha*pi/2)
@@ -88,10 +117,10 @@ retstablerej <- function(m,V0,alpha){
 retstableR <- function(alpha,V0, h = 1){
     n <- length(V0)
     stopifnot(n >= 1, is.numeric(alpha), length(alpha) == 1,
-              0 <= alpha, alpha <= 1) ## <- alpha > 1 ==> cos(pi/2 *alpha) < 0
+	      0 <= alpha, alpha <= 1) ## <- alpha > 1 ==> cos(pi/2 *alpha) < 0
     ## case alpha==1
     if(alpha == 1) { # alpha == 1 => St corresponds to a point mass at V0 with
-        return(V0) # Laplace-Stieltjes transform exp(-V0*t)
+	return(V0) # Laplace-Stieltjes transform exp(-V0*t)
     }
     ## else alpha != 1 : call fast rejection algorithm with optimal m
     m <- m.opt.retst(V0)
@@ -101,7 +130,7 @@ retstableR <- function(alpha,V0, h = 1){
 ##' Sample random variates St ~ \tilde{S}(alpha, 1, (cos(alpha*pi/2)
 ##' *V_0)^{1/alpha}, V_0*I_{alpha = 1}, h*I_{alpha != 1}; 1) with
 ##' Laplace-Stieltjes transform exp(-V_0((h+t)^alpha-h^alpha)), see Hofert (2010a).
-##' This procedure is more efficient than retstableR since it calls the C 
+##' This procedure is more efficient than retstableR since it calls the C
 ##' function retstable_c.
 ##' @param alpha parameter in (0,1]
 ##' @param V0 vector of random variates
@@ -112,8 +141,8 @@ retstableR <- function(alpha,V0, h = 1){
 retstableC <- function(alpha, V0, h = 1, method = NULL){
     n <- length(V0)
     stopifnot(n >= 1, is.numeric(alpha), length(alpha) == 1,
-              0 < alpha, alpha <= 1,
-              is.numeric(h), length(h) == 1, h > 0)
+	      0 < alpha, alpha <= 1,
+	      is.numeric(h), length(h) == 1, h > 0)
     if(alpha == 1) { # alpha == 1 => St corresponds to a point mass at V0 with
 	V0 # Laplace-Stieltjes transform exp(-V0*t)
     }
@@ -150,18 +179,18 @@ rlogR <- function(n,p) {
     stopifnot((n <- as.integer(n)) >= 0, 0 < p, p < 1)
     vec <- numeric(n)
     if(n >= 1) {
-        u <- runif(n)
-        l1 <- u > p
-        vec[l1] <- 1
-        i2 <- which( !l1 ) # of shorter length, say n2
-        q2 <- 1-(1-p)^runif(length(i2)) # length n2
-        l3 <- u[i2] < q2*q2
-        i3 <- i2[l3]
-        vec[i3] <- floor(1+abs(log(u[i3])/log(q2[l3])))
-        l4 <- u[i2] > q2
-        vec[i2[l4]] <- 1
-        l5 <- ! (l3 | l4) # q2^2 <= u[i2] <= q2
-        vec[i2[l5]] <- 2
+	u <- runif(n)
+	l1 <- u > p
+	vec[l1] <- 1
+	i2 <- which( !l1 ) # of shorter length, say n2
+	q2 <- 1-(1-p)^runif(length(i2)) # length n2
+	l3 <- u[i2] < q2*q2
+	i3 <- i2[l3]
+	vec[i3] <- floor(1+abs(log(u[i3])/log(q2[l3])))
+	l4 <- u[i2] > q2
+	vec[i2[l4]] <- 1
+	l5 <- ! (l3 | l4) # q2^2 <= u[i2] <= q2
+	vec[i2[l5]] <- 2
     }
     vec
 }
@@ -211,8 +240,8 @@ rejFFrankR <- function(p,alpha,theta0_le_1) {
 ##' @author Martin Maechler
 rFFrankR <- function(n,theta0,theta1) {
     sapply(rep.int(-expm1(-theta1), n), rejFFrankR,
-           alpha = theta0/theta1,
-           theta0_le_1 = (theta0 <= 1))
+	   alpha = theta0/theta1,
+	   theta0_le_1 = (theta0 <= 1))
 }
 
 ##' Generate a vector of variates V ~ F with Laplace-Stieltjes transform
@@ -239,21 +268,21 @@ rFJoeR <- function(n,alpha) {
     stopifnot((n <- as.integer(n)) >= 0)
     V <- numeric(n)
     if(n >= 1) {
-        if(alpha == 1) {
-            V[] <- 1
-        } else {
-            u <- runif(n)
-            ## FIXME(MM): (for alpha not too close to 1): re-express using 1-u
-            l1 <- u <= alpha
-            V[l1] <- 1
-            i2 <- which(!l1)
-            Ginv <- ((1-u[i2])*gamma(1-alpha))^(-1/alpha)
-            floorGinv <- floor(Ginv)
-            l3 <- (1-1/(floorGinv*beta(floorGinv,1-alpha)) < u[i2])
-            V[i2[l3]] <- ceiling(Ginv[l3])
-            i4 <- which(!l3)
-            V[i2[i4]] <- floorGinv[i4]
-        }
+	if(alpha == 1) {
+	    V[] <- 1
+	} else {
+	    u <- runif(n)
+	    ## FIXME(MM): (for alpha not too close to 1): re-express using 1-u
+	    l1 <- u <= alpha
+	    V[l1] <- 1
+	    i2 <- which(!l1)
+	    Ginv <- ((1-u[i2])*gamma(1-alpha))^(-1/alpha)
+	    floorGinv <- floor(Ginv)
+	    l3 <- (1-1/(floorGinv*beta(floorGinv,1-alpha)) < u[i2])
+	    V[i2[l3]] <- ceiling(Ginv[l3])
+	    i4 <- which(!l3)
+	    V[i2[i4]] <- floorGinv[i4]
+	}
     }
     V
 }
@@ -305,7 +334,7 @@ mkParaConstr <- function(int){
     eR <- substitute(theta <= RR, list(RR = int[2])); if(is.o[2]) eR[[1]] <-
 	as.symbol("<")
     bod <- substitute(length(theta) == 1 && LEFT && RIGHT,
-                      list(LEFT = eL, RIGHT= eR))
+		      list(LEFT = eL, RIGHT= eR))
     as.function(c(alist(theta=), bod), parent.env(environment()))
     ## which is a fast version of
     ## r <- function(theta) {}
@@ -315,7 +344,7 @@ mkParaConstr <- function(int){
 }
 
 printAcopula <- function(x, slots = TRUE, indent = 0,
-                         digits = getOption("digits"), width = getOption("width"), ...)
+			 digits = getOption("digits"), width = getOption("width"), ...)
 {
     cl <- class(x)
     cld <- getClassDef(cl)

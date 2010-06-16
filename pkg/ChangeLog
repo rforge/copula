@@ -1,3 +1,7 @@
+2010-06-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/aux-acopula.R (tauAMH): nicely working for theta -> 0
+
 2010-06-10  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/aux-acopula.R (retstableC): maybe use *both* methods, when V0
