@@ -1,3 +1,7 @@
+2010-06-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/tauAMH.Rd, NAMESPACE: add help file and export
+
 2010-06-16  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/aux-acopula.R (tauAMH): nicely working for theta -> 0

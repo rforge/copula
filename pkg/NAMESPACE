@@ -35,6 +35,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"retstable", "retstableR"
        ,"rFJoe", "rFJoeR", "rFFrank", "rFFrankR", "rlog", "rlogR"
        ,"setTheta"
+       ,"tauAMH"
        ,"allComp" # <- maybe keep private ?
        ,"safeUroot"
        ,"splom2"
