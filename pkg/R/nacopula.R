@@ -27,7 +27,7 @@ pnacopula <- function(x,u) {
 	      length(u) >= dim(x))	# can be larger
     C <- x@copula
     th <- C@theta
-    ## Now use u[j] for the direct components 'comp'
+    ## use u[j] for the direct components 'comp':
     C@psi(sum(unlist(lapply(u[x@comp], C@psiInv, theta=th)),
 	      C@psiInv(unlist(lapply(x@childCops, pnacopula, u = u)),
 		       theta=th)),

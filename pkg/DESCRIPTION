@@ -1,6 +1,6 @@
 Package: nacopula
 Version: 0.4-2
-Date: 2010-06-16
+Date: 2010-06-21
 LastChanged: $LastChangedRevision$; $Date$
 Title: Nested Archimedean Copulas
 Description: An R package for nested Archimedean copulas, providing a
