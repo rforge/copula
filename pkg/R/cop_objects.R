@@ -247,7 +247,7 @@ copJoe <-
         ## Kendall's tau
         ## noTerms: even for theta==0, the approximation error is < 10^(-5)
         tau = function(theta, noTerms=446) {
-            k <- seq_len(noTerms)
+            k <- noTerms:1
             sapply(theta,
                    function(th) {
                        tk2 <- th*k + 2
