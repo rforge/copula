@@ -1,6 +1,5 @@
-(*) include recursive structure in vignette
 (*) submit vignette
-(*) R help pages done? maybe rename the files "rn" (to "rnacopula") and "value-methods" (to "pnacopula")?
+(*) R help pages done? 
 (*) implement coloring in splom2? 
 (*) which functions in ./tests to export?
 (*) put package to CRAN
