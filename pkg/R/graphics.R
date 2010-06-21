@@ -49,7 +49,6 @@ splom2 <- function(data, varnames = NULL, Vname = "U", ...)
 ##' @author Marius Hofert, Martin Maechler
 splomFOO <- function(data, device = getOption("device"),
 		   color = !(dev.name == "postscript"),
-		   useKerning = FALSE, ## <--- FIXME  wieso ???
 		   varnames = NULL, Vname = "U", outfilename = "splom2", ...)
 {
     stopifnot(require(lattice),
@@ -77,8 +76,7 @@ splomFOO <- function(data, device = getOption("device"),
                              postscript = "ps",
                              png = "png"),
                       sep = ".")
-        trellis.device(device = device, color = color, file = file,
-                       useKerning=useKerning)
+        trellis.device(device = device, color = color, file = file)
     }
     else
         trellis.device(device = device, color = color)
