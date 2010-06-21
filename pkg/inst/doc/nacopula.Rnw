@@ -483,8 +483,7 @@ copJoe @ tau(theta) # ~= 0.5 because theta was chosen as such!
 round(cor(U3, method="kendall"), 3)
 @
 
-Next, let us evaluate this Joe copula at $(0.5,0.5,0.5)\tr$ and near the
-upper corner $(0.99,0.99,0.99)\tr$.
+Next, let us evaluate this Joe copula at $(0.5,0.5,0.5)\tr$ and $(0.99,0.99,0.99)\tr$.
 <<ex1-explore2>>=
 c(pnacopula(C3joe.5, c(.5, .5, .5)),
   pnacopula(C3joe.5, c(.99,.99,.99)))
@@ -578,7 +577,7 @@ its components. We refer to these components as \textit{child copulas}.
 In \R, because of the recursive tree structure, a powerful approach is to
 use a \emph{recursive} class definition: In the \pkg{nacopula} package, we
 define the \code{nacopula} (\textbf{n}ested \textbf{a}rchimedean
-\textbf{copula}) class, with three components (``\code{slots}),
+\textbf{copula}) class, with three components (\code{slots}),
 \begin{Schunk}
 %% manual cut & paste from ../../R/AllClass.R :
 \begin{Sinput}
@@ -612,7 +611,7 @@ setClass("outer_nacopula", contains = "nacopula",
 \end{Sinput}
 \end{Schunk}
 For example, (one parametrization of) the three-dimensional example from
-Figure~\ref{fig:NAC_3d} above is
+Figure~\ref{fig:NAC_3d} is
 <<<NAC_3d-ex>>=
 onacopula("A", C(0.2, 1, list(C(0.8, 2:3, list()))))
 @
