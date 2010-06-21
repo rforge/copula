@@ -122,7 +122,6 @@ rstable1R <- function(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
         ## {note that logicals vectorize, indices do *not* so easily}
 	if(any(a1 <- !norm)) { ## alpha == 1
 	    bet <- beta[a1]; Thet <- Theta[a1]
-	    p2 <- pi/2
 	    p2.bt <- p2 + bet*Thet
 	    Z[a1] <- (p2.bt*tan(Thet) - bet*log((p2*W[a1]*cos(Thet))/p2.bt))/p2
 	}
