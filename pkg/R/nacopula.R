@@ -2,7 +2,7 @@
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
-## Foundation; either version 3 of the License, or (at your option) any later 
+## Foundation; either version 3 of the License, or (at your option) any later
 ## version.
 ##
 ## This program is distributed in the hope that it will be useful, but WITHOUT
@@ -22,20 +22,17 @@
 ##' @return x(u)
 ##' @author Marius Hofert, Martin Maechler
 ## FIXME: maybe make this applicable to a matrix of u's?
-setGeneric("pnacopula", function(x, u) standardGeneric("pnacopula"))
-
-setMethod("pnacopula", signature(x ="nacopula"),
-          function(x,u) {
-              stopifnot(is.numeric(u), 0 <= u, u <= 1,
-                        length(u) >= dim(x))	# can be larger
-              C <- x@copula
-              th <- C@theta
-              ## Now use u[j] for the direct components 'comp'
-              C@psi(sum(unlist(lapply(u[x@comp], C@psiInv, theta=th)),
-                        C@psiInv(unlist(lapply(x@childCops, pnacopula, u = u)),
-                                 theta=th)),
-                    theta=th)
-          })
+pnacopula <- function(x,u) {
+    stopifnot(is.numeric(u), 0 <= u, u <= 1,
+	      length(u) >= dim(x))	# can be larger
+    C <- x@copula
+    th <- C@theta
+    ## Now use u[j] for the direct components 'comp'
+    C@psi(sum(unlist(lapply(u[x@comp], C@psiInv, theta=th)),
+	      C@psiInv(unlist(lapply(x@childCops, pnacopula, u = u)),
+		       theta=th)),
+	  theta=th)
+}
 
 ##' Compute the probability P[l < U <= u]  where U ~ copula x.
 ##' @param x outer nested archimedean copula
@@ -77,30 +74,27 @@ setMethod("prob", signature(x ="outer_nacopula"),
 ##' @param x outer_nacopula
 ##' @return matrix of random variates
 ##' @author Marius Hofert, Martin Maechler
-setGeneric("rnacopula", function(n,x,...) standardGeneric("rnacopula"))
-
-setMethod("rnacopula", signature(x = "outer_nacopula"),
-	  function(n, x, ...)
-      {
-	  Cp <- x@copula		# outer copula
-	  theta <- Cp@theta		# theta for outer copula
-	  V0 <- Cp@V0(n,theta)		# generate V0's
-	  childL <- lapply(x@childCops, rnchild, # <-- start recursion
-                           theta0=theta,V0=V0,...)
-	  dns <- length(x@comp)	# dimension of the non-sectorial part
-	  r <- matrix(rexp(n*dns), n, dns) # generate the non-sectorial part
-          ## put pieces together
-          mat <- Cp@psi(r/V0, theta=theta) # transform
-          mat <- cbind(mat, do.call(cbind,lapply(childL, `[[`, "U")))
-          ## get correct sorting order:
-	  j <- c(x@comp, unlist(lapply(childL, `[[`, "indCol")))
-	  ## extra checks TODO: comment
-	  stopifnot(length(j) == ncol(mat))
-	  m <- mat[,order(j)] # permute data and return
-	  ## extra checks TODO: comment
-	  stopifnot(length(dm <- dim(m)) == 2, dm == dim(mat))
-	  m
-      })
+rnacopula <- function(n, x, ...)
+{
+    Cp <- x@copula			# outer copula
+    theta <- Cp@theta			# theta for outer copula
+    V0 <- Cp@V0(n,theta)		# generate V0's
+    childL <- lapply(x@childCops, rnchild, # <-- start recursion
+		     theta0=theta,V0=V0,...)
+    dns <- length(x@comp)	 # dimension of the non-sectorial part
+    r <- matrix(rexp(n*dns), n, dns) # generate the non-sectorial part
+    ## put pieces together
+    mat <- Cp@psi(r/V0, theta=theta)	# transform
+    mat <- cbind(mat, do.call(cbind,lapply(childL, `[[`, "U")))
+    ## get correct sorting order:
+    j <- c(x@comp, unlist(lapply(childL, `[[`, "indCol")))
+    ## extra checks TODO: comment
+    stopifnot(length(j) == ncol(mat))
+    m <- mat[,order(j)]			# permute data and return
+    ## extra checks TODO: comment
+    stopifnot(length(dm <- dim(m)) == 2, dm == dim(mat))
+    m
+}
 
 ##' Returns a list with an (n x d)-matrix of random variates and a vector of
 ##' indices.
@@ -150,19 +144,19 @@ onacopula <- function(family, nacStructure) {
               identical(nacl[[1]], as.symbol("C")))
     nacl[[1]] <- as.symbol("oC")
     if(nchar(family) <= 2) # it's a short name
-        family <- c_longNames[family]
+	family <- c_longNames[family]
     stopifnot(is(COP <- get(c_objNames[family]), # envir = "package:nacopula"
-                 "acopula"))
+		 "acopula"))
     mkC <- function(cClass, a,b,c) {
-        if(missing(b) || length(b) == 0) b <- integer()
-        if(missing(c) || length(c) == 0) c <- list()
-        else if(length(c) == 1 && !is.list(c)) c <- list(c)
-        else stopifnot(is.list(c))
-        stopifnot(is.numeric(a), length(a) == 1, is.numeric(b))
-        if(any(sapply(c, class) != "nacopula"))
-            stop("third entry of 'nacStructure' must be NULL or) list of 'C(..)' terms")
-        new(cClass, copula = setTheta(COP, a),
-            comp = as.integer(b), childCops = c)
+	if(missing(b) || length(b) == 0) b <- integer()
+	if(missing(c) || length(c) == 0) c <- list()
+	else if(length(c) == 1 && !is.list(c)) c <- list(c)
+	else stopifnot(is.list(c))
+	stopifnot(is.numeric(a), length(a) == 1, is.numeric(b))
+	if(any(sapply(c, class) != "nacopula"))
+	    stop("third entry of 'nacStructure' must be NULL or list of 'C(..)' terms")
+	new(cClass, copula = setTheta(COP, a),
+	    comp = as.integer(b), childCops = c)
     }
     C <- function(a,b,c) mkC("nacopula", a,b,c)
     oC <- function(a,b,c) mkC("outer_nacopula", a,b,c)

@@ -6,6 +6,7 @@
 %
 \alias{format,interval-method}
 \alias{show,interval-method}
+\alias{\%in\%,numeric,interval-method}
 \alias{Summary,interval-method}
 
 \title{Class "interval" of simple Intervals}
@@ -35,6 +36,9 @@
 }
 \section{Methods}{
   \describe{
+    \item{"\%in\%"}{\code{signature(x = "numeric", table = "interval")}:
+      check if \code{x} is inside the interval, carefully differentiating
+      open and closed intervals.}
     \item{format}{\code{signature(x = "interval")}: ... }
     \item{show}{\code{signature(object = "interval")}: ... }
     \item{Summary}{\code{signature(x = "interval")}: Group methods,
@@ -49,5 +53,9 @@
 \author{Martin Maechler}
 \seealso{
   \code{\link{interval}} constructs "interval" objects conveniently.
+}
+\examples{
+-1:2 \%in\% interval("(0, Inf)")
+## 0 is *not* inside
 }
 \keyword{classes}

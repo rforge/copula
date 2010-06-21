@@ -149,7 +149,7 @@ setClass("nacopula",
              ic <- object@comp
              if((lc <- length(ic)) > d)
                  return("more components than the dimension")
-             if(!all(ok <- "nacopula" == sapply(object@childCops, class)))
+	     if(!all("nacopula" == sapply(object@childCops, class)))
                  return("All 'childCops' elements must be 'nacopula' objects")
 ## FIXME: we need to recursively apply a "comp" function
 

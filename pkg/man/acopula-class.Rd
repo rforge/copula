@@ -5,8 +5,6 @@
 \alias{acopula-class}
 %
 \alias{initialize,acopula-method}
-\alias{setTheta}
-\alias{setTheta,acopula-method}
 \alias{show,acopula-method}
 %
 \description{
@@ -70,12 +68,6 @@
       the \code{paraInterval} is provided (typically via
       \code{\link{interval}()}).}
 
-    \item{setTheta}{\code{signature(x = "acopula")}: To set or change the
-      parameter \eqn{\vartheta}{theta} (\code{theta}) of such an object, say
-      \code{myCop}, use \code{setTheta(myCop, <value>)}.  This is used
-      for construction of copula \dQuote{models} with a specified
-      parameter.
-    }
     \item{show}{\code{signature("acopula")}: compact overview of the copula.}
   }
 }

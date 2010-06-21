@@ -304,23 +304,23 @@ rFJoe <- function(n,alpha) {
 ##' Function for setting the parameter in an acopula
 ##' @param x acopula
 ##' @param value parameter value
+##' @param na.ok logical indicating if NA values are ok for theta
 ##' @return acopula with theta set to value
 ##' @author Martin Maechler
-setTheta <- function(x, value){
+setTheta <- function(x, value, na.ok = TRUE) {
     stopifnot(is(x, "acopula"),
-	      is.na(value) || is.numeric(value))
-    if(x@paraConstr(value)) ## parameter constraints are fulfilled
+	      is.numeric(value) | (ina <- is.na(value)))
+    if(ina) {
+	if(!na.ok) stop("NA value, but 'na.ok' is not TRUE")
+	value <- NA_real_
+    }
+    if(ina || x@paraConstr(value)) ## parameter constraints are fulfilled
 	x@theta <- value
     else
 	stop("theta (=", format(value), ")  does not fulfil paraConstr()")
     x
 }
 
-## such that a user can have, e.g., myCop <- copAMH; theta(myCop) <- 3
-if(FALSE) { ## this is just "didactical", not really useful
-    setGeneric("theta<-", function(x, value) standardGeneric("theta<-"))
-    setMethod("theta<-", "acopula", setTheta)
-}
 
 ##' Construct "paraConstr" function from an "interval"
 ##' @param int interval

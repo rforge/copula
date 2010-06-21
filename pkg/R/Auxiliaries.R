@@ -2,7 +2,7 @@
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
-## Foundation; either version 3 of the License, or (at your option) any later 
+## Foundation; either version 3 of the License, or (at your option) any later
 ## version.
 ##
 ## This program is distributed in the hope that it will be useful, but WITHOUT
@@ -46,3 +46,10 @@ setMethod("show", "interval",
 ##' Summary group method: range(), min(), max(), [sum(), prod(), any(), all()] :
 setMethod("Summary", signature(x = "interval", na.rm = "ANY"),
 	  function(x, ..., na.rm) callGeneric(x@.Data, ..., na.rm=na.rm))
+
+setMethod("%in%", signature(x = "numeric", table = "interval"),
+	  function(x, table) {
+	      op <- table@open
+	      (if(op[1]) `<` else `<=`)(table[1], x) &
+	      (if(op[2]) `<` else `<=`)(x, table[2])
+	  })
