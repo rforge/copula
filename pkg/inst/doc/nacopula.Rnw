@@ -461,12 +461,14 @@ marginal copula of the Archimedean type) equals 0.5.
 (theta <- copJoe@tauInv(0.5))
 C3joe.5 <- onacopula("Joe", C(theta, 1:3))
 @
-The internal structure of this object is
+The internal structure of this object%
+\footnote{Note that we use a parametric \emph{nested} Archimedean copula (see
+  below), without any nesting, and corresponding \code{*nacopula()}
+  functions for all this, since they generalize the present non-nested case.}
+\ is
 <<ex1-str>>=
 str(C3joe.5) # str[ucture] of object
 @
-In general, parametric\emph{nested} Archimedean copulas
-It
 Let us sample 500 random variates (each in $[0,1]^3$) from this copula
 and visualize the generated data with a scatter-plot matrix.
 <<ex1-splom, fig=TRUE, height=5>>=
@@ -699,11 +701,13 @@ sample
 as all distribution functions $F_{ij}$ take the same form as $F_{01}$, only
 the parameters may differ.
 In our \R{} package \pkg{nacopula}, the supported Archimedean family
-objects therefore provide the two slots \code{nestConstr} and \code{V01},
-both functions. The first, \code{nestConstr}, is a
+objects therefore provide the three slots \code{V0}, \code{nestConstr} and \code{V01},
+all functions. \code{nestConstr}, is a
 \code{function(}$\theta_0$\code{, }$\theta_1$\code{)} returning \code{TRUE}
-when the nesting condition is fulfilled, and \code{V01} is random number
-generating function, generating $V_{01}$ from Table~\ref{tab:nestedAC-V01},
+when the nesting condition is fulfilled, and \code{V0} and \code{V01} are
+random number generating functions, generating
+$V$ from Table~\ref{tab:cop-families-psi} and
+$V_{01}$ from Table~\ref{tab:nestedAC-V01}, respectively,
 e.g., for the most simple case, Ali-Mikhail-Haq,
 <<AMH-V01>>=
 copAMH @ nestConstr
@@ -1045,10 +1049,16 @@ c(opClayton @ lambdaL(theta1),
 <<sessionInfo, results=tex>>=
 toLatex(sessionInfo())
 @
-<<nacopula-version>>=
-packageDescription("nacopula")[["LastChanged"]]
-@
+%%
 %% packageDescription("nacopula")[c("Version", "LastChanged")]
+%% Now,  packageDescription("nacopula")[["LastChanged"]]  is too long,
+%% ----> we "cheat" as follows:
+<<nacopula-version, eval=FALSE>>=
+my.strsplit(  packageDescription("nacopula")[["LastChanged"]]  )
+@
+<<nacopula-version,echo=FALSE>>=
+cat(strsplit(packageDescription("nacopula")[["LastChanged"]], "; *")[[1]],"", sep="\n")
+@
 
 \section{Conclusion}
 The package \pkg{nacopula} allows to easily construct and work with nested
