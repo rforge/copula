@@ -311,12 +311,16 @@ void retstable_LD(double *St, const double V0[], double h, double alpha, int n)
 	do {
 	    double U, z, Z;
 	    do {
-		double W_ = unif_rand(), V = unif_rand();
+		double V = unif_rand();
 		if(gamma >= 1) {
 		    if(V < w1/(w1+w2)) U = fabs(norm_rand())/sgamma;
-		    else U = M_PI*(1.-W_*W_);
+		    else{
+			double W_ = unif_rand();
+			U = M_PI*(1.-W_*W_);
+		    }
 		}
 		else{
+		    double W_ = unif_rand();
 		    if(V < w3/(w2+w3)) U = M_PI*W_;
 		    else U = M_PI*(1.-W_*W_);
 		}
