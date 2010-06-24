@@ -357,7 +357,7 @@ printAcopula <- function(x, slots = TRUE, indent = 0,
 	else ""
     }
     bl <- paste(rep.int(" ",indent), collapse="")
-    cat(sprintf('%sArchimedean copula ("%s") and family "%s"%s\n',
+    cat(sprintf('%sArchimedean copula ("%s"), family "%s"%s\n',
 		bl, cl, x@name, ch.thet))
     if(slots) {
 	nms <- slotNames(cld)
@@ -373,13 +373,21 @@ printAcopula <- function(x, slots = TRUE, indent = 0,
 }
 setMethod(show, "acopula", function(object) printAcopula(object))
 
+## This is now exported & has help file --> ../man/printNacopula.Rd :
 printNacopula <-
-    function(x, indent=0, digits = getOption("digits"), width = getOption("width"), ...)
+    function(x, labelKids = NA, deltaInd = if(identical(labelKids,FALSE)) 5 else 3,
+             indent.str="",
+	     digits = getOption("digits"), width = getOption("width"), ...)
 {
     cl <- class(x)
-    stopifnot(indent >= 0, extends(cl, "nacopula"))
-    bl <- paste(rep.int(" ",indent), collapse="")
-    ch1 <- sprintf("%sNested Archimedean copula (\"%s\"), with ", bl, cl)
+    stopifnot(deltaInd >= 0, is.character(indent.str), length(indent.str) == 1,
+              extends(cl, "nacopula"))
+    mkBlanks <- function(n) paste(rep.int(" ", n), collapse="")
+    bl <- mkBlanks(nIS <- nchar(indent.str))
+
+## cat(sprintf(" __deltaInd = %d, nIS = %d__ ", deltaInd, nIS))
+    ch1 <- sprintf("%sNested Archimedean copula (\"%s\"), with ",
+                   indent.str, cl)
     ch2 <- if(length(c.j <- x@comp)) {
 	sprintf("slot \n%s'comp'   = %s", bl,
 		paste("(",paste(c.j, collapse=", "),")", sep=""))
@@ -388,9 +396,18 @@ printNacopula <-
     printAcopula(x@copula, slots=FALSE, digits=digits, width=width, ...)
     nk <- length(kids <- x@childCops)
     if(nk) {
-	cat(sprintf("%s and %d child copula%s\n", bl, nk, if(nk > 1)"s" else ""))
-	for(acop in kids)
-	    printNacopula(acop, indent=indent+5, digits=digits, width=width, ...)
+	cat(sprintf("%sand %d child copula%s\n", bl, nk, if(nk > 1)"s" else ""))
+	doLab <- if(is.na(labelKids)) nk > 1 else as.logical(labelKids)
+	paste0 <- function(...) paste(..., sep="")
+	if(doLab) {
+	    hasNms <- !is.null(nms <- names(kids))
+	    lab <- if(hasNms) paste0(nms,": ") else paste0(seq_len(nk),") ")
+	}
+        bl <- mkBlanks(nIS + deltaInd)
+	for(ic in seq_along(kids))
+	    printNacopula(kids[[ic]], deltaInd=deltaInd,
+			  indent.str = paste0(bl, if(doLab) lab[ic]),
+			  labelKids=labelKids, digits=digits, width=width, ...)
     }
     else
 	cat(sprintf("%sand *no* child copulas\n", bl))

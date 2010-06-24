@@ -4,7 +4,6 @@
 \alias{outer_nacopula-class}
 \alias{nacopula-class}
 \alias{dim,nacopula-method}
-\alias{show,nacopula-method}
 %
 \title{Class "nacopula" of Nested Archimedean Copulas}
 \description{
@@ -33,8 +32,9 @@
   \describe{
     \item{dim}{\code{signature(x = "nacopula"):} returns the dimension
       \eqn{d} of the random vector \eqn{U} following \code{x}.}
-    \item{show}{\code{signature("nacopula"):} compact overview of the
-      nested Archimedean copula under consideration.}
+    \item{show}{\code{signature("nacopula"):} calling
+      \code{\link{printNacopula}} for a compact overview of the nested
+      Archimedean copula under consideration.}
   }
 }
 \author{Martin Maechler}
@@ -54,8 +54,7 @@ theta0 <- copFrank@tauInv(.2)
 theta1 <- copFrank@tauInv(.5)
 C3 <- onacopula("F", C(theta0, 1, C(theta1, c(2,3))))
 
-## Display this outer_nacopula object
-show(C3)
+C3 # displaying it, using show(C3), see  help(printNacopula)
 
 ## What is the dimension of this copula?
 dim(C3)

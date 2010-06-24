@@ -1,6 +1,6 @@
 (*) submit vignette
-(*) R help pages done? 
-(*) implement coloring in splom2? 
+(*) R help pages done?
+(*) implement coloring in splom2?
 (*) which functions in ./tests to export?
 (*) put package to CRAN
 
@@ -8,6 +8,11 @@ Outlook:
 (*) implement color-feature in splom2 (now that i and j are included by Deepayan)
 (*) allow families to have outer power parameters (outer power families)
 (*) incorporate the limits theta=0 for Frank and Clayton
-(*) maybe add a slot "survival = FALSE" that returns (if TRUE) 1-U instead of U (so that 1-U is following the corresponding survival copula)
-(*) maybe add an ASCII-plot for the hierarchical structure
-(*) adjust prob() function to allow for larger dimensions (via bit-representation... s. paper "Computing the Volume of n-Dimensional Copulas", Umberto Cherubinia; Silvia Romagnoli)
+(*) maybe add a slot "survival = FALSE" that returns (if TRUE) 1-U instead
+    of U (so that 1-U is following the corresponding survival copula).
+(*) maybe add an ASCII-plot for the hierarchical structure;
+    Actually, define setAs("nacopula", "dendrogram", ....) and then use
+    dendrogram print()ing.
+(*) adjust prob() function to allow for larger dimensions (via
+    bit-representation... s. paper "Computing the Volume of n-Dimensional
+    Copulas", Umberto Cherubinia; Silvia Romagnoli).
