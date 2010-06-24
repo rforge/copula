@@ -2,7 +2,7 @@
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
-## Foundation; either version 3 of the License, or (at your option) any later 
+## Foundation; either version 3 of the License, or (at your option) any later
 ## version.
 ##
 ## This program is distributed in the hope that it will be useful, but WITHOUT
@@ -33,7 +33,7 @@ doPlots <- (Sys.getenv("USER") == "maechler")
 ##' @param cop copula
 ##' @return a list containing run times for V0 and V01 and Kendall's taus
 ##' @author Marius Hofert, Martin Maechler
-corCheck <- function(n,th0,th1,cop){
+corCheck <- function(n, th0,th1, cop) {
     mat <- matrix(0,nrow = n,ncol = 3)
     V0time <- system.time(V0 <- cop@V0(n,th0))
     V01time <- system.time(V01 <- cop@V01(V0,th0,th1))
@@ -41,7 +41,7 @@ corCheck <- function(n,th0,th1,cop){
                  exp(-V0*cop@psiInv(cop@psi(rexp(n)/V01,th1),th0)),
                  exp(-V0*cop@psiInv(cop@psi(rexp(n)/V01,th1),th0)))
     mat[,] <- cop@psi(-log(mat[,])/V0,th0)
-    list(V0time,V01time, cor = cor(mat,method = "kendall"))
+    list(V0time,V01time, name = cop@name, cor = cor(mat, method = "kendall"))
 }
 
 ##' create output
@@ -54,9 +54,9 @@ prt.tau.diff <- function(c1, c2){
 }
 
 ##' create output
-corCheckout <- function(x,family,trCorr){
-    cat(sprintf("Run time [ms] V0  for '%s': %7.1f\n", family, 1000*x[[1]][1]))
-    cat(sprintf("Run time [ms] V01 for '%s': %7.1f\n", family, 1000*x[[2]][1]))
+corCheckout <- function(x, trCorr, famName = x$name) {
+    cat(sprintf("Run time [ms] V0  for '%s': %7.1f\n", famName, 1000*x[[1]][1]))
+    cat(sprintf("Run time [ms] V01 for '%s': %7.1f\n", famName, 1000*x[[2]][1]))
     prt.tau.diff(x[["cor"]], trCorr) ; cat("\n")
 }
 
@@ -175,7 +175,7 @@ corCheckAMH <- corCheck(n,theta0,theta1,copAMH)
 trCorr <- rbind(c(1,0.2,0.2),
                 c(0.2,1,0.3),
                 c(0.2,0.3,1))
-corCheckout(corCheckAMH,"AMH",trCorr)
+corCheckout(corCheckAMH,trCorr)
 stopifnot(max(abs(corCheckAMH[["cor"]]-trCorr)) < eps.tau)
 
 ## check 2
@@ -214,7 +214,7 @@ corCheckClayton <- corCheck(n,theta0,theta1,copClayton)
 trCorr <- rbind(c(1,0.2,0.2),
                 c(0.2,1,0.5),
                 c(0.2,0.5,1))
-corCheckout(corCheckClayton,"Clayton",trCorr)
+corCheckout(corCheckClayton,trCorr)
 stopifnot(max(abs(corCheckClayton[["cor"]]-trCorr)) < eps.tau)
 
 ## check 2
@@ -232,7 +232,7 @@ theta1 <- 5.7363
 
 ## check 1
 corCheckFrank <- corCheck(n,theta0,theta1,copFrank)
-corCheckout(corCheckFrank,"Frank",trCorr)
+corCheckout(corCheckFrank,trCorr)
 stopifnot(max(abs(corCheckFrank[["cor"]]-trCorr)) < eps.tau)
 
 ## check 2
@@ -252,7 +252,7 @@ trCorr <- rbind(c(1,0.2,0.2),
                 c(0.2,0.5,1))
 ## check 1
 corCheckGumbel <- corCheck(n,theta0,theta1,copGumbel)
-corCheckout(corCheckGumbel,"Gumbel",trCorr)
+corCheckout(corCheckGumbel,trCorr)
 stopifnot(max(abs(corCheckGumbel[["cor"]]-trCorr)) < eps.tau)
 
 ## check 2
@@ -270,7 +270,7 @@ theta1 <- 2.8562
 
 ## check 1
 corCheckJoe <- corCheck(n,theta0,theta1,copJoe)
-corCheckout(corCheckJoe,"Joe",trCorr)
+corCheckout(corCheckJoe,trCorr)
 stopifnot(max(abs(corCheckJoe[["cor"]]-trCorr)) < eps.tau)
 
 ## check 2
