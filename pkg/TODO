@@ -1,6 +1,7 @@
 (*) submit vignette
 (*) R help pages done?
 (*) implement coloring in splom2?
+(*) export getAcopulaObj() utility [R/nacopula.R], but maybe need better name ?!
 (*) which functions in ./tests to export?
 (*) put package to CRAN
 

@@ -140,13 +140,9 @@ if(FALSE) { # evaluate the following into your R session if you need debugging:
 ##' @author Martin Maechler
 onacopula <- function(family, nacStructure) {
     nacl <- substitute(nacStructure)
-    stopifnot(is.character(family), length(family) == 1,
-              identical(nacl[[1]], as.symbol("C")))
+    stopifnot(identical(nacl[[1]], as.symbol("C")))
+    COP <- getAcopulaObj(family)
     nacl[[1]] <- as.symbol("oC")
-    if(nchar(family) <= 2) # it's a short name
-	family <- c_longNames[family]
-    stopifnot(is(COP <- get(c_objNames[family]), # envir = "package:nacopula"
-		 "acopula"))
     mkC <- function(cClass, a,b,c) {
 	if(missing(b) || length(b) == 0) b <- integer()
 	if(missing(c) || length(c) == 0) c <- list()
