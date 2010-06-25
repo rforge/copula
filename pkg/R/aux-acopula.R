@@ -423,7 +423,7 @@ setMethod(show, "nacopula", function(object) printNacopula(object))
 ##' be checked.
 ##' @return one of our "acopula" objects
 ##' @author Martin Maechler
-getAcopulaObj <- function(family, check=TRUE) {
+getAcop <- function(family, check=TRUE) {
     stopifnot(is.character(family), length(family) == 1)
     if(nchar(family) <= 2) # it's a short name
 	family <- c_longNames[family]
@@ -432,4 +432,3 @@ getAcopulaObj <- function(family, check=TRUE) {
         stop(paste("invalid acopula-family object, family=",family))
     COP
 }
-

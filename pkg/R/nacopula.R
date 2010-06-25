@@ -141,7 +141,7 @@ if(FALSE) { # evaluate the following into your R session if you need debugging:
 onacopula <- function(family, nacStructure) {
     nacl <- substitute(nacStructure)
     stopifnot(identical(nacl[[1]], as.symbol("C")))
-    COP <- getAcopulaObj(family)
+    COP <- getAcop(family)
     nacl[[1]] <- as.symbol("oC")
     mkC <- function(cClass, a,b,c) {
 	if(missing(b) || length(b) == 0) b <- integer()

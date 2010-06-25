@@ -75,6 +75,12 @@ copJoe
   \eqn{\vartheta_0}{theta0}, \eqn{\vartheta_1}{theta1} satisfy
   \eqn{\vartheta_0\le\vartheta_1}.
 }
+\seealso{
+  The class definition, \code{"\linkS4class{acopula}"}.
+  \cr
+  \code{\link{getAcop}} accesses these families
+  \dQuote{programmatically}.
+}
 \author{Marius Hofert}
 \references{
   Hofert, M. (2010a),

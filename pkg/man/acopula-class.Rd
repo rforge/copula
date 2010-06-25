@@ -76,6 +76,7 @@
   Specific provided copula family objects, e.g.,
   \code{\link{copAMH}}, \code{\link{copClayton}}, \code{\link{copFrank}},
   \code{\link{copGumbel}}, \code{\link{copJoe}}.
+  \cr To access these, \code{\link{getAcop}}.
 
   A \emph{nested} Archimedean copula \emph{without}
   child copulas, see class \code{\linkS4class{"nacopula"}},
