@@ -134,14 +134,17 @@ if(FALSE) { # evaluate the following into your R session if you need debugging:
 }
 
 ##' Constructor for outer_nacopula
-##' @param family character string: short or longer form of copula family name
+##' @param family either character string (short or longer form of
+##'	 copula family name) or an "acopula" family object
 ##' @param nacStructure a "formula" of the form C(th, comp, list(C(..), C(..)))
 ##' @return a valid outer_nacopula object
 ##' @author Martin Maechler
 onacopula <- function(family, nacStructure) {
     nacl <- substitute(nacStructure)
     stopifnot(identical(nacl[[1]], as.symbol("C")))
-    COP <- getAcop(family)
+    COP <- if(is.character(family)) getAcop(family) else
+    if(is(family,"acopula")) family else
+    stop("'family' must be family name or object")
     nacl[[1]] <- as.symbol("oC")
     mkC <- function(cClass, a,b,c) {
 	if(missing(b) || length(b) == 0) b <- integer()

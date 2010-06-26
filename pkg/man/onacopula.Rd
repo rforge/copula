@@ -10,13 +10,19 @@
 onacopula(family, nacStructure)
 }
 \arguments{
-  \item{family}{\code{\link{character}} string: the short or longer form
-    of the Archimedean family name (e.g., "Clayton" or simply "C"), see the \code{\link{acopula-families}} documentation.}
+  \item{family}{either a \code{\link{character}} string, the short or longer form
+    of the Archimedean family name (e.g., "Clayton" or simply "C"), see
+    the \code{\link{acopula-families}} documentation,
+    \cr
+    or an \code{\linkS4class{acopula}} family object.}
   \item{nacStructure}{a \dQuote{formula} of the form
     \deqn{C(\vartheta, c(i_1,\dots,i_c), list(C(..), ..., C(..))).}{C(th, c(i1,..ic), list(C(..), ..., C(..))).}
     Note that \eqn{C()} has (maximally) three arguments: the first is
-    the copula parameter (vector) \eqn{\vartheta}{theta}, the second a (possibly empty) vector of integer indices of components (for the
-    \code{comp} slot in \code{\linkS4class{nacopula}}s), and finally a (possibly empty) list of child copulas, each specified with in the \eqn{C(..)} notation themselves.}
+    the copula parameter (vector) \eqn{\vartheta}{theta}, the second a
+    (possibly empty) vector of integer indices of components (for the
+    \code{comp} slot in \code{\linkS4class{nacopula}}s), and finally a
+    (possibly empty) list of child copulas, each specified with in the
+    \eqn{C(..)} notation themselves.}
 }
 \value{
   An outer nested Archimedean copula object, i.e., of class
@@ -31,7 +37,7 @@ onacopula(family, nacStructure)
 	Hofert, M. (2010a),
 	Efficiently sampling nested Archimedean copulas,
 	\emph{Computational Statistics & Data Analysis}, in press.
-	
+
 	Hofert, M. (2010b),
 	\emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
 	Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
@@ -50,7 +56,7 @@ err <- try(onacopula("G", C(theta0, 2, C(theta1, c(3,2)))))
 ## Compute the probability of falling in the cube [0,.01]^3 for this copula
 pnacopula(C3, rep(.01,3))
 
-## Compute the probability of falling in the cube [.99,1]^3 
+## Compute the probability of falling in the cube [.99,1]^3
 prob(C3, rep(.99, 3), rep(1, 3))
 }
 \keyword{multivariate}

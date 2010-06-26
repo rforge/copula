@@ -181,7 +181,6 @@ Willis Re for financial support while this paper was completed.} \\ETH Zurich
 \newcommand*{\B}{\operatorname*{B}}
 \newcommand*{\NB}{\operatorname*{NB}}
 \newcommand*{\N}{\operatorname*{N}}
-\renewcommand*{\t}{\text{t}}
 \newcommand*{\Var}{\operatorname*{Var}}
 \newcommand*{\Cov}{\operatorname*{Cov}}
 \newcommand*{\Cor}{\operatorname*{Cor}}
@@ -615,7 +614,12 @@ setClass("outer_nacopula", contains = "nacopula",
 For example, (one parametrization of) the three-dimensional example from
 Figure~\ref{fig:NAC_3d} is
 <<<NAC_3d-ex>>=
-onacopula("A", C(0.2, 1, list(C(0.8, 2:3, list()))))
+C3 <- onacopula("A", C(0.2, 1, C(0.8, 2:3)))
+C3
+## and the above is shortened from
+stopifnot(identical(C3,
+      onacopula("A", C(0.2, 1, list(C(0.8, 2:3, list()))))
+))
 @
 
 The recursive definition (\ref{nac}) of nested Archimedean copulas not only leads to
@@ -979,50 +983,30 @@ with outer power Archimedean copulas.
 Using this transformation, we define a valid outer power Clayton copula with
 base generator of Clayton's type and with base parameter such that Kendall's tau
 equals 0.5.
+%% MM: chosing name "opow.Clayton"  to make it "stand out":
 <<opwer-def2>>=
 thetabase <- copClayton@tauInv(.5)
-(opClayton <- opower(copClayton, thetabase))
+(opow.Clayton <- opower(copClayton, thetabase))
 @
 
 Based on this copula generator, we would like to define and sample a
 three-dimensional fully nested outer power Clayton copula with parameters
 such that Kendall's tau are $2/3$ and $0.75$.
+%% onacopula() now works since Martin implemented it on 2010-06-26  :
 <<opwer-def3>>=
-theta0 <- opClayton@tauInv(2/3) # should be 1.5
-theta1 <- opClayton@tauInv(.75) # should be 2
+theta0 <- opow.Clayton@tauInv(2/3) # should be 1.5
+theta1 <- opow.Clayton@tauInv(.75) # should be 2
+## Define a 3d fully nested Archimedean copula based on  opow.Clayton
+opC3 <- onacopula(opow.Clayton, C(theta0, 1, C(theta1, c(2,3))))
 @
 
-Note that the following chunk is currently not supported.
-<<opower-notsupp>>=
-if(FALSE){## currently not supported
-
-  ## Define a 3d fully nested Archimedean copula based on  opClayton, from above
-  opC3 <- onacopula(opClayton, C(theta0, 1, C(theta1, c(2,3))))
-
-  ## Sample 500 random variates from this copula and plot the data
-  dim(U3 <- rnacopula(500, opC3))
-  splom2(U3, cex = 0.4)
-}
-@
-
-We therefore construct random variates from this copula as follows.
-<<opower-construct>>=
-set.seed(1)
-## (1) draw V0 and V01
-V0  <- opClayton@ V0(500, theta0)
-V01 <- opClayton@V01(V0, theta0, theta1)
-## (2) build U
-U <- cbind(
-           opClayton@psi(rexp(500)/V0,  theta0),
-           opClayton@psi(rexp(500)/V01, theta1),
-           opClayton@psi(rexp(500)/V01, theta1))
-@
-
-Let us visualize the generated data with a scatter-plot matrix. In contrast to
-Clayton copulas, note that this outer power Clayton copula has both lower and
-upper tail dependence.
+Now sample 500 random variates from this copula and visualize the generated
+data with a scatter-plot matrix. In contrast to Clayton copulas, note that
+this outer power Clayton copula has both lower and upper tail dependence.
+%% dim(U3 <- rnacopula(500, opC3))
 <<opower-splom, fig=TRUE, height=5>>=
-print(splom2(U, cex = 0.4))
+U3 <- rnacopula(500, opC3) ; stopifnot(dim(U3) == c(500,3))
+print( splom2(U3, cex = 0.4) )
 @
 
 Further, we can compare the population and sample versions of Kendall's tau for
@@ -1030,16 +1014,18 @@ the generated data. The $(1,2)$- and $(1,3)$-entry of the matrix of
 pairwise sample versions of Kendall's tau should be close to $2/3$, the
 $(2,3)$-entry should be close to $0.75$.
 <<opower-explore1>>=
-round(cor(U, method="kendall"), 3)
+round(cor(U3, method="kendall"), 3)
 @
 
 The different lower and upper tail-dependence coefficients for this copula can
 be obtained as follows.
 <<opower-explore2>>=
-c(opClayton @ lambdaL(theta0),
-  opClayton @ lambdaU(theta0))
-c(opClayton @ lambdaL(theta1),
-  opClayton @ lambdaU(theta1))
+rbind(th.0 =
+      c(L = opow.Clayton @ lambdaL(theta0),
+        U = opow.Clayton @ lambdaU(theta0)),
+      th.1 =
+      c(L = opow.Clayton @ lambdaL(theta1),
+        U = opow.Clayton @ lambdaU(theta1)))
 @
 
 %%   =======
