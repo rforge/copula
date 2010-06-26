@@ -2,6 +2,8 @@
 
 	* R/nacopula.R (onacopula): allow 'family' be a family object as
 	well (not only a family *name*)  ===> can use it with opower()-cops!
+	(onacopulaL): new function, working recursively with *list*
+	argument.
 
 2010-06-17  Martin Maechler  <maechler@stat.math.ethz.ch>
 

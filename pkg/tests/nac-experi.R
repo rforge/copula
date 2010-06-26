@@ -387,6 +387,12 @@ if(doPlots)
 c9 <- onacopula("Clayton", C(0.5, c(3,6,1),
 			     C(2., c(9,2,7,5),
 			       C(3., c(8,4)))))
+c9Lis <- list(0.5, c(3,6,1),
+              list(list(2., c(9,2,7,5),
+                        list(list(3., c(8,4))))))
+## consistency onacopula()  <->  onacopulaL() :
+stopifnot(identical(c9, onacopulaL("Clayton", c9Lis)))
+
 
 ## basic check
 d <- dim(c9)
@@ -457,6 +463,17 @@ c125 <- onacopula("Clayton", C(0.5, , # no direct components
                                     C(2, 61:85),
                                     C(3, 86:105),
                                     C(2,106:125))))
+c125Lis <- list(0.5, integer(0), # <- could use NULL
+                list(list(2,  1:10),
+                     list(3, 11:40),
+                     list(2, 41:60),
+                     list(2, 61:85),
+                     list(3, 86:105),
+                     list(2,106:125)))
+## consistency onacopula()  <->  onacopulaL() :
+stopifnot(identical(c125, onacopulaL("C", c125Lis)))
+
+
 
 ## basic check
 d <- dim(c125)

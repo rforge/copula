@@ -142,9 +142,7 @@ if(FALSE) { # evaluate the following into your R session if you need debugging:
 onacopula <- function(family, nacStructure) {
     nacl <- substitute(nacStructure)
     stopifnot(identical(nacl[[1]], as.symbol("C")))
-    COP <- if(is.character(family)) getAcop(family) else
-    if(is(family,"acopula")) family else
-    stop("'family' must be family name or object")
+    COP <- getAcop(family)
     nacl[[1]] <- as.symbol("oC")
     mkC <- function(cClass, a,b,c) {
 	if(missing(b) || length(b) == 0) b <- integer()
@@ -161,3 +159,22 @@ onacopula <- function(family, nacStructure) {
     oC <- function(a,b,c) mkC("outer_nacopula", a,b,c)
     eval(nacl)
 }
+
+##' @title Constructor for outer_nacopula - with list() input and *recursively*
+##' @param family
+##' @param nacList
+##' @return
+##' @author Martin Maechler
+onacopulaL <- function(family, nacList) {
+    COP <- getAcop(family)
+    mkC <- function(cClass, abc) {
+        stopifnot(is.list(abc), 2 <= (nL <- length(abc)))
+        if(nL == 2) abc[[3]] <- list() else
+        if(nL > 3) stop("nacLists must be of length 3 (or 2)")
+	new(cClass, copula = setTheta(COP, abc[[1]]),
+	    comp = as.integer(abc[[2]]),
+            childCops = lapply(abc[[3]], function(.) mkC("nacopula", .)))
+    }
+    mkC("outer_nacopula", nacList)
+}
+

@@ -418,17 +418,22 @@ setMethod(show, "nacopula", function(object) printNacopula(object))
 
 
 ##' @title Get one of our "acopula" family objects by name
-##' @param family character string: short or longer form of copula family name
+##' @param family either character string (short or longer form of
+##'	 copula family name) or an "acopula" family object
 ##' @param check logical indicating if the class of the return value should
 ##' be checked.
 ##' @return one of our "acopula" objects
 ##' @author Martin Maechler
 getAcop <- function(family, check=TRUE) {
-    stopifnot(is.character(family), length(family) == 1)
-    if(nchar(family) <= 2) # it's a short name
-	family <- c_longNames[family]
-    COP <- get(c_objNames[family]) # envir = "package:nacopula"
-    if(check && !is(COP, "acopula"))
-        stop(paste("invalid acopula-family object, family=",family))
-    COP
+    if(is.character(family)) {
+        stopifnot(length(family) == 1)
+        if(nchar(family) <= 2)          # it's a short name
+            family <- c_longNames[family]
+        COP <- get(c_objNames[family])  # envir = "package:nacopula"
+        if(check && !is(COP, "acopula"))
+            stop(paste("invalid acopula-family object, family=",family))
+        COP
+    } else if(is(family, "acopula"))
+        family
+    else stop("'family' must be an \"acopula\" object or family name")
 }

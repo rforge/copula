@@ -1,13 +1,19 @@
 \name{onacopula}
 \alias{onacopula}
+\alias{onacopulaL}
 \title{Constructing (Outer) Nested Archimedean Copulas}
 \description{
   Constructing (outer) nested Archimedean copulas (class
   \code{\linkS4class{outer_nacopula}}) is most conveniently done via
   \code{onacopula()}, using a nested \eqn{C(...)} notation.
+
+  Slightly less conveniently, but with the option to pass a \code{\link{list}}
+  structure, \code{onacopulaL()} can be used, typically from inside
+  another function programmatically.
 }
 \usage{
-onacopula(family, nacStructure)
+onacopula (family, nacStructure)
+onacopulaL(family, nacList)
 }
 \arguments{
   \item{family}{either a \code{\link{character}} string, the short or longer form
@@ -23,6 +29,15 @@ onacopula(family, nacStructure)
     \code{comp} slot in \code{\linkS4class{nacopula}}s), and finally a
     (possibly empty) list of child copulas, each specified with in the
     \eqn{C(..)} notation themselves.}
+  \item{nacList}{a \code{\link{list}} of length 3 (or 2), with elements
+    \enumerate{
+      \item theta: \eqn{\vartheta}
+      \item \code{comps}: components \eqn{c(i_1,\dots,i_c)}{c(i1,..ic)}
+      \item \code{children}: a \link{list} which must be a
+      \code{nacList} itself and may be missing to denote the empty
+      \code{list()}.
+    }
+  }
 }
 \value{
   An outer nested Archimedean copula object, i.e., of class
@@ -58,5 +73,10 @@ pnacopula(C3, rep(.01,3))
 
 ## Compute the probability of falling in the cube [.99,1]^3
 prob(C3, rep(.99, 3), rep(1, 3))
+
+## Equivalent construction with onacopulaL():
+str(NAlis <- list(theta0, 1, list(list(theta1, c(2,3)))))
+C3. <- onacopulaL("Gumbel", NAlis)
+stopifnot(identical(C3, C3.))
 }
 \keyword{multivariate}

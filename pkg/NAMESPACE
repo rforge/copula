@@ -26,7 +26,7 @@ exportClasses("acopula",
 export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"getAcop"
        ,"pnacopula", "rnacopula" ,"rnchild"
-       ,"onacopula"
+       ,"onacopula", "onacopulaL"
        ,"printNacopula"
        ,"interval"
        ,"opower"
