@@ -2,7 +2,7 @@
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
-## Foundation; either version 3 of the License, or (at your option) any later 
+## Foundation; either version 3 of the License, or (at your option) any later
 ## version.
 ##
 ## This program is distributed in the hope that it will be useful, but WITHOUT
@@ -441,11 +441,11 @@ p.cpu <- function(log = "", do.h.eq.1 = TRUE,
 	       pch = par("pch"), col = unique(col), inset=.01)
 }
 
+require(RColorBrewer)
+
 p.cpu()
 p.cpu(log="xy")
 ## cool! -- the formula seems correct!
-
-require(RColorBrewer)
 
 p.cpu(log="xy", colT = "alpha", pchT = "V0")
 ## Zoom in:
