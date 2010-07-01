@@ -1,3 +1,5 @@
 misc/
 Rplots.pdf
-inst/doc/*-splom.pdf
+inst/doc/.*-splom.*\.pdf
+inst/doc/.*\.(log|blg)
+
