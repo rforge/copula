@@ -2,7 +2,6 @@
 
 ## need to get 'texclean' command
 
-R_COURSE_MODULES = /u/maechler/R/D/R-course/R-course-modules
 DRIVERS = nacopula
 #R_LIB = /usr/local/lib/R
 R_LIB = /usr/local/app/R/current
@@ -13,18 +12,18 @@ R_CALL = ${R_PROG} --vanilla --silent
 R_CALL = ${R_PROG} --no-init-file --no-save --silent
 R_CALL = ${R_PROG} --no-init-file --no-save --silent
 
-TPUTS = ${TEXINPUTS}:${R_LIB}/share/texmf//:${R_COURSE_MODULES}//
-
-## for development:
-#all: talk.pdf
+TPUTS = ${TEXINPUTS}:${R_LIB}/share/texmf//
 
 all: $(DRIVERS:=.pdf)
 	${RM} *.out
 
-## I cannot yet set '--vanilla' when using 'R CMD Sweave' ...
 %.tex: %.Rnw
 	${R_PROG} CMD Sweave $<
 ##	echo "library(tools); Sweave('$<')" | ${R_CALL}
+## I cannot yet set '--vanilla' when using 'R CMD Sweave' ...
+
+%.R: %.Rnw
+	${R_PROG} CMD Stangle $<
 
 %.pdf : %.tex
 	TEXINPUTS=${TPUTS} texi2dvi --pdf $<
@@ -34,7 +33,7 @@ all: $(DRIVERS:=.pdf)
 
 
 purge:
-	$(RM) Rplots.ps $(DRIVERS:=.out) *.aux *.log *.blg
+	$(RM) Rplots.pdf $(DRIVERS:=.out) *.aux *.log *.blg
 clean: purge
 	$(RM) $(DRIVERS:=.tex) $(DRIVERS:=.bbl)
 
