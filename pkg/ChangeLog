@@ -1,3 +1,7 @@
+2010-07-01  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Date): ready for CRAN submission
+
 2010-06-26  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/nacopula.R (onacopula): allow 'family' be a family object as
