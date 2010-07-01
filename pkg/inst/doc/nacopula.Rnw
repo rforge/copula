@@ -238,9 +238,9 @@ are given explicitly in terms of a generator and they are able to capture
 different kinds of tail dependencies, e.g., upper, but not lower tail
 dependence. With the algorithm of \textcite{marshallolkin1988}, they are
 also usually easy to sample. Their functional symmetry (in $u_j$,
-$j=1,\dots,d$), however, is often considered to be a drawback, e.g.,
+$j=1,\dots,d$), also referred to as \textit{exchangeability}, however, is often considered to be a drawback, e.g.,
 in risk-management applications where the considered portfolios are
-typically high-dimensional. To circumvent this symmetry, Archimedean copulas
+typically high-dimensional. To circumvent exchangeability, Archimedean copulas
 can be nested into each other under certain conditions. The resulting
 copulas are referred to as \emph{``nested Archimedean copulas''} and allow to model
 hierarchical dependence structures.
@@ -509,7 +509,7 @@ In contrast to elliptical copulas, Archimedean copulas are not restricted to
 radial symmetry, which implies that they can capture different tail
 dependencies, i.e., $\lambda_l\neq\lambda_u$. Further, they are given
 explicitly, which facilitates computing probabilities for such a dependence
-model. However, the functional symmetry of Archimedean copulas implies that
+model. However, the exchangeability inherent in Archimedean copulas implies that
 all margins of the same dimension are equal. For modeling purposes, this
 becomes an increasingly strong assumption in the dimension. Asymmetries, i.e.,
 more realistic dependencies, can be modeled by a hierarchical structure of
