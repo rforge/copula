@@ -2,7 +2,7 @@
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
-## Foundation; either version 3 of the License, or (at your option) any later 
+## Foundation; either version 3 of the License, or (at your option) any later
 ## version.
 ##
 ## This program is distributed in the hope that it will be useful, but WITHOUT
@@ -51,10 +51,10 @@ p.Tau(copJoe, ylim = 0:1, yaxs="i")
 
 ##' ==== test function ====
 
-##' procedure to do several measurements 
+##' procedure to do several measurements
 ##' @param cop copula
 ##' @param theta1 parameter theta1
-##' @param thetavec vector of parameters 
+##' @param thetavec vector of parameters
 ##' @param i10 values where psi is evaluated
 ##' @param nRnd number of generated V0's and V01's
 ##' @param t01 values where psiinv is evaluated
@@ -89,9 +89,9 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     CT <- c(CT, list(psiI = system.time(pi.t <- cop@psiInv(t01,
                      theta = theta0))))
     print(pi.t)
-    CT[["psiI"]] <- CT[["psiI"]] 
+    CT[["psiI"]] <- CT[["psiI"]]
     + system.time(pi.pi <- cop@psiInv(p.i,theta = theta0))
-    CT[["psi" ]] <- CT[["psi" ]] + system.time(p.pit <- cop@psi(pi.t,  
+    CT[["psi" ]] <- CT[["psi" ]] + system.time(p.pit <- cop@psi(pi.t,
                                                                 theta = theta0))
     cat0("check if psiInv(psi(i10))==i10: ", all.equal(pi.pi, i10))
     cat0("check if psi(psiInv(t01))==t01: ", all.equal(p.pit, t01))
@@ -119,7 +119,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     CT <- c(CT, list(lambdaL = system.time(lT <- cop@lambdaL(thetavec))))
     CT <- c(CT, list(lT.I = system.time(lT.I <- cop@lambdaLInv(lT))))
     print(lT)
-    cat0("check if lambdaLInv(lambdaL(thetavec))==lambdaLvec: ", 
+    cat0("check if lambdaLInv(lambdaL(thetavec))==lambdaLvec: ",
          all.equal(lT.I, lambdaLvec))
     cat("\n(7) lambdaU at thetavec:\n")
     CT <- c(CT, list(lambdaU = system.time(uT <- cop@lambdaU(thetavec))))
@@ -135,7 +135,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
 print.proc_time_list <- function (x, ...) {
     stopifnot(is.list(x), !is.null(nx <- names(x)))
     for(nm in nx)
-	if(!all(x[[nm]] == 0)) {
+	if(!all(x[[nm]] == 0, na.rm=TRUE)) {
 	    cat(nm,":\n"); print(x[[nm]], ...)
 	}
     invisible(x)
