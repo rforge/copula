@@ -13,10 +13,10 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-library(nacopula)
+require(nacopula)
 set.seed(1)
 n <- 2000
-N <- 100 # number of variates for the conducted Kolmogorov-Smirnov test
+N <- 100 # number of variates used for the Kolmogorov-Smirnov test
 
 ## maximal deviation for deciding if sample versions of Kendall's tau are
 ## "close enough" to population versions; NB: depends on 'n'
@@ -55,8 +55,8 @@ prt.tau.diff <- function(c1, c2){
 
 ##' create output
 corCheckout <- function(x, trCorr, famName = x$name) {
-    cat(sprintf("Run time [ms] V0  for '%s': %7.1f\n", famName, 1000*x[[1]][1]))
-    cat(sprintf("Run time [ms] V01 for '%s': %7.1f\n", famName, 1000*x[[2]][1]))
+    cat(sprintf("Time [ms] V0  for '%s': %7.1f\n", famName, 1000*x[[1]][1]))
+    cat(sprintf("Time [ms] V01 for '%s': %7.1f\n", famName, 1000*x[[2]][1]))
     prt.tau.diff(x[["cor"]], trCorr) ; cat("\n")
 }
 

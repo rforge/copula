@@ -47,7 +47,7 @@ p.A <- function(ialpha, x = seq(0, 3.1, length=100), col = "tomato") {
     lines(x, A1d, col = gray, lwd = 3)
 }
 
-if(!dev.interactive())
+if(!dev.interactive(orNone=TRUE))
     pdf("retstable-ex.pdf")
 
 ## A(.) --> 1
@@ -196,8 +196,6 @@ if(dev.interactive()) par(mfrow=c(1,1)) else { dev.off(); pdf("retstable-ex-2.pd
 ### --- Part II ---  Experiments with retstableC() methods
 ### --- =======      --------------------------#-----------
 
-require(nacopula)
-
 ##' mean function
 meanretstable <- function(alpha,h,V0) alpha*V0*h^(alpha-1)
 
@@ -273,7 +271,6 @@ if(file.exists(saveFile2) && file.exists(saveFile3)) {
 
 if(getOption("width") < 100) options(width=100)
 
-require(sfsmisc)
 
 ##' check the random variates via histogram plots
 ##' @param alphalab alpha label
@@ -296,7 +293,17 @@ histSt <- function(alphalab, V0lab, hlab, main, nBreaks = 100, log = TRUE) {
 		      alphalab,", ",V0lab,", ",hlab,
                       if(log) "  LOG scale", sep = "")
     nmeth <- length(meth)
-    op <- mult.fig(mfrow= c(nmeth,1), main = main)$old.par
+    op <- if(require("sfsmisc"))
+        mult.fig(mfrow= c(nmeth,1), main = main)$old.par else { ## less nicely looking
+            cex.m <- par("cex.main")
+            pp <- par(mfrow= c(nmeth,1), oma = c(0,0, 1+ 1.5*cex.m, 0),
+                      mgp = c(1.5, 0.6, 0))
+            plot.new()
+            mtext(main, side = 3, outer = TRUE, line = cex.m - .5,
+                  cex = cex.m, font = par("font.main"), col = par("col.main"))
+            par(new = TRUE)
+            pp
+        }
     on.exit(par(op))
 
     S. <- St.c[alphalab, V0lab, hlab, ]
@@ -350,7 +357,6 @@ if(FALSE) { # hmm, not sensical yet
 }
 ## x-range  in log-scale and back-transformed
 x.r <- 10^(xLr <- par("usr")[1:2])
-require(sfsmisc)
 (x. <- floor(xLr[1]):ceiling(xLr[2]))
 x. <- sort(outer(10^x., c(1,2,5))); x. <- x.[(10^xLr[1] <= x.) &
                                              (x. <= 10^xLr[2])]
@@ -393,7 +399,12 @@ p.cpu <- function(log = "", do.h.eq.1 = TRUE,
 		  main = expression(t[CPU](MH) / t[CPU](LD) *
 		      " as " * f(h, alpha, V[0])),
 		  data = dCPU, colT = NULL, pchT = NULL,
-		  pal = brewer.pal(length(alpha), "RdYlGn"),# "Spectral"
+		  pal = { if(require(RColorBrewer))
+			      brewer.pal(nalpha, "RdYlGn") # "Spectral"
+			  else c("#A50026", "#D73027", "#F46D43", "#FDAE61",
+				 "#FEE08B", "#FFFFBF", "#D9EF8B", "#A6D96A",
+				 "#66BD63", "#1A9850", "#006837")
+		      },
 		  ... )
 {
     doCol <- !is.null(colT) ; if(!doCol) col <- par("col")
@@ -440,8 +451,6 @@ p.cpu <- function(log = "", do.h.eq.1 = TRUE,
 	legend("topleft", legend = cLabs,
 	       pch = par("pch"), col = unique(col), inset=.01)
 }
-
-require(RColorBrewer)
 
 p.cpu()
 p.cpu(log="xy")
