@@ -72,8 +72,8 @@ copJoe
   }
   Note that staying within one of these Archimedean families, all of
   them can be nested if two (generic) generator parameters
-  \eqn{\vartheta_0}{theta0}, \eqn{\vartheta_1}{theta1} satisfy
-  \eqn{\vartheta_0\le\vartheta_1}.
+  \eqn{\vartheta_0}{theta.0}, \eqn{\vartheta_1}{theta.1} satisfy
+  \eqn{\vartheta_0\le\vartheta_1}{theta.0 <= theta.1}.
 }
 \seealso{
   The class definition, \code{"\linkS4class{acopula}"}.
