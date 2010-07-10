@@ -4,7 +4,7 @@
 \title{Print Compact Overview of Nested Archimedean Copula ("nacopula")}
 \description{
   Print a compact overview of a nested Archimedean copula, i.e., an
-  object of class \code{\linkS4class{"nacopula"}}.
+  object of class \code{"\linkS4class{nacopula}"}.
   Calling \code{printNacopula} explicitly allows to customize the
   printing behavior.  Otherwise, the \code{\link{show}()} method calls
   \code{printNacopula} with default arguments only.

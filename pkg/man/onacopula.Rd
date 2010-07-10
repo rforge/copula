@@ -41,12 +41,12 @@ onacopulaL(family, nacList)
 }
 \value{
   An outer nested Archimedean copula object, i.e., of class
-  \code{\linkS4class{"outer_nacopula"}}.
+  \code{"\linkS4class{outer_nacopula}"}.
 }
 \author{Martin Maechler}
 \seealso{
-  The class definitions \code{\linkS4class{"nacopula"}},
-  \code{\linkS4class{"outer_nacopula"}}, and \code{\linkS4class{"acopula"}}.
+  The class definitions \code{"\linkS4class{nacopula}"},
+  \code{"\linkS4class{outer_nacopula}"}, and \code{"\linkS4class{acopula}"}.
 }
 \references{
 	Hofert, M. (2010a),

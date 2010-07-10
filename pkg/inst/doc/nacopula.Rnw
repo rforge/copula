@@ -517,13 +517,13 @@ Archimedean copulas, obtained by plugging in Archimedean copulas into each
 other. A $d$-dimensional copula $C$ is called \textit{nested Archimedean} if it
 is an Archimedean copula with arguments possibly replaced by other nested
 Archimedean copulas. If $C$ is given recursively by (\ref{ac}) for $d=2$ and,
-up to permutation of the arguments, by
+up to permutation of the arguments, for $d\ge 3$, by
 \begin{align}
   C(\bm{u};\psi_0,\dots,\psi_{d-2}) := \psi_0\bigl(\psiis{0}(u_1)+
   \psiis{0}(C(u_2,\dots,u_d;\psi_{1},\dots,\psi_{d-2}))\bigr),
   \ \bm{u}\in[0,1]^d,\label{nac}
 \end{align}
-for $d\ge3$, $C$ is called \textit{fully nested Archimedean copula} with
+then $C$ is called \textit{fully nested Archimedean copula} with
 $d-1$ \textit{nesting levels} or \textit{hierarchies}. Otherwise, $C$ is
 called \textit{partially nested Archimedean copula}. Fully and partially
 nested Archimedean copulas are summarized as \textit{nested} (or
@@ -1020,10 +1020,10 @@ round(cor(U3, method="kendall"), 3)
 The different lower and upper tail-dependence coefficients for this copula can
 be obtained as follows.
 <<opower-explore2>>=
-rbind(th.0 =
+rbind(th0 =
       c(L = opow.Clayton @ lambdaL(theta0),
         U = opow.Clayton @ lambdaU(theta0)),
-      th.1 =
+      th1 =
       c(L = opow.Clayton @ lambdaL(theta1),
         U = opow.Clayton @ lambdaU(theta1)))
 @
@@ -1056,7 +1056,8 @@ features include the evaluation of nested Archimedean copulas, as well as
 computing probabilities of a random vector falling into a given hypercube.
 Concerning measures of association, Kendall's tau and the tail-dependence
 coefficients are implemented. Currently supported Archimedean families include
-the well-known families of Ali-Mikhail-Haq, Clayton, Frank, Gumbel, and Joe.
+the well-known families of Ali-Mikhail-Haq, Clayton, Frank, Gumbel, and
+Joe. Each can be used generalized via ``outer power'' transformations.
 
 \bibliography{mh-biblio}
 

@@ -27,13 +27,13 @@
     \item{\code{theta}:}{parameter value, a \code{\link{numeric}}, where
       \code{NA} means \dQuote{unspecified}.}
     \item{\code{paraInterval}:}{Either \code{\link{NULL}} or object of class
-      \code{\linkS4class{"interval"}}, typically from a call such as
+      \code{"\linkS4class{interval}"}, typically from a call such as
       \code{\link{interval}("[a,b)")}.}
     \item{\code{paraConstr}:}{A function of \code{theta} returning
       \code{TRUE} if and only if \code{theta} is a valid parameter value.  Note
       that \code{paraConstr} is built automatically from the interval,
       whenever the \code{paraInterval} slot is valid.
-      \code{\linkS4class{"interval"}}.}
+      \code{"\linkS4class{interval}"}.}
     \item{\code{nestConstr}:}{A \code{\link{function}}, which returns
       \code{TRUE} if and only if the two provided parameters \code{theta0} and
       \code{theta1} satisfy the sufficient nesting condition for this family.}
@@ -79,7 +79,7 @@
   \cr To access these, \code{\link{getAcop}}.
 
   A \emph{nested} Archimedean copula \emph{without}
-  child copulas, see class \code{\linkS4class{"nacopula"}},
+  child copulas, see class \code{"\linkS4class{nacopula}"},
   is a proper Archimedean copula, and hence,
   \code{\link{onacopula}()} can be used to construct a specific
   parametrized Archimedean copula, see the example below.

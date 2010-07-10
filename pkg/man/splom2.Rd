@@ -7,7 +7,7 @@
   copulas, notably nested Archimedean ones.
 
   \bold{Experimental} currently!  We may replace the interface entirely,
-  e.g., to accept an \code{\linkS4class{"outer_nacopula"}} object from
+  e.g., to accept an \code{"\linkS4class{outer_nacopula}"} object from
   which to sample.
 }
 \usage{
@@ -26,7 +26,7 @@ splom2(data, varnames, Vname="U", ...)
 ## Create a 100 x 7 matrix of random variates from a t distribution
 ## with four degrees of freedom and plot the generated data
 U7 <- matrix(rt(700, 4), 100, 7)
-G <- splom2(U7) 
+G <- splom2(U7)
 G
 }
 \keyword{hplot}
