@@ -188,7 +188,6 @@ Willis Re for financial support while this paper was completed.} \\ETH Zurich
 
 %% journal specific aliases
 \newcommand*{\setcapwidth}[1]{}
-\newcommand*{\textcite}[2][]{\citet[#1]{#2}}
 
 %% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -200,14 +199,14 @@ Willis Re for financial support while this paper was completed.} \\ETH Zurich
 %% Note: If there is markup in \(sub)section, then it has to be escape as above.
 %% Note: These are explained in '?RweaveLatex' :
 <<preliminaries, echo=FALSE>>=
-options(width=70, useFancyQuotes = FALSE)# "TeX" does not work, nicely
+options(width=70, useFancyQuotes = FALSE, prompt="R> ", continue="+  ")
 @
 \section{Introduction}
 A \textit{copula} is a multivariate distribution function with standard
 uniform univariate margins. Standard references for an introduction
-are \textcite{joe1997} or \textcite{nelsen2007}.
+are \citet{joe1997} or \citet{nelsen2007}.
 
-\textcite{sklar1959} shows that for any multivariate
+\citet{sklar1959} shows that for any multivariate
 distribution function $H$ with margins $F_j$, $j\in\{1,\dots,d\}$, there exists
 a copula $C$ such that
 \begin{align}
@@ -236,14 +235,13 @@ Besides elliptical copulas, Archimedean copulas play an important role in
 practical applications. In contrast to elliptical ones, Archimedean copulas
 are given explicitly in terms of a generator and they are able to capture
 different kinds of tail dependencies, e.g., upper, but not lower tail
-dependence. With the algorithm of \textcite{marshallolkin1988}, they are
+dependence. With the algorithm of \citet{marshallolkin1988}, they are
 also usually easy to sample. Their functional symmetry (in $u_j$,
-$j=1,\dots,d$), also referred to as \textit{exchangeability}, however, is often considered to be a drawback, e.g.,
-in risk-management applications where the considered portfolios are
-typically high-dimensional. To circumvent exchangeability, Archimedean copulas
-can be nested into each other under certain conditions. The resulting
-copulas are referred to as \emph{``nested Archimedean copulas''} and allow to model
-hierarchical dependence structures.
+$j=1,\dots,d$), also referred to as \textit{exchangeability}, however, is often
+considered to be a drawback, e.g., in risk-management applications where the
+considered portfolios are typically high-dimensional. To circumvent
+exchangeability, Archimedean copulas can be nested into each other under certain
+conditions. The resulting copulas are referred to as \emph{``nested Archimedean copulas''} and allow to model hierarchical dependence structures.
 
 \section{Archimedean copulas}
 \subsection{Archimedean copulas and their properties}
@@ -260,15 +258,15 @@ $\psii(0):=\inf\{t:\psi(t)=0\}$. A necessary and sufficient condition for
 an Archimedean generator $\psi$ to generate a proper copula in all
 dimensions $d$ is that $\psi$ is \textit{completely monotone}, i.e.,
 $(-1)^k\psi^{(k)}(t)\ge0$ for all $t\in(0,\infty)$ and $k\in\IN_0$, see
-\textcite{kimberling1974} in the context of t-norms or
-\textcite[p.\ 54]{hofert2010c} for a rework in terms of copulas.
+\citet{kimberling1974} in the context of t-norms or
+\citet[p.\ 54]{hofert2010c} for a rework in terms of copulas.
 Recall that the most simple dependence model, namely, independence, is provided
 by $\psi(t)=\exp(-t)$, with $\psii(t)=\log(t)$, and corresponding
 \textit{independence} copula $C({\bm u})=\prod_{j=1}^d u_j$.
 
 The class of all completely monotone Archimedean generators is denoted by
 $\Psi_\infty$ in what follows. By Bernstein's Theorem, see, e.g.,
-\textcite[p.\ 439]{feller1971}, this class coincides with the class of
+\citet[p.\ 439]{feller1971}, this class coincides with the class of
 Laplace-Stieltjes transforms of distribution functions $F$ on the positive
 real line, where the Laplace-Stieltjes transform of $F$, also known as the
 \textit{Laplace transform of the distribution}, % <- hier kein $F$ (MM)
@@ -283,15 +281,15 @@ For a $\psi\in\Psi_\infty$, we hence have the relation
 for a distribution function $F$ on the positive real line.
 
 Note that the distribution function $F$ is known for virtually all commonly
-used Archimedean generators, see, e.g., \textcite[p.\ 62]{hofert2010c}. The
+used Archimedean generators, see, e.g., \citet[p.\ 62]{hofert2010c}. The
 package \pkg{nacopula} currently provides the most widely used families of
 Ali-Mikhail-Haq, Clayton, Frank, Gumbel, and Joe, see Table~\ref{tab:cop-families-psi}
 for the generators and their corresponding distribution functions. Except
 for Clayton's family, where we use a slightly simpler generator, these
-generators are the ones given in \textcite[pp.\ 116]{nelsen2007}.
+generators are the ones given in \citet[pp.\ 116]{nelsen2007}.
 
 These Archimedean copula families are provided as \code{"acopula"} \R\
-objects, containing as slots the corresponding generator
+objects (for more information about the statistical software \R, see \citeauthor{r}), containing as slots the corresponding generator
 $\psi$, \code{psi}, its inverse $\psii$, \code{psiInv},
 and the ``sampler'', i.e., random number generator for $V\sim F$, as \code{V0}:
 <<acopula-family>>=
@@ -299,8 +297,8 @@ require(nacopula)
 ls("package:nacopula", pattern = "^cop[A-Z]")
 copClayton
 copClayton@psi
-copClayton@psiInv # the inverse of psi(), psi^{-1}
-copClayton@V0     # "sampler" for  V ~ F()
+copClayton@psiInv
+copClayton@V0     
 @
 The majority of slots of such copula objects are functions, encoding properties
 of that copula family. In what follows, many of these functions are presented.
@@ -308,8 +306,8 @@ of that copula family. In what follows, many of these functions are presented.
 \subsubsection{Sampling Archimedean copulas}
 From a mixture representation with respect to $F$, the following algorithm
 may be derived for sampling Archimedean copulas, see
-\textcite{marshallolkin1988}.
-\begin{algorithm}[\textcite{marshallolkin1988}]
+\citet{marshallolkin1988}.
+\begin{algorithm}[\citet{marshallolkin1988}]
   \myskipalgo
   \linespread{1.22}\normalfont
   \begin{tabbing}
@@ -355,7 +353,7 @@ For the family of Frank, $\Log(p)$ denotes a
 \textit{logarithmic distribution} with parameter $p\in(0,1)$ and mass
 function $p_k=p^k/(-k\log(1-p))$ at $k\in\IN$. For sampling this
 distribution, we provide \code{rlog(., }$p$\code{)}, using the algorithm
-``LK'' of \textcite{kemp1981}.
+``LK'' of \citet{kemp1981}.
 %
 For Gumbel's family, $F$ corresponds to a $S(\alpha, \beta, \gamma, \delta; 1)$, i.e., a \textit{stable}, distribution with characteristic function
 \begin{align}
@@ -368,18 +366,18 @@ where
 			-2\log(\lvert t\rvert)/\pi,&\alpha=1,
 		\end{cases}
 \end{align*}
-see, e.g., \textcite[p.\ 8]{nolan2009} for this ``1-parameterization''. For
+see, e.g., \citet[p.\ 8]{nolan2009} for this ``1-parameterization''. For
 sampling from $S(.)$, we provide
 \code{rstable1(., }$\alpha$,$\beta$,$\gamma$, $\delta$\code{, 1)},
 having implemented an algorithm for sampling stable distributions according
-to the ideas presented in \textcite{chambersmallowsstuck1976}, and
+to the ideas presented in \citet{chambersmallowsstuck1976}, and
 improving on previous implementations in \R.
 %
 For the family of Joe, the mass function of $V$ is of the form
 $p_k=\binom{\alpha}{k}(-1)^{k-1}$ at $k\in\IN$ (take $\alpha:=1/\vt$), with
 $\alpha\in(0,1]$. This distribution can be sampled via the \R{} function
 \code{rFJoe(., }$\alpha$\code{)} which we implemented based on an algorithm
-presented in \textcite{hofert2010a}.
+presented in \citet{hofert2010a}.
 
 \subsubsection{The rank-correlation coefficient Kendall's tau}
 It is often desirable to measure the degree of dependence between random
@@ -394,7 +392,7 @@ variables, $(X_1^\prime,X_2^\prime)\tr$ is an independent and identically
 distributed copy of $(X_1,X_2)\tr$, and
 $\sign(x):=\I_{(0,\infty)}(x)-\I_{(-\infty,0)}(x)$ denotes the signum function
 (as \R's \code{sign(x)}). Kendall's tau is a measure of concordance, see
-\textcite{scarsini1984}, and therefore,
+\citet{scarsini1984}, and therefore,
 informally, measures the likelihood, as a number in $[-1,1]$, with which
 large values of one variable are associated with large values of the other.
 If $C$ is a bivariate Archimedean copula generated by a twice continuously
@@ -404,7 +402,7 @@ Kendall's tau can be represented in semi-closed form as
   \tau= 1 + 4\int_0^1\frac{\psii(t)}{(\psii(t))^\prime}\,dt =
         1 - 4\int_0^\infty t(\psiD(t))^2\,dt,
 \end{align*}
-see \textcite[p.\ 91]{joe1997}. For the Archimedean families of
+see \citet[p.\ 91]{joe1997}. For the Archimedean families of
 Ali-Mikhail-Haq, Clayton, and Gumbel, this integral can be evaluated
 explicitly, for Frank's family it involves the Debye function of order one,
 i.e., $D_1(\vt):=\frac 1 \vt \int_0^\vt t/(e^t-1)\,dt$, and for Joe's family, it
@@ -466,21 +464,27 @@ The internal structure of this object%
   functions for all this, since they generalize the present non-nested case.}
 \ is
 <<ex1-str>>=
-str(C3joe.5) # str[ucture] of object
+str(C3joe.5) 
 @
-Let us sample 500 random variates (each in $[0,1]^3$) from this copula
-and visualize the generated data with a scatter-plot matrix.
+\pagebreak
+Figure \ref{fig:AC_Joe} visualizes 500 vectors of random variates (each in $[0,1]^3$) from this copula with a scatter-plot matrix.
+\begin{figure}[htbp]
+\centering
 <<ex1-splom, fig=TRUE, height=5>>=
 require(lattice)
 set.seed(1)
 dim(U3 <- rnacopula(500, C3joe.5))
 print(splom2(U3, cex = 0.4))
 @
+\setcapwidth{\textwidth}%
+  \caption{500 vectors of random variates following a trivariate Joe copula with (pairwise) Kendall's tau equal to 0.5.}
+  \label{fig:AC_Joe}
+\end{figure}
 
 Let us compare the population and sample versions of Kendall's tau for the
-generated data.
+generated data. The former should be approximately 0.5, since we chose the parameter $\vt$ accordingly.
 <<ex1-explore1>>=
-copJoe @ tau(theta) # ~= 0.5 because theta was chosen as such!
+copJoe @ tau(theta) 
 round(cor(U3, method="kendall"), 3)
 @
 
@@ -613,10 +617,12 @@ setClass("outer_nacopula", contains = "nacopula",
 \end{Schunk}
 For example, (one parametrization of) the three-dimensional example from
 Figure~\ref{fig:NAC_3d} is
-<<<NAC_3d-ex>>=
+<<NAC_3d-ex>>=
 C3 <- onacopula("A", C(0.2, 1, C(0.8, 2:3)))
 C3
-## and the above is shortened from
+@
+This is a shortened form of the following.
+<<NAC_3d-ex2>>=
 stopifnot(identical(C3,
       onacopula("A", C(0.2, 1, list(C(0.8, 2:3, list()))))
 ))
@@ -655,7 +661,7 @@ pnacopula <- function(x,u) {
 
 
 In order for (\ref{nac}) being indeed a proper copula,
-\textcite[p.\ 88]{joe1997} and \textcite{mcneil2008} present the sufficient
+\citet[p.\ 88]{joe1997} and \citet{mcneil2008} present the sufficient
 \textit{nesting condition} that $\psiis{i}\circ\psi_{j}$ is completely
 monotone for all nodes (with parent $i$, child $j$) appearing in a nested
 Archimedean copula.
@@ -707,7 +713,7 @@ the parameters may differ.
 In our \R{} package \pkg{nacopula}, the supported Archimedean family
 objects therefore provide the three slots \code{V0}, \code{nestConstr} and \code{V01},
 all functions. \code{nestConstr}, is a
-\code{function(}$\theta_0$\code{, }$\theta_1$\code{)} returning \code{TRUE}
+\code{function(}$\vartheta_0$\code{, }$\vartheta_1$\code{)} returning \code{TRUE}
 when the nesting condition is fulfilled, and \code{V0} and \code{V01} are
 random number generating functions, generating
 $V$ from Table~\ref{tab:cop-families-psi} and
@@ -718,20 +724,20 @@ copAMH @ nestConstr
 copAMH @ V01
 @
 Sampling strategies for $F_0$ and $F_{01}$ for
-many known Archimedean generators are presented in \textcite{hofert2008},
-\textcite{hofert2010a}, and \textcite{hofert2010c}. For the families of
+many known Archimedean generators are presented in \citet{hofert2008},
+\citet{hofert2010a}, and \citet{hofert2010c}. For the families of
 Ali-Mikhail-Haq, Clayton, Frank, Gumbel, and Joe, Table~\ref{tab:nestedAC-V01}
 summarizes stochastic representations for $V_0$ and $V_{01}$.
 \begin{table}[htbp]
   \centering
   \begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}X>{\hspace{-7mm}}c>{\hspace{-8mm}}c}
 	\toprule
-	\multicolumn{1}{c}{Family}&\multicolumn{1}{c}{\hspace{-7mm}nesting condition}
+	\multicolumn{1}{c}{Family}&\multicolumn{1}{c}{\hspace{-7mm}Nesting condition}
         &\hspace{-8mm}$V_{01}\sim F_{01}=\LSi[\psi_{01}(\cdot\,;V_0)]$\\
 	\midrule
 	Ali-Mikhail-Haq&$\vt_0\le\vt_1$&$V_0+X$, $X\sim\NB(V_0,(1-\vt_1)/(1-\vt_0))$\\
 	Clayton&$\vt_0\le\vt_1$&$\tS(\vt_0/\vt_1,1,(\cos(\pi\vt_0/(2\vt_1))V_0)^{\vt_1/\vt_0},V_0\I_{\{\vt_0=\vt_1\}},\I_{\{\vt_0\neq\vt_1\}};1)$\\
-	Frank&$\vt_0\le\vt_1$&$\sum_{j=1}^{V_0}V_j$; for $V_j$, see \textcite{hofert2010a}\\
+	Frank&$\vt_0\le\vt_1$&$\sum_{j=1}^{V_0}V_j$; for $V_j$, see \citet{hofert2010a}\\
 	Gumbel&$\vt_0\le\vt_1$&$\S(\vt_0/\vt_1,1,(\cos(\pi\vt_0/(2\vt_1))V_{0})^{\vt_1/\vt_0},\I_{\{\vt_0=\vt_1\}};1)$\\
 	Joe&$\vt_0\le\vt_1$&$\sum_{j=1}^{V_0}V_j$; $V_j\sim\binom{\alpha}{k}(-1)^{k-1},\ k\in\IN$\\
 	\bottomrule
@@ -772,8 +778,8 @@ corresponding Laplace-Stieltjes transform
 \begin{align*}
   \psi(t)=\exp\bigl(-V_0((h+t)^{\alpha}-h^{\alpha})\bigr),\ t\in[0,\infty].
 \end{align*}
-\textcite{hofert2010a} suggested a fast rejection algorithm for sampling this
-distribution. \textcite{devroye2009} suggested an algorithm for
+\citet{hofert2010a} suggested a fast rejection algorithm for sampling this
+distribution. \citet{devroye2009} suggested an algorithm for
 sampling the exponentially tilted stable distribution
 \begin{align*}
   \tS(\alpha,1,\cos(\alpha\pi/2)^{1/\alpha},\I_{\{\alpha=1\}},\lambda\I_{\{\alpha\neq1\}};1)
@@ -784,25 +790,25 @@ Laplace-Stieltjes transform
   \psi(t)=\exp\bigl(-((\lambda+t)^{\alpha}-\lambda^{\alpha})\bigr),\ t\in[0,\infty].
 \end{align*}
 One can easily check that by setting $\lambda:=hV_0^{1/\alpha}$ and
-generating $V_\lambda$ with the algorithm of \textcite{devroye2009}, the
+generating $V_\lambda$ with the algorithm of \citet{devroye2009}, the
 random variable $V_{01}$ from $F_{01}$ as given by (\ref{exptilted}) can be
 obtained via $V_{01}=V_0^{1/\alpha}V_\lambda$. Therefore, the distribution as
 given in (\ref{exptilted}) may be sampled by either the algorithm of
-\textcite{devroye2009} or the one of \textcite{hofert2010a}. The former
+\citet{devroye2009} or the one of \citet{hofert2010a}. The former
 author reports that the complexity of his algorithm is bounded, the latter
 author shows that the complexity of his algorithm is $\O(V_{0}h^{\alpha})$.
 We implemented both algorithms for sampling (\ref{exptilted}) in the package
 \pkg{nacopula} and decide for each drawn $V_0$ which method is to be
 applied. As a simple rule, investigated by several parameter combinations,
-the default chooses the method of \textcite{hofert2010a} if
-$V_{0}h^{\alpha}<4$ and the one of \textcite{devroye2009} otherwise. As
+the default chooses the method of \citet{hofert2010a} if
+$V_{0}h^{\alpha}<4$ and the one of \citet{devroye2009} otherwise. As
 mentioned before, note that for sampling nested Clayton copulas, we have
 $h=1$. Further, $\IE[V_0]=1/\vt_0$. Hence, in the mean, the algorithm of
-\textcite{hofert2010a} is more often applied if $\vt_0>1/4$,
+\citet{hofert2010a} is more often applied if $\vt_0>1/4$,
 equivalently, if Kendall's tau for the bivariate Archimedean copula
 generated by $\psi_0$ is greater than $1/9$.
 
-For Frank's family, \textcite{hofert2010a} presented a rejection algorithm.
+For Frank's family, \citet{hofert2010a} presented a rejection algorithm.
 For the family of Gumbel, $\psi_{01}(t;V_0)=\exp(-V_0t^\alpha)$,
 $\alpha:=\vt_0/\vt_1$, hence, see Table~\ref{tab:cop-families-psi}, $F_{01}$ corresponds
 to the stable distribution as given in Table~\ref{tab:nestedAC-V01}. Finally, for
@@ -810,7 +816,7 @@ Joe's Archimedean family, $V_{01}$ can be represented as a $V_0$-fold sum of
 independent and identically distributed random variables $V_k$,
 $k\in\{1,\dots,V_0\}$, from the same distributional class as $V_0$, see
 Table~\ref{tab:cop-families-psi}. For more information on the distributions of $V_{01}$,
-see \textcite{hofert2010a} and \textcite{hofert2010c}, or the source code of
+see \citet{hofert2010a} and \citet{hofert2010c}, or the source code of
 the package \pkg{nacopula}.
 
 \subsection{A nine-dimensional nested Clayton copula}
@@ -819,7 +825,7 @@ copula $C$ of the form
 \begin{align*}
  C(\bm{u})=C(u_3,u_6,u_1,C(u_9,u_2,u_7,u_5,C(u_8,u_4;\psi_2);\psi_1);\psi_0)
 \end{align*}
-with tree structure depicted in Figure~\ref{figure2}.
+with tree structure depicted in Figure~\ref{fig:NAC_9d}.
 \begin{figure}[htbp]
  \centering
  \begin{tikzpicture}[
@@ -882,7 +888,7 @@ with tree structure depicted in Figure~\ref{figure2}.
 \setcapwidth{\textwidth}%
 \caption{Tree structure of the nine-dimensional partially nested Archimedean
 copula $C$.}
-\label{figure2}
+\label{fig:NAC_9d}
 \end{figure}
 Such a copula can be defined as follows, where we choose the parameters of
 $\psi_0$, $\psi_1$, and $\psi_2$ such that the corresponding Kendall's taus are
@@ -896,23 +902,27 @@ C_9_clayton <- onacopula("Clayton",
                          C(theta0, c(3,6,1),
                            C(theta1, c(9,2,7,5),
                              C(theta2, c(8,4)))))
-C_9_clayton # show(.) it
+C_9_clayton 
 @
 
-Let us sample 500 random variates (each in $[0,1]^9$) from this copula
+Figure \ref{fig:NAC_Clayton} visualizes 500 sampled random vectors (each in $[0,1]^9$) from this copula
 (this involves our efficient procedure for exponentially tilted stable
-distributions) and visualize the generated data with a scatter-plot matrix.
-<<ex2-splom, fig=TRUE, height=9>>=
+distributions) with a scatter-plot matrix. For plotting the data, we re-order the columns according to the same strength of dependence.
+\begin{figure}[htbp]
+\centering
+<<ex2-splom, fig=TRUE, height=7>>=
 set.seed(1)
 dim(U9 <- rnacopula(500, C_9_clayton))
-## For plotting, re-order the columns according to the same strength
-## of dependence:
 j <- allComp(C_9_clayton)
 (vnames <- do.call(expression,
                    lapply(j, function(i) substitute( U[I], list(I=0+i)))))
 print(splom2(U9[, j], varnames= vnames,
              cex = 0.4, pscales = 0))
 @
+\setcapwidth{\textwidth}%
+  \caption{500 vectors of random variates following a nine-dimensional nested Clayton copula with three different levels of dependence.}
+  \label{fig:NAC_Clayton}
+\end{figure}
 
 The population version of Kendall's tau for $(U_4,U_5)\tr$ is 0.5. Let us check
 if the sample version of Kendall's tau is close to this value.
@@ -947,14 +957,14 @@ c(copClayton @ lambdaL(theta2),
 \section{Outer power Archimedean copulas}
 For an Archimedean generator $\psi\in\Psi_\infty$, $\psi(t^{1/\vt})$ is also a
 valid generator in $\Psi_\infty$ for all $\vt\in[1,\infty)$, see, e.g.,
-\textcite[p.\ 441]{feller1971}. The resulting copulas are
+\citet[p.\ 441]{feller1971}. The resulting copulas are
 referred to as \textit{outer power Archimedean copulas}. Note that two
 parametric Archimedean generators $\psi(t^{1/\vt_0})$, $\vt_0\in[1,\infty)$, and
 $\psi(t^{1/\vt_1})$, $\vt_1\in[1,\infty)$, of this type, constructed with the
 same ``base'' generator $\psi(t)$, $t\in[0,\infty)$, fulfill the nesting
 condition if $\vt_0\le\vt_1$. Therefore, one can build so-called
 \textit{nested outer power Archimedean copulas}.
-\textcite{hofert2010a} derives some results for
+\citet{hofert2010a} derives some results for
 these copulas, including instructions for sampling the corresponding random
 variables $V_0$ and $V_{01}$, as well as an explicit formula for Kendall's tau
 in terms of the Kendall's tau of the copula generated by the base generator
@@ -994,20 +1004,27 @@ three-dimensional fully nested outer power Clayton copula with parameters
 such that Kendall's tau are $2/3$ and $0.75$.
 %% onacopula() now works since Martin implemented it on 2010-06-26  :
 <<opwer-def3>>=
-theta0 <- opow.Clayton@tauInv(2/3) # should be 1.5
-theta1 <- opow.Clayton@tauInv(.75) # should be 2
-## Define a 3d fully nested Archimedean copula based on  opow.Clayton
+theta0 <- opow.Clayton@tauInv(2/3) 
+theta1 <- opow.Clayton@tauInv(.75) 
 opC3 <- onacopula(opow.Clayton, C(theta0, 1, C(theta1, c(2,3))))
 @
 
-Now sample 500 random variates from this copula and visualize the generated
-data with a scatter-plot matrix. In contrast to Clayton copulas, note that
-this outer power Clayton copula has both lower and upper tail dependence.
+Now we sample 500 random variates from this copula and visualize the generated
+data with a scatter-plot matrix, see Figure \ref{fig:NAC_opClayton}. In contrast
+to Clayton copulas, note that outer power Clayton copulas allow for both lower
+and upper tail dependence.
+\begin{figure}[htbp]
+\centering
 %% dim(U3 <- rnacopula(500, opC3))
 <<opower-splom, fig=TRUE, height=5>>=
 U3 <- rnacopula(500, opC3) ; stopifnot(dim(U3) == c(500,3))
 print( splom2(U3, cex = 0.4) )
 @
+  \setcapwidth{\textwidth}%
+  \caption{500 vectors of random variates following a trivariate nested outer
+power Clayton copula.}
+  \label{fig:NAC_opClayton}
+\end{figure}
 
 Further, we can compare the population and sample versions of Kendall's tau for
 the generated data. The $(1,2)$- and $(1,3)$-entry of the matrix of
@@ -1030,7 +1047,7 @@ rbind(th0 =
 
 %%   =======
 
-\section{Session Info}
+\section{Session Information}
 
 <<sessionInfo, results=tex>>=
 toLatex(sessionInfo())
