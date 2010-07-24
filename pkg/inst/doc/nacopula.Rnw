@@ -289,7 +289,7 @@ for Clayton's family, where we use a slightly simpler generator, these
 generators are the ones given in \citet[pp.\ 116]{nelsen2007}.
 
 These Archimedean copula families are provided as \code{"acopula"} \R\
-objects (for more information about the statistical software \R, see \citeauthor{r}), containing as slots the corresponding generator
+objects (for more information about the statistical software \R, see \citet[2.11.1]{r}), containing as slots the corresponding generator
 $\psi$, \code{psi}, its inverse $\psii$, \code{psiInv},
 and the ``sampler'', i.e., random number generator for $V\sim F$, as \code{V0}:
 <<acopula-family>>=
