@@ -139,7 +139,7 @@ if(FALSE) { # evaluate the following into your R session if you need debugging:
 ##' @param nacStructure a "formula" of the form C(th, comp, list(C(..), C(..)))
 ##' @return a valid outer_nacopula object
 ##' @author Martin Maechler
-onacopula <- function(family, nacStructure) {
+onacopula <- function(family, nacStructure, envir=environment()) {
     nacl <- substitute(nacStructure)
     stopifnot(identical(nacl[[1]], as.symbol("C")))
     COP <- getAcop(family)
@@ -157,7 +157,7 @@ onacopula <- function(family, nacStructure) {
     }
     C <- function(a,b,c) mkC("nacopula", a,b,c)
     oC <- function(a,b,c) mkC("outer_nacopula", a,b,c)
-    eval(nacl)
+    eval(nacl, envir=envir)
 }
 
 ##' @title Constructor for outer_nacopula - with list() input and *recursively*

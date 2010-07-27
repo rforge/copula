@@ -297,8 +297,8 @@ require(nacopula)
 ls("package:nacopula", pattern = "^cop[A-Z]")
 copClayton
 copClayton@psi
-copClayton@psiInv
-copClayton@V0     
+copClayton@psiInv # the inverse of psi(), psi^{-1}
+copClayton@V0     # "sampler" for  V ~ F()
 @
 The majority of slots of such copula objects are functions, encoding properties
 of that copula family. In what follows, many of these functions are presented.
@@ -464,7 +464,7 @@ The internal structure of this object%
   functions for all this, since they generalize the present non-nested case.}
 \ is
 <<ex1-str>>=
-str(C3joe.5) 
+str(C3joe.5)  # str[ucture] of object
 @
 \pagebreak
 Figure \ref{fig:AC_Joe} visualizes 500 vectors of random variates (each in $[0,1]^3$) from this copula with a scatter-plot matrix.
@@ -484,7 +484,7 @@ print(splom2(U3, cex = 0.4))
 Let us compare the population and sample versions of Kendall's tau for the
 generated data. The former should be approximately 0.5, since we chose the parameter $\vt$ accordingly.
 <<ex1-explore1>>=
-copJoe @ tau(theta) 
+copJoe @ tau(theta)
 round(cor(U3, method="kendall"), 3)
 @
 
@@ -589,7 +589,7 @@ define the \code{nacopula} (\textbf{n}ested \textbf{a}rchimedean
 setClass("nacopula",
 	 representation(copula    = "acopula",
                         comp      = "integer",  # from 1:d -- of length in [0,d]
-                        childCops = "list" # of nacopulas, possibly empty
+                        childCops = "list"      # of nacopulas, possibly empty
                        ),
          validity = function(object) {
             ......
@@ -902,7 +902,7 @@ C_9_clayton <- onacopula("Clayton",
                          C(theta0, c(3,6,1),
                            C(theta1, c(9,2,7,5),
                              C(theta2, c(8,4)))))
-C_9_clayton 
+C_9_clayton
 @
 
 Figure \ref{fig:NAC_Clayton} visualizes 500 sampled random vectors (each in $[0,1]^9$) from this copula
@@ -1004,8 +1004,8 @@ three-dimensional fully nested outer power Clayton copula with parameters
 such that Kendall's tau are $2/3$ and $0.75$.
 %% onacopula() now works since Martin implemented it on 2010-06-26  :
 <<opwer-def3>>=
-theta0 <- opow.Clayton@tauInv(2/3) 
-theta1 <- opow.Clayton@tauInv(.75) 
+theta0 <- opow.Clayton@tauInv(2/3) # will be 1.5
+theta1 <- opow.Clayton@tauInv(.75) # will be 2
 opC3 <- onacopula(opow.Clayton, C(theta0, 1, C(theta1, c(2,3))))
 @
 
