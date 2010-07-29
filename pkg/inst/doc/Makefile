@@ -25,10 +25,10 @@ all: $(DRIVERS:=.pdf)
 %.R: %.Rnw
 	${R_PROG} CMD Stangle $<
 
-%.pdf : %.tex
+%.pdf : %.tex *.bib
 	TEXINPUTS=${TPUTS} texi2dvi --pdf $<
 
-%.dvi : %.tex
+%.dvi : %.tex *.bib
 	TEXINPUTS=${TPUTS} texi2dvi $<
 
 
