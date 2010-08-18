@@ -139,15 +139,38 @@ if(FALSE) { # evaluate the following into your R session if you need debugging:
 ##' @param nacStructure a "formula" of the form C(th, comp, list(C(..), C(..)))
 ##' @return a valid outer_nacopula object
 ##' @author Martin Maechler
-onacopula <- function(family, nacStructure, envir=environment()) {
+onacopula <- function(family, nacStructure) {
+## , envir = ... , enclos=parent.frame() or
+## , envir=environment()
+##
+### FIXME: base this on  onacopulaL() -- replacing nacStructure by nacList
+### ----- : (1) replacing  C() with list() *AND* by
+###         (2) wrapping the 3rd argument with list(.) if it's not already
+### Use a *recursive* function like this one (but add the "list(.)" wrapping:
+###    repC <- function(e) { sC <- as.symbol("C"); if(identical(e[[1]], sC)) e[[1]] <- as.symbol("list"); if(length(e) == 4) e[[4]] <- repC(e[[4]]); e}
     nacl <- substitute(nacStructure)
     stopifnot(identical(nacl[[1]], as.symbol("C")))
     COP <- getAcop(family)
     nacl[[1]] <- as.symbol("oC")
+### does not work ..>>>>>>>>>>> we should use onacopulaL() inside functions! <<<<
+    ## needed, e.g., when onacopula() is called from inside a user function:
+    ## for(j in 2:3) if(is.language(nacl[[j]]))
+    ##     nacl[[j]] <- eval(nacl[[j]], parent.frame())
+    ## pframe <- parent.frame()
     mkC <- function(cClass, a,b,c) {
 	if(missing(b) || length(b) == 0) b <- integer()
 	if(missing(c) || length(c) == 0) c <- list()
 	else if(length(c) == 1 && !is.list(c)) c <- list(c)
+### does not work ...
+	## else if(!is.list(c)) {
+        ##     c <- eval(c, pframe) ; stopifnot(is.list(c))
+        ## }
+	## if(!is.numeric(a)) {
+        ##     a <- eval(a, pframe) ; stopifnot(is.numeric(a), length(a) == 1)
+        ## }
+	## if(!is.numeric(b)) {
+        ##     b <- eval(b, pframe) ; stopifnot(is.numeric(b))
+        ## }
 	else stopifnot(is.list(c))
 	stopifnot(is.numeric(a), length(a) == 1, is.numeric(b))
 	if(any(sapply(c, class) != "nacopula"))
@@ -157,7 +180,7 @@ onacopula <- function(family, nacStructure, envir=environment()) {
     }
     C <- function(a,b,c) mkC("nacopula", a,b,c)
     oC <- function(a,b,c) mkC("outer_nacopula", a,b,c)
-    eval(nacl, envir=envir)
+    eval(nacl)
 }
 
 ##' @title Constructor for outer_nacopula - with list() input and *recursively*

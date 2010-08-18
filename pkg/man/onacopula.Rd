@@ -12,7 +12,8 @@
   another function programmatically.
 }
 \usage{
-onacopula (family, nacStructure, envir=environment())
+%onacopula (family, nacStructure, envir=environment())
+onacopula (family, nacStructure)
 onacopulaL(family, nacList)
 }
 \arguments{
@@ -29,8 +30,8 @@ onacopulaL(family, nacList)
     \code{comp} slot in \code{\linkS4class{nacopula}}s), and finally a
     (possibly empty) list of child copulas, each specified with in the
     \eqn{C(..)} notation themselves.}
-  \item{envir}{the \code{\link{environment}} in which the
-    \code{nacStructure} \dQuote{formula} is evaluated.}
+  % \item{envir}{the \code{\link{environment}} in which the
+  %   \code{nacStructure} \dQuote{formula} is evaluated.}
   \item{nacList}{a \code{\link{list}} of length 3 (or 2), with elements
     \enumerate{
       \item theta: \eqn{\vartheta}
