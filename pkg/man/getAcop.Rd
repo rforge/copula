@@ -16,9 +16,6 @@ getAcop(family, check=TRUE)
   \item{check}{logical indicating if the class of the return value
     should be checked to be \code{"\linkS4class{acopula}"}.}
 }
-\usage{
-getAcop(family, check = TRUE)
-}
 \value{an \code{"\linkS4class{acopula}"} family object, typically one of
   one of our predefined ones.
 }
