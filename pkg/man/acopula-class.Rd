@@ -22,8 +22,9 @@
     \item{\code{name}:}{a string (class \code{"character"}) describing
       the copula family, e.g., "AMH" (or simply "A"), "Clayton" ("C"),
       "Frank" ("F"), "Gumbel" ("G"), or "Joe" ("J").}
-    \item{\code{psi}, \code{psiInv}:}{The Archimedean generator, a
-      \code{\link{function}}, and its inverse.}
+    \item{\code{psi}, \code{psiInv}, \code{psiD}:}{The Archimedean generator,
+ 			its inverse, and the generator derivatives (all
+ 			\code{\link{function}}s).}
     \item{\code{theta}:}{parameter value, a \code{\link{numeric}}, where
       \code{NA} means \dQuote{unspecified}.}
     \item{\code{paraInterval}:}{Either \code{\link{NULL}} or object of class
@@ -48,10 +49,13 @@
       transform \eqn{\psi_{01}}{psi01} and parameters
       \eqn{\vartheta_0=\,}{theta0=}\code{theta0},
       \eqn{\vartheta_1=\,}{theta1=}\code{theta1}.}
+	 \item{\code{cCdf}:}{A \code{\link{function}} which gets \code{u}, \code{v},
+	 	and\code{theta} and computes the bivariate conditional copula function at
+	 	\code{v}	given \code{u}.}
     \item{\code{tau}, \code{tauInv}:}{Compute Kendall's tau of the bivariate
       Archimedean copula with generator \eqn{\psi}{psi} as a
       \code{\link{function}} of \code{theta}, respectively, \code{theta} as a
-      functionof Kendall's tau.}
+      function of Kendall's tau.}
     \item{\code{lambdaL}, \code{lambdaU}, \code{lambdaLInv}, \code{lambdaUInv}:}{
       Compute the lower (upper) tail-dependence coefficient of the bivariate
       Archimedean copula with generator \eqn{\psi}{psi} as a

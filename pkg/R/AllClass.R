@@ -33,12 +33,14 @@ setClass("acopula",
 	 representation(name = "character",
                         psi = "function",    # of (t, theta) -- the generator
                         psiInv = "function", # of (p, theta) -- psi_inverse: \psi^{-1}(p) = t
+                        psiD = "function", # of (t, theta, k) -- the k-th generator derivative
                         theta = "numeric", # value of theta or  'NA'  (for unspecified)
                         paraConstr = "function", # of (theta) ; constr(theta) |--> TRUE: "fulfilled"
                         ## when theta is one-dimensional, specifying the interval is more convenient:
                         paraInterval = "maybeInterval", # [.,.]  (.,.], etc ..
                         V0 = "function",	# of (n,theta) -- RNGenerator
-                        tau= "function",	# of (theta)
+                        cCdf = "function", 	# of (v,u,theta)                         
+                        tau = "function",	# of (theta)
                         tauInv = "function",    # of (tau)
                         lambdaL = "function",    # of (theta) lower bound  \lambda_l
                         lambdaLInv = "function", # of (lambda) - Inverse of \lambda_l
@@ -70,8 +72,8 @@ setClass("acopula",
 				 if(nArgs == 2) sprintf(", %g)", th) else ")",
 				 r0$message)
 		     else if(!identical(r0,
-                                        {n0 <- numeric(0)
-                                         if(nArgs == 2) f(n0, theta = th) else f(n0) }))
+                                    {n0 <- numeric(0)
+                                     if(nArgs == 2) f(n0, theta = th) else f(n0) }))
 			 sprintf("%s(NULL ..) is not the same as %s(num(0) ..)",
 				 sName, sName)
 		     else TRUE
@@ -81,7 +83,6 @@ setClass("acopula",
              if(!isTRUE(tt <- checkFun("psi", 2)))	return(tt)
              if(!isTRUE(tt <- checkFun("psiInv", 2)))	return(tt)
              if(!isTRUE(tt <- checkFun("tau", 1)))	return(tt)
-
              if(!isTRUE(tt <- checkFun("paraConstr", 1, chkVect=FALSE))) return(tt)
              if(!isTRUE(tt <- checkFun("nestConstr", 2, chkVect=FALSE))) return(tt)
 
@@ -151,7 +152,7 @@ setClass("nacopula",
                  return("more components than the dimension")
 	     if(!all("nacopula" == sapply(object@childCops, class)))
                  return("All 'childCops' elements must be 'nacopula' objects")
-## FIXME: we need to recursively apply a "comp" function
+             ## FIXME: we need to recursively apply a "comp" function
 
              allC <- allComp(object)
              if(length(allC) != d)

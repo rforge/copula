@@ -3,6 +3,10 @@
 (*) implement coloring in splom2?
 (*) which functions in ./tests to export?
 (*) put package to CRAN
+(*) be compatible with package copula
+(*) put a non-nested example on the help page of onacopula
+(*) solve the problem of having to use onacopulaL within functions
+(*) ?"acopula-class" => help(acopula-families) should be help("acopula-families")
 
 Outlook:
 (*) implement color-feature in splom2 (now that i and j are included by Deepayan)
