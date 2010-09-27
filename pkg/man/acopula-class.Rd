@@ -50,13 +50,18 @@
       \eqn{\vartheta_0=\,}{theta0=}\code{theta0},
       \eqn{\vartheta_1=\,}{theta1=}\code{theta1}.}
 	 \item{\code{cCdf}:}{A \code{\link{function}} which gets \code{u}, \code{v},
-	 	and\code{theta} and computes the bivariate conditional copula function at
+	 	and \code{theta} and computes the bivariate conditional copula function at
 	 	\code{v}	given \code{u}.}
+	 \item{\code{K}:}{A \code{\link{function}} which gets \code{t}, \code{theta},
+		 	and \code{d} and computes the \code{d}-dimensional Kendall distribution
+		   function for an Archimedean copula of the chosen family with parameter 
+		   \code{theta} at \code{t}.}
     \item{\code{tau}, \code{tauInv}:}{Compute Kendall's tau of the bivariate
       Archimedean copula with generator \eqn{\psi}{psi} as a
       \code{\link{function}} of \code{theta}, respectively, \code{theta} as a
       function of Kendall's tau.}
-    \item{\code{lambdaL}, \code{lambdaU}, \code{lambdaLInv}, \code{lambdaUInv}:}{
+    \item{\code{lambdaL}, \code{lambdaU}, \code{lambdaLInv},
+ 			\code{lambdaUInv}:}{
       Compute the lower (upper) tail-dependence coefficient of the bivariate
       Archimedean copula with generator \eqn{\psi}{psi} as a
       \code{\link{function}} of \code{theta}, respectively, \code{theta} as a

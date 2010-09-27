@@ -39,7 +39,8 @@ setClass("acopula",
                         ## when theta is one-dimensional, specifying the interval is more convenient:
                         paraInterval = "maybeInterval", # [.,.]  (.,.], etc ..
                         V0 = "function",	# of (n,theta) -- RNGenerator
-                        cCdf = "function", 	# of (v,u,theta)                         
+                        cCdf = "function", 	# of (v,u,theta)    
+			K = "function", 	# of (t,theta,d)                         
                         tau = "function",	# of (theta)
                         tauInv = "function",    # of (tau)
                         lambdaL = "function",    # of (theta) lower bound  \lambda_l
@@ -88,6 +89,7 @@ setClass("acopula",
 
              ## ...
              ## ... (TODO)
+             ## todo: to check: psiD, cCdf, K
 
              ## Check more :
 	     if (object@psi(0, theta= 1/2) != 1)
