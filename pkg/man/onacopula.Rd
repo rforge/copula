@@ -23,9 +23,9 @@ onacopulaL(family, nacList)
     \cr
     or an \code{\linkS4class{acopula}} family object.}
   \item{nacStructure}{a \dQuote{formula} of the form
-    \deqn{C(\vartheta, c(i_1,\dots,i_c), list(C(..), ..., C(..))).}{C(th, c(i1,..ic), list(C(..), ..., C(..))).}
+    \deqn{C(\theta, c(i_1,\dots,i_c), list(C(..), ..., C(..))).}{C(th, c(i1,..ic), list(C(..), ..., C(..))).}
     Note that \eqn{C()} has (maximally) three arguments: the first is
-    the copula parameter (vector) \eqn{\vartheta}{theta}, the second a
+    the copula parameter (vector) \eqn{\theta}{theta}, the second a
     (possibly empty) vector of integer indices of components (for the
     \code{comp} slot in \code{\linkS4class{nacopula}}s), and finally a
     (possibly empty) list of child copulas, each specified with in the
@@ -34,7 +34,7 @@ onacopulaL(family, nacList)
   %   \code{nacStructure} \dQuote{formula} is evaluated.}
   \item{nacList}{a \code{\link{list}} of length 3 (or 2), with elements
     \enumerate{
-      \item theta: \eqn{\vartheta}
+      \item theta: \eqn{\theta}
       \item \code{comps}: components \eqn{c(i_1,\dots,i_c)}{c(i1,..ic)}
       \item \code{children}: a \link{list} which must be a
       \code{nacList} itself and may be missing to denote the empty

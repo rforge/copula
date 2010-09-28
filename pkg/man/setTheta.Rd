@@ -2,7 +2,7 @@
 \alias{setTheta}
 \title{Specify the Parameter of an Archimedean Copula}
 \description{
-  Set or change the parameter \eqn{\vartheta}{theta} (\code{theta}) of
+  Set or change the parameter \eqn{\theta}{theta} (\code{theta}) of
   an Archimedean copula, i.e. \code{"\linkS4class{acopula}"} classed
   \code{x}.  This is used for construction of copula \dQuote{models}
   with a specified parameter, as, e.g., in \code{\link{onacopula}()}.
