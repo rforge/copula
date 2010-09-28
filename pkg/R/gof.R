@@ -22,28 +22,24 @@
 pobs <- function(X){
     n <- nrow(X)
     apply(X,2,function(x) rank(x)/(n+1))
-}	
+}
 
 ##' Transforms U[0,1]^d vectors of random variates to U[0,1] distributed random
 ##' variates
 ##' @param U matrix of random variates to be transformed
-##' @param method either "log" (map to an Erlang distribution) or "normal" (map 
-##' 	to a chi-square distribution) 
+##' @param method either "log" (map to an Erlang distribution) or "normal" (map
+##' 	to a chi-square distribution)
 ##' @return U[0,1] distributed variates (the Erlang or chi-square cdf is applied)
 ##' @author Marius Hofert
 tgofU <- function(U,method="log"){
     d <- ncol(U)
     switch(method,
-           log = {
-               pgamma(rowSums(-log(U)),shape=d)
-           },
-           normal = {
-               pchisq(rowSums(pnorm(U)^2),d)
-           },
-       {stop("wrong choice of method for tgofU()")})
+           "log" = pgamma(rowSums(-log(U)),shape=d),
+           "normal" = pchisq(rowSums(pnorm(U)^2),d),
+           stop("wrong choice of method for tgofU()"))
 }
 
-##' Transforms d-dimensional vectors of random variates following the given 
+##' Transforms d-dimensional vectors of random variates following the given
 ##' Archimedean copula (with specified parameter) to U[0,1]^d vectors of random
 ##' variates
 ##' @param U matrix of random variates from the Archimedean copula
@@ -51,42 +47,40 @@ tgofU <- function(U,method="log"){
 ##' @return matrix of the same dimension as U
 ##' @author Marius Hofert
 tacopula <- function(U,cop){
-    n <- nrow(U)
-    d <- ncol(U)
+    stopifnot(length(d <- dim(U)) == 2, (d <- d[2]) >= 2)
     theta <- cop@theta
-    psiInv. <- cop@psiInv(U,theta)
-    U.prime <- matrix(,nrow=n,ncol=d)
-    sum.psiInv. <- psiInv.[,1]
+    psiI.U <- cop@psiInv(U,theta)
+    U.prime <- U # matrix(,nrow=n,ncol=d)
+    sum.psiI.U <- psiI.U[,1]
     ## compute first d-1 components of the transformation
-    for(j in 1:(d-1)){
-        num <- sum.psiInv.
-        sum.psiInv. <- sum.psiInv.+psiInv.[,j+1]
-        denom <- sum.psiInv.
-        U.prime[,j] <- (num/denom)^j
+    for(j in seq_len(d-1)) {
+        sum.. <- sum.psiI.U
+        sum.psiI.U <- sum.. + psiI.U[,j+1]
+        U.prime[,j] <- (sum../sum.psiI.U)^j
     }
     ## compute dth component
-    U.prime[,d] <- cop@K(denom,theta,d)
+    U.prime[,d] <- cop@K(sum.psiI.U, theta, d)
     ## return transformed data
     U.prime
 }
 
-##' Conducts a goodness-of-fit test for the given H0 copula cop based on the data
-##' X
+##' Conducts a goodness-of-fit test for the given H0 copula cop based on the data X
+##'
+##' @title Goodness-Of-Fit Test for a Given (H0) Copula and Data
 ##' @param X matrix of data (for copulaData=TRUE, X should be data from a copula)
 ##' @param cop acopula with specified H0 parameter theta
-##' @param copulaData boolean indicating wheter X comes from a copula directly
+##' @param copulaData boolean indicating whether X comes from a copula directly
 ##' @param N number of bootstrap replications
-##' @param method applied for the mapping to one-dimensional data; either "log" 
-##'	(map to an Erlang distribution) or "normal" (map to a chi-square 
-##' 	distribution)
-##' @return p-value
+##' @param method applied for the mapping to one-dimensional data; either "log"
+##'	(map to an Erlang distribution) or "normal" (map to a chi-square distribution)
+##' @return p-value -- MM: FIXME: Rather "htest" object
 ##' @author Marius Hofert
-gofacopula <- function(X,cop,copulaData=FALSE,N=1000,method="log"){
-    stopifnot(require(ADGofTest)) # load package for evaluating the Anderson-Darling test statistic
+gofacopula <- function(X,cop,copulaData=FALSE,N=1000,method="log", verbose=TRUE)
+{
     if(copulaData){ # if data comes from a copula directly (no bootstrap is used)
         U <- tacopula(X,cop) # transform the data to U[0,1]^d data under H0
         Y <- tgofU(U,method) # transform the U[0,1]^d data under H0 to U[0,1] data
-        ad.test(Y)$p.value # compute the Anderson-Darling test statistic	
+        ad.test(Y)$p.value # compute the Anderson-Darling test statistic
     }else{ # pseudo-observations are computed and bootstrap is used
 	## setup for bootstrap
 	n <- nrow(X)
@@ -96,15 +90,17 @@ gofacopula <- function(X,cop,copulaData=FALSE,N=1000,method="log"){
 	cop.hat <- onacopulaL(cop@family,list(theta.hat,1:d)) # copula with estimated parameter
 	U.. <- tacopula(U.,cop.hat) # transform the data with the estimated parameter
 	Y <- tgofU(U..,method) # map to one-dimensional data
-	AD.statistic <- ad.test(Y)$statistic # compute the Anderson-Darling test statistic
+	AD.stat <- ad.test(Y)$statistic # compute the Anderson-Darling test statistic
 	## conduct the parametric bootstrap
-	N. <- round(N/10)
+	if(verbose) {
+            cat(sprintf("parametric bootstrap (N = %d):\n",N))
+            N. <- N %/% 10
+        }
 	AD.vec <- numeric(N)
 	for(k in 1:N){
             ## progress output
-            if(k%%N.==1){
-                cat("progress: ",format(round(k*100/N), width = 3),"% ",sep="")
-            }
+            if(verbose & k%%N. == 1)
+               cat(sprintf("bootstrap progress: %3.0f%%", k*100/N))
             ## do work
             U <- rnacopula(n,cop.hat) # sample the copula with estimated parameter
             U.star <- pobs(U) # compute pseudo-observations
@@ -113,20 +109,19 @@ gofacopula <- function(X,cop,copulaData=FALSE,N=1000,method="log"){
             U..star <- tacopula(U.star,cop.hat.star) # transform the data with the estimated parameter
             Y.star <- tgofU(U..star,method) # map to one-dimensional data
             AD.vec[k] <- ad.test(Y.star)$statistic # compute the Anderson-Darling test statistic
-            ## progress output
-            cat(".")
-            if(k%%N.==0) cat("\n")            
+            if(verbose) ## progress output
+                cat(",", if(k%%N. == 0) "\n")
 	}
 	## estimate p-value
-	mean(AD.vec>AD)
+	mean(AD.vec > AD.stat)
     }
 }
 
-# ##' Recursively transforms d-dimensional vectors of random variates following the given 
-# ##' nested Archimedean copula (with specified parameters) to U[0,1]^d vectors 
+# ##' Recursively transforms d-dimensional vectors of random variates following the given
+# ##' nested Archimedean copula (with specified parameters) to U[0,1]^d vectors
 # ##' of random variates
 # ##' @param U matrix of random variates from the nested Archimedean copula
-# ##' @param cop nacopula with specified parameters 
+# ##' @param cop nacopula with specified parameters
 # ##' @return matrix of the same dimension as U
 # ##' @author Marius Hofert
 # tnacopula <- function(U,cop){

@@ -17,6 +17,8 @@ useDynLib(nacopula, .registration=TRUE)
 
 importFrom("gsl", debye_1)
 
+importFrom("ADGofTest", ad.test)
+
 exportClasses("acopula",
               "nacopula", "outer_nacopula",
               "interval", "maybeInterval"
