@@ -9,7 +9,7 @@ Description: An R package for nested Archimedean copulas, providing a
  generating random variates.
 Author: Marius Hofert <marius.hofert@math.ethz.ch> and Martin Maechler
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
-Depends: methods, R (>= 2.9.1)
+Depends: methods, R (>= 2.9.1), ADGofTest
 Imports: gsl
 Suggests: lattice
 License: GPL (>= 2)

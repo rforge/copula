@@ -39,8 +39,9 @@ setClass("acopula",
                         ## when theta is one-dimensional, specifying the interval is more convenient:
                         paraInterval = "maybeInterval", # [.,.]  (.,.], etc ..
                         V0 = "function",	# of (n,theta) -- RNGenerator
-                        cCdf = "function", 	# of (v,u,theta)    
-			K = "function", 	# of (t,theta,d)                         
+                        cCdf = "function", 	# of (v,u,theta) -- C(v|u)   
+			mLogDensity = "function", # of (u,theta) -- -log(density)
+			K = "function", 	# of (t,theta,d) -- K(t)                        
                         tau = "function",	# of (theta)
                         tauInv = "function",    # of (tau)
                         lambdaL = "function",    # of (theta) lower bound  \lambda_l

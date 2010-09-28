@@ -74,16 +74,40 @@ copAMH <-
             (1-theta*(1-v))/(v)*((1-theta)/(1-theta*(2-(u+v)+u*v)+
                                             theta^2*(1-u)*(1-v)))^2
 	},
+	## -log("density") of the Archimedean copula
+	mLogDensity = function(u,theta){
+            ## not depending on theta
+            n <- nrow(u)
+            d <- ncol(u)
+            om.u <- 1-u
+            l.u <- log(u)
+            k <- 1:2000
+            l.k <- log(k)
+            ## depending on theta
+            l.th <- log(theta)
+            l.a.i <- l.th+rowSums(l.u-log1p(-theta*om.u)) # vector of log(a.i)'s
+            summands <- function(l.a.i.1) sum(exp(d*l.k+k*l.a.i.1)) # function to be applied to each of the elements of l.a.i 
+            inner.sums <- unlist(lapply(l.a.i,summands)) # computes truncated inner sum for each element of l.a.i
+            sum.log.series <- sum(log(inner.sums))
+            -(n*((d+1)*log(1-theta)-l.th)-sum(log(u*(1-theta*om.u)))
+              +sum.log.series)
+	},
 	## Kendall distribution function
 	K = function(t,theta,d){
-            k <- 2000
-            pk <- dgeom(k,1-theta)
-            one.t <- function(t) sum(pk*ppois(d-1,k*copAMH@psiInv(t,theta)))
-            unlist(lapply(t,one.t))
-            ## for MC:
-            ## V <- copAMH@V0(100000,theta)
-            ## K.fun <- function(t) mean(ppois(d-1,V*copAMH@psiInv(t,theta)))
-            ## unlist(lapply(t,K.fun))
+            if(d==1){
+                t
+            }else if(d==2){
+		t*(1+(1-theta*(1-t))*copAMH@psiInv(t,theta)/(1-theta))
+            }else{ # d >= 3
+                k <- 2000
+                pk <- dgeom(k,1-theta)
+                one.t <- function(t) sum(pk*ppois(d-1,k*copAMH@psiInv(t,theta)))
+                unlist(lapply(t,one.t))
+                ## for MC:
+                ## V <- copAMH@V0(100000,theta)
+                ## K.fun <- function(t) mean(ppois(d-1,V*copAMH@psiInv(t,theta)))
+                ## unlist(lapply(t,K.fun))
+            }
 	},		
         ## Kendall's tau
         tau = tauAMH, ##-> ./aux-acopula.R
@@ -139,6 +163,16 @@ copClayton <-
 	## conditional distribution function C(v|u) of v given u
 	cCdf = function(v,u,theta) {
             exp(-(1+1/theta)*(log(u^(-theta)+v^(-theta)-1)+theta*log(u)))
+	},
+	## -log("density") of the Archimedean copula
+	mLogDensity = function(u,theta){
+            ## not depending on theta
+            n <- nrow(u)
+            d <- ncol(u)
+            s.l.u <- sum(log(u))
+            ## depending on theta
+            -(n*(d*log(theta)+sum(log((0:(d-1))+1/theta)))-(1+theta)*
+              s.l.u-(d+1/theta)*sum(log1p(rowSums(u^(-theta))-d)))
 	},
 	## Kendall distribution function
 	K = function(t,theta,d){
@@ -232,17 +266,42 @@ copFrank <-
             p <- 1-exp(-theta)
             e.v*e.u/(p-(1-e.u)*e.v)
         },
+	## -log("density") of the Archimedean copula
+	mLogDensity = function(u,theta){
+            ## not depending on theta
+            n <- nrow(u)
+            d <- ncol(u)
+            s.u <- sum(u)
+            k <- 1:2000
+            l.k <- log(k)
+            ## depending on theta
+            l.p <- log1p(-exp(-theta))
+            l.p.u <- log1p(-exp(-theta*u))
+            l.a.i <- l.p+rowSums(l.p.u-l.p) # vector of log(a.i)'s
+            summands <- function(l.a.i.1) sum(exp((d-1)*l.k+k*l.a.i.1)) # function to be applied to each of the elements of l.a.i 
+            inner.sums <- unlist(lapply(l.a.i,summands)) # computes truncated inner sum for each element of l.a.i
+            sum.log.series <- sum(log(inner.sums))
+            ## result
+            -(n*(d-1)*log(theta)-theta*s.u-sum(l.p.u)+sum.log.series)
+	},
         ## Kendall distribution function
 	K = function(t,theta,d){
-            k <- 2000
-            p <- 1-exp(-theta)
-            pk <- p^k/(k*(-log1p(-p))) 
-            one.t <- function(t) sum(pk*ppois(d-1,k*copFrank@psiInv(t,theta)))
-            unlist(lapply(t,one.t))
-            ## for MC:
-            ## V <- copFrank@V0(100000,theta)
-            ## K.fun <- function(t) mean(ppois(d-1,V*copFrank@psiInv(t,theta)))
-            ## unlist(lapply(t,K.fun))
+            if(d==1){
+                t
+            }else if(d==2){
+                e.th <- exp(-theta*t)
+		t+copFrank@psiInv(t,theta)*(1-e.th)/(theta*e.th)
+            }else{ # d >= 3
+                k <- 2000
+                p <- 1-exp(-theta)
+                pk <- p^k/(k*(-log1p(-p))) 
+                one.t <- function(t) sum(pk*ppois(d-1,k*copFrank@psiInv(t,theta)))
+                unlist(lapply(t,one.t))
+                ## for MC:
+                ## V <- copFrank@V0(100000,theta)
+                ## K.fun <- function(t) mean(ppois(d-1,V*copFrank@psiInv(t,theta)))
+                ## unlist(lapply(t,K.fun))
+            }
 	},
         ## Kendall's tau; debye_1() is from package 'gsl' :
         tau = function(theta) 1 + 4*(debye_1(theta) - 1)/theta,
@@ -328,11 +387,34 @@ copGumbel <-
             cop. <- onacopulaL("Gumbel",list(theta,1:2))
             (1+(log(u)/log(v))^theta)^(1/theta-1)*pnacopula(cop.,c(u,v))/u
         },
+	## -log("density") of the Archimedean copula
+	mLogDensity = function(u,theta){
+            ## not depending on theta
+            n <- nrow(u)
+            d <- ncol(u)
+            ml.u <- -log(u)
+            s.ml.u <- sum(ml.u)
+            s.lml.u <- sum(log(ml.u))
+            j <- 0:(d-1)
+            k <- 1:10000
+            l.k.fac <- lfactorial(k)
+            ## depending on theta
+            psiInv.mat <- copGumbel@psiInv(u,theta)
+            sum. <- rowSums(psiInv.mat)
+            psiprime <- psiD(psiInv.mat,theta)
+            -(sum(log(abs(psiD(sum.,1/theta,d)))-log(apply(abs(psiprime),1,prod))))
+	},
         ## Kendall distribution function
 	K = function(t,theta,d){
-            V <- copGumbel@V0(100000,theta)
-            K.fun <- function(t) mean(ppois(d-1,V*copGumbel@psiInv(t,theta)))
-            unlist(lapply(t,K.fun))
+            if(d==1){
+                t
+            }else if(d==2){
+		t(1-log(t)/theta)
+            }else{ # d >= 3
+                V <- copGumbel@V0(100000,theta)
+                K.fun <- function(t) mean(ppois(d-1,V*copGumbel@psiInv(t,theta)))
+                unlist(lapply(t,K.fun))
+            }
 	},
         ## Kendall's tau
         tau = function(theta) { (theta-1)/theta },
@@ -413,17 +495,42 @@ copJoe <-
             v. <- (1-v)^theta
             (1-v.)*(1+v.^((1-u.)/u.))^(1/theta-1)
         },
+	## -log("density") of the Archimedean copula
+	mLogDensity = function(u,theta){
+	    ## not depending on theta
+            n <- nrow(u)
+            d <- ncol(u)
+            s.om.u <- sum(log(1-u))
+            k <- 1:10000 # caution: for tau = 0.5, even 200000 is too few
+            l.k <- log(k)
+            ## depending on theta
+            l.c <- lchoose(1/theta,k)
+            l.a.i <- rowSums(log1p(-(1-u)^theta)) # vector of log(a.i)'s
+            summands <- function(l.a.i.1) sum(exp(l.c+d*l.k+(k-1)*l.a.i.1)) # function to be applied to each of the elements of l.a.i 
+            inner.sums <- unlist(lapply(l.a.i,summands)) # computes truncated inner sum for each element of l.a.i  
+            inner.sums[!is.finite(inner.sums)] <- .Machine$double.xmax # without this line, this does not work properly for d=100
+            sum.log.series <- sum(log(inner.sums))
+            ## result
+            -(n*d*log(theta)-(1-theta)*s.om.u+sum.log.series)
+	},
 	## Kendall distribution function
 	K = function(t,theta,d){
-            k <- 10000
-            alpha <- 1/theta
-            pk <- choose(alpha,k)*(-1)^(k-1)
-            one.t <- function(t) sum(pk*ppois(d-1,k*copJoe@psiInv(t,theta)))
-            unlist(lapply(t,one.t))
-            ## for MC:
-            ## V <- copJoe@V0(100000,theta)
-            ## K.fun <- function(t) mean(ppois(d-1,V*copJoe@psiInv(t,theta)))
-            ## unlist(lapply(t,K.fun))
+            if(d==1){
+	        t
+	    }else if(d==2){
+		mt <- 1-t
+		t+copJoe@psiInv(t,theta)*mt*(mt^(-theta)-1)/theta
+	    }else{ # d >= 3
+		k <- 10000
+                alpha <- 1/theta
+                pk <- choose(alpha,k)*(-1)^(k-1)
+                one.t <- function(t) sum(pk*ppois(d-1,k*copJoe@psiInv(t,theta)))
+                unlist(lapply(t,one.t))
+                ## for MC:
+                ## V <- copJoe@V0(100000,theta)
+                ## K.fun <- function(t) mean(ppois(d-1,V*copJoe@psiInv(t,theta)))
+                ## unlist(lapply(t,K.fun))
+	    }
 	},
         ## Kendall's tau
         ## noTerms: even for theta==0, the approximation error is < 10^(-5)
