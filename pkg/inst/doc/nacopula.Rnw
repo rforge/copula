@@ -161,7 +161,6 @@ Willis Re for financial support while this paper was completed.} \\ETH Zurich
 \newcommand*{\ran}{\operatorname*{ran}}
 \newcommand*{\sgn}{\operatorname*{sgn}}
 \newcommand*{\sign}{\operatorname*{sign}}
-\newcommand*{\vt}{\vartheta}
 \newcommand*{\vp}{\varphi}
 \newcommand*{\vpi}{{\varphi^{-1}}}
 \newcommand*{\vppi}{{\varphi^{[-1]}}}
@@ -326,13 +325,13 @@ Table~\ref{tab:cop-families-psi}.
   \centering
   \begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}X>{\hspace{-6mm}}cc>{\hspace{-4mm}}c}
     \toprule
-    \multicolumn{1}{c}{Family}&\multicolumn{1}{c}{\hspace{-6mm}$\vt$}&\multicolumn{1}{c}{$\psi(t)$}&\multicolumn{1}{c}{\hspace{-4mm}$V\sim F=\LSi[\psi]$}\\
+    \multicolumn{1}{c}{Family}&\multicolumn{1}{c}{\hspace{-6mm}$\theta$}&\multicolumn{1}{c}{$\psi(t)$}&\multicolumn{1}{c}{\hspace{-4mm}$V\sim F=\LSi[\psi]$}\\
     \midrule
-    Ali-Mikhail-Haq&$[0,1)$&$(1-\vt)/(\exp(t)-\vt)$&$\Geo(1-\vt)$\\
-    Clayton&$(0,\infty)$&$(1+t)^{-{1/\vt}}$&$\Gamma(1/\vt,1)$\\
-    Frank&$(0,\infty)$&$-\log(1-(1-e^{-\vt})\exp(-t))/\vt$&$\Log(1-e^{-\vt})$\\
-    Gumbel&$[1,\infty)$&$\exp(-t^{1/\vt})$&$\S(1/\vt,1,\cos^\vt(\pi/(2\vt)),\I_{\{\vt=1\}};1)$\\
-    Joe&$[1,\infty)$&$1-(1-\exp(-t))^{1/\vt}$&$\binom{1/\vt}{k}(-1)^{k-1},\ k\in\IN$\\
+    Ali-Mikhail-Haq&$[0,1)$&$(1-\theta)/(\exp(t)-\theta)$&$\Geo(1-\theta)$\\
+    Clayton&$(0,\infty)$&$(1+t)^{-{1/\theta}}$&$\Gamma(1/\theta,1)$\\
+    Frank&$(0,\infty)$&$-\log(1-(1-e^{-\theta})\exp(-t))/\theta$&$\Log(1-e^{-\theta})$\\
+    Gumbel&$[1,\infty)$&$\exp(-t^{1/\theta})$&$\S(1/\theta,1,\cos^\theta(\pi/(2\theta)),\I_{\{\theta=1\}};1)$\\
+    Joe&$[1,\infty)$&$1-(1-\exp(-t))^{1/\theta}$&$\binom{1/\theta}{k}(-1)^{k-1},\ k\in\IN$\\
     \bottomrule
   \end{tabularx}
   \caption{Commonly used one-parameter Archimedean generators.}
@@ -374,7 +373,7 @@ to the ideas presented in \citet{chambersmallowsstuck1976}, and
 improving on previous implementations in \R.
 %
 For the family of Joe, the mass function of $V$ is of the form
-$p_k=\binom{\alpha}{k}(-1)^{k-1}$ at $k\in\IN$ (take $\alpha:=1/\vt$), with
+$p_k=\binom{\alpha}{k}(-1)^{k-1}$ at $k\in\IN$ (take $\alpha:=1/\theta$), with
 $\alpha\in(0,1]$. This distribution can be sampled via the \R{} function
 \code{rFJoe(., }$\alpha$\code{)} which we implemented based on an algorithm
 presented in \citet{hofert2010a}.
@@ -405,7 +404,7 @@ Kendall's tau can be represented in semi-closed form as
 see \citet[p.\ 91]{joe1997}. For the Archimedean families of
 Ali-Mikhail-Haq, Clayton, and Gumbel, this integral can be evaluated
 explicitly, for Frank's family it involves the Debye function of order one,
-i.e., $D_1(\vt):=\frac 1 \vt \int_0^\vt t/(e^t-1)\,dt$, and for Joe's family, it
+i.e., $D_1(\theta):=\frac 1 \theta \int_0^\theta t/(e^t-1)\,dt$, and for Joe's family, it
 is given as a series, see Table~\ref{table2}.
 
 \subsubsection{Tail-dependence coefficients}
@@ -436,14 +435,14 @@ given in Table~\ref{table2}.
   \centering
   \begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}Xcccc}
     \toprule
-    \multicolumn{1}{c}{Family}&\multicolumn{1}{c}{$\vt$}&\multicolumn{1}{c}{$\tau$}&\multicolumn{1}{c}{$\lambda_l$}&\multicolumn{1}{c}{$\lambda_u$}\\
+    \multicolumn{1}{c}{Family}&\multicolumn{1}{c}{$\theta$}&\multicolumn{1}{c}{$\tau$}&\multicolumn{1}{c}{$\lambda_l$}&\multicolumn{1}{c}{$\lambda_u$}\\
     \midrule
-    Ali-Mikhail-Haq& $[0,1)$      &$1-2(\vt+(1-\vt)^2\log(1-\vt))/(3\vt^2)$ & 0 & 0\\
-    Clayton        & $(0,\infty)$ &$\vt/(\vt+2)$		&$2^{-1/\vt}$ & 0\\
-    Frank          & $(0,\infty)$ &$1+4(D_1(\vt)-1)/\vt$	& 0	& 0\\
-    Gumbel         & $[1,\infty)$ &$(\vt-1)/\vt$		& 0	&$2-2^{1/\vt}$\\
-    Joe            & $[1,\infty)$ &$1-4\sum_{k=1}^\infty 1/(k(\vt k+2)(\vt(k-1)+2))$
-								& 0	&$2-2^{1/\vt}$\\
+    Ali-Mikhail-Haq& $[0,1)$      &$1-2(\theta+(1-\theta)^2\log(1-\theta))/(3\theta^2)$ & 0 & 0\\
+    Clayton        & $(0,\infty)$ &$\theta/(\theta+2)$		&$2^{-1/\theta}$ & 0\\
+    Frank          & $(0,\infty)$ &$1+4(D_1(\theta)-1)/\theta$	& 0	& 0\\
+    Gumbel         & $[1,\infty)$ &$(\theta-1)/\theta$		& 0	&$2-2^{1/\theta}$\\
+    Joe            & $[1,\infty)$ &$1-4\sum_{k=1}^\infty 1/(k(\theta k+2)(\theta(k-1)+2))$
+								& 0	&$2-2^{1/\theta}$\\
     \bottomrule
   \end{tabularx}
   \caption{Kendall's tau and tail-dependence coefficients for commonly used one-parameter Archimedean generators.}
@@ -482,7 +481,7 @@ print(splom2(U3, cex = 0.4))
 \end{figure}
 
 Let us compare the population and sample versions of Kendall's tau for the
-generated data. The former should be approximately 0.5, since we chose the parameter $\vt$ accordingly.
+generated data. The former should be approximately 0.5, since we chose the parameter $\theta$ accordingly.
 <<ex1-explore1>>=
 copJoe @ tau(theta)
 round(cor(U3, method="kendall"), 3)
@@ -713,7 +712,7 @@ the parameters may differ.
 In our \R{} package \pkg{nacopula}, the supported Archimedean family
 objects therefore provide the three slots \code{V0}, \code{nestConstr} and \code{V01},
 all functions. \code{nestConstr}, is a
-\code{function(}$\vartheta_0$\code{, }$\vartheta_1$\code{)} returning \code{TRUE}
+\code{function(}$\theta_0$\code{, }$\theta_1$\code{)} returning \code{TRUE}
 when the nesting condition is fulfilled, and \code{V0} and \code{V01} are
 random number generating functions, generating
 $V$ from Table~\ref{tab:cop-families-psi} and
@@ -735,11 +734,11 @@ summarizes stochastic representations for $V_0$ and $V_{01}$.
 	\multicolumn{1}{c}{Family}&\multicolumn{1}{c}{\hspace{-7mm}Nesting condition}
         &\hspace{-8mm}$V_{01}\sim F_{01}=\LSi[\psi_{01}(\cdot\,;V_0)]$\\
 	\midrule
-	Ali-Mikhail-Haq&$\vt_0\le\vt_1$&$V_0+X$, $X\sim\NB(V_0,(1-\vt_1)/(1-\vt_0))$\\
-	Clayton&$\vt_0\le\vt_1$&$\tS(\vt_0/\vt_1,1,(\cos(\pi\vt_0/(2\vt_1))V_0)^{\vt_1/\vt_0},V_0\I_{\{\vt_0=\vt_1\}},\I_{\{\vt_0\neq\vt_1\}};1)$\\
-	Frank&$\vt_0\le\vt_1$&$\sum_{j=1}^{V_0}V_j$; for $V_j$, see \citet{hofert2010a}\\
-	Gumbel&$\vt_0\le\vt_1$&$\S(\vt_0/\vt_1,1,(\cos(\pi\vt_0/(2\vt_1))V_{0})^{\vt_1/\vt_0},\I_{\{\vt_0=\vt_1\}};1)$\\
-	Joe&$\vt_0\le\vt_1$&$\sum_{j=1}^{V_0}V_j$; $V_j\sim\binom{\alpha}{k}(-1)^{k-1},\ k\in\IN$\\
+	Ali-Mikhail-Haq&$\theta_0\le\theta_1$&$V_0+X$, $X\sim\NB(V_0,(1-\theta_1)/(1-\theta_0))$\\
+	Clayton&$\theta_0\le\theta_1$&$\tS(\theta_0/\theta_1,1,(\cos(\pi\theta_0/(2\theta_1))V_0)^{\theta_1/\theta_0},V_0\I_{\{\theta_0=\theta_1\}},\I_{\{\theta_0\neq\theta_1\}};1)$\\
+	Frank&$\theta_0\le\theta_1$&$\sum_{j=1}^{V_0}V_j$; for $V_j$, see \citet{hofert2010a}\\
+	Gumbel&$\theta_0\le\theta_1$&$\S(\theta_0/\theta_1,1,(\cos(\pi\theta_0/(2\theta_1))V_{0})^{\theta_1/\theta_0},\I_{\{\theta_0=\theta_1\}};1)$\\
+	Joe&$\theta_0\le\theta_1$&$\sum_{j=1}^{V_0}V_j$; $V_j\sim\binom{\alpha}{k}(-1)^{k-1},\ k\in\IN$\\
 	\bottomrule
    \end{tabularx}
    \caption{Nesting conditions and stochastic representations for $V_{01}$
@@ -768,7 +767,7 @@ function $p_k=\binom{k+r-1}{r-1}p^r(1-p)^k$, $k\in\IN_0$, which in \R{} is
 %% dnbinom(x, size, prob, mu, log = FALSE)
 
 For Clayton's family, $F_{01}$ can be interpreted as a special case (take
-$h:=1$, $\alpha:=\vt_0/\vt_1$) of the \textit{exponentially tilted stable
+$h:=1$, $\alpha:=\theta_0/\theta_1$) of the \textit{exponentially tilted stable
   distribution}
 \begin{align}
   \tS(\alpha,1,(\cos(\alpha\pi/2)V_0)^{1/\alpha},V_0\I_{\{\alpha=1\}},h\I_{\{\alpha\neq1\}};1)\label{exptilted}
@@ -803,14 +802,14 @@ applied. As a simple rule, investigated by several parameter combinations,
 the default chooses the method of \citet{hofert2010a} if
 $V_{0}h^{\alpha}<4$ and the one of \citet{devroye2009} otherwise. As
 mentioned before, note that for sampling nested Clayton copulas, we have
-$h=1$. Further, $\IE[V_0]=1/\vt_0$. Hence, in the mean, the algorithm of
-\citet{hofert2010a} is more often applied if $\vt_0>1/4$,
+$h=1$. Further, $\IE[V_0]=1/\theta_0$. Hence, in the mean, the algorithm of
+\citet{hofert2010a} is more often applied if $\theta_0>1/4$,
 equivalently, if Kendall's tau for the bivariate Archimedean copula
 generated by $\psi_0$ is greater than $1/9$.
 
 For Frank's family, \citet{hofert2010a} presented a rejection algorithm.
 For the family of Gumbel, $\psi_{01}(t;V_0)=\exp(-V_0t^\alpha)$,
-$\alpha:=\vt_0/\vt_1$, hence, see Table~\ref{tab:cop-families-psi}, $F_{01}$ corresponds
+$\alpha:=\theta_0/\theta_1$, hence, see Table~\ref{tab:cop-families-psi}, $F_{01}$ corresponds
 to the stable distribution as given in Table~\ref{tab:nestedAC-V01}. Finally, for
 Joe's Archimedean family, $V_{01}$ can be represented as a $V_0$-fold sum of
 independent and identically distributed random variables $V_k$,
@@ -955,14 +954,14 @@ c(copClayton @ lambdaL(theta2),
 @
 
 \section{Outer power Archimedean copulas}
-For an Archimedean generator $\psi\in\Psi_\infty$, $\psi(t^{1/\vt})$ is also a
-valid generator in $\Psi_\infty$ for all $\vt\in[1,\infty)$, see, e.g.,
+For an Archimedean generator $\psi\in\Psi_\infty$, $\psi(t^{1/\theta})$ is also a
+valid generator in $\Psi_\infty$ for all $\theta\in[1,\infty)$, see, e.g.,
 \citet[p.\ 441]{feller1971}. The resulting copulas are
 referred to as \textit{outer power Archimedean copulas}. Note that two
-parametric Archimedean generators $\psi(t^{1/\vt_0})$, $\vt_0\in[1,\infty)$, and
-$\psi(t^{1/\vt_1})$, $\vt_1\in[1,\infty)$, of this type, constructed with the
+parametric Archimedean generators $\psi(t^{1/\theta_0})$, $\theta_0\in[1,\infty)$, and
+$\psi(t^{1/\theta_1})$, $\theta_1\in[1,\infty)$, of this type, constructed with the
 same ``base'' generator $\psi(t)$, $t\in[0,\infty)$, fulfill the nesting
-condition if $\vt_0\le\vt_1$. Therefore, one can build so-called
+condition if $\theta_0\le\theta_1$. Therefore, one can build so-called
 \textit{nested outer power Archimedean copulas}.
 \citet{hofert2010a} derives some results for
 these copulas, including instructions for sampling the corresponding random
@@ -984,7 +983,7 @@ str(opower)
 We believe that it is both more natural and flexible
 to work with copula families that are \emph{generalizations} of our current
 families, each including the power as an extra parameter (such that
-\code{theta}, i.e., $\vartheta$, will become 2-dimensional), rather than
+\code{theta}, i.e., $\theta$, will become 2-dimensional), rather than
 using the \code{opower()} construction below. This section therefore should be
 considered mainly as an outlook to further features of the package
 \pkg{nacopula}, where this transformation is not required anymore for working
