@@ -49,22 +49,42 @@ tgofU <- function(U,method="log"){
 ##' @author Marius Hofert
 tacopula <- function(X,cop,copulaData=FALSE){
     stopifnot(length(d <- dim(X)) == 2, (d <- d[2]) >= 2)
-    if(!copulaData) U <- pobs(X) else U <- X
+    U <- if(!copulaData) pobs(X) else X
     theta <- cop@theta
     psiI.U <- cop@psiInv(U,theta)
-    U.prime <- U # matrix(,nrow=n,ncol=d)
+    tU <- U # matrix(,nrow=n,ncol=d)
     sum.psiI.U <- psiI.U[,1]
     ## compute first d-1 components of the transformation
     for(j in seq_len(d-1)) {
         sum.. <- sum.psiI.U
         sum.psiI.U <- sum.. + psiI.U[,j+1]
-        U.prime[,j] <- (sum../sum.psiI.U)^j
+        tU[,j] <- (sum../sum.psiI.U)^j
     }
     ## compute dth component
-    U.prime[,d] <- cop@K(sum.psiI.U, theta, d)
+    tU[,d] <- cop@K(sum.psiI.U, theta, d)
     ## return transformed data
-    U.prime
+    tU
 }
+
+##' Recursively transforms d-dimensional vectors of random variates following the given
+##' nested Archimedean copula (with specified parameters) to U[0,1]^d vectors
+##' of random variates
+##' @param X matrix of random variates
+##' @param cop nacopula with specified parameters
+##' @param copulaData boolean indicating whether X comes from a copula directly
+##' @return tree of matrices of the same structure as cop
+##' @author Marius Hofert
+# tnacopula <- function(X,cop,copulaData=FALSE){
+#     TODO
+# First trial:
+# U <- if(!copulaData) pobs(X) else X
+#     for all children do {
+#         call procedure again
+#  
+#    }
+# consider parent
+# 
+# }
 
 ##' Conducts a goodness-of-fit test for the given H0 copula cop based on the 
 ##' data X
@@ -119,21 +139,3 @@ gofacopula <- function(X,cop,copulaData=FALSE,N=1000,method="log", verbose=TRUE)
     }
 }
 
-# ##' Recursively transforms d-dimensional vectors of random variates following the given
-# ##' nested Archimedean copula (with specified parameters) to U[0,1]^d vectors
-# ##' of random variates
-# ##' @param X matrix of random variates
-# ##' @param cop nacopula with specified parameters
-# ##' @param copulaData boolean indicating whether X comes from a copula directly
-# ##' @return matrix of the same dimension as X
-# ##' @author Marius Hofert
-# tnacopula <- function(X,cop,copulaData=FALSE){
-#     TODO
-# First trial:
-# if(!copulaData) U <- pobs(X) else U <- X
-#     for all children do {
-#         call procedure again
-#     }
-# consider parent
-
-# }
