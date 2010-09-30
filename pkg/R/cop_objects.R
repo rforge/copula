@@ -32,29 +32,29 @@ copAMH <-
         psi = function(t,theta) { (1-theta)/(exp(t+0)-theta) },
         psiInv = function(t,theta) { log((1-theta*(1-t))/t) },
 	## generator derivatives
-	psiD = function(t,theta,ord = 1){
-            if(ord == 1){
+	psiD = function(t,theta,degree = 1){
+            if(degree == 1){
                 expmt <- exp(-t)
                 -(1-theta)*expmt/(1-theta*expmt)^2
             }else{ 
                 ## words of warning:
                 ## - do not use for computing the density of an AC 
                 ##   (numerically not reasonable due to psiInv)                
-                ## - do not use for too large orders
+                ## - do not use for too large degrees
                 ## - is only an approximation (k <- 1:Inf would be "correct")
-                ## note: one may still use Monte Carlo for large orders
+                ## note: one may still use Monte Carlo for large degrees
                 ##       or compute the first couple of derivatives with a CAS
 		l.th <- log(theta)
 		l1m.th <- log1p(-theta)
 		k <- 1:2000
-                l.pk. <- l1m.th + (k-1)*l.th + ord*log(k)
+                l.pk. <- l1m.th + (k-1)*l.th + degree*log(k)
 		summands <- function(t) sum(exp(l.pk. - k*t)) # for a single t
-		(-1)^ord*unlist(lapply(t,summands))
+		(-1)^degree*unlist(lapply(t,summands))
 		## for MC:
 		## V0. <- copAMH@V0(100000,theta)
-		## l.V0 <- ord*log(V0.)
+		## l.V0 <- degree*log(V0.)
 		## summands <- function(t) mean(exp(l.V0-V0*t))
-		## (-1)^ord*unlist(lapply(t,summands))
+		## (-1)^degree*unlist(lapply(t,summands))
             }
 	},
         ## parameter interval
@@ -146,9 +146,9 @@ copClayton <-
         psi = function(t,theta) { (1+t)^(-1/theta) },
         psiInv = function(t,theta) { t^(-theta) - 1 },
 	## generator derivatives
-	psiD = function(t,theta,ord = 1){
+	psiD = function(t,theta,degree = 1){
             alpha <- 1/theta
-            (-1)^ord*prod(alpha+(0:(ord-1)))*(1+t)^(-(alpha+ord))
+            (-1)^degree*prod(alpha+(0:(degree-1)))*(1+t)^(-(alpha+degree))
 	},
         ## parameter interval
         paraInterval = interval("(0,Inf)"),
@@ -219,8 +219,8 @@ copFrank <-
             ## == -log((exp(-theta*t)-1)/(exp(-theta)-1))
         },
         ## generator derivatives
-        psiD = function(t,theta,ord = 1){
-            if(ord == 1){
+        psiD = function(t,theta,degree = 1){
+            if(degree == 1){
                 expmt <- exp(-t)
                 p <- 1-exp(-theta)
                 (-1/theta)*p*expmt/(1-p*expmt)
@@ -228,21 +228,21 @@ copFrank <-
                 ## words of warning:
                 ## - do not use for computing the density of an AC 
                 ##   (numerically not reasonable due to psiInv)
-                ## - do not use for too large orders
+                ## - do not use for too large degrees
                 ## - is only an approximation (k <- 1:Inf would be "correct")
-                ## note: one may still use Monte Carlo for large orders
+                ## note: one may still use Monte Carlo for large degrees
                 ##       or compute the first couple of derivatives with a CAS
                 l.p <- log1p(-exp(-theta))
                 l.th <- log(theta)
                 k <- 1:2000
-                l.pk. <- k*l.p-l.th + (ord-1)*log(k)
+                l.pk. <- k*l.p-l.th + (degree-1)*log(k)
                 summands <- function(t) sum(exp(l.pk. - k*t)) # for a single t
-                (-1)^ord*unlist(lapply(t,summands))
+                (-1)^degree*unlist(lapply(t,summands))
                 ## for MC:
                 ## V0. <- copFrank@V0(100000,theta)
-                ## l.V0 <- ord*log(V0.)
+                ## l.V0 <- degree*log(V0.)
                 ## summands <- function(t) mean(exp(l.V0-V0*t))
-                ## (-1)^ord*unlist(lapply(t,summands))
+                ## (-1)^degree*unlist(lapply(t,summands))
             }
         },
         ## parameter interval
@@ -336,16 +336,16 @@ copGumbel <-
         psi = function(t,theta) { exp(-t^(1/theta)) },
         psiInv = function(t,theta) { (-log(t+0))^theta },
         ## generator derivatives
-        psiD = function(t,theta,ord = 1){
-            if(ord == 1){
+        psiD = function(t,theta,degree = 1){
+            if(degree == 1){
                 alpha <- 1/theta
                 copGumbel@psi(t,theta)*(-alpha)*t^(alpha-1)
             }else{
                 ## Monte Carlo
                 V0. <- copGumbel@V0(100000,theta)
-                l.V0 <- ord*log(V0.)
+                l.V0 <- degree*log(V0.)
                 summands <- function(t) mean(exp(l.V0-V0*t))
-                (-1)^ord*unlist(lapply(t,summands))
+                (-1)^degree*unlist(lapply(t,summands))
             }
         },
         ## parameter interval
@@ -443,29 +443,29 @@ copJoe <-
         },
         psiInv = function(t,theta) { -log1p(-(1-t)^theta) },
         ## generator derivatives
-        psiD = function(t,theta,ord = 1){
+        psiD = function(t,theta,degree = 1){
             alpha <- 1/theta
-            if(ord == 1){
+            if(degree == 1){
                 expmt <- exp(-t)
                 -alpha*(1-expmt)^(alpha-1)*expmt
             }else{
                 ## words of warning:
                 ## - do not use for computing the density of an AC 
                 ##   (numerically not reasonable due to psiInv)
-                ## - do not use for too large orders
+                ## - do not use for too large degrees
                 ## - is only an approximation (k <- 1:Inf would be "correct")
                 ##   in contrast to AMH and Frank, the series converges slowly!
-                ## note: one may still use Monte Carlo for large orders
+                ## note: one may still use Monte Carlo for large degrees
                 ##       or compute the first couple of derivatives with a CAS
                 k <- 1:10000
-                l.pk. <- abs(lchoose(alpha,k)) + ord*log(k)
+                l.pk. <- abs(lchoose(alpha,k)) + degree*log(k)
                 summands <- function(t) sum(exp(l.pk. - k*t)) # for a single t
-                (-1)^ord*unlist(lapply(t,summands))
+                (-1)^degree*unlist(lapply(t,summands))
                 ## for MC:
                 ## V0. <- copJoe@V0(100000,theta)
-                ## l.V0 <- ord*log(V0.)
+                ## l.V0 <- degree*log(V0.)
                 ## summands <- function(t) mean(exp(l.V0-V0*t))
-                ## (-1)^ord*unlist(lapply(t,summands))
+                ## (-1)^degree*unlist(lapply(t,summands))
             }
         },
         ## parameter interval
