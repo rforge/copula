@@ -76,21 +76,26 @@ copAMH <-
 	},
 	## -log("density") of the Archimedean copula
 	mLogDensity = function(u,theta){
-            ## not depending on theta
-            n <- nrow(u)
-            d <- ncol(u)
-            om.u <- 1-u
-            l.u <- log(u)
-            k <- 1:2000
-            l.k <- log(k)
-            ## depending on theta
-            l.th <- log(theta)
-            l.a.i <- l.th+rowSums(l.u-log1p(-theta*om.u)) # vector of log(a.i)'s
-            summands <- function(l.a.i.1) sum(exp(d*l.k+k*l.a.i.1)) # function to be applied to each of the elements of l.a.i 
-            inner.sums <- unlist(lapply(l.a.i,summands)) # computes truncated inner sum for each element of l.a.i
-            sum.log.series <- sum(log(inner.sums))
-            -(n*((d+1)*log(1-theta)-l.th)-sum(log(u*(1-theta*om.u)))
-              +sum.log.series)
+            if((d <- ncol(u)) == 2){
+                u. <- (1-theta*(1-u[,1]))*(1-theta*(1-u[,2]))
+                u.. <- theta*u[,1]*u[,2]
+                -(3*log((1-theta)/(u.-u..))+log(u.+u..))
+            }else{ # approximation via truncation of the series
+                ## not depending on theta
+                n <- nrow(u)
+                om.u <- 1-u
+                l.u <- log(u)
+                k <- 1:2000
+                l.k <- log(k)
+                ## depending on theta
+                l.th <- log(theta)
+                l.a.i <- l.th+rowSums(l.u-log1p(-theta*om.u)) # vector of log(a.i)'s
+                summands <- function(l.a.i.1) sum(exp(d*l.k+k*l.a.i.1)) # function to be applied to each of the elements of l.a.i 
+                inner.sums <- unlist(lapply(l.a.i,summands)) # computes truncated inner sum for each element of l.a.i
+                sum.log.series <- sum(log(inner.sums))
+                -(n*((d+1)*log(1-theta)-l.th)-sum(log(u*(1-theta*om.u)))
+                  +sum.log.series)	
+            }
 	},
 	## Kendall distribution function
 	K = function(t,theta,d){
@@ -166,13 +171,9 @@ copClayton <-
 	},
 	## -log("density") of the Archimedean copula
 	mLogDensity = function(u,theta){
-            ## not depending on theta
-            n <- nrow(u)
             d <- ncol(u)
-            s.l.u <- sum(log(u))
-            ## depending on theta
-            -(n*(d*log(theta)+sum(log((0:(d-1))+1/theta)))-(1+theta)*
-              s.l.u-(d+1/theta)*sum(log1p(rowSums(u^(-theta))-d)))
+            -(nrow(u)*sum(log1p((0:(d-1))*theta))-(1+theta)*sum(log(u))-
+              (d+1/theta)*sum(log1p(rowSums(u^(-theta))-d)))
 	},
 	## Kendall distribution function
 	K = function(t,theta,d){
@@ -268,21 +269,26 @@ copFrank <-
         },
 	## -log("density") of the Archimedean copula
 	mLogDensity = function(u,theta){
-            ## not depending on theta
-            n <- nrow(u)
-            d <- ncol(u)
-            s.u <- sum(u)
-            k <- 1:2000
-            l.k <- log(k)
-            ## depending on theta
-            l.p <- log1p(-exp(-theta))
-            l.p.u <- log1p(-exp(-theta*u))
-            l.a.i <- l.p+rowSums(l.p.u-l.p) # vector of log(a.i)'s
-            summands <- function(l.a.i.1) sum(exp((d-1)*l.k+k*l.a.i.1)) # function to be applied to each of the elements of l.a.i 
-            inner.sums <- unlist(lapply(l.a.i,summands)) # computes truncated inner sum for each element of l.a.i
-            sum.log.series <- sum(log(inner.sums))
-            ## result
-            -(n*(d-1)*log(theta)-theta*s.u-sum(l.p.u)+sum.log.series)
+            if((d <- ncol(u)) == 2){
+                p. <- -exp(-theta)
+                -(log(theta)+log1p(p.)-theta*(u[,1]+u[,2])-
+                  2*log1p(p.-(1-exp(-theta*u[,1]))*(1-exp(-theta*u[,2]))))
+            }else{ # approximation via truncation of the series
+                ## not depending on theta
+                n <- nrow(u)
+                s.u <- sum(u)
+                k <- 1:2000
+                l.k <- log(k)
+                ## depending on theta
+                l.p <- log1p(-exp(-theta))
+                l.p.u <- log1p(-exp(-theta*u))
+                l.a.i <- l.p+rowSums(l.p.u-l.p) # vector of log(a.i)'s
+                summands <- function(l.a.i.1) sum(exp((d-1)*l.k+k*l.a.i.1)) # function to be applied to each of the elements of l.a.i 
+                inner.sums <- unlist(lapply(l.a.i,summands)) # computes truncated inner sum for each element of l.a.i
+                sum.log.series <- sum(log(inner.sums))
+                ## result
+                -(n*(d-1)*log(theta)-theta*s.u-sum(l.p.u)+sum.log.series)
+            }
 	},
         ## Kendall distribution function
 	K = function(t,theta,d){
@@ -389,20 +395,25 @@ copGumbel <-
         },
 	## -log("density") of the Archimedean copula
 	mLogDensity = function(u,theta){
-            ## not depending on theta
-            n <- nrow(u)
-            d <- ncol(u)
-            ml.u <- -log(u)
-            s.ml.u <- sum(ml.u)
-            s.lml.u <- sum(log(ml.u))
-            j <- 0:(d-1)
-            k <- 1:10000
-            l.k.fac <- lfactorial(k)
-            ## depending on theta
-            psiInv.mat <- copGumbel@psiInv(u,theta)
-            sum. <- rowSums(psiInv.mat)
-            psiprime <- psiD(psiInv.mat,theta)
-            -(sum(log(abs(psiD(sum.,1/theta,d)))-log(apply(abs(psiprime),1,prod))))
+            if((d <- ncol(u)) == 2){
+                u. <- (-log(u[,1]))^theta + (-log(u[,2]))^theta
+		-(log(theta-1+u.^(1/theta))+(1/theta-2)*log(u.)+(theta-1)*
+                  log(-log(u[,1]*u[,2])))
+            }else{ # approximation via truncation of the series 
+                ## not depending on theta
+                n <- nrow(u)
+                ml.u <- -log(u)
+                s.ml.u <- sum(ml.u)
+                s.lml.u <- sum(log(ml.u))
+                j <- 0:(d-1)
+                k <- 1:10000
+                l.k.fac <- lfactorial(k)
+                ## depending on theta
+                psiInv.mat <- copGumbel@psiInv(u,theta)
+                sum. <- rowSums(psiInv.mat)
+                psiprime <- psiD(psiInv.mat,theta)
+                -(sum(log(abs(psiD(sum.,1/theta,d)))-log(apply(abs(psiprime),1,prod))))
+            }
 	},
         ## Kendall distribution function
 	K = function(t,theta,d){
@@ -497,21 +508,27 @@ copJoe <-
         },
 	## -log("density") of the Archimedean copula
 	mLogDensity = function(u,theta){
-	    ## not depending on theta
-            n <- nrow(u)
-            d <- ncol(u)
-            s.om.u <- sum(log(1-u))
-            k <- 1:10000 # caution: for tau = 0.5, even 200000 is too few
-            l.k <- log(k)
-            ## depending on theta
-            l.c <- lchoose(1/theta,k)
-            l.a.i <- rowSums(log1p(-(1-u)^theta)) # vector of log(a.i)'s
-            summands <- function(l.a.i.1) sum(exp(l.c+d*l.k+(k-1)*l.a.i.1)) # function to be applied to each of the elements of l.a.i 
-            inner.sums <- unlist(lapply(l.a.i,summands)) # computes truncated inner sum for each element of l.a.i  
-            inner.sums[!is.finite(inner.sums)] <- .Machine$double.xmax # without this line, this does not work properly for d=100
-            sum.log.series <- sum(log(inner.sums))
-            ## result
-            -(n*d*log(theta)-(1-theta)*s.om.u+sum.log.series)
+            if((d <- ncol(u)) == 2){
+		u. <- (1-u[,1])^theta
+		u.. <- (1-u[,2])^theta
+		-(log(theta-(1-u.)*(1-u..))+(1-1/theta)*(log(u.)+log(u..))+
+                  (1/theta-2)*log(u.+u..-u.*u..))
+            }else{ # approximation via truncation of the series
+                ## not depending on theta
+                n <- nrow(u)
+                s.om.u <- sum(log(1-u))
+                k <- 1:10000 # caution: for tau = 0.5, even 200000 is too few
+                l.k <- log(k)
+                ## depending on theta
+                l.c <- lchoose(1/theta,k)
+                l.a.i <- rowSums(log1p(-(1-u)^theta)) # vector of log(a.i)'s
+                summands <- function(l.a.i.1) sum(exp(l.c+d*l.k+(k-1)*l.a.i.1)) # function to be applied to each of the elements of l.a.i 
+                inner.sums <- unlist(lapply(l.a.i,summands)) # computes truncated inner sum for each element of l.a.i  
+                inner.sums[!is.finite(inner.sums)] <- .Machine$double.xmax # without this line, this does not work properly for d=100
+                sum.log.series <- sum(log(inner.sums))
+                ## result
+                -(n*d*log(theta)-(1-theta)*s.om.u+sum.log.series)
+            }
 	},
 	## Kendall distribution function
 	K = function(t,theta,d){
