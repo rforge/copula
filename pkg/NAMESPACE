@@ -19,6 +19,8 @@ importFrom("gsl", debye_1)
 
 importFrom("ADGofTest", ad.test)
 
+importFrom("fBasics", dstable)
+
 exportClasses("acopula",
               "nacopula", "outer_nacopula",
               "interval", "maybeInterval"

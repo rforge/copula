@@ -70,8 +70,16 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     cat0 <- function(...) cat(..., "\n", sep = "")
     theta0 <- cop@theta
     CT <- list()
+
+    ## ==== (1) cop name ====
+
     cat0(sprintf("(1) copula family: %10s, theta0 = %g",
                  cop@name, theta0))
+
+    ## ==== (2) generator ====
+
+    ## ==== (2.1) psi and psiInv ====
+
     cat("\n(2) values of psi at i10:\n")
     CT <- c(CT, list(psi = system.time(p.i <- cop@psi(i10,theta = theta0))))
     print(p.i)
@@ -85,13 +93,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     cat("check if psiInv(0)=Inf: ")
     stopifnot(cop@psiInv(0, theta = theta0)==Inf)
     cat0("TRUE")
-    cat("\nvalues of psiD at i10:\n")
-    CT <- c(CT, list(psiD = system.time(p.D <- cop@psiD(i10,theta = theta0))))
-    print(p.D)
-    cat("check if psiD(Inf,theta)=0: ")
-    stopifnot(cop@psiD(Inf, theta = theta0)==0)
-    cat0("TRUE")
-    cat0("\nvalues of psiInv at t01:\n")
+    cat0("\nvalues of psiInv at t01:")
     CT <- c(CT, list(psiI = system.time(pi.t <- cop@psiInv(t01,
                      theta = theta0))))
     print(pi.t)
@@ -101,19 +103,136 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
                                                                 theta = theta0))
     cat0("check if psiInv(psi(i10))==i10: ", all.equal(pi.pi, i10))
     cat0("check if psi(psiInv(t01))==t01: ", all.equal(p.pit, t01))
+
+    ## ==== (2.2) psiDAbs ====
+
+    ## psiDAbs with degree = 1
+    cat("\nvalues of psiDAbs with degree=1 at i10:\n")
+    CT <- c(CT, list(psiDAbs = system.time(p.D <- cop@psiDAbs(i10,theta = theta0))))
+    print(p.D)
+    cat("check if psiDAbs(Inf,theta)=0 and the class of psiDAbs(0,theta): ")
+    at.0 <- cop@psiDAbs(0, theta = theta0)
+    stopifnot(cop@psiDAbs(Inf, theta = theta0)==0, is.numeric(at.0), !is.nan(at.0))
+    cat0("TRUE")
+    ## psiDAbs with degree = 10
+    cat("\nvalues of psiDAbs with degree=10 at i10:\n")
+    CT <- c(CT, list(psiDAbs = system.time(p.D <- cop@psiDAbs(i10,theta = theta0,
+                     degree = 10))))
+    print(p.D)
+    cat("check if psiDAbs(Inf,theta,degree=10)=0 and the class of psiDAbs(0,theta,degree=10): ")
+    at.0 <- cop@psiDAbs(0, theta = theta0, degree = 10)
+    stopifnot(cop@psiDAbs(Inf, theta = theta0, degree = 10)==0, is.numeric(at.0), 
+              !is.nan(at.0))
+    cat0("TRUE")
+    ## psiDAbs with degree = 10 and MC
+    if(cop@name != "Clayton"){
+        cat("\nvalues of psiDAbs with degree=10 and MC at i10:\n")
+        CT <- c(CT, list(psiDAbs = system.time(p.D <- cop@psiDAbs(i10,theta = theta0,
+                         degree = 10, MC = TRUE))))
+        print(p.D)
+        cat("check if psiDAbs(Inf,theta,degree=10,MC=TRUE)=0 and the class of psiDAbs(0,theta,degree=10,MC=TRUE): ")
+        at.0 <- cop@psiDAbs(0, theta = theta0, degree = 10, MC = TRUE)
+        stopifnot(cop@psiDAbs(Inf, theta = theta0, degree = 10, MC = TRUE)==0, 
+                  is.numeric(at.0), !is.nan(at.0))
+        cat0("TRUE")
+    }
+
+    ## ==== (3) parameter interval ====
+
     cat("\n(3) parameter interval:\n")
     print(cop@paraInterval)
     cat0("theta1=",theta1)
     cat0("nesting condition for theta0 and theta1 fulfilled: ",
          cop@nestConstr(theta0,theta1))
+
+    ## ==== (4) V0, f0, V01, f01 ====
+
+    ## V0
     CT <- c(CT, list(V0 = system.time(V0 <- cop@V0(nRnd,theta0))))
     cat0("\n(4) ",nRnd," generated V0's:")
     print(summary(V0))
+    ## f0
+    cat("\nvalues of f0 at i10:\n")
+    CT <- c(CT, list(f0 = system.time(f0.i <- cop@f0(i10,theta0))))
+    print(f0.i)
+    ## V01
     CT <- c(CT, list(V01 = system.time(V01 <- cop@V01(V0,theta0,theta1))))
     cat0(nRnd," generated V01's:")
     print(summary(V01))
     nt <- length(thetavec)
-    cat("\n(5) tau at thetavec:\n")
+    ## f01
+    cat("\nvalues of f01 at i10:\n")
+    if(cop@name == "Frank" || cop@name == "Joe"){
+        CT <- c(CT, list(f01 = system.time(f01.i <- cop@f01(i10,theta0=theta0,
+                         theta1=theta1))))
+    }else{
+	CT <- c(CT, list(f01 = system.time(f01.i <- cop@f01(i10,V0=1,theta0=theta0,
+                         theta1=theta1))))
+    }
+    print(f01.i)
+
+    ## ==== (5) cCdf ====
+    
+    cat("\n(5) values of cCdf(v,0.5) for v=t01:\n")
+    CT <- c(CT, list(cCdf = system.time(cCdf. <- cop@cCdf(t01,0.5,theta=theta0))))
+    print(cCdf.)
+
+    ## ==== (6) logDensity ====
+
+    ## d = 2
+    cat("\n(6) check logDensity for u being a random (50x2)-matrix:\n")
+    u <- matrix(runif(1000),ncol=20)
+    CT <- c(CT, list(logDensity = system.time(lD <- cop@logDensity(u[,1:2],
+                     theta=theta0))))
+    stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))	
+    cat0("checked")
+    ## d > 2
+    cat("\n check logDensity for u being a random (50x20)-matrix:\n")
+    CT <- c(CT, list(logDensity = system.time(lD <- cop@logDensity(u,
+                     theta=theta0))))
+    stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))	
+    cat0("checked")
+    ## d > 2, MC = TRUE
+    if(cop@name != "Clayton"){
+        cat("\n check logDensity with MC for u being a random (50x20)-matrix:\n")
+        CT <- c(CT, list(logDensity = system.time(lD <- cop@logDensity(u,
+                         theta=theta0, MC = TRUE))))
+        stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))	
+        cat0("checked")
+    }
+
+    ## ==== (7) K ====
+
+    ## K for d = 2
+    cat("\n(7) values of K for d = 2 at t01:\n")
+    CT <- c(CT, list(K = system.time(K. <- cop@K(t01,theta = theta0, d = 2))))
+    print(K.)
+    cat("check if K(0)=0 and K(1)=1: ")
+    stopifnot(cop@K(0, theta = theta0, d = 2)==0, 
+              cop@K(1, theta = theta0, d = 2)==1)
+    cat0("TRUE")
+    ## K for d = 10
+    cat("\nvalues of K for d = 10 at t01:\n")
+    CT <- c(CT, list(K = system.time(K. <- cop@K(t01,theta = theta0, d = 10))))
+    print(K.)
+    cat("check if K(0)=0 and K(1)=1: ")
+    stopifnot(cop@K(0, theta = theta0, d = 10)==0, 
+              cop@K(1, theta = theta0, d = 10)==1)
+    cat0("TRUE")
+    ## K for d = 10 and MC
+    if(cop@name != "Clayton"){
+        cat("\nvalues of K for d = 10 and MC at t01:\n")
+        CT <- c(CT, list(K = system.time(K. <- cop@K(t01,theta = theta0, d = 10, MC = TRUE))))
+        print(K.)
+        cat("check if K(0)=0 and K(1)=1: ")
+        stopifnot(cop@K(0, theta = theta0, d = 10, MC = TRUE)==0, 
+                  cop@K(1, theta = theta0, d = 10, MC = TRUE)==1)
+        cat0("TRUE")
+    }
+
+    ## ==== (8) tau, tauInv ====
+
+    cat("\n(8) tau at thetavec:\n")
     CT <- c(CT, list(tau = system.time(ta <- cop@tau(thetavec))))
     print(ta)
     CT <- c(CT, list(tauI = system.time(ta.I <- cop@tauInv(ta))))
@@ -121,13 +240,19 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
          all.equal(ta.I, thetavec))
     lambdaLvec <- rep(as.double(lambdaLvec), length.out= nt)
     lambdaUvec <- rep(as.double(lambdaUvec), length.out= nt)
-    cat("\n(6) lambdaL at thetavec:\n")
+
+    ## ==== (9) lambdaL, lambdaLInv ====
+
+    cat("\n(9) lambdaL at thetavec:\n")
     CT <- c(CT, list(lambdaL = system.time(lT <- cop@lambdaL(thetavec))))
     CT <- c(CT, list(lT.I = system.time(lT.I <- cop@lambdaLInv(lT))))
     print(lT)
     cat0("check if lambdaLInv(lambdaL(thetavec))==lambdaLvec: ",
          all.equal(lT.I, lambdaLvec))
-    cat("\n(7) lambdaU at thetavec:\n")
+
+    ## ==== (10) lambdaU, lambdaUInv ====
+
+    cat("\n(10) lambdaU at thetavec:\n")
     CT <- c(CT, list(lambdaU = system.time(uT <- cop@lambdaU(thetavec))))
     CT <- c(CT, list(uT.I = system.time(uT.I <- cop@lambdaUInv(uT))))
     print(uT)
@@ -141,9 +266,9 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
 print.proc_time_list <- function (x, ...) {
     stopifnot(is.list(x), !is.null(nx <- names(x)))
     for(nm in nx)
-	if(!all(x[[nm]] == 0, na.rm=TRUE)) {
-	    cat(nm,":\n"); print(x[[nm]], ...)
-	}
+        if(!all(x[[nm]] == 0, na.rm=TRUE)) {
+            cat(nm,":\n"); print(x[[nm]], ...)
+        }
     invisible(x)
 }
 
@@ -169,8 +294,8 @@ tstCop(myFrank, 5.736283, thetavec)
 tau.th <- c(0.055417, 0.11002, 0.21389, 0.4567, 0.66578)
 tau.F <- myFrank@tau(thetavec)
 stopifnot(all.equal(tau.th, tau.F, tol = 0.0001),
-	  all.equal(.9999, copFrank@tau(copFrank@tauInv(0.9999))),
-	  all.equal(myFrank@tauInv(tau.F, tol = 1e-14), thetavec, tol=1e-11))
+          all.equal(.9999, copFrank@tau(copFrank@tauInv(0.9999))),
+          all.equal(myFrank@tauInv(tau.F, tol = 1e-14), thetavec, tol=1e-11))
 
 
 ##' ==== copGumbel ===

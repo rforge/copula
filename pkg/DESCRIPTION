@@ -10,7 +10,7 @@ Description: An R package for nested Archimedean copulas, providing a
 Author: Marius Hofert <marius.hofert@math.ethz.ch> and Martin Maechler
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Depends: methods, R (>= 2.9.1)
-Imports: gsl, ADGofTest
+Imports: gsl, ADGofTest, fBasics
 Suggests: lattice, sfsmisc
 License: GPL (>= 2)
 LazyData: yes

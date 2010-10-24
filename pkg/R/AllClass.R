@@ -31,27 +31,28 @@ setClassUnion("maybeInterval", c("interval", "NULL"))
 ### for *any* dimension d
 setClass("acopula",
 	 representation(name = "character",
-                        psi = "function",    # of (t, theta) -- the generator
-                        psiInv = "function", # of (p, theta) -- psi_inverse: \psi^{-1}(p) = t
-                        psiD = "function", # of (t, theta, k) -- the k-th generator derivative
-                        theta = "numeric", # value of theta or  'NA'  (for unspecified)
-                        paraConstr = "function", # of (theta) ; constr(theta) |--> TRUE: "fulfilled"
+                        psi = "function",         # of (t, theta) -- the generator
+                        psiInv = "function",      # of (p, theta) -- psi_inverse: \psi^{-1}(p) = t
+                        psiDAbs = "function",     # of (t, theta, degree=1, MC=FALSE, N=...) -- (-1)^d * the degree-th generator derivative
+                        theta = "numeric",        # value of theta or  'NA'  (for unspecified)
+                        paraConstr = "function",  # of (theta) ; constr(theta) |--> TRUE: "fulfilled"
                         ## when theta is one-dimensional, specifying the interval is more convenient:
                         paraInterval = "maybeInterval", # [.,.]  (.,.], etc ..
-                        V0 = "function",	# of (n,theta) -- RNGenerator
-                        cCdf = "function", 	# of (v,u,theta) -- C(v|u)   
-			mLogDensity = "function", # of (u,theta) -- -log(density)
-			K = "function", 	# of (t,theta,d) -- K(t)                        
-                        tau = "function",	# of (theta)
-                        tauInv = "function",    # of (tau)
-                        lambdaL = "function",    # of (theta) lower bound  \lambda_l
-                        lambdaLInv = "function", # of (lambda) - Inverse of \lambda_l
-                        lambdaU = "function",    # of (theta)  - upper bound  \lambda_u
-                        lambdaUInv = "function", # of (lambda) - Inverse of \lambda_u
-
+                        V0 = "function",	  # of (n,theta) -- RNGenerator
+			f0 = "function",          # of (x,theta,log=FALSE) -- density of F=LS^{-1}[psi]
+                        cCdf = "function", 	  # of (v,u,theta) -- C(v|u)   
+			logDensity = "function",  # of (u,theta,MC=FALSE,N=...) -- -log(density)
+			K = "function", 	  # of (t,theta,d,MC=FALSE,N=...) -- Kendall distribution function
+                        tau = "function",	  # of (theta)
+                        tauInv = "function",      # of (tau)
+                        lambdaL = "function",     # of (theta) lower bound  \lambda_l
+                        lambdaLInv = "function",  # of (lambda) - Inverse of \lambda_l
+                        lambdaU = "function",     # of (theta)  - upper bound  \lambda_u
+                        lambdaUInv = "function",  # of (lambda) - Inverse of \lambda_u
                         ## Nesting properties if the child copulas are of the same family :
-                        nestConstr = "function", # of (th0, th1) ; TRUE <==> "fulfilled"
-                        V01= "function"	# of (V0,theta0,theta1)
+                        nestConstr = "function",  # of (th0, th1) ; TRUE <==> "fulfilled"
+                        V01= "function",	  # of (V0,theta0,theta1) -- RNGenerator
+			f01= "function"           # of (x,(V0),theta0,theta1,log=FALSE) -- density *related to* F01=LS^{-1}[psi_0^{-1}(psi_1(t))] (see the specific families)
                         ),
          prototype = prototype(theta = NA_real_),
 	 validity = function(object) {
