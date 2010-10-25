@@ -32,17 +32,18 @@ copAMH <-
         psi = function(t,theta) { (1-theta)/(exp(t+0)-theta) },
         psiInv = function(t,theta) { log((1-theta*(1-t))/t) },
 	## absolute value of generator derivatives
-	psiDAbs = function(t,theta,degree = 1,MC = FALSE,N = 2000){ 
+	psiDAbs = function(t,theta,degree = 1,MC = FALSE,N = 2000,log = FALSE){ 
             if(degree == 1){ # exact for degree == 1
                 expmt <- exp(-t)
-                (1-theta)*expmt/(1-theta*expmt)^2
+		th.expmt <- theta*expmt
+		if(log) log(1-theta)-t-2*log1p(-th.expmt) else (1-theta)*expmt/
+                    (1-th.expmt)^2
             }else{ 
 		if(MC){ # approximation via MC
                     ## word of warning: default N = 2000 may be small 
                     V0. <- copAMH@V0(N,theta)
                     l.V0. <- degree*log(V0.)
                     summands <- function(t) mean(exp(-V0.*t + l.V0.))
-                    unlist(lapply(t,summands))
 		}else{ # approximation via trunction of the series
                     ## words of warning:
                     ## - do not use for computing the density of an AC 
@@ -53,8 +54,9 @@ copAMH <-
                     l.pk <- copAMH@f0(k,theta,log = TRUE)
                     sum. <- l.pk + degree*log(k)
                     summands <- function(t) sum(exp(-k*t + sum.)) # for a single t
-                    unlist(lapply(t,summands))
 		}
+		res <- unlist(lapply(t,summands))
+		if(log) log(res) else res
             }
 	},
         ## parameter interval
@@ -183,9 +185,10 @@ copClayton <-
         psi = function(t,theta) { (1+t)^(-1/theta) },
         psiInv = function(t,theta) { t^(-theta) - 1 },
         ## absolute value of generator derivatives
-        psiDAbs = function(t,theta,degree = 1){ 
+        psiDAbs = function(t,theta,degree = 1,log = FALSE){ 
             alpha <- 1/theta
-            exp(lgamma(degree+alpha)-(degree+alpha)*log1p(t)-lgamma(alpha))
+	    res <- lgamma(degree+alpha)-(degree+alpha)*log1p(t)-lgamma(alpha)
+            if(log) res else exp(res)
         },
         ## parameter interval
         paraInterval = interval("(0,Inf)"),
@@ -272,18 +275,20 @@ copFrank <-
             ## == -log((exp(-theta*t)-1)/(exp(-theta)-1))
         },
         ## absolute value of generator derivatives
-        psiDAbs = function(t,theta,degree = 1,MC = FALSE,N = 2000){
+        psiDAbs = function(t,theta,degree = 1,MC = FALSE,N = 2000,log = FALSE){
             if(degree == 1){ # exact for degree == 1
+		e.m.th <- exp(-theta)
+                p <- 1-e.m.th
+		l.p <- log1p(-e.m.th)
                 expmt <- exp(-t)
-                p <- 1-exp(-theta)
-                1/theta*p*expmt/(1-p*expmt)
+		if(log) -log(theta)+l.p-t-log1p(-p*expmt) else 1/theta*p*expmt/
+                    (1-p*expmt)
             }else{
                 if(MC){ # approximation via MC
                     ## word of warning: default N = 2000 may be small 
                     V0. <- copFrank@V0(N,theta)
                     l.V0. <- degree*log(V0.)
                     summands <- function(t) mean(exp(-V0.*t + l.V0.))
-                    unlist(lapply(t,summands))
                 }else{ # approximation via trunction of the series
                     ## words of warning:
                     ## - do not use for computing the density of an AC 
@@ -294,8 +299,9 @@ copFrank <-
                     l.pk <- copFrank@f0(k,theta,log = TRUE)
                     sum. <- l.pk + degree*log(k)
                     summands <- function(t) sum(exp(-k*t + sum.)) # for a single t
-                    unlist(lapply(t,summands))
                 }                
+                res <- unlist(lapply(t,summands))
+                if(log) log(res) else res
             }
         },
         ## parameter interval
@@ -439,21 +445,21 @@ copGumbel <-
         psi = function(t,theta) { exp(-t^(1/theta)) },
         psiInv = function(t,theta) { (-log(t+0))^theta },
         ## absolute value of generator derivatives
-        psiDAbs = function(t,theta,degree = 1,MC = FALSE,N = 10000){
+        psiDAbs = function(t,theta,degree = 1,MC = FALSE,N = 10000,log = FALSE){
             n <- length(t)
-	    res <- rep(0,n)
-            res[t == 0] <- Inf # for those t which are 0
-	    ind <- (1:n)[t != 0 & t != Inf] # indices of t for which res has to be computed
             if(degree == 1){ # exact for degree == 1
                 alpha <- 1/theta
-                res[ind] <- copGumbel@psi(t[ind],theta)*alpha*t[ind]^(alpha-1)
+                if(log) log(alpha)+(alpha-1)*log(t)-t^alpha else copGumbel@psi(t,theta)*
+                    alpha*t^(alpha-1)
             }else{
+		res <- rep(0,n) # for those t which are Inf
+                res[t == 0] <- Inf # for those t which are 0
+                ind <- (1:n)[t != 0 & t != Inf] # indices of t for which res has to be computed
                 if(MC){ # approximation via MC
                     ## word of warning: default N = 10000 may be small 
                     V0. <- copGumbel@V0(N,theta)
                     l.V0. <- degree*log(V0.)
                     summands <- function(t) mean(exp(-V0.*t + l.V0.))
-                    res[ind] <- unlist(lapply(t[ind],summands))
                 }else{ # approximation via truncation of the series
                     ## words of warning:
                     ## - do not use for computing the density of an AC 
@@ -480,12 +486,11 @@ copGumbel <-
                     factor1 <- alpha*k-degree
                     factor2 <- (degree-1)*log(k)-lfactorial(k-1)+
                         unlist(lapply(k,exp.sum))
-                    sum. <- function(t) sum(signs*exp(factor1*log(t)+factor2))
-                    ## finally, compute the values of (-1)^degree psi^{(degree)}(t)
-                    res[ind] <- unlist(lapply(t[ind],sum.))
+                    summands <- function(t) sum(signs*exp(factor1*log(t)+factor2))
                 }
+                res[ind] <- unlist(lapply(t[ind],summands))
+                if(log) log(res) else res
             }
-            res
         },
         ## parameter interval
         paraInterval = interval("[1,Inf)"),
@@ -561,7 +566,7 @@ copGumbel <-
             }else{ # d > 2
 		## approximation via either truncation of the series or MC
                 l.u <- log(u)
-                log(copGumbel@psiDAbs(u.,theta,d,MC=MC,N=N))+d*log(theta)+(theta-1)*
+                copGumbel@psiDAbs(u.,theta,d,MC=MC,N=N,log=TRUE)+d*log(theta)+(theta-1)*
                     rowSums(log(-l.u))-rowSums(l.u)
             }
         },
@@ -585,8 +590,8 @@ copGumbel <-
                             0
 			}else{
                             pI <- copGumbel@psiInv(t,theta)
-                            sum(exp(log(unlist(lapply(j,copGumbel@psiDAbs,t=pI,
-                                                      theta=theta,MC=MC,N=N)))+
+                            sum(exp(unlist(lapply(j,copGumbel@psiDAbs,t=pI,
+                                                  theta=theta,MC=MC,N=N,log=TRUE))+
                                     j*log(pI)-l.j))
 			}
                     }
@@ -621,18 +626,18 @@ copJoe <-
         },
         psiInv = function(t,theta) { -log1p(-(1-t)^theta) },
         ## absolute value of generator derivatives
-        psiDAbs = function(t,theta,degree = 1,MC = FALSE,N = 10000){
+        psiDAbs = function(t,theta,degree = 1,MC = FALSE,N = 10000,log = FALSE){
             alpha <- 1/theta
             if(degree == 1){ # exact for degree == 1
                 expmt <- exp(-t)
-                alpha*(1-expmt)^(alpha-1)*expmt
+                if(log) log(alpha)+(alpha-1)*log1p(-expmt)-t else alpha*
+                    (1-expmt)^(alpha-1)*expmt
             }else{
                 if(MC){ # approximation via MC
                     ## word of warning: default N = 10000 may be small 
                     V0. <- copJoe@V0(N,theta)
                     l.V0. <- degree*log(V0.)
                     summands <- function(t) mean(exp(-V0.*t + l.V0.))
-                    unlist(lapply(t,summands))
                 }else{ # approximation via truncation of the series
                     ## words of warning:
                     ## - do not use for computing the density of an AC 
@@ -644,8 +649,9 @@ copJoe <-
                     l.pk <- copJoe@f0(k,theta,log = TRUE)
                     sum. <- l.pk + degree*log(k)
                     summands <- function(t) sum(exp(-k*t + sum.)) # for a single t
-                    unlist(lapply(t,summands))     
                 }         
+                res <- unlist(lapply(t,summands)) 
+		if(log) log(res) else res
             }
         },
         ## parameter interval

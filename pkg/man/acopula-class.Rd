@@ -33,9 +33,12 @@
       parameter \code{N} (the default depends on the Archimedean family) denotes
  		the truncation point for the series representation if \code{MC} is
       \code{FALSE} and the number of variates to be drawn if \code{MC} is
-      \code{TRUE}. Both \code{MC} and \code{N} do not exist for Clayton's
-      Archimedean family since all derivatives can be given	explicitly for this
- 		Archimedean family.}
+      \code{TRUE}. Note that both \code{MC} and \code{N} do not exist for
+ 		Clayton's Archimedean family since all derivatives can be given explicitly
+ 		for this Archimedean family. The optional parameter \code{log} (defaults
+		to \code{FALSE}) indicates whether the logarithm of the absolute value of
+		the derivative is returned. Note that for \code{degree} equal to 1, all
+		computations are exact.}
     \item{\code{theta}:}{Parameter value, a \code{\link{numeric}}, where
       \code{NA} means \dQuote{unspecified}.}
     \item{\code{paraInterval}:}{Either \code{\link{NULL}} or object of class
