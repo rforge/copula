@@ -121,7 +121,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     print(p.D)
     cat("check if psiDAbs(Inf,theta,degree=10)=0 and the class of psiDAbs(0,theta,degree=10): ")
     at.0 <- cop@psiDAbs(0, theta = theta0, degree = 10)
-    stopifnot(cop@psiDAbs(Inf, theta = theta0, degree = 10)==0, is.numeric(at.0), 
+    stopifnot(cop@psiDAbs(Inf, theta = theta0, degree = 10)==0, is.numeric(at.0),
               !is.nan(at.0))
     cat0("TRUE")
     ## psiDAbs with degree = 10 and MC
@@ -132,7 +132,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
         print(p.D)
         cat("check if psiDAbs(Inf,theta,degree=10,MC=TRUE)=0 and the class of psiDAbs(0,theta,degree=10,MC=TRUE): ")
         at.0 <- cop@psiDAbs(0, theta = theta0, degree = 10, MC = TRUE)
-        stopifnot(cop@psiDAbs(Inf, theta = theta0, degree = 10, MC = TRUE)==0, 
+        stopifnot(cop@psiDAbs(Inf, theta = theta0, degree = 10, MC = TRUE)==0,
                   is.numeric(at.0), !is.nan(at.0))
         cat0("TRUE")
     }
@@ -172,9 +172,12 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     print(f01.i)
 
     ## ==== (5) cCdf ====
-    
+
     cat("\n(5) values of cCdf(v,0.5) for v=t01:\n")
     CT <- c(CT, list(cCdf = system.time(cCdf. <- cop@cCdf(t01,0.5,theta=theta0))))
+    stopifnot(length(cCdf.) == length(t01), 0 <= cCdf.,
+              TRUE ## FIXME! cCdf. <= 1
+              )
     print(cCdf.)
 
     ## ==== (6) logDensity ====
@@ -184,48 +187,51 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     u <- matrix(runif(1000),ncol=20)
     CT <- c(CT, list(logDensity = system.time(lD <- cop@logDensity(u[,1:2],
                      theta=theta0))))
-    stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))	
+    stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))
     cat0("checked")
     ## d > 2
     cat("\n check logDensity for u being a random (50x20)-matrix:\n")
     CT <- c(CT, list(logDensity = system.time(lD <- cop@logDensity(u,
                      theta=theta0))))
-    stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))	
+    stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))
     cat0("checked")
     ## d > 2, MC = TRUE
     if(cop@name != "Clayton"){
         cat("\n check logDensity with MC for u being a random (50x20)-matrix:\n")
         CT <- c(CT, list(logDensity = system.time(lD <- cop@logDensity(u,
                          theta=theta0, MC = TRUE))))
-        stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))	
+        stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))
         cat0("checked")
     }
 
     ## ==== (7) K ====
 
+    check.K.t01 <- function(K)
+	stopifnot(is.numeric(K), length(K) == length(t01),
+		  0 <= K, K <= 1, diff(K) >= 0)
     ## K for d = 2
     cat("\n(7) values of K for d = 2 at t01:\n")
     CT <- c(CT, list(K = system.time(K. <- cop@K(t01,theta = theta0, d = 2))))
-    print(K.)
+    check.K.t01( print(K.) )
     cat("check if K(0)=0 and K(1)=1: ")
-    stopifnot(cop@K(0, theta = theta0, d = 2)==0, 
+    stopifnot(cop@K(0, theta = theta0, d = 2)==0,
               cop@K(1, theta = theta0, d = 2)==1)
     cat0("TRUE")
     ## K for d = 10
     cat("\nvalues of K for d = 10 at t01:\n")
     CT <- c(CT, list(K = system.time(K. <- cop@K(t01,theta = theta0, d = 10))))
-    print(K.)
+    check.K.t01( print(K.) )
     cat("check if K(0)=0 and K(1)=1: ")
-    stopifnot(cop@K(0, theta = theta0, d = 10)==0, 
+    stopifnot(cop@K(0, theta = theta0, d = 10)==0,
               cop@K(1, theta = theta0, d = 10)==1)
     cat0("TRUE")
     ## K for d = 10 and MC
     if(cop@name != "Clayton"){
         cat("\nvalues of K for d = 10 and MC at t01:\n")
         CT <- c(CT, list(K = system.time(K. <- cop@K(t01,theta = theta0, d = 10, MC = TRUE))))
-        print(K.)
+        check.K.t01( print(K.) )
         cat("check if K(0)=0 and K(1)=1: ")
-        stopifnot(cop@K(0, theta = theta0, d = 10, MC = TRUE)==0, 
+        stopifnot(cop@K(0, theta = theta0, d = 10, MC = TRUE)==0,
                   cop@K(1, theta = theta0, d = 10, MC = TRUE)==1)
         cat0("TRUE")
     }
