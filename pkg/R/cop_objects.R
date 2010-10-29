@@ -32,22 +32,22 @@ copAMH <-
         psi = function(t,theta) { (1-theta)/(exp(t+0)-theta) },
         psiInv = function(t,theta) { log((1-theta*(1-t))/t) },
 	## absolute value of generator derivatives
-	psiDAbs = function(t,theta,degree = 1,MC = FALSE,N = 2000,log = FALSE){ 
+	psiDAbs = function(t,theta,degree = 1,MC = FALSE,N = 2000,log = FALSE){
             if(degree == 1){ # exact for degree == 1
                 expmt <- exp(-t)
 		th.expmt <- theta*expmt
 		if(log) log(1-theta)-t-2*log1p(-th.expmt) else (1-theta)*expmt/
                     (1-th.expmt)^2
-            }else{ 
+            }else{
 		if(MC){ # approximation via MC
-                    ## word of warning: default N = 2000 may be small 
+                    ## word of warning: default N = 2000 may be small
                     V0. <- copAMH@V0(N,theta)
                     l.V0. <- degree*log(V0.)
                     summands <- function(t) mean(exp(-V0.*t + l.V0.))
 		}else{ # approximation via trunction of the series
                     ## words of warning:
-                    ## - do not use for computing the density of an AC 
-                    ##   (numerically not reasonable due to psiInv)                
+                    ## - do not use for computing the density of an AC
+                    ##   (numerically not reasonable due to psiInv)
                     ## - do not use for too large degrees
                     ## - is only an approximation (N <- Inf would be "correct")
                     k <- 1:N
@@ -66,7 +66,7 @@ copAMH <-
             copAMH@paraConstr(theta0) &&
             copAMH@paraConstr(theta1) && theta1 >= theta0
         },
-        ## V0 with density f0 and V01 with density f01 corresponding to 
+        ## V0 with density f0 and V01 with density f01 corresponding to
         ## F01=LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
         V0 = function(n,theta) rgeom(n, 1-theta) + 1,
 	f0 = function(x,theta,log = FALSE) dgeom(x-1, 1-theta, log),
@@ -77,14 +77,11 @@ copAMH <-
                                           (1-theta0),log = log),
 	## conditional distribution function C(v|u) of v given u
 	cCdf = function(v,u,theta){
-            one.d.args <- function(v,u){
-		if(v == 0) Inf else (1-theta*(1-v))/v*((1-theta)/(1-theta*(2-
-                   (u+v)+u*v)+theta^2*(1-u)*(1-v)))^2
-            }
-	    mapply(one.d.args,u,v)
+            ifelse(v == 0, Inf,
+                   (1-theta*(1-v))/v*((1-theta)/(1-theta*(2-(u+v)+u*v)+theta^2*(1-u)*(1-v)))^2)
 	},
 	## log("density") of the Archimedean copula
-	logDensity = function(u,theta,MC = FALSE,N = 2000){ 
+	logDensity = function(u,theta,MC = FALSE,N = 2000){
             stopifnot(is.matrix(u), all(0 < u, u <= 1))
             if(theta == 0) rep(0,nrow(u))
             if((d <- ncol(u)) == 2){ # d == 2
@@ -99,7 +96,7 @@ copAMH <-
                 l.u.. <- rowSums(log(u..))
                 l.theta. <- log1p(-theta)
                 if(MC){ # approximation via MC
-                    ## word of warning: default N = 2000 may be small 
+                    ## word of warning: default N = 2000 may be small
                     V0. <- copAMH@V0(N,theta)
                     l.V0. <- d*log(V0.)
                     one.vector.u <- function(j){ # for the jth row of u
@@ -113,24 +110,24 @@ copAMH <-
                     d.l.k <- d*log(k)
                     one.vector.u <- function(j){ # for the jth row of u
                         log(sum(exp(d.l.k+k*sum.[j])))
-                    }	
+                    }
                     (d+1)*l.theta-l.theta-l.u..+unlist(lapply(1:n,one.vector.u))
                 }
             }
 	},
 	## Kendall distribution function
 	K = function(t,theta,d,MC = FALSE,N = 2000){
-            if(d==1){ # exact for d == 1
+            stopifnot(length(d) == 1)
+            if(d==1) { # exact for d == 1
                 t
             }else if(d==2){ # exact for d == 2
-		one.t <- function(t) if(t == 0) 0 else t*(1+(1-theta*(1-t))*
-                                        copAMH@psiInv(t,theta)/(1-theta))
-                unlist(lapply(t,one.t))	
+		ifelse(t == 0, 0,
+                       t*(1+(1-theta*(1-t))* copAMH@psiInv(t,theta)/(1-theta)))
             }else{ # d >= 3
 		if(MC){ # approximation via MC
                     V <- copAMH@V0(N,theta)
                     K.fun <- function(t) mean(ppois(d-1,V*copAMH@psiInv(t,theta)))
-                    unlist(lapply(t,K.fun))	
+                    unlist(lapply(t,K.fun))
 		}else{ # approximation via truncation of the series
                     k <- 1:N
                     l.pk <- copAMH@f0(k,theta,log = TRUE)
@@ -147,7 +144,7 @@ copAMH <-
                     unlist(lapply(t,one.t))
                 }
             }
-        },		
+        },
         ## Kendall's tau
         tau = tauAMH, ##-> ./aux-acopula.R
         ## function(th)  1 - 2*((1-th)*(1-th)*log(1-th)+th)/(3*th*th)
@@ -185,7 +182,7 @@ copClayton <-
         psi = function(t,theta) { (1+t)^(-1/theta) },
         psiInv = function(t,theta) { t^(-theta) - 1 },
         ## absolute value of generator derivatives
-        psiDAbs = function(t,theta,degree = 1,log = FALSE){ 
+        psiDAbs = function(t,theta,degree = 1,log = FALSE){
             alpha <- 1/theta
 	    res <- lgamma(degree+alpha)-(degree+alpha)*log1p(t)-lgamma(alpha)
             if(log) res else exp(res)
@@ -197,7 +194,7 @@ copClayton <-
             copClayton@paraConstr(theta0) &&
             copClayton@paraConstr(theta1) && theta1 >= theta0
         },
-        ## V0 with density f0 and V01 with density f01 corresponding to 
+        ## V0 with density f0 and V01 with density f01 corresponding to
         ## F01=LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
         V0 = function(n,theta) { rgamma(n, shape = 1/theta) },
         f0 = function(x,theta,log = FALSE) dgamma(x, shape = 1/theta, log),
@@ -207,7 +204,7 @@ copClayton <-
             alpha <- theta0/theta1
             beta <- 1
             gamma <- (cos(pi/2*alpha)*V0)^(1/alpha)
-            delta <- V0*(alpha == 1) 
+            delta <- V0*(alpha == 1)
             if(log){
                 V0-x+mapply(dstable,x,alpha = alpha,beta = beta,gamma = gamma,
                             delta = delta,pm = 1,log = TRUE)
@@ -234,7 +231,7 @@ copClayton <-
                 (d.alpha)*log1p(-d+rowSums(u^(-theta)))
         },
         ## Kendall distribution function
-        K = function(t,theta,d){ 
+        K = function(t,theta,d){
             if(d==1){ # exact for d == 1
                 t
             }else if(d==2){ # exact for d == 2
@@ -285,13 +282,13 @@ copFrank <-
                     (1-p*expmt)
             }else{
                 if(MC){ # approximation via MC
-                    ## word of warning: default N = 2000 may be small 
+                    ## word of warning: default N = 2000 may be small
                     V0. <- copFrank@V0(N,theta)
                     l.V0. <- degree*log(V0.)
                     summands <- function(t) mean(exp(-V0.*t + l.V0.))
                 }else{ # approximation via trunction of the series
                     ## words of warning:
-                    ## - do not use for computing the density of an AC 
+                    ## - do not use for computing the density of an AC
                     ##   (numerically not reasonable due to psiInv)
                     ## - do not use for too large degrees
                     ## - is only an approximation (N <- Inf would be "correct")
@@ -299,7 +296,7 @@ copFrank <-
                     l.pk <- copFrank@f0(k,theta,log = TRUE)
                     sum. <- l.pk + degree*log(k)
                     summands <- function(t) sum(exp(-k*t + sum.)) # for a single t
-                }                
+                }
                 res <- unlist(lapply(t,summands))
                 if(log) log(res) else res
             }
@@ -311,7 +308,7 @@ copFrank <-
             copFrank@paraConstr(theta0) &&
             copFrank@paraConstr(theta1) && theta1 >= theta0
         },
-        ## V0 (algorithm of Kemp (1981)) with density f0 and V01 with density f01 
+        ## V0 (algorithm of Kemp (1981)) with density f0 and V01 with density f01
         ## corresponding to F=LS^{-1}[exp(-psi_0^{-1}(psi_1(t)))]
         V0 = function(n,theta) { rlog(n,1-exp(-theta)) },
         f0 = function(x,theta,log = FALSE){
@@ -344,7 +341,7 @@ copFrank <-
                 e.u <- -expm1(-theta*u)
 		denom <- -expm1(-theta)-e.u*e.v
 		if(denom == 0) Inf
-                e.v*(1-e.u)/denom	
+                e.v*(1-e.u)/denom
             }
             mapply(one.d.args,u,v)
         },
@@ -361,7 +358,7 @@ copFrank <-
                 sum.log1p.exp <- rowSums(log1p(-exp(-theta*u)))
                 sum.u.theta <- theta*rowSums(u)
                 if(MC){ # approximation via MC
-                    ## word of warning: default N = 2000 may be small 
+                    ## word of warning: default N = 2000 may be small
                     V0. <- copFrank@V0(N,theta)
                     l.V0. <- d*log(V0.)
                     s.psiInv.u <- rowSums(copFrank@psiInv(u,theta))
@@ -389,7 +386,7 @@ copFrank <-
                 e.th <- exp(-theta*t)
                 one.t <- function(t) if(t == 0) 0 else t+copFrank@psiInv(t,theta)*
                     (1-e.th)/(theta*e.th)
-                unlist(lapply(t,one.t))	
+                unlist(lapply(t,one.t))
             }else{ # d >= 3
                 if(MC){ # approximation via MC
                     V <- copFrank@V0(N,theta)
@@ -405,10 +402,10 @@ copFrank <-
 	                    1
 	                }else{
                             sum(exp(l.pk+ppois(d-1,k*copFrank@psiInv(t,theta),
-                                               log = TRUE)))	                
+                                               log = TRUE)))
                         }
                     }
-	            unlist(lapply(t,one.t))               
+	            unlist(lapply(t,one.t))
                 }
             }
         },
@@ -456,14 +453,14 @@ copGumbel <-
                 res[t == 0] <- Inf # for those t which are 0
                 ind <- (1:n)[t != 0 & t != Inf] # indices of t for which res has to be computed
                 if(MC){ # approximation via MC
-                    ## word of warning: default N = 10000 may be small 
+                    ## word of warning: default N = 10000 may be small
                     V0. <- copGumbel@V0(N,theta)
                     l.V0. <- degree*log(V0.)
                     summands <- function(t) mean(exp(-V0.*t + l.V0.))
                 }else{ # approximation via truncation of the series
                     ## words of warning:
-                    ## - do not use for computing the density of an AC 
-                    ##   (numerically not reasonable due to psiInv)                
+                    ## - do not use for computing the density of an AC
+                    ##   (numerically not reasonable due to psiInv)
                     ## - do not use for too large degrees
                     ## - is only an approximation (N <- Inf would be "correct")
                     ## for a single summand:
@@ -499,7 +496,7 @@ copGumbel <-
             copGumbel@paraConstr(theta0) &&
             copGumbel@paraConstr(theta1) && theta1 >= theta0
         },
-        ## V0 with density f0 and V01 with density f01 corresponding to 
+        ## V0 with density f0 and V01 with density f01 corresponding to
         ## F01=LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
         V0 = function(n,theta) {
             if(theta == 1) {
@@ -533,7 +530,7 @@ copGumbel <-
             alpha <- theta0/theta1
             beta <- 1
             gamma <- (cos(pi/2*alpha)*V0)^(1/alpha)
-            delta <- V0*(alpha == 1) 
+            delta <- V0*(alpha == 1)
             mapply(dstable,x,alpha = alpha,beta = beta,gamma = gamma,delta = delta,
                    pm = 1,log = log)
         },
@@ -541,16 +538,18 @@ copGumbel <-
         cCdf = function(v,u,theta) {
             one.d.args <- function(v,u){
 		## limiting cases
-                if(v == 0 && u == 0) NaN
-                if(theta == 1){
-                    if(v == 1) 1
-                    if(v > 0 && v < 1 && u == 0) v
-                }
-                if(v == 1) if(u == 1) NaN else 0
-		if(v > 0 && v < 1 && u == 0) 0
-		## main part
-		cop. <- onacopulaL("Gumbel",list(theta,1:2))
-                (1+(log(u)/log(v))^theta)^(1/theta-1)*pnacopula(cop.,c(u,v))/u
+		if(v == 0 && u == 0) NaN
+		else if(theta == 1){
+		    if(v == 1) 1
+		    if(v > 0 && v < 1 && u == 0) v
+		}
+		else if(v == 1) { if(u == 1) NaN else 0 }
+		else if(u == 0 && 0 < v && v < 1) 0
+		else {
+		    ## main part
+		    cop. <- onacopulaL("Gumbel",list(theta,1:2))
+		    (1+(log(u)/log(v))^theta)^(1/theta-1)*pnacopula(cop.,c(u,v))/u
+		}
             }
             mapply(one.d.args,u,v)
         },
@@ -634,13 +633,13 @@ copJoe <-
                     (1-expmt)^(alpha-1)*expmt
             }else{
                 if(MC){ # approximation via MC
-                    ## word of warning: default N = 10000 may be small 
+                    ## word of warning: default N = 10000 may be small
                     V0. <- copJoe@V0(N,theta)
                     l.V0. <- degree*log(V0.)
                     summands <- function(t) mean(exp(-V0.*t + l.V0.))
                 }else{ # approximation via truncation of the series
                     ## words of warning:
-                    ## - do not use for computing the density of an AC 
+                    ## - do not use for computing the density of an AC
                     ##   (numerically not reasonable due to psiInv)
                     ## - do not use for too large degrees
                     ## - is only an approximation (N <- Inf would be "correct")
@@ -649,8 +648,8 @@ copJoe <-
                     l.pk <- copJoe@f0(k,theta,log = TRUE)
                     sum. <- l.pk + degree*log(k)
                     summands <- function(t) sum(exp(-k*t + sum.)) # for a single t
-                }         
-                res <- unlist(lapply(t,summands)) 
+                }
+                res <- unlist(lapply(t,summands))
 		if(log) log(res) else res
             }
         },
@@ -661,12 +660,12 @@ copJoe <-
             copJoe@paraConstr(theta0) &&
             copJoe@paraConstr(theta1) && theta1 >= theta0
         },
-        ## V0 with density f0 and V01 with density f01 corresponding to 
-        ## F=LS^{-1}[exp(-psi_0^{-1}(psi_1(t)))] 
+        ## V0 with density f0 and V01 with density f01 corresponding to
+        ## F=LS^{-1}[exp(-psi_0^{-1}(psi_1(t)))]
         V0 = function(n,theta) rFJoe(n, 1/theta),
         f0 = function(x,theta,log = FALSE){
             if(log) lchoose(1/theta,x) else abs(choose(1/theta,x))
-        },	
+        },
         V01 = function(V0,theta0,theta1, approx=100000) {
             alpha <- theta0/theta1
             ia <- (V0 > approx)
@@ -679,7 +678,7 @@ copJoe <-
             V01[ie] <- sapply(lapply(V0[ie], rFJoe, alpha=alpha),sum)
             V01
         },
-        f01 = function(x,theta0,theta1,log = FALSE) copJoe@f0(x,theta1/theta0,log), 
+        f01 = function(x,theta0,theta1,log = FALSE) copJoe@f0(x,theta1/theta0,log),
         ## conditional distribution function C(v|u) of v given u
         cCdf = function(v,u,theta){
             one.d.args <- function(u,v){
@@ -687,6 +686,7 @@ copJoe <-
                 v. <- (1-v)^theta
 		if(theta != 1 && u. == 0){
                     v.1 <- 1-v.
+## FIXME: sicher nicht 'y' :
                     if(y == 1) v.1*2^(1/-theta-1) else v.1
 		}
                 (1-v.)*(1+v.^((1-u.)/u.))^(1/theta-1)
@@ -708,7 +708,7 @@ copJoe <-
                 sum.log.u. <- rowSums(log1p(-u))
                 sum.log.u.. <- rowSums(log1p(-(1-u)^theta))
                 if(MC){ # approximation via MC
-                    ## word of warning: default N = 10000 may be small 
+                    ## word of warning: default N = 10000 may be small
                     V0. <- copJoe@V0(N,theta)
                     l.V0. <- d*log(V0.)
                     s.psiInv.u <- rowSums(copJoe@psiInv(u,theta))

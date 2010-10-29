@@ -22,7 +22,7 @@
     \item{\code{name}:}{A string (class \code{"character"}) describing
       the copula family, e.g., "AMH" (or simply "A"), "Clayton" ("C"),
       "Frank" ("F"), "Gumbel" ("G"), or "Joe" ("J").}
-    \item{\code{psi}, \code{psiInv}:}{The Archimedean generator \eqn{\psi}{psi} 	
+    \item{\code{psi}, \code{psiInv}:}{The Archimedean generator \eqn{\psi}{psi}
  	   and its inverse (\code{\link{function}}).}
     \item{\code{psiDAbs}:}{A \code{\link{function}} which computes the absolute
       value of the derivative of the generator \eqn{\psi}{psi} for the given
@@ -76,7 +76,7 @@
 	 \deqn{\psi_{01}(t;V_0)=\exp(-V_0\psi_0^{-1}(\psi_1(t)))}{psi01(t;V0)=exp(-V0*psi0^{-1}(psi1(t)))} corresponding to the distribution function \eqn{F_{01}}{F01}.
 	   Arguments are the evaluation point(s) \code{x}, the value(s) \code{V0},
 	   and the parameters \code{theta0} and \code{theta1}. As for \code{f0}, the
-	   optional argument \code{log} can be given (defaults to \code{FALSE}). Note
+	   optional argument \code{log} can be specified (defaults to \code{FALSE}). Note
 	   that for the Archimedean families of Frank and Joe, \code{f01} does not
 	   have the argument \code{V0} (and implicitly assumes 1).
 	   Further note that if \code{x} is a vector, \code{V0} must either have
@@ -84,7 +84,7 @@
 	   \code{x}) or \code{V0} must be of the same length as \code{x} (in which
 	   case the components of \code{V0} correspond to the ones of \code{x}).}
     \item{\code{cCdf}:}{A \code{\link{function}} with arguments \code{v},
- 		\code{u}, and \code{theta} which computes the bivariate conditional copula 
+ 		\code{u}, and \code{theta} which computes the bivariate conditional copula
 		function at \code{v} given \code{u}, i.e., \eqn{C(v\vert u)}{C(v|u)}.}
  	 \item{\code{logDensity}:}{A \code{\link{function}} which computes the
       logarithm of the density \eqn{c} for the Archimedean family under
@@ -94,12 +94,12 @@
 		columns of \code{u} determines \eqn{d}), the parameter \code{theta}, and
 		(for the Archimedean family not being Clayton) the optional arguments
 		\code{MC} and \code{N} (with the same meaning as for \code{psiDAbs}).}
- 	\item{\code{K}:}{Computes the Kendall distribution \code{\link{function}} at 
+ 	\item{\code{K}:}{Computes the Kendall distribution \code{\link{function}} at
       \code{t} given the parameter \code{theta} and the dimension \code{d}. For
       an Archimedean copula with generator \eqn{\psi}, this function is given by
   \deqn{K(t)=\sum_{k=0}^{d-1}\frac{(-1)^k\psi^{(k)}(\psi^{-1}(t))}{k!}(\psi^{-1}(t))^k.}{K(t)=sum_{k=0}^{d-1}(-1)^k*psi^{(k)}((psi^{-1}(t))/k!)(psi^{-1}(t))^k.}
  		For all except Clayton's family, the optional arguments \code{MC} and
- 		\code{N} can be given (with the same meaning as for \code{psiDAbs}).}
+ 		\code{N} can be specified (with the same meaning as for \code{psiDAbs}).}
     \item{\code{tau}, \code{tauInv}:}{Compute Kendall's tau of the bivariate
       Archimedean copula with generator \eqn{\psi}{psi} as a
       \code{\link{function}} of \code{theta}, respectively, \code{theta} as a

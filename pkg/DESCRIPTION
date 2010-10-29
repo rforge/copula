@@ -3,7 +3,7 @@ Version: 0.5-0
 Date: 2010-09-24
 LastChanged: $LastChangedRevision$; $LastChangedDate$
 Title: Nested Archimedean Copulas
-Description: An R package for nested Archimedean copulas, providing a
+Description: An R package for nested aka hierarchical Archimedean copulas, providing a
  procedure for computing function values, characteristics such as Kendall's
  tau and tail dependence coefficients, as well as sampling algorithms for
  generating random variates.
