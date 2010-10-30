@@ -49,9 +49,25 @@ p.Tau(copFrank, xlim = c(0, 80), ylim= 0:1) # fast via debye_1()
 p.Tau(copGumbel)
 p.Tau(copJoe, ylim = 0:1, yaxs="i")
 
-##' ==== test function ====
+### ==== test function ==== ------------------------------------------------
 
-##' procedure to do several measurements
+##' @title stopifnot() plus output
+##' @param expr
+##' @param prefix
+##' @param true
+##' @return
+##' @author Martin Maechler
+checkifnot <- function(expr, prefix = "check if", true = "[Ok]")
+{
+    c0  <- function(...) cat(..., sep = "")
+    ## match.call(): not "calling" expr too early:
+    c0(prefix, deparse(match.call()[[2]])[1],": ")
+    stopifnot(expr)
+    c0(true,"\n")
+}
+
+
+##' @title Perform a set of checks on a copula object (with theta set)
 ##' @param cop copula
 ##' @param theta1 parameter theta1
 ##' @param thetavec vector of parameters
@@ -83,24 +99,16 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     cat("\n(2) values of psi at i10:\n")
     CT <- c(CT, list(psi = system.time(p.i <- cop@psi(i10,theta = theta0))))
     print(p.i)
-    cat("check if psi(Inf)=0: ")
-    stopifnot(cop@psi(Inf, theta = theta0)==0)
-    cat0("TRUE")
-    cat("check if psiInv(numeric(0)) is numeric(0): ")
-    n0 <- numeric(0)
-    stopifnot(identical(n0, cop@psiInv(n0, theta = theta0)))
-    cat0("TRUE")
-    cat("check if psiInv(0)=Inf: ")
-    stopifnot(cop@psiInv(0, theta = theta0)==Inf)
-    cat0("TRUE")
+    checkifnot(identical(numeric(0), cop@psiInv(numeric(0), theta = theta0)))
+    checkifnot(cop@psiInv(0, theta = theta0) == Inf)
     cat0("\nvalues of psiInv at t01:")
-    CT <- c(CT, list(psiI = system.time(pi.t <- cop@psiInv(t01,
-                     theta = theta0))))
+    CT <- c(CT, list(psiI = system.time(pi.t <-
+                     cop@psiInv(t01, theta = theta0))))
     print(pi.t)
-    CT[["psiI"]] <- CT[["psiI"]]
-    + system.time(pi.pi <- cop@psiInv(p.i,theta = theta0))
-    CT[["psi" ]] <- CT[["psi" ]] + system.time(p.pit <- cop@psi(pi.t,
-                                                                theta = theta0))
+    CT[["psiI"]] <- CT[["psiI"]] +
+        system.time(pi.pi <- cop@psiInv(p.i,theta = theta0))
+    CT[["psi" ]] <- CT[["psi" ]] +
+        system.time(p.pit <- cop@psi(pi.t, theta = theta0))
     cat0("check if psiInv(psi(i10))==i10: ", all.equal(pi.pi, i10))
     cat0("check if psi(psiInv(t01))==t01: ", all.equal(p.pit, t01))
 
@@ -108,12 +116,13 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
 
     ## psiDAbs with degree = 1
     cat("\nvalues of psiDAbs with degree=1 at i10:\n")
-    CT <- c(CT, list(psiDAbs = system.time(p.D <- cop@psiDAbs(i10,theta = theta0))))
+    CT <- c(CT, list(psiDAbs = system.time(p.D <-
+                     cop@psiDAbs(i10,theta = theta0))))
     print(p.D)
     cat("check if psiDAbs(Inf,theta)=0 and the class of psiDAbs(0,theta): ")
     at.0 <- cop@psiDAbs(0, theta = theta0)
     stopifnot(cop@psiDAbs(Inf, theta = theta0)==0, is.numeric(at.0), !is.nan(at.0))
-    cat0("TRUE")
+    cat0("[Ok]")
     ## psiDAbs with degree = 10
     cat("\nvalues of psiDAbs with degree=10 at i10:\n")
     CT <- c(CT, list(psiDAbs = system.time(p.D <- cop@psiDAbs(i10,theta = theta0,
@@ -121,9 +130,9 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     print(p.D)
     cat("check if psiDAbs(Inf,theta,degree=10)=0 and the class of psiDAbs(0,theta,degree=10): ")
     at.0 <- cop@psiDAbs(0, theta = theta0, degree = 10)
-    stopifnot(cop@psiDAbs(Inf, theta = theta0, degree = 10)==0, is.numeric(at.0),
-              !is.nan(at.0))
-    cat0("TRUE")
+    stopifnot(cop@psiDAbs(Inf, theta = theta0, degree = 10) == 0,
+              is.numeric(at.0), !is.nan(at.0))
+    cat0("[Ok]")
     ## psiDAbs with degree = 10 and MC
     if(cop@name != "Clayton"){
         cat("\nvalues of psiDAbs with degree=10 and MC at i10:\n")
@@ -134,7 +143,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
         at.0 <- cop@psiDAbs(0, theta = theta0, degree = 10, MC = TRUE)
         stopifnot(cop@psiDAbs(Inf, theta = theta0, degree = 10, MC = TRUE)==0,
                   is.numeric(at.0), !is.nan(at.0))
-        cat0("TRUE")
+        cat0("[Ok]")
     }
 
     ## ==== (3) parameter interval ====
@@ -216,7 +225,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     cat("check if K(0)=0 and K(1)=1: ")
     stopifnot(cop@K(0, theta = theta0, d = 2)==0,
               cop@K(1, theta = theta0, d = 2)==1)
-    cat0("TRUE")
+    cat0("[Ok]")
     ## K for d = 10
     cat("\nvalues of K for d = 10 at t01:\n")
     CT <- c(CT, list(K = system.time(K. <- cop@K(t01,theta = theta0, d = 10))))
@@ -224,7 +233,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     cat("check if K(0)=0 and K(1)=1: ")
     stopifnot(cop@K(0, theta = theta0, d = 10)==0,
               cop@K(1, theta = theta0, d = 10)==1)
-    cat0("TRUE")
+    cat0("[Ok]")
     ## K for d = 10 and MC
     if(cop@name != "Clayton"){
         cat("\nvalues of K for d = 10 and MC at t01:\n")
@@ -233,7 +242,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
         cat("check if K(0)=0 and K(1)=1: ")
         stopifnot(cop@K(0, theta = theta0, d = 10, MC = TRUE)==0,
                   cop@K(1, theta = theta0, d = 10, MC = TRUE)==1)
-        cat0("TRUE")
+        cat0("[Ok]")
     }
 
     ## ==== (8) tau, tauInv ====
