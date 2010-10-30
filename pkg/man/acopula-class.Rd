@@ -26,19 +26,18 @@
  	   and its inverse (\code{\link{function}}).}
     \item{\code{psiDAbs}:}{A \code{\link{function}} which computes the absolute
       value of the derivative of the generator \eqn{\psi}{psi} for the given
- 		parameter \code{theta} and of the given \code{degree} (defaults to 1). If
- 		the optional parameter \code{MC} is \code{FALSE} (the default) a
-      series representation for the derivative is used. If \code{MC} is
-      \code{TRUE}, the derivative is evaluated by Monte Carlo simulation. The
-      parameter \code{N} (the default depends on the Archimedean family) denotes
+ 		parameter \code{theta} and of the given \code{degree} (defaults to 1). If 
+ 		the boolean parameter \code{MC} is \code{FALSE} a series representation
+ 		for the derivative is used; otherwise, the derivative is evaluated by
+ 		Monte Carlo simulation. The parameter \code{N} denotes
  		the truncation point for the series representation if \code{MC} is
       \code{FALSE} and the number of variates to be drawn if \code{MC} is
       \code{TRUE}. Note that both \code{MC} and \code{N} do not exist for
  		Clayton's Archimedean family since all derivatives can be given explicitly
- 		for this Archimedean family. The optional parameter \code{log} (defaults
-		to \code{FALSE}) indicates whether the logarithm of the absolute value of
-		the derivative is returned. Note that for \code{degree} equal to 1, all
-		computations are exact.}
+ 		for this Archimedean family. For all families, the optional parameter
+ 		\code{log} (defaults to \code{FALSE}) indicates whether the logarithm of
+ 		the absolute value of the derivative is returned. Note that for
+ 		\code{degree} equal to 1, all	computations are exact.}
     \item{\code{theta}:}{Parameter value, a \code{\link{numeric}}, where
       \code{NA} means \dQuote{unspecified}.}
     \item{\code{paraInterval}:}{Either \code{\link{NULL}} or object of class
@@ -55,7 +54,7 @@
     \item{\code{V0}:}{A \code{\link{function}} which samples \code{n} random
       variates from the distribution \eqn{F} with Laplace-Stieltjes transform
       \eqn{\psi}{psi} and parameter \code{theta}.}
-	 \item{\code{f0}:}{A \code{\link{function}} which computes either the
+	 \item{\code{dV0}:}{A \code{\link{function}} which computes either the
 	   probability mass function or the probability density function (depending
 	 	on the Archimedean family) of the distribution function whose
 	 	Laplace-Stieltjes transform equals the generator \eqn{\psi}{psi} at the
@@ -67,18 +66,18 @@
       realizations of \code{V0} and two parameters \code{theta0}, \code{theta1}
       which satisfy the sufficient nesting condition for this family, and which
       returns a vector of the same length as \code{V0} with random variates from
-      the distribution function \eqn{F_{01}}{F01} with Laplace-Stieltjes
+      the distribution function \eqn{F_{01}}{dV01} with Laplace-Stieltjes
       transform \eqn{\psi_{01}}{psi01} and parameters
       \eqn{\theta_0=\,}{theta0=}\code{theta0},
       \eqn{\theta_1=\,}{theta1=}\code{theta1}.}
-	 \item{\code{f01}:}{Similar to \code{f0} with the difference being that this
-	   \code{\link{function}} is related to the Laplace-Stieltjes transform
-	 \deqn{\psi_{01}(t;V_0)=\exp(-V_0\psi_0^{-1}(\psi_1(t)))}{psi01(t;V0)=exp(-V0*psi0^{-1}(psi1(t)))} corresponding to the distribution function \eqn{F_{01}}{F01}.
+	 \item{\code{dV01}:}{Similar to \code{dV0} with the difference being that
+	 	this \code{\link{function}} is related to the Laplace-Stieltjes transform
+	 \deqn{\psi_{01}(t;V_0)=\exp(-V_0\psi_0^{-1}(\psi_1(t)))}{psi01(t;V0)=exp(-V0*psi0^{-1}(psi1(t)))} corresponding to the distribution function \eqn{F_{01}}{dV01}.
 	   Arguments are the evaluation point(s) \code{x}, the value(s) \code{V0},
-	   and the parameters \code{theta0} and \code{theta1}. As for \code{f0}, the
-	   optional argument \code{log} can be specified (defaults to \code{FALSE}). Note
-	   that for the Archimedean families of Frank and Joe, \code{f01} does not
-	   have the argument \code{V0} (and implicitly assumes 1).
+	   and the parameters \code{theta0} and \code{theta1}. As for \code{dV0}, the
+	   optional argument \code{log} can be specified (defaults to \code{FALSE}).
+	   Note that for the Archimedean families of Frank and Joe, \code{dV01} does
+	   not have the argument \code{V0} (and implicitly assumes 1).
 	   Further note that if \code{x} is a vector, \code{V0} must either have
 	   length one (in which case \code{V0} is the same for every component of
 	   \code{x}) or \code{V0} must be of the same length as \code{x} (in which
@@ -86,19 +85,19 @@
     \item{\code{cCdf}:}{A \code{\link{function}} with arguments \code{v},
  		\code{u}, and \code{theta} which computes the bivariate conditional copula
 		function at \code{v} given \code{u}, i.e., \eqn{C(v\vert u)}{C(v|u)}.}
- 	 \item{\code{logDensity}:}{A \code{\link{function}} which computes the
+ 	 \item{\code{dAc}:}{A \code{\link{function}} which computes the
       logarithm of the density \eqn{c} for the Archimedean family under
       consideration, given by
 		\deqn{\log c(u_1,\dots,u_d)=\log\frac{\psi^{(d)}(\sum_{j=1}^d\psi^{-1}(u_j))}{\prod_{j=1}^d\psi^{(d)}(\psi^{-1}(u_j))}.}{log(c(u))=log(psi^{(d)}(sum_{j=1}^d psi^{-1}(u_j))/prod_{j=1}^d psi^prime(psi^{-1}(u_j))).} Parameters of
-		\code{logDensity} are the \code{\link{matrix}} \code{u} (the number of
+		\code{dAc} are the \code{\link{matrix}} \code{u} (the number of
 		columns of \code{u} determines \eqn{d}), the parameter \code{theta}, and
-		(for the Archimedean family not being Clayton) the optional arguments
+		(for the Archimedean family not being Clayton) the arguments
 		\code{MC} and \code{N} (with the same meaning as for \code{psiDAbs}).}
  	\item{\code{K}:}{Computes the Kendall distribution \code{\link{function}} at
       \code{t} given the parameter \code{theta} and the dimension \code{d}. For
       an Archimedean copula with generator \eqn{\psi}, this function is given by
   \deqn{K(t)=\sum_{k=0}^{d-1}\frac{(-1)^k\psi^{(k)}(\psi^{-1}(t))}{k!}(\psi^{-1}(t))^k.}{K(t)=sum_{k=0}^{d-1}(-1)^k*psi^{(k)}((psi^{-1}(t))/k!)(psi^{-1}(t))^k.}
- 		For all except Clayton's family, the optional arguments \code{MC} and
+ 		For all except Clayton's family, the arguments \code{MC} and
  		\code{N} can be specified (with the same meaning as for \code{psiDAbs}).}
     \item{\code{tau}, \code{tauInv}:}{Compute Kendall's tau of the bivariate
       Archimedean copula with generator \eqn{\psi}{psi} as a

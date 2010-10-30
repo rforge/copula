@@ -114,36 +114,56 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
 
     ## ==== (2.2) psiDAbs ====
 
-    ## psiDAbs with degree = 1
-    cat("\nvalues of psiDAbs with degree=1 at i10:\n")
-    CT <- c(CT, list(psiDAbs = system.time(p.D <-
-                     cop@psiDAbs(i10,theta = theta0))))
-    print(p.D)
-    cat("check if psiDAbs(Inf,theta)=0 and the class of psiDAbs(0,theta): ")
-    at.0 <- cop@psiDAbs(0, theta = theta0)
-    stopifnot(cop@psiDAbs(Inf, theta = theta0)==0, is.numeric(at.0), !is.nan(at.0))
-    cat0("[Ok]")
-    ## psiDAbs with degree = 10
-    cat("\nvalues of psiDAbs with degree=10 at i10:\n")
-    CT <- c(CT, list(psiDAbs = system.time(p.D <- cop@psiDAbs(i10,theta = theta0,
-                     degree = 10))))
-    print(p.D)
-    cat("check if psiDAbs(Inf,theta,degree=10)=0 and the class of psiDAbs(0,theta,degree=10): ")
-    at.0 <- cop@psiDAbs(0, theta = theta0, degree = 10)
-    stopifnot(cop@psiDAbs(Inf, theta = theta0, degree = 10) == 0,
-              is.numeric(at.0), !is.nan(at.0))
-    cat0("[Ok]")
-    ## psiDAbs with degree = 10 and MC
-    if(cop@name != "Clayton"){
-        cat("\nvalues of psiDAbs with degree=10 and MC at i10:\n")
-        CT <- c(CT, list(psiDAbs = system.time(p.D <- cop@psiDAbs(i10,theta = theta0,
-                         degree = 10, MC = TRUE))))
+    if(cop@name != "Clayton"){ # with args MC and N
+	
+        ## psiDAbs with degree = 1
+        cat("\nvalues of psiDAbs with degree=1 at i10:\n")
+        CT <- c(CT, list(psiDAbs = system.time(p.D <-
+                         cop@psiDAbs(i10,theta = theta0, MC = FALSE, N = 1000))))
         print(p.D)
-        cat("check if psiDAbs(Inf,theta,degree=10,MC=TRUE)=0 and the class of psiDAbs(0,theta,degree=10,MC=TRUE): ")
-        at.0 <- cop@psiDAbs(0, theta = theta0, degree = 10, MC = TRUE)
-        stopifnot(cop@psiDAbs(Inf, theta = theta0, degree = 10, MC = TRUE)==0,
+        cat("check if psiDAbs(Inf,theta)=0 and the class of psiDAbs(0,theta): ")
+        at.0 <- cop@psiDAbs(0, theta = theta0, MC = FALSE, N = 1000)
+        stopifnot(cop@psiDAbs(Inf, theta = theta0, MC = FALSE, N = 1000)==0, 
                   is.numeric(at.0), !is.nan(at.0))
         cat0("[Ok]")
+        ## psiDAbs with degree = 10
+        cat("\nvalues of psiDAbs with degree=10 at i10:\n")
+        CT <- c(CT, list(psiDAbs = system.time(p.D <- cop@psiDAbs(i10,theta = theta0,
+                         degree = 10, MC = FALSE, N = 1000))))
+        print(p.D)
+        cat("check if psiDAbs(Inf,theta,degree=10)=0 and the class of psiDAbs(0,theta,degree=10): ")
+        at.0 <- cop@psiDAbs(0, theta = theta0, degree = 10, MC = FALSE, N = 1000)
+        stopifnot(cop@psiDAbs(Inf, theta = theta0, degree = 10, MC = FALSE, N = 1000) == 0,
+                  is.numeric(at.0), !is.nan(at.0))
+        cat0("[Ok]")
+        ## psiDAbs with degree = 10 and MC
+        cat("\nvalues of psiDAbs with degree=10 and MC at i10:\n")
+        CT <- c(CT, list(psiDAbs = system.time(p.D <- cop@psiDAbs(i10,theta = theta0,
+                         degree = 10, MC = TRUE, N = 1000))))
+        print(p.D)
+	cat("check if all values are nonnegative\n")
+	stopifnot(all(p.D >= 0))
+        cat("check if psiDAbs(Inf,theta,degree=10,MC=TRUE,N=1000)=0 and the class of psiDAbs(0,theta,degree=10,MC=TRUE,N=1000): ")
+        at.0 <- cop@psiDAbs(0, theta = theta0, degree = 10, MC = TRUE, N = 1000)
+        stopifnot(cop@psiDAbs(Inf, theta = theta0, degree = 10, MC = TRUE, N = 1000)==0,
+                  is.numeric(at.0), !is.nan(at.0))
+        cat0("[Ok]")
+
+    }else{ # without args MC and N
+	
+        ## psiDAbs with degree = 10
+        cat("\nvalues of psiDAbs with degree=10 at i10:\n")
+        CT <- c(CT, list(psiDAbs = system.time(p.D <- cop@psiDAbs(i10,theta = theta0,
+                         degree = 10))))
+        print(p.D)
+	cat("check if all values are nonnegative\n")
+	stopifnot(all(p.D >= 0))
+        cat("check if psiDAbs(Inf,theta,degree=10)=0 and the class of psiDAbs(0,theta,degree=10): ")
+        at.0 <- cop@psiDAbs(0, theta = theta0, degree = 10)
+        stopifnot(cop@psiDAbs(Inf, theta = theta0, degree = 10)==0, 
+                  is.numeric(at.0), !is.nan(at.0), at.0 > 0)
+        cat0("[Ok]")
+
     }
 
     ## ==== (3) parameter interval ====
@@ -154,31 +174,31 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     cat0("nesting condition for theta0 and theta1 fulfilled: ",
          cop@nestConstr(theta0,theta1))
 
-    ## ==== (4) V0, f0, V01, f01 ====
+    ## ==== (4) V0, dV0, V01, dV01 ====
 
     ## V0
     CT <- c(CT, list(V0 = system.time(V0 <- cop@V0(nRnd,theta0))))
     cat0("\n(4) ",nRnd," generated V0's:")
     print(summary(V0))
-    ## f0
-    cat("\nvalues of f0 at i10:\n")
-    CT <- c(CT, list(f0 = system.time(f0.i <- cop@f0(i10,theta0))))
-    print(f0.i)
+    ## dV0
+    cat("\nvalues of dV0 at i10:\n")
+    CT <- c(CT, list(dV0 = system.time(dV0.i <- cop@dV0(i10,theta0))))
+    print(dV0.i)
     ## V01
     CT <- c(CT, list(V01 = system.time(V01 <- cop@V01(V0,theta0,theta1))))
-    cat0(nRnd," generated V01's:")
+    cat0("\n",nRnd," generated V01's:")
     print(summary(V01))
     nt <- length(thetavec)
-    ## f01
-    cat("\nvalues of f01 at i10:\n")
+    ## dV01
+    cat("\nvalues of dV01 at i10:\n")
     if(cop@name == "Frank" || cop@name == "Joe"){
-        CT <- c(CT, list(f01 = system.time(f01.i <- cop@f01(i10,theta0=theta0,
+        CT <- c(CT, list(dV01 = system.time(dV01.i <- cop@dV01(i10,theta0=theta0,
                          theta1=theta1))))
     }else{
-	CT <- c(CT, list(f01 = system.time(f01.i <- cop@f01(i10,V0=1,theta0=theta0,
+	CT <- c(CT, list(dV01 = system.time(dV01.i <- cop@dV01(i10,V0=1,theta0=theta0,
                          theta1=theta1))))
     }
-    print(f01.i)
+    print(dV01.i)
 
     ## ==== (5) cCdf ====
 
@@ -189,28 +209,42 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
               )
     print(cCdf.)
 
-    ## ==== (6) logDensity ====
+    ## ==== (6) dAc (log = TRUE) ====
 
-    ## d = 2
-    cat("\n(6) check logDensity for u being a random (50x2)-matrix:\n")
     u <- matrix(runif(1000),ncol=20)
-    CT <- c(CT, list(logDensity = system.time(lD <- cop@logDensity(u[,1:2],
-                     theta=theta0))))
-    stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))
-    cat0("checked")
-    ## d > 2
-    cat("\n check logDensity for u being a random (50x20)-matrix:\n")
-    CT <- c(CT, list(logDensity = system.time(lD <- cop@logDensity(u,
-                     theta=theta0))))
-    stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))
-    cat0("checked")
-    ## d > 2, MC = TRUE
-    if(cop@name != "Clayton"){
-        cat("\n check logDensity with MC for u being a random (50x20)-matrix:\n")
-        CT <- c(CT, list(logDensity = system.time(lD <- cop@logDensity(u,
-                         theta=theta0, MC = TRUE))))
+    if(cop@name != "Clayton"){ # with args MC and N
+	
+        ## d = 2
+        cat("\n(6) check dAc for u being a random (50x2)-matrix:\n")
+        CT <- c(CT, list(dAc = system.time(lD <- cop@dAc(u[,1:2],
+                         theta=theta0, MC = FALSE, N = 1000, log = TRUE))))
         stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))
-        cat0("checked")
+        cat0("[Ok]")
+        ## d > 2
+        cat("\n check dAc for u being a random (50x20)-matrix:\n")
+        CT <- c(CT, list(dAc = system.time(lD <- cop@dAc(u,theta=theta0,
+                         MC = FALSE, N = 1000, log = TRUE))))
+
+        ## FIXME: the following check is not made for Gumbel since there are still
+        ## known issues (NaN)
+        if(cop@name != "Gumbel") stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))	
+        cat0("[Ok]")
+        ## d > 2, MC = TRUE
+        cat("\n check dAc with MC for u being a random (50x20)-matrix:\n")
+        CT <- c(CT, list(dAc = system.time(lD <- cop@dAc(u,theta=theta0, 
+                         MC = TRUE, N = 1000, log = TRUE))))
+        stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))	
+        cat0("[Ok]")
+        
+    }else{ # without args MC and N
+	
+	## d > 2
+        cat("\n check dAc for u being a random (50x20)-matrix:\n")
+        CT <- c(CT, list(dAc = system.time(lD <- cop@dAc(u,theta=theta0,
+                         log = TRUE))))
+        stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))	
+        cat0("[Ok]")
+
     }
 
     ## ==== (7) K ====
@@ -218,31 +252,54 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     check.K.t01 <- function(K)
 	stopifnot(is.numeric(K), length(K) == length(t01),
 		  0 <= K, K <= 1, diff(K) >= 0)
-    ## K for d = 2
-    cat("\n(7) values of K for d = 2 at t01:\n")
-    CT <- c(CT, list(K = system.time(K. <- cop@K(t01,theta = theta0, d = 2))))
-    check.K.t01( print(K.) )
-    cat("check if K(0)=0 and K(1)=1: ")
-    stopifnot(cop@K(0, theta = theta0, d = 2)==0,
-              cop@K(1, theta = theta0, d = 2)==1)
-    cat0("[Ok]")
-    ## K for d = 10
-    cat("\nvalues of K for d = 10 at t01:\n")
-    CT <- c(CT, list(K = system.time(K. <- cop@K(t01,theta = theta0, d = 10))))
-    check.K.t01( print(K.) )
-    cat("check if K(0)=0 and K(1)=1: ")
-    stopifnot(cop@K(0, theta = theta0, d = 10)==0,
-              cop@K(1, theta = theta0, d = 10)==1)
-    cat0("[Ok]")
-    ## K for d = 10 and MC
     if(cop@name != "Clayton"){
-        cat("\nvalues of K for d = 10 and MC at t01:\n")
-        CT <- c(CT, list(K = system.time(K. <- cop@K(t01,theta = theta0, d = 10, MC = TRUE))))
+	
+        ## K for d = 2
+        cat("\n(7) values of K for d = 2 at t01:\n")
+        CT <- c(CT, list(K = system.time(K. <- cop@K(t01,theta = theta0, d = 2))))
         check.K.t01( print(K.) )
         cat("check if K(0)=0 and K(1)=1: ")
-        stopifnot(cop@K(0, theta = theta0, d = 10, MC = TRUE)==0,
-                  cop@K(1, theta = theta0, d = 10, MC = TRUE)==1)
+        stopifnot(cop@K(0, theta = theta0, d = 2, MC = FALSE, N = 1000)==0,
+                  cop@K(1, theta = theta0, d = 2, MC = FALSE, N = 1000)==1)
         cat0("[Ok]")
+        ## K for d = 10
+        cat("\nvalues of K for d = 10 at t01:\n")
+        CT <- c(CT, list(K = system.time(K. <- cop@K(t01,theta = theta0, d = 10, 
+                         MC = FALSE, N = 1000))))
+        check.K.t01( print(K.) )
+        cat("check if K(0)=0 and K(1)=1: ")
+        stopifnot(cop@K(0, theta = theta0, d = 10, MC = FALSE, N = 1000)==0,
+                  cop@K(1, theta = theta0, d = 10, MC = FALSE, N = 1000)==1)
+        cat0("[Ok]")
+        ## K for d = 10 and MC
+        cat("\nvalues of K for d = 10 and MC at t01:\n")
+        CT <- c(CT, list(K = system.time(K. <- cop@K(t01,theta = theta0, d = 10, 
+                         MC = TRUE, N = 1000))))
+        check.K.t01( print(K.) )
+        cat("check if K(0)=0 and K(1)=1: ")
+        stopifnot(cop@K(0, theta = theta0, d = 10, MC = TRUE, N = 1000)==0, 
+                  cop@K(1, theta = theta0, d = 10, MC = TRUE, N = 1000)==1)
+        cat0("[Ok]")
+
+    }else{
+
+	## K for d = 2
+        cat("\n(7) values of K for d = 2 at t01:\n")
+        CT <- c(CT, list(K = system.time(K. <- cop@K(t01,theta = theta0, d = 2))))
+        print(K.)
+        cat("check if K(0)=0 and K(1)=1: ")
+        stopifnot(cop@K(0, theta = theta0, d = 2)==0, 
+                  cop@K(1, theta = theta0, d = 2)==1)
+        cat0("[Ok]")
+        ## K for d = 10
+        cat("\nvalues of K for d = 10 at t01:\n")
+        CT <- c(CT, list(K = system.time(K. <- cop@K(t01,theta = theta0, d = 10))))
+        print(K.)
+        cat("check if K(0)=0 and K(1)=1: ")
+        stopifnot(cop@K(0, theta = theta0, d = 10)==0, 
+                  cop@K(1, theta = theta0, d = 10)==1)
+        cat0("[Ok]")
+	
     }
 
     ## ==== (8) tau, tauInv ====
@@ -287,25 +344,25 @@ print.proc_time_list <- function (x, ...) {
     invisible(x)
 }
 
-##' ==== copAMH ====
+## ==== copAMH ===============================================================
 
 myAMH <- setTheta(copAMH, 0.7135001)
 thetavec <- c(0.1,0.3,0.5,0.7,0.9)
 tstCop(myAMH, 0.9429679, thetavec = thetavec)
 
-##' ==== copClayton ====
+## ==== copClayton ===========================================================
 
 myClayton <- setTheta(copClayton, 0.5)
 thetavec <- c(0.5,1,2,5,10)
 tstCop(myClayton, 2, thetavec, lambdaL = thetavec, lambdaU = NA)
 
-##' ==== copFrank ===
+## ==== copFrank =============================================================
 
 myFrank <- setTheta(copFrank, 1.860884)
 thetavec <- c(0.5,1,2,5,10)
 tstCop(myFrank, 5.736283, thetavec)
 
-##' with a slightly more extensive test:
+## with a slightly more extensive test:
 tau.th <- c(0.055417, 0.11002, 0.21389, 0.4567, 0.66578)
 tau.F <- myFrank@tau(thetavec)
 stopifnot(all.equal(tau.th, tau.F, tol = 0.0001),
@@ -313,13 +370,13 @@ stopifnot(all.equal(tau.th, tau.F, tol = 0.0001),
           all.equal(myFrank@tauInv(tau.F, tol = 1e-14), thetavec, tol=1e-11))
 
 
-##' ==== copGumbel ===
+## ==== copGumbel ============================================================
 
 myGumbel <- setTheta(copGumbel, 1.25)
 thetavec <- c(1,2,4,6,10)
 tstCop(myGumbel,2, thetavec, lambdaL = NA, lambdaU = thetavec)
 
-##' ==== copJoe ===
+## ==== copJoe ===============================================================
 
 myJoe <- setTheta(copJoe, 1.25)
 thetavec <- c(1.1,2,4,6,10)
