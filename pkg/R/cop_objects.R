@@ -116,8 +116,8 @@ copAMH <-
             }
 	},
 	## Kendall distribution function
-	K = function(t,theta,d,MC = FALSE,N = 2000){
-            stopifnot(length(d) == 1)
+        K = function(t, theta, d, MC = FALSE, N = 2000) {
+            stopifnot(length(theta) == 1, length(d) == 1)
             if(d==1) { # exact for d == 1
                 t
             }else if(d==2){ # exact for d == 2
@@ -379,36 +379,41 @@ copFrank <-
             }
         },
         ## Kendall distribution function
-        K = function(t,theta,d,MC = FALSE,N = 2000){
-            if(d==1){ # exact for d == 1
-                t
-            }else if(d==2){ # exact for d == 2
-                e.th <- exp(-theta*t)
-                one.t <- function(t) if(t == 0) 0 else t+copFrank@psiInv(t,theta)*
-                    (1-e.th)/(theta*e.th)
-                unlist(lapply(t,one.t))
-            }else{ # d >= 3
-                if(MC){ # approximation via MC
-                    V <- copFrank@V0(N,theta)
-                    K.fun <- function(t) mean(ppois(d-1,V*copFrank@psiInv(t,theta)))
-                    unlist(lapply(t,K.fun))
-                }else{ # approximation via truncation of the series
-                    k <- 1:N
-                    l.pk <- copFrank@f0(k,theta,log = TRUE)
-	            one.t <- function(t){
-			if(t == 0){
-	                    0
-	                }else if(t == 1){
-	                    1
-	                }else{
-                            sum(exp(l.pk+ppois(d-1,k*copFrank@psiInv(t,theta),
-                                               log = TRUE)))
-                        }
-                    }
-	            unlist(lapply(t,one.t))
+        K = function(t, theta, d, MC = FALSE, N = 2000)
+    {
+        stopifnot(length(theta) == 1)
+        if(d==1){                       # exact for d == 1
+            t
+        } else {
+            ## fast version of
+            ##  ifelse(t == 0, 0,
+            ##   ifelse(t == 1, 1, { ... }):
+            r <- t
+            t <- t[n01 <- (t != 0) & (t != 1)]
+            r[n01] <-
+                if(d==2) {              # exact for d == 2
+                    e.th <- exp(-theta*t)
+                    t + copFrank@psiInv(t,theta) * (1-e.th)/(theta*e.th)
                 }
-            }
-        },
+                else {                  # d >= 3
+                    stopifnot(d >= 3)
+                    if(MC){             # approximation via MC
+                        V <- copFrank@V0(N,theta)
+                        K.1.t <- function(t)
+                            mean(ppois(d-1, V*copFrank@psiInv(t,theta)))
+                    } else {            # approximation via truncation of the series
+                        k <- 1:N
+                        l.pk <- copFrank@f0(k,theta,log = TRUE)
+                        K.1.t <- function(t)
+                            sum(exp(l.pk +
+                                    ppois(d-1, k*copFrank@psiInv(t,theta),
+                                          log = TRUE)))
+                    }
+                    unlist(lapply(t, K.1.t))
+                } ## else d >= 3
+            r
+        } ## else d >= 2
+    },
         ## Kendall's tau; debye_1() is from package 'gsl' :
         tau = function(theta) 1 + 4*(debye_1(theta) - 1)/theta,
         tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
@@ -570,31 +575,32 @@ copGumbel <-
             }
         },
         ## Kendall distribution function
-        K = function(t,theta,d,MC = FALSE,N = 10000){
-            if(d==1){ # exact for d == 1
+        K = function(t, theta, d, MC = FALSE, N = 10000) {
+            stopifnot(length(theta) == 1, length(d) == 1)
+            if(d==1){                   # exact for d == 1
                 t
-            }else if(d==2){ # exact for d == 2
+            }else if(d==2){             # exact for d == 2
                 one.t <- function(t) if(t == 0) 0 else t*(1-log(t)/theta)
-		unlist(lapply(t,one.t))
-            }else{ # d >= 3
-                if(MC){ # approximation via MC
+                unlist(lapply(t,one.t))
+            }else{                      # d >= 3
+                if(MC){                 # approximation via MC
                     V <- copGumbel@V0(N,theta)
                     K.fun <- function(t) mean(ppois(d-1,V*copGumbel@psiInv(t,theta)))
                     unlist(lapply(t,K.fun))
-                }else{ # approximation via truncation of the series
+                }else{    # approximation via truncation of the series
                     j <- 1:(d-1)
                     l.j <- lfactorial(j)
                     one.t <- function(t){
-			if(t == 0 || t == 1){
+                        if(t == 0 || t == 1){
                             0
-			}else{
+                        }else{
                             pI <- copGumbel@psiInv(t,theta)
                             sum(exp(unlist(lapply(j,copGumbel@psiDAbs,t=pI,
                                                   theta=theta,MC=MC,N=N,log=TRUE))+
                                     j*log(pI)-l.j))
-			}
+                        }
                     }
-                    t+unlist(lapply(t,one.t))
+                    t + unlist(lapply(t, one.t))
                 }
             }
         },
@@ -730,6 +736,7 @@ copJoe <-
         },
         ## Kendall distribution function
         K = function(t,theta,d,MC = FALSE,N = 10000){
+            stopifnot(length(theta) == 1, length(d) == 1)
             if(d==1){ # exact for d == 1
                 t
             }else if(d==2){ # exact for d == 2
