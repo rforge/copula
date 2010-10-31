@@ -301,7 +301,7 @@ copFrank <-
         },
         ## V0 (algorithm of Kemp (1981)) with density dV0 and V01 with density  
         ## dV01 corresponding to LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
-        V0 = function(n,theta) { rlog(n,1-exp(-theta)) },
+        V0 = function(n,theta) { rlog(n,-expm1(-theta)) },
         dV0 = function(x,theta,log = FALSE){
 	    if(any(x != (x <- floor(x + 0.5)))) warning("x must be integer; is rounded with floor(x+0.5) otherwise")
             ## FIXME: dgeom, e.g., uses R_D_nonint_check() and R_D_forceint(): is that possible here as well?
@@ -652,7 +652,7 @@ copJoe <-
         dV0 = function(x,theta,log = FALSE){
             if(log) lchoose(1/theta,x) else abs(choose(1/theta,x))
         },
-        V01 = function(V0,theta0,theta1, approx=100000) {
+        V01 = function(V0,theta0,theta1, approx=10000) {
             alpha <- theta0/theta1
             ia <- (V0 > approx)
             ie <- !ia

@@ -155,7 +155,7 @@ retstableC <- function(alpha, V0, h = 1, method = NULL){
 		return(r)
 	    }
 	    else
-		method <- if(V.is.sml) "MH" else "LD"
+		method <- if(V.is.sml[1]) "MH" else "LD"
 	}
 	else
 	    method <- match.arg(method, c("MH","LD"))
