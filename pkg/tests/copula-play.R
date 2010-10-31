@@ -191,13 +191,8 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     nt <- length(thetavec)
     ## dV01
     cat("\nvalues of dV01 at i10:\n")
-    if(cop@name == "Frank" || cop@name == "Joe"){
-        CT <- c(CT, list(dV01 = system.time(dV01.i <- cop@dV01(i10,theta0=theta0,
-                         theta1=theta1))))
-    }else{
-	CT <- c(CT, list(dV01 = system.time(dV01.i <- cop@dV01(i10,V0=1,theta0=theta0,
-                         theta1=theta1))))
-    }
+    CT <- c(CT, list(dV01 = system.time(dV01.i <- cop@dV01(i10,V0=1,theta0=theta0,
+                     theta1=theta1))))
     print(dV01.i)
 
     ## ==== (5) cCdf ====

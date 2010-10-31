@@ -62,23 +62,23 @@
 	 	\code{theta}. An optional argument \code{log} indicates whether
 	   or not the logarithm of the mass or density is computed (defaults to
 	   \code{FALSE}).}
-    \item{\code{V01}:}{A \code{\link{function}} which obtains a vector of
+    \item{\code{V01}:}{A \code{\link{function}} which gets a vector of
       realizations of \code{V0} and two parameters \code{theta0}, \code{theta1}
       which satisfy the sufficient nesting condition for this family, and which
       returns a vector of the same length as \code{V0} with random variates from
-      the distribution function \eqn{F_{01}}{dV01} with Laplace-Stieltjes
+      the distribution function \eqn{F_{01}}{F01} with Laplace-Stieltjes
       transform \eqn{\psi_{01}}{psi01} and parameters
       \eqn{\theta_0=\,}{theta0=}\code{theta0},
       \eqn{\theta_1=\,}{theta1=}\code{theta1}.}
 	 \item{\code{dV01}:}{Similar to \code{dV0} with the difference being that
-	 	this \code{\link{function}} is related to the Laplace-Stieltjes transform
-	 \deqn{\psi_{01}(t;V_0)=\exp(-V_0\psi_0^{-1}(\psi_1(t)))}{psi01(t;V0)=exp(-V0*psi0^{-1}(psi1(t)))} corresponding to the distribution function \eqn{F_{01}}{dV01}.
+	 	this \code{\link{function}} computes the probability mass or density
+	 	function for the Laplace-Stieltjes transform
+ 		\deqn{\psi_{01}(t;V_0)=\exp(-V_0\psi_0^{-1}(\psi_1(t)))}{psi01(t;V0)=exp(-V0*psi0^{-1}(psi1(t)))} corresponding to the distribution function \eqn{F_{01}}{F01}.
+	
 	   Arguments are the evaluation point(s) \code{x}, the value(s) \code{V0},
 	   and the parameters \code{theta0} and \code{theta1}. As for \code{dV0}, the
 	   optional argument \code{log} can be specified (defaults to \code{FALSE}).
-	   Note that for the Archimedean families of Frank and Joe, \code{dV01} does
-	   not have the argument \code{V0} (and implicitly assumes 1).
-	   Further note that if \code{x} is a vector, \code{V0} must either have
+	   Note that if \code{x} is a vector, \code{V0} must either have
 	   length one (in which case \code{V0} is the same for every component of
 	   \code{x}) or \code{V0} must be of the same length as \code{x} (in which
 	   case the components of \code{V0} correspond to the ones of \code{x}).}

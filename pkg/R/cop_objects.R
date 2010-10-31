@@ -61,14 +61,16 @@ copAMH <-
             copAMH@paraConstr(theta1) && theta1 >= theta0
         },
         ## V0 with density dV0 and V01 with density dV01 corresponding to 
-        ## dV01=LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
+        ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
         V0 = function(n,theta) rgeom(n, 1-theta) + 1,
 	dV0 = function(x,theta,log = FALSE) dgeom(x-1, 1-theta, log),
         V01 = function(V0,theta0,theta1) {
             rnbinom(length(V0),V0,(1-theta1)/(1-theta0))+V0
         },
-        dV01 = function(x,V0,theta0,theta1,log = FALSE) dnbinom(x-V0,V0,(1-theta1)/
-                                           (1-theta0),log = log),
+        dV01 = function(x,V0,theta0,theta1,log = FALSE){
+            stopifnot(length(V0) == 1 || length(x) == length(V0))
+            dnbinom(x-V0,V0,(1-theta1)/(1-theta0),log = log)
+        },
 	## conditional distribution function C(v|u) of v given u
 	cCdf = function(v,u,theta){
             ifelse(v == 0, Inf,
@@ -189,12 +191,12 @@ copClayton <-
             copClayton@paraConstr(theta1) && theta1 >= theta0
         },
         ## V0 with density dV0 and V01 with density dV01 corresponding to 
-        ## dV01=LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
+        ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
         V0 = function(n,theta) { rgamma(n, shape = 1/theta) },
         dV0 = function(x,theta,log = FALSE) dgamma(x, shape = 1/theta, log),
         V01 = function(V0,theta0,theta1) { retstable(alpha=theta0/theta1, V0) },
         dV01 = function(x,V0,theta0,theta1,log = FALSE){
-            stopifnot(length(V0) == 1 || length(V0) == length(x))
+            stopifnot(length(V0) == 1 || length(x) == length(V0))
             alpha <- theta0/theta1
             beta <- 1
             gamma <- (cos(pi/2*alpha)*V0)^(1/alpha)
@@ -297,8 +299,8 @@ copFrank <-
             copFrank@paraConstr(theta0) &&
             copFrank@paraConstr(theta1) && theta1 >= theta0
         },
-        ## V0 (algorithm of Kemp (1981)) with density dV0 and V01 with density dV01 
-        ## corresponding to F=LS^{-1}[exp(-psi_0^{-1}(psi_1(t)))]
+        ## V0 (algorithm of Kemp (1981)) with density dV0 and V01 with density  
+        ## dV01 corresponding to LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
         V0 = function(n,theta) { rlog(n,1-exp(-theta)) },
         dV0 = function(x,theta,log = FALSE){
 	    if(any(x != (x <- floor(x + 0.5)))) warning("x must be integer; is rounded with floor(x+0.5) otherwise")
@@ -315,13 +317,15 @@ copFrank <-
             ## theoretically
             sapply(lapply(V0, rFFrank, theta0=theta0,theta1=theta1), sum)
         },
-        dV01 = function(x,theta0,theta1,log = FALSE){
+        dV01 = function(x,V0,theta0,theta1,log = FALSE){
+	    stopifnot(length(V0) == 1 || length(x) == length(V0), all(x >= V0))
             alpha <- theta0/theta1
-            if(log){
-                lchoose(alpha,x)+x*log1p(-exp(-theta1))-log1p(-exp(-theta0))
-            }else{
-                abs(choose(alpha,x))*(1-exp(-theta1))^x/(1-exp(-theta0))
-            }
+	    e0 <- exp(-theta0)
+	    e1 <- exp(-theta1)
+            lfactor <- x*log1p(-e1)-V0*log1p(-e0)
+	    ljoe <- copJoe@dV01(x,V0,theta0,theta1,TRUE)
+            res <- lfactor+ljoe
+            if(log) res else exp(res)
         },
         ## conditional distribution function C(v|u) of v given u
         cCdf = function(v,u,theta){
@@ -368,41 +372,40 @@ copFrank <-
             if(log) res else exp(res)	
         },
         ## Kendall distribution function
-        K = function(t, theta, d, MC, N)
-    {
-        stopifnot(length(theta) == 1)
-        if(d==1){                       # exact for d == 1
-            t
-        } else {
-            ## fast version of
-            ##  ifelse(t == 0, 0,
-            ##   ifelse(t == 1, 1, { ... }):
-            r <- t
-            t <- t[n01 <- (t != 0) & (t != 1)]
-            r[n01] <-
-                if(d==2) {              # exact for d == 2
-                    e.th <- exp(-theta*t)
-                    t + copFrank@psiInv(t,theta) * (1-e.th)/(theta*e.th)
-                }
-                else {                  # d >= 3
-                    stopifnot(d >= 3)
-                    if(MC){             # approximation via MC
-                        V <- copFrank@V0(N,theta)
-                        K.1.t <- function(t)
-                            mean(ppois(d-1, V*copFrank@psiInv(t,theta)))
-                    } else {            # approximation via truncation of the series
-                        k <- 1:N
-                        l.pk <- copFrank@dV0(k,theta,log = TRUE)
-                        K.1.t <- function(t)
-                            sum(exp(l.pk +
-                                    ppois(d-1, k*copFrank@psiInv(t,theta),
-                                          log = TRUE)))
+        K = function(t, theta, d, MC, N){
+            stopifnot(length(theta) == 1)
+            if(d==1){                       # exact for d == 1
+                t
+            } else {
+                ## fast version of
+                ##  ifelse(t == 0, 0,
+                ##   ifelse(t == 1, 1, { ... }):
+                r <- t
+                t <- t[n01 <- (t != 0) & (t != 1)]
+                r[n01] <-
+                    if(d==2) {              # exact for d == 2
+                        e.th <- exp(-theta*t)
+                        t + copFrank@psiInv(t,theta) * (1-e.th)/(theta*e.th)
                     }
-                    unlist(lapply(t, K.1.t))
-                } ## else d >= 3
-            r
-        } ## else d >= 2
-    },
+                    else {                  # d >= 3
+                        stopifnot(d >= 3)
+                        if(MC){             # approximation via MC
+                            V <- copFrank@V0(N,theta)
+                            K.1.t <- function(t)
+                                mean(ppois(d-1, V*copFrank@psiInv(t,theta)))
+                        } else {            # approximation via truncation of the series
+                            k <- 1:N
+                            l.pk <- copFrank@dV0(k,theta,log = TRUE)
+                            K.1.t <- function(t)
+                                sum(exp(l.pk +
+                                        ppois(d-1, k*copFrank@psiInv(t,theta),
+                                              log = TRUE)))
+                        }
+                        unlist(lapply(t, K.1.t))
+                    } ## else d >= 3
+                r
+            } ## else d >= 2
+        },
         ## Kendall's tau; debye_1() is from package 'gsl' :
         tau = function(theta) 1 + 4*(debye_1(theta) - 1)/theta,
         tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
@@ -485,7 +488,7 @@ copGumbel <-
             copGumbel@paraConstr(theta1) && theta1 >= theta0
         },
         ## V0 with density dV0 and V01 with density dV01 corresponding to 
-        ## dV01=LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
+        ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
         V0 = function(n,theta) {
             if(theta == 1) {
                 ## Sample from S(1,1,0,1;1)
@@ -514,7 +517,7 @@ copGumbel <-
             }
         },
         dV01 = function(x,V0,theta0,theta1,log = FALSE){
-            stopifnot(length(V0) == 1 || length(V0) == length(x))
+            stopifnot(length(V0) == 1 || length(x) == length(V0))
             alpha <- theta0/theta1
             beta <- 1
             gamma <- (cos(pi/2*alpha)*V0)^(1/alpha)
@@ -644,7 +647,7 @@ copJoe <-
             copJoe@paraConstr(theta1) && theta1 >= theta0
         },
         ## V0 with density dV0 and V01 with density dV01 corresponding to 
-        ## F=LS^{-1}[exp(-psi_0^{-1}(psi_1(t)))] 
+        ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
         V0 = function(n,theta) rFJoe(n, 1/theta),
         dV0 = function(x,theta,log = FALSE){
             if(log) lchoose(1/theta,x) else abs(choose(1/theta,x))
@@ -661,7 +664,32 @@ copJoe <-
             V01[ie] <- sapply(lapply(V0[ie], rFJoe, alpha=alpha),sum)
             V01
         },
-        dV01 = function(x,theta0,theta1,log = FALSE) copJoe@dV0(x,theta1/theta0,log), 
+        dV01 = function(x,V0,theta0,theta1,log = FALSE){
+	    l.x <- length(x)
+            l.V0 <- length(V0)
+            stopifnot(l.V0 == 1 || l.x == l.V0, all(x >= V0))
+            alpha <- theta0/theta1
+	    res <- numeric(l.x)
+	    if(l.V0 == 1) V0 <- rep(V0,l.x)
+            V0.one <- V0 == 1
+	    res[V0.one] <- copJoe@dV0(x[V0.one],1/alpha,log) # V0 = 1 (numerically more stable)
+            if(any(!V0.one)){
+                ## FIXME: general case; numerically critical, see, e.g., dV01(1000,500,3,5) < 0
+                one.d.args <- function(x.,V0.){
+                    j <- 1:V0. # indices of the summands
+                    signs <- (-1)^(j+x.) 
+                    ## determine the signs of choose(j*alpha,x.) for each component of j
+                    to.subtract <- 0:(x.-1) 
+                    signs.choose <- unlist(lapply(j,function(l) prod(sign(l*alpha-to.subtract))))
+                    signs <- signs*signs.choose
+                    binom.coeffs <- exp(lchoose(V0.,j)+lchoose(j*alpha,x.))
+                    sum(signs*binom.coeffs)
+                }
+                sum. <- mapply(one.d.args,x[!V0.one],V0[!V0.one])         
+                res[!V0.one] <- if(log) log(sum.) else sum.
+            }
+            res
+        },
         ## conditional distribution function C(v|u) of v given u
         cCdf = function(v,u,theta){
             one.d.args <- function(u,v){
