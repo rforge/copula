@@ -78,14 +78,12 @@ copAMH <-
                                                  (1-u)*(1-v)))^2)
 	},
 	## diagonal of the Archimedean copula
-	diag = function(u, theta, log = FALSE){
-	    d <- ncol(u)
+	diag = function(u, theta, d, log = FALSE){
             power <- ((1-theta*(1-u))/u)^d-theta
             if(log) log1p(-theta)-log(power) else (1-theta)/(power)
 	},
 	## density of the diagonal of the Archimedean copula
-	dDiag = function(u, theta, log = FALSE){
-            d <- ncol(u)
+	dDiag = function(u, theta, d, log = FALSE){
             theta. <- d*(1-theta)^2
             if(log){
 		log(theta.)+(d-1)*(log(u)+log(1-theta*(1-u)))-2*log(1-theta+
@@ -237,8 +235,7 @@ copClayton <-
             mapply(one.d.args,u,v)
         },
 	## diagonal of the Archimedean copula
-	diag = function(u, theta, log = FALSE){
-	    d <- ncol(u)
+	diag = function(u, theta, d, log = FALSE){
 	    if(log){
 		(-1/theta)*log1p(d*copClayton@psiInv(u,theta))
             }else{
@@ -246,8 +243,7 @@ copClayton <-
             }
         },
         ## density of the diagonal of the Archimedean copula
-        dDiag = function(u, theta, log = FALSE){
-            d <- ncol(u)
+        dDiag = function(u, theta, d, log = FALSE){
             theta. <- -1/theta
             theta.. <- 1+theta
             u. <- (1-1/d)*u^theta
@@ -379,15 +375,13 @@ copFrank <-
             mapply(one.d.args,u,v)
         },
 	## diagonal of the Archimedean copula
-	diag = function(u, theta, log = FALSE){
-	    d <- ncol(u)
+	diag = function(u, theta, d, log = FALSE){
             p <- -expm1(-theta)
             log. <- -log1p(-p*(-expm1(-theta*u)/p)^d)
 	    if(log) -log(theta) + log(log.) else (1/theta)*log.
 	},
 	## density of the diagonal of the Archimedean copula
-	dDiag = function(u, theta, log = FALSE){
-	    d <- ncol(u)
+	dDiag = function(u, theta, d, log = FALSE){
             u.theta <- u*theta
             e.theta <- exp(-u.theta)
             e. <- -expm1(-u.theta)
@@ -601,14 +595,12 @@ copGumbel <-
             mapply(one.d.args,u,v)
         },
 	## diagonal of the Archimedean copula
-	diag = function(u, theta, log = FALSE){
-            d <- ncol(u)
+	diag = function(u, theta, d, log = FALSE){
             d. <- d^(1/theta)
 	    if(log) d.*log(u) else u^d.
 	},
 	## density of the diagonal of the Archimedean copula
-	dDiag = function(u, theta, log = FALSE){
-	    d <- ncol(u)
+	dDiag = function(u, theta, d, log = FALSE){
             alpha <- 1/theta
             d. <- d^alpha
 	    if(log) alpha*log(d)+(d.-1)*log(u) else d.*u^(d.-1)
@@ -773,14 +765,12 @@ copJoe <-
             mapply(one.d.args,u,v)
         },
 	## diagonal of the Archimedean copula
-	diag = function(u, theta, log = FALSE){
-            d <- ncol(u)
+	diag = function(u, theta, d, log = FALSE){
             u. <- -(1-(1-(1-u)^theta)^d)^(1/theta)
             if(log) log1p(u.) else 1+u.
 	},
 	## density of the diagonal of the Archimedean copula
-	dDiag = function(u, theta, log = FALSE){
-	    d <- ncol(u)
+	dDiag = function(u, theta, d, log = FALSE){
             u. <- 1-(1-u)^theta
             alpha <- 1/theta
 	    if(log){
