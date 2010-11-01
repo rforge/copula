@@ -153,13 +153,15 @@ retstableC <- function(alpha, V0, h = 1, method = NULL){
 		r[ V.is.sml] <- .Call(retstable_c, V0[ V.is.sml], h = h, alpha, "MH")
 		r[!V.is.sml] <- .Call(retstable_c, V0[!V.is.sml], h = h, alpha, "LD")
 		return(r)
-	    }
-	    else
-		method <- if(V.is.sml[1]) "MH" else "LD"
+	    }else{
+                method <- if(V.is.sml[1]) "MH" else "LD"
+		.Call(retstable_c, V0, h = h, alpha, method)
+            }
 	}
-	else
+	else{
 	    method <- match.arg(method, c("MH","LD"))
-	.Call(retstable_c, V0, h = h, alpha, method)
+            .Call(retstable_c, V0, h = h, alpha, method)
+        }
     }
 }
 
@@ -385,7 +387,7 @@ printNacopula <-
     mkBlanks <- function(n) paste(rep.int(" ", n), collapse="")
     bl <- mkBlanks(nIS <- nchar(indent.str))
 
-## cat(sprintf(" __deltaInd = %d, nIS = %d__ ", deltaInd, nIS))
+    ## cat(sprintf(" __deltaInd = %d, nIS = %d__ ", deltaInd, nIS))
     ch1 <- sprintf("%sNested Archimedean copula (\"%s\"), with ",
                    indent.str, cl)
     ch2 <- if(length(c.j <- x@comp)) {
