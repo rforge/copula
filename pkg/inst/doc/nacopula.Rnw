@@ -1,8 +1,7 @@
-\documentclass[nojss,article]{jss}
-%              ----- for the package-vignette, don't use JSS logo, etc
+\documentclass[article]{jss}
 %% NOTA BENE: More definitions --> further down
 %%%%%%%%%%%%
-
+%
 %% almost as usual
 \author{Marius Hofert\thanks{The\ author\ (Willis\ Research\ Fellow)\ thanks\ Willis\ Re\ for\ financial\ support\ while\ this\ work\ was\ completed.} \\ETH Zurich
  \And
@@ -25,7 +24,10 @@
   structure, generating vectors of random variates from the constructed
   objects, computing function values and probabilities of falling into
   hypercubes, as well as evaluation of characteristics such as Kendall's
-  tau and the tail-dependence coefficients. As a by-product, algorithms for
+  tau and the tail-dependence coefficients.
+%% provides the families of Ali-Mikhail-Haq, Clayton, Frank, Gumbel, and Joe
+%% also  *outer power* versions of our families
+  As a by-product, algorithms for
   various distributions, including exponentially tilted stable
   distributions, are implemented. Detailed examples are given.
 }
@@ -98,6 +100,9 @@
 \DefineVerbatimEnvironment{Sinput}{Verbatim}{fontsize=\small,fontshape=sl}
 \DefineVerbatimEnvironment{Soutput}{Verbatim}{fontsize=\small}
 \DefineVerbatimEnvironment{Scode}{Verbatim}{fontsize=\small,fontshape=sl}
+%% makes space between Sinput and Soutput smaller:
+\fvset{listparameters={\setlength{\topsep}{0pt}}}% !! quite an effect!
+%%
 
 %% Marius' settings
 \newcolumntype{d}[2]{D{.}{.}{#1.#2}}%aligns the entry at "." of a column if "d" is used as column type
@@ -196,8 +201,11 @@
 % \section[About Java]{About \proglang{Java}}
 %% Note: If there is markup in \(sub)section, then it has to be escape as above.
 %% Note: These are explained in '?RweaveLatex' :
-<<preliminaries, echo=FALSE>>=
+<<preliminaries, echo=FALSE, results=hide>>=
 options(width=70, useFancyQuotes = FALSE, prompt="R> ", continue="+  ")
+Sys.setlocale("LC_MESSAGES","C")
+if(Sys.getenv("USER") == "maechler")# take CRAN's version, not development one:
+    library(nacopula, lib="/usr/local/app/R/R_local/library")
 @
 \section{Introduction}
 A \textit{copula} is a multivariate distribution function with standard
@@ -300,7 +308,7 @@ package \pkg{nacopula} currently provides the most widely used families of
 Ali-Mikhail-Haq, Clayton, Frank, Gumbel, and Joe; see Table~\ref{tab:cop-families-psi}
 for the generators and their corresponding distribution functions. Except
 for Clayton's family, where we use a slightly simpler generator, these
-generators are the ones given in \citet[pp.\ 116]{nelsen2007}. Also note that for the families of Ali-Mikhail-Haq, Frank, and Joe, $F$ is discrete with support $\IN$. In this case, $\psi$ is of the form $\psi(t)=\sum_{k=1}^\infty p_k\exp(-kt)$, $t\in[0,\infty]$, where $(p_k)_{k=1}^\infty$ denotes the mass function corresponding to $F$. 
+generators are the ones given in \citet[pp.\ 116]{nelsen2007}. Also note that for the families of Ali-Mikhail-Haq, Frank, and Joe, $F$ is discrete with support $\IN$. In this case, $\psi$ is of the form $\psi(t)=\sum_{k=1}^\infty p_k\exp(-kt)$, $t\in[0,\infty]$, where $(p_k)_{k=1}^\infty$ denotes the mass function corresponding to $F$.
 
 These Archimedean copula families are provided as \code{"acopula"} \R\
 objects (for more information about the statistical software \R, see \citet[2.11.1]{r}), containing as slots the corresponding generator
@@ -488,15 +496,24 @@ The internal structure of this object%
 <<ex1-str>>=
 str(C3joe.5)  # str[ucture] of object
 @
-\pagebreak
-Figure \ref{fig:AC_Joe} visualizes 500 vectors of random variates (each in $[0,1]^3$) from this copula with a scatter-plot matrix.
-\begin{figure}[htbp]
-\centering
-<<ex1-splom, fig=TRUE, height=5>>=
+%NO more!\pagebreak
+Figure \ref{fig:AC_Joe} visualizes 500 vectors of random variates (each in $[0,1]^3$)
+from this copula with a scatter-plot matrix.  The \code{splom2()} function
+is a version of standard's \pkg{lattice} \code{splom()}, with the addition
+of using nice labels $U_1, U_2, \dots, U_d$ by default.
+<<ex1-U3>>=
 require(lattice)
 set.seed(1)
 dim(U3 <- rnacopula(500, C3joe.5))
-print(splom2(U3, cex = 0.4))
+@
+\begin{figure}[h!]
+\centering
+<<ex1-splom-def, eval=false>>=
+splom2(U3, cex = 0.4)
+<<ex1-splom, echo=FALSE, fig=TRUE, height=5>>=
+print(
+<<ex1-splom-def>>
+     )
 @
 \setcapwidth{\textwidth}%
   \caption{500 vectors of random variates following a trivariate Joe copula with (pairwise) Kendall's tau equal to 0.5.}
@@ -504,7 +521,7 @@ print(splom2(U3, cex = 0.4))
 \end{figure}
 
 The matrix of pairwise sample versions of Kendall's tau corresponding to the
- generated data are given by 
+ generated data are given by
 <<ex1-explore1>>=
 round(cor(U3, method="kendall"), 3)
 @
@@ -542,7 +559,7 @@ more realistic dependencies, can be modeled by a hierarchical structure of
 Archimedean copulas, obtained by plugging in Archimedean copulas into each
 other. In practical applications, this hierarchical structure is often naturally
 motivated, e.g., by different macroeconomic effects, political decisions, or
-consumer trends affecting the components of a random vector. 
+consumer trends affecting the components of a random vector.
 
 A $d$-dimensional copula $C$ is called \textit{nested Archimedean} if it is an
 Archimedean copula with arguments possibly replaced by other nested Archimedean
@@ -560,7 +577,7 @@ nested Archimedean copulas are summarized as \textit{nested} (or
 
 Note that the structure of a nested Archimedean copula can be depicted by a
 tree. For example, the three-dimensional nested Archimedean copula of Type
-(\ref{nac}) involving the generators $\psi_0$ and $\psi_1$, which is given by 
+(\ref{nac}) involving the generators $\psi_0$ and $\psi_1$, which is given by
 \begin{align*}
 	C(u_1,u_2,u_3)=C(u_1,C(u_2,u_3;\psi_1);\psi_0),
 \end{align*}
@@ -634,6 +651,11 @@ setClass("nacopula",
 i.e., by its root copula (slot \code{@copula}, a \code{"acopula"} object),
 a vector of indices of its ``direct components'' (slot \code{ @comp = 1 }
 for $u_1$ in the example), and a list of child copulas (slot \code{@childCops}).
+This \code{childCops} list is the tool to contain sub branches of the ``tree''
+of nested copulas, and will be empty, i.e., $=$\code{list()}, for the final
+nodes (``leaves'') of the tree. In the example, it will be of length one, containing
+a (non-nested) bivariate copula for components $u_2$ and $u_3$.
+
 The \code{outer_nacopula} is a version of the same class (i.e., it
 ``contains'' \code{nacopula} without any further slots), just with
 stricter validity checking, namely requiring that all components from all
@@ -647,11 +669,18 @@ setClass("outer_nacopula", contains = "nacopula",
         })
 \end{Sinput}
 \end{Schunk}
+The \code{onacopula()} function\footnote{in addition to \code{onacopula()},
+  there's \code{onacopulaL()} (``L'' for \textbf{L}ist) which requires the
+  more formal specification of the nesting structure by a \code{list}.}
+allows to specify (outer) \code{nacopula}s with convenient specification of
+the nesting structure \emph{and} parameters for each copula, using a ``formula''-like
+notation $C(\theta, c(i_1,\dots,i_c), list(C(..), \ldots, C(..)))$ similar
+to the mathematical notation above; for more, see its help page.
+%%\\
 For example, (one parametrization of) the three-dimensional example from
 Figure~\ref{fig:NAC_3d} is
 <<NAC_3d-ex>>=
-C3 <- onacopula("A", C(0.2, 1, C(0.8, 2:3)))
-C3
+( C3 <- onacopula("A", C(0.2, 1, C(0.8, 2:3))) )
 @
 This is a shortened form of the following.
 <<NAC_3d-ex2>>=
@@ -714,7 +743,7 @@ sufficient nesting condition if $\psi_i,\psi_j$ belong to different Archimedean
 families is usually more complicated, see, \citet{hofert2010c}. Such
 combinations of Archimedean families are therefore currently not implemented in
 the \R\ package \pkg{nacopula}.
- 
+
 \subsection{Sampling}
 If the nesting condition is fulfilled for all %% appearing
 nodes in the nested Archimedean structure, the
@@ -948,16 +977,21 @@ C_9_clayton
 Figure \ref{fig:NAC_Clayton} visualizes 500 sampled random vectors (each in $[0,1]^9$) from this copula
 (this involves our efficient procedure for exponentially tilted stable
 distributions) with a scatter-plot matrix. For plotting the data, we re-order the columns according to the same strength of dependence.
-\begin{figure}[htbp]
-\centering
-<<ex2-splom, fig=TRUE, height=7>>=
+<<U9-prepare-splom>>=
 set.seed(1)
-dim(U9 <- rnacopula(500, C_9_clayton))
-j <- allComp(C_9_clayton)
+U9 <- rnacopula(500, C_9_clayton)
+j <- allComp(C_9_clayton)# copula component "numbers": 1:9 but in "correct order"
 (vnames <- do.call(expression,
                    lapply(j, function(i) substitute( U[I], list(I=0+i)))))
-print(splom2(U9[, j], varnames= vnames,
-             cex = 0.4, pscales = 0))
+@
+\begin{figure}[hbp!]
+\centering
+<<ex2-splom-def, eval=FALSE>>=
+splom2(U9[, j], varnames= vnames, cex = 0.4, pscales = 0)
+<<ex2-splom, echo=FALSE, fig=TRUE, height=7>>=
+print(
+<<ex2-splom-def>>
+      )
 @
 \setcapwidth{\textwidth}%
   \caption{500 vectors of random variates following a nine-dimensional nested Clayton copula with three different levels of dependence.}
@@ -1053,12 +1087,18 @@ Now we sample 500 random variates from this copula and visualize the generated
 data with a scatter-plot matrix, see Figure \ref{fig:NAC_opClayton}. In contrast
 to Clayton copulas, note that outer power Clayton copulas allow for both lower
 and upper tail dependence.
-\begin{figure}[htbp]
-\centering
 %% dim(U3 <- rnacopula(500, opC3))
-<<opower-splom, fig=TRUE, height=5>>=
+<<U3-ex>>=
 U3 <- rnacopula(500, opC3) ; stopifnot(dim(U3) == c(500,3))
-print( splom2(U3, cex = 0.4) )
+@
+\begin{figure}[h!]
+\centering
+<<opower-splom-def, eval=false>>=
+splom2(U3, cex = 0.4)
+<<opower-splom, echo=FALSE, fig=TRUE, height=5>>=
+print(
+<<opower-splom-def>>
+      )
 @
   \setcapwidth{\textwidth}%
   \caption{500 vectors of random variates following a trivariate nested outer
