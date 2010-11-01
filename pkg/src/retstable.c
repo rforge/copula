@@ -260,27 +260,26 @@ double BdB0(double x,double alpha) {
 */
 void retstable_LD(double *St, const double V0[], double h, double alpha, int n)
 {
-    /**
+   /**
      * alpha == 1 => St corresponds to a point mass at V0 with Laplace-Stieltjes
      * transform exp(-V0*t)
-    */
-    if(alpha == 1.){
+   */
+   if(alpha == 1.){
 	for(int i = 0; i < n; i++) {
 		St[i] = V0[i];
 	}
 	return;
-    }
+   }
 
-    /**< compute variables not depending on V0 */
-    const double c1 = sqrt(M_PI_2);
-    const double c2 = 2.+c1;
-    double b = (1.-alpha)/alpha;
+   /**< compute variables not depending on V0 */
+   const double c1 = sqrt(M_PI_2);
+   const double c2 = 2.+c1;
+   double b = (1.-alpha)/alpha;
 
-    for(int i = 0; i < n; i++) { /**< for each of the n required variates */
+   for(int i = 0; i < n; i++) { /**< for each of the n required variates */
 
 	/**< set lambda for our parameterization */
-	double V0alpha = pow(V0[i],1./alpha);
-	double lambda = h*V0alpha;
+	double lambda_alpha = pow(h,alpha)*V0[i]; /**< Marius Hofert: work directly with lambda^alpha (numerically more stable for small alpha) */
 
 	/**
 	 * Apply the algorithm of Devroye (2009) to draw from
@@ -288,7 +287,7 @@ void retstable_LD(double *St, const double V0[], double h, double alpha, int n)
 	 * 	     lambda*I_{alpha != 1};1) with Laplace-Stieltjes transform
 	 * exp(-((lambda+t)^alpha-lambda^alpha))
 	*/
-	double gamma = pow(lambda,alpha)*alpha*(1.-alpha);
+	double gamma = lambda_alpha*alpha*(1.-alpha);
 	double sgamma = sqrt(gamma);
 	double c3 = c2* sgamma;
 	double xi = (1. + M_SQRT2 * c3)/M_PI; /**< according to John Lau */
@@ -315,8 +314,7 @@ void retstable_LD(double *St, const double V0[], double h, double alpha, int n)
 		}
 		double W = unif_rand();
 		double zeta = sqrt(BdB0(U,alpha));
-		double phi = pow(sgamma+alpha*zeta,1./alpha);
-		z = phi/(phi-pow(sgamma,1./alpha));
+		z = 1/(1-pow(1+alpha*zeta/sgamma,-1/alpha)); /**< Marius Hofert: numerically more stable for small alpha */
 		/**< compute rho */
 		double rho = M_PI*exp(-pow(lambda,alpha)*(1.-1. \
 							  /(zeta*zeta))) / \
@@ -351,7 +349,7 @@ void retstable_LD(double *St, const double V0[], double h, double alpha, int n)
 	    }
 	    E = -log(Z);
 	    /**< check rejection condition */
-	    c = a*(X-m)+lambda*(pow(X,-b)-pow(m,-b));
+		c = a*(X-m)+exp((1/alpha)*log(lambda_alpha)-b*log(m))*(pow(m/X,b)-1); /**< Marius Hofert: numerically more stable for small alpha */		
 	    if(X < m) c -= N_*N_/2.;
 	    else if(X > m+delta) c -= E_;
 
@@ -362,7 +360,7 @@ void retstable_LD(double *St, const double V0[], double h, double alpha, int n)
 	 * to those of the distribution corresponding to the Laplace-Stieltjes
 	 * transform exp(-V_0((h+t)^alpha-h^alpha)).
 	*/
-	St[i] = V0alpha / pow(X,b);
+	St[i] = exp(1/alpha*log(V0[i])-b*log(X)); /**< Marius Hofert: numerically more stable for small alpha */	
 
     } /**< end for */
     return;
