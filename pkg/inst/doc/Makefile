@@ -2,7 +2,7 @@
 
 ## need to get 'texclean' command
 
-DRIVERS = nacopula
+DRIVERS = nacopula-pkg
 #R_LIB = /usr/local/lib/R
 R_LIB = /usr/local/app/R/current
 #R_PROG = R-devel
