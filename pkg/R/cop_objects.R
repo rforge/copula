@@ -74,7 +74,26 @@ copAMH <-
 	## conditional distribution function C(v|u) of v given u
 	cCdf = function(v,u,theta){
             ifelse(v == 0, Inf,
-                   (1-theta*(1-v))/v*((1-theta)/(1-theta*(2-(u+v)+u*v)+theta^2*(1-u)*(1-v)))^2)
+                   (1-theta*(1-v))/v*((1-theta)/(1-theta*(2-(u+v)+u*v)+theta^2*
+                                                 (1-u)*(1-v)))^2)
+	},
+	## diagonal of the Archimedean copula
+	diag = function(u, theta, log = FALSE){
+	    d <- ncol(u)
+            power <- ((1-theta*(1-u))/u)^d-theta
+            if(log) log1p(-theta)-log(power) else (1-theta)/(power)
+	},
+	## density of the diagonal of the Archimedean copula
+	dDiag = function(u, theta, log = FALSE){
+            d <- ncol(u)
+            theta. <- d*(1-theta)^2
+            if(log){
+		log(theta.)+(d-1)*(log(u)+log(1-theta*(1-u)))-2*log(1-theta+
+                                                                    theta*u*
+                                                                    (1-u^(d-1)))
+            }else{
+		theta.*(u*(1-theta*(1-u)))^(d-1)/(1-theta*(1-u*(1-u^(d-1))))^2	
+            }
 	},
 	## density of the Archimedean copula
 	dAc = function(u,theta,MC,N,log = FALSE){ 
@@ -217,6 +236,27 @@ copClayton <-
             }
             mapply(one.d.args,u,v)
         },
+	## diagonal of the Archimedean copula
+	diag = function(u, theta, log = FALSE){
+	    d <- ncol(u)
+	    if(log){
+		(-1/theta)*log1p(d*copClayton@psiInv(u,theta))
+            }else{
+		copClayton@psi(d*copClayton@psiInv(u,theta),theta)
+            }
+        },
+        ## density of the diagonal of the Archimedean copula
+        dDiag = function(u, theta, log = FALSE){
+            d <- ncol(u)
+            theta. <- -1/theta
+            theta.. <- 1+theta
+            u. <- (1-1/d)*u^theta
+            if(log){
+                theta.*(log(d)+theta..*log1p(-u.))
+            }else{
+                (d*(1-u.)^theta..)^theta.
+            }
+        },
         ## density of the Archimedean copula
         dAc = function(u,theta,log = FALSE){
             stopifnot(is.matrix(u), all(0 < u, u <= 1))
@@ -271,11 +311,11 @@ copFrank <-
         ## absolute value of generator derivatives
         psiDAbs = function(t,theta,degree = 1,MC,N,log = FALSE){
             if(degree == 1){ # exact for degree == 1
-		e.m.th <- exp(-theta)
+                e.m.th <- exp(-theta)
                 p <- 1-e.m.th
-		l.p <- log1p(-e.m.th)
+                l.p <- log1p(-e.m.th)
                 expmt <- exp(-t)
-		if(log) -log(theta)+l.p-t-log1p(-p*expmt) else 1/theta*p*expmt/
+                if(log) -log(theta)+l.p-t-log1p(-p*expmt) else 1/theta*p*expmt/
                     (1-p*expmt)
             }else{
                 if(MC){ # approximation via MC
@@ -303,7 +343,7 @@ copFrank <-
         ## dV01 corresponding to LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
         V0 = function(n,theta) { rlog(n,-expm1(-theta)) },
         dV0 = function(x,theta,log = FALSE){
-	    if(any(x != (x <- floor(x + 0.5)))) warning("x must be integer; is rounded with floor(x+0.5) otherwise")
+            if(any(x != (x <- floor(x + 0.5)))) warning("x must be integer; is rounded with floor(x+0.5) otherwise")
             ## FIXME: dgeom, e.g., uses R_D_nonint_check() and R_D_forceint(): is that possible here as well?
             if(log){
                 x*log1p(-exp(-theta))-log(x*theta)
@@ -318,12 +358,12 @@ copFrank <-
             sapply(lapply(V0, rFFrank, theta0=theta0,theta1=theta1), sum)
         },
         dV01 = function(x,V0,theta0,theta1,log = FALSE){
-	    stopifnot(length(V0) == 1 || length(x) == length(V0), all(x >= V0))
+            stopifnot(length(V0) == 1 || length(x) == length(V0), all(x >= V0))
             alpha <- theta0/theta1
-	    e0 <- exp(-theta0)
-	    e1 <- exp(-theta1)
+            e0 <- exp(-theta0)
+            e1 <- exp(-theta1)
             lfactor <- x*log1p(-e1)-V0*log1p(-e0)
-	    ljoe <- copJoe@dV01(x,V0,theta0,theta1,TRUE)
+            ljoe <- copJoe@dV01(x,V0,theta0,theta1,TRUE)
             res <- lfactor+ljoe
             if(log) res else exp(res)
         },
@@ -332,12 +372,28 @@ copFrank <-
             one.d.args <- function(v,u){
                 e.v <- -expm1(-theta*v)
                 e.u <- -expm1(-theta*u)
-		denom <- -expm1(-theta)-e.u*e.v
-		if(denom == 0) Inf
+                denom <- -expm1(-theta)-e.u*e.v
+                if(denom == 0) Inf
                 e.v*(1-e.u)/denom
             }
             mapply(one.d.args,u,v)
         },
+	## diagonal of the Archimedean copula
+	diag = function(u, theta, log = FALSE){
+	    d <- ncol(u)
+            p <- -expm1(-theta)
+            log. <- -log1p(-p*(-expm1(-theta*u)/p)^d)
+	    if(log) -log(theta) + log(log.) else (1/theta)*log.
+	},
+	## density of the diagonal of the Archimedean copula
+	dDiag = function(u, theta, log = FALSE){
+	    d <- ncol(u)
+            u.theta <- u*theta
+            e.theta <- exp(-u.theta)
+            e. <- -expm1(-u.theta)
+            denom <- ((-expm1(-theta))/e.)^(d-1)-(1-e.theta)
+	    if(log) log(d)-u.theta-log(denom) else d*e.theta/denom
+	},
         ## density of the Archimedean copula
         dAc = function(u,theta,MC,N,log = FALSE){
             stopifnot(is.matrix(u), all(0 < u, u <= 1))
@@ -529,21 +585,34 @@ copGumbel <-
         cCdf = function(v,u,theta) {
             one.d.args <- function(v,u){
                 ## limiting cases
-		if(v == 0 && u == 0) NaN
-		else if(theta == 1){
-		    if(v == 1) 1
-		    if(v > 0 && v < 1 && u == 0) v
-		}
-		else if(v == 1) { if(u == 1) NaN else 0 }
-		else if(u == 0 && 0 < v && v < 1) 0
-		else {
-		    ## main part
-		    cop. <- onacopulaL("Gumbel",list(theta,1:2))
-		    (1+(log(u)/log(v))^theta)^(1/theta-1)*pnacopula(cop.,c(u,v))/u
-		}
+                if(v == 0 && u == 0) NaN
+                else if(theta == 1){
+                    if(v == 1) 1
+                    if(v > 0 && v < 1 && u == 0) v
+                }
+                else if(v == 1) { if(u == 1) NaN else 0 }
+                else if(u == 0 && 0 < v && v < 1) 0
+                else {
+                    ## main part
+                    cop. <- onacopulaL("Gumbel",list(theta,1:2))
+                    (1+(log(u)/log(v))^theta)^(1/theta-1)*pnacopula(cop.,c(u,v))/u
+                }
             }
             mapply(one.d.args,u,v)
         },
+	## diagonal of the Archimedean copula
+	diag = function(u, theta, log = FALSE){
+            d <- ncol(u)
+            d. <- d^(1/theta)
+	    if(log) d.*log(u) else u^d.
+	},
+	## density of the diagonal of the Archimedean copula
+	dDiag = function(u, theta, log = FALSE){
+	    d <- ncol(u)
+            alpha <- 1/theta
+            d. <- d^alpha
+	    if(log) alpha*log(d)+(d.-1)*log(u) else d.*u^(d.-1)
+	},
         ## density of the Archimedean copula
         dAc = function(u,theta,MC,N,log = FALSE){
             stopifnot(is.matrix(u), all(0 < u, u < 1))
@@ -665,14 +734,14 @@ copJoe <-
             V01
         },
         dV01 = function(x,V0,theta0,theta1,log = FALSE){
-	    l.x <- length(x)
+            l.x <- length(x)
             l.V0 <- length(V0)
             stopifnot(l.V0 == 1 || l.x == l.V0, all(x >= V0))
             alpha <- theta0/theta1
-	    res <- numeric(l.x)
-	    if(l.V0 == 1) V0 <- rep(V0,l.x)
+            res <- numeric(l.x)
+            if(l.V0 == 1) V0 <- rep(V0,l.x)
             V0.one <- V0 == 1
-	    res[V0.one] <- copJoe@dV0(x[V0.one],1/alpha,log) # V0 = 1 (numerically more stable)
+            res[V0.one] <- copJoe@dV0(x[V0.one],1/alpha,log) # V0 = 1 (numerically more stable)
             if(any(!V0.one)){
                 ## FIXME: general case; numerically critical, see, e.g., dV01(1000,500,3,5) < 0
                 one.d.args <- function(x.,V0.){
@@ -703,6 +772,23 @@ copJoe <-
             }
             mapply(one.d.args,u,v)
         },
+	## diagonal of the Archimedean copula
+	diag = function(u, theta, log = FALSE){
+            d <- ncol(u)
+            u. <- -(1-(1-(1-u)^theta)^d)^(1/theta)
+            if(log) log1p(u.) else 1+u.
+	},
+	## density of the diagonal of the Archimedean copula
+	dDiag = function(u, theta, log = FALSE){
+	    d <- ncol(u)
+            u. <- 1-(1-u)^theta
+            alpha <- 1/theta
+	    if(log){
+		log(d)+(alpha-1)*log1p(-u.^d)+(theta-1)*log1p(-u)+(d-1)*log(u.)
+            }else{
+		d*(1-u.^d)^(alpha-1)*(1-u)^(theta-1)*u.^(d-1)
+            }
+	},
         ## density of the Archimedean copula
         dAc = function(u,theta,MC,N,log = FALSE){
             stopifnot(is.matrix(u), all(0 <= u, u < 1))

@@ -316,7 +316,7 @@ void retstable_LD(double *St, const double V0[], double h, double alpha, int n)
 		double zeta = sqrt(BdB0(U,alpha));
 		z = 1/(1-pow(1+alpha*zeta/sgamma,-1/alpha)); /**< Marius Hofert: numerically more stable for small alpha */
 		/**< compute rho */
-		double rho = M_PI*exp(-pow(lambda,alpha)*(1.-1. \
+		double rho = M_PI*exp(-lambda_alpha*(1.-1. \
 							  /(zeta*zeta))) / \
 							  ((1.+c1)*sgamma/zeta \
 		   					  + z);
@@ -330,7 +330,7 @@ void retstable_LD(double *St, const double V0[], double h, double alpha, int n)
 
 	    double
 		a = pow(A_(U,alpha), 1./(1.-alpha)),
-		m = pow(b*lambda/a,alpha),
+		m = pow(b/a,alpha)*lambda_alpha,
 		delta = sqrt(m*alpha/a),
 		a1 = delta*c1,
 		a3 = z/a,

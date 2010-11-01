@@ -1,15 +1,13 @@
 library(nacopula)
 
 ### Results of using  timings() ================================================
+
 set.seed(1) # set seed
-
-
 
 n <- 10000
 taus1 <- c(0.05,(1:3)/10) # for AMH: cannot attain more concordance
-taus2 <- c((1:9)/10,0.95) # for Clayton: Problem of "LD" for too small alpha
-taus3 <- c(0.05,(1:7)/10) # for Frank: theta1 corresponding to tau > 0.8 is so large that 1-exp(-theta1) is 1 which leads to an error in rLog()
-taus4 <- c(0.05,(1:9)/10,0.95) # "whole" range
+taus2 <- c(0.05,(1:7)/10) # for Frank: theta1 corresponding to tau > 0.8 is so large that 1-exp(-theta1) is 1 which leads to an error in rLog()
+taus3 <- c(0.05,(1:9)/10,0.95) # "whole" range
 
 ## ==== AMH ====
 
@@ -25,9 +23,9 @@ timing(n,"AMH",taus1)
 ## V0:  uniformly fast
 ## V01: uniformly fast
 
-## ==== Clayton (todo: tau0 = 0.05) ====
+## ==== Clayton ====
 
-timing(n,"Clayton",taus2)
+timing(n,"Clayton",taus3)
 
 ##        0.1   0.2   0.3   0.4   0.5   0.6   0.7   0.8   0.9  0.95
 ## 0.1  0.003 0.056 0.061 0.059 0.059 0.065 0.063 0.060 0.056 0.052
@@ -43,11 +41,11 @@ timing(n,"Clayton",taus2)
 
 ## conclusion:
 ## V0:  uniformly fast
-## V01: faster for larger parameter; caution: does not work for tau0 = 0.05 (due to "LD" having numerical difficulties)
+## V01: faster for larger parameter (overall: fast enough)
 
-## ==== Frank (todo: theta1 large) ====
+## ==== Frank (todo: theta0 large) ====
 
-timing(n,"Frank",taus3)
+timing(n,"Frank",taus2)
 
 ##       0.05   0.1   0.2   0.3   0.4   0.5   0.6    0.7
 ## 0.05 0.001 0.121 0.153 0.114 0.112 0.113 0.115  0.112
@@ -65,7 +63,7 @@ timing(n,"Frank",taus3)
 
 ## ==== Gumbel ====
 
-timing(n,"Gumbel",taus4)
+timing(n,"Gumbel",taus3)
 
 ##       0.05   0.1   0.2   0.3   0.4   0.5   0.6   0.7   0.8   0.9  0.95
 ## 0.05 0.008 0.015 0.009 0.009 0.009 0.010 0.009 0.009 0.009 0.009 0.009
@@ -86,7 +84,7 @@ timing(n,"Gumbel",taus4)
 
 ## ==== Joe ====
 
-timing(n,"Joe",taus4)
+timing(n,"Joe",taus3)
 
 ##       0.05   0.1   0.2   0.3   0.4   0.5   0.6   0.7   0.8   0.9  0.95
 ## 0.05 0.001 0.368 0.361 0.409 0.362 0.376 0.368 0.371 0.374 0.369 0.377
