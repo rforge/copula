@@ -41,6 +41,8 @@ setClass("acopula",
                         V0 = "function",	  # of (n,theta) -- RNGenerator
 			dV0 = "function",          # of (x,theta,log=FALSE) -- density of F=LS^{-1}[psi]
                         cCdf = "function", 	  # of (v,u,theta) -- C(v|u)   
+                        diag = "function",        # of (u,theta,d,log=FALSE) --- diagonal of the Archimedean copula
+                        dDiag = "function",       # of (u,theta,d,log=FALSE) --- density of the diagonal of the Archimedean copula
 			dAc = "function",         # of (u,theta,MC,N,log = FALSE) -- density of an Arch. copula (MC, N not needed for Clayton)
 			K = "function", 	  # of (t,theta,d,MC,N) -- Kendall distribution function (MC, N not needed for Clayton)
                         tau = "function",	  # of (theta)
