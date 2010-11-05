@@ -2,7 +2,7 @@
 \alias{timing}
 \title{Timing for Sampling Nested Archimedean Copulas}
 \usage{
-timing(n, family, taus, digits = 3, debug = FALSE)
+timing(n, family, taus, digits = 3, verbose = FALSE)
 }
 \description{
   This function provides measurements of (user) run times for the frailty
@@ -23,7 +23,7 @@ timing(n, family, taus, digits = 3, debug = FALSE)
 	 	fulfilling the sufficient nesting condition, see \code{paraConstr} in
 	 	\code{\linkS4class{acopula}}.}
 	\item{digits}{The number of digits for the output (defaults to three).}
-	\item{debug}{If \code{TRUE}, timing output is generated while the random
+	\item{verbose}{If \code{TRUE}, timing output is generated while the random
 	 	variates are generated (defaults to \code{FALSE}).}
 }
 \value{

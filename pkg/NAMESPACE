@@ -29,7 +29,7 @@ exportClasses("acopula",
 ## Generics, functions and acopula - family objects defined in this package
 export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"getAcop"
-       ,"pnacopula", "rnacopula" ,"rnchild"
+       ,"dnacopula", "pnacopula", "rnacopula" ,"rnchild"
        ,"onacopula", "onacopulaL"
        ,"printNacopula"
        ,"interval"

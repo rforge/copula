@@ -22,12 +22,12 @@
 ##' @param family the (nested) Archimedean family to be timed
 ##' @param taus the sequence of Kendall's tau to be tested
 ##' @param digits number of digits for the output
-##' @param debug print current state of the timing during timing
+##' @param verbose print current state of the timing during timing
 ##' @return a (tau_0 x tau_1)-matrix with first column indicating the user run
 ##'         times for V0 and the other cells the run time for V01 corresponding
 ##'         to two given taus among "taus" based on the generated V0's
 ##' @author Marius Hofert
-timing <- function(n,family,taus,digits = 3,debug = FALSE){
+timing <- function(n,family,taus,digits = 3,verbose = FALSE){
 
     ## setup
     f <- function(x) format(round(x,digits),nsmall=digits,trim=TRUE,
@@ -45,12 +45,12 @@ timing <- function(n,family,taus,digits = 3,debug = FALSE){
     }else{ # l >= 2
 	for(i in 1:(l-1)){ # run over all theta0
             time.V0[i] <- system.time(V0 <- copFamily@V0(n,thetas[i]))[1]
-            if(debug) cat("V0:  tau_0 = ",f(taus[i]),"; time = ",f(time.V0[i]),
+            if(verbose) cat("V0:  tau_0 = ",f(taus[i]),"; time = ",f(time.V0[i]),
                           "s\n",sep="")
             for(j in (i+1):l){ # run over all theta1
                 time.V01[i,j] <- system.time(V01 <- copFamily@V01(V0,thetas[i],
                                                                   thetas[j]))[1]
-                if(debug) cat("V01: tau_0 = ",f(taus[i]),", tau_1 = ",
+                if(verbose) cat("V01: tau_0 = ",f(taus[i]),", tau_1 = ",
                               f(taus[j]),"; time = ",f(time.V01[i,j]),"s\n",
                               sep="")
             }

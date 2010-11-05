@@ -13,120 +13,129 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-#### Goodness-of-fit testing for (nested) Archimedean copulas
+#### Goodness-of-fit testing for nested Archimedean copulas
 
-##' Transforms U[0,1]^d vectors of random variates to U[0,1] distributed random
-##' variates
-##' @param U matrix of random variates to be transformed
+##' Transforms supposedly U[0,1]^d distributed vectors of random variates to 
+##' U[0,1]-distributed variates to check uniformity in a one-dimensional setup
+##' @param u matrix of random variates to be transformed
 ##' @param method either "log" (map to an Erlang distribution) or "normal" (map
-##' 	to a chi-square distribution)
-##' @return U[0,1] distributed variates (the Erlang or chi-square cdf is applied)
+##' 	   to a chi-square distribution)
+##' @return the supposedly U[0,1] distributed variates 
 ##' @author Marius Hofert
-tgofU <- function(U,method="log"){
-    d <- ncol(U)
-    switch(method,
-           "log" = pgamma(rowSums(-log(U)),shape=d),
-           "normal" = pchisq(rowSums(pnorm(U)^2),d),
-           stop("wrong choice of method for tgofU()"))
+g01 <- function(u, method = c("log","normal")){
+    d <- ncol(u)
+    u. <- switch(method,
+                 "log" = { pgamma(rowSums(-log(u)),shape=d) },
+                 "normal" = { pchisq(rowSums(pnorm(u)^2),d) },
+                 stop("wrong choice of method"))
+    ## check U[0,1] of u.
+    ad.test(u.)
 }
 
-##' Transforms d-dimensional vectors of random variates following the given
-##' Archimedean copula (with specified parameter) to U[0,1]^d vectors of random
-##' variates
-##' @param X matrix of random variates 
-##' @param cop acopula with specified parameter theta
+##' Transforms vectors of random variates following the given nested Archimedean 
+##' copula (with specified parameters) to U[0,1]^d vectors of random variates
+##' @param x data matrix
+##' @param theta parameter theta
 ##' @param do.pseudo boolean indicating whether to compute the pseudo-observations
-##' @return matrix of the same dimension as X
+##' @param MC whether or not K is evaluated by Monte Carlo simulation
+##' @param N approximation parameter for series truncation; sample size for MC
+##' @return matrix of supposedly U[0,1]^d realizations
 ##' @author Marius Hofert
-tacopula <- function(X,cop,do.pseudo=TRUE){
-    stopifnot(length(d <- dim(X)) == 2, (d <- d[2]) >= 2)
-    U <- if(do.pseudo) pobs(X) else X
-    theta <- cop@theta
-    psiI.U <- cop@psiInv(U,theta)
-    tU <- U # matrix(,nrow=n,ncol=d)
-    sum.psiI.U <- psiI.U[,1]
+gnacopulatrafo <- function(x, cop, do.pseudo = FALSE, MC = FALSE, N){
+    stopifnot((d <- ncol(x)) >= 2)
+    if(cop@childCops != list()) stop("currently, only Archimedean copulas are provided")
+    u <- if(do.pseudo) pobs(x) else x
+    psiI <- cop@psiInv(u,cop@theta)
+    denom <- psiI[,1]
+    res <- matrix(, nrow = nrow(u), ncol = d)
     ## compute first d-1 components of the transformation
     for(j in seq_len(d-1)) {
-        sum.. <- sum.psiI.U
-        sum.psiI.U <- sum.. + psiI.U[,j+1]
-        tU[,j] <- (sum../sum.psiI.U)^j
+        num <- denom
+        denom <- num + psiI[,j+1]
+        res[,j] <- (num/denom)^j
     }
     ## compute dth component
-    tU[,d] <- cop@K(sum.psiI.U, theta, d)
-    ## return transformed data
-    tU
+    res[,d] <- if(cop@name == "Clayton"){
+	cop@K(denom, cop@theta, d)
+    }else{
+        cop@K(denom, cop@theta, d, MC, N)
+    }
+    ## return transformed data 
+    res
 }
 
-##' Recursively transforms d-dimensional vectors of random variates following the given
-##' nested Archimedean copula (with specified parameters) to U[0,1]^d vectors
-##' of random variates
-##' @param X matrix of random variates
-##' @param cop nacopula with specified parameters
-##' @param do.pseudo boolean indicating whether whether to compute the pseudo-observations
-##' @return tree of matrices of the same structure as cop
-##' @author Marius Hofert
-                                        # tnacopula <- function(X,cop,do.pseudo=TRUE){
-                                        #     TODO
-                                        # First trial:
-                                        # U <- if(do.pseudo) pobs(X) else X
-                                        #     for all children do {
-                                        #         call procedure again
-                                        #  
-                                        #    }
-                                        # consider parent
-                                        # 
-                                        # }
-
 ##' Conducts a goodness-of-fit test for the given H0 copula cop based on the 
-##' data X
-##' @title Goodness-Of-Fit Test for a Given (H0) Copula and Data
-##' @param X matrix of data (for do.pseudo=FALSE, X should be data from a copula)
-##' @param cop acopula with specified H0 parameter theta
-##' @param do.pseudo boolean indicating whether whether to compute the pseudo-observations
-##' @param N number of bootstrap replications
-##' @param method applied for the mapping to one-dimensional data; either "log"
-##'	(map to an Erlang distribution) or "normal" (map to a chi-square distribution)
-##' @return p-value -- MM: FIXME: Rather "htest" object
+##' data x
+##' @param x data matrix
+##' @param cop nacopula with specified H0 parameters
+##' @param do.pseudo boolean indicating whether to compute the pseudo-observations
+##' @param ad.test boolean indicating whether g01 is applied to the transformed 
+##'        data or if just the transformed data is returned
+##' @param method for Anderson-Darling, see g01
+##' @param MC whether or not K is evaluated by Monte Carlo simulation
+##' @param N approximation parameter for series truncation; sample size for MC
+##' @param bootstrap whether or not a bootstrap is applied
+##' @param M number of bootstrap replications
+##' @param estimation.method estimation method, see enacopula
+##' @param verbose if TRUE, the progress of the bootstrap is displayed
+##' @return either a matrix of supposedly U[0,1]^d realizations is returned
+##'         (the default) or the ad.test result
+##' FIXME: return htest object...
 ##' @author Marius Hofert
-gofacopula <- function(X,cop,do.pseudo=TRUE,N=1000,method="log", verbose=TRUE)
-{
-    if(do.pseudo){ # pseudo-observations are computed and bootstrap is used
-        ## setup for bootstrap
-	n <- nrow(X)
-	d <- ncol(X)
-	U. <- pobs(X) # compute pseudo-observations
-	theta.hat <- mleacopula(U.,cop) # estimate the copula parameter
-	cop.hat <- onacopulaL(cop@family,list(theta.hat,1:d)) # copula with estimated parameter
-	U.. <- tacopula(U.,cop.hat,do.pseudo) # transform the data with the estimated parameter
-	Y <- tgofU(U..,method) # map to one-dimensional data
-	AD.stat <- ad.test(Y)$statistic # compute the Anderson-Darling test statistic
-	## conduct the parametric bootstrap
-	if(verbose) {
-            cat(sprintf("parametric bootstrap (N = %d):\n",N))
-            N. <- N %/% 10
-        }
-	AD.vec <- numeric(N)
+gnacopula <- function(x, cop, do.pseudo = TRUE, ad.test = TRUE, 
+                      method = c("log","normal"), MC = FALSE, N, bootstrap = TRUE, 
+                      M = 1000, estimation.method = c("mle.tau.mean",
+                                "mle.theta.mean","mle.diag","smle","tau.tau.mean",
+                                "tau.theta.mean","dmle","beta"),verbose = TRUE){
+    
+    stopifnot((d <- ncol(x)) >= 2)
+    if(cop@childCops != list()) stop("currently, only Archimedean copulas are provided")		
+    u <- if(do.pseudo) pobs(x) else x
+    if(bootstrap && !ad.test) stop("bootstrap requires ad.test == TRUE")
+
+    if(bootstrap){ 
+	
+	## bootstrap setup
+	n <- nrow(u)
+	## although not recommended, bootstrap can be used with do.pseudo == FALSE
+	## in which case the data should come from the copula directly (so at least
+	## it should be between 0 and 1)
+	stopifnot(all(0 <= u, u <= 1))
+	## estimate the parameter by the provided method 
+	theta.hat <- enacopula(u,cop,estimation.method,N,do.pseudo = do.pseudo) 
+	## define the copula with theta.hat
+	cop.hat <- onacopulaL(cop@family,list(theta.hat,1:d))
+	## transform the data with the copula with estimated parameter and compute
+	## the AD test result
+	AD <- g01(gnacopulatrafo(u, cop.hat, do.pseudo = do.pseudo, MC = MC, N), 
+                  method = method)
+
+        ## conduct the parametric bootstrap
+	AD.vec <- numeric(N) # vector of AD test statistics
 	for(k in 1:N){
-            ## progress output
-            if(verbose & k%%N. == 1)
-                cat(sprintf("bootstrap progress: %3.0f%%", k*100/N))
+            
             ## do work
-            U <- rnacopula(n,cop.hat) # sample the copula with estimated parameter
-            U.star <- pobs(U) # compute pseudo-observations
-            theta.hat.star <- mleacopula(U.star,cop) # estimate the copula parameter
-            cop.hat.star <- onacopulaL(cop@family,list(theta.hat.star,1:d)) # copula with estimated parameter
-            U..star <- tacopula(U.star,cop.hat.star,do.pseudo) # transform the data with the estimated parameter
-            Y.star <- tgofU(U..star,method) # map to one-dimensional data
-            AD.vec[k] <- ad.test(Y.star)$statistic # compute the Anderson-Darling test statistic
-            if(verbose) ## progress output
-                cat(",", if(k%%N. == 0) "\n")
+            u. <- rnacopula(n,cop.hat) # sample the copula with estimated parameter
+            u.boot <- if(do.pseudo) pobs(u.) else u. # compute pseudo-observations if do.pseudo == TRUE
+            theta.hat.boot <- enacopula(u.boot,cop,estimation.method,N,
+                                        do.pseudo = do.pseudo)  # estimate the copula parameter
+            cop.hat.boot <- onacopulaL(cop@family,list(theta.hat.boot,1:d)) # copula with estimated parameter
+            AD.vec[k] <- g01(gnacopulatrafo(u.boot, cop.hat.boot, do.pseudo = 
+                                            do.pseudo, MC = MC, N), method = method)
+
+            ## progress output
+            if(verbose) cat("bootstrap progress:",format(round(k*100/N),nsmall = 3,
+                                                         trim = TRUE,
+                                                         scientific = FALSE)," %\n",
+                            sep="")
+            
 	}
 	## estimate p-value
-	mean(AD.vec > AD.stat)
-    }else{ # if data comes from a copula directly (no bootstrap is used)
-	U <- tacopula(X,cop,do.pseudo) # transform the data to U[0,1]^d data under H0
-        Y <- tgofU(U,method) # transform the U[0,1]^d data under H0 to U[0,1] data
-        ad.test(Y)$p.value # compute the Anderson-Darling test statistic
+	mean(AD.vec > AD)
+	
+    }else{ # bootstrap == FALSE
+	gnacopulatrafo(u, cop, do.pseudo = FALSE, MC = MC, N = N)
     }
+    
 }
 

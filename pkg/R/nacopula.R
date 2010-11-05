@@ -37,7 +37,7 @@ dnacopula <- function(x,u,theta,MC = FALSE,N,log = FALSE){
 	"AMH" = {cop@dAc(u,theta,MC,N = if(MC) 20000 else 1000,log)},
 	"Clayton" = {cop@dAc(u,theta,log)},
 	"Frank" = {cop@dAc(u,theta,MC,N = if(MC) 20000 else 1000,log)},
-	"Gumbel" = {cop@dAc(u,theta,MC,N = if(MC) 20000 else 5000,log)},
+	"Gumbel" = {cop@dAc(u,theta,MC,N = if(MC || ncol(u) > 10) 20000 else 5000,log)},
 	"Joe" = {cop@dAc(u,theta,MC,N = if(MC) 20000 else 5000,log)}, 
 	{stop("wrong Archimedean family provided")})
 }

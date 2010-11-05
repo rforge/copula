@@ -13,7 +13,7 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-#### Estimation for Archimedean copulas
+#### Estimation for nested Archimedean copulas
 
 ## ==== Blomqvist's beta =======================================================
 
@@ -33,6 +33,7 @@ beta.hat <- function(u, cop, scaling = TRUE){
     prod2 <- apply(!less.u,1,all)
     sum.prod <- prod1 + prod2
     b <- mean(sum.prod)
+    d <- ncol(u)
     if(scaling) 2^(d-1)/(2^(d-1)-1)*(b-2^(1-d)) else b
 }
 
@@ -73,7 +74,7 @@ ebeta <- function(u,cop,...){
     ## optimize
     ## for the initial value, use DMLE for Gumbel and convert the parameters via tau
     start <- cop@tauInv(copGumbel@tau(edmle(u,copGumbel,...)))
-    optimx(start,distance,lower = min(cop@paraInterval),upper = max(
+    optimx::optimx(start,distance,lower = min(cop@paraInterval),upper = max(
                                                         cop@paraInterval),...)
 
 }
@@ -131,7 +132,7 @@ edmle <- function(u,cop,...){
         }
         ## optimize
 	mDiagLogL <- function(theta) sum(cop@dDiag(x,theta,d,log = TRUE)) # -log-Likelihood of the diagonal
-	optimx(start,mDiagLogL,lower=min(cop@paraInterval),upper=max(
+	optimx::optimx(start,mDiagLogL,lower=min(cop@paraInterval),upper=max(
                                                            cop@paraInterval),...) 
     }
 
@@ -162,7 +163,7 @@ emle <- function(u,cop,method = c("mle","smle"),N,initial = c("tau.mean",
     ## optimize
     mLogL <- function(theta) -sum(dnacopula(u,cop,theta,MC <- if(method == "smle") 
                                             TRUE else FALSE, N, log = TRUE)) # -log-Likelihood 
-    optimx(start,mLogL,lower=min(cop@paraInterval),upper=max(
+    optimx::optimx(start,mLogL,lower=min(cop@paraInterval),upper=max(
                                                    cop@paraInterval),...)
 }
 
