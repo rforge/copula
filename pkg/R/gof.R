@@ -15,15 +15,6 @@
 
 #### Goodness-of-fit testing for (nested) Archimedean copulas
 
-##' Computes the pseudo-observations for the given data matrix
-##' @param X matrix of random variates to be converted to pseudo-observations
-##' @return pseudo-observations (matrix of the same dimensions as X)
-##' @author Marius Hofert
-pobs <- function(X){
-    n <- nrow(X)
-    apply(X,2,function(x) rank(x)/(n+1))
-}
-
 ##' Transforms U[0,1]^d vectors of random variates to U[0,1] distributed random
 ##' variates
 ##' @param U matrix of random variates to be transformed

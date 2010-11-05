@@ -144,38 +144,80 @@ edmle <- function(u,cop,...){
 ##' @param cop acopula to be estimated
 ##' @param method estimation method
 ##' @param N approximation parameter for MLE; sample size for SMLE
+##' @param initial method used for finding an initial value (either etau with 
+##' 	   option "tau.mean" or "theta.mean" (denoted by "tau.mean" and "tau.mean", 
+##'	   respectively), or edmle (denoted by "diag"))
 ##' @param ... additional parameters for optimx()
 ##' @return (simulated) maximum likelihood estimator
 ##' @author Marius Hofert
-emle <- function(u,cop,method = c("mle","smle"),N,...){
-
-    ## compute initial value based on pairwise Kendall's tau
-    start <- etau(u,cop,method="tau.mean")
+emle <- function(u,cop,method = c("mle","smle"),N,initial = c("tau.mean",
+                                                  "theta.mean","diag"),...){
+    ## compute initial value based on either etau or edmle
+    start <- switch(initial,
+                    tau.mean = {etau(u,cop,method="tau.mean")},
+                    theta.mean = {etau(u,cop,method="theta.mean")},
+                    diag = {edmle(u,cop,...)},
+                {stop("wrong argument initial")})
     
     ## optimize
-    mLogL <- function(theta) -sum(dacopula(u,cop,theta,MC <- if(method == "smle") 
-                                           TRUE else FALSE, N, log = TRUE)) # -log-Likelihood 
+    mLogL <- function(theta) -sum(dnacopula(u,cop,theta,MC <- if(method == "smle") 
+                                            TRUE else FALSE, N, log = TRUE)) # -log-Likelihood 
     optimx(start,mLogL,lower=min(cop@paraInterval),upper=max(
                                                    cop@paraInterval),...)
 }
 
 ## ==== Estimation wrapper =====================================================
 
-## todo: schreibe dacopula
-## todo: auch in gof noch ueberall Variablen "klein schreiben"
-
-##' Computes different parameter estimators for an Archimedean copula
-##' @param x matrix of realizations following the copula
-##' @param cop acopula to be estimated
-##' @param method estimation method
-##' @return estimator
+##' Computes the (scaled) pseudo-observations for the given data matrix
+##' @param x matrix of random variates to be converted to pseudo-observations
+##' @return pseudo-observations (matrix of the same dimensions as x)
 ##' @author Marius Hofert
-eacopula <- function(x,cop,method="MLE",do.pseudo=FALSE){
-                                        # stopifnot(check that cop is acopula, check x, apply pobs...)
-    ## remark: this is not optimal yet due to the following reasons:
-    ## log(density()) evaluates the setup steps "not depending on theta" 
-    ## 	   for every call---this is inefficient
+pobs <- function(x) apply(x,2,rank)/(nrow(x)+1) 
 
-    
-                                        # optimize(-cop@logDensity,interval,tol=0.001)$minimum
+##' Computes different parameter estimates for a nested Archimedean copula
+##' @param x data matrix
+##' @param cop nacopula to be estimated
+##' @param method estimation method; can be
+##'        "mle.tau.mean"     MLE with initial value found by averaged pairwise Kendall's tau       	
+##'        "mle.theta.mean"   MLE with initial value found by Kendall's tau estimators averaged
+##'        "mle.diag"         MLE with initial value found via DMLE
+##'        "smle.tau.mean"    SMLE with initial value found by averaged pairwise Kendall's tau       
+##'        "smle.theta.mean"  SMLE with initial value found by Kendall's tau estimators averaged
+##'        "smle.diag"        SMLE with initial value found via DMLE
+##'        "tau.tau.mean"     averaged pairwise Kendall's tau estimator 
+##'        "tau.theta.mean"   average of Kendall's tau estimators
+##'        "dmle"             MLE based on the diagonal
+##'        "beta"             multivariate Blomqvist's beta estimator
+##' @param ... additional parameters for optimx()
+##' @return estimator according to the chosen method
+##' @author Marius Hofert
+enacopula <- function(x,cop,method = c("mle.tau.mean","mle.theta.mean","mle.diag",
+                            "smle","tau.tau.mean","tau.theta.mean","dmle","beta"),
+                      N,do.pseudo = FALSE,...){
+
+    ## setup cop
+    if(class(cop) != "outer_nacopula"){
+	stop("cop has to be of class outer_nacopula")
+    }
+    if(cop@childCops != list()){
+	stop("currently, only Archimedean copulas are provided")
+    }
+
+    ## setup x
+    if(do.pseudo) u <- pobs(x) else u <- x
+
+    ## main part
+    switch(method,
+           mle.tau.mean = {emle(u,cop,"mle",N,"tau.mean",...)},
+           mle.theta.mean = {emle(u,cop,"mle",N,"theta.mean",...)},
+           mle.diag = {emle(u,cop,"mle",N,"diag",...)},
+           smle.tau.mean = {emle(u,cop,"smle",N,"tau.mean",...)},
+           smle.theta.mean = {emle(u,cop,"smle",N,"theta.mean",...)},
+           smle.diag = {emle(u,cop,"smle",N,"diag",...)},
+           tau.tau.mean = {etau(u,cop,"tau.mean",...)},
+           tau.theta.mean = {etau(u,cop,"theta.mean",...)},
+           dmle = {edmle(u,cop,...)},
+           beta = {ebeta(u,cop,...)},
+       {stop("wrong estimation method")})
+
 }	

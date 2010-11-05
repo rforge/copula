@@ -90,7 +90,8 @@
  		\code{u}, and \code{theta} which computes the bivariate conditional copula
 		function at \code{v} given \code{u}, i.e., \eqn{C(v\vert u)}{C(v|u)}.}
 	 \item{\code{diag}:}{The copula diagonal.}
-	 \item{\code{dDiag}:}{The density of the copula diagonal (note that the diagonal of a copula is a cumulative distribution function).}
+	 \item{\code{dDiag}:}{The density of the copula diagonal (note that the
+	 	diagonal of a copula is a cumulative distribution function).}
  	 \item{\code{dAc}:}{A \code{\link{function}} which computes the
       logarithm of the density \eqn{c} for the Archimedean family under
       consideration, given by
