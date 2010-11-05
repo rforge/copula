@@ -16,6 +16,32 @@
 #### Implementation of function evaluations and random number generation for
 #### nested Archimedean copulas
 
+##' Returns the copula density at u
+##' Basically, this is a wrapper based on the slot "dAc" of the provided families
+##' which chooses some default values of the parameters
+##' warning / FIXME: good default values depend on theta, the dimension, and even
+##'                  the evaluation point 
+##' @param x nacopula
+##' @param u argument of the copula x
+##' @param theta copula parameter
+##' @param MC TRUE if the derivatives of order > 1 should be evaluated by Monte Carlo
+##' @param N approximation parameter for MC = FALSE; sample size for MC = TRUE
+##' @param log if TRUE, the log-density is evaluated
+##' @author Marius Hofert
+dnacopula <- function(x,u,theta,MC = FALSE,N,log = FALSE){
+    if(x@childCops != list()){
+        stop("currently, only Archimedean copulas are provided")
+    }
+    cop <- x@copula
+    switch(cop@name,
+	"AMH" = {cop@dAc(u,theta,MC,N = if(MC) 20000 else 1000,log)},
+	"Clayton" = {cop@dAc(u,theta,log)},
+	"Frank" = {cop@dAc(u,theta,MC,N = if(MC) 20000 else 1000,log)},
+	"Gumbel" = {cop@dAc(u,theta,MC,N = if(MC) 20000 else 5000,log)},
+	"Joe" = {cop@dAc(u,theta,MC,N = if(MC) 20000 else 5000,log)}, 
+	{stop("wrong Archimedean family provided")})
+}
+
 ##' Returns the copula value at a certain vector u
 ##' @param x nacopula
 ##' @param u argument of the copula x
@@ -140,9 +166,9 @@ if(FALSE) { # evaluate the following into your R session if you need debugging:
 ##' @return a valid outer_nacopula object
 ##' @author Martin Maechler
 onacopula <- function(family, nacStructure) {
-## , envir = ... , enclos=parent.frame() or
-## , envir=environment()
-##
+    ## , envir = ... , enclos=parent.frame() or
+    ## , envir=environment()
+    ##
 ### FIXME: base this on  onacopulaL() -- replacing nacStructure by nacList
 ### ----- : (1) replacing  C() with list() *AND* by
 ###         (2) wrapping the 3rd argument with list(.) if it's not already
