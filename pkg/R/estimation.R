@@ -83,22 +83,22 @@ ebeta <- function(u,cop,...){
 ##' Compute pairwise Kendall's tau estimator for Archimedean copulas 
 ##' @param u matrix of realizations following the copula
 ##' @param cop acopula to be estimated
-##' @param method mean.tau indicates that the average of the sample versions of 
+##' @param method tau.mean indicates that the average of the sample versions of 
 ##'               Kendall's tau are computed first and then theta is determined; 
-##'               mean.theta stands for first computing all Kendall's tau 
+##'               theta.mean stands for first computing all Kendall's tau 
 ##'               estimators and then returning the mean of these estimators 
 ##' @param ... additional arguments to cor()
 ##' @return averaged pairwise cor() estimators
 ##' @author Marius Hofert
-etau <- function(u,cop,method = c("mean.tau","mean.theta"),...){
+etau <- function(u,cop,method = c("tau.mean","theta.mean"),...){
     
     tau.hat.mat <- cor(u,method="kendall",...) # matrix of pairwise tau()
     tau.hat <- tau.hat.mat[upper.tri(tau.hat.mat)] # all tau hat's
     switch(method,
-           "mean.tau" = {
+           "tau.mean" = {
                cop@tauInv(mean(tau.hat)) # Kendall's tau corresponding to the mean of the tau hat's
            },
-           "mean.theta" = {
+           "theta.mean" = {
                mean(cop@tauInv(tau.hat)) # mean of the Kendall's tau
            },
        {stop("wrong method")})
@@ -150,7 +150,7 @@ edmle <- function(u,cop,...){
 emle <- function(u,cop,method = c("mle","smle"),N,...){
 
     ## compute initial value based on pairwise Kendall's tau
-    start <- etau(u,cop,method="mean.tau")
+    start <- etau(u,cop,method="tau.mean")
     
     ## optimize
     mLogL <- function(theta) -sum(dacopula(u,cop,theta,MC <- if(method == "smle") 

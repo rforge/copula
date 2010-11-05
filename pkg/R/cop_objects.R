@@ -32,7 +32,7 @@ copAMH <-
         psi = function(t,theta) { (1-theta)/(exp(t+0)-theta) },
         psiInv = function(t,theta) { log((1-theta*(1-t))/t) },
 	## absolute value of generator derivatives
-	psiDAbs = function(t,theta,degree = 1,MC,N,log = FALSE){ 
+	psiDAbs = function(t,theta,degree = 1,MC = FALSE,N,log = FALSE){ 
             if(degree == 1){ # exact for degree == 1
                 expmt <- exp(-t)
 		th.expmt <- theta*expmt
@@ -94,7 +94,7 @@ copAMH <-
             }
 	},
 	## density of the Archimedean copula
-	dAc = function(u,theta,MC,N,log = FALSE){ 
+	dAc = function(u,theta,MC = FALSE,N,log = FALSE){ 
             stopifnot(is.matrix(u), all(0 < u, u <= 1))
             if(theta == 0) res <- rep(0,nrow(u))
             if((d <- ncol(u)) == 2){ # d == 2
@@ -129,7 +129,7 @@ copAMH <-
             if(log) res else exp(res)
 	},
 	## Kendall distribution function
-	K = function(t, theta, d, MC, N){
+	K = function(t, theta, d, MC = FALSE, N){
             stopifnot(length(theta) == 1, length(d) == 1)
             if(d==1) { # exact for d == 1
                 t
@@ -305,7 +305,7 @@ copFrank <-
             ## == -log((exp(-theta*t)-1)/(exp(-theta)-1))
         },
         ## absolute value of generator derivatives
-        psiDAbs = function(t,theta,degree = 1,MC,N,log = FALSE){
+        psiDAbs = function(t,theta,degree = 1,MC = FALSE,N,log = FALSE){
             if(degree == 1){ # exact for degree == 1
                 e.m.th <- exp(-theta)
                 p <- 1-e.m.th
@@ -389,7 +389,7 @@ copFrank <-
 	    if(log) log(d)-u.theta-log(denom) else d*e.theta/denom
 	},
         ## density of the Archimedean copula
-        dAc = function(u,theta,MC,N,log = FALSE){
+        dAc = function(u,theta,MC = FALSE,N,log = FALSE){
             stopifnot(is.matrix(u), all(0 < u, u <= 1))
             l.theta <- log(theta)
             if((d <- ncol(u)) == 2){ # d == 2
@@ -422,7 +422,7 @@ copFrank <-
             if(log) res else exp(res)	
         },
         ## Kendall distribution function
-        K = function(t, theta, d, MC, N){
+        K = function(t, theta, d, MC = FALSE, N){
             stopifnot(length(theta) == 1)
             if(d==1){                       # exact for d == 1
                 t
@@ -489,7 +489,7 @@ copGumbel <-
         psi = function(t,theta) { exp(-t^(1/theta)) },
         psiInv = function(t,theta) { (-log(t+0))^theta },
         ## absolute value of generator derivatives
-        psiDAbs = function(t,theta,degree = 1,MC,N,log = FALSE){
+        psiDAbs = function(t,theta,degree = 1,MC = FALSE,N,log = FALSE){
             n <- length(t)
             if(degree == 1){ # exact for degree == 1
                 alpha <- 1/theta
@@ -606,7 +606,7 @@ copGumbel <-
 	    if(log) alpha*log(d)+(d.-1)*log(u) else d.*u^(d.-1)
 	},
         ## density of the Archimedean copula
-        dAc = function(u,theta,MC,N,log = FALSE){
+        dAc = function(u,theta,MC = FALSE,N,log = FALSE){
             stopifnot(is.matrix(u), all(0 < u, u < 1))
             if(theta == 1) res <- rep(0,nrow(u))
             u. <- rowSums(copGumbel@psiInv(u,theta))
@@ -623,7 +623,7 @@ copGumbel <-
             if(log) res else exp(res)
         },
         ## Kendall distribution function
-        K = function(t, theta, d, MC, N) {
+        K = function(t, theta, d, MC = FALSE, N) {
             stopifnot(length(theta) == 1, length(d) == 1)
             if(d==1){                   # exact for d == 1
                 t
@@ -679,7 +679,7 @@ copJoe <-
         },
         psiInv = function(t,theta) { -log1p(-(1-t)^theta) },
         ## absolute value of generator derivatives
-        psiDAbs = function(t,theta,degree = 1,MC,N,log = FALSE){
+        psiDAbs = function(t,theta,degree = 1,MC = FALSE,N,log = FALSE){
             alpha <- 1/theta
             if(degree == 1){ # exact for degree == 1
                 expmt <- exp(-t)
@@ -780,7 +780,7 @@ copJoe <-
             }
 	},
         ## density of the Archimedean copula
-        dAc = function(u,theta,MC,N,log = FALSE){
+        dAc = function(u,theta,MC = FALSE,N,log = FALSE){
             stopifnot(is.matrix(u), all(0 <= u, u < 1))
             alpha <- 1/theta
             if((d <- ncol(u)) == 2){ # d == 2
@@ -815,7 +815,7 @@ copJoe <-
             if(log) res else exp(res)
         },
         ## Kendall distribution function
-        K = function(t,theta,d,MC,N){
+        K = function(t,theta,d,MC = FALSE,N){
             stopifnot(length(theta) == 1, length(d) == 1)
             if(d==1){ # exact for d == 1
                 t

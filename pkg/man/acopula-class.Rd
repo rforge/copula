@@ -26,14 +26,18 @@
  	   and its inverse (\code{\link{function}}).}
     \item{\code{psiDAbs}:}{A \code{\link{function}} which computes the absolute
       value of the derivative of the generator \eqn{\psi}{psi} for the given
- 		parameter \code{theta} and of the given \code{degree} (defaults to 1). If 
- 		the boolean parameter \code{MC} is \code{FALSE} a series representation
- 		for the derivative is used; otherwise, the derivative is evaluated by
- 		Monte Carlo simulation. The parameter \code{N} denotes
+ 		parameter \code{theta} and of the given \code{degree} (defaults to 1).
+ 		Note that there is not loss in information since the derivatives alternate
+ 		in sign so that the generator derivative itself can be accessed with
+ 		(-1)^\code{degree}\code{psiDAbs}. If 
+ 		the boolean parameter \code{MC} is \code{FALSE} (the default) a series
+ 		representation for the derivative is used; otherwise, the derivative is
+ 		evaluated by Monte Carlo simulation. The parameter \code{N} denotes
  		the truncation point for the series representation if \code{MC} is
-      \code{FALSE} and the number of variates to be drawn if \code{MC} is
-      \code{TRUE}. Note that both \code{MC} and \code{N} do not exist for
- 		Clayton's Archimedean family since all derivatives can be given explicitly
+      \code{FALSE} (note that a good choice of \code{N} depends on \code{theta})
+ 		and the number of variates to be drawn if \code{MC} is \code{TRUE}. Both
+ 		\code{MC} and \code{N} do not exist for Clayton's Archimedean family since
+ 		all derivatives can be given explicitly
  		for this Archimedean family. For all families, the optional parameter
  		\code{log} (defaults to \code{FALSE}) indicates whether the logarithm of
  		the absolute value of the derivative is returned. Note that for
@@ -85,6 +89,8 @@
     \item{\code{cCdf}:}{A \code{\link{function}} with arguments \code{v},
  		\code{u}, and \code{theta} which computes the bivariate conditional copula
 		function at \code{v} given \code{u}, i.e., \eqn{C(v\vert u)}{C(v|u)}.}
+	 \item{\code{diag}:}{The copula diagonal.}
+	 \item{\code{dDiag}:}{The density of the copula diagonal (note that the diagonal of a copula is a cumulative distribution function).}
  	 \item{\code{dAc}:}{A \code{\link{function}} which computes the
       logarithm of the density \eqn{c} for the Archimedean family under
       consideration, given by
