@@ -61,14 +61,28 @@ onacopulaL(family, nacList)
 	Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
 }
 \examples{
-## Construct a three-dimensional nested Gumbel copula with parameters chosen
-## such that the Kendall's tau of the respective bivariate margins are
-## 0.2 and 0.5.
+## Construct a ten-dimensional Joe copula with parameter such that Kendall's
+## tau equals 0.5
+theta <- copGumbel@tauInv(0.5)
+C10 <- onacopula("J",C(theta,1:10))
+
+## Equivalent construction with onacopulaL():
+C10. <- onacopulaL("J",list(theta,1:10))
+stopifnot(identical(C10, C10.))
+
+## Construct a three-dimensional nested Gumbel copula with parameters such that
+## Kendall's tau of the respective bivariate margins are 0.2 and 0.5.
 theta0 <- copGumbel@tauInv(.2)
 theta1 <- copGumbel@tauInv(.5)
 C3 <- onacopula("G", C(theta0, 1, C(theta1, c(2,3))))
 
-## Good error message if the component ("coordinate") indices are wrong / do not match:
+## Equivalent construction with onacopulaL():
+str(NAlis <- list(theta0, 1, list(list(theta1, c(2,3)))))
+C3. <- onacopulaL("Gumbel", NAlis)
+stopifnot(identical(C3, C3.))
+
+## Good error message if the component ("coordinate") indices are wrong / do not
+## match:
 err <- try(onacopula("G", C(theta0, 2, C(theta1, c(3,2)))))
 
 ## Compute the probability of falling in the cube [0,.01]^3 for this copula
@@ -76,10 +90,5 @@ pnacopula(C3, rep(.01,3))
 
 ## Compute the probability of falling in the cube [.99,1]^3
 prob(C3, rep(.99, 3), rep(1, 3))
-
-## Equivalent construction with onacopulaL():
-str(NAlis <- list(theta0, 1, list(list(theta1, c(2,3)))))
-C3. <- onacopulaL("Gumbel", NAlis)
-stopifnot(identical(C3, C3.))
 }
 \keyword{multivariate}

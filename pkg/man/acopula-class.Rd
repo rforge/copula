@@ -134,7 +134,7 @@
   Specific provided copula family objects, e.g.,
   \code{\link{copAMH}}, \code{\link{copClayton}}, \code{\link{copFrank}},
   \code{\link{copGumbel}}, \code{\link{copJoe}}.
-  \cr To access these, \code{\link{getAcop}}.
+  \cr To access these use \code{\link{getAcop}}.
 
   A \emph{nested} Archimedean copula \emph{without}
   child copulas, see class \code{"\linkS4class{nacopula}"},
@@ -169,6 +169,6 @@ copClayton@nestConstr(theta0 = 3, theta1 = 2) # FALSE
 ## Case 2: theta0 = 2, theta1 = 3
 copClayton@nestConstr(theta0 = 2, theta1 = 3) # TRUE
 
-## For more examples, see  help(acopula-families)
+## For more examples, see  help("acopula-families")
 }
 \keyword{classes}
