@@ -190,6 +190,8 @@ pobs <- function(x) apply(x,2,rank)/(nrow(x)+1)
 ##'        "dmle"             MLE based on the diagonal
 ##'        "beta"             multivariate Blomqvist's beta estimator
 ##' @param ... additional parameters for optimx()
+##' FIXME: if N is not provided, dnacopula should use the default values...(see also FIXME there)
+##'        and if it's provided, dnacopula should use it! Maybe code the former case by "N = NULL"??
 ##' @return estimator according to the chosen method
 ##' @author Marius Hofert
 enacopula <- function(x,cop,method = c("mle.tau.mean","mle.theta.mean","mle.diag",

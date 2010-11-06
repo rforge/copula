@@ -27,6 +27,7 @@
 ##' @param MC TRUE if the derivatives of order > 1 should be evaluated by Monte Carlo
 ##' @param N approximation parameter for MC = FALSE; sample size for MC = TRUE
 ##' @param log if TRUE, the log-density is evaluated
+##' FIXME: argument N should be used (instead of the defaults) if it was provided
 ##' @author Marius Hofert
 dnacopula <- function(x,u,theta,MC = FALSE,N,log = FALSE){
     if(x@childCops != list()){

@@ -81,6 +81,7 @@ gnacopulatrafo <- function(x, cop, do.pseudo = FALSE, MC = FALSE, N){
 ##' @return either a matrix of supposedly U[0,1]^d realizations is returned
 ##'         (the default) or the ad.test result
 ##' FIXME: return htest object...
+##' FIXME: same as for enacopula: N should not have to be provided
 ##' @author Marius Hofert
 gnacopula <- function(x, cop, do.pseudo = TRUE, ad.test = TRUE, 
                       method = c("log","normal"), MC = FALSE, N, bootstrap = TRUE, 
@@ -124,10 +125,8 @@ gnacopula <- function(x, cop, do.pseudo = TRUE, ad.test = TRUE,
                                             do.pseudo, MC = MC, N), method = method)
 
             ## progress output
-            if(verbose) cat("bootstrap progress:",format(round(k*100/N),nsmall = 3,
-                                                         trim = TRUE,
-                                                         scientific = FALSE)," %\n",
-                            sep="")
+            if(verbose && (k%%10 == 0)) cat("bootstrap progress:",format(round(k*
+                              100/N),width = 3,scientific = FALSE)," %\n",sep="")
             
 	}
 	## estimate p-value
