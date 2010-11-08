@@ -19,28 +19,38 @@
 ##' Returns the copula density at u
 ##' Basically, this is a wrapper based on the slot "dAc" of the provided families
 ##' which chooses some default values of the parameters
-##' warning / FIXME: good default values depend on theta, the dimension, and even
-##'                  the evaluation point 
 ##' @param x nacopula
 ##' @param u argument of the copula x
 ##' @param theta copula parameter
 ##' @param MC TRUE if the derivatives of order > 1 should be evaluated by Monte Carlo
-##' @param N approximation parameter for MC = FALSE; sample size for MC = TRUE
+##' @param N approximation parameter for MC = FALSE; sample size for MC = TRUE;
+##'   if missing or NULL, we use simple defaults.
+##' warning / FIXME: good default values depend on theta, the dimension, and even
+##'                  the evaluation point
 ##' @param log if TRUE, the log-density is evaluated
-##' FIXME: argument N should be used (instead of the defaults) if it was provided
 ##' @author Marius Hofert
-dnacopula <- function(x,u,theta,MC = FALSE,N,log = FALSE){
-    if(x@childCops != list()){
-        stop("currently, only Archimedean copulas are provided")
-    }
+dnacopula <- function(x,u,theta,MC = FALSE, N, log = FALSE)
+{
+    stopifnot(is(x, "outer_nacopula"))
+    if(length(x@childCops))
+	stop("currently, only Archimedean copulas are provided")
     cop <- x@copula
+    if(missing(N)) N <- NULL
     switch(cop@name,
-	"AMH" = {cop@dAc(u,theta,MC,N = if(MC) 20000 else 1000,log)},
-	"Clayton" = {cop@dAc(u,theta,log)},
-	"Frank" = {cop@dAc(u,theta,MC,N = if(MC) 20000 else 1000,log)},
-	"Gumbel" = {cop@dAc(u,theta,MC,N = if(MC || ncol(u) > 10) 20000 else 5000,log)},
-	"Joe" = {cop@dAc(u,theta,MC,N = if(MC) 20000 else 5000,log)}, 
-	{stop("wrong Archimedean family provided")})
+	   "AMH"     = { cop@dAc(u,theta, MC,
+				 N = if(!is.null(N)) N else if(MC) 20000 else 1000,
+				 log=log)},
+	   "Clayton" = cop@dAc(u,theta, log),
+	   "Frank"   = { cop@dAc(u,theta, MC,
+				 N = if(!is.null(N)) N else if(MC) 20000 else 1000,
+				 log=log) },
+	   "Gumbel"  = { cop@dAc(u,theta,MC,
+				 N = if(!is.null(N)) N else if(MC || ncol(u) > 10) 20000
+				 else 5000, log=log) },
+	   "Joe"     = { cop@dAc(u,theta,MC,
+				 N = if(!is.null(N)) N else if(MC) 20000 else 5000,
+				 log=log) },
+	   stop("wrong Archimedean family provided"))
 }
 
 ##' Returns the copula value at a certain vector u
