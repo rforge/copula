@@ -76,9 +76,9 @@ copAMH <-
         },
 	## conditional distribution function C(v|u) of v given u
 	cCdf = function(v,u,theta){
-		u. <- 1-theta*(1-u)
-		v. <- 1-theta*(1-v)
-		((1-theta)*v*(u.*v.-u*theta*v.))/(u.*v.-theta*u*v)^2
+            u. <- 1-theta*(1-u)
+            v. <- 1-theta*(1-v)
+            ((1-theta)*v*(u.*v.-u*theta*v.))/(u.*v.-theta*u*v)^2
 	},
 	## diagonal of the Archimedean copula
 	diag = function(u, theta, d, log = FALSE){
@@ -98,6 +98,7 @@ copAMH <-
 	},
 	## density of the Archimedean copula
 	dAc = function(u,theta,MC = FALSE,N,log = FALSE){ 
+	    if(is.vector(u)) u <- matrix(u, nrow = 1)
             n <- nrow(u)
             if(theta == 0) if(log) return(rep(0,n)) else return(rep(1,n)) # special case
             d <- ncol(u)
@@ -284,6 +285,7 @@ copClayton <-
         },
         ## density of the Archimedean copula
         dAc = function(u,theta,MC = FALSE,N,log = FALSE){
+            if(is.vector(u)) u <- matrix(u, nrow = 1)
             n <- nrow(u)
             d <- ncol(u)
             l.u. <- rowSums(log(u))
@@ -438,6 +440,7 @@ copFrank <-
         },
         ## density of the Archimedean copula
         dAc = function(u,theta,MC = FALSE,N,log = FALSE){
+            if(is.vector(u)) u <- matrix(u, nrow = 1)
             n <- nrow(u)
             d <- ncol(u)
             l.theta <- log(theta)
@@ -675,6 +678,7 @@ copGumbel <-
         },
         ## density of the Archimedean copula
         dAc = function(u,theta,MC = FALSE,N,log = FALSE){
+            if(is.vector(u)) u <- matrix(u, nrow = 1)
 	    n <- nrow(u)
             if(theta == 0) if(log) return(rep(0,n)) else return(rep(1,n)) # special case
             u. <- rowSums(copGumbel@psiInv(u,theta))
@@ -684,7 +688,6 @@ copGumbel <-
                 res <- log(theta-1+u.^alpha)+(alpha-2)*log(u.)+(theta-1)*
                     log(-log(u[,1])-log(u[,2]))	
             }else{ # exact or with Monte Carlo
-                d <- ncol(u)
                 l.u <- log(u)
                 res <- copGumbel@psiDAbs(u.,theta,d,MC=MC,N=N,log=TRUE)+d*
                     log(theta)+(theta-1)*rowSums(log(-l.u))-rowSums(l.u)
@@ -853,6 +856,7 @@ copJoe <-
         },
         ## density of the Archimedean copula
         dAc = function(u,theta,MC = FALSE,N,log = FALSE){
+            if(is.vector(u)) u <- matrix(u, nrow = 1)
             n <- nrow(u)
             if(theta == 0) if(log) return(rep(0,n)) else return(rep(1,n)) # special case
             d <- ncol(u)
