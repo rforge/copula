@@ -76,9 +76,9 @@ copAMH <-
         },
 	## conditional distribution function C(v|u) of v given u
 	cCdf = function(v,u,theta){
-            ifelse(v == 0, Inf,
-                   (1-theta*(1-v))/v*((1-theta)/(1-theta*(2-(u+v)+u*v)+theta^2*
-                                                 (1-u)*(1-v)))^2)
+		u. <- 1-theta*(1-u)
+		v. <- 1-theta*(1-v)
+		((1-theta)*v*(u.*v.-u*theta*v.))/(u.*v.-theta*u*v)^2
 	},
 	## diagonal of the Archimedean copula
 	diag = function(u, theta, d, log = FALSE){

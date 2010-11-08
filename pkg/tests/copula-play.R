@@ -180,9 +180,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
 
     cat("\n(5) values of cCdf(v,0.5) for v=t01:\n")
     CT <- c(CT, list(cCdf = system.time(cCdf. <- cop@cCdf(t01,0.5,theta=theta0))))
-    stopifnot(length(cCdf.) == length(t01), 0 <= cCdf.,
-              TRUE ## FIXME! cCdf. <= 1
-              )
+    stopifnot(length(cCdf.) == length(t01), 0 <= cCdf.,cCdf. <= 1)
     print(cCdf.)
 
     ## ==== (6) dAc (log = TRUE) ====
