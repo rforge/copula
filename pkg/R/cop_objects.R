@@ -33,26 +33,29 @@ copAMH <-
         psiInv = function(t,theta) { log((1-theta*(1-t))/t) },
 	## absolute value of generator derivatives
 	psiDAbs = function(t,theta,degree = 1,MC = FALSE,N,log = FALSE){ 
-            if(degree == 1){ # exact for degree == 1
-                expmt <- exp(-t)
-		th.expmt <- theta*expmt
-		if(log) log(1-theta)-t-2*log1p(-th.expmt) else (1-theta)*expmt/
-                    (1-th.expmt)^2 
-            }else{
-		if(MC){ # approximation via MC
-                    V0. <- copAMH@V0(N,theta)
-                    l.V0. <- degree*log(V0.)
-                    summands <- function(t) mean(exp(-V0.*t + l.V0.))
-		}else{ # approximation via trunction of the series
+	    if(theta == 0) if(log) return(-t) else return(exp(-t)) # special case
+            if(MC){ # Monte Carlo
+                V0. <- copAMH@V0(N,theta)
+                l.V0. <- degree*log(V0.)
+                summands <- function(t) mean(exp(-V0.*t + l.V0.))	
+                res <- unlist(lapply(t,summands))
+                if(log) log(res) else res
+            }else{ # exact or with series truncation
+                if(degree == 1){ # exact for degree = 1
+                    expmt <- exp(-t)
+                    th.expmt <- theta*expmt
+                    if(log) log(1-theta)-t-2*log1p(-th.expmt) else (1-theta)*expmt/
+                        (1-th.expmt)^2 
+                }else{ # series truncation for degree >= 2
                     k <- 1:N
                     l.pk <- copAMH@dV0(k,theta,log = TRUE)
                     sum. <- l.pk + degree*log(k)
                     summands <- function(t) sum(exp(-k*t + sum.)) # for a single t
-		}
-		res <- unlist(lapply(t,summands))
-		if(log) log(res) else res
+                    res <- unlist(lapply(t,summands))
+                    if(log) log(res) else res
+                }
             }
-	},
+   	},
         ## parameter interval
         paraInterval = interval("[0,1)"),
         ## nesting constraint
@@ -95,27 +98,32 @@ copAMH <-
 	},
 	## density of the Archimedean copula
 	dAc = function(u,theta,MC = FALSE,N,log = FALSE){ 
-            stopifnot(is.matrix(u), all(0 < u, u <= 1))
-            if(theta == 0) res <- rep(0,nrow(u))
-            if((d <- ncol(u)) == 2){ # d == 2
-                u. <- (1-theta*(1-u[,1]))*(1-theta*(1-u[,2]))
-                u.. <- theta*u[,1]*u[,2]
-                res <- 3*log((1-theta)/(u.-u..))+log(u.+u..)
-            }else{ # d > 2
-                n <- nrow(u)
-                s.psiInv.u <- rowSums(copAMH@psiInv(u,theta))
+            n <- nrow(u)
+            if(theta == 0) if(log) return(rep(0,n)) else return(rep(1,n)) # special case
+            d <- ncol(u)
+            if(MC){ # Monte Carlo
+		s.psiInv.u <- rowSums(copAMH@psiInv(u,theta))
                 u. <- 1-theta*(1-u)
                 u.. <- u*u.
                 l.u.. <- rowSums(log(u..))
                 l.theta. <- log1p(-theta)
-                if(MC){ # approximation via MC
-                    V0. <- copAMH@V0(N,theta)
-                    l.V0. <- d*log(V0.)
-                    one.vector.u <- function(j){ # for the jth row of u
-                        mean(exp(l.V0.-V0.*s.psiInv.u[j]))
-                    }
-                    res <- unlist(lapply(1:n,one.vector.u))+d*l.theta.-l.u..
-                }else{ # approximation via truncation of the series
+                V0. <- copAMH@V0(N,theta)
+                l.V0. <- d*log(V0.)
+                one.vector.u <- function(j){ # for the jth row of u
+                    mean(exp(l.V0.-V0.*s.psiInv.u[j]))
+                }
+                res <- log(unlist(lapply(1:n,one.vector.u)))+d*l.theta.-l.u..
+            }else{ # exact or with series truncation
+                if(d == 2){ # exact for d = 2
+                    u. <- (1-theta*(1-u[,1]))*(1-theta*(1-u[,2]))
+                    u.. <- theta*u[,1]*u[,2]
+                    res <- 3*log((1-theta)/(u.-u..))+log(u.+u..)
+                }else{ # series truncation for d >= 3
+                    s.psiInv.u <- rowSums(copAMH@psiInv(u,theta))
+                    u. <- 1-theta*(1-u)
+                    u.. <- u*u.
+                    l.u.. <- rowSums(log(u..))
+                    l.theta. <- log1p(-theta)
                     k <- 1:N
                     l.theta <- log(theta)
                     sum. <- l.theta + rowSums(log(u/u.))
@@ -131,31 +139,44 @@ copAMH <-
 	## Kendall distribution function
 	K = function(t, theta, d, MC = FALSE, N){
             stopifnot(length(theta) == 1, length(d) == 1)
-            if(d==1) { # exact for d == 1
-                t
-            }else if(d==2){ # exact for d == 2
-		ifelse(t == 0, 0,
-                       t*(1+(1-theta*(1-t))* copAMH@psiInv(t,theta)/(1-theta)))
-            }else{ # d >= 3
-		if(MC){ # approximation via MC
-                    V <- copAMH@V0(N,theta)
-                    K.fun <- function(t) mean(ppois(d-1,V*copAMH@psiInv(t,theta)))
-                    unlist(lapply(t,K.fun))
-		}else{ # approximation via truncation of the series
-                    k <- 1:N
-                    l.pk <- copAMH@dV0(k,theta,log = TRUE)
+	    if(theta == 0){ # special case
+		one.t <- function(t){
+                    if(t == 0){
+                        0
+                    }else if(t == 1){
+                        1
+                    }else{
+                        k <- 0:(d-1)
+                        t*sum(exp(k*log(-log(t))-lfactorial(k)))
+                    }
+		}
+		return(unlist(lapply(t,one.t)))
+            }
+            if(MC){ # Monte Carlo
+                V <- copAMH@V0(N,theta)
+                K.fun <- function(t) mean(ppois(d-1,V*copAMH@psiInv(t,theta)))
+                unlist(lapply(t,K.fun))
+            }else{ # exact or with series truncation
+                if(d == 1){ # exact for d = 1
+                    t
+                }else if(d == 2){ # exact for d = 2
+                    ifelse(t == 0, 0,
+                           t*(1+(1-theta*(1-t))*copAMH@psiInv(t,theta)/(1-theta)))
+                }else{ # series truncation for d >= 3
                     one.t <- function(t){
                         if(t == 0){
                             0
                         }else if(t == 1){
                             1
                         }else{
+                            k <- 1:N
+                            l.pk <- copAMH@dV0(k,theta,log = TRUE)
                             sum(exp(l.pk+ppois(d-1,k*copAMH@psiInv(t,theta),
                                                log = TRUE)))
                         }
                     }
                     unlist(lapply(t,one.t))
-                }
+		}
             }
         },
         ## Kendall's tau
@@ -195,10 +216,18 @@ copClayton <-
         psi = function(t,theta) { (1+t)^(-1/theta) },
         psiInv = function(t,theta) { t^(-theta) - 1 },
         ## absolute value of generator derivatives
-        psiDAbs = function(t,theta,degree = 1,log = FALSE){
-            alpha <- 1/theta
-	    res <- lgamma(degree+alpha)-(degree+alpha)*log1p(t)-lgamma(alpha)
-            if(log) res else exp(res)
+        psiDAbs = function(t,theta,degree = 1,MC = FALSE,N,log = FALSE){
+            if(MC){ # Monte Carlo
+                V0. <- copClayton@V0(N,theta)
+                l.V0. <- degree*log(V0.)
+                summands <- function(t) mean(exp(-V0.*t + l.V0.))
+                res <- unlist(lapply(t,summands))
+                if(log) log(res) else res
+            }else{ # exact
+                alpha <- 1/theta
+                res <- lgamma(degree+alpha)-(degree+alpha)*log1p(t)-lgamma(alpha)
+                if(log) res else exp(res)
+            }
         },
         ## parameter interval
         paraInterval = interval("(0,Inf)"),
@@ -234,12 +263,12 @@ copClayton <-
             }
             mapply(one.d.args,u,v)
         },
-	## diagonal of the Archimedean copula
-	diag = function(u, theta, d, log = FALSE){
-	    if(log){
-		(-1/theta)*log1p(d*copClayton@psiInv(u,theta))
+        ## diagonal of the Archimedean copula
+        diag = function(u, theta, d, log = FALSE){
+            if(log){
+                (-1/theta)*log1p(d*copClayton@psiInv(u,theta))
             }else{
-		copClayton@psi(d*copClayton@psiInv(u,theta),theta)
+                copClayton@psi(d*copClayton@psiInv(u,theta),theta)
             }
         },
         ## density of the diagonal of the Archimedean copula
@@ -254,26 +283,43 @@ copClayton <-
             }
         },
         ## density of the Archimedean copula
-        dAc = function(u,theta,log = FALSE){
-            stopifnot(is.matrix(u), all(0 < u, u <= 1))
+        dAc = function(u,theta,MC = FALSE,N,log = FALSE){
+            n <- nrow(u)
             d <- ncol(u)
-            alpha <- 1/theta
-            d.alpha <- d + alpha
-            res <- d*log(theta)+(1-theta)*rowSums(log(u))+lgamma(d.alpha)-lgamma(alpha)-
-                (d.alpha)*log1p(-d+rowSums(u^(-theta)))
+            l.u. <- rowSums(log(u))
+            if(MC){ # Monte Carlo
+                s.psiInv.u <- rowSums(copClayton@psiInv(u,theta))
+                V0. <- copClayton@V0(N,theta)
+                l.V0. <- d*log(V0.)
+                one.vector.u <- function(j){ # for the jth row of u
+                    mean(exp(l.V0.-V0.*s.psiInv.u[j]))
+                }
+		res <- log(unlist(lapply(1:n,one.vector.u)))+d*log(theta)-(1+theta)*l.u.
+            }else{
+                alpha <- 1/theta
+                d.alpha <- d + alpha
+                res <- d*log(theta)+(1-theta)*l.u.+lgamma(d.alpha)-lgamma(alpha)-
+                    (d.alpha)*log1p(-d+rowSums(u^(-theta)))
+            }
             if(log) res else exp(res)
         },
         ## Kendall distribution function
-        K = function(t,theta,d){
-            if(d==1){ # exact for d == 1
-                t
-            }else if(d==2){ # exact for d == 2
-                t*(1+(1-t^theta)*1/theta)
-            }else{ # d >= 3
-                j <- 1:(d-1)
-                s <- log(j) + lbeta(j,1/theta)
-                one.t <- function(t) sum(exp(j*log1p(-t^theta)-s))
-                t*(1+unlist(lapply(t,one.t)))
+        K = function(t,theta,d, MC = FALSE, N){
+            if(MC){ # Monte Carlo
+                V <- copClayton@V0(N,theta)
+                K.fun <- function(t) mean(ppois(d-1,V*copClayton@psiInv(t,theta)))
+                unlist(lapply(t,K.fun))
+            }else{ # exact or with series truncation
+                if(d == 1){ # exact for d = 1
+                    t
+                }else if(d == 2){ # exact for d = 2
+                    t*(1+(1-t^theta)*1/theta)
+                }else{ # series truncation for d >= 3
+                    j <- 1:(d-1)
+                    s <- log(j) + lbeta(j,1/theta)
+                    one.t <- function(t) sum(exp(j*log1p(-t^theta)-s))
+                    t*(1+unlist(lapply(t,one.t)))
+                }
             }
         },
         ## Kendall's tau
@@ -306,26 +352,28 @@ copFrank <-
         },
         ## absolute value of generator derivatives
         psiDAbs = function(t,theta,degree = 1,MC = FALSE,N,log = FALSE){
-            if(degree == 1){ # exact for degree == 1
-                e.m.th <- exp(-theta)
-                p <- 1-e.m.th
-                l.p <- log1p(-e.m.th)
-                expmt <- exp(-t)
-                if(log) -log(theta)+l.p-t-log1p(-p*expmt) else 1/theta*p*expmt/
-                    (1-p*expmt)
-            }else{
-                if(MC){ # approximation via MC
-                    V0. <- copFrank@V0(N,theta)
-                    l.V0. <- degree*log(V0.)
-                    summands <- function(t) mean(exp(-V0.*t + l.V0.))
-                }else{ # approximation via trunction of the series
+            if(MC){ # Monte Carlo
+                V0. <- copFrank@V0(N,theta)
+                l.V0. <- degree*log(V0.)
+                summands <- function(t) mean(exp(-V0.*t + l.V0.))
+                res <- unlist(lapply(t,summands))
+                if(log) log(res) else res
+            }else{ # exact or with series truncation
+                if(degree == 1){ # exact for degree = 1
+                    e.m.th <- exp(-theta)
+                    p <- 1-e.m.th
+                    l.p <- log1p(-e.m.th)
+                    expmt <- exp(-t)
+                    if(log) -log(theta)+l.p-t-log1p(-p*expmt) else 1/theta*p*expmt/
+                        (1-p*expmt)
+                }else{ # series truncation for degree >= 2
                     k <- 1:N
                     l.pk <- copFrank@dV0(k,theta,log = TRUE)
                     sum. <- l.pk + degree*log(k)
                     summands <- function(t) sum(exp(-k*t + sum.)) # for a single t
+                    res <- unlist(lapply(t,summands))
+                    if(log) log(res) else res
                 }
-                res <- unlist(lapply(t,summands))
-                if(log) log(res) else res
             }
         },
         ## parameter interval
@@ -374,41 +422,43 @@ copFrank <-
             }
             mapply(one.d.args,u,v)
         },
-	## diagonal of the Archimedean copula
-	diag = function(u, theta, d, log = FALSE){
+        ## diagonal of the Archimedean copula
+        diag = function(u, theta, d, log = FALSE){
             p <- -expm1(-theta)
             log. <- -log1p(-p*(-expm1(-theta*u)/p)^d)
-	    if(log) -log(theta) + log(log.) else (1/theta)*log.
-	},
-	## density of the diagonal of the Archimedean copula
-	dDiag = function(u, theta, d, log = FALSE){
+            if(log) -log(theta) + log(log.) else (1/theta)*log.
+        },
+        ## density of the diagonal of the Archimedean copula
+        dDiag = function(u, theta, d, log = FALSE){
             u.theta <- u*theta
             e.theta <- exp(-u.theta)
             e. <- -expm1(-u.theta)
             denom <- ((-expm1(-theta))/e.)^(d-1)-(1-e.theta)
-	    if(log) log(d)-u.theta-log(denom) else d*e.theta/denom
-	},
+            if(log) log(d)-u.theta-log(denom) else d*e.theta/denom
+        },
         ## density of the Archimedean copula
         dAc = function(u,theta,MC = FALSE,N,log = FALSE){
-            stopifnot(is.matrix(u), all(0 < u, u <= 1))
+            n <- nrow(u)
+            d <- ncol(u)
             l.theta <- log(theta)
-            if((d <- ncol(u)) == 2){ # d == 2
-                p. <- -exp(-theta)
-                res <- l.theta+log1p(p.)-theta*(u[,1]+u[,2])-
-                    2*log1p(p.-(1-exp(-theta*u[,1]))*(1-exp(-theta*u[,2])))
-            }else{ # d > 2
-                n <- nrow(u)
-                sum.log1p.exp <- rowSums(log1p(-exp(-theta*u)))
+            if(MC){ # Monte Carlo
+		sum.log1p.exp <- rowSums(log1p(-exp(-theta*u)))
                 sum.u.theta <- theta*rowSums(u)
-                if(MC){ # approximation via MC
-                    V0. <- copFrank@V0(N,theta)
-                    l.V0. <- d*log(V0.)
-                    s.psiInv.u <- rowSums(copFrank@psiInv(u,theta))
-                    one.vector.u <- function(j){ # for the jth row of u
-                        mean(exp(l.V0.-V0.*s.psiInv.u[j]))
-                    }
-                    res <- unlist(lapply(1:n,one.vector.u))+d*l.theta-sum.log1p.exp-sum.u.theta
-                }else{ # approximation via truncation of the series
+	        V0. <- copFrank@V0(N,theta)
+                l.V0. <- d*log(V0.)
+                s.psiInv.u <- rowSums(copFrank@psiInv(u,theta))
+                one.vector.u <- function(j){ # for the jth row of u
+                    mean(exp(l.V0.-V0.*s.psiInv.u[j]))
+                }
+                res <- log(unlist(lapply(1:n,one.vector.u)))+d*l.theta-sum.log1p.exp-sum.u.theta
+	    }else{ # exact or with series truncation
+	        if(d == 2){ # exact for d = 2
+                    p. <- -exp(-theta)
+                    res <- l.theta+log1p(p.)-theta*(u[,1]+u[,2])-
+                        2*log1p(p.-(1-exp(-theta*u[,1]))*(1-exp(-theta*u[,2])))
+	        }else{ # series truncation for d >= 3
+                    sum.log1p.exp <- rowSums(log1p(-exp(-theta*u)))
+                    sum.u.theta <- theta*rowSums(u)
                     k <- 1:N
                     d.l.k <- (d-1)*log(k)
                     l.p <- log1p(-exp(-theta))
@@ -417,44 +467,42 @@ copFrank <-
                         log(sum(exp(d.l.k+k*(m.l.p+sum.log1p.exp[j]))))
                     }
                     res <- (d-1)*l.theta-sum.u.theta-sum.log1p.exp+unlist(lapply(1:n,one.vector.u))
-                }
-            }
-            if(log) res else exp(res)	
-        },
+	        }
+	    }
+	    if(log) res else exp(res)
+        },	
         ## Kendall distribution function
         K = function(t, theta, d, MC = FALSE, N){
-            stopifnot(length(theta) == 1)
-            if(d==1){                       # exact for d == 1
-                t
-            } else {
-                ## fast version of
-                ##  ifelse(t == 0, 0,
-                ##   ifelse(t == 1, 1, { ... }):
-                r <- t
-                t <- t[n01 <- (t != 0) & (t != 1)]
-                r[n01] <-
-                    if(d==2) {              # exact for d == 2
-                        e.th <- exp(-theta*t)
-                        t + copFrank@psiInv(t,theta) * (1-e.th)/(theta*e.th)
-                    }
-                    else {                  # d >= 3
-                        stopifnot(d >= 3)
-                        if(MC){             # approximation via MC
-                            V <- copFrank@V0(N,theta)
-                            K.1.t <- function(t)
-                                mean(ppois(d-1, V*copFrank@psiInv(t,theta)))
-                        } else {            # approximation via truncation of the series
-                            k <- 1:N
-                            l.pk <- copFrank@dV0(k,theta,log = TRUE)
-                            K.1.t <- function(t)
-                                sum(exp(l.pk +
-                                        ppois(d-1, k*copFrank@psiInv(t,theta),
-                                              log = TRUE)))
-                        }
-                        unlist(lapply(t, K.1.t))
-                    } ## else d >= 3
-                r
-            } ## else d >= 2
+            stopifnot(length(theta) == 1, length(d) == 1)
+	    if(MC){ # Monte Carlo
+                V <- copFrank@V0(N,theta)
+                K.1.t <- function(t)
+                    mean(ppois(d-1, V*copFrank@psiInv(t,theta)))
+                unlist(lapply(t, K.1.t))
+	    }else{ # exact or with series truncation
+	        if(d == 1){ # exact for d = 1
+	            t
+	        }else if(d == 2){ # exact for d = 2
+                    r <- t
+                    t <- t[n01 <- (t != 0) & (t != 1)]
+                    e.th <- exp(-theta*t)
+                    r[n01] <- t + copFrank@psiInv(t,theta) * (1-e.th)/(theta*e.th)
+                    r
+	        }else{ # series truncation for d >= 3
+                    ## fast version of
+                    ##  ifelse(t == 0, 0,
+                    ##   ifelse(t == 1, 1, { ... }):
+                    r <- t
+                    t <- t[n01 <- (t != 0) & (t != 1)]
+                    k <- 1:N
+                    l.pk <- copFrank@dV0(k,theta,log = TRUE)
+                    K.1.t <- function(t)
+                        sum(exp(l.pk + ppois(d-1, k*copFrank@psiInv(t,theta),
+                                             log = TRUE)))
+                    r[n01] <- unlist(lapply(t, K.1.t))
+                    r
+		}
+	    }
         },
         ## Kendall's tau; debye_1() is from package 'gsl' :
         tau = function(theta) 1 + 4*(debye_1(theta) - 1)/theta,
@@ -490,46 +538,66 @@ copGumbel <-
         psiInv = function(t,theta) { (-log(t+0))^theta },
         ## absolute value of generator derivatives
         psiDAbs = function(t,theta,degree = 1,MC = FALSE,N,log = FALSE){
-            n <- length(t)
-            if(degree == 1){ # exact for degree == 1
-                alpha <- 1/theta
-                if(log) log(alpha)+(alpha-1)*log(t)-t^alpha else copGumbel@psi(t,theta)*
-                    alpha*t^(alpha-1)
-            }else{
-                res <- rep(0,n) # for those t which are Inf, 0 should be the result
+            if(theta == 0) if(log) return(-t) else return(exp(-t)) # special case
+            if(MC){ # Monte Carlo
+                n <- length(t)
+		res <- rep(0,n) # for those t which are Inf, 0 should be the result
                 res[t == 0] <- Inf # for those t which are 0, Inf should be the result
                 ind <- (1:n)[t != 0 & t != Inf] # indices of t for which res has to be computed
-                if(MC){ # approximation via MC
-                    V0. <- copGumbel@V0(N,theta)
-                    l.V0. <- degree*log(V0.)
-                    summands <- function(t) mean(exp(-V0.*t + l.V0.))
-                }else{ # approximation via truncation of the series
-                    ## for a single summand:
-                    j <- 0:(degree-1)
-                    alpha <- 1/theta
-                    sign.k <- function(k){ # for a single k
-                        s <- sign(j/k-alpha) # degree terms
-                        if(any(s == 0)){
-                            0
-                        }
-                        if(sum(s < 0) %% 2 == 0) s <- 1 else s <- -1
-                        if(k %% 2) -s else s
-                    }
-                    ## now look at all summands:
-                    k <- 1:N
-                    signs <- sign(unlist(lapply(k,sign.k)))
-                    ## function for computing sum_{j=0}^{degree-1} log |j/k-alpha| for a single k
-                    exp.sum <- function(k) sum(log(abs((0:(degree-1))/k-alpha)))
-                    ## compute the summands for a single t
-                    factor1 <- alpha*k-degree
-                    factor2 <- (degree-1)*log(k)-lfactorial(k-1)+
-                        unlist(lapply(k,exp.sum))
-                    summands <- function(t) sum(signs*exp(factor1*log(t)+factor2))
-                }
-                res[ind] <- unlist(lapply(t[ind],summands))
+                V0. <- copGumbel@V0(N,theta)
+                l.V0. <- degree*log(V0.)
+                summands <- function(t) mean(exp(-V0.*t + l.V0.))
+		res[ind] <- unlist(lapply(t[ind],summands))
                 if(log) log(res) else res
-            }
-        },
+	    }else{ # exact 
+		alpha <- 1/theta
+	        if(degree == 1){ # degree = 1
+                    if(log) log(alpha)+(alpha-1)*log(t)-t^alpha else 
+                    copGumbel@psi(t,theta)*alpha*t^(alpha-1)
+	        }else{ # degree >= 2
+		    
+		    ## FIXME: several things in the following code can be improved
+                    
+                    ## compute Stirling numbers
+                    s <- diag(,nrow=degree+1) # contains the Stirling numbers of the first kind s(n,k)
+                    S <- s # contains the Stirling numbers of the second kind S(n,k)
+                    ## s[n,k] contains s(n-1,k-1) and S[n,k] contains S(n-1,k-1) 
+                    ## equivalently, s[n+1,k+1] contains s(n,k) and S[n+1,k+1] contains S(n,k)
+                    for(n in 3:(degree+1)){
+                        for(k in 2:(n-1)){
+                            s[n,k] <- s[n-1,k-1]-(n-2)*s[n-1,k] # s(n,k) = s(n-1,k-1) - (n-1) * s(n-1,k) for all n, k >= 0
+                            S[n,k] <- S[n-1,k-1]+(k-1)*S[n-1,k] # S(n,k) = S(n-1,k-1) + k * S(n-1,k) for all n, k >= 0
+                        }
+                    }
+
+		    ## one argument
+                    one.t <- function(t){
+                        if(is.infinite(t)){
+                            0
+                        }else if(t == 0){
+                            Inf
+                        }else{
+                            ## inner sum
+                            x <- t^alpha
+                            inner.sum <- numeric(degree)
+                            inner.sum[1] <- S[2,2]*(-x)
+                            for(j in 2:degree){
+                                k <- 1:j
+                                inner.sum[j] <- sum(S[j+1,k+1]*(-x)^k)
+                            }
+                            
+                            ## outer sum
+                            j <- 1:degree
+                            t^(-degree)*copGumbel@psi(t,theta)*sum(s[degree+1,j+1]*alpha^j*inner.sum)
+                        }
+                    }
+                    ## return
+                    res <- abs(unlist(lapply(t,one.t)))
+                    if(log) log(res) else res
+
+	        }
+	    }
+	},        
         ## parameter interval
         paraInterval = interval("[1,Inf)"),
         ## nesting constraint
@@ -594,28 +662,29 @@ copGumbel <-
             }
             mapply(one.d.args,u,v)
         },
-	## diagonal of the Archimedean copula
-	diag = function(u, theta, d, log = FALSE){
+        ## diagonal of the Archimedean copula
+        diag = function(u, theta, d, log = FALSE){
             d. <- d^(1/theta)
-	    if(log) d.*log(u) else u^d.
-	},
-	## density of the diagonal of the Archimedean copula
-	dDiag = function(u, theta, d, log = FALSE){
+            if(log) d.*log(u) else u^d.
+        },
+        ## density of the diagonal of the Archimedean copula
+        dDiag = function(u, theta, d, log = FALSE){
             alpha <- 1/theta
             d. <- d^alpha
-	    if(log) alpha*log(d)+(d.-1)*log(u) else d.*u^(d.-1)
-	},
+            if(log) alpha*log(d)+(d.-1)*log(u) else d.*u^(d.-1)
+        },
         ## density of the Archimedean copula
         dAc = function(u,theta,MC = FALSE,N,log = FALSE){
-            stopifnot(is.matrix(u), all(0 < u, u < 1))
-            if(theta == 1) res <- rep(0,nrow(u))
+	    n <- nrow(u)
+            if(theta == 0) if(log) return(rep(0,n)) else return(rep(1,n)) # special case
             u. <- rowSums(copGumbel@psiInv(u,theta))
             alpha <- 1/theta
-            if((d <- ncol(u)) == 2){ # d == 2
+            d <- ncol(u)
+            if(!MC && d == 2){ # exact for d = 2 (if MC = FALSE)
                 res <- log(theta-1+u.^alpha)+(alpha-2)*log(u.)+(theta-1)*
-                    log(-log(u[,1])-log(u[,2]))
-            }else{ # d > 2
-                ## approximation via either truncation of the series or MC
+                    log(-log(u[,1])-log(u[,2]))	
+            }else{ # exact or with Monte Carlo
+                d <- ncol(u)
                 l.u <- log(u)
                 res <- copGumbel@psiDAbs(u.,theta,d,MC=MC,N=N,log=TRUE)+d*
                     log(theta)+(theta-1)*rowSums(log(-l.u))-rowSums(l.u)
@@ -625,9 +694,9 @@ copGumbel <-
         ## Kendall distribution function
         K = function(t, theta, d, MC = FALSE, N) {
             stopifnot(length(theta) == 1, length(d) == 1)
-            if(d==1){                   # exact for d == 1
+            if(d==1){                   # exact for d = 1
                 t
-            }else if(d==2){             # exact for d == 2
+            }else if(d==2){             # exact for d = 2
                 one.t <- function(t) if(t == 0) 0 else t*(1-log(t)/theta)
                 unlist(lapply(t,one.t))
             }else{                      # d >= 3
@@ -680,25 +749,28 @@ copJoe <-
         psiInv = function(t,theta) { -log1p(-(1-t)^theta) },
         ## absolute value of generator derivatives
         psiDAbs = function(t,theta,degree = 1,MC = FALSE,N,log = FALSE){
-            alpha <- 1/theta
-            if(degree == 1){ # exact for degree == 1
-                expmt <- exp(-t)
-                if(log) log(alpha)+(alpha-1)*log1p(-expmt)-t else alpha*
-                    (1-expmt)^(alpha-1)*expmt
-            }else{
-                if(MC){ # approximation via MC
-                    V0. <- copJoe@V0(N,theta)
-                    l.V0. <- degree*log(V0.)
-                    summands <- function(t) mean(exp(-V0.*t + l.V0.))
-                }else{ # approximation via truncation of the series
+            if(theta == 0) if(log) return(-t) else return(exp(-t)) # special case
+            if(MC){ # Monte Carlo
+	        V0. <- copJoe@V0(N,theta)
+                l.V0. <- degree*log(V0.)
+                summands <- function(t) mean(exp(-V0.*t + l.V0.))
+                res <- unlist(lapply(t,summands))
+	        if(log) log(res) else res
+	    }else{ # exact or with series truncation
+	        if(degree == 1){ # exact for degree = 1
+                    alpha <- 1/theta
+                    expmt <- exp(-t)
+                    if(log) log(alpha)+(alpha-1)*log1p(-expmt)-t else alpha*
+                        (1-expmt)^(alpha-1)*expmt
+	        }else{ # series truncation for degree >= 2
                     k <- 1:N
                     l.pk <- copJoe@dV0(k,theta,log = TRUE)
                     sum. <- l.pk + degree*log(k)
                     summands <- function(t) sum(exp(-k*t + sum.)) # for a single t
-                }
-                res <- unlist(lapply(t,summands))
-                if(log) log(res) else res
-            }
+                    res <- unlist(lapply(t,summands))
+                    if(log) log(res) else res
+	        }
+	    }
         },
         ## parameter interval
         paraInterval = interval("[1,Inf)"),
@@ -764,45 +836,49 @@ copJoe <-
             }
             mapply(one.d.args,u,v)
         },
-	## diagonal of the Archimedean copula
-	diag = function(u, theta, d, log = FALSE){
+        ## diagonal of the Archimedean copula
+        diag = function(u, theta, d, log = FALSE){
             u. <- -(1-(1-(1-u)^theta)^d)^(1/theta)
             if(log) log1p(u.) else 1+u.
-	},
-	## density of the diagonal of the Archimedean copula
-	dDiag = function(u, theta, d, log = FALSE){
+        },
+        ## density of the diagonal of the Archimedean copula
+        dDiag = function(u, theta, d, log = FALSE){
             u. <- 1-(1-u)^theta
             alpha <- 1/theta
-	    if(log){
-		log(d)+(alpha-1)*log1p(-u.^d)+(theta-1)*log1p(-u)+(d-1)*log(u.)
+            if(log){
+                log(d)+(alpha-1)*log1p(-u.^d)+(theta-1)*log1p(-u)+(d-1)*log(u.)
             }else{
-		d*(1-u.^d)^(alpha-1)*(1-u)^(theta-1)*u.^(d-1)
+                d*(1-u.^d)^(alpha-1)*(1-u)^(theta-1)*u.^(d-1)
             }
-	},
+        },
         ## density of the Archimedean copula
         dAc = function(u,theta,MC = FALSE,N,log = FALSE){
-            stopifnot(is.matrix(u), all(0 <= u, u < 1))
-            alpha <- 1/theta
-            if((d <- ncol(u)) == 2){ # d == 2
-                u. <- (1-u[,1])^theta
-                v. <- (1-u[,2])^theta
-                res <- log(theta-(1-u.)*(1-v.))+(1-alpha)*(log(u.)+log(v.))+
-                    (alpha-2)*log(u.+v.-u.*v.)
-            }else{ # d > 2
-                n <- nrow(u)
-                d.l.theta <- d*log(theta)
+            n <- nrow(u)
+            if(theta == 0) if(log) return(rep(0,n)) else return(rep(1,n)) # special case
+            d <- ncol(u)
+            if(MC){ # Monte Carlo
+		d.l.theta <- d*log(theta)
                 sum.log.u. <- rowSums(log1p(-u))
                 sum.log.u.. <- rowSums(log1p(-(1-u)^theta))
-                if(MC){ # approximation via MC
-                    V0. <- copJoe@V0(N,theta)
-                    l.V0. <- d*log(V0.)
-                    s.psiInv.u <- rowSums(copJoe@psiInv(u,theta))
-                    one.vector.u <- function(j){ # for the jth row of u
-                        mean(exp(l.V0.-V0.*s.psiInv.u[j]))
-                    }
-                    res <- unlist(lapply(1:n,one.vector.u))+d.l.theta+(theta-1)*
-                        sum.log.u.-sum.log.u..
-                }else{ # approximation via truncation of the series
+	        V0. <- copJoe@V0(N,theta)
+                l.V0. <- d*log(V0.)
+                s.psiInv.u <- rowSums(copJoe@psiInv(u,theta))
+                one.vector.u <- function(j){ # for the jth row of u
+                    mean(exp(l.V0.-V0.*s.psiInv.u[j]))
+                }
+                res <- log(unlist(lapply(1:n,one.vector.u)))+d.l.theta+(theta-1)*
+                    sum.log.u.-sum.log.u..
+	    }else{ # exact or with series truncation
+		alpha <- 1/theta
+	        if(d == 2){ # exact for d = 2
+                    u. <- (1-u[,1])^theta
+                    v. <- (1-u[,2])^theta
+                    res <- log(theta-(1-u.)*(1-v.))+(1-alpha)*(log(u.)+log(v.))+
+                        (alpha-2)*log(u.+v.-u.*v.)
+	        }else{ # series truncation for d >= 3
+                    d.l.theta <- d*log(theta)
+                    sum.log.u. <- rowSums(log1p(-u))
+                    sum.log.u.. <- rowSums(log1p(-(1-u)^theta))
                     k <- 1:N
                     l.c <- lchoose(alpha,k)
                     d.l.k <- d*log(k)
@@ -810,34 +886,47 @@ copJoe <-
                         log(sum(exp(l.c+d.l.k+(k-1)*sum.log.u..[j])))
                     }
                     res <- d.l.theta+(theta-1)*sum.log.u.+unlist(lapply(1:n,one.vector.u))
-                }
-            }
-            if(log) res else exp(res)
+	        }
+	    }
+	    if(log) res else exp(res)
         },
         ## Kendall distribution function
         K = function(t,theta,d,MC = FALSE,N){
             stopifnot(length(theta) == 1, length(d) == 1)
-            if(d==1){ # exact for d == 1
-                t
-            }else if(d==2){ # exact for d == 2
-                mt <- 1-t
-                one.t <- function(t){
-                    if(t == 0){
-                        0
-                    }else if(t == 1){
-                        1
-                    }else{
-                        mt <- 1-t
-                        t+copJoe@psiInv(t,theta)*mt*(mt^(-theta)-1)/theta
+            if(theta == 0){ # special case
+		one.t <- function(t){
+	            if(t == 0){
+	                0
+	            }else if(t == 1){
+	                1
+	            }else{
+	                k <- 0:(d-1)
+	                t*sum(exp(k*log(-log(t))-lfactorial(k)))
+	            }
+		}
+		return(unlist(lapply(t,one.t)))
+	    }
+	    if(MC){ # Monte Carlo
+                V <- copJoe@V0(N,theta)
+                K.fun <- function(t) mean(ppois(d-1,V*copJoe@psiInv(t,theta)))
+                unlist(lapply(t,K.fun))
+	    }else{ # exact or with series truncation
+	        if(d == 1){ # exact for d = 1
+	            t
+	        }else if(d == 2){ # exact for d = 2
+                    mt <- 1-t
+                    one.t <- function(t){
+                        if(t == 0){
+                            0
+                        }else if(t == 1){
+                            1
+                        }else{
+                            mt <- 1-t
+                            t+copJoe@psiInv(t,theta)*mt*(mt^(-theta)-1)/theta
+                        }
                     }
-                }
-                unlist(lapply(t,one.t))
-            }else{ # d >= 3
-                if(MC){ # approximation via MC
-                    V <- copJoe@V0(N,theta)
-                    K.fun <- function(t) mean(ppois(d-1,V*copJoe@psiInv(t,theta)))
-                    unlist(lapply(t,K.fun))
-                }else{ # approximation via truncation of the series
+                    unlist(lapply(t,one.t))
+	        }else{ # series truncation for d >= 3
                     k <- 1:N
                     l.pk <- copJoe@dV0(k,theta,log = TRUE)
                     one.t <- function(t){
@@ -851,8 +940,8 @@ copJoe <-
                         }
                     }
                     unlist(lapply(t,one.t))
-                }
-            }
+		}
+	    }
         },
         ## Kendall's tau
         ## noTerms: even for theta==0, the approximation error is < 10^(-5)

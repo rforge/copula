@@ -33,7 +33,7 @@ setClass("acopula",
 	 representation(name = "character",
                         psi = "function",         # of (t, theta) -- the generator
                         psiInv = "function",      # of (p, theta) -- psi_inverse: \psi^{-1}(p) = t
-                        psiDAbs = "function",     # of (t, theta, degree=1, MC=FALSE, N, log=FALSE) -- (-1)^d * the degree-th generator derivative (MC, N not needed for Clayton)
+                        psiDAbs = "function",     # of (t, theta, degree=1, MC=FALSE, N, log=FALSE) -- (-1)^d * the degree-th generator derivative
                         theta = "numeric",        # value of theta or  'NA'  (for unspecified)
                         paraConstr = "function",  # of (theta) ; constr(theta) |--> TRUE: "fulfilled"
                         ## when theta is one-dimensional, specifying the interval is more convenient:
@@ -43,8 +43,8 @@ setClass("acopula",
                         cCdf = "function", 	  # of (v,u,theta) -- C(v|u)   
                         diag = "function",        # of (u,theta,d,log=FALSE) --- diagonal of the Archimedean copula
                         dDiag = "function",       # of (u,theta,d,log=FALSE) --- density of the diagonal of the Archimedean copula
-			dAc = "function",         # of (u,theta,MC=FALSE,N,log = FALSE) -- density of an Arch. copula (MC, N not needed for Clayton)
-			K = "function", 	  # of (t,theta,d,MC=FALSE,N) -- Kendall distribution function (MC, N not needed for Clayton)
+			dAc = "function",         # of (u,theta,MC=FALSE,N,log = FALSE) -- density of an Arch. copula 
+			K = "function", 	  # of (t,theta,d,MC=FALSE,N) -- Kendall distribution function 
                         tau = "function",	  # of (theta)
                         tauInv = "function",      # of (tau)
                         lambdaL = "function",     # of (theta) lower bound  \lambda_l
