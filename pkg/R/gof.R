@@ -28,6 +28,7 @@ g01 <- function(u, method = c("log","normal")){
                  "log" = { pgamma(rowSums(-log(u)),shape=d) },
                  "normal" = { pchisq(rowSums(pnorm(u)^2),d) },
                  stop("wrong choice of method"))
+    if(any(is.na(u.)) stop("missing values in u. -- cannot use ad.test()")
     ## check U[0,1] of u.
     ad.test(u.)
 }
@@ -44,30 +45,29 @@ g01 <- function(u, method = c("log","normal")){
 gnacopulatrafo <- function(x, cop, do.pseudo = FALSE, MC = FALSE, N)
 {
     stopifnot((d <- ncol(x)) >= 2,
-              is(cop, "outer_nacopula"))
+	      is(cop, "outer_nacopula"))
     if(length(cop@childCops))
 	stop("currently, only Archimedean copulas are provided")
     acop <- cop@copula
     u <- if(do.pseudo) pobs(x) else x
     psiI <- acop@psiInv(u, acop@theta)
     denom <- psiI[,1]
-    res <- matrix(, nrow = nrow(u), ncol = d)
+    u. <- matrix(, nrow = nrow(u), ncol = d)
     ## compute first d-1 components of the transformation
     for(j in seq_len(d-1)) {
         num <- denom
         denom <- num + psiI[,j+1]
-        res[,j] <- (num/denom)^j
+        u.[,j] <- (num/denom)^j
     }
     ## compute dth component
-    res[,d] <-
+    u.[,d] <-
         if(acop@name == "Clayton")
-            acop@K(denom, acop@theta, d)
+            acop@K(denom, acop@theta, d=d)
         else
             ## FIXME -- get a family-dependent default N  when  N is missing or NULL !?
-            acop@K(denom, acop@theta, d, MC, N)
-
+            acop@K(denom, acop@theta, d=d, MC=MC, N=N)
     ## return transformed data
-    res
+    u.
 }
 
 ##' Conducts a goodness-of-fit test for the given H0 copula cop based on the

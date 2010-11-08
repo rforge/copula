@@ -30,6 +30,10 @@ exportClasses("acopula",
 export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"getAcop"
        ,"dnacopula", "pnacopula", "rnacopula" ,"rnchild"
+       ## estimation -- (all functions for now -- FIXME ?)
+       ,"beta.", "beta.hat", "pobs"
+       ,"ebeta", "emle", "enacopula", "etau"
+       ,"gnacopula", "gnacopulatrafo"
        ,"onacopula", "onacopulaL"
        ,"printNacopula"
        ,"interval"

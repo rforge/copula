@@ -1,2 +1,2 @@
-timing-demo	A demo of timing.R of nacopula
-stats-demo	A demo of the estimation and goodness-of-fit capabilities
+timings		Using timing() to measure speed of basic Archimedean Family functions
+estimation.gof	Estimation and goodness-of-fit capabilities
