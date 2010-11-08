@@ -33,8 +33,7 @@ beta.hat <- function(u, scaling = TRUE){
     sum.prod <- prod1 + prod2
     b <- mean(sum.prod)
     d <- ncol(u)
-    ## if(scaling) 2^(d-1)/(2^(d-1)-1)*(b-2^(1-d)) else b ## MM: simplified:
-    if(scaling) {T <- 2^(d-1); (T*b - 1)/(T - 1)} else b
+    if(scaling) {T <- 2^(d-1); (T*b - 1)/(T - 1)} else b 
 }
 
 ##' Compute the population version of Blomqvist's beta for an Archimedean copula
@@ -50,7 +49,7 @@ beta. <- function(cop, theta, d, scaling = TRUE) {
     signs <- (-1)^j
     ldiags <- cop@diag(0.5,theta,j,log=TRUE)
     b <- cop@diag(0.5,theta,d) + 1 + sum(signs*exp(lchoose(d,j)+ldiags))
-    if(scaling) 2^(d-1)/(2^(d-1)-1)*(b-2^(1-d)) else b
+    if(scaling) { T <- 2^(d-1); (T*b - 1)/(T - 1)} else b
 }
 
 ##' Method-of-moment-like estimation of Archimedean copulas based on a
@@ -74,6 +73,9 @@ ebeta <- function(u,cop,...){
     ## for the initial value, use DMLE for Gumbel and convert the parameters via tau
     start <- cop@tauInv(copGumbel@tau(edmle(u,copGumbel,...)))
     ## MM -- FIXME !! -- do NOT use optim*() for root finding!
+    ## MH: instead of finding the root of "beta. - b.hat" on an interval we do
+    ##     not have safe lower and upper bounds, I thought we could minimize |beta. - b.hat|
+    ##     instead, using the nice feature of an initial value with optimx
     optimx::optimx(start, function(theta)
 		   abs(beta.(cop,theta,d,scaling = FALSE) - b.hat),
 		   lower = min(cop@paraInterval),
@@ -224,7 +226,7 @@ pobs <- function(x) apply(x,2,rank)/(nrow(x)+1)
 ##' @return estimator according to the chosen method --- was genau? nur Parameter Vector?
 ##' @author Marius Hofert
 enacopula <- function(x, cop, method = c("mle.tau.mean","mle.theta.mean","mle.diag",
-                            "smle","tau.tau.mean","tau.theta.mean","dmle","beta"),
+                              "smle","tau.tau.mean","tau.theta.mean","dmle","beta"),
                       N, do.pseudo = FALSE, ...)
 {
     ## setup cop

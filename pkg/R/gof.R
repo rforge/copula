@@ -28,7 +28,7 @@ g01 <- function(u, method = c("log","normal")){
                  "log" = { pgamma(rowSums(-log(u)),shape=d) },
                  "normal" = { pchisq(rowSums(pnorm(u)^2),d) },
                  stop("wrong choice of method"))
-    if(any(is.na(u.)) stop("missing values in u. -- cannot use ad.test()")
+    if(any(is.na(u.))) stop("missing values in u. -- cannot use ad.test()")
     ## check U[0,1] of u.
     ad.test(u.)
 }
@@ -60,12 +60,7 @@ gnacopulatrafo <- function(x, cop, do.pseudo = FALSE, MC = FALSE, N)
         u.[,j] <- (num/denom)^j
     }
     ## compute dth component
-    u.[,d] <-
-        if(acop@name == "Clayton")
-            acop@K(denom, acop@theta, d=d)
-        else
-            ## FIXME -- get a family-dependent default N  when  N is missing or NULL !?
-            acop@K(denom, acop@theta, d=d, MC=MC, N=N)
+    u.[,d] <- acop@K(denom, acop@theta, d=d, MC=MC, N=N) # FIXME -- get a family-dependent default N  when  N is missing or NULL !?
     ## return transformed data
     u.
 }
