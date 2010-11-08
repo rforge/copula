@@ -1,6 +1,6 @@
 require(nacopula)
 
-## ==== Results of using timings() =============================================
+## ==== Results of using timing() =============================================
 
 set.seed(1) # set seed
 
