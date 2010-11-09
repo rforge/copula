@@ -1,4 +1,5 @@
 require(nacopula)
+options(warn = 1)
 
 ## ==== Estimation =============================================================
 
@@ -28,14 +29,13 @@ estimation.gof <- function(n, d, dataFamily, tau,
     for(k in 1:num.families){
         ## estimate the parameter with the provided method
         cop.hat <- onacopulaL(checkFamilies[k],list(NA,1:d))
-        est <- enacopula(u,cop.hat, method=method, do.pseudo = FALSE)
+        est <- enacopula(u,cop.hat, method=method, N=N, do.pseudo = FALSE)
         ## FIXME: test for "convergence" etc
         full.est[[k]] <- est
         ## as long as enacopula() calls functions which call optimx() {{a mess!!}}
         ##             vvvvvv              vvvv {juck!}
         estimate[k] <- unlist(full.est[[k]]$par)
 	cop.hat@copula@theta <- estimate[k]
-
 	## apply a goodness-of-fit test to the estimated copula
         ## {{ use gnacopulatrafo() if you want the transformed u }}
         gof[k] <- gnacopula(u, cop.hat, do.pseudo = FALSE,
@@ -52,7 +52,7 @@ estimation.gof <- function(n, d, dataFamily, tau,
 set.seed(1) # set seed
 
 ## Start with a "small" example:
-estimation.gof(256, d = 3, "Gumbel", tau = 0.25, N = 2000)
+estimation.gof(256, d = 3, "Gumbel", tau = 0.25, "Gumbel", N = 2000)
 ## for now:
 warnings()
 
