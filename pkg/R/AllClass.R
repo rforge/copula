@@ -37,7 +37,8 @@ setClass("acopula",
                         theta = "numeric",        # value of theta or  'NA'  (for unspecified)
                         paraConstr = "function",  # of (theta) ; constr(theta) |--> TRUE: "fulfilled"
                         ## when theta is one-dimensional, specifying the interval is more convenient:
-                        paraInterval = "maybeInterval", # [.,.]  (.,.], etc ..
+                        paraInterval = "maybeInterval", # [.,.]  (.,.], etc .. parameter interval
+		        paraSubInterval = "maybeInterval", # [.,.]  (.,.], etc .. finite parameter interval, e.g., for optimization
                         V0 = "function",	  # of (n,theta) -- RNGenerator
 			dV0 = "function",         # of (x,theta,log=FALSE) -- density of F=LS^{-1}[psi]
                         cCdf = "function", 	  # of (v,u,theta) -- C(v|u)   

@@ -58,6 +58,8 @@ copAMH <-
    	},
         ## parameter interval
         paraInterval = interval("[0,1)"),
+        ## parameter subinterval (e.g., for numerical optimization)
+	paraSubInterval = interval(paste("[1e-12,",as.character(1-1e-12),"]",sep="")),
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             copAMH@paraConstr(theta0) &&
@@ -232,6 +234,8 @@ copClayton <-
         },
         ## parameter interval
         paraInterval = interval("(0,Inf)"),
+	## parameter subinterval (e.g., for numerical optimization)
+	paraSubInterval = interval("[1e-12, 100]"), # 100 corresponds to tau = 0.98
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             copClayton@paraConstr(theta0) &&
@@ -380,6 +384,8 @@ copFrank <-
         },
         ## parameter interval
         paraInterval = interval("(0,Inf)"),
+	## parameter subinterval (e.g., for numerical optimization)
+	paraSubInterval = interval("[1e-12, 198]"), # 198 corresponds to tau = 0.98
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             copFrank@paraConstr(theta0) &&
@@ -603,6 +609,8 @@ copGumbel <-
 	},        
         ## parameter interval
         paraInterval = interval("[1,Inf)"),
+	## parameter subinterval (e.g., for numerical optimization)
+	paraSubInterval = interval("[1,50]"), # 50 corresponds to tau = 0.98
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             copGumbel@paraConstr(theta0) &&
@@ -777,6 +785,8 @@ copJoe <-
         },
         ## parameter interval
         paraInterval = interval("[1,Inf)"),
+	## parameter subinterval (e.g., for numerical optimization)
+	paraSubInterval = interval("[1,99]"), # 99 corresponds to tau = 0.98
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             copJoe@paraConstr(theta0) &&

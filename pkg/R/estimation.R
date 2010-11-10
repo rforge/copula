@@ -56,7 +56,7 @@ beta. <- function(cop, theta, d, scaling = TRUE) {
 ##' multivariate version of Blomqvist's beta
 ##' @param u matrix of realizations following the copula
 ##' @param cop acopula to be estimated
-##' @param ... additional parameters for optimx()
+##' @param ... additional parameters for safeUroot
 ##' @return Blomqvist beta estimator
 ##' @author Marius Hofert
 ebeta <- function(u,cop,...){
@@ -69,21 +69,23 @@ ebeta <- function(u,cop,...){
     ## objective function
     d <- ncol(u)
 
-    ## optimize
-    ## for the initial value, use DMLE for Gumbel and convert the parameters via tau
-    start <- cop@tauInv(copGumbel@tau(edmle(u,copGumbel,...)))
-    ## MM -- FIXME !! -- do NOT use optim*() for root finding!
-    ## MH: instead of finding the root of "beta. - b.hat" on an interval we do
-    ##     not have safe lower and upper bounds, I thought we could minimize |beta. - b.hat|
-    ##     instead, using the nice feature of an initial value with optimx
-    optimx::optimx(start, function(theta)
-		   abs(beta.(cop,theta,d,scaling = FALSE) - b.hat),
-		   lower = min(cop@paraInterval),
-		   upper = max(cop@paraInterval),
-		   ## For box constraints ('lower', 'upper'), method must be one of
-		   ##  c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa")
-		   method = "bobyqa",
-                   ...)
+    ## find root
+    I <- cop@copula@paraSubInterval # get interval
+    safeUroot(function(theta){beta.(cop,theta,d,scaling = FALSE) - b.hat},
+              interval = c(I[1],I[2]), Sig = +1, check.conv = TRUE, ...)
+    
+    ##    ## for the initial value, use DMLE for Gumbel and convert the parameters via tau
+    ##    start <- cop@tauInv(copGumbel@tau(edmle(u,copGumbel,...)))
+    ##    ## MM -- FIXME !! -- do NOT use optim*() for root finding!
+    ##    ## MH if the above approach is okay, remove this code 
+    ##    optimx::optimx(start, function(theta)
+    ##		   abs(beta.(cop,theta,d,scaling = FALSE) - b.hat),
+    ##		   lower = min(cop@paraInterval),
+    ##		   upper = max(cop@paraInterval),
+    ##		   ## For box constraints ('lower', 'upper'), method must be one of
+    ##		   ##  c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa")
+    ##		   method = "bobyqa",
+    ##                   ...)
 
 }
 
@@ -108,10 +110,10 @@ etau <- function(u,cop,method = c("tau.mean","theta.mean"),...)
     method <- match.arg(method)
     switch(method,
            "tau.mean" = {
-               cop@tauInv(mean(tau.hat)) # Kendall's tau corresponding to the mean of the tau hat's
+               cop@copula@tauInv(mean(tau.hat)) # Kendall's tau corresponding to the mean of the tau hat's
            },
            "theta.mean" = {
-               mean(cop@tauInv(tau.hat)) # mean of the Kendall's tau
+               mean(cop@copula@tauInv(tau.hat)) # mean of the Kendall's tau
            },
        {stop("wrong method")})
 
@@ -132,27 +134,30 @@ edmle <- function(u,cop,...)
     x <- apply(u,1,max) # data from the diagonal
     l.d <- log(d)
     ## explicit estimator for Gumbel (used as initial value for the other families as well)
-    dmle.hat.G <- l.d/(log(length(x))-log(sum(-log(x))))
     if(cop@name == "Gumbel") {
-	dmle.hat.G
+	l.d/(log(length(x))-log(sum(-log(x))))
     } else {
-	tau.hat.G <- copGumbel@tau(dmle.hat.G)
-        start <-
-            if(cop@name == "AMH" && tau.hat.G >= 0.33) {
-                ## AMH cannot attain a tau >= 1/3
-                0.99 # most likely, this does not converge then (especially if tau.hat.G >> 0.33)
-            } else {
-                cop@tauInv(tau.hat.G) # convert tau.hat.G to the parameter of cop
-            }
+	## FIXME: clean-up unused code (and fix documentation)
+	## tau.hat.G <- copGumbel@tau(dmle.hat.G)
+	##         start <-
+	##             if(cop@name == "AMH" && tau.hat.G >= 0.33) {
+	##                 ## AMH cannot attain a tau >= 1/3
+	##                 0.99 # most likely, this does not converge then (especially if tau.hat.G >> 0.33)
+	##             } else {
+	##                 cop@tauInv(tau.hat.G) # convert tau.hat.G to the parameter of cop
+	##             }
         ## optimize
-	optimx::optimx(start, function(theta) # -log-Likelihood of the diagonal
-                       sum(cop@dDiag(x,theta,d,log = TRUE)),
-                       lower= min(cop@paraInterval),
-                       upper= max(cop@paraInterval),
-                       ## For box constraints ('lower', 'upper'), method must be one of
-                       ##  c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa")
-                       method = "bobyqa",
-                       ...)
+        I <- cop@copula@paraSubInterval # get interval
+	optimize(function(theta) sum(cop@dDiag(x,theta,d,log = TRUE)),interval = 
+                 c(I[1],I[2]), ...)
+	##optimx::optimx(start, function(theta) # -log-Likelihood of the diagonal
+        ##               sum(cop@dDiag(x,theta,d,log = TRUE)),
+        ##               lower= min(cop@paraInterval),
+        ##               upper= max(cop@paraInterval),
+        ##               ## For box constraints ('lower', 'upper'), method must be one of
+        ##               ##  c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa")
+        ##               method = "bobyqa",
+        ##              ...)
     }
 }
 
@@ -176,23 +181,26 @@ emle <- function(u,cop, method = c("mle", "smle"), N,
     acop <- cop@copula
     method <- match.arg(method)
     ## compute initial value based on either etau or edmle
-    start <- switch(match.arg(initial),
-                    tau.mean   = etau (u,acop, method="tau.mean"),
-                    theta.mean = etau (u,acop, method="theta.mean"),
-                    diag       = edmle(u,acop,...),
-                    stop("wrong argument initial"))
+    ## FIXME: clean-up unused code (and fix documentation)
+    ## start <- switch(match.arg(initial),
+    ##                     tau.mean   = etau (u,acop, method="tau.mean"),
+    ##                     theta.mean = etau (u,acop, method="theta.mean"),
+    ##                     diag       = edmle(u,acop,...),
+    ##                     stop("wrong argument initial"))
     if(missing(N)) N <- NULL
     ## optimize
     mLogL <- function(theta) # -log-Likelihood
         -sum(dnacopula(cop, u, theta,
                        MC = (method == "smle"), N, log = TRUE))
-    optimx::optimx(start, mLogL,
-                   lower= min(acop@paraInterval),
-                   upper= max(acop@paraInterval),
-                   ## For box constraints ('lower', 'upper'), method must be one of
-                   ##  c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa")
-                   method = "bobyqa",
-                   ...)
+    I <- cop@copula@paraSubInterval # get interval
+    optimize(mLogL, interval = c(I[1],I[2]), ...)
+    ## optimx::optimx(start, mLogL,
+    ##                    lower= min(acop@paraInterval),
+    ##                    upper= max(acop@paraInterval),
+    ##                    ## For box constraints ('lower', 'upper'), method must be one of
+    ##                    ##  c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa")
+    ##                    method = "bobyqa",
+    ##                    ...)
 
 }
 
