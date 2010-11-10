@@ -27,38 +27,33 @@
 ##'         times for V0 and the other cells the run time for V01 corresponding
 ##'         to two given taus among "taus" based on the generated V0's
 ##' @author Marius Hofert
-timing <- function(n,family,taus,digits = 3,verbose = FALSE){
-
+timing <- function(n,family,taus,digits = 3,verbose = FALSE)
+{
     ## setup
-    f <- function(x) format(round(x,digits),nsmall=digits,trim=TRUE,
-                            scientific=FALSE) # function to format output
+    ## f <- function(x) format(round(x,digits), nsmall=digits,trim=TRUE,
+    ##                         scientific=FALSE) # function to format output
+    f <- function(x) formatC(x, digits=digits, width = 8)
+    mTime <- function(x) 1000 * system.time(x)[1] ## measuring milliseconds
     l <- length(taus)
-    time.V0 <- numeric(l)
-    time.V01 <- matrix(,nrow=l,ncol=l)
+    f.taus <- format(taus, digits=digits)
+    res <- matrix(,nrow=l,ncol=l)
     copFamily <- getAcop(family)
     thetas <- copFamily@tauInv(taus)
 
     ## timing (based on user time)
-    if(l == 1) {
-        system.time(V0 <- copFamily@V0(n,thetas[1]))[1] # only generate V0
-    } else { # l >= 2
-	for(i in seq_along(thetas)) { # run over all theta0
-            time.V0[i] <- system.time(V0 <- copFamily@V0(n,thetas[i]))[1]
-            if(verbose) cat("V0:  tau_0 = ",f(taus[i]),"; time = ",f(time.V0[i]),
-                          "s\n",sep="")
-            if(i < l) for(j in (i+1):l) { # run over all theta1
-                time.V01[i,j] <-
-                    system.time(V01 <- copFamily@V01(V0,thetas[i], thetas[j]))[1]
-                if(verbose) cat("V01: tau_0 = ",f(taus[i]),", tau_1 = ",
-                              f(taus[j]),"; time = ",f(time.V01[i,j]),"s\n",
-                              sep="")
-            }
+    for(i in seq_along(thetas)) {       # run over all theta0
+        ## run times for V0 go into the first column:
+        res[i,1] <- mTime(V0 <- copFamily@V0(n,thetas[i]))
+        if(verbose) cat("V0:  tau_0 = ",f.taus[i],
+                        "; time = ", f(res[i,1]), " ms\n",sep="")
+        if(i < l) for(j in (i+1):l) {   # run over all theta1
+            res[i,j] <- mTime(V01 <- copFamily@V01(V0,thetas[i], thetas[j]))
+            if(verbose) cat("  V01: tau_0 = ",f.taus[i],", tau_1 = ", f.taus[j],
+                            "; time = ",f(res[i,j])," ms\n", sep="")
         }
-	## create result object
-	res <- time.V01
-	res[,1] <- time.V0 # use run times for V0 in the first column
-	row.names(res) <- taus # use taus as row and column headers
-	colnames(res) <- taus
-	res
     }
+    ## use taus as row and column headers:
+    dimnames(res) <- list('V0 tau' = f.taus,
+                          '   V01 tau' = c(" ", f.taus[-1]))
+    res
 }
