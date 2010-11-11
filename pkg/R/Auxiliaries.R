@@ -32,6 +32,19 @@ interval <- function(ch) {
 	open = c(which(iL) != 2, which(iR) != 2))
 }
 
+##' Directly convert numeric (length 2) vector to closed interval
+##' @title Closed Interval from Numeric
+##' @param x numeric vector of length two
+##' @param open logical, of length one or two
+##' @return
+##' @author Martin Maechler
+num2interval <- function(x, open = FALSE) {
+    stopifnot(is.numeric(x), length(x) == 2,
+	      is.logical(open), 1 <= (lo <- length(open)), lo <= 2)
+    new("interval", as.numeric(x), open = open[1:2])
+}
+setAs("numeric", "interval", function(from) num2interval(from))
+
 setMethod("format", "interval",
 	  function(x, trim = TRUE, ...) {
     r <- format(x@.Data, trim=trim, ...)

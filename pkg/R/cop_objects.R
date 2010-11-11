@@ -32,12 +32,12 @@ copAMH <-
         psi = function(t,theta) { (1-theta)/(exp(t+0)-theta) },
         psiInv = function(t,theta) { log((1-theta*(1-t))/t) },
 	## absolute value of generator derivatives
-	psiDAbs = function(t,theta,degree = 1,MC = FALSE,N,log = FALSE){ 
+	psiDAbs = function(t,theta,degree = 1,MC = FALSE,N,log = FALSE){
 	    if(theta == 0) if(log) return(-t) else return(exp(-t)) # special case
             if(MC){ # Monte Carlo
                 V0. <- copAMH@V0(N,theta)
                 l.V0. <- degree*log(V0.)
-                summands <- function(t) mean(exp(-V0.*t + l.V0.))	
+                summands <- function(t) mean(exp(-V0.*t + l.V0.))
                 res <- unlist(lapply(t,summands))
                 if(log) log(res) else res
             }else{ # exact or with series truncation
@@ -45,7 +45,7 @@ copAMH <-
                     expmt <- exp(-t)
                     th.expmt <- theta*expmt
                     if(log) log(1-theta)-t-2*log1p(-th.expmt) else (1-theta)*expmt/
-                        (1-th.expmt)^2 
+                        (1-th.expmt)^2
                 }else{ # series truncation for degree >= 2
                     k <- 1:N
                     l.pk <- copAMH@dV0(k,theta,log = TRUE)
@@ -59,13 +59,13 @@ copAMH <-
         ## parameter interval
         paraInterval = interval("[0,1)"),
         ## parameter subinterval (e.g., for numerical optimization)
-	paraSubInterval = interval(paste("[1e-12,",as.character(1-1e-12),"]",sep="")),
+	paraSubInterval = num2interval(c(1e-12, 1-1e-12)),
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             copAMH@paraConstr(theta0) &&
             copAMH@paraConstr(theta1) && theta1 >= theta0
         },
-        ## V0 with density dV0 and V01 with density dV01 corresponding to 
+        ## V0 with density dV0 and V01 with density dV01 corresponding to
         ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
         V0 = function(n,theta) rgeom(n, 1-theta) + 1,
 	dV0 = function(x,theta,log = FALSE) dgeom(x-1, 1-theta, log),
@@ -95,11 +95,11 @@ copAMH <-
                                                                     theta*u*
                                                                     (1-u^(d-1)))
             }else{
-		theta.*(u*(1-theta*(1-u)))^(d-1)/(1-theta*(1-u*(1-u^(d-1))))^2	
+		theta.*(u*(1-theta*(1-u)))^(d-1)/(1-theta*(1-u*(1-u^(d-1))))^2
             }
 	},
 	## density of the Archimedean copula
-	dAc = function(u,theta,MC = FALSE,N,log = FALSE){ 
+	dAc = function(u,theta,MC = FALSE,N,log = FALSE){
 	    if(is.vector(u)) u <- matrix(u, nrow = 1)
             n <- nrow(u)
             if(theta == 0) if(log) return(rep(0,n)) else return(rep(1,n)) # special case
@@ -235,13 +235,13 @@ copClayton <-
         ## parameter interval
         paraInterval = interval("(0,Inf)"),
 	## parameter subinterval (e.g., for numerical optimization)
-	paraSubInterval = interval("[1e-12, 100]"), # 100 corresponds to tau = 0.98
+	paraSubInterval = num2interval(c(1e-12, 100)), # 100 corresponds to tau = 0.98
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             copClayton@paraConstr(theta0) &&
             copClayton@paraConstr(theta1) && theta1 >= theta0
         },
-        ## V0 with density dV0 and V01 with density dV01 corresponding to 
+        ## V0 with density dV0 and V01 with density dV01 corresponding to
         ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
         V0 = function(n,theta) { rgamma(n, shape = 1/theta) },
         dV0 = function(x,theta,log = FALSE) dgamma(x, shape = 1/theta, log),
@@ -385,13 +385,13 @@ copFrank <-
         ## parameter interval
         paraInterval = interval("(0,Inf)"),
 	## parameter subinterval (e.g., for numerical optimization)
-	paraSubInterval = interval("[1e-12, 198]"), # 198 corresponds to tau = 0.98
+	paraSubInterval = num2interval(c(1e-12, 198)), # 198 corresponds to tau = 0.98
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             copFrank@paraConstr(theta0) &&
             copFrank@paraConstr(theta1) && theta1 >= theta0
         },
-        ## V0 (algorithm of Kemp (1981)) with density dV0 and V01 with density  
+        ## V0 (algorithm of Kemp (1981)) with density dV0 and V01 with density
         ## dV01 corresponding to LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
         V0 = function(n,theta) { rlog(n,-expm1(-theta)) },
         dV0 = function(x,theta,log = FALSE){
@@ -479,7 +479,7 @@ copFrank <-
 	        }
 	    }
 	    if(log) res else exp(res)
-        },	
+        },
         ## Kendall distribution function
         K = function(t, theta, d, MC = FALSE, N){
             stopifnot(length(theta) == 1, length(d) == 1)
@@ -558,19 +558,19 @@ copGumbel <-
                 summands <- function(t) mean(exp(-V0.*t + l.V0.))
 		res[ind] <- unlist(lapply(t[ind],summands))
                 if(log) log(res) else res
-	    }else{ # exact 
+	    }else{ # exact
 		alpha <- 1/theta
 	        if(degree == 1){ # degree = 1
-                    if(log) log(alpha)+(alpha-1)*log(t)-t^alpha else 
+                    if(log) log(alpha)+(alpha-1)*log(t)-t^alpha else
                     copGumbel@psi(t,theta)*alpha*t^(alpha-1)
 	        }else{ # degree >= 2
-		    
+
 		    ## FIXME: several things in the following code can be improved
-                    
+
                     ## compute Stirling numbers
                     s <- diag(,nrow=degree+1) # contains the Stirling numbers of the first kind s(n,k)
                     S <- s # contains the Stirling numbers of the second kind S(n,k)
-                    ## s[n,k] contains s(n-1,k-1) and S[n,k] contains S(n-1,k-1) 
+                    ## s[n,k] contains s(n-1,k-1) and S[n,k] contains S(n-1,k-1)
                     ## equivalently, s[n+1,k+1] contains s(n,k) and S[n+1,k+1] contains S(n,k)
                     for(n in 3:(degree+1)){
                         for(k in 2:(n-1)){
@@ -594,7 +594,7 @@ copGumbel <-
                                 k <- 1:j
                                 inner.sum[j] <- sum(S[j+1,k+1]*(-x)^k)
                             }
-                            
+
                             ## outer sum
                             j <- 1:degree
                             t^(-degree)*copGumbel@psi(t,theta)*sum(s[degree+1,j+1]*alpha^j*inner.sum)
@@ -606,17 +606,17 @@ copGumbel <-
 
 	        }
 	    }
-	},        
+	},
         ## parameter interval
         paraInterval = interval("[1,Inf)"),
 	## parameter subinterval (e.g., for numerical optimization)
-	paraSubInterval = interval("[1,50]"), # 50 corresponds to tau = 0.98
+	paraSubInterval = num2interval(c(1, 50)), # 50 corresponds to tau = 0.98
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             copGumbel@paraConstr(theta0) &&
             copGumbel@paraConstr(theta1) && theta1 >= theta0
         },
-        ## V0 with density dV0 and V01 with density dV01 corresponding to 
+        ## V0 with density dV0 and V01 with density dV01 corresponding to
         ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
         V0 = function(n,theta) {
             if(theta == 1) {
@@ -694,7 +694,7 @@ copGumbel <-
             d <- ncol(u)
             if(!MC && d == 2){ # exact for d = 2 (if MC = FALSE)
                 res <- log(theta-1+u.^alpha)+(alpha-2)*log(u.)+(theta-1)*
-                    log(-log(u[,1])-log(u[,2]))	
+                    log(-log(u[,1])-log(u[,2]))
             }else{ # exact or with Monte Carlo
                 l.u <- log(u)
                 res <- copGumbel@psiDAbs(u.,theta,d,MC=MC,N=N,log=TRUE)+d*
@@ -786,13 +786,13 @@ copJoe <-
         ## parameter interval
         paraInterval = interval("[1,Inf)"),
 	## parameter subinterval (e.g., for numerical optimization)
-	paraSubInterval = interval("[1,99]"), # 99 corresponds to tau = 0.98
+	paraSubInterval = num2interval(c(1, 99)), # 99 corresponds to tau = 0.98
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             copJoe@paraConstr(theta0) &&
             copJoe@paraConstr(theta1) && theta1 >= theta0
         },
-        ## V0 with density dV0 and V01 with density dV01 corresponding to 
+        ## V0 with density dV0 and V01 with density dV01 corresponding to
         ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
         V0 = function(n,theta) rFJoe(n, 1/theta),
         dV0 = function(x,theta,log = FALSE){
@@ -823,15 +823,15 @@ copJoe <-
                 ## FIXME: general case; numerically critical, see, e.g., dV01(1000,500,3,5) < 0
                 one.d.args <- function(x.,V0.){
                     j <- 1:V0. # indices of the summands
-                    signs <- (-1)^(j+x.) 
+                    signs <- (-1)^(j+x.)
                     ## determine the signs of choose(j*alpha,x.) for each component of j
-                    to.subtract <- 0:(x.-1) 
+                    to.subtract <- 0:(x.-1)
                     signs.choose <- unlist(lapply(j,function(l) prod(sign(l*alpha-to.subtract))))
                     signs <- signs*signs.choose
                     binom.coeffs <- exp(lchoose(V0.,j)+lchoose(j*alpha,x.))
                     sum(signs*binom.coeffs)
                 }
-                sum. <- mapply(one.d.args,x[!V0.one],V0[!V0.one])         
+                sum. <- mapply(one.d.args,x[!V0.one],V0[!V0.one])
                 res[!V0.one] <- if(log) log(sum.) else sum.
             }
             res
