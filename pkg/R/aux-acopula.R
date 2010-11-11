@@ -401,8 +401,80 @@ Stirling2 <- function(n,k, method = c("lookup.or.store","direct"))
 assign("S2.tab", list(), envir = .nacopEnv) ## S2.tab[[n]][k] == S(n, k)
 assign("S1.tab", list(), envir = .nacopEnv) ## S1.tab[[n]][k] == s(n, k)
 
+##' From   http://en.wikipedia.org/wiki/Polylogarithm
+##' 1. For integer values of the polylogarithm order, the following
+##'   explicit expressions are obtained by repeated application of z·∂/∂z
+##'   to Li1(z):
+##'
+##'     {Li}_{1}(z) = -\ln(1-z)
+##'     {Li}_{0}(z) = {z \over 1-z}
+##'     {Li}_{-1}(z) = {z \over (1-z)^2}
+##'     {Li}_{-2}(z) = {z \,(1+z) \over (1-z)^3}
+##'     {Li}_{-3}(z) = {z \,(1+4z+z^2) \over (1-z)^4}
+##'     {Li}_{-4}(z) = {z \,(1+z) (1+10z+z^2) \over (1-z)^5}.
+##'
+##' Accordingly the polylogarithm reduces to a ratio of polynomials in
+##' z, and is therefore a rational function of z, for all nonpositive
+##' integer orders. The general case may be expressed as a finite sum:
+##'
+##' {Li}_{-n}(z) = \left(z \,{\partial \over \partial z} \right)^n \frac{z}{1-z}=
+##'     = \sum_{k=0}^n k! \,S(n+1,k+1) \left({z \over {1-z}} \right)^{k+1}
+##' \ \ (n=0,1,2,\ldots),
+##'
+##' where S(n,k) are the Stirling numbers of the second
+##' kind. Equivalent formulae applicable to negative integer orders are
+##' (Wood 1992, § 6):
+##'
+##'  {Li}_{-n}(z) = (-1)^{n+1} \sum_{k=0}^n k! \,S(n+1,k+1) \left({{-1} \over {1-z}} \right)^{k+1} \
+##'     (n=1,2,3,\ldots),
+##'
+##' Compute the polylogarithm function \eqn{Li_s(z)}
+##'
+##' @title Polylogarithm Li_s(z)
+##' @param z numeric or complex vector
+##' @param s complex number; current implementation is aimed at s \in 0,-1,..
+##' @param method a string specifying the algorithm to be used
+##' @param logarithm
+##' @return numeric/complex vector as \code{z}
+##' @author Martin Maechler
+polylog <- function(z,s, method = c("sum","negint-s_Stirling"), logarithm=FALSE,
+		    ## for "sum" -- this is more for experiments etc:
+		    n.sum)
+{
+    if((nz <- length(z)) == 0 || (ns <- length(s)) == 0)
+	return((z+s)[FALSE])# of length 0
+    if(logarithm)
+	stop("'logarithm = TRUE' is not yet implemented")
+    stopifnot(length(s) == 1) # for now
+    method <- match.arg(method)
+    switch(method,
+	   "sum" = {
+	       stopifnot((Mz <- Mod(z)) <= 1, Mz < 1 | Re(s) > 1,
+			 n.sum > 99, length(n.sum) == 1)
+	       n <- n.sum:1L # reversed in order, so we sum *small* terms first
+	       if(nz == 1)
+		   sum(z^n / n^s)
+	       else
+		   colSums(outer(n, z, function(n,z) z^n) / rep.int(n, nz)^s)
+	   },
+	   "negint-s_Stirling" = {
+	       stopifnot(s == as.integer(s), s <= 1)
+	       if(s == 1) return(-log1p(-z)) ## -ln(1 -z)
+	       r <- z/(1 - z)
+	       ## if(s == 0) return(r)
+	       n <- -as.integer(s)
+	       k1 <- seq_len(n+1)# == k+1, k = 0...n
+	       fac.k <- cumprod(c(1, seq_len(n)))
+	       ## FIXME? more efficient when I use *all* S2(n+1, k) ?!?
+	       S.n1.k1 <- sapply(k1, Stirling2, n=n+1) ## == Stirling2(n+1, k+1)
+	       if(nz == 1)
+		   sum(	   fac.k * S.n1.k1  *  r^k1 )
+	       else
+		   colSums(fac.k * S.n1.k1 * outer(k1, r, function(k,r) r^k))
+	   }, stop("invalid 'method':", method))
+}
 
-### ==== other non-numerics ====================================================
+### ==== other NON-numerics ====================================================
 
 ##' Function for setting the parameter in an acopula
 ##' @param x acopula
