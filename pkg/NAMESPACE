@@ -45,6 +45,8 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"rstable1"
        ,"retstable", "retstableR"
        ,"rFJoe", "rFJoeR", "rFFrank", "rFFrankR", "rlog", "rlogR"
+       ##
+       ,"Stirling1", "Stirling2"
        ,"setTheta"
        ,"tauAMH"
        ,"allComp" # <- maybe keep private ?

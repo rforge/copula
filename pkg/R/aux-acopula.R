@@ -299,7 +299,110 @@ rFJoe <- function(n,alpha) {
     .Call(rFJoe_c, n, alpha)
 }
 
-### ==== other stuff ===========================================================
+### ==== other numeric utilities ===============================================
+
+##' Compute Stirling numbers of the 1st kind
+##'
+##' s(n,k) = (-1)^{n-k} times
+##' the number of permutations of 1,2,…,n with exactly k cycles
+##'
+##' NIST DLMF 26.8 --> http://dlmf.nist.gov/26.8
+##' @title  Stirling Numbers of the 1st Kind
+##' @param n
+##' @param k
+##' @return s(n,k)
+##' @author Martin Maechler
+Stirling1 <- function(n,k)
+{
+    ## NOTA BENE: There's no "direct" method available here
+    stopifnot(length(n) == 1, length(k) == 1)
+    if (0 > k || k > n) stop("'k' must be in 0..n !")
+
+    ## This is tested and works --- can it be made more elegant ?? {TODO}
+    if(k == n) return(1) ## { including n==0 }	else:
+    if(k == 0) return(0) ## else:
+    S1 <- function(n,k) {
+	if(k == n) return(1)
+	if(k == 0) return(0)
+	if(is.na(S <- St[[n]][k])) {
+	    ## s(n,k) = s(n-1,k-1) - (n-1) * s(n-1,k) for all n, k >= 0
+	    n1 <- n-1L
+	    St[[n]][k] <<- S <- S1(n1, k-1) - n1* S1(n1, k)
+	}
+	S
+    }
+    if(compute <- (nt <- length(St <- get("S1.tab", .nacopEnv))) < n) {
+	## extend the "table":
+	length(St) <- n
+	for(i in (nt+1L):n) St[[i]] <- rep.int(NA_real_, i)
+    }
+    else compute <- is.na(S <- St[[n]][k])
+    if(compute) {
+	S <- S1(n,k)
+	## store it back:
+	assign("S1.tab", St, envir = .nacopEnv)
+    }
+    S
+}
+
+
+##' Compute Stirling numbers of the 2nd kind
+##'
+##' S^{(k)}_n = number of ways of partitioning a set of $n$ elements into $k$
+##'	non-empty subsets
+##' (Abramowitz/Stegun: 24,1,4 (p. 824-5 ; Table 24.4, p.835)
+##'   Closed Form : p.824 "C."
+##' @title  Stirling Numbers of the 2nd Kind
+##' @param n
+##' @param k
+##' @param method
+##' @return S(n,k) = S^{(k)}_n
+##' @author Martin Maechler, "direct": May 28 1992
+Stirling2 <- function(n,k, method = c("lookup.or.store","direct"))
+{
+    stopifnot(length(n) == 1, length(k) == 1)
+    if (0 > k || k > n) stop("'k' must be in 0..n !")
+    switch(match.arg(method),
+	   "direct" = {
+	       sig <- rep(c(1,-1)*(-1)^k, length= k+1) # 1 for k=0; -1 1 (k=1)
+	       k <- 0:k # (!)
+	       ga <- gamma(k+1)
+	       round(sum( sig * k^n /(ga * rev(ga))))
+	   },
+	   "lookup.or.store" = {
+	       ## This is tested and works --- can it be made more elegant ?? {TODO}
+	       if(k == n) return(1) ## { including n==0 }  else:
+	       if(k <= 1) return(k) ## else:
+	       S2 <- function(n,k) {
+		   if(k == n) return(1) ## { including n==0 }  else:
+		   if(k <= 1) return(k) ## else:
+		   if(is.na(S <- St[[n]][k]))
+		       ## S(n,k) = S(n-1,k-1) + k * S(n-1,k)   for all n, k >= 0
+		       St[[n]][k] <<- S <- S2(n-1, k-1) + k* S2(n-1, k)
+		   S
+	       }
+	       if(compute <- (nt <- length(St <- get("S2.tab", .nacopEnv))) < n) {
+		   ## extend the "table":
+		   length(St) <- n
+		   for(i in (nt+1L):n) St[[i]] <- rep.int(NA_real_, i)
+	       }
+	       else compute <- is.na(S <- St[[n]][k])
+	       if(compute) {
+		   S <- S2(n,k)
+		   ## store it back:
+		   assign("S2.tab", St, envir = .nacopEnv)
+	       }
+	       S
+	   })
+}
+
+## Our environment for tables etc:  no hash, as it will contain *few* objects:
+.nacopEnv <- new.env(parent=emptyenv(), hash=FALSE)
+assign("S2.tab", list(), envir = .nacopEnv) ## S2.tab[[n]][k] == S(n, k)
+assign("S1.tab", list(), envir = .nacopEnv) ## S1.tab[[n]][k] == s(n, k)
+
+
+### ==== other non-numerics ====================================================
 
 ##' Function for setting the parameter in an acopula
 ##' @param x acopula
