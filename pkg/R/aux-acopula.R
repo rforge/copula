@@ -401,6 +401,7 @@ Stirling2 <- function(n,k, method = c("lookup.or.store","direct"))
 assign("S2.tab", list(), envir = .nacopEnv) ## S2.tab[[n]][k] == S(n, k)
 assign("S1.tab", list(), envir = .nacopEnv) ## S1.tab[[n]][k] == s(n, k)
 
+
 ##' From   http://en.wikipedia.org/wiki/Polylogarithm
 ##' 1. For integer values of the polylogarithm order, the following
 ##'   explicit expressions are obtained by repeated application of z·∂/∂z
@@ -475,6 +476,21 @@ polylog <- function(z,s, method = c("sum","negint-s_Stirling"), logarithm=FALSE,
 }
 
 ### ==== other NON-numerics ====================================================
+
+##' Function which computes psiDAbs via Monte Carlo
+##' @param t evaluation points
+##' @param family Archimedean family
+##' @param theta parameter value
+##' @param degree order of derivative
+##' @param MC Monte Carlo sample size 
+##' @param log if TRUE the log of psiDAbs is returned
+psiDAbsMC <- function(t, family, theta, degree = 1, MC, log = FALSE){
+	V0. <- getAcop(family)@V0(MC,theta)
+        l.V0. <- degree*log(V0.)
+        summands <- function(t) mean(exp(-V0.*t + l.V0.))
+        res <- unlist(lapply(t,summands))
+        if(log) log(res) else res
+}
 
 ##' Function for setting the parameter in an acopula
 ##' @param x acopula
@@ -560,7 +576,7 @@ printNacopula <-
     mkBlanks <- function(n) paste(rep.int(" ", n), collapse="")
     bl <- mkBlanks(nIS <- nchar(indent.str))
 
-## cat(sprintf(" __deltaInd = %d, nIS = %d__ ", deltaInd, nIS))
+    ## cat(sprintf(" __deltaInd = %d, nIS = %d__ ", deltaInd, nIS))
     ch1 <- sprintf("%sNested Archimedean copula (\"%s\"), with ",
                    indent.str, cl)
     ch2 <- if(length(c.j <- x@comp)) {

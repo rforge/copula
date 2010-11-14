@@ -15,6 +15,27 @@
 
 #### Estimation for nested Archimedean copulas
 
+## ==== initial interval for optimization procedures ===========================
+
+##' Compute an initial interval for optimization/estimation routines (only a 
+##' heuristic; if this fails, choose your own interval)
+##' @param u data
+##' @param family Archimedean family
+##' @return initial interval which can be used for optimization (e.g., for emle)
+##' @author Marius Hofert 
+paraOptInterval <- function(u, family){
+    theta.hat.G <- edmle(u, getAcop("Gumbel"))$minimum
+    tau.hat.G <- copGumbel@tau(theta.hat.G) 
+    copFamily <- getAcop(family)
+    I <- copFamily@paraSubInterval
+    tau.min <- copFamily@tau(I[1]) # smallest admissible lower bound for copFamily
+    tau.max <- copFamily@tau(I[2]) # largest admissible upper bound for copFamily
+    h <- 0.15 # for enlarging the tau-interval 
+    l <- max(tau.hat.G - h,tau.min) # admissible lower bound for tau
+    u <- min(tau.hat.G + h,tau.max) # admissible upper bound for tau
+    c(copFamily@tauInv(l),copFamily@tauInv(u))	
+}
+
 ## ==== Blomqvist's beta =======================================================
 
 ##' Compute the sample version of Blomqvist's beta for an Archimedean copula,
@@ -47,8 +68,11 @@ beta.hat <- function(u, scaling = TRUE){
 beta. <- function(cop, theta, d, scaling = TRUE) {
     j <- 1:d
     signs <- (-1)^j
-    ldiags <- cop@diag(0.5,theta,j,log=TRUE)
-    b <- cop@diag(0.5,theta,d) + 1 + sum(signs*exp(lchoose(d,j)+ldiags))
+    log.diag <- function(d) log(pnacopula(onacopulaL(cop@name,list(theta,1:d)),
+                                          rep(0.5,d)))
+    ldiags <- unlist(lapply(j,log.diag)) 
+    b <- pnacopula(onacopulaL(cop@name,list(theta,1:d)),rep(0.5,d)) + 1 +
+        sum(signs*exp(lchoose(d,j)+ldiags))
     if(scaling) { T <- 2^(d-1); (T*b - 1)/(T - 1)} else b
 }
 
@@ -56,37 +80,20 @@ beta. <- function(cop, theta, d, scaling = TRUE) {
 ##' multivariate version of Blomqvist's beta
 ##' @param u matrix of realizations following the copula
 ##' @param cop acopula to be estimated
+##' @param interval bivariate vector denoting the interval where optimization takes 
+##'        place 
 ##' @param ... additional parameters for safeUroot
-##' @return Blomqvist beta estimator
+##' @return Blomqvist beta estimator; return value of safeUroot (more or less 
+##'	    equal to the return value of uniroot) 
 ##' @author Marius Hofert
-ebeta <- function(u,cop,...){
-
+ebeta <- function(u,cop,interval = paraOptInterval(u, cop@name),...){
     ## Note: We do not need the constants 2^(d-1)/(2^(d-1)-1) and 2^(1-d) here,
     ##	     since we equate the population and sample versions of Blomqvist's
     ##       beta anyway.
     b.hat <- beta.hat(u, scaling = FALSE)
-
-    ## objective function
     d <- ncol(u)
-
-    ## find root
-    I <- cop@copula@paraSubInterval # get interval
     safeUroot(function(theta){beta.(cop,theta,d,scaling = FALSE) - b.hat},
-              interval = c(I[1],I[2]), Sig = +1, check.conv = TRUE, ...)
-    
-    ##    ## for the initial value, use DMLE for Gumbel and convert the parameters via tau
-    ##    start <- cop@tauInv(copGumbel@tau(edmle(u,copGumbel,...)))
-    ##    ## MM -- FIXME !! -- do NOT use optim*() for root finding!
-    ##    ## MH if the above approach is okay, remove this code 
-    ##    optimx::optimx(start, function(theta)
-    ##		   abs(beta.(cop,theta,d,scaling = FALSE) - b.hat),
-    ##		   lower = min(cop@paraInterval),
-    ##		   upper = max(cop@paraInterval),
-    ##		   ## For box constraints ('lower', 'upper'), method must be one of
-    ##		   ##  c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa")
-    ##		   method = "bobyqa",
-    ##                   ...)
-
+              interval = interval, Sig = +1, check.conv = TRUE, ...)
 }
 
 ## ==== Kendall's tau ==========================================================
@@ -110,10 +117,10 @@ etau <- function(u,cop,method = c("tau.mean","theta.mean"),...)
     method <- match.arg(method)
     switch(method,
            "tau.mean" = {
-               cop@copula@tauInv(mean(tau.hat)) # Kendall's tau corresponding to the mean of the tau hat's
+               cop@tauInv(mean(tau.hat)) # Kendall's tau corresponding to the mean of the tau hat's
            },
            "theta.mean" = {
-               mean(cop@copula@tauInv(tau.hat)) # mean of the Kendall's tau
+               mean(cop@tauInv(tau.hat)) # mean of the Kendall's tau
            },
        {stop("wrong method")})
 
@@ -121,23 +128,42 @@ etau <- function(u,cop,method = c("tau.mean","theta.mean"),...)
 
 ## ==== Diagonal maximum likelihood estimation =================================
 
+##' Density of the diagonal of an Archimedean copula
+##' @param u evaluation point
+##' @param cop acopula
+##' @param d dimension
+##' @param log if TRUE the log-density is evaluated
+##' @return density of the diagonal of cop
+##' @author Marius Hofert
+dDiag <- function(u, cop, d, log = FALSE){
+    stopifnot(is(cop,"acopula")) # dimension
+    stopifnot(all(0 <= u, u <= 1))
+    th <- cop@theta
+    if(log){
+        log(d) + cop@psiDAbs(d*cop@psiInv(u,th), th, log = TRUE) + 
+            cop@psiInvD1Abs(u, th, log = TRUE)
+    }else{
+        d*cop@psiDAbs(d*cop@psiInv(u,th), th)*(cop@psiInvD1Abs(u,th))
+    }
+}
+
 ##' Maximum likelihood estimation based on the diagonal of the Archimedean copula
 ##' @param u matrix of realizations following the copula
 ##' @param cop acopula to be estimated
-##' @param ... additional parameters for optimx()
-##' @return diagonal maximum likelihood estimator
-##' @author Marius Hofert
-edmle <- function(u,cop,...)
+##' @param interval bivariate vector denoting the interval where optimization takes 
+##'        place 
+##' @param ... additional parameters for optimize
+##' @return diagonal maximum likelihood estimator; return value of optimize
+##' @author Marius Hofert 
+edmle <- function(u, cop, interval = paraOptInterval(u, cop@name), ...)
 {
-    stopifnot(is(cop,"acopula"),
-              is.numeric(d <- ncol(u)), d >= 1) # dimension
+    stopifnot(is(cop,"acopula"), is.numeric(d <- ncol(u)), d >= 1) # dimension
     x <- apply(u,1,max) # data from the diagonal
-    l.d <- log(d)
-    ## explicit estimator for Gumbel (used as initial value for the other families as well)
-    if(cop@name == "Gumbel") {
-	l.d/(log(length(x))-log(sum(-log(x))))
-    } else {
-	## FIXME: clean-up unused code (and fix documentation)
+    ## explicit estimator for Gumbel 
+    if(cop@name == "Gumbel"){
+	list(minimum = log(d)/(log(length(x))-log(sum(-log(x)))), objective = 0) # return value of the same structure as for optimize
+    }else{
+	## FIXME: clean-up unused code (or use method-switch for optim(x))
 	## tau.hat.G <- copGumbel@tau(dmle.hat.G)
 	##         start <-
 	##             if(cop@name == "AMH" && tau.hat.G >= 0.33) {
@@ -147,13 +173,15 @@ edmle <- function(u,cop,...)
 	##                 cop@tauInv(tau.hat.G) # convert tau.hat.G to the parameter of cop
 	##             }
         ## optimize
-        I <- cop@copula@paraSubInterval # get interval
-	optimize(function(theta) sum(cop@dDiag(x,theta,d,log = TRUE)),interval = 
-                 c(I[1],I[2]), ...)
+	mLogL <- function(theta){ # -log-likelihood
+            cop@theta <- theta
+            -sum(dDiag(x,cop,d,log = TRUE)) ## FIXME: maybe only sum over those values that are finite and let the user know how many these are (?)
+        }
+	optimize(mLogL, interval = interval, ...)
 	##optimx::optimx(start, function(theta) # -log-Likelihood of the diagonal
         ##               sum(cop@dDiag(x,theta,d,log = TRUE)),
-        ##               lower= min(cop@paraInterval),
-        ##               upper= max(cop@paraInterval),
+        ##               lower= min(cop@paraSubInterval),
+        ##               upper= max(cop@paraSubInterval),
         ##               ## For box constraints ('lower', 'upper'), method must be one of
         ##               ##  c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa")
         ##               method = "bobyqa",
@@ -165,38 +193,42 @@ edmle <- function(u,cop,...)
 
 ##' (Simulated) maximum likelihood estimation for Nested Archimedean copulas
 ##' @param u matrix of realizations following the copula
-##' @param cop nested acopula to be estimated
-##' @param method estimation method
-##' @param N approximation parameter for MLE; sample size for SMLE
-##' @param initial method used for finding an initial value (either etau with
-##' 	   option "tau.mean" or "theta.mean" (denoted by "tau.mean" and "tau.mean",
-##'	   respectively), or edmle (denoted by "diag"))
-##' @param ... additional parameters for optimx()
-##' @return (simulated) maximum likelihood estimator
+##' @param cop nacopula to be estimated
+##' @param MC if provided SMLE is applied with sample size equal to MC; otherwise,
+##'        MLE is applied
+##' @param interval bivariate vector denoting the interval where optimization takes 
+##'        place (with default given by the slot paraSubInterval)
+##' @param ... additional parameters for optimize
+##' @return (simulated) maximum likelihood estimator; return value of optimize
 ##' @author Marius Hofert
-emle <- function(u,cop, method = c("mle", "smle"), N,
-                 initial = c("tau.mean", "theta.mean","diag"), ...)
+emle <- function(u,cop, MC, interval = paraOptInterval(u, cop@copula@name), ...)
 {
     stopifnot(is(cop,"nacopula"))
-    acop <- cop@copula
-    method <- match.arg(method)
+    if(length(cop@childCops))
+	stop("currently, only Archimedean copulas are provided")
     ## compute initial value based on either etau or edmle
-    ## FIXME: clean-up unused code (and fix documentation)
+    ## FIXME: clean-up unused code
+    ## this function used to have the argument "initial = c("tau.mean", "theta.mean","diag")"
+    ## with the documentation
+    ##     initial method used for finding an initial value (either etau with
+    ## 	   option "tau.mean" or "theta.mean" (denoted by "tau.mean" and "tau.mean",
+    ##	   respectively), or edmle (denoted by "diag"))
+    ## and the following code (here)
     ## start <- switch(match.arg(initial),
     ##                     tau.mean   = etau (u,acop, method="tau.mean"),
     ##                     theta.mean = etau (u,acop, method="theta.mean"),
     ##                     diag       = edmle(u,acop,...),
     ##                     stop("wrong argument initial"))
-    if(missing(N)) N <- NULL
+    if(missing(MC)) MC <- NULL # set it to NULL to make the call from dnacopula easier
     ## optimize
-    mLogL <- function(theta) # -log-Likelihood
-        -sum(dnacopula(cop, u, theta,
-                       MC = (method == "smle"), N, log = TRUE))
-    I <- cop@copula@paraSubInterval # get interval
-    optimize(mLogL, interval = c(I[1],I[2]), ...)
+    mLogL <- function(theta){ # -log-likelihood
+        cop@copula@theta <- theta
+        -sum(dnacopula(cop, u, MC = MC, log = TRUE)) ## FIXME: maybe only sum over those values that are finite and let the user know how many these are (?)
+    }
+    optimize(mLogL, interval = interval, ...)
     ## optimx::optimx(start, mLogL,
-    ##                    lower= min(acop@paraInterval),
-    ##                    upper= max(acop@paraInterval),
+    ##                    lower= min(acop@paraSubInterval),
+    ##                    upper= max(acop@paraSubInterval),
     ##                    ## For box constraints ('lower', 'upper'), method must be one of
     ##                    ##  c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa")
     ##                    method = "bobyqa",
@@ -212,52 +244,68 @@ emle <- function(u,cop, method = c("mle", "smle"), N,
 ##' @author Marius Hofert
 pobs <- function(x) apply(x,2,rank)/(nrow(x)+1)
 
-
-##' ##' Computes different parameter estimates for a nested Archimedean copula
+##' Computes different parameter estimates for a nested Archimedean copula
 ##' @param x data matrix
 ##' @param cop nacopula to be estimated
 ##' @param method estimation method; can be
+##'        "mle"             MLE
+##'        "smle"            SMLE
+##'        "tau.tau.mean"    averaged pairwise Kendall's tau estimator
+##'        "tau.theta.mean"  average of Kendall's tau estimators
+##'        "dmle"            MLE based on the diagonal
+##'        "beta"            multivariate Blomqvist's beta estimator
+##' FIXME: the docu (and enacopula) used to contain:
 ##'        "mle.tau.mean"     MLE with initial value found by averaged pairwise Kendall's tau
 ##'        "mle.theta.mean"   MLE with initial value found by Kendall's tau estimators averaged
 ##'        "mle.diag"         MLE with initial value found via DMLE
 ##'        "smle.tau.mean"    SMLE with initial value found by averaged pairwise Kendall's tau
 ##'        "smle.theta.mean"  SMLE with initial value found by Kendall's tau estimators averaged
 ##'        "smle.diag"        SMLE with initial value found via DMLE
-##'        "tau.tau.mean"     averaged pairwise Kendall's tau estimator
-##'        "tau.theta.mean"   average of Kendall's tau estimators
-##'        "dmle"             MLE based on the diagonal
-##'        "beta"             multivariate Blomqvist's beta estimator
-##' @param N approximation parameter for MC = FALSE; sample size for MC = TRUE;
-##'   if missing or NULL, the routines will use simple defaults.
+##' @param MC if provided (and not NULL) MC denotes the sample size for SMLE
+##' @param interval initial optimization interval for "mle", "smle", and "dmle" (i.e., emle, dmle)
 ##' @param do.pseudo  logical indicating if 'x' should be "pseudo-transformed"
-##' @param ... additional parameters for optimx()
-##' @return estimator according to the chosen method --- was genau? nur Parameter Vector?
+##' @param ... additional parameters for optimize
+##' @return estimated value/vector according to the chosen method
 ##' @author Marius Hofert
-enacopula <- function(x, cop, method = c("mle.tau.mean","mle.theta.mean","mle.diag",
-                              "smle","tau.tau.mean","tau.theta.mean","dmle","beta"),
-                      N, do.pseudo = FALSE, ...)
+enacopula <- function(x, cop, method = c("mle","smle","tau.tau.mean","tau.theta.mean",
+                              "dmle","beta"), MC, interval = 
+                      paraOptInterval(u, cop@copula@name), do.pseudo = FALSE, ...)
 {
     ## setup cop
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
-	stop("currently, only Archimedean copulas are provided")
+        stop("currently, only Archimedean copulas are provided")
     acop <- cop@copula
 
     ## setup x
     u <- if(do.pseudo) pobs(x) else x
 
     method <- match.arg(method)
+
+    ## check if MC is given for SMLE
+    if(mMC <- missing(MC)) MC <- NULL
+    if(mMC && method == "smle") stop("smle needs the sample size MC") 
+
     ## main part
+    res <- switch(method,
+                  mle =            emle (u,  cop, interval = interval,...),
+                  smle =           emle (u,  cop, MC = MC, interval = interval,...),                
+                  tau.tau.mean =   etau (u, acop, "tau.mean", ...),
+                  tau.theta.mean = etau (u, acop, "theta.mean", ...),
+                  dmle =           edmle(u, acop, interval = interval,...),
+                  beta =           ebeta(u, acop, interval = interval,...),                  
+                  stop("wrong estimation method"))
+
+    ## FIXME: deal with result, check details, give warnings
+
+    ## return the estimate
     switch(method,
-           mle.tau.mean =    emle (u,  cop, "mle", N,"tau.mean",...),
-           mle.theta.mean =  emle (u,  cop, "mle", N,"theta.mean",...),
-           mle.diag =        emle (u,  cop, "mle", N,"diag",...),
-           smle.tau.mean =   emle (u,  cop, "smle",N,"tau.mean",...),
-           smle.theta.mean = emle (u,  cop, "smle",N,"theta.mean",...),
-           smle.diag =       emle (u,  cop, "smle",N,"diag",...),
-           tau.tau.mean =    etau (u, acop, "tau.mean",...),
-           tau.theta.mean =  etau (u, acop, "theta.mean",...),
-           dmle =            edmle(u, acop,...),
-           beta =            ebeta(u, acop,...),
+           mle =            res$minimum,
+           smle =           res$minimum,
+           tau.tau.mean =   res,
+           tau.theta.mean = res,
+           dmle =           res$minimum,
+           beta =           res$root,
            stop("wrong estimation method"))
+    
 }

@@ -33,19 +33,18 @@ setClass("acopula",
 	 representation(name = "character",
                         psi = "function",         # of (t, theta) -- the generator
                         psiInv = "function",      # of (p, theta) -- psi_inverse: \psi^{-1}(p) = t
-                        psiDAbs = "function",     # of (t, theta, degree=1, MC=FALSE, N, log=FALSE) -- (-1)^d * the degree-th generator derivative
+                        psiDAbs = "function",     # of (t, theta, degree = 1, MC, log = FALSE) -- (-1)^d * the degree-th generator derivative
                         theta = "numeric",        # value of theta or  'NA'  (for unspecified)
                         paraConstr = "function",  # of (theta) ; constr(theta) |--> TRUE: "fulfilled"
-                        ## when theta is one-dimensional, specifying the interval is more convenient:
+                        psiInvD1Abs = "function", # of (t,theta,log = FALSE) -- computes the absolute value of the first derivative of psiInv
+			## when theta is one-dimensional, specifying the interval is more convenient:
                         paraInterval = "maybeInterval", # [.,.]  (.,.], etc .. parameter interval
 		        paraSubInterval = "maybeInterval", # [.,.]  (.,.], etc .. finite parameter interval, e.g., for optimization
                         V0 = "function",	  # of (n,theta) -- RNGenerator
 			dV0 = "function",         # of (x,theta,log=FALSE) -- density of F=LS^{-1}[psi]
                         cCdf = "function", 	  # of (v,u,theta) -- C(v|u)   
-                        diag = "function",        # of (u,theta,d,log=FALSE) --- diagonal of the Archimedean copula
-                        dDiag = "function",       # of (u,theta,d,log=FALSE) --- density of the diagonal of the Archimedean copula
-			dAc = "function",         # of (u,theta,MC=FALSE,N,log = FALSE) -- density of an Arch. copula 
-			K = "function", 	  # of (t,theta,d,MC=FALSE,N) -- Kendall distribution function 
+                        # diag = "function",        # of (u,theta,d,log=FALSE) --- diagonal of the Archimedean copula
+                        #                         dDiag = "function",       # of (u,theta,d,log=FALSE) --- density of the diagonal of the Archimedean copula
                         tau = "function",	  # of (theta)
                         tauInv = "function",      # of (tau)
                         lambdaL = "function",     # of (theta) lower bound  \lambda_l

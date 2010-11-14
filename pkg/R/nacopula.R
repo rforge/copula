@@ -17,42 +17,30 @@
 #### nested Archimedean copulas
 
 ##' Returns the copula density at u
-##' Basically, this is a wrapper based on the slot "dAc" of the provided families
-##' which chooses some default values of the parameters
 ##' @param x nacopula
 ##' @param u argument of the copula x
-##' @param theta copula parameter
-##' @param MC TRUE if the derivatives of order > 1 should be evaluated by Monte Carlo
-##' @param N approximation parameter for MC = FALSE; sample size for MC = TRUE;
-##'   if missing or NULL, we use simple defaults.
-##' warning / FIXME: good default values depend on theta, the dimension, and even
-##'                  the evaluation point
-##' @param log if TRUE, the log-density is evaluated
+##' @param MC if provided (and not NULL) Monte Carlo is used for evaluation of 
+##'        the density with sample size equal to MC
+##' @param log if TRUE the log-density is evaluated
 ##' @author Marius Hofert
-dnacopula <- function(x,u,theta,MC = FALSE, N, log = FALSE)
+dnacopula <- function(x, u, MC, log = FALSE)
 {
     stopifnot(is(x, "outer_nacopula"))
     if(length(x@childCops))
 	stop("currently, only Archimedean copulas are provided")
-    cop <- x@copula
-    if(missing(N)) N <- NULL
-    switch(cop@name,
-	   "AMH"     = { cop@dAc(u,theta, MC,
-				 N = if(!is.null(N)) N else if(MC) 20000 else 1000,
-				 log=log)},
-	   "Clayton" = { cop@dAc(u,theta, MC,
-                                 N = if(!is.null(N)) N else if(MC) 20000 else 1000,
-                                 log)},
-	   "Frank"   = { cop@dAc(u,theta, MC,
-				 N = if(!is.null(N)) N else if(MC) 20000 else 1000,
-				 log=log) },
-	   "Gumbel"  = { cop@dAc(u,theta,MC,
-				 N = if(!is.null(N)) N else if(MC) 20000 else 5000, 
-                                 log=log) },
-	   "Joe"     = { cop@dAc(u,theta,MC,
-				 N = if(!is.null(N)) N else if(MC) 20000 else 5000,
-				 log=log) },
-	   stop("wrong Archimedean family provided"))
+    if(is.vector(u)) u <- matrix(u, nrow = 1)
+    if((d <- ncol(u)) < 2) stop("u should be at least bivariate")
+    acop <- x@copula
+    th <- acop@theta
+    res <- rep(NaN,n <- nrow(u)) # density not defined on the margins
+    n01 <- (1:n)[apply(u,1,function(x) all(x != 0, x != 1))] # indices for which density has to be evaluated 
+    if(length(n01) > 0){
+        if(is.vector(psiI <- acop@psiInv(u[n01,],th))) psiI <- matrix(psiI, nrow = 1)
+        if(is.vector(psiID <- acop@psiInvD1Abs(u[n01,],th))) psiID <- matrix(psiID, nrow = 1)
+        res[n01] <- acop@psiDAbs(rowSums(psiI),theta = th,degree = d, MC = MC, log = log)
+        res[n01] <- if(log) res[n01] + rowSums(log(psiID)) else res[n01] * apply(psiID,1,prod)
+    }
+    res
 }
 
 ##' Returns the copula value at a certain vector u

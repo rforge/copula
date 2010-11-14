@@ -22,35 +22,30 @@
     \item{\code{name}:}{A string (class \code{"character"}) describing
       the copula family, e.g., "AMH" (or simply "A"), "Clayton" ("C"),
       "Frank" ("F"), "Gumbel" ("G"), or "Joe" ("J").}
+    \item{\code{theta}:}{Parameter value, a \code{\link{numeric}}, where
+      \code{NA} means \dQuote{unspecified}.}
     \item{\code{psi}, \code{psiInv}:}{The Archimedean generator \eqn{\psi}{psi}
       and its inverse (\code{\link{function}}).}
     \item{\code{psiDAbs}:}{A \code{\link{function}} which computes the absolute
       value of the derivative of the generator \eqn{\psi}{psi} for the given
       parameter \code{theta} and of the given \code{degree} (defaults to 1).
-      Note that there is not loss in information since the derivatives alternate
-      in sign so that the generator derivative itself can be accessed with
-      (-1)^\code{degree}\code{psiDAbs}. If 
-      the boolean parameter \code{MC} is \code{FALSE} (the default) a series
-      representation for the derivative is used; otherwise, the derivative is
-      evaluated by Monte Carlo simulation. The parameter \code{N} denotes
-      the truncation point for the series representation if \code{MC} is
-      \code{FALSE} (note that a good choice of \code{N} depends on \code{theta})
-      and the number of variates to be drawn if \code{MC} is \code{TRUE}. Both
-      \code{MC} and \code{N} do not exist for Clayton's Archimedean family since
-      all derivatives can be given explicitly
-      for this Archimedean family. For all families, the optional parameter
-      \code{log} (defaults to \code{FALSE}) indicates whether the logarithm of
-      the absolute value of the derivative is returned. Note that for
-      \code{degree} equal to 1, all	computations are exact.}
-    \item{\code{theta}:}{Parameter value, a \code{\link{numeric}}, where
-      \code{NA} means \dQuote{unspecified}.}
+      Note that there is no informational loss by computing the absolute value
+      since the derivatives alternate in sign (so that the generator derivative 
+      itself can be accessed with (-1)^\code{degree}\code{psiDAbs}). If the
+      number \code{MC} is provided, the function is computed based on a Monte
+      Carlo simulation with sample size equal to \code{MC}; otherwise, the
+      derivatives are evaluated with their exact formulas. The optional
+      parameter \code{log} (defaults to \code{FALSE}) indicates whether the
+      logarithm of the absolute value of the derivative is returned.}
+    \item{\code{psiInvD}:}{ A \code{\link{function}} which computes the
+      derivatives of the generator inverse for the given parameter \code{theta}
+      and of the given \code{degree} (defaults to 1).}
     \item{\code{paraInterval}:}{Either \code{\link{NULL}} or object of class
       \code{"\linkS4class{interval}"}, typically from a call such as
       \code{\link{interval}("[a,b)")}.}
-    \item{\code{paraSubInterval}:}{Either \code{\link{NULL}} or object of class
-      \code{"\linkS4class{interval}"}. This slot is meant to contain a finite,
-      closed subinterval of \code{paraInterval} which is used, e.g., by
-      optimization routines.}
+    \item{\code{paraSubInterval}:}{Similar to \code{paraInterval} but contains a
+ 		finite, closed subinterval of \code{paraInterval}, typically called from
+ 		root-finding or optimization routines.}
     \item{\code{paraConstr}:}{A function of \code{theta} returning
       \code{TRUE} if and only if \code{theta} is a valid parameter value.  Note
       that \code{paraConstr} is built automatically from the interval,
@@ -96,20 +91,6 @@
     \item{\code{diag}:}{The copula diagonal.}
     \item{\code{dDiag}:}{The density of the copula diagonal (note that the
       diagonal of a copula is a cumulative distribution function).}
-    \item{\code{dAc}:}{A \code{\link{function}} which computes the
-      logarithm of the density \eqn{c} for the Archimedean family under
-      consideration, given by
-      \deqn{\log c(u_1,\dots,u_d)=\log\frac{\psi^{(d)}(\sum_{j=1}^d\psi^{-1}(u_j))}{\prod_{j=1}^d\psi^{(d)}(\psi^{-1}(u_j))}.}{log(c(u))=log(psi^{(d)}(sum_{j=1}^d psi^{-1}(u_j))/prod_{j=1}^d psi^prime(psi^{-1}(u_j))).} Parameters of
-      \code{dAc} are the \code{\link{matrix}} \code{u} (the number of
-      columns of \code{u} determines \eqn{d}), the parameter \code{theta}, and
-      (for the Archimedean family not being Clayton) the arguments
-      \code{MC} and \code{N} (with the same meaning as for \code{psiDAbs}).}
-    \item{\code{K}:}{Computes the Kendall distribution \code{\link{function}} at
-      \code{t} given the parameter \code{theta} and the dimension \code{d}. For
-      an Archimedean copula with generator \eqn{\psi}, this function is given by
-      \deqn{K(t)=\sum_{k=0}^{d-1}\frac{(-1)^k\psi^{(k)}(\psi^{-1}(t))}{k!}(\psi^{-1}(t))^k.}{K(t)=sum_{k=0}^{d-1}(-1)^k*psi^{(k)}((psi^{-1}(t))/k!)(psi^{-1}(t))^k.}
-      For all except Clayton's family, the arguments \code{MC} and
-      \code{N} can be specified (with the same meaning as for \code{psiDAbs}).}
     \item{\code{tau}, \code{tauInv}:}{Compute Kendall's tau of the bivariate
       Archimedean copula with generator \eqn{\psi}{psi} as a
       \code{\link{function}} of \code{theta}, respectively, \code{theta} as a
