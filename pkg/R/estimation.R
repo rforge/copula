@@ -19,6 +19,9 @@
 
 ##' Compute an initial interval for optimization/estimation routines (only a 
 ##' heuristic; if this fails, choose your own interval)
+##' Note: In contrast to the slots "paraSubInterval", this function also works
+##'       for non-robust methods (i.e., methods that break down when the rather
+##'	  large intervals given by paraSubInterval are used)
 ##' @param u data
 ##' @param family Archimedean family
 ##' @return initial interval which can be used for optimization (e.g., for emle)

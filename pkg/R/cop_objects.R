@@ -58,7 +58,7 @@ copAMH <-
 	},
         ## parameter interval
         paraInterval = interval("[0,1)"),
-        ## parameter subinterval 
+        ## parameter subinterval (meant to be for *robust* optimization, root-finding etc.)
         paraSubInterval = num2interval(c(0,1-1e-12)), # 1-1e-12 corresponds to tau = 0.3333333
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
@@ -136,7 +136,7 @@ copClayton <-
 	}, 
         ## parameter interval
         paraInterval = interval("(0,Inf)"),
-        ## parameter subinterval 
+        ## parameter subinterval (meant to be for *robust* optimization, root-finding etc.)
         paraSubInterval = num2interval(c(1e-12, 100)), # 100 corresponds to tau = 0.98
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
@@ -220,7 +220,7 @@ copFrank <-
 	},
    	## parameter interval
         paraInterval = interval("(0,Inf)"),
-        ## parameter subinterval
+        ## parameter subinterval (meant to be for *robust* optimization, root-finding etc.)
         paraSubInterval = num2interval(c(1e-12, 198)), # 198 corresponds to tau = 0.98 
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
@@ -342,7 +342,7 @@ copGumbel <-
 	},
         ## parameter interval
         paraInterval = interval("[1,Inf)"),
-        ## parameter subinterval 
+        ## parameter subinterval (meant to be for *robust* optimization, root-finding etc.)
         paraSubInterval = num2interval(c(1, 50)), # 50 corresponds to tau = 0.98
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
@@ -445,13 +445,13 @@ copJoe <-
 		res[isInf <- is.infinite(t)] <- 0
 		n0Inf <- (1:n)[!(is0 | isInf)]
 		if(length(n0Inf) > 0){
-                    e <- exp(-t)
+                    e <- exp(-t[n0Inf])
                     x <- e/(1-e)
                     factor <- alpha*(1-e)^alpha
 		    k <- 1:degree
 		    S. <- unlist(lapply(k, Stirling2, n = degree))*gamma(k-alpha)/
                         gamma(1-alpha)
-		    res <- as.numeric(factor*(S. %*% outer(k,x,function(k,x) x^k)))
+		    res[n0Inf] <- as.numeric(factor*(S. %*% outer(k,x,function(k,x) x^k)))
 		}
 		if(log) log(res) else res
             }
@@ -468,7 +468,7 @@ copJoe <-
         },
         ## parameter interval
         paraInterval = interval("[1,Inf)"),
-        ## parameter subinterval 
+        ## parameter subinterval (meant to be for *robust* optimization, root-finding etc.)
         paraSubInterval = num2interval(c(1, 98)), # 98 corresponds to tau = 0.98 
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
@@ -563,6 +563,111 @@ copJoe <-
         lambdaU = function(theta) { 2-2^(1/theta) },
         lambdaUInv = function(lambda) { log(2)/log(2-lambda) }
         ) ## {copJoe}
+
+### ==== Generalized inverse Gaussian family ===================================
+
+# ##' GIG object
+# copGIG <-
+#     new("acopula", name = "GIG",
+#         ## generator
+#         psi = function(t,theta) { # theta[1] (nu) in IR, theta[2] (theta) in (0,infty); note that the case theta[1] != 0 and theta[2] == 0 is excluded since this reduces to psiClayton(t,1/theta[1])
+#             (1+t)^(-theta[1]/2)*besselK(theta[2]*sqrt(1+t),theta[1])/besselK(theta[2],theta[1]) # theta[1] = nu, theta[2] = theta
+#         },
+#         psiInv = function(t,theta,...) {
+#             safeUroot(function(t) copGIG@psi(t,theta) - t,
+#                       interval = c(0,t^(theta[1]/2)-1), Sig = -1, check.conv=TRUE,...)
+# 	},
+#         ## absolute value of generator derivatives
+#         psiDAbs = function(t, theta, degree = 1, MC, log = FALSE){
+#             if(!(missing(MC) || is.null(MC))){
+#                 copGIG@psiDAbsMC(t,"GIG",theta,degree,MC,log)
+#             }else{
+# 		res <- numeric(n <- length(t))
+#                 res[is0 <- t == 0] <- Inf 
+#                 res[isInf <- is.infinite(t)] <- 0
+#                 n0Inf <- (1:n)[!(is0 | isInf)]
+#                 if(length(n0Inf) > 0){
+#                     res[n0Inf] <- d*log(theta/2)+log(besselK(theta[2]*sqrt(1+t),theta[1]))-
+# 			log(besselK(theta[2],theta[1]))-((theta[1]+d)/2)*log1p(t)
+#                 }
+# 		if(log) res else exp(res)
+#             }
+#         },
+#         ## derivatives of the generator inverse
+#         psiInvD1Abs = function(t, theta, log = FALSE){
+#             res <- -log(copGIG@psiDAbs(copGIG@psiInv(t,theta),theta,log = TRUE))
+#             if(log) res else exp(res)
+#         },
+#         ## parameter interval
+#         paraInterval = interval("(-Inf,Inf)"), # FIXME: theta[2] has to be in (0,Inf)
+#         ## parameter subinterval (meant to be for *robust* optimization, root-finding etc.)
+#         paraSubInterval = num2interval(c(,)), # FIXME what to put in?
+#         ## nesting constraint
+#         nestConstr = function(theta0,theta1) {
+#             stop("It is currently not known if GIG generators can be nested.")
+#         },
+#         ## V0 with density dV0 and V01 with density dV01 corresponding to
+#         ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
+#         V0 = function(n,theta){
+#             dens <- udgig(theta[1],1,theta[2]^2) # three args: lambda, psi, chi for the GIG density as on page 497 in McNeil, Frey, Embrechts (2005)
+#             gen <- pinvd.new(dens) # approximation of the quantile function by piecewise polynomials
+#             ur(gen,n)/2	
+#         },
+#         dV0 = function(x,theta,log = FALSE){
+#             dens <- udgig(theta[1],1,theta[2]^2)
+#             if(log) log(ud(dens,x)) else ud(dens,x)
+#         },
+#         V01 = function(V0,theta0,theta1) {
+#             stop("It is currently not known if GIG generators can be nested.")
+#         },
+#         dV01 = function(x,V0,theta0,theta1,log = FALSE){
+#             stop("It is currently not known if GIG generators can be nested.")
+#         },
+#         ## conditional distribution function C(v|u) of v given u
+#         cCdf = function(v,u,theta){
+#             one.d.args <- function(u,v){
+#                 a <- 1 + copGIG@psiInv(u,theta)
+#                 a. <- sqrt(a)
+# 		a.. <- sqrt(a + copGIG@psiInv(v,theta))
+# 		(a./a..)^(theta[1]+1)*besselK(theta[2]*a..,theta[1]+1)/
+#                     besselK(theta[2]*a.,theta[1]+1)
+#             }
+#             mapply(one.d.args,u,v)
+#         },
+#         ## Kendall's tau
+#         tau = function(theta,...) {
+# 	    integrand <- function(t,theta){
+# 		t*besselK(theta[2]*sqrt(1+t),theta[1])^2/(1+t)^(theta[1]+1)
+#             }
+#             one.th <- function(theta,...){
+#                 1-(theta[2]/besselK(theta[2],theta[1]))^2*
+#                     integrate(integrand,lower=0,upper=Inf,...)
+#             }
+#             unlist(lapply(theta,one.th,...))
+#         },
+#         tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
+#             sapply(tau,function(tau) {
+#                 r <- safeUroot(function(th) copGIG@tau(th) - tau,
+#                                interval = c(copGIG@paraSubInterval[1], 
+#                                copGIG@paraSubInterval[2]), Sig = +1, tol=tol, 
+#                                check.conv=TRUE, ...)
+#                 r$root
+#             })
+#         },
+#         ## lower tail dependence coefficient lambda_l
+#         lambdaL = function(theta) { 0*theta },
+#         lambdaLInv = function(lambda) {
+#             if(any(lambda != 0))
+#                 stop("Any parameter for a GIG copula gives lambdaL = 0")
+#             NA * lambda
+#         },
+#         ## upper tail dependence coefficient lambda_u
+#         lambdaU = function(theta) { 0*theta },
+#         lambdaUInv = function(lambda) {
+#             if(any(lambda != 0))
+#                 stop("Any parameter for a GIG copula gives lambdaU = 0")
+#             NA * lambda
+#         })
 
 ### ==== naming stuff ==========================================================
 

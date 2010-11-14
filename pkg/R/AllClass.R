@@ -43,8 +43,6 @@ setClass("acopula",
                         V0 = "function",	  # of (n,theta) -- RNGenerator
 			dV0 = "function",         # of (x,theta,log=FALSE) -- density of F=LS^{-1}[psi]
                         cCdf = "function", 	  # of (v,u,theta) -- C(v|u)   
-                        # diag = "function",        # of (u,theta,d,log=FALSE) --- diagonal of the Archimedean copula
-                        #                         dDiag = "function",       # of (u,theta,d,log=FALSE) --- density of the diagonal of the Archimedean copula
                         tau = "function",	  # of (theta)
                         tauInv = "function",      # of (tau)
                         lambdaL = "function",     # of (theta) lower bound  \lambda_l

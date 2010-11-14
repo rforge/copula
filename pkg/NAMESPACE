@@ -21,6 +21,8 @@ importFrom("ADGofTest", ad.test)
 
 importFrom("fBasics", dstable)
 
+importFrom("Runuran", udgig, pinvd.new, ur)
+
 exportClasses("acopula",
               "nacopula", "outer_nacopula",
               "interval", "maybeInterval"
