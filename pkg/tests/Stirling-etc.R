@@ -56,16 +56,15 @@ stopifnot(print(system.time(for(i in 1:20) S. <- Stirling2(200,190))[[1]]) <= 0.
 EQ <- function(x,y, tol = 1e-15) all.equal(x,y, tol=tol)
 
 x <- (0:127)/128 # < 1
-Li.1.1 <- 0.1234567901234568
 stopifnot(EQ(polylog(s =  1,  x, n.sum=10000), -log(1-x)),
-	  EQ(polylog(s = -1, .1, n.sum=	 100), Li.1.1),
-	  EQ(polylog(s = -1, .1, "neg"),       Li.1.1),
-          EQ(polylog(x, -1, "neg"), x /(1-x)^2),
-          EQ(polylog(x, -2, "neg"), x*(1+x)/(1-x)^3),
-          EQ(polylog(x, -4, "neg"), x*(1+x)*(1+x*(10+x)) / (1-x)^5),
-	  identical(polylog(x, -4, "neg"),
+	  EQ(polylog(s = -1, .1, n.sum=	 100), 10/81),
+	  EQ(polylog(s = -1, .1, "neg"),       10/81),
+	  EQ(polylog(x, -1, "neg"), x /(1-x)^2),
+	  EQ(polylog(x, -2, "neg"), x*(1+x)/(1-x)^3),
+	  EQ(polylog(x, -4, "neg"), x*(1+x)*(1+x*(10+x)) / (1-x)^5),
+	  identical(	      polylog	  (x, -4, "neg"),
 		    Vectorize(polylog,"z")(x, -4, "neg")),
-	  identical(polylog(x, -4, "sum", n.sum=10000),
+	  identical(	      polylog	  (x, -4, "sum", n.sum=10000),
 		    Vectorize(polylog,"z")(x, -4, "sum", n.sum=10000)),
           TRUE)
 

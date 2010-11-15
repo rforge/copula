@@ -37,45 +37,48 @@ g01 <- function(u, method = c("log","normal")){
 
 ##' Kendall distribution function
 ##' @param t evaluation point(s)
-##' @param cop acopula with specified parameter 
+##' @param cop acopula with specified parameter
 ##' @param d dimension
-##' @param MC if provided (and not NULL) psiDAbs is evaluated via Monte Carlo 
+##' @param MC if provided (and not NULL) psiDAbs is evaluated via Monte Carlo
 ##'        with sample size MC
 ##' @return Kendall distribution function at t
 ##' @author Marius Hofert
 ##' FIXME: maybe with outer()
-K <- function(t, cop, d, MC){    
+K <- function(t, cop, d, MC)
+{
     stopifnot(is(cop, "acopula"))
     psiI <- cop@psiInv(t,th <- cop@theta)
     n <- length(t)
     if(!(missing(MC) || is.null(MC))){
 	stopifnot(is.numeric(MC), is.finite(MC), MC > 0)
         V <- cop@V0(MC,th)
-        K.fun <- function(k) mean(ppois(d-1,V*psiI[k]))
-        unlist(lapply(1:n,K.fun))
-    }else{
+        unlist(lapply(psiI, function(psInv) mean(ppois(d-1, V* psInv))))
+    } else {
 	K. <- numeric(n)
 	K.[is0 <- t == 0] <- 0
 	K.[is1 <- t == 1] <- 1
-	not01 <- (1:n)[!(is0 | is1)]
-	K.[not01] <- if(d == 1){
-            t[not01]
-	}else if(d == 2){
-            t[not01]+cop@psiInv(t[not01],th)/cop@psiInvD1Abs(t[not01],th)
-	}else{
-            j <- 1:(d-1)
-            K.fun <- function(k){
-	        lpsiDAbs <- unlist(lapply(j, cop@psiDAbs, t = psiI[k], theta = th, 
-                                          log = TRUE))
-                t[k] + sum(exp(lpsiDAbs + j*log(psiI[k]) - lfactorial(j)))
-                ## FIXME: AMH, Clayton, and Frank are not monotone near one [not clear why; the following code does not make a difference]
-                ## psiDAbs. <- unlist(lapply(j, cop@psiDAbs, t = psiI[k], theta = th, 
-                ##                                           log = FALSE))
-                ##                 t[k] + sum(psiDAbs.*psiI[k]^j/factorial(j))
-            }	
-            unlist(lapply(not01,K.fun))
-        }
-        K.
+	if(length(not01 <- seq_len(n)[!(is0 | is1)]))
+	    K.[not01] <- if(d == 1) {
+		t[not01]
+	    } else if(d == 2) {
+		t[not01]+ psiI[not01] / cop@psiInvD1Abs(t[not01],th)
+	    } else {
+		j <- seq_len(d-1)
+                lfac.j <- cumsum(log(j)) ## == lfactorial(j)
+		K2 <- function(psInv) {
+		    lpsiDAbs <- unlist(lapply(j, cop@psiDAbs,
+					      t = psInv, theta = th, log = TRUE))
+		    sum(exp(lpsiDAbs + j*log(psInv) - lfac.j))
+		    ## NB: AMH, Clayton, Frank are numerically not quite monotone near one;
+                    ## --  this does not change that {but maybe slightly *more* accurate}:
+		    ## psiDAbs. <- unlist(lapply(j, cop@psiDAbs, t = psInv, theta = th,
+		    ##						 log = FALSE))
+		    ##		       sum(psiDAbs.*psInv^j/factorial(j))
+		}
+		## ensure we are in [0,1] {numeric inaccuracy}
+		pmin(1, t[not01] + unlist(lapply(psiI[not01], K2)))
+	    }
+	K.
     }
 }
 
@@ -95,7 +98,7 @@ gnacopulatrafo <- function(x, cop, MC, do.pseudo = FALSE)
     if(is.vector(x)) x <- matrix(x, nrow = 1)
     stopifnot((d <- ncol(x)) >= 2)
     u <- if(do.pseudo){
-	pobs(x) 
+	pobs(x)
     }else{
 	stopifnot(all(0 <= x, x <= 1))
 	x
@@ -106,7 +109,7 @@ gnacopulatrafo <- function(x, cop, MC, do.pseudo = FALSE)
     cumsum.psiI <- t(apply(psiI,1,cumsum))
     u. <- matrix(, nrow = nrow(u), ncol = d) # for the transformed components (U[0,1]^d under H0)
     for(j in seq_len(d-1)) u.[,j] <- (cumsum.psiI[,j]/cumsum.psiI[,j+1])^j
-    u.[,d] <- K(acop@psi(cumsum.psiI[,d], th), acop, d = d, MC = MC) 
+    u.[,d] <- K(acop@psi(cumsum.psiI[,d], th), acop, d = d, MC = MC)
     u.
 }
 
@@ -123,17 +126,17 @@ gnacopulatrafo <- function(x, cop, MC, do.pseudo = FALSE)
 ##' @param verbose if TRUE, the progress of the bootstrap is displayed
 ##' @return a test (bootstrap or ad.test) test result
 ##' @author Marius Hofert & Martin Maechler
-gnacopula <- function(x, cop, bootstrap = TRUE, B = 1000, method = c("log","normal"), 
+gnacopula <- function(x, cop, bootstrap = TRUE, B = 1000, method = c("log","normal"),
                       estimation.method = c("mle.tau.mean",
                       "mle.theta.mean","mle.diag","smle","tau.tau.mean",
-                      "tau.theta.mean","dmle","beta"), MC, do.pseudo = TRUE, 
+                      "tau.theta.mean","dmle","beta"), MC, do.pseudo = TRUE,
                       verbose = TRUE)
 {
     stopifnot(is(cop, "outer_nacopula"))
     if(is.vector(x)) x <- matrix(x, nrow = 1)
     stopifnot((d <- ncol(x)) >= 2)
     u <- if(do.pseudo){
-	pobs(x) 
+	pobs(x)
     }else{
 	stopifnot(all(0 <= x, x <= 1))
 	x

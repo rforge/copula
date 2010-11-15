@@ -140,7 +140,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     cat0("[Ok]")
 
     ## ==== (2.3) psiInvD1Abs ====
-    
+
     cat0("\nvalues of psiInvD1Abs at t01:")
     CT <- c(CT, list(psiInvD1Abs. = system.time(psiInvD1Abs. <-
                      cop@psiInvD1Abs(t01, theta = theta0))))
@@ -195,7 +195,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
 
     ## d = 2
     cat("\n(6) check dnacopula with log = TRUE for u being a random (20x2)-matrix:\n")
-    CT <- c(CT, list(dnacopula. = system.time(lD <- dnacopula(ocop.2d, u[,1:2], 
+    CT <- c(CT, list(dnacopula. = system.time(lD <- dnacopula(ocop.2d, u[,1:2],
                      log = TRUE))))
     print(lD)
     stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))
@@ -211,23 +211,26 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     CT <- c(CT, list(dnacopula. = system.time(lD <- dnacopula(ocop.20d,u,
                      log = TRUE))))
     print(lD)
-    stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))	
+    stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))
     cat0("[Ok]")
     ## d > 2, MC = TRUE
     cat("\n check dnacopula with log = TRUE and MC for u being a random (20x20)-matrix:\n")
     CT <- c(CT, list(dnacopula. = system.time(lD <- dnacopula(ocop.20d,u,
                      MC = 1000, log = TRUE))))
     print(lD)
-    stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))	
+    stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))
     cat0("[Ok]")
-    
+
     ## ==== (7) K ====
 
     check.K.t01 <- function(K){
 	d.K <- diff(K)
-	if(any(d.K < 0)){ # FIXME: is a problem for AMH, Clayton, and Frank (near 1)
-            warning("diff(K) in copula-play.R lead to negative values")
-            print(d.K)
+	if(any(neg <- d.K < 0)){ # happens for AMH, Clayton, and Frank (near 1)
+            if(any(Neg <- abs(d.K[neg]) > 1e-15* abs(K[-1][neg]))) {
+                warning("K(.) is 'substantially' non-monotone for K() / diff(K) =",
+                        immediate.=TRUE)
+                print(cbind(K = K[-1][Neg], diff.K = d.K[Neg]))
+            }
 	}
 	stopifnot(is.numeric(K), length(K) == length(t01), 0 <= K, K <= 1)
     }
@@ -253,7 +256,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     CT <- c(CT, list(K = system.time(K. <- K(t01, cop, d = 10, MC = 1000))))
     check.K.t01( print(K.) )
     cat("check if K(0)=0 and K(1)=1: ")
-    stopifnot(K(0, cop, d = 10, MC = 1000)==0, 
+    stopifnot(K(0, cop, d = 10, MC = 1000)==0,
               K(1, cop, d = 10, MC = 1000)==1)
     cat0("[Ok]")
 
