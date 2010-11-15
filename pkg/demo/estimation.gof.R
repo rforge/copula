@@ -11,12 +11,12 @@ r <- function(x) round(x,4) # for output
 ## d dimension
 ## simFamily Archimedean family to be sampled
 ## tau degree of dependence of the sampled family in terms of Kendall's tau
-## MC if provided (and not NULL) and if it make sense for the chosen method, 
+## MC if provided (and not NULL) and if it make sense for the chosen method,
 ##    Monte Carlo is used with sample size equal to MC
 ## estimation.method estimation method (s. enacopula)
 ## gof.method goodness-of-fit transformation (s. gnacopula)
 ## checkFamilies vector of Archimedean families to be used for gof
-estimation.gof <- function(n, d, simFamily, tau, 
+estimation.gof <- function(n, d, simFamily, tau,
                            estimation.method = c(
                            "mle",
                            "smle",
@@ -24,12 +24,12 @@ estimation.gof <- function(n, d, simFamily, tau,
                            "tau.theta.mean",
                            "dmle",
                            "beta"
-                           ), 
-                           MC,  
+                           ),
+                           MC,
 			   gof.method = c(
 			   "log",
-                           "normal"	
-                           ), 
+                           "normal"
+                           ),
                            checkFamilies = nacopula:::c_longNames, verbose = TRUE)
 {
 
@@ -56,8 +56,8 @@ estimation.gof <- function(n, d, simFamily, tau,
         ## estimate the parameter with the provided method
         cop.hat <- onacopulaL(checkFamilies[k],list(NA,1:d))
         if(verbose) cat("Estimation and GOF for ",checkFamilies[k],":\n\n",sep="")
-        ut[k,1] <- system.time(est[k] <- enacopula(u, cop = cop.hat, 
-                                                   method = estimation.method, 
+        ut[k,1] <- system.time(est[k] <- enacopula(u, cop = cop.hat,
+                                                   method = estimation.method,
                                                    MC = MC, do.pseudo = FALSE))[1]
         ## FIXME: test for "convergence" etc
         tau[k] <- cop.hat@copula@tau(est[k])
@@ -69,10 +69,10 @@ estimation.gof <- function(n, d, simFamily, tau,
         cop.hat@copula@theta <- est[k]
         ## apply a goodness-of-fit test to the estimated copula
         ## {{ use gnacopulatrafo() if you want the transformed u }}
-        ut[k,2] <- system.time(gof[k] <- gnacopula(u, cop = cop.hat, bootstrap = FALSE, 
+        ut[k,2] <- system.time(gof[k] <- gnacopula(u, cop = cop.hat, bootstrap = FALSE,
                                                    method = gof.method,
-                                                   estimation.method = estimation.method, 
-                                                   MC = MC, do.pseudo = FALSE, 
+                                                   estimation.method = estimation.method,
+                                                   MC = MC, do.pseudo = FALSE,
                                                    verbose = FALSE))[1]
         sig[k] <- if(gof[k] < 0.05) 1 else 0
         if(verbose){
@@ -112,7 +112,7 @@ cat("\n## ==== data from ",simFamily," (n = ",n,", d = ",d,", theta = ",
 for(e in estMeth){
     MC <- if(e == "smle") 10000 else NULL
     for(g in gofMeth){
-        res <- estimation.gof(n, d, simFamily, tau, estimation.method = e, 
+        res <- estimation.gof(n, d, simFamily, tau, estimation.method = e,
                               MC, gof.method = g)
         cat("Results:\n\n")
         print(r(res))
@@ -126,14 +126,14 @@ simFamily <- getAcop("AMH") # choose your desired family
 cop <- onacopulaL(simFamily, list(theta <- simFamily@tauInv(tau),1:d))
 u <- rnacopula(n,cop)
 
-## estimate the copula 
+## estimate the copula
 copFamily <- "Joe" # family to be estimated
-cop.hat <- onacopulaL(copFamily,list(NA,1:d)) 
+cop.hat <- onacopulaL(copFamily,list(NA,1:d))
 mLogL <- function(theta,cop.hat,u){
     cop.hat@copula@theta <- theta
     -sum(dnacopula(cop.hat, u, log = TRUE))
 }
-(est <- optimize(mLogL, interval = paraOptInterval(u,copFamily), cop.hat = cop.hat, 
+(est <- optimize(mLogL, interval = paraOptInterval(u,copFamily), cop.hat = cop.hat,
                  u = u))
 
 ## evaluate the density at u for a specified parameter
@@ -144,6 +144,10 @@ cop.hat@copula@theta <- theta
 
 ## ==== Plots ==================================================================
 
+if(!dev.interactive())## e.g. when run as part of R CMD check
+    pdf("demo_est-gof.pdf")
+doPlot <- TRUE
+
 ## ==== setup for plots ====
 
 t01 <- (0:256)/256
@@ -153,62 +157,53 @@ copF <- setTheta(copFrank, 1.860884)
 copG <- setTheta(copGumbel, 1.25)
 copJ <- setTheta(copJoe, 1.25)
 
+cols <- c("black","orange3","red3","darkgreen","blue") # no very light ones
+## TODO: work with *list* of copulas, and extra names *and* theta's (!)
+##       to be also put in labels
+labs <- c("AMH","Clayton","Frank","Gumbel","Joe")
+
 ## ==== plots of the densities of the diagonals ====
 
 d <- 5
 
-dDiag.A <- dDiag(t01,copA,d)
-dDiag.C <- dDiag(t01,copC,d)
-dDiag.F <- dDiag(t01,copF,d)
-dDiag.G <- dDiag(t01,copG,d)
-dDiag.J <- dDiag(t01,copJ,d)
+dDmat <- cbind(dDiag.A = dDiag(t01,copA,d),
+               dDiag.C = dDiag(t01,copC,d),
+               dDiag.F = dDiag(t01,copF,d),
+               dDiag.G = dDiag(t01,copG,d),
+               dDiag.J = dDiag(t01,copJ,d))
 
-if(FALSE){
-    cols <- c("black","orange","red","darkgreen","blue")
-    plot(t01,dDiag.A,type="l",col=cols[1],xlab="t",ylab="dDiag(t)",asp=1,
-         xlim=c(0,1),ylim=c(0,d))
-    lines(t01,dDiag.C,col=cols[2])
-    lines(t01,dDiag.F,col=cols[3])
-    lines(t01,dDiag.G,col=cols[4])
-    lines(t01,dDiag.J,col=cols[5])
-    legend(0.8,d/3,legend=c("AMH","Clayton","Frank","Gumbel","Joe"),lty=rep(1,5),
-           col=cols,box.lwd=0)
+if(doPlot) {
+    matplot(t01, dDmat, type="l", col=cols, xlab="t", ylab="dDiag(t)")
+    legend("bottomright", legend=labs, lty=1:5, col=cols, bty="n")
+    ## and in log-log scale:
+    matplot(t01, dDmat, type="l", col=cols, xlab="t",
+            log = "xy", main = "dDiag(t) [log-log scale]")
+    legend("bottomright", legend=labs, lty=1:5, col=cols, bty="n")
 }
 
 ## ==== plots of the Kendall distribution functions ====
 
 d <- 10
+Kmat <- cbind(K.A = K(t01,copA,d),
+              K.C = K(t01,copC,d),
+              K.F = K(t01,copF,d),
+              K.G = K(t01,copG,d),
+              K.J = K(t01,copJ,d))
+head(mm <- cbind(t = t01, Kmat))
+tail(mm)
 
-K.A <- K(t01,copA,d)
-dA <- diff(K.A) 
-dA[dA < 0] # FIXME: K is not increasing near 1
-K.A[dA < 0]
-K.C <- K(t01,copC,d)
-dC <- diff(K.C) 
-dC[dC < 0] # FIXME: K is not increasing near 1
-K.C[dC < 0]
-K.F <- K(t01,copF,d)
-dF <- diff(K.F) 
-dF[dF < 0] # FIXME: K is not increasing near 1
-K.F[dF < 0]
-K.G <- K(t01,copG,d)
-dG <- diff(K.G) 
-dG[dG < 0] 
-K.G[dG < 0]
-K.J <- K(t01,copJ,d)
-dJ <- diff(K.J) 
-dJ[dJ < 0]
-K.J[dJ < 0]
+dK <- apply(Kmat, 2, diff)
+summary(dK)
+## NOTE:  AMH and Clayton have some (very slightly) negative values
+## ----    <==>  K() is not increasing there (near 1)
+## MM: this is  "unavoidable" because of the numerics behind ...
 
-if(FALSE){
-    cols <- c("black","orange","red","darkgreen","blue")
-    plot(t01,K.A,type="l",col=cols[1],xlab="t",ylab="K(t)",asp=1,xlim=c(0,1),
-         ylim=c(0,1))
-    lines(t01,K.C,col=cols[2])
-    lines(t01,K.F,col=cols[3])
-    lines(t01,K.G,col=cols[4])
-    lines(t01,K.J,col=cols[5])
-    legend(0.6,0.4,legend=c("AMH","Clayton","Frank","Gumbel","Joe"),lty=rep(1,5),
-           col=cols,box.lwd=0)
+if(doPlot) {
+    matplot(t01, Kmat, type="l", col=cols, xlab="t", ylab="K(t)")
+    legend("bottomright", legend=labs, lty=1:5, col=cols, bty="n")
+    ## and in log-log scale:
+    matplot(t01, Kmat, type="l", col=cols, xlab="t",
+            log = "xy", main = "K(t) [log-log scale]")
+    legend("bottomright", legend=labs, lty=1:5, col=cols, bty="n")
 }
 
