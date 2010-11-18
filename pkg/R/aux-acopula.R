@@ -316,18 +316,15 @@ Stirling1 <- function(n,k)
 {
     ## NOTA BENE: There's no "direct" method available here
     stopifnot(length(n) == 1, length(k) == 1)
-    if (0 > k || k > n) stop("'k' must be in 0..n !")
-
-    ## This is tested and works --- can it be made more elegant ?? {TODO}
-    if(k == n) return(1) ## { including n==0 }	else:
-    if(k == 0) return(0) ## else:
+    if (k < 0 || n < k) stop("'k' must be in 0..n !")
+    if(n == 0) return(1)
+    if(k == 0) return(0)
     S1 <- function(n,k) {
-	if(k == n) return(1)
-	if(k == 0) return(0)
+	if(k == 0 || n < k) return(0)
 	if(is.na(S <- St[[n]][k])) {
 	    ## s(n,k) = s(n-1,k-1) - (n-1) * s(n-1,k) for all n, k >= 0
-	    n1 <- n-1L
-	    St[[n]][k] <<- S <- S1(n1, k-1) - n1* S1(n1, k)
+	    St[[n]][k] <<- S <- if(n1 <- n-1L)
+                S1(n1, k-1) - n1* S1(n1, k) else 1
 	}
 	S
     }
@@ -345,6 +342,21 @@ Stirling1 <- function(n,k)
     S
 }
 
+##' Full Vector of Stirling Numbers of the 1st Kind
+##' @title  Stirling1(n,k) for all k = 1..n
+##' @param n
+##' @return the same as sapply(1:n, Stirling1, n=n)
+##' @author Martin Maechler
+Stirling1.all <- function(n)
+{
+    stopifnot(length(n) == 1)
+    if(!n) return(numeric(0))
+    if(get("S1.full.n", .nacopEnv) < n) {
+	assign("S1.full.n", n, envir = .nacopEnv)
+	unlist(lapply(seq_len(n), Stirling1, n=n))
+    }
+    else get("S1.tab", .nacopEnv)[[n]]
+}
 
 ##' Compute Stirling numbers of the 2nd kind
 ##'
@@ -361,7 +373,7 @@ Stirling1 <- function(n,k)
 Stirling2 <- function(n,k, method = c("lookup.or.store","direct"))
 {
     stopifnot(length(n) == 1, length(k) == 1)
-    if (0 > k || k > n) stop("'k' must be in 0..n !")
+    if (k < 0 || n < k) stop("'k' must be in 0..n !")
     switch(match.arg(method),
 	   "direct" = {
 	       sig <- rep(c(1,-1)*(-1)^k, length= k+1) # 1 for k=0; -1 1 (k=1)
@@ -370,15 +382,14 @@ Stirling2 <- function(n,k, method = c("lookup.or.store","direct"))
 	       round(sum( sig * k^n /(ga * rev(ga))))
 	   },
 	   "lookup.or.store" = {
-	       ## This is tested and works --- can it be made more elegant ?? {TODO}
-	       if(k == n) return(1) ## { including n==0 }  else:
-	       if(k <= 1) return(k) ## else:
+               if(n == 0) return(1) ## else:
+               if(k == 0) return(0)
 	       S2 <- function(n,k) {
-		   if(k == n) return(1) ## { including n==0 }  else:
-		   if(k <= 1) return(k) ## else:
+		   if(k == 0 || n < k) return(0)
 		   if(is.na(S <- St[[n]][k]))
 		       ## S(n,k) = S(n-1,k-1) + k * S(n-1,k)   for all n, k >= 0
-		       St[[n]][k] <<- S <- S2(n-1, k-1) + k* S2(n-1, k)
+		       St[[n]][k] <<- S <- if(n1 <- n-1L)
+                           S2(n1, k-1) + k* S2(n1, k) else 1 ## n = k = 1
 		   S
 	       }
 	       if(compute <- (nt <- length(St <- get("S2.tab", .nacopEnv))) < n) {
@@ -396,10 +407,28 @@ Stirling2 <- function(n,k, method = c("lookup.or.store","direct"))
 	   })
 }
 
+##' Full Vector of Stirling Numbers of the 2nd Kind
+##' @title  Stirling2(n,k) for all k = 1..n
+##' @param n
+##' @return the same as sapply(1:n, Stirling2, n=n)
+##' @author Martin Maechler
+Stirling2.all <- function(n)
+{
+    stopifnot(length(n) == 1)
+    if(!n) return(numeric(0))
+    if(get("S2.full.n", .nacopEnv) < n) {
+	assign("S2.full.n", n, envir = .nacopEnv)
+	unlist(lapply(seq_len(n), Stirling2, n=n))
+    }
+    else get("S2.tab", .nacopEnv)[[n]]
+}
+
 ## Our environment for tables etc:  no hash, as it will contain *few* objects:
 .nacopEnv <- new.env(parent=emptyenv(), hash=FALSE)
 assign("S2.tab", list(), envir = .nacopEnv) ## S2.tab[[n]][k] == S(n, k)
 assign("S1.tab", list(), envir = .nacopEnv) ## S1.tab[[n]][k] == s(n, k)
+assign("S2.full.n", 0  , envir = .nacopEnv)
+assign("S1.full.n", 0  , envir = .nacopEnv)
 
 
 ##' From   http://en.wikipedia.org/wiki/Polylogarithm
@@ -482,7 +511,7 @@ polylog <- function(z,s, method = c("sum","negint-s_Stirling"), logarithm=FALSE,
 ##' @param family Archimedean family
 ##' @param theta parameter value
 ##' @param degree order of derivative
-##' @param MC Monte Carlo sample size 
+##' @param MC Monte Carlo sample size
 ##' @param log if TRUE the log of psiDAbs is returned
 psiDAbsMC <- function(t, family, theta, degree = 1, MC, log = FALSE){
 	V0. <- getAcop(family)@V0(MC,theta)

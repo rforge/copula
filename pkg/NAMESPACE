@@ -49,7 +49,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"retstable", "retstableR"
        ,"rFJoe", "rFJoeR", "rFFrank", "rFFrankR", "rlog", "rlogR"
        ##
-       ,"polylog", "Stirling1", "Stirling2"
+       ,"polylog", "Stirling1", "Stirling2", "Stirling1.all", "Stirling2.all"
        ,"psiDAbsMC"
        ,"setTheta"
        ,"tauAMH"

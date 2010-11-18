@@ -4,7 +4,8 @@ library(nacopula)
 
 S1.10 <- c(0, -362880, 1026576, -1172700, 723680,
            -269325, 63273, -9450, 870, -45, 1)
-stopifnot(sapply(0:10, Stirling1, n=10) == S1.10)
+stopifnot(sapply(0:10, Stirling1, n=10) == S1.10,
+          Stirling1.all(10) == S1.10[-1])
 
 options(str = strOptions(vec.len = 10, digits.d = 20)) # for ls.str() below
 
@@ -28,7 +29,8 @@ stopifnot(print(system.time(for(i in 1:20) S. <- Stirling1(200,190))[[1]]) <= 0.
 
 S2.10 <- c(0, 1, 511, 9330, 34105, 42525, 22827, 5880, 750, 45, 1)
 stopifnot(sapply(0:10, Stirling2, n=10, method="direct") == S2.10,
-          sapply(0:10, Stirling2, n=10, method="lookup") == S2.10)
+          sapply(0:10, Stirling2, n=10, method="lookup") == S2.10,
+          Stirling2.all(10) == S2.10[-1])
 
 ls.str(nacopula:::.nacopEnv)
 system.time(S  <- Stirling2(30, 7))# not zero
@@ -85,6 +87,9 @@ p.Li <- function(s.set, from = -2.6, to = 1/4, ylim = c(-1, 0.5),
     s <- rev(s.set)
     legend("bottomright", paste("s =", s), col=colors[2-s], lty=1, bty="n")
 }
+
+## yellow is unbearable (on white):
+palette(local({p <- palette(); p[p=="yellow"] <- "goldenrod"; p}))
 
 ## Wikipedia page plot (+/-):
 p.Li(1:-3, ylim= c(-.8, 0.6), colors = c(2:4,6:7))
