@@ -24,16 +24,16 @@
 ##'	  large intervals given by paraSubInterval are used)
 ##' @param u data
 ##' @param family Archimedean family
+##' @param h for enlarging the tau-interval 
 ##' @return initial interval which can be used for optimization (e.g., for emle)
 ##' @author Marius Hofert 
-paraOptInterval <- function(u, family){
+paraOptInterval <- function(u, family, h = 0.15){
     theta.hat.G <- edmle(u, getAcop("Gumbel"))$minimum
     tau.hat.G <- copGumbel@tau(theta.hat.G) 
     copFamily <- getAcop(family)
     I <- copFamily@paraSubInterval
     tau.min <- copFamily@tau(I[1]) # smallest admissible lower bound for copFamily
     tau.max <- copFamily@tau(I[2]) # largest admissible upper bound for copFamily
-    h <- 0.15 # for enlarging the tau-interval 
     l <- max(tau.hat.G - h,tau.min) # admissible lower bound for tau
     u <- min(tau.hat.G + h,tau.max) # admissible upper bound for tau
     c(copFamily@tauInv(l),copFamily@tauInv(u))	

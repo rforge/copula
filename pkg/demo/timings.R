@@ -60,7 +60,7 @@ timing(n,"Frank",taus2)
 
 ## conclusion:
 ## V0:  uniformly fast
-## V01: for a given theta0: uniformly fast over theta1; but increasing in theta1
+## V01: for a given theta0: uniformly fast over theta1; but increasing in theta0
 
 ## ==== Gumbel ====
 

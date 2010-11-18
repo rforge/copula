@@ -91,9 +91,8 @@ copAMH <-
                 stop("Impossible for AMH copula to attain a Kendall's tau larger than 1/3")
             sapply(tau,function(tau) {
                 r <- safeUroot(function(th) tauAMH(th) - tau,
-                               interval = c(copAMH@paraSubInterval[1], 
-                               copAMH@paraSubInterval[2]), Sig = +1, tol = tol, 
-                               check.conv=TRUE, ...)
+                               interval = as.numeric(copAMH@paraSubInterval), 
+                               Sig = +1, tol = tol, check.conv=TRUE, ...)
                 r$root
             })
         },
@@ -271,8 +270,8 @@ copFrank <-
         tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
             sapply(tau, function(tau) {
                 r <- safeUroot(function(th) copFrank@tau(th) - tau,
-                               interval = c(copFrank@paraSubInterval[1],
-                               copFrank@paraSubInterval[2]), Sig = +1, tol=tol,
+                               interval = as.numeric(copFrank@paraSubInterval), 
+                               Sig = +1, tol=tol,
                                check.conv=TRUE, ...)
                 r$root
             })
@@ -441,7 +440,7 @@ copJoe <-
                 ## FIXME: several things in the following code can be improved
 		alpha <- 1/theta
 		res <- numeric(n <- length(t))
-		res[is0 <- t < 6e-17] <- Inf # for arguments smaller than 6e-17 (the degree does not really play a role here), psiDAbs returns NaN (which should rather be Inf)
+		res[is0 <- t < .Machine$double.eps] <- Inf # for arguments smaller than 6e-17 (the degree does not really play a role here), psiDAbs returns NaN (which should rather be Inf)
 		res[isInf <- is.infinite(t)] <- 0
 		n0Inf <- (1:n)[!(is0 | isInf)]
 		if(length(n0Inf) > 0){
@@ -546,9 +545,8 @@ copJoe <-
         tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
             sapply(tau,function(tau) {
                 r <- safeUroot(function(th) copJoe@tau(th) - tau,
-                               interval = c(copJoe@paraSubInterval[1], 
-                               copJoe@paraSubInterval[2]), Sig = +1, tol=tol, 
-                               check.conv=TRUE, ...)
+                               interval = as.numeric(copJoe@paraSubInterval), 
+                               Sig = +1, tol=tol, check.conv=TRUE, ...)
                 r$root
             })
         },
@@ -566,16 +564,18 @@ copJoe <-
 
 ### ==== Generalized inverse Gaussian family ===================================
 
-# ##' GIG object
+##' GIG object
 # copGIG <-
 #     new("acopula", name = "GIG",
 #         ## generator
 #         psi = function(t,theta) { # theta[1] (nu) in IR, theta[2] (theta) in (0,infty); note that the case theta[1] != 0 and theta[2] == 0 is excluded since this reduces to psiClayton(t,1/theta[1])
 #             (1+t)^(-theta[1]/2)*besselK(theta[2]*sqrt(1+t),theta[1])/besselK(theta[2],theta[1]) # theta[1] = nu, theta[2] = theta
 #         },
-#         psiInv = function(t,theta,...) {
-#             safeUroot(function(t) copGIG@psi(t,theta) - t,
-#                       interval = c(0,t^(theta[1]/2)-1), Sig = -1, check.conv=TRUE,...)
+#         psiInv = function(t,theta,...) { ## FIXME: "validTheta" has to be changed (I guess) to allow for more parameters
+#             if(is.null(t)) return(as.numeric(NULL)) # FIXME: only a hack to check if validity proceeds
+#             r <- safeUroot(function(t) copGIG@psi(t,theta) - t,
+#                            interval = c(0,t^(theta[1]/2)-1), Sig = -1, check.conv=TRUE,...)
+#             r$root
 # 	},
 #         ## absolute value of generator derivatives
 #         psiDAbs = function(t, theta, degree = 1, MC, log = FALSE){
@@ -587,8 +587,9 @@ copJoe <-
 #                 res[isInf <- is.infinite(t)] <- 0
 #                 n0Inf <- (1:n)[!(is0 | isInf)]
 #                 if(length(n0Inf) > 0){
-#                     res[n0Inf] <- d*log(theta/2)+log(besselK(theta[2]*sqrt(1+t),theta[1]))-
-# 			log(besselK(theta[2],theta[1]))-((theta[1]+d)/2)*log1p(t)
+#                     res[n0Inf] <- d*log(theta/2)-theta[2]*(sqrt(1+t)-1)+
+#                         log(besselK(theta[2]*sqrt(1+t),theta[1],expon.scaled=TRUE))-
+#                             log(besselK(theta[2],theta[1],expon.scaled=TRUE))-((theta[1]+d)/2)*log1p(t)
 #                 }
 # 		if(log) res else exp(res)
 #             }
@@ -601,7 +602,7 @@ copJoe <-
 #         ## parameter interval
 #         paraInterval = interval("(-Inf,Inf)"), # FIXME: theta[2] has to be in (0,Inf)
 #         ## parameter subinterval (meant to be for *robust* optimization, root-finding etc.)
-#         paraSubInterval = num2interval(c(,)), # FIXME what to put in?
+#         paraSubInterval = num2interval(c(-100,100)), # FIXME what to really put in?
 #         ## nesting constraint
 #         nestConstr = function(theta0,theta1) {
 #             stop("It is currently not known if GIG generators can be nested.")
@@ -646,13 +647,13 @@ copJoe <-
 #             unlist(lapply(theta,one.th,...))
 #         },
 #         tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
-#             sapply(tau,function(tau) {
-#                 r <- safeUroot(function(th) copGIG@tau(th) - tau,
-#                                interval = c(copGIG@paraSubInterval[1], 
-#                                copGIG@paraSubInterval[2]), Sig = +1, tol=tol, 
-#                                check.conv=TRUE, ...)
-#                 r$root
-#             })
+#                                         # sapply(tau,function(tau) {
+#                                         #                 r <- safeUroot(function(th) copGIG@tau(th) - tau,
+#                                         #                                interval = as.numeric(copGIG@paraSubInterval), 
+#                                         #                                Sig = +1, tol=tol, check.conv=TRUE, ...)
+#                                         #                 r$root
+#                                         #             })
+#             stop("tauInv() is currently not implemented for copGIG") # FIXME: which parameter to solve for?
 #         },
 #         ## lower tail dependence coefficient lambda_l
 #         lambdaL = function(theta) { 0*theta },
@@ -671,7 +672,7 @@ copJoe <-
 
 ### ==== naming stuff ==========================================================
 
-cNms <- c("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe")
+cNms <- c("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe") #, "copGIG")
 ## == dput(ls("package:nacopula",pat="^cop"))
 nmsC <- unlist(lapply(cNms, function(.)get(.)@name))
 sNms <- abbreviate(nmsC, 1)

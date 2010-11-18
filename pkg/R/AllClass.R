@@ -39,7 +39,7 @@ setClass("acopula",
                         psiInvD1Abs = "function", # of (t,theta,log = FALSE) -- computes the absolute value of the first derivative of psiInv
 			## when theta is one-dimensional, specifying the interval is more convenient:
                         paraInterval = "maybeInterval", # [.,.]  (.,.], etc .. parameter interval
-		        paraSubInterval = "maybeInterval", # [.,.]  (.,.], etc .. finite parameter interval, e.g., for optimization
+		        paraSubInterval = "maybeInterval", # [.,.]  (.,.], etc .. finite parameter interval, e.g., for optimization (only for robust methods, i.e., methods that work no matter what the parameters are)
                         V0 = "function",	  # of (n,theta) -- RNGenerator
 			dV0 = "function",         # of (x,theta,log=FALSE) -- density of F=LS^{-1}[psi]
                         cCdf = "function", 	  # of (v,u,theta) -- C(v|u)   
