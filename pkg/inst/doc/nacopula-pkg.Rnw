@@ -156,8 +156,8 @@
 \newcommand*{\IK}{\mathbb{K}}
 \newcommand*{\IR}{\mathbb{R}}
 \newcommand*{\IC}{\mathbb{C}}
-\newcommand*{\IP}{\mathbb{P}}
-\newcommand*{\IE}{\mathbb{E}}
+\newcommand*{\IP}{\Prob}
+\newcommand*{\IE}{\E}
 \newcommand*{\V}{\operatorname*{V}}
 \newcommand*{\abs}{\operatorname*{abs}}
 \renewcommand*{\S}{\operatorname*{S}}
@@ -669,7 +669,7 @@ setClass("outer_nacopula", contains = "nacopula",
         })
 \end{Sinput}
 \end{Schunk}
-The \code{onacopula()} function\footnote{in addition to \code{onacopula()},
+The \code{onacopula()} function\footnote{In addition to \code{onacopula()},
   there's \code{onacopulaL()} (``L'' for \textbf{L}ist) which requires the
   more formal specification of the nesting structure by a \code{list}.}
 allows to specify (outer) \code{nacopula}s with convenient specification of
