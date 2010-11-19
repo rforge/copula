@@ -41,7 +41,7 @@ interval <- function(ch) {
 num2interval <- function(x, open = FALSE) {
     stopifnot(is.numeric(x), length(x) == 2,
 	      is.logical(open), 1 <= (lo <- length(open)), lo <= 2)
-    new("interval", as.numeric(x), open = open[1:2])
+    new("interval", as.numeric(x), open = rep(open, length.out=2)[1:2])
 }
 setAs("numeric", "interval", function(from) num2interval(from))
 

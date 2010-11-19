@@ -17,10 +17,11 @@
 
 ## This has advantage that arithmetic with scalars works "for free" already:
 setClass("interval", contains =  "numeric", # of length 2
-         representation(open  = "logical"),# of length 2
+	 representation(open  = "logical"),# of length 2
 	 validity = function(object) {
 	     if(length(rng <- object@.Data) != 2) "interval must be of length 2"
 	     else if(length(object@open) != 2) "'open' must be of length 2"
+	     else if(any(is.na(object@open))) "'open' may not be NA"
 	     else if(rng[2] < rng[1]) "'range[2]' must not be smaller than range[1]"
 	     else TRUE
 	 })
@@ -42,7 +43,7 @@ setClass("acopula",
 		        paraSubInterval = "maybeInterval", # [.,.]  (.,.], etc .. finite parameter interval, e.g., for optimization (only for robust methods, i.e., methods that work no matter what the parameters are)
                         V0 = "function",	  # of (n,theta) -- RNGenerator
 			dV0 = "function",         # of (x,theta,log=FALSE) -- density of F=LS^{-1}[psi]
-                        cCdf = "function", 	  # of (v,u,theta) -- C(v|u)   
+                        cCdf = "function", 	  # of (v,u,theta) -- C(v|u)
                         tau = "function",	  # of (theta)
                         tauInv = "function",      # of (tau)
                         lambdaL = "function",     # of (theta) lower bound  \lambda_l
