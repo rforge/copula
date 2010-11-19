@@ -511,8 +511,7 @@ polylog <- function(z,s, method = c("sum","negint-s_Stirling"), logarithm=FALSE,
 	       n <- -as.integer(s)
 	       k1 <- seq_len(n+1)# == k+1, k = 0...n
 	       fac.k <- cumprod(c(1, seq_len(n)))
-	       ## FIXME? more efficient when I use *all* S2(n+1, k) ?!?
-	       S.n1.k1 <- sapply(k1, Stirling2, n=n+1) ## == Stirling2(n+1, k+1)
+               S.n1.k1 <- Stirling2.all(n+1) ## == Stirling2(n+1, k+1)
 	       if(nz == 1)
 		   sum(	   fac.k * S.n1.k1  *  r^k1 )
 	       else
