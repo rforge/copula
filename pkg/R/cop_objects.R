@@ -228,7 +228,7 @@ copFrank <-
         },
         ## V0 (algorithm of Kemp (1981)) with density dV0 and V01 with density
         ## dV01 corresponding to LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
-        V0 = function(n,theta) { rlog(n,-expm1(-theta)) },
+        V0 = function(n,theta) { rlog(n,-expm1(-theta)) }, ## FIXME: if theta >= 38, -expm1(-theta) == 1 => rlog() fails!
         dV0 = function(x,theta,log = FALSE){
             if(any(x != (x <- floor(x + 0.5)))) warning("x must be integer; is rounded with floor(x+0.5) otherwise")
             ## FIXME: dgeom, e.g., uses R_D_nonint_check() and R_D_forceint(): is that possible here as well?
@@ -240,8 +240,8 @@ copFrank <-
             }
         },
         V01 = function(V0,theta0,theta1) {
-            ## FIXME: this has to be improved
-            ##        rF01FrankR has to be done in C
+            ## FIXME: - this has to be improved
+            ##        - rF01FrankR has to be done in C
 	    V0.large <- V0 > 1000 
             res <- numeric(length(V0))
             res[!V0.large] <- sapply(lapply(V0[!V0.large], rFFrank, theta0=theta0, 

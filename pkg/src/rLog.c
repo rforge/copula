@@ -37,7 +37,7 @@ double rLog(double p) {
 	    return 1.;
 	}
 	else {
-	    double Q = - expm1(log1p(- p) * unif_rand());
+	    double Q = - expm1(log1p(- p) * unif_rand()); /* = 1-(1-p)^unif */
 		/**
 		 * == 1. - exp(log1p(- p) * unif_rand())
 		 * == 1. - pow(1. - p, unif_rand())
