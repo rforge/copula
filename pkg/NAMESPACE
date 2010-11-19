@@ -47,7 +47,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"sinc", "A..Z"
        ,"rstable1"
        ,"retstable", "retstableR"
-       ,"rFJoe", "rFJoeR", "rFFrank", "rFFrankR", "rlog", "rlogR"
+       ,"rFJoe", "rFJoeR", "rFFrank", "rFFrankR", "rF01FrankR", "rlog", "rlogR"
        ##
        ,"polylog", "Stirling1", "Stirling2", "Stirling1.all", "Stirling2.all"
        ,"psiDAbsMC"

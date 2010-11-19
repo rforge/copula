@@ -244,6 +244,22 @@ rFFrankR <- function(n,theta0,theta1) {
 	   theta0_le_1 = (theta0 <= 1))
 }
 
+##' FIXME: provide title... + maybe put in C (if it works)
+##' @param V0 one realization of V0
+##' @param theta0 parameter theta0 in (0,infinity)
+##' @param theta1 parameter theta1 in [theta0, infinity)
+##' @return vector of random variates from F01
+##' @author Marius Hofert
+rF01FrankR <- function(V0,theta0,theta1) {
+	p1 <- -expm1(-theta1)
+    	repeat{
+	    U <- runif(1)
+	    X <- copJoe@V01(V0,theta0,theta1) # sample V01 of Joe
+	    if(U <= p1^X) break
+	}
+	X
+}
+
 ##' Generate a vector of variates V ~ F with Laplace-Stieltjes transform
 ##' (1-(1-exp(-t)*(1-e^(-theta1)))^alpha)/(1-e^(-theta0)). C version.
 ##' @param n length of the vector of random variates

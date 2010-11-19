@@ -240,9 +240,15 @@ copFrank <-
             }
         },
         V01 = function(V0,theta0,theta1) {
-            ## FIXME: how to approximate when V0 large? not yet solved
-            ## theoretically
-            sapply(lapply(V0, rFFrank, theta0=theta0,theta1=theta1), sum)
+            ## FIXME: this has to be improved
+            ##        rF01FrankR has to be done in C
+	    V0.large <- V0 > 1000 
+            res <- numeric(length(V0))
+            res[!V0.large] <- sapply(lapply(V0[!V0.large], rFFrank, theta0=theta0, 
+                                            theta1=theta1), sum)
+	    res[V0.large] <- unlist(lapply(V0[V0.large], rF01FrankR, theta0=theta0,
+                                           theta1=theta1))
+	    res
         },
         dV01 = function(x,V0,theta0,theta1,log = FALSE){
             stopifnot(length(V0) == 1 || length(x) == length(V0), all(x >= V0))
@@ -486,11 +492,11 @@ copJoe <-
             ie <- !ia
             V01 <- V0 # numeric(length(V0))
             V01[ia] <- V0[ia]^(1/alpha) *
-                rstable1(sum(ia),alpha, beta=1,
-                         gamma = cos(alpha*pi/2)^(1/alpha),
-                         delta = as.integer(alpha==1))
+                              rstable1(sum(ia),alpha, beta=1,
+                                       gamma = cos(alpha*pi/2)^(1/alpha),
+                                       delta = as.integer(alpha==1))
             V01[ie] <- sapply(lapply(V0[ie], rFJoe, alpha=alpha),sum)
-            V01
+            unlist(V01) # FIXME: when I call this function with V01(c(100001,30000),1.2,1.5), e.g., I get a list (instead of a vector); this causes V01 of Frank to break down
         },
         dV01 = function(x,V0,theta0,theta1,log = FALSE){
             l.x <- length(x)
@@ -565,110 +571,110 @@ copJoe <-
 ### ==== Generalized inverse Gaussian family ===================================
 
 ##' GIG object
-# copGIG <-
-#     new("acopula", name = "GIG",
-#         ## generator
-#         psi = function(t,theta) { # theta[1] (nu) in IR, theta[2] (theta) in (0,infty); note that the case theta[1] != 0 and theta[2] == 0 is excluded since this reduces to psiClayton(t,1/theta[1])
-#             (1+t)^(-theta[1]/2)*besselK(theta[2]*sqrt(1+t),theta[1])/besselK(theta[2],theta[1]) # theta[1] = nu, theta[2] = theta
-#         },
-#         psiInv = function(t,theta,...) { ## FIXME: "validTheta" has to be changed (I guess) to allow for more parameters
-#             if(is.null(t)) return(as.numeric(NULL)) # FIXME: only a hack to check if validity proceeds
-#             r <- safeUroot(function(t) copGIG@psi(t,theta) - t,
-#                            interval = c(0,t^(theta[1]/2)-1), Sig = -1, check.conv=TRUE,...)
-#             r$root
-# 	},
-#         ## absolute value of generator derivatives
-#         psiDAbs = function(t, theta, degree = 1, MC, log = FALSE){
-#             if(!(missing(MC) || is.null(MC))){
-#                 copGIG@psiDAbsMC(t,"GIG",theta,degree,MC,log)
-#             }else{
-# 		res <- numeric(n <- length(t))
-#                 res[is0 <- t == 0] <- Inf 
-#                 res[isInf <- is.infinite(t)] <- 0
-#                 n0Inf <- (1:n)[!(is0 | isInf)]
-#                 if(length(n0Inf) > 0){
-#                     res[n0Inf] <- d*log(theta/2)-theta[2]*(sqrt(1+t)-1)+
-#                         log(besselK(theta[2]*sqrt(1+t),theta[1],expon.scaled=TRUE))-
-#                             log(besselK(theta[2],theta[1],expon.scaled=TRUE))-((theta[1]+d)/2)*log1p(t)
-#                 }
-# 		if(log) res else exp(res)
-#             }
-#         },
-#         ## derivatives of the generator inverse
-#         psiInvD1Abs = function(t, theta, log = FALSE){
-#             res <- -log(copGIG@psiDAbs(copGIG@psiInv(t,theta),theta,log = TRUE))
-#             if(log) res else exp(res)
-#         },
-#         ## parameter interval
-#         paraInterval = interval("(-Inf,Inf)"), # FIXME: theta[2] has to be in (0,Inf)
-#         ## parameter subinterval (meant to be for *robust* optimization, root-finding etc.)
-#         paraSubInterval = num2interval(c(-100,100)), # FIXME what to really put in?
-#         ## nesting constraint
-#         nestConstr = function(theta0,theta1) {
-#             stop("It is currently not known if GIG generators can be nested.")
-#         },
-#         ## V0 with density dV0 and V01 with density dV01 corresponding to
-#         ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
-#         V0 = function(n,theta){
-#             dens <- udgig(theta[1],1,theta[2]^2) # three args: lambda, psi, chi for the GIG density as on page 497 in McNeil, Frey, Embrechts (2005)
-#             gen <- pinvd.new(dens) # approximation of the quantile function by piecewise polynomials
-#             ur(gen,n)/2	
-#         },
-#         dV0 = function(x,theta,log = FALSE){
-#             dens <- udgig(theta[1],1,theta[2]^2)
-#             if(log) log(ud(dens,x)) else ud(dens,x)
-#         },
-#         V01 = function(V0,theta0,theta1) {
-#             stop("It is currently not known if GIG generators can be nested.")
-#         },
-#         dV01 = function(x,V0,theta0,theta1,log = FALSE){
-#             stop("It is currently not known if GIG generators can be nested.")
-#         },
-#         ## conditional distribution function C(v|u) of v given u
-#         cCdf = function(v,u,theta){
-#             one.d.args <- function(u,v){
-#                 a <- 1 + copGIG@psiInv(u,theta)
-#                 a. <- sqrt(a)
-# 		a.. <- sqrt(a + copGIG@psiInv(v,theta))
-# 		(a./a..)^(theta[1]+1)*besselK(theta[2]*a..,theta[1]+1)/
-#                     besselK(theta[2]*a.,theta[1]+1)
-#             }
-#             mapply(one.d.args,u,v)
-#         },
-#         ## Kendall's tau
-#         tau = function(theta,...) {
-# 	    integrand <- function(t,theta){
-# 		t*besselK(theta[2]*sqrt(1+t),theta[1])^2/(1+t)^(theta[1]+1)
-#             }
-#             one.th <- function(theta,...){
-#                 1-(theta[2]/besselK(theta[2],theta[1]))^2*
-#                     integrate(integrand,lower=0,upper=Inf,...)
-#             }
-#             unlist(lapply(theta,one.th,...))
-#         },
-#         tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
-#                                         # sapply(tau,function(tau) {
-#                                         #                 r <- safeUroot(function(th) copGIG@tau(th) - tau,
-#                                         #                                interval = as.numeric(copGIG@paraSubInterval), 
-#                                         #                                Sig = +1, tol=tol, check.conv=TRUE, ...)
-#                                         #                 r$root
-#                                         #             })
-#             stop("tauInv() is currently not implemented for copGIG") # FIXME: which parameter to solve for?
-#         },
-#         ## lower tail dependence coefficient lambda_l
-#         lambdaL = function(theta) { 0*theta },
-#         lambdaLInv = function(lambda) {
-#             if(any(lambda != 0))
-#                 stop("Any parameter for a GIG copula gives lambdaL = 0")
-#             NA * lambda
-#         },
-#         ## upper tail dependence coefficient lambda_u
-#         lambdaU = function(theta) { 0*theta },
-#         lambdaUInv = function(lambda) {
-#             if(any(lambda != 0))
-#                 stop("Any parameter for a GIG copula gives lambdaU = 0")
-#             NA * lambda
-#         })
+                                        # copGIG <-
+                                        #     new("acopula", name = "GIG",
+                                        #         ## generator
+                                        #         psi = function(t,theta) { # theta[1] (nu) in IR, theta[2] (theta) in (0,infty); note that the case theta[1] != 0 and theta[2] == 0 is excluded since this reduces to psiClayton(t,1/theta[1])
+                                        #             (1+t)^(-theta[1]/2)*besselK(theta[2]*sqrt(1+t),theta[1])/besselK(theta[2],theta[1]) # theta[1] = nu, theta[2] = theta
+                                        #         },
+                                        #         psiInv = function(t,theta,...) { ## FIXME: "validTheta" has to be changed (I guess) to allow for more parameters
+                                        #             if(is.null(t)) return(as.numeric(NULL)) # FIXME: only a hack to check if validity proceeds
+                                        #             r <- safeUroot(function(t) copGIG@psi(t,theta) - t,
+                                        #                            interval = c(0,t^(theta[1]/2)-1), Sig = -1, check.conv=TRUE,...)
+                                        #             r$root
+                                        # 	},
+                                        #         ## absolute value of generator derivatives
+                                        #         psiDAbs = function(t, theta, degree = 1, MC, log = FALSE){
+                                        #             if(!(missing(MC) || is.null(MC))){
+                                        #                 copGIG@psiDAbsMC(t,"GIG",theta,degree,MC,log)
+                                        #             }else{
+                                        # 		res <- numeric(n <- length(t))
+                                        #                 res[is0 <- t == 0] <- Inf 
+                                        #                 res[isInf <- is.infinite(t)] <- 0
+                                        #                 n0Inf <- (1:n)[!(is0 | isInf)]
+                                        #                 if(length(n0Inf) > 0){
+                                        #                     res[n0Inf] <- d*log(theta/2)-theta[2]*(sqrt(1+t)-1)+
+                                        #                         log(besselK(theta[2]*sqrt(1+t),theta[1],expon.scaled=TRUE))-
+                                        #                             log(besselK(theta[2],theta[1],expon.scaled=TRUE))-((theta[1]+d)/2)*log1p(t)
+                                        #                 }
+                                        # 		if(log) res else exp(res)
+                                        #             }
+                                        #         },
+                                        #         ## derivatives of the generator inverse
+                                        #         psiInvD1Abs = function(t, theta, log = FALSE){
+                                        #             res <- -log(copGIG@psiDAbs(copGIG@psiInv(t,theta),theta,log = TRUE))
+                                        #             if(log) res else exp(res)
+                                        #         },
+                                        #         ## parameter interval
+                                        #         paraInterval = interval("(-Inf,Inf)"), # FIXME: theta[2] has to be in (0,Inf)
+                                        #         ## parameter subinterval (meant to be for *robust* optimization, root-finding etc.)
+                                        #         paraSubInterval = num2interval(c(-100,100)), # FIXME what to really put in?
+                                        #         ## nesting constraint
+                                        #         nestConstr = function(theta0,theta1) {
+                                        #             stop("It is currently not known if GIG generators can be nested.")
+                                        #         },
+                                        #         ## V0 with density dV0 and V01 with density dV01 corresponding to
+                                        #         ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
+                                        #         V0 = function(n,theta){
+                                        #             dens <- udgig(theta[1],1,theta[2]^2) # three args: lambda, psi, chi for the GIG density as on page 497 in McNeil, Frey, Embrechts (2005)
+                                        #             gen <- pinvd.new(dens) # approximation of the quantile function by piecewise polynomials
+                                        #             ur(gen,n)/2	
+                                        #         },
+                                        #         dV0 = function(x,theta,log = FALSE){
+                                        #             dens <- udgig(theta[1],1,theta[2]^2)
+                                        #             if(log) log(ud(dens,x)) else ud(dens,x)
+                                        #         },
+                                        #         V01 = function(V0,theta0,theta1) {
+                                        #             stop("It is currently not known if GIG generators can be nested.")
+                                        #         },
+                                        #         dV01 = function(x,V0,theta0,theta1,log = FALSE){
+                                        #             stop("It is currently not known if GIG generators can be nested.")
+                                        #         },
+                                        #         ## conditional distribution function C(v|u) of v given u
+                                        #         cCdf = function(v,u,theta){
+                                        #             one.d.args <- function(u,v){
+                                        #                 a <- 1 + copGIG@psiInv(u,theta)
+                                        #                 a. <- sqrt(a)
+                                        # 		a.. <- sqrt(a + copGIG@psiInv(v,theta))
+                                        # 		(a./a..)^(theta[1]+1)*besselK(theta[2]*a..,theta[1]+1)/
+                                        #                     besselK(theta[2]*a.,theta[1]+1)
+                                        #             }
+                                        #             mapply(one.d.args,u,v)
+                                        #         },
+                                        #         ## Kendall's tau
+                                        #         tau = function(theta,...) {
+                                        # 	    integrand <- function(t,theta){
+                                        # 		t*besselK(theta[2]*sqrt(1+t),theta[1])^2/(1+t)^(theta[1]+1)
+                                        #             }
+                                        #             one.th <- function(theta,...){
+                                        #                 1-(theta[2]/besselK(theta[2],theta[1]))^2*
+                                        #                     integrate(integrand,lower=0,upper=Inf,...)
+                                        #             }
+                                        #             unlist(lapply(theta,one.th,...))
+                                        #         },
+                                        #         tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
+                                        #                                         # sapply(tau,function(tau) {
+                                        #                                         #                 r <- safeUroot(function(th) copGIG@tau(th) - tau,
+                                        #                                         #                                interval = as.numeric(copGIG@paraSubInterval), 
+                                        #                                         #                                Sig = +1, tol=tol, check.conv=TRUE, ...)
+                                        #                                         #                 r$root
+                                        #                                         #             })
+                                        #             stop("tauInv() is currently not implemented for copGIG") # FIXME: which parameter to solve for?
+                                        #         },
+                                        #         ## lower tail dependence coefficient lambda_l
+                                        #         lambdaL = function(theta) { 0*theta },
+                                        #         lambdaLInv = function(lambda) {
+                                        #             if(any(lambda != 0))
+                                        #                 stop("Any parameter for a GIG copula gives lambdaL = 0")
+                                        #             NA * lambda
+                                        #         },
+                                        #         ## upper tail dependence coefficient lambda_u
+                                        #         lambdaU = function(theta) { 0*theta },
+                                        #         lambdaUInv = function(lambda) {
+                                        #             if(any(lambda != 0))
+                                        #                 stop("Any parameter for a GIG copula gives lambdaU = 0")
+                                        #             NA * lambda
+                                        #         })
 
 ### ==== naming stuff ==========================================================
 
