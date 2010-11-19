@@ -19,7 +19,7 @@
 ##' Returns the copula density at u
 ##' @param x nacopula
 ##' @param u argument of the copula x
-##' @param MC if provided (and not NULL) Monte Carlo is used for evaluation of 
+##' @param MC if provided (and not NULL) Monte Carlo is used for evaluation of
 ##'        the density with sample size equal to MC
 ##' @param log if TRUE the log-density is evaluated
 ##' @author Marius Hofert
@@ -33,10 +33,12 @@ dnacopula <- function(x, u, MC, log = FALSE)
     acop <- x@copula
     th <- acop@theta
     res <- rep(NaN,n <- nrow(u)) # density not defined on the margins
-    n01 <- (1:n)[apply(u,1,function(x) all(x != 0, x != 1))] # indices for which density has to be evaluated 
+    n01 <- (1:n)[apply(u,1,function(x) all(x != 0, x != 1))] # indices for which density has to be evaluated
     if(length(n01) > 0){
-        if(is.vector(psiI <- acop@psiInv(u[n01,],th))) psiI <- matrix(psiI, nrow = 1)
-        if(is.vector(psiID <- acop@psiInvD1Abs(u[n01,],th))) psiID <- matrix(psiID, nrow = 1)
+	if(is.vector(psiI <- acop@psiInv(u[n01,],th)))
+	    psiI <- matrix(psiI, nrow = 1)
+	if(is.vector(psiID <- acop@psiInvD1Abs(u[n01,],th)))
+	    psiID <- matrix(psiID, nrow = 1)
         res[n01] <- acop@psiDAbs(rowSums(psiI),theta = th,degree = d, MC = MC, log = log)
         res[n01] <- if(log) res[n01] + rowSums(log(psiID)) else res[n01] * apply(psiID,1,prod)
     }
@@ -46,18 +48,20 @@ dnacopula <- function(x, u, MC, log = FALSE)
 ##' Returns the copula value at a certain vector u
 ##' @param x nacopula
 ##' @param u argument of the copula x
-##' @return x(u)
+##' @return f_x(u)
 ##' @author Marius Hofert, Martin Maechler
-## FIXME: maybe make this applicable to a matrix of u's?
 pnacopula <- function(x,u) {
+
+### FIXME:  make applicable to a matrix of u's
+
     stopifnot(is.numeric(u), 0 <= u, u <= 1,
-	      length(u) >= dim(x))	# can be larger
+              length(u) >= (d <- dim(x))) # will be larger for children
     C <- x@copula
     th <- C@theta
-    ## use u[j] for the direct components 'comp':
-    C@psi(sum(unlist(lapply(u[x@comp], C@psiInv, theta=th)),
-	      C@psiInv(unlist(lapply(x@childCops, pnacopula, u = u)),
-		       theta=th)),
+    C@psi(sum(## use u[j] for the direct components 'comp':
+              C@psiInv(u[x@comp], theta=th),
+              ## and recurse down for the children:
+	      C@psiInv(unlist(lapply(x@childCops, pnacopula, u = u)), theta=th)),
 	  theta=th)
 }
 

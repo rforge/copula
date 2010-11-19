@@ -5,31 +5,25 @@ options(warn = 1)
 
 r <- function(x) round(x,4) # for output
 
-## Demonstrates the fitting and goodness-of-fit capabilities for Archimedean
-## copulas
-## n sample size
-## d dimension
-## simFamily Archimedean family to be sampled
-## tau degree of dependence of the sampled family in terms of Kendall's tau
-## MC if provided (and not NULL) and if it make sense for the chosen method,
-##    Monte Carlo is used with sample size equal to MC
-## estimation.method estimation method (s. enacopula)
-## gof.method goodness-of-fit transformation (s. gnacopula)
-## checkFamilies vector of Archimedean families to be used for gof
-estimation.gof <- function(n, d, simFamily, tau,
-                           estimation.method = c(
-                           "mle",
-                           "smle",
-                           "tau.tau.mean",
-                           "tau.theta.mean",
-                           "dmle",
-                           "beta"
-                           ),
-                           MC,
-			   gof.method = c(
-			   "log",
-                           "normal"
-                           ),
+##' Demonstrates the fitting and goodness-of-fit capabilities for Archimedean
+##' copulas
+##'
+##' @title Fitting and Goodness-Of-Fit for Archimedean copulas
+##' @param n sample size
+##' @param d dimension
+##' @param simFamily Archimedean family to be sampled
+##' @param tau degree of dependence of the sampled family in terms of Kendall's tau
+##' @param MC if provided (and not NULL) and if it make sense for the
+##' chosen method, Monte Carlo is used with sample size equal to MC
+##' @param esti.method estimation method (see enacopula)
+##' @param gof.method  goodness-of-fit transformation (see gnacopula)
+##' @param checkFamilies vector of Archimedean families to be used for gof
+##' @param verbose
+##' @return a numeric matrix ...
+##' @author Marius Hofert (und Martin Maechler)
+estimation.gof <- function(n, d, simFamily, tau, MC,
+                           esti.method = eval(formals(enacopula)$method),
+                           gof.method = eval(formals(gnacopula)$method),
                            checkFamilies = nacopula:::c_longNames, verbose = TRUE)
 {
 
@@ -38,67 +32,70 @@ estimation.gof <- function(n, d, simFamily, tau,
     theta <- copFamily@tauInv(tau)
     cop <- onacopulaL(simFamily, list(theta,1:d))
     if(verbose){
-	cat("\n\n## ==== Output for estimation.method = \"",estimation.method,
+	cat("\n\n## ==== Output for esti.method = \"",esti.method,
             "\" and gof.method = \"",gof.method,"\" ====\n\n",sep="")
     }
     u <- rnacopula(n,cop)
 
     ## estimation and gof
-    estimation.method <- match.arg(estimation.method)
+    esti.method <- match.arg(esti.method)
     gof.method <- match.arg(gof.method)
-    num.checkFamilies <- length(checkFamilies)
-    est <- numeric(num.checkFamilies)
-    tau <- est
-    gof <- est
-    sig <- est
-    ut <- matrix(,nrow=num.checkFamilies,ncol=2)
-    for(k in 1:num.checkFamilies){
+    n.cf <- length(checkFamilies)
+    tau <- gof <- sig <- ute <- utg <- est <- numeric(n.cf)
+    for(k in 1:n.cf) {
         ## estimate the parameter with the provided method
         cop.hat <- onacopulaL(checkFamilies[k],list(NA,1:d))
         if(verbose) cat("Estimation and GOF for ",checkFamilies[k],":\n\n",sep="")
-        ut[k,1] <- system.time(est[k] <- enacopula(u, cop = cop.hat,
-                                                   method = estimation.method,
+        ute[k] <- system.time(est[k] <- enacopula(u, cop = cop.hat,
+                                                   method = esti.method,
                                                    MC = MC, do.pseudo = FALSE))[1]
         ## FIXME: test for "convergence" etc
         tau[k] <- cop.hat@copula@tau(est[k])
         if(verbose){
-            cat("   theta hat      = ",r(est[k]),"\n",sep="")
-            cat("   tau hat        = ",r(cop.hat@copula@tau(est[k])),"\n",sep="")
-            cat("   user time est. = ",r(ut[k,1]),"s\n",sep="")
+            cat("   theta hat      = ",r(est[k]),"\n",
+                "   tau hat        = ",r(cop.hat@copula@tau(est[k])),"\n",
+            ## The exact string 'Time ' must appear at the beginning of line
+            ## for 'R CMD Rdiff' to *not* look at differences there:
+                "Time estimation   = ",round(1000*ute[k]),"ms\n",sep="")
 	}
         cop.hat@copula@theta <- est[k]
         ## apply a goodness-of-fit test to the estimated copula
         ## {{ use gnacopulatrafo() if you want the transformed u }}
-        ut[k,2] <- system.time(gof[k] <- gnacopula(u, cop = cop.hat, bootstrap = FALSE,
-                                                   method = gof.method,
-                                                   estimation.method = estimation.method,
-                                                   MC = MC, do.pseudo = FALSE,
-                                                   verbose = FALSE))[1]
+        utg[k] <-
+            system.time(gof[k] <-
+                        gnacopula(u, cop = cop.hat, bootstrap = FALSE,
+                                  method = gof.method,
+                                  estimation.method = esti.method,
+                                  MC = MC, do.pseudo = FALSE,
+                                  verbose = FALSE))[1]
         sig[k] <- if(gof[k] < 0.05) 1 else 0
         if(verbose){
-            cat("   p-value        = ",r(gof[k]),"\n",sep="")
-            cat("   < 0.05         = ",if(sig[k]) "TRUE" else "FALSE","\n",sep="")
-            cat("   user time gof  = ",r(ut[k,2]),"s\n\n",sep="")
+            cat("   p-value        = ",r(gof[k]),"\n",
+                "   < 0.05         = ",if(sig[k]) "TRUE" else "FALSE","\n",
+                "Time G.O.Fit comp = ",round(1000*utg[k]),"ms\n\n",sep="")
 	}
     }
 
     ## result
-    res <- cbind(est,tau,ut[,1],gof,sig,ut[,2])
-    colnames(res) <- c("theta hat","tau hat","user time est.","p-value","< 0.05",
-                       "user time gof")
-    row.names(res) <- checkFamilies
-    res
+    names(est) <- checkFamilies
+    cbind(theta_hat = est, tau_hat   = tau,
+	  timeEstim = ute,
+	  P_value   = gof, "< 0.05"  = sig,
+	  timeGOF   = utg)
 }
 
+
 ## ==== setup ====
+
+## Use all available estimation and GOF methods:
+(estMeth <- eval(formals(enacopula)$method))
+(gofMeth <- eval(formals(gnacopula)$method))
 
 set.seed(1) # set seed
 
 n <- 512 # sample size
 d <- 5 # dimension
 tau <- 0.25 # Kendall's tau
-estMeth <- c("mle","smle","tau.tau.mean","tau.theta.mean","dmle","beta")
-gofMeth <- c("log","normal")
 
 ## ==== apply all procedures (to data from AMH) ================================
 
@@ -109,15 +106,65 @@ theta <- cop@tauInv(tau) # true parameter
 ## start the loop
 cat("\n## ==== data from ",simFamily," (n = ",n,", d = ",d,", theta = ",
     r(theta),", tau = ",r(tau),") ====\n\n",sep="")
-for(e in estMeth){
-    MC <- if(e == "smle") 10000 else NULL
-    for(g in gofMeth){
-        res <- estimation.gof(n, d, simFamily, tau, estimation.method = e,
-                              MC, gof.method = g)
-        cat("Results:\n\n")
-        print(r(res))
-    }
+## sapply(*, simplify=FALSE):
+## sapply() cannot (yet!) produce ## higher-level arrays
+## Martin's patched version
+sapply <- function(X, FUN, ..., simplify = TRUE, USE.NAMES = TRUE, ARRAY = FALSE)
+{
+    FUN <- match.fun(FUN)
+    answer <- lapply(X, FUN, ...)
+    if(USE.NAMES && is.character(X) && is.null(names(answer)))
+	names(answer) <- X
+    if(simplify && length(answer) &&
+       length(common.len <- unique(unlist(lapply(answer, length)))) == 1L) {
+	if(common.len == 1L)
+	    unlist(answer, recursive = FALSE)
+	else if(common.len > 1L) {
+	    r <- as.vector(unlist(answer, recursive = FALSE))
+	    if(ARRAY && length(c.dim <- unique(lapply(answer, dim))) == 1 &&
+	       is.numeric(c.dim <- c.dim[[1L]]) &&
+	       prod(d <- c(c.dim, length(X))) == length(r)) {
+
+		iN1 <- is.null(n1 <- dimnames(answer[[1L]]))
+                n2 <- names(answer)
+		dnam <-
+		    if(!(iN1 && is.null(n2)))
+			c(if(iN1) rep.int(list(n1), length(c.dim)) else n1,
+                          list(n2)) ## else NULL
+		array(r, dim = d, dimnames = dnam)
+
+	    } else if(prod(d <- c(common.len, length(X))) == length(r))
+
+		array(r, dim = d,
+		      dimnames= if(!(is.null(n1 <- names(answer[[1L]])) &
+				     is.null(n2 <- names(answer)))) list(n1,n2))
+	    else answer
+	}
+	else answer
+    } else answer
 }
+
+
+RR <- sapply(estMeth, ARRAY=TRUE, function(e)
+         {
+             MC <- if(e == "smle") 10000 else NULL
+             sapply(gofMeth, ARRAY=TRUE, function(g)
+                    estimation.gof(n, d, simFamily, tau=tau, MC=MC,
+                                   esti.method = e, gof.method = g))
+         })
+
+str(RR)
+## Now print RR smartly (well, "to be improved"):
+options(digits = 5)
+
+## *Not* the times here:
+RR[,c(1:2,4:5),,]
+
+## but here:
+apply(1000 * RR[,c("timeEstim","timeGOF"),,],
+      c(4,1,2), mean)
+
+
 
 ## ==== MLE estimation by hand (for debugging purposes) ====
 

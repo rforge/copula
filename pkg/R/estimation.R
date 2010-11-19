@@ -17,26 +17,26 @@
 
 ## ==== initial interval for optimization procedures ===========================
 
-##' Compute an initial interval for optimization/estimation routines (only a 
+##' Compute an initial interval for optimization/estimation routines (only a
 ##' heuristic; if this fails, choose your own interval)
 ##' Note: In contrast to the slots "paraSubInterval", this function also works
 ##'       for non-robust methods (i.e., methods that break down when the rather
 ##'	  large intervals given by paraSubInterval are used)
 ##' @param u data
 ##' @param family Archimedean family
-##' @param h for enlarging the tau-interval 
+##' @param h for enlarging the tau-interval
 ##' @return initial interval which can be used for optimization (e.g., for emle)
-##' @author Marius Hofert 
+##' @author Marius Hofert
 paraOptInterval <- function(u, family, h = 0.15){
     theta.hat.G <- edmle(u, getAcop("Gumbel"))$minimum
-    tau.hat.G <- copGumbel@tau(theta.hat.G) 
+    tau.hat.G <- copGumbel@tau(theta.hat.G)
     copFamily <- getAcop(family)
     I <- copFamily@paraSubInterval
     tau.min <- copFamily@tau(I[1]) # smallest admissible lower bound for copFamily
     tau.max <- copFamily@tau(I[2]) # largest admissible upper bound for copFamily
     l <- max(tau.hat.G - h,tau.min) # admissible lower bound for tau
     u <- min(tau.hat.G + h,tau.max) # admissible upper bound for tau
-    c(copFamily@tauInv(l),copFamily@tauInv(u))	
+    c(copFamily@tauInv(l),copFamily@tauInv(u))
 }
 
 ## ==== Blomqvist's beta =======================================================
@@ -57,7 +57,7 @@ beta.hat <- function(u, scaling = TRUE){
     sum.prod <- prod1 + prod2
     b <- mean(sum.prod)
     d <- ncol(u)
-    if(scaling) {T <- 2^(d-1); (T*b - 1)/(T - 1)} else b 
+    if(scaling) {T <- 2^(d-1); (T*b - 1)/(T - 1)} else b
 }
 
 ##' Compute the population version of Blomqvist's beta for an Archimedean copula
@@ -67,15 +67,14 @@ beta.hat <- function(u, scaling = TRUE){
 ##' @param scaling if FALSE then the scaling factors 2^(d-1)/(2^(d-1)-1) and
 ##'                2^(1-d) are omitted
 ##' @return population version of multivariate Blomqvist beta
-##' @author Marius Hofert
+##' @author Marius Hofert (+ M.M.)
 beta. <- function(cop, theta, d, scaling = TRUE) {
     j <- 1:d
-    signs <- (-1)^j
-    log.diag <- function(d) log(pnacopula(onacopulaL(cop@name,list(theta,1:d)),
-                                          rep(0.5,d)))
-    ldiags <- unlist(lapply(j,log.diag)) 
-    b <- pnacopula(onacopulaL(cop@name,list(theta,1:d)),rep(0.5,d)) + 1 +
-        sum(signs*exp(lchoose(d,j)+ldiags))
+    log.diag <- function(k)
+        log(pnacopula(onacopulaL(cop@name, list(theta,seq_len(k))), u = rep.int(0.5, k)))
+    ldiags <- unlist(lapply(j, log.diag))
+    b <- pnacopula(onacopulaL(cop@name, list(theta, j)), u = rep.int(0.5, d)) +
+        1 + sum((-1)^j * exp(lchoose(d,j)+ldiags))
     if(scaling) { T <- 2^(d-1); (T*b - 1)/(T - 1)} else b
 }
 
@@ -83,11 +82,11 @@ beta. <- function(cop, theta, d, scaling = TRUE) {
 ##' multivariate version of Blomqvist's beta
 ##' @param u matrix of realizations following the copula
 ##' @param cop acopula to be estimated
-##' @param interval bivariate vector denoting the interval where optimization takes 
-##'        place 
+##' @param interval bivariate vector denoting the interval where optimization takes
+##'        place
 ##' @param ... additional parameters for safeUroot
-##' @return Blomqvist beta estimator; return value of safeUroot (more or less 
-##'	    equal to the return value of uniroot) 
+##' @return Blomqvist beta estimator; return value of safeUroot (more or less
+##'	    equal to the return value of uniroot)
 ##' @author Marius Hofert
 ebeta <- function(u,cop,interval = paraOptInterval(u, cop@name),...){
     ## Note: We do not need the constants 2^(d-1)/(2^(d-1)-1) and 2^(1-d) here,
@@ -143,7 +142,7 @@ dDiag <- function(u, cop, d, log = FALSE){
     stopifnot(all(0 <= u, u <= 1))
     th <- cop@theta
     if(log){
-        log(d) + cop@psiDAbs(d*cop@psiInv(u,th), th, log = TRUE) + 
+        log(d) + cop@psiDAbs(d*cop@psiInv(u,th), th, log = TRUE) +
             cop@psiInvD1Abs(u, th, log = TRUE)
     }else{
         d*cop@psiDAbs(d*cop@psiInv(u,th), th)*(cop@psiInvD1Abs(u,th))
@@ -153,16 +152,16 @@ dDiag <- function(u, cop, d, log = FALSE){
 ##' Maximum likelihood estimation based on the diagonal of the Archimedean copula
 ##' @param u matrix of realizations following the copula
 ##' @param cop acopula to be estimated
-##' @param interval bivariate vector denoting the interval where optimization takes 
-##'        place 
+##' @param interval bivariate vector denoting the interval where optimization takes
+##'        place
 ##' @param ... additional parameters for optimize
 ##' @return diagonal maximum likelihood estimator; return value of optimize
-##' @author Marius Hofert 
+##' @author Marius Hofert
 edmle <- function(u, cop, interval = paraOptInterval(u, cop@name), ...)
 {
     stopifnot(is(cop,"acopula"), is.numeric(d <- ncol(u)), d >= 1) # dimension
     x <- apply(u,1,max) # data from the diagonal
-    ## explicit estimator for Gumbel 
+    ## explicit estimator for Gumbel
     if(cop@name == "Gumbel"){
 	list(minimum = log(d)/(log(length(x))-log(sum(-log(x)))), objective = 0) # return value of the same structure as for optimize
     }else{
@@ -199,7 +198,7 @@ edmle <- function(u, cop, interval = paraOptInterval(u, cop@name), ...)
 ##' @param cop nacopula to be estimated
 ##' @param MC if provided SMLE is applied with sample size equal to MC; otherwise,
 ##'        MLE is applied
-##' @param interval bivariate vector denoting the interval where optimization takes 
+##' @param interval bivariate vector denoting the interval where optimization takes
 ##'        place (with default given by the slot paraSubInterval)
 ##' @param ... additional parameters for optimize
 ##' @return (simulated) maximum likelihood estimator; return value of optimize
@@ -271,7 +270,7 @@ pobs <- function(x) apply(x,2,rank)/(nrow(x)+1)
 ##' @return estimated value/vector according to the chosen method
 ##' @author Marius Hofert
 enacopula <- function(x, cop, method = c("mle","smle","tau.tau.mean","tau.theta.mean",
-                              "dmle","beta"), MC, interval = 
+                              "dmle","beta"), MC, interval =
                       paraOptInterval(u, cop@copula@name), do.pseudo = FALSE, ...)
 {
     ## setup cop
@@ -287,16 +286,16 @@ enacopula <- function(x, cop, method = c("mle","smle","tau.tau.mean","tau.theta.
 
     ## check if MC is given for SMLE
     if(mMC <- missing(MC)) MC <- NULL
-    if(mMC && method == "smle") stop("smle needs the sample size MC") 
+    if(mMC && method == "smle") stop("smle needs the sample size MC")
 
     ## main part
     res <- switch(method,
                   mle =            emle (u,  cop, interval = interval,...),
-                  smle =           emle (u,  cop, MC = MC, interval = interval,...),                
+                  smle =           emle (u,  cop, MC = MC, interval = interval,...),
                   tau.tau.mean =   etau (u, acop, "tau.mean", ...),
                   tau.theta.mean = etau (u, acop, "theta.mean", ...),
                   dmle =           edmle(u, acop, interval = interval,...),
-                  beta =           ebeta(u, acop, interval = interval,...),                  
+                  beta =           ebeta(u, acop, interval = interval,...),
                   stop("wrong estimation method"))
 
     ## FIXME: deal with result, check details, give warnings
@@ -310,5 +309,5 @@ enacopula <- function(x, cop, method = c("mle","smle","tau.tau.mean","tau.theta.
            dmle =           res$minimum,
            beta =           res$root,
            stop("wrong estimation method"))
-    
+
 }
