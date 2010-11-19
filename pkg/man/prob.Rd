@@ -44,5 +44,6 @@ l <- c(.7,.8,.6)
 u <- c(1,1,1)
 prob(C3, l, u)
 }
+\keyword{distribution}
 \keyword{methods}
 

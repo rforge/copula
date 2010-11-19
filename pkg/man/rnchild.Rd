@@ -1,8 +1,6 @@
 \name{rnchild}
-\title{Sampling child 'nacopula's}
+\title{Sampling Child 'nacopula's}
 \alias{rnchild}
-\alias{rnchild-methods}
-\alias{rnchild,nacopula-method}
 \description{
   Method for generating vectors of random numbers of nested Archimedean
   copulas which are child copulas.
@@ -86,6 +84,4 @@ U <- cbind(U1, U23$U)
 ## Clayton copula
 splom2(U)
 }
-\keyword{methods}
 \keyword{distribution}
-

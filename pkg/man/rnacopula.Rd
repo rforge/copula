@@ -3,8 +3,9 @@
 \title{Sampling Nested Archimedean Copulas}
 \description{
   Random number generation from nested Archimedean copulas (of class
-  \code{\linkS4class{outer_nacopula}}, specifically), aka \dQuote{sampling} nested Archimedean
-  copulas will generate \code{n} random vectors of dimension \eqn{d} (=\code{dim(x)}).
+  \code{\linkS4class{outer_nacopula}}, specifically), aka
+  \dQuote{sampling} nested Archimedean copulas will generate \code{n}
+  random vectors of dimension \eqn{d} (=\code{dim(x)}).
 }
 \usage{
 rnacopula(n, x, ...)
@@ -64,6 +65,5 @@ U <- rnacopula(n, C3)
 ## Plot the drawn vectors of random variates
 splom2(U)
 }
-\keyword{methods}
 \keyword{distribution}
 

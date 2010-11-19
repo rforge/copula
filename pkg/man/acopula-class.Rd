@@ -30,16 +30,16 @@
       value of the derivative of the generator \eqn{\psi}{psi} for the given
       parameter \code{theta} and of the given \code{degree} (defaults to 1).
       Note that there is no informational loss by computing the absolute value
-      since the derivatives alternate in sign (so that the generator derivative 
+      since the derivatives alternate in sign (so that the generator derivative
       itself can be accessed with (-1)^\code{degree}\code{psiDAbs}). If the
       number \code{MC} is provided, the function is computed based on a Monte
       Carlo simulation with sample size equal to \code{MC}; otherwise, the
       derivatives are evaluated with their exact formulas. The optional
       parameter \code{log} (defaults to \code{FALSE}) indicates whether the
       logarithm of the absolute value of the derivative is returned.}
-    \item{\code{psiInvD}:}{ A \code{\link{function}} which computes the
-      derivatives of the generator inverse for the given parameter \code{theta}
-      and of the given \code{degree} (defaults to 1).}
+    \item{\code{psiInvD1Abs}:}{a \code{\link{function}} computing the
+      absolute derivative of the generator inverse (\code{psiInv()}) for
+      the given parameter \code{theta}.}
     \item{\code{paraInterval}:}{Either \code{\link{NULL}} or object of class
       \code{"\linkS4class{interval}"}, typically from a call such as
       \code{\link{interval}("[a,b)")}.}
@@ -77,7 +77,7 @@
       this \code{\link{function}} computes the probability mass or density
       function for the Laplace-Stieltjes transform
       \deqn{\psi_{01}(t;V_0)=\exp(-V_0\psi_0^{-1}(\psi_1(t)))}{psi01(t;V0)=exp(-V0*psi0^{-1}(psi1(t)))} corresponding to the distribution function \eqn{F_{01}}{F01}.
-      
+
       Arguments are the evaluation point(s) \code{x}, the value(s) \code{V0},
       and the parameters \code{theta0} and \code{theta1}. As for \code{dV0}, the
       optional argument \code{log} can be specified (defaults to \code{FALSE}).
@@ -88,9 +88,6 @@
     \item{\code{cCdf}:}{A \code{\link{function}} with arguments \code{v},
       \code{u}, and \code{theta} which computes the bivariate conditional copula
       function at \code{v} given \code{u}, i.e., \eqn{C(v\vert u)}{C(v|u)}.}
-    \item{\code{diag}:}{The copula diagonal.}
-    \item{\code{dDiag}:}{The density of the copula diagonal (note that the
-      diagonal of a copula is a cumulative distribution function).}
     \item{\code{tau}, \code{tauInv}:}{Compute Kendall's tau of the bivariate
       Archimedean copula with generator \eqn{\psi}{psi} as a
       \code{\link{function}} of \code{theta}, respectively, \code{theta} as a
@@ -156,4 +153,5 @@ copClayton@nestConstr(theta0 = 2, theta1 = 3) # TRUE
 
 ## For more examples, see  help("acopula-families")
 }
+\keyword{multivariate}
 \keyword{classes}

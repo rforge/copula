@@ -66,4 +66,5 @@ C3@comp
 C3@childCops # only one child for this copula, components 2, 3
 
 }
+\keyword{multivariate}
 \keyword{classes}

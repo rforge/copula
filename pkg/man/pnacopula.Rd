@@ -1,5 +1,4 @@
 \name{pnacopula}
-\docType{methods}
 \alias{pnacopula}
 \title{Evaluation of Nested Archimedean Copulas}
 \description{
@@ -19,7 +18,9 @@ pnacopula(x, u)
   A \code{\link{numeric}} in \eqn{[0,1]} which is the copula evaluated
   at \code{u}. (Currently not parallelized.)
 }
-\author{Marius Hofert, Martin Maechler}
+\seealso{
+}
+\author{Marius Hofert and Martin Maechler}
 \examples{
 ## Construct a three-dimensional nested Joe copula with parameters
 ## chosen such that the Kendall's tau of the respective bivariate margins
@@ -36,4 +37,5 @@ pnacopula(C3, u)
 u <- matrix(runif(300), ncol=3)
 apply(u, 1, pnacopula, x=C3)
 }
-\keyword{methods}
+\keyword{multivariate}
+\keyword{distribution}
