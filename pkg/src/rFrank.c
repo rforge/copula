@@ -3,7 +3,7 @@
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU General Public License as published by the Free Software
- Foundation; either version 3 of the License, or (at your option) any later 
+ Foundation; either version 3 of the License, or (at your option) any later
  version.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
@@ -20,23 +20,24 @@
 #include "nacopula.h"
 
 /**
- * Sample V ~ F with Laplace-Stieltjes transform 
+ * Sample V ~ F with Laplace-Stieltjes transform
  * (1-(1-exp(-t)*(1-e^(-theta1)))^alpha)/(1-e^(-theta0))
  * via the algorithm of Hofert (2010). C version.
- * @param p parameter 1-e^(-theta1)
+ * @param p  parameter 1-e^(-theta1)
+ * @param Ip  == 1 - p, {= e^(-theta1)} possibly more accurately
  * @param alpha parameter theta0/theta1 in (0,1]
- * @param iAlpha 1-alpha 
+ * @param iAlpha 1-alpha
  * @param theta0_le_1 in {0,1} with 1 if and only if theta0 <= 1
  * @return a random variate from F
  * @author Marius Hofert, Martin Maechler
 */
-double rFFrank(double p, double alpha, double iAlpha /**< == 1 - alpha */, 
-	       int theta0_le_1){
+double rFFrank(double p, double Ip,
+	       double alpha, double iAlpha, int theta0_le_1){
     double U, V;
     if(theta0_le_1) {
 	do {
 	    U = unif_rand();
-	    V = rLog(p);
+	    V = rLog(p, Ip);
 	} while (U*(V-alpha) > 1./beta(V, iAlpha));
 
     } else {
@@ -49,9 +50,9 @@ double rFFrank(double p, double alpha, double iAlpha /**< == 1 - alpha */,
     return V;
 }
 
-/** 
- * Vectorize rFFrank. Generate a vector of variates 
- * V ~ F with Laplace-Stieltjes transform 
+/**
+ * Vectorize rFFrank. Generate a vector of variates
+ * V ~ F with Laplace-Stieltjes transform
  * (1-(1-exp(-t)*(1-e^(-theta1)))^alpha)/(1-e^(-theta0)).
  * @param V vector of random variates from F (result)
  * @param n length of the vector V
@@ -60,9 +61,9 @@ double rFFrank(double p, double alpha, double iAlpha /**< == 1 - alpha */,
  * @return none
  * @author Marius Hofert, Martin Maechler
 */
-void rFFrank_vec(double *V, const int n, const double theta_0, 
+void rFFrank_vec(double *V, const int n, const double theta_0,
 		 const double theta_1){
-    double p  =  - expm1(-theta_1),
+    double p = - expm1(-theta_1), Ip = exp(-theta_1),
 	alpha = theta_0 / theta_1, iAlpha = (theta_1 - theta_0) / theta_1;
     int th_0_le_1 = (theta_0 <= theta_1);
 
@@ -70,7 +71,7 @@ void rFFrank_vec(double *V, const int n, const double theta_0,
 	GetRNGstate();
 
 	for(int i=0; i < n; i++)
-	    V[i] = rFFrank(p, alpha, iAlpha, th_0_le_1);
+	    V[i] = rFFrank(p, Ip, alpha, iAlpha, th_0_le_1);
 
 	PutRNGstate();
     }
@@ -78,7 +79,7 @@ void rFFrank_vec(double *V, const int n, const double theta_0,
 }
 
 /**
- * Generate a vector of variates V ~ F with Laplace-Stieltjes transform 
+ * Generate a vector of variates V ~ F with Laplace-Stieltjes transform
  * (1-(1-exp(-t)*(1-e^(-theta1)))^alpha)/(1-e^(-theta0)).
  * @param n sample size
  * @param theta_0 parameter theta0 in (0,infinity)

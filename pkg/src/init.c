@@ -3,7 +3,7 @@
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU General Public License as published by the Free Software
- Foundation; either version 3 of the License, or (at your option) any later 
+ Foundation; either version 3 of the License, or (at your option) any later
  version.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
@@ -28,7 +28,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(rstable_c, 2),
     CALLDEF(retstable_c, 4),
 
-    CALLDEF(rLog_c, 2),
+    CALLDEF(rLog_c, 3),
     CALLDEF(rFJoe_c, 2),
     CALLDEF(rFFrank_c, 3),
 
@@ -36,7 +36,7 @@ static R_CallMethodDef CallEntries[] = {
 };
 
 /**
- * register routines 
+ * register routines
  * @param dll pointer
  * @return none
  * @author Martin Maechler

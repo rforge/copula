@@ -50,7 +50,7 @@ stopifnot(all.equal(Sd, Sl, tol = 1e-15),
 rbind(C.direct = system.time(Sd <- Stirling2(200,190, method="direct")),
       C.lookup = system.time(Sl <- Stirling2(200,190, method="lookup")))
 Sd ; Sl
-stopifnot(print(system.time(for(i in 1:20) S. <- Stirling2(200,190))[[1]]) <= 0.010)
+stopifnot(print(system.time(for(i in 1:20) S. <- Stirling2(200,190))[[1]]) <= 0.020)# 0.010 occasionally barely fails (prints "0.010") on Martin's X201
 
 
 ### ---------------- Polylogarithm Function -------------------------------------

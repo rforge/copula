@@ -51,7 +51,7 @@ copAMH <-
         ## derivatives of the generator inverse
 	psiInvD1Abs = function(t, theta, log = FALSE){
             if(log){
-                log1p(-theta)-log(t)-log1p(-theta*(1-t))		
+                log1p(-theta)-log(t)-log1p(-theta*(1-t))
             }else{
                 (1-theta)/(t*(1-theta*(1-t)))
             }
@@ -91,7 +91,7 @@ copAMH <-
                 stop("Impossible for AMH copula to attain a Kendall's tau larger than 1/3")
             sapply(tau,function(tau) {
                 r <- safeUroot(function(th) tauAMH(th) - tau,
-                               interval = as.numeric(copAMH@paraSubInterval), 
+                               interval = as.numeric(copAMH@paraSubInterval),
                                Sig = +1, tol = tol, check.conv=TRUE, ...)
                 r$root
             })
@@ -122,7 +122,7 @@ copClayton <-
         psiDAbs = function(t, theta, degree = 1, MC, log = FALSE){
             if(!(missing(MC) || is.null(MC))){
                 psiDAbsMC(t,"Clayton",theta,degree,MC,log)
-            }else{  
+            }else{
                 ## Note: psiDAbs(0, ...) is correct
                 alpha <- 1/theta
                 res <- lgamma(degree+alpha)-lgamma(alpha)-(degree+alpha)*log1p(t)
@@ -132,7 +132,7 @@ copClayton <-
         ## derivatives of the generator inverse
 	psiInvD1Abs = function(t, theta, log = FALSE){
             if(log) log(theta)-(1+theta)*log(t) else theta*t^(-(1+theta))
-	}, 
+	},
         ## parameter interval
         paraInterval = interval("(0,Inf)"),
         ## parameter subinterval (meant to be for *robust* optimization, root-finding etc.)
@@ -199,7 +199,7 @@ copFrank <-
         },
         ## absolute value of generator derivatives
         psiDAbs = function(t, theta, degree = 1, MC, log = FALSE){
-            if(!(missing(MC) || is.null(MC))){ 
+            if(!(missing(MC) || is.null(MC))){
                 psiDAbsMC(t,"Frank",theta,degree,MC,log)
             }else{
                 ## Note: psiDAbs(0, ...) is correct
@@ -220,7 +220,7 @@ copFrank <-
    	## parameter interval
         paraInterval = interval("(0,Inf)"),
         ## parameter subinterval (meant to be for *robust* optimization, root-finding etc.)
-        paraSubInterval = num2interval(c(1e-12, 198)), # 198 corresponds to tau = 0.98 
+        paraSubInterval = num2interval(c(1e-12, 198)), # 198 corresponds to tau = 0.98
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             copFrank@paraConstr(theta0) &&
@@ -228,7 +228,7 @@ copFrank <-
         },
         ## V0 (algorithm of Kemp (1981)) with density dV0 and V01 with density
         ## dV01 corresponding to LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
-        V0 = function(n,theta) { rlog(n,-expm1(-theta)) }, ## FIXME: if theta >= 38, -expm1(-theta) == 1 => rlog() fails!
+        V0 = function(n,theta) rlog(n, -expm1(-theta), exp(-theta)),
         dV0 = function(x,theta,log = FALSE){
             if(any(x != (x <- floor(x + 0.5)))) warning("x must be integer; is rounded with floor(x+0.5) otherwise")
             ## FIXME: dgeom, e.g., uses R_D_nonint_check() and R_D_forceint(): is that possible here as well?
@@ -242,9 +242,9 @@ copFrank <-
         V01 = function(V0,theta0,theta1) {
             ## FIXME: - this has to be improved
             ##        - rF01FrankR has to be done in C
-	    V0.large <- V0 > 1000 
+	    V0.large <- V0 > 1000
             res <- numeric(length(V0))
-            res[!V0.large] <- sapply(lapply(V0[!V0.large], rFFrank, theta0=theta0, 
+            res[!V0.large] <- sapply(lapply(V0[!V0.large], rFFrank, theta0=theta0,
                                             theta1=theta1), sum)
 	    res[V0.large] <- unlist(lapply(V0[V0.large], rF01FrankR, theta0=theta0,
                                            theta1=theta1))
@@ -276,7 +276,7 @@ copFrank <-
         tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
             sapply(tau, function(tau) {
                 r <- safeUroot(function(th) copFrank@tau(th) - tau,
-                               interval = as.numeric(copFrank@paraSubInterval), 
+                               interval = as.numeric(copFrank@paraSubInterval),
                                Sig = +1, tol=tol,
                                check.conv=TRUE, ...)
                 r$root
@@ -306,7 +306,7 @@ copGumbel <-
         psiInv = function(t,theta) { (-log(t+0))^theta },
         ## absolute value of generator derivatives
         psiDAbs = function(t, theta, degree = 1, MC, log = FALSE){
-            if(!(missing(MC) || is.null(MC))){ 
+            if(!(missing(MC) || is.null(MC))){
                 psiDAbsMC(t,"Gumbel",theta,degree,MC,log)
             }else{
                 if(theta == 0) if(log) return(-t) else return(exp(-t)) # special case
@@ -331,7 +331,7 @@ copGumbel <-
                     inner.sum.mat <- sapply(j,inner.sum.for.one.j)
 	            outer.sum <- inner.sum.mat %*% s.alpha
                     res[n0Inf] <- (-t[n0Inf])^(-degree)*copGumbel@psi(t[n0Inf],theta)*
-                        outer.sum 
+                        outer.sum
                 }
                 if(log) log(res) else res
             }
@@ -466,15 +466,15 @@ copJoe <-
             t. <- 1-t
             t.th <- t.^theta
             if(log){
-		log(theta)+(theta-1)*log(t.)-log1p(-t.th) 
+		log(theta)+(theta-1)*log(t.)-log1p(-t.th)
             }else{
                 theta*(t.th/t.)/(1-t.th)
-            } 
+            }
         },
         ## parameter interval
         paraInterval = interval("[1,Inf)"),
         ## parameter subinterval (meant to be for *robust* optimization, root-finding etc.)
-        paraSubInterval = num2interval(c(1, 98)), # 98 corresponds to tau = 0.98 
+        paraSubInterval = num2interval(c(1, 98)), # 98 corresponds to tau = 0.98
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             copJoe@paraConstr(theta0) &&
@@ -551,7 +551,7 @@ copJoe <-
         tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
             sapply(tau,function(tau) {
                 r <- safeUroot(function(th) copJoe@tau(th) - tau,
-                               interval = as.numeric(copJoe@paraSubInterval), 
+                               interval = as.numeric(copJoe@paraSubInterval),
                                Sig = +1, tol=tol, check.conv=TRUE, ...)
                 r$root
             })
@@ -589,7 +589,7 @@ copJoe <-
                                         #                 copGIG@psiDAbsMC(t,"GIG",theta,degree,MC,log)
                                         #             }else{
                                         # 		res <- numeric(n <- length(t))
-                                        #                 res[is0 <- t == 0] <- Inf 
+                                        #                 res[is0 <- t == 0] <- Inf
                                         #                 res[isInf <- is.infinite(t)] <- 0
                                         #                 n0Inf <- (1:n)[!(is0 | isInf)]
                                         #                 if(length(n0Inf) > 0){
@@ -618,7 +618,7 @@ copJoe <-
                                         #         V0 = function(n,theta){
                                         #             dens <- udgig(theta[1],1,theta[2]^2) # three args: lambda, psi, chi for the GIG density as on page 497 in McNeil, Frey, Embrechts (2005)
                                         #             gen <- pinvd.new(dens) # approximation of the quantile function by piecewise polynomials
-                                        #             ur(gen,n)/2	
+                                        #             ur(gen,n)/2
                                         #         },
                                         #         dV0 = function(x,theta,log = FALSE){
                                         #             dens <- udgig(theta[1],1,theta[2]^2)
@@ -655,7 +655,7 @@ copJoe <-
                                         #         tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
                                         #                                         # sapply(tau,function(tau) {
                                         #                                         #                 r <- safeUroot(function(th) copGIG@tau(th) - tau,
-                                        #                                         #                                interval = as.numeric(copGIG@paraSubInterval), 
+                                        #                                         #                                interval = as.numeric(copGIG@paraSubInterval),
                                         #                                         #                                Sig = +1, tol=tol, check.conv=TRUE, ...)
                                         #                                         #                 r$root
                                         #                                         #             })

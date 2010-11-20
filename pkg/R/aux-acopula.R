@@ -173,20 +173,23 @@ retstable <- retstableC
 ##' Random number generator for a Log(p) distribution, R version
 ##' @param n number of random variates to be generated
 ##' @param p parameter in (0,1)
+##' @param Ip = 1 - p_ (possibly more accurate) -- use, if p ~= 1
 ##' @return vector of random variates from Log(p)
 ##' @author Marius Hofert, Martin Maechler
-rlogR <- function(n,p) {
-    stopifnot((n <- as.integer(n)) >= 0, 0 < p, p < 1)
+rlogR <- function(n, p, Ip = 1-p) {
+    if(missing(p)) p <- 1 - Ip
+    stopifnot((n <- as.integer(n)) >= 0,
+              0 < p, p <= 1, 0 < Ip)
     vec <- numeric(n)
     if(n >= 1) {
 	u <- runif(n)
 	l1 <- u > p
 	vec[l1] <- 1
 	i2 <- which( !l1 ) # of shorter length, say n2
-	q2 <- 1-(1-p)^runif(length(i2)) # length n2
+	q2 <- 1-(Iq2 <- Ip^runif(length(i2))) # length n2
 	l3 <- u[i2] < q2*q2
 	i3 <- i2[l3]
-	vec[i3] <- floor(1+abs(log(u[i3])/log(q2[l3])))
+	vec[i3] <- floor(1+abs(log(u[i3])/log1p(-Iq2[l3])))
 	l4 <- u[i2] > q2
 	vec[i2[l4]] <- 1
 	l5 <- ! (l3 | l4) # q2^2 <= u[i2] <= q2
@@ -198,11 +201,13 @@ rlogR <- function(n,p) {
 ##' Random number generator for a Log(p) distribution, C version
 ##' @param n number of random variates to be generated
 ##' @param p parameter in (0,1)
+##' @param Ip = 1 - p_ (possibly more accurate)
 ##' @return vector of random variates from Log(p)
 ##' @author Martin Maechler
-rlog <- function(n,p) {
-    stopifnot(n >= 0,  0 < p, p < 1)
-    .Call(rLog_c, n, p)
+rlog <- function(n, p, Ip = 1-p) {
+    if(missing(p)) p <- 1 - Ip
+    stopifnot(n >= 0, 0 < p, p <= 1, 0 < Ip)
+    .Call(rLog_c, n, p, Ip)
 }
 
 ##' Sample V ~ F with Laplace-Stieltjes transform
