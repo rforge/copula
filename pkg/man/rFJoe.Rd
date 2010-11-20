@@ -16,8 +16,7 @@
 
 \usage{
 rlog(n, p, Ip = 1 - p)
-rFJoe(n, alpha)
-rFFrank(n, theta0, theta1)
+rSibuya(n, alpha)
 }
 \arguments{
   \item{n}{sample size, i.e., length of the resulting vector of random variates.}
@@ -63,14 +62,7 @@ hist(X, prob=TRUE)
 ## Sample the univariate distribution appearing when sampling nested
 ## Joe copulas and plot a histogram
 alpha <- .4
-Y <- rFJoe(n, alpha)
+Y <- rSibuya(n, alpha)
 hist(log(Y), prob=TRUE); lines(density(log(Y)), col=2, lwd=2)
-
-## Sample the univariate distribution appearing when sampling nested
-## Frank copulas and plot a histogram
-theta0 <- 3
-theta1 <- 8
-Z <- rFFrank(n, theta0, theta1)
-hist(log(Z), prob=TRUE); lines(density(log(Z)), col=2, lwd=2)
 }
 \keyword{distribution}

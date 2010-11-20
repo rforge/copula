@@ -16,6 +16,7 @@
 #### Functions and Methods for "acopula" objects
 #### class definition in ./AllClass.R
 
+
 ### ==== Ali-Mikhail-Haq == "AMH" ==============================================
 
 ##' @title Ali-Mikhail-Haq ("AMH")'s  tau(theta)
@@ -41,8 +42,6 @@ tauAMH <- function(th) {
     }
     r
 }
-
-
 
 
 ### ==== Clayton ===============================================================
@@ -72,13 +71,15 @@ m.opt.retst <- function(V0){
     m
 }
 
+### ==== fast rejection for fixed m, R version ====
+
 ##' Sample a random variate St ~ \tilde{S}(alpha, 1, (cos(alpha*pi/2)
 ##' *V_0)^{1/alpha}, V_0*I_{alpha = 1}, I_{alpha != 1}; 1) with
 ##' Laplace-Stieltjes transform exp(-V_0((1+t)^alpha-1)), see Nolan's book for
 ##' the parametrization, via an m-fold sum of random variates from
 ##' \tilde{S}(alpha, 1, (cos(alpha*pi/2)*V_0/m)^{1/alpha}, (V_0/m)
 ##' *I_{alpha = 1}, I_{alpha != 1}; 1) with Laplace-Stieltjes transform
-##' exp(-(V_0/m)*((1+t)^alpha-1)).
+##' exp(-(V_0/m)*((1+t)^alpha-1)). This is a building block for the fast rejection.
 ##' @param m number of summands, any positive integer
 ##' @param V0 random variate
 ##' @param alpha parameter in (0,1]
@@ -105,10 +106,12 @@ retstablerej <- function(m,V0,alpha){
 	       ))
 }
 
+### ==== fast rejection, R version ====
+
 ##' Sample a vector of random variates St ~ \tilde{S}(alpha, 1, (cos(alpha*pi/2)
 ##' *V_0)^{1/alpha}, V_0*I_{alpha = 1}, h*I_{alpha != 1}; 1) with
 ##' Laplace-Stieltjes transform exp(-V_0((h+t)^alpha-h^alpha)), see Nolan's book for
-##' the parametrization. This procedure calls retstablerej.
+##' the parametrization, with the fast rejection. This procedure calls retstablerej.
 ##' @param alpha parameter in (0,1]
 ##' @param V0 vector of random variates
 ##' @param h non-negative real number
@@ -127,11 +130,14 @@ retstableR <- function(alpha,V0, h = 1){
     mapply(retstablerej, m=m, V0=V0, alpha=alpha)
 }
 
+### ==== state-of-the-art: fast rejection + Luc's algorithm, C version ====
+
 ##' Sample random variates St ~ \tilde{S}(alpha, 1, (cos(alpha*pi/2)
 ##' *V_0)^{1/alpha}, V_0*I_{alpha = 1}, h*I_{alpha != 1}; 1) with
-##' Laplace-Stieltjes transform exp(-V_0((h+t)^alpha-h^alpha)), see Hofert (2010a).
+##' Laplace-Stieltjes transform exp(-V_0((h+t)^alpha-h^alpha)), see Nolan's book for
+##' the parametrization, with the fast rejection. 
 ##' This procedure is more efficient than retstableR since it calls the C
-##' function retstable_c.
+##' function retstable_c and uses both the fast rejection and Luc Devroye's algorithm.
 ##' @param alpha parameter in (0,1]
 ##' @param V0 vector of random variates
 ##' @param h non-negative real number
@@ -166,9 +172,12 @@ retstableC <- function(alpha, V0, h = 1, method = NULL) {
 ## switch to make fast C code the default
 if(FALSE)
     retstable <- retstableR
-retstable <- retstableC
+retstable <- retstableC # retstable is by default retstableC
+
 
 ### ==== Frank =================================================================
+
+### ==== sampling a logarithmic distribution, R version ====
 
 ##' Random number generator for a Log(p) distribution, R version
 ##' @param n number of random variates to be generated
@@ -198,6 +207,8 @@ rlogR <- function(n, p, Ip = 1-p) {
     vec
 }
 
+### ==== state-of-the art: sampling a logarithmic distribution, C version ====
+
 ##' Random number generator for a Log(p) distribution, C version
 ##' @param n number of random variates to be generated
 ##' @param p parameter in (0,1)
@@ -207,85 +218,39 @@ rlogR <- function(n, p, Ip = 1-p) {
 rlog <- function(n, p, Ip = 1-p) {
     if(missing(p)) p <- 1 - Ip
     stopifnot(n >= 0, 0 < p, p <= 1, 0 < Ip)
-    .Call(rLog_c, n, p, Ip)
+    .Call(rLog_vec_c, n, p, Ip)
 }
 
-##' Sample V ~ F with Laplace-Stieltjes transform
-##' (1-(1-exp(-t)*(1-e^(-theta1)))^alpha)/(1-e^(-theta0))
-##' via the algorithm of Hofert (2010a). R version.
-##' @param p parameter 1-e^(-theta1)
-##' @param alpha parameter theta0/theta1 in (0,1]
-##' @param theta0_le_1 in {0,1} with 1 if and only if theta0 <= 1
-##' @return V
-##' @author Marius Hofert, Martin Maechler
-rejFFrankR <- function(p,alpha,theta0_le_1) {
-    if(theta0_le_1) {
-	repeat{
-	    U <- runif(1)
-	    X <- rlog(1,p)
-	    if(U*(X-alpha) <= 1/beta(X,1-alpha)) break
-	}
-    } else {
-	repeat{
-	    U <- runif(1)
-	    X <- rFJoe(1,alpha)
-	    if(U <= p^(X-1)) break
-	}
-    }
-    X
-}
+### ==== state-of-the art: sampling F01Frank, C version ====
 
-##' Vectorize rejFFrankR. Generate a vector of variates V ~ F with
-##' Laplace-Stieltjes transform (1-(1-exp(-t)*(1-e^(-theta1)))^alpha)
-##' /(1-e^(-theta0)). R version.
-##' @param n length of the vector of random variates
+##' Generate a vector of variates V01 ~ F01 with Laplace-Stieltjes transform 
+##' ((1-(1-exp(-t)*(1-e^(-theta1)))^alpha)/(1-e^(-theta0)))^V0.
+##' @param V0 vector of random variates from F0
 ##' @param theta0 parameter theta0 in (0,infinity)
 ##' @param theta1 parameter theta1 in [theta0, infinity)
-##' @return vector of random variates from F
-##' @author Martin Maechler
-rFFrankR <- function(n,theta0,theta1) {
-    sapply(rep.int(-expm1(-theta1), n), rejFFrankR,
-	   alpha = theta0/theta1,
-	   theta0_le_1 = (theta0 <= 1))
-}
-
-##' FIXME: provide title... + maybe put in C (if it works)
-##' @param V0 one realization of V0
-##' @param theta0 parameter theta0 in (0,infinity)
-##' @param theta1 parameter theta1 in [theta0, infinity)
-##' @return vector of random variates from F01
+##' @param rej method switch: if V0*theta_0*p0^(V0-1) > rej a rejection
+##'        from F01 of Joe is applied (otherwise, the sum is
+##'        sampled via a logarithmic envelope for the summands)
+##' @param approx largest number of summands before asymptotics is used
+##' @return vector of random variates V01
 ##' @author Marius Hofert
-rF01FrankR <- function(V0,theta0,theta1) {
-	p1 <- -expm1(-theta1)
-    	repeat{
-	    U <- runif(1)
-	    X <- copJoe@V01(V0,theta0,theta1) # sample V01 of Joe
-	    if(U <= p1^X) break
-	}
-	X
+rF01Frank <- function(V0, theta0, theta1, rej, approx) {
+    .Call(rF01Frank_vec_c, V0, theta0, theta1, rej, approx)
 }
 
-##' Generate a vector of variates V ~ F with Laplace-Stieltjes transform
-##' (1-(1-exp(-t)*(1-e^(-theta1)))^alpha)/(1-e^(-theta0)). C version.
-##' @param n length of the vector of random variates
-##' @param theta0 parameter theta0 in (0,infinity)
-##' @param theta1 parameter theta1 in [theta0, infinity)
-##' @return vector of random variates from F
-##' @author Martin Maechler
-rFFrank <- function(n,theta0,theta1) {
-    .Call(rFFrank_c, n, theta0, theta1);
-}
 
 ### ==== Joe ===================================================================
 
-##' Sample V ~ F with F(n) = 1-1/(n*B(n,1-alpha)), n in IN, with
-##' Laplace-Stieltjes transform 1-(1-exp(-t))^alpha via the algorithm of
-##' Hofert (2010a). R version.
+### ==== sampling a Sibuya(alpha) distribution, R version ====
+
+##' Sample V from a Sibuya(alpha) distribution with cdf F(n) = 1-1/(n*B(n,1-alpha)), 
+##' n in IN, with Laplace-Stieltjes transform 1-(1-exp(-t))^alpha via the 
+##' algorithm of Hofert (2011). R version.
 ##' @param n  sample size
 ##' @param alpha parameter
 ##' @return vector of random variates V
 ##' @author Marius Hofert, Martin Maechler
-rFJoeR <- function(n,alpha) {
+rSibuyaR <- function(n,alpha) {
     stopifnot((n <- as.integer(n)) >= 0)
     V <- numeric(n)
     if(n >= 1) {
@@ -308,17 +273,34 @@ rFJoeR <- function(n,alpha) {
     V
 }
 
-##' Sample V ~ F with F(n) = 1-1/(n*B(n,1-alpha)), n in IN, with
-##' Laplace-Stieltjes transform 1-(1-exp(-t))^alpha via the algorithm of
-##' Hofert (2010a). C version.
+### ==== state-of-the-art: sampling a Sibuya(alpha) distribution, C version ====
+
+##' Sample V from a Sibuya(alpha) distribution with cdf F(n) = 1-1/(n*B(n,1-alpha)), 
+##' n in IN, with Laplace-Stieltjes transform 1-(1-exp(-t))^alpha via the 
+##' algorithm of Hofert (2011). C version.
 ##' @param n  sample size
 ##' @param alpha parameter
 ##' @return vector of random variates V
 ##' @author Martin Maechler
-rFJoe <- function(n,alpha) {
+rSibuya <- function(n,alpha) {
     stopifnot(is.numeric(n), n >= 0)
-    .Call(rFJoe_c, n, alpha)
+    .Call(rSibuya_vec_c, n, alpha)
 }
+
+### ==== state-of-the art: sampling F01Joe, C version ====
+
+##' Generate a vector of variates V01 ~ F01 with Laplace-Stieltjes transform 
+##' ((1-(1-exp(-t))^alpha))^V0. Bridge to R. Used, e.g., to draw several variates
+##' from rF01Joe.
+##' @param V0 vector of random variates from F0
+##' @param parameter alpha = theta0/theta1 in (0,1]
+##' @param approx largest number of summands before asymptotics is used
+##' @return vector of random variates V01
+##' @author Marius Hofert
+rF01Joe <- function(V0, alpha, approx) {
+    .Call(rF01Joe_vec_c, V0, alpha, approx)
+}
+
 
 ### ==== other numeric utilities ===============================================
 

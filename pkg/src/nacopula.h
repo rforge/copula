@@ -36,9 +36,10 @@ SEXP A__c(SEXP x_, SEXP alpha, SEXP I_alpha);
 SEXP rstable_c(SEXP n, SEXP alpha);
 SEXP retstable_c(SEXP V0_, SEXP h, SEXP alpha, SEXP method);
 
-SEXP rLog_c     (SEXP n, SEXP p, SEXP Ip);
-SEXP rFJoe_c    (SEXP n, SEXP alpha);
-SEXP rFFrank_c  (SEXP n, SEXP theta_0, SEXP theta_1);
+SEXP rLog_vec_c(SEXP n_, SEXP p_, SEXP Ip_);
+SEXP rSibuya_vec_c(SEXP n_, SEXP alpha_);
+SEXP rF01Frank_vec_c(SEXP V0_, SEXP theta_0_, SEXP theta_1_, SEXP rej_, SEXP approx_);
+SEXP rF01Joe_vec_c(SEXP V0_, SEXP alpha_, SEXP approx_);
 
 /**
  * C API---for "us" but maybe also other R packages
@@ -55,15 +56,15 @@ void retstable_MH(double *St, const double V0[], double h, double alpha, int n);
 void retstable_LD(double *St, const double V0[], double h, double alpha, int n);
 
 double rLog(double p, double Ip);
-double rFJoe(double alpha,
-	     double iAlpha,     /* := 1 - alpha */
-	     double gamma_1_a); /* == Gamma(1 - alpha) == Gamma(iALpha) */
-void rFJoe_vec(double V[], const int n,
-	       const double alpha, const double iAlpha /* := 1 - alpha */);
-double rFFrank(double p, double Ip, /* = 1 - p */
-	       double alpha, double iAlpha /* := 1 - alpha */,
-	       int theta_0_le_1);
-void rFFrank_vec(double *X, const int n,
-		 const double theta_0, const double theta_1);
+double rSibuya(double alpha, double gamma_1_a /**< == Gamma(1 - alpha) */);
+double rSibuya_sum(int n, double alpha, double gamma_1_a /**< == Gamma(1 - alpha) */);
+void rSibuya_vec(double* V, int n, double alpha);
+double rF01Frank(double V0, double theta0, double theta1, double p0, double p1,
+	double gamma_1_a, double rej, int approx);
+void rF01Frank_vec(double *V01, const double *V0, int n, double theta_0, 
+	double theta_1, double rej, int approx);
+double rF01Joe(double V0, double alpha, double gamma_1_a /**< == Gamma(1 - alpha) */,
+	int approx);	
+void rF01Joe_vec(double* V01, const double *V0, int n, double alpha, double approx);	
 
 #endif

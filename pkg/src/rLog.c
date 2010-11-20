@@ -19,6 +19,7 @@
 
 #include "nacopula.h"
 
+
 /**
  * Sample a Log(p) distribution with the algorithm "LK" of Kemp (1981).
  * Note: The caller of this function must use GetRNGstate() and PutRNGstate().
@@ -62,6 +63,7 @@ double rLog(double p, double Ip) {
     }
 }
 
+
 /**
  * Generate a vector of variates from a Log(p) distribution.
  * @param n_ sample size
@@ -70,7 +72,7 @@ double rLog(double p, double Ip) {
  * @return vector of random variates from Log(p)
  * @author Martin Maechler
 */
-SEXP rLog_c(SEXP n_, SEXP p_, SEXP Ip_) {
+SEXP rLog_vec_c(SEXP n_, SEXP p_, SEXP Ip_) {
     int n = asInteger(n_);
     double p = asReal(p_),Ip = asReal(Ip_);
     SEXP res = PROTECT(allocVector(REALSXP, n));
