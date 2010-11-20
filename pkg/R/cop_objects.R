@@ -320,13 +320,12 @@ copGumbel <-
                     ## inner sum
                     x <- -t[n0Inf]^alpha
                     inner.sum.for.one.j <- function(j){
-                        k <- 1:j
-                        S <- unlist(lapply(k,Stirling2,n = j))
-                        S %*% outer(k,x,function(k,x) x^k) # row: for k (from 1:j); col: for t
+                        S <- Stirling2.all(j)
+                        S %*% outer(1:j, x, function(k,x) x^k) # row: for k (from 1:j); col: for t
                     }
                     ## outer sum
                     j <- 1:degree
-                    s <- unlist(lapply(j,Stirling1,n = degree))
+                    s <- Stirling1.all(n = degree)
                     s.alpha <- s*alpha^j
                     inner.sum.mat <- sapply(j,inner.sum.for.one.j)
 	            outer.sum <- inner.sum.mat %*% s.alpha
@@ -442,7 +441,7 @@ copJoe <-
             if(!(missing(MC) || is.null(MC))){
                 psiDAbsMC(t,"Joe",theta,degree,MC,log)
             }else{
-                if(theta == 0) if(log) return(-t) else return(exp(-t)) # special case
+                if(theta == 0) return(if(log) -t else exp(-t)) # special case
                 ## FIXME: several things in the following code can be improved
 		alpha <- 1/theta
 		res <- numeric(n <- length(t))
@@ -452,11 +451,10 @@ copJoe <-
 		if(length(n0Inf) > 0){
                     e <- exp(-t[n0Inf])
                     x <- e/(1-e)
-                    factor <- alpha*(1-e)^alpha
+                    f <- alpha*(1-e)^alpha
 		    k <- 1:degree
-		    S. <- unlist(lapply(k, Stirling2, n = degree))*gamma(k-alpha)/
-                        gamma(1-alpha)
-		    res[n0Inf] <- as.numeric(factor*(S. %*% outer(k,x,function(k,x) x^k)))
+		    S. <- Stirling2.all(n = degree)*gamma(k-alpha)/gamma(1-alpha)
+		    res[n0Inf] <- f*(S. %*% outer(k,x, function(j,u) u^j))
 		}
 		if(log) log(res) else res
             }
