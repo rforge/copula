@@ -1,7 +1,7 @@
 \name{retstable}
 \alias{retstable}
 \alias{retstableR}
-\title{Sampling Exponentially Tilted Stable Random Variates}
+\title{Sampling Exponentially Tilted Stable Distributions}
 \description{Generating random variates of an exponentially tilted stable 
 distribution of the form \deqn{\tilde{S}(\alpha, 1,
     (\cos(\alpha\pi/2)V_0)^{1/\alpha},

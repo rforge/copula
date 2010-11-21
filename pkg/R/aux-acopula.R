@@ -179,7 +179,8 @@ retstable <- retstableC # retstable is by default retstableC
 
 ### ==== sampling a logarithmic distribution, R version ====
 
-##' Random number generator for a Log(p) distribution, R version
+##' Random number generator for a Log(p) distribution with the algorithm "LK" of 
+##' Kemp (1981), R version.
 ##' @param n number of random variates to be generated
 ##' @param p parameter in (0,1)
 ##' @param Ip = 1 - p_ (possibly more accurate) -- use, if p ~= 1
@@ -209,7 +210,8 @@ rlogR <- function(n, p, Ip = 1-p) {
 
 ### ==== state-of-the art: sampling a logarithmic distribution, C version ====
 
-##' Random number generator for a Log(p) distribution, C version
+##' Random number generator for a Log(p) distribution with the algorithm "LK" of 
+##' Kemp (1981), C version.
 ##' @param n number of random variates to be generated
 ##' @param p parameter in (0,1)
 ##' @param Ip = 1 - p_ (possibly more accurate)
@@ -245,7 +247,7 @@ rF01Frank <- function(V0, theta0, theta1, rej, approx) {
 
 ##' Sample V from a Sibuya(alpha) distribution with cdf F(n) = 1-1/(n*B(n,1-alpha)), 
 ##' n in IN, with Laplace-Stieltjes transform 1-(1-exp(-t))^alpha via the 
-##' algorithm of Hofert (2011). R version.
+##' algorithm of Hofert (2011), Proposition 3.2. R version.
 ##' @param n  sample size
 ##' @param alpha parameter
 ##' @return vector of random variates V
@@ -277,7 +279,7 @@ rSibuyaR <- function(n,alpha) {
 
 ##' Sample V from a Sibuya(alpha) distribution with cdf F(n) = 1-1/(n*B(n,1-alpha)), 
 ##' n in IN, with Laplace-Stieltjes transform 1-(1-exp(-t))^alpha via the 
-##' algorithm of Hofert (2011). C version.
+##' algorithm of Hofert (2011), Proposition 3.2. C version.
 ##' @param n  sample size
 ##' @param alpha parameter
 ##' @return vector of random variates V

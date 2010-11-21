@@ -34,7 +34,7 @@
 double rF01Joe(double V0, double alpha, double gamma_1_a /**< == Gamma(1 - alpha) */,
 	       int approx){ 
     if(V0 > approx) /**< approximation */
-	return pow(V0,1./alpha)*rstable0(alpha); /**< call rstable0 in retstable.c */
+	return pow(V0,1./alpha)*rstable0(alpha); /**< call rstable0 in retstable.c; generates S(alpha, 1, (cos(alpha*pi/2))^{1/alpha}, I_{alpha == 1}; 1) */
     else /**< sample sum */
 	return rSibuya_sum((int) V0, alpha, gamma_1_a);
 }

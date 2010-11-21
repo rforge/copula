@@ -65,7 +65,8 @@ double rLog(double p, double Ip) {
 
 
 /**
- * Generate a vector of variates from a Log(p) distribution.
+ * Generate a vector of variates from a Log(p) distribution with the algorithm 
+ * "LK" of Kemp (1981).
  * @param n_ sample size
  * @param p_ parameter p in (0,1)
  * @param Ip_ = 1 - p_ (possibly more accurate)
