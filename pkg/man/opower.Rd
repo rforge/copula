@@ -16,13 +16,13 @@ opower(copbase, thetabase)
   family objects in \code{\link{acopula-families}}.
 }
 \references{
-	Hofert, M. (2010a),
-	Efficiently sampling nested Archimedean copulas,
-	\emph{Computational Statistics & Data Analysis}, in press.
-	
-	Hofert, M. (2010b),
-	\emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
-	Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
+	Hofert, M. (2010),
+	  \emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
+	  Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
+
+	Hofert, M. (2011),
+	  Efficiently sampling nested Archimedean copulas,
+	  \emph{Computational Statistics & Data Analysis}, \bold{55}, 57--70.
 }
 \examples{
 ## Construct a bivariate Clayton copula with parameter thetabase

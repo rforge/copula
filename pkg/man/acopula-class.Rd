@@ -24,8 +24,10 @@
       "Frank" ("F"), "Gumbel" ("G"), or "Joe" ("J").}
     \item{\code{theta}:}{Parameter value, a \code{\link{numeric}}, where
       \code{NA} means \dQuote{unspecified}.}
-    \item{\code{psi}, \code{psiInv}:}{The Archimedean generator \eqn{\psi}{psi}
-      and its inverse (\code{\link{function}}).}
+    \item{\code{psi}, \code{psiInv}:}{The (Archimedean) generator
+ 		\eqn{\psi}{psi} (with \eqn{\psi}{psi}(t)=\eqn{\exp}{exp}(-t) being the
+ 		generator of the independence copula) and its inverse
+ 		(\code{\link{function}}).}
     \item{\code{psiDAbs}:}{A \code{\link{function}} which computes the absolute
       value of the derivative of the generator \eqn{\psi}{psi} for the given
       parameter \code{theta} and of the given \code{degree} (defaults to 1).
@@ -39,13 +41,16 @@
       logarithm of the absolute value of the derivative is returned.}
     \item{\code{psiInvD1Abs}:}{a \code{\link{function}} computing the
       absolute derivative of the generator inverse (\code{psiInv()}) for
-      the given parameter \code{theta}.}
+      the given parameter \code{theta}. The optional parameter \code{log}
+ 		(defaults to \code{FALSE}) indicates whether the logarithm of the absolute
+ 		value of the first derivative of \code{psiInv()} is returned.}
     \item{\code{paraInterval}:}{Either \code{\link{NULL}} or object of class
       \code{"\linkS4class{interval}"}, typically from a call such as
       \code{\link{interval}("[a,b)")}.}
     \item{\code{paraSubInterval}:}{Similar to \code{paraInterval} but contains a
- 		finite, closed subinterval of \code{paraInterval}, typically called from
- 		root-finding or optimization routines.}
+ 		finite, closed subinterval of \code{paraInterval}. This is called, e.g.,
+ 		from	\code{\link{safeUroot}} for computing Kendall's tau (or its inverse)
+      if not given in closed form.}
     \item{\code{paraConstr}:}{A function of \code{theta} returning
       \code{TRUE} if and only if \code{theta} is a valid parameter value.  Note
       that \code{paraConstr} is built automatically from the interval,
@@ -63,14 +68,14 @@
       Laplace-Stieltjes transform equals the generator \eqn{\psi}{psi} at the
       argument \code{x} (possibly a vector) for the given parameter
       \code{theta}. An optional argument \code{log} indicates whether
-      or not the logarithm of the mass or density is computed (defaults to
-      \code{FALSE}).}
+      the logarithm of the mass or density is computed (defaults to
+    	\code{FALSE}).}
     \item{\code{V01}:}{A \code{\link{function}} which gets a vector of
-      realizations of \code{V0} and two parameters \code{theta0}, \code{theta1}
-      which satisfy the sufficient nesting condition for this family, and which
+      realizations of \code{V0}, two parameters \code{theta0} and \code{theta1}
+      which satisfy the sufficient nesting condition, and which
       returns a vector of the same length as \code{V0} with random variates from
       the distribution function \eqn{F_{01}}{F01} with Laplace-Stieltjes
-      transform \eqn{\psi_{01}}{psi01} and parameters
+      transform \eqn{\psi_{01}}{psi01} (see \code{dV01}) and parameters
       \eqn{\theta_0=\,}{theta0=}\code{theta0},
       \eqn{\theta_1=\,}{theta1=}\code{theta1}.}
     \item{\code{dV01}:}{Similar to \code{dV0} with the difference being that
@@ -87,7 +92,8 @@
       case the components of \code{V0} correspond to the ones of \code{x}).}
     \item{\code{cCdf}:}{A \code{\link{function}} with arguments \code{v},
       \code{u}, and \code{theta} which computes the bivariate conditional copula
-      function at \code{v} given \code{u}, i.e., \eqn{C(v\vert u)}{C(v|u)}.}
+      function at \code{v} given \code{u}, i.e., \eqn{C(v\vert u)}{C(v|u)}.},
+ 		for the Archimedean copula \eqn{C} under consideration.
     \item{\code{tau}, \code{tauInv}:}{Compute Kendall's tau of the bivariate
       Archimedean copula with generator \eqn{\psi}{psi} as a
       \code{\link{function}} of \code{theta}, respectively, \code{theta} as a
@@ -125,13 +131,13 @@
   parametrized Archimedean copula, see the example below.
 }
 \references{
-  Hofert, M. (2010a),
-  Efficiently sampling nested Archimedean copulas,
-  \emph{Computational Statistics & Data Analysis}, in press.
+	Hofert, M. (2010),
+	  \emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
+	  Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
 
-  Hofert, M. (2010b),
-  \emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
-  Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
+	Hofert, M. (2011),
+	  Efficiently sampling nested Archimedean copulas,
+	  \emph{Computational Statistics & Data Analysis}, \bold{55}, 57--70.
 }
 \examples{
 
@@ -147,7 +153,7 @@ copClayton@paraInterval
 
 ## Can two Clayton copulas with parameters theta0 and theta1 be nested?
 ## Case 1: theta0 = 3, theta1 = 2
-copClayton@nestConstr(theta0 = 3, theta1 = 2) # FALSE
+copClayton@nestConstr(theta0 = 3, theta1 = 2) # FALSE (the sufficient nesting criterion is not fulfilled)
 ## Case 2: theta0 = 2, theta1 = 3
 copClayton@nestConstr(theta0 = 2, theta1 = 3) # TRUE
 

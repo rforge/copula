@@ -15,15 +15,19 @@ retstableR(alpha, V0, h = 1)
 }
 \arguments{
   \item{alpha}{parameter in \eqn{(0,1]}.}
-  \item{V0}{vector of values in \eqn{(0,\infty)}{(0,Inf)} (e.g., when sampling nested Clayton copulas, these are random variates from \eqn{F_0}{F0}).}
+  \item{V0}{vector of values in \eqn{(0,\infty)}{(0,Inf)} (e.g., when sampling
+ 		nested Clayton copulas, these are random variates from \eqn{F_0}{F0}),
+ 		i.e., the distribution corresponding to \eqn{\psi_0}{psi0}.}
   \item{h}{parameter in \eqn{[0,\infty)}{[0,Inf)}.}
   \item{method}{a character string denoting the method to use, currently
-    either \code{"MH"} (Marius Hofert's algorithm) or \code{"LD"} (Luc Devroye's algorithm). By default, when \code{NULL}, a smart choice is made to use the
-    faster method depending on the specific values of \eqn{V_0}{V0}.}
+    either \code{"MH"} (Marius Hofert's algorithm) or \code{"LD"} (Luc Devroye's
+ 	 algorithm). By default, when \code{NULL}, a smart choice is made to use the
+    fastest of these methods depending on the specific values of \eqn{V_0}{V0}.}
 }
 \details{
-  \code{retstableR} is version of \code{"MH"}, in a pure \R
-  implementation, however not as fast as \code{retstable} and therefore not recommended in simulations when run time matters.
+  \code{retstableR} is a pure \R version of \code{"MH"}, however, not as fast as
+  \code{retstable} (implemented in C, based on both methods) and therefore not
+  recommended in simulations when run time matters.
 }
 \value{
   A vector of variates from \eqn{\tilde{S}(\alpha, 1,
@@ -35,13 +39,13 @@ retstableR(alpha, V0, h = 1)
  \code{\link{rstable1}} for sampling stable distributions.
 }
 \references{
-	Hofert, M. (2010a),
-	Efficiently sampling nested Archimedean copulas,
-	\emph{Computational Statistics & Data Analysis}, in press.
-	
-	Hofert, M. (2010b),
-	\emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
-	Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
+	Hofert, M. (2010),
+	  \emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
+	  Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
+
+	Hofert, M. (2011),
+	  Efficiently sampling nested Archimedean copulas,
+	  \emph{Computational Statistics & Data Analysis}, \bold{55}, 57--70.
 }
 \examples{
 ## Draw random variates from an exponentially tilted stable distribution

@@ -72,8 +72,8 @@ copJoe
   }
   Note that staying within one of these Archimedean families, all of
   them can be nested if two (generic) generator parameters
-  \eqn{\theta_0}{theta.0}, \eqn{\theta_1}{theta.1} satisfy
-  \eqn{\theta_0\le\theta_1}{theta.0 <= theta.1}.
+  \eqn{\theta_0}{theta0}, \eqn{\theta_1}{theta1} satisfy
+  \eqn{\theta_0\le\theta_1}{theta0 <= theta1}.
 }
 \seealso{
   The class definition, \code{"\linkS4class{acopula}"}.
@@ -83,13 +83,13 @@ copJoe
 }
 \author{Marius Hofert}
 \references{
-  Hofert, M. (2010a),
-  Efficiently sampling nested Archimedean copulas,
-  \emph{Computational Statistics & Data Analysis}, in press.
+	Hofert, M. (2010),
+	  \emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
+	  Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
 
-  Hofert, M. (2010b),
-  \emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
-  Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
+	Hofert, M. (2011),
+	  Efficiently sampling nested Archimedean copulas,
+	  \emph{Computational Statistics & Data Analysis}, \bold{55}, 57--70.
 }
 \examples{
 ## Print a copAMH object and its structure

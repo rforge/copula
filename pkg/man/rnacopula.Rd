@@ -5,7 +5,7 @@
   Random number generation from nested Archimedean copulas (of class
   \code{\linkS4class{outer_nacopula}}, specifically), aka
   \dQuote{sampling} nested Archimedean copulas will generate \code{n}
-  random vectors of dimension \eqn{d} (=\code{dim(x)}).
+  random vectors of dimension \eqn{d} (= \code{dim(x)}).
 }
 \usage{
 rnacopula(n, x, ...)
@@ -37,17 +37,17 @@ rnacopula(n, x, ...)
   \code{"\linkS4class{outer_nacopula}"}, see also \code{\link{onacopula}()}.
 }
 \references{
-  Hofert, M. (2010a),
-  Efficiently sampling nested Archimedean copulas,
-  \emph{Computational Statistics & Data Analysis}, in press.
+	McNeil, A. J. (2008),
+	  Sampling nested Archimedean copulas,
+	  \emph{Journal of Statistical Computation and Simulation} \bold{78}, 6, 567--581.
 
-  Hofert, M. (2010b),
-  \emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
-  Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
+  	Hofert, M. (2010),
+	  \emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
+	  Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
 
-  McNeil, A. J. (2008),
-  Sampling nested Archimedean copulas,
-  \emph{Journal of Statistical Computation and Simulation} \bold{78}, 6, 567--581.
+	Hofert, M. (2011),
+	  Efficiently sampling nested Archimedean copulas,
+	  \emph{Computational Statistics & Data Analysis}, \bold{55}, 57--70.  
 }
 \examples{
 ## Construct a three-dimensional nested Clayton copula with parameters

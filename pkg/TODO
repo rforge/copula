@@ -1,6 +1,8 @@
 (*) implement color-feature in splom2 (now that i and j are included by Deepayan)
 (*) get GIG generator to work
 (*) allow families to have outer power parameters (outer power families)
+(*) make pnacopula applicable to a matrix to be consistent with dnacopula (maybe 
+    also prob())
 (*) lgammacor shows underflow on executing the following snippet:
 
 require(nacopula)
@@ -14,8 +16,10 @@ V01 <- copFrank@V01(V0, theta0, theta1, rej = 0.1)
 (MM) check new functions in cop_objects.R for efficiency + see FIXME there
 (MM) Change onacopula() such that it works via onacopulaL() and hence
      can be used also from other functions.
+(MM) document polylog() and Stirling* functions
 (MM) maybe add an ASCII-plot for the hierarchical structure;
     Actually, define setAs("nacopula", "dendrogram", ....) and then use
     dendrogram print()ing.
 (MM) be compatible with package copula
 
+(*) add (and fill) all help files for estimation and gof procedures

@@ -55,7 +55,7 @@ rstable1(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
   stable distributions.
 }
 \references{
-  Chambers J.M., Mallows, C.L. and Stuck, B.W. (1976),
+  Chambers, J.M., Mallows, C.L., and Stuck, B.W. (1976),
   \emph{A Method for Simulating Stable Random Variables},
   J. Amer. Statist. Assoc. \bold{71}, 340--344.
 
@@ -63,7 +63,7 @@ rstable1(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
   \emph{Stable Distributions---Models for Heavy Tailed Data},
   Birkhaeuser.
 
-  Samoridnitsky G., Taqqu M. S. (1994),
+  Samoridnitsky, G. and Taqqu, M. S. (1994),
   \emph{Stable Non-Gaussian Random Processes, Stochastic Models
     with Infinite Variance},
   Chapman and Hall, New York.
