@@ -30,10 +30,8 @@
 timing <- function(n,family,taus,digits = 3,verbose = FALSE)
 {
     ## setup
-    ## f <- function(x) format(round(x,digits), nsmall=digits,trim=TRUE,
-    ##                         scientific=FALSE) # function to format output
     f <- function(x) formatC(x, digits=digits, width = 8)
-    mTime <- function(x) 1000 * system.time(x)[1] ## measuring milliseconds
+    mTime <- function(x) 1000 * system.time(x)[1] # measuring milliseconds
     l <- length(taus)
     f.taus <- format(taus, digits=digits)
     res <- matrix(,nrow=l,ncol=l)
@@ -41,7 +39,7 @@ timing <- function(n,family,taus,digits = 3,verbose = FALSE)
     thetas <- copFamily@tauInv(taus)
 
     ## timing (based on user time)
-    for(i in seq_along(thetas)) {       # run over all theta0
+    for(i in seq_along(thetas)) { # run over all theta0
         ## run times for V0 go into the first column:
         res[i,1] <- mTime(V0 <- copFamily@V0(n,thetas[i]))
         if(verbose) cat("V0:  tau_0 = ",f.taus[i],
@@ -53,7 +51,7 @@ timing <- function(n,family,taus,digits = 3,verbose = FALSE)
         }
     }
     ## use taus as row and column headers:
-    dimnames(res) <- list('V0 tau' = f.taus,
-                          '   V01 tau' = c(" ", f.taus[-1]))
+    dimnames(res) <- list('outer tau' = f.taus,
+                          '   inner tau' = c(" ", f.taus[-1]))
     res
 }

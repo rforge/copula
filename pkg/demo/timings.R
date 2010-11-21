@@ -5,13 +5,11 @@ require(nacopula)
 set.seed(1) # set seed
 
 n <- 10000
-taus1 <- c(0.05,(1:3)/10) # for AMH: cannot attain more concordance
-taus2 <- c(0.05,(1:7)/10) # for Frank: theta1 corresponding to tau > 0.8 is so large that 1-exp(-theta1) is 1 which leads to an error in rLog()
-taus3 <- c(0.05,(1:9)/10,0.95) # "whole" range
+taus <- c(0.05,(1:9)/10,0.95) 
 
 ## ==== AMH ====
 
-timing(n,"AMH",taus1)
+timing(n,"AMH",taus[taus < 0.33])
 
 ##       0.05   0.1   0.2   0.3
 ## 0.05 0.002 0.004 0.004 0.005
@@ -25,7 +23,7 @@ timing(n,"AMH",taus1)
 
 ## ==== Clayton ====
 
-timing(n,"Clayton",taus3)
+timing(n,"Clayton",taus)
 
 ##       0.05   0.1   0.2   0.3   0.4   0.5   0.6   0.7   0.8   0.9  0.95
 ## 0.05 0.002 0.037 0.044 0.055 0.062 0.057 0.058 0.052 0.047 0.037 0.034
@@ -46,7 +44,7 @@ timing(n,"Clayton",taus3)
 
 ## ==== Frank (todo: theta0 large) ====
 
-timing(n,"Frank",taus2)
+timing(n,"Frank",taus)
 
 ##       0.05   0.1   0.2   0.3   0.4   0.5   0.6    0.7
 ## 0.05 0.001 0.116 0.152 0.111 0.111 0.111 0.113  0.111
@@ -64,7 +62,7 @@ timing(n,"Frank",taus2)
 
 ## ==== Gumbel ====
 
-timing(n,"Gumbel",taus3)
+timing(n,"Gumbel",taus)
 
 ##       0.05   0.1   0.2   0.3   0.4   0.5   0.6   0.7   0.8   0.9  0.95
 ## 0.05 0.014 0.008 0.008 0.009 0.011 0.009 0.009 0.009 0.009 0.009 0.009
@@ -85,7 +83,7 @@ timing(n,"Gumbel",taus3)
 
 ## ==== Joe ====
 
-timing(n,"Joe",taus3)
+timing(n,"Joe",taus)
 
 ##       0.05   0.1   0.2   0.3   0.4   0.5   0.6   0.7   0.8   0.9  0.95
 ## 0.05 0.001 0.368 0.354 0.401 0.375 0.372 0.372 0.378 0.372 0.382 0.380

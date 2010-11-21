@@ -244,15 +244,7 @@ copFrank <-
             ## from F01 of Joe is applied (otherwise, the sum is
             ## sampled via a logarithmic envelope for the summands)
             ## approx is the largest number of summands before asymptotics is used (see copJoe@V01)
-	    ## FIXME 1) rej has to be optimized; 2) code below has to be deleted
-	    rF01Frank(V0, theta0, theta1, rej, approx) # approx is for asymptotic for Joe
-                                        # 	    V0.large <- V0 > 1000 
-                                        #             res <- numeric(length(V0))
-                                        #             res[!V0.large] <- sapply(lapply(V0[!V0.large], rFFrank, theta0=theta0, 
-                                        #                                             theta1=theta1), sum)
-                                        # 	    res[V0.large] <- unlist(lapply(V0[V0.large], rF01FrankR, theta0=theta0,
-                                        #                                            theta1=theta1))
-                                        # 	    res
+	    rF01Frank(V0, theta0, theta1, rej, approx) 
         },
         dV01 = function(x,V0,theta0,theta1,log = FALSE){
             stopifnot(length(V0) == 1 || length(x) == length(V0), all(x >= V0))
@@ -494,19 +486,8 @@ copJoe <-
         },
         V01 = function(V0, theta0, theta1, approx = 10000) {
             ## approx is the largest number of summands before asymptotics is used
-            ## FIXME code below has to be deleted
             alpha <- theta0/theta1
             rF01Joe(V0, alpha, approx)
-                                        # alpha <- theta0/theta1
-                                        #            ia <- (V0 > approx)
-                                        #            ie <- !ia
-                                        #            V01 <- V0 # numeric(length(V0))
-                                        #            V01[ia] <- V0[ia]^(1/alpha) *
-                                        #                              rstable1(sum(ia),alpha, beta=1,
-                                        #                                       gamma = cos(alpha*pi/2)^(1/alpha),
-                                        #                                       delta = as.integer(alpha==1))
-                                        #            V01[ie] <- sapply(lapply(V0[ie], rSibuya, alpha=alpha),sum)
-                                        #            unlist(V01) # FIXME: when I call this function with V01(c(100001,30000),1.2,1.5), e.g., I get a list (instead of a vector); this causes V01 of Frank to break down
         },
         dV01 = function(x,V0,theta0,theta1,log = FALSE){
             l.x <- length(x)

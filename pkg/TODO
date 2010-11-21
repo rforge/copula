@@ -1,5 +1,7 @@
 (*) implement color-feature in splom2 (now that i and j are included by Deepayan)
+(*) get GIG generator to work
 (*) allow families to have outer power parameters (outer power families)
+(MM) check new functions in cop_objects.R for efficiency
 (MM) Change onacopula() such that it works via onacopulaL() and hence
      can be used also from other functions.
 (MM) maybe add an ASCII-plot for the hierarchical structure;
