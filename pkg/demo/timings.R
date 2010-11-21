@@ -11,11 +11,12 @@ taus <- c(0.05,(1:9)/10,0.95)
 
 timing(n,"AMH",taus[taus < 0.33])
 
-##       0.05   0.1   0.2   0.3
-## 0.05 0.002 0.004 0.004 0.005
-## 0.1  0.002    NA 0.004 0.004
-## 0.2  0.002    NA    NA 0.006
-## 0.3  0.002    NA    NA    NA
+##             inner tau
+## outer tau   0.10 0.20 0.30
+##      0.05 1    4    4    4
+##      0.10 2   NA    4    4
+##      0.20 2   NA   NA    5
+##      0.30 3   NA   NA   NA
 
 ## conclusion:
 ## V0:  uniformly fast
@@ -25,57 +26,63 @@ timing(n,"AMH",taus[taus < 0.33])
 
 timing(n,"Clayton",taus)
 
-##       0.05   0.1   0.2   0.3   0.4   0.5   0.6   0.7   0.8   0.9  0.95
-## 0.05 0.002 0.037 0.044 0.055 0.062 0.057 0.058 0.052 0.047 0.037 0.034
-## 0.1  0.002    NA 0.053 0.060 0.057 0.058 0.062 0.062 0.058 0.054 0.051
-## 0.2  0.002    NA    NA 0.041 0.042 0.038 0.043 0.045 0.043 0.042 0.042
-## 0.3  0.002    NA    NA    NA 0.029 0.029 0.029 0.030 0.030 0.026 0.030
-## 0.4  0.003    NA    NA    NA    NA 0.021 0.022 0.022 0.019 0.022 0.023
-## 0.5  0.002    NA    NA    NA    NA    NA 0.017 0.018 0.018 0.018 0.018
-## 0.6  0.003    NA    NA    NA    NA    NA    NA 0.014 0.015 0.016 0.015
-## 0.7  0.002    NA    NA    NA    NA    NA    NA    NA 0.013 0.013 0.013
-## 0.8  0.002    NA    NA    NA    NA    NA    NA    NA    NA 0.012 0.012
-## 0.9  0.002    NA    NA    NA    NA    NA    NA    NA    NA    NA 0.013
-## 0.95 0.002    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
+##             inner tau
+## outer tau   0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 0.95
+##      0.05 2   38   44   55   62   56   58   52   47   38   34
+##      0.10 2   NA   53   58   57   58   63   61   58   55   51
+##      0.20 2   NA   NA   42   41   37   43   44   44   44   42
+##      0.30 3   NA   NA   NA   28   28   29   29   30   26   30
+##      0.40 3   NA   NA   NA   NA   21   23   22   19   22   23
+##      0.50 2   NA   NA   NA   NA   NA   17   17   18   18   19
+##      0.60 3   NA   NA   NA   NA   NA   NA   15   15   16   15
+##      0.70 2   NA   NA   NA   NA   NA   NA   NA   13   14   13
+##      0.80 3   NA   NA   NA   NA   NA   NA   NA   NA   12   12
+##      0.90 3   NA   NA   NA   NA   NA   NA   NA   NA   NA   11
+##      0.95 2   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA
 
 ## conclusion:
 ## V0:  uniformly fast
-## V01: faster for larger parameter (overall: fast enough)
+## V01: faster for larger parameter 
 
-## ==== Frank (todo: theta0 large) ====
+## ==== Frank ====
 
 timing(n,"Frank",taus)
 
-##       0.05   0.1   0.2   0.3   0.4   0.5   0.6    0.7
-## 0.05 0.001 0.116 0.152 0.111 0.111 0.111 0.113  0.111
-## 0.1  0.001    NA 0.117 0.119 0.120 0.118 0.119  0.119
-## 0.2  0.002    NA    NA 0.148 0.149 0.149 0.147  0.147
-## 0.3  0.002    NA    NA    NA 0.244 0.239 0.239  0.241
-## 0.4  0.002    NA    NA    NA    NA 0.569 0.566  0.564
-## 0.5  0.002    NA    NA    NA    NA    NA 2.523  2.425
-## 0.6  0.002    NA    NA    NA    NA    NA    NA 20.337
-## 0.7  0.002    NA    NA    NA    NA    NA    NA     NA
+##             inner tau
+## outer tau   0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 0.95
+##      0.05 1   12   14   13   13   13   13   13   13   12   11
+##      0.10 2   NA   21   23   23   24   24   23   23   17   16
+##      0.20 3   NA   NA   39   53   62   66   71   74   21   20
+##      0.30 3   NA   NA   NA   91  133  150  184  201   40   39
+##      0.40 2   NA   NA   NA   NA  175  296  369  389   92   92
+##      0.50 3   NA   NA   NA   NA   NA  759 1471 2002  310  318
+##      0.60 2   NA   NA   NA   NA   NA   NA 3493 5736 1864 1996
+##      0.70 3   NA   NA   NA   NA   NA   NA   NA 2646 4266 4904
+##      0.80 5   NA   NA   NA   NA   NA   NA   NA   NA 2126 2900
+##      0.90 3   NA   NA   NA   NA   NA   NA   NA   NA   NA  986
+##      0.95 3   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA
 
 ## conclusion:
 ## V0:  uniformly fast
-## V01: for a given theta0: uniformly fast over theta1; but increasing in theta0
+## V01: depending on theta0, theta1, and approx (due to rej)
 
 ## ==== Gumbel ====
 
 timing(n,"Gumbel",taus)
 
-##       0.05   0.1   0.2   0.3   0.4   0.5   0.6   0.7   0.8   0.9  0.95
-## 0.05 0.014 0.008 0.008 0.009 0.011 0.009 0.009 0.009 0.009 0.009 0.009
-## 0.1  0.008    NA 0.009 0.008 0.009 0.009 0.010 0.009 0.009 0.010 0.009
-## 0.2  0.008    NA    NA 0.009 0.009 0.009 0.005 0.009 0.010 0.009 0.009
-## 0.3  0.008    NA    NA    NA 0.009 0.009 0.009 0.009 0.010 0.009 0.009
-## 0.4  0.008    NA    NA    NA    NA 0.009 0.009 0.009 0.007 0.008 0.010
-## 0.5  0.005    NA    NA    NA    NA    NA 0.009 0.009 0.010 0.009 0.009
-## 0.6  0.007    NA    NA    NA    NA    NA    NA 0.009 0.009 0.009 0.009
-## 0.7  0.007    NA    NA    NA    NA    NA    NA    NA 0.009 0.009 0.009
-## 0.8  0.007    NA    NA    NA    NA    NA    NA    NA    NA 0.005 0.009
-## 0.9  0.008    NA    NA    NA    NA    NA    NA    NA    NA    NA 0.009
-## 0.95 0.009    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
+##             inner tau
+## outer tau   0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 0.95
+##      0.05 8    9    9    9    9    9    9    9    9    9    9
+##      0.10 8   NA    9    9    9    9    9    9    9    9   10
+##      0.20 8   NA   NA    9    9    8    5   10    9    9    9
+##      0.30 7   NA   NA   NA    9    8   10   10    9   10    9
+##      0.40 8   NA   NA   NA   NA    9    9    9    8    7    9
+##      0.50 5   NA   NA   NA   NA   NA    9    9    9   10   10
+##      0.60 8   NA   NA   NA   NA   NA   NA    9    9    9   10
+##      0.70 7   NA   NA   NA   NA   NA   NA   NA    9   10   10
+##      0.80 8   NA   NA   NA   NA   NA   NA   NA   NA    6    9
+##      0.90 7   NA   NA   NA   NA   NA   NA   NA   NA   NA    8
+##      0.95 8   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA
 
 ## conclusion:
 ## V0:  uniformly fast
@@ -85,20 +92,21 @@ timing(n,"Gumbel",taus)
 
 timing(n,"Joe",taus)
 
-##       0.05   0.1   0.2   0.3   0.4   0.5   0.6   0.7   0.8   0.9  0.95
-## 0.05 0.001 0.368 0.354 0.401 0.375 0.372 0.372 0.378 0.372 0.382 0.380
-## 0.1  0.002    NA 0.365 0.369 0.374 0.384 0.386 0.386 0.385 0.381 0.384
-## 0.2  0.003    NA    NA 0.380 0.396 0.407 0.423 0.476 0.433 0.444 0.443
-## 0.3  0.004    NA    NA    NA 0.419 0.457 0.502 0.537 0.551 0.575 0.570
-## 0.4  0.004    NA    NA    NA    NA 0.550 0.677 0.724 0.746 0.792 0.834
-## 0.5  0.005    NA    NA    NA    NA    NA 0.905 1.026 1.228 1.372 1.446
-## 0.6  0.006    NA    NA    NA    NA    NA    NA 1.237 1.539 1.928 1.997
-## 0.7  0.006    NA    NA    NA    NA    NA    NA    NA 1.776 2.443 2.694
-## 0.8  0.006    NA    NA    NA    NA    NA    NA    NA    NA 2.123 2.591
-## 0.9  0.006    NA    NA    NA    NA    NA    NA    NA    NA    NA 1.541
-## 0.95 0.006    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
+##             inner tau
+## outer tau   0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 0.95
+##      0.05 1    2    3    5    6    7    8    9    9   10    9
+##      0.10 2   NA    7   12   15   19   21   24   25   26   25
+##      0.20 3   NA   NA   22   36   49   60   69   75   78   77
+##      0.30 4   NA   NA   NA   53   89  121  147  167  178  177
+##      0.40 5   NA   NA   NA   NA  154  264  359  433  481  483
+##      0.50 4   NA   NA   NA   NA   NA  330  570  768  910  934
+##      0.60 6   NA   NA   NA   NA   NA   NA  650 1129 1493 1598
+##      0.70 5   NA   NA   NA   NA   NA   NA   NA 1031 1774 2034
+##      0.80 6   NA   NA   NA   NA   NA   NA   NA   NA 1680 2280
+##      0.90 6   NA   NA   NA   NA   NA   NA   NA   NA   NA 1298
+##      0.95 6   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA
 
 ## conclusion:
-## V0:  (almost) uniformly fast (at least fast enough)
+## V0:  (almost) uniformly fast 
 ## V01: increasing in theta0 and theta1
 ## V01 depends on theta0 and theta1 [but is bounded due to approx-parameter]
