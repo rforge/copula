@@ -3,7 +3,7 @@
 \alias{rSibuyaR}
 \title{Sampling Sibuya Distributions}
 \description{
-  \code{rSibuya}: Generating random variates from a Sibuya(\eqn{\alpha}{alpha})
+  Generating random variates from a Sibuya(\eqn{\alpha}{alpha})
  	distribution with probability mass function \deqn{p_k={\alpha\choose k}(-1)^{k-1},\ k\in\mathbf{N},}{p_k = choose(alpha,k)*(-1)^(k-1), k in IN,} where \eqn{\alpha\in(0,1]}{alpha in (0,1]}. The implemented algorithm is the one given in Hofert (2011), Proposition
  	3.2.
 }

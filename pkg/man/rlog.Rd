@@ -3,7 +3,7 @@
 \alias{rlogR}
 \title{Sampling Logarithmic Distributions}
 \description{
-  \code{rlog}: Generating random variates from a Log(p) distribution with probability mass function \deqn{p_k=\frac{p^k}{-\log(1-p)k},\ k\in\mathbf{N},}{p_k = p^k/(-log(1-p)k), k in IN,} where \eqn{p\in(0,1)}{p in (0,1)}. The implemented algorithm is the one named \dQuote{LK} in Kemp (1981).
+  Generating random variates from a Log(p) distribution with probability mass function \deqn{p_k=\frac{p^k}{-\log(1-p)k},\ k\in\mathbf{N},}{p_k = p^k/(-log(1-p)k), k in IN,} where \eqn{p\in(0,1)}{p in (0,1)}. The implemented algorithm is the one named \dQuote{LK} in Kemp (1981).
 }
 \usage{
    rlog(n, p, Ip = 1 - p)
