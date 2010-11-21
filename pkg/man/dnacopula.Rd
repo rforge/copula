@@ -19,7 +19,7 @@ dnacopula(x, u, MC, log = FALSE)
 }
 \details{
 	The density of an Archimedean copula \eqn{C} (if it exists) with generator 
-	\eqn{\psi}{psi} at \eqn{\bm{u}}{u} is given by \deqn{C(\bm{u})=\frac{\psi^{(d)}(\psi^{-1}(u_1)+\dots+\psi^{-1}(u_d))}{\prod_{j=1}^d\psi^\prime(\psi^{-1}(u_j))},\ \bm{u}\in(0,1)^d.}{C(u)=psi^{(d)}(psi^{-1}(u_1)+...+psi^{-1}(u_d))/(psi^prime(psi^{-1}(u_1))...psi^prime(psi^{-1}(u_d))), u in (0,1)^d.}
+	\eqn{\psi}{psi} at \eqn{\bm{u}}{u} is given by \deqn{C(\bm{u})=\frac{\psi^{(d)}(\psi^{-1}(u_1)+\dots+\psi^{-1}(u_d))}{\prod_{j=1}^d\psi^\prime(\psi^{-1}(u_j))},\ \bm{u}\in(0,1)^d.}{C(u)=psi^{(d)}(psi^{-1}(u_1)+...+psi^{-1}(u_d))/(psi^prime(psi^{-1}(u_1))*...*psi^prime(psi^{-1}(u_d))), u in (0,1)^d.}
 }
 \value{
   	A \code{\link{numeric}} vector containing the values of the density of the
@@ -33,21 +33,21 @@ dnacopula(x, u, MC, log = FALSE)
 	Archimedean generator, see, e.g., \code{\link{psiDAbs}}.
 }
 \examples{
-	## Construct a twenty-dimensional Gumbel copula with parameter chosen 
-	## such that Kendall's tau of the bivariate margins is 0.25.
-	theta <- copJoe@tauInv(.25)
-	C20 <- onacopula("J", C(theta, 1:20))
+## Construct a twenty-dimensional Gumbel copula with parameter chosen 
+## such that Kendall's tau of the bivariate margins is 0.25.
+theta <- copJoe@tauInv(.25)
+C20 <- onacopula("J", C(theta, 1:20))
 
-	## Evaluate the copula density at the point u = (0.5,...,0.5)
-	u <- rep(0.5, 20)
-	dnacopula(C20, u)
-	
-	## the same with Monte Carlo based on 10000 simulated "frailties"
-	dnacopula(C20, u, MC = 10000)
+## Evaluate the copula density at the point u = (0.5,...,0.5)
+u <- rep(0.5, 20)
+dnacopula(C20, u)
 
-	## Evaluate the exact log-density at several points
-	u <- matrix(runif(100), ncol=20)
-	dnacopula(C20, u, log = TRUE)	
+## the same with Monte Carlo based on 10000 simulated "frailties"
+dnacopula(C20, u, MC = 10000)
+
+## Evaluate the exact log-density at several points
+u <- matrix(runif(100), ncol=20)
+dnacopula(C20, u, log = TRUE)	
 }
 \keyword{distribution}
 
