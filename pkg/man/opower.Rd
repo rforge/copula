@@ -25,12 +25,9 @@ opower(copbase, thetabase)
   \emph{Computational Statistics & Data Analysis}, \bold{55}, 57--70.
 }
 \examples{
-## Construct a bivariate Clayton copula with parameter thetabase such that 
+## Construct an outer power Clayton copula with parameter thetabase such that 
 ## Kendall's tau equals 0.2
 thetabase <- copClayton@tauInv(0.2)
-# copC <- onacopulaL("C", list(thetabase, 1:2)) # or onacopula("C", C(thetabase, 1:2))
-
-## Construct an outer power Clayton copula based on copC
 opC <- opower(copClayton, thetabase) 
 
 ## Construct a 3d nested Archimedean copula based on opC, i.e., a nested outer
@@ -43,12 +40,12 @@ opC3d <- onacopulaL(opC, list(theta0, 1, list(list(theta1, 2:3))))
 
 ## Compute the corresponding lower and upper tail-dependence coefficients
 rbind(theta0 = c(
-      L = opC@lambdaL(theta0), 
-      U = opC@lambdaU(theta0) # => opC3d has upper tail dependence
+      lambdaL = opC@lambdaL(theta0), 
+      lambdaU = opC@lambdaU(theta0) # => opC3d has upper tail dependence
       ),
       theta1 = c(
-      L = opC@lambdaL(theta1), 
-      U = opC@lambdaU(theta1) # => opC3d has upper tail dependence
+      lambdaL = opC@lambdaL(theta1), 
+      lambdaU = opC@lambdaU(theta1) # => opC3d has upper tail dependence
       ))
 
 ## Sample opC3d
