@@ -3,6 +3,7 @@
 \title{Class "acopula" of Archimedean Copula Families}
 \docType{class}
 \alias{acopula-class}
+\alias{acopula}
 %
 \alias{initialize,acopula-method}
 \alias{show,acopula-method}

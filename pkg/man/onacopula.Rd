@@ -1,6 +1,7 @@
 \name{onacopula}
 \alias{onacopula}
 \alias{onacopulaL}
+\alias{nacopula}
 \title{Constructing (Outer) Nested Archimedean Copulas}
 \description{
   Constructing (outer) nested Archimedean copulas (class
