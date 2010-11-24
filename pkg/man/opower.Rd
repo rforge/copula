@@ -28,7 +28,8 @@ opower(copbase, thetabase)
 ## Construct an outer power Clayton copula with parameter thetabase such that 
 ## Kendall's tau equals 0.2
 thetabase <- copClayton@tauInv(0.2)
-opC <- opower(copClayton, thetabase) 
+opC <- opower(copClayton, thetabase) # "acopula" object with unspecified
+ 												 # parameter theta
 
 ## Construct a 3d nested Archimedean copula based on opC, i.e., a nested outer
 ## power Clayton copula. The parameters theta are chosen such that Kendall's tau
