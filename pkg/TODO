@@ -3,11 +3,6 @@
 (*) allow families to have outer power parameters (outer power families)
 (*) make pnacopula applicable to a matrix to be consistent with dnacopula (maybe
     also prob())
-(*) lgammacor shows underflow on executing the following snippet:
-
-require(nacopula)
-## which can be reduced to
-set.seed(923); S <- rSibuya(1, 0.0005)
 
 
 (MM) check new functions in cop_objects.R for efficiency + see FIXME there
