@@ -37,9 +37,9 @@ dnacopula <- function(x, u, MC, log = FALSE)
     if(length(n01) > 0){
 	if(is.vector(psiI <- acop@psiInv(u[n01,],th)))
 	    psiI <- matrix(psiI, nrow = 1)
-	if(is.vector(psiID <- acop@psiInvD1Abs(u[n01,],th)))
+	if(is.vector(psiID <- acop@psiInvD1abs(u[n01,],th)))
 	    psiID <- matrix(psiID, nrow = 1)
-        res[n01] <- acop@psiDAbs(rowSums(psiI),theta = th,degree = d, MC = MC, log = log)
+        res[n01] <- acop@psiDabs(rowSums(psiI),theta = th,degree = d, MC = MC, log = log)
         res[n01] <- if(log) res[n01] + rowSums(log(psiID)) else res[n01] * apply(psiID,1,prod)
     }
     res

@@ -29,18 +29,18 @@
  		\eqn{\psi}{psi} (with \eqn{\psi}{psi}(t)=\eqn{\exp}{exp}(-t) being the
  		generator of the independence copula) and its inverse
  		(\code{\link{function}}).}
-    \item{\code{psiDAbs}:}{A \code{\link{function}} which computes the absolute
+    \item{\code{psiDabs}:}{A \code{\link{function}} which computes the absolute
       value of the derivative of the generator \eqn{\psi}{psi} for the given
       parameter \code{theta} and of the given \code{degree} (defaults to 1).
       Note that there is no informational loss by computing the absolute value
       since the derivatives alternate in sign (so that the generator derivative
-      itself can be accessed with (-1)^\code{degree}\code{psiDAbs}). If the
+      itself can be accessed with (-1)^\code{degree}\code{psiDabs}). If the
       number \code{MC} is provided, the function is computed based on a Monte
       Carlo simulation with sample size equal to \code{MC}; otherwise, the
       derivatives are evaluated with their exact formulas. The optional
       parameter \code{log} (defaults to \code{FALSE}) indicates whether the
       logarithm of the absolute value of the derivative is returned.}
-    \item{\code{psiInvD1Abs}:}{a \code{\link{function}} computing the
+    \item{\code{psiInvD1abs}:}{a \code{\link{function}} computing the
       absolute derivative of the generator inverse (\code{psiInv()}) for
       the given parameter \code{theta}. The optional parameter \code{log}
  		(defaults to \code{FALSE}) indicates whether the logarithm of the absolute

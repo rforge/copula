@@ -29,7 +29,7 @@ dnacopula(x, u, MC, log = FALSE)
 	Hofert, M. and  McNeil, A. J. (2011), to be submitted.	
 }
 \seealso{
- 	For more details about the derivatives of an Archimedean generator, see, e.g., \code{psiDAbs} in \code{\link{acopula-class}}.
+ 	For more details about the derivatives of an Archimedean generator, see, e.g., \code{psiDabs} in \code{\link{acopula-class}}.
 }
 \examples{
 ## Construct a twenty-dimensional Gumbel copula with parameter chosen 

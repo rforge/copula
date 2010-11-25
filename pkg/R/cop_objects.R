@@ -32,12 +32,12 @@ copAMH <-
         psi = function(t,theta) { (1-theta)/(exp(t+0)-theta) },
         psiInv = function(t,theta) { log((1-theta*(1-t))/t) },
 	## absolute value of generator derivatives
-	psiDAbs = function(t, theta, degree = 1, MC, log = FALSE){
+	psiDabs = function(t, theta, degree = 1, MC, log = FALSE){
 	    if(!(missing(MC) || is.null(MC))){
-		psiDAbsMC(t,"AMH",theta,degree,MC,log)
+		psiDabsMC(t,"AMH",theta,degree,MC,log)
             }else{
 		if(theta == 0) if(log) return(-t) else return(exp(-t)) # special case
-		## Note: psiDAbs(0, ...) is correct
+		## Note: psiDabs(0, ...) is correct
 		arg <- theta*exp(-t)
                 if(log){
                     log1p(-theta)-log(theta)+log(unlist(lapply(arg,polylog,s = -degree,
@@ -49,7 +49,7 @@ copAMH <-
             }
         },
         ## derivatives of the generator inverse
-	psiInvD1Abs = function(t, theta, log = FALSE){
+	psiInvD1abs = function(t, theta, log = FALSE){
             if(log){
                 log1p(-theta)-log(t)-log1p(-theta*(1-t))
             }else{
@@ -119,18 +119,18 @@ copClayton <-
         psi = function(t,theta) { (1+t)^(-1/theta) },
         psiInv = function(t,theta) { t^(-theta) - 1 },
         ## absolute value of generator derivatives
-        psiDAbs = function(t, theta, degree = 1, MC, log = FALSE){
+        psiDabs = function(t, theta, degree = 1, MC, log = FALSE){
             if(!(missing(MC) || is.null(MC))){
-                psiDAbsMC(t,"Clayton",theta,degree,MC,log)
+                psiDabsMC(t,"Clayton",theta,degree,MC,log)
             }else{
-                ## Note: psiDAbs(0, ...) is correct
+                ## Note: psiDabs(0, ...) is correct
                 alpha <- 1/theta
                 res <- lgamma(degree+alpha)-lgamma(alpha)-(degree+alpha)*log1p(t)
                 if(log) res else exp(res)
             }
         },
         ## derivatives of the generator inverse
-	psiInvD1Abs = function(t, theta, log = FALSE){
+	psiInvD1abs = function(t, theta, log = FALSE){
             if(log) log(theta)-(1+theta)*log(t) else theta*t^(-(1+theta))
 	},
         ## parameter interval
@@ -198,11 +198,11 @@ copFrank <-
             ## == -log((exp(-theta*t)-1)/(exp(-theta)-1))
         },
         ## absolute value of generator derivatives
-        psiDAbs = function(t, theta, degree = 1, MC, log = FALSE){
+        psiDabs = function(t, theta, degree = 1, MC, log = FALSE){
             if(!(missing(MC) || is.null(MC))){
-                psiDAbsMC(t,"Frank",theta,degree,MC,log)
+                psiDabsMC(t,"Frank",theta,degree,MC,log)
             }else{
-                ## Note: psiDAbs(0, ...) is correct
+                ## Note: psiDabs(0, ...) is correct
                 p <- -expm1(-theta)
                 arg <- p*exp(-t)
                 if(log){
@@ -214,7 +214,7 @@ copFrank <-
             }
         },
 	## derivatives of the generator inverse
-	psiInvD1Abs = function(t, theta, log = FALSE){
+	psiInvD1abs = function(t, theta, log = FALSE){
             if(log) log(theta)-log(expm1(theta*t)) else theta/expm1(theta*t)
 	},
    	## parameter interval
@@ -302,9 +302,9 @@ copGumbel <-
         psi = function(t,theta) { exp(-t^(1/theta)) },
         psiInv = function(t,theta) { (-log(t+0))^theta },
         ## absolute value of generator derivatives
-        psiDAbs = function(t, theta, degree = 1, MC, log = FALSE){
+        psiDabs = function(t, theta, degree = 1, MC, log = FALSE){
             if(!(missing(MC) || is.null(MC))){
-                psiDAbsMC(t,"Gumbel",theta,degree,MC,log)
+                psiDabsMC(t,"Gumbel",theta,degree,MC,log)
             }else{
                 if(theta == 0) if(log) return(-t) else return(exp(-t)) # special case
                 ## FIXME: several things in the following code can be improved
@@ -333,7 +333,7 @@ copGumbel <-
             }
         },
         ## derivatives of the generator inverse
-	psiInvD1Abs = function(t, theta, log = FALSE){
+	psiInvD1abs = function(t, theta, log = FALSE){
             if(log){
                 l.t <- log(t)
                 log(theta)+(theta-1)*log(-l.t)-l.t
@@ -438,15 +438,15 @@ copJoe <-
         },
         psiInv = function(t,theta) { -log1p(-(1-t)^theta) },
         ## absolute value of generator derivatives
-        psiDAbs = function(t, theta, degree = 1, MC, log = FALSE){
+        psiDabs = function(t, theta, degree = 1, MC, log = FALSE){
             if(!(missing(MC) || is.null(MC))){
-                psiDAbsMC(t,"Joe",theta,degree,MC,log)
+                psiDabsMC(t,"Joe",theta,degree,MC,log)
             }else{
                 if(theta == 0) return(if(log) -t else exp(-t)) # special case
                 ## FIXME: several things in the following code can be improved
 		alpha <- 1/theta
 		res <- numeric(n <- length(t))
-		res[is0 <- t < .Machine$double.eps] <- Inf # for arguments smaller than 6e-17 (the degree does not really play a role here), psiDAbs returns NaN (which should rather be Inf)
+		res[is0 <- t < .Machine$double.eps] <- Inf # for arguments smaller than 6e-17 (the degree does not really play a role here), psiDabs returns NaN (which should rather be Inf)
 		res[isInf <- is.infinite(t)] <- 0
 		n0Inf <- (1:n)[!(is0 | isInf)]
 		if(length(n0Inf) > 0){
@@ -461,7 +461,7 @@ copJoe <-
             }
         },
         ## derivatives of the generator inverse
-        psiInvD1Abs = function(t, theta, log = FALSE){
+        psiInvD1abs = function(t, theta, log = FALSE){
             t. <- 1-t
             t.th <- t.^theta
             if(log){
@@ -576,9 +576,9 @@ copJoe <-
                                         #             r$root
                                         # 	},
                                         #         ## absolute value of generator derivatives
-                                        #         psiDAbs = function(t, theta, degree = 1, MC, log = FALSE){
+                                        #         psiDabs = function(t, theta, degree = 1, MC, log = FALSE){
                                         #             if(!(missing(MC) || is.null(MC))){
-                                        #                 copGIG@psiDAbsMC(t,"GIG",theta,degree,MC,log)
+                                        #                 copGIG@psiDabsMC(t,"GIG",theta,degree,MC,log)
                                         #             }else{
                                         # 		res <- numeric(n <- length(t))
                                         #                 res[is0 <- t == 0] <- Inf
@@ -593,8 +593,8 @@ copJoe <-
                                         #             }
                                         #         },
                                         #         ## derivatives of the generator inverse
-                                        #         psiInvD1Abs = function(t, theta, log = FALSE){
-                                        #             res <- -log(copGIG@psiDAbs(copGIG@psiInv(t,theta),theta,log = TRUE))
+                                        #         psiInvD1abs = function(t, theta, log = FALSE){
+                                        #             res <- -log(copGIG@psiDabs(copGIG@psiInv(t,theta),theta,log = TRUE))
                                         #             if(log) res else exp(res)
                                         #         },
                                         #         ## parameter interval

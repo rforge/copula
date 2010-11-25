@@ -34,10 +34,10 @@ setClass("acopula",
 	 representation(name = "character",
                         psi = "function",         # of (t, theta) -- the generator
                         psiInv = "function",      # of (p, theta) -- psi_inverse: \psi^{-1}(p) = t
-                        psiDAbs = "function",     # of (t, theta, degree = 1, MC, log = FALSE) -- (-1)^d * the degree-th generator derivative
+                        psiDabs = "function",     # of (t, theta, degree = 1, MC, log = FALSE) -- (-1)^d * the degree-th generator derivative
                         theta = "numeric",        # value of theta or  'NA'  (for unspecified)
                         paraConstr = "function",  # of (theta) ; constr(theta) |--> TRUE: "fulfilled"
-                        psiInvD1Abs = "function", # of (t,theta,log = FALSE) -- computes the absolute value of the first derivative of psiInv
+                        psiInvD1abs = "function", # of (t,theta,log = FALSE) -- computes the absolute value of the first derivative of psiInv
 			## when theta is one-dimensional, specifying the interval is more convenient:
                         paraInterval = "maybeInterval", # [.,.]  (.,.], etc .. parameter interval
 		        paraSubInterval = "maybeInterval", # [.,.]  (.,.], etc .. finite parameter interval, e.g., for optimization (only for robust methods, i.e., methods that work no matter what the parameters are)

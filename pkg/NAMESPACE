@@ -47,10 +47,10 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"sinc", "A..Z"
        ,"rstable1"
        ,"retstable", "retstableR"
-       ,"rlog", "rlogR", "rSibuya", "rSibuyaR", "rF01Frank", "rF01Joe"
+       ,"rlog", "rlogR", "rSibuya", "rSibuyaR", "rF01Frank", "rF01Joe", "rFFrank", "rFJoe"
        ##
        ,"polylog", "Stirling1", "Stirling2", "Stirling1.all", "Stirling2.all"
-       ,"psiDAbsMC"
+       ,"psiDabsMC"
        ,"setTheta"
        ,"tauAMH"
        ,"allComp" # <- maybe keep private ?

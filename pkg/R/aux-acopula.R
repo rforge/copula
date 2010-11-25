@@ -240,6 +240,21 @@ rF01Frank <- function(V0, theta0, theta1, rej, approx) {
     .Call(rF01Frank_vec_c, V0, theta0, theta1, rej, approx)
 }
 
+### ==== wrapper for inner distribution F for Frank ====
+
+##' Generate a vector of variates V ~ F with Laplace-Stieltjes transform 
+##' (1-(1-exp(-t)*(1-e^(-theta1)))^alpha)/(1-e^(-theta0)).
+##' @param n number of variates from F
+##' @param theta0 parameter theta0 in (0,infinity)
+##' @param theta1 parameter theta1 in [theta0, infinity)
+##' @param rej method switch: if theta_0 > rej a rejection
+##'        from Joe (Sibuya distribution) is applied (otherwise, a logarithmic 
+##' 	   envelope is used)
+##' @return vector of random variates V
+##' @author Marius Hofert
+rFFrank <- function(n, theta0, theta1, rej) 
+    rF01Frank(rep(1,n),theta0,theta1,rej,1) # approx = 1 (dummy)
+
 
 ### ==== Joe ===================================================================
 
@@ -302,6 +317,16 @@ rSibuya <- function(n,alpha) {
 rF01Joe <- function(V0, alpha, approx) {
     .Call(rF01Joe_vec_c, V0, alpha, approx)
 }
+
+### ==== wrapper for inner distribution F for Joe ====
+
+##' Generate a vector of variates V ~ F with Laplace-Stieltjes transform 
+##' 1-(1-exp(-t))^alpha.
+##' @param n number of variates from F
+##' @param parameter alpha = theta0/theta1 in (0,1]
+##' @return vector of random variates V
+##' @author Marius Hofert
+rFJoe <- function(n, alpha) rSibuya(n, alpha)
 
 
 ### ==== other numeric utilities ===============================================
@@ -510,19 +535,19 @@ polylog <- function(z,s, method = c("sum","negint-s_Stirling"), logarithm=FALSE,
 
 ### ==== other NON-numerics ====================================================
 
-##' Function which computes psiDAbs via Monte Carlo
+##' Function which computes psiDabs via Monte Carlo
 ##' @param t evaluation points
 ##' @param family Archimedean family
 ##' @param theta parameter value
 ##' @param degree order of derivative
 ##' @param MC Monte Carlo sample size
-##' @param log if TRUE the log of psiDAbs is returned
-psiDAbsMC <- function(t, family, theta, degree = 1, MC, log = FALSE){
-	V0. <- getAcop(family)@V0(MC,theta)
-        l.V0. <- degree*log(V0.)
-        summands <- function(t) mean(exp(-V0.*t + l.V0.))
-        res <- unlist(lapply(t,summands))
-        if(log) log(res) else res
+##' @param log if TRUE the log of psiDabs is returned
+psiDabsMC <- function(t, family, theta, degree = 1, MC, log = FALSE){
+    V0. <- getAcop(family)@V0(MC,theta)
+    l.V0. <- degree*log(V0.)
+    summands <- function(t) mean(exp(-V0.*t + l.V0.))
+    res <- unlist(lapply(t,summands))
+    if(log) log(res) else res
 }
 
 ##' Function for setting the parameter in an acopula

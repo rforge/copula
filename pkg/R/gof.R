@@ -39,7 +39,7 @@ g01 <- function(u, method = c("log","normal")){
 ##' @param t evaluation point(s)
 ##' @param cop acopula with specified parameter
 ##' @param d dimension
-##' @param MC if provided (and not NULL) psiDAbs is evaluated via Monte Carlo
+##' @param MC if provided (and not NULL) psiDabs is evaluated via Monte Carlo
 ##'        with sample size MC
 ##' @return Kendall distribution function at t
 ##' @author Marius Hofert
@@ -61,19 +61,19 @@ K <- function(t, cop, d, MC)
 	    K.[not01] <- if(d == 1) {
 		t[not01]
 	    } else if(d == 2) {
-		t[not01]+ psiI[not01] / cop@psiInvD1Abs(t[not01],th)
+		t[not01]+ psiI[not01] / cop@psiInvD1abs(t[not01],th)
 	    } else {
 		j <- seq_len(d-1)
                 lfac.j <- cumsum(log(j)) ## == lfactorial(j)
 		K2 <- function(psInv) {
-		    lpsiDAbs <- unlist(lapply(j, cop@psiDAbs,
+		    lpsiDabs <- unlist(lapply(j, cop@psiDabs,
 					      t = psInv, theta = th, log = TRUE))
-		    sum(exp(lpsiDAbs + j*log(psInv) - lfac.j))
+		    sum(exp(lpsiDabs + j*log(psInv) - lfac.j))
 		    ## NB: AMH, Clayton, Frank are numerically not quite monotone near one;
                     ## --  this does not change that {but maybe slightly *more* accurate}:
-		    ## psiDAbs. <- unlist(lapply(j, cop@psiDAbs, t = psInv, theta = th,
+		    ## psiDabs. <- unlist(lapply(j, cop@psiDabs, t = psInv, theta = th,
 		    ##						 log = FALSE))
-		    ##		       sum(psiDAbs.*psInv^j/factorial(j))
+		    ##		       sum(psiDabs.*psInv^j/factorial(j))
 		}
 		## ensure we are in [0,1] {numeric inaccuracy}
 		pmin(1, t[not01] + unlist(lapply(psiI[not01], K2)))

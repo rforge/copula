@@ -142,10 +142,10 @@ dDiag <- function(u, cop, d, log = FALSE){
     stopifnot(all(0 <= u, u <= 1))
     th <- cop@theta
     if(log){
-        log(d) + cop@psiDAbs(d*cop@psiInv(u,th), th, log = TRUE) +
-            cop@psiInvD1Abs(u, th, log = TRUE)
+        log(d) + cop@psiDabs(d*cop@psiInv(u,th), th, log = TRUE) +
+            cop@psiInvD1abs(u, th, log = TRUE)
     }else{
-        d*cop@psiDAbs(d*cop@psiInv(u,th), th)*(cop@psiInvD1Abs(u,th))
+        d*cop@psiDabs(d*cop@psiInv(u,th), th)*(cop@psiInvD1abs(u,th))
     }
 }
 
@@ -203,7 +203,7 @@ edmle <- function(u, cop, interval = paraOptInterval(u, cop@name), ...)
 ##' @param ... additional parameters for optimize
 ##' @return (simulated) maximum likelihood estimator; return value of optimize
 ##' @author Marius Hofert
-emle <- function(u,cop, MC, interval = paraOptInterval(u, cop@copula@name), ...)
+emle <- function(u, cop, MC, interval = paraOptInterval(u, cop@copula@name), ...)
 {
     stopifnot(is(cop,"nacopula"))
     if(length(cop@childCops))

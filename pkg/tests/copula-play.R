@@ -112,42 +112,42 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     cat0("check if psiInv(psi(i10))==i10: ", all.equal(pi.pi, i10))
     cat0("check if psi(psiInv(t01))==t01: ", all.equal(p.pit, t01))
 
-    ## ==== (2.2) psiDAbs ====
+    ## ==== (2.2) psiDabs ====
 
-    ## psiDAbs with degree = 10
-    cat0("\nvalues of psiDAbs with degree=10 at i10:")
-    CT <- c(CT, list(psiDAbs = system.time(p.D <- cop@psiDAbs(i10,theta = theta0,
+    ## psiDabs with degree = 10
+    cat0("\nvalues of psiDabs with degree=10 at i10:")
+    CT <- c(CT, list(psiDabs = system.time(p.D <- cop@psiDabs(i10,theta = theta0,
                      degree = 10))))
     print(p.D)
     cat0("check if all values are nonnegative")
     stopifnot(all(p.D >= 0))
-    cat("check psiDAbs(Inf,theta,degree=10) = 0 and the class of psiDAbs(0,theta,degree=10): ")
-    at.0 <- cop@psiDAbs(0, theta = theta0, degree = 10)
-    stopifnot(cop@psiDAbs(Inf, theta = theta0, degree = 10) == 0,
+    cat("check psiDabs(Inf,theta,degree=10) = 0 and the class of psiDabs(0,theta,degree=10): ")
+    at.0 <- cop@psiDabs(0, theta = theta0, degree = 10)
+    stopifnot(cop@psiDabs(Inf, theta = theta0, degree = 10) == 0,
               is.numeric(at.0), !is.nan(at.0))
     cat0("[Ok]")
-    ## psiDAbs with degree = 10 and MC
-    cat("\nvalues of psiDAbs with degree=10 and MC at i10:\n")
-    CT <- c(CT, list(psiDAbs = system.time(p.D <- cop@psiDAbs(i10,theta = theta0,
+    ## psiDabs with degree = 10 and MC
+    cat("\nvalues of psiDabs with degree=10 and MC at i10:\n")
+    CT <- c(CT, list(psiDabs = system.time(p.D <- cop@psiDabs(i10,theta = theta0,
                      degree = 10, MC = 1000))))
     print(p.D)
     cat0("check if all values are nonnegative")
     stopifnot(all(p.D >= 0))
-    cat("check psiDAbs(Inf,theta,degree=10,MC=1000) = 0 and the class of psiDAbs(0,theta,degree=10,MC=1000): ")
-    at.0 <- cop@psiDAbs(0, theta = theta0, degree = 10, MC = 1000)
-    stopifnot(cop@psiDAbs(Inf, theta = theta0, degree = 10, MC = 1000)==0,
+    cat("check psiDabs(Inf,theta,degree=10,MC=1000) = 0 and the class of psiDabs(0,theta,degree=10,MC=1000): ")
+    at.0 <- cop@psiDabs(0, theta = theta0, degree = 10, MC = 1000)
+    stopifnot(cop@psiDabs(Inf, theta = theta0, degree = 10, MC = 1000)==0,
               is.numeric(at.0), !is.nan(at.0))
     cat0("[Ok]")
 
-    ## ==== (2.3) psiInvD1Abs ====
+    ## ==== (2.3) psiInvD1abs ====
 
-    cat0("\nvalues of psiInvD1Abs at t01:")
-    CT <- c(CT, list(psiInvD1Abs. = system.time(psiInvD1Abs. <-
-                     cop@psiInvD1Abs(t01, theta = theta0))))
-    print(psiInvD1Abs.)
-    stopifnot(all(psiInvD1Abs. >= 0, is.numeric(psiInvD1Abs.), !is.nan(psiInvD1Abs.)))
-    cat("check the class of psiInvD1Abs(0,theta): ")
-    at.0 <- cop@psiInvD1Abs(0, theta = theta0)
+    cat0("\nvalues of psiInvD1abs at t01:")
+    CT <- c(CT, list(psiInvD1abs. = system.time(psiInvD1abs. <-
+                     cop@psiInvD1abs(t01, theta = theta0))))
+    print(psiInvD1abs.)
+    stopifnot(all(psiInvD1abs. >= 0, is.numeric(psiInvD1abs.), !is.nan(psiInvD1abs.)))
+    cat("check the class of psiInvD1abs(0,theta): ")
+    at.0 <- cop@psiInvD1abs(0, theta = theta0)
     stopifnot(is.numeric(at.0),!is.nan(at.0))
     cat0("[Ok]")
 
