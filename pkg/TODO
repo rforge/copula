@@ -1,17 +1,14 @@
 (*) implement color-feature in splom2 (now that i and j are included by Deepayan)
 (*) get GIG generator to work
 (*) allow families to have outer power parameters (outer power families)
-(*) make pnacopula applicable to a matrix to be consistent with dnacopula (maybe 
+(*) make pnacopula applicable to a matrix to be consistent with dnacopula (maybe
     also prob())
 (*) lgammacor shows underflow on executing the following snippet:
 
 require(nacopula)
-set.seed(1)
-n <- 1000
-theta0 <- copFrank@tauInv(0.05)
-theta1 <- copFrank@tauInv(0.95)
-V0 <- copFrank@V0(n, theta0)
-V01 <- copFrank@V01(V0, theta0, theta1, rej = 0.1)
+## which can be reduced to
+set.seed(923); S <- rSibuya(1, 0.0005)
+
 
 (MM) check new functions in cop_objects.R for efficiency + see FIXME there
 (MM) Change onacopula() such that it works via onacopulaL() and hence
