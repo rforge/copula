@@ -27,16 +27,17 @@
 tauAMH <- function(th) {
     if(length(th) == 0) return(numeric(0)) # to work with NULL
     r <- th
-    lrg <- (th > 0.01) & !is.na(th)
+    na <- is.na(th)
+    lrg <- (th > 0.01) & !na
     r[lrg] <- (function(t) 1 - 2*((1-t)*(1-t)*log1p(-t) + t)/(3*t*t))(th[lrg])
-    if(any(!lrg)) {
-	l1 <- !lrg & (ll1 <- th > 2e-4) ## --> k = 7
+    if(any(!lrg & !na)) {
+	l1 <- !lrg & !na & (ll1 <- th > 2e-4) ## --> k = 7
 	r[l1] <- (function(x) 2*x/9*(1+ x*(1/4 + x/10*(1 + x*(1/2 + x/3.5)))))(th[l1])
-	l2 <- !ll1 & (ll2 <- th > 1e-5)	 ## --> k = 6
+	l2 <- !ll1 & !na & (ll2 <- th > 1e-5)	 ## --> k = 6
 	r[l2] <- (function(x) 2*x/9*(1+ x*(1/4 + x/10*(1 + x/2))))(th[l2])
-	l3 <- !ll2 & (ll <- th > 2e-8)	## --> k = 5
+	l3 <- !ll2 & !na & (ll <- th > 2e-8)	## --> k = 5
 	r[l3] <- (function(x) 2*x/9*(1+ x*(1/4 + x/10)))(th[l3])
-	irem <- which(!ll)## rest: th <= 2e-8 : k == 4
+	irem <- which(!ll & !na)## rest: th <= 2e-8 : k == 4
 	r[irem] <- (function(x) 2*x/9*(1+ x/4))(th[irem])
     }
     r
