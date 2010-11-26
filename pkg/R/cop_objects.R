@@ -269,7 +269,13 @@ copFrank <-
             mapply(one.d.args,u,v)
         },
         ## Kendall's tau; debye_1() is from package 'gsl' :
-        tau = function(theta) 1 + 4*(debye_1(theta) - 1)/theta,
+        tau = function(theta){
+            if((l <- length(theta)) == 0) return(numeric(0)) # to work with NULL
+            r <- numeric(l)
+            r[na <- is.na(theta)] <- NA
+            r[!na] <- 1 + 4*(debye_1(theta[!na]) - 1)/theta[!na]
+            r
+        },
         tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
             sapply(tau, function(tau) {
                 r <- safeUroot(function(th) copFrank@tau(th) - tau,

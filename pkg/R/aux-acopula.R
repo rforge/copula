@@ -23,12 +23,11 @@
 ##' @param th
 ##' @return 1 - 2*((1-th)*(1-th)*log(1-th)+th)/(3*th*th)
 ##' numerically accurately, notably for th -> 0
-##'
 ##' @author Martin Maechler
 tauAMH <- function(th) {
     if(length(th) == 0) return(numeric(0)) # to work with NULL
     r <- th
-    lrg <- th > 0.01
+    lrg <- (th > 0.01) & !is.na(th)
     r[lrg] <- (function(t) 1 - 2*((1-t)*(1-t)*log1p(-t) + t)/(3*t*t))(th[lrg])
     if(any(!lrg)) {
 	l1 <- !lrg & (ll1 <- th > 2e-4) ## --> k = 7
@@ -566,7 +565,7 @@ setTheta <- function(x, value, na.ok = TRUE) {
     if(ina || x@paraConstr(value)) ## parameter constraints are fulfilled
 	x@theta <- value
     else
-	stop("theta (=", format(value), ")  does not fulfil paraConstr()")
+	stop("theta (=", format(value), ") does not fulfill paraConstr()")
     x
 }
 
