@@ -27,8 +27,8 @@
   tau and the tail-dependence coefficients.
 %% provides the families of Ali-Mikhail-Haq, Clayton, Frank, Gumbel, and Joe
 %% also  *outer power* versions of our families
-  As a by-product, algorithms for
-  various distributions, including exponentially tilted stable
+  As by-products, algorithms for
+  various distributions, including exponentially tilted stable and Sibuya
   distributions, are implemented. Detailed examples are given.
 }
 
@@ -179,6 +179,7 @@
 \renewcommand*{\O}{\mathcal{O}}
 \newcommand*{\Geo}{\operatorname*{Geo}}
 \newcommand*{\Exp}{\operatorname*{Exp}}
+\newcommand*{\Sibuya}{\operatorname*{Sibuya}}
 \newcommand*{\Log}{\operatorname*{Log}}
 \newcommand*{\U}{\operatorname*{U}}
 \newcommand*{\B}{\operatorname*{B}}
@@ -241,16 +242,18 @@ Alongside \textit{elliptical copulas}, i.e., the copulas arising from elliptical
  distributions via Sklar's Theorem (see, e.g.,
  \citet{embrechtslindskogmcneil2001}), Archimedean copulas play an important
  role  in practical applications. In contrast to elliptical ones, Archimedean
- copulas are given explicitly in terms of a generator and they are able to
+ copulas are given explicitly in terms of a generator. They are able to
  capture different kinds of tail dependencies, e.g., only upper tail dependence
  and no lower tail dependence or both lower and upper tail dependence but of
- different magnitude. With the algorithm of \citet{marshallolkin1988}, they are
-also usually easy to sample. Their functional symmetry (in $u_j$,
-$j=1,\dots,d$), also referred to as \textit{exchangeability}, however, is often
-considered to be a drawback, e.g., in risk-management applications where the
-considered portfolios are typically high-dimensional. To circumvent
-exchangeability, Archimedean copulas can be nested within each other under
-certain conditions. The resulting copulas are referred to as ``nested Archimedean copulas'' and allow to model hierarchical dependence structures.
+ different magnitude. With the algorithm of \citet{marshallolkin1988},
+ Archimedean copulas are usually easy to sample. Their functional symmetry
+ (in $u_j$, $j=1,\dots,d$), also referred to as \textit{exchangeability},
+ however, is often considered to be a drawback, e.g., in risk-management
+ applications where the considered portfolios are typically high-dimensional. To
+ circumvent exchangeability, Archimedean copulas can be nested within each other
+ under certain conditions. The resulting copulas are referred to as 
+``nested Archimedean copulas'' and allow to model hierarchical dependence
+ structures.
 
 The \R\ package \pkg{nacopula} implements several functions for working with
 Archimedean and nested Archimedean copulas. In contrast to other \R\ packages
@@ -308,7 +311,7 @@ package \pkg{nacopula} currently provides the most widely used families of
 Ali-Mikhail-Haq, Clayton, Frank, Gumbel, and Joe; see Table~\ref{tab:cop-families-psi}
 for the generators and their corresponding distribution functions. Except
 for Clayton's family, where we use a slightly simpler generator, these
-generators are the ones given in \citet[pp.\ 116]{nelsen2007}. Also note that for the families of Ali-Mikhail-Haq, Frank, and Joe, $F$ is discrete with support $\IN$. In this case, $\psi$ is of the form $\psi(t)=\sum_{k=1}^\infty p_k\exp(-kt)$, $t\in[0,\infty]$, where $(p_k)_{k=1}^\infty$ denotes the mass function corresponding to $F$.
+generators are the ones given in \citet[pp.\ 116]{nelsen2007}. Also note that for the families of Ali-Mikhail-Haq, Frank, and Joe, $F$ is discrete with support $\IN$. In this case, $\psi$ is of the form $\psi(t)=\sum_{k=1}^\infty p_k\exp(-kt)$, $t\in[0,\infty]$, where $(p_k)_{k=1}^\infty$ denotes the probability mass function corresponding to $F$.
 
 These Archimedean copula families are provided as \code{"acopula"} \R\
 objects (for more information about the statistical software \R, see \citet[2.11.1]{r}), containing as slots the corresponding generator
@@ -323,7 +326,7 @@ copClayton@psiInv # the inverse of psi(), psi^{-1}
 copClayton@V0     # "sampler" for  V ~ F()
 @
 The majority of slots of such copula objects are functions, encoding properties
-of that copula family. In what follows, many of these functions are presented.
+of that copula family. In what follows, some of these functions are presented.
 
 \subsubsection{Sampling Archimedean copulas}
 From a mixture representation with respect to $F$, the following algorithm
@@ -346,15 +349,15 @@ Ali-Mikhail-Haq, Clayton, Frank, Gumbel, and Joe, see
 Table~\ref{tab:cop-families-psi}.
 \begin{table}[htbp]
   \centering
-  \begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}X>{\hspace{-6mm}}cc>{\hspace{-4mm}}c}
+  \begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}Xc>{\hspace{-2mm}}c>{\hspace{-8mm}}c}
     \toprule
-    \multicolumn{1}{c}{Family}&\multicolumn{1}{c}{\hspace{-6mm}$\theta$}&\multicolumn{1}{c}{$\psi(t)$}&\multicolumn{1}{c}{\hspace{-4mm}$V\sim F=\LSi[\psi]$}\\
+    \multicolumn{1}{c}{Family}&\multicolumn{1}{c}{Parameter}&\multicolumn{1}{c}{$\psi(t)$}&\multicolumn{1}{c}{$V\sim F=\LSi[\psi]$}\\
     \midrule
-    Ali-Mikhail-Haq&$[0,1)$&$(1-\theta)/(\exp(t)-\theta)$&$\Geo(1-\theta)$\\
-    Clayton&$(0,\infty)$&$(1+t)^{-{1/\theta}}$&$\Gamma(1/\theta,1)$\\
-    Frank&$(0,\infty)$&$-\log(1-(1-e^{-\theta})\exp(-t))/\theta$&$\Log(1-e^{-\theta})$\\
-    Gumbel&$[1,\infty)$&$\exp(-t^{1/\theta})$&$\S(1/\theta,1,\cos^\theta(\pi/(2\theta)),\I_{\{\theta=1\}};1)$\\
-    Joe&$[1,\infty)$&$1-(1-\exp(-t))^{1/\theta}$&$\binom{1/\theta}{k}(-1)^{k-1},\ k\in\IN$\\
+    Ali-Mikhail-Haq&$\theta\in[0,1)$&$(1-\theta)/(\exp(t)-\theta)$&$\Geo(1-\theta)$\\
+    Clayton&$\theta\in(0,\infty)$&$(1+t)^{-{1/\theta}}$&$\Gamma(1/\theta,1)$\\
+    Frank&$\theta\in(0,\infty)$&$-\log(1-(1-e^{-\theta})\exp(-t))/\theta$&$\Log(1-e^{-\theta})$\\
+    Gumbel&$\theta\in[1,\infty)$&$\exp(-t^{1/\theta})$&$\S(1/\theta,1,\cos^\theta(\pi/(2\theta)),\I_{\{\theta=1\}};1)$\\
+    Joe&$\theta\in[1,\infty)$&$1-(1-\exp(-t))^{1/\theta}$&$\Sibuya(1/\theta)$\\
     \bottomrule
   \end{tabularx}
   \caption{Commonly used one-parameter Archimedean generators.}
@@ -362,8 +365,8 @@ Table~\ref{tab:cop-families-psi}.
 \end{table}
 
 For the family of Ali-Mikhail-Haq, $\Geo(p)$ denotes a \textit{geometric
-  distribution} with success probability $p\in(0,1]$ and mass function
-$p_k=p(1-p)^{k-1}$ at $k\in\IN$ (which in \R\ is \code{dgeom(}$k$,$p$\code{)}).
+  distribution} with success probability $p\in(0,1]$ and probability mass function
+$p_k=p(1-p)^{k-1}$ at $k\in\IN$ (which in \R\ is \code{dgeom(}$k$\code{, }$p$\code{)}).
 %
 For Clayton's family, $\Gamma(\alpha,\beta)$ denotes the \textit{gamma
   distribution} with shape $\alpha\in(0,\infty)$, rate
@@ -390,18 +393,18 @@ where
 \end{align*}
 see, e.g., \citet[p.\ 8]{nolan2009} for this ``1-parameterization''. For
 sampling from $S(.)$, we provide
-\code{rstable1(., }$\alpha$,$\beta$,$\gamma$, $\delta$\code{, 1)},
+\code{rstable1(., }$\alpha$\code{, }$\beta$\code{, }$\gamma$\code{, }$\delta$\code{, 1)},
 having implemented an algorithm for sampling stable distributions according
 to the ideas presented in \citet{chambersmallowsstuck1976}, and
 improving on previous implementations in \R.
 %
-For the family of Joe, the mass function of $V$ is of the form
-$p_k=\binom{\alpha}{k}(-1)^{k-1}$ at $k\in\IN$ ($\alpha=1/\theta$), with
-$\alpha\in(0,1]$; $\binom{\alpha}{k}=\alpha*(\alpha-1)*\dots*(\alpha-k+1)/k!$
+For the family of Joe, $\Sibuya(\alpha)$ denotes a \textit{Sibuya distribution}
+ with probability mass function $p_k=\binom{\alpha}{k}(-1)^{k-1}$ at $k\in\IN$,
+ where $\alpha\in(0,1]$; $\binom{\alpha}{k}=\alpha(\alpha-1)\dots(\alpha-k+1)/k!$
  denotes the (generalized) binomial coefficient, which is implemented in \R\ via
- \code{choose(}$\alpha$,$k$\code{)}. This distribution can be sampled via the
- \R{} function \code{rFJoe(., }$\alpha$\code{)} which we implemented based on an
- algorithm presented in \citet{hofert2011a}.
+ \code{choose(}$\alpha$\code{, }$k$\code{)}. This distribution can be sampled
+ via the \R{} function \code{rSibuya(., }$\alpha$\code{)} which we implemented
+ based on an algorithm presented in \citet{hofert2011a}.
 
 \subsubsection{The rank-correlation coefficient Kendall's tau}
 	In practical applications, it is often desirable to measure the degree of
@@ -432,9 +435,9 @@ $\sign(x)=\I_{(0,\infty)}(x)-\I_{(-\infty,0)}(x)$ denotes the signum function
 \end{align*}
 see \citet[p.\ 91]{joe1997}. For the Archimedean families of
 Ali-Mikhail-Haq, Clayton, and Gumbel, this integral can be evaluated
-explicitly, for Frank's family it involves the Debye function of order one,
-i.e., $D_1(\theta)=\frac 1 \theta \int_0^\theta t/(e^t-1)\,dt$, and for Joe's family, it
-is given as a series, see Table~\ref{table2}.
+explicitly, for Frank's family it involves the \textit{Debye function of order
+ one}, i.e., $D_1(\theta)=\frac 1 \theta \int_0^\theta t/(e^t-1)\,dt$, and for
+ Joe's family, it is given as a series, see Table~\ref{table2}.
 
 \subsubsection{Tail-dependence coefficients}
 Another notion of association is tail dependence. Tail dependence measures the
@@ -464,13 +467,13 @@ given in Table~\ref{table2}.
   \centering
   \begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}Xcccc}
     \toprule
-    \multicolumn{1}{c}{Family}&\multicolumn{1}{c}{$\theta$}&\multicolumn{1}{c}{$\tau$}&\multicolumn{1}{c}{$\lambda_l$}&\multicolumn{1}{c}{$\lambda_u$}\\
+    \multicolumn{1}{c}{Family}&\multicolumn{1}{c}{Parameter}&\multicolumn{1}{c}{$\tau$}&\multicolumn{1}{c}{$\lambda_l$}&\multicolumn{1}{c}{$\lambda_u$}\\
     \midrule
-    Ali-Mikhail-Haq& $[0,1)$      &$1-2(\theta+(1-\theta)^2\log(1-\theta))/(3\theta^2)$ & 0 & 0\\
-    Clayton        & $(0,\infty)$ &$\theta/(\theta+2)$		&$2^{-1/\theta}$ & 0\\
-    Frank          & $(0,\infty)$ &$1+4(D_1(\theta)-1)/\theta$	& 0	& 0\\
-    Gumbel         & $[1,\infty)$ &$(\theta-1)/\theta$		& 0	&$2-2^{1/\theta}$\\
-    Joe            & $[1,\infty)$ &$1-4\sum_{k=1}^\infty 1/(k(\theta k+2)(\theta(k-1)+2))$
+    Ali-Mikhail-Haq& $\theta\in[0,1)$      &$1-2(\theta+(1-\theta)^2\log(1-\theta))/(3\theta^2)$ & 0 & 0\\
+    Clayton        & $\theta\in(0,\infty)$ &$\theta/(\theta+2)$		&$2^{-1/\theta}$ & 0\\
+    Frank          & $\theta\in(0,\infty)$ &$1+4(D_1(\theta)-1)/\theta$	& 0	& 0\\
+    Gumbel         & $\theta\in[1,\infty)$ &$(\theta-1)/\theta$		& 0	&$2-2^{1/\theta}$\\
+    Joe            & $\theta\in[1,\infty)$ &$1-4\sum_{k=1}^\infty 1/(k(\theta k+2)(\theta(k-1)+2))$
 								& 0	&$2-2^{1/\theta}$\\
     \bottomrule
   \end{tabularx}
@@ -491,7 +494,7 @@ C3joe.5 <- onacopula("Joe", C(theta, 1:3))
 The internal structure of this object%
 \footnote{Note that we use a parametric nested Archimedean copula (see
   below), without any nesting, and corresponding \code{*nacopula()}
-  functions for all this, since they generalize the present non-nested case.}
+  functions, since they generalize the present non-nested case.}
 \ is
 <<ex1-str>>=
 str(C3joe.5)  # str[ucture] of object
@@ -521,7 +524,7 @@ print(
 \end{figure}
 
 The matrix of pairwise sample versions of Kendall's tau corresponding to the
- generated data are given by
+ generated data is given by
 <<ex1-explore1>>=
 round(cor(U3, method="kendall"), 3)
 @
@@ -551,15 +554,15 @@ c(copJoe@lambdaL(theta),
 \subsection{Construction}
 In contrast to elliptical copulas, Archimedean copulas can capture different
 tail dependencies, i.e., $\lambda_l\neq\lambda_u$. Further, they are given
-explicitly, which facilitates computing probabilities for such a dependence
-model. However, the exchangeability inherent in Archimedean copulas implies that
-all margins of the same dimension are equal. For modeling purposes, this
+explicitly, which facilitates computing probabilities for such dependence
+models. However, the exchangeability inherent in Archimedean copulas implies
+that all margins of the same dimension are equal. For modeling purposes, this
 becomes an increasingly strong assumption in the dimension. Asymmetries, i.e.,
 more realistic dependencies, can be modeled by a hierarchical structure of
 Archimedean copulas, obtained by plugging in Archimedean copulas into each
-other. In practical applications, this hierarchical structure is often naturally
-motivated, e.g., by different macroeconomic effects, political decisions, or
-consumer trends affecting the components of a random vector.
+other. In practical applications, these hierarchical structures are 
+often naturally motivated, e.g., by different macroeconomic effects, political
+decisions, or consumer trends affecting the components of a random vector.
 
 A $d$-dimensional copula $C$ is called \textit{nested Archimedean} if it is an
 Archimedean copula with arguments possibly replaced by other nested Archimedean
@@ -617,7 +620,7 @@ can be depicted by the tree structure as given in Figure~\ref{fig:NAC_3d}.
   \label{fig:NAC_3d}
 \end{figure}
 Due to this tree representation, we refer to the outermost Archimedean copula
-generated by $\psi_0$ as \textit{root copula}. Further, we call an Archimedean
+(generated by $\psi_0$) as \textit{root copula}. Further, we call an Archimedean
 copula \textit{parent copula} if it has at least one nested Archimedean copula
 as one of its components in the tree structure of a nested Archimedean copula.
 We refer to these components as \textit{child copulas}. For example, the
@@ -625,7 +628,7 @@ three-dimensional nested Archimedean copula as given in Figure~\ref{fig:NAC_3d}
 has parent copula $C(\cdot\,;\psi_0)$ (which is also the root copula here) with
 child copula $C(\cdot\,;\psi_1)$; as another example, $C(\cdot\,;\psi_1)$ in
 Figure~\ref{fig:NAC_9d} is the parent copula of the child copula
-$C(\cdot\,;\psi_2)$, and $C(\cdot\,;\psi_0)$ is the parent of
+$C(\cdot\,;\psi_2)$ and $C(\cdot\,;\psi_0)$ is the parent of
 $C(\cdot\,;\psi_1)$.
 
 In \R, because of the recursive tree structure, a powerful approach is to
@@ -648,15 +651,16 @@ setClass("nacopula",
          })
 \end{Sinput}
 \end{Schunk}
-i.e., by its root copula (slot \code{@copula}, a \code{"acopula"} object),
+i.e., by its root copula (slot \code{@copula}, an \code{"acopula"} object),
 a vector of indices of its ``direct components'' (slot \code{ @comp = 1 }
 for $u_1$ in the example), and a list of child copulas (slot \code{@childCops}).
-This \code{childCops} list is the tool to contain sub branches of the ``tree''
-of nested copulas, and will be empty, i.e., $=$\code{list()}, for the final
-nodes (``leaves'') of the tree. In the example, it will be of length one, containing
-a (non-nested) bivariate copula for components $u_2$ and $u_3$.
+The \code{childCops} list is the tool to contain sub branches of the ``tree''
+of nested copulas, and will be empty, i.e., \code{list()}, for the final
+nodes (referred to as \textit{leaves}) of the tree. In the example, it will be
+of length one, containing a (non-nested) bivariate copula for the components
+$u_2$ and $u_3$.
 
-The \code{outer_nacopula} is a version of the same class (i.e., it
+The class \code{outer_nacopula} is a version of the same class (i.e., it
 ``contains'' \code{nacopula} without any further slots), just with
 stricter validity checking, namely requiring that all components from all
 child copulas are exactly the set $\{1,2,\dots,d\}$.
@@ -670,11 +674,11 @@ setClass("outer_nacopula", contains = "nacopula",
 \end{Sinput}
 \end{Schunk}
 The \code{onacopula()} function\footnote{In addition to \code{onacopula()},
-  there's \code{onacopulaL()} (``L'' for \textbf{L}ist) which requires the
+  there's \code{onacopulaL()} (``L'' for \textbf{L}ist) which requires a
   more formal specification of the nesting structure by a \code{list}.}
 allows to specify (outer) \code{nacopula}s with convenient specification of
-the nesting structure \emph{and} parameters for each copula, using a ``formula''-like
-notation $C(\theta, c(i_1,\dots,i_c), list(C(..), \ldots, C(..)))$ similar
+the nesting structure and parameters for each copula, using a ``formula''-like
+notation $C(\theta, c(i_1,\dots,i_c),{}$\code{list(}$C(..),\dots,C(..)$\code{)}$)$ similar
 to the mathematical notation above; for more, see its help page.
 %%\\
 For example, (one parametrization of) the three-dimensional example from
@@ -691,7 +695,7 @@ stopifnot(identical(C3,
 
 The recursive definition (\ref{nac}) of nested Archimedean copulas not only leads to
 recursive class definitions in \R, but also to recursive functions for
-computing on such ``nacopulas''.
+computations involving such ``nacopulas''.
 All the following functions and methods (from our package \code{nacopula})
 are defined recursively, typically using
 \code{lapply(x@childCops,} \textit{<fun>}\code{)}:
@@ -699,7 +703,7 @@ The utilities \code{dim()}, \code{allComp()}, \code{printNacopula()} (which is t
 \code{show()} method), and the principal functions
 \code{pnacopula()} and \code{rncopula()} (via recursive utility \code{rnchild()}).
 As a simple example of these, \code{pnacopula(x, u)} simply evaluates the
-(recursive) formula~(\ref{nac}), recursively applying itself to its child copulas:
+(recursive) Formula~(\ref{nac}), recursively applying itself to its child copulas:
 %% This is not as nice (wrong indentation; lost comments):
 % <<pnacopula-def>>=
 % pnacopula
@@ -721,17 +725,17 @@ pnacopula <- function(x,u) {
 \end{Schunk}
 
 In order for (\ref{nac}) to be indeed a proper copula,
-\citet[p.\ 88]{joe1997} and \citet{mcneil2008} present the sufficient
-\textit{nesting condition} that $\psiis{i}\circ\psi_{j}$ is completely
-monotone for all nodes (with parent $i$, child $j$) appearing in a nested
-Archimedean copula.
+\citet[p.\ 88]{joe1997} and \citet{mcneil2008} present the 
+\textit{sufficient nesting condition} that $\psiis{i}\circ\psi_{j}$ is
+completely monotone for all nodes (with parent $i$ and child $j$) appearing in a
+nested Archimedean copula.
 %%
 This condition can be derived from a mixture representation of $C$ based on
 the distribution functions $F_0=\LSi[\psi_0]$ and
 $F_{ij}=\LSi[\psi_{ij}(\cdot\,;V_0)]$ where
 %$\psi_{ij}(t;x)=\exp\bigl(-x\psiis{i}(\psi_{j}(t))\bigr)$,
 \begin{equation*}
-  \psi_{ij}(t;x)=\exp\bigl(-x\psiis{i}(\psi_{j}(t))\bigr),\ x\in(0,\infty).
+  \psi_{ij}(t;x)=\exp\bigl(-x\psiis{i}(\psi_{j}(t))\bigr),\ t\in[0,\infty],\ x\in(0,\infty).
 \end{equation*}
 The sufficient nesting condition is often easily verified if all generators
 appearing in the nested structure come from the same parametric family. For each
@@ -739,13 +743,13 @@ of the implemented Archimedean families of Ali-Mikhail-Haq, Clayton, Frank,
 Gumbel, and Joe, two generators $\psi_i,\psi_j$ of the same family with
 corresponding parameters $\theta_i,\theta_j$, respectively, fulfill the
 sufficient nesting condition if $\theta_i\le\theta_j$; equivalently, if $\tau_i\le\tau_j$ for the corresponding Kendall's tau. Verifying the
-sufficient nesting condition if $\psi_i,\psi_j$ belong to different Archimedean
-families is usually more complicated, see, \citet{hofert2010c}. Such
+sufficient nesting condition if $\psi_i$ and $\psi_j$ belong to different
+Archimedean families is usually more complicated, see, \citet{hofert2010c}. Such
 combinations of Archimedean families are therefore currently not implemented in
 the \R\ package \pkg{nacopula}.
 
 \subsection{Sampling}
-If the nesting condition is fulfilled for all %% appearing
+If the sufficient nesting condition is fulfilled for all %% appearing
 nodes in the nested Archimedean structure, the
 following algorithm, based on proposals by \citet{mcneil2008} and \citet{hofert2011a}, may be derived for sampling nested Archimedean copulas.
 \begin{algorithm}
@@ -758,7 +762,7 @@ following algorithm, based on proposals by \citet{mcneil2008} and \citet{hofert2
 	(1) \> \textbf{sample} $V_0\sim F_0=\LSi[\psi_0]$\\
 	(2) \> \textbf{for} all components $u$ of $C_0$ that are nested
 	 Archimedean copulas \textbf{do} \{\\
-	(3) \>\> \textbf{set} $C_1$ with generator $\psi_1$ to be the nested
+	(3) \>\> \textbf{set} $C_1$ with generator $\psi_1$ to the nested
 	 Archimedean copula $u$\\
 	(4) \>\> \textbf{sample} $V_{01}\sim F_{01}=\LSi[\psi_{01}(\cdot\,;V_0)]$\\
 	(5) \>\> \textbf{set} $C_0:=C_1$, $\psi_0:=\psi_1$, and $V_0:=V_{01}$ and \textbf{continue} with (2)\\
@@ -780,39 +784,39 @@ sample
 as all distribution functions $F_{ij}$ take the same form as $F_{01}$, only
 the parameters may differ.
 In our \R\ package \pkg{nacopula}, the supported Archimedean family
-objects therefore provide the three slots \code{V0}, \code{nestConstr} and \code{V01},
+objects therefore provide the three slots \code{V0}, \code{nestConstr}, and \code{V01},
 all functions. \code{nestConstr}, is a
-\code{function(}$\theta_0$\code{, }$\theta_1$\code{)} returning \code{TRUE}
-when the nesting condition is fulfilled, and \code{V0} and \code{V01} are
-random number generating functions, generating
+\code{function(}$\theta_0$\code{, }$\theta_1$\code{)} which returns \code{TRUE}
+if the sufficient nesting condition is fulfilled and \code{V0} and \code{V01}
+are random number generating functions, generating
 $V$ from Table~\ref{tab:cop-families-psi} and
-$V_{01}$ from Table~\ref{tab:nestedAC-V01}, respectively,
-e.g., for the most simple case, Ali-Mikhail-Haq,
+$V_{01}$ from Table~\ref{tab:nestedAC-V01}, respectively. For example, for 
+Ali-Mikhail-Haq,
 <<AMH-V01>>=
 copAMH@nestConstr
 copAMH@V01
 @
 Sampling strategies for $F_0$ and $F_{01}$ for
 many known Archimedean generators are presented in \citet{hofert2008},
-\citet{hofert2011a}, and \citet{hofert2010c}. For the families of
+\citet{hofert2010c}, and \citet{hofert2011a}. For the families of
 Ali-Mikhail-Haq, Clayton, Frank, Gumbel, and Joe, Table~\ref{tab:nestedAC-V01}
 summarizes stochastic representations for $V_0$ and $V_{01}$.
 \begin{table}[htbp]
   \centering
-  \begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}X>{\hspace{-7mm}}c>{\hspace{-8mm}}c}
+  \begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}Xcc}
 	\toprule
-	\multicolumn{1}{c}{Family}&\multicolumn{1}{c}{\hspace{-7mm}Nesting condition}
-        &\hspace{-8mm}$V_{01}\sim F_{01}=\LSi[\psi_{01}(\cdot\,;V_0)]$\\
+	\multicolumn{1}{c}{Family}&\multicolumn{1}{c}{Nesting}
+        &$V_{01}\sim F_{01}=\LSi[\psi_{01}(\cdot\,;V_0)],\ \alpha=\theta_0/\theta_1$\\
 	\midrule
-	Ali-Mikhail-Haq&$\theta_0\le\theta_1$&$V_0+X$, $X\sim\NB(V_0,(1-\theta_1)/(1-\theta_0))$\\
-	Clayton&$\theta_0\le\theta_1$&$\tS(\theta_0/\theta_1,1,(\cos(\pi\theta_0/(2\theta_1))V_0)^{\theta_1/\theta_0},V_0\I_{\{\theta_0=\theta_1\}},\I_{\{\theta_0\neq\theta_1\}};1)$\\
-	Frank&$\theta_0\le\theta_1$&$\sum_{j=1}^{V_0}V_j$; for $V_j$, see \citet{hofert2011a}\\
-	Gumbel&$\theta_0\le\theta_1$&$\S(\theta_0/\theta_1,1,(\cos(\pi\theta_0/(2\theta_1))V_{0})^{\theta_1/\theta_0},\I_{\{\theta_0=\theta_1\}};1)$\\
-	Joe&$\theta_0\le\theta_1$&$\sum_{j=1}^{V_0}V_j$; $V_j\sim\binom{\alpha}{k}(-1)^{k-1},\ k\in\IN$\\
+	Ali-Mikhail-Haq&$\theta_0\le\theta_1$&$V_0+\NB(V_0,(1-\theta_1)/(1-\theta_0))$\\
+	Clayton&$\theta_0\le\theta_1$&$\tS(\alpha,1,(\cos(\alpha\pi/2)V_0)^{1/\alpha},V_0\I_{\{\alpha=1\}},\I_{\{\alpha\neq1\}};1)$\\
+	Frank&$\theta_0\le\theta_1$&$\sum_{l=1}^{V_0}V_l,\ V_l\sim p_k=(\theta_1/(1-e^{-\theta_0}))kp_k^{\Sibuya(\alpha)}p_k^{\Log(1-e^{-\theta_1})}$\\
+	Gumbel&$\theta_0\le\theta_1$&$\S(\alpha,1,(\cos(\alpha\pi/2)V_0)^{1/\alpha},V_0\I_{\{\alpha=1\}};1)$\\
+	Joe&$\theta_0\le\theta_1$&$\sum_{l=1}^{V_0}V_l,\ V_l\sim\Sibuya(\alpha)$\\
 	\bottomrule
    \end{tabularx}
-   \caption{Nesting conditions and stochastic representations for $V_{01}$
-     (see also comments below).}
+   \caption{Sufficient nesting conditions and stochastic representations for
+ 				$V_{01}$.}
    \label{tab:nestedAC-V01}
 \end{table}
 
@@ -820,9 +824,9 @@ First note that for nested Archimedean copulas based on generators belonging to
 the same Archimedean family, all implemented families indeed lead to proper
 copulas if the generators on a more nested (inner) level have larger parameter
 values than the ones on a lower (outer) level. This is equivalent to saying that
-Kendall's tau for a pair of random variables having an Archimedean copula
-which resides on a deeper nesting level as common margin has to be larger than
-or equal to the one for a pair of random variables having an Archimedean
+Kendall's tau for a pair of random variables having a bivariate Archimedean
+copula which resides on a deeper nesting level as margin has to be larger
+than or equal to the one for a pair of random variables having an Archimedean
 marginal copula residing on a lower nesting level.
 Slightly more informally, the inner (or lower) nested components $u_j$ are
 more correlated than the outer (``higher up'') ones.
@@ -830,8 +834,8 @@ more correlated than the outer (``higher up'') ones.
 Some comments on the distributions $F_{01}$ of $V_{01}$ for the
 different implemented families: For the family of Ali-Mikhail-Haq, $V_{01}$
 admits the stochastic representation $V_0+X$, where $X$ follows a negative
-binomial distribution with parameters as given in Table~\ref{tab:nestedAC-V01}. The
-parameterization is $\NB(r,p)$, $r\in(0,\infty)$, $p\in(0,1)$, with mass
+binomial distribution with parameters as given in Table~\ref{tab:nestedAC-V01}.
+The parameterization is $\NB(r,p)$, $r\in(0,\infty)$, $p\in(0,1)$, with mass
 function $p_k=\binom{k+r-1}{r-1}p^r(1-p)^k$, $k\in\IN_0$, which in \R{} is
 \code{dnbinom(}$k$\code{, size=}$r$\code{, prob=}$p$\code{)}.
 %% dnbinom(x, size, prob, mu, log = FALSE)
@@ -842,7 +846,7 @@ $h=1$, $\alpha=\theta_0/\theta_1$) of the \textit{exponentially tilted stable
 \begin{align}
   \tS(\alpha,1,(\cos(\alpha\pi/2)V_0)^{1/\alpha},V_0\I_{\{\alpha=1\}},h\I_{\{\alpha\neq1\}};1)\label{exptilted}
 \end{align}
-with $\alpha\in(0,1]$, $h\in[0,\infty)$, and $V_0\in(0,\infty)$, and
+with $\alpha\in(0,1]$, $h\in[0,\infty)$, $V_0\in(0,\infty)$, and
 corresponding Laplace-Stieltjes transform
 \begin{align*}
   \psi(t)=\exp\bigl(-V_0((h+t)^{\alpha}-h^{\alpha})\bigr),\ t\in[0,\infty].
@@ -853,7 +857,7 @@ sampling the exponentially tilted stable distribution
 \begin{align*}
   \tS(\alpha,1,\cos(\alpha\pi/2)^{1/\alpha},\I_{\{\alpha=1\}},\lambda\I_{\{\alpha\neq1\}};1)
 \end{align*}
-with $\alpha\in(0,1]$ and $\lambda\in[0,\infty)$, and corresponding
+with $\alpha\in(0,1]$, $\lambda\in[0,\infty)$, and corresponding
 Laplace-Stieltjes transform
 \begin{align*}
   \psi(t)=\exp\bigl(-((\lambda+t)^{\alpha}-\lambda^{\alpha})\bigr),\ t\in[0,\infty].
@@ -877,19 +881,20 @@ $h=1$. Further, $\IE[V_0]=1/\theta_0$. Hence, in the mean, the algorithm of
 equivalently, if Kendall's tau for the bivariate Archimedean copula
 generated by $\psi_0$ is greater than $1/9$.
 
-For Frank's family, \citet{hofert2011a} presented a rejection algorithm.
 For the family of Gumbel, $\psi_{01}(t;V_0)=\exp(-V_0t^\alpha)$,
-$\alpha=\theta_0/\theta_1$, hence, see Table~\ref{tab:cop-families-psi}, $F_{01}$ corresponds
-to the stable distribution as given in Table~\ref{tab:nestedAC-V01}. Finally, for
-Joe's Archimedean family, $V_{01}$ can be represented as a $V_0$-fold sum of
-independent and identically distributed random variables $V_k$,
-$k\in\{1,\dots,V_0\}$, from the same distributional class as $V_0$, see
-Table~\ref{tab:cop-families-psi}. For more information on the distributions of $V_{01}$,
-see \citet{hofert2011a} and \citet{hofert2010c}, or the source code of
-the package \pkg{nacopula}.
+$\alpha=\theta_0/\theta_1$, hence, see Table~\ref{tab:cop-families-psi},
+ $F_{01}$ corresponds to the stable distribution as given in
+ Table~\ref{tab:nestedAC-V01}. For Joe's family, $V_{01}$ can be represented as
+ a $V_0$-fold sum of independent and identically Sibuya distributed random
+ variables $V_k$, $k\in\{1,\dots,V_0\}$, which can be sampled with the \R{}
+ function \code{rSibuya(., }$\alpha$\code{)} we provide. For large $V_0$ an 
+ approximation based on a stable distribution may be used, see
+ \citet{hofert2011a}. Finally, Frank's family is more complicated. We refer to
+ the source code of the package \pkg{nacopula} and references therein for more
+details.
 
 \subsection{A nine-dimensional nested Clayton copula}
-In this example, we consider a nine-dimensional partially nested Archimedean
+In this example, we consider a nine-dimensional partially nested Clayton
 copula $C$ of the form
 \begin{align*}
  C(\bm{u})=C(u_3,u_6,u_1,C(u_9,u_2,u_7,u_5,C(u_8,u_4;\psi_2);\psi_1);\psi_0)
@@ -1018,7 +1023,7 @@ prob(C_9_clayton, rep(.8,9), rep(1,9))
 @
 
 Finally, let us find the different lower and upper tail-dependence coefficients
-appearing on different levels for this nested Archimedean copula.
+appearing on the different levels of this nested Archimedean copula.
 <<ex2-explore4>>=
 c(copClayton@lambdaL(theta0),
   copClayton@lambdaU(theta0))
@@ -1035,17 +1040,16 @@ valid generator in $\Psi_\infty$ for all $\theta\in[1,\infty)$, see, e.g.,
 referred to as \textit{outer power Archimedean copulas}. Note that two
 parametric Archimedean generators $\psi(t^{1/\theta_0})$, $\theta_0\in[1,\infty)$, and
 $\psi(t^{1/\theta_1})$, $\theta_1\in[1,\infty)$, of this type, constructed with the
-same ``base'' generator $\psi(t)$, $t\in[0,\infty)$, fulfill the nesting
-condition if $\theta_0\le\theta_1$. Therefore, one can build so-called
+same ``base'' generator $\psi(t)$, $t\in[0,\infty)$, fulfill the sufficient nesting condition if $\theta_0\le\theta_1$. Therefore, one can build so-called
 \textit{nested outer power Archimedean copulas}.
 \citet{hofert2011a} derives some results for
 these copulas, including instructions for sampling the corresponding random
 variables $V_0$ and $V_{01}$, as well as an explicit formula for Kendall's tau
 in terms of the Kendall's tau of the copula generated by the base generator
 $\psi$. Further, note that if the tail-dependence coefficients exist, they are
-greater than or equal to the ones corresponding to the base generator.
-For the Archimedean families implemented in the package \pkg{nacopula}, these
-can all be computed explicitly.
+greater than or equal to the ones corresponding to the copula generated by the
+base generator. For the Archimedean families implemented in the package
+\pkg{nacopula}, these can all be computed explicitly.
 
 The goal of this section is to show how one might work with outer power
 Archimedean copulas with the package \pkg{nacopula}.
@@ -1147,14 +1151,14 @@ cat(strsplit(packageDescription("nacopula")[["LastChanged"]], "; *")[[1]],"", se
 The package \pkg{nacopula} allows us to easily construct and work with nested
 Archimedean copulas. First and foremost, fast sampling algorithms for these copulas
 are implemented. As a by-product, the package also provides related mathematical
-and random number generating functions, e.g., an efficient
-sampling algorithm for exponentially tilted stable distributions. Further
-features include the evaluation of nested Archimedean copulas, as well as
-computing probabilities of a random vector falling into a given hypercube.
+and random number generating functions, e.g., efficient
+sampling algorithms for exponentially tilted stable and Sibuya distributions.
+Further features include the evaluation of nested Archimedean copulas, as well
+as computing probabilities of a random vector falling into a given hypercube.
 Concerning measures of association, Kendall's tau and the tail-dependence
 coefficients are implemented. Currently supported Archimedean families include
 the well-known families of Ali-Mikhail-Haq, Clayton, Frank, Gumbel, and
-Joe. Each can be used generalized via ``outer power'' transformations.
+Joe. Each can be used in generalized form via ``outer power'' transformations.
 
 \bibliography{mh-biblio}
 
