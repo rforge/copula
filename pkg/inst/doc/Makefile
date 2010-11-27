@@ -14,11 +14,16 @@ R_CALL = ${R_PROG} --no-init-file --no-save --silent
 TPUTS = ${TEXINPUTS}:${R_LIB}/share/texmf//
 
 ## "Writing R Extensions" requires: 1st target must also clean up
+## NB: This is *BAD* for submitting to JSS (which needs  $(DRIVERS).tex !)
 all: $(DRIVERS:=.pdf)
 	${MAKE} clean
 
 paper-etc: $(DRIVERS:=.zip)
 $(DRIVERS:=.zip): $(DRIVERS:=.Rnw) $(DRIVERS:=.pdf) $(DRIVERS:=.R) *.bib
+	zip $@ $^
+	ls -l $@ ; zipinfo $@
+
+paper-all.zip: $(DRIVERS:=.Rnw) $(DRIVERS:=.tex) $(DRIVERS:=.pdf) $(DRIVERS:=.R) *.bib $(wildcard $(DRIVERS)-*.pdf)
 	zip $@ $^
 	ls -l $@ ; zipinfo $@
 
@@ -33,7 +38,10 @@ $(DRIVERS:=.zip): $(DRIVERS:=.Rnw) $(DRIVERS:=.pdf) $(DRIVERS:=.R) *.bib
 
 %.dvi : %.tex *.bib
 	TEXINPUTS=${TPUTS} texi2dvi $<
-
+## To make the paper (size in bytes) much smaller, use
+##  make nacopula-pkg-ex2-splom.png ; pdflatex nacopula-pkg
+%.png : %.pdf
+	convert -quality 95 $< $@
 
 purge:
 	$(RM) Rplots.pdf $(DRIVERS:=.out) *.aux *.log *.blg

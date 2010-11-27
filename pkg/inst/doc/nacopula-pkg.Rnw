@@ -3,7 +3,8 @@
 %%%%%%%%%%%%
 %
 %% almost as usual
-\author{Marius Hofert\thanks{The\ author\ (Willis\ Research\ Fellow)\ thanks\ Willis\ Re\ for\ financial\ support\ while\ this\ work\ was\ completed.} \\ETH Zurich
+\author{Marius Hofert\thanks{The author (Willis Research Fellow) thanks Willis Re
+    for financial support while this work was completed.} \\ETH Zurich
  \And
  Martin M\"achler \\ ETH Zurich}
 \title{Nested Archimedean Copulas Meet \R --- The \pkg{nacopula} Package}
@@ -251,7 +252,7 @@ Alongside \textit{elliptical copulas}, i.e., the copulas arising from elliptical
  however, is often considered to be a drawback, e.g., in risk-management
  applications where the considered portfolios are typically high-dimensional. To
  circumvent exchangeability, Archimedean copulas can be nested within each other
- under certain conditions. The resulting copulas are referred to as 
+ under certain conditions. The resulting copulas are referred to as
 ``nested Archimedean copulas'' and allow to model hierarchical dependence
  structures.
 
@@ -560,7 +561,7 @@ that all margins of the same dimension are equal. For modeling purposes, this
 becomes an increasingly strong assumption in the dimension. Asymmetries, i.e.,
 more realistic dependencies, can be modeled by a hierarchical structure of
 Archimedean copulas, obtained by plugging in Archimedean copulas into each
-other. In practical applications, these hierarchical structures are 
+other. In practical applications, these hierarchical structures are
 often naturally motivated, e.g., by different macroeconomic effects, political
 decisions, or consumer trends affecting the components of a random vector.
 
@@ -725,7 +726,7 @@ pnacopula <- function(x,u) {
 \end{Schunk}
 
 In order for (\ref{nac}) to be indeed a proper copula,
-\citet[p.\ 88]{joe1997} and \citet{mcneil2008} present the 
+\citet[p.\ 88]{joe1997} and \citet{mcneil2008} present the
 \textit{sufficient nesting condition} that $\psiis{i}\circ\psi_{j}$ is
 completely monotone for all nodes (with parent $i$ and child $j$) appearing in a
 nested Archimedean copula.
@@ -790,7 +791,7 @@ all functions. \code{nestConstr}, is a
 if the sufficient nesting condition is fulfilled and \code{V0} and \code{V01}
 are random number generating functions, generating
 $V$ from Table~\ref{tab:cop-families-psi} and
-$V_{01}$ from Table~\ref{tab:nestedAC-V01}, respectively. For example, for 
+$V_{01}$ from Table~\ref{tab:nestedAC-V01}, respectively. For example, for
 Ali-Mikhail-Haq,
 <<AMH-V01>>=
 copAMH@nestConstr
@@ -887,7 +888,7 @@ $\alpha=\theta_0/\theta_1$, hence, see Table~\ref{tab:cop-families-psi},
  Table~\ref{tab:nestedAC-V01}. For Joe's family, $V_{01}$ can be represented as
  a $V_0$-fold sum of independent and identically Sibuya distributed random
  variables $V_k$, $k\in\{1,\dots,V_0\}$, which can be sampled with the \R{}
- function \code{rSibuya(., }$\alpha$\code{)} we provide. For large $V_0$ an 
+ function \code{rSibuya(., }$\alpha$\code{)} we provide. For large $V_0$ an
  approximation based on a stable distribution may be used, see
  \citet{hofert2011a}. Finally, Frank's family is more complicated. We refer to
  the source code of the package \pkg{nacopula} and references therein for more
