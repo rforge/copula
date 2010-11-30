@@ -76,12 +76,6 @@ copAMH <-
             stopifnot(length(V0) == 1 || length(x) == length(V0))
             dnbinom(x-V0,V0,(1-theta1)/(1-theta0),log = log)
         },
-        ## conditional distribution function C(v|u) of v given u
-        cCdf = function(v,u,theta){
-            u. <- 1-theta*(1-u)
-            v. <- 1-theta*(1-v)
-            ((1-theta)*v*(u.*v.-u*theta*v.))/(u.*v.-theta*u*v)^2
-        },
         ## Kendall's tau
         tau = tauAMH, ##-> ./aux-acopula.R
         ## function(th)  1 - 2*((1-th)*(1-th)*log(1-th)+th)/(3*th*th)
@@ -160,14 +154,6 @@ copClayton <-
                 exp(V0-x)*mapply(dstable,x,alpha = alpha,beta = beta,gamma = gamma,
                                  delta = delta,pm = 1)
             }
-        },
-        ## conditional distribution function C(v|u) of v given u
-        cCdf = function(v,u,theta){
-            one.d.args <- function(v,u){
-                if(v == 0) if(u == 0) NaN else 0
-                exp(-(1+1/theta)*log((u/v)^theta+1-u^theta))
-            }
-            mapply(one.d.args,u,v)
         },
         ## Kendall's tau
         tau = function(theta) { theta/(theta+2) },
@@ -256,17 +242,6 @@ copFrank <-
             ljoe <- copJoe@dV01(x,V0,theta0,theta1,TRUE)
             res <- lfactor+ljoe
             if(log) res else exp(res)
-        },
-        ## conditional distribution function C(v|u) of v given u
-        cCdf = function(v,u,theta){
-            one.d.args <- function(v,u){
-                e.v <- -expm1(-theta*v)
-                e.u <- -expm1(-theta*u)
-                denom <- -expm1(-theta)-e.u*e.v
-                if(denom == 0) Inf
-                e.v*(1-e.u)/denom
-            }
-            mapply(one.d.args,u,v)
         },
         ## Kendall's tau; debye_1() is from package 'gsl' :
         tau = function(theta){
@@ -398,25 +373,6 @@ copGumbel <-
             mapply(dstable,x,alpha = alpha,beta = beta,gamma = gamma,delta = delta,
                    pm = 1,log = log)
         },
-        ## conditional distribution function C(v|u) of v given u
-        cCdf = function(v,u,theta) {
-            one.d.args <- function(v,u){
-                ## limiting cases
-                if(v == 0 && u == 0) NaN
-                else if(theta == 1){
-                    if(v == 1) 1
-                    if(v > 0 && v < 1 && u == 0) v
-                }
-                else if(v == 1) { if(u == 1) NaN else 0 }
-                else if(u == 0 && 0 < v && v < 1) 0
-                else {
-                    ## main part
-                    cop. <- onacopulaL("Gumbel",list(theta,1:2))
-                    (1+(log(u)/log(v))^theta)^(1/theta-1)*pnacopula(cop.,c(u,v))/u
-                }
-            }
-            mapply(one.d.args,u,v)
-        },
         ## Kendall's tau
         tau = function(theta) { (theta-1)/theta },
         tauInv = function(tau) { 1/(1-tau) },
@@ -522,19 +478,6 @@ copJoe <-
             }
             res
         },
-        ## conditional distribution function C(v|u) of v given u
-        cCdf = function(v,u,theta){
-            one.d.args <- function(u,v){
-                u. <- (1-u)^theta
-                v. <- (1-v)^theta
-                if(theta != 1 && u. == 0){
-                    v.1 <- 1-v.
-                    if(v. == 1) 0 else v.1
-                }
-                (1-v.)*(1+v.^((1-u.)/u.))^(1/theta-1)
-            }
-            mapply(one.d.args,u,v)
-        },
         ## Kendall's tau
         ## noTerms: even for theta==0, the approximation error is < 10^(-5)
         tau = function(theta, noTerms=446) {
@@ -627,17 +570,6 @@ copJoe <-
                                         #         },
                                         #         dV01 = function(x,V0,theta0,theta1,log = FALSE){
                                         #             stop("It is currently not known if GIG generators can be nested.")
-                                        #         },
-                                        #         ## conditional distribution function C(v|u) of v given u
-                                        #         cCdf = function(v,u,theta){
-                                        #             one.d.args <- function(u,v){
-                                        #                 a <- 1 + copGIG@psiInv(u,theta)
-                                        #                 a. <- sqrt(a)
-                                        # 		a.. <- sqrt(a + copGIG@psiInv(v,theta))
-                                        # 		(a./a..)^(theta[1]+1)*besselK(theta[2]*a..,theta[1]+1)/
-                                        #                     besselK(theta[2]*a.,theta[1]+1)
-                                        #             }
-                                        #             mapply(one.d.args,u,v)
                                         #         },
                                         #         ## Kendall's tau
                                         #         tau = function(theta,...) {

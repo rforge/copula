@@ -31,7 +31,7 @@ exportClasses("acopula",
 ## Generics, functions and acopula - family objects defined in this package
 export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"getAcop"
-       ,"dnacopula", "pnacopula", "rnacopula" ,"rnchild"
+       ,"cacopula", "dnacopula", "pnacopula", "rnacopula" ,"rnchild"
        ## estimation -- (all functions for now -- FIXME ?)
        ,"paraOptInterval"
        ,"beta.", "beta.hat", "pobs"

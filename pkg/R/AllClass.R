@@ -43,7 +43,6 @@ setClass("acopula",
 		        paraSubInterval = "maybeInterval", # [.,.]  (.,.], etc .. finite parameter interval, e.g., for optimization (only for robust methods, i.e., methods that work no matter what the parameters are)
                         V0 = "function",	  # of (n,theta) -- RNGenerator
 			dV0 = "function",         # of (x,theta,log=FALSE) -- density of F=LS^{-1}[psi]
-                        cCdf = "function", 	  # of (v,u,theta) -- C(v|u)
                         tau = "function",	  # of (theta)
                         tauInv = "function",      # of (tau)
                         lambdaL = "function",     # of (theta) lower bound  \lambda_l
@@ -92,7 +91,7 @@ setClass("acopula",
 
              ## ...
              ## ... (TODO)
-             ## todo: to check: psiD, cCdf, K
+             ## todo: to check: psiDabs, K
 
              ## Check more :
 	     if (object@psi(0, theta= 1/2) != 1)

@@ -91,10 +91,6 @@
       length one (in which case \code{V0} is the same for every component of
       \code{x}) or \code{V0} must be of the same length as \code{x} (in which
       case the components of \code{V0} correspond to the ones of \code{x}).}
-    \item{\code{cCdf}:}{A \code{\link{function}} with arguments \code{v},
-      \code{u}, and \code{theta} which computes the bivariate conditional copula
-      function at \code{v} given \code{u}, i.e., \eqn{C(v\vert u)}{C(v|u)}.},
- 		for the Archimedean copula \eqn{C} under consideration.
     \item{\code{tau}, \code{tauInv}:}{Compute Kendall's tau of the bivariate
       Archimedean copula with generator \eqn{\psi}{psi} as a
       \code{\link{function}} of \code{theta}, respectively, \code{theta} as a

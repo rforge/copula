@@ -180,12 +180,13 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
                      theta1=theta1))))
     print(dV01.i)
 
-    ## ==== (5) cCdf ====
+    ## ==== (5) cacopula ====
 
-    cat("\n(5) values of cCdf(v,0.5) for v=t01:\n")
-    CT <- c(CT, list(cCdf = system.time(cCdf. <- cop@cCdf(t01,0.5,theta=theta0))))
-    stopifnot(length(cCdf.) == length(t01), 0 <= cCdf.,cCdf. <= 1)
-    print(cCdf.)
+    cat("\n(5) values of cacopula(v, rev(v), family, theta) for v=t01:\n")
+    CT <- c(CT, list(cacopula = system.time(cacopula. <- cacopula(t01, rev(t01), 
+	family = cop@name, theta = theta0))))
+    stopifnot(length(cacopula.) == length(t01), 0 <= cacopula., cacopula. <= 1)
+    print(cacopula.)
 
     ## ==== (6) dnacopula (log = TRUE) ====
 

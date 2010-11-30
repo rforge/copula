@@ -535,6 +535,25 @@ polylog <- function(z,s, method = c("sum","negint-s_Stirling"), logarithm=FALSE,
 
 ### ==== other NON-numerics ====================================================
 
+##' Function which computes the conditional copula function C(v|u) of v given u
+##' @param v parameter v
+##' @param u parameter u
+##' @param family Archimedean family
+##' @param theta parameter theta
+##' @param log if TRUE log(C(v|u)) is returned
+##' @author Marius Hofert
+##' Note: for some families, this function makes sense for u == 0 or v == 0 
+##'       since the corresponding limits can be computed; but not for all
+cacopula <- function(v, u, family, theta, log = FALSE){
+    stopifnot(is.vector(u), is.vector(v), length(u) == length(v), all(0 < u, 
+                                                u < 1), all(0 < v, v < 1))
+    cop <- getAcop(family)
+    stopifnot(cop@paraConstr(theta))
+    res <- cop@psiDabs(rowSums(cop@psiInv(cbind(u, v), theta)), theta, log = TRUE) +
+        cop@psiInvD1abs(u, theta, log = TRUE)
+    if(log) res else exp(res)
+}
+
 ##' Function which computes psiDabs via Monte Carlo
 ##' @param t evaluation points
 ##' @param family Archimedean family
@@ -542,6 +561,7 @@ polylog <- function(z,s, method = c("sum","negint-s_Stirling"), logarithm=FALSE,
 ##' @param degree order of derivative
 ##' @param MC Monte Carlo sample size
 ##' @param log if TRUE the log of psiDabs is returned
+##' @author Marius Hofert
 psiDabsMC <- function(t, family, theta, degree = 1, MC, log = FALSE){
     V0. <- getAcop(family)@V0(MC,theta)
     l.V0. <- degree*log(V0.)
