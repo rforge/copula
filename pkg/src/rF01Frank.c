@@ -24,6 +24,9 @@
  * Sample V01 ~ F01 with Laplace-Stieltjes transform
  * Used, e.g., for sampling F01 for Joe and for sampling F01 for Frank.
  * Note: The caller of this function must use GetRNGstate() and PutRNGstate().
+ *       The commented part also includes the algorithm of Hofert (2011) 
+ *       "Efficiently sampling nested Archimedean copulas", but does not improve
+ *       run time.
  * @param V0 parameter V0
  * @param theta_0 parameter theta0 in (0,infinity)
  * @param theta_1 parameter theta1 in [theta0, infinity)
@@ -50,14 +53,24 @@ double rF01Frank(double V0, double theta0, double theta1, double p0, double p1,
 		via rejection with a logarithmic envelope */
 	double Ip = exp(-theta1);
 	V = 0.;
+	double X;
+	/* if(theta0 <= theta1){ */
 	for(int j=0; j < (int) V0; j++){ /**< sample V01 as a sum */
-	    double X;
 	    do {
 		U = unif_rand();
 		X = rLog(p1,Ip);
 	    } while (U*(X-alpha) > 1./beta(X, iAlpha)); /**< X is now one summand of the sum of V01 */
 	    V += X;
 	}
+	/* }else{ */
+	/*    for(int j=0; j < (int) V0; j++){ /**< sample V01 as a sum */ 
+	/* 	do { */
+	/*	    U = unif_rand(); */
+	/*	    X = rSibuya(alpha,gamma_1_a); */
+	/*	} while (U > pow(p1,X-1.)); /**< X is now one summand of the sum of V01 */
+	/*	V += X; */
+	/*    } */
+	/* } */
     }
     return V;
 }
