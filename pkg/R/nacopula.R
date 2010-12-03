@@ -33,7 +33,7 @@ dnacopula <- function(x, u, MC, log = FALSE)
     acop <- x@copula
     th <- acop@theta
     res <- rep(NaN,n <- nrow(u)) # density not defined on the margins
-    n01 <- (1:n)[apply(u,1,function(x) all(x != 0, x != 1))] # indices for which density has to be evaluated
+    n01 <- (1:n)[apply(u,1,function(x) all(0 < x, x < 1))] # indices for which density has to be evaluated
     if(length(n01) > 0){
 	if(is.vector(psiI <- acop@psiInv(u[n01,],th)))
 	    psiI <- matrix(psiI, nrow = 1)

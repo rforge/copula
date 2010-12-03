@@ -424,12 +424,10 @@ copJoe <-
         },
         ## derivatives of the generator inverse
         psiInvD1abs = function(t, theta, log = FALSE){
-            t. <- 1-t
-            t.th <- t.^theta
             if(log){
-		log(theta)+(theta-1)*log(t.)-log1p(-t.th)
+		log(theta)+(theta-1)*log1p(-t)-log1p(-(1-t)^theta)
             }else{
-                theta*(t.th/t.)/(1-t.th)
+                theta/((1-t)^(1-theta)-(1-t))
             }
         },
         ## parameter interval
