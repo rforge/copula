@@ -24,13 +24,14 @@
 static R_CallMethodDef CallEntries[] = {
     CALLDEF(sinc_c, 1),
     CALLDEF(A__c, 3),
+    CALLDEF(polyn_eval, 2),
 
     CALLDEF(rstable_c, 2),
     CALLDEF(retstable_c, 4),
 
     CALLDEF(rLog_vec_c, 3),
     CALLDEF(rSibuya_vec_c, 2),
-	
+
     CALLDEF(rF01Frank_vec_c, 5),
     CALLDEF(rF01Joe_vec_c, 3),
 

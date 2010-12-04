@@ -66,3 +66,6 @@ setMethod("%in%", signature(x = "numeric", table = "interval"),
 	      (if(op[1]) `<` else `<=`)(table[1], x) &
 	      (if(op[2]) `<` else `<=`)(x, table[2])
 	  })
+
+polynEval <- function(coef, x)
+    .Call(polyn_eval, coef, x)

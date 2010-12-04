@@ -135,7 +135,7 @@ retstableR <- function(alpha,V0, h = 1){
 ##' Sample random variates St ~ \tilde{S}(alpha, 1, (cos(alpha*pi/2)
 ##' *V_0)^{1/alpha}, V_0*I_{alpha = 1}, h*I_{alpha != 1}; 1) with
 ##' Laplace-Stieltjes transform exp(-V_0((h+t)^alpha-h^alpha)), see Nolan's book for
-##' the parametrization, with the fast rejection. 
+##' the parametrization, with the fast rejection.
 ##' This procedure is more efficient than retstableR since it calls the C
 ##' function retstable_c and uses both the fast rejection and Luc Devroye's algorithm.
 ##' @param alpha parameter in (0,1]
@@ -179,7 +179,7 @@ retstable <- retstableC # retstable is by default retstableC
 
 ### ==== sampling a logarithmic distribution, R version ====
 
-##' Random number generator for a Log(p) distribution with the algorithm "LK" of 
+##' Random number generator for a Log(p) distribution with the algorithm "LK" of
 ##' Kemp (1981), R version.
 ##' @param n number of random variates to be generated
 ##' @param p parameter in (0,1)
@@ -210,7 +210,7 @@ rlogR <- function(n, p, Ip = 1-p) {
 
 ### ==== state-of-the art: sampling a logarithmic distribution, C version ====
 
-##' Random number generator for a Log(p) distribution with the algorithm "LK" of 
+##' Random number generator for a Log(p) distribution with the algorithm "LK" of
 ##' Kemp (1981), C version.
 ##' @param n number of random variates to be generated
 ##' @param p parameter in (0,1)
@@ -225,7 +225,7 @@ rlog <- function(n, p, Ip = 1-p) {
 
 ### ==== state-of-the art: sampling F01Frank, C version ====
 
-##' Generate a vector of variates V01 ~ F01 with Laplace-Stieltjes transform 
+##' Generate a vector of variates V01 ~ F01 with Laplace-Stieltjes transform
 ##' ((1-(1-exp(-t)*(1-e^(-theta1)))^alpha)/(1-e^(-theta0)))^V0.
 ##' @param V0 vector of random variates from F0
 ##' @param theta0 parameter theta0 in (0,infinity)
@@ -242,17 +242,17 @@ rF01Frank <- function(V0, theta0, theta1, rej, approx) {
 
 ### ==== wrapper for inner distribution F for Frank ====
 
-##' Generate a vector of variates V ~ F with Laplace-Stieltjes transform 
+##' Generate a vector of variates V ~ F with Laplace-Stieltjes transform
 ##' (1-(1-exp(-t)*(1-e^(-theta1)))^alpha)/(1-e^(-theta0)).
 ##' @param n number of variates from F
 ##' @param theta0 parameter theta0 in (0,infinity)
 ##' @param theta1 parameter theta1 in [theta0, infinity)
 ##' @param rej method switch: if theta_0 > rej a rejection
-##'        from Joe (Sibuya distribution) is applied (otherwise, a logarithmic 
+##'        from Joe (Sibuya distribution) is applied (otherwise, a logarithmic
 ##' 	   envelope is used)
 ##' @return vector of random variates V
 ##' @author Marius Hofert
-rFFrank <- function(n, theta0, theta1, rej) 
+rFFrank <- function(n, theta0, theta1, rej)
     rF01Frank(rep(1,n),theta0,theta1,rej,1) # approx = 1 (dummy)
 
 
@@ -260,8 +260,8 @@ rFFrank <- function(n, theta0, theta1, rej)
 
 ### ==== sampling a Sibuya(alpha) distribution, R version ====
 
-##' Sample V from a Sibuya(alpha) distribution with cdf F(n) = 1-1/(n*B(n,1-alpha)), 
-##' n in IN, with Laplace-Stieltjes transform 1-(1-exp(-t))^alpha via the 
+##' Sample V from a Sibuya(alpha) distribution with cdf F(n) = 1-1/(n*B(n,1-alpha)),
+##' n in IN, with Laplace-Stieltjes transform 1-(1-exp(-t))^alpha via the
 ##' algorithm of Hofert (2011), Proposition 3.2. R version.
 ##' @param n  sample size
 ##' @param alpha parameter
@@ -292,8 +292,8 @@ rSibuyaR <- function(n,alpha) {
 
 ### ==== state-of-the-art: sampling a Sibuya(alpha) distribution, C version ====
 
-##' Sample V from a Sibuya(alpha) distribution with cdf F(n) = 1-1/(n*B(n,1-alpha)), 
-##' n in IN, with Laplace-Stieltjes transform 1-(1-exp(-t))^alpha via the 
+##' Sample V from a Sibuya(alpha) distribution with cdf F(n) = 1-1/(n*B(n,1-alpha)),
+##' n in IN, with Laplace-Stieltjes transform 1-(1-exp(-t))^alpha via the
 ##' algorithm of Hofert (2011), Proposition 3.2. C version.
 ##' @param n  sample size
 ##' @param alpha parameter
@@ -306,7 +306,7 @@ rSibuya <- function(n,alpha) {
 
 ### ==== state-of-the art: sampling F01Joe, C version ====
 
-##' Generate a vector of variates V01 ~ F01 with Laplace-Stieltjes transform 
+##' Generate a vector of variates V01 ~ F01 with Laplace-Stieltjes transform
 ##' ((1-(1-exp(-t))^alpha))^V0. Bridge to R. Used, e.g., to draw several variates
 ##' from rF01Joe.
 ##' @param V0 vector of random variates from F0
@@ -320,7 +320,7 @@ rF01Joe <- function(V0, alpha, approx) {
 
 ### ==== wrapper for inner distribution F for Joe ====
 
-##' Generate a vector of variates V ~ F with Laplace-Stieltjes transform 
+##' Generate a vector of variates V ~ F with Laplace-Stieltjes transform
 ##' 1-(1-exp(-t))^alpha.
 ##' @param n number of variates from F
 ##' @param parameter alpha = theta0/theta1 in (0,1]
@@ -511,11 +511,7 @@ polylog <- function(z,s, method = c("sum","negint-s_Stirling"), logarithm=FALSE,
 	   "sum" = {
 	       stopifnot((Mz <- Mod(z)) <= 1, Mz < 1 | Re(s) > 1,
 			 n.sum > 99, length(n.sum) == 1)
-	       n <- n.sum:1L # reversed in order, so we sum *small* terms first
-	       if(nz == 1)
-		   sum(z^n / n^s)
-	       else
-		   colSums(outer(n, z, function(n,z) z^n) / rep.int(n, nz)^s)
+               z*polynEval((1:n.sum)^-s, z)
 	   },
 	   "negint-s_Stirling" = {
 	       stopifnot(s == as.integer(s), s <= 1)
@@ -523,13 +519,10 @@ polylog <- function(z,s, method = c("sum","negint-s_Stirling"), logarithm=FALSE,
 	       r <- z/(1 - z)
 	       ## if(s == 0) return(r)
 	       n <- -as.integer(s)
-	       k1 <- seq_len(n+1)# == k+1, k = 0...n
+	       ## k1 <- seq_len(n+1)# == k+1, k = 0...n
 	       fac.k <- cumprod(c(1, seq_len(n)))
                S.n1.k1 <- Stirling2.all(n+1) ## == Stirling2(n+1, k+1)
-	       if(nz == 1)
-		   sum(	   fac.k * S.n1.k1  *  r^k1 )
-	       else
-		   colSums(fac.k * S.n1.k1 * outer(k1, r, function(k,r) r^k))
+               r* polynEval(fac.k * S.n1.k1, r)
 	   }, stop("invalid 'method':", method))
 }
 
@@ -538,14 +531,14 @@ polylog <- function(z,s, method = c("sum","negint-s_Stirling"), logarithm=FALSE,
 ##' Function which computes the conditional copula function C(v|u) of v given u
 ##' @param v parameter v
 ##' @param u parameter u
-##' @param family Archimedean family
+##' @param family Archimedean family (name)
 ##' @param theta parameter theta
 ##' @param log if TRUE log(C(v|u)) is returned
 ##' @author Marius Hofert
-##' Note: for some families, this function makes sense for u == 0 or v == 0 
+##' Note: for some families, this function makes sense for u == 0 or v == 0
 ##'       since the corresponding limits can be computed; but not for all
 cacopula <- function(v, u, family, theta, log = FALSE){
-    stopifnot(is.vector(u), is.vector(v), length(u) == length(v), all(0 < u, 
+    stopifnot(is.vector(u), is.vector(v), length(u) == length(v), all(0 < u,
                                                 u < 1), all(0 < v, v < 1))
     cop <- getAcop(family)
     stopifnot(cop@paraConstr(theta))
@@ -556,7 +549,7 @@ cacopula <- function(v, u, family, theta, log = FALSE){
 
 ##' Function which computes psiDabs via Monte Carlo
 ##' @param t evaluation points
-##' @param family Archimedean family
+##' @param family Archimedean family (name)
 ##' @param theta parameter value
 ##' @param degree order of derivative
 ##' @param MC Monte Carlo sample size
