@@ -287,30 +287,28 @@ copGumbel <-
             if(!(missing(MC) || is.null(MC))){
                 psiDabsMC(t,"Gumbel",theta,degree,MC,log)
             }else{
-                if(theta == 0) if(log) return(-t) else return(exp(-t)) # special case
-                ## FIXME: several things in the following code can be improved
-                alpha <- 1/theta
+                if(theta == 1) return(if(log) -t else exp(-t)) # special case
                 res <- numeric(n <- length(t))
-		res[is0 <- t == 0] <- Inf
-		res[isInf <- is.infinite(t)] <- 0
-		n0Inf <- (1:n)[!(is0 | isInf)]
-		if(length(n0Inf) > 0){
-                    ## inner sum
-                    x <- -t[n0Inf]^alpha
-                    inner.sum.for.one.j <- function(j){
-                        S <- Stirling2.all(j)
-                        S %*% outer(1:j, x, function(k,x) x^k) # row: for k (from 1:j); col: for t
-                    }
-                    ## outer sum
-                    j <- 1:degree
-                    s <- Stirling1.all(n = degree)
-                    s.alpha <- s*alpha^j
-                    inner.sum.mat <- sapply(j,inner.sum.for.one.j)
-	            outer.sum <- inner.sum.mat %*% s.alpha
-                    res[n0Inf] <- (-t[n0Inf])^(-degree)*copGumbel@psi(t[n0Inf],theta)*
-                        outer.sum
+	        res[is0 <- t == 0] <- Inf
+	        res[isInf <- is.infinite(t)] <- -Inf
+                n0Inf <- (1:n)[!(is0 | isInf)]
+		if(length(n0Inf) > 0){ # compute values for indices n0Inf
+	            ## compute factors (inner sum)
+	            s <- Stirling1.all(degree) # s(d,1), ..., s(d,d)
+                    k <- 1:degree
+		    S <- lapply(k, Stirling2.all) # S[[m]][n] contains S(m,n), n = 1,...,m
+                    a.k <- unlist(lapply(k, function(k.){
+                        j <- k.:degree
+                        S. <- unlist(lapply(j, function(i) S[[i]][k.])) # extract a column of Stirling2 numbers
+                        sum(theta^(-j)*s[j]*S.)
+                    }))
+                    ## compute outer sum
+                    alpha <- 1/theta
+                    one.k <- function(k.) (-1)^(degree-k.)*t[n0Inf]^(k.*alpha)*a.k[k.]
+		    sum. <- rowSums(as.matrix(sapply(k, one.k))) # FIXME: as.matrix is needed when there is only one value t
+		    res[n0Inf] <- -t[n0Inf]^alpha-degree*log(t[n0Inf])+log(sum.)
                 }
-                if(log) log(res) else res
+	        if(log) res else exp(res)
             }
         },
         ## derivatives of the generator inverse
@@ -404,22 +402,20 @@ copJoe <-
             if(!(missing(MC) || is.null(MC))){
                 psiDabsMC(t,"Joe",theta,degree,MC,log)
             }else{
-                if(theta == 0) return(if(log) -t else exp(-t)) # special case
-                ## FIXME: several things in the following code can be improved
-		alpha <- 1/theta
-		res <- numeric(n <- length(t))
-		res[is0 <- t < .Machine$double.eps] <- Inf # for arguments smaller than 6e-17 (the degree does not really play a role here), psiDabs returns NaN (which should rather be Inf)
-		res[isInf <- is.infinite(t)] <- 0
-		n0Inf <- (1:n)[!(is0 | isInf)]
-		if(length(n0Inf) > 0){
-                    e <- exp(-t[n0Inf])
-                    x <- e/(1-e)
-                    f <- alpha*(1-e)^alpha
-		    k <- 1:degree
-		    S. <- Stirling2.all(n = degree)*gamma(k-alpha)/gamma(1-alpha)
-		    res[n0Inf] <- f*(S. %*% outer(k,x, function(j,u) u^j))
-		}
-		if(log) log(res) else res
+		if(theta == 1) return(if(log) -t else exp(-t)) # special case
+                res <- numeric(n <- length(t))
+	        res[is0 <- t == 0] <- Inf
+	        res[isInf <- is.infinite(t)] <- 0
+                n0Inf <- (1:n)[!(is0 | isInf)]
+		if(length(n0Inf) > 0){ # compute values for indices n0Inf
+	            alpha <- 1/theta
+                    S <- Stirling2.all(degree)
+                    one.k <- function(k) exp(log(S[k])+lgamma(k-alpha)-
+                                              lgamma(1-alpha)-k*t[n0Inf]-(k-alpha)*
+                                              log1p(-exp(-t[n0Inf])))
+                    res[n0Inf] <- alpha*rowSums(as.matrix(sapply(1:degree, one.k))) # FIXME: as for Gumbel, "as.matrix" is needed
+                }
+	        if(log) log(res) else res
             }
         },
         ## derivatives of the generator inverse
