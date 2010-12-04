@@ -67,14 +67,27 @@ beta.hat <- function(u, scaling = TRUE){
 ##' @param scaling if FALSE then the scaling factors 2^(d-1)/(2^(d-1)-1) and
 ##'                2^(1-d) are omitted
 ##' @return population version of multivariate Blomqvist beta
-##' @author Marius Hofert (+ M.M.)
+##' @author Marius Hofert & Martin Maechler
 beta. <- function(cop, theta, d, scaling = TRUE) {
+    stopifnot(cop@paraConstr(theta)) # also checks length(theta)
     j <- 1:d
-    log.diag <- function(k)
-        log(pnacopula(onacopulaL(cop@name, list(theta,seq_len(k))), u = rep.int(0.5, k)))
-    ldiags <- unlist(lapply(j, log.diag))
-    b <- pnacopula(onacopulaL(cop@name, list(theta, j)), u = rep.int(0.5, d)) +
-        1 + sum((-1)^j * exp(lchoose(d,j)+ldiags))
+    b <- pnacopula(onacopulaL(cop@name, list(theta, j)), u = rep.int(0.5, d)) +1
+    if(d < 30) { ## for small d, using log(.) and exp(.) is wasteful (and looses precision)
+	diag. <- function(k)
+	    pnacopula(onacopulaL(cop@name, list(theta,seq_len(k))),
+		      u = rep.int(0.5, k))
+	diags <- unlist(lapply(j, diag.))
+	ch.dia <- choose(d,j) * diags
+
+    } else { ## "large" d
+
+	log.diag <- function(k)
+	    log(pnacopula(onacopulaL(cop@name, list(theta,seq_len(k))),
+			  u = rep.int(0.5, k)))
+	ldiags <- unlist(lapply(j, log.diag))
+	ch.dia <- exp(lchoose(d,j)+ldiags)
+    }
+    b <- b + sum((-1)^j * ch.dia)
     if(scaling) { T <- 2^(d-1); (T*b - 1)/(T - 1)} else b
 }
 

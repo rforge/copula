@@ -16,7 +16,7 @@ timing(n, family, taus, digits = 3, verbose = FALSE)
     \eqn{V_{01}{V01} are sampled}.}
   \item{taus}{\code{\link{numeric}} vector of Kendall's taus. This vector is
  	 converted to a vector of copula parameters \eqn{theta}, which then serve as
-    \eqn{theta_0}{theta0} and \eqn{theta_1}{theta1} for a three-dimensional 
+    \eqn{theta_0}{theta0} and \eqn{theta_1}{theta1} for a three-dimensional
 	 fully nested Archimedean copula of the specified \code{family}. First, for
 	 each \eqn{theta_0}{theta0}, \code{n} random variates \eqn{V_0}{V0} are
     generated. Then, given the particular \eqn{theta_0}{theta0} and the
@@ -37,13 +37,14 @@ timing(n, family, taus, digits = 3, verbose = FALSE)
   for the \eqn{V_{01}}{V01}s for a particular \eqn{theta_0}{theta0} and all the
   admissible \eqn{theta_1}{theta1}s.
 }
-\author{Marius Hofert}
+\author{Marius Hofert (and Martin Maechler)}
 \seealso{
   The class \code{\linkS4class{acopula}} and our predefined \code{"acopula"}
   family objects in \code{\link{acopula-families}}. For some timings on a
-  standard notebook, see the file timings.R in the demo subfolder.
+  standard notebook, see \code{\link{demo}(timings)} (or the file
+  \file{timings.R} in the demo folder).
 }
 \examples{
 timing(10000,"Gumbel", taus = c(0.05,(1:9)/10,0.95))
 }
-\keyword{timing}
+\keyword{utilities}

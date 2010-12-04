@@ -18,10 +18,11 @@ ls.str(nacopula:::.nacopEnv)
 
 system.time(s1c <- Stirling1(100,10))
 s1c
-stopifnot(print(system.time(for(i in 1:20) S. <- Stirling1(100, 10))[[1]]) <= 0.010,
+stopifnot(print(system.time(for(i in 1:20) S. <- Stirling1(100, 10))[[1]]) <= 0.020,
           identical(S., s1c))
 system.time(s2c <- Stirling1(200,190)); s2c
-stopifnot(print(system.time(for(i in 1:20) S. <- Stirling1(200,190))[[1]]) <= 0.010,
+stopifnot(print(system.time(for(i in 1:20) S. <- Stirling1(200,190))[[1]]) <= 0.020,
+          ## 0.010 occasionally barely fails (prints "0.010") on Martin's X201
           identical(S., s2c))
 
 
