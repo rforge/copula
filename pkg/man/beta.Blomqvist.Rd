@@ -44,11 +44,8 @@ beta.hat(u, scaling = TRUE)
 beta.(copGumbel, 2.5, d = 5)
 
 d.set <- c(2:6, 8, 10, 15, 20, 30)
-## FIXME: adjustcolor()?
-# cols <- adjustcolor(colorRampPalette(c("red", "orange", "blue"),
-#                                      space = "Lab")(length(d.set)), 0.8)
-cols <- colorRampPalette(c("red", "orange", "blue"), 
-			space = "Lab")(length(d.set))
+cols <- adjustcolor(colorRampPalette(c("red", "orange", "blue"),
+                                     space = "Lab")(length(d.set)), 0.8)
 for(i in seq_along(d.set))
    curve(Vectorize(beta.,"theta")(copAMH, x, d = d.set[i]), 0, .999999,
          main = "Blomqvist's beta(.) for  AMH",
@@ -94,4 +91,3 @@ curve(Vectorize(beta.,"theta")(copFrank, x, d = 29), 35, 42, col="violet")
 }
 \keyword{multivariate}
 \keyword{distribution}
-

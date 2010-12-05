@@ -65,3 +65,5 @@ exportMethods(## for both own and "other" generics:
 	      "format", "show"
 	      )
 
+if(getRversion() < "2.12")
+    export("adjustcolor")

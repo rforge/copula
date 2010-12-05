@@ -262,19 +262,22 @@ rFFrank <- function(n, theta0, theta1, rej)
 ##' @param x evaluation point
 ##' @param alpha parameter (1/theta)
 ##' @param d number of summands
-##' @return \sum_{k=1}^d a_k x^k, where a_k = (-1)^{d-k}\sum_{j=k}^d \alpha^j s(d,j) S(j,k)
+##' @return \sum_{k=1}^d a_k x^k, where
+##'     a_k = (-1)^{d-k}\sum_{j=k}^d \alpha^j s(d,j) S(j,k)
 ##' @author Marius Hofert
 psiDabsGpoly <- function(x, alpha, d){
+    stopifnot(d >= 1)
     ## compute coefficients a_k
     s <- Stirling1.all(d) # s(d,1), ..., s(d,d)
     k <- 1:d
     S <- lapply(k, Stirling2.all) # S[[m]][n] contains S(m,n), n = 1,...,m
     a.k <- unlist(lapply(k, function(k.){
         j <- k.:d
-        S. <- unlist(lapply(j, function(i) S[[i]][k.])) # extract a column of Stirling2 numbers
+        ## extract a column of Stirling2 numbers:
+        S. <- unlist(lapply(j, function(i) S[[i]][k.]))
         (-1)^(d-k.)*sum(alpha^j*s[j]*S.)
     }))
-    ## evaluate polynomial 
+    ## evaluate polynomial
     polynEval(c(0,a.k), x)
 }
 
@@ -358,13 +361,13 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 ##' @return \sum_{k=1}^d a_k x^k, where a_k = S(d,k)*(k-1-alpha)_{k-1}
 ##' @author Marius Hofert
 psiDabsJpoly <- function(x, alpha, d){
-    ## compute the log of the coefficients a_k 
+    ## compute the log of the coefficients a_k
     k <- 1:d
     l.a.k <- log(Stirling2.all(d))+lgamma(k-alpha)-lgamma(1-alpha)
     ## evaluate polynomial via exp(log())
     ## FIXME: maybe (!) use Horner (see psiDabsGpoly)
     one.k <- function(k.) exp(l.a.k[k.] + k.*log(x)) # for one k and (possibly) a vector x
-    rowSums(matrix(unlist(lapply(k, one.k)), ncol = d)) 
+    rowSums(matrix(unlist(lapply(k, one.k)), ncol = d))
 }
 
 
@@ -737,4 +740,18 @@ getAcop <- function(family, check=TRUE) {
     } else if(is(family, "acopula"))
         family
     else stop("'family' must be an \"acopula\" object or family name")
+}
+
+if(getRversion() < "2.12") ## take the version in R >= 2.12.0 (also export!)
+adjustcolor <- function(col, alpha.f = 1, red.f = 1, green.f = 1,
+                        blue.f = 1, offset = c(0,0,0,0),
+                        transform = diag(c(red.f, green.f, blue.f, alpha.f)))
+{
+    stopifnot(length(offset) %% 4 == 0,
+              !is.null(d <- dim(transform)), d == c(4,4))
+    x <- col2rgb(col, alpha=TRUE)/255
+    x[] <- pmax(0, pmin(1,
+                        transform %*% x +
+                        matrix(offset, nrow=4, ncol=ncol(x))))
+    rgb(x[1,], x[2,], x[3,], x[4,])
 }
