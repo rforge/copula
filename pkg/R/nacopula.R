@@ -23,26 +23,14 @@
 ##'        the density with sample size equal to MC
 ##' @param log if TRUE the log-density is evaluated
 ##' @author Marius Hofert
-dnacopula <- function(x, u, MC, log = FALSE)
-{
+dnacopula <- function(x, u, MC, log = FALSE){
     stopifnot(is(x, "outer_nacopula"))
     if(length(x@childCops))
 	stop("currently, only Archimedean copulas are provided")
     if(is.vector(u)) u <- matrix(u, nrow = 1)
     if((d <- ncol(u)) < 2) stop("u should be at least bivariate")
     acop <- x@copula
-    th <- acop@theta
-    res <- rep(NaN,n <- nrow(u)) # density not defined on the margins
-    n01 <- (1:n)[apply(u,1,function(x) all(0 < x, x < 1))] # indices for which density has to be evaluated
-    if(length(n01) > 0){
-	if(is.vector(psiI <- acop@psiInv(u[n01,],th)))
-	    psiI <- matrix(psiI, nrow = 1)
-	if(is.vector(psiID <- acop@psiInvD1abs(u[n01,],th)))
-	    psiID <- matrix(psiID, nrow = 1)
-        res[n01] <- acop@psiDabs(rowSums(psiI),theta = th,degree = d, MC = MC, log = log)
-        res[n01] <- if(log) res[n01] + rowSums(log(psiID)) else res[n01] * apply(psiID,1,prod)
-    }
-    res
+    acop@dacopula(u, acop@theta, MC, log)
 }
 
 ##' Returns the copula value at a certain vector u

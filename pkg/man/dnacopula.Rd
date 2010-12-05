@@ -25,9 +25,6 @@ dnacopula(x, u, MC, log = FALSE)
   	A \code{\link{numeric}} vector containing the values of the density of the
 	Archimedean copula at \code{u}.
 }
-\references{
-	Hofert, M. and  McNeil, A. J. (2011), to be submitted.	
-}
 \seealso{
  	For more details about the derivatives of an Archimedean generator, see, e.g., \code{psiDabs} in \code{\link{acopula-class}}.
 }

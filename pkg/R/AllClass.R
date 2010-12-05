@@ -38,6 +38,7 @@ setClass("acopula",
                         theta = "numeric",        # value of theta or  'NA'  (for unspecified)
                         paraConstr = "function",  # of (theta) ; constr(theta) |--> TRUE: "fulfilled"
                         psiInvD1abs = "function", # of (t,theta,log = FALSE) -- computes the absolute value of the first derivative of psiInv
+                        dacopula = "function",    # of (u, theta, MC, log = FALSE) -- computes the (log-)density of the Archimedean copula with parameter theta at the vector/matrix u (MC: apply Monte Carlo)
 			## when theta is one-dimensional, specifying the interval is more convenient:
                         paraInterval = "maybeInterval", # [.,.]  (.,.], etc .. parameter interval
 		        paraSubInterval = "maybeInterval", # [.,.]  (.,.], etc .. finite parameter interval, e.g., for optimization (only for robust methods, i.e., methods that work no matter what the parameters are)

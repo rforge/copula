@@ -256,6 +256,29 @@ rFFrank <- function(n, theta0, theta1, rej)
     rF01Frank(rep(1,n),theta0,theta1,rej,1) # approx = 1 (dummy)
 
 
+### ==== Gumbel ================================================================
+
+##' Compute the sum polynomial involved in the generator derivatives
+##' @param x evaluation point
+##' @param alpha parameter (1/theta)
+##' @param d number of summands
+##' @return \sum_{k=1}^d a_k x^k, where a_k = (-1)^{d-k}\sum_{j=k}^d \alpha^j s(d,j) S(j,k)
+##' @author Marius Hofert
+psiDabsGpoly <- function(x, alpha, d){
+    ## compute coefficients a_k
+    s <- Stirling1.all(d) # s(d,1), ..., s(d,d)
+    k <- 1:d
+    S <- lapply(k, Stirling2.all) # S[[m]][n] contains S(m,n), n = 1,...,m
+    a.k <- unlist(lapply(k, function(k.){
+        j <- k.:d
+        S. <- unlist(lapply(j, function(i) S[[i]][k.])) # extract a column of Stirling2 numbers
+        (-1)^(d-k.)*sum(alpha^j*s[j]*S.)
+    }))
+    ## evaluate polynomial 
+    polynEval(c(0,a.k), x)
+}
+
+
 ### ==== Joe ===================================================================
 
 ### ==== sampling a Sibuya(alpha) distribution, R version ====
@@ -327,6 +350,22 @@ rF01Joe <- function(V0, alpha, approx) {
 ##' @return vector of random variates V
 ##' @author Marius Hofert
 rFJoe <- function(n, alpha) rSibuya(n, alpha)
+
+##' Compute the sum polynomial involved in the generator derivatives
+##' @param x evaluation point
+##' @param alpha parameter (1/theta)
+##' @param d number of summands
+##' @return \sum_{k=1}^d a_k x^k, where a_k = S(d,k)*(k-1-alpha)_{k-1}
+##' @author Marius Hofert
+psiDabsJpoly <- function(x, alpha, d){
+    ## compute the log of the coefficients a_k 
+    k <- 1:d
+    l.a.k <- log(Stirling2.all(d))+lgamma(k-alpha)-lgamma(1-alpha)
+    ## evaluate polynomial via exp(log())
+    ## FIXME: maybe (!) use Horner (see psiDabsGpoly)
+    one.k <- function(k.) exp(l.a.k[k.] + k.*log(x)) # for one k and (possibly) a vector x
+    rowSums(matrix(unlist(lapply(k, one.k)), ncol = d)) 
+}
 
 
 ### ==== other numeric utilities ===============================================

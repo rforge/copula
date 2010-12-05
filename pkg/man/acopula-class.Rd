@@ -37,14 +37,18 @@
       itself can be accessed with (-1)^\code{degree}\code{psiDabs}). If the
       number \code{MC} is provided, the function is computed based on a Monte
       Carlo simulation with sample size equal to \code{MC}; otherwise, the
-      derivatives are evaluated with their exact formulas. The optional
-      parameter \code{log} (defaults to \code{FALSE}) indicates whether the
-      logarithm of the absolute value of the derivative is returned.}
+      generator derivatives are evaluated with their exact formulas. The
+ 		optional parameter \code{log} (defaults to \code{FALSE}) indicates whether
+ 		or not the logarithmic value is returned.}
     \item{\code{psiInvD1abs}:}{a \code{\link{function}} computing the
       absolute derivative of the generator inverse (\code{psiInv()}) for
       the given parameter \code{theta}. The optional parameter \code{log}
  		(defaults to \code{FALSE}) indicates whether the logarithm of the absolute
  		value of the first derivative of \code{psiInv()} is returned.}
+	 \item{\code{dacopula}:}{a \code{\link{function}} which computes the density
+	   of the Archimedean copula at \code{u} with parameter \code{theta}. The
+	   meanings of the optional parameters \code{MC} and \code{log} are as
+	   described before.}
     \item{\code{paraInterval}:}{Either \code{\link{NULL}} or object of class
       \code{"\linkS4class{interval}"}, typically from a call such as
       \code{\link{interval}("[a,b)")}.}
