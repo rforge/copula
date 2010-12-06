@@ -238,7 +238,8 @@ emle <- function(u, cop, MC, interval = paraOptInterval(u, cop@copula@name), ...
     ## optimize
     mLogL <- function(theta){ # -log-likelihood
         cop@copula@theta <- theta
-        -sum(dnacopula(cop, u, MC = MC, log = TRUE)) ## FIXME: maybe only sum over those values that are finite and let the user know how many these are (?)
+### FIXME: maybe only sum over those values that are finite and let the user know how many these are (?)
+        -sum(dnacopula(cop, u, MC = MC, log = TRUE))
     }
     optimize(mLogL, interval = interval, ...)
     ## optimx::optimx(start, mLogL,
