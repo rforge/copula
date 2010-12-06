@@ -33,6 +33,33 @@ dnacopula <- function(x, u, MC, log = FALSE){
     acop@dacopula(u, acop@theta, MC, log)
 }
 
+##' Returns the copula density at u. Generic algorithm 
+##' @param x nacopula
+##' @param u argument of the copula x
+##' @param MC if provided (and not NULL) Monte Carlo is used for evaluation of
+##'        the density with sample size equal to MC
+##' @param log if TRUE the log-density is evaluated
+##' @author Marius Hofert
+dnacopulag <- function(x, u, MC, log = FALSE){
+    stopifnot(is(x, "outer_nacopula"))
+    if(length(x@childCops))
+        stop("currently, only Archimedean copulas are provided")
+    if(is.vector(u)) u <- matrix(u, nrow = 1)
+    if((d <- ncol(u)) < 2) stop("u should be at least bivariate")
+    acop <- x@copula
+    th <- acop@theta
+    res <- rep(NaN,n <- nrow(u)) # density not defined on the margins
+    n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
+    if(any(n01)){
+        u. <- u[n01,, drop=FALSE]
+	psiI <- acop@psiInv(u[n01,],th)
+	psiID <- acop@psiInvD1abs(u[n01,],th)
+        res[n01] <- acop@psiDabs(rowSums(psiI),theta = th,degree = d, MC = MC, log = log)
+        res[n01] <- if(log) res[n01] + rowSums(log(psiID)) else res[n01] * apply(psiID,1,prod)
+    }
+    res
+}
+
 ##' Returns the copula value at a certain vector u
 ##' @param x nacopula
 ##' @param u argument of the copula x
