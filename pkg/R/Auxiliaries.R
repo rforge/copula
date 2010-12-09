@@ -34,6 +34,7 @@ interval <- function(ch) {
 }
 
 ##' Directly convert numeric (length 2) vector to closed interval
+##'
 ##' @title Closed Interval from Numeric
 ##' @param x numeric vector of length two
 ##' @param open logical, of length one or two

@@ -17,6 +17,8 @@
 
 ##' Transforms supposedly U[0,1]^d distributed vectors of random variates to
 ##' U[0,1]-distributed variates to check uniformity in a one-dimensional setup
+##'
+##' @title Transformation to a one-dimensional testing setting
 ##' @param u matrix of random variates to be transformed
 ##' @param method either "log" (map to an Erlang distribution) or "normal" (map
 ##' 	   to a chi-square distribution)
@@ -24,7 +26,7 @@
 ##' @author Marius Hofert
 g01 <- function(u, method = c("log","normal")){
     stopifnot(all(0 <= u, u <= 1))
-    if(is.vector(u)) u <- matrix(u, nrow = 1)
+    if(!is.matrix(u)) u <- rbind(u)
     d <- ncol(u)
     u. <- switch(method,
                  "log" = { pgamma(rowSums(-log(u)),shape=d) },
@@ -36,6 +38,8 @@ g01 <- function(u, method = c("log","normal")){
 }
 
 ##' Kendall distribution function
+##'
+##' @title Kendall distribution function
 ##' @param t evaluation point(s)
 ##' @param cop acopula with specified parameter
 ##' @param d dimension
@@ -84,6 +88,8 @@ K <- function(t, cop, d, MC)
 
 ##' Transforms vectors of random variates following the given nested Archimedean
 ##' copula (with specified parameters) to U[0,1]^d vectors of random variates
+##'
+##' @title Transformation of Hofert, Maechler (2011)
 ##' @param x data matrix
 ##' @param cop an ("outer_") nacopula
 ##' @param do.pseudo boolean indicating whether to compute the pseudo-observations
@@ -95,7 +101,7 @@ gnacopulatrafo <- function(x, cop, MC, do.pseudo = FALSE)
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
-    if(is.vector(x)) x <- matrix(x, nrow = 1)
+    if(!is.matrix(x)) x <- rbind(x)
     stopifnot((d <- ncol(x)) >= 2)
     u <- if(do.pseudo){
 	pobs(x)
@@ -115,6 +121,8 @@ gnacopulatrafo <- function(x, cop, MC, do.pseudo = FALSE)
 
 ##' Conducts a goodness-of-fit test for the given H0 copula cop based on the
 ##' data x
+##'
+##' @title Goodness-of-fit testing for nested Archimedean copulas
 ##' @param x data matrix
 ##' @param cop nacopula with specified H0 parameters
 ##' @param do.pseudo boolean indicating whether to compute the pseudo-observations
@@ -133,7 +141,7 @@ gnacopula <- function(x, cop, bootstrap = TRUE, B = 1000, method = c("log","norm
                       verbose = TRUE)
 {
     stopifnot(is(cop, "outer_nacopula"))
-    if(is.vector(x)) x <- matrix(x, nrow = 1)
+    if(!is.matrix(x)) x <- rbind(x)
     stopifnot((d <- ncol(x)) >= 2)
     u <- if(do.pseudo){
 	pobs(x)

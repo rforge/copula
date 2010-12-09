@@ -26,6 +26,8 @@ require(nacopula)
 ##' Zolotarev's function A(.) to the power 1-alpha,
 ##' i.e. sin(alpha*x)^alpha * sin((1-alpha)*x)^(1-alpha) / sin(x)
 ##' and other things
+##'
+##' @title Zolotarev's function A
 ##' @param ialpha parameter 1-alpha
 ##' @param x sequence of points in (0,pi)
 ##' @param col color
@@ -273,6 +275,8 @@ if(getOption("width") < 100) options(width=100)
 
 
 ##' check the random variates via histogram plots
+##'
+##' @title Graphical tests via histogram plots 
 ##' @param alphalab alpha label
 ##' @param V0lab V0 label
 ##' @param hlab h label
@@ -386,6 +390,8 @@ rm(CPUr)# (so we know that dCPU is used below)
 plot  (CPUr ~ I(h^alpha * V0), data = dCPU); abline(h=1, col="tomato")
 
 ##' sophisticated plot of CPU times
+##'
+##' @title CPU times plot
 ##' @param log scale
 ##' @param do.h.eq.1 h == 1
 ##' @param main title

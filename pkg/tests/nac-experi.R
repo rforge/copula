@@ -27,6 +27,8 @@ doPlots <- (Sys.getenv("USER") == "maechler")
 ## ==== 3d check functions =====================================================
 
 ##' correlation check function and run time measuring
+##'
+##' @title Check correlation matrix and measure run times of 3d fully nested Archimedean copulas
 ##' @param n number of variates to be drawn
 ##' @param th0 theta0
 ##' @param th1 theta1
@@ -61,6 +63,8 @@ corCheckout <- function(x, trCorr, famName = x$name) {
 }
 
 ##' Function implementing the chi^2 test
+##'
+##' @title The Chi-square test
 ##' @param n [integer] sample size
 ##' @param N [integer] number of replications
 ##' @param cop nacopula to generate from

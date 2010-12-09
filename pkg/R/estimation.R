@@ -22,6 +22,8 @@
 ##' Note: In contrast to the slots "paraSubInterval", this function also works
 ##'       for non-robust methods (i.e., methods that break down when the rather
 ##'	  large intervals given by paraSubInterval are used)
+##'
+##' @title Compute initial interval for estimation procedures
 ##' @param u data
 ##' @param family Archimedean family
 ##' @param h for enlarging the tau-interval
@@ -44,6 +46,8 @@ paraOptInterval <- function(u, family, h = 0.15){
 ##' Compute the sample version of Blomqvist's beta for an Archimedean copula,
 ##' see, e.g., Schmid and Schmidt (2007) "Nonparametric inference on multivariate
 ##' versions of Blomqvist’s beta and related measures of tail dependence"
+##'
+##' @title Sample version of Blomqvist's beta
 ##' @param u matrix of realizations following the copula
 ##' @param scaling if FALSE then the scaling factors 2^(d-1)/(2^(d-1)-1) and
 ##'                2^(1-d) are omitted
@@ -61,6 +65,8 @@ beta.hat <- function(u, scaling = TRUE){
 }
 
 ##' Compute the population version of Blomqvist's beta for an Archimedean copula
+##'
+##' @title Population version of Blomqvist's beta
 ##' @param cop acopula to be estimated
 ##' @param theta copula parameter
 ##' @param d dimension
@@ -93,6 +99,8 @@ beta. <- function(cop, theta, d, scaling = TRUE) {
 
 ##' Method-of-moment-like estimation of Archimedean copulas based on a
 ##' multivariate version of Blomqvist's beta
+##'
+##' @title Method-of-moment-like parameter estimation based on Blomqvist's beta
 ##' @param u matrix of realizations following the copula
 ##' @param cop acopula to be estimated
 ##' @param interval bivariate vector denoting the interval where optimization takes
@@ -113,7 +121,9 @@ ebeta <- function(u,cop,interval = paraOptInterval(u, cop@name),...){
 
 ## ==== Kendall's tau ==========================================================
 
-##' Compute pairwise Kendall's tau estimator for Archimedean copulas
+##' Compute pairwise estimators for Archimedean copulas based on Kendall's tau 
+##'
+##' @title Pairwise estimators for Archimedean copulas based on Kendall's tau 
 ##' @param u matrix of realizations following the copula
 ##' @param cop acopula to be estimated
 ##' @param method tau.mean indicates that the average of the sample versions of
@@ -144,6 +154,8 @@ etau <- function(u,cop,method = c("tau.mean","theta.mean"),...)
 ## ==== Diagonal maximum likelihood estimation =================================
 
 ##' Density of the diagonal of an Archimedean copula
+##'
+##' @title Diagonal density of an Archimedean copula
 ##' @param u evaluation point
 ##' @param cop acopula
 ##' @param d dimension
@@ -163,6 +175,8 @@ dDiag <- function(u, cop, d, log = FALSE){
 }
 
 ##' Maximum likelihood estimation based on the diagonal of the Archimedean copula
+##'
+##' @title Maximum likelihood estimation based on the diagonal of an Archimedean copula
 ##' @param u matrix of realizations following the copula
 ##' @param cop acopula to be estimated
 ##' @param interval bivariate vector denoting the interval where optimization takes
@@ -206,7 +220,9 @@ edmle <- function(u, cop, interval = paraOptInterval(u, cop@name), ...)
 
 ## ==== (Simulated) maximum likelihood estimation ==============================
 
-##' (Simulated) maximum likelihood estimation for Nested Archimedean copulas
+##' (Simulated) maximum likelihood estimation for nested Archimedean copulas
+##'
+##' @title (Simulated) maximum likelihood estimation for nested Archimedean copulas
 ##' @param u matrix of realizations following the copula
 ##' @param cop nacopula to be estimated
 ##' @param MC if provided SMLE is applied with sample size equal to MC; otherwise,
@@ -254,13 +270,17 @@ emle <- function(u, cop, MC, interval = paraOptInterval(u, cop@copula@name), ...
 
 ## ==== Estimation wrapper =====================================================
 
-##' Computes the (scaled) pseudo-observations for the given data matrix
+##' Computes the pseudo-observations for the given data matrix
+##'
+##' @title Pseudo-observations 
 ##' @param x matrix of random variates to be converted to pseudo-observations
 ##' @return pseudo-observations (matrix of the same dimensions as x)
 ##' @author Marius Hofert
 pobs <- function(x) apply(x,2,rank)/(nrow(x)+1)
 
 ##' Computes different parameter estimates for a nested Archimedean copula
+##'
+##' @title Estimation procedures for nested Archimedean copulas
 ##' @param x data matrix
 ##' @param cop nacopula to be estimated
 ##' @param method estimation method; can be

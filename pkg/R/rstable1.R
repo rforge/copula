@@ -13,12 +13,12 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-##' Call C implementation of the sinc function.
+##' @title C implementation of the sinc function.
 ##' @param x argument
 ##' @return sinc(x)
 sinc <- function(x) .Call(sinc_c, x)
 
-##' Call C implementation of Zolotarev's function to the power 1-alpha.
+##' @title C implementation of Zolotarev's function to the power 1-alpha.
 ##' @param x argument in [0,pi]
 ##' @param alpha parameter in (0,1]
 ##' @return sin(alpha*x)^alpha * sin((1-alpha)*x)^(1-alpha) / sin(x)
@@ -26,7 +26,7 @@ sinc <- function(x) .Call(sinc_c, x)
 A..Z <- function(x, alpha, I.alpha = 1 - alpha)
     .Call(nacopula:::A__c, x, alpha, I.alpha)
 
-##' tan(pi*x), exact for integer x
+##' @title tan(pi*x), exact for integer x
 ##' @param x numeric vector
 ##' @return numeric vector of values tan(pi*x)
 ##' @author Martin Maechler
@@ -39,7 +39,7 @@ tanpi <- function(x) {
     r
 }
 
-##' cos(pi/2 * x), exact for integer x
+##' @title cos(pi/2 * x), exact for integer x
 ##' @param x numeric vector
 ##' @return numeric vector of values cos(pi/2 *x)
 ##' @author Martin Maechler
@@ -58,6 +58,8 @@ cospi2 <- function(x) {
 
 ##' Sample S ~ S(alpha, beta, gamma, delta; pm), see Diethelm Wuertz's code
 ##' in fBasics for the parameterization.
+##'
+##' @title Sampling stable distributions
 ##' @param n number of random variates to be generated
 ##' @param alpha, see code in fBasics
 ##' @param beta, see code in fBasics
@@ -149,6 +151,8 @@ rstable1R <- function(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
 ##' Sample S ~ S(alpha, beta, gamma, delta; pm), see Diethelm Wuertz's code
 ##' in fBasics for the parameterization. For beta == 1 and pm == 1, the fast
 ##' C implementation is used.
+##'
+##' @title Efficiently sampling stable distributions
 ##' @param n number of random variates to be generated
 ##' @param alpha, see code in fBasics
 ##' @param beta, see code in fBasics

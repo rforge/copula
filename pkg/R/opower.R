@@ -1,6 +1,6 @@
-##' <description>
+##' Outer power transformation of Archimedean copulas
 ##'
-##' @title Outer Power Transformation of an Archimedean Copula
+##' @title Outer power Archimedean copulas
 ##' @param copbase a "base" copula, i.e. of class "acopula";
 ##'    must be one of the 5 five predefined families
 ##' @param thetabase the (univariate) parameter 'theta' for the base copula

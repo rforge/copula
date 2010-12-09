@@ -48,6 +48,8 @@ tauAMH <- function(th) {
 
 ##' Note: this is mainly to show that this function can be very well
 ##' approximated much more simply by just using m <- round(V0).
+##'
+##' @title Optimal constant for fast rejection
 ##' @param V0 numeric vector >= 0
 ##' @return optimal constant m for the fast rejection algorithm
 ##' @author Martin Maechler (based on Marius Hofert's code)
@@ -80,6 +82,8 @@ m.opt.retst <- function(V0){
 ##' \tilde{S}(alpha, 1, (cos(alpha*pi/2)*V_0/m)^{1/alpha}, (V_0/m)
 ##' *I_{alpha = 1}, I_{alpha != 1}; 1) with Laplace-Stieltjes transform
 ##' exp(-(V_0/m)*((1+t)^alpha-1)). This is a building block for the fast rejection.
+##'
+##' @title Sample an exponentially tilted stable distribution as an m-fold sum
 ##' @param m number of summands, any positive integer
 ##' @param V0 random variate
 ##' @param alpha parameter in (0,1]
@@ -112,6 +116,8 @@ retstablerej <- function(m,V0,alpha){
 ##' *V_0)^{1/alpha}, V_0*I_{alpha = 1}, h*I_{alpha != 1}; 1) with
 ##' Laplace-Stieltjes transform exp(-V_0((h+t)^alpha-h^alpha)), see Nolan's book for
 ##' the parametrization, with the fast rejection. This procedure calls retstablerej.
+##'
+##' @title Sampling an exponentially tilted stable distribution
 ##' @param alpha parameter in (0,1]
 ##' @param V0 vector of random variates
 ##' @param h non-negative real number
@@ -138,6 +144,8 @@ retstableR <- function(alpha,V0, h = 1){
 ##' the parametrization, with the fast rejection.
 ##' This procedure is more efficient than retstableR since it calls the C
 ##' function retstable_c and uses both the fast rejection and Luc Devroye's algorithm.
+##'
+##' @title Efficiently sampling an exponentially tilted stable distribution
 ##' @param alpha parameter in (0,1]
 ##' @param V0 vector of random variates
 ##' @param h non-negative real number
@@ -181,6 +189,8 @@ retstable <- retstableC # retstable is by default retstableC
 
 ##' Random number generator for a Log(p) distribution with the algorithm "LK" of
 ##' Kemp (1981), R version.
+##'
+##' @title Sample a Log(p) distribution
 ##' @param n number of random variates to be generated
 ##' @param p parameter in (0,1)
 ##' @param Ip = 1 - p_ (possibly more accurate) -- use, if p ~= 1
@@ -212,6 +222,8 @@ rlogR <- function(n, p, Ip = 1-p) {
 
 ##' Random number generator for a Log(p) distribution with the algorithm "LK" of
 ##' Kemp (1981), C version.
+##'
+##' @title Efficiently sampling a Log(p) distribution
 ##' @param n number of random variates to be generated
 ##' @param p parameter in (0,1)
 ##' @param Ip = 1 - p_ (possibly more accurate)
@@ -227,6 +239,8 @@ rlog <- function(n, p, Ip = 1-p) {
 
 ##' Generate a vector of variates V01 ~ F01 with Laplace-Stieltjes transform
 ##' ((1-(1-exp(-t)*(1-e^(-theta1)))^alpha)/(1-e^(-theta0)))^V0.
+##'
+##' @title Efficiently sampling V01 for Frank
 ##' @param V0 vector of random variates from F0
 ##' @param theta0 parameter theta0 in (0,infinity)
 ##' @param theta1 parameter theta1 in [theta0, infinity)
@@ -244,6 +258,8 @@ rF01Frank <- function(V0, theta0, theta1, rej, approx) {
 
 ##' Generate a vector of variates V ~ F with Laplace-Stieltjes transform
 ##' (1-(1-exp(-t)*(1-e^(-theta1)))^alpha)/(1-e^(-theta0)).
+##'
+##' @title Sampling F for Frank
 ##' @param n number of variates from F
 ##' @param theta0 parameter theta0 in (0,infinity)
 ##' @param theta1 parameter theta1 in [theta0, infinity)
@@ -259,6 +275,8 @@ rFFrank <- function(n, theta0, theta1, rej)
 ### ==== Gumbel ================================================================
 
 ##' Compute the sum polynomial involved in Gumbel's generator derivatives
+##'
+##' @title Polynomial involved in the generator derivatives for Gumbel
 ##' @param x evaluation point
 ##' @param alpha parameter (1/theta)
 ##' @param d number of summands
@@ -289,6 +307,8 @@ psiDabsGpoly <- function(x, alpha, d){
 ##' Sample V from a Sibuya(alpha) distribution with cdf F(n) = 1-1/(n*B(n,1-alpha)),
 ##' n in IN, with Laplace-Stieltjes transform 1-(1-exp(-t))^alpha via the
 ##' algorithm of Hofert (2011), Proposition 3.2. R version.
+##'
+##' @title Sampling Sibuya(alpha) distributions
 ##' @param n  sample size
 ##' @param alpha parameter
 ##' @return vector of random variates V
@@ -321,6 +341,8 @@ rSibuyaR <- function(n,alpha) {
 ##' Sample V from a Sibuya(alpha) distribution with cdf F(n) = 1-1/(n*B(n,1-alpha)),
 ##' n in IN, with Laplace-Stieltjes transform 1-(1-exp(-t))^alpha via the
 ##' algorithm of Hofert (2011), Proposition 3.2. C version.
+##'
+##' @title Efficiently sampling Sibuya(alpha) distributions
 ##' @param n  sample size
 ##' @param alpha parameter
 ##' @return vector of random variates V
@@ -335,6 +357,8 @@ rSibuya <- function(n,alpha) {
 ##' Generate a vector of variates V01 ~ F01 with Laplace-Stieltjes transform
 ##' ((1-(1-exp(-t))^alpha))^V0. Bridge to R. Used, e.g., to draw several variates
 ##' from rF01Joe.
+##'
+##' @title Sampling F01 for Joe's family
 ##' @param V0 vector of random variates from F0
 ##' @param parameter alpha = theta0/theta1 in (0,1]
 ##' @param approx largest number of summands before asymptotics is used
@@ -348,6 +372,8 @@ rF01Joe <- function(V0, alpha, approx) {
 
 ##' Generate a vector of variates V ~ F with Laplace-Stieltjes transform
 ##' 1-(1-exp(-t))^alpha.
+##'
+##' @title Sampling F for Joe
 ##' @param n number of variates from F
 ##' @param parameter alpha = theta0/theta1 in (0,1]
 ##' @return vector of random variates V
@@ -355,6 +381,8 @@ rF01Joe <- function(V0, alpha, approx) {
 rFJoe <- function(n, alpha) rSibuya(n, alpha)
 
 ##' Compute the sum polynomial involved in the generator derivatives
+##'
+##' @title Polynomial involved in the generator derivatives for Joe
 ##' @param x evaluation point
 ##' @param alpha parameter (1/theta)
 ##' @param d number of summands
@@ -379,6 +407,7 @@ psiDabsJpoly <- function(x, alpha, d){
 ##' the number of permutations of 1,2,…,n with exactly k cycles
 ##'
 ##' NIST DLMF 26.8 --> http://dlmf.nist.gov/26.8
+##'
 ##' @title  Stirling Numbers of the 1st Kind
 ##' @param n
 ##' @param k
@@ -415,6 +444,7 @@ Stirling1 <- function(n,k)
 }
 
 ##' Full Vector of Stirling Numbers of the 1st Kind
+##'
 ##' @title  Stirling1(n,k) for all k = 1..n
 ##' @param n
 ##' @return the same as sapply(1:n, Stirling1, n=n)
@@ -436,6 +466,7 @@ Stirling1.all <- function(n)
 ##'	non-empty subsets
 ##' (Abramowitz/Stegun: 24,1,4 (p. 824-5 ; Table 24.4, p.835)
 ##'   Closed Form : p.824 "C."
+##'
 ##' @title  Stirling Numbers of the 2nd Kind
 ##' @param n
 ##' @param k
@@ -480,6 +511,7 @@ Stirling2 <- function(n,k, method = c("lookup.or.store","direct"))
 }
 
 ##' Full Vector of Stirling Numbers of the 2nd Kind
+##'
 ##' @title  Stirling2(n,k) for all k = 1..n
 ##' @param n
 ##' @return the same as sapply(1:n, Stirling2, n=n)
@@ -573,6 +605,8 @@ polylog <- function(z,s, method = c("sum","negint-s_Stirling"), logarithm=FALSE,
 ### ==== other NON-numerics ====================================================
 
 ##' Function which computes the conditional copula function C(v|u) of v given u
+##'
+##' @title Conditional copula function
 ##' @param v parameter v
 ##' @param u parameter u
 ##' @param family Archimedean family (name)
@@ -582,8 +616,7 @@ polylog <- function(z,s, method = c("sum","negint-s_Stirling"), logarithm=FALSE,
 ##' Note: for some families, this function makes sense for u == 0 or v == 0
 ##'       since the corresponding limits can be computed; but not for all
 cacopula <- function(v, u, family, theta, log = FALSE){
-    stopifnot(is.vector(u), is.vector(v), length(u) == length(v), all(0 < u,
-                                                u < 1), all(0 < v, v < 1))
+    stopifnot(length(u) == length(v), all(0 < u, u < 1), all(0 < v, v < 1))
     cop <- getAcop(family)
     stopifnot(cop@paraConstr(theta))
     res <- cop@psiDabs(rowSums(cop@psiInv(cbind(u, v), theta)), theta, log = TRUE) +
@@ -592,6 +625,8 @@ cacopula <- function(v, u, family, theta, log = FALSE){
 }
 
 ##' Function which computes psiDabs via Monte Carlo
+##'
+##' @title Computing the absolute value of the generator derivatives via Monte Carlo
 ##' @param t evaluation points
 ##' @param family Archimedean family (name)
 ##' @param theta parameter value
@@ -608,6 +643,8 @@ psiDabsMC <- function(t, family, theta, degree = 1, MC, log = FALSE){
 }
 
 ##' Function for setting the parameter in an acopula
+##'
+##' @title Settting the parameter in an acopula
 ##' @param x acopula
 ##' @param value parameter value
 ##' @param na.ok logical indicating if NA values are ok for theta
@@ -629,6 +666,8 @@ setTheta <- function(x, value, na.ok = TRUE) {
 
 
 ##' Construct "paraConstr" function from an "interval"
+##'
+##' @title Construct "paraConstr" function from an "interval"
 ##' @param int interval
 ##' @return parameter constraint function
 ##' @author Martin Maechler
@@ -722,7 +761,8 @@ printNacopula <-
 
 setMethod(show, "nacopula", function(object) printNacopula(object))
 
-
+##' Get one of our "acopula" family objects by name
+##'
 ##' @title Get one of our "acopula" family objects by name
 ##' @param family either character string (short or longer form of
 ##'	 copula family name) or an "acopula" family object

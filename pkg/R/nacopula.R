@@ -17,6 +17,8 @@
 #### nested Archimedean copulas
 
 ##' Returns the copula density at u
+##'
+##' @title Density of nested Archimedean copulas
 ##' @param x nacopula
 ##' @param u argument of the copula x
 ##' @param MC if provided (and not NULL) Monte Carlo is used for evaluation of
@@ -33,6 +35,8 @@ dnacopula <- function(x, u, MC, log = FALSE){
 }
 
 ##' Returns the copula density at u. Generic algorithm 
+##'
+##' @title Density of nested Archimedean copulas (generic form)
 ##' @param x nacopula
 ##' @param u argument of the copula x
 ##' @param MC if provided (and not NULL) Monte Carlo is used for evaluation of
@@ -43,7 +47,7 @@ dnacopulag <- function(x, u, MC, log = FALSE){
     stopifnot(is(x, "outer_nacopula"))
     if(length(x@childCops))
         stop("currently, only Archimedean copulas are provided")
-    if(is.vector(u)) u <- matrix(u, nrow = 1)
+    if(!is.matrix(u)) u <- rbind(u)
     if((d <- ncol(u)) < 2) stop("u should be at least bivariate")
     acop <- x@copula
     th <- acop@theta
@@ -60,6 +64,8 @@ dnacopulag <- function(x, u, MC, log = FALSE){
 }
 
 ##' Returns the copula value at a certain vector u
+##'
+##' @title Evaluation of nested Archimedean copula
 ##' @param x nacopula
 ##' @param u argument of the copula x
 ##' @return f_x(u)
@@ -80,6 +86,8 @@ pnacopula <- function(x,u) {
 }
 
 ##' Compute the probability P[l < U <= u]  where U ~ copula x.
+##'
+##' @title Computing probabilities under nested Archimedean dependence
 ##' @param x outer nested archimedean copula
 ##' @param l d-vector of lower "integration" limits
 ##' @param u d-vector of upper "integration" limits
@@ -115,6 +123,8 @@ setMethod("prob", signature(x ="outer_nacopula"),
           })
 
 ##' Returns (n x d)-matrix of random variates
+##'
+##' @title Random number generation for nested Archimedean copulas
 ##' @param n number of vectors of random variates to generate
 ##' @param x outer_nacopula
 ##' @return matrix of random variates
@@ -143,6 +153,8 @@ rnacopula <- function(n, x, ...)
 
 ##' Returns a list with an (n x d)-matrix of random variates and a vector of
 ##' indices.
+##'
+##' @title Random number generation for children of nested Archimedean copulas
 ##' @param x nacopula
 ##' @param n number of vectors of random variates to generate
 ##' @param theta0 parameter theta0
@@ -178,7 +190,7 @@ if(FALSE) { # evaluate the following into your R session if you need debugging:
     debug(rnchild)
 }
 
-##' Constructor for outer_nacopula
+##' @title Constructor for outer_nacopula
 ##' @param family either character string (short or longer form of
 ##'	 copula family name) or an "acopula" family object
 ##' @param nacStructure a "formula" of the form C(th, comp, list(C(..), C(..)))

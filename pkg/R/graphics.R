@@ -38,7 +38,9 @@ splom2 <- function(data, varnames = NULL, Vname = "U", ...)
 }
 
 
-##' Plots a scatterplot matrix of the provided data
+##' Plots a scatter plot matrix of the provided data
+##'
+##' @title Adjusted scatter plot matrix
 ##' @param data data matrix
 ##' @param device graphic device to be used - as in trellis.device()
 ##' @param color  - logical indicating if the plot is colored (as in trellis.device)
