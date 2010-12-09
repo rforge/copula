@@ -258,7 +258,7 @@ rFFrank <- function(n, theta0, theta1, rej)
 
 ### ==== Gumbel ================================================================
 
-##' Compute the sum polynomial involved in the generator derivatives
+##' Compute the sum polynomial involved in Gumbel's generator derivatives
 ##' @param x evaluation point
 ##' @param alpha parameter (1/theta)
 ##' @param d number of summands
@@ -278,7 +278,7 @@ psiDabsGpoly <- function(x, alpha, d){
         (-1)^(d-k.)*sum(alpha^j*s[j]*S.)
     }))
     ## evaluate polynomial
-    polynEval(c(0,a.k), x)
+    x * polynEval(a.k, x)
 }
 
 
@@ -507,26 +507,26 @@ assign("S1.full.n", 0  , envir = .nacopEnv)
 ##' 1. For integer values of the polylogarithm order, the following
 ##'   explicit expressions are obtained by repeated application of z·∂/∂z
 ##'   to Li1(z):
-##'
+##' ---
 ##'     {Li}_{1}(z) = -\ln(1-z)
 ##'     {Li}_{0}(z) = {z \over 1-z}
 ##'     {Li}_{-1}(z) = {z \over (1-z)^2}
 ##'     {Li}_{-2}(z) = {z \,(1+z) \over (1-z)^3}
 ##'     {Li}_{-3}(z) = {z \,(1+4z+z^2) \over (1-z)^4}
 ##'     {Li}_{-4}(z) = {z \,(1+z) (1+10z+z^2) \over (1-z)^5}.
-##'
+##' ---
 ##' Accordingly the polylogarithm reduces to a ratio of polynomials in
 ##' z, and is therefore a rational function of z, for all nonpositive
 ##' integer orders. The general case may be expressed as a finite sum:
-##'
+##' ---
 ##' {Li}_{-n}(z) = \left(z \,{\partial \over \partial z} \right)^n \frac{z}{1-z}=
 ##'     = \sum_{k=0}^n k! \,S(n+1,k+1) \left({z \over {1-z}} \right)^{k+1}
 ##' \ \ (n=0,1,2,\ldots),
-##'
+##' ---
 ##' where S(n,k) are the Stirling numbers of the second
 ##' kind. Equivalent formulae applicable to negative integer orders are
 ##' (Wood 1992, § 6):
-##'
+##' ---
 ##'  {Li}_{-n}(z) = (-1)^{n+1} \sum_{k=0}^n k! \,S(n+1,k+1) \left({{-1} \over {1-z}} \right)^{k+1} \
 ##'     (n=1,2,3,\ldots),
 ##'
@@ -545,15 +545,15 @@ polylog <- function(z,s, method = c("sum","negint-s_Stirling"), logarithm=FALSE,
 {
     if((nz <- length(z)) == 0 || (ns <- length(s)) == 0)
 	return((z+s)[FALSE])# of length 0
-    if(logarithm)
-	stop("'logarithm = TRUE' is not yet implemented")
     stopifnot(length(s) == 1) # for now
     method <- match.arg(method)
     switch(method,
 	   "sum" = {
 	       stopifnot((Mz <- Mod(z)) <= 1, Mz < 1 | Re(s) > 1,
 			 n.sum > 99, length(n.sum) == 1)
-               z*polynEval((1:n.sum)^-s, z)
+               if(logarithm)
+                   log(z)+log(polynEval((1:n.sum)^-s, z))
+               else z*polynEval((1:n.sum)^-s, z)
 	   },
 	   "negint-s_Stirling" = {
 	       stopifnot(s == as.integer(s), s <= 1)
@@ -564,7 +564,9 @@ polylog <- function(z,s, method = c("sum","negint-s_Stirling"), logarithm=FALSE,
 	       ## k1 <- seq_len(n+1)# == k+1, k = 0...n
 	       fac.k <- cumprod(c(1, seq_len(n)))
                S.n1.k1 <- Stirling2.all(n+1) ## == Stirling2(n+1, k+1)
-               r* polynEval(fac.k * S.n1.k1, r)
+               if(logarithm)
+                   log(r)+ log(polynEval(fac.k * S.n1.k1, r))
+               else r* polynEval(fac.k * S.n1.k1, r)
 	   }, stop("invalid 'method':", method))
 }
 

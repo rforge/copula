@@ -27,10 +27,9 @@ dnacopula <- function(x, u, MC, log = FALSE){
     stopifnot(is(x, "outer_nacopula"))
     if(length(x@childCops))
 	stop("currently, only Archimedean copulas are provided")
-    if(is.vector(u)) u <- matrix(u, nrow = 1)
+    if(!is.matrix(u)) u <- rbind(u)
     if((d <- ncol(u)) < 2) stop("u should be at least bivariate")
-    acop <- x@copula
-    acop@dacopula(u, acop@theta, MC, log)
+    x@copula@dacopula(u, x@copula@theta, MC, log)
 }
 
 ##' Returns the copula density at u. Generic algorithm 

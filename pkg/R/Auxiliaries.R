@@ -16,6 +16,7 @@
 ####  'interval'	 class utilities
 ####  =========================== these are small and simple
 ###   use require(package= "Intervals")	 if you want serious interval "work"
+
 interval <- function(ch) {
     ## Purpose: "interval" object constructor from string  "[ a, b)", ...
     ## Author: Martin Maechler, Date: 16 Nov 2009
