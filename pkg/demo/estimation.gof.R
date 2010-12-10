@@ -13,15 +13,15 @@ r <- function(x) round(x,4) # for output
 ##' @param d dimension
 ##' @param simFamily Archimedean family to be sampled
 ##' @param tau degree of dependence of the sampled family in terms of Kendall's tau
-##' @param MC if provided (and not NULL) and if it make sense for the
-##' chosen method, Monte Carlo is used with sample size equal to MC
+##' @param n.MC if provided (and not NULL) and if it make sense for the
+##' chosen method, Monte Carlo is used with sample size equal to n.MC
 ##' @param esti.method estimation method (see enacopula)
 ##' @param gof.method  goodness-of-fit transformation (see gnacopula)
 ##' @param checkFamilies vector of Archimedean families to be used for gof
 ##' @param verbose
 ##' @return a numeric matrix ...
 ##' @author Marius Hofert (und Martin Maechler)
-estimation.gof <- function(n, d, simFamily, tau, MC,
+estimation.gof <- function(n, d, simFamily, tau, n.MC,
                            esti.method = eval(formals(enacopula)$method),
                            gof.method = eval(formals(gnacopula)$method),
                            checkFamilies = nacopula:::c_longNames, verbose = TRUE)
@@ -48,7 +48,7 @@ estimation.gof <- function(n, d, simFamily, tau, MC,
         if(verbose) cat("Estimation and GOF for ",checkFamilies[k],":\n\n",sep="")
         ute[k] <- system.time(est[k] <- enacopula(u, cop = cop.hat,
                                                    method = esti.method,
-                                                   MC = MC, do.pseudo = FALSE))[1]
+                                                   n.MC = n.MC, do.pseudo = FALSE))[1]
         ## FIXME: test for "convergence" etc
         tau[k] <- cop.hat@copula@tau(est[k])
         if(verbose){
@@ -66,7 +66,7 @@ estimation.gof <- function(n, d, simFamily, tau, MC,
                         gnacopula(u, cop = cop.hat, bootstrap = FALSE,
                                   method = gof.method,
                                   estimation.method = esti.method,
-                                  MC = MC, do.pseudo = FALSE,
+                                  n.MC = n.MC, do.pseudo = FALSE,
                                   verbose = FALSE))[1]
         sig[k] <- if(gof[k] < 0.05) 1 else 0
         if(verbose){
@@ -147,9 +147,9 @@ sapply <- function(X, FUN, ..., simplify = TRUE, USE.NAMES = TRUE, ARRAY = FALSE
 
 RR <- sapply(estMeth, ARRAY=TRUE, function(e)
          {
-             MC <- if(e == "smle") 10000 else NULL
+             n.MC <- if(e == "smle") 10000 else NULL
              sapply(gofMeth, ARRAY=TRUE, function(g)
-                    estimation.gof(n, d, simFamily, tau=tau, MC=MC,
+                    estimation.gof(n, d, simFamily, tau = tau, n.MC = n.MC,
                                    esti.method = e, gof.method = g))
          })
 

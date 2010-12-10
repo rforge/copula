@@ -35,8 +35,8 @@
       Note that there is no informational loss by computing the absolute value
       since the derivatives alternate in sign (so that the generator derivative
       itself can be accessed with (-1)^\code{degree}\code{psiDabs}). If the
-      number \code{MC} is provided, the function is computed based on a Monte
-      Carlo simulation with sample size equal to \code{MC}; otherwise, the
+      number \code{n.MC} is provided, the function is computed based on a Monte
+      Carlo simulation with sample size equal to \code{n.MC}; otherwise, the
       generator derivatives are evaluated with their exact formulas. The
  		optional parameter \code{log} (defaults to \code{FALSE}) indicates whether
  		or not the logarithmic value is returned.}
@@ -47,7 +47,7 @@
  		value of the first derivative of \code{psiInv()} is returned.}
 	 \item{\code{dacopula}:}{a \code{\link{function}} which computes the density
 	   of the Archimedean copula at \code{u} with parameter \code{theta}. The
-	   meanings of the optional parameters \code{MC} and \code{log} are as
+	   meanings of the optional parameters \code{n.MC} and \code{log} are as
 	   described before.}
     \item{\code{paraInterval}:}{Either \code{\link{NULL}} or object of class
       \code{"\linkS4class{interval}"}, typically from a call such as

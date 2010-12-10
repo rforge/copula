@@ -129,13 +129,13 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     ## psiDabs with degree = 10 and MC
     cat("\nvalues of psiDabs with degree=10 and MC at i10:\n")
     CT <- c(CT, list(psiDabs = system.time(p.D <- cop@psiDabs(i10,theta = theta0,
-                     degree = 10, MC = 1000))))
+                     degree = 10, n.MC = 1000))))
     print(p.D)
     cat0("check if all values are nonnegative")
     stopifnot(all(p.D >= 0))
-    cat("check psiDabs(Inf,theta,degree=10,MC=1000) = 0 and the class of psiDabs(0,theta,degree=10,MC=1000): ")
-    at.0 <- cop@psiDabs(0, theta = theta0, degree = 10, MC = 1000)
-    stopifnot(cop@psiDabs(Inf, theta = theta0, degree = 10, MC = 1000)==0,
+    cat("check psiDabs(Inf,theta,degree=10,n.MC=1000) = 0 and the class of psiDabs(0,theta,degree=10,n.MC=1000): ")
+    at.0 <- cop@psiDabs(0, theta = theta0, degree = 10, n.MC = 1000)
+    stopifnot(cop@psiDabs(Inf, theta = theta0, degree = 10, n.MC = 1000)==0,
               is.numeric(at.0), !is.nan(at.0))
     cat0("[Ok]")
 
@@ -214,10 +214,10 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     print(lD)
     stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))
     cat0("[Ok]")
-    ## d > 2, MC = TRUE
+    ## d > 2, MC
     cat("\n check dnacopula with log = TRUE and MC for u being a random (20x20)-matrix:\n")
     CT <- c(CT, list(dnacopula. = system.time(lD <- dnacopula(ocop.20d,u,
-                     MC = 1000, log = TRUE))))
+                     n.MC = 1000, log = TRUE))))
     print(lD)
     stopifnot(all(is.numeric(lD) & !is.nan(lD) & is.finite(lD)))
     cat0("[Ok]")
@@ -254,11 +254,11 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     cat0("[Ok]")
     ## K for d = 10 and MC
     cat("\nvalues of K for d = 10 and MC at t01:\n")
-    CT <- c(CT, list(K = system.time(K. <- K(t01, cop, d = 10, MC = 1000))))
+    CT <- c(CT, list(K = system.time(K. <- K(t01, cop, d = 10, n.MC = 1000))))
     check.K.t01( print(K.) )
     cat("check if K(0)=0 and K(1)=1: ")
-    stopifnot(K(0, cop, d = 10, MC = 1000)==0,
-              K(1, cop, d = 10, MC = 1000)==1)
+    stopifnot(K(0, cop, d = 10, n.MC = 1000)==0,
+              K(1, cop, d = 10, n.MC = 1000)==1)
     cat0("[Ok]")
 
     ## ==== (8) tau, tauInv ====

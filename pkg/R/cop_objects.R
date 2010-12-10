@@ -32,9 +32,9 @@ copAMH <-
         psi = function(t,theta) { (1-theta)/(exp(t+0)-theta) },
         psiInv = function(t,theta) { log((1-theta*(1-t))/t) },
 	## absolute value of generator derivatives
-	psiDabs = function(t, theta, degree = 1, MC, log = FALSE){
-	    if(!(missing(MC) || is.null(MC))){
-		psiDabsMC(t,"AMH",theta,degree,MC,log)
+	psiDabs = function(t, theta, degree = 1, n.MC, log = FALSE){
+	    if(!(missing(n.MC) || is.null(n.MC))){
+		psiDabsMC(t,"AMH",theta,degree,n.MC,log)
             }else{
 		if(theta == 0) if(log) return(-t) else return(exp(-t)) # independence
 		## Note: psiDabs(0, ...) is correct
@@ -54,7 +54,7 @@ copAMH <-
             }
 	},
 	## density
-	dacopula = function(u, theta, MC, log = FALSE){
+	dacopula = function(u, theta, n.MC, log = FALSE){
 	    if(!is.matrix(u)) u <- rbind(u)
             if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NA outside and on the boundary of the unit hypercube
@@ -68,8 +68,8 @@ copAMH <-
                 sum. <- rowSums(log(u.))
                 sum.. <- rowSums(log1p(u..))
                 ## main part
-                if(!(missing(MC) || is.null(MC))){ # Monte Carlo
-                    V <- copAMH@V0(MC, theta)
+                if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
+                    V <- copAMH@V0(n.MC, theta)
                     l <- d*log((1-theta)*V)
                     ln01 <- sum(n01)
 		    one.u <- function(i) exp(l + (V-1)*sum.[i] - (V+1)*sum..[i])
@@ -141,9 +141,9 @@ copClayton <-
         psi = function(t,theta) { (1+t)^(-1/theta) },
         psiInv = function(t,theta) { t^(-theta) - 1 },
         ## absolute value of generator derivatives
-        psiDabs = function(t, theta, degree = 1, MC, log = FALSE){
-            if(!(missing(MC) || is.null(MC))){
-                psiDabsMC(t,"Clayton",theta,degree,MC,log)
+        psiDabs = function(t, theta, degree = 1, n.MC, log = FALSE){
+            if(!(missing(n.MC) || is.null(n.MC))){
+                psiDabsMC(t,"Clayton",theta,degree,n.MC,log)
             }else{
                 ## Note: psiDabs(0, ...) is correct
                 alpha <- 1/theta
@@ -156,7 +156,7 @@ copClayton <-
             if(log) log(theta)-(1+theta)*log(t) else theta*t^(-(1+theta))
         },
 	## density
-	dacopula = function(u, theta, MC, log = FALSE){
+	dacopula = function(u, theta, n.MC, log = FALSE){
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NA outside and on the boundary of the unit hypercube
@@ -167,8 +167,8 @@ copClayton <-
 	        u. <- u[n01,, drop=FALSE]
                 l.u. <- rowSums(-log(u.))
 	        ## main part
-	        if(!(missing(MC) || is.null(MC))){ # Monte Carlo
-	            V <- copClayton@V0(MC, theta)
+	        if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
+	            V <- copClayton@V0(n.MC, theta)
 	            l <- d*log(theta*V)
                     theta. <- 1 + theta
                     psiI.sum <- rowSums(copClayton@psiInv(u., theta))
@@ -244,9 +244,9 @@ copFrank <-
             ## == -log((exp(-theta*t)-1)/(exp(-theta)-1))
         },
         ## absolute value of generator derivatives
-        psiDabs = function(t, theta, degree = 1, MC, log = FALSE){
-            if(!(missing(MC) || is.null(MC))){
-                psiDabsMC(t,"Frank",theta,degree,MC,log)
+        psiDabs = function(t, theta, degree = 1, n.MC, log = FALSE){
+            if(!(missing(n.MC) || is.null(n.MC))){
+                psiDabsMC(t,"Frank",theta,degree,n.MC,log)
             }else{
                 ## Note: psiDabs(0, ...) is correct
                 p <- -expm1(-theta)
@@ -261,7 +261,7 @@ copFrank <-
             if(log) log(theta)-log(expm1(theta*t)) else theta/expm1(theta*t)
         },
 	## density
-	dacopula = function(u, theta, MC, log = FALSE){
+	dacopula = function(u, theta, n.MC, log = FALSE){
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NA outside and on the boundary of the unit hypercube
@@ -275,8 +275,8 @@ copFrank <-
                 lpu <- log1p(-exp(-theta*u.)) # log(1 - exp(-theta * u))
                 lu <- rowSums(lpu)
 	        ## main part
-	        if(!(missing(MC) || is.null(MC))){ # Monte Carlo
-	            V <- copFrank@V0(MC, theta)
+	        if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
+	            V <- copFrank@V0(n.MC, theta)
 	            l <- d*(log(theta*V)-V*lp)
 	            rs <- -theta*u.sum
                     ln01 <- sum(n01)
@@ -372,9 +372,9 @@ copGumbel <-
         psi = function(t,theta) { exp(-t^(1/theta)) },
         psiInv = function(t,theta) { (-log(t+0))^theta },
         ## absolute value of generator derivatives
-        psiDabs = function(t, theta, degree = 1, MC, log = FALSE){
-            if(!(missing(MC) || is.null(MC))){
-                psiDabsMC(t,"Gumbel",theta,degree,MC,log)
+        psiDabs = function(t, theta, degree = 1, n.MC, log = FALSE){
+            if(!(missing(n.MC) || is.null(n.MC))){
+                psiDabsMC(t,"Gumbel",theta,degree,n.MC,log)
             }else{
                 if(theta == 1) return(if(log) -t else exp(-t)) # independence
                 res <- numeric(n <- length(t))
@@ -399,7 +399,7 @@ copGumbel <-
             }
         },
 	## density
-	dacopula = function(u, theta, MC, log = FALSE){
+	dacopula = function(u, theta, n.MC, log = FALSE){
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NA outside and on the boundary of the unit hypercube
@@ -413,8 +413,8 @@ copGumbel <-
                 l.u. <- -log(u.)
                 ll.u. <- log(l.u.)
 	        ## main part
-	        if(!(missing(MC) || is.null(MC))){ # Monte Carlo
-	            V <- copGumbel@V0(MC, theta)
+	        if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
+	            V <- copGumbel@V0(n.MC, theta)
 	            l <- d*log(theta*V)
 	            sum. <- (theta-1)*rowSums(ll.u.+l.u.)
                     ln01 <- sum(n01)
@@ -512,9 +512,9 @@ copJoe <-
         },
         psiInv = function(t,theta) { -log1p(-(1-t)^theta) },
         ## absolute value of generator derivatives
-        psiDabs = function(t, theta, degree = 1, MC, log = FALSE){
-            if(!(missing(MC) || is.null(MC))){
-                psiDabsMC(t,"Joe",theta,degree,MC,log)
+        psiDabs = function(t, theta, degree = 1, n.MC, log = FALSE){
+            if(!(missing(n.MC) || is.null(n.MC))){
+                psiDabsMC(t,"Joe",theta,degree,n.MC,log)
             }else{
                 if(theta == 1) return(if(log) -t else exp(-t)) # independence
                 res <- numeric(n <- length(t))
@@ -546,7 +546,7 @@ copJoe <-
             }
         },
 	## density
-	dacopula = function(u, theta, MC, log = FALSE){
+	dacopula = function(u, theta, n.MC, log = FALSE){
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NA outside and on the boundary of the unit hypercube
@@ -560,8 +560,8 @@ copJoe <-
                 l.u <- log1p(u..) # log(1-(1-u)^theta)
                 s.l.u <- rowSums(l.u)
 	        ## main part
-	        if(!(missing(MC) || is.null(MC))){ # Monte Carlo
-	            V <- copJoe@V0(MC, theta)
+	        if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
+	            V <- copJoe@V0(n.MC, theta)
 	            l <- d*log(theta*V)
                     sum. <- (theta-1)*rowSums(log1p(-u.))
                     ln01 <- sum(n01)
@@ -675,9 +675,9 @@ copJoe <-
                                         #             r$root
                                         # 	},
                                         #         ## absolute value of generator derivatives
-                                        #         psiDabs = function(t, theta, degree = 1, MC, log = FALSE){
-                                        #             if(!(missing(MC) || is.null(MC))){
-                                        #                 copGIG@psiDabsMC(t,"GIG",theta,degree,MC,log)
+                                        #         psiDabs = function(t, theta, degree = 1, n.MC, log = FALSE){
+                                        #             if(!(missing(n.MC) || is.null(n.MC))){
+                                        #                 copGIG@psiDabsMC(t,"GIG",theta,degree,n.MC,log)
                                         #             }else{
                                         # 		res <- numeric(n <- length(t))
                                         #                 res[is0 <- t == 0] <- Inf

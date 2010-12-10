@@ -5,16 +5,16 @@
   Evaluates the density of an Archimedean copula.
 }
 \usage{
-dnacopula(x, u, MC, log = FALSE)
+dnacopula(x, u, n.MC, log = FALSE)
 }
 \arguments{
   \item{x}{an object of class \code{"\linkS4class{outer_nacopula}"}.}
   \item{u}{argument of the copula x. Note that u can be a matrix in which case
 			  the density is computed for each row of the matrix and the vector of
 			  values is returned.}
-  \item{MC}{(optional) integer or \code{NULL}. If specified (not NULL)
+  \item{n.MC}{(optional) integer or \code{NULL}. If specified and not NULL,
     Monte Carlo is used for evaluation of the density with sample size
-    equal to \code{MC}.}
+    equal to \code{n.MC}.}
   \item{log}{if TRUE the log-density is evaluated (defaults to FALSE).}
 }
 \details{
@@ -39,7 +39,7 @@ u <- rep(0.5, 20)
 dnacopula(C20, u)
 
 ## the same with Monte Carlo based on 10000 simulated "frailties"
-dnacopula(C20, u, MC = 10000)
+dnacopula(C20, u, n.MC = 10000)
 
 ## Evaluate the exact log-density at several points
 u <- matrix(runif(100), ncol=20)

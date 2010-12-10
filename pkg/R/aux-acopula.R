@@ -631,11 +631,11 @@ cacopula <- function(v, u, family, theta, log = FALSE){
 ##' @param family Archimedean family (name)
 ##' @param theta parameter value
 ##' @param degree order of derivative
-##' @param MC Monte Carlo sample size
+##' @param n.MC Monte Carlo sample size
 ##' @param log if TRUE the log of psiDabs is returned
 ##' @author Marius Hofert
-psiDabsMC <- function(t, family, theta, degree = 1, MC, log = FALSE){
-    V0. <- getAcop(family)@V0(MC,theta)
+psiDabsMC <- function(t, family, theta, degree = 1, n.MC, log = FALSE){
+    V0. <- getAcop(family)@V0(n.MC,theta)
     l.V0. <- degree*log(V0.)
     summands <- function(t) mean(exp(-V0.*t + l.V0.))
     res <- unlist(lapply(t,summands))

@@ -225,14 +225,14 @@ edmle <- function(u, cop, interval = paraOptInterval(u, cop@name), ...)
 ##' @title (Simulated) maximum likelihood estimation for nested Archimedean copulas
 ##' @param u matrix of realizations following the copula
 ##' @param cop nacopula to be estimated
-##' @param MC if provided SMLE is applied with sample size equal to MC; otherwise,
+##' @param n.MC if provided SMLE is applied with sample size equal to n.MC; otherwise,
 ##'        MLE is applied
 ##' @param interval bivariate vector denoting the interval where optimization takes
 ##'        place (with default given by the slot paraSubInterval)
 ##' @param ... additional parameters for optimize
 ##' @return (simulated) maximum likelihood estimator; return value of optimize
 ##' @author Marius Hofert
-emle <- function(u, cop, MC, interval = paraOptInterval(u, cop@copula@name), ...)
+emle <- function(u, cop, n.MC, interval = paraOptInterval(u, cop@copula@name), ...)
 {
     stopifnot(is(cop,"nacopula"))
     if(length(cop@childCops))
@@ -250,12 +250,12 @@ emle <- function(u, cop, MC, interval = paraOptInterval(u, cop@copula@name), ...
     ##                     theta.mean = etau (u,acop, method="theta.mean"),
     ##                     diag       = edmle(u,acop,...),
     ##                     stop("wrong argument initial"))
-    if(missing(MC)) MC <- NULL # set it to NULL to make the call from dnacopula easier
+    if(missing(n.MC)) n.MC <- NULL # set it to NULL to make the call from dnacopula easier
     ## optimize
     mLogL <- function(theta){ # -log-likelihood
         cop@copula@theta <- theta
 ### FIXME: maybe only sum over those values that are finite and let the user know how many these are (?)
-        -sum(dnacopula(cop, u, MC = MC, log = TRUE))
+        -sum(dnacopula(cop, u, n.MC = n.MC, log = TRUE))
     }
     optimize(mLogL, interval = interval, ...)
     ## optimx::optimx(start, mLogL,
@@ -297,14 +297,14 @@ pobs <- function(x) apply(x,2,rank)/(nrow(x)+1)
 ##'        "smle.tau.mean"    SMLE with initial value found by averaged pairwise Kendall's tau
 ##'        "smle.theta.mean"  SMLE with initial value found by Kendall's tau estimators averaged
 ##'        "smle.diag"        SMLE with initial value found via DMLE
-##' @param MC if provided (and not NULL) MC denotes the sample size for SMLE
+##' @param n.MC if provided (and not NULL) n.MC denotes the sample size for SMLE
 ##' @param interval initial optimization interval for "mle", "smle", and "dmle" (i.e., emle, dmle)
 ##' @param do.pseudo  logical indicating if 'x' should be "pseudo-transformed"
 ##' @param ... additional parameters for optimize
 ##' @return estimated value/vector according to the chosen method
 ##' @author Marius Hofert
 enacopula <- function(x, cop, method = c("mle","smle","tau.tau.mean","tau.theta.mean",
-                              "dmle","beta"), MC, interval =
+                              "dmle","beta"), n.MC, interval =
                       paraOptInterval(u, cop@copula@name), do.pseudo = FALSE, ...)
 {
     ## setup cop
@@ -318,14 +318,14 @@ enacopula <- function(x, cop, method = c("mle","smle","tau.tau.mean","tau.theta.
 
     method <- match.arg(method)
 
-    ## check if MC is given for SMLE
-    if(mMC <- missing(MC)) MC <- NULL
-    if(mMC && method == "smle") stop("smle needs the sample size MC")
+    ## check if n.MC is given for SMLE
+    if(mMC <- missing(n.MC)) n.MC <- NULL
+    if(mMC && method == "smle") stop("smle needs the sample size n.MC")
 
     ## main part
     res <- switch(method,
                   mle =            emle (u,  cop, interval = interval,...),
-                  smle =           emle (u,  cop, MC = MC, interval = interval,...),
+                  smle =           emle (u,  cop, n.MC = n.MC, interval = interval,...),
                   tau.tau.mean =   etau (u, acop, "tau.mean", ...),
                   tau.theta.mean = etau (u, acop, "theta.mean", ...),
                   dmle =           edmle(u, acop, interval = interval,...),

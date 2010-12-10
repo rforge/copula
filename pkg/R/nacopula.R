@@ -21,17 +21,17 @@
 ##' @title Density of nested Archimedean copulas
 ##' @param x nacopula
 ##' @param u argument of the copula x
-##' @param MC if provided (and not NULL) Monte Carlo is used for evaluation of
-##'        the density with sample size equal to MC
+##' @param n.MC if provided (and not NULL) Monte Carlo is used for evaluation of
+##'        the density with sample size equal to n.MC
 ##' @param log if TRUE the log-density is evaluated
 ##' @author Marius Hofert
-dnacopula <- function(x, u, MC, log = FALSE){
+dnacopula <- function(x, u, n.MC, log = FALSE){
     stopifnot(is(x, "outer_nacopula"))
     if(length(x@childCops))
 	stop("currently, only Archimedean copulas are provided")
     if(!is.matrix(u)) u <- rbind(u)
     if((d <- ncol(u)) < 2) stop("u should be at least bivariate")
-    x@copula@dacopula(u, x@copula@theta, MC, log)
+    x@copula@dacopula(u, x@copula@theta, n.MC, log)
 }
 
 ##' Returns the copula density at u. Generic algorithm 
@@ -39,11 +39,11 @@ dnacopula <- function(x, u, MC, log = FALSE){
 ##' @title Density of nested Archimedean copulas (generic form)
 ##' @param x nacopula
 ##' @param u argument of the copula x
-##' @param MC if provided (and not NULL) Monte Carlo is used for evaluation of
-##'        the density with sample size equal to MC
+##' @param n.MC if provided (and not NULL) Monte Carlo is used for evaluation of
+##'        the density with sample size equal to n.MC
 ##' @param log if TRUE the log-density is evaluated
 ##' @author Marius Hofert
-dnacopulag <- function(x, u, MC, log = FALSE){
+dnacopulag <- function(x, u, n.MC, log = FALSE){
     stopifnot(is(x, "outer_nacopula"))
     if(length(x@childCops))
         stop("currently, only Archimedean copulas are provided")
@@ -57,7 +57,7 @@ dnacopulag <- function(x, u, MC, log = FALSE){
         u. <- u[n01,, drop=FALSE]
 	psiI <- acop@psiInv(u[n01,],th)
 	psiID <- acop@psiInvD1abs(u[n01,],th)
-        res[n01] <- acop@psiDabs(rowSums(psiI),theta = th,degree = d, MC = MC, log = log)
+        res[n01] <- acop@psiDabs(rowSums(psiI),theta = th,degree = d, n.MC = n.MC, log = log)
         res[n01] <- if(log) res[n01] + rowSums(log(psiID)) else res[n01] * apply(psiID,1,prod)
     }
     res

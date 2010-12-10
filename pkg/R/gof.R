@@ -43,19 +43,19 @@ g01 <- function(u, method = c("log","normal")){
 ##' @param t evaluation point(s)
 ##' @param cop acopula with specified parameter
 ##' @param d dimension
-##' @param MC if provided (and not NULL) psiDabs is evaluated via Monte Carlo
-##'        with sample size MC
+##' @param n.MC if provided (and not NULL) psiDabs is evaluated via Monte Carlo
+##'        with sample size n.MC
 ##' @return Kendall distribution function at t
 ##' @author Marius Hofert
 ##' FIXME: maybe with outer()
-K <- function(t, cop, d, MC)
+K <- function(t, cop, d, n.MC)
 {
     stopifnot(is(cop, "acopula"))
     psiI <- cop@psiInv(t,th <- cop@theta)
     n <- length(t)
-    if(!(missing(MC) || is.null(MC))){
-	stopifnot(is.numeric(MC), is.finite(MC), MC > 0)
-        V <- cop@V0(MC,th)
+    if(!(missing(n.MC) || is.null(n.MC))){
+	stopifnot(is.numeric(n.MC), is.finite(n.MC), n.MC > 0)
+        V <- cop@V0(n.MC,th)
         unlist(lapply(psiI, function(psInv) mean(ppois(d-1, V* psInv))))
     } else {
 	K. <- numeric(n)
@@ -93,10 +93,10 @@ K <- function(t, cop, d, MC)
 ##' @param x data matrix
 ##' @param cop an ("outer_") nacopula
 ##' @param do.pseudo boolean indicating whether to compute the pseudo-observations
-##' @param MC if provided K is evaluated via Monte Carlo with sample size MC
+##' @param n.MC if provided K is evaluated via Monte Carlo with sample size n.MC
 ##' @return matrix of supposedly U[0,1]^d realizations
 ##' @author Marius Hofert & Martin Maechler
-gnacopulatrafo <- function(x, cop, MC, do.pseudo = FALSE)
+gnacopulatrafo <- function(x, cop, n.MC, do.pseudo = FALSE)
 {
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
@@ -115,7 +115,7 @@ gnacopulatrafo <- function(x, cop, MC, do.pseudo = FALSE)
     cumsum.psiI <- t(apply(psiI,1,cumsum))
     u. <- matrix(, nrow = nrow(u), ncol = d) # for the transformed components (U[0,1]^d under H0)
     for(j in seq_len(d-1)) u.[,j] <- (cumsum.psiI[,j]/cumsum.psiI[,j+1])^j
-    u.[,d] <- K(acop@psi(cumsum.psiI[,d], th), acop, d = d, MC = MC)
+    u.[,d] <- K(acop@psi(cumsum.psiI[,d], th), acop, d = d, n.MC = n.MC)
     u.
 }
 
@@ -127,7 +127,7 @@ gnacopulatrafo <- function(x, cop, MC, do.pseudo = FALSE)
 ##' @param cop nacopula with specified H0 parameters
 ##' @param do.pseudo boolean indicating whether to compute the pseudo-observations
 ##' @param method for Anderson-Darling, see g01
-##' @param MC if provided K is evaluated via Monte Carlo with sample size MC
+##' @param n.MC if provided K is evaluated via Monte Carlo with sample size n.MC
 ##' @param bootstrap whether or not a bootstrap is applied
 ##' @param B number of bootstrap replications
 ##' @param estimation.method estimation method, see enacopula
@@ -137,7 +137,7 @@ gnacopulatrafo <- function(x, cop, MC, do.pseudo = FALSE)
 gnacopula <- function(x, cop, bootstrap = TRUE, B = 1000, method = c("log","normal"),
                       estimation.method = c("mle.tau.mean",
                       "mle.theta.mean","mle.diag","smle","tau.tau.mean",
-                      "tau.theta.mean","dmle","beta"), MC, do.pseudo = TRUE,
+                      "tau.theta.mean","dmle","beta"), n.MC, do.pseudo = TRUE,
                       verbose = TRUE)
 {
     stopifnot(is(cop, "outer_nacopula"))
@@ -159,12 +159,12 @@ gnacopula <- function(x, cop, bootstrap = TRUE, B = 1000, method = c("log","norm
         ## it should be between 0 and 1)
         stopifnot(all(0 <= u, u <= 1))
         ## estimate the parameter by the provided method
-        theta.hat <- enacopula(u,cop,estimation.method,MC,do.pseudo = do.pseudo)
+        theta.hat <- enacopula(u,cop,estimation.method,n.MC,do.pseudo = do.pseudo)
         ## define the copula with theta.hat
         cop.hat <- onacopulaL(cop@family,list(theta.hat,1:d))
         ## transform the data with the copula with estimated parameter and compute
         ## the AD test result
-        AD <- g01(gnacopulatrafo(u, cop.hat, MC, do.pseudo = do.pseudo),
+        AD <- g01(gnacopulatrafo(u, cop.hat, n.MC, do.pseudo = do.pseudo),
                   method = method)$p.value
 
         ## conduct the parametric bootstrap
@@ -176,10 +176,10 @@ gnacopula <- function(x, cop, bootstrap = TRUE, B = 1000, method = c("log","norm
             ## (and do *not* compute them again below!)
 
             ## Estimate the copula parameter:
-            theta.B <- enacopula(u., cop, estimation.method, MC, do.pseudo=FALSE)
+            theta.B <- enacopula(u., cop, estimation.method, n.MC, do.pseudo=FALSE)
             ## copula with estimated parameter:
             cop.B <- onacopulaL(cop@family,list(theta.B, 1:d))
-            AD.vec[k] <- g01(gnacopulatrafo(u., cop.B, MC = MC, do.pseudo=FALSE),
+            AD.vec[k] <- g01(gnacopulatrafo(u., cop.B, n.MC = n.MC, do.pseudo=FALSE),
                              method = method)$p.value
             ## progress output
             if(verbose && k%%10 == 0)
@@ -189,7 +189,7 @@ gnacopula <- function(x, cop, bootstrap = TRUE, B = 1000, method = c("log","norm
         mean(AD.vec > AD)
 
     } else { # no bootstrap --- but still a test (!)
-        g01(gnacopulatrafo(u, cop, MC = MC, do.pseudo = FALSE),
+        g01(gnacopulatrafo(u, cop, n.MC = n.MC, do.pseudo = FALSE),
             method = method)$p.value
     }
 }
