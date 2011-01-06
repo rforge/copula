@@ -416,7 +416,7 @@ copGumbel <-
 	        if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
 	            V <- copGumbel@V0(n.MC, theta)
 	            l <- d*log(theta*V)
-	            sum. <- (theta-1)*rowSums(ll.u.+l.u.)
+	            sum. <- rowSums((theta-1)*ll.u.+l.u.)
                     ln01 <- sum(n01)
 		    one.u <- function(i) exp(l - V*psiI.[i] + sum.[i])
 	            res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
