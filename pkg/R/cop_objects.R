@@ -58,7 +58,7 @@ copAMH <-
 	    if(!is.matrix(u)) u <- rbind(u)
             if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NA outside and on the boundary of the unit hypercube
-            res <- rep.int(NA, n <- nrow(u))
+	    res <- rep.int(NA_real_, n <- nrow(u))
             n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
             if(any(n01)) { # if there are any u's inside the unit hypercube
                 if(theta == 0){ res[n01] <- if(log) 0 else 1; return(res) } # independence
@@ -82,7 +82,7 @@ copAMH <-
                     res[n01] <- (d+1)*log1p(-theta)-log(theta)+Li.-sum.-sum..
                     if(log) res else exp(res)
                 }
-            }
+	    } else res # all NA
         },
         ## parameter interval
         paraInterval = interval("[0,1)"),
@@ -160,12 +160,12 @@ copClayton <-
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NA outside and on the boundary of the unit hypercube
-            res <- rep.int(NA, n <- nrow(u))
+	    res <- rep.int(NA_real_, n <- nrow(u))
             n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
             if(any(n01)) { # if there are any u's inside the unit hypercube
 		## auxiliary results
 	        u. <- u[n01,, drop=FALSE]
-                l.u. <- rowSums(-log(u.))
+                l.u <- rowSums(-log(u.))
 	        ## main part
 	        if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
 	            V <- copClayton@V0(n.MC, theta)
@@ -173,7 +173,7 @@ copClayton <-
                     theta. <- 1 + theta
                     psiI.sum <- rowSums(copClayton@psiInv(u., theta))
                     ln01 <- sum(n01)
-		    one.u <- function(i) exp(l + theta.*l.u.[i] - V*psiI.sum[i])
+		    one.u <- function(i) exp(l + theta.*l.u[i] - V*psiI.sum[i])
 	            res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
                                                 ncol = ln01))
 	            if(log) log(res) else res
@@ -181,11 +181,11 @@ copClayton <-
                     alpha <- 1/theta
 	            d.a <- d + alpha
                     arg <- rowSums(u.^(-theta)-1)
-	            res[n01] <- lgamma(d.a)-lgamma(alpha)+d*log(theta)+(1+theta)*
-                        l.u.-(d.a)*log1p(arg)
+		    res[n01] <- lgamma(d.a)-lgamma(alpha)+ d*log(theta) +
+			(1+theta)*l.u - (d.a)*log1p(arg)
 	            if(log) res else exp(res)
 	        }
-	    }
+	    } else res # all NA
 	},
         ## parameter interval
         paraInterval = interval("(0,Inf)"),
@@ -265,7 +265,7 @@ copFrank <-
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NA outside and on the boundary of the unit hypercube
-	    res <- rep(NA,n <- nrow(u))
+	    res <- rep.int(NA_real_, n <- nrow(u))
 	    n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
 	    if(any(n01)){ # if there are any u's inside the unit hypercube
 		## auxiliary results
@@ -290,7 +290,7 @@ copFrank <-
 	            res[n01] <- (d-1)*log(theta) + Li. - theta*u.sum - lu
 	            if(log) res else exp(res)
 	        }
-	    }
+	    } else res # all NA
 	},
         ## parameter interval
         paraInterval = interval("(0,Inf)"),
@@ -403,20 +403,20 @@ copGumbel <-
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NA outside and on the boundary of the unit hypercube
-	    res <- rep(NA,n <- nrow(u))
+	    res <- rep.int(NA_real_, n <- nrow(u))
 	    n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
 	    if(any(n01)){ # if there are any u's inside the unit hypercube
 	        if(theta == 1){ res[n01] <- if(log) 0 else 1; return(res) } # independence
 		## auxiliary results
 	        u. <- u[n01,, drop=FALSE]
                 psiI. <- rowSums(copGumbel@psiInv(u., theta))
-                l.u. <- -log(u.)
-                ll.u. <- log(l.u.)
+                l.u <- -log(u.)
+                ll.u <- log(l.u)
 	        ## main part
 	        if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
 	            V <- copGumbel@V0(n.MC, theta)
 	            l <- d*log(theta*V)
-	            sum. <- rowSums((theta-1)*ll.u.+l.u.)
+	            sum. <- rowSums((theta-1)*ll.u + l.u)
                     ln01 <- sum(n01)
 		    one.u <- function(i) exp(l - V*psiI.[i] + sum.[i])
 	            res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
@@ -426,13 +426,13 @@ copGumbel <-
                     alpha <- 1/theta
                     psiI.alpha <- psiI.^alpha
                     sum. <- psiDabsGpoly(psiI.alpha, alpha, d)
-                    l.u.. <- rowSums(l.u.)
-                    ll.u.. <- rowSums(ll.u.)
-                    res[n01] <- -psiI.alpha-d*log(psiI.)+log(sum.)+d*
-                        log(theta)+(theta-1)*ll.u..+l.u..
+                    l.u. <- rowSums(l.u)
+                    ll.u. <- rowSums(ll.u)
+                    res[n01] <- -psiI.alpha-d*log(psiI.)+ log(sum.) +
+                        d*log(theta)+ (theta-1)*ll.u. + l.u.
 	            if(log) res else exp(res)
 	        }
-	    }
+	    } else res # all NA
 	},
         ## parameter interval
         paraInterval = interval("[1,Inf)"),
@@ -512,29 +512,23 @@ copJoe <-
         },
         psiInv = function(t,theta) { -log1p(-(1-t)^theta) },
         ## absolute value of generator derivatives
-        psiDabs = function(t, theta, degree = 1, n.MC, log = FALSE){
+        psiDabs = function(t, theta, degree = 1, n.MC, log = FALSE) {
             if(!(missing(n.MC) || is.null(n.MC))){
                 psiDabsMC(t,"Joe",theta,degree,n.MC,log)
             }else{
                 if(theta == 1) return(if(log) -t else exp(-t)) # independence
                 res <- numeric(n <- length(t))
                 res[is0 <- t == 0] <- Inf
-                res[isInf <- is.infinite(t)] <- 0
+                res[isInf <- is.infinite(t)] <- if(log)-Inf else 0
                 if(any(n0Inf <- !(is0 | isInf))) {
                     alpha <- 1/theta
                     e.t <- -expm1(-t[n0Inf])
                     arg <- exp(-t[n0Inf])/e.t
 		    sum. <- psiDabsJpoly(arg, alpha, degree)
-                    res[n0Inf] <- alpha * e.t^alpha *sum.
-                                        #
-                                        # 	FIXME: remove this code
-                                        # k <- 1:degree
-                                        # l.a.k <- log(Stirling2.all(degree))+lgamma(k-alpha)-lgamma(1-alpha)
-                                        # one.k <- function(k.) exp(l.a.k[k.]-k.*t[n0Inf]-(k.-alpha)*
-                                        #                           log1p(-exp(-t[n0Inf])))
-                                        # res[n0Inf] <- alpha*rowSums(matrix(unlist(lapply(1:degree, one.k)), ncol = degree)) # FIXME: inefficient?
+                    res[n0Inf] <-
+                        if(log) log(alpha)+alpha*log(e.t) + log(sum.)
+                        else alpha * e.t^alpha *sum.
                 }
-                if(log) log(res) else res
             }
         },
         ## derivatives of the generator inverse
@@ -550,10 +544,10 @@ copJoe <-
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NA outside and on the boundary of the unit hypercube
-	    res <- rep(NA,n <- nrow(u))
+	    res <- rep.int(NA_real_, n <- nrow(u))
             n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
 	    if(any(n01)){ # if there are any u's inside the unit hypercube
-	        if(theta == 1){ res[n01] <- if(log) 0 else 1; return(res) } # independence
+		if(theta == 1){ res[n01] <- if(log) 0 else 1; return(res) } # independence
 		## auxiliary results
 		u. <- u[n01,, drop=FALSE]
                 u.. <- -(1-u.)^theta # -(1-u)^theta
@@ -578,7 +572,7 @@ copJoe <-
                         rowSums((theta-1)*log1p(-u.)-l.u)
 	            if(log) res else exp(res)
 	        }
-	    }
+	    } else res # all NA
 	},
         ## parameter interval
         paraInterval = interval("[1,Inf)"),

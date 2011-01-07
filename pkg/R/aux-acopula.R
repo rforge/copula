@@ -388,10 +388,11 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 ##' @param d number of summands
 ##' @return \sum_{k=1}^d a_k x^k, where a_k = S(d,k)*(k-1-alpha)_{k-1}
 ##' @author Marius Hofert
-psiDabsJpoly <- function(x, alpha, d){
+psiDabsJpoly <- function(x, alpha, d, log = FALSE) {
     ## compute the log of the coefficients a_k
     k <- 1:d
-    l.a.k <- log(Stirling2.all(d))+lgamma(k-alpha)-lgamma(1-alpha)
+    if(log) stop("log=TRUE not yet implemented ..")
+    l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha)
     ## evaluate polynomial via exp(log())
     ## FIXME: maybe (!) use Horner (see psiDabsGpoly)
     one.k <- function(k.) exp(l.a.k[k.] + k.*log(x)) # for one k and (possibly) a vector x
