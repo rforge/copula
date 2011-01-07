@@ -92,11 +92,12 @@ K <- function(t, cop, d, n.MC)
 ##' @title Transformation of Hofert, Maechler (2011)
 ##' @param x data matrix
 ##' @param cop an ("outer_") nacopula
-##' @param do.pseudo boolean indicating whether to compute the pseudo-observations
 ##' @param n.MC if provided K is evaluated via Monte Carlo with sample size n.MC
+##' @param do.pseudo boolean indicating whether to compute the pseudo-observations
+##' @param include.K boolean indicating whether the last component, K, is also used or not
 ##' @return matrix of supposedly U[0,1]^d realizations
 ##' @author Marius Hofert & Martin Maechler
-gnacopulatrafo <- function(x, cop, n.MC, do.pseudo = FALSE)
+gnacopulatrafo <- function(x, cop, n.MC, do.pseudo = FALSE, include.K = TRUE)
 {
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
@@ -113,9 +114,10 @@ gnacopulatrafo <- function(x, cop, n.MC, do.pseudo = FALSE)
     th <- acop@theta
     psiI <- acop@psiInv(u, th)
     cumsum.psiI <- t(apply(psiI,1,cumsum))
-    u. <- matrix(, nrow = nrow(u), ncol = d) # for the transformed components (U[0,1]^d under H0)
+    u. <- matrix(, nrow = nrow(u), ncol = d-1) # for the transformed components (uniformly under H_0)
     for(j in seq_len(d-1)) u.[,j] <- (cumsum.psiI[,j]/cumsum.psiI[,j+1])^j
-    u.[,d] <- K(acop@psi(cumsum.psiI[,d], th), acop, d = d, n.MC = n.MC)
+    if(include.K) u. <- cbind(u., K(acop@psi(cumsum.psiI[,d], th), acop, d = d, 
+                                    n.MC = n.MC))
     u.
 }
 

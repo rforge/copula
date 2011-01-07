@@ -20,7 +20,7 @@ r <- function(x) round(x,4) # for output
 ##' @param checkFamilies vector of Archimedean families to be used for gof
 ##' @param verbose
 ##' @return a numeric matrix ...
-##' @author Marius Hofert (und Martin Maechler)
+##' @author Marius Hofert and Martin Maechler
 estimation.gof <- function(n, d, simFamily, tau, n.MC,
                            esti.method = eval(formals(enacopula)$method),
                            gof.method = eval(formals(gnacopula)$method),
@@ -93,9 +93,9 @@ estimation.gof <- function(n, d, simFamily, tau, n.MC,
 
 set.seed(1) # set seed
 
-n <- 512 # sample size
+n <- 256 # sample size
 d <- 5 # dimension
-tau <- 0.25 # Kendall's tau
+tau <- 0.2 # Kendall's tau
 
 ## ==== apply all procedures (to data from AMH) ================================
 

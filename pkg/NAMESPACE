@@ -35,7 +35,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ## estimation -- (all functions for now -- FIXME ?)
        ,"paraOptInterval"
        ,"beta.", "beta.hat", "pobs"
-       ,"ebeta", "dDiag", "edmle", "emle", "enacopula", "etau"
+       ,"ebeta", "etau", "emde", "dDiag", "edmle", "emle", "enacopula", 
        ,"K", "gnacopula", "gnacopulatrafo"
        ,"onacopula", "onacopulaL"
        ,"polynEval"

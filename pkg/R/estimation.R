@@ -136,10 +136,9 @@ ebeta <- function(u,cop,interval = paraOptInterval(u, cop@name),...){
 etau <- function(u,cop,method = c("tau.mean","theta.mean"),...)
 {
     stopifnot(is(cop,"acopula"))
+    method <- match.arg(method)
     tau.hat.mat <- cor(u, method="kendall",...) # matrix of pairwise tau()
     tau.hat <- tau.hat.mat[upper.tri(tau.hat.mat)] # all tau hat's
-
-    method <- match.arg(method)
     switch(method,
            "tau.mean" = {
                cop@tauInv(mean(tau.hat)) # Kendall's tau corresponding to the mean of the tau hat's
@@ -149,6 +148,93 @@ etau <- function(u,cop,method = c("tau.mean","theta.mean"),...)
            },
        {stop("wrong method")})
 
+}
+
+## ==== Minimum distance estimation ============================================
+
+##' Distances for minimum distance estimation
+##'
+##' @title Distances for minimum distance estimation
+##' @param u matrix of realizations (ideally) following U[0,1]^(d-1) or U[0,1]^d 
+##' @param method distance methods available:
+##'        mde.log.KS      = map to an Erlang distribution (Kolmogorov-Smirnov distance)
+##'        mde.normal.KS   = map to a chi-square distribution (Kolmogorov-Smirnov distance)
+##'        mde.log.CvM     = map to an Erlang distribution (Cramer-von Mises distance)
+##'        mde.normal.CvM  = map to a chi-square distribution (Cramer-von Mises distance)
+##' @return distance 
+##' @author Marius Hofert
+emde.dist <- function(u, method = c("mde.log.KS", "mde.normal.KS", "mde.log.CvM", 
+                         "mde.normal.CvM")){
+    if(!is.matrix(u)) u <- rbind(u)
+    d <- ncol(u)    
+    n <- nrow(u)
+    method <- match.arg(method) # match argument method
+    switch(method,
+           mde.log.KS = { # map to an Erlang distribution
+               x <- rowSums(-log(u))
+               max(abs(rank(x)/n-pgamma(x, shape = d)))
+           },
+           mde.normal.KS = { # map to a chi-square distribution
+               x <- rowSums(qnorm(u)^2)
+               max(abs(rank(x)/n - pchisq(x, d)))
+           },
+           mde.log.CvM = { # map to an Erlang distribution
+               x <- sort(rowSums(-log(u)))
+               Fvals <- pgamma(x, shape = d) 
+               weights <- (2*(1:n)-1)/(2*n)
+               1/(12*n) + sum((weights - Fvals)^2)
+           },
+           mde.normal.CvM = { # map to a chi-square distribution
+               x <- sort(rowSums(qnorm(u)^2))
+               Fvals <- pchisq(x, d)
+               weights <- (2*(1:n)-1)/(2*n)
+               1/(12*n) + sum((weights - Fvals)^2)
+           },
+           ## Note: The following multivariate distances turned out to be (far) too slow
+           ## mde.SB = { # S_n^{(B)} from Genest et al. (2009)
+           ##     sum1 <- sum(apply(1-u^2,1,prod))/2^(d-1)
+           ##     f <- function(i,j) prod(1-apply(rbind(u[i,],u[j,]), 2, max)) 
+           ##     sum2 <- 0
+           ##     for(i in 1:n) sum2 <- sum2 + sum(unlist(lapply(1:n, function(j) f(i,j))))
+           ##     n/3^d-sum1+sum2/n
+           ## },
+           ## mde.SC = { # S_n^{(C)} from Genest et al. (2009)
+           ##     C.hat <- function(u.vec,u.mat) mean(apply(t(apply(u.mat, 1, 
+           ##                                                       function(x) x <= 
+           ##                                                       u.vec)), 1, all))
+           ##     sum((apply(u, 1, C.hat, u.mat = u) - apply(u, 1, prod))^2)
+           ## },
+           stop("wrong distance method"))
+}
+
+##' Minimum distance estimation for Archimedean copulas
+##'
+##' @title Minimum distance estimation for Archimedean copulas
+##' @param u matrix of realizations following the copula
+##' @param cop nacopula to be estimated
+##' @param interval bivariate vector denoting the interval where optimization takes
+##'        place
+##' @param include.K boolean indicating whether the last component, K, is also used or not
+##' @param method distance methods available, see emde.dist
+##' @param ... additional parameters for optimize
+##' @return minimum distance estimator; return value of optimize
+##' @author Marius Hofert
+emde <- function(u, cop, method = c("mde.log.KS", "mde.normal.KS", "mde.log.CvM", 
+                         "mde.normal.CvM"),
+                 interval = paraOptInterval(u, cop@copula@name), 
+                 include.K = if(ncol(u) < 10) TRUE else FALSE, ...)
+{
+    stopifnot(is(cop,"nacopula"))
+    if(length(cop@childCops))
+        stop("currently, only Archimedean copulas are provided")
+    stopifnot(is.numeric(d <- ncol(u)), d >= 1) # dimension
+    method <- match.arg(method) # match argument method
+    distance <- function(theta){ # distance to be minimized
+        cop@copula@theta <- theta
+        u. <- gnacopulatrafo(u, cop, n.MC = NULL, include.K) # transform data [don't use n.MC here; too slow]
+        emde.dist(u., method)
+    }
+    optimize(distance, interval = interval, ...)	
 }
 
 ## ==== Diagonal maximum likelihood estimation =================================
@@ -204,7 +290,7 @@ edmle <- function(u, cop, interval = paraOptInterval(u, cop@name), ...)
         ## optimize
 	mLogL <- function(theta){ # -log-likelihood
             cop@theta <- theta
-            -sum(dDiag(x,cop,d,log = TRUE)) ## FIXME: maybe only sum over those values that are finite and let the user know how many these are (?)
+            -sum(dDiag(x,cop,d,log = TRUE)) 
         }
 	optimize(mLogL, interval = interval, ...)
 	##optimx::optimx(start, function(theta) # -log-Likelihood of the diagonal
@@ -286,27 +372,28 @@ pobs <- function(x) apply(x,2,rank)/(nrow(x)+1)
 ##' @param method estimation method; can be
 ##'        "mle"             MLE
 ##'        "smle"            SMLE
+##'        "dmle"            MLE based on the diagonal
 ##'        "tau.tau.mean"    averaged pairwise Kendall's tau estimator
 ##'        "tau.theta.mean"  average of Kendall's tau estimators
-##'        "dmle"            MLE based on the diagonal
 ##'        "beta"            multivariate Blomqvist's beta estimator
-##' FIXME: the docu (and enacopula) used to contain:
-##'        "mle.tau.mean"     MLE with initial value found by averaged pairwise Kendall's tau
-##'        "mle.theta.mean"   MLE with initial value found by Kendall's tau estimators averaged
-##'        "mle.diag"         MLE with initial value found via DMLE
-##'        "smle.tau.mean"    SMLE with initial value found by averaged pairwise Kendall's tau
-##'        "smle.theta.mean"  SMLE with initial value found by Kendall's tau estimators averaged
-##'        "smle.diag"        SMLE with initial value found via DMLE
+##'        "mde.log.KS"      minimum distance estimation based on the Erlang distribution and KS distance
+##'        "mde.normal.KS"   minimum distance estimation based on the chisq distribution and KS distance
+##'        "mde.log.CvM"     minimum distance estimation based on the Erlang distribution and CvM distance
+##'        "mde.normal.CvM"  minimum distance estimation based on the chisq distribution and CvM distance
 ##' @param n.MC if provided (and not NULL) n.MC denotes the sample size for SMLE
 ##' @param interval initial optimization interval for "mle", "smle", and "dmle" (i.e., emle, dmle)
 ##' @param do.pseudo  logical indicating if 'x' should be "pseudo-transformed"
+##' @param eargs additional arguments for the estimation procedures
 ##' @param ... additional parameters for optimize
 ##' @return estimated value/vector according to the chosen method
 ##' @author Marius Hofert
-enacopula <- function(x, cop, method = c("mle","smle","tau.tau.mean","tau.theta.mean",
-                              "dmle","beta"), n.MC, interval =
-                      paraOptInterval(u, cop@copula@name), do.pseudo = FALSE, ...)
+enacopula <- function(x, cop, method = c("mle", "smle", "dmle", "tau.tau.mean",
+                              "tau.theta.mean", "beta", "mde.log.KS", "mde.normal.KS",
+                              "mde.log.CvM", "mde.normal.CvM"), 
+                      n.MC, interval = paraOptInterval(u, cop@copula@name), 
+                      do.pseudo = FALSE, ...)
 {
+    
     ## setup cop
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
@@ -316,32 +403,43 @@ enacopula <- function(x, cop, method = c("mle","smle","tau.tau.mean","tau.theta.
     ## setup x
     u <- if(do.pseudo) pobs(x) else x
 
-    method <- match.arg(method)
+    method <- match.arg(method) # match argument method
 
     ## check if n.MC is given for SMLE
-    if(mMC <- missing(n.MC)) n.MC <- NULL
-    if(mMC && method == "smle") stop("smle needs the sample size n.MC")
+    mMC <- missing(n.MC)
+    if(method == "smle" && mMC) stop("smle needs the sample size n.MC")
+    if(mMC) n.MC <- NULL
 
     ## main part
     res <- switch(method,
-                  mle =            emle (u,  cop, interval = interval,...),
-                  smle =           emle (u,  cop, n.MC = n.MC, interval = interval,...),
+                  mle =            emle (u,  cop, interval = interval, ...),
+                  smle =           emle (u,  cop, n.MC = n.MC, interval = interval, ...),
+                  dmle =           edmle(u, acop, interval = interval, ...),
                   tau.tau.mean =   etau (u, acop, "tau.mean", ...),
                   tau.theta.mean = etau (u, acop, "theta.mean", ...),
-                  dmle =           edmle(u, acop, interval = interval,...),
-                  beta =           ebeta(u, acop, interval = interval,...),
+                  beta =           ebeta(u, acop, interval = interval, ...),
+                  mde.log.KS =     emde(u, cop, "mde.log.KS", interval = interval, ...), 
+                  mde.normal.KS =  emde(u, cop, "mde.normal.KS", interval = interval, ...),                   
+                  mde.log.CvM =    emde(u, cop, "mde.log.CvM", interval = interval, ...), 
+                  mde.normal.CvM = emde(u, cop, "mde.normal.CvM", interval = interval, ...),
                   stop("wrong estimation method"))
 
+    ## FIXME: pass through arguments such as include.K with argument eargs = list()?
+    ##        use do.call!!
     ## FIXME: deal with result, check details, give warnings
 
     ## return the estimate
     switch(method,
            mle =            res$minimum,
            smle =           res$minimum,
+           dmle =           res$minimum,
            tau.tau.mean =   res,
            tau.theta.mean = res,
-           dmle =           res$minimum,
            beta =           res$root,
+           mde.log.KS =     res$minimum,  
+           mde.normal.KS =  res$minimum, 
+           mde.log.CvM =    res$minimum,  
+           mde.normal.CvM = res$minimum, 
            stop("wrong estimation method"))
 
 }
