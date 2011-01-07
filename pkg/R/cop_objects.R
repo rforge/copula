@@ -529,6 +529,7 @@ copJoe <-
                         if(log) log(alpha)+alpha*log(e.t) + log(sum.)
                         else alpha * e.t^alpha *sum.
                 }
+		res
             }
         },
         ## derivatives of the generator inverse
