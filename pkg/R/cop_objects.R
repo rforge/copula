@@ -58,7 +58,7 @@ copAMH <-
 	    if(!is.matrix(u)) u <- rbind(u)
             if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NA outside and on the boundary of the unit hypercube
-	    res <- rep.int(NA_real_, n <- nrow(u))
+	    res <- rep.int(NaN, n <- nrow(u))
             n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
             if(any(n01)) { # if there are any u's inside the unit hypercube
                 if(theta == 0){ res[n01] <- if(log) 0 else 1; return(res) } # independence
@@ -160,7 +160,7 @@ copClayton <-
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NA outside and on the boundary of the unit hypercube
-	    res <- rep.int(NA_real_, n <- nrow(u))
+	    res <- rep.int(NaN, n <- nrow(u))
             n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
             if(any(n01)) { # if there are any u's inside the unit hypercube
 		## auxiliary results
@@ -265,7 +265,7 @@ copFrank <-
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NA outside and on the boundary of the unit hypercube
-	    res <- rep.int(NA_real_, n <- nrow(u))
+	    res <- rep.int(NaN, n <- nrow(u))
 	    n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
 	    if(any(n01)){ # if there are any u's inside the unit hypercube
 		## auxiliary results
@@ -403,7 +403,7 @@ copGumbel <-
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NA outside and on the boundary of the unit hypercube
-	    res <- rep.int(NA_real_, n <- nrow(u))
+	    res <- rep.int(NaN, n <- nrow(u))
 	    n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
 	    if(any(n01)){ # if there are any u's inside the unit hypercube
 	        if(theta == 1){ res[n01] <- if(log) 0 else 1; return(res) } # independence
@@ -529,6 +529,7 @@ copJoe <-
                         if(log) log(alpha)+alpha*log(e.t) + log(sum.)
                         else alpha * e.t^alpha *sum.
                 }
+		if(log) res else exp(res)
             }
         },
         ## derivatives of the generator inverse
@@ -544,7 +545,7 @@ copJoe <-
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NA outside and on the boundary of the unit hypercube
-	    res <- rep.int(NA_real_, n <- nrow(u))
+	    res <- rep.int(NaN, n <- nrow(u))
             n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
 	    if(any(n01)){ # if there are any u's inside the unit hypercube
 		if(theta == 1){ res[n01] <- if(log) 0 else 1; return(res) } # independence
