@@ -57,7 +57,7 @@ copAMH <-
 	dacopula = function(u, theta, n.MC, log = FALSE){
 	    if(!is.matrix(u)) u <- rbind(u)
             if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-            ## f() := NA outside and on the boundary of the unit hypercube
+            ## f() := NaN outside and on the boundary of the unit hypercube
 	    res <- rep.int(NaN, n <- nrow(u))
             n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
             if(any(n01)) { # if there are any u's inside the unit hypercube
@@ -159,7 +159,7 @@ copClayton <-
 	dacopula = function(u, theta, n.MC, log = FALSE){
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-            ## f() := NA outside and on the boundary of the unit hypercube
+            ## f() := NaN outside and on the boundary of the unit hypercube
 	    res <- rep.int(NaN, n <- nrow(u))
             n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
             if(any(n01)) { # if there are any u's inside the unit hypercube
@@ -264,7 +264,7 @@ copFrank <-
 	dacopula = function(u, theta, n.MC, log = FALSE){
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-            ## f() := NA outside and on the boundary of the unit hypercube
+            ## f() := NaN outside and on the boundary of the unit hypercube
 	    res <- rep.int(NaN, n <- nrow(u))
 	    n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
 	    if(any(n01)){ # if there are any u's inside the unit hypercube
@@ -402,7 +402,7 @@ copGumbel <-
 	dacopula = function(u, theta, n.MC, log = FALSE){
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-            ## f() := NA outside and on the boundary of the unit hypercube
+            ## f() := NaN outside and on the boundary of the unit hypercube
 	    res <- rep.int(NaN, n <- nrow(u))
 	    n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
 	    if(any(n01)){ # if there are any u's inside the unit hypercube
@@ -544,34 +544,56 @@ copJoe <-
 	dacopula = function(u, theta, n.MC, log = FALSE){
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-            ## f() := NA outside and on the boundary of the unit hypercube
+            ## f() := NaN outside and on the boundary of the unit hypercube
 	    res <- rep.int(NaN, n <- nrow(u))
             n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
 	    if(any(n01)){ # if there are any u's inside the unit hypercube
 		if(theta == 1){ res[n01] <- if(log) 0 else 1; return(res) } # independence
 		## auxiliary results
 		u. <- u[n01,, drop=FALSE]
-                u.. <- -(1-u.)^theta # -(1-u)^theta
-                l.u <- log1p(u..) # log(1-(1-u)^theta)
-                s.l.u <- rowSums(l.u)
+                u.. <- -(1-u.)^theta # -(1-u)^theta for those u where we need to determine the density
+                l.x <- rowSums(log1p(u..)) # rowSums(log(1-(1-u)^theta)) = log(x)
 	        ## main part
 	        if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
 	            V <- copJoe@V0(n.MC, theta)
 	            l <- d*log(theta*V)
                     sum. <- (theta-1)*rowSums(log1p(-u.))
                     ln01 <- sum(n01)
-		    one.u <- function(i) exp(l + (V-1)*s.l.u[i] + sum.[i])
+		    one.u <- function(i) exp(l + (V-1)*l.x[i] + sum.[i])
 	            res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
                                                 ncol = ln01))
 	            if(log) log(res) else res
 	        }else{ # explicit
+		    ## new trial:
+		    ## (1) ingredients
                     alpha <- 1/theta
-                    m.l.u <- log1p(-apply(1 + u.., 1, prod))
-                    arg <- exp(s.l.u - m.l.u)
-                    sum. <- psiDabsJpoly(arg, alpha, d)
-                    res[n01] <- (d-1)*log(theta) + alpha*m.l.u + log(sum.) +
-                        rowSums((theta-1)*log1p(-u.)-l.u)
-	            if(log) res else exp(res)
+		    l.Stir <- log(Stirling2.all(d))
+		    l.gamma <- lgamma((1:d)-alpha)
+		    l.m.x <- log1p(-apply(1 + u.., 1, prod)) # log(1-x)
+                    l.xx <- l.x - l.m.x # log(x) - log(1-x)
+                    ## (2) carefully compute the sum
+                    ## (2.1) compute the values of f
+		    f <- function(k) l.Stir[k]+l.gamma[k]-l.gamma[1]+(k-1)*l.xx # k in 1:d; returns a vector of length n
+                    f.vals <- cbind(rep(0,n), do.call(cbind, lapply(2:d,f)))
+                    ## (2.2) for each i in 1:n, find the k_i^star that maximizes f.vals[i,]
+                    k.star <- apply(f.vals, 1, which.max) # k.star[i] contains the index of the maximum of f.vals[i,]
+                    f.max <- unlist(lapply(1:n, function(i) f.vals[i,k.star[i]]))
+		    ## (2.3) compute the sum
+                    f.vals.wo.max.vec <- unlist(lapply(1:n, function(i) f.vals[i,-k.star[i]]))
+		    f.vals.wo.max <- matrix(f.vals.wo.max.vec, nrow = n, byrow = TRUE) # f.vals without maxima
+                    sum. <- rowSums(exp(f.vals.wo.max))
+                    ## (3) compute the density 
+                    res[n01] <- (d-1)*log(theta)+(theta-1)*rowSums(log1p(-u.))-
+                        (1-alpha)*l.m.x+f.max+log1p(sum.)
+                    ## old approach: the following 6 lines are okay but face numerical problems for large d
+                    ## note: l.x was originally log1p(u..)
+                    ## alpha <- 1/theta
+                    ## m.l.x <- log1p(-apply(1 + u.., 1, prod))
+                    ## arg <- exp(l.x - m.l.x)
+                    ## sum. <- psiDabsJpoly(arg, alpha, d)
+                    ## res[n01] <- (d-1)*log(theta) + alpha*m.l.x + log(sum.) +
+                    ##     rowSums((theta-1)*log1p(-u.)-l.x)
+                    if(log) res else exp(res)
 	        }
 	    } else res # all NA
 	},
