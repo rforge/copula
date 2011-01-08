@@ -21,20 +21,20 @@
 ##' @title Density of nested Archimedean copulas
 ##' @param x nacopula
 ##' @param u argument of the copula x
-##' @param n.MC if provided (and not NULL) Monte Carlo is used for evaluation of
-##'        the density with sample size equal to n.MC
 ##' @param log if TRUE the log-density is evaluated
-##' @author Marius Hofert
-dnacopula <- function(x, u, n.MC, log = FALSE){
+##' @param ... further arguments passed to the copula specific 'dacopula' function;
+##'   typically  'n.MC' (Monte Carlo size or NULL), but potentially more
+##' @author Marius Hofert and Martin Maechler
+dnacopula <- function(x, u, log=FALSE, ...) {
     stopifnot(is(x, "outer_nacopula"))
     if(length(x@childCops))
 	stop("currently, only Archimedean copulas are provided")
     if(!is.matrix(u)) u <- rbind(u)
     if((d <- ncol(u)) < 2) stop("u should be at least bivariate")
-    x@copula@dacopula(u, x@copula@theta, n.MC, log)
+    x@copula@dacopula(u, x@copula@theta, log=log, ...)
 }
 
-##' Returns the copula density at u. Generic algorithm 
+##' Returns the copula density at u. Generic algorithm
 ##'
 ##' @title Density of nested Archimedean copulas (generic form)
 ##' @param x nacopula

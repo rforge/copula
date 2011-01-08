@@ -38,6 +38,11 @@ Stirling2.all(n)
   \code{Stirling2.all(n)} is the same as \code{sapply(1:n, Stirling2, n=n)},
   but more efficiently.
 }
+\note{
+  For typical double precision arithmetic,\cr
+  \code{Stirling1*(n, *)} overflow (to \eqn{\pm}{+/-}\code{Inf}) for \eqn{n \ge 171}, and\cr
+  \code{Stirling2*(n, *)} overflow (to \code{Inf}) for \eqn{n \ge 220}.
+}
 \author{Martin Maechler ("direct": May 1992)}
 \references{
   Abramowitz and Stegun

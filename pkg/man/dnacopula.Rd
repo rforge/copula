@@ -5,31 +5,39 @@
   Evaluates the density of an Archimedean copula.
 }
 \usage{
-dnacopula(x, u, n.MC, log = FALSE)
+dnacopula(x, u, log = FALSE, \dots)
 }
 \arguments{
   \item{x}{an object of class \code{"\linkS4class{outer_nacopula}"}.}
   \item{u}{argument of the copula x. Note that u can be a matrix in which case
-			  the density is computed for each row of the matrix and the vector of
-			  values is returned.}
-  \item{n.MC}{(optional) integer or \code{NULL}. If specified and not NULL,
-    Monte Carlo is used for evaluation of the density with sample size
-    equal to \code{n.MC}.}
-  \item{log}{if TRUE the log-density is evaluated (defaults to FALSE).}
+    the density is computed for each row of the matrix and the vector of
+    values is returned.}
+  \item{log}{logical indicating if the \code{\link{log}} of the density
+    should be returned.}
+  \item{\dots}{
+    optional further arguments passed to the copulas \code{dacopula}
+    function (slot), such as \code{n.MC}, (integer or \code{NULL}), for
+    possible Monte Carlo evaluation, see \code{dacopula} in
+    \code{\linkS4class{acopula}}.}
 }
 \details{
-	The density of an Archimedean copula \eqn{C} (if it exists) with generator 
-	\eqn{\psi}{psi} at \eqn{\bm{u}}{u} is given by \deqn{C(\bm{u})=\frac{\psi^{(d)}(\psi^{-1}(u_1)+\dots+\psi^{-1}(u_d))}{\prod_{j=1}^d\psi^\prime(\psi^{-1}(u_j))},\ \bm{u}\in(0,1)^d.}{C(u)=psi^{(d)}(psi^{-1}(u_1)+...+psi^{-1}(u_d))/(psi^prime(psi^{-1}(u_1))*...*psi^prime(psi^{-1}(u_d))), u in (0,1)^d.}
+  The density of an Archimedean copula \eqn{C} (if it exists) with
+  generator \eqn{\psi}{psi} at \eqn{\bm{u}}{u} is given by
+  \deqn{C(\bm{u})=\frac{\psi^{(d)}(\psi^{-1}(u_1)+\dots+\psi^{-1}(u_d))}{
+      \prod_{j=1}^d\psi^\prime(\psi^{-1}(u_j))},\ \bm{u}\in(0,1)^d.
+  }{C(u) = psi^{(d)}(psi^{-1}(u_1)+...+psi^{-1}(u_d)) /
+       (psi^prime(psi^{-1}(u_1))*...*psi^prime(psi^{-1}(u_d))),  u in (0,1)^d.}
 }
 \value{
-  	A \code{\link{numeric}} vector containing the values of the density of the
-	Archimedean copula at \code{u}.
+  A \code{\link{numeric}} vector containing the values of the density of the
+  Archimedean copula at \code{u}.
 }
 \seealso{
- 	For more details about the derivatives of an Archimedean generator, see, e.g., \code{psiDabs} in \code{\link{acopula-class}}.
+  For more details about the derivatives of an Archimedean generator,
+  see, e.g., \code{psiDabs} in class \code{\linkS4class{acopula}}.
 }
 \examples{
-## Construct a twenty-dimensional Gumbel copula with parameter chosen 
+## Construct a twenty-dimensional Gumbel copula with parameter chosen
 ## such that Kendall's tau of the bivariate margins is 0.25.
 theta <- copJoe@tauInv(.25)
 C20 <- onacopula("J", C(theta, 1:20))
@@ -43,7 +51,7 @@ dnacopula(C20, u, n.MC = 10000)
 
 ## Evaluate the exact log-density at several points
 u <- matrix(runif(100), ncol=20)
-dnacopula(C20, u, log = TRUE)	
+dnacopula(C20, u, log = TRUE)
 }
 \keyword{distribution}
 

@@ -26,9 +26,9 @@
     \item{\code{theta}:}{Parameter value, a \code{\link{numeric}}, where
       \code{NA} means \dQuote{unspecified}.}
     \item{\code{psi}, \code{psiInv}:}{The (Archimedean) generator
- 		\eqn{\psi}{psi} (with \eqn{\psi}{psi}(t)=\eqn{\exp}{exp}(-t) being the
- 		generator of the independence copula) and its inverse
- 		(\code{\link{function}}).}
+      \eqn{\psi}{psi} (with \eqn{\psi}{psi}(t)=\eqn{\exp}{exp}(-t) being the
+      generator of the independence copula) and its inverse
+      (\code{\link{function}}).}
     \item{\code{psiDabs}:}{A \code{\link{function}} which computes the absolute
       value of the derivative of the generator \eqn{\psi}{psi} for the given
       parameter \code{theta} and of the given \code{degree} (defaults to 1).
@@ -38,23 +38,23 @@
       number \code{n.MC} is provided, the function is computed based on a Monte
       Carlo simulation with sample size equal to \code{n.MC}; otherwise, the
       generator derivatives are evaluated with their exact formulas. The
- 		optional parameter \code{log} (defaults to \code{FALSE}) indicates whether
- 		or not the logarithmic value is returned.}
+      optional parameter \code{log} (defaults to \code{FALSE}) indicates whether
+      or not the logarithmic value is returned.}
     \item{\code{psiInvD1abs}:}{a \code{\link{function}} computing the
       absolute derivative of the generator inverse (\code{psiInv()}) for
       the given parameter \code{theta}. The optional parameter \code{log}
- 		(defaults to \code{FALSE}) indicates whether the logarithm of the absolute
- 		value of the first derivative of \code{psiInv()} is returned.}
-	 \item{\code{dacopula}:}{a \code{\link{function}} which computes the density
-	   of the Archimedean copula at \code{u} with parameter \code{theta}. The
-	   meanings of the optional parameters \code{n.MC} and \code{log} are as
-	   described before.}
+      (defaults to \code{FALSE}) indicates whether the logarithm of the absolute
+      value of the first derivative of \code{psiInv()} is returned.}
+    \item{\code{dacopula}:}{a \code{\link{function}} computing the density
+      of the Archimedean copula at \code{u} with parameter \code{theta}.  The
+      meanings of the optional parameters \code{n.MC} and \code{log} are as
+      described before.}
     \item{\code{paraInterval}:}{Either \code{\link{NULL}} or object of class
       \code{"\linkS4class{interval}"}, typically from a call such as
       \code{\link{interval}("[a,b)")}.}
     \item{\code{paraSubInterval}:}{Similar to \code{paraInterval} but contains a
- 		finite, closed subinterval of \code{paraInterval}. This is called, e.g.,
- 		from	\code{\link{safeUroot}} for computing Kendall's tau (or its inverse)
+      finite, closed subinterval of \code{paraInterval}. This is called, e.g.,
+      from \code{\link{safeUroot}} for computing Kendall's tau (or its inverse)
       if not given in closed form.}
     \item{\code{paraConstr}:}{A function of \code{theta} returning
       \code{TRUE} if and only if \code{theta} is a valid parameter value.  Note
@@ -86,7 +86,9 @@
     \item{\code{dV01}:}{Similar to \code{dV0} with the difference being that
       this \code{\link{function}} computes the probability mass or density
       function for the Laplace-Stieltjes transform
-      \deqn{\psi_{01}(t;V_0)=\exp(-V_0\psi_0^{-1}(\psi_1(t)))}{psi01(t;V0)=exp(-V0*psi0^{-1}(psi1(t)))} corresponding to the distribution function \eqn{F_{01}}{F01}.
+      \deqn{\psi_{01}(t;V_0) = \exp(-V_0\psi_0^{-1}(\psi_1(t))),
+      }{psi01(t;V0) = exp(-V0*psi0^{-1}(psi1(t))),}
+      corresponding to the distribution function \eqn{F_{01}}{F01}.
 
       Arguments are the evaluation point(s) \code{x}, the value(s) \code{V0},
       and the parameters \code{theta0} and \code{theta1}. As for \code{dV0}, the
@@ -154,7 +156,8 @@ copClayton@paraInterval
 
 ## Can two Clayton copulas with parameters theta0 and theta1 be nested?
 ## Case 1: theta0 = 3, theta1 = 2
-copClayton@nestConstr(theta0 = 3, theta1 = 2) # FALSE (the sufficient nesting criterion is not fulfilled)
+copClayton@nestConstr(theta0 = 3, theta1 = 2)
+## -> FALSE as the sufficient nesting criterion is not fulfilled
 ## Case 2: theta0 = 2, theta1 = 3
 copClayton@nestConstr(theta0 = 2, theta1 = 3) # TRUE
 

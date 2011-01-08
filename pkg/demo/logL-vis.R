@@ -7,13 +7,22 @@ require(nacopula)
 ##' @param n.MC NULL or positive integer for Monte-Carlo approximation
 ##' @return
 ##' @author Martin Maechler (Marius originally)
-mLogL <- function(theta, acop, u, n.MC=NULL) { # -(log-likelihood)
-    -sum(acop@dacopula(u, theta, n.MC = n.MC, log = TRUE))
+mLogL <- function(theta, acop, u, n.MC=NULL, ...) { # -(log-likelihood)
+    -sum(acop@dacopula(u, theta, n.MC = n.MC, log = TRUE, ...))
 }
 
-curveLogL <- function(cop, u, xlim, main, ...) {
+##' @title
+##' @param cop an 'outer_nacopula ' (currently with no children)
+##' @param u n x d  data matrix
+##' @param xlim x-range for curve() plotting
+##' @param main title for curve()
+##' @param XtrArgs a list of further arguments for mLogL()
+##' @param ... further arguments for curve()
+##' @return
+##' @author Martin Maechler
+curveLogL <- function(cop, u, xlim, main, XtrArgs=list(), ...) {
     unam <- deparse(substitute(u))
-    stopifnot(is(cop, "outer_nacopula"),
+    stopifnot(is(cop, "outer_nacopula"), is.list(XtrArgs),
               (d <- ncol(u)) >= 2, d == dim(cop),
               length(cop@childCops) == 0# not yet *nested* A.copulas
               )
@@ -21,10 +30,11 @@ curveLogL <- function(cop, u, xlim, main, ...) {
     if(missing(main))
         main <- sprintf("Negative Log Likelihood  -l(., %s);  n=%d, d=%d;  A.copula '%s'",
                         unam, nrow(u), d, acop@name)
-    r <- curve(Vectorize(mLogL, "theta")(x, acop, u), xlim=xlim,
+    r <- curve(do.call(Vectorize(mLogL, "theta"), c(list(x, acop, u), XtrArgs)),
+               xlim=xlim, main=main,
                xlab = expression(theta),
                ylab = substitute(- log(L(theta, u, ~~ COP)), list(COP=acop@name)),
-               main = main, ...)
+               ...)
     axis(1, at = paraOptInterval(u, acop@name),
          labels = FALSE, lwd = 2, col = 2, tck = 1/20)
     invisible(r)
@@ -40,8 +50,16 @@ tau <- 0.2
 set.seed(1)
 U1 <- rnacopula(n,cop)
 enacopula(U1, cop, "mle") # 1.432885 --  fine
+(th4 <- 1 + (1:4)/4)
+mL.tr <- c(-3558.5, -3734.4, -3299.5, -2505.)
+mLt1 <- sapply(th4, function(th) mLogL(th, cop@copula, U1, method="maxSc"))
+mLt2 <- sapply(th4, function(th) mLogL(th, cop@copula, U1, method="Jpoly"))
+stopifnot(TRUE,## FIXME all.equal(mLt1, mL.tr, tol=5e-5),
+          all.equal(mLt2, mL.tr, tol=5e-5))
 ##--> Funktion für Gesamtplot:
-r1 <- curveLogL(cop, U1, c(1, 2.5))
+system.time(r1J  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="Jpoly")))
+system.time(r1m  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="maxSc"),
+                              add=TRUE, col=3))
 
 
 U2 <- rnacopula(n,cop)
