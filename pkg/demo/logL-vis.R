@@ -27,14 +27,25 @@ curveLogL <- function(cop, u, xlim, main, XtrArgs=list(), ...) {
               length(cop@childCops) == 0# not yet *nested* A.copulas
               )
     acop <- cop@copula
-    if(missing(main))
-        main <- sprintf("Negative Log Likelihood  -l(., %s);  n=%d, d=%d;  A.copula '%s'",
-                        unam, nrow(u), d, acop@name)
+    th. <- acop@theta
+    if(missing(main)) {
+        tau. <- cop@copula@tau(th.)
+        main <- substitute("Neg. Log Lik."~ -italic(l)(theta, UU) ~ TXT ~~
+			   FUN(theta['*'] == Th) %=>% tau['*'] == Tau,
+			   list(UU = unam,
+				TXT= sprintf("; n=%d, d=%d;  A.cop",
+					     nrow(u), d),
+				FUN = acop@name,
+				Th = format(th.,digits=3),
+				Tau = format(tau., digits=3)))
+    }
     r <- curve(do.call(Vectorize(mLogL, "theta"), c(list(x, acop, u), XtrArgs)),
                xlim=xlim, main=main,
                xlab = expression(theta),
                ylab = substitute(- log(L(theta, u, ~~ COP)), list(COP=acop@name)),
                ...)
+    axis(1, at = th., labels=expression(theta["*"]),
+         lwd=2, col="dark gray", tck = -1/30)
     axis(1, at = paraOptInterval(u, acop@name),
          labels = FALSE, lwd = 2, col = 2, tck = 1/20)
     invisible(r)
@@ -67,21 +78,21 @@ system.time(r1m  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="maxSc"),
 
 
 U2 <- rnacopula(n,cop)
-enacopula(U2, cop, "mle") # 1.4399  -- warning -- but that looks good to me (MM)
+enacopula(U2, cop, "mle") # 1.4399  -- no warning any more
 ## the density for the *correct* parameter looks okay
 summary(dnacopula(cop, U2))
 ## hmm:  max = 5.5e177
 r2 <- curveLogL(cop, U2, c(1, 2.5))
 
-mLogL(1.8, cop@copula, U2)# -Inf
+mLogL(1.8, cop@copula, U2)# -4070.148 (was -Inf)
 
 U3 <- rnacopula(n,cop)
 enacopula(U3, cop, "mle") # 1.44957
 r3 <- curveLogL(cop, U3, c(1, 2.5))
 
 U4 <- rnacopula(n,cop)
-enacopula(U4, cop, "mle") # 2.351..  "completely wrong"
-summary(dnacopula(cop, U4)) # one Inf
+enacopula(U4, cop, "mle") # 1.451929  was 2.351..  "completely wrong"
+summary(dnacopula(cop, U4)) # ok (had one Inf)
 r4 <- curveLogL(cop, U4, c(1, 2.5))
 
 mLogL(2.2351, cop@copula, U4)
@@ -96,16 +107,32 @@ r4. <- curveLogL(cop, U4, c(1, 1.000001))
 mLogL(1.2,    cop@copula, U4)
 ##--> theta 1.164 is about the boundary:
 cop@copula@dacopula(U4[118,], theta=1.164, log = TRUE)
-## Inf
-##---> debug(..) clearly shows that the overflow to Inf happens
-## inside   psiDabsJpoly(....)
-##
-## NB:  Instead of
-        ## sum. <- psiDabsJpoly(arg, alpha, d)
-        ## res[n01] <- (d - 1) * log(theta) + alpha * m.l.u + log(sum.) ....
-## we need  psiDabsJpoly(...., log=TRUE)
-##
-##--> working via  sum-in-log-scale
+##  600.5926  (was Inf)
+## now that we have  psiDabsJpoly(...., log=TRUE)
+
+## Now a harder case:
+n <- 200
+d <- 150
+tau <- 0.3
+(theta <- copJoe@tauInv(tau))# 1.772
+(cop <- onacopulaL("Joe",list(theta,1:d)))
+U. <- rnacopula(n,cop)
+enacopula(U., cop, "mle") # 1.776743
+r. <- curveLogL(cop, U., c(1.1, 3))
+## still looks very good
+## and harder still
+
+d <- 180
+tau <- 0.4
+(theta <- copJoe@tauInv(tau))# 2.219
+(cop <- onacopulaL("Joe",list(theta,1:d)))
+U. <- rnacopula(n,cop)
+enacopula(U., cop, "mle") # 2.22666
+r. <- curveLogL(cop, U., c(1.1, 4))
+## still looks very good
+
+1
+
 
 
 ###--------------------- The same for  Gumbel ---------------------------------
