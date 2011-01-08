@@ -52,14 +52,18 @@ U1 <- rnacopula(n,cop)
 enacopula(U1, cop, "mle") # 1.432885 --  fine
 (th4 <- 1 + (1:4)/4)
 mL.tr <- c(-3558.5, -3734.4, -3299.5, -2505.)
-mLt1 <- sapply(th4, function(th) mLogL(th, cop@copula, U1, method="maxSc"))
-mLt2 <- sapply(th4, function(th) mLogL(th, cop@copula, U1, method="Jpoly"))
-stopifnot(TRUE,## FIXME all.equal(mLt1, mL.tr, tol=5e-5),
-          all.equal(mLt2, mL.tr, tol=5e-5))
+mLt1 <- sapply(th4, function(th) mLogL(th, cop@copula, U1))
+mLt2 <- sapply(th4, function(th) mLogL(th, cop@copula, U1, method="maxSc"))
+mLt3 <- sapply(th4, function(th) mLogL(th, cop@copula, U1, method="Jpoly"))
+stopifnot(all.equal(mLt1, mL.tr, tol=5e-5),
+          TRUE,## FIXME all.equal(mLt2, mL.tr, tol=5e-5),
+          all.equal(mLt3, mL.tr, tol=5e-5))
 ##--> Funktion für Gesamtplot:
-system.time(r1J  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="Jpoly")))
+system.time(r1l  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="logJpoly")))
+system.time(r1J  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="Jpoly"),
+                              add=TRUE, col=adjustcolor("red", .4)))
 system.time(r1m  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="maxSc"),
-                              add=TRUE, col=3))
+                              add=TRUE, col=adjustcolor("blue",.5)))
 
 
 U2 <- rnacopula(n,cop)

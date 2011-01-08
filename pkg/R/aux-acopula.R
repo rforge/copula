@@ -383,20 +383,37 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 ##' Compute the sum polynomial involved in the generator derivatives
 ##'
 ##' @title Polynomial involved in the generator derivatives for Joe
-##' @param x evaluation point
+##' @param lx (log) evaluation point (lx = log(x) where x was used earlier)
 ##' @param alpha parameter (1/theta)
 ##' @param d number of summands
 ##' @return \sum_{k=1}^d a_k x^k, where a_k = S(d,k)*(k-1-alpha)_{k-1}
-##' @author Marius Hofert
-psiDabsJpoly <- function(x, alpha, d, log = FALSE) {
+##' @author Marius Hofert and Martin Maechler
+psiDabsJpoly <- function(lx, alpha, d, log = FALSE, use1p = FALSE) {
     ## compute the log of the coefficients a_k
+    if(d > 220) stop("d > 220 not yet supported")# would need Stirling2.all(d, log=TRUE)
     k <- 1:d
-    if(log) stop("log=TRUE not yet implemented ..")
     l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha)
-    ## evaluate polynomial via exp(log())
+    ## evaluate polynomial via exp( log(<poly>) )
     ## FIXME: maybe (!) use Horner (see psiDabsGpoly)
-    one.k <- function(k.) exp(l.a.k[k.] + k.*log(x)) # for one k and (possibly) a vector x
-    rowSums(matrix(unlist(lapply(k, one.k)), ncol = d))
+    a <- l.a.k + outer(k,lx)
+    if(log) {
+        ## compute  log(colSums(exp(a))) stably {no overflow}
+        ## factor out the largest in each sum, i.e., each column:
+        if(use1p) {
+            ##  additionally use  log(1 + sum(<smaller>)) = log1p(sum(<smaller>)),
+            ##  but I don't expect it to make a difference
+            im <- apply(a, 2, which.max)
+            n <- length(lx) ; d1 <- d-1L
+            max.a <- a[cbind(im, seq_len(n))] ## the max_i(a[i,j]) == apply(a, 2, max)
+            a.wo.max <- matrix(a[unlist(lapply(im, function(j)k[-j])) +
+                                 d*rep(0:(n-1), each=d1)], d1, n)
+            max.a + log1p(colSums(exp(a.wo.max - rep(max.a, each=d1))))
+        } else {
+            max.a <- apply(a, 2, max)
+            max.a + log(colSums(exp(a - rep(max.a, each=d))))
+        }
+    }
+    else colSums(exp(a))
 }
 
 

@@ -137,12 +137,12 @@ chiSq_check_cop <- function(n,N,cop,nInt, verbose = interactive()){
 print.chiSqChk_cop <- function(x, ...) {
     stopifnot(is.list(x), all(c("ks","T","CPU","n","N") %in% names(x)),
 	      is.numeric(pv <- x$ks[[2]]))
-    cat(sprintf("%s (3d)NAcopula (n=%d):\n -- %s (N=%d): %s\n -- ",
+    cat(sprintf("%s (3d)NAcopula (n=%d):\n  %s (N=%d): %s\n  ",
 		x$copName, x$n,
                 "P-value of the chi-square test", x$N, format.pval(pv)),
-        sprintf("Percentage fulfilling chi^2 rule of thumb: %4.1f\n -- ",
+        sprintf("Percentage fulfilling chi^2 rule of thumb: %4.1f\n",
                 x$percentrot),
-        sprintf("CPU (user) time needed = c(N,n; cop) = %8.1f [ms]\n",
+        sprintf("Time (user) needed = c(N,n; cop) = %8.1f [ms]\n",
 		1000 * x$CPU), sep="")
     if(pv < 0.05) {
 	if(pv < 0.01)
@@ -154,8 +154,8 @@ print.chiSqChk_cop <- function(x, ...) {
     invisible(x)
 }
 
-##' compute the probability to fall in a cube with lower point l and upper point
-##' u for d=3
+##' compute the probability to fall in a cube with
+##' lower point l and upper point u for d=3
 probin3dcube <- function(cop,l,u) {
     pnacopula(cop,u)+
         - pnacopula(cop,c(l[1],u[2],u[3]))+
@@ -289,7 +289,7 @@ stopifnot(all.equal(print(  prob(Joe3d,l,u)),
 
 ## generate output for the examples
 prt.stats <- function(c1,c2, rt) {
-    cat("Run time [ms] for generating", n,
+    cat("Time [ms] for generating", n,
         "vectors of variates:  ", round(1000*rt[1],1), "\n")
     prt.tau.diff(c1, c2) ; cat("\n")
 }

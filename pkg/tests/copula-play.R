@@ -292,9 +292,17 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
 ##' print() method for the tstCop() results
 print.proc_time_list <- function (x, ...) {
     stopifnot(is.list(x), !is.null(nx <- names(x)))
+    cat("proc.time()s:                 user system elapsed\n")
+    ##    2 4 6 8 0 2 4 6 8 0 2 4 6 89|1 3 |1 3 56|1 3 5 7
+    ##            1         2        2
     for(nm in nx)
         if(!all(x[[nm]] == 0, na.rm=TRUE)) {
-            cat(nm,":\n"); print(x[[nm]], ...)
+            ## use 'Time ..' as that works with 'R CMD Rdiff'
+            m <- 1000*x[[nm]]
+            cat(sprintf("Time [ms] for %13s :%5.0f %6.0f %7.0f\n",
+            ##            2 4 6 8 0 2 4 6 8 0| (20 + (13-4)) = 29
+                        nm, m[1], m[2], m[3]))
+            ## cat(nm,":\n"); print(x[[nm]], ...)
         }
     invisible(x)
 }

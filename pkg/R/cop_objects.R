@@ -522,11 +522,12 @@ copJoe <-
                 res[isInf <- is.infinite(t)] <- if(log)-Inf else 0
                 if(any(n0Inf <- !(is0 | isInf))) {
                     alpha <- 1/theta
-                    e.t <- -expm1(-t[n0Inf])
-                    arg <- exp(-t[n0Inf])/e.t
-		    sum. <- psiDabsJpoly(arg, alpha, degree)
+                    mt <- -t[n0Inf]
+                    let <- log( e.t <- -expm1(mt) )
+                    ## let = log(e.t) = log(-expm1(-t.)) = log(-(exp(-t.) - 1)) = log(1 - exp(-t.))
+		    sum. <- psiDabsJpoly(mt - let, alpha, degree, log=log)
                     res[n0Inf] <-
-                        if(log) log(alpha)+alpha*log(e.t) + log(sum.)
+                        if(log) log(alpha) + alpha*let + sum.
                         else alpha * e.t^alpha *sum.
                 }
 		res
@@ -542,7 +543,7 @@ copJoe <-
         },
 	## density
 	dacopula = function(u, theta, n.MC, log = FALSE,
-                            method = c("maxScale","Jpoly")) {
+                            method = c("logJpoly","maxScale","Jpoly")) {
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NaN outside and on the boundary of the unit hypercube
@@ -581,10 +582,11 @@ copJoe <-
                        l.gamma <- lgamma((1:d)-alpha)
                        ## (2) carefully compute the sum
                        ## (2.1) compute the values of f
-                       f <- function(k) l.Stir[k]+l.gamma[k]-l.gamma[1]+(k-1)*l.xx # k in 1:d; returns a vector of length n
+                       ##' f(k), k in 1:d; vector of length n { = length(l.xx) }:
+                       f <- function(k) l.Stir[k]+l.gamma[k]-l.gamma[1]+(k-1)*l.xx
                        f.vals <- cbind(0, do.call(cbind, lapply(2:d,f)))
                        ## (2.2) for each i in 1:n, find the k_i^star that maximizes f.vals[i,]
-                       k.star <- apply(f.vals, 1, which.max) # k.star[i] contains the index of the maximum of f.vals[i,]
+                       k.star <- apply(f.vals, 1, which.max) # k.star[i] = index of maximum of f.vals[i,]
                        f.max <- unlist(lapply(1:n, function(i) f.vals[i,k.star[i]]))
                        ## (2.3) compute the sum
                        f.vals.wo.max.vec <- unlist(lapply(1:n, function(i) f.vals[i,-k.star[i]]))
@@ -594,15 +596,20 @@ copJoe <-
                        res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) -
                            (1-alpha)*l.m.x + f.max + log1p(sum.)
                    },
-
+                       "logJpoly" =
+                   {
+                       lsum <- psiDabsJpoly(l.xx, alpha, d, log = TRUE)
+                       res[n01] <- (d-1)*log(theta) + alpha*l.m.x + lsum +
+                           rowSums((theta-1)* l1_u - lpu)
+                   },
                        "Jpoly" =
                    {
                        ## old approach: ok, but numerical problems for large d (~ 100):
-                       sum. <- psiDabsJpoly(exp(l.xx), alpha, d)
+                       sum. <- psiDabsJpoly(l.xx, alpha, d)
                        res[n01] <- (d-1)*log(theta) + alpha*l.m.x + log(sum.) +
                            rowSums((theta-1)* l1_u - lpu)
-                   })
-
+                   }
+                       )
                 if(log) res else exp(res)
             }
 	},
