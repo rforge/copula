@@ -60,29 +60,28 @@ copAMH <-
             ## f() := NaN outside and on the boundary of the unit hypercube
 	    res <- rep.int(NaN, n <- nrow(u))
             n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
-            if(any(n01)) { # if there are any u's inside the unit hypercube
-                if(theta == 0){ res[n01] <- if(log) 0 else 1; return(res) } # independence
-		## auxiliary results
-	        u. <- u[n01,, drop=FALSE]
-                u.. <- -theta*(1-u.)
-                sum. <- rowSums(log(u.))
-                sum.. <- rowSums(log1p(u..))
-                ## main part
-                if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
-                    V <- copAMH@V0(n.MC, theta)
-                    l <- d*log((1-theta)*V)
-                    ln01 <- sum(n01)
-		    one.u <- function(i) exp(l + (V-1)*sum.[i] - (V+1)*sum..[i])
-                    res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
-                                                ncol = ln01))
-                    if(log) log(res) else res
-                }else{ # explicit
-                    Li.arg <- theta*apply(u./(1+u..), 1, prod)
-                    Li. <- polylog(Li.arg, s = -d, method = "neg", log=TRUE)
-                    res[n01] <- (d+1)*log1p(-theta)-log(theta)+Li.-sum.-sum..
-                    if(log) res else exp(res)
-                }
-	    } else res # all NA
+            if(!any(n01)) return(res) 
+            if(theta == 0){ res[n01] <- if(log) 0 else 1; return(res) } # independence
+            ## auxiliary results
+            u. <- u[n01,, drop=FALSE]
+            u.. <- -theta*(1-u.)
+            sum. <- rowSums(log(u.))
+            sum.. <- rowSums(log1p(u..))
+            ## main part
+            if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
+                V <- copAMH@V0(n.MC, theta)
+                l <- d*log((1-theta)*V)
+                ln01 <- sum(n01)
+                one.u <- function(i) exp(l + (V-1)*sum.[i] - (V+1)*sum..[i])
+                res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
+                                            ncol = ln01))
+                if(log) log(res) else res
+            }else{ # explicit
+                Li.arg <- theta*apply(u./(1+u..), 1, prod)
+                Li. <- polylog(Li.arg, s = -d, method = "neg", log=TRUE)
+                res[n01] <- (d+1)*log1p(-theta)-log(theta)+Li.-sum.-sum..
+                if(log) res else exp(res)
+            }
         },
         ## parameter interval
         paraInterval = interval("[0,1)"),
@@ -162,30 +161,29 @@ copClayton <-
             ## f() := NaN outside and on the boundary of the unit hypercube
 	    res <- rep.int(NaN, n <- nrow(u))
             n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
-            if(any(n01)) { # if there are any u's inside the unit hypercube
-		## auxiliary results
-	        u. <- u[n01,, drop=FALSE]
-                l.u <- rowSums(-log(u.))
-	        ## main part
-	        if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
-	            V <- copClayton@V0(n.MC, theta)
-	            l <- d*log(theta*V)
-                    theta. <- 1 + theta
-                    psiI.sum <- rowSums(copClayton@psiInv(u., theta))
-                    ln01 <- sum(n01)
-		    one.u <- function(i) exp(l + theta.*l.u[i] - V*psiI.sum[i])
-	            res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
-                                                ncol = ln01))
-	            if(log) log(res) else res
-	        }else{ # explicit
-                    alpha <- 1/theta
-	            d.a <- d + alpha
-                    arg <- rowSums(u.^(-theta)-1)
-		    res[n01] <- lgamma(d.a)-lgamma(alpha)+ d*log(theta) +
-			(1+theta)*l.u - (d.a)*log1p(arg)
-	            if(log) res else exp(res)
-	        }
-	    } else res # all NA
+            if(!any(n01)) return(res) 
+            ## auxiliary results
+            u. <- u[n01,, drop=FALSE]
+            l.u <- rowSums(-log(u.))
+            ## main part
+            if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
+                V <- copClayton@V0(n.MC, theta)
+                l <- d*log(theta*V)
+                theta. <- 1 + theta
+                psiI.sum <- rowSums(copClayton@psiInv(u., theta))
+                ln01 <- sum(n01)
+                one.u <- function(i) exp(l + theta.*l.u[i] - V*psiI.sum[i])
+                res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
+                                            ncol = ln01))
+                if(log) log(res) else res
+            }else{ # explicit
+                alpha <- 1/theta
+                d.a <- d + alpha
+                arg <- rowSums(u.^(-theta)-1)
+                res[n01] <- lgamma(d.a)-lgamma(alpha)+ d*log(theta) +
+                    (1+theta)*l.u - (d.a)*log1p(arg)
+                if(log) res else exp(res)
+            }
 	},
         ## parameter interval
         paraInterval = interval("(0,Inf)"),
@@ -267,30 +265,29 @@ copFrank <-
             ## f() := NaN outside and on the boundary of the unit hypercube
 	    res <- rep.int(NaN, n <- nrow(u))
 	    n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
-	    if(any(n01)){ # if there are any u's inside the unit hypercube
-		## auxiliary results
-		u. <- u[n01,, drop=FALSE]
-                u.sum <- rowSums(u.)
-                lp <- log1p(-exp(-theta)) # log(p), p = 1-exp(-theta)
-                lpu <- log1p(-exp(-theta*u.)) # log(1 - exp(-theta * u))
-                lu <- rowSums(lpu)
-	        ## main part
-	        if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
-	            V <- copFrank@V0(n.MC, theta)
-	            l <- d*(log(theta*V)-V*lp)
-	            rs <- -theta*u.sum
-                    ln01 <- sum(n01)
-		    one.u <- function(i) exp(rs[i] + l + (V-1)*lu[i])
-	            res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
-                                                ncol = ln01))
-	            if(log) log(res) else res
-	        }else{ # explicit
-	            Li.arg <- -expm1(-theta) * apply(exp(lpu-lp), 1, prod) ##<<-- FIXME faster
-	            Li. <- polylog(Li.arg, s = -(d-1), method = "neg", log=TRUE)
-	            res[n01] <- (d-1)*log(theta) + Li. - theta*u.sum - lu
-	            if(log) res else exp(res)
-	        }
-	    } else res # all NA
+	    if(!any(n01)) return(res) 
+            ## auxiliary results
+            u. <- u[n01,, drop=FALSE]
+            u.sum <- rowSums(u.)
+            lp <- log1p(-exp(-theta)) # log(p), p = 1-exp(-theta)
+            lpu <- log1p(-exp(-theta*u.)) # log(1 - exp(-theta * u))
+            lu <- rowSums(lpu)
+            ## main part
+            if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
+                V <- copFrank@V0(n.MC, theta)
+                l <- d*(log(theta*V)-V*lp)
+                rs <- -theta*u.sum
+                ln01 <- sum(n01)
+                one.u <- function(i) exp(rs[i] + l + (V-1)*lu[i])
+                res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
+                                            ncol = ln01))
+                if(log) log(res) else res
+            }else{ # explicit
+                Li.arg <- -expm1(-theta) * apply(exp(lpu-lp), 1, prod) ##<<-- FIXME faster
+                Li. <- polylog(Li.arg, s = -(d-1), method = "neg", log=TRUE)
+                res[n01] <- (d-1)*log(theta) + Li. - theta*u.sum - lu
+                if(log) res else exp(res)
+            }
 	},
         ## parameter interval
         paraInterval = interval("(0,Inf)"),
@@ -405,34 +402,33 @@ copGumbel <-
             ## f() := NaN outside and on the boundary of the unit hypercube
 	    res <- rep.int(NaN, n <- nrow(u))
 	    n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
-	    if(any(n01)){ # if there are any u's inside the unit hypercube
-	        if(theta == 1){ res[n01] <- if(log) 0 else 1; return(res) } # independence
-		## auxiliary results
-	        u. <- u[n01,, drop=FALSE]
-                psiI. <- rowSums(copGumbel@psiInv(u., theta))
-                l.u <- -log(u.)
-                ll.u <- log(l.u)
-	        ## main part
-	        if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
-	            V <- copGumbel@V0(n.MC, theta)
-	            l <- d*log(theta*V)
-	            sum. <- rowSums((theta-1)*ll.u + l.u)
-                    ln01 <- sum(n01)
-		    one.u <- function(i) exp(l - V*psiI.[i] + sum.[i])
-	            res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
-                                                ncol = ln01))
-	            if(log) log(res) else res
-	        }else{ # explicit
-                    alpha <- 1/theta
-                    psiI.alpha <- psiI.^alpha
-                    sum. <- psiDabsGpoly(psiI.alpha, alpha, d)
-                    l.u. <- rowSums(l.u)
-                    ll.u. <- rowSums(ll.u)
-                    res[n01] <- -psiI.alpha-d*log(psiI.)+ log(sum.) +
-                        d*log(theta)+ (theta-1)*ll.u. + l.u.
-	            if(log) res else exp(res)
-	        }
-	    } else res # all NA
+	    if(!any(n01)) return(res) 
+            if(theta == 1){ res[n01] <- if(log) 0 else 1; return(res) } # independence
+            ## auxiliary results
+            u. <- u[n01,, drop=FALSE]
+            psiI. <- rowSums(copGumbel@psiInv(u., theta))
+            l.u <- -log(u.)
+            ll.u <- log(l.u)
+            ## main part
+            if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
+                V <- copGumbel@V0(n.MC, theta)
+                l <- d*log(theta*V)
+                sum. <- rowSums((theta-1)*ll.u + l.u)
+                ln01 <- sum(n01)
+                one.u <- function(i) exp(l - V*psiI.[i] + sum.[i])
+                res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
+                                            ncol = ln01))
+                if(log) log(res) else res
+            }else{ # explicit
+                alpha <- 1/theta
+                psiI.alpha <- psiI.^alpha
+                sum. <- psiDabsGpoly(psiI.alpha, alpha, d)
+                l.u. <- rowSums(l.u)
+                ll.u. <- rowSums(ll.u)
+                res[n01] <- -psiI.alpha-d*log(psiI.)+ log(sum.) +
+                    d*log(theta)+ (theta-1)*ll.u. + l.u.
+                if(log) res else exp(res)
+            }
 	},
         ## parameter interval
         paraInterval = interval("[1,Inf)"),
@@ -543,23 +539,20 @@ copJoe <-
         },
 	## density
 	dacopula = function(u, theta, n.MC, log = FALSE,
-                            method = c("logJpoly","maxScale","Jpoly")) {
+        method = c("logJpoly","maxScale","Jpoly")) {
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NaN outside and on the boundary of the unit hypercube
 	    res <- rep.int(NaN, n <- nrow(u))
             n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
 	    if(!any(n01)) return(res)
-
-            ## else - there are u's inside the unit hypercube:
             if(theta == 1){ res[n01] <- if(log) 0 else 1; return(res) } # independence
-
             ## auxiliary results
             u. <- u[n01,, drop=FALSE]
-            u.. <- -(1-u.)^theta # -(1-u)^theta for the relevant u[]
-            lpu <- log1p(u..)
+            l1_u <- log1p(-u.) # log(1-u)
+            u.. <- -(1-u.)^theta # -(1-u)^theta
+            lpu <- log1p(u..) # log(1-(1-u)^theta)
             l.x <- rowSums(lpu) # rowSums(log(1-(1-u)^theta)) = log(x)
-            l1_u <- log1p(-u.)
             ## main part
             if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
                 V <- copJoe@V0(n.MC, theta)
@@ -575,6 +568,12 @@ copJoe <-
                 l.m.x <- log1p(-apply(1 + u.., 1, prod)) # log(1-x)
                 l.xx <- l.x - l.m.x # log(x) - log(1-x)
                 switch(match.arg(method),
+                       "logJpoly" =
+                   {
+                       lsum <- psiDabsJpoly(l.xx, alpha, d, log = TRUE)
+                       res[n01] <- (d-1)*log(theta) + alpha*l.m.x + lsum +
+                           rowSums((theta-1)* l1_u - lpu)
+                   },
                        "maxScale" = # explicit - scale via factoring out max
                    {
                        ## (1) ingredients
@@ -582,7 +581,7 @@ copJoe <-
                        l.gamma <- lgamma((1:d)-alpha)
                        ## (2) carefully compute the sum
                        ## (2.1) compute the values of f
-                       ##' f(k), k in 1:d; vector of length n { = length(l.xx) }:
+                       ## f(k), k in 1:d; vector of length n { = length(l.xx) }:
                        f <- function(k) l.Stir[k]+l.gamma[k]-l.gamma[1]+(k-1)*l.xx
                        f.vals <- cbind(0, do.call(cbind, lapply(2:d,f)))
                        ## (2.2) for each i in 1:n, find the k_i^star that maximizes f.vals[i,]
@@ -595,12 +594,6 @@ copJoe <-
                        ## (3) compute the density
                        res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) -
                            (1-alpha)*l.m.x + f.max + log1p(sum.)
-                   },
-                       "logJpoly" =
-                   {
-                       lsum <- psiDabsJpoly(l.xx, alpha, d, log = TRUE)
-                       res[n01] <- (d-1)*log(theta) + alpha*l.m.x + lsum +
-                           rowSums((theta-1)* l1_u - lpu)
                    },
                        "Jpoly" =
                    {

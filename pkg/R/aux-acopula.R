@@ -383,19 +383,25 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 ##' Compute the sum polynomial involved in the generator derivatives
 ##'
 ##' @title Polynomial involved in the generator derivatives for Joe
-##' @param lx (log) evaluation point (lx = log(x) where x was used earlier)
+##' @param lx (log) evaluation point (lx is meant to be log(x) for some x which 
+##'        was used earlier; e.g., for copJoe@dacopula, lx = log(x/(1-x)) for 
+##'        x = \prod_{j=1}^d(1-(1-u_j)^theta), where u = (u_1,..,u_d) is the 
+##'        evaluation point of the density of Joe's copula)
 ##' @param alpha parameter (1/theta)
 ##' @param d number of summands
-##' @return \sum_{k=1}^d a_k x^k, where a_k = S(d,k)*(k-1-alpha)_{k-1}
+##' @return \sum_{k=1}^d a_k exp(k*lx), where a_k = S(d,k)*(k-1-alpha)_{k-1} 
+##'         note: (k-1-alpha)_{k-1} = Gamma((1:d)-alpha)/Gamma(1-alpha)
 ##' @author Marius Hofert and Martin Maechler
 psiDabsJpoly <- function(lx, alpha, d, log = FALSE, use1p = FALSE) {
     ## compute the log of the coefficients a_k
     if(d > 220) stop("d > 220 not yet supported")# would need Stirling2.all(d, log=TRUE)
     k <- 1:d
-    l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha)
+    l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha) # log(a_{1:d})
     ## evaluate polynomial via exp( log(<poly>) )
     ## FIXME: maybe (!) use Horner (see psiDabsGpoly)
     a <- l.a.k + outer(k,lx)
+    ## a is a (j,k)-matrix for j in {1,..,d}, k in {1,..,n} [n = length(lx)]
+    ## where the (j,k)-th entry is j*lx[k] + log(a_j)
     if(log) {
         ## compute  log(colSums(exp(a))) stably {no overflow}
         ## factor out the largest in each sum, i.e., each column:
@@ -409,6 +415,10 @@ psiDabsJpoly <- function(lx, alpha, d, log = FALSE, use1p = FALSE) {
                                  d*rep(0:(n-1), each=d1)], d1, n)
             max.a + log1p(colSums(exp(a.wo.max - rep(max.a, each=d1))))
         } else {
+	    ## Idea (let b_j := j*lx + log(a_j) and b_{max} := argmax{b_j}):
+	    ## P(lx) = \sum_{j=1}^d a_j\exp(j*lx) = \sum_{j=1}^d \exp(j*lx + log(a_j)) 
+	    ## = \sum_{j=1}^d \exp(b_j) = \exp(b_{max})*\sum_{j=1}^d \exp(b_j-b_{max})
+	    ## so that log(P(lx)) = b_{max} + log(\sum_{j=1}^d \exp(b_j-b_{max}))
             max.a <- apply(a, 2, max)
             max.a + log(colSums(exp(a - rep(max.a, each=d))))
         }
