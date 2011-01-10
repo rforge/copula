@@ -64,7 +64,7 @@ onacopulaL(family, nacList)
 \examples{
 ## Construct a ten-dimensional Joe copula with parameter such that Kendall's
 ## tau equals 0.5
-theta <- copGumbel@tauInv(0.5)
+theta <- copJoe@tauInv(0.5)
 C10 <- onacopula("J",C(theta,1:10))
 
 ## Equivalent construction with onacopulaL():
