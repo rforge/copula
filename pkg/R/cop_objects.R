@@ -510,23 +510,20 @@ copJoe <-
         ## absolute value of generator derivatives
         psiDabs = function(t, theta, degree = 1, n.MC, log = FALSE) {
             if(!(missing(n.MC) || is.null(n.MC))){
-                psiDabsMC(t,"Joe",theta,degree,n.MC,log)
+                psiDabsMC(t, "Joe", theta, degree, n.MC, log)
             }else{
                 if(theta == 1) return(if(log) -t else exp(-t)) # independence
                 res <- numeric(n <- length(t))
                 res[is0 <- t == 0] <- Inf
-                res[isInf <- is.infinite(t)] <- if(log)-Inf else 0
+                res[isInf <- is.infinite(t)] <- -Inf
                 if(any(n0Inf <- !(is0 | isInf))) {
-                    alpha <- 1/theta
-                    mt <- -t[n0Inf]
-                    let <- log( e.t <- -expm1(mt) )
-                    ## let = log(e.t) = log(-expm1(-t.)) = log(-(exp(-t.) - 1)) = log(1 - exp(-t.))
-		    sum. <- psiDabsJpoly(mt - let, alpha, degree, log=log)
-                    res[n0Inf] <-
-                        if(log) log(alpha) + alpha*let + sum.
-                        else alpha * e.t^alpha *sum.
+	            alpha <- 1/theta
+                    mt <- -t[n0Inf] # -t
+                    l1mt <- log(-expm1(mt)) # log(1-exp(-t))
+		    sum. <- psiDabsJpoly(mt - l1mt, alpha, degree, log = log)
+                    res[n0Inf] <- -log(theta) + mt - (1-alpha)*l1mt + sum.
                 }
-		res
+		if(log) res else exp(res)
             }
         },
         ## derivatives of the generator inverse
@@ -538,74 +535,59 @@ copJoe <-
             }
         },
 	## density
-	dacopula = function(u, theta, n.MC, log = FALSE,
-        method = c("logJpoly","maxScale","Jpoly")) {
+	dacopula = function(u, theta, n.MC, log = FALSE, 
+        method = c("logJpoly", "maxScale", "Jpoly")) {
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-            ## f() := NaN outside and on the boundary of the unit hypercube
+	    ## f() := NaN outside and on the boundary of the unit hypercube
 	    res <- rep.int(NaN, n <- nrow(u))
-            n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
+	    n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
 	    if(!any(n01)) return(res)
-            if(theta == 1){ res[n01] <- if(log) 0 else 1; return(res) } # independence
-            ## auxiliary results
-            u. <- u[n01,, drop=FALSE]
-            l1_u <- log1p(-u.) # log(1-u)
-            u.. <- -(1-u.)^theta # -(1-u)^theta
-            lpu <- log1p(u..) # log(1-(1-u)^theta)
-            l.x <- rowSums(lpu) # rowSums(log(1-(1-u)^theta)) = log(x)
-            ## main part
-            if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
-                V <- copJoe@V0(n.MC, theta)
-                l <- d*log(theta*V)
-                sum. <- (theta-1)*rowSums(l1_u)
-                ln01 <- sum(n01)
-                one.u <- function(i) exp(l + (V-1)*l.x[i] + sum.[i])
-                res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
-                                            ncol = ln01))
-                if(log) log(res) else res
-            }else{
-                alpha <- 1/theta
-                l.m.x <- log1p(-apply(1 + u.., 1, prod)) # log(1-x)
-                l.xx <- l.x - l.m.x # log(x) - log(1-x)
-                switch(match.arg(method),
-                       "logJpoly" =
-                   {
-                       lsum <- psiDabsJpoly(l.xx, alpha, d, log = TRUE)
-                       res[n01] <- (d-1)*log(theta) + alpha*l.m.x + lsum +
-                           rowSums((theta-1)* l1_u - lpu)
+	    if(theta == 1){ res[n01] <- if(log) 0 else 1; return(res) } # independence
+	    ## auxiliary results
+	    u. <- u[n01,, drop=FALSE]
+	    l1_u <- log1p(-u.) # log(1-u)
+	    u.. <- (1-u.)^theta # (1-u)^theta
+	    lpu <- log1p(-u..) # log(1-(1-u)^theta)
+	    lh <- rowSums(lpu) # rowSums(log(1-(1-u)^theta)) = log(x)
+	    ## main part
+	    if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
+	        V <- copJoe@V0(n.MC, theta)
+	        l <- d*log(theta*V)
+	        sum. <- (theta-1)*rowSums(l1_u)
+	        ln01 <- sum(n01)
+	        one.u <- function(i) exp(l + (V-1)*lh[i] + sum.[i])
+	        res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
+	                                    ncol = ln01))
+	        if(log) log(res) else res
+	    }else{
+	        alpha <- 1/theta
+	        h <- apply(1 - u.., 1, prod) # h(u) = \prod_{j=1}^d (1-(1-u_j)^\theta)
+	        l1_h <- log1p(-h) # log(1-h(u))
+	        lh_l1_h <- lh - l1_h # log(h(u)/(1-h(u)))
+	        switch(match.arg(method),
+                       "logJpoly" = # intelligent evaluation of the log of the polynomial 
+                   { 
+                       lsum <- psiDabsJpoly(lh_l1_h, alpha, d, log = TRUE) # = \log(\sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1})
+                       res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) - (1-alpha)*
+                           log1p(-h) + lsum
                    },
-                       "maxScale" = # explicit - scale via factoring out max
+                       "maxScale" = # as logJpoly, only that the summand which is one is taken out separately
                    {
-                       ## (1) ingredients
-                       l.Stir <- log(Stirling2.all(d))
-                       l.gamma <- lgamma((1:d)-alpha)
-                       ## (2) carefully compute the sum
-                       ## (2.1) compute the values of f
-                       ## f(k), k in 1:d; vector of length n { = length(l.xx) }:
-                       f <- function(k) l.Stir[k]+l.gamma[k]-l.gamma[1]+(k-1)*l.xx
-                       f.vals <- cbind(0, do.call(cbind, lapply(2:d,f)))
-                       ## (2.2) for each i in 1:n, find the k_i^star that maximizes f.vals[i,]
-                       k.star <- apply(f.vals, 1, which.max) # k.star[i] = index of maximum of f.vals[i,]
-                       f.max <- unlist(lapply(1:n, function(i) f.vals[i,k.star[i]]))
-                       ## (2.3) compute the sum
-                       f.vals.wo.max.vec <- unlist(lapply(1:n, function(i) f.vals[i,-k.star[i]]))
-                       f.vals.wo.max <- matrix(f.vals.wo.max.vec, nrow = n, byrow = TRUE) # f.vals without maxima
-                       sum. <- rowSums(exp(f.vals.wo.max))
-                       ## (3) compute the density
-                       res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) -
-                           (1-alpha)*l.m.x + f.max + log1p(sum.)
+                       lsum <- psiDabsJpoly(lh_l1_h, alpha, d, log = TRUE, use1p = TRUE) # = \log(\sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1})
+                       res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) - (1-alpha)*
+                           log1p(-h) + lsum
                    },
-                       "Jpoly" =
-                   {
-                       ## old approach: ok, but numerical problems for large d (~ 100):
-                       sum. <- psiDabsJpoly(l.xx, alpha, d)
-                       res[n01] <- (d-1)*log(theta) + alpha*l.m.x + log(sum.) +
-                           rowSums((theta-1)* l1_u - lpu)
+                       "Jpoly" = # brute-force log applied to the polynomial; ok, but numerical problems for large d (e.g., ~ 100)
+                   { 
+                       sum. <- psiDabsJpoly(lh_l1_h, alpha, d) # \sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1}
+                       res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) - (1-alpha)*
+                           log1p(-h) + log(sum.)
                    }
                        )
                 if(log) res else exp(res)
             }
-	},
+        },
         ## parameter interval
         paraInterval = interval("[1,Inf)"),
         ## parameter subinterval (meant to be for *robust* optimization, root-finding etc.)

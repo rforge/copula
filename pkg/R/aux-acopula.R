@@ -380,52 +380,53 @@ rF01Joe <- function(V0, alpha, approx) {
 ##' @author Marius Hofert
 rFJoe <- function(n, alpha) rSibuya(n, alpha)
 
-##' Compute the sum polynomial involved in the generator derivatives
-##'
-##' @title Polynomial involved in the generator derivatives for Joe
+##' Compute the sum polynomial involved in the generator derivatives and the 
+##' copula density of a Joe copula [improved version: d-1 instead of d degrees]
+##' 
+##' @title Polynomial involved in the generator derivatives and density for Joe
 ##' @param lx (log) evaluation point (lx is meant to be log(x) for some x which 
-##'        was used earlier; e.g., for copJoe@dacopula, lx = log(x/(1-x)) for 
+##'        was used earlier; e.g., for copJoe@dacopula, lx = log(h(u)/(1-h(u))) for 
 ##'        x = \prod_{j=1}^d(1-(1-u_j)^theta), where u = (u_1,..,u_d) is the 
 ##'        evaluation point of the density of Joe's copula)
 ##' @param alpha parameter (1/theta)
 ##' @param d number of summands
-##' @return \sum_{k=1}^d a_k exp(k*lx), where a_k = S(d,k)*(k-1-alpha)_{k-1} 
-##'         note: (k-1-alpha)_{k-1} = Gamma((1:d)-alpha)/Gamma(1-alpha)
+##' @return P(x) = \sum_{k=1}^d a_k x^{k-1}, where x = exp(lx) and 
+##'         a_k = S(d,k)*(k-1-alpha)_{k-1} = S(d,k)*Gamma((1:d)-alpha)/Gamma(1-alpha)
 ##' @author Marius Hofert and Martin Maechler
-psiDabsJpoly <- function(lx, alpha, d, log = FALSE, use1p = FALSE) {
+psiDabsJpoly <- function(lx, alpha, d, log = FALSE, use1p = FALSE){
     ## compute the log of the coefficients a_k
     if(d > 220) stop("d > 220 not yet supported")# would need Stirling2.all(d, log=TRUE)
     k <- 1:d
-    l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha) # log(a_{1:d})
-    ## evaluate polynomial via exp( log(<poly>) )
+    l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha) # log(a_k), k = 1,..,d
     ## FIXME: maybe (!) use Horner (see psiDabsGpoly)
-    a <- l.a.k + outer(k,lx)
-    ## a is a (j,k)-matrix for j in {1,..,d}, k in {1,..,n} [n = length(lx)]
-    ## where the (j,k)-th entry is j*lx[k] + log(a_j)
-    if(log) {
-        ## compute  log(colSums(exp(a))) stably {no overflow}
-        ## factor out the largest in each sum, i.e., each column:
-        if(use1p) {
-            ##  additionally use  log(1 + sum(<smaller>)) = log1p(sum(<smaller>)),
-            ##  but I don't expect it to make a difference
-            im <- apply(a, 2, which.max)
+    ## evaluate polynomial via exp( log(<poly>) )
+    ## for this, create a matrix A with (k,i)-th entry log(a_k) + (k-1) * lx[i], 
+    ## where k in {1,..,d}, i in {1,..,n} [n = length(lx)]
+    A <- l.a.k + outer(k-1, lx) 
+    if(log){
+	if(!use1p){
+            ## compute  log(colSums(exp(A))) stably {no overflow}
+            ## Idea: 
+            ## (1) let b_k := log(a_k) + (k-1)*lx and b_{max} := argmax{b_k}. 
+            ## (2) P(lx) = \sum_{k=1}^d a_k\exp((k-1)*lx) = \sum_{k=1}^d \exp(log(a_k) 
+            ##     + (k-1)*lx) = \sum_{k=1}^d \exp(b_k) = \exp(b_{max})*\sum_{k=1}^d 
+            ##     \exp(b_k-b_{max})
+            ## (3) => log(P(lx)) = b_{max} + log(\sum_{k=1}^d \exp(b_k-b_{max}))
+            max.A <- apply(A, 2, max)
+            max.A + log(colSums(exp(A - rep(max.A, each = d))))	
+	}else{ # use1p
+            ##  use log(1 + sum(<smaller>)) = log1p(sum(<smaller>)),
+            ##  but we don't expect it to make a difference
+            im <- apply(A, 2, which.max) # indices (vector) of maxima
             n <- length(lx) ; d1 <- d-1L
-            max.a <- a[cbind(im, seq_len(n))] ## the max_i(a[i,j]) == apply(a, 2, max)
-            a.wo.max <- matrix(a[unlist(lapply(im, function(j)k[-j])) +
-                                 d*rep(0:(n-1), each=d1)], d1, n)
-            max.a + log1p(colSums(exp(a.wo.max - rep(max.a, each=d1))))
-        } else {
-	    ## Idea (let b_j := j*lx + log(a_j) and b_{max} := argmax{b_j}):
-	    ## P(lx) = \sum_{j=1}^d a_j\exp(j*lx) = \sum_{j=1}^d \exp(j*lx + log(a_j)) 
-	    ## = \sum_{j=1}^d \exp(b_j) = \exp(b_{max})*\sum_{j=1}^d \exp(b_j-b_{max})
-	    ## so that log(P(lx)) = b_{max} + log(\sum_{j=1}^d \exp(b_j-b_{max}))
-            max.a <- apply(a, 2, max)
-            max.a + log(colSums(exp(a - rep(max.a, each=d))))
+            max.A <- A[cbind(im, seq_len(n))] # pick out max(A[,i])_{i=1,..,n} == apply(A, 2, max) 
+            A.wo.max <- matrix(A[unlist(lapply(im, function(j)k[-j])) +
+                                 d*rep(0:(n-1), each = d1)], d1, n) # matrix A without maxima
+            max.A + log1p(colSums(exp(A.wo.max - rep(max.A, each = d1))))
         }
     }
-    else colSums(exp(a))
+    else colSums(exp(A))
 }
-
 
 ### ==== other numeric utilities ===============================================
 
@@ -813,9 +814,9 @@ getAcop <- function(family, check=TRUE) {
 }
 
 if(getRversion() < "2.12") ## take the version in R >= 2.12.0 (also export!)
-adjustcolor <- function(col, alpha.f = 1, red.f = 1, green.f = 1,
-                        blue.f = 1, offset = c(0,0,0,0),
-                        transform = diag(c(red.f, green.f, blue.f, alpha.f)))
+    adjustcolor <- function(col, alpha.f = 1, red.f = 1, green.f = 1,
+                            blue.f = 1, offset = c(0,0,0,0),
+                            transform = diag(c(red.f, green.f, blue.f, alpha.f)))
 {
     stopifnot(length(offset) %% 4 == 0,
               !is.null(d <- dim(transform)), d == c(4,4))
