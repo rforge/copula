@@ -274,18 +274,21 @@ rFFrank <- function(n, theta0, theta1, rej)
 
 ### ==== Gumbel ================================================================
 
-##' Compute the sum polynomial involved in Gumbel's generator derivatives
+##' Compute the sum polynomial involved in the generator derivatives and the 
+##' copula density of a Gumbel copula 
 ##'
-##' @title Polynomial involved in the generator derivatives for Gumbel
-##' @param x evaluation point
+##' @title Polynomial involved in the generator derivatives and density for Gumbel
+##' @param lx (log) evaluation point (lx is meant to be log(x) for some x which 
+##'        was used earlier; e.g., for copGumbel@dacopula, lx = log(rowSums(psiInv(u))) 
+##'        where u = (u_1,..,u_d) is the evaluation point of the density of Joe's copula)
 ##' @param alpha parameter (1/theta)
 ##' @param d number of summands
-##' @return \sum_{k=1}^d a_k x^k, where
-##'     a_k = (-1)^{d-k}\sum_{j=k}^d \alpha^j s(d,j) S(j,k)
+##' @return \sum_{k=1}^d a_k exp((k*alpha-d)*lx), where
+##'         a_k = (-1)^{d-k}\sum_{j=k}^d alpha^j * s(d,j) * S(j,k)
 ##' @author Marius Hofert
-psiDabsGpoly <- function(x, alpha, d){
-    stopifnot(d >= 1)
-    ## compute coefficients a_k
+psiDabsGpoly <- function(lx, alpha, d, log = FALSE){
+    if(d > 220) stop("d > 220 not yet supported") # would need Stirling2.all(d, log=TRUE)
+    ## compute the coefficients a_k
     s <- Stirling1.all(d) # s(d,1), ..., s(d,d)
     k <- 1:d
     S <- lapply(k, Stirling2.all) # S[[m]][n] contains S(m,n), n = 1,...,m
@@ -295,8 +298,26 @@ psiDabsGpoly <- function(x, alpha, d){
         S. <- unlist(lapply(j, function(i) S[[i]][k.]))
         (-1)^(d-k.)*sum(alpha^j*s[j]*S.)
     }))
-    ## evaluate polynomial
-    x * polynEval(a.k, x)
+    ## compute the signs, |a_k|, and log(|a_k|)
+    signs <- sign(a.k) # sign(a_k)
+    abs.a.k <- abs(a.k) # |a_k|'s
+    l.abs.a.k <- log(abs.a.k)
+    ## evaluate the sum
+    ## for this, create a matrix B with (k,i)-th entry B[k,i] = log(|a_k|) + 
+    ## (alpha*k-d) * lx[i], where k in {1,..,d}, i in {1,..,n} [n = length(lx)]
+    B <- l.abs.a.k + outer(alpha*k-d, lx)
+    if(log){
+        ## compute  log(signs %*% exp(B)) stably (no overflow)
+        ## Idea: 
+        ## (1) let b_k := log(|a_k|) + (alpha*k-d) * lx and b_{max} := argmax{b_k}. 
+        ## (2) \sum_{k=1}^d a_k\exp((alpha*k-d)*lx) = \sum_{k=1}^d signs * \exp(log(|a_k|) 
+        ##     + (alpha*k-d)*lx) = \sum_{k=1}^d signs * \exp(b_k) = \exp(b_{max})*\sum_{k=1}^d 
+        ##     * signs * \exp(b_k-b_{max})
+        ## (3) => log(\sum...) = b_{max} + log(\sum_{k=1}^d signs * \exp(b_k-b_{max}))
+	max.B <- apply(B, 2, max)
+        max.B + log(signs %*% exp(B - rep(max.B, each = d)))
+    }
+    else signs %*% exp(B)
 }
 
 
@@ -381,17 +402,17 @@ rF01Joe <- function(V0, alpha, approx) {
 rFJoe <- function(n, alpha) rSibuya(n, alpha)
 
 ##' Compute the sum polynomial involved in the generator derivatives and the 
-##' copula density of a Joe copula [improved version: d-1 instead of d degrees]
+##' copula density of a Joe copula 
 ##' 
 ##' @title Polynomial involved in the generator derivatives and density for Joe
 ##' @param lx (log) evaluation point (lx is meant to be log(x) for some x which 
 ##'        was used earlier; e.g., for copJoe@dacopula, lx = log(h(u)/(1-h(u))) for 
-##'        x = \prod_{j=1}^d(1-(1-u_j)^theta), where u = (u_1,..,u_d) is the 
+##'        h(u) = \prod_{j=1}^d(1-(1-u_j)^theta), where u = (u_1,..,u_d) is the 
 ##'        evaluation point of the density of Joe's copula)
 ##' @param alpha parameter (1/theta)
 ##' @param d number of summands
-##' @return P(x) = \sum_{k=1}^d a_k x^{k-1}, where x = exp(lx) and 
-##'         a_k = S(d,k)*(k-1-alpha)_{k-1} = S(d,k)*Gamma((1:d)-alpha)/Gamma(1-alpha)
+##' @return \sum_{k=1}^d a_k exp((k-1)*lx),
+##'        where a_k = S(d,k)*(k-1-alpha)_{k-1} = S(d,k)*Gamma((1:d)-alpha)/Gamma(1-alpha)
 ##' @author Marius Hofert and Martin Maechler
 psiDabsJpoly <- function(lx, alpha, d, log = FALSE, use1p = FALSE){
     ## compute the log of the coefficients a_k
@@ -400,32 +421,32 @@ psiDabsJpoly <- function(lx, alpha, d, log = FALSE, use1p = FALSE){
     l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha) # log(a_k), k = 1,..,d
     ## FIXME: maybe (!) use Horner (see psiDabsGpoly)
     ## evaluate polynomial via exp( log(<poly>) )
-    ## for this, create a matrix A with (k,i)-th entry log(a_k) + (k-1) * lx[i], 
+    ## for this, create a matrix B with (k,i)-th entry B[k,i] = log(a_k) + (k-1) * lx[i], 
     ## where k in {1,..,d}, i in {1,..,n} [n = length(lx)]
-    A <- l.a.k + outer(k-1, lx) 
+    B <- l.a.k + outer(k-1, lx) 
     if(log){
 	if(!use1p){
-            ## compute  log(colSums(exp(A))) stably {no overflow}
+            ## compute  log(colSums(exp(B))) stably (no overflow)
             ## Idea: 
             ## (1) let b_k := log(a_k) + (k-1)*lx and b_{max} := argmax{b_k}. 
-            ## (2) P(lx) = \sum_{k=1}^d a_k\exp((k-1)*lx) = \sum_{k=1}^d \exp(log(a_k) 
+            ## (2) \sum_{k=1}^d a_k\exp((k-1)*lx) = \sum_{k=1}^d \exp(log(a_k) 
             ##     + (k-1)*lx) = \sum_{k=1}^d \exp(b_k) = \exp(b_{max})*\sum_{k=1}^d 
             ##     \exp(b_k-b_{max})
-            ## (3) => log(P(lx)) = b_{max} + log(\sum_{k=1}^d \exp(b_k-b_{max}))
-            max.A <- apply(A, 2, max)
-            max.A + log(colSums(exp(A - rep(max.A, each = d))))	
+            ## (3) => log(\sum...) = b_{max} + log(\sum_{k=1}^d \exp(b_k-b_{max}))
+            max.B <- apply(B, 2, max)
+            max.B + log(colSums(exp(B - rep(max.B, each = d))))	
 	}else{ # use1p
             ##  use log(1 + sum(<smaller>)) = log1p(sum(<smaller>)),
             ##  but we don't expect it to make a difference
-            im <- apply(A, 2, which.max) # indices (vector) of maxima
+            im <- apply(B, 2, which.max) # indices (vector) of maxima
             n <- length(lx) ; d1 <- d-1L
-            max.A <- A[cbind(im, seq_len(n))] # pick out max(A[,i])_{i=1,..,n} == apply(A, 2, max) 
-            A.wo.max <- matrix(A[unlist(lapply(im, function(j)k[-j])) +
-                                 d*rep(0:(n-1), each = d1)], d1, n) # matrix A without maxima
-            max.A + log1p(colSums(exp(A.wo.max - rep(max.A, each = d1))))
+            max.B <- B[cbind(im, seq_len(n))] # get max(B[,i])_{i=1,..,n} == apply(B, 2, max) 
+            B.wo.max <- matrix(B[unlist(lapply(im, function(j) k[-j])) +
+                                 d*rep(0:(n-1), each = d1)], d1, n) # matrix B without maxima
+            max.B + log1p(colSums(exp(B.wo.max - rep(max.B, each = d1))))
         }
     }
-    else colSums(exp(A))
+    else colSums(exp(B))
 }
 
 ### ==== other numeric utilities ===============================================

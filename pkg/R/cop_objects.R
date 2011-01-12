@@ -377,11 +377,10 @@ copGumbel <-
                 res <- numeric(n <- length(t))
                 res[is0 <- t == 0] <- Inf
                 res[isInf <- is.infinite(t)] <- -Inf
-                if(any(n0Inf <- !(is0 | isInf))) {
-                    t. <- t[n0Inf]
-                    t.a <- t. ^ (alpha <- 1/theta)
-                    sum. <- psiDabsGpoly(t.a, alpha, degree)
-                    res[n0Inf] <- -t.a - degree*log(t.) + log(sum.)
+                if(any(n0Inf <- !(is0 | isInf))){ 
+	            t. <- t[n0Inf]
+                    alpha <- 1/theta	         
+                    res[n0Inf] <- -t.^alpha + psiDabsGpoly(log(t.), alpha, degree, log = TRUE)
                 }
                 if(log) res else exp(res)
             }
@@ -406,14 +405,14 @@ copGumbel <-
             if(theta == 1){ res[n01] <- if(log) 0 else 1; return(res) } # independence
             ## auxiliary results
             u. <- u[n01,, drop=FALSE]
-            psiI. <- rowSums(copGumbel@psiInv(u., theta))
-            l.u <- -log(u.)
-            ll.u <- log(l.u)
+            mlu <- -log(u.) # -log(u)
+            lmlu <- log(mlu) # log(-log(u))            
             ## main part
             if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
+                psiI. <- rowSums(copGumbel@psiInv(u., theta))
                 V <- copGumbel@V0(n.MC, theta)
                 l <- d*log(theta*V)
-                sum. <- rowSums((theta-1)*ll.u + l.u)
+                sum. <- rowSums((theta-1)*lmlu + mlu)
                 ln01 <- sum(n01)
                 one.u <- function(i) exp(l - V*psiI.[i] + sum.[i])
                 res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
@@ -421,13 +420,20 @@ copGumbel <-
                 if(log) log(res) else res
             }else{ # explicit
                 alpha <- 1/theta
-                psiI.alpha <- psiI.^alpha
-                sum. <- psiDabsGpoly(psiI.alpha, alpha, d)
-                l.u. <- rowSums(l.u)
-                ll.u. <- rowSums(ll.u)
-                res[n01] <- -psiI.alpha-d*log(psiI.)+ log(sum.) +
-                    d*log(theta)+ (theta-1)*ll.u. + l.u.
-                if(log) res else exp(res)
+                ## compute lx = log(sum(psiInv(u, theta)))
+		im <- apply(u., 1, which.max)
+		mat.ind <- cbind(seq_len(n), im) # indices that pick out maxima from u.
+                mlum <- mlu[mat.ind] # -log(u_max)
+                mlum.mat <- matrix(rep(mlum, d), ncol = d)
+                lx <- theta*lmlu[mat.ind] + log(rowSums((mlu/mlum.mat)^theta))
+                ## compute sum
+                lsum <- psiDabsGpoly(lx, alpha, d, log = TRUE)
+                ## the rest
+                pnacop <- function(x) pnacopula(onacopulaL("G", list(theta, 1:d)), x)
+                cop.val <- apply(u., 1, pnacop)
+                res[n01] <- d*log(theta) + rowSums((theta-1)*lmlu + mlu) + lsum
+                res[n01] <- if(log) log(cop.val) + res[n01] else cop.val * exp(res[n01])
+                res
             }
 	},
         ## parameter interval

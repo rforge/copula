@@ -73,6 +73,7 @@ dnacopulag <- function(x, u, n.MC, log = FALSE){
 pnacopula <- function(x,u) {
 
 ### FIXME:  make applicable to a matrix of u's
+### => would be good for call from copGumbel@dacopula 
 
     stopifnot(is.numeric(u), 0 <= u, u <= 1,
               length(u) >= (d <- dim(x))) # will be larger for children
