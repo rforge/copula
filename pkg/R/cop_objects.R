@@ -395,7 +395,7 @@ copGumbel <-
             }
         },
 	## density
-	dacopula = function(u, theta, n.MC, log = FALSE){
+	dacopula = function(u, theta, n.MC, log = FALSE, scale = FALSE){
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NaN outside and on the boundary of the unit hypercube
@@ -431,7 +431,8 @@ copGumbel <-
                 ## the rest
                 pnacop <- function(x) pnacopula(onacopulaL("G", list(theta, 1:d)), x)
                 cop.val <- apply(u., 1, pnacop)
-                res[n01] <- d*log(theta) + rowSums((theta-1)*lmlu + mlu) + lsum
+                scale.term <- if(scale) 0 else mlu # if scale == TRUE, do not divide c(u) by Pi(u)
+                res[n01] <- d*log(theta) + rowSums((theta-1)*lmlu + scale.term) + lsum
                 res[n01] <- if(log) log(cop.val) + res[n01] else cop.val * exp(res[n01])
                 res
             }
