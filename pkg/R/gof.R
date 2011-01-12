@@ -97,27 +97,21 @@ K <- function(t, cop, d, n.MC)
 ##' @param include.K boolean indicating whether the last component, K, is also used or not
 ##' @return matrix of supposedly U[0,1]^d realizations
 ##' @author Marius Hofert & Martin Maechler
-gnacopulatrafo <- function(x, cop, n.MC, do.pseudo = FALSE, include.K = TRUE)
-{
+gnacopulatrafo <- function(x, cop, n.MC, do.pseudo = FALSE, include.K = TRUE){
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
     if(!is.matrix(x)) x <- rbind(x)
-    stopifnot((d <- ncol(x)) >= 2)
-    u <- if(do.pseudo){
-	pobs(x)
-    }else{
-	stopifnot(all(0 <= x, x <= 1))
-	x
-    }
-    acop <- cop@copula
-    th <- acop@theta
-    psiI <- acop@psiInv(u, th)
-    cumsum.psiI <- t(apply(psiI,1,cumsum))
-    u. <- matrix(, nrow = nrow(u), ncol = d-1) # for the transformed components (uniformly under H_0)
-    for(j in seq_len(d-1)) u.[,j] <- (cumsum.psiI[,j]/cumsum.psiI[,j+1])^j
-    if(include.K) u. <- cbind(u., K(acop@psi(cumsum.psiI[,d], th), acop, d = d, 
-                                    n.MC = n.MC))
+    stopifnot((d <- ncol(x)) >= 2) 
+    if(do.pseudo) x <- pobs(x)
+    stopifnot(all(0 <= x, x <= 1))
+    th <- cop@copula@theta
+    psiI <- cop@copula@psiInv(x, th) # matrix psi^{-1}(x)
+    cumsum.psiI <- apply(psiI, 1, cumsum) # rowwise cumulative sums; caution: output is transposed
+    u. <- matrix(unlist(lapply(1:(d-1), function(k) (cumsum.psiI[k,]/cumsum.psiI[k+1,])^k)), 
+                 ncol = d-1) # transformed components (uniformly under H_0)
+    if(include.K) u. <- cbind(u., K(cop@copula@psi(cumsum.psiI[d,], th), 
+                                    cop@copula, d = d, n.MC = n.MC))
     u.
 }
 

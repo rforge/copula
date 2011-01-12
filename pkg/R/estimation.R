@@ -222,7 +222,7 @@ emde.dist <- function(u, method = c("mde.log.KS", "mde.normal.KS", "mde.log.CvM"
 emde <- function(u, cop, method = c("mde.log.KS", "mde.normal.KS", "mde.log.CvM", 
                          "mde.normal.CvM"),
                  interval = paraOptInterval(u, cop@copula@name), 
-                 include.K = if(ncol(u) < 10) TRUE else FALSE, ...)
+                 include.K = if(ncol(u) < 5) TRUE else FALSE, ...)
 {
     stopifnot(is(cop,"nacopula"))
     if(length(cop@childCops))

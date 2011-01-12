@@ -288,7 +288,7 @@ rFFrank <- function(n, theta0, theta1, rej)
 coeffG <- function(d, alpha){
     s <- Stirling1.all(d) # s(d,1), ..., s(d,d)
     k <- 1:d
-    S <- lapply(k, Stirling2.all) # S[[m]][n] contains S(m,n), n = 1,...,m
+    S <- lapply(k, Stirling2.all) # S[[k]][n] contains S(k,n), n = 1,...,k
     unlist(lapply(k, function(k.){
         j <- k.:d
         ## extract a column of Stirling2 numbers:
