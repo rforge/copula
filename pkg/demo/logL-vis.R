@@ -64,16 +64,16 @@ enacopula(U1, cop, "mle") # 1.432885 --  fine
 (th4 <- 1 + (1:4)/4)
 mL.tr <- c(-3558.5, -3734.4, -3299.5, -2505.)
 mLt1 <- sapply(th4, function(th) mLogL(th, cop@copula, U1))
-mLt2 <- sapply(th4, function(th) mLogL(th, cop@copula, U1, method="maxSc"))
-mLt3 <- sapply(th4, function(th) mLogL(th, cop@copula, U1, method="Jpoly"))
+mLt2 <- sapply(th4, function(th) mLogL(th, cop@copula, U1, method="max.scale"))
+mLt3 <- sapply(th4, function(th) mLogL(th, cop@copula, U1, method="poly"))
 stopifnot(all.equal(mLt1, mL.tr, tol=5e-5),
           TRUE,## FIXME all.equal(mLt2, mL.tr, tol=5e-5),
           all.equal(mLt3, mL.tr, tol=5e-5))
 ##--> Funktion für Gesamtplot:
-system.time(r1l  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="logJpoly")))
-system.time(r1J  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="Jpoly"),
+system.time(r1l  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="log.poly")))
+system.time(r1J  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="poly"),
                               add=TRUE, col=adjustcolor("red", .4)))
-system.time(r1m  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="maxSc"),
+system.time(r1m  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="max.scale"),
                               add=TRUE, col=adjustcolor("blue",.5)))
 
 
@@ -108,7 +108,7 @@ mLogL(1.2,    cop@copula, U4)
 ##--> theta 1.164 is about the boundary:
 cop@copula@dacopula(U4[118,], theta=1.164, log = TRUE)
 ##  600.5926  (was Inf)
-## now that we have  psiDabsJpoly(...., log=TRUE)
+## now that we have  polyJ(...., log=TRUE)
 
 ## Now a harder case:
 n <- 200

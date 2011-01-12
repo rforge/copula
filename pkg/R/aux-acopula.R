@@ -274,6 +274,29 @@ rFFrank <- function(n, theta0, theta1, rej)
 
 ### ==== Gumbel ================================================================
 
+##' Compute the coefficients a_k involved in the generator derivatives and the 
+##' copula density of a Gumbel copula
+##'
+##' @title Coefficients of the polynomial involved in the generator derivatives 
+##'        and density for Gumbel
+##' @param d number of coefficients (1:d)
+##' @param alpha parameter (1/theta)
+##' @return a_k = (-1)^{d-k}\sum_{j=k}^d alpha^j * s(d,j) * S(j,k)
+##' @author Marius Hofert
+##' FIXME: serious numerical problems, e.g., for d = 100 and alpha = 1/1.25
+##         => cause MLE for Gumbel to fail for d = 100 and theta = 1.25
+coeffG <- function(d, alpha){
+    s <- Stirling1.all(d) # s(d,1), ..., s(d,d)
+    k <- 1:d
+    S <- lapply(k, Stirling2.all) # S[[m]][n] contains S(m,n), n = 1,...,m
+    unlist(lapply(k, function(k.){
+        j <- k.:d
+        ## extract a column of Stirling2 numbers:
+        S. <- unlist(lapply(j, function(i) S[[i]][k.]))
+        (-1)^(d-k.)*sum(alpha^j*s[j]*S.)
+    }))
+}
+
 ##' Compute the sum polynomial involved in the generator derivatives and the 
 ##' copula density of a Gumbel copula 
 ##'
@@ -286,25 +309,17 @@ rFFrank <- function(n, theta0, theta1, rej)
 ##' @return \sum_{k=1}^d a_k exp((k*alpha-d)*lx), where
 ##'         a_k = (-1)^{d-k}\sum_{j=k}^d alpha^j * s(d,j) * S(j,k)
 ##' @author Marius Hofert
-psiDabsGpoly <- function(lx, alpha, d, log = FALSE){
+polyG <- function(lx, alpha, d, log = FALSE){
     if(d > 220) stop("d > 220 not yet supported") # would need Stirling2.all(d, log=TRUE)
-    ## compute the coefficients a_k
-    s <- Stirling1.all(d) # s(d,1), ..., s(d,d)
-    k <- 1:d
-    S <- lapply(k, Stirling2.all) # S[[m]][n] contains S(m,n), n = 1,...,m
-    a.k <- unlist(lapply(k, function(k.){
-        j <- k.:d
-        ## extract a column of Stirling2 numbers:
-        S. <- unlist(lapply(j, function(i) S[[i]][k.]))
-        (-1)^(d-k.)*sum(alpha^j*s[j]*S.)
-    }))
+    a.k <- coeffG(d, alpha)
     ## compute the signs, |a_k|, and log(|a_k|)
-    signs <- sign(a.k) # sign(a_k)
+    signs <- sign(a.k) # sign(a_k) => it is conjectured that they are all > 0, but we can't prove it so far
     abs.a.k <- abs(a.k) # |a_k|'s
     l.abs.a.k <- log(abs.a.k)
     ## evaluate the sum
     ## for this, create a matrix B with (k,i)-th entry B[k,i] = log(|a_k|) + 
     ## (alpha*k-d) * lx[i], where k in {1,..,d}, i in {1,..,n} [n = length(lx)]
+    k <- 1:d
     B <- l.abs.a.k + outer(alpha*k-d, lx)
     if(log){
         ## compute  log(signs %*% exp(B)) stably (no overflow)
@@ -414,12 +429,12 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 ##' @return \sum_{k=1}^d a_k exp((k-1)*lx),
 ##'        where a_k = S(d,k)*(k-1-alpha)_{k-1} = S(d,k)*Gamma((1:d)-alpha)/Gamma(1-alpha)
 ##' @author Marius Hofert and Martin Maechler
-psiDabsJpoly <- function(lx, alpha, d, log = FALSE, use1p = FALSE){
+polyJ <- function(lx, alpha, d, log = FALSE, use1p = FALSE){
     ## compute the log of the coefficients a_k
     if(d > 220) stop("d > 220 not yet supported")# would need Stirling2.all(d, log=TRUE)
     k <- 1:d
     l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha) # log(a_k), k = 1,..,d
-    ## FIXME: maybe (!) use Horner (see psiDabsGpoly)
+    ## FIXME: maybe (!) use Horner (see polyG)
     ## evaluate polynomial via exp( log(<poly>) )
     ## for this, create a matrix B with (k,i)-th entry B[k,i] = log(a_k) + (k-1) * lx[i], 
     ## where k in {1,..,d}, i in {1,..,n} [n = length(lx)]

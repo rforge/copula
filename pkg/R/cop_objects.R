@@ -380,7 +380,7 @@ copGumbel <-
                 if(any(n0Inf <- !(is0 | isInf))){ 
 	            t. <- t[n0Inf]
                     alpha <- 1/theta	         
-                    res[n0Inf] <- -t.^alpha + psiDabsGpoly(log(t.), alpha, degree, log = TRUE)
+                    res[n0Inf] <- -t.^alpha + polyG(log(t.), alpha, degree, log = TRUE)
                 }
                 if(log) res else exp(res)
             }
@@ -427,7 +427,7 @@ copGumbel <-
                 mlum.mat <- matrix(rep(mlum, d), ncol = d)
                 lx <- theta*lmlu[mat.ind] + log(rowSums((mlu/mlum.mat)^theta))
                 ## compute sum
-                lsum <- psiDabsGpoly(lx, alpha, d, log = TRUE)
+                lsum <- polyG(lx, alpha, d, log = TRUE)
                 ## the rest
                 pnacop <- function(x) pnacopula(onacopulaL("G", list(theta, 1:d)), x)
                 cop.val <- apply(u., 1, pnacop)
@@ -526,7 +526,7 @@ copJoe <-
 	            alpha <- 1/theta
                     mt <- -t[n0Inf] # -t
                     l1mt <- log(-expm1(mt)) # log(1-exp(-t))
-		    sum. <- psiDabsJpoly(mt - l1mt, alpha, degree, log = log)
+		    sum. <- polyJ(mt - l1mt, alpha, degree, log = log)
                     res[n0Inf] <- -log(theta) + mt - (1-alpha)*l1mt + sum.
                 }
 		if(log) res else exp(res)
@@ -542,7 +542,7 @@ copJoe <-
         },
 	## density
 	dacopula = function(u, theta, n.MC, log = FALSE, 
-        method = c("logJpoly", "maxScale", "Jpoly")) {
+        method = c("log.poly", "max.scale", "poly")) {
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
 	    ## f() := NaN outside and on the boundary of the unit hypercube
@@ -572,21 +572,21 @@ copJoe <-
 	        l1_h <- log1p(-h) # log(1-h(u))
 	        lh_l1_h <- lh - l1_h # log(h(u)/(1-h(u)))
 	        switch(match.arg(method),
-                       "logJpoly" = # intelligent evaluation of the log of the polynomial 
+                       "log.poly" = # intelligent evaluation of the log of the polynomial 
                    { 
-                       lsum <- psiDabsJpoly(lh_l1_h, alpha, d, log = TRUE) # = \log(\sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1})
+                       lsum <- polyJ(lh_l1_h, alpha, d, log = TRUE) # = \log(\sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1})
                        res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) - (1-alpha)*
                            log1p(-h) + lsum
                    },
-                       "maxScale" = # as logJpoly, only that the summand which is one is taken out separately
+                       "max.scale" = # as log.poly, only that the summand which is one is taken out separately
                    {
-                       lsum <- psiDabsJpoly(lh_l1_h, alpha, d, log = TRUE, use1p = TRUE) # = \log(\sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1})
+                       lsum <- polyJ(lh_l1_h, alpha, d, log = TRUE, use1p = TRUE) # = \log(\sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1})
                        res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) - (1-alpha)*
                            log1p(-h) + lsum
                    },
-                       "Jpoly" = # brute-force log applied to the polynomial; ok, but numerical problems for large d (e.g., ~ 100)
+                       "poly" = # brute-force log applied to the polynomial; ok, but numerical problems for large d (e.g., ~ 100)
                    { 
-                       sum. <- psiDabsJpoly(lh_l1_h, alpha, d) # \sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1}
+                       sum. <- polyJ(lh_l1_h, alpha, d) # \sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1}
                        res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) - (1-alpha)*
                            log1p(-h) + log(sum.)
                    }
