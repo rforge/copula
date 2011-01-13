@@ -11,6 +11,9 @@
 \description{
   Specific Archimedean families (\code{"\linkS4class{acopula}"} objects)
   implemented in the package \pkg{nacopula}.
+
+  Currently, these families are \dQuote{classical} as from p.116 of Nelsen (2007),
+  more specifially, see table 1 of Hofert (2011).
 }
 \usage{
 copAMH
@@ -83,13 +86,17 @@ copJoe
 }
 \author{Marius Hofert}
 \references{
-	Hofert, M. (2010),
-	  \emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
-	  Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
+  Nelsen, R.B. (2007)
+  \emph{An Introduction to Copulas} (2nd ed.),
+  Springer.
 
-	Hofert, M. (2011),
-	  Efficiently sampling nested Archimedean copulas,
-	  \emph{Computational Statistics & Data Analysis}, \bold{55}, 57--70.
+  Hofert, M. (2010)
+  \emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
+  Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
+
+  Hofert, M. (2011)
+  Efficiently sampling nested Archimedean copulas,
+  \emph{Computational Statistics & Data Analysis} \bold{55}, 57--70.
 }
 \examples{
 ## Print a copAMH object and its structure

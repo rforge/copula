@@ -43,22 +43,9 @@ rnchild(x, theta0, V0, ...)
 }
 \author{Marius Hofert, Martin Maechler}
 \seealso{
-  \code{\link{rnacopula}}; classes \code{"\linkS4class{nacopula}"}  and
-  \code{"\linkS4class{outer_nacopula}"}, see also
-  \code{\link{onacopula}()}.
-}
-\references{
-	McNeil, A. J. (2008),
-	  Sampling nested Archimedean copulas,
-	  \emph{Journal of Statistical Computation and Simulation} \bold{78}, 6, 567--581.
-
-  	Hofert, M. (2010),
-	  \emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
-	  Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
-
-	Hofert, M. (2011),
-	  Efficiently sampling nested Archimedean copulas,
-	  \emph{Computational Statistics & Data Analysis}, \bold{55}, 57--70.  
+  \code{\link{rnacopula}}, also for the references.
+  Additionally, classes \code{"\linkS4class{nacopula}"}  and
+  \code{"\linkS4class{outer_nacopula}"}, see also \code{\link{onacopula}()}.
 }
 \examples{
 ## Construct a three-dimensional nested Clayton copula with parameters

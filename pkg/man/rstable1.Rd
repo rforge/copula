@@ -10,14 +10,13 @@
   scale    \eqn{\gamma\in[0,\infty)}{gamma in [0,Inf)}, and
   location \eqn{\delta\in\mathbf{R}}{delta in IR}, see Nolan (2010) for
   the parameterization \eqn{k\in\{0,1\}}{k in {0,1}}. The case
-  \eqn{\gamma=0}{gamma = 0} is understood as the unit jumpat
-  \eqn{\delta}{delta}.
+  \eqn{\gamma=0} is understood as the unit jump at \eqn{\delta}.
 }
 \usage{
 rstable1(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
 }
 \arguments{
-	 \item{n}{an \code{\link{integer}}, the number of observations to generate.}
+  \item{n}{an \code{\link{integer}}, the number of observations to generate.}
     \item{alpha}{characteristic exponent \eqn{\alpha\in(0,2]}{alpha in (0,2]}.}
     \item{beta}{skewness \eqn{\beta\in[-1,1]}{beta in [-1,1]}.}
     \item{gamma}{scale \eqn{\gamma\in[0,\infty)}{gamma in [0,Inf)}.}

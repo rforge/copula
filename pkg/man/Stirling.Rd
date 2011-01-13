@@ -42,6 +42,9 @@ Stirling2.all(n)
   For typical double precision arithmetic,\cr
   \code{Stirling1*(n, *)} overflow (to \eqn{\pm}{+/-}\code{Inf}) for \eqn{n \ge 171}, and\cr
   \code{Stirling2*(n, *)} overflow (to \code{Inf}) for \eqn{n \ge 220}.
+%% and it would be possible to implement Stirling*(n, log=TRUE) without
+%% overflow, but a bit tedious, as one should "log-scale arithmetic only
+%% for large n, and hence as to *switch* for n >= n.max
 }
 \author{Martin Maechler ("direct": May 1992)}
 \references{

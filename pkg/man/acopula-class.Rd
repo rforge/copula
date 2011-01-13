@@ -125,7 +125,7 @@
   Specific provided copula family objects, e.g.,
   \code{\link{copAMH}}, \code{\link{copClayton}}, \code{\link{copFrank}},
   \code{\link{copGumbel}}, \code{\link{copJoe}}.
-  \cr To access these use \code{\link{getAcop}}.
+  \cr To access these, you may also use \code{\link{getAcop}}.
 
   A \emph{nested} Archimedean copula \emph{without}
   child copulas, see class \code{"\linkS4class{nacopula}"},
@@ -134,16 +134,9 @@
   parametrized Archimedean copula, see the example below.
 }
 \references{
-	Hofert, M. (2010),
-	  \emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
-	  Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
-
-	Hofert, M. (2011),
-	  Efficiently sampling nested Archimedean copulas,
-	  \emph{Computational Statistics & Data Analysis}, \bold{55}, 57--70.
+  see those of the families, e.g., \code{\link{copGumbel}}.
 }
 \examples{
-
 ## acopula class information
 showClass("acopula")
 

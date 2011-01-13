@@ -3,7 +3,12 @@
 \alias{rlogR}
 \title{Sampling Logarithmic Distributions}
 \description{
-  Generating random variates from a Log(p) distribution with probability mass function \deqn{p_k=\frac{p^k}{-\log(1-p)k},\ k\in\mathbf{N},}{p_k = p^k/(-log(1-p)k), k in IN,} where \eqn{p\in(0,1)}{p in (0,1)}. The implemented algorithm is the one named \dQuote{LK} in Kemp (1981).
+  Generating random variates from a Log(p) distribution with probability
+  mass function
+  \deqn{p_k=\frac{p^k}{-\log(1-p)k},\ k\in\mathbf{N},
+      }{p_k = p^k/(-log(1-p)k), k in IN,}
+  where \eqn{p\in(0,1)}{p in (0,1)}.  The implemented algorithm is the
+  one named \dQuote{LK} in Kemp (1981).
 }
 \usage{
    rlog(n, p, Ip = 1 - p)
@@ -26,17 +31,12 @@
 }
 \author{Marius Hofert, Martin Maechler}
 \references{
-  	Kemp, A. W. (1981),
-		Efficient Generation of Logarithmically Distributed Pseudo-Random Variables,
-	\emph{Journal of the Royal Statistical Society: Series C (Applied Statistics)}, \bold{30}, 3, 249--253.
+  Kemp, A. W. (1981)
+  Efficient Generation of Logarithmically Distributed Pseudo-Random Variables,
+  \emph{Journal of the Royal Statistical Society: Series C (Applied
+    Statistics)} \bold{30}, 3, 249--253.
 
-	Hofert, M. (2010),
-	  \emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
-	  Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
-
-	Hofert, M. (2011),
-	  Efficiently sampling nested Archimedean copulas,
-	  \emph{Computational Statistics & Data Analysis}, \bold{55}, 57--70.
+  Further, those of the Archimedean families, e.g., \code{\link{copGumbel}}.
 }
 \examples{
 ## Sample n random variates from a Log(p) distribution and plot a

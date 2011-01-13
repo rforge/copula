@@ -53,13 +53,11 @@ onacopulaL(family, nacList)
   \code{"\linkS4class{outer_nacopula}"}, and \code{"\linkS4class{acopula}"}.
 }
 \references{
-	Hofert, M. (2010),
-	  \emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
-	  Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
+  Hofert, M. (2011)
+  Efficiently sampling nested Archimedean copulas,
+  \emph{Computational Statistics & Data Analysis} \bold{55}, 57--70.
 
-	Hofert, M. (2011),
-	  Efficiently sampling nested Archimedean copulas,
-	  \emph{Computational Statistics & Data Analysis}, \bold{55}, 57--70.
+  Further, those of the Archimedean families, e.g., \code{\link{copGumbel}}.
 }
 \examples{
 ## Construct a ten-dimensional Joe copula with parameter such that Kendall's
