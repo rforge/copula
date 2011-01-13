@@ -60,7 +60,7 @@ copAMH <-
             ## f() := NaN outside and on the boundary of the unit hypercube
 	    res <- rep.int(NaN, n <- nrow(u))
             n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
-            if(!any(n01)) return(res) 
+            if(!any(n01)) return(res)
             if(theta == 0){ res[n01] <- if(log) 0 else 1; return(res) } # independence
             ## auxiliary results
             u. <- u[n01,, drop=FALSE]
@@ -161,7 +161,7 @@ copClayton <-
             ## f() := NaN outside and on the boundary of the unit hypercube
 	    res <- rep.int(NaN, n <- nrow(u))
             n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
-            if(!any(n01)) return(res) 
+            if(!any(n01)) return(res)
             ## auxiliary results
             u. <- u[n01,, drop=FALSE]
             l.u <- rowSums(-log(u.))
@@ -202,16 +202,14 @@ copClayton <-
         dV01 = function(x,V0,theta0,theta1,log = FALSE){
             stopifnot(length(V0) == 1 || length(x) == length(V0))
             alpha <- theta0/theta1
-            beta <- 1
             gamma <- (cos(pi/2*alpha)*V0)^(1/alpha)
             delta <- V0*(alpha == 1)
-            if(log){
-                V0-x+mapply(dstable,x,alpha = alpha,beta = beta,gamma = gamma,
-                            delta = delta,pm = 1,log = TRUE)
-            }else{
-                exp(V0-x)*mapply(dstable,x,alpha = alpha,beta = beta,gamma = gamma,
-                                 delta = delta,pm = 1)
-            }
+	    if(FALSE) ## new dstable() is vectorized in (x, gamma, delta) [but not the others]
+	    dst <- dstable(x, alpha=alpha, beta = 1, gamma=gamma, delta=delta, pm = 1, log=log)
+	    else ## old dstable() needs mapply(.)
+	    dst <- mapply(dstable,x, alpha=alpha, beta = 1, gamma=gamma,
+			  delta=delta, pm = 1, log=log)
+	    if(log) V0-x + dst else exp(V0-x) * dst
         },
         ## Kendall's tau
         tau = function(theta) { theta/(theta+2) },
@@ -265,7 +263,7 @@ copFrank <-
             ## f() := NaN outside and on the boundary of the unit hypercube
 	    res <- rep.int(NaN, n <- nrow(u))
 	    n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
-	    if(!any(n01)) return(res) 
+	    if(!any(n01)) return(res)
             ## auxiliary results
             u. <- u[n01,, drop=FALSE]
             u.sum <- rowSums(u.)
@@ -377,9 +375,9 @@ copGumbel <-
                 res <- numeric(n <- length(t))
                 res[is0 <- t == 0] <- Inf
                 res[isInf <- is.infinite(t)] <- -Inf
-                if(any(n0Inf <- !(is0 | isInf))){ 
+                if(any(n0Inf <- !(is0 | isInf))){
 	            t. <- t[n0Inf]
-                    alpha <- 1/theta	         
+                    alpha <- 1/theta
                     res[n0Inf] <- -t.^alpha + polyG(log(t.), alpha, degree, log = TRUE)
                 }
                 if(log) res else exp(res)
@@ -401,12 +399,12 @@ copGumbel <-
             ## f() := NaN outside and on the boundary of the unit hypercube
 	    res <- rep.int(NaN, n <- nrow(u))
 	    n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
-	    if(!any(n01)) return(res) 
+	    if(!any(n01)) return(res)
             if(theta == 1){ res[n01] <- if(log) 0 else 1; return(res) } # independence
             ## auxiliary results
             u. <- u[n01,, drop=FALSE]
             mlu <- -log(u.) # -log(u)
-            lmlu <- log(mlu) # log(-log(u))            
+            lmlu <- log(mlu) # log(-log(u))
             ## main part
             if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
                 psiI. <- rowSums(copGumbel@psiInv(u., theta))
@@ -482,11 +480,12 @@ copGumbel <-
         dV01 = function(x,V0,theta0,theta1,log = FALSE){
             stopifnot(length(V0) == 1 || length(x) == length(V0))
             alpha <- theta0/theta1
-            beta <- 1
             gamma <- (cos(pi/2*alpha)*V0)^(1/alpha)
             delta <- V0*(alpha == 1)
-            mapply(dstable,x,alpha = alpha,beta = beta,gamma = gamma,
-                   delta = delta, pm = 1, log = log)
+	    if(FALSE) ## new dstable() is vectorized in (x, gamma, delta) [but not the others]
+	    dstable(x, alpha=alpha, beta = 1, gamma=gamma, delta=delta, pm = 1, log=log)
+	    else ## old dstable() needs mapply(.)
+	    mapply(dstable,x, alpha=alpha, beta = 1, gamma=gamma, delta=delta, pm = 1, log=log)
         },
         ## Kendall's tau
         tau = function(theta) { (theta-1)/theta },
@@ -542,7 +541,7 @@ copJoe <-
             }
         },
 	## density
-	dacopula = function(u, theta, n.MC, log = FALSE, 
+	dacopula = function(u, theta, n.MC, log = FALSE,
         method = c("log.poly", "max.scale", "poly")) {
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
@@ -573,8 +572,8 @@ copJoe <-
 	        l1_h <- log1p(-h) # log(1-h(u))
 	        lh_l1_h <- lh - l1_h # log(h(u)/(1-h(u)))
 	        switch(match.arg(method),
-                       "log.poly" = # intelligent evaluation of the log of the polynomial 
-                   { 
+                       "log.poly" = # intelligent evaluation of the log of the polynomial
+                   {
                        lsum <- polyJ(lh_l1_h, alpha, d, log = TRUE) # = \log(\sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1})
                        res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) - (1-alpha)*
                            log1p(-h) + lsum
@@ -586,7 +585,7 @@ copJoe <-
                            log1p(-h) + lsum
                    },
                        "poly" = # brute-force log applied to the polynomial; ok, but numerical problems for large d (e.g., ~ 100)
-                   { 
+                   {
                        sum. <- polyJ(lh_l1_h, alpha, d) # \sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1}
                        res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) - (1-alpha)*
                            log1p(-h) + log(sum.)
