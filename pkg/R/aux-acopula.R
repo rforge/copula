@@ -292,7 +292,7 @@ coeffG <- function(d, alpha,
 		   method = c("sort", "horner", "direct", "dV01.Joe"),
 		   log = FALSE, verbose = FALSE)
 {
-    stopifnot(d >= 2)
+    stopifnot(d >= 1)
     a <- numeric(d) # for the a_k's
     switch(match.arg(method),
 	   "sort" = {
