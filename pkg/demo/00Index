@@ -1,3 +1,4 @@
 timings		Using timing() to measure speed of basic Archimedean Family functions
 estimation.gof	Estimation and goodness-of-fit capabilities
 logL-vis	Log Likelihood Visualizations
+G_ak		Coefficients a_k for Gumbel's density derivatives, MLE, etc
