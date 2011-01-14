@@ -14,4 +14,8 @@
     dendrogram print()ing.
 (MM) be compatible with package copula
 
+(MM)  dstable() from  fBasics is buggy ...
+      --> ~/R/MM/Pkg-ex/nacopula/dstable-problem.R
+
 (*) add (and fill) all help files for estimation and gof procedures
+

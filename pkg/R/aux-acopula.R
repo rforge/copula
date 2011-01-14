@@ -274,35 +274,106 @@ rFFrank <- function(n, theta0, theta1, rej)
 
 ### ==== Gumbel ================================================================
 
-##' Compute the coefficients a_k involved in the generator derivatives and the 
+##' Compute the coefficients a_k involved in the generator derivatives and the
 ##' copula density of a Gumbel copula
 ##'
-##' @title Coefficients of the polynomial involved in the generator derivatives 
+##' FIXME: serious numerical problems, e.g., for (d = 100, alpha = 0.8)
+##'        => cause MLE for Gumbel to fail for d = 100 and theta = 1.25
+##' @title Coefficients of the polynomial involved in the generator derivatives
 ##'        and density for Gumbel
-##' @param d number of coefficients (1:d)
+##' @param d number of coefficients, d >= 2
 ##' @param alpha parameter (1/theta)
+##' @param method a
+##' @param log logical indicating ...
+##' @param verbose logical
 ##' @return a_k = (-1)^{d-k}\sum_{j=k}^d alpha^j * s(d,j) * S(j,k)
-##' @author Marius Hofert
-##' FIXME: serious numerical problems, e.g., for d = 100 and alpha = 1/1.25
-##         => cause MLE for Gumbel to fail for d = 100 and theta = 1.25
-coeffG <- function(d, alpha){
-    s <- Stirling1.all(d) # s(d,1), ..., s(d,d)
-    k <- 1:d
-    S <- lapply(k, Stirling2.all) # S[[k]][n] contains S(k,n), n = 1,...,k
-    unlist(lapply(k, function(k.){
-        j <- k.:d
-        ## extract a column of Stirling2 numbers:
-        S. <- unlist(lapply(j, function(i) S[[i]][k.]))
-        (-1)^(d-k.)*sum(alpha^j*s[j]*S.)
-    }))
-}
+##' @author Marius Hofert und Martin Maechler
+coeffG <- function(d, alpha,
+		   method = c("sort", "horner", "direct", "dV01.Joe"),
+		   log = FALSE, verbose = FALSE)
+{
+    stopifnot(d >= 2)
+    a <- numeric(d) # for the a_k's
+    switch(match.arg(method),
+	   "sort" = {
+	       ls <- log(abs(Stirling1.all(d))) # log(|s(d, i)|), i=1:d
+	       lS <- lapply(1:d, function(n) log(Stirling2.all(n)))
+	       ##-> lS[[n]][i] contains log(S(n,i)), i = 1,...,n
+               wrong.sign <- integer()
+	       for(k in 1:d) { # deal with a_k
+		   j <- k:d
+		   ## compute b_j's, j = k,..,d
+		   b <- j * log(alpha) + ls[j] +
+		       unlist(lapply(j, function(i) lS[[i]][k]))
+		   b.max <- max(b) # max{b_j}
+		   exponents <- b - b.max # exponents
+		   ## compute critical sum [conjectured to be positive]
+		   exps <- exp(exponents) # (d-k+1)-many
+		   even <- if(k == d) NULL else seq(2, d-k+1, by=2)
+		   odd <- seq(1, d-k+1, by=2)
+		   sum.neg <- sum(sort(exps[even]))
+		   sum.pos <- sum(sort(exps[odd]))
+		   sum. <- sum.pos - sum.neg
+		   a[k] <- if(log) b.max + log(sum.) else exp(b.max)*sum.
+		   if(sum.neg > sum.pos) {
+		       if(verbose) message("sum.neg > sum.pos for k = ", k)
+		       wrong.sign <- c(wrong.sign, k)
+		   }
+	       }
+	       if(length(wrong.sign))
+		   attr(a, "wrong.signs") <- wrong.sign
+	       a
+	   },
+	   "dV01.Joe" = {
+	       ## coefficients via dV01 of Joe
+	       ## a_k = d!/k! * copJoe@dV01(d, k, theta0=1, theta1=1/alpha)
+	       k <- 1:d
+	       ck <- ## c_k := d!/k!
+		   if(log) c(0,cumsum(log(d:2)))[d:1]
+		   else c(1,cumprod(d:2))[d:1]
+	       ## copJoe @ dV01() is already vectorized (somewhat):
+	       p <- copJoe@dV01(rep(d,d), k, theta0 = 1, theta1 = 1/alpha,
+				log=log)
+	       if(log) p + ck else p * ck
+	   },
+	   "horner" = {
+	       s.abs <- abs(Stirling1.all(d))
+	       S <- lapply(1:d, Stirling2.all)
+               ## S[[n]][i] contains S(n,i), i = 1,...,n
+	       k <- 1:d
+	       pol <- vapply(k, function(k.) {
+		   j <- 0:(d-k.)
+		   ## compute coefficients (c_k = |s(d,j+k)|*S(j+k,k))
+		   c.j <- s.abs[j+k.] *
+		       unlist(lapply(j, function(i) S[[i+k.]][k.]))
+		   polynEval(c.j, -alpha)
+	       }, NA_real_)
 
-##' Compute the sum polynomial involved in the generator derivatives and the 
-##' copula density of a Gumbel copula 
+	       if(log) k*log(alpha) + log(pol) else alpha^k * pol
+	   },
+	   "direct" = {
+	       s <- Stirling1.all(d) # s(d,1), ..., s(d,d)
+	       k <- 1:d
+	       S <- lapply(k, Stirling2.all) # S[[k]][n] contains S(k,n), n = 1,...,k
+	       vapply(k, function(k.) {
+		   j <- k.:d
+		   ## extract a column of Stirling2 numbers:
+		   S. <- unlist(lapply(j, function(i) S[[i]][k.]))
+		   sm <- sum(alpha^j * s[j]*S.)
+		   if(log) log(abs(sm)) else (-1)^(d-k.)*sm
+	       }, NA_real_)
+	   }
+	 ) ## switch()
+} ## coeffG()
+
+
+
+##' Compute the sum polynomial involved in the generator derivatives and the
+##' copula density of a Gumbel copula
 ##'
 ##' @title Polynomial involved in the generator derivatives and density for Gumbel
-##' @param lx (log) evaluation point (lx is meant to be log(x) for some x which 
-##'        was used earlier; e.g., for copGumbel@dacopula, lx = log(rowSums(psiInv(u))) 
+##' @param lx (log) evaluation point (lx is meant to be log(x) for some x which
+##'        was used earlier; e.g., for copGumbel@dacopula, lx = log(rowSums(psiInv(u)))
 ##'        where u = (u_1,..,u_d) is the evaluation point of the density of Joe's copula)
 ##' @param alpha parameter (1/theta)
 ##' @param d number of summands
@@ -317,16 +388,16 @@ polyG <- function(lx, alpha, d, log = FALSE){
     abs.a.k <- abs(a.k) # |a_k|'s
     l.abs.a.k <- log(abs.a.k)
     ## evaluate the sum
-    ## for this, create a matrix B with (k,i)-th entry B[k,i] = log(|a_k|) + 
+    ## for this, create a matrix B with (k,i)-th entry B[k,i] = log(|a_k|) +
     ## (alpha*k-d) * lx[i], where k in {1,..,d}, i in {1,..,n} [n = length(lx)]
     k <- 1:d
     B <- l.abs.a.k + outer(alpha*k-d, lx)
     if(log){
         ## compute  log(signs %*% exp(B)) stably (no overflow)
-        ## Idea: 
-        ## (1) let b_k := log(|a_k|) + (alpha*k-d) * lx and b_{max} := argmax{b_k}. 
-        ## (2) \sum_{k=1}^d a_k\exp((alpha*k-d)*lx) = \sum_{k=1}^d signs * \exp(log(|a_k|) 
-        ##     + (alpha*k-d)*lx) = \sum_{k=1}^d signs * \exp(b_k) = \exp(b_{max})*\sum_{k=1}^d 
+        ## Idea:
+        ## (1) let b_k := log(|a_k|) + (alpha*k-d) * lx and b_{max} := argmax{b_k}.
+        ## (2) \sum_{k=1}^d a_k\exp((alpha*k-d)*lx) = \sum_{k=1}^d signs * \exp(log(|a_k|)
+        ##     + (alpha*k-d)*lx) = \sum_{k=1}^d signs * \exp(b_k) = \exp(b_{max})*\sum_{k=1}^d
         ##     * signs * \exp(b_k-b_{max})
         ## (3) => log(\sum...) = b_{max} + log(\sum_{k=1}^d signs * \exp(b_k-b_{max}))
 	max.B <- apply(B, 2, max)
@@ -416,13 +487,13 @@ rF01Joe <- function(V0, alpha, approx) {
 ##' @author Marius Hofert
 rFJoe <- function(n, alpha) rSibuya(n, alpha)
 
-##' Compute the sum polynomial involved in the generator derivatives and the 
-##' copula density of a Joe copula 
-##' 
+##' Compute the sum polynomial involved in the generator derivatives and the
+##' copula density of a Joe copula
+##'
 ##' @title Polynomial involved in the generator derivatives and density for Joe
-##' @param lx (log) evaluation point (lx is meant to be log(x) for some x which 
-##'        was used earlier; e.g., for copJoe@dacopula, lx = log(h(u)/(1-h(u))) for 
-##'        h(u) = \prod_{j=1}^d(1-(1-u_j)^theta), where u = (u_1,..,u_d) is the 
+##' @param lx (log) evaluation point (lx is meant to be log(x) for some x which
+##'        was used earlier; e.g., for copJoe@dacopula, lx = log(h(u)/(1-h(u))) for
+##'        h(u) = \prod_{j=1}^d(1-(1-u_j)^theta), where u = (u_1,..,u_d) is the
 ##'        evaluation point of the density of Joe's copula)
 ##' @param alpha parameter (1/theta)
 ##' @param d number of summands
@@ -436,26 +507,26 @@ polyJ <- function(lx, alpha, d, log = FALSE, use1p = FALSE){
     l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha) # log(a_k), k = 1,..,d
     ## FIXME: maybe (!) use Horner (see polyG)
     ## evaluate polynomial via exp( log(<poly>) )
-    ## for this, create a matrix B with (k,i)-th entry B[k,i] = log(a_k) + (k-1) * lx[i], 
+    ## for this, create a matrix B with (k,i)-th entry B[k,i] = log(a_k) + (k-1) * lx[i],
     ## where k in {1,..,d}, i in {1,..,n} [n = length(lx)]
-    B <- l.a.k + outer(k-1, lx) 
+    B <- l.a.k + outer(k-1, lx)
     if(log){
 	if(!use1p){
             ## compute  log(colSums(exp(B))) stably (no overflow)
-            ## Idea: 
-            ## (1) let b_k := log(a_k) + (k-1)*lx and b_{max} := argmax{b_k}. 
-            ## (2) \sum_{k=1}^d a_k\exp((k-1)*lx) = \sum_{k=1}^d \exp(log(a_k) 
-            ##     + (k-1)*lx) = \sum_{k=1}^d \exp(b_k) = \exp(b_{max})*\sum_{k=1}^d 
+            ## Idea:
+            ## (1) let b_k := log(a_k) + (k-1)*lx and b_{max} := argmax{b_k}.
+            ## (2) \sum_{k=1}^d a_k\exp((k-1)*lx) = \sum_{k=1}^d \exp(log(a_k)
+            ##     + (k-1)*lx) = \sum_{k=1}^d \exp(b_k) = \exp(b_{max})*\sum_{k=1}^d
             ##     \exp(b_k-b_{max})
             ## (3) => log(\sum...) = b_{max} + log(\sum_{k=1}^d \exp(b_k-b_{max}))
             max.B <- apply(B, 2, max)
-            max.B + log(colSums(exp(B - rep(max.B, each = d))))	
+            max.B + log(colSums(exp(B - rep(max.B, each = d))))
 	}else{ # use1p
             ##  use log(1 + sum(<smaller>)) = log1p(sum(<smaller>)),
             ##  but we don't expect it to make a difference
             im <- apply(B, 2, which.max) # indices (vector) of maxima
             n <- length(lx) ; d1 <- d-1L
-            max.B <- B[cbind(im, seq_len(n))] # get max(B[,i])_{i=1,..,n} == apply(B, 2, max) 
+            max.B <- B[cbind(im, seq_len(n))] # get max(B[,i])_{i=1,..,n} == apply(B, 2, max)
             B.wo.max <- matrix(B[unlist(lapply(im, function(j) k[-j])) +
                                  d*rep(0:(n-1), each = d1)], d1, n) # matrix B without maxima
             max.B + log1p(colSums(exp(B.wo.max - rep(max.B, each = d1))))
