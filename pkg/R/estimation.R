@@ -222,7 +222,7 @@ emde.dist <- function(u, method = c("mde.log.KS", "mde.normal.KS", "mde.log.CvM"
 emde <- function(u, cop, method = c("mde.log.KS", "mde.normal.KS", "mde.log.CvM", 
                          "mde.normal.CvM"),
                  interval = paraOptInterval(u, cop@copula@name), 
-                 include.K = if(ncol(u) < 5) TRUE else FALSE, ...)
+                 include.K = ncol(u) < 5, ...)
 {
     stopifnot(is(cop,"nacopula"))
     if(length(cop@childCops))
@@ -231,7 +231,7 @@ emde <- function(u, cop, method = c("mde.log.KS", "mde.normal.KS", "mde.log.CvM"
     method <- match.arg(method) # match argument method
     distance <- function(theta){ # distance to be minimized
         cop@copula@theta <- theta
-        u. <- gnacopulatrafo(u, cop, n.MC = NULL, include.K) # transform data [don't use n.MC here; too slow]
+        u. <- gnacopulatrafo(u, cop, n.MC = NULL, include.K = include.K) # transform data [don't use n.MC here; too slow]
         emde.dist(u., method)
     }
     optimize(distance, interval = interval, ...)	
@@ -340,7 +340,6 @@ emle <- function(u, cop, n.MC, interval = paraOptInterval(u, cop@copula@name), .
     ## optimize
     mLogL <- function(theta){ # -log-likelihood
         cop@copula@theta <- theta
-### FIXME: maybe only sum over those values that are finite and let the user know how many these are (?)
         -sum(dnacopula(cop, u, n.MC = n.MC, log = TRUE))
     }
     optimize(mLogL, interval = interval, ...)
@@ -383,7 +382,7 @@ pobs <- function(x) apply(x,2,rank)/(nrow(x)+1)
 ##' @param n.MC if provided (and not NULL) n.MC denotes the sample size for SMLE
 ##' @param interval initial optimization interval for "mle", "smle", and "dmle" (i.e., emle, dmle)
 ##' @param do.pseudo  logical indicating if 'x' should be "pseudo-transformed"
-##' @param eargs additional arguments for the estimation procedures
+##' @param xargs additional arguments for the estimation procedures
 ##' @param ... additional parameters for optimize
 ##' @return estimated value/vector according to the chosen method
 ##' @author Marius Hofert
@@ -391,19 +390,17 @@ enacopula <- function(x, cop, method = c("mle", "smle", "dmle", "tau.tau.mean",
                               "tau.theta.mean", "beta", "mde.log.KS", "mde.normal.KS",
                               "mde.log.CvM", "mde.normal.CvM"), 
                       n.MC, interval = paraOptInterval(u, cop@copula@name), 
-                      do.pseudo = FALSE, ...)
+                      do.pseudo = FALSE, xargs = list(), ...)
 {
     
-    ## setup cop
+    ## setup 
+    stopifnot(is.list(xargs))
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
     acop <- cop@copula
-
-    ## setup x
     u <- if(do.pseudo) pobs(x) else x
-
-    method <- match.arg(method) # match argument method
+    method <- match.arg(method) 
 
     ## check if n.MC is given for SMLE
     mMC <- missing(n.MC)
@@ -412,20 +409,28 @@ enacopula <- function(x, cop, method = c("mle", "smle", "dmle", "tau.tau.mean",
 
     ## main part
     res <- switch(method,
-                  mle =            emle (u,  cop, interval = interval, ...),
-                  smle =           emle (u,  cop, n.MC = n.MC, interval = interval, ...),
-                  dmle =           edmle(u, acop, interval = interval, ...),
-                  tau.tau.mean =   etau (u, acop, "tau.mean", ...),
-                  tau.theta.mean = etau (u, acop, "theta.mean", ...),
-                  beta =           ebeta(u, acop, interval = interval, ...),
-                  mde.log.KS =     emde(u, cop, "mde.log.KS", interval = interval, ...), 
-                  mde.normal.KS =  emde(u, cop, "mde.normal.KS", interval = interval, ...),                   
-                  mde.log.CvM =    emde(u, cop, "mde.log.CvM", interval = interval, ...), 
-                  mde.normal.CvM = emde(u, cop, "mde.normal.CvM", interval = interval, ...),
+                  mle =            do.call(emle, c(list(u, cop, 
+                  interval = interval, ...), xargs)),
+                  smle =           do.call(emle, c(list(u, cop, n.MC = n.MC, 
+                  interval = interval, ...), xargs)),
+                  dmle =           do.call(edmle, c(list(u, acop, 
+                  interval = interval, ...), xargs)),
+                  tau.tau.mean =   do.call(etau, c(list(u, acop, "tau.mean", ...), 
+                  xargs)),
+                  tau.theta.mean = do.call(etau, c(list(u, acop, "theta.mean", ...), 
+                  xargs)),
+                  beta =           do.call(ebeta, c(list(u, acop, 
+                  interval = interval, ...), xargs)),
+                  mde.log.KS =     do.call(emde, c(list(u, cop, "mde.log.KS", 
+                  interval = interval, ...), xargs)), 
+                  mde.normal.KS =  do.call(emde, c(list(u, cop, "mde.normal.KS", 
+                  interval = interval, ...), xargs)),                   
+                  mde.log.CvM =    do.call(emde, c(list(u, cop, "mde.log.CvM", 
+                  interval = interval, ...), xargs)), 
+                  mde.normal.CvM = do.call(emde, c(list(u, cop, "mde.normal.CvM", 
+                  interval = interval, ...), xargs)), 
                   stop("wrong estimation method"))
 
-    ## FIXME: pass through arguments such as include.K with argument eargs = list()?
-    ##        use do.call!!
     ## FIXME: deal with result, check details, give warnings
 
     ## return the estimate

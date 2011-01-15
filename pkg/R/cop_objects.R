@@ -205,10 +205,10 @@ copClayton <-
             gamma <- (cos(pi/2*alpha)*V0)^(1/alpha)
             delta <- V0*(alpha == 1)
 	    if(FALSE) ## new dstable() is vectorized in (x, gamma, delta) [but not the others]
-	    dst <- dstable(x, alpha=alpha, beta = 1, gamma=gamma, delta=delta, pm = 1, log=log)
+                dst <- dstable(x, alpha=alpha, beta = 1, gamma=gamma, delta=delta, pm = 1, log=log)
 	    else ## old dstable() needs mapply(.)
-	    dst <- mapply(dstable,x, alpha=alpha, beta = 1, gamma=gamma,
-			  delta=delta, pm = 1, log=log)
+                dst <- mapply(dstable,x, alpha=alpha, beta = 1, gamma=gamma,
+                              delta=delta, pm = 1, log=log)
 	    if(log) V0-x + dst else exp(V0-x) * dst
         },
         ## Kendall's tau
@@ -393,7 +393,7 @@ copGumbel <-
             }
         },
 	## density
-	dacopula = function(u, theta, n.MC, log = FALSE, scale = FALSE){
+	dacopula = function(u, theta, n.MC, log = FALSE){
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NaN outside and on the boundary of the unit hypercube
@@ -429,8 +429,7 @@ copGumbel <-
                 ## the rest
                 pnacop <- function(x) pnacopula(onacopulaL("G", list(theta, 1:d)), x)
                 cop.val <- apply(u., 1, pnacop)
-                scale.term <- if(scale) 0 else mlu # if scale == TRUE, do not divide c(u) by Pi(u)
-                res[n01] <- d*log(theta) + rowSums((theta-1)*lmlu + scale.term) + lsum
+                res[n01] <- d*log(theta) + rowSums((theta-1)*lmlu + mlu) + lsum
                 res[n01] <- if(log) log(cop.val) + res[n01] else cop.val * exp(res[n01])
                 res
             }
@@ -483,9 +482,9 @@ copGumbel <-
             gamma <- (cos(pi/2*alpha)*V0)^(1/alpha)
             delta <- V0*(alpha == 1)
 	    if(FALSE) ## new dstable() is vectorized in (x, gamma, delta) [but not the others]
-	    dstable(x, alpha=alpha, beta = 1, gamma=gamma, delta=delta, pm = 1, log=log)
+                dstable(x, alpha=alpha, beta = 1, gamma=gamma, delta=delta, pm = 1, log=log)
 	    else ## old dstable() needs mapply(.)
-	    mapply(dstable,x, alpha=alpha, beta = 1, gamma=gamma, delta=delta, pm = 1, log=log)
+                mapply(dstable,x, alpha=alpha, beta = 1, gamma=gamma, delta=delta, pm = 1, log=log)
         },
         ## Kendall's tau
         tau = function(theta) { (theta-1)/theta },
@@ -571,26 +570,17 @@ copJoe <-
 	        h <- apply(1 - u.., 1, prod) # h(u) = \prod_{j=1}^d (1-(1-u_j)^\theta)
 	        l1_h <- log1p(-h) # log(1-h(u))
 	        lh_l1_h <- lh - l1_h # log(h(u)/(1-h(u)))
-	        switch(match.arg(method),
-                       "log.poly" = # intelligent evaluation of the log of the polynomial
-                   {
-                       lsum <- polyJ(lh_l1_h, alpha, d, log = TRUE) # = \log(\sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1})
-                       res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) - (1-alpha)*
-                           log1p(-h) + lsum
-                   },
-                       "max.scale" = # as log.poly, only that the summand which is one is taken out separately
-                   {
-                       lsum <- polyJ(lh_l1_h, alpha, d, log = TRUE, use1p = TRUE) # = \log(\sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1})
-                       res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) - (1-alpha)*
-                           log1p(-h) + lsum
-                   },
-                       "poly" = # brute-force log applied to the polynomial; ok, but numerical problems for large d (e.g., ~ 100)
-                   {
-                       sum. <- polyJ(lh_l1_h, alpha, d) # \sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1}
-                       res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) - (1-alpha)*
-                           log1p(-h) + log(sum.)
-                   }
-                       )
+		res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) - (1-alpha)*log1p(-h) +
+                    switch(match.arg(method),
+                           "log.poly" = # intelligent evaluation of the log of the polynomial 
+                           polyJ(lh_l1_h, alpha, d, log = TRUE) # = \log(\sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1})
+                           ,
+                           "max.scale" = # as log.poly, only that the summand which is one is taken out separately
+                           polyJ(lh_l1_h, alpha, d, log = TRUE, use1p = TRUE) # = \log(\sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1})
+                           ,
+                           "poly" = # brute-force log applied to the polynomial; ok, but numerical problems for large d (e.g., ~ 100)
+                           log(polyJ(lh_l1_h, alpha, d)) # \sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1}
+                           )
                 if(log) res else exp(res)
             }
         },
