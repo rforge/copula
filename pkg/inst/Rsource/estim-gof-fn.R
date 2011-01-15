@@ -28,6 +28,11 @@ estimation.gof <- function(n, d, simFamily, tau, n.MC,
                            checkFamilies = nacopula:::c_longNames, verbose = TRUE)
 {
 
+    if(simFamily=="AMH"){
+	n <- 200
+	warning("FIXME in estimation.gof: changed n to 200 for AMH")
+    }
+
     ## generate data
     copFamily <- getAcop(simFamily)
     theta <- copFamily@tauInv(tau)
@@ -56,8 +61,8 @@ estimation.gof <- function(n, d, simFamily, tau, n.MC,
         if(verbose){
             cat("   theta hat      = ",r(est[k]),"\n",
                 "   tau hat        = ",r(cop.hat@copula@tau(est[k])),"\n",
-            ## The exact string 'Time ' must appear at the beginning of line
-            ## for 'R CMD Rdiff' to *not* look at differences there:
+                ## The exact string 'Time ' must appear at the beginning of line
+                ## for 'R CMD Rdiff' to *not* look at differences there:
                 "Time estimation   = ",f.tms(ute[k]),"\n", sep="")
 	}
         cop.hat@copula@theta <- est[k]

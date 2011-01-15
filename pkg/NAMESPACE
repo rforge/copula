@@ -33,6 +33,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"getAcop"
        ,"cacopula", "dnacopula", "pnacopula", "rnacopula" ,"rnchild"
        ## estimation -- (all functions for now -- FIXME ?)
+       ,"coeffG"
        ,"paraOptInterval"
        ,"beta.", "beta.hat", "pobs"
        ,"ebeta", "etau", "emde", "dDiag", "edmle", "emle", "enacopula"

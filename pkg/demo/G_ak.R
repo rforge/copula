@@ -73,14 +73,14 @@ plot.list <- vector("list", m)
 alpha.list <-  (1:m)/(m+1)
 d <- 100
 for(i in 1:m){
-    coeffs <- coeff(d, alpha.list[i], log=TRUE, method = "dV01")
+    coeffs <- coeffG(d, alpha.list[i], log=TRUE, method = "dV01.Joe")
     plot.list[[i]] <-
-        xyplot(coeffs~1:100, type="l", xlim = c(-3,104), ylim = c(-303,374),
+        xyplot(coeffs~1:d, type="l", xlim = c(-3,104), ylim = c(-303,374),
                xlab = "k", ylab = expression(log(a[k])), aspect = 1,
                main = substitute(expression(alpha == alpha.),
                list(alpha. = alpha.list[i])))
 }
-saveHTML(for(i in 1:n) print(plot.list[[i]]))
+saveHTML(for(i in 1:m) print(plot.list[[i]]))
 
 ## conclusion: seems to be better for large alpha [seems to work for alpha >= 0.78,
 ##             including our test case by a whisker... not totally satisfactory so far]
