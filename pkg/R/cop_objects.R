@@ -378,7 +378,12 @@ copGumbel <-
                 if(any(n0Inf <- !(is0 | isInf))){
 	            t. <- t[n0Inf]
                     alpha <- 1/theta
-                    res[n0Inf] <- -t.^alpha + polyG(log(t.), alpha, degree, log = TRUE)
+                    ## FIXME: the next line was the original code 
+                    ## res[n0Inf] <- -t.^alpha + polyG(log(t.), alpha, degree, log = TRUE)
+                    ## FIXME: the next 2--3 lines contains the new version [should be numerically more stable?]
+                    lt <- log(t.)
+		    res <- -degree*lt-t^alpha+polyG2(lt, alpha=alpha, d=degree, 
+                                                     log=TRUE)
                 }
                 if(log) res else exp(res)
             }
@@ -425,7 +430,8 @@ copGumbel <-
                 mlum.mat <- matrix(rep(mlum, d), ncol = d)
                 lx <- theta*lmlu[mat.ind] + log(rowSums((mlu/mlum.mat)^theta))
                 ## compute sum
-                lsum <- polyG(lx, alpha, d, log = TRUE)
+                ## lsum <- polyG(lx, alpha, d, log = TRUE) ## FIXME: formerly used code
+                lsum <- polyG2(lx, alpha, d, log=TRUE)-d*lx
                 ## the rest
                 pnacop <- function(x) pnacopula(onacopulaL("G", list(theta, 1:d)), x)
                 cop.val <- apply(u., 1, pnacop)

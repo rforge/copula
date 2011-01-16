@@ -274,11 +274,12 @@ rFFrank <- function(n, theta0, theta1, rej)
 
 ### ==== Gumbel ================================================================
 
+## ==== coeffG ====
+
 ##' Compute the coefficients a_k involved in the generator derivatives and the
 ##' copula density of a Gumbel copula
 ##'
 ##' FIXME: serious numerical problems, e.g., for (d = 100, alpha = 0.8)
-##'        => cause MLE for Gumbel to fail for d = 100 and theta = 1.25
 ##' @title Coefficients of the polynomial involved in the generator derivatives
 ##'        and density for Gumbel
 ##' @param d number of coefficients, d >= 2
@@ -366,9 +367,9 @@ coeffG <- function(d, alpha,
 	 ) ## switch()
 } ## coeffG()
 
+## ==== polyG ====
 
-
-##' Compute the sum polynomial involved in the generator derivatives and the
+##' Compute the polynomial involved in the generator derivatives and the
 ##' copula density of a Gumbel copula
 ##'
 ##' @title Polynomial involved in the generator derivatives and density for Gumbel
@@ -384,7 +385,7 @@ polyG <- function(lx, alpha, d, log = FALSE){
     if(d > 220) stop("d > 220 not yet supported") # would need Stirling2.all(d, log=TRUE)
     a.k <- coeffG(d, alpha)
     ## compute the signs, |a_k|, and log(|a_k|)
-    signs <- sign(a.k) # sign(a_k) => it is conjectured that they are all > 0, but we can't prove it so far
+    signs <- sign(a.k) # FIXME: theoretcially, we don't now know that sign(a_k) > 0, so we don't have to care about the signs
     abs.a.k <- abs(a.k) # |a_k|'s
     l.abs.a.k <- log(abs.a.k)
     ## evaluate the sum
@@ -404,6 +405,55 @@ polyG <- function(lx, alpha, d, log = FALSE){
         max.B + log(signs %*% exp(B - rep(max.B, each = d)))
     }
     else signs %*% exp(B)
+}
+
+## ==== falling factorial ====
+
+##' Falling factorial
+##'
+##' @title Falling factorial
+##' @param x real
+##' @param n integer
+##' @return (x)_n = x*(x-1)*...*(x-n+1)
+##' @author Marius Hofert
+ffactorial <- function(x, n) unlist(lapply(x, function(z) prod(z-(0:(n-1)))))
+
+##' Compute the polynomial involved in the generator derivatives and the
+##' copula density of a Gumbel copula
+##'
+##' @title Polynomial involved in the generator derivatives and density for Gumbel
+##' @param lx (log) evaluation point (lx is meant to be log(x) for some x which
+##'        was used earlier; e.g., for copGumbel@dacopula, lx = alpha*log(rowSums(psiInv(u)))
+##'        where u = (u_1,..,u_d) is the evaluation point of the density of Joe's copula)
+##' @param alpha parameter (1/theta)
+##' @param d number of summands
+##' @return \sum_{l=1}^d (alpha l)_d (-1)^{d-l}\sum_{k=l}^d\binom{k}{l}exp(lx*k)/k!
+##' @author Marius Hofert
+##' note: - for a simple test to follow what is done, use, e.g., lx=1/alpha, d=2, alpha=0.5
+##'       - this is a different polynomial than polyG:
+##'         polyG is (-1)^d\psi^{(d)}(t)/psi(t)
+##'         polyG2 is t^d*polyG(log(t),..) = t^d*(-1)^d\psi^{(d)}(t)/psi(t)
+polyG2 <- function(lx, alpha, d, log=FALSE){
+    ## determine signs of the falling factorials
+    l <- 1:d
+    s <- ffactorial(alpha*l, d) * (-1)^(d-l)
+    signs <- sign(s)
+    ## build list of b's
+    n <- length(lx)
+    one.l <- function(l.){
+        k <- l.:d
+        b.l <- outer(k, alpha*lx) - lfactorial(0:(d-l.)) + 
+            sum(log(abs(alpha*l.-(0:(d-1)))))-lfactorial(l.) # matrix of b's for a fixed l (= l.) and all k and lx
+    }
+    b <- lapply(l, one.l) # b[[l]] is a (d-l+1, n)-matrix; b[[l]][k, lx] contains b_{kl}
+    ## determine the largest entry for each lx and compute inner sums
+    b. <- do.call(rbind, b) # (d*(d+1)/2, lx)-matrix; rows are l = 1,..,d and for each l, k = l,..,d
+    b.max <- apply(b., 2, max)
+    inner.sums <- function(l) rowSums(exp(t(b[[l]])-b.max))
+    isums <- do.call(rbind, lapply(1:d, inner.sums)) # (d, lx)-matrix
+    outer.sum <- signs %*% isums
+    res <- b.max + as.vector(log(outer.sum))
+    if(log) res else exp(res)
 }
 
 
@@ -487,7 +537,7 @@ rF01Joe <- function(V0, alpha, approx) {
 ##' @author Marius Hofert
 rFJoe <- function(n, alpha) rSibuya(n, alpha)
 
-##' Compute the sum polynomial involved in the generator derivatives and the
+##' Compute the polynomial involved in the generator derivatives and the
 ##' copula density of a Joe copula
 ##'
 ##' @title Polynomial involved in the generator derivatives and density for Joe
@@ -522,8 +572,9 @@ polyJ <- function(lx, alpha, d, log = FALSE, use1p = FALSE){
             max.B <- apply(B, 2, max)
             max.B + log(colSums(exp(B - rep(max.B, each = d))))
 	}else{ # use1p
-            ##  use log(1 + sum(<smaller>)) = log1p(sum(<smaller>)),
-            ##  but we don't expect it to make a difference
+            ## use log(1 + sum(<smaller>)) = log1p(sum(<smaller>)),
+            ## but we don't expect it to make a difference
+            ## FIXME: faster if scaled with asymptotics
             im <- apply(B, 2, which.max) # indices (vector) of maxima
             n <- length(lx) ; d1 <- d-1L
             max.B <- B[cbind(im, seq_len(n))] # get max(B[,i])_{i=1,..,n} == apply(B, 2, max)

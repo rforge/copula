@@ -71,19 +71,31 @@ dnacopulag <- function(x, u, n.MC, log = FALSE){
 ##' @return f_x(u)
 ##' @author Marius Hofert, Martin Maechler
 pnacopula <- function(x,u) {
-
-### FIXME:  make applicable to a matrix of u's
-### => would be good for call from copGumbel@dacopula 
-
+    
     stopifnot(is.numeric(u), 0 <= u, u <= 1,
-              length(u) >= (d <- dim(x))) # will be larger for children
+              length(u) >= dim(x)) # will be larger for children
     C <- x@copula
     th <- C@theta
     C@psi(sum(## use u[j] for the direct components 'comp':
               C@psiInv(u[x@comp], theta=th),
               ## and recurse down for the children:
-	      C@psiInv(unlist(lapply(x@childCops, pnacopula, u = u)), theta=th)),
-	  theta=th)
+              C@psiInv(unlist(lapply(x@childCops, pnacopula, u = u)), theta=th)),
+          theta=th)
+
+    ## FIXME: tried this to matricize pnacopula, but for the very complicated 
+    ## example it fails
+    ## if(!is.matrix(u)) u <- rbind(u)
+    ## stopifnot(is.numeric(u), 0 <= u, u <= 1,
+    ##           ncol(u) >= dim(x)) # will be larger for children
+    ## C <- x@copula
+    ## th <- C@theta
+    ## sum. <- if(nrow(u) == 1) sum else rowSums # FIXME: why is this necessary in the following line?
+    ## C@psi(sum.(## use u[,j] for the direct components 'comp':
+    ##            cbind(C@psiInv(u[,x@comp], theta=th),
+    ##                  ## and recurse down for the children:
+    ##                  C@psiInv(unlist(lapply(x@childCops, pnacopula, u = u)), theta=th))),
+    ##      theta=th)
+
 }
 
 ##' Compute the probability P[l < U <= u]  where U ~ copula x.

@@ -1,11 +1,13 @@
-(*) implement color-feature in splom2 (now that i and j are included by Deepayan)
-(*) get GIG generator to work
-(*) allow families to have outer power parameters (outer power families)
+## ==== features in next CRAN version ====
+
+(*) make polyG, polyG2, and polyJ more efficient! [see FIXME's]
 (*) make pnacopula applicable to a matrix to be consistent with dnacopula (maybe
     also prob())
+    => tried it [see pnacopula()] but fails for complicated example in nac-experi.R
+(*) implement color-feature in splom2 (now that i and j are included by Deepayan)
+(*) add (and fill) all help files for estimation and gof procedures
 
-
-(MM) check new functions in cop_objects.R for efficiency + see FIXME there
+(MM) check new functions in cop_objects.R etc. for efficiency + see FIXME there
 (MM) Change onacopula() such that it works via onacopulaL() and hence
      can be used also from other functions.
 (MM) document polylog() and Stirling* functions
@@ -17,5 +19,12 @@
 (MM)  dstable() from  fBasics is buggy ...
       --> ~/R/MM/Pkg-ex/nacopula/dstable-problem.R
 
-(*) add (and fill) all help files for estimation and gof procedures
+## ==== long-term maybe ====
+
+(*) get GIG generator to work
+(*) allow families to have outer power parameters (outer power families)
+
+
+
+
 
