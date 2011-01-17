@@ -274,41 +274,47 @@ rFFrank <- function(n, theta0, theta1, rej)
 
 ### ==== Gumbel ================================================================
 
-## ==== coeffG ====
+### ==== compute the coefficients for polyG ====
 
-##' Compute the coefficients a_k involved in the generator derivatives and the
-##' copula density of a Gumbel copula
+##' Compute the coefficients a_{dk}(theta) involved in the generator derivatives 
+##' and the copula density of a Gumbel copula
 ##'
-##' FIXME: serious numerical problems, e.g., for (d = 100, alpha = 0.8)
 ##' @title Coefficients of the polynomial involved in the generator derivatives
 ##'        and density for Gumbel
-##' @param d number of coefficients, d >= 2
+##' @param d number of coefficients, d >= 1
 ##' @param alpha parameter (1/theta)
-##' @param method a
-##' @param log logical indicating ...
-##' @param verbose logical
-##' @return a_k = (-1)^{d-k}\sum_{j=k}^d alpha^j * s(d,j) * S(j,k)
+##' @param method method slot:
+##'        binomial.coeff: currently best method available, uses binomial coefficients, 
+##'                        only critical for large dependencies
+##'        sort:           compute the coefficients via exp(log()), pulling out the maximum, and sort
+##'        horner:         uses polynEval
+##'        direct:         brute force approach
+##'        dV01.Joe:       uses dV01.Joe
+##' @param log boolean which determines if the logarithm is returned
+##' @param verbose logical for method == sort
+##' @return a_{dk}(theta) = (-1)^{d-k}\sum_{j=k}^d alpha^j * s(d,j) * S(j,k)
+##' FIXME: serious numerical problems, e.g., for (d = 100, alpha = 0.8)
 ##' @author Marius Hofert und Martin Maechler
 coeffG <- function(d, alpha,
 		   method = c("sort", "horner", "direct", "dV01.Joe"),
 		   log = FALSE, verbose = FALSE)
 {
     stopifnot(d >= 1)
-    a <- numeric(d) # for the a_k's
+    a <- numeric(d) # for the a_{dk}(theta)'s
     switch(match.arg(method),
 	   "sort" = {
 	       ls <- log(abs(Stirling1.all(d))) # log(|s(d, i)|), i=1:d
 	       lS <- lapply(1:d, function(n) log(Stirling2.all(n)))
 	       ##-> lS[[n]][i] contains log(S(n,i)), i = 1,...,n
                wrong.sign <- integer()
-	       for(k in 1:d) { # deal with a_k
+	       for(k in 1:d) { # deal with a_{dk}(theta)
 		   j <- k:d
 		   ## compute b_j's, j = k,..,d
 		   b <- j * log(alpha) + ls[j] +
 		       unlist(lapply(j, function(i) lS[[i]][k]))
 		   b.max <- max(b) # max{b_j}
 		   exponents <- b - b.max # exponents
-		   ## compute critical sum [conjectured to be positive]
+		   ## compute critical sum (known to be positive)
 		   exps <- exp(exponents) # (d-k+1)-many
 		   even <- if(k == d) NULL else seq(2, d-k+1, by=2)
 		   odd <- seq(1, d-k+1, by=2)
@@ -327,7 +333,7 @@ coeffG <- function(d, alpha,
 	   },
 	   "dV01.Joe" = {
 	       ## coefficients via dV01 of Joe
-	       ## a_k = d!/k! * copJoe@dV01(d, k, theta0=1, theta1=1/alpha)
+	       ## a_{dk}(theta) = d!/k! * copJoe@dV01(d, k, theta0=1, theta1=1/alpha)
 	       k <- 1:d
 	       ck <- ## c_k := d!/k!
 		   if(log) c(0,cumsum(log(d:2)))[d:1]
@@ -364,59 +370,10 @@ coeffG <- function(d, alpha,
 		   if(log) log(abs(sm)) else (-1)^(d-k.)*sm
 	       }, NA_real_)
 	   }
-	 ) ## switch()
+           ) ## switch()
 } ## coeffG()
 
-## ==== polyG ====
-
-##' Compute the polynomial involved in the generator derivatives and the
-##' copula density of a Gumbel copula
-##'
-##' @title Polynomial involved in the generator derivatives and density for Gumbel
-##' @param lx (log) evaluation point (lx is meant to be log(x) for some x which
-##'        was used earlier; e.g., for copGumbel@dacopula, lx = log(rowSums(psiInv(u)))
-##'        where u = (u_1,..,u_d) is the evaluation point of the density of Joe's copula)
-##' @param alpha parameter (1/theta)
-##' @param d number of summands
-##' @return \sum_{k=1}^d a_k exp((k*alpha-d)*lx), where
-##'         a_k = (-1)^{d-k}\sum_{j=k}^d alpha^j * s(d,j) * S(j,k)
-##' @author Marius Hofert
-polyG <- function(lx, alpha, d, log = FALSE){
-    if(d > 220) stop("d > 220 not yet supported") # would need Stirling2.all(d, log=TRUE)
-    a.k <- coeffG(d, alpha)
-    ## compute the signs, |a_k|, and log(|a_k|)
-    signs <- sign(a.k) # FIXME: theoretcially, we don't now know that sign(a_k) > 0, so we don't have to care about the signs
-    abs.a.k <- abs(a.k) # |a_k|'s
-    l.abs.a.k <- log(abs.a.k)
-    ## evaluate the sum
-    ## for this, create a matrix B with (k,i)-th entry B[k,i] = log(|a_k|) +
-    ## (alpha*k-d) * lx[i], where k in {1,..,d}, i in {1,..,n} [n = length(lx)]
-    k <- 1:d
-    B <- l.abs.a.k + outer(alpha*k-d, lx)
-    if(log){
-        ## compute  log(signs %*% exp(B)) stably (no overflow)
-        ## Idea:
-        ## (1) let b_k := log(|a_k|) + (alpha*k-d) * lx and b_{max} := argmax{b_k}.
-        ## (2) \sum_{k=1}^d a_k\exp((alpha*k-d)*lx) = \sum_{k=1}^d signs * \exp(log(|a_k|)
-        ##     + (alpha*k-d)*lx) = \sum_{k=1}^d signs * \exp(b_k) = \exp(b_{max})*\sum_{k=1}^d
-        ##     * signs * \exp(b_k-b_{max})
-        ## (3) => log(\sum...) = b_{max} + log(\sum_{k=1}^d signs * \exp(b_k-b_{max}))
-	max.B <- apply(B, 2, max)
-        max.B + log(signs %*% exp(B - rep(max.B, each = d)))
-    }
-    else signs %*% exp(B)
-}
-
-## ==== falling factorial ====
-
-##' Falling factorial
-##'
-##' @title Falling factorial
-##' @param x real
-##' @param n integer
-##' @return (x)_n = x*(x-1)*...*(x-n+1)
-##' @author Marius Hofert
-ffactorial <- function(x, n) unlist(lapply(x, function(z) prod(z-(0:(n-1)))))
+### ==== compute the polynomial for Gumbel ====
 
 ##' Compute the polynomial involved in the generator derivatives and the
 ##' copula density of a Gumbel copula
@@ -427,33 +384,60 @@ ffactorial <- function(x, n) unlist(lapply(x, function(z) prod(z-(0:(n-1)))))
 ##'        where u = (u_1,..,u_d) is the evaluation point of the density of Joe's copula)
 ##' @param alpha parameter (1/theta)
 ##' @param d number of summands
-##' @return \sum_{l=1}^d (alpha l)_d (-1)^{d-l}\sum_{k=l}^d\binom{k}{l}exp(lx*k)/k!
+##' @param log boolean which determines if the logarithm is returned
+##' @param method method slot:
+##'        binomial.coeff: currently best method available, uses binomial coefficients, 
+##'                        only critical for large dependencies
+##'        sort:           compute the coefficients via exp(log()), pulling out the maximum, and sort
+##'        horner:         uses polynEval
+##'        direct:         brute force approach
+##'        dV01.Joe:       uses dV01.Joe
+##' @return \sum_{k=1}^d a_{dk}(theta)*exp(k*lx)
+##'         where a_{dk}(theta) = (-1)^{d-k}\sum_{j=k}^d\theta^{-j}s(d,j)S(j,k)
+##'                             = (d!/k!)\sum_{l=1}^k\binom{k}{l}\binom{\alpha l}{d}(-1)^{d-l}
 ##' @author Marius Hofert
-##' note: - for a simple test to follow what is done, use, e.g., lx=1/alpha, d=2, alpha=0.5
-##'       - this is a different polynomial than polyG:
-##'         polyG is (-1)^d\psi^{(d)}(t)/psi(t)
-##'         polyG2 is t^d*polyG(log(t),..) = t^d*(-1)^d\psi^{(d)}(t)/psi(t)
-polyG2 <- function(lx, alpha, d, log=FALSE){
-    ## determine signs of the falling factorials
-    l <- 1:d
-    s <- ffactorial(alpha*l, d) * (-1)^(d-l)
-    signs <- sign(s)
-    ## build list of b's
-    n <- length(lx)
-    one.l <- function(l.){
-        k <- l.:d
-        b.l <- outer(k, alpha*lx) - lfactorial(0:(d-l.)) + 
-            sum(log(abs(alpha*l.-(0:(d-1)))))-lfactorial(l.) # matrix of b's for a fixed l (= l.) and all k and lx
-    }
-    b <- lapply(l, one.l) # b[[l]] is a (d-l+1, n)-matrix; b[[l]][k, lx] contains b_{kl}
-    ## determine the largest entry for each lx and compute inner sums
-    b. <- do.call(rbind, b) # (d*(d+1)/2, lx)-matrix; rows are l = 1,..,d and for each l, k = l,..,d
-    b.max <- apply(b., 2, max)
-    inner.sums <- function(l) rowSums(exp(t(b[[l]])-b.max))
-    isums <- do.call(rbind, lapply(1:d, inner.sums)) # (d, lx)-matrix
-    outer.sum <- signs %*% isums
-    res <- b.max + as.vector(log(outer.sum))
-    if(log) res else exp(res)
+polyG <- function(lx, alpha, d, log=FALSE, 
+                  method=c("binomial.coeff", "sort", "horner", "direct", "dV01.Joe")){
+    method <- match.arg(method)
+    if(method=="binomial.coeff"){ # FIXME: improve speed
+	## determine signs of the falling factorials
+        l <- 1:d
+        s <- (-1)^(d-l) * unlist(lapply(alpha*l, function(z) prod(z-(0:(d-1)))))
+        signs <- sign(s)
+        ## build list of b's
+        n <- length(lx)
+        one.l <- function(l.){
+            k <- l.:d
+            b.l <- outer(k, lx) - lfactorial(0:(d-l.)) + 
+                sum(log(abs(alpha*l.-(0:(d-1)))))-lfactorial(l.) # matrix of b's for a fixed l (= l.) and all k and lx
+        }
+        b <- lapply(l, one.l) # b[[l]] is a (d-l+1, n)-matrix; b[[l]][k, lx] contains b_{kl}
+        ## determine the largest entry for each lx and compute inner sums
+        b. <- do.call(rbind, b) # (d*(d+1)/2, lx)-matrix; rows are l = 1,..,d and for each l, k = l,..,d
+        b.max <- apply(b., 2, max)
+        inner.sums <- function(l) rowSums(exp(t(b[[l]])-b.max))
+        isums <- do.call(rbind, lapply(1:d, inner.sums)) # (d, lx)-matrix
+        outer.sum <- signs %*% isums
+        res <- b.max + as.vector(log(outer.sum))
+        if(log) res else exp(res)
+    }else if(method=="sort" || method=="horner" || method=="direct" || method=="dV01.Joe"){ 
+	## note: these methods are all know to show numerical deficiencies 
+	if(d > 220) stop("d > 220 not yet supported") # would need Stirling2.all(d, log=TRUE) 
+        ## compute the log of the coefficients
+        a.dk <- coeffG(d, alpha) # compute the coefficients
+        l.a.dk <- log(a.dk) # note: theoretically, a.dk > 0 but due to numerical issues, this might not always be the case
+        ## evaluate the sum
+        ## for this, create a matrix B with (k,i)-th entry B[k,i] = log(a_{dk}(theta)) +
+        ## k * lx[i], where k in {1,..,d}, i in {1,..,n} [n = length(lx)]
+        k <- 1:d
+        B <- l.a.dk + outer(k, lx)
+      	if(log){
+            ## compute log(colSums(exp(B))) stably (no overflow) with the idea of
+            ## pulling out the maxima
+            max.B <- apply(B, 2, max)
+            max.B + log(colSums(exp(B - rep(max.B, each = d))))
+        }else colSums(exp(B)) 
+    }else stop("Wrong method in polyG") 
 }
 
 
@@ -474,21 +458,21 @@ rSibuyaR <- function(n,alpha) {
     stopifnot((n <- as.integer(n)) >= 0)
     V <- numeric(n)
     if(n >= 1) {
-	if(alpha == 1) {
-	    V[] <- 1
-	} else {
-	    u <- runif(n)
-	    ## FIXME(MM): (for alpha not too close to 1): re-express using 1-u
-	    l1 <- u <= alpha
-	    V[l1] <- 1
-	    i2 <- which(!l1)
-	    Ginv <- ((1-u[i2])*gamma(1-alpha))^(-1/alpha)
-	    floorGinv <- floor(Ginv)
-	    l3 <- (1-1/(floorGinv*beta(floorGinv,1-alpha)) < u[i2])
-	    V[i2[l3]] <- ceiling(Ginv[l3])
-	    i4 <- which(!l3)
-	    V[i2[i4]] <- floorGinv[i4]
-	}
+        if(alpha == 1) {
+            V[] <- 1
+        } else {
+            u <- runif(n)
+            ## FIXME(MM): (for alpha not too close to 1): re-express using 1-u
+            l1 <- u <= alpha
+            V[l1] <- 1
+            i2 <- which(!l1)
+            Ginv <- ((1-u[i2])*gamma(1-alpha))^(-1/alpha)
+            floorGinv <- floor(Ginv)
+            l3 <- (1-1/(floorGinv*beta(floorGinv,1-alpha)) < u[i2])
+            V[i2[l3]] <- ceiling(Ginv[l3])
+            i4 <- which(!l3)
+            V[i2[i4]] <- floorGinv[i4]
+        }
     }
     V
 }
@@ -537,6 +521,8 @@ rF01Joe <- function(V0, alpha, approx) {
 ##' @author Marius Hofert
 rFJoe <- function(n, alpha) rSibuya(n, alpha)
 
+### ==== polynomial evaluation for Joe ====
+
 ##' Compute the polynomial involved in the generator derivatives and the
 ##' copula density of a Joe copula
 ##'
@@ -547,31 +533,34 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 ##'        evaluation point of the density of Joe's copula)
 ##' @param alpha parameter (1/theta)
 ##' @param d number of summands
-##' @return \sum_{k=1}^d a_k exp((k-1)*lx),
-##'        where a_k = S(d,k)*(k-1-alpha)_{k-1} = S(d,k)*Gamma((1:d)-alpha)/Gamma(1-alpha)
+##' @param log boolean which determines if the logarithm is returned
+##' @param use1p boolean which determines if log1p() is used instead of log()
+##' @return \sum_{k=1}^d a_{dk}(theta) exp((k-1)*lx),
+##'         where a_{dk}(theta) = S(d,k)*(k-1-alpha)_{k-1} = S(d,k)*Gamma((1:d)-alpha)/Gamma(1-alpha)
 ##' @author Marius Hofert and Martin Maechler
 polyJ <- function(lx, alpha, d, log = FALSE, use1p = FALSE){
-    ## compute the log of the coefficients a_k
+    ## compute the log of the coefficients a_{dk}(theta)
     if(d > 220) stop("d > 220 not yet supported")# would need Stirling2.all(d, log=TRUE)
     k <- 1:d
-    l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha) # log(a_k), k = 1,..,d
+    l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha) # log(a_{dk}(theta)), k = 1,..,d
     ## FIXME: maybe (!) use Horner (see polyG)
     ## evaluate polynomial via exp( log(<poly>) )
-    ## for this, create a matrix B with (k,i)-th entry B[k,i] = log(a_k) + (k-1) * lx[i],
+    ## for this, create a matrix B with (k,i)-th entry B[k,i] = log(a_{dk}(theta)) + (k-1) * lx[i],
     ## where k in {1,..,d}, i in {1,..,n} [n = length(lx)]
     B <- l.a.k + outer(k-1, lx)
     if(log){
-	if(!use1p){
+        if(!use1p){
             ## compute  log(colSums(exp(B))) stably (no overflow)
             ## Idea:
-            ## (1) let b_k := log(a_k) + (k-1)*lx and b_{max} := argmax{b_k}.
-            ## (2) \sum_{k=1}^d a_k\exp((k-1)*lx) = \sum_{k=1}^d \exp(log(a_k)
+            ## (1) let b_k := log(a_{dk}(theta)) + (k-1)*lx and b_{max} := argmax{b_k}.
+            ## (2) \sum_{k=1}^d a_{dk}(theta)\exp((k-1)*lx) = \sum_{k=1}^d \exp(log(a_{dk}(theta))
             ##     + (k-1)*lx) = \sum_{k=1}^d \exp(b_k) = \exp(b_{max})*\sum_{k=1}^d
             ##     \exp(b_k-b_{max})
             ## (3) => log(\sum...) = b_{max} + log(\sum_{k=1}^d \exp(b_k-b_{max}))
+            ## FIXME: faster if scaled with asymptotics
             max.B <- apply(B, 2, max)
             max.B + log(colSums(exp(B - rep(max.B, each = d))))
-	}else{ # use1p
+        }else{ # use1p
             ## use log(1 + sum(<smaller>)) = log1p(sum(<smaller>)),
             ## but we don't expect it to make a difference
             ## FIXME: faster if scaled with asymptotics
@@ -608,24 +597,24 @@ Stirling1 <- function(n,k)
     if(n == 0) return(1)
     if(k == 0) return(0)
     S1 <- function(n,k) {
-	if(k == 0 || n < k) return(0)
-	if(is.na(S <- St[[n]][k])) {
-	    ## s(n,k) = s(n-1,k-1) - (n-1) * s(n-1,k) for all n, k >= 0
-	    St[[n]][k] <<- S <- if(n1 <- n-1L)
+        if(k == 0 || n < k) return(0)
+        if(is.na(S <- St[[n]][k])) {
+            ## s(n,k) = s(n-1,k-1) - (n-1) * s(n-1,k) for all n, k >= 0
+            St[[n]][k] <<- S <- if(n1 <- n-1L)
                 S1(n1, k-1) - n1* S1(n1, k) else 1
-	}
-	S
+        }
+        S
     }
     if(compute <- (nt <- length(St <- get("S1.tab", .nacopEnv))) < n) {
-	## extend the "table":
-	length(St) <- n
-	for(i in (nt+1L):n) St[[i]] <- rep.int(NA_real_, i)
+        ## extend the "table":
+        length(St) <- n
+        for(i in (nt+1L):n) St[[i]] <- rep.int(NA_real_, i)
     }
     else compute <- is.na(S <- St[[n]][k])
     if(compute) {
-	S <- S1(n,k)
-	## store it back:
-	assign("S1.tab", St, envir = .nacopEnv)
+        S <- S1(n,k)
+        ## store it back:
+        assign("S1.tab", St, envir = .nacopEnv)
     }
     S
 }
@@ -641,8 +630,8 @@ Stirling1.all <- function(n)
     stopifnot(length(n) == 1)
     if(!n) return(numeric(0))
     if(get("S1.full.n", .nacopEnv) < n) {
-	assign("S1.full.n", n, envir = .nacopEnv)
-	unlist(lapply(seq_len(n), Stirling1, n=n))
+        assign("S1.full.n", n, envir = .nacopEnv)
+        unlist(lapply(seq_len(n), Stirling1, n=n))
     }
     else get("S1.tab", .nacopEnv)[[n]]
 }
@@ -665,36 +654,36 @@ Stirling2 <- function(n,k, method = c("lookup.or.store","direct"))
     stopifnot(length(n) == 1, length(k) == 1)
     if (k < 0 || n < k) stop("'k' must be in 0..n !")
     switch(match.arg(method),
-	   "direct" = {
-	       sig <- rep(c(1,-1)*(-1)^k, length= k+1) # 1 for k=0; -1 1 (k=1)
-	       k <- 0:k # (!)
-	       ga <- gamma(k+1)
-	       round(sum( sig * k^n /(ga * rev(ga))))
-	   },
-	   "lookup.or.store" = {
+           "direct" = {
+               sig <- rep(c(1,-1)*(-1)^k, length= k+1) # 1 for k=0; -1 1 (k=1)
+               k <- 0:k # (!)
+               ga <- gamma(k+1)
+               round(sum( sig * k^n /(ga * rev(ga))))
+           },
+           "lookup.or.store" = {
                if(n == 0) return(1) ## else:
                if(k == 0) return(0)
-	       S2 <- function(n,k) {
-		   if(k == 0 || n < k) return(0)
-		   if(is.na(S <- St[[n]][k]))
-		       ## S(n,k) = S(n-1,k-1) + k * S(n-1,k)   for all n, k >= 0
-		       St[[n]][k] <<- S <- if(n1 <- n-1L)
+               S2 <- function(n,k) {
+                   if(k == 0 || n < k) return(0)
+                   if(is.na(S <- St[[n]][k]))
+                       ## S(n,k) = S(n-1,k-1) + k * S(n-1,k)   for all n, k >= 0
+                       St[[n]][k] <<- S <- if(n1 <- n-1L)
                            S2(n1, k-1) + k* S2(n1, k) else 1 ## n = k = 1
-		   S
-	       }
-	       if(compute <- (nt <- length(St <- get("S2.tab", .nacopEnv))) < n) {
-		   ## extend the "table":
-		   length(St) <- n
-		   for(i in (nt+1L):n) St[[i]] <- rep.int(NA_real_, i)
-	       }
-	       else compute <- is.na(S <- St[[n]][k])
-	       if(compute) {
-		   S <- S2(n,k)
-		   ## store it back:
-		   assign("S2.tab", St, envir = .nacopEnv)
-	       }
-	       S
-	   })
+                   S
+               }
+               if(compute <- (nt <- length(St <- get("S2.tab", .nacopEnv))) < n) {
+                   ## extend the "table":
+                   length(St) <- n
+                   for(i in (nt+1L):n) St[[i]] <- rep.int(NA_real_, i)
+               }
+               else compute <- is.na(S <- St[[n]][k])
+               if(compute) {
+                   S <- S2(n,k)
+                   ## store it back:
+                   assign("S2.tab", St, envir = .nacopEnv)
+               }
+               S
+           })
 }
 
 ##' Full Vector of Stirling Numbers of the 2nd Kind
@@ -708,8 +697,8 @@ Stirling2.all <- function(n)
     stopifnot(length(n) == 1)
     if(!n) return(numeric(0))
     if(get("S2.full.n", .nacopEnv) < n) {
-	assign("S2.full.n", n, envir = .nacopEnv)
-	unlist(lapply(seq_len(n), Stirling2, n=n))
+        assign("S2.full.n", n, envir = .nacopEnv)
+        unlist(lapply(seq_len(n), Stirling2, n=n))
     }
     else get("S2.tab", .nacopEnv)[[n]]
 }
@@ -759,34 +748,34 @@ assign("S1.full.n", 0  , envir = .nacopEnv)
 ##' @return numeric/complex vector as \code{z}
 ##' @author Martin Maechler
 polylog <- function(z,s, method = c("sum","negint-s_Stirling"), logarithm=FALSE,
-		    ## for "sum" -- this is more for experiments etc:
-		    n.sum)
+                    ## for "sum" -- this is more for experiments etc:
+                    n.sum)
 {
     if((nz <- length(z)) == 0 || (ns <- length(s)) == 0)
-	return((z+s)[FALSE])# of length 0
+        return((z+s)[FALSE])# of length 0
     stopifnot(length(s) == 1) # for now
     method <- match.arg(method)
     switch(method,
-	   "sum" = {
-	       stopifnot((Mz <- Mod(z)) <= 1, Mz < 1 | Re(s) > 1,
-			 n.sum > 99, length(n.sum) == 1)
+           "sum" = {
+               stopifnot((Mz <- Mod(z)) <= 1, Mz < 1 | Re(s) > 1,
+                         n.sum > 99, length(n.sum) == 1)
                if(logarithm)
                    log(z)+log(polynEval((1:n.sum)^-s, z))
                else z*polynEval((1:n.sum)^-s, z)
-	   },
-	   "negint-s_Stirling" = {
-	       stopifnot(s == as.integer(s), s <= 1)
-	       if(s == 1) return(-log1p(-z)) ## -ln(1 -z)
-	       r <- z/(1 - z)
-	       ## if(s == 0) return(r)
-	       n <- -as.integer(s)
-	       ## k1 <- seq_len(n+1)# == k+1, k = 0...n
-	       fac.k <- cumprod(c(1, seq_len(n)))
+           },
+           "negint-s_Stirling" = {
+               stopifnot(s == as.integer(s), s <= 1)
+               if(s == 1) return(-log1p(-z)) ## -ln(1 -z)
+               r <- z/(1 - z)
+               ## if(s == 0) return(r)
+               n <- -as.integer(s)
+               ## k1 <- seq_len(n+1)# == k+1, k = 0...n
+               fac.k <- cumprod(c(1, seq_len(n)))
                S.n1.k1 <- Stirling2.all(n+1) ## == Stirling2(n+1, k+1)
                if(logarithm)
                    log(r)+ log(polynEval(fac.k * S.n1.k1, r))
                else r* polynEval(fac.k * S.n1.k1, r)
-	   }, stop("invalid 'method':", method))
+           }, stop("invalid 'method':", method))
 }
 
 ### ==== other NON-numerics ====================================================
@@ -839,15 +828,15 @@ psiDabsMC <- function(t, family, theta, degree = 1, n.MC, log = FALSE){
 ##' @author Martin Maechler
 setTheta <- function(x, value, na.ok = TRUE) {
     stopifnot(is(x, "acopula"),
-	      is.numeric(value) | (ina <- is.na(value)))
+              is.numeric(value) | (ina <- is.na(value)))
     if(ina) {
-	if(!na.ok) stop("NA value, but 'na.ok' is not TRUE")
-	value <- NA_real_
+        if(!na.ok) stop("NA value, but 'na.ok' is not TRUE")
+        value <- NA_real_
     }
     if(ina || x@paraConstr(value)) ## parameter constraints are fulfilled
-	x@theta <- value
+        x@theta <- value
     else
-	stop("theta (=", format(value), ") does not fulfill paraConstr()")
+        stop("theta (=", format(value), ") does not fulfill paraConstr()")
     x
 }
 
@@ -862,11 +851,11 @@ mkParaConstr <- function(int){
     stopifnot(is(int, "interval")) # for now
     is.o <- int@open
     eL <- substitute(LL <= theta, list(LL = int[1])); if(is.o[1]) eL[[1]] <-
-	as.symbol("<")
+        as.symbol("<")
     eR <- substitute(theta <= RR, list(RR = int[2])); if(is.o[2]) eR[[1]] <-
-	as.symbol("<")
+        as.symbol("<")
     bod <- substitute(length(theta) == 1 && LEFT && RIGHT,
-		      list(LEFT = eL, RIGHT= eR))
+                      list(LEFT = eL, RIGHT= eR))
     as.function(c(alist(theta=), bod), parent.env(environment()))
     ## which is a fast version of
     ## r <- function(theta) {}
@@ -876,30 +865,30 @@ mkParaConstr <- function(int){
 }
 
 printAcopula <- function(x, slots = TRUE, indent = 0,
-			 digits = getOption("digits"), width = getOption("width"), ...)
+                         digits = getOption("digits"), width = getOption("width"), ...)
 {
     cl <- class(x)
     cld <- getClassDef(cl)
     stopifnot(indent >= 0, extends(cld, "acopula"))
     ch.thet <- {
-	if(!all(is.na(x@theta)))## show theta
-	    paste(", theta= (",
-		  paste(sapply(x@theta, format, digits=digits), collapse=", "),
-		  ")", sep="")
-	else ""
+        if(!all(is.na(x@theta)))## show theta
+            paste(", theta= (",
+                  paste(sapply(x@theta, format, digits=digits), collapse=", "),
+                  ")", sep="")
+        else ""
     }
     bl <- paste(rep.int(" ",indent), collapse="")
     cat(sprintf('%sArchimedean copula ("%s"), family "%s"%s\n',
-		bl, cl, x@name, ch.thet))
+                bl, cl, x@name, ch.thet))
     if(slots) {
-	nms <- slotNames(cld)
-	nms <- nms[!(nms %in% c("name", "theta"))]
-	i2 <- indent+2
-	cat(bl, " It contains further slots, named\n",
-	    paste(strwrap(paste(dQuote(nms),collapse=", "),
-			  width = 0.95 * (width-2), indent=i2, exdent=i2),
-		  collapse="\n"), "\n",
-	    sep="")
+        nms <- slotNames(cld)
+        nms <- nms[!(nms %in% c("name", "theta"))]
+        i2 <- indent+2
+        cat(bl, " It contains further slots, named\n",
+            paste(strwrap(paste(dQuote(nms),collapse=", "),
+                          width = 0.95 * (width-2), indent=i2, exdent=i2),
+                  collapse="\n"), "\n",
+            sep="")
     }
     invisible(x)
 }
@@ -909,7 +898,7 @@ setMethod(show, "acopula", function(object) printAcopula(object))
 printNacopula <-
     function(x, labelKids = NA, deltaInd = if(identical(labelKids,FALSE)) 5 else 3,
              indent.str="",
-	     digits = getOption("digits"), width = getOption("width"), ...)
+             digits = getOption("digits"), width = getOption("width"), ...)
 {
     cl <- class(x)
     stopifnot(deltaInd >= 0, is.character(indent.str), length(indent.str) == 1,
@@ -921,28 +910,28 @@ printNacopula <-
     ch1 <- sprintf("%sNested Archimedean copula (\"%s\"), with ",
                    indent.str, cl)
     ch2 <- if(length(c.j <- x@comp)) {
-	sprintf("slot \n%s'comp'   = %s", bl,
-		paste("(",paste(c.j, collapse=", "),")", sep=""))
+        sprintf("slot \n%s'comp'   = %s", bl,
+                paste("(",paste(c.j, collapse=", "),")", sep=""))
     } else "empty slot 'comp'"
     cat(ch1, ch2, sprintf("  and root\n%s'copula' = ", bl), sep="")
     printAcopula(x@copula, slots=FALSE, digits=digits, width=width, ...)
     nk <- length(kids <- x@childCops)
     if(nk) {
-	cat(sprintf("%sand %d child copula%s\n", bl, nk, if(nk > 1)"s" else ""))
-	doLab <- if(is.na(labelKids)) nk > 1 else as.logical(labelKids)
-	paste0 <- function(...) paste(..., sep="")
-	if(doLab) {
-	    hasNms <- !is.null(nms <- names(kids))
-	    lab <- if(hasNms) paste0(nms,": ") else paste0(seq_len(nk),") ")
-	}
+        cat(sprintf("%sand %d child copula%s\n", bl, nk, if(nk > 1)"s" else ""))
+        doLab <- if(is.na(labelKids)) nk > 1 else as.logical(labelKids)
+        paste0 <- function(...) paste(..., sep="")
+        if(doLab) {
+            hasNms <- !is.null(nms <- names(kids))
+            lab <- if(hasNms) paste0(nms,": ") else paste0(seq_len(nk),") ")
+        }
         bl <- mkBlanks(nIS + deltaInd)
-	for(ic in seq_along(kids))
-	    printNacopula(kids[[ic]], deltaInd=deltaInd,
-			  indent.str = paste0(bl, if(doLab) lab[ic]),
-			  labelKids=labelKids, digits=digits, width=width, ...)
+        for(ic in seq_along(kids))
+            printNacopula(kids[[ic]], deltaInd=deltaInd,
+                          indent.str = paste0(bl, if(doLab) lab[ic]),
+                          labelKids=labelKids, digits=digits, width=width, ...)
     }
     else
-	cat(sprintf("%sand *no* child copulas\n", bl))
+        cat(sprintf("%sand *no* child copulas\n", bl))
     invisible(x)
 }
 

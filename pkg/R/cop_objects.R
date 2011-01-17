@@ -314,7 +314,7 @@ copFrank <-
             ## sampled via a logarithmic envelope for the summands)
             ## approx is the largest number of summands before asymptotics is used (see copJoe@V01)
             ## FIXME: optimal value of rej (for approx = 10000) is not clear yet; rej = 1 is not bad, however
-            ##        lgammacor gets underflow warnings for rej < 1
+            ##        lgammacor gives underflow warnings for rej < 1
             rF01Frank(V0, theta0, theta1, rej, approx)
         },
         dV01 = function(x,V0,theta0,theta1,log = FALSE){
@@ -378,12 +378,9 @@ copGumbel <-
                 if(any(n0Inf <- !(is0 | isInf))){
 	            t. <- t[n0Inf]
                     alpha <- 1/theta
-                    ## FIXME: the next line was the original code 
-                    ## res[n0Inf] <- -t.^alpha + polyG(log(t.), alpha, degree, log = TRUE)
-                    ## FIXME: the next 2--3 lines contains the new version [should be numerically more stable?]
                     lt <- log(t.)
-		    res <- -degree*lt-t^alpha+polyG2(lt, alpha=alpha, d=degree, 
-                                                     log=TRUE)
+		    res <- -degree*lt -t^alpha + polyG(alpha*lt, alpha=alpha, d=degree, 
+                                                     log=TRUE, method="binomial.coeff")
                 }
                 if(log) res else exp(res)
             }
@@ -423,15 +420,14 @@ copGumbel <-
                 if(log) log(res) else res
             }else{ # explicit
                 alpha <- 1/theta
-                ## compute lx = log(sum(psiInv(u, theta)))
+                ## compute lx = alpha*log(sum(psiInv(u, theta)))
 		im <- apply(u., 1, which.max)
 		mat.ind <- cbind(seq_len(n), im) # indices that pick out maxima from u.
                 mlum <- mlu[mat.ind] # -log(u_max)
                 mlum.mat <- matrix(rep(mlum, d), ncol = d)
-                lx <- theta*lmlu[mat.ind] + log(rowSums((mlu/mlum.mat)^theta))
+                lx <- lmlu[mat.ind] + alpha*log(rowSums((mlu/mlum.mat)^theta)) # alpha*log(sum(psiInv(u, theta)))
                 ## compute sum
-                ## lsum <- polyG(lx, alpha, d, log = TRUE) ## FIXME: formerly used code
-                lsum <- polyG2(lx, alpha, d, log=TRUE)-d*lx
+                lsum <- polyG(lx, alpha, d, log=TRUE, method="binomial.coeff")-d*lx/alpha
                 ## the rest
                 pnacop <- function(x) pnacopula(onacopulaL("G", list(theta, 1:d)), x)
                 cop.val <- apply(u., 1, pnacop)
@@ -531,7 +527,7 @@ copJoe <-
 	            alpha <- 1/theta
                     mt <- -t[n0Inf] # -t
                     l1mt <- log(-expm1(mt)) # log(1-exp(-t))
-		    sum. <- polyJ(mt - l1mt, alpha, degree, log = log)
+		    sum. <- polyJ(mt - l1mt, alpha, degree, log=log)
                     res[n0Inf] <- -log(theta) + mt - (1-alpha)*l1mt + sum.
                 }
 		if(log) res else exp(res)
@@ -579,13 +575,13 @@ copJoe <-
 		res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) - (1-alpha)*log1p(-h) +
                     switch(match.arg(method),
                            "log.poly" = # intelligent evaluation of the log of the polynomial 
-                           polyJ(lh_l1_h, alpha, d, log = TRUE) # = \log(\sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1})
+                           polyJ(lh_l1_h, alpha, d, log=TRUE) # = \log(\sum_{k=1}^d a_{dk}(theta)(h(u)/(1-h(u)))^{k-1})
                            ,
                            "max.scale" = # as log.poly, only that the summand which is one is taken out separately
-                           polyJ(lh_l1_h, alpha, d, log = TRUE, use1p = TRUE) # = \log(\sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1})
+                           polyJ(lh_l1_h, alpha, d, log=TRUE, use1p=TRUE) # = \log(\sum_{k=1}^d a_{dk}(theta)(h(u)/(1-h(u)))^{k-1})
                            ,
                            "poly" = # brute-force log applied to the polynomial; ok, but numerical problems for large d (e.g., ~ 100)
-                           log(polyJ(lh_l1_h, alpha, d)) # \sum_{k=1}^d a_k^J(theta)(h(u)/(1-h(u)))^{k-1}
+                           log(polyJ(lh_l1_h, alpha, d)) # \sum_{k=1}^d a_{dk}(theta)(h(u)/(1-h(u)))^{k-1}
                            )
                 if(log) res else exp(res)
             }
