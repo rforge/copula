@@ -167,23 +167,23 @@ copClayton <-
             l.u <- rowSums(-log(u.))
             ## main part
             if(!(missing(n.MC) || is.null(n.MC))){ # Monte Carlo
+	        l.u.mat <- matrix(rep(l.u, n.MC), nrow=n.MC, byrow=TRUE)
                 V <- copClayton@V0(n.MC, theta)
                 l <- d*log(theta*V)
                 theta. <- 1 + theta
                 psiI.sum <- rowSums(copClayton@psiInv(u., theta))
-                ln01 <- sum(n01)
-                one.u <- function(i) exp(l + theta.*l.u[i] - V*psiI.sum[i])
-                res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
-                                            ncol = ln01))
-                if(log) log(res) else res
+		## stably compute log(colMeans(exp(B))) 
+                B <- l + theta.*l.u.mat - outer(V,psiI.sum) # matrix of exponents; dimension n.MC x n ["V x u"]
+                max.B <- apply(B, 2, max) 
+                res[n01] <- max.B + log(colMeans(exp(B - rep(max.B, each=n.MC))))
             }else{ # explicit
                 alpha <- 1/theta
                 d.a <- d + alpha
                 arg <- rowSums(u.^(-theta)-1)
                 res[n01] <- lgamma(d.a)-lgamma(alpha)+ d*log(theta) +
                     (1+theta)*l.u - (d.a)*log1p(arg)
-                if(log) res else exp(res)
             }
+            if(log) res else exp(res)
 	},
         ## parameter interval
         paraInterval = interval("(0,Inf)"),
@@ -380,7 +380,7 @@ copGumbel <-
                     alpha <- 1/theta
                     lt <- log(t.)
 		    res <- -degree*lt -t^alpha + polyG(alpha*lt, alpha=alpha, d=degree, 
-                                                     log=TRUE, method="binomial.coeff")
+                                                       log=TRUE, method="binomial.coeff")
                 }
                 if(log) res else exp(res)
             }
@@ -413,11 +413,12 @@ copGumbel <-
                 V <- copGumbel@V0(n.MC, theta)
                 l <- d*log(theta*V)
                 sum. <- rowSums((theta-1)*lmlu + mlu)
-                ln01 <- sum(n01)
-                one.u <- function(i) exp(l - V*psiI.[i] + sum.[i])
-                res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
-                                            ncol = ln01))
-                if(log) log(res) else res
+                sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
+                ## stably compute log(colMeans(exp(B))) 
+                B <- l - outer(V, psiI.) + sum.mat # matrix of exponents; dimension n.MC x n ["V x u"]
+		max.B <- apply(B, 2, max) 
+		res[n01] <- max.B + log(colMeans(exp(B - rep(max.B, each=n.MC))))
+                if(log) res else exp(res)
             }else{ # explicit
                 alpha <- 1/theta
                 ## compute lx = alpha*log(sum(psiInv(u, theta)))
@@ -562,11 +563,11 @@ copJoe <-
 	        V <- copJoe@V0(n.MC, theta)
 	        l <- d*log(theta*V)
 	        sum. <- (theta-1)*rowSums(l1_u)
-	        ln01 <- sum(n01)
-	        one.u <- function(i) exp(l + (V-1)*lh[i] + sum.[i])
-	        res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
-	                                    ncol = ln01))
-	        if(log) log(res) else res
+	        sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
+	        ## stably compute log(colMeans(exp(B))) 
+		B <- l + outer(V-1, lh) + sum.mat # matrix of exponents; dimension n.MC x n ["V x u"]
+		max.B <- apply(B, 2, max) 
+		res[n01] <- max.B + log(colMeans(exp(B - rep(max.B, each=n.MC))))
 	    }else{
 	        alpha <- 1/theta
 	        h <- apply(1 - u.., 1, prod) # h(u) = \prod_{j=1}^d (1-(1-u_j)^\theta)
@@ -583,8 +584,8 @@ copJoe <-
                            "poly" = # brute-force log applied to the polynomial; ok, but numerical problems for large d (e.g., ~ 100)
                            log(polyJ(lh_l1_h, alpha, d)) # \sum_{k=1}^d a_{dk}(theta)(h(u)/(1-h(u)))^{k-1}
                            )
-                if(log) res else exp(res)
             }
+            if(log) res else exp(res)
         },
         ## parameter interval
         paraInterval = interval("[1,Inf)"),

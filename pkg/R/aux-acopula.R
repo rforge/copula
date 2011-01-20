@@ -550,7 +550,7 @@ polyJ <- function(lx, alpha, d, log = FALSE, use1p = FALSE){
     B <- l.a.k + outer(k-1, lx)
     if(log){
         if(!use1p){
-            ## compute  log(colSums(exp(B))) stably (no overflow)
+            ## stably compute log(colSums(exp(B))) (no overflow)
             ## Idea:
             ## (1) let b_k := log(a_{dk}(theta)) + (k-1)*lx and b_{max} := argmax{b_k}.
             ## (2) \sum_{k=1}^d a_{dk}(theta)\exp((k-1)*lx) = \sum_{k=1}^d \exp(log(a_{dk}(theta))
@@ -559,7 +559,7 @@ polyJ <- function(lx, alpha, d, log = FALSE, use1p = FALSE){
             ## (3) => log(\sum...) = b_{max} + log(\sum_{k=1}^d \exp(b_k-b_{max}))
             ## FIXME: faster if scaled with asymptotics
             max.B <- apply(B, 2, max)
-            max.B + log(colSums(exp(B - rep(max.B, each = d))))
+            max.B + log(colSums(exp(B - rep(max.B, each=d))))
         }else{ # use1p
             ## use log(1 + sum(<smaller>)) = log1p(sum(<smaller>)),
             ## but we don't expect it to make a difference

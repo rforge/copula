@@ -1,12 +1,13 @@
 ## ==== features in next CRAN version ====
 
-(*) make polyG and polyJ more efficient! see FIXME's there
-polyJ: scale with asymptotics [problem: do we really know what the max approximately is?] same applies for Gumbel
-(*) inconsistency between Gumbel and Joe: dacopula for Joe has a method switch whereas Gumbel has not; 
 (MM) make pnacopula applicable to a matrix to be consistent with dnacopula 
     => tried it [see pnacopula()] but fails for complicated example in nac-experi.R
+(*) make polyG and polyJ more efficient! see FIXME's there
+polyJ: scale with asymptotics [problem: do we really know what the max approximately is?] same applies for polyG
+(*) inconsistency between Gumbel and Joe: dacopula for Joe has a method switch whereas Gumbel has not; 
 (*) implement color-feature in splom2 (now that i and j are included by Deepayan)
 (*) add (and fill) all help files for estimation and gof procedures
+(*) update estimation methods in gnacopula()!!
 
 (MM) check new functions in cop_objects.R etc. for efficiency + see FIXME there
 (MM) Change onacopula() such that it works via onacopulaL() and hence

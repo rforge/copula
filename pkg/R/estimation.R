@@ -157,38 +157,42 @@ etau <- function(u,cop,method = c("tau.mean","theta.mean"),...)
 ##' @title Distances for minimum distance estimation
 ##' @param u matrix of realizations (ideally) following U[0,1]^(d-1) or U[0,1]^d 
 ##' @param method distance methods available:
-##'        mde.log.KS      = map to an Erlang distribution (Kolmogorov-Smirnov distance)
+##'        mde.normal.CvM  = map to a chi-square distribution (Cramer-von Mises distance)
 ##'        mde.normal.KS   = map to a chi-square distribution (Kolmogorov-Smirnov distance)
 ##'        mde.log.CvM     = map to an Erlang distribution (Cramer-von Mises distance)
-##'        mde.normal.CvM  = map to a chi-square distribution (Cramer-von Mises distance)
+##'        mde.log.KS      = map to an Erlang distribution (Kolmogorov-Smirnov distance)
 ##' @return distance 
 ##' @author Marius Hofert
-emde.dist <- function(u, method = c("mde.log.KS", "mde.normal.KS", "mde.log.CvM", 
-                         "mde.normal.CvM")){
+emde.dist <- function(u, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.CvM",
+                         "mde.log.KS")){
     if(!is.matrix(u)) u <- rbind(u)
     d <- ncol(u)    
     n <- nrow(u)
     method <- match.arg(method) # match argument method
     switch(method,
-           mde.log.KS = { # map to an Erlang distribution
-               x <- rowSums(-log(u))
-               max(abs(rank(x)/n-pgamma(x, shape = d)))
+           mde.normal.CvM = { # map to a chi-square distribution
+               y <- sort(rowSums(qnorm(u)^2))
+               Fvals <- pchisq(y, d)
+               weights <- (2*(1:n)-1)/(2*n)
+               1/(12*n) + sum((weights - Fvals)^2)
            },
            mde.normal.KS = { # map to a chi-square distribution
-               x <- rowSums(qnorm(u)^2)
-               max(abs(rank(x)/n - pchisq(x, d)))
+               y <- sort(rowSums(qnorm(u)^2))
+               Fvals <- pchisq(y, d)
+               i <- 1:n
+               max(Fvals[i]-(i-1)/n, i/n-Fvals[i])
            },
            mde.log.CvM = { # map to an Erlang distribution
-               x <- sort(rowSums(-log(u)))
-               Fvals <- pgamma(x, shape = d) 
+               y <- sort(rowSums(-log(u)))
+               Fvals <- pgamma(y, shape = d) 
                weights <- (2*(1:n)-1)/(2*n)
                1/(12*n) + sum((weights - Fvals)^2)
            },
-           mde.normal.CvM = { # map to a chi-square distribution
-               x <- sort(rowSums(qnorm(u)^2))
-               Fvals <- pchisq(x, d)
-               weights <- (2*(1:n)-1)/(2*n)
-               1/(12*n) + sum((weights - Fvals)^2)
+           mde.log.KS = { # map to an Erlang distribution
+               y <- rowSums(-log(u))
+               Fvals <- pgamma(y, shape = d) 
+               i <- 1:n
+               max(Fvals[i]-(i-1)/n, i/n-Fvals[i])
            },
            ## Note: The following multivariate distances turned out to be (far) too slow
            ## mde.SB = { # S_n^{(B)} from Genest et al. (2009)
@@ -219,8 +223,8 @@ emde.dist <- function(u, method = c("mde.log.KS", "mde.normal.KS", "mde.log.CvM"
 ##' @param ... additional parameters for optimize
 ##' @return minimum distance estimator; return value of optimize
 ##' @author Marius Hofert
-emde <- function(u, cop, method = c("mde.log.KS", "mde.normal.KS", "mde.log.CvM", 
-                         "mde.normal.CvM"),
+emde <- function(u, cop, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.CvM",
+                         "mde.log.KS"),
                  interval = paraOptInterval(u, cop@copula@name), 
                  include.K = ncol(u) < 5, ...)
 {
@@ -375,10 +379,10 @@ pobs <- function(x) apply(x,2,rank)/(nrow(x)+1)
 ##'        "tau.tau.mean"    averaged pairwise Kendall's tau estimator
 ##'        "tau.theta.mean"  average of Kendall's tau estimators
 ##'        "beta"            multivariate Blomqvist's beta estimator
-##'        "mde.log.KS"      minimum distance estimation based on the Erlang distribution and KS distance
+##'        "mde.normal.CvM"  minimum distance estimation based on the chisq distribution and CvM distance
 ##'        "mde.normal.KS"   minimum distance estimation based on the chisq distribution and KS distance
 ##'        "mde.log.CvM"     minimum distance estimation based on the Erlang distribution and CvM distance
-##'        "mde.normal.CvM"  minimum distance estimation based on the chisq distribution and CvM distance
+##'        "mde.log.KS"      minimum distance estimation based on the Erlang distribution and KS distance
 ##' @param n.MC if provided (and not NULL) n.MC denotes the sample size for SMLE
 ##' @param interval initial optimization interval for "mle", "smle", and "dmle" (i.e., emle, dmle)
 ##' @param do.pseudo  logical indicating if 'x' should be "pseudo-transformed"
@@ -387,8 +391,8 @@ pobs <- function(x) apply(x,2,rank)/(nrow(x)+1)
 ##' @return estimated value/vector according to the chosen method
 ##' @author Marius Hofert
 enacopula <- function(x, cop, method = c("mle", "smle", "dmle", "tau.tau.mean",
-                              "tau.theta.mean", "beta", "mde.log.KS", "mde.normal.KS",
-                              "mde.log.CvM", "mde.normal.CvM"), 
+                              "tau.theta.mean", "beta", "mde.normal.CvM", "mde.normal.KS",
+                              "mde.log.CvM", "mde.log.KS"), 
                       n.MC, interval = paraOptInterval(u, cop@copula@name), 
                       do.pseudo = FALSE, xargs = list(), ...)
 {
@@ -421,14 +425,14 @@ enacopula <- function(x, cop, method = c("mle", "smle", "dmle", "tau.tau.mean",
                   xargs)),
                   beta =           do.call(ebeta, c(list(u, acop, 
                   interval = interval, ...), xargs)),
-                  mde.log.KS =     do.call(emde, c(list(u, cop, "mde.log.KS", 
-                  interval = interval, ...), xargs)), 
+                  mde.normal.CvM = do.call(emde, c(list(u, cop, "mde.normal.CvM", 
+                  interval = interval, ...), xargs)),
                   mde.normal.KS =  do.call(emde, c(list(u, cop, "mde.normal.KS", 
-                  interval = interval, ...), xargs)),                   
+                  interval = interval, ...), xargs)),
                   mde.log.CvM =    do.call(emde, c(list(u, cop, "mde.log.CvM", 
                   interval = interval, ...), xargs)), 
-                  mde.normal.CvM = do.call(emde, c(list(u, cop, "mde.normal.CvM", 
-                  interval = interval, ...), xargs)), 
+                  mde.log.KS =     do.call(emde, c(list(u, cop, "mde.log.KS", 
+                  interval = interval, ...), xargs)),                   
                   stop("wrong estimation method"))
 
     ## FIXME: deal with result, check details, give warnings
@@ -441,10 +445,10 @@ enacopula <- function(x, cop, method = c("mle", "smle", "dmle", "tau.tau.mean",
            tau.tau.mean =   res,
            tau.theta.mean = res,
            beta =           res$root,
-           mde.log.KS =     res$minimum,  
+           mde.normal.CvM = res$minimum,
            mde.normal.KS =  res$minimum, 
            mde.log.CvM =    res$minimum,  
-           mde.normal.CvM = res$minimum, 
+           mde.log.KS =     res$minimum,  
            stop("wrong estimation method"))
 
 }
