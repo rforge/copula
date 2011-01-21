@@ -367,7 +367,8 @@ copGumbel <-
         psi = function(t,theta) { exp(-t^(1/theta)) },
         psiInv = function(t,theta) { (-log(t+0))^theta },
         ## absolute value of generator derivatives
-        psiDabs = function(t, theta, degree = 1, n.MC, log = FALSE){
+        psiDabs = function(t, theta, degree = 1, n.MC, 
+	method=eval(formals(polyG)$method), log = FALSE){
             if(!(missing(n.MC) || is.null(n.MC))){
                 psiDabsMC(t,"Gumbel",theta,degree,n.MC,log)
             }else{
@@ -380,7 +381,7 @@ copGumbel <-
                     alpha <- 1/theta
                     lt <- log(t.)
 		    res <- -degree*lt -t^alpha + polyG(alpha*lt, alpha=alpha, d=degree, 
-                                                       log=TRUE, method="binomial.coeff")
+                                                       method=method, log=TRUE)
                 }
                 if(log) res else exp(res)
             }
@@ -395,7 +396,8 @@ copGumbel <-
             }
         },
 	## density
-	dacopula = function(u, theta, n.MC, log = FALSE){
+	dacopula = function(u, theta, n.MC, method=eval(formals(polyG)$method),
+        log = FALSE){
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
             ## f() := NaN outside and on the boundary of the unit hypercube
@@ -428,7 +430,7 @@ copGumbel <-
                 mlum.mat <- matrix(rep(mlum, d), ncol = d)
                 lx <- lmlu[mat.ind] + alpha*log(rowSums((mlu/mlum.mat)^theta)) # alpha*log(sum(psiInv(u, theta)))
                 ## compute sum
-                lsum <- polyG(lx, alpha, d, log=TRUE, method="binomial.coeff")-d*lx/alpha
+                lsum <- polyG(lx, alpha, d, method=method, log=TRUE)-d*lx/alpha
                 ## the rest
                 pnacop <- function(x) pnacopula(onacopulaL("G", list(theta, 1:d)), x)
                 cop.val <- apply(u., 1, pnacop)
@@ -516,7 +518,8 @@ copJoe <-
         },
         psiInv = function(t,theta) { -log1p(-(1-t)^theta) },
         ## absolute value of generator derivatives
-        psiDabs = function(t, theta, degree = 1, n.MC, log = FALSE) {
+        psiDabs = function(t, theta, degree = 1, n.MC, 
+	method=eval(formals(polyJ)$method), log = FALSE) {
             if(!(missing(n.MC) || is.null(n.MC))){
                 psiDabsMC(t, "Joe", theta, degree, n.MC, log)
             }else{
@@ -528,7 +531,7 @@ copJoe <-
 	            alpha <- 1/theta
                     mt <- -t[n0Inf] # -t
                     l1mt <- log(-expm1(mt)) # log(1-exp(-t))
-		    sum. <- polyJ(mt - l1mt, alpha, degree, log=log)
+		    sum. <- polyJ(mt-l1mt, alpha, degree, method=method, log=log)
                     res[n0Inf] <- -log(theta) + mt - (1-alpha)*l1mt + sum.
                 }
 		if(log) res else exp(res)
@@ -543,8 +546,8 @@ copJoe <-
             }
         },
 	## density
-	dacopula = function(u, theta, n.MC, log = FALSE,
-        method = c("log.poly", "max.scale", "poly")) {
+	dacopula = function(u, theta, n.MC, method=eval(formals(polyJ)$method),
+        log = FALSE){
 	    if(!is.matrix(u)) u <- rbind(u)
 	    if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
 	    ## f() := NaN outside and on the boundary of the unit hypercube
@@ -573,17 +576,9 @@ copJoe <-
 	        h <- apply(1 - u.., 1, prod) # h(u) = \prod_{j=1}^d (1-(1-u_j)^\theta)
 	        l1_h <- log1p(-h) # log(1-h(u))
 	        lh_l1_h <- lh - l1_h # log(h(u)/(1-h(u)))
-		res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) - (1-alpha)*log1p(-h) +
-                    switch(match.arg(method),
-                           "log.poly" = # intelligent evaluation of the log of the polynomial 
-                           polyJ(lh_l1_h, alpha, d, log=TRUE) # = \log(\sum_{k=1}^d a_{dk}(theta)(h(u)/(1-h(u)))^{k-1})
-                           ,
-                           "max.scale" = # as log.poly, only that the summand which is one is taken out separately
-                           polyJ(lh_l1_h, alpha, d, log=TRUE, use1p=TRUE) # = \log(\sum_{k=1}^d a_{dk}(theta)(h(u)/(1-h(u)))^{k-1})
-                           ,
-                           "poly" = # brute-force log applied to the polynomial; ok, but numerical problems for large d (e.g., ~ 100)
-                           log(polyJ(lh_l1_h, alpha, d)) # \sum_{k=1}^d a_{dk}(theta)(h(u)/(1-h(u)))^{k-1}
-                           )
+		res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) - 
+                    (1-alpha)*log1p(-h) + polyJ(lh_l1_h, alpha, d, method=method, 
+                                                log=TRUE)
             }
             if(log) res else exp(res)
         },

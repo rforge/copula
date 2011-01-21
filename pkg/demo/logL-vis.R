@@ -63,8 +63,8 @@ U1 <- rnacopula(n,cop)
 enacopula(U1, cop, "mle") # 1.432885 --  fine
 (th4 <- 1 + (1:4)/4)
 mL.tr <- c(-3558.5, -3734.4, -3299.5, -2505.)
-mLt1 <- sapply(th4, function(th) mLogL(th, cop@copula, U1))
-mLt2 <- sapply(th4, function(th) mLogL(th, cop@copula, U1, method="max.scale"))
+mLt1 <- sapply(th4, function(th) mLogL(th, cop@copula, U1, method="log.poly")) # default
+mLt2 <- sapply(th4, function(th) mLogL(th, cop@copula, U1, method="log1p"))
 mLt3 <- sapply(th4, function(th) mLogL(th, cop@copula, U1, method="poly"))
 stopifnot(all.equal(mLt1, mL.tr, tol=5e-5),
           all.equal(mLt2, mL.tr, tol=5e-5),
@@ -73,7 +73,7 @@ stopifnot(all.equal(mLt1, mL.tr, tol=5e-5),
 system.time(r1l  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="log.poly")))
 system.time(r1J  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="poly"),
                               add=TRUE, col=adjustcolor("red", .4)))
-system.time(r1m  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="max.scale"),
+system.time(r1m  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="log1p"),
                               add=TRUE, col=adjustcolor("blue",.5)))
 
 

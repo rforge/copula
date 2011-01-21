@@ -12,8 +12,8 @@ polyJ: scale with asymptotics [problem: do we really know what the max approxima
 (MH) inconsistency between Gumbel and Joe: dacopula for Joe has a method switch whereas Gumbel has not; 
     => introduce switch for dacopula for Gumbel
 (MH) implement ppois idea in polyG
-(MH) why does beta for n=100 perform so bad?
 (MH) use n.MC=0 everywhere!
+(MH) why does beta for n=100 perform so bad?
 
 (*) implement color-feature in splom2 (now that i and j are included by Deepayan)
 (*) add (and fill) all help files for estimation and gof procedures

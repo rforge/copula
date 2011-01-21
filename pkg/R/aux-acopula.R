@@ -384,20 +384,21 @@ coeffG <- function(d, alpha,
 ##'        where u = (u_1,..,u_d) is the evaluation point of the density of Joe's copula)
 ##' @param alpha parameter (1/theta)
 ##' @param d number of summands
-##' @param log boolean which determines if the logarithm is returned
 ##' @param method method slot:
 ##'        binomial.coeff: currently best method available, uses binomial coefficients, 
 ##'                        only critical for large dependencies
+##'        pois:           uses ppois
 ##'        sort:           compute the coefficients via exp(log()), pulling out the maximum, and sort
 ##'        horner:         uses polynEval
 ##'        direct:         brute force approach
 ##'        dV01.Joe:       uses dV01.Joe
+##' @param log boolean which determines if the logarithm is returned
 ##' @return \sum_{k=1}^d a_{dk}(theta)*exp(k*lx)
 ##'         where a_{dk}(theta) = (-1)^{d-k}\sum_{j=k}^d\theta^{-j}s(d,j)S(j,k)
 ##'                             = (d!/k!)\sum_{l=1}^k\binom{k}{l}\binom{\alpha l}{d}(-1)^{d-l}
 ##' @author Marius Hofert
-polyG <- function(lx, alpha, d, log=FALSE, 
-                  method=c("binomial.coeff", "sort", "horner", "direct", "dV01.Joe")){
+polyG <- function(lx, alpha, d, method=c("binomial.coeff", "pois", "sort",  
+                                "horner", "direct", "dV01.Joe"), log=FALSE){
     method <- match.arg(method)
     if(method=="binomial.coeff"){ # FIXME: improve speed
 	## determine signs of the falling factorials
@@ -408,17 +409,36 @@ polyG <- function(lx, alpha, d, log=FALSE,
         n <- length(lx)
         one.l <- function(l.){
             k <- l.:d
-            b.l <- outer(k, lx) - lfactorial(0:(d-l.)) + 
+            outer(k, lx) - lfactorial(0:(d-l.)) + 
                 sum(log(abs(alpha*l.-(0:(d-1)))))-lfactorial(l.) # matrix of b's for a fixed l (= l.) and all k and lx
         }
-        b <- lapply(l, one.l) # b[[l]] is a (d-l+1, n)-matrix; b[[l]][k, lx] contains b_{kl}
+        B.list <- lapply(l, one.l) # B.list[[l]] is a (d-l+1, n)-matrix; B.list[[l]][k, lx] contains b_{kl}
         ## determine the largest entry for each lx and compute inner sums
-        b. <- do.call(rbind, b) # (d*(d+1)/2, lx)-matrix; rows are l = 1,..,d and for each l, k = l,..,d
-        b.max <- apply(b., 2, max)
-        inner.sums <- function(l) rowSums(exp(t(b[[l]])-b.max))
+        B <- do.call(rbind, B.list) # (d*(d+1)/2, lx)-matrix; rows are l = 1,..,d and for each l, k = l,..,d
+        B.max <- apply(B, 2, max)
+        inner.sums <- function(l) rowSums(exp(t(B.list[[l]])-B.max))
         isums <- do.call(rbind, lapply(1:d, inner.sums)) # (d, lx)-matrix
         outer.sum <- signs %*% isums
-        res <- b.max + as.vector(log(outer.sum))
+        res <- B.max + as.vector(log(outer.sum))
+        if(log) res else exp(res)
+    }else if(method=="pois"){
+	## determine signs of the falling factorials
+        l <- 1:d
+        s <- (-1)^(d-l) * unlist(lapply(alpha*l, function(z) prod(z-(0:(d-1)))))
+        signs <- sign(s)
+        ## build list of b's
+        n <- length(lx)
+	x <- exp(lx) # e^lx = x
+        lppois <- outer(d-l, x, FUN=ppois, log.p=TRUE) # a (d x n)-matrix; log(ppois(d-l, x))
+        llx <- outer(l, lx) # also a (d x n)-matrix; l*lx
+        labsPoch <- unlist(lapply(l, function(l.) sum(log(abs(alpha*l.-0:(d-1))) ) ))# log|(alpha*l)_d|
+        lfac <- lfactorial(l)
+        ## build matrix of exponents
+        B <- matrix(rep(labsPoch - lfac, n), ncol=n) + 
+            matrix(rep(x, d), ncol=n, byrow=TRUE) + llx + lppois
+        max.B <- apply(B, 2, max)
+        ## pull out maximum and sum the rest
+        res <- max.B + log(signs %*% exp(B - rep(max.B, each=d)))
         if(log) res else exp(res)
     }else if(method=="sort" || method=="horner" || method=="direct" || method=="dV01.Joe"){ 
 	## note: these methods are all know to show numerical deficiencies 
@@ -533,12 +553,15 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 ##'        evaluation point of the density of Joe's copula)
 ##' @param alpha parameter (1/theta)
 ##' @param d number of summands
+##' @param method different methods, can be
+##'        "log.poly" intelligent log version
+##'        "log1p"    additonally uses log1p
+##'        "poly"     brute force log version
 ##' @param log boolean which determines if the logarithm is returned
-##' @param use1p boolean which determines if log1p() is used instead of log()
 ##' @return \sum_{k=1}^d a_{dk}(theta) exp((k-1)*lx),
 ##'         where a_{dk}(theta) = S(d,k)*(k-1-alpha)_{k-1} = S(d,k)*Gamma((1:d)-alpha)/Gamma(1-alpha)
 ##' @author Marius Hofert and Martin Maechler
-polyJ <- function(lx, alpha, d, log = FALSE, use1p = FALSE){
+polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE){
     ## compute the log of the coefficients a_{dk}(theta)
     if(d > 220) stop("d > 220 not yet supported")# would need Stirling2.all(d, log=TRUE)
     k <- 1:d
@@ -548,31 +571,36 @@ polyJ <- function(lx, alpha, d, log = FALSE, use1p = FALSE){
     ## for this, create a matrix B with (k,i)-th entry B[k,i] = log(a_{dk}(theta)) + (k-1) * lx[i],
     ## where k in {1,..,d}, i in {1,..,n} [n = length(lx)]
     B <- l.a.k + outer(k-1, lx)
-    if(log){
-        if(!use1p){
-            ## stably compute log(colSums(exp(B))) (no overflow)
-            ## Idea:
-            ## (1) let b_k := log(a_{dk}(theta)) + (k-1)*lx and b_{max} := argmax{b_k}.
-            ## (2) \sum_{k=1}^d a_{dk}(theta)\exp((k-1)*lx) = \sum_{k=1}^d \exp(log(a_{dk}(theta))
-            ##     + (k-1)*lx) = \sum_{k=1}^d \exp(b_k) = \exp(b_{max})*\sum_{k=1}^d
-            ##     \exp(b_k-b_{max})
-            ## (3) => log(\sum...) = b_{max} + log(\sum_{k=1}^d \exp(b_k-b_{max}))
-            ## FIXME: faster if scaled with asymptotics
-            max.B <- apply(B, 2, max)
-            max.B + log(colSums(exp(B - rep(max.B, each=d))))
-        }else{ # use1p
-            ## use log(1 + sum(<smaller>)) = log1p(sum(<smaller>)),
-            ## but we don't expect it to make a difference
-            ## FIXME: faster if scaled with asymptotics
-            im <- apply(B, 2, which.max) # indices (vector) of maxima
-            n <- length(lx) ; d1 <- d-1L
-            max.B <- B[cbind(im, seq_len(n))] # get max(B[,i])_{i=1,..,n} == apply(B, 2, max)
-            B.wo.max <- matrix(B[unlist(lapply(im, function(j) k[-j])) +
-                                 d*rep(0:(n-1), each = d1)], d1, n) # matrix B without maxima
-            max.B + log1p(colSums(exp(B.wo.max - rep(max.B, each = d1))))
-        }
-    }
-    else colSums(exp(B))
+    res <- switch(match.arg(method),
+                  log.poly = {
+                      ## stably compute log(colSums(exp(B))) (no overflow)
+                      ## Idea:
+                      ## (1) let b_k := log(a_{dk}(theta)) + (k-1)*lx and b_{max} := argmax{b_k}.
+                      ## (2) \sum_{k=1}^d a_{dk}(theta)\exp((k-1)*lx) = \sum_{k=1}^d \exp(log(a_{dk}(theta))
+                      ##     + (k-1)*lx) = \sum_{k=1}^d \exp(b_k) = \exp(b_{max})*\sum_{k=1}^d
+                      ##     \exp(b_k-b_{max})
+                      ## (3) => log(\sum...) = b_{max} + log(\sum_{k=1}^d \exp(b_k-b_{max}))
+                      ## FIXME: faster if scaled with asymptotics
+                      max.B <- apply(B, 2, max)
+                      max.B + log(colSums(exp(B - rep(max.B, each=d))))
+                  },
+                  log1p = {
+                      ## use log(1 + sum(<smaller>)) = log1p(sum(<smaller>)),
+                      ## but we don't expect it to make a difference
+                      ## FIXME: faster if scaled with asymptotics
+                      im <- apply(B, 2, which.max) # indices (vector) of maxima
+                      n <- length(lx) ; d1 <- d-1L
+                      max.B <- B[cbind(im, seq_len(n))] # get max(B[,i])_{i=1,..,n} == apply(B, 2, max)
+                      B.wo.max <- matrix(B[unlist(lapply(im, function(j) k[-j])) +
+                                           d*rep(0:(n-1), each = d1)], d1, n) # matrix B without maxima
+                      max.B + log1p(colSums(exp(B.wo.max - rep(max.B, each = d1))))
+                  },
+                  poly = {
+	              ## brute force ansatz
+                      log(colSums(exp(B)))
+                  },
+                  stop("wrong method"))
+    if(log) res else exp(res)
 }
 
 ### ==== other numeric utilities ===============================================
