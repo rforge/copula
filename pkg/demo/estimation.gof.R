@@ -86,12 +86,7 @@ if(!exists("doPlot")) doPlot <- TRUE
 
 ## ==== setup for plots ====
 
-t01 <- (0:256)/256
-copA <- setTheta(copAMH, 0.7135001)
-copC <- setTheta(copClayton, 0.5)
-copF <- setTheta(copFrank, 1.860884)
-copG <- setTheta(copGumbel, 1.25)
-copJ <- setTheta(copJoe, 1.25)
+t01 <- (0:256)/256 # evaluation points
 
 cols <- c("black","orange3","red3","darkgreen","blue") # no very light ones
 ## TODO: work with *list* of copulas, and extra names *and* theta's (!)
@@ -101,12 +96,12 @@ labs <- c("AMH","Clayton","Frank","Gumbel","Joe")
 ## ==== plots of the densities of the diagonals ====
 
 d <- 5
-
-dDmat <- cbind(dDiag.A = dDiag(t01,copA,d),
-               dDiag.C = dDiag(t01,copC,d),
-               dDiag.F = dDiag(t01,copF,d),
-               dDiag.G = dDiag(t01,copG,d),
-               dDiag.J = dDiag(t01,copJ,d))
+th <- c(0.7135001, 0.5, 1.860884, 1.25, 1.25)
+dDmat <- cbind(dDiag.A = dDiag(t01,cop=onacopulaL("AMH", list(th[1], 1:d))),
+               dDiag.C = dDiag(t01,cop=onacopulaL("Clayton", list(th[2], 1:d))),
+               dDiag.F = dDiag(t01,cop=onacopulaL("Frank", list(th[3], 1:d))),
+               dDiag.G = dDiag(t01,cop=onacopulaL("Gumbel", list(th[4], 1:d))),
+               dDiag.J = dDiag(t01,cop=onacopulaL("Joe", list(th[5], 1:d))))
 
 if(doPlot) {
     matplot(t01, dDmat, type="l", col=cols, xlab="t", ylab="dDiag(t)")
@@ -120,11 +115,11 @@ if(doPlot) {
 ## ==== plots of the Kendall distribution functions ====
 
 d <- 10
-Kmat <- cbind(K.A = K(t01,copA,d),
-              K.C = K(t01,copC,d),
-              K.F = K(t01,copF,d),
-              K.G = K(t01,copG,d),
-              K.J = K(t01,copJ,d))
+Kmat <- cbind(K.A = K(t01,setTheta(copAMH, th[1]),d),
+              K.C = K(t01,setTheta(copClayton, th[2]),d),
+              K.F = K(t01,setTheta(copFrank, th[3]),d),
+              K.G = K(t01,setTheta(copGumbel, th[4]),d),
+              K.J = K(t01,setTheta(copJoe, th[5]),d))
 head(mm <- cbind(t = t01, Kmat))
 tail(mm)
 

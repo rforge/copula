@@ -7,15 +7,15 @@ polyJ: scale with asymptotics [problem: do we really know what the max approxima
 => especially MLE for Gumbel is too slow
 (*) does Gumbel MLE work for tau > 0.6?
 (*) polylog still uses log(polynEval) instead of a "true" log-slot
+(*) is help file for "onacopula" correct? shouldn't "comps" be "comp"?
 
-(MH) emde uses "acopula", the other estimation methods "nacopula" => should be consistent!
 (MH) inconsistency between Gumbel and Joe: dacopula for Joe has a method switch whereas Gumbel has not; 
     => introduce switch for dacopula for Gumbel
 (MH) implement ppois idea in polyG
 (MH) why does beta for n=100 perform so bad?
 (MH) use n.MC=0 everywhere!
-(MH?) implement color-feature in splom2 (now that i and j are included by Deepayan)
 
+(*) implement color-feature in splom2 (now that i and j are included by Deepayan)
 (*) add (and fill) all help files for estimation and gof procedures
 (*) numerous FIXME in the code
 

@@ -24,13 +24,14 @@
 ##'	  large intervals given by paraSubInterval are used)
 ##'
 ##' @title Compute initial interval for estimation procedures
-##' @param u data
+##' @param u matrix of realizations following a copula
 ##' @param family Archimedean family
 ##' @param h for enlarging the tau-interval
 ##' @return initial interval which can be used for optimization (e.g., for emle)
 ##' @author Marius Hofert
-paraOptInterval <- function(u, family, h = 0.15){
-    theta.hat.G <- edmle(u, getAcop("Gumbel"))$minimum
+paraOptInterval <- function(u, family, h=0.15){
+    x <- apply(u,1,max)
+    theta.hat.G <- log(ncol(u))/(log(length(x))-log(sum(-log(x)))) # direct formula from edmle for Gumbel
     tau.hat.G <- copGumbel@tau(theta.hat.G)
     copFamily <- getAcop(family)
     I <- copFamily@paraSubInterval
@@ -43,7 +44,7 @@ paraOptInterval <- function(u, family, h = 0.15){
 
 ## ==== Blomqvist's beta =======================================================
 
-##' Compute the sample version of Blomqvist's beta for an Archimedean copula,
+##' Compute the sample version of Blomqvist's beta,
 ##' see, e.g., Schmid and Schmidt (2007) "Nonparametric inference on multivariate
 ##' versions of Blomqvist’s beta and related measures of tail dependence"
 ##'
@@ -64,9 +65,9 @@ beta.hat <- function(u, scaling = TRUE){
     if(scaling) {T <- 2^(d-1); (T*b - 1)/(T - 1)} else b
 }
 
-##' Compute the population version of Blomqvist's beta for an Archimedean copula
+##' Compute the population version of Blomqvist's beta for Archimedean copulas
 ##'
-##' @title Population version of Blomqvist's beta
+##' @title Population version of Blomqvist's beta for Archimedean copulas
 ##' @param cop acopula to be estimated
 ##' @param theta copula parameter
 ##' @param d dimension
@@ -75,7 +76,7 @@ beta.hat <- function(u, scaling = TRUE){
 ##' @return population version of multivariate Blomqvist beta
 ##' @author Marius Hofert & Martin Maechler
 beta. <- function(cop, theta, d, scaling = TRUE) {
-    stopifnot(cop@paraConstr(theta)) # also checks length(theta)
+    stopifnot(is(cop,"acopula"), cop@paraConstr(theta))
     j <- 1:d
     b <- pnacopula(onacopulaL(cop@name, list(theta, j)), u = rep.int(0.5, d)) +1
     if(d < 30) { ## for small d, using log(.) and exp(.) is wasteful (and looses precision)
@@ -97,35 +98,39 @@ beta. <- function(cop, theta, d, scaling = TRUE) {
     if(scaling) { T <- 2^(d-1); (T*b - 1)/(T - 1)} else b
 }
 
-##' Method-of-moment-like estimation of Archimedean copulas based on a
+##' Method-of-moment-like estimation of nested Archimedean copulas based on a
 ##' multivariate version of Blomqvist's beta
 ##'
-##' @title Method-of-moment-like parameter estimation based on Blomqvist's beta
+##' @title Method-of-moment-like parameter estimation of nested Archimedean copulas
+##'        based on Blomqvist's beta
 ##' @param u matrix of realizations following the copula
-##' @param cop acopula to be estimated
+##' @param cop nacopula to be estimated
 ##' @param interval bivariate vector denoting the interval where optimization takes
 ##'        place
 ##' @param ... additional parameters for safeUroot
 ##' @return Blomqvist beta estimator; return value of safeUroot (more or less
 ##'	    equal to the return value of uniroot)
 ##' @author Marius Hofert
-ebeta <- function(u, cop, interval = paraOptInterval(u, cop@name), ...){
+ebeta <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...){
+    stopifnot(is(cop, "outer_nacopula"))
+    if(length(cop@childCops))
+        stop("currently, only Archimedean copulas are provided")
     ## Note: We do not need the constants 2^(d-1)/(2^(d-1)-1) and 2^(1-d) here,
     ##	     since we equate the population and sample versions of Blomqvist's
     ##       beta anyway.
     b.hat <- beta.hat(u, scaling = FALSE)
     d <- ncol(u)
-    safeUroot(function(theta){beta.(cop,theta,d,scaling = FALSE) - b.hat},
+    safeUroot(function(theta){beta.(cop@copula,theta,d,scaling = FALSE) - b.hat},
               interval = interval, Sig = +1, check.conv = TRUE, ...)
 }
 
 ## ==== Kendall's tau ==========================================================
 
-##' Compute pairwise estimators for Archimedean copulas based on Kendall's tau 
+##' Compute pairwise estimators for nested Archimedean copulas based on Kendall's tau 
 ##'
-##' @title Pairwise estimators for Archimedean copulas based on Kendall's tau 
+##' @title Pairwise estimators for nested Archimedean copulas based on Kendall's tau 
 ##' @param u matrix of realizations following the copula
-##' @param cop acopula to be estimated
+##' @param cop nacopula to be estimated
 ##' @param method tau.mean indicates that the average of the sample versions of
 ##'               Kendall's tau are computed first and then theta is determined;
 ##'               theta.mean stands for first computing all Kendall's tau
@@ -135,16 +140,18 @@ ebeta <- function(u, cop, interval = paraOptInterval(u, cop@name), ...){
 ##' @author Marius Hofert
 etau <- function(u, cop, method = c("tau.mean", "theta.mean"), ...)
 {
-    stopifnot(is(cop,"acopula"))
+    stopifnot(is(cop, "outer_nacopula"))
+    if(length(cop@childCops))
+        stop("currently, only Archimedean copulas are provided")
     method <- match.arg(method)
     tau.hat.mat <- cor(u, method="kendall",...) # matrix of pairwise tau()
     tau.hat <- tau.hat.mat[upper.tri(tau.hat.mat)] # all tau hat's
     switch(method,
            "tau.mean" = {
-               cop@tauInv(mean(tau.hat)) # Kendall's tau corresponding to the mean of the tau hat's
+               cop@copula@tauInv(mean(tau.hat)) # Kendall's tau corresponding to the mean of the tau hat's
            },
            "theta.mean" = {
-               mean(cop@tauInv(tau.hat)) # mean of the Kendall's tau
+               mean(cop@copula@tauInv(tau.hat)) # mean of the Kendall's tau
            },
        {stop("wrong method")})
 
@@ -211,9 +218,9 @@ emde.dist <- function(u, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
            stop("wrong distance method"))
 }
 
-##' Minimum distance estimation for Archimedean copulas
+##' Minimum distance estimation for nested Archimedean copulas
 ##'
-##' @title Minimum distance estimation for Archimedean copulas
+##' @title Minimum distance estimation for nested Archimedean copulas
 ##' @param u matrix of realizations following the copula
 ##' @param cop nacopula to be estimated
 ##' @param interval bivariate vector denoting the interval where optimization takes
@@ -228,10 +235,9 @@ emde <- function(u, cop, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
                  interval = paraOptInterval(u, cop@copula@name), 
                  include.K = ncol(u)<=5, ...)
 {
-    stopifnot(is(cop,"nacopula"))
+    stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 1)
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
-    stopifnot(is.numeric(d <- ncol(u)), d >= 1) # dimension
     method <- match.arg(method) # match argument method
     distance <- function(theta){ # distance to be minimized
         cop@copula@theta <- theta
@@ -243,43 +249,47 @@ emde <- function(u, cop, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
 
 ## ==== Diagonal maximum likelihood estimation =================================
 
-##' Density of the diagonal of an Archimedean copula
+##' Density of the diagonal of a nested Archimedean copula
 ##'
-##' @title Diagonal density of an Archimedean copula
+##' @title Diagonal density of a nested Archimedean copula
 ##' @param u evaluation point
-##' @param cop acopula
-##' @param d dimension
+##' @param cop nacopula
 ##' @param log if TRUE the log-density is evaluated
 ##' @return density of the diagonal of cop
 ##' @author Marius Hofert
-dDiag <- function(u, cop, d, log = FALSE){
-    stopifnot(is(cop,"acopula")) # dimension
-    stopifnot(all(0 <= u, u <= 1))
-    th <- cop@theta
+dDiag <- function(u, cop, log = FALSE){
+    stopifnot(is(cop, "outer_nacopula"), all(0 <= u, u <= 1), (d <- max(cop@comp)) > 0)
+    if(length(cop@childCops))
+        stop("currently, only Archimedean copulas are provided")
+    acop <- cop@copula
+    th <- acop@theta
     if(log){
-        log(d) + cop@psiDabs(d*cop@psiInv(u,th), th, log = TRUE) +
-            cop@psiInvD1abs(u, th, log = TRUE)
+        log(d) + acop@psiDabs(d*acop@psiInv(u,th), th, log = TRUE) +
+            acop@psiInvD1abs(u, th, log = TRUE)
     }else{
-        d*cop@psiDabs(d*cop@psiInv(u,th), th)*(cop@psiInvD1abs(u,th))
+        d*acop@psiDabs(d*acop@psiInv(u,th), th)*(acop@psiInvD1abs(u,th))
     }
 }
 
-##' Maximum likelihood estimation based on the diagonal of the Archimedean copula
+##' Maximum likelihood estimation based on the diagonal of a nested Archimedean copula
 ##'
-##' @title Maximum likelihood estimation based on the diagonal of an Archimedean copula
-##' @param u matrix of realizations following the copula
-##' @param cop acopula to be estimated
+##' @title Maximum likelihood estimation based on the diagonal of a nested Archimedean copula
+##' @param u matrix of realizations following a copula
+##' @param cop nacopula to be estimated
 ##' @param interval bivariate vector denoting the interval where optimization takes
 ##'        place
 ##' @param ... additional parameters for optimize
 ##' @return diagonal maximum likelihood estimator; return value of optimize
 ##' @author Marius Hofert
-edmle <- function(u, cop, interval = paraOptInterval(u, cop@name), ...)
+edmle <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...)
 {
-    stopifnot(is(cop,"acopula"), is.numeric(d <- ncol(u)), d >= 1) # dimension
+    stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 1, 
+              max(cop@comp) == d) # dimension
+    if(length(cop@childCops))
+        stop("currently, only Archimedean copulas are provided")
     x <- apply(u,1,max) # data from the diagonal
     ## explicit estimator for Gumbel
-    if(cop@name == "Gumbel"){
+    if(cop@copula@name == "Gumbel"){
 	list(minimum = log(d)/(log(length(x))-log(sum(-log(x)))), objective = 0) # return value of the same structure as for optimize
     }else{
 	## FIXME: clean-up unused code (or use method-switch for optim(x))
@@ -293,12 +303,12 @@ edmle <- function(u, cop, interval = paraOptInterval(u, cop@name), ...)
 	##             }
         ## optimize
 	mLogL <- function(theta){ # -log-likelihood
-            cop@theta <- theta
-            -sum(dDiag(x,cop,d,log = TRUE)) 
+            cop@copula@theta <- theta
+            -sum(dDiag(x, cop=cop, log=TRUE)) 
         }
-	optimize(mLogL, interval = interval, ...)
+	optimize(mLogL, interval=interval, ...)
 	##optimx::optimx(start, function(theta) # -log-Likelihood of the diagonal
-        ##               sum(cop@dDiag(x,theta,d,log = TRUE)),
+        ##               sum(cop@dDiag(x,theta,log = TRUE)),
         ##               lower= min(cop@paraSubInterval),
         ##               upper= max(cop@paraSubInterval),
         ##               ## For box constraints ('lower', 'upper'), method must be one of
@@ -324,7 +334,7 @@ edmle <- function(u, cop, interval = paraOptInterval(u, cop@name), ...)
 ##' @author Marius Hofert
 emle <- function(u, cop, n.MC, interval = paraOptInterval(u, cop@copula@name), ...)
 {
-    stopifnot(is(cop,"nacopula"))
+    stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
 	stop("currently, only Archimedean copulas are provided")
     ## compute initial value based on either etau or edmle
@@ -344,9 +354,9 @@ emle <- function(u, cop, n.MC, interval = paraOptInterval(u, cop@copula@name), .
     ## optimize
     mLogL <- function(theta){ # -log-likelihood
         cop@copula@theta <- theta
-        -sum(dnacopula(cop, u, n.MC = n.MC, log = TRUE))
+        -sum(dnacopula(cop, u, n.MC=n.MC, log=TRUE))
     }
-    optimize(mLogL, interval = interval, ...)
+    optimize(mLogL, interval=interval, ...)
     ## optimx::optimx(start, mLogL,
     ##                    lower= min(acop@paraSubInterval),
     ##                    upper= max(acop@paraSubInterval),
@@ -398,11 +408,9 @@ enacopula <- function(x, cop, method=c("mle", "smle", "dmle", "mde.normal.CvM",
 {
     
     ## setup 
-    stopifnot(is.list(xargs))
-    stopifnot(is(cop, "outer_nacopula"))
+    stopifnot(is(cop, "outer_nacopula"), is.list(xargs))
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
-    acop <- cop@copula
     u <- if(do.pseudo) pobs(x) else x
     method <- match.arg(method) 
 
@@ -417,7 +425,7 @@ enacopula <- function(x, cop, method=c("mle", "smle", "dmle", "mde.normal.CvM",
                   interval = interval, ...), xargs)),
                   smle =           do.call(emle, c(list(u, cop, n.MC = n.MC, 
                   interval = interval, ...), xargs)),
-                  dmle =           do.call(edmle, c(list(u, acop, 
+                  dmle =           do.call(edmle, c(list(u, cop, 
                   interval = interval, ...), xargs)),
                   mde.normal.CvM = do.call(emde, c(list(u, cop, "mde.normal.CvM", 
                   interval = interval, ...), xargs)),
@@ -427,11 +435,11 @@ enacopula <- function(x, cop, method=c("mle", "smle", "dmle", "mde.normal.CvM",
                   interval = interval, ...), xargs)), 
                   mde.log.KS =     do.call(emde, c(list(u, cop, "mde.log.KS", 
                   interval = interval, ...), xargs)),
-                  tau.tau.mean =   do.call(etau, c(list(u, acop, "tau.mean", ...), 
+                  tau.tau.mean =   do.call(etau, c(list(u, cop, "tau.mean", ...), 
                   xargs)),
-                  tau.theta.mean = do.call(etau, c(list(u, acop, "theta.mean", ...), 
+                  tau.theta.mean = do.call(etau, c(list(u, cop, "theta.mean", ...), 
                   xargs)),
-                  beta =           do.call(ebeta, c(list(u, acop, 
+                  beta =           do.call(ebeta, c(list(u, cop, 
                   interval = interval, ...), xargs)),
                   stop("wrong estimation method"))
 
