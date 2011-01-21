@@ -89,8 +89,7 @@ pnacopula <- function(x,u) {
     ##           ncol(u) >= dim(x)) # will be larger for children
     ## C <- x@copula
     ## th <- C@theta
-    ## sum. <- if(nrow(u) == 1) sum else rowSums # FIXME: why is this necessary in the following line?
-    ## C@psi(sum.(## use u[,j] for the direct components 'comp':
+    ## C@psi(rowSums(## use u[,j, ,drop=FALSE] for the direct components 'comp':
     ##            cbind(C@psiInv(u[,x@comp], theta=th),
     ##                  ## and recurse down for the children:
     ##                  C@psiInv(unlist(lapply(x@childCops, pnacopula, u = u)), theta=th))),

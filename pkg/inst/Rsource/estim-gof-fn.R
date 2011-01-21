@@ -69,10 +69,9 @@ estimation.gof <- function(n, d, simFamily, tau, n.MC,
         ## apply a goodness-of-fit test to the estimated copula
         ## {{ use gnacopulatrafo() if you want the transformed u }}
         utg[k] <- utms(gof[k] <-
-                       gnacopula(u, cop = cop.hat, bootstrap = FALSE,
-                                 method = gof.method,
-                                 estimation.method = esti.method,
-                                 n.MC = n.MC, do.pseudo = FALSE,
+                       gnacopula(u, cop=cop.hat, estimation.method=esti.method,
+                                 include.K=ncol(u)<=5, n.MC=n.MC, method=gof.method,
+                                 do.pseudo = FALSE, do.pseudo.sim=FALSE, 
                                  verbose = FALSE))
         sig[k] <- if(gof[k] < 0.05) 1 else 0
         if(verbose){
