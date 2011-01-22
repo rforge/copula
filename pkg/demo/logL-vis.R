@@ -83,26 +83,26 @@ enacopula(U2, cop, "mle") # 1.4399  -- no warning any more
 ## the density for the *correct* parameter looks okay
 summary(dnacopula(cop, U2))
 ## hmm:  max = 5.5e177
-r2 <- curveLogL(cop, U2, c(1, 2.5))
+system.time(r2 <- curveLogL(cop, U2, c(1, 2.5)))
 
 mLogL(1.8, cop@copula, U2)# -4070.148 (was -Inf)
 
 U3 <- rnacopula(n,cop)
 enacopula(U3, cop, "mle") # 1.44957
-r3 <- curveLogL(cop, U3, c(1, 2.5))
+system.time(r3 <- curveLogL(cop, U3, c(1, 2.5)))
 
 U4 <- rnacopula(n,cop)
 enacopula(U4, cop, "mle") # 1.451929  was 2.351..  "completely wrong"
 summary(dnacopula(cop, U4)) # ok (had one Inf)
-r4 <- curveLogL(cop, U4, c(1, 2.5))
+system.time(r4 <- curveLogL(cop, U4, c(1, 2.5)))
 
 mLogL(2.2351, cop@copula, U4)
 mLogL(1.5,    cop@copula, U4)
 mLogL(1.2,    cop@copula, U4)
 
-r4. <- curveLogL(cop, U4, c(1, 1.01))
-r4. <- curveLogL(cop, U4, c(1, 1.0001))
-r4. <- curveLogL(cop, U4, c(1, 1.000001))
+system.time(r4. <- curveLogL(cop, U4, c(1, 1.01)))
+system.time(r4. <- curveLogL(cop, U4, c(1, 1.0001)))
+system.time(r4. <- curveLogL(cop, U4, c(1, 1.000001)))
 ##--> limit goes *VERY* steeply  up to .. probably 0
 
 mLogL(1.2,    cop@copula, U4)
@@ -119,7 +119,7 @@ tau <- 0.3
 (cop <- onacopulaL("Joe",list(theta,1:d)))
 U. <- rnacopula(n,cop)
 enacopula(U., cop, "mle") # 1.776743
-r. <- curveLogL(cop, U., c(1.1, 3))
+system.time(r. <- curveLogL(cop, U., c(1.1, 3)))
 ## still looks very good
 ## and harder still
 
@@ -129,11 +129,8 @@ tau <- 0.4
 (cop <- onacopulaL("Joe",list(theta,1:d)))
 U. <- rnacopula(n,cop)
 enacopula(U., cop, "mle") # 2.22666
-r. <- curveLogL(cop, U., c(1.1, 4))
+system.time(r. <- curveLogL(cop, U., c(1.1, 4)))
 ## still looks very good
-
-1
-
 
 
 ###--------------------- The same for  Gumbel ---------------------------------
@@ -145,22 +142,43 @@ tau <- 0.2
 
 set.seed(1)
 U1 <- rnacopula(n,cop)
-enacopula(U1, cop, "mle") # 1.53287 (not fine) -- 39 warnings
-##--> Funktion für Gesamtplot:
-r1 <- curveLogL(cop, U1, c(1, 2.1))
-
 U2 <- rnacopula(n,cop)
-r2 <- curveLogL(cop, U2, c(1, 2.1))
-
 U3 <- rnacopula(n,cop)
-r3 <- curveLogL(cop, U3, c(1, 2.1))
 
-## all these similar: nowhere near minimum
+enacopula(U1, cop, "mle") # 1.241927
+##--> Plots with "many" likelihood evaluations
+system.time(r1 <- curveLogL(cop, U1, c(1, 2.1)))
+system.time(r2 <- curveLogL(cop, U2, c(1, 2.1)))
+system.time(r3 <- curveLogL(cop, U3, c(1, 2.1)))
 
-mLogL(1.65, cop@copula, U1)# ok
-mLogL(1.64, cop@copula, U1)# -> NaN
-dd <- cop@copula@dacopula(U1, 1.64, log = TRUE)
-dd ## viele  NaN ' s
-cop@copula@dacopula(U1[10,], 1.64, log = TRUE)# einer jenen Fälle
+## Now a considerably tougher case :
+d <- 150
+tau <- 0.6
+(theta <- copGumbel@tauInv(tau))# 2.5
+cG.5 <- onacopulaL("Gumbel",list(theta,1:d))
 
-debug(cop@copula@dacopula)
+set.seed(17)
+U4 <- rnacopula(n,cG.5)
+U5 <- rnacopula(n,cG.5)
+U6 <- rnacopula(n,cG.5)
+
+enacopula(U4, cG.5, "mle") # 2.475672
+enacopula(U5, cG.5, "mle") # 2.484243
+enacopula(U6, cG.5, "mle") # 2.504111
+
+##--> Plots with "many" likelihood evaluations
+(th. <- seq(1, 3, by= 1/4))
+## each of these take about 3.3 seconds [nb-mm3]
+system.time(r4 <- sapply(th., mLogL, acop=cG.5@copula, u=U4))
+system.time(r5 <- sapply(th., mLogL, acop=cG.5@copula, u=U5))
+system.time(r6 <- sapply(th., mLogL, acop=cG.5@copula, u=U6))
+r4. <- c(0, -18375.33, -21948.033, -24294.995, -25775.502,
+         -26562.609, -26772.767, -26490.809, -25781.224)
+stopifnot(all.equal(r4, r4., tol = 8e-8))
+
+if(FALSE) ## for speed analysis, etc
+    debug(nacopula:::polyG)
+mLogL(1.65, cG.5@copula, U4)# -23472.96
+
+dd <- cG.5@copula@dacopula(U4, 1.64, log = TRUE)
+summary(dd) ## no NaN's anymore

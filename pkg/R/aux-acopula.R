@@ -276,7 +276,7 @@ rFFrank <- function(n, theta0, theta1, rej)
 
 ### ==== compute the coefficients for polyG ====
 
-##' Compute the coefficients a_{dk}(theta) involved in the generator derivatives 
+##' Compute the coefficients a_{dk}(theta) involved in the generator derivatives
 ##' and the copula density of a Gumbel copula
 ##'
 ##' @title Coefficients of the polynomial involved in the generator derivatives
@@ -284,7 +284,7 @@ rFFrank <- function(n, theta0, theta1, rej)
 ##' @param d number of coefficients, d >= 1
 ##' @param alpha parameter (1/theta)
 ##' @param method method slot:
-##'        binomial.coeff: currently best method available, uses binomial coefficients, 
+##'        binomial.coeff: currently best method available, uses binomial coefficients,
 ##'                        only critical for large dependencies
 ##'        sort:           compute the coefficients via exp(log()), pulling out the maximum, and sort
 ##'        horner:         uses polynEval
@@ -379,85 +379,108 @@ coeffG <- function(d, alpha,
 ##' copula density of a Gumbel copula
 ##'
 ##' @title Polynomial involved in the generator derivatives and density for Gumbel
-##' @param lx (log) evaluation point (lx is meant to be log(x) for some x which
-##'        was used earlier; e.g., for copGumbel@dacopula, lx = alpha*log(rowSums(psiInv(u)))
+##' @param lx = log(x); where x: evaluation point (vector);
+##'        e.g., for copGumbel@dacopula, lx = alpha*log(rowSums(psiInv(u)))
 ##'        where u = (u_1,..,u_d) is the evaluation point of the density of Joe's copula)
 ##' @param alpha parameter (1/theta)
-##' @param d number of summands
-##' @param method method slot:
-##'        binomial.coeff: currently best method available, uses binomial coefficients, 
+##' @param d number of summands, >= 1
+##' @param method a string, one of
+##'   binomial.coeff: currently best method, uses binomial coefficients,
 ##'                        only critical for large dependencies
-##'        pois:           uses ppois
-##'        sort:           compute the coefficients via exp(log()), pulling out the maximum, and sort
-##'        horner:         uses polynEval
-##'        direct:         brute force approach
-##'        dV01.Joe:       uses dV01.Joe
+##'   pois:           uses ppois
+##'   sort:           compute the coefficients via exp(log()),
+##' 			  pulling out the maximum, and sort
+##'   horner:         uses polynEval
+##'   direct:         brute force approach
+##'   dV01.Joe:       uses dV01.Joe
 ##' @param log boolean which determines if the logarithm is returned
-##' @return \sum_{k=1}^d a_{dk}(theta)*exp(k*lx)
-##'         where a_{dk}(theta) = (-1)^{d-k}\sum_{j=k}^d\theta^{-j}s(d,j)S(j,k)
-##'                             = (d!/k!)\sum_{l=1}^k\binom{k}{l}\binom{\alpha l}{d}(-1)^{d-l}
+##' @return \sum_{k=1}^d  a_{dk}(\theta)  x ^ k
+##'       = \sum_{k=1}^d  a_{dk} *     exp(lx*k)
+##'  where a_{dk}(theta)
+##'       = (-1)^{d-k}\sum_{j=k}^d \theta^{-j} s(d,j) S(j,k)
+##'       = (d!/k!)\sum_{l=1}^k (-1)^{d-l} \binom{k}{l}\binom{\alpha l}{d}
 ##' @author Marius Hofert
-polyG <- function(lx, alpha, d, method=c("binomial.coeff", "pois", "sort",  
-                                "horner", "direct", "dV01.Joe"), log=FALSE){
-    method <- match.arg(method)
-    if(method=="binomial.coeff"){ # FIXME: improve speed
-	## determine signs of the falling factorials
-        l <- 1:d
-        s <- (-1)^(d-l) * unlist(lapply(alpha*l, function(z) prod(z-(0:(d-1)))))
-        signs <- sign(s)
-        ## build list of b's
-        n <- length(lx)
-        one.l <- function(l.){
-            k <- l.:d
-            outer(k, lx) - lfactorial(0:(d-l.)) + 
-                sum(log(abs(alpha*l.-(0:(d-1)))))-lfactorial(l.) # matrix of b's for a fixed l (= l.) and all k and lx
-        }
-        B.list <- lapply(l, one.l) # B.list[[l]] is a (d-l+1, n)-matrix; B.list[[l]][k, lx] contains b_{kl}
-        ## determine the largest entry for each lx and compute inner sums
-        B <- do.call(rbind, B.list) # (d*(d+1)/2, lx)-matrix; rows are l = 1,..,d and for each l, k = l,..,d
-        B.max <- apply(B, 2, max)
-        inner.sums <- function(l) rowSums(exp(t(B.list[[l]])-B.max))
-        isums <- do.call(rbind, lapply(1:d, inner.sums)) # (d, lx)-matrix
-        outer.sum <- signs %*% isums
-        res <- B.max + as.vector(log(outer.sum))
-        if(log) res else exp(res)
-    }else if(method=="pois"){
-	## determine signs of the falling factorials
-        l <- 1:d
-        s <- (-1)^(d-l) * unlist(lapply(alpha*l, function(z) prod(z-(0:(d-1)))))
-        signs <- sign(s)
-        ## build list of b's
-        n <- length(lx)
-	x <- exp(lx) # e^lx = x
-        lppois <- outer(d-l, x, FUN=ppois, log.p=TRUE) # a (d x n)-matrix; log(ppois(d-l, x))
-        llx <- outer(l, lx) # also a (d x n)-matrix; l*lx
-        labsPoch <- unlist(lapply(l, function(l.) sum(log(abs(alpha*l.-0:(d-1))) ) ))# log|(alpha*l)_d|
-        lfac <- lfactorial(l)
-        ## build matrix of exponents
-        B <- matrix(rep(labsPoch - lfac, n), ncol=n) + 
-            matrix(rep(x, d), ncol=n, byrow=TRUE) + llx + lppois
-        max.B <- apply(B, 2, max)
-        ## pull out maximum and sum the rest
-        res <- max.B + log(signs %*% exp(B - rep(max.B, each=d)))
-        if(log) res else exp(res)
-    }else if(method=="sort" || method=="horner" || method=="direct" || method=="dV01.Joe"){ 
-	## note: these methods are all know to show numerical deficiencies 
-	if(d > 220) stop("d > 220 not yet supported") # would need Stirling2.all(d, log=TRUE) 
-        ## compute the log of the coefficients
-        a.dk <- coeffG(d, alpha) # compute the coefficients
-        l.a.dk <- log(a.dk) # note: theoretically, a.dk > 0 but due to numerical issues, this might not always be the case
-        ## evaluate the sum
-        ## for this, create a matrix B with (k,i)-th entry B[k,i] = log(a_{dk}(theta)) +
-        ## k * lx[i], where k in {1,..,d}, i in {1,..,n} [n = length(lx)]
-        k <- 1:d
-        B <- l.a.dk + outer(k, lx)
-      	if(log){
-            ## compute log(colSums(exp(B))) stably (no overflow) with the idea of
-            ## pulling out the maxima
-            max.B <- apply(B, 2, max)
-            max.B + log(colSums(exp(B - rep(max.B, each = d))))
-        }else colSums(exp(B)) 
-    }else stop("Wrong method in polyG") 
+polyG <- function(lx, alpha, d, method=c("binomial.coeff", "pois", "sort",
+				"horner", "direct", "dV01.Joe"), log=FALSE)
+{
+  method <- match.arg(method)
+  k <- 1:d
+  switch(method,
+	 "binomial.coeff" =
+     { ### FIXME: improve speed --- careful!! - see end of ../demo/logL-vis.R
+
+	 ## determine signs of the falling factorials
+	 ## s <- unlist(lapply(alpha*k, function(z) prod(z-(0:(d-1)))))
+	 ## signs <- (-1)^(d-k) * sign(s) ## see  ../misc/sign-polyG.R
+         ## signs  <- (-1)^(d-k) * (-1)^d * (2*(floor(alpha*k) %% 2) - 1)
+         ## signs  =  (-1)^k              * (2*(floor(alpha*k) %% 2) - 1)
+         signs <- (-1)^k* (2*(floor(alpha*k) %% 2) - 1)
+
+	 ## build list of b's
+	 n <- length(lx)
+	 lfac <- cumsum(log(k))# == lfactorial(k) = log( k! )
+         ## storing these is *NOT* faster than re-computing them (..!)
+	 k1 <- k-1L # = 0:(d-1)
+         ## l.x <- tcrossprod(k, lx) ## == l.x[k,i] = log(x[i] ^ k)
+	 one.l <- function(l.) {
+	     ## = matrix of b's for a fixed l (= l.) and all k and lx
+            tcrossprod(l.:d, lx) - c(0, lfac[seq_len(d - l.)]) +
+                sum(log(abs(alpha*l. - k1))) - lfac[l.]
+	 }
+	 B.list <- lapply(k, one.l) ##	B.list[[l]] is a (d-l+1, n)-matrix;
+	 ##				B.list[[l]][k, .] contains b_{kl}
+	 ## Determine the largest entry for each lx and compute inner sums:
+	 B <- do.call(rbind, B.list)
+	 ## (d*(d+1)/2, n)-matrix; rows are l = 1,..,d and for each l, k = l,..,d
+	 B.max <- apply(B, 2, max)
+	 inn.sums <- function(bm) rowSums(exp(t(bm) - B.max))
+	 isums <- do.call(cbind, lapply(B.list, inn.sums)) # (n, d)-matrix
+	 res <- B.max + log(as.vector(isums %*% signs))
+	 if(log) res else exp(res)
+     },
+	 "pois" =
+     {
+	 ## determine signs of the falling factorials
+         signs <- (-1)^k* (2*(floor(alpha*k) %% 2) - 1)
+
+	 ## build list of b's
+	 n <- length(lx)
+	 x <- exp(lx) ## e^lx = x
+	 lppois <- outer(d-k, x, FUN=ppois, log.p=TRUE) # a (d x n)-matrix; log(ppois(d-k, x))
+	 llx <- outer(k, lx)		# also a (d x n)-matrix; k*lx
+	 labsPoch <- unlist(lapply(k, function(l.) sum(log(abs(alpha*l.-0:(d-1))) ) )) # log|(alpha*k)_d|
+	 lfac <- lfactorial(k)
+	 ## build matrix of exponents
+	 B <- matrix(rep(labsPoch - lfac, n), ncol=n) +
+	     matrix(rep(x, d), ncol=n, byrow=TRUE) + llx + lppois
+	 max.B <- apply(B, 2, max)
+	 ## pull out maximum and sum the rest
+	 res <- max.B + log(signs %*% exp(B - rep(max.B, each=d)))
+	 if(log) res else exp(res)
+     },
+
+	 "sort" =, "horner" =, "direct" =, "dV01.Joe" =
+     {
+	 ## note: these methods are all know to show numerical deficiencies
+	 if(d > 220) stop("d > 220 not yet supported") # would need Stirling2.all(d, log=TRUE)
+	 ## compute the log of the coefficients:
+	 a.dk <- coeffG(d, alpha, method=method)
+	 l.a.dk <- log(a.dk) # note: theoretically, a.dk > 0 but due to numerical issues, this might not always be the case
+	 ## evaluate the sum
+	 ## for this, create a matrix B with (k,i)-th entry
+         ## B[k,i] = log(a_{dk}(theta)) + k * lx[i],
+	 ##          where k in {1,..,d}, i in {1,..,n} [n = length(lx)]
+	 B <- l.a.dk + outer(k, lx)
+	 if(log){
+	     ## compute log(colSums(exp(B))) stably (no overflow) with the idea of
+	     ## pulling out the maxima
+	     max.B <- apply(B, 2, max)
+	     max.B + log(colSums(exp(B - rep(max.B, each = d))))
+	 }else colSums(exp(B))
+     },
+	 stop(sprintf("unsupported method '%s' in polyG",
+		      method))
+	 ) # end{switch}
 }
 
 

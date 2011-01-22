@@ -10,8 +10,8 @@ stopifnot(sapply(0:10, Stirling1, n=10) == S1.10,
 options(str = strOptions(vec.len = 10, digits.d = 20)) # for ls.str() below
 
 ls.str(nacopula:::.nacopEnv)
-system.time(S  <- Stirling1(30, 7))# not zero
-system.time(S. <- Stirling1(30, 7))# should be zero
+system.time(S  <- Stirling1(30, 7))# updating table -> typically not zero
+system.time(S. <- Stirling1(30, 7))# lookup  -->  should be zero
 stopifnot(identical(S, S.))
 
 ls.str(nacopula:::.nacopEnv)
@@ -34,8 +34,8 @@ stopifnot(sapply(0:10, Stirling2, n=10, method="direct") == S2.10,
           Stirling2.all(10) == S2.10[-1])
 
 ls.str(nacopula:::.nacopEnv)
-system.time(S  <- Stirling2(30, 7))# not zero
-system.time(S. <- Stirling2(30, 7))# should be zero
+system.time(S  <- Stirling2(30, 7))# updating table -> typically not zero
+system.time(S. <- Stirling2(30, 7))# lookup  -->  should be zero
 stopifnot(identical(S, S.),
           all.equal(S, Stirling2(30,7, method="direct"), tol=1e-15))
 
