@@ -68,7 +68,7 @@ checkifnot <- function(expr, prefix = "check if", true = "[Ok]")
 
 
 ##' @title Perform a set of checks on a copula object (with theta set)
-##' @param cop copula
+##' @param cop acopula
 ##' @param theta1 parameter theta1
 ##' @param thetavec vector of parameters
 ##' @param i10 values where psi is evaluated

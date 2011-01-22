@@ -23,7 +23,7 @@
 ##' @param u argument of the copula x
 ##' @param log if TRUE the log-density is evaluated
 ##' @param ... further arguments passed to the copula specific 'dacopula' function;
-##'   typically  'n.MC' (Monte Carlo size or NULL), but potentially more
+##'   typically  'n.MC' (Monte Carlo size), but potentially more
 ##' @author Marius Hofert and Martin Maechler
 dnacopula <- function(x, u, log=FALSE, ...) {
     stopifnot(is(x, "outer_nacopula"))
@@ -39,11 +39,11 @@ dnacopula <- function(x, u, log=FALSE, ...) {
 ##' @title Density of nested Archimedean copulas (generic form)
 ##' @param x nacopula
 ##' @param u argument of the copula x
-##' @param n.MC if provided (and not NULL) Monte Carlo is used for evaluation of
-##'        the density with sample size equal to n.MC
+##' @param n.MC if > 0 a Monte Carlo approach is applied with sample size equal 
+##'        to n.MC; otherwise the exact formula is used
 ##' @param log if TRUE the log-density is evaluated
 ##' @author Marius Hofert
-dnacopulag <- function(x, u, n.MC, log = FALSE){
+dnacopulag <- function(x, u, n.MC=0, log = FALSE){
     stopifnot(is(x, "outer_nacopula"))
     if(length(x@childCops))
         stop("currently, only Archimedean copulas are provided")

@@ -4,15 +4,16 @@ require(nacopula)
 ##' @param theta parameter (length 1 for our current families)
 ##' @param acop  Archimedean copula (of class "acopula")
 ##' @param u    data matrix n x d
-##' @param n.MC NULL or positive integer for Monte-Carlo approximation
+##' @param n.MC if > 0 MC is applied with sample size equal to n.MC; otherwise,
+##'        the exact formula is used
 ##' @return
 ##' @author Martin Maechler (Marius originally)
-mLogL <- function(theta, acop, u, n.MC=NULL, ...) { # -(log-likelihood)
-    -sum(acop@dacopula(u, theta, n.MC = n.MC, log = TRUE, ...))
+mLogL <- function(theta, acop, u, n.MC=0, ...) { # -(log-likelihood)
+    -sum(acop@dacopula(u, theta, n.MC=n.MC, log=TRUE, ...))
 }
 
 ##' @title
-##' @param cop an 'outer_nacopula ' (currently with no children)
+##' @param cop an outer_nacopula (currently with no children)
 ##' @param u n x d  data matrix
 ##' @param xlim x-range for curve() plotting
 ##' @param main title for curve()

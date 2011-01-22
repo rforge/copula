@@ -30,9 +30,8 @@ if(getRversion() <= "2.13")
 
 RR <- sapply(estMeth, simplify="array", function(e)
          {
-             n.MC <- if(e == "smle") 10000 else NULL
              sapply(gofMeth, simplify="array", function(g)
-                    estimation.gof(n, d, simFamily, tau = tau, n.MC = n.MC,
+                    estimation.gof(n, d, simFamily, tau = tau, n.MC = 0,
                                    esti.method = e, gof.method = g))
          })
 

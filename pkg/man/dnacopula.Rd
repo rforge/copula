@@ -16,7 +16,7 @@ dnacopula(x, u, log = FALSE, \dots)
     should be returned.}
   \item{\dots}{
     optional further arguments passed to the copulas \code{dacopula}
-    function (slot), such as \code{n.MC}, (integer or \code{NULL}), for
+    function (slot), such as \code{n.MC}, (non-negative integer), for
     possible Monte Carlo evaluation, see \code{dacopula} in
     \code{\linkS4class{acopula}}.}
 }

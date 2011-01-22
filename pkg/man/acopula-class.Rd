@@ -34,9 +34,9 @@
       parameter \code{theta} and of the given \code{degree} (defaults to 1).
       Note that there is no informational loss by computing the absolute value
       since the derivatives alternate in sign (so that the generator derivative
-      itself can be accessed with (-1)^\code{degree}\code{psiDabs}). If the
-      number \code{n.MC} is provided, the function is computed based on a Monte
-      Carlo simulation with sample size equal to \code{n.MC}; otherwise, the
+      itself can be accessed with (-1)^\code{degree}\code{psiDabs}). The
+      number \code{n.MC} denotes the sample size for a Monte Carlo evaluation 
+      approach. If \code{n.MC} is zero (the default), the
       generator derivatives are evaluated with their exact formulas. The
       optional parameter \code{log} (defaults to \code{FALSE}) indicates whether
       or not the logarithmic value is returned.}
@@ -46,8 +46,8 @@
       (defaults to \code{FALSE}) indicates whether the logarithm of the absolute
       value of the first derivative of \code{psiInv()} is returned.}
     \item{\code{dacopula}:}{a \code{\link{function}} computing the density
-      of the Archimedean copula at \code{u} with parameter \code{theta}.  The
-      meanings of the optional parameters \code{n.MC} and \code{log} are as
+      of the Archimedean copula at \code{u} with parameter \code{theta}. The
+      meanings of the parameters \code{n.MC} and \code{log} are as
       described before.}
     \item{\code{paraInterval}:}{Either \code{\link{NULL}} or object of class
       \code{"\linkS4class{interval}"}, typically from a call such as

@@ -43,18 +43,18 @@ g01 <- function(u, method=c("normal", "log")){
 ##' @param t evaluation point(s)
 ##' @param cop acopula with specified parameter
 ##' @param d dimension
-##' @param n.MC if provided (and not NULL) psiDabs is evaluated via Monte Carlo
-##'        with sample size n.MC
+##' @param n.MC if > 0 a Monte Carlo approach is applied with sample size equal 
+##'        to n.MC; otherwise the exact formula is used
 ##' @return Kendall distribution function at t
 ##' @author Marius Hofert
 ##' FIXME: maybe with outer() instead of K2?
-K <- function(t, cop, d, n.MC)
+K <- function(t, cop, d, n.MC=0)
 {
     stopifnot(is(cop, "acopula"))
     psiI <- cop@psiInv(t,th <- cop@theta)
     n <- length(t)
-    if(!(missing(n.MC) || is.null(n.MC))){
-	stopifnot(is.numeric(n.MC), is.finite(n.MC), n.MC > 0)
+    if(n.MC > 0){
+	stopifnot(is.numeric(n.MC), is.finite(n.MC))
         V <- cop@V0(n.MC,th)
         unlist(lapply(psiI, function(psInv) mean(ppois(d-1, V* psInv))))
     } else {
@@ -91,13 +91,14 @@ K <- function(t, cop, d, n.MC)
 ##'
 ##' @title Transformation of Hering, Hofert (2011)
 ##' @param x data matrix
-##' @param cop an ("outer_") nacopula
-##' @param n.MC if provided K is evaluated via Monte Carlo with sample size n.MC
+##' @param cop an outer_nacopula
 ##' @param do.pseudo boolean indicating whether to compute the pseudo-observations
 ##' @param include.K boolean indicating whether the last component, K, is also used or not
+##' @param n.MC parameter n.MC for K
 ##' @return matrix of supposedly U[0,1]^d realizations
 ##' @author Marius Hofert and Martin Maechler
-gnacopulatrafo <- function(x, cop, n.MC, do.pseudo=FALSE, include.K = ncol(x)<=5){
+gnacopulatrafo <- function(x, cop, do.pseudo=FALSE, include.K = ncol(x) <= 5,
+                           n.MC = if(ncol(x) <= 10) 0 else 10000){
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
@@ -112,7 +113,7 @@ gnacopulatrafo <- function(x, cop, n.MC, do.pseudo=FALSE, include.K = ncol(x)<=5
     u. <- matrix(unlist(lapply(1:(d-1), function(k) (cumsum.psiI[k,]/cumsum.psiI[k+1,])^k)), 
                  ncol=d-1) # transformed components (uniformly under H_0)
     if(include.K) u. <- cbind(u., K(cop@copula@psi(cumsum.psiI[d,], th), 
-                                    cop@copula, d=d, n.MC=n.MC))
+                                    cop=cop@copula, d=d, n.MC=n.MC))
     u.
 }
 
@@ -121,11 +122,11 @@ gnacopulatrafo <- function(x, cop, n.MC, do.pseudo=FALSE, include.K = ncol(x)<=5
 ##'
 ##' @title Goodness-of-fit testing for nested Archimedean copulas
 ##' @param x data matrix
-##' @param cop nacopula with specified H0 parameters
+##' @param cop outer_nacopula with specified H0 parameters
 ##' @param n.bootstrap number of bootstrap replications
 ##' @param estimation.method estimation method, see enacopula
 ##' @param include.K boolean whether K is included in the transformation
-##' @param n.MC if provided K is evaluated via Monte Carlo with sample size n.MC
+##' @param n.MC parameter n.MC for K
 ##' @param method for g01, see there
 ##' @param do.pseudo boolean indicating whether to compute the pseudo-observations
 ##'        of the given data
@@ -137,8 +138,9 @@ gnacopulatrafo <- function(x, cop, n.MC, do.pseudo=FALSE, include.K = ncol(x)<=5
 ##' @author Marius Hofert and Martin Maechler
 gnacopula <- function(x, cop, n.bootstrap=0, 
                       estimation.method=eval(formals(enacopula)$method),
-                      include.K = ncol(x)<=5, n.MC, method=c("normal", "log"), 
-                      do.pseudo=TRUE, do.pseudo.sim=TRUE, verbose=TRUE, ...)
+                      include.K = ncol(x)<=5, n.MC = if(ncol(x) <= 10) 0 else 10000, 
+                      method=c("normal", "log"), do.pseudo=TRUE, 
+                      do.pseudo.sim=TRUE, verbose=TRUE, ...)
 {
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
@@ -158,8 +160,8 @@ gnacopula <- function(x, cop, n.bootstrap=0,
         cop.hat <- onacopulaL(cop@family, list(theta.hat, 1:d)) # copula with theta.hat
         ## (2) transform the data with the copula with estimated parameter and compute
         ##     the test result according to the given method
-        test <- g01(gnacopulatrafo(x, cop.hat, n.MC=n.MC, do.pseudo=FALSE, 
-                                   include.K=include.K), method=method)$statistic # compute the value of the test statistic 
+        test <- g01(gnacopulatrafo(x, cop.hat, do.pseudo=FALSE, include.K=include.K,
+                                   n.MC=n.MC), method=method)$statistic # compute the value of the test statistic 
         ## (3) conduct the parametric bootstrap
         test.vec <- numeric(n.bootstrap) # vector of test statistics
         for(k in 1:n.bootstrap){
@@ -168,8 +170,9 @@ gnacopula <- function(x, cop, n.bootstrap=0,
             theta.hat.k <- enacopula(u, cop, method=estimation.method, n.MC=n.MC, 
                                      do.pseudo=FALSE, ...) # estimate the copula parameter:
             cop.k <- onacopulaL(cop@family, list(theta.hat.k, 1:d)) # copula with theta.hat.k
-            test.vec[k] <- g01(gnacopulatrafo(u, cop.k, n.MC=n.MC, do.pseudo=FALSE,
-                                              include.K=include.K), method=method)$statistic # compute the value of the test statistic
+            test.vec[k] <- g01(gnacopulatrafo(u, cop.k, do.pseudo=FALSE,
+                                              include.K=include.K, n.MC=n.MC), 
+                               method=method)$statistic # compute the value of the test statistic
             ## progress output
             if(verbose && k%%10 == 0)
                 cat(sprintf("bootstrap progress: %4.1f%%\n", k/n.bootstrap*100))
@@ -178,7 +181,7 @@ gnacopula <- function(x, cop, n.bootstrap=0,
         mean(test.vec > test)
 
     }else{ # no bootstrap -- but still a test (!)
-        g01(gnacopulatrafo(x, cop, n.MC=n.MC, do.pseudo=FALSE, include.K=include.K),
+        g01(gnacopulatrafo(x, cop, do.pseudo=FALSE, include.K=include.K, n.MC=n.MC),
             method=method)$p.value
     }
 }

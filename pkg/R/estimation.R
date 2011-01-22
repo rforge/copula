@@ -104,7 +104,7 @@ beta. <- function(cop, theta, d, scaling = TRUE) {
 ##' @title Method-of-moment-like parameter estimation of nested Archimedean copulas
 ##'        based on Blomqvist's beta
 ##' @param u matrix of realizations following the copula
-##' @param cop nacopula to be estimated
+##' @param cop outer_nacopula to be estimated
 ##' @param interval bivariate vector denoting the interval where optimization takes
 ##'        place
 ##' @param ... additional parameters for safeUroot
@@ -130,7 +130,7 @@ ebeta <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...){
 ##'
 ##' @title Pairwise estimators for nested Archimedean copulas based on Kendall's tau 
 ##' @param u matrix of realizations following the copula
-##' @param cop nacopula to be estimated
+##' @param cop outer_nacopula to be estimated
 ##' @param method tau.mean indicates that the average of the sample versions of
 ##'               Kendall's tau are computed first and then theta is determined;
 ##'               theta.mean stands for first computing all Kendall's tau
@@ -222,7 +222,7 @@ emde.dist <- function(u, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
 ##'
 ##' @title Minimum distance estimation for nested Archimedean copulas
 ##' @param u matrix of realizations following the copula
-##' @param cop nacopula to be estimated
+##' @param cop outer_nacopula to be estimated
 ##' @param interval bivariate vector denoting the interval where optimization takes
 ##'        place
 ##' @param include.K boolean indicating whether the last component, K, is also used or not
@@ -241,7 +241,7 @@ emde <- function(u, cop, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
     method <- match.arg(method) # match argument method
     distance <- function(theta){ # distance to be minimized
         cop@copula@theta <- theta
-        u. <- gnacopulatrafo(u, cop, n.MC=NULL, do.pseudo=FALSE, include.K=include.K) # transform data [don't use n.MC here; too slow]
+        u. <- gnacopulatrafo(u, cop, n.MC=0, do.pseudo=FALSE, include.K=include.K) # transform data [don't use MC here; too slow]
         emde.dist(u., method)
     }
     optimize(distance, interval = interval, ...)	
@@ -253,7 +253,7 @@ emde <- function(u, cop, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
 ##'
 ##' @title Diagonal density of a nested Archimedean copula
 ##' @param u evaluation point
-##' @param cop nacopula
+##' @param cop outer_nacopula to be estimated
 ##' @param log if TRUE the log-density is evaluated
 ##' @return density of the diagonal of cop
 ##' @author Marius Hofert
@@ -275,7 +275,7 @@ dDiag <- function(u, cop, log = FALSE){
 ##'
 ##' @title Maximum likelihood estimation based on the diagonal of a nested Archimedean copula
 ##' @param u matrix of realizations following a copula
-##' @param cop nacopula to be estimated
+##' @param cop outer_nacopula to be estimated
 ##' @param interval bivariate vector denoting the interval where optimization takes
 ##'        place
 ##' @param ... additional parameters for optimize
@@ -324,15 +324,15 @@ edmle <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...)
 ##'
 ##' @title (Simulated) maximum likelihood estimation for nested Archimedean copulas
 ##' @param u matrix of realizations following the copula
-##' @param cop nacopula to be estimated
-##' @param n.MC if provided SMLE is applied with sample size equal to n.MC; otherwise,
+##' @param cop outer_nacopula to be estimated
+##' @param n.MC if > 0 SMLE is applied with sample size equal to n.MC; otherwise,
 ##'        MLE is applied
 ##' @param interval bivariate vector denoting the interval where optimization takes
 ##'        place (with default given by the slot paraSubInterval)
 ##' @param ... additional parameters for optimize
 ##' @return (simulated) maximum likelihood estimator; return value of optimize
 ##' @author Marius Hofert
-emle <- function(u, cop, n.MC, interval = paraOptInterval(u, cop@copula@name), ...)
+emle <- function(u, cop, n.MC=0, interval=paraOptInterval(u, cop@copula@name), ...)
 {
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
@@ -350,7 +350,6 @@ emle <- function(u, cop, n.MC, interval = paraOptInterval(u, cop@copula@name), .
     ##                     theta.mean = etau (u,acop, method="theta.mean"),
     ##                     diag       = edmle(u,acop,...),
     ##                     stop("wrong argument initial"))
-    if(missing(n.MC)) n.MC <- NULL # set it to NULL to make the call from dnacopula easier
     ## optimize
     mLogL <- function(theta){ # -log-likelihood
         cop@copula@theta <- theta
@@ -381,7 +380,7 @@ pobs <- function(x) apply(x,2,rank)/(nrow(x)+1)
 ##'
 ##' @title Estimation procedures for nested Archimedean copulas
 ##' @param x data matrix
-##' @param cop nacopula to be estimated
+##' @param cop outer_nacopula to be estimated
 ##' @param method estimation method; can be
 ##'        "mle"             MLE
 ##'        "smle"            SMLE
@@ -393,7 +392,7 @@ pobs <- function(x) apply(x,2,rank)/(nrow(x)+1)
 ##'        "tau.tau.mean"    averaged pairwise Kendall's tau estimator
 ##'        "tau.theta.mean"  average of Kendall's tau estimators
 ##'        "beta"            multivariate Blomqvist's beta estimator
-##' @param n.MC if provided (and not NULL) n.MC denotes the sample size for SMLE
+##' @param n.MC if > 0 it denotes the sample size for SMLE
 ##' @param interval initial optimization interval for "mle", "smle", and "dmle" (i.e., emle, dmle)
 ##' @param do.pseudo  logical indicating if 'x' should be "pseudo-transformed"
 ##' @param xargs additional arguments for the estimation procedures
@@ -403,7 +402,8 @@ pobs <- function(x) apply(x,2,rank)/(nrow(x)+1)
 enacopula <- function(x, cop, method=c("mle", "smle", "dmle", "mde.normal.CvM", 
                               "mde.normal.KS", "mde.log.CvM", "mde.log.KS",
                               "tau.tau.mean", "tau.theta.mean", "beta"), 
-                      n.MC, interval=paraOptInterval(u, cop@copula@name), 
+                      n.MC = if(method=="smle") 10000 else 0, 
+                      interval=paraOptInterval(u, cop@copula@name), 
                       do.pseudo=FALSE, xargs=list(), ...)
 {
     
@@ -413,11 +413,6 @@ enacopula <- function(x, cop, method=c("mle", "smle", "dmle", "mde.normal.CvM",
         stop("currently, only Archimedean copulas are provided")
     u <- if(do.pseudo) pobs(x) else x
     method <- match.arg(method) 
-
-    ## check if n.MC is given for SMLE
-    mMC <- missing(n.MC)
-    if(method == "smle" && mMC) stop("smle needs the sample size n.MC")
-    if(mMC) n.MC <- NULL
 
     ## main part
     res <- switch(method,

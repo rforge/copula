@@ -32,7 +32,7 @@ doPlots <- (Sys.getenv("USER") == "maechler")
 ##' @param n number of variates to be drawn
 ##' @param th0 theta0
 ##' @param th1 theta1
-##' @param cop copula
+##' @param cop acopula
 ##' @return a list containing run times for V0 and V01 and Kendall's taus
 ##' @author Marius Hofert, Martin Maechler
 corCheck <- function(n, th0,th1, cop) {
@@ -67,7 +67,7 @@ corCheckout <- function(x, trCorr, famName = x$name) {
 ##' @title The Chi-square test
 ##' @param n [integer] sample size
 ##' @param N [integer] number of replications
-##' @param cop nacopula to generate from
+##' @param cop outer_nacopula to generate from
 ##' @param nInt positive integer: the number of intervals used for each grid
 ##' dimension
 ##' @return an "chiSqChk_cop" object; just a list(...) and a print method
