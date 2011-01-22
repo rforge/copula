@@ -59,10 +59,8 @@ beta.hat <- function(u, scaling = FALSE){
     less.u <- u <= 0.5
     prod1 <- apply( less.u, 1, all)
     prod2 <- apply(!less.u, 1, all)
-    sum.prod <- prod1 + prod2
-    b <- mean(sum.prod)
-    d <- ncol(u)
-    if(scaling) b else {T <- 2^(d-1); (T*b - 1)/(T - 1)} 
+    b <- mean(prod1 + prod2)
+    if(scaling) b else {T <- 2^(ncol(u)-1); (T*b - 1)/(T - 1)} 
 }
 
 ##' Compute the population version of Blomqvist's beta for Archimedean copulas

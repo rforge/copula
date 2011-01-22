@@ -36,7 +36,7 @@ onacopulaL(family, nacList)
   \item{nacList}{a \code{\link{list}} of length 3 (or 2), with elements
     \enumerate{
       \item theta: \eqn{\theta}
-      \item \code{comps}: components \eqn{c(i_1,\dots,i_c)}{c(i1,..ic)}
+      \item \code{comp}: components \eqn{c(i_1,\dots,i_c)}{c(i1,..ic)}
       \item \code{children}: a \link{list} which must be a
       \code{nacList} itself and may be missing to denote the empty
       \code{list()}.

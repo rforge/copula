@@ -1,12 +1,10 @@
 ## ==== features in next CRAN version ====
 
-(MM) make polyG and polyJ more efficient! see FIXME's there
+(MM) make polyG (and polyJ) more efficient! see FIXME's there
 polyJ: scale with asymptotics [problem: do we really know what the max approximately is?] same applies for polyG
 => especially MLE for Gumbel is too slow
 (MM) does Gumbel MLE work for tau > 0.6?
 (MM) polylog still uses log(polynEval) instead of a "true" log-slot
-
-(MH) is help file for "onacopula" correct? shouldn't "comps" be "comp"?
 
 (MM, MH) implement color-feature in splom2 (now that i and j are included by Deepayan)
 (MH) add (and fill) all help files for estimation and gof procedures
