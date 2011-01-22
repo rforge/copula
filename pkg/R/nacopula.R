@@ -20,7 +20,7 @@
 ##'
 ##' @title Density of nested Archimedean copulas
 ##' @param x nacopula
-##' @param u argument of the copula x
+##' @param u argument of the copula x (can be a matrix)
 ##' @param log if TRUE the log-density is evaluated
 ##' @param ... further arguments passed to the copula specific 'dacopula' function;
 ##'   typically  'n.MC' (Monte Carlo size), but potentially more
@@ -63,38 +63,28 @@ dnacopulag <- function(x, u, n.MC=0, log = FALSE){
     res
 }
 
-##' Returns the copula value at a certain vector u
+##' Returns the copula value at u
 ##'
 ##' @title Evaluation of nested Archimedean copula
 ##' @param x nacopula
-##' @param u argument of the copula x
+##' @param u argument of the copula x (can be a matrix)
 ##' @return f_x(u)
 ##' @author Marius Hofert, Martin Maechler
 pnacopula <- function(x,u) {
-    
+    if(!is.matrix(u)) u <- rbind(u)
     stopifnot(is.numeric(u), 0 <= u, u <= 1,
-              length(u) >= dim(x)) # will be larger for children
+              ncol(u) >= dim(x)) # will be larger for children
     C <- x@copula
     th <- C@theta
-    C@psi(sum(## use u[j] for the direct components 'comp':
-              C@psiInv(u[x@comp], theta=th),
-              ## and recurse down for the children:
-              C@psiInv(unlist(lapply(x@childCops, pnacopula, u = u)), theta=th)),
-          theta=th)
-
-    ## FIXME: tried this to matricize pnacopula, but for the very complicated 
-    ## example it fails
-    ## if(!is.matrix(u)) u <- rbind(u)
-    ## stopifnot(is.numeric(u), 0 <= u, u <= 1,
-    ##           ncol(u) >= dim(x)) # will be larger for children
-    ## C <- x@copula
-    ## th <- C@theta
-    ## C@psi(rowSums(## use u[,j, ,drop=FALSE] for the direct components 'comp':
-    ##            cbind(C@psiInv(u[,x@comp], theta=th),
-    ##                  ## and recurse down for the children:
-    ##                  C@psiInv(unlist(lapply(x@childCops, pnacopula, u = u)), theta=th))),
-    ##      theta=th)
-
+    res <- C@psi(rowSums(## use u[,j, drop=FALSE] for the direct components 'comp':
+                         cbind(C@psiInv(u[,x@comp, drop=FALSE], theta=th),
+                               ## and recurse down for the children:
+                               C@psiInv(unlist(lapply(x@childCops, pnacopula, u=u)), theta=th))),
+                 theta=th)
+    ## if u is a vector, res contains a names attribute, which we have to remove
+    ## otherwise all.equal() in nac-experi.R fails
+    names(res) <- NULL 
+    res
 }
 
 ##' Compute the probability P[l < U <= u]  where U ~ copula x.
@@ -131,7 +121,7 @@ setMethod("prob", signature(x ="outer_nacopula"),
               ## Sign: the ("u","u",...,"u") case has +1; = c(2,2,...,2)
               Sign <- c(1,-1)[1L + (- rowSums(II)) %% 2]
               U <- array(cbind(l,u)[cbind(c(col(II)), c(II))], dim = dim(II))
-              sum(Sign * apply(U, 1, pnacopula, x=x))
+              sum(Sign * pnacopula(x, U))
           })
 
 ##' Returns (n x d)-matrix of random variates

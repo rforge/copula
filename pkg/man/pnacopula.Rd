@@ -3,7 +3,7 @@
 \title{Evaluation of Nested Archimedean Copulas}
 \description{
   \code{pnacopula} evaluates a nested Archimedean copula (object of class
-  \code{\linkS4class{nacopula}}) at the given vector \code{u}.
+  \code{\linkS4class{nacopula}}) at the given vector or matrix \code{u}.
 }
 \usage{
 pnacopula(x, u)
@@ -12,14 +12,15 @@ pnacopula(x, u)
   \item{x}{a (nested) Archimedean copula of dimension \eqn{d}, i.e., an
     object of class \code{\linkS4class{nacopula}}, typically from
     \code{\link{onacopula}(..)}.}
-  \item{u}{a \code{\link{numeric}} vector of length \eqn{d}.}
+  \item{u}{a \code{\link{numeric}} vector of length \eqn{d} or matrix with \eqn{d}
+    columns.}
 }
 \details{
-	The value of an Archimedean copula \eqn{C} with generator \eqn{\psi}{psi} at
-	\eqn{u} is given by \deqn{C(\bm{u})=\psi(\psi^{-1}(u_1)+\dots+\psi^{-1}(u_d)),\ \bm{u}\in[0,1]^d.}{C(u)=psi(psi^{-1}(u_1)+...+psi^{-1}(u_d)), u in [0,1]^d.}
-	The value of a nested Archimedean copula is defined similarly, note that a
-	d-dimensional copula is called nested Archimedean if it is an Archimedean
-	copula with arguments possibly replaced by other nested Archimedean copulas.
+  The value of an Archimedean copula \eqn{C} with generator \eqn{\psi}{psi} at
+  \eqn{u} is given by \deqn{C(\bm{u})=\psi(\psi^{-1}(u_1)+\dots+\psi^{-1}(u_d)),\ \bm{u}\in[0,1]^d.}{C(u)=psi(psi^{-1}(u_1)+...+psi^{-1}(u_d)), u in [0,1]^d.}
+  The value of a nested Archimedean copula is defined similarly, note that a
+  d-dimensional copula is called nested Archimedean if it is an Archimedean
+  copula with arguments possibly replaced by other nested Archimedean copulas.
 }
 \value{
   A \code{\link{numeric}} in \eqn{[0,1]} which is the copula evaluated
@@ -34,13 +35,13 @@ theta0 <- copJoe@tauInv(.2)
 theta1 <- copJoe@tauInv(.5)
 C3 <- onacopula("J", C(theta0, 1, C(theta1, c(2,3))))
 
-## Evaluate this copula at the point u
+## Evaluate this copula at the vector u
 u <- c(.7,.8,.6)
 pnacopula(C3, u)
 
-## Evaluate this copula at several points
-u <- matrix(runif(300), ncol=3)
-apply(u, 1, pnacopula, x=C3)
+## Evaluate this copula at the matrix v
+v <- matrix(runif(300), ncol=3)
+pnacopula(C3, v)
 }
 \keyword{multivariate}
 \keyword{distribution}

@@ -50,11 +50,11 @@ paraOptInterval <- function(u, family, h=0.15){
 ##'
 ##' @title Sample version of Blomqvist's beta
 ##' @param u matrix of realizations following the copula
-##' @param scaling if FALSE then the scaling factors 2^(d-1)/(2^(d-1)-1) and
-##'                2^(1-d) are omitted
+##' @param scaling if TRUE then the factors 2^(d-1)/(2^(d-1)-1) and
+##'                2^(1-d) in Blomqvist's beta are omitted
 ##' @return sample version of multivariate Blomqvist beta
 ##' @author Marius Hofert
-beta.hat <- function(u, scaling = TRUE){
+beta.hat <- function(u, scaling = FALSE){
     stopifnot(all(0 <= u, u < 1))
     less.u <- u <= 0.5
     prod1 <- apply( less.u, 1, all)
@@ -62,7 +62,7 @@ beta.hat <- function(u, scaling = TRUE){
     sum.prod <- prod1 + prod2
     b <- mean(sum.prod)
     d <- ncol(u)
-    if(scaling) {T <- 2^(d-1); (T*b - 1)/(T - 1)} else b
+    if(scaling) b else {T <- 2^(d-1); (T*b - 1)/(T - 1)} 
 }
 
 ##' Compute the population version of Blomqvist's beta for Archimedean copulas
@@ -71,31 +71,17 @@ beta.hat <- function(u, scaling = TRUE){
 ##' @param cop acopula to be estimated
 ##' @param theta copula parameter
 ##' @param d dimension
-##' @param scaling if FALSE then the scaling factors 2^(d-1)/(2^(d-1)-1) and
-##'                2^(1-d) are omitted
+##' @param scaling if TRUE then the factors 2^(d-1)/(2^(d-1)-1) and
+##'                2^(1-d) in Blomqvist's beta are omitted
 ##' @return population version of multivariate Blomqvist beta
 ##' @author Marius Hofert & Martin Maechler
-beta. <- function(cop, theta, d, scaling = TRUE) {
+beta. <- function(cop, theta, d, scaling = FALSE) {
     stopifnot(is(cop,"acopula"), cop@paraConstr(theta))
-    j <- 1:d
-    b <- pnacopula(onacopulaL(cop@name, list(theta, j)), u = rep.int(0.5, d)) +1
-    if(d < 30) { ## for small d, using log(.) and exp(.) is wasteful (and looses precision)
-	diag. <- function(k)
-	    pnacopula(onacopulaL(cop@name, list(theta,seq_len(k))),
-		      u = rep.int(0.5, k))
-	diags <- unlist(lapply(j, diag.))
-	ch.dia <- choose(d,j) * diags
-
-    } else { ## "large" d
-
-	log.diag <- function(k)
-	    log(pnacopula(onacopulaL(cop@name, list(theta,seq_len(k))),
-			  u = rep.int(0.5, k)))
-	ldiags <- unlist(lapply(j, log.diag))
-	ch.dia <- exp(lchoose(d,j)+ldiags)
-    }
-    b <- b + sum((-1)^j * ch.dia)
-    if(scaling) { T <- 2^(d-1); (T*b - 1)/(T - 1)} else b
+    j <- seq_len(d)
+    diags <- cop@psi(j*cop@psiInv(0.5, theta), theta) # compute diagonals
+    b <- 1 + diags[d] + if(d < 30) sum((-1)^j * choose(d, j) * diags)
+    else sum((-1)^j * exp(lchoose(d, j) + log(diags)))
+    if(scaling) b else { T <- 2^(d-1); (T*b - 1)/(T - 1)} 
 }
 
 ##' Method-of-moment-like estimation of nested Archimedean copulas based on a
@@ -118,9 +104,9 @@ ebeta <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...){
     ## Note: We do not need the constants 2^(d-1)/(2^(d-1)-1) and 2^(1-d) here,
     ##	     since we equate the population and sample versions of Blomqvist's
     ##       beta anyway.
-    b.hat <- beta.hat(u, scaling = FALSE)
+    b.hat <- beta.hat(u, scaling = TRUE)
     d <- ncol(u)
-    safeUroot(function(theta){beta.(cop@copula,theta,d,scaling = FALSE) - b.hat},
+    safeUroot(function(theta){beta.(cop@copula, theta, d, scaling=TRUE) - b.hat},
               interval = interval, Sig = +1, check.conv = TRUE, ...)
 }
 

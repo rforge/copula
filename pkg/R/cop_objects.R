@@ -432,8 +432,7 @@ copGumbel <-
                 ## compute sum
                 lsum <- polyG(lx, alpha, d, method=method, log=TRUE)-d*lx/alpha
                 ## the rest
-                pnacop <- function(x) pnacopula(onacopulaL("G", list(theta, 1:d)), x)
-                cop.val <- apply(u., 1, pnacop)
+                cop.val <- pnacopula(onacopulaL("Gumbel", list(theta, 1:d)), u.)
                 res[n01] <- d*log(theta) + rowSums((theta-1)*lmlu + mlu) + lsum
                 res[n01] <- if(log) log(cop.val) + res[n01] else cop.val * exp(res[n01])
                 res
