@@ -157,7 +157,7 @@ gnacopula <- function(x, cop, n.bootstrap=0,
         ## (1) estimate the parameter by the provided method
         theta.hat <- enacopula(x, cop, method=estimation.method, n.MC=n.MC, 
                                do.pseudo=FALSE, ...) # since pseudo-observations were built earlier
-        cop.hat <- onacopulaL(cop@family, list(theta.hat, 1:d)) # copula with theta.hat
+        cop.hat <- onacopulaL(cop@copula@name, list(theta.hat, 1:d)) # copula with theta.hat
         ## (2) transform the data with the copula with estimated parameter and compute
         ##     the test result according to the given method
         test <- g01(gnacopulatrafo(x, cop.hat, do.pseudo=FALSE, include.K=include.K,
@@ -169,7 +169,7 @@ gnacopula <- function(x, cop, n.bootstrap=0,
             if(do.pseudo.sim) u <- pobs(u) # compute pseudo-observations if necessary (do *not* compute them in the next line)
             theta.hat.k <- enacopula(u, cop, method=estimation.method, n.MC=n.MC, 
                                      do.pseudo=FALSE, ...) # estimate the copula parameter:
-            cop.k <- onacopulaL(cop@family, list(theta.hat.k, 1:d)) # copula with theta.hat.k
+            cop.k <- onacopulaL(cop@copula@name, list(theta.hat.k, 1:d)) # copula with theta.hat.k
             test.vec[k] <- g01(gnacopulatrafo(u, cop.k, do.pseudo=FALSE,
                                               include.K=include.K, n.MC=n.MC), 
                                method=method)$statistic # compute the value of the test statistic
