@@ -136,6 +136,7 @@ gnacopulatrafo <- function(x, cop, do.pseudo=FALSE, include.K = ncol(x) <= 5,
 ##' @param verbose if TRUE, the progress of the bootstrap is displayed
 ##' @return p-value
 ##' @author Marius Hofert and Martin Maechler
+##' FIXME: in case a bootstrap is used, it would be good to return a list also giving the estimated parameter
 gnacopula <- function(x, cop, n.bootstrap=0, 
                       estimation.method=eval(formals(enacopula)$method),
                       include.K = ncol(x)<=5, n.MC = if(ncol(x) <= 10) 0 else 10000, 
