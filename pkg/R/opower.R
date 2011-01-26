@@ -22,8 +22,8 @@ opower <- function(copbase, thetabase) {
                  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE){
                      if(theta == 1) return(copbase@psiDabs(t, theta, degree=degree, n.MC=n.MC, log=log)) # copbase case
                      if(n.MC > 0){
-                         psiDabsMC(t,paste("opower", copbase@name, sep=":"),theta,degree,
-                                   n.MC,log)
+                         psiDabsMC(t, paste("opower", copbase@name, sep=":"), 
+                                   theta=theta, degree=degree, n.MC=n.MC, log=log)
                      }else{
                          ## FIXME: not optimal yet, inner sum could get a *real* log
                          j <- 1:degree
@@ -62,7 +62,6 @@ opower <- function(copbase, thetabase) {
                      if(!any(n01)) return(res)
                      ## auxiliary results
                      u. <- u[n01,, drop=FALSE]
-                     ## FIXME: how to get the created copula object?
                      psiI <- rowSums(copop@psiInv(u.,theta))
                      res[n01] <- copop@psiDabs(psiI, theta, degree=d, n.MC=n.MC, log=TRUE)+
                          rowSums(copop@psiInvD1abs(u., theta, log=TRUE))
