@@ -400,7 +400,7 @@ coeffG <- function(d, alpha,
 ##'       = (-1)^{d-k}\sum_{j=k}^d \theta^{-j} s(d,j) S(j,k)
 ##'       = (d!/k!)\sum_{l=1}^k (-1)^{d-l} \binom{k}{l}\binom{\alpha l}{d}
 ##' @author Marius Hofert
-polyG <- function(lx, alpha, d, method=c("binomial.coeff", "pois", "sort",
+polyG <- function(lx, alpha, d, method=c("pois", "binomial.coeff", "sort",
 				"horner", "direct", "dV01.Joe"), log=FALSE)
 {
   method <- match.arg(method)
@@ -423,7 +423,7 @@ polyG <- function(lx, alpha, d, method=c("binomial.coeff", "pois", "sort",
 	 k1 <- k-1L # = 0:(d-1)
          ## l.x <- tcrossprod(k, lx) ## == l.x[k,i] = log(x[i] ^ k)
 	 one.l <- function(l.) {
-	     ## = matrix of b's for a fixed l (= l.) and all k and lx
+	    ## = matrix of b's for a fixed l (= l.) and all k and lx
             tcrossprod(l.:d, lx) - c(0, lfac[seq_len(d - l.)]) +
                 sum(log(abs(alpha*l. - k1))) - lfac[l.]
 	 }
