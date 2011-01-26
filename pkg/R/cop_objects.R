@@ -31,6 +31,8 @@ copAMH <-
         ## generator
         psi = function(t,theta) { (1-theta)/(exp(t+0)-theta) },
         psiInv = function(t,theta) { log((1-theta*(1-t))/t) },
+        ## parameter interval
+        paraInterval = interval("[0,1)"),
 	## absolute value of generator derivatives
 	psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE){
 	    if(n.MC > 0){
@@ -83,10 +85,6 @@ copAMH <-
                 if(log) res else exp(res)
             }
         },
-        ## parameter interval
-        paraInterval = interval("[0,1)"),
-        ## parameter subinterval (meant to be for *robust* optimization, root-finding etc.)
-        paraSubInterval = num2interval(c(0,1-1e-12)), # 1-1e-12 corresponds to tau = 0.3333333
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             copAMH@paraConstr(theta0) &&
@@ -107,12 +105,12 @@ copAMH <-
         tau = tauAMH, ##-> ./aux-acopula.R
         ## function(th)  1 - 2*((1-th)*(1-th)*log(1-th)+th)/(3*th*th)
         ## but numerically stable, including, theta -> 0
-        tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
+        tauInv = function(tau, tol=.Machine$double.eps^0.25, ...) {
             if(any(tau > 1/3))
                 stop("Impossible for AMH copula to attain a Kendall's tau larger than 1/3")
             sapply(tau,function(tau) {
                 r <- safeUroot(function(th) tauAMH(th) - tau,
-                               interval = as.numeric(copAMH@paraSubInterval),
+                               interval = c(0, 1-1e-12),
                                Sig = +1, tol = tol, check.conv=TRUE, ...)
                 r$root
             })
@@ -139,6 +137,8 @@ copClayton <-
         ## generator
         psi = function(t,theta) { (1+t)^(-1/theta) },
         psiInv = function(t,theta) { t^(-theta) - 1 },
+        ## parameter interval
+        paraInterval = interval("(0,Inf)"),
         ## absolute value of generator derivatives
         psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE){
             if(n.MC > 0){
@@ -185,10 +185,6 @@ copClayton <-
             }
             if(log) res else exp(res)
 	},
-        ## parameter interval
-        paraInterval = interval("(0,Inf)"),
-        ## parameter subinterval (meant to be for *robust* optimization, root-finding etc.)
-        paraSubInterval = num2interval(c(1e-12, 100)), # 100 corresponds to tau = 0.98
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             copClayton@paraConstr(theta0) &&
@@ -239,6 +235,8 @@ copFrank <-
             -log(expm1(-theta*t)/expm1(-theta))
             ## == -log((exp(-theta*t)-1)/(exp(-theta)-1))
         },
+        ## parameter interval
+        paraInterval = interval("(0,Inf)"),
         ## absolute value of generator derivatives
         psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE){
             if(n.MC > 0){
@@ -287,10 +285,6 @@ copFrank <-
                 if(log) res else exp(res)
             }
 	},
-        ## parameter interval
-        paraInterval = interval("(0,Inf)"),
-        ## parameter subinterval (meant to be for *robust* optimization, root-finding etc.)
-        paraSubInterval = num2interval(c(1e-12, 198)), # 198 corresponds to tau = 0.98
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             copFrank@paraConstr(theta0) &&
@@ -330,19 +324,23 @@ copFrank <-
         ## Kendall's tau; debye_1() is from package 'gsl' :
         tau = function(theta){
             if((l <- length(theta)) == 0) return(numeric(0)) # to work with NULL
-            r <- numeric(l)
-            r[na <- is.na(theta)] <- NA
-            r[!na] <- 1 + 4*(debye_1(theta[!na]) - 1)/theta[!na]
-            r
+            res <- numeric(l)
+            res[isN <- theta == 0] <- 0 # limiting case
+            res[na <- is.na(theta)] <- NA
+            res[!(na | isN)] <- 1 + 4*(debye_1(theta[!na]) - 1)/theta[!na]
+            res
         },
-        tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
-            sapply(tau, function(tau) {
+        tauInv = function(tau, tol = .Machine$double.eps^0.25, ...){
+	    res <- tau
+	    res[isN <- res == 0] <- 0 # limiting case	    
+            res[!isN] <- sapply(res[!isN], function(tau) {
                 r <- safeUroot(function(th) copFrank@tau(th) - tau,
-                               interval = as.numeric(copFrank@paraSubInterval),
+                               interval = c(1e-12, 198),
                                Sig = +1, tol=tol,
                                check.conv=TRUE, ...)
                 r$root
             })
+            res
         },
         ## lower tail dependence coefficient lambda_l
         lambdaL = function(theta) { 0*theta },
@@ -366,6 +364,8 @@ copGumbel <-
         ## generator
         psi = function(t,theta) { exp(-t^(1/theta)) },
         psiInv = function(t,theta) { (-log(t+0))^theta },
+        ## parameter interval
+        paraInterval = interval("[1,Inf)"),
         ## absolute value of generator derivatives
         psiDabs = function(t, theta, degree=1, n.MC=0, 
 	method=eval(formals(polyG)$method), log = FALSE){
@@ -441,10 +441,6 @@ copGumbel <-
                 res
             }
 	},
-        ## parameter interval
-        paraInterval = interval("[1,Inf)"),
-        ## parameter subinterval (meant to be for *robust* optimization, root-finding etc.)
-        paraSubInterval = num2interval(c(1, 50)), # 50 corresponds to tau = 0.98
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             copGumbel@paraConstr(theta0) &&
@@ -519,6 +515,8 @@ copJoe <-
             ## == 1 - (1-exp(-t))^(1/theta)
         },
         psiInv = function(t,theta) { -log1p(-(1-t)^theta) },
+        ## parameter interval
+        paraInterval = interval("[1,Inf)"),
         ## absolute value of generator derivatives
         psiDabs = function(t, theta, degree = 1, n.MC=0, 
 	method=eval(formals(polyJ)$method), log = FALSE) {
@@ -584,10 +582,6 @@ copJoe <-
             }
             if(log) res else exp(res)
         },
-        ## parameter interval
-        paraInterval = interval("[1,Inf)"),
-        ## parameter subinterval (meant to be for *robust* optimization, root-finding etc.)
-        paraSubInterval = num2interval(c(1, 98)), # 98 corresponds to tau = 0.98
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
             copJoe@paraConstr(theta0) &&
@@ -646,7 +640,7 @@ copJoe <-
         tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
             sapply(tau,function(tau) {
                 r <- safeUroot(function(th) copJoe@tau(th) - tau,
-                               interval = as.numeric(copJoe@paraSubInterval),
+                               interval = c(1, 98),
                                Sig = +1, tol=tol, check.conv=TRUE, ...)
                 r$root
             })

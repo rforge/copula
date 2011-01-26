@@ -52,10 +52,6 @@
     \item{\code{paraInterval}:}{Either \code{\link{NULL}} or object of class
       \code{"\linkS4class{interval}"}, typically from a call such as
       \code{\link{interval}("[a,b)")}.}
-    \item{\code{paraSubInterval}:}{Similar to \code{paraInterval} but contains a
-      finite, closed subinterval of \code{paraInterval}. This is called, e.g.,
-      from \code{\link{safeUroot}} for computing Kendall's tau (or its inverse)
-      if not given in closed form.}
     \item{\code{paraConstr}:}{A function of \code{theta} returning
       \code{TRUE} if and only if \code{theta} is a valid parameter value.  Note
       that \code{paraConstr} is built automatically from the interval,

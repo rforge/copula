@@ -19,9 +19,6 @@
 
 ##' Compute an initial interval for optimization/estimation routines (only a
 ##' heuristic; if this fails, choose your own interval)
-##' Note: In contrast to the slots "paraSubInterval", this function also works
-##'       for non-robust methods (i.e., methods that break down when the rather
-##'	  large intervals given by paraSubInterval are used)
 ##'
 ##' @title Compute initial interval for estimation procedures
 ##' @param u matrix of realizations following a copula
@@ -34,12 +31,16 @@ paraOptInterval <- function(u, family, h=0.15){
     theta.hat.G <- log(ncol(u))/(log(length(x))-log(sum(-log(x)))) # direct formula from edmle for Gumbel
     tau.hat.G <- copGumbel@tau(theta.hat.G)
     copFamily <- getAcop(family)
-    I <- copFamily@paraSubInterval
-    tau.min <- copFamily@tau(I[1]) # smallest admissible lower bound for copFamily
-    tau.max <- copFamily@tau(I[2]) # largest admissible upper bound for copFamily
-    l <- max(tau.hat.G - h,tau.min) # admissible lower bound for tau
-    u <- min(tau.hat.G + h,tau.max) # admissible upper bound for tau
-    c(copFamily@tauInv(l),copFamily@tauInv(u))
+    tau.ex <- switch(family, # extreme taus that can be dealt with in estimation/optimization/root-finding
+                     "AMH" = { c(0, 0.333333) },       
+                     "Clayton" = { c(5e-13, 0.98) }, 
+                     "Frank" = { c(1e-12, 0.98) }, 
+                     "Gumbel" = { c(0, 0.98) }, 
+                     "Joe" = { c(0, 0.98) }, 
+                     stop("unsupported family for paraOptInterval"))
+    l <- max(tau.hat.G - h, tau.ex[1]) # admissible lower bound for tau
+    u <- min(tau.hat.G + h, tau.ex[2]) # admissible upper bound for tau
+    c(copFamily@tauInv(l), copFamily@tauInv(u))    
 }
 
 ## ==== Blomqvist's beta =======================================================
@@ -276,29 +277,12 @@ edmle <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...)
     if(cop@copula@name == "Gumbel"){
 	list(minimum = log(d)/(log(length(x))-log(sum(-log(x)))), objective = 0) # return value of the same structure as for optimize
     }else{
-	## FIXME: clean-up unused code (or use method-switch for optim(x))
-	## tau.hat.G <- copGumbel@tau(dmle.hat.G)
-	##         start <-
-	##             if(cop@name == "AMH" && tau.hat.G >= 0.33) {
-	##                 ## AMH cannot attain a tau >= 1/3
-	##                 0.99 # most likely, this does not converge then (especially if tau.hat.G >> 0.33)
-	##             } else {
-	##                 cop@tauInv(tau.hat.G) # convert tau.hat.G to the parameter of cop
-	##             }
         ## optimize
 	mLogL <- function(theta){ # -log-likelihood
             cop@copula@theta <- theta
             -sum(dDiag(x, cop=cop, log=TRUE)) 
         }
 	optimize(mLogL, interval=interval, ...)
-	##optimx::optimx(start, function(theta) # -log-Likelihood of the diagonal
-        ##               sum(cop@dDiag(x,theta,log = TRUE)),
-        ##               lower= min(cop@paraSubInterval),
-        ##               upper= max(cop@paraSubInterval),
-        ##               ## For box constraints ('lower', 'upper'), method must be one of
-        ##               ##  c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa")
-        ##               method = "bobyqa",
-        ##              ...)
     }
 }
 
@@ -312,7 +296,7 @@ edmle <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...)
 ##' @param n.MC if > 0 SMLE is applied with sample size equal to n.MC; otherwise,
 ##'        MLE is applied
 ##' @param interval bivariate vector denoting the interval where optimization takes
-##'        place (with default given by the slot paraSubInterval)
+##'        place 
 ##' @param ... additional parameters for optimize
 ##' @return (simulated) maximum likelihood estimator; return value of optimize
 ##' @author Marius Hofert
@@ -321,33 +305,12 @@ emle <- function(u, cop, n.MC=0, interval=paraOptInterval(u, cop@copula@name), .
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
 	stop("currently, only Archimedean copulas are provided")
-    ## compute initial value based on either etau or edmle
-    ## FIXME: clean-up unused code
-    ## this function used to have the argument "initial = c("tau.mean", "theta.mean","diag")"
-    ## with the documentation
-    ##     initial method used for finding an initial value (either etau with
-    ## 	   option "tau.mean" or "theta.mean" (denoted by "tau.mean" and "tau.mean",
-    ##	   respectively), or edmle (denoted by "diag"))
-    ## and the following code (here)
-    ## start <- switch(match.arg(initial),
-    ##                     tau.mean   = etau (u,acop, method="tau.mean"),
-    ##                     theta.mean = etau (u,acop, method="theta.mean"),
-    ##                     diag       = edmle(u,acop,...),
-    ##                     stop("wrong argument initial"))
     ## optimize
     mLogL <- function(theta){ # -log-likelihood
         cop@copula@theta <- theta
         -sum(dnacopula(cop, u, n.MC=n.MC, log=TRUE))
     }
     optimize(mLogL, interval=interval, ...)
-    ## optimx::optimx(start, mLogL,
-    ##                    lower= min(acop@paraSubInterval),
-    ##                    upper= max(acop@paraSubInterval),
-    ##                    ## For box constraints ('lower', 'upper'), method must be one of
-    ##                    ##  c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa")
-    ##                    method = "bobyqa",
-    ##                    ...)
-
 }
 
 ## ==== Estimation wrapper =====================================================
