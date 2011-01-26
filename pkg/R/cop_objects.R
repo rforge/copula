@@ -423,12 +423,15 @@ copGumbel <-
                 if(log) res else exp(res)
             }else{ # explicit
                 alpha <- 1/theta
-                ## compute lx = alpha*log(sum(psiInv(u, theta)))
-		im <- apply(u., 1, which.max)
-		mat.ind <- cbind(seq_len(n), im) # indices that pick out maxima from u.
-                mlum <- mlu[mat.ind] # -log(u_max)
-                mlum.mat <- matrix(rep(mlum, d), ncol = d)
-                lx <- lmlu[mat.ind] + alpha*log(rowSums((mlu/mlum.mat)^theta)) # alpha*log(sum(psiInv(u, theta)))
+                ## compute lx = alpha*log(sum(psiInv(u., theta)))
+                lx <- alpha*log(rowSums(copGumbel@psiInv(u., theta)))
+                ## ==== former version [start] (numerically slightly more stable but slow) ====
+		## im <- apply(u., 1, which.max)
+		## mat.ind <- cbind(seq_len(n), im) # indices that pick out maxima from u.
+                ## mlum <- mlu[mat.ind] # -log(u_max)
+                ## mlum.mat <- matrix(rep(mlum, d), ncol = d)
+                ## lx <- lmlu[mat.ind] + alpha*log(rowSums((mlu/mlum.mat)^theta)) # alpha*log(sum(psiInv(u, theta)))
+                ## ==== former version [end] ====
                 ## compute sum
                 lsum <- polyG(lx, alpha, d, method=method, log=TRUE)-d*lx/alpha
                 ## the rest
