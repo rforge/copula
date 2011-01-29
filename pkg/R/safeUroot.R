@@ -29,7 +29,7 @@
 safeUroot <-
     function(f, interval, ...,
 	     lower = min(interval), upper = max(interval),
-	     f.lower = f(lower), f.upper = f(upper),
+	     f.lower = f(lower, ...), f.upper = f(upper, ...),
 	     Sig = NULL, check.conv = FALSE,
 	     tol = .Machine$double.eps^0.25, maxiter = 1000, trace = 0)
 {

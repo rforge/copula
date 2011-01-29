@@ -4,7 +4,7 @@
 \usage{
 safeUroot(f, interval, \dots,
        lower = min(interval), upper = max(interval),
-       f.lower = f(lower), f.upper = f(upper),
+       f.lower = f(lower, \dots), f.upper = f(upper, \dots),
        Sig = NULL, check.conv = FALSE,
        tol = .Machine$double.eps^0.25, maxiter = 1000, trace = 0)
 }
