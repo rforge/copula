@@ -23,6 +23,8 @@ polyJ: scale with asymptotics [problem: do we really know what the max approxima
 (MM)  dstable() from  fBasics is buggy ...
       --> ~/R/MM/Pkg-ex/nacopula/dstable-problem.R
 
+(MM) use same environment trick for copAMH, copClayton, ... as for opower
+
 ## ==== long-term maybe ====
 
 (*) allow families to have outer power parameters (outer power families)

@@ -128,9 +128,9 @@ etau <- function(u, cop, method = c("tau.mean", "theta.mean"), ...)
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
-    method <- match.arg(method)
     tau.hat.mat <- cor(u, method="kendall",...) # matrix of pairwise tau()
     tau.hat <- tau.hat.mat[upper.tri(tau.hat.mat)] # all tau hat's
+    method <- match.arg(method)
     switch(method,
            "tau.mean" = {
                cop@copula@tauInv(mean(tau.hat)) # Kendall's tau corresponding to the mean of the tau hat's

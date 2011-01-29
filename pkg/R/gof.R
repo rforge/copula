@@ -28,6 +28,7 @@ g01 <- function(u, method=c("normal", "log")){
     stopifnot(all(0 <= u, u <= 1))
     if(!is.matrix(u)) u <- rbind(u)
     d <- ncol(u)
+    method <- match.arg(method)
     u. <- switch(method,
                  "log" = { pgamma(rowSums(-log(u)),shape=d) },
                  "normal" = { pchisq(rowSums(qnorm(u)^2),d) },

@@ -604,33 +604,10 @@ copJoe <-
             alpha <- theta0/theta1
             rF01Joe(V0, alpha, approx)
         },
-        dV01 = function(x,V0,theta0,theta1,log = FALSE){
-            l.x <- length(x)
-            l.V0 <- length(V0)
-            stopifnot(l.V0 == 1 || l.x == l.V0, all(x >= V0))
-            alpha <- theta0/theta1
-            res <- numeric(l.x)
-            if(l.V0 == 1) V0 <- rep(V0,l.x)
-            V0.one <- V0 == 1
-            res[V0.one] <- copJoe@dV0(x[V0.one],1/alpha,log) # V0 = 1 (numerically more stable)
-            if(any(!V0.one)){
-                ## FIXME: general case; numerically critical, see, e.g., dV01(1000,500,3,5) < 0
-                one.d.args <- function(x.,V0.){
-                    j <- 1:V0. # indices of the summands
-                    signs <- (-1)^(j+x.)
-                    ## determine the signs of choose(j*alpha,x.) for each component of j
-                    to.subtract <- 0:(x.-1)
-                    signs.choose <- unlist(lapply(j,function(l){
-                        prod(sign(l*alpha-to.subtract))}
-                                                  ))
-                    signs <- signs*signs.choose
-                    binom.coeffs <- exp(lchoose(V0.,j)+lchoose(j*alpha,x.))
-                    sum(signs*binom.coeffs)
-                }
-                sum. <- mapply(one.d.args,x[!V0.one],V0[!V0.one])
-                res[!V0.one] <- if(log) log(sum.) else sum.
-            }
-            res
+        dV01 = function(x, V0, theta0, theta1, method=c("log", "direct", "exp.log"), log=FALSE){
+	    ## also holds for theta0 == theta1
+	    ## note: this is numerically challenging
+            dJoe(x, V0, theta0/theta1, method=method, log=log) 
         },
         ## Kendall's tau
         ## noTerms: even for theta==0, the approximation error is < 10^(-5)

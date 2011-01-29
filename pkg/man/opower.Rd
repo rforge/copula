@@ -19,7 +19,10 @@ opower(copbase, thetabase)
   based on the provided copula family \code{copbase} with fixed
   parameter \code{thetabase}.  The transform introduces a parameter
   \code{theta}, so one obtains a parametric Archimedean family object as
-  return value.
+  return value. 
+  
+  The \code{\link{environment}} of all function slots contains objects \code{cOP}
+  (which is the outer power copula itself), \code{copbase}, and \code{thetabase}.
 }
 \author{Marius Hofert}
 \seealso{

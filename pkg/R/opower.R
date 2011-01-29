@@ -7,7 +7,8 @@
 ##' @return a new "acopula" object; the outer power copula
 ##' @author Marius Hofert
 opower <- function(copbase, thetabase) {
-    copop <- new("acopula", name = paste("opower", copbase@name, sep=":"),
+    ## create object with name in here so it's in the environment and we can access it
+    cOP <- new("acopula", name = paste("opower", copbase@name, sep=":"),
                  ## generator
                  psi = function(t,theta) { copbase@psi(t^(1/theta), thetabase) },
                  psiInv = function(t,theta) { copbase@psiInv(t, thetabase)^theta },
@@ -22,8 +23,7 @@ opower <- function(copbase, thetabase) {
                  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE){
                      if(theta == 1) return(copbase@psiDabs(t, theta, degree=degree, n.MC=n.MC, log=log)) # copbase case
                      if(n.MC > 0){
-                         psiDabsMC(t, paste("opower", copbase@name, sep=":"), 
-                                   theta=theta, degree=degree, n.MC=n.MC, log=log)
+                         psiDabsMC(t, cOP, theta=theta, degree=degree, n.MC=n.MC, log=log)
                      }else{
                          ## FIXME: not optimal yet, inner sum could get a *real* log
                          j <- 1:degree
@@ -37,7 +37,7 @@ opower <- function(copbase, thetabase) {
                              colSums(exp(outer(k-1, l.t.beta)-lfactorial(j.)-lfactorial(k-j.)+l.psiDabs.t.beta[k,]))
                          }
                          mat <- do.call(rbind, lapply(j, one.j)) # degree x length(t) matrix
-                         facs %*% mat
+                         facs %*% mat/t^(degree-1/theta)
                      }
                  },
                  ## derivatives of the generator inverse
@@ -62,9 +62,9 @@ opower <- function(copbase, thetabase) {
                      if(!any(n01)) return(res)
                      ## auxiliary results
                      u. <- u[n01,, drop=FALSE]
-                     psiI <- rowSums(copop@psiInv(u.,theta))
-                     res[n01] <- copop@psiDabs(psiI, theta, degree=d, n.MC=n.MC, log=TRUE)+
-                         rowSums(copop@psiInvD1abs(u., theta, log=TRUE))
+                     psiI <- rowSums(cOP@psiInv(u.,theta))
+                     res[n01] <- cOP@psiDabs(psiI, theta, degree=d, n.MC=n.MC, log=TRUE)+
+                         rowSums(cOP@psiInvD1abs(u., theta, log=TRUE))
                      if(log) res else exp(res)
                  },
                  ## V0 and V01
@@ -144,5 +144,5 @@ opower <- function(copbase, thetabase) {
                          }
                      } else 1/log2(2-lambda)
                  })
-    copop
+    cOP
 }
