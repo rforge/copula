@@ -172,9 +172,9 @@ copClayton <-
                 l <- d*log(theta*V)
                 theta. <- 1 + theta
                 psiI.sum <- rowSums(copClayton@psiInv(u., theta))
-		## stably compute log(colMeans(exp(B))) 
+		## stably compute log(colMeans(exp(B)))
                 B <- l + theta.*l.u.mat - outer(V,psiI.sum) # matrix of exponents; dimension n.MC x n ["V x u"]
-                max.B <- apply(B, 2, max) 
+                max.B <- apply(B, 2, max)
                 res[n01] <- max.B + log(colMeans(exp(B - rep(max.B, each=n.MC))))
             }else{ # explicit
                 alpha <- 1/theta
@@ -327,12 +327,13 @@ copFrank <-
             res <- numeric(l)
             res[isN <- theta == 0] <- 0 # limiting case
             res[na <- is.na(theta)] <- NA
-            res[!(na | isN)] <- 1 + 4*(debye_1(theta[!na]) - 1)/theta[!na]
+	    if(any(i <- !(na | isN)))
+		res[i] <- 1 + 4*(debye_1(theta[i]) - 1)/theta[i]
             res
         },
         tauInv = function(tau, tol = .Machine$double.eps^0.25, ...){
 	    res <- tau
-	    res[isN <- res == 0] <- 0 # limiting case	    
+	    res[isN <- res == 0] <- 0 # limiting case
             res[!isN] <- sapply(res[!isN], function(tau) {
                 r <- safeUroot(function(th) copFrank@tau(th) - tau,
                                interval = c(1e-12, 198),
@@ -360,15 +361,16 @@ copFrank <-
 ### ==== Gumbel, see Nelsen (2007) p. 116, # 4 =================================
 
 copGumbel <-
-    new("acopula", name = "Gumbel",
+    (function() { ## to get an environment where  .C  itself is accessible
+     C. <- new("acopula", name = "Gumbel",
         ## generator
         psi = function(t,theta) { exp(-t^(1/theta)) },
         psiInv = function(t,theta) { (-log(t+0))^theta },
         ## parameter interval
         paraInterval = interval("[1,Inf)"),
         ## absolute value of generator derivatives
-        psiDabs = function(t, theta, degree=1, n.MC=0, 
-	method=eval(formals(polyG)$method), log = FALSE){
+        psiDabs = function(t, theta, degree=1, n.MC=0,
+	                   method=eval(formals(polyG)$method), log = FALSE) {
             if(n.MC > 0){
                 psiDabsMC(t,"Gumbel",theta,degree,n.MC,log)
             }else{
@@ -380,8 +382,9 @@ copGumbel <-
 	            t. <- t[n0Inf]
                     alpha <- 1/theta
                     lt <- log(t.)
-		    res <- -degree*lt -t^alpha + polyG(alpha*lt, alpha=alpha, d=degree, 
-                                                       method=method, log=TRUE)
+		    res <- -degree*lt -t^alpha +
+                        polyG(alpha*lt, alpha=alpha, d = degree,
+                              method=method, log=TRUE)
                 }
                 if(log) res else exp(res)
             }
@@ -411,20 +414,20 @@ copGumbel <-
             lmlu <- log(mlu) # log(-log(u))
             ## main part
             if(n.MC > 0){ # Monte Carlo
-                psiI. <- rowSums(copGumbel@psiInv(u., theta))
-                V <- copGumbel@V0(n.MC, theta)
+                psiI. <- rowSums(C.@psiInv(u., theta))
+                V <- C.@V0(n.MC, theta)
                 l <- d*log(theta*V)
                 sum. <- rowSums((theta-1)*lmlu + mlu)
                 sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
-                ## stably compute log(colMeans(exp(B))) 
+                ## stably compute log(colMeans(exp(B)))
                 B <- l - outer(V, psiI.) + sum.mat # matrix of exponents; dimension n.MC x n ["V x u"]
-		max.B <- apply(B, 2, max) 
+		max.B <- apply(B, 2, max)
 		res[n01] <- max.B + log(colMeans(exp(B - rep(max.B, each=n.MC))))
                 if(log) res else exp(res)
             }else{ # explicit
                 alpha <- 1/theta
                 ## compute lx = alpha*log(sum(psiInv(u., theta)))
-                lx <- alpha*log(rowSums(copGumbel@psiInv(u., theta)))
+                lx <- alpha*log(rowSums(C.@psiInv(u., theta)))
                 ## ==== former version [start] (numerically slightly more stable but slow) ====
 		## im <- apply(u., 1, which.max)
 		## mat.ind <- cbind(seq_len(n), im) # indices that pick out maxima from u.
@@ -443,8 +446,8 @@ copGumbel <-
 	},
         ## nesting constraint
         nestConstr = function(theta0,theta1) {
-            copGumbel@paraConstr(theta0) &&
-            copGumbel@paraConstr(theta1) && theta1 >= theta0
+            C.@paraConstr(theta0) &&
+            C.@paraConstr(theta1) && theta1 >= theta0
         },
         ## V0 with density dV0 and V01 with density dV01 corresponding to
         ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
@@ -465,7 +468,7 @@ copGumbel <-
                 ##       -> rstable0 (in retstable.c)
             }
         },
-        dV0 = function(x,theta,log = FALSE) copGumbel@dV01(x,1,1,theta,log),
+        dV0 = function(x,theta,log = FALSE) C.@dV01(x,1,1,theta,log),
         V01 = function(V0,theta0,theta1) {
             alpha <- theta0/theta1
             if(alpha == 1) {
@@ -502,7 +505,10 @@ copGumbel <-
         ## upper tail dependence coefficient lambda_u
         lambdaU = function(theta) { 2 - 2^(1/theta) },
         lambdaUInv = function(lambda) { 1/log2(2-lambda) }
-        ) # {copGumbel}
+        )
+     C.
+ })()# {copGumbel}
+
 
 ### ==== Joe, see Nelsen (2007) p. 116, # 6 ====================================
 
@@ -518,7 +524,7 @@ copJoe <-
         ## parameter interval
         paraInterval = interval("[1,Inf)"),
         ## absolute value of generator derivatives
-        psiDabs = function(t, theta, degree = 1, n.MC=0, 
+        psiDabs = function(t, theta, degree = 1, n.MC=0,
 	method=eval(formals(polyJ)$method), log = FALSE) {
             if(n.MC > 0){
                 psiDabsMC(t, "Joe", theta, degree, n.MC, log)
@@ -567,17 +573,17 @@ copJoe <-
 	        l <- d*log(theta*V)
 	        sum. <- (theta-1)*rowSums(l1_u)
 	        sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
-	        ## stably compute log(colMeans(exp(B))) 
+	        ## stably compute log(colMeans(exp(B)))
 		B <- l + outer(V-1, lh) + sum.mat # matrix of exponents; dimension n.MC x n ["V x u"]
-		max.B <- apply(B, 2, max) 
+		max.B <- apply(B, 2, max)
 		res[n01] <- max.B + log(colMeans(exp(B - rep(max.B, each=n.MC))))
 	    }else{
 	        alpha <- 1/theta
 	        h <- apply(1 - u.., 1, prod) # h(u) = \prod_{j=1}^d (1-(1-u_j)^\theta)
 	        l1_h <- log1p(-h) # log(1-h(u))
 	        lh_l1_h <- lh - l1_h # log(h(u)/(1-h(u)))
-		res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) - 
-                    (1-alpha)*log1p(-h) + polyJ(lh_l1_h, alpha, d, method=method, 
+		res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) -
+                    (1-alpha)*log1p(-h) + polyJ(lh_l1_h, alpha, d, method=method,
                                                 log=TRUE)
             }
             if(log) res else exp(res)
