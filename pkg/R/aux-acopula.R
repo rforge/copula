@@ -446,16 +446,17 @@ polyG <- function(lx, alpha, d, method=c("pois", "binomial.coeff", "sort",
 	 ## build list of b's
 	 n <- length(lx)
 	 x <- exp(lx) ## e^lx = x
+	 k1 <- k-1L # = 0:(d-1)
 	 lppois <- outer(d-k, x, FUN=ppois, log.p=TRUE) # a (d x n)-matrix; log(ppois(d-k, x))
 	 llx <- outer(k, lx)		# also a (d x n)-matrix; k*lx
-	 labsPoch <- unlist(lapply(k, function(l.) sum(log(abs(alpha*l.-0:(d-1))) ) )) # log|(alpha*k)_d|
+	 labsPoch <- vapply(k, function(j) sum(log(abs(alpha*j-k1))),
+					NA_real_)# log|(alpha*k)_d|
 	 lfac <- lfactorial(k)
 	 ## build matrix of exponents
-	 B <- matrix(rep(labsPoch - lfac, n), ncol=n) +
-	     matrix(rep(x, d), ncol=n, byrow=TRUE) + llx + lppois
+	 B <- llx + lppois + rep(labsPoch - lfac, n) + rep(x, each = d)
 	 max.B <- apply(B, 2, max)
 	 ## pull out maximum and sum the rest
-	 res <- max.B + log(signs %*% exp(B - rep(max.B, each=d)))
+	 res <- max.B + log(as.vector(signs %*% exp(B - rep(max.B, each=d))))
 	 if(log) res else exp(res)
      },
 

@@ -120,7 +120,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
                      degree = 10))))
     print(p.D)
     cat0("check if all values are nonnegative")
-    stopifnot(all(p.D >= 0))
+    stopifnot(is.vector(p.D), all(p.D >= 0))
     cat("check psiDabs(Inf,theta,degree=10) = 0 and the class of psiDabs(0,theta,degree=10): ")
     at.0 <- cop@psiDabs(0, theta = theta0, degree = 10)
     stopifnot(cop@psiDabs(Inf, theta = theta0, degree = 10) == 0,
@@ -183,10 +183,10 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     ## ==== (5) cacopula ====
 
     cat("\n(5) values of cacopula(v, rev(v), family, theta) for v=t01:\n")
-    CT <- c(CT, list(cacopula = system.time(cacopula. <- cacopula(t01, rev(t01),
-	family = cop@name, theta = theta0))))
-    stopifnot(length(cacopula.) == length(t01), 0 <= cacopula., cacopula. <= 1)
-    print(cacopula.)
+    CT <- c(CT, list(cacopula = system.time(cac <- cacopula(t01, rev(t01),
+                     family = cop@name, theta = theta0))))
+    stopifnot(is.vector(cac), length(cac) == length(t01), 0 <= cac, cac <= 1)
+    print(cac)
 
     ## ==== (6) dnacopula (log = TRUE) ====
 
