@@ -224,7 +224,7 @@ copClayton <-
                   lambdaU = function(theta) { 0*theta },
                   lambdaUInv = function(lambda) {
                       if(any(lambda != 0))
-                          stop("Any parameter for a CLayton copula gives lambdaU = 0")
+                          stop("Any parameter for a Clayton copula gives lambdaU = 0")
                       NA * lambda
                   }
                   )
@@ -530,7 +530,7 @@ copGumbel <-
 
 ##' Joe object
 copJoe <- 
-    (function() { ## to get an environment where  .C  itself is accessible
+    (function() { ## to get an environment where .C itself is accessible
         C. <- new("acopula", name = "Joe",
                   ## generator
                   psi = function(t,theta) {

@@ -11,11 +11,12 @@
    (2) ... lead to a simple method for dacopula and psiDabs for outer power families
    (3) ... would fix dV01 of Joe [= dJoe]
 (*) implement opower with *correct* log + correct density!! [currently wrong]
-
+(*) user outer() instead of "one.t()"-like functions in all dacopula slots when n.MC > 0; see psiDabsMC for the method
 (*) implement 1st derivative of the log density w.r.t. theta
 (*) implement MC engine for Fisher information
 (*) maybe use asymptotics for scaling the sums of Joe and Gumbel [instead of computing the max] => would increase performance [but probably not much since all the ingredients have to be computed anyway and max() is not too expensive - maybe make max independent of summation index k, so that it only has to be computed once?]
 (*) put license-stuff in the beginning of *all* files? e.g., demo?
+(*) switch() sometimes uses strings [s. polylog], sometimes unquoted strings [s. enacopula]... inconsistency
 
 (MM) use same *sophisticated* environment trick for opower as for the other families; maybe also rename cOP to C.?
 
