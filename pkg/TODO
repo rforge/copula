@@ -19,11 +19,12 @@
 (*) switch() sometimes uses strings [s. polylog], sometimes unquoted strings [s. enacopula]... inconsistency
 
 (MM) use same *sophisticated* environment trick for opower as for the other families; maybe also rename cOP to C.?
-
+(MH) fix opower density issues...
 (MM, MH) implement color-feature in splom2 (now that i and j are included by Deepayan)
 (MH) add (and fill) all help files for estimation and gof procedures
 (MM, MH) numerous FIXME in the code
-(MH) provide GIG and opC generator as demo...
+(MM) can we create a function for the GIG generator [see ./demo] similar to opower()?  
+(MM) are the numerical issues for Kendall's tau for the GIG generator [see ./demo] solvable? see the plot of Kendall's tau there.
 
 (*) replace several 1:.. by seq_len(..)
 (MM) check new functions in cop_objects.R etc. for efficiency + see FIXME there
