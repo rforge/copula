@@ -1,7 +1,7 @@
 require(nacopula)
 options(warn = 1)
 
-#### ==== Estimation and goodness-of-fit =========================================
+#### ==== Estimation and goodness-of-fit =======================================
 
 source(system.file("Rsource", "estim-gof-fn.R", package="nacopula"))
 ## --> estimation.gof() etc
