@@ -1,15 +1,24 @@
 ## ==== features in next CRAN version ====
 
 (MM) make polyG (and polyJ) more efficient! see FIXME's there
-polyJ: scale with asymptotics [problem: do we really know what the max approximately is?] same applies for polyG
-=> especially MLE for Gumbel is too slow
-(MM) does Gumbel MLE work for tau > 0.6?
+=> e.g., "pois" [default method] for Gumbel be improved
+(*) does psiDabs for Gumbel with default "pois" work? check with plots!
+(*) does Gumbel MLE work for tau > 0.6?
 (MM) polylog still uses log(polynEval) instead of a "true" log-slot
+(*) how to evaluate dJoe? maple can do it, why can't we?
+=> this would ...
+   (1) ... lead to a simpler method for dacopula and psiDabs for Gumbel
+   (2) ... lead to a simple method for dacopula and psiDabs for outer power families
+   (3) ... would fix dV01 of Joe [= dJoe]
+(*) maybe use asymptotics for scaling the sums of Joe and Gumbel [instead of computing the max] => would increase performance [but probably not much since all the ingredients have to be computed anyway and max() is not too expensive - maybe make max independent of summation index k, so that it only has to be computed once?]
+(*) implement opower with *correct* log + correct density!! [currently wrong]
+(*) implement 1st derivative of the log density w.r.t. theta
+(*) implement MC engine for Fisher information
 
 (MM, MH) implement color-feature in splom2 (now that i and j are included by Deepayan)
 (MH) add (and fill) all help files for estimation and gof procedures
 (MM, MH) numerous FIXME in the code
-(MH) provide GIG generator as demo...
+(MH) provide GIG and opC generator as demo...
 
 (*) replace several 1:.. by seq_len(..)
 (MM) check new functions in cop_objects.R etc. for efficiency + see FIXME there

@@ -370,7 +370,8 @@ coeffG <- function(d, alpha,
 		   sm <- sum(alpha^j * s[j]*S.)
 		   if(log) log(abs(sm)) else (-1)^(d-k.)*sm
 	       }, NA_real_)
-	   }
+	   },
+       {stop(sprintf("unsupported method '%s' in coeffG", method))}
            ) ## switch()
 } ## coeffG()
 
@@ -423,7 +424,7 @@ polyG <- function(lx, alpha, d, method=c("pois", "binomial.coeff", "sort",
                matrix(rep(x, d), ncol=n, byrow=TRUE) + llx + lppois
            max.B <- apply(B, 2, max)
            ## pull out maximum and sum the rest
-           res <- max.B + log(signs %*% exp(B - rep(max.B, each=d)))
+           res <- max.B + log(as.vector(signs %*% exp(B - rep(max.B, each=d))))
            if(log) res else exp(res)
        },
            "binomial.coeff" =
@@ -700,7 +701,7 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE){
 	              ## brute force ansatz
                       log(colSums(exp(B)))
                   },
-                  stop("wrong method"))
+              {stop(sprintf("unsupported method '%s' in polyJ", method))})
     if(log) res else exp(res)
 }
 
@@ -941,7 +942,7 @@ polylog <- function(z,s, method = c("sum","negint-s_Stirling"), logarithm=FALSE,
                if(logarithm)
                    log(r)+ log(polynEval(fac.k * S.n1.k1, r))
                else r* polynEval(fac.k * S.n1.k1, r)
-           }, stop("invalid 'method':", method))
+           }, {stop(sprintf("unsupported method '%s' in polylog", method))})
 }
 
 ### ==== other NON-numerics ====================================================
@@ -974,14 +975,32 @@ cacopula <- function(v, u, family, theta, log = FALSE){
 ##' @param theta parameter value
 ##' @param degree order of derivative
 ##' @param n.MC Monte Carlo sample size
+##' @param method different methods
+##'        direct: direct MC formula
+##'        log:    proper log
 ##' @param log if TRUE the log of psiDabs is returned
 ##' @author Marius Hofert
-psiDabsMC <- function(t, family, theta, degree = 1, n.MC, log = FALSE){
+psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("direct","log"), 
+                      log=FALSE){
     V0. <- getAcop(family)@V0(n.MC,theta)
     l.V0. <- degree*log(V0.)
-    summands <- function(t) mean(exp(-V0.*t + l.V0.))
-    res <- unlist(lapply(t,summands))
-    if(log) log(res) else res
+    lx <- -V0. %*% t(t) + l.V0.
+    method <- match.arg(method)
+    switch(method,
+           "direct" = {
+               ## old code:
+               ## summands <- function(t) mean(exp(-V0.*t + l.V0.))
+               ## res <- unlist(lapply(t,summands))
+	       ## now:
+	       res <- colMeans(exp(lx))
+               if(log) log(res) else res
+           },
+           "log" = {
+	       lx.max <- apply(lx, 2, max)
+               res <- lx.max + log(rowMeans(exp(t(lx) - lx.max))) 
+               if(log) res else exp(res)
+           }, 
+       {stop(sprintf("unsupported method '%s' in psiDabsMC", method))})    
 }
 
 ##' Function for setting the parameter in an acopula

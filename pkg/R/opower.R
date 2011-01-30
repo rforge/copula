@@ -23,7 +23,7 @@ opower <- function(copbase, thetabase) {
                  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE){
                      if(theta == 1) return(copbase@psiDabs(t, theta, degree=degree, n.MC=n.MC, log=log)) # copbase case
                      if(n.MC > 0){
-                         psiDabsMC(t, cOP, theta=theta, degree=degree, n.MC=n.MC, log=log)
+                         psiDabsMC(t, family=cOP, theta=theta, degree=degree, n.MC=n.MC, log=log)
                      }else{
                          ## FIXME: not optimal yet, inner sum could get a *real* log
                          j <- 1:degree
