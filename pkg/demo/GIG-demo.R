@@ -1,6 +1,4 @@
 library(nacopula) 
-library(Runuran)
-library(optimx)
 options(warn = 1) 
 
 #### ==== Demo for working with the two-parameter Archimedean GIG copula =======

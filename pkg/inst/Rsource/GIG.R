@@ -1,3 +1,5 @@
+stopifnot(require(Runuran), require(optimx))
+
 ## ==== GIG generator and related functions ====================================
 
 ## generator (parameters theta_1 in IR, theta_2 in (0,Inf))
