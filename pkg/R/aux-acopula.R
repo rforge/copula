@@ -341,7 +341,7 @@ coeffG <- function(d, alpha,
 		   else c(1,cumprod(d:2))[d:1]
 	       ## copJoe @ dV01() is already vectorized (somewhat):
 	       p <- copJoe@dV01(rep(d,d), k, theta0 = 1, theta1 = 1/alpha,
-				log=log)
+				log=log) ## FIXME: call dJoe
 	       if(log) p + ck else p * ck
 	   },
 	   "horner" = {
@@ -572,7 +572,7 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 ##'        direct:   brute-force evaluation of the sum and its log 
 ##'        exp.log:  similar to method = "log", but without *proper/intelligent* log
 ##' @param log boolean which determines if the logarithm is returned
-##' @return \sum_{j=1}^k choose(k,j)*choose(alpha*j,d)*(-1)^(d-j)
+##' @return \sum_{j=1}^k choose(k,j)*choose(alpha*j,x)*(-1)^(x-j)
 ##' @author Marius Hofert
 ##' note: - this is a probability mass function in x, where x in {k, k+1, ...}
 ##'       - numerically challenging, e.g., dJoe(100, 96, 0.01) < 0 for all methods 
@@ -717,10 +717,9 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE){
 ##'         = log(x_max) + log(sum(exp(log(x)-log(x_max)))))
 ##'         = lx.max + log(sum(exp(lx-lx.max)))
 ##' @author Marius Hofert
-lsum <- function(lx){
+lsum <- function(lx, l.off=apply(lx, 1, max)) {
     if(!is.matrix(lx)) lx <- rbind(lx)
-    lx.max <- apply(lx, 1, max)
-    lx.max + log(rowSums(exp(lx - lx.max))) # FIXME: for a vector lx, names(lx) == "lx" => maybe remove?
+    l.off + log(rowSums(exp(lx - l.off))) # FIXME: for a vector lx, names(lx) == "lx" => maybe remove?
 }
 
 ##' Properly compute log(-+x_1 -+ .. -+ x_n) for given log(|x_1|), .., log(|x_n|)
@@ -735,12 +734,11 @@ lsum <- function(lx){
 ##'         = log(|x|_max) + log(sum(signs*exp(log(|x|)-log(|x|_max)))))
 ##'         = lxabs.max + log(sum(signs*exp(lxabs-lxabs.max)))
 ##' @author Marius Hofert
-lssum <- function(lxabs, signs){
+lssum <- function(lxabs, signs, l.off=apply(lxabs, 1, max)){
     if(!is.matrix(lxabs)) lxabs <- rbind(lxabs)
-    lxabs.max <- apply(lxabs, 1, max)
-    sum. <- rowSums(signs * exp(lxabs - lxabs.max))
+    sum. <- rowSums(signs * exp(lxabs - l.off))
     if(any(sum. <= 0)) stop("lssum found non-positive sums")
-    lxabs.max + log(sum.) # FIXME: for a vector lxabs, names(lxabs) == "lxabs" => maybe remove?
+    l.off + log(sum.) # FIXME: for a vector lxabs, names(lxabs) == "lxabs" => maybe remove?
 }
 
 ##' Compute Stirling numbers of the 1st kind

@@ -3,8 +3,9 @@
 (MM) make polyG (and polyJ) more efficient! see FIXME's there
 => e.g., "pois" [default method] for Gumbel be improved
 (*) does psiDabs for Gumbel with default "pois" work? check with plots!
+    or all.equal dacopula() & dacopulag() for all methods & families
 (*) does Gumbel MLE work for tau > 0.6?
-(MM) polylog still uses log(polynEval) instead of a "true" log-slot
+
 (*) how to evaluate dJoe? maple can do it, why can't we?
 => this would ...
    (1) ... lead to a simpler method for dacopula and psiDabs for Gumbel
