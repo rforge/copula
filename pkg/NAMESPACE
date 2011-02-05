@@ -51,7 +51,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ##
        ,"polylog", "Stirling1", "Stirling2", "Stirling1.all", "Stirling2.all"
        ,"psiDabsMC"
-       ,"getTheta" ,"setTheta"
+       ,"setTheta"
        ,"tauAMH"
        ,"allComp" # <- maybe keep private ?
        ,"safeUroot"

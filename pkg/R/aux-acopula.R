@@ -952,14 +952,14 @@ polylog <- function(z,s, method = c("sum","negint-s_Stirling"), logarithm=FALSE,
 ##' @title Conditional copula function
 ##' @param v parameter v
 ##' @param u parameter u
-##' @param family Archimedean family (name)
+##' @param family Archimedean family (name or object)
 ##' @param theta parameter theta
 ##' @param log if TRUE log(C(v|u)) is returned
 ##' @author Marius Hofert
 ##' Note: for some families, this function makes sense for u == 0 or v == 0
 ##'       since the corresponding limits can be computed; but not for all
-cacopula <- function(v, u, family, theta, log = FALSE){
-    stopifnot(length(u) == length(v), all(0 < u, u < 1), all(0 < v, v < 1))
+cacopula <- function(v, u, family, theta, log = FALSE) {
+    stopifnot(length(u) == length(v), 0 < u, u < 1, 0 < v, v < 1)
     cop <- getAcop(family)
     stopifnot(cop@paraConstr(theta))
     res <- cop@psiDabs(rowSums(cop@psiInv(cbind(u, v), theta)), theta, log = TRUE) +
@@ -971,7 +971,7 @@ cacopula <- function(v, u, family, theta, log = FALSE){
 ##'
 ##' @title Computing the absolute value of the generator derivatives via Monte Carlo
 ##' @param t evaluation points
-##' @param family Archimedean family (character)
+##' @param family Archimedean family (name or object)
 ##' @param theta parameter value
 ##' @param degree order of derivative
 ##' @param n.MC Monte Carlo sample size
@@ -1019,34 +1019,12 @@ setTheta <- function(x, value, na.ok = TRUE) {
 	value <- NA_real_
     }
     if(ina || x@paraConstr(value)) ## parameter constraints are fulfilled
-	.setTheta(x, value)
+	x@theta <- value
     else
 	stop("theta (=", format(value), ") does not fulfill paraConstr()")
-}
-
-##' @title Fast (but "dangerous") version of setTheta()
-##' @param x an "acopula" object
-##' @param value numeric (vector) to be set as parameter 'theta' for the copula
-##' @return modified x
-##' @author Martin Maechler
-.setTheta <- function(x, value) {
-    x@theta <- value
-    ## *and* make it accessible "from inside" :
-    assign("C..theta", value, envir = environment(x@psi))
     x
 }
 
-
-getTheta <- function(x) {
-    stopifnot(is(x, "acopula"))
-    th <- get("C..theta", envir = environment(x@psi))
-    if(!identical(th, x@theta))
-        stop("Have you have modified the 'theta' slot directly?
- it differs from C..theta -- please use setTheta(.) !")
-    th
-}
-## the "fast" no-checks version:
-.getTheta <- function(x) get("C..theta", envir = environment(x@psi))
 
 ##' Construct "paraConstr" function from an "interval"
 ##'
