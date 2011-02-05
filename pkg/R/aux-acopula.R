@@ -408,7 +408,7 @@ polyG <- function(lx, alpha, d, method=c("pois", "binomial.coeff", "sort",
     method <- match.arg(method)
     switch(method,
            "pois" =
-       { ### FIXME: improve speed 
+       { ### FIXME: improve speed
            ## determine signs of the falling factorials
            signs <- (-1)^k* (2*(floor(alpha*k) %% 2) - 1)
 
@@ -417,11 +417,10 @@ polyG <- function(lx, alpha, d, method=c("pois", "binomial.coeff", "sort",
            x <- exp(lx) ## e^lx = x
            lppois <- outer(d-k, x, FUN=ppois, log.p=TRUE) # a (d x n)-matrix; log(ppois(d-k, x))
            llx <- outer(k, lx) # also a (d x n)-matrix; k*lx
-           labsPoch <- unlist(lapply(k, function(l.) sum(log(abs(alpha*l.-0:(d-1))) ) )) # log|(alpha*k)_d|
+           labsPoch <- unlist(lapply(k, function(j) sum(log(abs(alpha*j-0:(d-1))) ) )) # log|(alpha*k)_d|
            lfac <- lfactorial(k)
            ## build matrix of exponents
-           B <- matrix(rep(labsPoch - lfac, n), ncol=n) +
-               matrix(rep(x, d), ncol=n, byrow=TRUE) + llx + lppois
+           B <- llx + lppois + rep(labsPoch - lfac, n) + rep(x, each = d)
            max.B <- apply(B, 2, max)
            ## pull out maximum and sum the rest
            res <- max.B + log(as.vector(signs %*% exp(B - rep(max.B, each=d))))
@@ -565,27 +564,30 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 ##'
 ##' @title Inner probability mass function for a nested Joe copula
 ##' @param x vector (or number) of natural numbers
-##' @param k vector (or number) of natural numbers 
+##' @param k vector (or number) of natural numbers
 ##' @param alpha parameter in (0,1]
 ##' @param method method applied
 ##'        log:      proper log computation based on lssum
-##'        direct:   brute-force evaluation of the sum and its log 
+##'        direct:   brute-force evaluation of the sum and its log
 ##'        exp.log:  similar to method = "log", but without *proper/intelligent* log
 ##' @param log boolean which determines if the logarithm is returned
 ##' @return \sum_{j=1}^k choose(k,j)*choose(alpha*j,x)*(-1)^(x-j)
 ##' @author Marius Hofert
 ##' note: - this is a probability mass function in x, where x in {k, k+1, ...}
-##'       - numerically challenging, e.g., dJoe(100, 96, 0.01) < 0 for all methods 
-dJoe <- function(x, k, alpha, method=c("log", "direct", "exp.log"), log=FALSE){
-    if(alpha == 1) outer(x, k, FUN="==") # if alpha = 1 then the result is x == k 
+##'       - numerically challenging, e.g., dJoe(100, 96, 0.01) < 0 for all methods
+dJoe <- function(x, k, alpha,
+		 method=c("log", "direct", "exp.log"), log=FALSE)
+{
+    if(alpha == 1) outer(x, k, FUN="==") # if alpha = 1 then the result is x == k
     l.x <- length(x)
     l.k <- length(k)
     res <- matrix(, nrow=l.x, ncol=l.k)
     ## k1
     k1 <- k==1
-    res[,k1] <- if(log) lchoose(alpha, x) else abs(choose(alpha, x)) # numerically more stable computation for k=1
+    ## numerically more stable computation for k=1 :
+    res[,k1] <- if(log) lchoose(alpha, x) else abs(choose(alpha, x))
     ## !k1
-    if(any(!k1)){ 
+    if(any(!k1)) {
 	method <- match.arg(method)
 	switch(method,
                "log" = {
@@ -598,29 +600,29 @@ dJoe <- function(x, k, alpha, method=c("log", "direct", "exp.log"), log=FALSE){
                        if(z == floor(z)) 0 else (-1)^(j-ceiling(z))
                    }))
                    ## for one pair of x and k:
-                   one.args <- function(z){ # z = (x,k[!k1])
+                   one.arg <- function(z){ # z = (x,k[!k1])
 	               if(z[1] < z[2]) return(-Inf) # = log(0)
                        j <- 1:z[2]
                        lxabs <- lchoose(z[2], j) + lchoose(alpha*j, z[1]) # build incredient for lssum
                        lssum(lxabs, signs[1:z[2]]) # call lssum
                    }
-                   sum. <- matrix(apply(expand.grid(x, k[!k1]), 1, FUN=one.args), nrow=l.x)
+                   sum. <- matrix(apply(expand.grid(x, k[!k1]), 1, FUN=one.arg), nrow=l.x)
                    res[,!k1] <- if(log) sum. else exp(sum.)
                },
-               "direct" = { 
+               "direct" = {
 	           ## brute force evaluation of the sum and its log
-                   one.args <- function(z){ # z = (x,k[!k1])
+                   one.arg <- function(z){ # z = (x,k[!k1])
 	               if(z[1] < z[2]) return(0)
                        j <- 1:z[2]
                        sum(choose(z[2],j)*choose(alpha*j,z[1])*(-1)^(z[1]-j))
                    }
-                   sum. <- matrix(apply(expand.grid(x, k[!k1]), 1, FUN=one.args), nrow=l.x)
+                   sum. <- matrix(apply(expand.grid(x, k[!k1]), 1, FUN=one.arg), nrow=l.x)
                    res[,!k1] <- if(log) log(sum.) else sum.
                },
                "exp.log" = {
 	           ## similar to method = "log", but without *proper/intelligent* log
                    ## and inefficient due to the signs (old version)
-                   one.args <- function(z){ # z = (x,k[!k1])
+                   one.arg <- function(z){ # z = (x,k[!k1])
                        if(z[1] < z[2]) return(0)
                        j <- 1:z[2] # indices of the summands
                        signs <- (-1)^(j+z[1])
@@ -633,13 +635,12 @@ dJoe <- function(x, k, alpha, method=c("log", "direct", "exp.log"), log=FALSE){
                        binom.coeffs <- exp(lchoose(z[2],j)+lchoose(j*alpha,z[1]))
                        sum(signs*binom.coeffs)
                    }
-                   sum. <- matrix(apply(expand.grid(x, k[!k1]), 1, FUN=one.args), nrow=l.x)
+                   sum. <- matrix(apply(expand.grid(x, k[!k1]), 1, FUN=one.arg), nrow=l.x)
                    res[,!k1] <- if(log) log(sum.) else sum.
                },
            {stop(sprintf("unsupported method '%s' in dJoe", method))})
     }
-    if(l.x == 1 || l.k == 1) res <- as.vector(res)
-    res
+    if(l.x == 1 || l.k == 1) as.vector(res) else res
 }
 
 ### ==== polynomial evaluation for Joe ====
@@ -712,8 +713,8 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE){
 ##' @title Properly compute the logarithm of a sum
 ##' @param lx matrix or vector of summands (as log(x_1), .., log(x_n))
 ##' @return log(x_1 + .. + x_n) [for each row of lx] computed via
-##'         log(sum(x)) = log(sum(exp(log(x)))) 
-##'         = log(exp(log(x_max))*sum(exp(log(x)-log(x_max)))) 
+##'         log(sum(x)) = log(sum(exp(log(x))))
+##'         = log(exp(log(x_max))*sum(exp(log(x)-log(x_max))))
 ##'         = log(x_max) + log(sum(exp(log(x)-log(x_max)))))
 ##'         = lx.max + log(sum(exp(lx-lx.max)))
 ##' @author Marius Hofert
@@ -729,8 +730,8 @@ lsum <- function(lx, l.off=apply(lx, 1, max)) {
 ##' @param lxabs matrix or vector of summands (as log(|x_1|), .., log(|x_n|))
 ##' @param signs corresponding matrix or vector of signs (sign(x_1), .., sign(x_n))
 ##' @return log(x_1 + .. + x_n) [for each row of lx] computed via
-##'         log(sum(x)) = log(sum(signs*exp(log(|x|)))) 
-##'         = log(exp(log(|x|_max))*sum(signs*exp(log(|x|)-log(|x|_max)))) 
+##'         log(sum(x)) = log(sum(signs*exp(log(|x|))))
+##'         = log(exp(log(|x|_max))*sum(signs*exp(log(|x|)-log(|x|_max))))
 ##'         = log(|x|_max) + log(sum(signs*exp(log(|x|)-log(|x|_max)))))
 ##'         = lxabs.max + log(sum(signs*exp(lxabs-lxabs.max)))
 ##' @author Marius Hofert
@@ -940,7 +941,8 @@ polylog <- function(z,s, method = c("sum","negint-s_Stirling"), logarithm=FALSE,
                if(logarithm)
                    log(r)+ log(polynEval(fac.k * S.n1.k1, r))
                else r* polynEval(fac.k * S.n1.k1, r)
-           }, {stop(sprintf("unsupported method '%s' in polylog", method))})
+           },
+           stop("unsupported method ", method))
 }
 
 ### ==== other NON-numerics ====================================================
@@ -978,7 +980,7 @@ cacopula <- function(v, u, family, theta, log = FALSE){
 ##'        log:    proper log
 ##' @param log if TRUE the log of psiDabs is returned
 ##' @author Marius Hofert
-psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("direct","log"), 
+psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("direct","log"),
                       log=FALSE){
     V0. <- getAcop(family)@V0(n.MC,theta)
     l.V0. <- degree*log(V0.)
@@ -995,10 +997,10 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("direct","log")
            },
            "log" = {
 	       lx.max <- apply(lx, 2, max)
-               res <- lx.max + log(rowMeans(exp(t(lx) - lx.max))) 
+               res <- lx.max + log(rowMeans(exp(t(lx) - lx.max)))
                if(log) res else exp(res)
-           }, 
-       {stop(sprintf("unsupported method '%s' in psiDabsMC", method))})    
+           },
+       {stop(sprintf("unsupported method '%s' in psiDabsMC", method))})
 }
 
 ##' Function for setting the parameter in an acopula
@@ -1011,18 +1013,40 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("direct","log")
 ##' @author Martin Maechler
 setTheta <- function(x, value, na.ok = TRUE) {
     stopifnot(is(x, "acopula"),
-              is.numeric(value) | (ina <- is.na(value)))
+	      is.numeric(value) | (ina <- is.na(value)))
     if(ina) {
-        if(!na.ok) stop("NA value, but 'na.ok' is not TRUE")
-        value <- NA_real_
+	if(!na.ok) stop("NA value, but 'na.ok' is not TRUE")
+	value <- NA_real_
     }
     if(ina || x@paraConstr(value)) ## parameter constraints are fulfilled
-        x@theta <- value
+	.setTheta(x, value)
     else
-        stop("theta (=", format(value), ") does not fulfill paraConstr()")
+	stop("theta (=", format(value), ") does not fulfill paraConstr()")
+}
+
+##' @title Fast (but "dangerous") version of setTheta()
+##' @param x an "acopula" object
+##' @param value numeric (vector) to be set as parameter 'theta' for the copula
+##' @return modified x
+##' @author Martin Maechler
+.setTheta <- function(x, value) {
+    x@theta <- value
+    ## *and* make it accessible "from inside" :
+    assign("C..theta", value, envir = environment(x@psi))
     x
 }
 
+
+getTheta <- function(x) {
+    stopifnot(is(x, "acopula"))
+    th <- get("C..theta", envir = environment(x@psi))
+    if(!identical(th, x@theta))
+        stop("Have you have modified the 'theta' slot directly?
+ it differs from C..theta -- please use setTheta(.) !")
+    th
+}
+## the "fast" no-checks version:
+.getTheta <- function(x) get("C..theta", envir = environment(x@psi))
 
 ##' Construct "paraConstr" function from an "interval"
 ##'
