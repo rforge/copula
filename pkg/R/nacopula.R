@@ -101,8 +101,6 @@ setGeneric("prob", function(x, l, u) standardGeneric("prob"))
 setMethod("prob", signature(x ="outer_nacopula"),
           function(x, l,u) {
               d <- dim(x)
-              ## TODO: maybe allow  l & u to be  k x d matrices
-              ##        --> return vector of probabilities of length k
               stopifnot(is.numeric(l), is.numeric(u),
                         length(u) == d, d == length(l),
                         0 <= l, l <= u, u <= 1)
@@ -145,10 +143,10 @@ rnacopula <- function(n, x, ...)
     mat <- cbind(mat, do.call(cbind,lapply(childL, `[[`, "U")))
     ## get correct sorting order:
     j <- c(x@comp, unlist(lapply(childL, `[[`, "indCol")))
-    ## extra checks TODO: comment
+    ## extra check
     stopifnot(length(j) == ncol(mat))
-    m <- mat[,order(j)]			# permute data and return
-    ## extra checks TODO: comment
+    m <- mat[,order(j)]	# permute data and return
+    ## extra checks
     stopifnot(length(dm <- dim(m)) == 2, dm == dim(mat))
     m
 }

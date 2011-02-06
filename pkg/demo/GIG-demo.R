@@ -30,7 +30,7 @@ tau.hats <- tau.hat[upper.tri(tau.hat)]
 stopifnot(all.equal(rep(tau, d*(d-1)/2), tau.hats, tol=0.03)) # check tau
 
 ## plot the sample
-# pairs(U, gap=0)
+pairs(U, gap=0)
 
 ## ==== estimate the parameters ====
 
@@ -41,14 +41,14 @@ U <- rnacopula.GIG(n, d, theta)
 start <- c(runif(1, min=I[1,1], max=I[1,2]), runif(1, min=I[2,1], max=I[2,2]))
 
 ## call optimizer for MLE
-# system.time(res.MLE <- optimx(par=start, 
+system.time(res.MLE <- optimx(par=start, 
                               fn=function(x) -sum(dacopula.GIG(U, x, n.MC=0, log=TRUE)), 
                               lower=c(I[1,1],I[2,1]), upper=c(I[1,2],I[2,2]), 
                               method="bobyqa"))
 res.MLE
 
 ## call optimizer for SMLE
-# system.time(res.SMLE <- optimx(par=start, 
+system.time(res.SMLE <- optimx(par=start, 
                                fn=function(x) -sum(dacopula.GIG(U, x, n.MC=10000, log=TRUE)), 
                                lower=c(I[1,1],I[2,1]), upper=c(I[1,2],I[2,2]), 
                                method="bobyqa"))

@@ -79,7 +79,7 @@ cop.hat@copula@theta <- theta
 
 ## ==== Plots ==================================================================
 
-if(!dev.interactive())## e.g. when run as part of R CMD check
+if(!dev.interactive()) # e.g. when run as part of R CMD check
     pdf("demo_est-gof.pdf")
 if(!exists("doPlot")) doPlot <- TRUE
 
@@ -87,7 +87,7 @@ if(!exists("doPlot")) doPlot <- TRUE
 
 t01 <- (0:256)/256 # evaluation points
 
-cols <- c("black","orange3","red3","darkgreen","blue") # no very light ones
+cols <- c("black","orange3","red3","darkgreen","blue") # not very light ones
 ## TODO: work with *list* of copulas, and extra names *and* theta's (!)
 ##       to be also put in labels
 labs <- c("AMH","Clayton","Frank","Gumbel","Joe")

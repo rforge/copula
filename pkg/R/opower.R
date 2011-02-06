@@ -8,7 +8,7 @@
 ##' @author Marius Hofert
 opower <- function(copbase, thetabase) {
     ## create object with name in here so it's in the environment and we can access it
-    cOP <- new("acopula", name = paste("opower", copbase@name, sep=":"),
+    C. <- new("acopula", name = paste("opower", copbase@name, sep=":"),
                ## generator
                psi = function(t,theta) { copbase@psi(t^(1/theta), thetabase) },
                psiInv = function(t,theta) { copbase@psiInv(t, thetabase)^theta },
@@ -23,7 +23,7 @@ opower <- function(copbase, thetabase) {
                psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE){
                    if(theta == 1) return(copbase@psiDabs(t, theta, degree=degree, n.MC=n.MC, log=log)) # copbase case
                    if(n.MC > 0){
-                       psiDabsMC(t, family=cOP, theta=theta, degree=degree, n.MC=n.MC, log=log)
+                       psiDabsMC(t, family=C., theta=theta, degree=degree, n.MC=n.MC, log=log)
                    }else{
                        ## FIXME: not optimal yet, inner sum could get a *real* log
                        j <- 1:degree
@@ -62,9 +62,9 @@ opower <- function(copbase, thetabase) {
                    if(!any(n01)) return(res)
                    ## auxiliary results
                    u. <- u[n01,, drop=FALSE]
-                   psiI <- rowSums(cOP@psiInv(u.,theta))
-                   res[n01] <- cOP@psiDabs(psiI, theta, degree=d, n.MC=n.MC, log=TRUE)+
-                       rowSums(cOP@psiInvD1abs(u., theta, log=TRUE))
+                   psiI <- rowSums(C.@psiInv(u.,theta))
+                   res[n01] <- C.@psiDabs(psiI, theta, degree=d, n.MC=n.MC, log=TRUE)+
+                       rowSums(C.@psiInvD1abs(u., theta, log=TRUE))
                    if(log) res else exp(res)
                },
                ## V0 and V01
@@ -145,5 +145,5 @@ opower <- function(copbase, thetabase) {
                    } else 1/log2(2-lambda)
                }
                )
-    cOP
+    C.
 }

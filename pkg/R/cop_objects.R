@@ -326,8 +326,7 @@ copFrank <-
                   dV01 = function(x,V0,theta0,theta1,log = FALSE) {
                       stopifnot(length(V0) == 1 || length(x) == length(V0), all(x >= V0))
                       lfactor <- x*log1p(-exp(-theta1))-V0*log1p(-exp(-theta0))
-                      ljoe <- copJoe@dV01(x,V0,theta0,theta1, log=TRUE)
-                      res <- lfactor+ljoe
+                      res <- lfactor + dJoe(x, V0, theta0/theta1, log=TRUE)
                       if(log) res else exp(res)
                   },
                   ## Kendall's tau; debye_1() is from package 'gsl' :

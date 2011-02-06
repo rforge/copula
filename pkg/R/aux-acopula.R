@@ -289,14 +289,14 @@ rFFrank <- function(n, theta0, theta1, rej)
 ##'        sort:           compute the coefficients via exp(log()), pulling out the maximum, and sort
 ##'        horner:         uses polynEval
 ##'        direct:         brute force approach
-##'        dV01.Joe:       uses dV01.Joe
+##'        dJoe:       uses dJoe
 ##' @param log boolean which determines if the logarithm is returned
 ##' @param verbose logical for method == sort
 ##' @return a_{dk}(theta) = (-1)^{d-k}\sum_{j=k}^d alpha^j * s(d,j) * S(j,k)
-##' FIXME: serious numerical problems, e.g., for (d = 100, alpha = 0.8)
+##' note: this function is known to cause numerical problems, e.g., for d=100, alpha=0.8
 ##' @author Marius Hofert und Martin Maechler
 coeffG <- function(d, alpha,
-		   method = c("sort", "horner", "direct", "dV01.Joe"),
+		   method = c("sort", "horner", "direct", "dJoe"),
 		   log = FALSE, verbose = FALSE)
 {
     stopifnot(d >= 1)
@@ -332,16 +332,14 @@ coeffG <- function(d, alpha,
 		   attr(a, "wrong.signs") <- wrong.sign
 	       a
 	   },
-	   "dV01.Joe" = {
-	       ## coefficients via dV01 of Joe
-	       ## a_{dk}(theta) = d!/k! * copJoe@dV01(d, k, theta0=1, theta1=1/alpha)
+	   "dJoe" = {
+	       ## coefficients via dJoe
+	       ## a_{dk}(theta) = d!/k! * dJoe(d, k, alpha)
 	       k <- 1:d
 	       ck <- ## c_k := d!/k!
 		   if(log) c(0,cumsum(log(d:2)))[d:1]
 		   else c(1,cumprod(d:2))[d:1]
-	       ## copJoe @ dV01() is already vectorized (somewhat):
-	       p <- copJoe@dV01(rep(d,d), k, theta0 = 1, theta1 = 1/alpha,
-				log=log) ## FIXME: call dJoe
+	       p <- dJoe(d, k, alpha, log=log)
 	       if(log) p + ck else p * ck
 	   },
 	   "horner" = {
@@ -389,11 +387,12 @@ coeffG <- function(d, alpha,
 ##' @param method a string, one of
 ##'   pois:           uses ppois
 ##'   binomial.coeff: uses binomial coefficients, only critical for large dependencies
+##'   stirling:       directly uses the representation via Stirling numbers
 ##'   sort:           compute the coefficients via exp(log()),
 ##' 			  pulling out the maximum, and sort
 ##'   horner:         uses polynEval
 ##'   direct:         brute force approach
-##'   dV01.Joe:       uses dV01.Joe
+##'   dJoe:           uses dJoe
 ##' @param log boolean which determines if the logarithm is returned
 ##' @return \sum_{k=1}^d  a_{dk}(\theta)  x ^ k
 ##'       = \sum_{k=1}^d  a_{dk} *     exp(lx*k)
@@ -401,14 +400,14 @@ coeffG <- function(d, alpha,
 ##'       = (-1)^{d-k}\sum_{j=k}^d \theta^{-j} s(d,j) S(j,k)
 ##'       = (d!/k!)\sum_{l=1}^k (-1)^{d-l} \binom{k}{l}\binom{\alpha l}{d}
 ##' @author Marius Hofert
-polyG <- function(lx, alpha, d, method=c("pois", "binomial.coeff", "sort",
-				"horner", "direct", "dV01.Joe"), log=FALSE)
+polyG <- function(lx, alpha, d, method=c("pois", "binomial.coeff", "stirling", 
+                                "sort",	"horner", "direct", "dJoe"), log=FALSE)
 {
     k <- 1:d
     method <- match.arg(method)
     switch(method,
            "pois" =
-       { ### FIXME: improve speed
+       { 
            ## determine signs of the falling factorials
            signs <- (-1)^k* (2*(floor(alpha*k) %% 2) - 1)
 
@@ -427,7 +426,7 @@ polyG <- function(lx, alpha, d, method=c("pois", "binomial.coeff", "sort",
            if(log) res else exp(res)
        },
            "binomial.coeff" =
-       { ### FIXME: improve speed --- careful!! - see end of ../demo/logL-vis.R
+       { ### speed --- careful!! - see end of ../demo/logL-vis.R
 
            ## determine signs of the falling factorials
            ## s <- unlist(lapply(alpha*k, function(z) prod(z-(0:(d-1)))))
@@ -452,10 +451,20 @@ polyG <- function(lx, alpha, d, method=c("pois", "binomial.coeff", "sort",
            res <- max.B + log(as.vector(signs %*% exp(B - rep(max.B, each=d))))
            if(log) res else exp(res)
        },
-
-           "sort" =, "horner" =, "direct" =, "dV01.Joe" =
+           "stirling" =
        {
-           ## note: these methods are all know to show numerical deficiencies
+	   ## direct implementation [not as proper log] of \sum_{k=1}^d a_{dk}(\theta) x^k
+	   ## = (-1)^d * (-x) * \sum_{k=1}^d alpha^k * s(d,k) * \sum_{j=1}^k S(k,j) * (-x)^{j-1}
+	   ## = (-1)^d * (-x) * \sum_{k=1}^d alpha^k * s(d,k) * polynEval(...)
+	   x <- exp(lx)
+	   s <- Stirling1.all(d) # s(d,1), ..., s(d,d)
+	   S <- lapply(k, Stirling2.all) # S[[l]][n] contains S(l,n), n = 1,...,l
+	   lst <- lapply(k, function(k.) alpha^k.*s[k.]*(-1)^d*x*polynEval(S[[k.]],-x))
+	   rowSums(matrix(unlist(lst), nrow=length(x)))
+       },
+           "sort" =, "horner" =, "direct" =, "dJoe" =
+       {
+           ## note: these methods are all know to show numerical deficiencies 
            if(d > 220) stop("d > 220 not yet supported") # would need Stirling2.all(d, log=TRUE)
            ## compute the log of the coefficients:
            a.dk <- coeffG(d, alpha, method=method)

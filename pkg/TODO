@@ -1,7 +1,6 @@
 ## ==== features in next CRAN version ====
 
 (MM) make polyG (and polyJ) more efficient! see FIXME's there
-=> e.g., "pois" [default method] for Gumbel be improved
 (*) does psiDabs for Gumbel with default "pois" work? check with plots!
     or all.equal dacopula() & dacopulag() for all methods & families
 (*) does Gumbel MLE work for tau > 0.6?
@@ -19,7 +18,6 @@
 (*) put license-stuff in the beginning of *all* files? e.g., demo?
 (*) switch() sometimes uses strings [s. polylog], sometimes unquoted strings [s. enacopula]... inconsistency
 
-(MM) use same *sophisticated* environment trick for opower as for the other families; maybe also rename cOP to C.?
 (MH) fix opower density issues...
 (MM, MH) implement color-feature in splom2 (now that i and j are included by Deepayan)
 (MH) add (and fill) all help files for estimation and gof procedures

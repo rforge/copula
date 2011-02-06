@@ -90,8 +90,7 @@ setClass("acopula",
              if(!isTRUE(tt <- checkFun("nestConstr", 2, chkVect=FALSE))) return(tt)
 
              ## ...
-             ## ... (TODO)
-             ## todo: to check: psiDabs, K
+             ## ... TODO
 
              ## Check more :
 	     if (object@psi(0, theta= 1/2) != 1)
@@ -146,7 +145,7 @@ setClass("nacopula",
 	 representation(copula = "acopula",
                         comp = "integer", # from 1:d -- of length in [0,d]
                         childCops = "list" #of nacopulas, possibly empty
-                        ## TODO? nesting properties (V01,..) for specific mother-child relations
+                        ## nesting properties (V01,..) for specific mother-child relations could be added
                         ),
          validity = function(object) {
              if(length(d <- dim(object)) != 1 || !is.numeric(d) || d <= 0)

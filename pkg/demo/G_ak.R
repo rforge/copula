@@ -73,7 +73,7 @@ plot.list <- vector("list", m)
 alpha.list <-  (1:m)/(m+1)
 d <- 100
 for(i in 1:m){
-    coeffs <- coeffG(d, alpha.list[i], log=TRUE, method = "dV01.Joe")
+    coeffs <- coeffG(d, alpha.list[i], log=TRUE, method = "dJoe")
     plot.list[[i]] <-
         xyplot(coeffs~1:d, type="l", xlim = c(-3,104), ylim = c(-303,374),
                xlab = "k", ylab = expression(log(a[k])), aspect = 1,
