@@ -460,7 +460,8 @@ polyG <- function(lx, alpha, d, method=c("pois", "binomial.coeff", "stirling",
 	   s <- Stirling1.all(d) # s(d,1), ..., s(d,d)
 	   S <- lapply(k, Stirling2.all) # S[[l]][n] contains S(l,n), n = 1,...,l
 	   lst <- lapply(k, function(k.) alpha^k.*s[k.]*(-1)^d*x*polynEval(S[[k.]],-x))
-	   rowSums(matrix(unlist(lst), nrow=length(x)))
+	   res <- rowSums(matrix(unlist(lst), nrow=length(x)))
+	   if(log) log(res) else res
        },
            "sort" =, "horner" =, "direct" =, "dJoe" =
        {
