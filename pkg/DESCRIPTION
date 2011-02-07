@@ -11,6 +11,6 @@ Author: Marius Hofert <marius.hofert@math.ethz.ch> and Martin Maechler
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Depends: methods, R (>= 2.9.1)
 Imports: gsl, ADGofTest, fBasics
-Suggests: lattice, sfsmisc
+Suggests: lattice, sfsmisc, Rmpfr
 License: GPL (>= 2)
 LazyData: yes

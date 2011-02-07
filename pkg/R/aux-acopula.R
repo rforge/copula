@@ -299,7 +299,7 @@ coeffG <- function(d, alpha,
 		   method = c("sort", "horner", "direct", "dJoe"),
 		   log = FALSE, verbose = FALSE)
 {
-    stopifnot(d >= 1)
+    stopifnot(is.numeric(d), length(d) == 1, d >= 1)
     a <- numeric(d) # for the a_{dk}(theta)'s
     method <- match.arg(method)
     switch(method,
@@ -400,14 +400,14 @@ coeffG <- function(d, alpha,
 ##'       = (-1)^{d-k}\sum_{j=k}^d \theta^{-j} s(d,j) S(j,k)
 ##'       = (d!/k!)\sum_{l=1}^k (-1)^{d-l} \binom{k}{l}\binom{\alpha l}{d}
 ##' @author Marius Hofert
-polyG <- function(lx, alpha, d, method=c("pois", "binomial.coeff", "stirling", 
+polyG <- function(lx, alpha, d, method=c("pois", "binomial.coeff", "stirling",
                                 "sort",	"horner", "direct", "dJoe"), log=FALSE)
 {
     k <- 1:d
     method <- match.arg(method)
     switch(method,
            "pois" =
-       { 
+       {
            ## determine signs of the falling factorials
            signs <- (-1)^k* (2*(floor(alpha*k) %% 2) - 1)
 
@@ -465,7 +465,7 @@ polyG <- function(lx, alpha, d, method=c("pois", "binomial.coeff", "stirling",
        },
            "sort" =, "horner" =, "direct" =, "dJoe" =
        {
-           ## note: these methods are all know to show numerical deficiencies 
+           ## note: these methods are all know to show numerical deficiencies
            if(d > 220) stop("d > 220 not yet supported") # would need Stirling2.all(d, log=TRUE)
            ## compute the log of the coefficients:
            a.dk <- coeffG(d, alpha, method=method)
@@ -573,7 +573,7 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 ##' Inner probability mass function for a nested Joe copula
 ##'
 ##' @title Inner probability mass function for a nested Joe copula
-##' @param x vector (or number) of natural numbers
+##' @param x vector (or number) of natural numbers >= k
 ##' @param k vector (or number) of natural numbers
 ##' @param alpha parameter in (0,1]
 ##' @param method method applied
@@ -588,67 +588,72 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 dJoe <- function(x, k, alpha,
 		 method=c("log", "direct", "exp.log"), log=FALSE)
 {
-    if(alpha == 1) outer(x, k, FUN="==") # if alpha = 1 then the result is x == k
+    stopifnot(length(alpha) == 1, x == round(x), k == round(k))
+    if(alpha == 1) # if alpha = 1 , the result is x == k
+        return(outer(x, k, FUN="=="))
     l.x <- length(x)
     l.k <- length(k)
-    res <- matrix(, nrow=l.x, ncol=l.k)
-    ## k1
-    k1 <- k==1
-    ## numerically more stable computation for k=1 :
-    res[,k1] <- if(log) lchoose(alpha, x) else abs(choose(alpha, x))
-    ## !k1
-    if(any(!k1)) {
+    res <- matrix(NA_real_, nrow=l.x, ncol=l.k)
+    if(any(k1 <- k==1))
+        ## numerically more stable computation for k=1 :
+        res[,k1] <- if(log) lchoose(alpha, x) else abs(choose(alpha, x))
+    if(any(k2 <- !k1)) {
 	method <- match.arg(method)
+        k <- k[k2]
 	switch(method,
-               "log" = {
-	           ## computes *proper* log based on lssum [stops if numerical problem appears]
-                   ## determine the matrix of signs of (alpha*j,x)*(-1)^(x-j), j in {1,..,m}
-                   ## note: this does not depend on x!
-                   m <- max(k[!k1])
-                   signs <- unlist(lapply(1:m, function(j){
-                       z <- alpha*j
-                       if(z == floor(z)) 0 else (-1)^(j-ceiling(z))
-                   }))
-                   ## for one pair of x and k:
-                   one.arg <- function(z){ # z = (x,k[!k1])
-	               if(z[1] < z[2]) return(-Inf) # = log(0)
-                       j <- 1:z[2]
-                       lxabs <- lchoose(z[2], j) + lchoose(alpha*j, z[1]) # build incredient for lssum
-                       lssum(lxabs, signs[1:z[2]]) # call lssum
-                   }
-                   sum. <- matrix(apply(expand.grid(x, k[!k1]), 1, FUN=one.arg), nrow=l.x)
-                   res[,!k1] <- if(log) sum. else exp(sum.)
-               },
-               "direct" = {
-	           ## brute force evaluation of the sum and its log
-                   one.arg <- function(z){ # z = (x,k[!k1])
-	               if(z[1] < z[2]) return(0)
-                       j <- 1:z[2]
-                       sum(choose(z[2],j)*choose(alpha*j,z[1])*(-1)^(z[1]-j))
-                   }
-                   sum. <- matrix(apply(expand.grid(x, k[!k1]), 1, FUN=one.arg), nrow=l.x)
-                   res[,!k1] <- if(log) log(sum.) else sum.
-               },
-               "exp.log" = {
-	           ## similar to method = "log", but without *proper/intelligent* log
-                   ## and inefficient due to the signs (old version)
-                   one.arg <- function(z){ # z = (x,k[!k1])
-                       if(z[1] < z[2]) return(0)
-                       j <- 1:z[2] # indices of the summands
-                       signs <- (-1)^(j+z[1])
-                       ## determine the signs of choose(j*alpha,z[1]) for each component of j
-                       to.subtract <- 0:(z[1]-1)
-                       signs.choose <- unlist(lapply(j,function(l){
-                           prod(sign(l*alpha-to.subtract))}
-                                                     ))
-                       signs <- signs*signs.choose
-                       binom.coeffs <- exp(lchoose(z[2],j)+lchoose(j*alpha,z[1]))
-                       sum(signs*binom.coeffs)
-                   }
-                   sum. <- matrix(apply(expand.grid(x, k[!k1]), 1, FUN=one.arg), nrow=l.x)
-                   res[,!k1] <- if(log) log(sum.) else sum.
-               },
-           {stop(sprintf("unsupported method '%s' in dJoe", method))})
+	       "log" =
+	   {
+	       ## computes *proper* log based on lssum [stops if numerical problem appears]
+	       ## determine the matrix of signs of (alpha*j,x)*(-1)^(x-j), j in {1,..,m}
+	       ## note: this does not depend on x!
+	       m <- max(k)
+	       signs <- unlist(lapply(1:m, function(j){
+		   z <- alpha*j
+		   if(z == floor(z)) 0 else (-1)^(j-ceiling(z))
+	       }))
+	       ## for one pair of x and k:
+	       one.arg <- function(z){ ## z = (x,k)
+		   if(z[1] < z[2]) return(-Inf) # = log(0)
+		   j <- 1:z[2]
+		   lxabs <- lchoose(z[2], j) + lchoose(alpha*j, z[1]) # build incredient for lssum
+		   lssum(lxabs, signs[j]) # call lssum
+	       }
+	       sum. <- matrix(apply(expand.grid(x, k), 1, FUN=one.arg), nrow=l.x)
+	       res[,k2] <- if(log) sum. else exp(sum.)
+	   },
+	       "direct" =
+	   {
+	       ## brute force evaluation of the sum and its log
+	       one.arg <- function(z){	# z = (x,k)
+		   if(z[1] < z[2]) return(0)
+		   j <- 1:z[2]
+		   sum(choose(z[2],j)*choose(alpha*j,z[1])*(-1)^(z[1]-j))
+	       }
+	       sum. <- matrix(apply(expand.grid(x, k), 1, FUN=one.arg), nrow=l.x)
+	       res[,k2] <- if(log) log(sum.) else sum.
+	   },
+	       "exp.log" =
+	   {
+	       ## similar to method = "log", but without *proper/intelligent* log
+	       ## and inefficient due to the signs (old version)
+	       one.arg <- function(z){	# z = (x,k)
+		   if(z[1] < z[2]) return(0)
+		   j <- 1:z[2]		# indices of the summands
+		   signs <- (-1)^(j+z[1])
+		   ## determine the signs of choose(j*alpha,z[1]) for each component of j
+		   to.subtract <- 0:(z[1]-1)
+		   sig.choose <-
+		       unlist(lapply(j, function(l)
+				     prod(sign(l*alpha-to.subtract)) ))
+		   signs <- signs*sig.choose
+		   binom.coeffs <- exp(lchoose(z[2],j) + lchoose(j*alpha,z[1]))
+		   sum(signs*binom.coeffs)
+	       }
+	       sum. <- matrix(apply(expand.grid(x, k), 1, FUN=one.arg), nrow=l.x)
+	       res[,k2] <- if(log) log(sum.) else sum.
+	   },
+	       ## otherwise
+	       stop(sprintf("unsupported method '%s' in dJoe", method)))
     }
     if(l.x == 1 || l.k == 1) as.vector(res) else res
 }
@@ -739,17 +744,19 @@ lsum <- function(lx, l.off=apply(lx, 1, max)) {
 ##' @title Properly compute the logarithm of a sum with signed coefficients
 ##' @param lxabs matrix or vector of summands (as log(|x_1|), .., log(|x_n|))
 ##' @param signs corresponding matrix or vector of signs (sign(x_1), .., sign(x_n))
+##' @param l.off the offset to substract and re-add; ideally in the order of max(.)
+##' @param strict logical indicating if it should stop on some negative sums
 ##' @return log(x_1 + .. + x_n) [for each row of lx] computed via
 ##'         log(sum(x)) = log(sum(signs*exp(log(|x|))))
 ##'         = log(exp(log(|x|_max))*sum(signs*exp(log(|x|)-log(|x|_max))))
 ##'         = log(|x|_max) + log(sum(signs*exp(log(|x|)-log(|x|_max)))))
 ##'         = lxabs.max + log(sum(signs*exp(lxabs-lxabs.max)))
-##' @author Marius Hofert
-lssum <- function(lxabs, signs, l.off=apply(lxabs, 1, max)){
-    if(!is.matrix(lxabs)) lxabs <- rbind(lxabs)
+##' @author Marius Hofert & MM
+lssum <- function(lxabs, signs, l.off = apply(lxabs, 1, max), strict=TRUE) {
+    if(!is.matrix(lxabs)) lxabs <- rbind(lxabs, deparse.level=0)
     sum. <- rowSums(signs * exp(lxabs - l.off))
-    if(any(sum. <= 0)) stop("lssum found non-positive sums")
-    l.off + log(sum.) # FIXME: for a vector lxabs, names(lxabs) == "lxabs" => maybe remove?
+    if(strict && any(sum. <= 0)) stop("lssum found non-positive sums")
+    l.off + log(sum.)
 }
 
 ##' Compute Stirling numbers of the 1st kind
