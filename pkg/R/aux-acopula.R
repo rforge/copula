@@ -295,8 +295,7 @@ rFFrank <- function(n, theta0, theta1, rej)
 ##' @return a_{dk}(theta) = (-1)^{d-k}\sum_{j=k}^d alpha^j * s(d,j) * S(j,k)
 ##' note: this function is known to cause numerical problems, e.g., for d=100, alpha=0.8
 ##' @author Marius Hofert und Martin Maechler
-coeffG <- function(d, alpha,
-		   method = c("sort", "horner", "direct", "dJoe"),
+coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dJoe"),
 		   log = FALSE, verbose = FALSE)
 {
     stopifnot(is.numeric(d), length(d) == 1, d >= 1)
@@ -385,14 +384,17 @@ coeffG <- function(d, alpha,
 ##' @param alpha parameter (1/theta)
 ##' @param d number of summands, >= 1
 ##' @param method a string, one of
-##'   pois:           uses ppois
-##'   binomial.coeff: uses binomial coefficients, only critical for large dependencies
-##'   stirling:       directly uses the representation via Stirling numbers
-##'   sort:           compute the coefficients via exp(log()),
+##'   default          uses a combination of the methods below depending on alpha
+##'   pois.direct:     uses ppois directly
+##'   pois:            uses ppois with pulling out max
+##'   binomial.coeff:  uses binomial coefficients, only critical for large dependencies
+##'   stirling:        uses the representation via Stirling numbers and once horner
+##'   stirling.horner: uses the representation via Stirling numbers and twice horner
+##'   sort:            compute the coefficients via exp(log()),
 ##' 			  pulling out the maximum, and sort
-##'   horner:         uses polynEval
-##'   direct:         brute force approach
-##'   dJoe:           uses dJoe
+##'   horner:          uses polynEval
+##'   direct:          brute force approach
+##'   dJoe:            uses dJoe
 ##' @param log boolean which determines if the logarithm is returned
 ##' @return \sum_{k=1}^d  a_{dk}(\theta)  x ^ k
 ##'       = \sum_{k=1}^d  a_{dk} *     exp(lx*k)
@@ -400,12 +402,25 @@ coeffG <- function(d, alpha,
 ##'       = (-1)^{d-k}\sum_{j=k}^d \theta^{-j} s(d,j) S(j,k)
 ##'       = (d!/k!)\sum_{l=1}^k (-1)^{d-l} \binom{k}{l}\binom{\alpha l}{d}
 ##' @author Marius Hofert
-polyG <- function(lx, alpha, d, method=c("pois", "binomial.coeff", "stirling",
-                                "sort",	"horner", "direct", "dJoe"), log=FALSE)
+polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",  
+                                "binomial.coeff", "stirling", "stirling.horner", 
+                                "sort", "horner", "direct", "dJoe"), log=FALSE)
 {
     k <- 1:d
     method <- match.arg(method)
     switch(method,
+	   "default" = 
+       {
+	   if(d <= 100){ # fast
+               if(alpha <= 0.54) polyG(lx=lx, alpha=alpha, d=d, method="stirling", 
+                  log=log)
+               else if(alpha <= 0.77) polyG(lx=lx, alpha=alpha, d=d, 
+                       method="pois.direct", log=log)
+               else polyG(lx=lx, alpha=alpha, d=d, method="dJoe", log=log)
+           }else{ # slower but more stable, e.g., for d=150
+               polyG(lx=lx, alpha=alpha, d=d, method="pois", log=log)
+           }
+       },
            "pois" =
        {
            ## determine signs of the falling factorials
@@ -424,6 +439,20 @@ polyG <- function(lx, alpha, d, method=c("pois", "binomial.coeff", "stirling",
            ## pull out maximum and sum the rest
            res <- max.B + log(as.vector(signs %*% exp(B - rep(max.B, each=d))))
            if(log) res else exp(res)
+       },
+           "pois.direct" =
+       { 
+           ## determine signs of (-1)^(d-k)*(alpha*k)_d
+           signs <- (-1)^k * (2*(floor(alpha*k) %% 2) - 1)
+
+           ## build coefficients
+           xfree <- lchoose(alpha*k,d) + lfactorial(d) - lfactorial(k)
+           x <- exp(lx)
+           lppois <- t(outer(d-k, x, FUN=ppois, log.p=TRUE)) # (length(x),d)-matrix 
+           klx <- t(outer(k, lx))
+           exponents <- exp(t(x+lppois+klx)+xfree) # (d,length(x))-matrix
+           res <- as.vector(signs %*% exponents)
+           if(log) log(res) else res
        },
            "binomial.coeff" =
        { ### speed --- careful!! - see end of ../demo/logL-vis.R
@@ -453,15 +482,34 @@ polyG <- function(lx, alpha, d, method=c("pois", "binomial.coeff", "stirling",
        },
            "stirling" =
        {
-	   ## direct implementation [not as proper log] of \sum_{k=1}^d a_{dk}(\theta) x^k
-	   ## = (-1)^d * (-x) * \sum_{k=1}^d alpha^k * s(d,k) * \sum_{j=1}^k S(k,j) * (-x)^{j-1}
-	   ## = (-1)^d * (-x) * \sum_{k=1}^d alpha^k * s(d,k) * polynEval(...)
+	   ## implementation of \sum_{k=1}^d a_{dk}(\theta) x^k
+	   ## = (-1)^{d-1} * x * \sum_{k=1}^d alpha^k * s(d,k) * \sum_{j=1}^k S(k,j) * (-x)^{j-1}
+	   ## = (-1)^{d-1} * x * \sum_{k=1}^d alpha^k * s(d,k) * polynEval(...)
+	   ## inner function is evaluated via polynEval
 	   x <- exp(lx)
 	   s <- Stirling1.all(d) # s(d,1), ..., s(d,d)
 	   S <- lapply(k, Stirling2.all) # S[[l]][n] contains S(l,n), n = 1,...,l
-	   lst <- lapply(k, function(k.) alpha^k.*s[k.]*(-1)^d*x*polynEval(S[[k.]],-x))
+	   lst <- lapply(k, function(k.) (-1)^(d-1)*x*alpha^k.*s[k.]*polynEval(S[[k.]],-x))
 	   res <- rowSums(matrix(unlist(lst), nrow=length(x)))
-	   if(log) log(res) else res
+	   if(log) log(res) else res	
+       },
+           "stirling.horner" =
+       {
+	   ## implementation of \sum_{k=1}^d a_{dk}(\theta) x^k
+	   ## = (-1)^{d-1} * x * \sum_{k=1}^d alpha^k * s(d,k) * \sum_{j=1}^k S(k,j) * (-x)^{j-1}
+	   ## = (-1)^{d-1} * x * \sum_{k=1}^d alpha^k * s(d,k) * polynEval(...)
+	   ## polynEval is used twice
+	   x <- exp(lx)
+	   s <- Stirling1.all(d) # s(d,1), ..., s(d,d)
+	   S <- lapply(k, Stirling2.all) # S[[l]][n] contains S(l,n), n = 1,...,l
+	   len <- length(x)
+           poly <- matrix(unlist(lapply(k, function(k.) polynEval(S[[k.]],-x))), nrow=len) # (len,d)-matrix
+           res <- (-1)^(d-1)*alpha*x*unlist(lapply(1:len, function(x) polynEval(s*poly[x,], alpha)))
+           if(log) log(res) else res
+           ## the following code was *not* faster
+           ## poly <- t(sapply(k, function(k.) polynEval(S[[k.]],-x))) # (d,len(x))-matrix
+           ## coeff <- if(length(x)==1) t(s*poly) else s*poly
+           ## res <- (-1)^(d-1)*alpha*x*apply(coeff, 2, polynEval, x=alpha)
        },
            "sort" =, "horner" =, "direct" =, "dJoe" =
        {
@@ -646,7 +694,7 @@ dJoe <- function(x, k, alpha,
 	       sum(chooseMpfr.all(k)*chooseMpfr(alpha*j,x)*(-1)^(x-j))
 	   }
 	   S <- new("mpfr", unlist(lapply(1:n, function(i)
-				   f.one(x[i], k[i]))))
+                                          f.one(x[i], k[i]))))
 	   as.numeric(if(log) log(S) else S)
        },
 	   "exp.log" =
@@ -770,8 +818,9 @@ lsum <- function(lx, l.off=apply(lx, 1, max)) {
 lssum <- function(lxabs, signs, l.off = apply(lxabs, 1, max), strict=TRUE) {
     if(!is.matrix(lxabs)) lxabs <- rbind(lxabs, deparse.level=0)
     sum. <- rowSums(signs * exp(lxabs - l.off))
-    if(strict && any(sum. <= 0)) stop("lssum found non-positive sums")
-    l.off + log(sum.)
+    if(any(sum. <= 0)) if(strict) stop("lssum found non-positive sums") else
+    warning("lssum found non-positive sums")
+    l.off + log(sum.) # FIXME: for a vector lxabs, names(lxabs) == "lxabs" => maybe remove?
 }
 
 ##' Compute Stirling numbers of the 1st kind

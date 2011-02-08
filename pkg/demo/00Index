@@ -2,4 +2,5 @@ estimation.gof	Estimation and goodness-of-fit capabilities
 G_ak		Coefficients a_k for Gumbel's density derivatives, MLE, etc
 GIG-demo        Generalized Inverse Gaussian Archimedean copulas
 logL-vis	Log Likelihood Visualizations
+polyG-demo      Investigating precision and run time of polyG
 timings		Using timing() to measure speed of basic Archimedean families
