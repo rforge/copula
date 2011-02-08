@@ -586,76 +586,91 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 ##' note: - this is a probability mass function in x, where x in {k, k+1, ...}
 ##'       - numerically challenging, e.g., dJoe(100, 96, 0.01) < 0 for all methods
 dJoe <- function(x, k, alpha,
-		 method=c("log", "direct", "exp.log"), log=FALSE)
+		 method=c("log", "direct", "Rmpfr", "exp.log"), log=FALSE)
 {
-    stopifnot(length(alpha) == 1, x == round(x), k == round(k))
-    if(alpha == 1) # if alpha = 1 , the result is x == k
-        return(outer(x, k, FUN="=="))
-    l.x <- length(x)
-    l.k <- length(k)
-    res <- matrix(NA_real_, nrow=l.x, ncol=l.k)
-    if(any(k1 <- k==1))
-        ## numerically more stable computation for k=1 :
-        res[,k1] <- if(log) lchoose(alpha, x) else abs(choose(alpha, x))
-    if(any(k2 <- !k1)) {
-	method <- match.arg(method)
-        k <- k[k2]
-	switch(method,
-	       "log" =
-	   {
-	       ## computes *proper* log based on lssum [stops if numerical problem appears]
-	       ## determine the matrix of signs of (alpha*j,x)*(-1)^(x-j), j in {1,..,m}
-	       ## note: this does not depend on x!
-	       m <- max(k)
-	       signs <- unlist(lapply(1:m, function(j){
-		   z <- alpha*j
-		   if(z == floor(z)) 0 else (-1)^(j-ceiling(z))
-	       }))
-	       ## for one pair of x and k:
-	       one.arg <- function(z){ ## z = (x,k)
-		   if(z[1] < z[2]) return(-Inf) # = log(0)
-		   j <- 1:z[2]
-		   lxabs <- lchoose(z[2], j) + lchoose(alpha*j, z[1]) # build incredient for lssum
-		   lssum(lxabs, signs[j]) # call lssum
-	       }
-	       sum. <- matrix(apply(expand.grid(x, k), 1, FUN=one.arg), nrow=l.x)
-	       res[,k2] <- if(log) sum. else exp(sum.)
-	   },
-	       "direct" =
-	   {
-	       ## brute force evaluation of the sum and its log
-	       one.arg <- function(z){	# z = (x,k)
-		   if(z[1] < z[2]) return(0)
-		   j <- 1:z[2]
-		   sum(choose(z[2],j)*choose(alpha*j,z[1])*(-1)^(z[1]-j))
-	       }
-	       sum. <- matrix(apply(expand.grid(x, k), 1, FUN=one.arg), nrow=l.x)
-	       res[,k2] <- if(log) log(sum.) else sum.
-	   },
-	       "exp.log" =
-	   {
-	       ## similar to method = "log", but without *proper/intelligent* log
-	       ## and inefficient due to the signs (old version)
-	       one.arg <- function(z){	# z = (x,k)
-		   if(z[1] < z[2]) return(0)
-		   j <- 1:z[2]		# indices of the summands
-		   signs <- (-1)^(j+z[1])
-		   ## determine the signs of choose(j*alpha,z[1]) for each component of j
-		   to.subtract <- 0:(z[1]-1)
-		   sig.choose <-
-		       unlist(lapply(j, function(l)
-				     prod(sign(l*alpha-to.subtract)) ))
-		   signs <- signs*sig.choose
-		   binom.coeffs <- exp(lchoose(z[2],j) + lchoose(j*alpha,z[1]))
-		   sum(signs*binom.coeffs)
-	       }
-	       sum. <- matrix(apply(expand.grid(x, k), 1, FUN=one.arg), nrow=l.x)
-	       res[,k2] <- if(log) log(sum.) else sum.
-	   },
-	       ## otherwise
-	       stop(sprintf("unsupported method '%s' in dJoe", method)))
+    stopifnot(length(alpha) == 1, x == round(x), k == round(k), k >= 1)
+    if((l.x <- length(x)) * (l.k <- length(k)) == 0)
+	return(numeric())
+    if((n <- l.x) != l.k) { ## do recycle to common length
+	n <- max(l.x, l.k)
+	if(l.x < n)
+	    x <- rep(x, length.out = n)
+	else ## if(l.k < n)
+	    k <- rep(k, length.out = n)
     }
-    if(l.x == 1 || l.k == 1) as.vector(res) else res
+    if(alpha == 1)
+	return(x == k)
+    method <- match.arg(method)
+    switch(method,
+	   "log" =
+       {
+	   ## computes *proper* log based on lssum
+	   ## determine the matrix of signs of (alpha*j,x)*(-1)^(x-j),
+	   ## j in {1,..,m} -- NB: does not depend on x !
+	   m <- max(k)
+	   signs <- unlist(lapply(1:m, function(j){
+	       z <- alpha*j
+	       if(z == floor(z)) 0 else (-1)^(j-ceiling(z))
+	   }))
+	   ## for one pair of x and k:
+	   f.one <- function(x,k) {
+	       if(x < k) return(-Inf)	# = log(0)
+	       j <- seq_len(k)
+	       lxabs <- lchoose(k, j) + lchoose(alpha*j, x)
+	       ## *NON*-strict -- otherwise need try() :
+	       lssum(lxabs, signs[j], strict=FALSE)
+	   }
+	   S. <- sapply(1:n, function(i) f.one(x[i], k[i]))
+	   if(log) S. else exp(S.)
+       },
+	   "direct" =
+       {
+	   ## brute force evaluation of the sum and its log
+	   f.one <- function(x,k) {
+	       if(x < k) return(0)
+	       j <- seq_len(k)
+	       sum(choose(k,j)*choose(alpha*j,x)*(-1)^(x-j))
+	   }
+	   S <- sapply(1:n, function(i) f.one(x[i], k[i]))
+	   if(log) log(S) else S
+       },
+	   "Rmpfr" =
+       {
+           ## as "direct" but using high-precision arithmetic, where
+           ## the precision should be set via alpha = mpfr(*, precBits= .)
+	   stopifnot(require(Rmpfr))
+	   mpfr.0 <- mpfr(0, precBits = getPrec(alpha))
+	   f.one <- function(x,k) {
+	       if(x < k) return(mpfr.0)
+	       j <- seq_len(k)
+	       sum(chooseMpfr.all(k)*chooseMpfr(alpha*j,x)*(-1)^(x-j))
+	   }
+	   S <- new("mpfr", unlist(lapply(1:n, function(i)
+				   f.one(x[i], k[i]))))
+	   as.numeric(if(log) log(S) else S)
+       },
+	   "exp.log" =
+       {
+	   ## similar to method = "log", but without *proper/intelligent* log
+	   ## and inefficient due to the signs (old version)
+	   f.one <- function(x,k) {
+	       if(x < k) return(0)
+	       j <- seq_len(k) ## indices of the summands
+	       signs <- (-1)^(j+x)
+	       ## determine the signs of choose(j*alpha,x) for each component of j
+	       to.subtract <- 0:(x-1)
+	       sig.choose <-
+		   unlist(lapply(j, function(l)
+				 prod(sign(l*alpha-to.subtract)) ))
+	       signs <- signs*sig.choose
+	       binom.coeffs <- exp(lchoose(k,j) + lchoose(j*alpha,x))
+	       sum(signs*binom.coeffs)
+	   }
+	   S <- sapply(1:n, function(i) f.one(x[i], k[i]))
+	   if(log) log(S) else S
+       },
+	   ## otherwise
+	   stop(sprintf("unsupported method '%s' in dJoe", method)))
 }
 
 ### ==== polynomial evaluation for Joe ====
@@ -1017,7 +1032,7 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("direct","log")
                res <- lx.max + log(rowMeans(exp(t(lx) - lx.max)))
                if(log) res else exp(res)
            },
-       {stop(sprintf("unsupported method '%s' in psiDabsMC", method))})
+           stop(sprintf("unsupported method '%s' in psiDabsMC", method)))
 }
 
 ##' Function for setting the parameter in an acopula

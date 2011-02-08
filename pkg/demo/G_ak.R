@@ -54,6 +54,14 @@ chk.all # quite interesting
 ##    e.g., a.k[53] = 4.325e+83 and Maple says 4.627673570e83]
 
 ## conclusion: large alpha's [small theta's] cause the problems!!!
+## ==========
+
+## An example showing that for  "dJoe" the problem is exactly *small* alphas:
+plot (a.k.H <- coeffG(100, 0.01, method = "horner"), type = "l", lwd=3, log="y")
+lines(a.k.J <- coeffG(100, 0.01, method = "dJoe"), col=2, type ="o")
+lines(a.k.s <- coeffG(100, 0.01, method = "sort"), col=3, type ="l")
+lines(a.k.d <- coeffG(100, 0.01, method = "direct"),
+      col=adjustcolor("blue"), type ="l", lwd=4)
 
 
 set.seed(1)

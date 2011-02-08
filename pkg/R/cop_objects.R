@@ -618,13 +618,14 @@ copJoe <-
                       alpha <- theta0/theta1
                       rF01Joe(V0, alpha, approx)
                   },
-                  dV01 = { function(x, V0, theta0, theta1,
-                                    method=c("log", "direct", "exp.log"), log=FALSE) {
-                      stopifnot(length(V0) == 1 || length(x) == length(V0))
-                      ## also holds for theta0 == theta1
-                      ## note: this is numerically challenging
-                      dJoe(x, V0, theta0/theta1, method=method, log=log)
-                  }},
+		  dV01 =
+		  function(x, V0, theta0, theta1,
+			   method= eval(formals(dJoe)$method), log = FALSE) {
+		      stopifnot(length(V0) == 1 || length(x) == length(V0))
+		      ## also holds for theta0 == theta1
+		      ## note: this is numerically challenging
+		      dJoe(x, V0, theta0/theta1, method=method, log=log)
+		  },
                   ## Kendall's tau
                   ## noTerms: even for theta==0, the approximation error is < 10^(-5)
 		  tau = function(theta, noTerms=446) {
