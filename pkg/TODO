@@ -1,5 +1,6 @@
 ## ==== features in next CRAN version ====
 
+(*) Fix FIXME's in ./demo/poly-demo.R => also concerns copJoe@dacopula
 (MM) make polyG (and polyJ) more efficient! see FIXME's there
 (MM) implement dJoe with Rmpfr
 (MH) does psiDabs for Gumbel with defaults "pois" and "stirling" work? check with plots!
