@@ -384,17 +384,16 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dJoe"),
 ##' @param alpha parameter (1/theta)
 ##' @param d number of summands, >= 1
 ##' @param method a string, one of
-##'   default          uses a combination of the methods below depending on alpha
-##'   pois.direct:     uses ppois directly
-##'   pois:            uses ppois with pulling out max
-##'   binomial.coeff:  uses binomial coefficients, only critical for large dependencies
-##'   stirling:        uses the representation via Stirling numbers and once horner
-##'   stirling.horner: uses the representation via Stirling numbers and twice horner
-##'   sort:            compute the coefficients via exp(log()),
-##' 			  pulling out the maximum, and sort
-##'   horner:          uses polynEval
-##'   direct:          brute force approach
-##'   dJoe:            uses dJoe
+##'   "default"         uses a combination of the other methods 
+##'   "pois.direct"     uses ppois directly
+##'   "pois"            uses ppois with pulling out max
+##'   "binomial.coeff"  uses binomial coefficients, only critical for large dependencies
+##'   "stirling"        uses the representation via Stirling numbers and once horner
+##'   "stirling.horner" uses the representation via Stirling numbers and twice horner
+##'   "sort"            compute the coefficients via exp(log()), pulling out the max and sort
+##'   "horner"          uses polynEval
+##'   "direct"          brute force approach
+##'   "dJoe"            uses dJoe
 ##' @param log boolean which determines if the logarithm is returned
 ##' @return \sum_{k=1}^d  a_{dk}(\theta)  x ^ k
 ##'       = \sum_{k=1}^d  a_{dk} *     exp(lx*k)
@@ -411,15 +410,11 @@ polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
     switch(method,
 	   "default" = 
        {
-	   if(d <= 100){ # fast
-               if(alpha <= 0.54) polyG(lx=lx, alpha=alpha, d=d, method="stirling", 
-                  log=log)
-               else if(alpha <= 0.77) polyG(lx=lx, alpha=alpha, d=d, 
-                       method="pois.direct", log=log)
-               else polyG(lx=lx, alpha=alpha, d=d, method="dJoe", log=log)
-           }else{ # slower but more stable, e.g., for d=150
-               polyG(lx=lx, alpha=alpha, d=d, method="pois", log=log)
-           }
+	   method <- if(d <= 100)
+               if(alpha <= 0.54) "stirling" else if(alpha <= 0.77)
+                   "pois.direct" else "dJoe"
+           else "pois" # slower but more stable, e.g., for d=150
+	   polyG(lx=lx, alpha=alpha, d=d, method=method, log=log)
        },
            "pois" =
        {
@@ -746,7 +741,6 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE){
     if(d > 220) stop("d > 220 not yet supported")# would need Stirling2.all(d, log=TRUE)
     k <- 1:d
     l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha) # log(a_{dk}(theta)), k = 1,..,d
-    ## FIXME: maybe (!) use Horner (see polyG)
     ## evaluate polynomial via exp( log(<poly>) )
     ## for this, create a matrix B with (k,i)-th entry B[k,i] = log(a_{dk}(theta)) + (k-1) * lx[i],
     ## where k in {1,..,d}, i in {1,..,n} [n = length(lx)]

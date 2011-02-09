@@ -23,7 +23,7 @@ plot.polyG <- function(from, to, method, alpha, d){
 
 ## ==== expected evaluation points for estimating a Gumbel copula ==== 
 
-eep.fun <- function(alpha, d, n.MC=5000){
+eep.G <- function(alpha, d, n.MC=5000){
     len <- length(alpha)
     ex <- numeric(len) # expected x
     for(k in 1:len){
@@ -41,7 +41,7 @@ alpha <- c(0.99, 0.5, 0.01) # alphas; plot largest first, so that all values are
 d <- 5
 from <- 1e-16
 to <- 1000
-(ev <- eep.fun(alpha,d)) # 4.927077 2.462882 1.025498
+(ev <- eep.G(alpha,d)) # 4.927077 2.462882 1.025498
 stopifnot(all(from < ev, ev < to))
 meths <- eval(formals(nacopula:::polyG)$method)
 for(i in seq_along(meths)){
@@ -56,7 +56,7 @@ alpha <- c(0.99, 0.5, 0.01) # alphas; plot largest first, so that all values are
 d <- 100
 from <- 1e-16
 to <- 200
-(ev <- eep.fun(alpha,d)) # 95.911722 11.247274 1.053746
+(ev <- eep.G(alpha,d)) # 95.911722 11.247274 1.053746
 stopifnot(all(from < ev, ev < to))
 
 ## method == "pois"
@@ -145,7 +145,7 @@ library(lattice)
 ## method = method for polyG
 polyG.animate <- function(m, d, method, xlim=c(1e-16,200), ylim){
     alphas <- (1:m)/(m+1) # alphas
-    eep <- eep.fun(alphas, d) # corresponding expected evaluation points for Gumbel
+    eep <- eep.G(alphas, d) # corresponding expected evaluation points for Gumbel
     x <- seq(xlim[1],xlim[2],length.out=1000)
     lx <- log(x)
     res <- lapply(1:m, function(i){
