@@ -6,29 +6,41 @@ options(warn=1)
 
 ## ==== plot of poly* (= polyG, polyJ) for all methods =========================
 
-## ==== expected evaluation points for estimating a Gumbel copula ==== 
+## ==== expected evaluation points for estimating a Gumbel copula ====
 
 eep.fun <- function(family, alpha, d, n.MC=5000){
-    ex <- numeric(len<- length(alpha)) # expected x
-    for(k in 1:len){
-        th <- 1/alpha[k]
-        cop <- onacopulaL(family, list(th, 1:d))
-        U <- rnacopula(n.MC, cop)
-	ex[k] <- switch(family,
-                        Gumbel = {
-                            mean(rowSums(cop@copula@psiInv(U, th))^alpha[k])
-                        },
-                        Joe = {
-	                    U. <- (1-U)^th
-	                    lh <- rowSums(log1p(-U.)) # log(h(..))
-	                    h <- apply(1-U., 1, prod)
-	                    l1_h <- log1p(-h) # log(1-h(..)); FIXME: this is -Inf!!
-	                    mean(exp(lh-l1_h))
-                        },
-                    {stop("wrong family in plot.poly")})
-    }
-    ex
+    EP <-
+        switch(family,
+               Gumbel =
+           {
+               function(U)
+                   mean(rowSums(cop@copula@psiInv(U, th))^alph)
+           },
+               Joe =
+           {
+               function(U) {
+                   U. <- (1-U)^th
+                   lh <- rowSums(log1p(-U.)) # log(h(..))
+                   ## h <- apply(1-U., 1, prod)
+                   ## l1_h <- log1p(-h) # log(1-h(..)); FIXME: this is -Inf!!
+                   l1_h <- log(-expm1(lh))
+                   mean(exp(lh-l1_h))
+               }
+           },
+               stop("wrong family in eep.fun()"))
+
+    vapply(alpha, function(alph)
+       {
+           th <- 1/alph
+           cop <- onacopulaL(family, list(th, 1:d))
+           EP( rnacopula(n.MC, cop) )
+       }, NA_real_)
 }
+
+set.seed(17)
+eep.fun("Joe", alpha = 1/(2:48), d = 5) # 1 x  Inf
+eep.fun("Joe", alpha = 1/(2:48), d = 5) # _no_ Inf
+eep.fun("Joe", alpha = 1/(2:48), d = 5) # _no_ Inf
 
 ## FIXME: here is the problem:
 th <- 50
@@ -37,20 +49,24 @@ d <- 5
 cop <- onacopulaL(family, list(th, 1:d))
 U <- rnacopula(100000, cop)
 U. <- (1-U)^th
-l1_h <- log1p(-exp( rowSums(log1p( -U. )) ))
-lh <- rowSums(log1p(U.))
+## h <- apply(1-U., 1, prod)
+lh <- rowSums(log1p(-U.))
+## Falsch:
+l1_h <- log1p(-exp( lh ))
+## Richtig:
+l2_h <- log(-expm1( lh ))
 
-U.. <- 1-U. # caution: is 1 although U. != 0 
+## U.. <- 1-U. # caution: is 1 although U. != 0
 
-l1_h <- log1p(-exp(lh))
-l1_h2 <- log(-expm1(lh))
-h <- apply(1-U., 1, prod) # many are 1 
+## l1_h <- log1p(-exp(lh))
+## l1_h2 <- log(-expm1(lh))
+## h <- apply(1-U., 1, prod) # many are 1
 
 ## ==== plot function for a vector of alphas ====
 
 plot.poly <- function(family, xlim, ylim, method, alpha, d){
     len <- length(alpha)
-    cols <- colorRampPalette(c("red", "orange", "darkgreen", "turquoise", "blue"), 
+    cols <- colorRampPalette(c("red", "orange", "darkgreen", "turquoise", "blue"),
                              space="Lab")(len)
     switch(family,
            "Gumbel" = {
@@ -59,18 +75,18 @@ plot.poly <- function(family, xlim, ylim, method, alpha, d){
            },
            "Joe" = {
                fun <- nacopula:::polyJ
-               str <- "J"	
+               str <- "J"
            },
        {stop("wrong family in plot.poly")})
-    for(k in 1:len){ 
+    for(k in 1:len){
         curve(fun(log(x), alpha=alpha[k], d=d, method=method, log=TRUE),
               from=xlim[1], to=xlim[2], main=paste("poly",str,
                                         "(log(x), alpha=..., d=",d,
-                                        ", method=",method,", log=TRUE)",sep=""), 
-              xlab="x", ylab=paste("log(poly",str,"(log(x), ...))", sep=""), 
+                                        ", method=",method,", log=TRUE)",sep=""),
+              xlab="x", ylab=paste("log(poly",str,"(log(x), ...))", sep=""),
               add=(k>1), lwd=1.4, col=cols[k], ylim=ylim)
-    }	
-    label <- as.expression(lapply(1:len, function(i) 
+    }
+    label <- as.expression(lapply(1:len, function(i)
         substitute(alpha==a, list(a=alpha[i]))))
     legend("bottomright", label, bty="n", lwd=1.4, col=cols)
 }
@@ -89,7 +105,7 @@ poly.ani <- function(family, m, d, method, xlim, ylim){
            },
            "Joe" = {
                fun <- nacopula:::polyJ
-               str <- "J"	
+               str <- "J"
            },
        {stop("wrong family in plot.poly")})
     alphas <- (1:m)/(m+1) # alphas
@@ -98,12 +114,12 @@ poly.ani <- function(family, m, d, method, xlim, ylim){
     lx <- log(x)
     res <- lapply(1:m, function(i){
         if(i %% 5 == 1) print(paste(round(i/m*100),"% done",sep="")) # progress
-        y <- fun(lx, alpha=alphas[i], d=d, method=method, 
+        y <- fun(lx, alpha=alphas[i], d=d, method=method,
                  log=TRUE)
-        p <- xyplot(y~x, type="l", xlab="x", 
-                    ylab=paste("log(poly",str,"(log(x), ...))",sep=""), aspect=1, 
-                    xlim=xlim, ylim=ylim, key=list(x=0.35, y=0.1, lines=list(lty=1, 
-                                                                  col="black"), 
+        p <- xyplot(y~x, type="l", xlab="x",
+                    ylab=paste("log(poly",str,"(log(x), ...))",sep=""), aspect=1,
+                    xlim=xlim, ylim=ylim, key=list(x=0.35, y=0.1, lines=list(lty=1,
+                                                                  col="black"),
                                           text=list(paste("expected x-value for alpha=",
                                           alphas[i],sep=""))),
                     panel=function(...){
@@ -145,7 +161,7 @@ stopifnot(all(xlim[1] < ev, ev < xlim[2]))
 
 ## method == "pois"
 plot.poly(family, xlim=xlim, ylim=ylim, method="pois", alpha=alpha, d=d)
-## => problems for small and moderate alpha 
+## => problems for small and moderate alpha
 
 ## method == "pois.direct"
 plot.poly(family, xlim=xlim, ylim=ylim, method="pois.direct", alpha=alpha, d=d)
@@ -172,48 +188,48 @@ plot.poly(family, xlim=xlim, ylim=ylim, method="dJoe", alpha=alpha, d=d) # okay 
 ## ==== run time comparison of the methods that worked for some parameter ====
 
 set.seed(1)
-x <- runif(100000, min=0.01, max=120) 
+x <- runif(100000, min=0.01, max=120)
 lx <- log(x)
 
 ## pois: for large alpha (where it works)
-system.time(y.pois <- nacopula:::polyG(lx, alpha=0.99, d=d, method="pois", 
+system.time(y.pois <- nacopula:::polyG(lx, alpha=0.99, d=d, method="pois",
                                        log=TRUE))[[1]]
 ## => 8.91s
 stopifnot(all(!is.nan(y.pois))) # check
 
 ## pois.direct: for large alpha (where it works)
-system.time(y.pois.direct <- nacopula:::polyG(lx, alpha=0.99, d=d, 
+system.time(y.pois.direct <- nacopula:::polyG(lx, alpha=0.99, d=d,
                                               method="pois.direct", log=TRUE))[[1]]
 ## => 6.80s
 stopifnot(all(!is.nan(y.pois.direct))) # check
 
 ## binomial.coeff: for large alpha (where it works)
-system.time(y.binomial.coeff <- nacopula:::polyG(lx, alpha=0.99, d=d, 
-                                                 method="binomial.coeff", 
+system.time(y.binomial.coeff <- nacopula:::polyG(lx, alpha=0.99, d=d,
+                                                 method="binomial.coeff",
                                                  log=TRUE))[[1]]
 ## => 8.72s
 stopifnot(all(!is.nan(y.binomial.coeff))) # check
 
 ## stirling: for moderate alpha (where it works)
-system.time(y.stirling <- nacopula:::polyG(lx, alpha=0.5, d=d, 
+system.time(y.stirling <- nacopula:::polyG(lx, alpha=0.5, d=d,
                                            method="stirling", log=TRUE))[[1]]
 ## => 1.92s
 stopifnot(all(!is.nan(y.stirling))) # check
 
 ## stirling.horner: for moderate alpha (where it works)
-system.time(y.stirling.horner <- nacopula:::polyG(lx, alpha=0.5, d=d, 
-                                                  method="stirling.horner", 
+system.time(y.stirling.horner <- nacopula:::polyG(lx, alpha=0.5, d=d,
+                                                  method="stirling.horner",
                                                   log=TRUE))[[1]]
 ## => 2.79s
 stopifnot(all(!is.nan(y.stirling.horner))) # check
 
 ## dJoe: for large alpha (where it works)
-system.time(y.dJoe <- nacopula:::polyG(lx, alpha=0.99, d=d, method="dJoe", 
+system.time(y.dJoe <- nacopula:::polyG(lx, alpha=0.99, d=d, method="dJoe",
                                        log=TRUE))[[1]]
 ## => 2.28s
 stopifnot(all(!is.nan(y.dJoe))) # check
 
-## conclusion: 
+## conclusion:
 ## - fastest for large alpha: "dJoe", "pois.direct"
 ## - fastest for small and moderate alpha: "stirling"
 ## - further methods tried: pulling out max() for "stirling" => does not increase precision
@@ -223,19 +239,19 @@ stopifnot(all(!is.nan(y.dJoe))) # check
 ## dJoe
 m <- 49
 ylim <- c(200, 700)
-polyG.ani.dJoe <- poly.ani(family, m, d=d, method="dJoe", xlim=c(1e-16,200), 
+polyG.ani.dJoe <- poly.ani(family, m, d=d, method="dJoe", xlim=c(1e-16,200),
                            ylim=ylim)
 saveHTML(for(i in 1:m) print(polyG.ani.dJoe[[i]]$plot))
 ## => works for alpha >= 0.75
 
 ## pois.direct
-polyG.ani.pois.direct <- poly.ani(family, m, d=d, method="pois.direct", 
+polyG.ani.pois.direct <- poly.ani(family, m, d=d, method="pois.direct",
                                   xlim=c(1e-16,200), ylim=ylim)
 saveHTML(for(i in 1:m) print(polyG.ani.pois.direct[[i]]$plot))
 ## => works for the whole range of *expected* values, esp. for alpha >= 0.72
 
 ## stirling
-polyG.ani.stirling <- poly.ani(family, m, d=d, method="stirling", 
+polyG.ani.stirling <- poly.ani(family, m, d=d, method="stirling",
                                xlim=c(1e-16,200), ylim=ylim)
 saveHTML(for(i in 1:m) print(polyG.ani.stirling[[i]]$plot))
 ## => works for alpha <= 0.56
@@ -243,23 +259,23 @@ saveHTML(for(i in 1:m) print(polyG.ani.stirling[[i]]$plot))
 ## ==== check default method ====
 
 ## comparison with Maple (Digits = 100)
-v1 <- nacopula:::polyG(log(1), alpha=0.01, d=d, log=TRUE)  
-v2 <- nacopula:::polyG(log(1), alpha=0.5, d=d, log=TRUE)   
-v3 <- nacopula:::polyG(log(1), alpha=0.99, d=d, log=TRUE)  
+v1 <- nacopula:::polyG(log(1), alpha=0.01, d=d, log=TRUE)
+v2 <- nacopula:::polyG(log(1), alpha=0.5, d=d, log=TRUE)
+v3 <- nacopula:::polyG(log(1), alpha=0.99, d=d, log=TRUE)
 stopifnot(all.equal(c(v1,v2,v3), c(354.52779560, 356.56733266, 350.99662083))) # comparison with Maple
 
-v1 <- nacopula:::polyG(log(17), alpha=0.01, d=d, log=TRUE) 
-v2 <- nacopula:::polyG(log(17), alpha=0.5, d=d, log=TRUE)  
-v3 <- nacopula:::polyG(log(17), alpha=0.99, d=d, log=TRUE) 
+v1 <- nacopula:::polyG(log(17), alpha=0.01, d=d, log=TRUE)
+v2 <- nacopula:::polyG(log(17), alpha=0.5, d=d, log=TRUE)
+v3 <- nacopula:::polyG(log(17), alpha=0.99, d=d, log=TRUE)
 stopifnot(all.equal(c(v1,v2,v3), c(358.15179523, 374.67231305, 370.20372192))) # comparison with Maple
 
-v1 <- nacopula:::polyG(log(77), alpha=0.01, d=d, log=TRUE) 
-v2 <- nacopula:::polyG(log(77), alpha=0.5, d=d, log=TRUE)  
-v3 <- nacopula:::polyG(log(77), alpha=0.99, d=d, log=TRUE) 
+v1 <- nacopula:::polyG(log(77), alpha=0.01, d=d, log=TRUE)
+v2 <- nacopula:::polyG(log(77), alpha=0.5, d=d, log=TRUE)
+v3 <- nacopula:::polyG(log(77), alpha=0.99, d=d, log=TRUE)
 stopifnot(all.equal(c(v1,v2,v3), c(362.38428102, 422.83827969, 435.36899283), tol=1e-6)) # comparison with Maple
 
 ## ani in alpha
-polyG.ani.default <- poly.ani(family, m, d=d, method="default", 
+polyG.ani.default <- poly.ani(family, m, d=d, method="default",
                               xlim=c(1e-16,200), ylim=ylim)
 saveHTML(for(i in 1:m) print(polyG.ani.default[[i]]$plot))
 
@@ -306,17 +322,17 @@ plot.poly(family, xlim=xlim, ylim=ylim, method="poly", alpha=alpha, d=d)
 ## ==== run time comparison of the methods that worked for some parameter ====
 
 set.seed(1)
-x <- runif(100000, min=0.01, max=1e100) 
+x <- runif(100000, min=0.01, max=1e100)
 lx <- log(x)
 
-## log.poly: 
-system.time(y.log.poly <- nacopula:::polyJ(lx, alpha=0.5, d=d, method="log.poly", 
+## log.poly:
+system.time(y.log.poly <- nacopula:::polyJ(lx, alpha=0.5, d=d, method="log.poly",
                                            log=TRUE))[[1]]
 ## => 2.701s
 stopifnot(all(!is.nan(y.log.poly))) # check
 
-## log1p: 
-system.time(y.log1p <- nacopula:::polyJ(lx, alpha=0.5, d=d, 
+## log1p:
+system.time(y.log1p <- nacopula:::polyJ(lx, alpha=0.5, d=d,
                                         method="log1p", log=TRUE))[[1]]
 ## => 4.118s
 stopifnot(all(!is.nan(y.log1p))) # check
@@ -324,18 +340,18 @@ stopifnot(all(!is.nan(y.log1p))) # check
 ## conclusion: use log.poly
 
 ## comparison with Maple (Digits = 100)
-v1 <- nacopula:::polyJ(log(1), alpha=0.01, d=d, log=TRUE)  
-v2 <- nacopula:::polyJ(log(1), alpha=0.5, d=d, log=TRUE)   
-v3 <- nacopula:::polyJ(log(1), alpha=0.99, d=d, log=TRUE)  
+v1 <- nacopula:::polyJ(log(1), alpha=0.01, d=d, log=TRUE)
+v2 <- nacopula:::polyJ(log(1), alpha=0.5, d=d, log=TRUE)
+v3 <- nacopula:::polyJ(log(1), alpha=0.99, d=d, log=TRUE)
 stopifnot(all.equal(c(v1,v2,v3), c(395.73694325, 393.08027226, 386.96715831))) # comparison with Maple
 
-v1 <- nacopula:::polyJ(log(1e20), alpha=0.01, d=d, log=TRUE) 
-v2 <- nacopula:::polyJ(log(1e20), alpha=0.5, d=d, log=TRUE)  
-v3 <- nacopula:::polyJ(log(1e20), alpha=0.99, d=d, log=TRUE) 
+v1 <- nacopula:::polyJ(log(1e20), alpha=0.01, d=d, log=TRUE)
+v2 <- nacopula:::polyJ(log(1e20), alpha=0.5, d=d, log=TRUE)
+v3 <- nacopula:::polyJ(log(1e20), alpha=0.99, d=d, log=TRUE)
 stopifnot(all.equal(c(v1,v2,v3), c(4918.2008336, 4915.3815020, 4909.1039909))) # comparison with Maple
 
 v1 <- nacopula:::polyJ(log(1e100), alpha=0.01, d=d, log=TRUE)
-v2 <- nacopula:::polyJ(log(1e100), alpha=0.5, d=d, log=TRUE) 
+v2 <- nacopula:::polyJ(log(1e100), alpha=0.5, d=d, log=TRUE)
 v3 <- nacopula:::polyJ(log(1e100), alpha=0.99, d=d, log=TRUE)
 stopifnot(all.equal(c(v1,v2,v3), c(23154.67477009, 23151.85543852, 23145.57792740))) # comparison with Maple
 
