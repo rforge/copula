@@ -37,9 +37,11 @@ d <- 5
 cop <- onacopulaL(family, list(th, 1:d))
 U <- rnacopula(100000, cop)
 U. <- (1-U)^th
+l1_h <- log1p(-exp( rowSums(log1p( -U. )) ))
+lh <- rowSums(log1p(U.))
+
 U.. <- 1-U. # caution: is 1 although U. != 0 
-l <- log1p(U.)
-lh <- rowSums(l)
+
 l1_h <- log1p(-exp(lh))
 l1_h2 <- log(-expm1(lh))
 h <- apply(1-U., 1, prod) # many are 1 

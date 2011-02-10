@@ -3,8 +3,6 @@
 (*) Fix FIXME's in ./demo/poly-demo.R => also concerns copJoe@dacopula
 (MM) make polyG (and polyJ) more efficient! see FIXME's there
 (MM) implement dJoe with Rmpfr
-(MH) does psiDabs for Gumbel with defaults "pois" and "stirling" work? check with plots!
-    or all.equal dacopula() & dacopulag() for all methods & families
 (MH) implement opower with *correct* log + correct density!! [currently wrong]
 (*) user outer() instead of "one.t()"-like functions in all dacopula slots when n.MC > 0; see psiDabsMC for the method
 (MH) implement 1st derivative of the log density w.r.t. theta
