@@ -98,4 +98,3 @@ plot(coeffs~1:100, type="l", xlim = c(-3,104), ylim = c(-303,374),
                              xlab = "k", ylab = expression(log(a[k])), aspect = 1,
                              main = substitute(expression(alpha == alpha.),
                              list(alpha. = alpha.list[i])))
-}
