@@ -27,22 +27,11 @@ sign.fafac(0.8, 17)
 ##
 ## at whenever sign(s) != 0  {and for the s == 0  case, sign does not matter}
 
-
-## compute the sign of choose(alpha*j,d)*(-1)^(d-j) vectorized in j
-sign.Joe <- function(alpha, d, j){
-    stopifnot(0 < alpha, alpha < 1) # for alpha == 1 the formel does not hold
-    res <- rep(0, length(j))
-    x <- alpha*j
-    nint <- x != floor(x) # TRUE iff not integer
-    res[nint] <- (-1)^(j[nint]-ceiling(x[nint]))
-    res
-}
-
 ## test 1
 alpha <- 0.9
 d <- 2
 j <- 1:d
-sign.Joe(alpha, d, 1:d)
+sign.binom(alpha, 1:d, )
 sign(choose(alpha*j, d)*(-1)^(d-j))
 (-1)^d * (2*(floor(alpha*j) %% 2) - 1) # => formula above is not correct!
 
@@ -50,4 +39,4 @@ sign(choose(alpha*j, d)*(-1)^(d-j))
 alpha <- 0.9
 d <- 3
 j <- 1:d
-all(sign.Joe(alpha, d, 1:d) == sign(choose(alpha*j, d)*(-1)^(d-j)))
+all(sign.binom(alpha, 1:d, d) == sign(choose(alpha*j, d)*(-1)^(d-j)))

@@ -274,6 +274,23 @@ rFFrank <- function(n, theta0, theta1, rej)
 
 ### ==== Gumbel ================================================================
 
+##' The sign of choose(alpha*j,d)*(-1)^(d-j) vectorized in j
+##'
+##' @title The sign of choose(alpha*j,d)*(-1)^(d-j) 
+##' @param alpha alpha in (0,1)
+##' @param j vector
+##' @param d number 
+##' @return sign(choose(alpha*j,d)*(-1)^(d-j))
+##' @author Marius Hofert 
+sign.binom <- function(alpha, j, d){
+    stopifnot(0 < alpha, alpha < 1) # for alpha == 1 this function is not correct
+    res <- rep(0, length(j))
+    x <- alpha*j
+    nint <- x != floor(x) # TRUE iff not integer
+    res[nint] <- (-1)^(j[nint]-ceiling(x[nint]))
+    res
+}
+
 ### ==== compute the coefficients for polyG ====
 
 ##' Compute the coefficients a_{dk}(theta) involved in the generator derivatives
@@ -792,7 +809,9 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE){
 ##' @author Marius Hofert
 lsum <- function(lx, l.off=apply(lx, 1, max)) {
     if(!is.matrix(lx)) lx <- rbind(lx)
-    l.off + log(rowSums(exp(lx - l.off))) # FIXME: for a vector lx, names(lx) == "lx" => maybe remove?
+    res <- l.off + log(rowSums(exp(lx - l.off))) 
+    if(is.vector(res)) names(res) <- NULL
+    res
 }
 
 ##' Properly compute log(-+x_1 -+ .. -+ x_n) for given log(|x_1|), .., log(|x_n|)
@@ -814,7 +833,9 @@ lssum <- function(lxabs, signs, l.off = apply(lxabs, 1, max), strict=TRUE) {
     sum. <- rowSums(signs * exp(lxabs - l.off))
     if(any(sum. <= 0)) if(strict) stop("lssum found non-positive sums") else
     warning("lssum found non-positive sums")
-    l.off + log(sum.) # FIXME: for a vector lxabs, names(lxabs) == "lxabs" => maybe remove?
+    res <- l.off + log(sum.) 
+    if(is.vector(res)) names(res) <- NULL
+    res
 }
 
 ##' Compute Stirling numbers of the 1st kind

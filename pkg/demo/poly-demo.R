@@ -6,61 +6,28 @@ options(warn=1)
 
 ## ==== plot of poly* (= polyG, polyJ) for all methods =========================
 
-## ==== expected evaluation points for estimating a Gumbel copula ====
+## ==== expected evaluation points for estimating Gumbel and Joe copulas ====
 
 eep.fun <- function(family, alpha, d, n.MC=5000){
-    EP <-
-        switch(family,
-               Gumbel =
-           {
-               function(U)
-                   mean(rowSums(cop@copula@psiInv(U, th))^alph)
-           },
-               Joe =
-           {
-               function(U) {
-                   U. <- (1-U)^th
-                   lh <- rowSums(log1p(-U.)) # log(h(..))
-                   ## h <- apply(1-U., 1, prod)
-                   ## l1_h <- log1p(-h) # log(1-h(..)); FIXME: this is -Inf!!
-                   l1_h <- log(-expm1(lh))
-                   mean(exp(lh-l1_h))
-               }
-           },
-               stop("wrong family in eep.fun()"))
-
     vapply(alpha, function(alph)
        {
            th <- 1/alph
            cop <- onacopulaL(family, list(th, 1:d))
-           EP( rnacopula(n.MC, cop) )
+           U <- rnacopula(n.MC, cop)
+           switch(family,
+                  Gumbel =
+              {
+                  mean(rowSums(cop@copula@psiInv(U, th))^alph)
+              },
+                  Joe =
+              {
+                  U. <- (1-U)^th
+                  lh <- rowSums(log1p(-U.)) # log(h(..))
+                  l1_h <- log(-expm1(lh))
+                  mean(exp(lh-l1_h))
+              }, stop("wrong family in eep.fun()"))
        }, NA_real_)
 }
-
-set.seed(17)
-eep.fun("Joe", alpha = 1/(2:48), d = 5) # 1 x  Inf
-eep.fun("Joe", alpha = 1/(2:48), d = 5) # _no_ Inf
-eep.fun("Joe", alpha = 1/(2:48), d = 5) # _no_ Inf
-
-## FIXME: here is the problem:
-th <- 50
-family <- "Joe"
-d <- 5
-cop <- onacopulaL(family, list(th, 1:d))
-U <- rnacopula(100000, cop)
-U. <- (1-U)^th
-## h <- apply(1-U., 1, prod)
-lh <- rowSums(log1p(-U.))
-## Falsch:
-l1_h <- log1p(-exp( lh ))
-## Richtig:
-l2_h <- log(-expm1( lh ))
-
-## U.. <- 1-U. # caution: is 1 although U. != 0
-
-## l1_h <- log1p(-exp(lh))
-## l1_h2 <- log(-expm1(lh))
-## h <- apply(1-U., 1, prod) # many are 1
 
 ## ==== plot function for a vector of alphas ====
 
@@ -141,7 +108,7 @@ alpha <- c(0.99, 0.5, 0.01) # alphas; plot largest first, so that all values are
 d <- 5
 xlim <- c(1e-16, 1000)
 ylim <- c(-40, 40)
-(ev <- eep.fun(family, alpha, d)) # 4.927077 2.462882 1.025498
+(ev <- eep.fun(family, alpha=alpha, d=d)) # 4.927077 2.462882 1.025498
 stopifnot(all(xlim[1] < ev, ev < xlim[2]))
 
 meths <- eval(formals(nacopula:::polyG)$method)
@@ -274,7 +241,7 @@ v2 <- nacopula:::polyG(log(77), alpha=0.5, d=d, log=TRUE)
 v3 <- nacopula:::polyG(log(77), alpha=0.99, d=d, log=TRUE)
 stopifnot(all.equal(c(v1,v2,v3), c(362.38428102, 422.83827969, 435.36899283), tol=1e-6)) # comparison with Maple
 
-## ani in alpha
+## animation in alpha
 polyG.ani.default <- poly.ani(family, m, d=d, method="default",
                               xlim=c(1e-16,200), ylim=ylim)
 saveHTML(for(i in 1:m) print(polyG.ani.default[[i]]$plot))
@@ -284,28 +251,30 @@ saveHTML(for(i in 1:m) print(polyG.ani.default[[i]]$plot))
 
 ## ==== plots for small d ====
 
+set.seed(1)
 family <- "Joe"
-alpha <- c(0.01, 0.5, 0.99) # alphas; plot smallest first, so that all values are visible
+alpha <- c(0.05, 0.5, 0.99) # alphas; plot smallest first, so that all values are visible
 d <- 5
-xlim <- c(1e-16, 1e100)
-ylim <- c(0, 1000)
-(ev <- eep.fun(family, alpha, d, n.MC=100000)) # Inf 2.778438e+06 5.675954e-02; varies a lot for different runs!
-warning(all(xlim[1] < ev, ev < xlim[2]))
+xlim <- c(1e-16, 1e120)
+ylim <- c(0, 1200)
+(ev <- eep.fun(family, alpha, d, n.MC=100000)) # 5.618664e+79 6.923153e+03 5.912850e-02; varies a lot for different runs!
+if(!all(xlim[1] < ev, ev < xlim[2])) warning("ev outside xlim")
 
 meths <- eval(formals(nacopula:::polyJ)$method)
 for(i in seq_along(meths)){
     plot.poly(family, xlim=xlim, ylim=ylim, method=meths[i], alpha=alpha, d=d)
     Sys.sleep(2)
 }
-## => poly does not work
+## => does not work for any reasonable x range
 
 ## ==== plots for large d ====
 
+set.seed(1)
 d <- 100
-xlim <- c(1e-16, 1e100)
-ylim <- c(0, 25000)
-(ev <- eep.fun(family, alpha, d, n.MC=100000)) # Inf 1.137383e+03 6.508738e-04; varies a lot for different runs!
-warning(all(xlim[1] < ev, ev < xlim[2]))
+xlim <- c(1e-16, 1e120)
+ylim <- c(0, 30000)
+(ev <- eep.fun(family, alpha, d, n.MC=100000)) # 2.119430e+78 8.011466e+02 2.040599e-04; varies a lot for different runs!
+if(!all(xlim[1] < ev, ev < xlim[2])) warning("ev outside xlim")
 
 ## method == "log.poly"
 plot.poly(family, xlim=xlim, ylim=ylim, method="log.poly", alpha=alpha, d=d)
@@ -317,7 +286,7 @@ plot.poly(family, xlim=xlim, ylim=ylim, method="log1p", alpha=alpha, d=d)
 
 ## method == "poly"
 plot.poly(family, xlim=xlim, ylim=ylim, method="poly", alpha=alpha, d=d)
-## => problems for all x
+## => does not work for any reasonable x range
 
 ## ==== run time comparison of the methods that worked for some parameter ====
 
@@ -337,7 +306,7 @@ system.time(y.log1p <- nacopula:::polyJ(lx, alpha=0.5, d=d,
 ## => 4.118s
 stopifnot(all(!is.nan(y.log1p))) # check
 
-## conclusion: use log.poly
+## conclusion: use log.poly as default
 
 ## comparison with Maple (Digits = 100)
 v1 <- nacopula:::polyJ(log(1), alpha=0.01, d=d, log=TRUE)
@@ -355,10 +324,9 @@ v2 <- nacopula:::polyJ(log(1e100), alpha=0.5, d=d, log=TRUE)
 v3 <- nacopula:::polyJ(log(1e100), alpha=0.99, d=d, log=TRUE)
 stopifnot(all.equal(c(v1,v2,v3), c(23154.67477009, 23151.85543852, 23145.57792740))) # comparison with Maple
 
-## TODOs:
-## - problem Joe: log(h/(1-h)) = Inf for alpha <= 0.3; same problem in dacopula
-##   => Fix it! hier + in nacopula
-## - comment
-
-
+## animation in alpha
+polyJ.ani.default <- poly.ani(family, m, d=d, method="log.poly",
+                              xlim=c(1e-16,1e120), ylim=ylim)
+saveHTML(for(i in 1:m) print(polyJ.ani.default[[i]]$plot))
+## => rather extreme but seems to be fine
 

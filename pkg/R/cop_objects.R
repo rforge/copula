@@ -576,16 +576,15 @@ copJoe <-
                       if(!any(n01)) return(res)
                       if(theta == 1){ res[n01] <- if(log) 0 else 1; return(res) } # independence
                       ## auxiliary results
-                      u. <- u[n01,, drop=FALSE]
-                      l1_u <- log1p(-u.) # log(1-u)
+                      u. <- u[n01,, drop=FALSE] 
+                      l1_u <- rowSums(log1p(-u.)) # log(1-u)
                       u.. <- (1-u.)^theta # (1-u)^theta
-                      lpu <- log1p(-u..) # log(1-(1-u)^theta)
-                      lh <- rowSums(lpu) # rowSums(log(1-(1-u)^theta)) = log(x)
+                      lh <- rowSums(log1p(-u..)) # rowSums(log(1-(1-u)^theta)) = log(h) 
                       ## main part
                       if(n.MC > 0){ # Monte Carlo
                           V <- C.@V0(n.MC, theta)
                           l <- d*log(theta*V)
-                          sum. <- (theta-1)*rowSums(l1_u)
+                          sum. <- (theta-1)*l1_u
                           sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
                           ## stably compute log(colMeans(exp(B)))
                           B <- l + outer(V-1, lh) + sum.mat # matrix of exponents; dimension n.MC x n ["V x u"]
@@ -593,12 +592,11 @@ copJoe <-
                           res[n01] <- max.B + log(colMeans(exp(B - rep(max.B, each=n.MC))))
                       }else{
                           alpha <- 1/theta
-                          h <- apply(1 - u.., 1, prod) # h(u) = \prod_{j=1}^d (1-(1-u_j)^\theta)
-                          l1_h <- log1p(-h) # log(1-h(u))
-                          lh_l1_h <- lh - l1_h # log(h(u)/(1-h(u)))
-                          res[n01] <- (d-1)*log(theta) + (theta-1)*rowSums(l1_u) -
-                              (1-alpha)*log1p(-h) + polyJ(lh_l1_h, alpha, d, method=method,
-                                                          log=TRUE)
+                          l1_h <- log(-expm1(lh)) # log(1-h)                          
+                          lh_l1_h <- lh - l1_h # log(h/(1-h))
+                          res[n01] <- (d-1)*log(theta) + (theta-1)*l1_u -
+                              (1-alpha)*l1_h + polyJ(lh_l1_h, alpha, d, method=method,
+                                                     log=TRUE)
                       }
                       if(log) res else exp(res)
                   },
