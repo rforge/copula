@@ -2,7 +2,6 @@
 
 (*) Fix FIXME's in ./demo/poly-demo.R => also concerns copJoe@dacopula
 (MM) make polyG (and polyJ) more efficient! see FIXME's there
-(MM) implement dJoe with Rmpfr
 (MH) implement opower with *correct* log + correct density!! [currently wrong]
 (*) user outer() instead of "one.t()"-like functions in all dacopula slots when n.MC > 0; see psiDabsMC for the method
 (MH) implement 1st derivative of the log density w.r.t. theta
@@ -15,7 +14,7 @@
 (MM, MH) implement color-feature in splom2 (now that i and j are included by Deepayan)
 (*) add (and fill) all help files for estimation and gof procedures
 (MM, MH) numerous FIXME in the code
-(MM) can we create a function for the GIG generator [see ./demo] similar to opower()?  
+(MM) can we create a function for the GIG generator [see ./demo] similar to opower()?
 (MM) are the numerical issues for Kendall's tau for the GIG generator [see ./demo] solvable? see the plot of Kendall's tau there.
 
 (*) replace several 1:.. by seq_len(..)

@@ -56,9 +56,9 @@ chk.all # quite interesting
 ## conclusion: large alpha's [small theta's] cause the problems!!!
 ## ==========
 
-## An example showing that for  "dJoe" the problem is exactly *small* alphas:
+## An example showing that for  "dsumSibuya" the problem is exactly *small* alphas:
 plot (a.k.H <- coeffG(100, 0.01, method = "horner"), type = "l", lwd=3, log="y")
-lines(a.k.J <- coeffG(100, 0.01, method = "dJoe"), col=2, type ="o")
+lines(a.k.J <- coeffG(100, 0.01, method = "dsumSibuya"), col=2, type ="o")
 lines(a.k.s <- coeffG(100, 0.01, method = "sort"), col=3, type ="l")
 lines(a.k.d <- coeffG(100, 0.01, method = "direct"),
       col=adjustcolor("blue"), type ="l", lwd=4)
@@ -81,7 +81,7 @@ plot.list <- vector("list", m)
 alpha.list <-  (1:m)/(m+1)
 d <- 100
 for(i in 1:m){
-    coeffs <- coeffG(d, alpha.list[i], log=TRUE, method = "dJoe")
+    coeffs <- coeffG(d, alpha.list[i], log=TRUE, method = "dsumSibuya")
     plot.list[[i]] <-
         xyplot(coeffs~1:d, type="l", xlim = c(-3,104), ylim = c(-303,374),
                xlab = "k", ylab = expression(log(a[k])), aspect = 1,

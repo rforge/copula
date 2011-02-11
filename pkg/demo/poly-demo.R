@@ -150,7 +150,7 @@ plot.poly(family, xlim=xlim, ylim=ylim, method="stirling.horner", alpha=alpha, d
 plot.poly(family, xlim=xlim, ylim=ylim, method="sort", alpha=alpha, d=d) # log(< 0)
 plot.poly(family, xlim=xlim, ylim=ylim, method="horner", alpha=alpha, d=d) # log(< 0)
 plot.poly(family, xlim=xlim, ylim=ylim, method="direct", alpha=alpha, d=d) # log(< 0)
-plot.poly(family, xlim=xlim, ylim=ylim, method="dJoe", alpha=alpha, d=d) # okay for large alpha
+plot.poly(family, xlim=xlim, ylim=ylim, method="dsumSibuya", alpha=alpha, d=d) # okay for large alpha
 
 ## ==== run time comparison of the methods that worked for some parameter ====
 
@@ -190,25 +190,25 @@ system.time(y.stirling.horner <- nacopula:::polyG(lx, alpha=0.5, d=d,
 ## => 2.79s
 stopifnot(all(!is.nan(y.stirling.horner))) # check
 
-## dJoe: for large alpha (where it works)
-system.time(y.dJoe <- nacopula:::polyG(lx, alpha=0.99, d=d, method="dJoe",
+## dsumSibuya: for large alpha (where it works)
+system.time(y.dsumSibuya <- nacopula:::polyG(lx, alpha=0.99, d=d, method="dsumSibuya",
                                        log=TRUE))[[1]]
 ## => 2.28s
-stopifnot(all(!is.nan(y.dJoe))) # check
+stopifnot(all(!is.nan(y.dsumSibuya))) # check
 
 ## conclusion:
-## - fastest for large alpha: "dJoe", "pois.direct"
+## - fastest for large alpha: "dsumSibuya", "pois.direct"
 ## - fastest for small and moderate alpha: "stirling"
 ## - further methods tried: pulling out max() for "stirling" => does not increase precision
 
 ## ==== more detailed graphical precision comparison in d = 100 ====
 
-## dJoe
+## dsumSibuya
 m <- 49
 ylim <- c(200, 700)
-polyG.ani.dJoe <- poly.ani(family, m, d=d, method="dJoe", xlim=c(1e-16,200),
+polyG.ani.dsumSibuya <- poly.ani(family, m, d=d, method="dsumSibuya", xlim=c(1e-16,200),
                            ylim=ylim)
-saveHTML(for(i in 1:m) print(polyG.ani.dJoe[[i]]$plot))
+saveHTML(for(i in 1:m) print(polyG.ani.dsumSibuya[[i]]$plot))
 ## => works for alpha >= 0.75
 
 ## pois.direct

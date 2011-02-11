@@ -326,7 +326,7 @@ copFrank <-
                   dV01 = function(x,V0,theta0,theta1,log = FALSE) {
                       stopifnot(length(V0) == 1 || length(x) == length(V0), all(x >= V0))
                       lfactor <- x*log1p(-exp(-theta1))-V0*log1p(-exp(-theta0))
-                      res <- lfactor + dJoe(x, V0, theta0/theta1, log=TRUE)
+                      res <- lfactor + dsumSibuya(x, V0, theta0/theta1, log=TRUE)
                       if(log) res else exp(res)
                   },
                   ## Kendall's tau; debye_1() is from package 'gsl' :
@@ -618,11 +618,11 @@ copJoe <-
                   },
 		  dV01 =
 		  function(x, V0, theta0, theta1,
-			   method= eval(formals(dJoe)$method), log = FALSE) {
+			   method= eval(formals(dsumSibuya)$method), log = FALSE) {
 		      stopifnot(length(V0) == 1 || length(x) == length(V0))
 		      ## also holds for theta0 == theta1
 		      ## note: this is numerically challenging
-		      dJoe(x, V0, theta0/theta1, method=method, log=log)
+		      dsumSibuya(x, V0, theta0/theta1, method=method, log=log)
 		  },
                   ## Kendall's tau
                   ## noTerms: even for theta==0, the approximation error is < 10^(-5)

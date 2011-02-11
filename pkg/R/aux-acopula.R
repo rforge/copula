@@ -276,12 +276,12 @@ rFFrank <- function(n, theta0, theta1, rej)
 
 ##' The sign of choose(alpha*j,d)*(-1)^(d-j) vectorized in j
 ##'
-##' @title The sign of choose(alpha*j,d)*(-1)^(d-j) 
+##' @title The sign of choose(alpha*j,d)*(-1)^(d-j)
 ##' @param alpha alpha in (0,1)
 ##' @param j vector
-##' @param d number 
+##' @param d number
 ##' @return sign(choose(alpha*j,d)*(-1)^(d-j))
-##' @author Marius Hofert 
+##' @author Marius Hofert
 sign.binom <- function(alpha, j, d){
     stopifnot(0 < alpha, alpha < 1) # for alpha == 1 this function is not correct
     res <- rep(0, length(j))
@@ -300,19 +300,17 @@ sign.binom <- function(alpha, j, d){
 ##'        and density for Gumbel
 ##' @param d number of coefficients, d >= 1
 ##' @param alpha parameter (1/theta)
-##' @param method method slot:
-##'        binomial.coeff: currently best method available, uses binomial coefficients,
-##'                        only critical for large dependencies
-##'        sort:           compute the coefficients via exp(log()), pulling out the maximum, and sort
-##'        horner:         uses polynEval
-##'        direct:         brute force approach
-##'        dJoe:       uses dJoe
+##' @param method a character string, one of
+##'    "sort":          compute coefficients via exp(log()) pulling out the maximum, and sort
+##'    "horner":        uses polynEval()
+##'    "direct":        brute force approach
+##'    "dsumSibuya":    uses dsumSibuya() - FIXME? allow to specify *which* dsumS.. method
 ##' @param log boolean which determines if the logarithm is returned
 ##' @param verbose logical for method == sort
 ##' @return a_{dk}(theta) = (-1)^{d-k}\sum_{j=k}^d alpha^j * s(d,j) * S(j,k)
 ##' note: this function is known to cause numerical problems, e.g., for d=100, alpha=0.8
 ##' @author Marius Hofert und Martin Maechler
-coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dJoe"),
+coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"),
 		   log = FALSE, verbose = FALSE)
 {
     stopifnot(is.numeric(d), length(d) == 1, d >= 1)
@@ -348,14 +346,14 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dJoe"),
 		   attr(a, "wrong.signs") <- wrong.sign
 	       a
 	   },
-	   "dJoe" = {
-	       ## coefficients via dJoe
-	       ## a_{dk}(theta) = d!/k! * dJoe(d, k, alpha)
+	   "dsumSibuya" = {
+	       ## coefficients via dsumSibuya
+	       ## a_{dk}(theta) = d!/k! * dsumSibuya(d, k, alpha)
 	       k <- 1:d
 	       ck <- ## c_k := d!/k!
 		   if(log) c(0,cumsum(log(d:2)))[d:1]
 		   else c(1,cumprod(d:2))[d:1]
-	       p <- dJoe(d, k, alpha, log=log)
+	       p <- dsumSibuya(d, k, alpha, log=log)
 	       if(log) p + ck else p * ck
 	   },
 	   "horner" = {
@@ -401,7 +399,7 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dJoe"),
 ##' @param alpha parameter (1/theta)
 ##' @param d number of summands, >= 1
 ##' @param method a string, one of
-##'   "default"         uses a combination of the other methods 
+##'   "default"         uses a combination of the other methods
 ##'   "pois.direct"     uses ppois directly
 ##'   "pois"            uses ppois with pulling out max
 ##'   "binomial.coeff"  uses binomial coefficients, only critical for large dependencies
@@ -410,7 +408,7 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dJoe"),
 ##'   "sort"            compute the coefficients via exp(log()), pulling out the max and sort
 ##'   "horner"          uses polynEval
 ##'   "direct"          brute force approach
-##'   "dJoe"            uses dJoe
+##'   "dsumSibuya"            uses dsumSibuya()
 ##' @param log boolean which determines if the logarithm is returned
 ##' @return \sum_{k=1}^d  a_{dk}(\theta)  x ^ k
 ##'       = \sum_{k=1}^d  a_{dk} *     exp(lx*k)
@@ -418,18 +416,18 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dJoe"),
 ##'       = (-1)^{d-k}\sum_{j=k}^d \theta^{-j} s(d,j) S(j,k)
 ##'       = (d!/k!)\sum_{l=1}^k (-1)^{d-l} \binom{k}{l}\binom{\alpha l}{d}
 ##' @author Marius Hofert
-polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",  
-                                "binomial.coeff", "stirling", "stirling.horner", 
-                                "sort", "horner", "direct", "dJoe"), log=FALSE)
+polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
+                                "binomial.coeff", "stirling", "stirling.horner",
+                                "sort", "horner", "direct", "dsumSibuya"), log=FALSE)
 {
     k <- 1:d
     method <- match.arg(method)
     switch(method,
-	   "default" = 
+	   "default" =
        {
 	   method <- if(d <= 100)
                if(alpha <= 0.54) "stirling" else if(alpha <= 0.77)
-                   "pois.direct" else "dJoe"
+                   "pois.direct" else "dsumSibuya"
            else "pois" # slower but more stable, e.g., for d=150
 	   polyG(lx=lx, alpha=alpha, d=d, method=method, log=log)
        },
@@ -453,14 +451,14 @@ polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
            if(log) res else exp(res)
        },
            "pois.direct" =
-       { 
+       {
            ## determine signs of (-1)^(d-k)*(alpha*k)_d
            signs <- (-1)^k * (2*(floor(alpha*k) %% 2) - 1)
 
            ## build coefficients
            xfree <- lchoose(alpha*k,d) + lfactorial(d) - lfactorial(k)
            x <- exp(lx)
-           lppois <- t(outer(d-k, x, FUN=ppois, log.p=TRUE)) # (length(x),d)-matrix 
+           lppois <- t(outer(d-k, x, FUN=ppois, log.p=TRUE)) # (length(x),d)-matrix
            klx <- t(outer(k, lx))
            exponents <- exp(t(x+lppois+klx)+xfree) # (d,length(x))-matrix
            res <- as.vector(signs %*% exponents)
@@ -503,7 +501,7 @@ polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
 	   S <- lapply(k, Stirling2.all) # S[[l]][n] contains S(l,n), n = 1,...,l
 	   lst <- lapply(k, function(k.) (-1)^(d-1)*x*alpha^k.*s[k.]*polynEval(S[[k.]],-x))
 	   res <- rowSums(matrix(unlist(lst), nrow=length(x)))
-	   if(log) log(res) else res	
+	   if(log) log(res) else res
        },
            "stirling.horner" =
        {
@@ -523,7 +521,7 @@ polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
            ## coeff <- if(length(x)==1) t(s*poly) else s*poly
            ## res <- (-1)^(d-1)*alpha*x*apply(coeff, 2, polynEval, x=alpha)
        },
-           "sort" =, "horner" =, "direct" =, "dJoe" =
+           "sort" =, "horner" =, "direct" =, "dsumSibuya" =
        {
            ## note: these methods are all know to show numerical deficiencies
            if(d > 220) stop("d > 220 not yet supported") # would need Stirling2.all(d, log=TRUE)
@@ -599,6 +597,21 @@ rSibuya <- function(n,alpha) {
     stopifnot(is.numeric(n), n >= 0)
     .Call(rSibuya_vec_c, n, alpha)
 }
+dSibuya <- function(x, alpha, log = FALSE) dsumSibuya(x, 1, alpha, log=log)
+
+pSibuya <- function(x, alpha, lower.tail = TRUE, log.p = FALSE)
+{
+    ## F(x) = 1 - 1/(x*Beta(x,1-alpha)) = 1 - (x*beta(x, 1-alpha))^(-1)
+    if(log.p) {
+        if(lower.tail) # log(1 - 1/(x*beta(x, 1-alpha)))
+            log1p(-1/(x*beta(x, 1-alpha)))
+        else ## log(1/(x*beta(x, 1-alpha))) = - log(x * beta(..)) =
+            -log(x) - lbeta(x, 1-alpha)
+    } else { ## no log
+        xb <- 1/(x*beta(x, 1-alpha))
+        if(lower.tail) 1 - xb else xb
+    }
+}
 
 ### ==== state-of-the art: sampling F01Joe, C version ====
 
@@ -630,68 +643,70 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 
 ### ==== polynomial evaluation for Joe ====
 
-##' Inner probability mass function for a nested Joe copula
+##' Inner probability mass function for a nested Joe copula, i.e. a Sibuya sum
 ##'
 ##' @title Inner probability mass function for a nested Joe copula
-##' @param x vector (or number) of natural numbers >= k
-##' @param k vector (or number) of natural numbers
+##' @param x vector (or number) of natural numbers >= n
+##' @param n vector (or number) of natural numbers
 ##' @param alpha parameter in (0,1]
 ##' @param method method applied
 ##'        log:      proper log computation based on lssum
 ##'        direct:   brute-force evaluation of the sum and its log
 ##'        exp.log:  similar to method = "log", but without *proper/intelligent* log
 ##' @param log boolean which determines if the logarithm is returned
-##' @return \sum_{j=1}^k choose(k,j)*choose(alpha*j,x)*(-1)^(x-j)
+##' @return \sum_{j=1}^n choose(n,j)*choose(alpha*j,x)*(-1)^(x-j)
 ##' @author Marius Hofert
-##' note: - this is a probability mass function in x, where x in {k, k+1, ...}
-##'       - numerically challenging, e.g., dJoe(100, 96, 0.01) < 0 for all methods
-dJoe <- function(x, k, alpha,
+##' note: - this is a probability mass function in x, where x in {n, n+1, ...}
+##'       - numerically challenging, e.g., dsumSibuya(100, 96, 0.01) < 0 for all methods
+dsumSibuya <- function(x, n, alpha,
 		 method=c("log", "direct", "Rmpfr", "exp.log"), log=FALSE)
 {
-    stopifnot(length(alpha) == 1, x == round(x), k == round(k), k >= 1)
-    if((l.x <- length(x)) * (l.k <- length(k)) == 0)
+    stopifnot(length(alpha) == 1, x == round(x), n == round(n), n >= 1)
+    if((l.x <- length(x)) * (l.n <- length(n)) == 0)
 	return(numeric())
-    if((n <- l.x) != l.k) { ## do recycle to common length
-	n <- max(l.x, l.k)
-	if(l.x < n)
-	    x <- rep(x, length.out = n)
-	else ## if(l.k < n)
-	    k <- rep(k, length.out = n)
+    if((len <- l.x) != l.n) { ## do recycle to common length
+	len <- max(l.x, l.n)
+	if(l.x < len)
+	    x <- rep(x, length.out = len)
+	else ## if(l.n < len)
+	    n <- rep(n, length.out = len)
     }
     if(alpha == 1)
-	return(x == k)
-    method <- match.arg(method)
+	return(x == n)
+    ii <- seq_len(len)
+    method <- if(missing(method) && is(alpha, "mpfr"))
+        "Rmpfr" else match.arg(method)
     switch(method,
 	   "log" =
        {
 	   ## computes *proper* log based on lssum
 	   ## determine the matrix of signs of (alpha*j,x)*(-1)^(x-j),
 	   ## j in {1,..,m} -- NB: does not depend on x !
-	   m <- max(k)
+	   m <- max(n)
 	   signs <- unlist(lapply(1:m, function(j){
 	       z <- alpha*j
 	       if(z == floor(z)) 0 else (-1)^(j-ceiling(z))
 	   }))
-	   ## for one pair of x and k:
-	   f.one <- function(x,k) {
-	       if(x < k) return(-Inf)	# = log(0)
-	       j <- seq_len(k)
-	       lxabs <- lchoose(k, j) + lchoose(alpha*j, x)
+	   ## for one pair of x and n:
+	   f.one <- function(x,n) {
+	       if(x < n) return(-Inf)	# = log(0)
+	       j <- seq_len(n)
+	       lxabs <- lchoose(n, j) + lchoose(alpha*j, x)
 	       ## *NON*-strict -- otherwise need try() :
 	       lssum(lxabs, signs[j], strict=FALSE)
 	   }
-	   S. <- sapply(1:n, function(i) f.one(x[i], k[i]))
+	   S. <- sapply(ii, function(i) f.one(x[i], n[i]))
 	   if(log) S. else exp(S.)
        },
 	   "direct" =
        {
 	   ## brute force evaluation of the sum and its log
-	   f.one <- function(x,k) {
-	       if(x < k) return(0)
-	       j <- seq_len(k)
-	       sum(choose(k,j)*choose(alpha*j,x)*(-1)^(x-j))
+	   f.one <- function(x,n) {
+	       if(x < n) return(0)
+	       j <- seq_len(n)
+	       sum(choose(n,j)*choose(alpha*j,x)*(-1)^(x-j))
 	   }
-	   S <- sapply(1:n, function(i) f.one(x[i], k[i]))
+	   S <- sapply(ii, function(i) f.one(x[i], n[i]))
 	   if(log) log(S) else S
        },
 	   "Rmpfr" =
@@ -699,23 +714,28 @@ dJoe <- function(x, k, alpha,
            ## as "direct" but using high-precision arithmetic, where
            ## the precision should be set via alpha = mpfr(*, precBits= .)
 	   stopifnot(require(Rmpfr))
+
+           ## FIXME: for one n and many x -- should be made *much* faster!
+
+           if(!is(alpha, "mpfr"))
+               alpha <- mpfr(alpha, precB = max(100, min(x, 10000)))
 	   mpfr.0 <- mpfr(0, precBits = getPrec(alpha))
-	   f.one <- function(x,k) {
-	       if(x < k) return(mpfr.0)
-	       j <- seq_len(k)
-	       sum(chooseMpfr.all(k)*chooseMpfr(alpha*j,x)*(-1)^(x-j))
+	   f.one <- function(x,n) {
+	       if(x < n) return(mpfr.0)
+	       j <- seq_len(n)
+	       sum(chooseMpfr.all(n)*chooseMpfr(alpha*j,x)*(-1)^(x-j))
 	   }
-	   S <- new("mpfr", unlist(lapply(1:n, function(i)
-                                          f.one(x[i], k[i]))))
+	   S <- new("mpfr", unlist(lapply(ii, function(i)
+                                          f.one(x[i], n[i]))))
 	   as.numeric(if(log) log(S) else S)
        },
 	   "exp.log" =
        {
 	   ## similar to method = "log", but without *proper/intelligent* log
 	   ## and inefficient due to the signs (old version)
-	   f.one <- function(x,k) {
-	       if(x < k) return(0)
-	       j <- seq_len(k) ## indices of the summands
+	   f.one <- function(x,n) {
+	       if(x < n) return(0)
+	       j <- seq_len(n) ## indices of the summands
 	       signs <- (-1)^(j+x)
 	       ## determine the signs of choose(j*alpha,x) for each component of j
 	       to.subtract <- 0:(x-1)
@@ -723,14 +743,14 @@ dJoe <- function(x, k, alpha,
 		   unlist(lapply(j, function(l)
 				 prod(sign(l*alpha-to.subtract)) ))
 	       signs <- signs*sig.choose
-	       binom.coeffs <- exp(lchoose(k,j) + lchoose(j*alpha,x))
+	       binom.coeffs <- exp(lchoose(n,j) + lchoose(j*alpha,x))
 	       sum(signs*binom.coeffs)
 	   }
-	   S <- sapply(1:n, function(i) f.one(x[i], k[i]))
+	   S <- sapply(ii, function(i) f.one(x[i], n[i]))
 	   if(log) log(S) else S
        },
 	   ## otherwise
-	   stop(sprintf("unsupported method '%s' in dJoe", method)))
+	   stop(sprintf("unsupported method '%s' in dsumSibuya", method)))
 }
 
 ### ==== polynomial evaluation for Joe ====
@@ -809,7 +829,7 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE){
 ##' @author Marius Hofert
 lsum <- function(lx, l.off=apply(lx, 1, max)) {
     if(!is.matrix(lx)) lx <- rbind(lx)
-    res <- l.off + log(rowSums(exp(lx - l.off))) 
+    res <- l.off + log(rowSums(exp(lx - l.off)))
     if(is.vector(res)) names(res) <- NULL
     res
 }
@@ -833,7 +853,7 @@ lssum <- function(lxabs, signs, l.off = apply(lxabs, 1, max), strict=TRUE) {
     sum. <- rowSums(signs * exp(lxabs - l.off))
     if(any(sum. <= 0)) if(strict) stop("lssum found non-positive sums") else
     warning("lssum found non-positive sums")
-    res <- l.off + log(sum.) 
+    res <- l.off + log(sum.)
     if(is.vector(res)) names(res) <- NULL
     res
 }
