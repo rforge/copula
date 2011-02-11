@@ -20,80 +20,69 @@ opower <- function(copbase, thetabase) {
                   copbase@paraConstr(theta1) && theta1 >= theta0
               },
               ## absolute value of generator derivatives
-              psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE){
+              psiDabs = function(t, theta, degree=1, n.MC=0, 
+              method=c("stirling", "binomial.coeff"), 
+              log=FALSE){
                   if(theta == 1) return(copbase@psiDabs(t, theta, degree=degree, n.MC=n.MC, log=log)) # copbase case
                   if(n.MC > 0){
                       psiDabsMC(t, family=C., theta=theta, degree=degree, n.MC=n.MC, log=log)
                   }else{
-                      
-#                       ## debug
-#                       remove(list=objects()) # remove previously loaded objects
-#                       library(nacopula)
-#                       thetabase <- copClayton@tauInv(0.5)
-#                       copbase <- copClayton
-#                       t <- 1:10
-#                       theta <- 1.4
-#                       degree <- 5
-#                       n.MC=0
-#                       log=TRUE
-#                       ## main work
-#                       
-#                       res <- numeric(n <- length(t))
-#                       res[is0 <- t == 0] <- Inf
-#                       res[isInf <- is.infinite(t)] <- -Inf
-#                                         # if(any(n0Inf <- !(is0 | isInf))){
-#                                         # t. <- t[n0Inf]
-#                       t. <- t
-#                       
-#                       ## inner sum [compute everything once for 1:degree]
-#                       k <- 1:degree
-#                       beta <- 1/theta
-#                       t.beta <- t.^beta # beta = 1/theta for psi(t^beta)
-#                       lpsiDabs <- do.call(rbind, 
-#                                           lapply(k, function(k.) 
-#                                                  copbase@psiDabs(t.beta, 
-#                                                                  theta=thetabase, 
-#                                                                  degree=k., 
-#                                                                  n.MC=n.MC, 
-#                                                                  log=TRUE))) # (degree,n)-matrix
-#                       lt <- log(t.)
-#                       lt.beta <- beta*lt
-#                       bklt <- outer(k,lt.beta) # (degree,n)-matrix
-#                       ## outer sum
-#                       lfac <- lfactorial(0:degree)
-#                       log.b.one.j <- function(j.){
-#                           k <- j.:degree
-#                           a <- lpsiDabs[k,] + bklt[k,] - lfac[k+1] - lfac[k-j.+1]
-#                           ls. <- nacopula:::lsum(a)
-#                           lchoose(beta*j., degree) + ls.
-#                       }
-#                       j <- 1:degree
-# 		      
-# 
-# b <- lapply(j, FUN=log.b.one.j) # jth element contains b_k for k = j,..,d [d = degree]
-#                       
-#                       # b <- do.call(rbind, lapply(j, FUN=log.b.one.j)) # (degree,n)-matrix
-# 
-#                       signs <- nacopula:::sign.binom(beta, j, degree)
-#                       res <- lac[degree+1] - d*lt + nacopula:::lssum(b, signs, strict=FALSE)
-#                                         # }
-#                       if(log) res else exp(res)
-#                       
-1
-
-                                        # ## FIXME: not optimal yet, inner sum could get a *real* log
-                                        # j <- 1:degree
-                                        # facs <- (-1)^j*unlist(lapply(j/theta, function(z) prod(z-(0:(degree-1)))))
-                                        # 
-                                        # fun <- function(x,y) copbase@psiDabs(y, thetabase, degree=x, n.MC=n.MC, log=TRUE)
-                                        # l.psiDabs.t.beta <- outer(j, t.beta, FUN=fun)
-                                        # one.j <- function(j.){
-                                        #     k <- j.:degree
-                                        #     colSums(exp(outer(k-1, l.t.beta)-lfactorial(j.)-lfactorial(k-j.)+l.psiDabs.t.beta[k,]))
-                                        # }
-                                        # mat <- do.call(rbind, lapply(j, one.j)) # (degree,n)-matrix
-                                        # facs %*% mat/t^(degree-1/theta)
-
+                      res <- numeric(n <- length(t))
+                      res[is0 <- t == 0] <- Inf
+                      res[isInf <- is.infinite(t)] <- -Inf
+                      if(any(n0Inf <- !(is0 | isInf))){
+	                  t. <- t[n0Inf]
+	                  k <- 1:degree # compute everything once for 1:degree
+                          beta <- 1/theta
+                          t.beta <- t.^beta # beta = 1/theta for psi(t^beta)
+                          lpsiDabs <- do.call(rbind, 
+                                              lapply(k, function(k.) 
+                                                     copbase@psiDabs(t.beta, 
+                                                                     theta=thetabase, 
+                                                                     degree=k., 
+                                                                     n.MC=n.MC, 
+                                                                     log=TRUE))) # (degree,n)-matrix
+                          lt <- log(t.)
+                          lt.beta <- beta*lt
+                          bklt <- outer(k,lt.beta) # (degree,n)-matrix
+	                  method <- match.arg(method)
+                          switch(method,
+                                 "stirling" = {
+                                     lb <- log(beta)
+                                     s <- Stirling1.all(degree)
+                                     b.one.j <- function(j.){
+                                         k <- 1:j.
+                                         signs <- (-1)^k
+                                         lS <- log(Stirling2.all(j.))
+  					 a <- lpsiDabs[k,] + bklt[k,] + lS
+                                         if(length(k) == 1) a <- matrix(a, nrow=1)
+					 (-beta)^j. * abs(s[j.]) * colSums(signs*exp(a)) 
+                                     }
+                                     ## => returns a vector of length n containing the values for one j. and all t
+                                     j <- 1:degree	  	      
+                                     b <- do.call(rbind, lapply(j, FUN=b.one.j)) # (degree, n)-matrix
+                                     res <- colSums(b)/t^degree
+                                     if(log) log(res) else res
+                                 },
+                                 "binomial.coeff" = {
+                                     ## outer sum
+                                     lfac <- lfactorial(0:degree) # log(0!), log(1!), .., log(degree!)
+                                     log.b.one.j <- function(j.){
+                                         k <- j.:degree
+                                         a <- lpsiDabs[k,] + bklt[k,] - lfac[j.+1] - lfac[k-j.+1] # (degree-j.+1, n)-matrix
+                                         if(length(k) == 1) a <- matrix(a, nrow=1)
+                                         ls. <- lsum(a) # length = n 
+                                         lchoose(beta*j., degree) + ls.
+                                     }
+                                     ## => returns a vector of length n containing the values for one j. and all t
+                                     j <- 1:degree	  	      
+                                     b <- do.call(rbind, lapply(j, FUN=log.b.one.j)) # (degree, n)-matrix
+                                     signs <- sign.binom(beta, j, degree)
+                                     res <- lfac[degree+1] - degree*lt + lssum(b, signs, strict=FALSE)
+                                     if(log) res else exp(res)
+                                 }, stop(sprintf("unsupported method '%s' in psiDabs",
+                                                 method))) # end{switch}
+                      }
                   }
               },
               ## derivatives of the generator inverse

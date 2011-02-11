@@ -448,10 +448,10 @@ copGumbel <-
                           ## lx <- lmlu[mat.ind] + alpha*log(rowSums((mlu/mlum.mat)^theta)) # alpha*log(sum(psiInv(u, theta)))
                           ## ==== former version [end] ====
                           ## compute sum
-                          lsum <- polyG(lx, alpha, d, method=method, log=TRUE)-d*lx/alpha
+                          ls. <- polyG(lx, alpha, d, method=method, log=TRUE)-d*lx/alpha
                           ## the rest
                           cop.val <- pnacopula(onacopulaL("Gumbel", list(theta, 1:d)), u.)
-                          res[n01] <- d*log(theta) + rowSums((theta-1)*lmlu + mlu) + lsum
+                          res[n01] <- d*log(theta) + rowSums((theta-1)*lmlu + mlu) + ls.
                           res[n01] <- if(log) log(cop.val) + res[n01] else cop.val * exp(res[n01])
                           res
                       }

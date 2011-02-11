@@ -693,7 +693,7 @@ dsumSibuya <- function(x, n, alpha,
 	       j <- seq_len(n)
 	       lxabs <- lchoose(n, j) + lchoose(alpha*j, x)
 	       ## *NON*-strict -- otherwise need try() :
-	       lssum(lxabs, signs[j], strict=FALSE)
+	       lssum(as.matrix(lxabs), signs[j], strict=FALSE)
 	   }
 	   S. <- sapply(ii, function(i) f.one(x[i], n[i]))
 	   if(log) S. else exp(S.)
@@ -817,44 +817,50 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE){
 
 ### ==== other numeric utilities ===============================================
 
-##' Properly compute log(x_1 + .. + x_n) for given log(x_1), .., log(x_n)
+##' Properly compute log(x_1 + .. + x_n) for a given matrix of column vectors  
+##' log(x_1),..,log(x_n)
 ##'
 ##' @title Properly compute the logarithm of a sum
-##' @param lx matrix or vector of summands (as log(x_1), .., log(x_n))
-##' @return log(x_1 + .. + x_n) [for each row of lx] computed via
+##' @param lx (d,n)-matrix containing the column vectors log(x_1),..,log(x_n) 
+##'        each of dimension d
+##' @param l.off the offset to substract and re-add; ideally in the order of max(.)
+##' @return log(x_1 + .. + x_n) computed via
 ##'         log(sum(x)) = log(sum(exp(log(x))))
 ##'         = log(exp(log(x_max))*sum(exp(log(x)-log(x_max))))
 ##'         = log(x_max) + log(sum(exp(log(x)-log(x_max)))))
 ##'         = lx.max + log(sum(exp(lx-lx.max)))
 ##' @author Marius Hofert
-lsum <- function(lx, l.off=apply(lx, 1, max)) {
-    if(!is.matrix(lx)) lx <- rbind(lx)
-    res <- l.off + log(rowSums(exp(lx - l.off)))
-    if(is.vector(res)) names(res) <- NULL
+lsum <- function(lx, l.off = apply(lx, 2, max)){
+    stopifnot(is.matrix(lx)) # do not use cbind or rbind here, since it is not clear if the user specified only one vector log(x) or several vectors of dimension 1 !!!
+    res <- l.off + log(colSums(exp(lx - rep(l.off, each=nrow(lx)))))
+    if (is.vector(res)) names(res) <- NULL
     res
 }
 
-##' Properly compute log(-+x_1 -+ .. -+ x_n) for given log(|x_1|), .., log(|x_n|)
-##' and sign(x_1), .., sign(x_n)
+##' Properly compute log(-+x_1 -+ .. -+ x_n) for a given matrix of column vectors
+##' log(|x_1|),.., log(|x_n|) and corresponding signs sign(x_1),.., sign(x_n)
 ##'
 ##' @title Properly compute the logarithm of a sum with signed coefficients
-##' @param lxabs matrix or vector of summands (as log(|x_1|), .., log(|x_n|))
-##' @param signs corresponding matrix or vector of signs (sign(x_1), .., sign(x_n))
+##' @param lxabs (d,n)-matrix containing the column vectors log(|x_1|),..,log(|x_n|)
+##'        each of dimension d
+##' @param signs corresponding matrix of signs sign(x_1), .., sign(x_n)
 ##' @param l.off the offset to substract and re-add; ideally in the order of max(.)
 ##' @param strict logical indicating if it should stop on some negative sums
-##' @return log(x_1 + .. + x_n) [for each row of lx] computed via
+##' @return log(x_1 + .. + x_n) computed via
 ##'         log(sum(x)) = log(sum(signs*exp(log(|x|))))
 ##'         = log(exp(log(|x|_max))*sum(signs*exp(log(|x|)-log(|x|_max))))
 ##'         = log(|x|_max) + log(sum(signs*exp(log(|x|)-log(|x|_max)))))
 ##'         = lxabs.max + log(sum(signs*exp(lxabs-lxabs.max)))
-##' @author Marius Hofert & MM
-lssum <- function(lxabs, signs, l.off = apply(lxabs, 1, max), strict=TRUE) {
-    if(!is.matrix(lxabs)) lxabs <- rbind(lxabs, deparse.level=0)
-    sum. <- rowSums(signs * exp(lxabs - l.off))
-    if(any(sum. <= 0)) if(strict) stop("lssum found non-positive sums") else
-    warning("lssum found non-positive sums")
+##' @author Marius Hofert and Martin Maechler
+lssum <- function (lxabs, signs, l.off = apply(lxabs, 2, max), strict = TRUE){ 
+    stopifnot(is.matrix(lxabs))
+    sum. <- colSums(signs * exp(lxabs - rep(l.off, each=nrow(lxabs))))
+    if (any(sum. <= 0)) 
+        if (strict) 
+            stop("lssum found non-positive sums")
+        else warning("lssum found non-positive sums")
     res <- l.off + log(sum.)
-    if(is.vector(res)) names(res) <- NULL
+    if (is.vector(res)) names(res) <- NULL
     res
 }
 
