@@ -3,6 +3,8 @@ library(nacopula)
 #### Testing /  exploring  coeffG(), the coefficients  a_k  for
 #### the Gumbel copula's generator derivatives and copula density
 
+coeffG <- nacopula:::coeffG
+
 ## ==== step (1): look at the a_k's, check if they can be evaluated ====
 
 
