@@ -59,7 +59,7 @@ opower <- function(copbase, thetabase) {
                                                                      log=TRUE))) # (degree,n)-matrix
                           lt <- log(t.)
                           lt.beta <- beta*lt
-                          bklt <- outer(k,lt.beta) # (degree,n)-matrix
+                          bklt <- k %*% t(lt.beta) # (degree,n)-matrix
 	                  method <- match.arg(method)
                           switch(method,
                                  "stirling" = { # much faster

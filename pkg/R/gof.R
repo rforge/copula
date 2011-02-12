@@ -48,11 +48,10 @@ g01 <- function(u, method=c("normal", "log")){
 ##'        to n.MC; otherwise the exact formula is used
 ##' @return Kendall distribution function at t
 ##' @author Marius Hofert
-##' FIXME: maybe with outer() instead of K2?
 K <- function(t, cop, d, n.MC=0)
 {
     stopifnot(is(cop, "acopula"))
-    psiI <- cop@psiInv(t,th <- cop@theta)
+    psiI <- cop@psiInv(t, th <- cop@theta)
     n <- length(t)
     if(n.MC > 0){
 	stopifnot(is.numeric(n.MC), is.finite(n.MC))
@@ -66,24 +65,34 @@ K <- function(t, cop, d, n.MC=0)
 	    K.[not01] <- if(d == 1) {
 		t[not01]
 	    } else if(d == 2) {
-		t[not01]+ psiI[not01] / cop@psiInvD1abs(t[not01],th)
+		t[not01] + psiI[not01] / cop@psiInvD1abs(t[not01],th)
 	    } else {
 		j <- seq_len(d-1)
-                lfac.j <- cumsum(log(j)) ## == lfactorial(j)
-		K2 <- function(psInv) {
-		    lpsiDabs <- unlist(lapply(j, cop@psiDabs,
-					      t=psInv, theta=th, log=TRUE))
-		    sum(exp(lpsiDabs + j*log(psInv) - lfac.j))
-		    ## NB: AMH, Clayton, Frank are numerically not quite monotone near one;
-                    ## --  this does not change that {but maybe slightly *more* accurate}:
-		    ## psiDabs. <- unlist(lapply(j, cop@psiDabs, t = psInv, theta = th,
-		    ##						 log = FALSE))
-		    ##		       sum(psiDabs.*psInv^j/factorial(j))
-		}
-		## ensure we are in [0,1] {numeric inaccuracy}
-		pmin(1, t[not01] + unlist(lapply(psiI[not01], K2)))
-	    }
-	K.
+		lpsiDabs <- do.call(rbind, 
+                                    lapply(j, function(j.) 
+                                           cop@psiDabs(psiI[not01], 
+                                                       theta=th, 
+                                                       degree=j., 
+                                                       log=TRUE))) # (d-1,n)-matrix with n = length(not01)
+                lfac.j <- cumsum(log(j)) ## == lfactorial(j)               
+                r <- colSums(exp(lpsiDabs + j %*% t(log(psiI[not01])) - lfac.j))
+		## ensure we are in [0,1] {numerical inaccuracy}
+                pmin(1, t[not01] + r)		
+                ## Former code:
+		## K2 <- function(psInv){
+		##    lpsiDabs <- unlist(lapply(j, cop@psiDabs,
+		##			      t=psInv, theta=th, log=TRUE))
+		##    sum(exp(lpsiDabs + j*log(psInv) - lfac.j))
+		## }
+		## pmin(1, t[not01] + unlist(lapply(psiI[not01], K2)))
+		##
+                ## NB: AMH, Clayton, Frank are numerically not quite monotone near one;
+                ## --  this does not change that {but maybe slightly *more* accurate}:
+                ## psiDabs. <- unlist(lapply(j, cop@psiDabs, t = psInv, theta = th,
+                ##						 log = FALSE))
+                ##		       sum(psiDabs.*psInv^j/factorial(j))
+            }
+        K.
     }
 }
 

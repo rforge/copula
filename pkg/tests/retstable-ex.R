@@ -258,7 +258,7 @@ if(file.exists(saveFile2) && file.exists(saveFile3)) {
 						St..[,"LD"])$p.value
 	    }
 	    cat("\nProc.time(): ",format(proc.time()[1]),"; ",
-		round(100*count/(nalpha*nV0)), "% done\n\n",sep="")
+		round(format(100*count/(nalpha*nV0)), width=3), "% done\n\n",sep="")
 	    count <- count + 1
 	}
     }
@@ -362,7 +362,7 @@ if(FALSE) { # hmm, not sensical yet
 ## x-range  in log-scale and back-transformed
 x.r <- 10^(xLr <- par("usr")[1:2])
 (x. <- floor(xLr[1]):ceiling(xLr[2]))
-x. <- sort(outer(10^x., c(1,2,5))); x. <- x.[(10^xLr[1] <= x.) &
+x. <- sort(10^x. %*% t(c(1,2,5))); x. <- x.[(10^xLr[1] <= x.) &
                                              (x. <= 10^xLr[2])]
 x.
 axis(1, at = log10(x.), label = x.)

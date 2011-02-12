@@ -440,7 +440,7 @@ polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
            n <- length(lx)
            x <- exp(lx) ## e^lx = x
            lppois <- outer(d-k, x, FUN=ppois, log.p=TRUE) # a (d x n)-matrix; log(ppois(d-k, x))
-           llx <- outer(k, lx) # also a (d x n)-matrix; k*lx
+           llx <- k %*% t(lx) # also a (d x n)-matrix; k*lx
            labsPoch <- unlist(lapply(k, function(j) sum(log(abs(alpha*j-0:(d-1))) ) )) # log|(alpha*k)_d|
            lfac <- lfactorial(k)
            ## build matrix of exponents
@@ -458,9 +458,9 @@ polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
            ## build coefficients
            xfree <- lchoose(alpha*k,d) + lfactorial(d) - lfactorial(k)
            x <- exp(lx)
-           lppois <- t(outer(d-k, x, FUN=ppois, log.p=TRUE)) # (length(x),d)-matrix
-           klx <- t(outer(k, lx))
-           exponents <- exp(t(x+lppois+klx)+xfree) # (d,length(x))-matrix
+           lppois <- outer(d-k, x, FUN=ppois, log.p=TRUE) # (length(x),d)-matrix
+           klx <- lx %*% t(k)
+           exponents <- exp(t(x+klx)+lppois+xfree) # (d,length(x))-matrix
            res <- as.vector(signs %*% exponents)
            if(log) log(res) else res
        },
@@ -479,7 +479,7 @@ polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
            x <- exp(lx) ## e^lx = x
            k1 <- k-1L # = 0:(d-1)
            lppois <- outer(d-k, x, FUN=ppois, log.p=TRUE) # a (d x n)-matrix; log(ppois(d-k, x))
-           llx <- outer(k, lx)		# also a (d x n)-matrix; k*lx
+           llx <- k %*% t(lx)		# also a (d x n)-matrix; k*lx
            labsPoch <- vapply(k, function(j) sum(log(abs(alpha*j-k1))),
                               NA_real_)# log|(alpha*k)_d|
            lfac <- lfactorial(k)
@@ -532,7 +532,7 @@ polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
            ## for this, create a matrix B with (k,i)-th entry
            ## B[k,i] = log(a_{dk}(theta)) + k * lx[i],
            ##          where k in {1,..,d}, i in {1,..,n} [n = length(lx)]
-           B <- l.a.dk + outer(k, lx)
+           B <- l.a.dk + k %*% t(lx)
            if(log){
                ## compute log(colSums(exp(B))) stably (no overflow) with the idea of
                ## pulling out the maxima
@@ -781,7 +781,7 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE){
     ## evaluate polynomial via exp( log(<poly>) )
     ## for this, create a matrix B with (k,i)-th entry B[k,i] = log(a_{dk}(theta)) + (k-1) * lx[i],
     ## where k in {1,..,d}, i in {1,..,n} [n = length(lx)]
-    B <- l.a.k + outer(k-1, lx)
+    B <- l.a.k + (k-1) %*% t(lx)
     method <- match.arg(method)
     res <- switch(method,
                   "log.poly" = {

@@ -95,7 +95,7 @@ poly.ani <- function(family, m, d, method, xlim, ylim){
     x <- seq(xlim[1], xlim[2], length.out=1000)
     lx <- log(x)
     res <- lapply(1:m, function(i){
-        if(i %% 5 == 1) print(paste(round(i/m*100),"% done",sep="")) # progress
+        if(i %% 5 == 1) print(paste(formatC(round(i/m*100), width=3),"% done",sep="")) # progress
         y <- fun(lx, alpha=alphas[i], d=d, method=method,
                  log=TRUE)
         p <- xyplot(y~x, type="l", xlab="x",

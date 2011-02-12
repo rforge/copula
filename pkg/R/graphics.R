@@ -13,14 +13,18 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-##' @title A scatterplot matrix [SPLOM] with nice variable names
+##' @title A scatter plot matrix with nice variable names
 ##' @param data numeric matrix or as.matrix(.)able
 ##' @param varnames variable names, typically unspecified
 ##' @param Vname character string to become "root variable name"
+##' @param col.mat matrix of colors
+##' @param bg.col.mat matrix of background colors
 ##' @param ... further arguments to splom()
 ##' @return a splom() object
 ##' @author Martin Maechler
-splom2 <- function(data, varnames = NULL, Vname = "U", ...)
+splom2 <- function(data, varnames=NULL, Vname="U", xlab = "",
+                   col.mat=matrix(rep("black", ncol(data)^2), ncol=ncol(data)), 
+                   bg.col.mat=matrix(rep(NA, ncol(data)^2), ncol=ncol(data)), ...)
 {
     stopifnot(require(lattice),
 	      is.numeric(data <- as.matrix(data)),
@@ -33,25 +37,29 @@ splom2 <- function(data, varnames = NULL, Vname = "U", ...)
     ## From Deepayan Sarkar, working around missing feature
     ##		(which should be in next release) of lattice
     my.diag.panel <- function(x, varname, ...)
-        diag.panel.splom(x, varname = parse(text = varname), ...)
-    splom(~data[,1:d], varnames = varnames, diag.panel = my.diag.panel, ...)
+        diag.panel.splom(x, varname=parse(text=varname), ...)
+    ## splom
+    splom(~data[,1:d], varnames=varnames, diag.panel=my.diag.panel, xlab="",
+          panel=function(x, y, i, j, ...){
+              panel.fill(bg.col.mat[i,j])
+              panel.splom(x, y, col=col.mat[i,j])
+          }, ...)
 }
-
 
 ##' Plots a scatter plot matrix of the provided data
 ##'
 ##' @title Adjusted scatter plot matrix
 ##' @param data data matrix
 ##' @param device graphic device to be used - as in trellis.device()
-##' @param color  - logical indicating if the plot is colored (as in trellis.device)
+##' @param color logical indicating if the plot is colored (as in trellis.device)
 ##' @param outfilename name of the output file (without file ending)
 ##' @param varnames variable names to be printed on the diagonal
 ##' @param ... additional arguments passed to the splom call
 ##' @return the lattice / grid plot object, invisibly
 ##' @author Marius Hofert, Martin Maechler
 splomFOO <- function(data, device = getOption("device"),
-		   color = !(dev.name == "postscript"),
-		   varnames = NULL, Vname = "U", outfilename = "splom2", ...)
+                     color = !(dev.name == "postscript"),
+                     varnames = NULL, Vname = "U", outfilename = "splom2", ...)
 {
     stopifnot(require(lattice),
 	      is.numeric(data <- as.matrix(data)),
@@ -67,7 +75,8 @@ splomFOO <- function(data, device = getOption("device"),
     }
     isdeviceFile <- dev.name %in% c("pdf", "postscript", "png")
 
-    ## AAARGH:  splom() will *NOT* work with  expression  varnames
+    ## FIXME: isn't that solved now?
+    ## AAARGH: splom() will *NOT* work with expression varnames
     ## but the simple pairs() actually does:
     ## pairs(data, varNames, gap=0)   # ok
 

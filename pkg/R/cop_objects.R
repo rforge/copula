@@ -74,11 +74,8 @@ copAMH <-
                       ## main part
                       if(n.MC > 0){ # Monte Carlo
                           V <- C.@V0(n.MC, theta)
-                          l <- d*log((1-theta)*V)
-                          ln01 <- sum(n01)
-                          one.u <- function(i) exp(l + (V-1)*sum.[i] - (V+1)*sum..[i])
-                          res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
-                                                      ncol = ln01))
+                          l <- d*log((1-theta)*V) # length = n.MC
+                          res[n01] <- colMeans(exp(l + (V-1) %*% t(sum.) - (V+1) %*% t(sum..)))
                           if(log) log(res) else res
                       }else{ # explicit
                           Li.arg <- theta*apply(u./(1+u..), 1, prod)
@@ -180,7 +177,7 @@ copClayton <-
                           theta. <- 1 + theta
                           psiI.sum <- rowSums(C.@psiInv(u., theta))
                           ## stably compute log(colMeans(exp(B)))
-                          B <- l + theta.*l.u.mat - outer(V,psiI.sum) # matrix of exponents; dimension n.MC x n ["V x u"]
+                          B <- l + theta.*l.u.mat - V %*% t(psiI.sum) # matrix of exponents; dimension n.MC x n ["V x u"]
                           max.B <- apply(B, 2, max)
                           res[n01] <- max.B + log(colMeans(exp(B - rep(max.B, each=n.MC))))
                       }else{ # explicit
@@ -277,7 +274,7 @@ copFrank <-
                       ## auxiliary results
                       u. <- u[n01,, drop=FALSE]
                       u.sum <- rowSums(u.)
-                      lp <- log1p(-exp(-theta)) # log(p), p = 1-exp(-theta)
+                      lp <- log1p(-exp(-theta)) # log(1-exp(-theta))
                       lpu <- log1p(-exp(-theta*u.)) # log(1 - exp(-theta * u))
                       lu <- rowSums(lpu)
                       ## main part
@@ -285,13 +282,10 @@ copFrank <-
                           V <- C.@V0(n.MC, theta)
                           l <- d*(log(theta*V)-V*lp)
                           rs <- -theta*u.sum
-                          ln01 <- sum(n01)
-                          one.u <- function(i) exp(rs[i] + l + (V-1)*lu[i])
-                          res[n01] <- colMeans(matrix(unlist(lapply(1:ln01, one.u)),
-                                                      ncol = ln01))
+                          res[n01] <- rowMeans(exp(rs + l + lu %*% t(V-1)))
                           if(log) log(res) else res
                       }else{ # explicit
-                          Li.arg <- -expm1(-theta) * apply(exp(lpu-lp), 1, prod) ## <<-- FIXME faster
+                          Li.arg <- -expm1(-theta)*exp(rowSums(lpu-lp))
                           Li. <- polylog(Li.arg, s = -(d-1), method = "neg", log=TRUE)
                           res[n01] <- (d-1)*log(theta) + Li. - theta*u.sum - lu
                           if(log) res else exp(res)
@@ -432,7 +426,7 @@ copGumbel <-
                           sum. <- rowSums((theta-1)*lmlu + mlu)
                           sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
                           ## stably compute log(colMeans(exp(B)))
-                          B <- l - outer(V, psiI.) + sum.mat # matrix of exponents; dimension n.MC x n ["V x u"]
+                          B <- l - V %*% t(psiI.) + sum.mat # matrix of exponents; dimension n.MC x n ["V x u"]
                           max.B <- apply(B, 2, max)
                           res[n01] <- max.B + log(colMeans(exp(B - rep(max.B, each=n.MC))))
                           if(log) res else exp(res)
@@ -587,7 +581,7 @@ copJoe <-
                           sum. <- (theta-1)*l1_u
                           sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
                           ## stably compute log(colMeans(exp(B)))
-                          B <- l + outer(V-1, lh) + sum.mat # matrix of exponents; dimension n.MC x n ["V x u"]
+                          B <- l + (V-1) %*% t(lh) + sum.mat # matrix of exponents; dimension n.MC x n ["V x u"]
                           max.B <- apply(B, 2, max)
                           res[n01] <- max.B + log(colMeans(exp(B - rep(max.B, each=n.MC))))
                       }else{

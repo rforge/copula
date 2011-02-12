@@ -1,23 +1,25 @@
 ## ==== features in next CRAN version ====
 
-(*) implement forward difference for computing dsumSibuya
-(*) user outer() instead of "one.t()"-like functions in all dacopula slots when n.MC > 0; see psiDabsMC for the method
+(MH) implement forward difference for computing dsumSibuya
 (MH) implement 1st derivative of the log density w.r.t. theta
 (MH) implement MC engine for Fisher information
-
-(MM, MH) implement color-feature in splom2 (now that i and j are included by Deepayan)
 (*) add (and fill) all help files for estimation and gof procedures
 
-(MM, MH) numerous FIXME in the code
+(*) numerous FIXME and TODO in the code
 (MM) are the numerical issues for Kendall's tau for the GIG generator [see ./demo] solvable? see the plot of Kendall's tau there.
 (MM) can we create a function for the GIG generator [see ./demo] similar to opower()?
 
+(MM) is the new splom2 function in graphics.R okay? I implemented two color features
+(*) design a function that gets an outer nacopula and returns a matrix of numbers 
+    which correspond to the different sectors; this can be used, e.g., for building 
+    a color-matrix for splom2 or for estimation purposes etc.
+(MM) maybe also update splomFOO. What was that for anyway? [we do not use it]
 (MM) Change onacopula() such that it works via onacopulaL() and hence
      can be used also from other functions.
 (MM) maybe add an ASCII-plot for the hierarchical structure;
      Actually, define setAs("nacopula", "dendrogram", ....) and then use
      dendrogram print()ing.
-(MM)  dstable() from  fBasics is buggy ...
+(MM) dstable() from  fBasics is buggy ...
       --> ~/R/MM/Pkg-ex/nacopula/dstable-problem.R
 
 ## ==== long-term maybe ====
