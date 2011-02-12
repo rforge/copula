@@ -792,14 +792,12 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE){
                       ##     + (k-1)*lx) = \sum_{k=1}^d \exp(b_k) = \exp(b_{max})*\sum_{k=1}^d
                       ##     \exp(b_k-b_{max})
                       ## (3) => log(\sum...) = b_{max} + log(\sum_{k=1}^d \exp(b_k-b_{max}))
-                      ## FIXME: faster if scaled with asymptotics
                       max.B <- apply(B, 2, max)
                       max.B + log(colSums(exp(B - rep(max.B, each=d))))
                   },
                   log1p = {
                       ## use log(1 + sum(<smaller>)) = log1p(sum(<smaller>)),
                       ## but we don't expect it to make a difference
-                      ## FIXME: faster if scaled with asymptotics
                       im <- apply(B, 2, which.max) # indices (vector) of maxima
                       n <- length(lx) ; d1 <- d-1L
                       max.B <- B[cbind(im, seq_len(n))] # get max(B[,i])_{i=1,..,n} == apply(B, 2, max)

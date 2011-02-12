@@ -291,7 +291,7 @@ copFrank <-
                                                       ncol = ln01))
                           if(log) log(res) else res
                       }else{ # explicit
-                          Li.arg <- -expm1(-theta) * apply(exp(lpu-lp), 1, prod) ##<<-- FIXME faster
+                          Li.arg <- -expm1(-theta) * apply(exp(lpu-lp), 1, prod) ## <<-- FIXME faster
                           Li. <- polylog(Li.arg, s = -(d-1), method = "neg", log=TRUE)
                           res[n01] <- (d-1)*log(theta) + Li. - theta*u.sum - lu
                           if(log) res else exp(res)
