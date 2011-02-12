@@ -47,15 +47,14 @@ opower <- function(copbase, thetabase) {
                           bklt <- outer(k,lt.beta) # (degree,n)-matrix
 	                  method <- match.arg(method)
                           switch(method,
-                                 "stirling" = {
+                                 "stirling" = { # much faster
                                      lb <- log(beta)
                                      s <- Stirling1.all(degree)
                                      b.one.j <- function(j.){
                                          k <- 1:j.
                                          signs <- (-1)^k
                                          lS <- log(Stirling2.all(j.))
-  					 a <- lpsiDabs[k,] + bklt[k,] + lS
-                                         if(length(k) == 1) a <- matrix(a, nrow=1)
+  					 a <- lpsiDabs[k,, drop=FALSE] + bklt[k,, drop=FALSE] + lS
 					 (-beta)^j. * abs(s[j.]) * colSums(signs*exp(a)) 
                                      }
                                      ## => returns a vector of length n containing the values for one j. and all t
@@ -69,8 +68,7 @@ opower <- function(copbase, thetabase) {
                                      lfac <- lfactorial(0:degree) # log(0!), log(1!), .., log(degree!)
                                      log.b.one.j <- function(j.){
                                          k <- j.:degree
-                                         a <- lpsiDabs[k,] + bklt[k,] - lfac[j.+1] - lfac[k-j.+1] # (degree-j.+1, n)-matrix
-                                         if(length(k) == 1) a <- matrix(a, nrow=1)
+                                         a <- lpsiDabs[k,, drop=FALSE] + bklt[k,, drop=FALSE] - lfac[j.+1] - lfac[k-j.+1] # (degree-j.+1, n)-matrix
                                          ls. <- lsum(a) # length = n 
                                          lchoose(beta*j., degree) + ls.
                                      }
