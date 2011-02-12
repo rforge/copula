@@ -162,39 +162,39 @@ emde.dist <- function(u, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
     n <- nrow(u)
     method <- match.arg(method) # match argument method
     switch(method,
-           mde.normal.CvM = { # map to a chi-square distribution
+           "mde.normal.CvM" = { # map to a chi-square distribution
                y <- sort(rowSums(qnorm(u)^2))
                Fvals <- pchisq(y, d)
                weights <- (2*(1:n)-1)/(2*n)
                1/(12*n) + sum((weights - Fvals)^2)
            },
-           mde.normal.KS = { # map to a chi-square distribution
+           "mde.normal.KS" = { # map to a chi-square distribution
                y <- sort(rowSums(qnorm(u)^2))
                Fvals <- pchisq(y, d)
                i <- 1:n
                max(Fvals[i]-(i-1)/n, i/n-Fvals[i])
            },
-           mde.log.CvM = { # map to an Erlang distribution
+           "mde.log.CvM" = { # map to an Erlang distribution
                y <- sort(rowSums(-log(u)))
                Fvals <- pgamma(y, shape = d) 
                weights <- (2*(1:n)-1)/(2*n)
                1/(12*n) + sum((weights - Fvals)^2)
            },
-           mde.log.KS = { # map to an Erlang distribution
+           "mde.log.KS" = { # map to an Erlang distribution
                y <- rowSums(-log(u))
                Fvals <- pgamma(y, shape = d) 
                i <- 1:n
                max(Fvals[i]-(i-1)/n, i/n-Fvals[i])
            },
            ## Note: The following multivariate distances turned out to be (far) too slow
-           ## mde.SB = { # S_n^{(B)} from Genest et al. (2009)
+           ## "mde.SB" = { # S_n^{(B)} from Genest et al. (2009)
            ##     sum1 <- sum(apply(1-u^2,1,prod))/2^(d-1)
            ##     f <- function(i,j) prod(1-apply(rbind(u[i,],u[j,]), 2, max)) 
            ##     sum2 <- 0
            ##     for(i in 1:n) sum2 <- sum2 + sum(unlist(lapply(1:n, function(j) f(i,j))))
            ##     n/3^d-sum1+sum2/n
            ## },
-           ## mde.SC = { # S_n^{(C)} from Genest et al. (2009)
+           ## "mde.SC" = { # S_n^{(C)} from Genest et al. (2009)
            ##     C.hat <- function(u.vec,u.mat) mean(apply(t(apply(u.mat, 1, 
            ##                                                       function(x) x <= 
            ##                                                       u.vec)), 1, all))
@@ -363,25 +363,25 @@ enacopula <- function(x, cop, method=c("mle", "smle", "dmle", "mde.normal.CvM",
 
     ## main part
     res <- switch(method,
-                  mle =            do.call(emle, c(list(u, cop, 
+                  "mle" =            do.call(emle, c(list(u, cop, 
                   interval = interval, ...), xargs)),
-                  smle =           do.call(emle, c(list(u, cop, n.MC = n.MC, 
+                  "smle" =           do.call(emle, c(list(u, cop, n.MC = n.MC, 
                   interval = interval, ...), xargs)),
-                  dmle =           do.call(edmle, c(list(u, cop, 
+                  "dmle" =           do.call(edmle, c(list(u, cop, 
                   interval = interval, ...), xargs)),
-                  mde.normal.CvM = do.call(emde, c(list(u, cop, "mde.normal.CvM", 
+                  "mde.normal.CvM" = do.call(emde, c(list(u, cop, "mde.normal.CvM", 
                   interval = interval, ...), xargs)),
-                  mde.normal.KS =  do.call(emde, c(list(u, cop, "mde.normal.KS", 
+                  "mde.normal.KS" =  do.call(emde, c(list(u, cop, "mde.normal.KS", 
                   interval = interval, ...), xargs)),
-                  mde.log.CvM =    do.call(emde, c(list(u, cop, "mde.log.CvM", 
+                  "mde.log.CvM" =    do.call(emde, c(list(u, cop, "mde.log.CvM", 
                   interval = interval, ...), xargs)), 
-                  mde.log.KS =     do.call(emde, c(list(u, cop, "mde.log.KS", 
+                  "mde.log.KS" =     do.call(emde, c(list(u, cop, "mde.log.KS", 
                   interval = interval, ...), xargs)),
-                  tau.tau.mean =   do.call(etau, c(list(u, cop, "tau.mean", ...), 
+                  "tau.tau.mean" =   do.call(etau, c(list(u, cop, "tau.mean", ...), 
                   xargs)),
-                  tau.theta.mean = do.call(etau, c(list(u, cop, "theta.mean", ...), 
+                  "tau.theta.mean" = do.call(etau, c(list(u, cop, "theta.mean", ...), 
                   xargs)),
-                  beta =           do.call(ebeta, c(list(u, cop, 
+                  "beta" =           do.call(ebeta, c(list(u, cop, 
                   interval = interval, ...), xargs)),
                   stop("wrong estimation method"))
 
@@ -389,16 +389,16 @@ enacopula <- function(x, cop, method=c("mle", "smle", "dmle", "mde.normal.CvM",
 
     ## return the estimate
     switch(method,
-           mle =            res$minimum,
-           smle =           res$minimum,
-           dmle =           res$minimum,
-           mde.normal.CvM = res$minimum,
-           mde.normal.KS =  res$minimum, 
-           mde.log.CvM =    res$minimum,  
-           mde.log.KS =     res$minimum,
-           tau.tau.mean =   res,
-           tau.theta.mean = res,
-           beta =           res$root,
+           "mle" =            res$minimum,
+           "smle" =           res$minimum,
+           "dmle" =           res$minimum,
+           "mde.normal.CvM" = res$minimum,
+           "mde.normal.KS" =  res$minimum, 
+           "mde.log.CvM" =    res$minimum,  
+           "mde.log.KS" =     res$minimum,
+           "tau.tau.mean" =   res,
+           "tau.theta.mean" = res,
+           "beta" =           res$root,
            stop("wrong estimation method"))
 
 }

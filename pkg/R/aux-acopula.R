@@ -784,7 +784,7 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE){
     B <- l.a.k + outer(k-1, lx)
     method <- match.arg(method)
     res <- switch(method,
-                  log.poly = {
+                  "log.poly" = {
                       ## stably compute log(colSums(exp(B))) (no overflow)
                       ## Idea:
                       ## (1) let b_k := log(a_{dk}(theta)) + (k-1)*lx and b_{max} := argmax{b_k}.
@@ -795,7 +795,7 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE){
                       max.B <- apply(B, 2, max)
                       max.B + log(colSums(exp(B - rep(max.B, each=d))))
                   },
-                  log1p = {
+                  "log1p" = {
                       ## use log(1 + sum(<smaller>)) = log1p(sum(<smaller>)),
                       ## but we don't expect it to make a difference
                       im <- apply(B, 2, which.max) # indices (vector) of maxima
@@ -805,7 +805,7 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE){
                                            d*rep(0:(n-1), each = d1)], d1, n) # matrix B without maxima
                       max.B + log1p(colSums(exp(B.wo.max - rep(max.B, each = d1))))
                   },
-                  poly = {
+                  "poly" = {
 	              ## brute force ansatz
                       log(colSums(exp(B)))
                   },

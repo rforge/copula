@@ -1,8 +1,5 @@
 ## ==== features in next CRAN version ====
 
-(*) put license-stuff in the beginning of *all* files? e.g., demo?
-(*) switch() sometimes uses strings [s. polylog], sometimes unquoted strings [s. enacopula]... => inconsistency
-
 (*) implement forward difference for computing dsumSibuya
 (*) user outer() instead of "one.t()"-like functions in all dacopula slots when n.MC > 0; see psiDabsMC for the method
 (MH) implement 1st derivative of the log density w.r.t. theta

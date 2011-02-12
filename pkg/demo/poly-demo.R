@@ -30,11 +30,11 @@ eep.fun <- function(family, alpha, d, n.MC=5000){
            cop <- onacopulaL(family, list(th, 1:d))
            U <- rnacopula(n.MC, cop)
            switch(family,
-                  Gumbel =
+                  "Gumbel" =
               {
                   mean(rowSums(cop@copula@psiInv(U, th))^alph)
               },
-                  Joe =
+                  "Joe" =
               {
                   U. <- (1-U)^th
                   lh <- rowSums(log1p(-U.)) # log(h(..))
