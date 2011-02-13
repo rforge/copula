@@ -149,10 +149,6 @@ plot.poly(family, xlim=xlim, ylim=ylim, method="pois", alpha=alpha, d=d)
 plot.poly(family, xlim=xlim, ylim=ylim, method="pois.direct", alpha=alpha, d=d)
 ## => problems for small and moderate alpha
 
-## method == "binomial.coeff"
-plot.poly(family, xlim=xlim, ylim=ylim, method="binomial.coeff", alpha=alpha, d=d)
-## => same as "pois"
-
 ## method == "stirling"
 plot.poly(family, xlim=xlim, ylim=ylim, method="stirling", alpha=alpha, d=d)
 ## => problems only for large alphas
@@ -184,13 +180,6 @@ system.time(y.pois.direct <- nacopula:::polyG(lx, alpha=0.99, d=d,
                                               method="pois.direct", log=TRUE))[[1]]
 ## => 6.80s
 stopifnot(all(!is.nan(y.pois.direct))) # check
-
-## binomial.coeff: for large alpha (where it works)
-system.time(y.binomial.coeff <- nacopula:::polyG(lx, alpha=0.99, d=d,
-                                                 method="binomial.coeff",
-                                                 log=TRUE))[[1]]
-## => 8.72s
-stopifnot(all(!is.nan(y.binomial.coeff))) # check
 
 ## stirling: for moderate alpha (where it works)
 system.time(y.stirling <- nacopula:::polyG(lx, alpha=0.5, d=d,

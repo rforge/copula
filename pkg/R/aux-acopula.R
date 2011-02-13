@@ -402,7 +402,6 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"
 ##'   "default"         uses a combination of the other methods
 ##'   "pois.direct"     uses ppois directly
 ##'   "pois"            uses ppois with pulling out max
-##'   "binomial.coeff"  uses binomial coefficients, only critical for large dependencies
 ##'   "stirling"        uses the representation via Stirling numbers and once horner
 ##'   "stirling.horner" uses the representation via Stirling numbers and twice horner
 ##'   "sort"            compute the coefficients via exp(log()), pulling out the max and sort
@@ -417,8 +416,8 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"
 ##'       = (d!/k!)\sum_{l=1}^k (-1)^{d-l} \binom{k}{l}\binom{\alpha l}{d}
 ##' @author Marius Hofert
 polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
-                                "binomial.coeff", "stirling", "stirling.horner",
-                                "sort", "horner", "direct", "dsumSibuya"), log=FALSE)
+                                "stirling", "stirling.horner", "sort", "horner", 
+                                "direct", "dsumSibuya"), log=FALSE)
 {
     k <- 1:d
     method <- match.arg(method)
@@ -441,7 +440,7 @@ polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
            x <- exp(lx) ## e^lx = x
            lppois <- outer(d-k, x, FUN=ppois, log.p=TRUE) # a (d x n)-matrix; log(ppois(d-k, x))
            llx <- k %*% t(lx) # also a (d x n)-matrix; k*lx
-           labsPoch <- unlist(lapply(k, function(j) sum(log(abs(alpha*j-0:(d-1))) ) )) # log|(alpha*k)_d|
+           labsPoch <- vapply(k, function(j) sum(log(abs(alpha*j-(k-1L)))), NA_real_) # log|(alpha*k)_d|
            lfac <- lfactorial(k)
            ## build matrix of exponents
            B <- llx + lppois + rep(labsPoch - lfac, n) + rep(x, each = d)
@@ -463,32 +462,6 @@ polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
            exponents <- exp(t(x+klx)+lppois+xfree) # (d,length(x))-matrix
            res <- as.vector(signs %*% exponents)
            if(log) log(res) else res
-       },
-           "binomial.coeff" =
-       { ### speed --- careful!! - see end of ../demo/logL-vis.R
-
-           ## determine signs of the falling factorials
-           ## s <- unlist(lapply(alpha*k, function(z) prod(z-(0:(d-1)))))
-           ## signs <- (-1)^(d-k) * sign(s) ## see  ../misc/sign-polyG.R
-           ## signs  <- (-1)^(d-k) * (-1)^d * (2*(floor(alpha*k) %% 2) - 1)
-           ## signs  =  (-1)^k              * (2*(floor(alpha*k) %% 2) - 1)
-           signs <- (-1)^k* (2*(floor(alpha*k) %% 2) - 1)
-
-           ## build list of b's
-           n <- length(lx)
-           x <- exp(lx) ## e^lx = x
-           k1 <- k-1L # = 0:(d-1)
-           lppois <- outer(d-k, x, FUN=ppois, log.p=TRUE) # a (d x n)-matrix; log(ppois(d-k, x))
-           llx <- k %*% t(lx)		# also a (d x n)-matrix; k*lx
-           labsPoch <- vapply(k, function(j) sum(log(abs(alpha*j-k1))),
-                              NA_real_)# log|(alpha*k)_d|
-           lfac <- lfactorial(k)
-           ## build matrix of exponents
-           B <- llx + lppois + rep(labsPoch - lfac, n) + rep(x, each = d)
-           max.B <- apply(B, 2, max)
-           ## pull out maximum and sum the rest
-           res <- max.B + log(as.vector(signs %*% exp(B - rep(max.B, each=d))))
-           if(log) res else exp(res)
        },
            "stirling" =
        {
@@ -597,9 +570,28 @@ rSibuya <- function(n,alpha) {
     stopifnot(is.numeric(n), n >= 0)
     .Call(rSibuya_vec_c, n, alpha)
 }
-dSibuya <- function(x, alpha, log = FALSE) dsumSibuya(x, 1, alpha, log=log)
 
-pSibuya <- function(x, alpha, lower.tail = TRUE, log.p = FALSE)
+##' Probability mass function of a Sibuya(alpha) distribution
+##' 
+##' @title Probability mass function of a Sibuya(alpha) distribution
+##' @param x evaluation point [integer]
+##' @param alpha parameter alpha
+##' @param log boolean which determines if the logarithm is returned
+##' @return p_x = choose(alpha, x) * (-1)^(x-1)
+##' @author Marius Hofert and Martin Maechler
+dSibuya <- function(x, alpha, log=FALSE)
+    if(log) lchoose(alpha, x) else abs(choose(alpha, x))
+
+##' Distribution function of a Sibuya(alpha) distribution
+##' 
+##' @title Distribution function of a Sibuya(alpha) distribution
+##' @param x evaluation point [integer]
+##' @param alpha parameter alpha
+##' @param lower.tail if TRUE, probabilities are P[X ≤ x], otherwise, P[X > x]
+##' @param log.p boolean which determines if the logarithm is returned
+##' @return F(x) = 1 - (-1)^x * choose(alpha-1, x)
+##' @author Marius Hofert and Martin Maechler
+pSibuya <- function(x, alpha, lower.tail=TRUE, log.p=FALSE)
 {
     ## F(x) = 1 - 1/(x*Beta(x,1-alpha)) = 1 - (x*beta(x, 1-alpha))^(-1)
     if(log.p) {
@@ -652,14 +644,18 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 ##' @param method method applied
 ##'        log:      proper log computation based on lssum
 ##'        direct:   brute-force evaluation of the sum and its log
+##'        Rmpfr:    multi-precision
+##'        diff:     via forward differences
 ##'        exp.log:  similar to method = "log", but without *proper/intelligent* log
 ##' @param log boolean which determines if the logarithm is returned
-##' @return \sum_{j=1}^n choose(n,j)*choose(alpha*j,x)*(-1)^(x-j)
+##' @return p_{xn} = \sum_{j=1}^n choose(n,j)*choose(alpha*j,x)*(-1)^(x-j)
+##'         which is a probability mass function in x on IN with generating function
+##'         g(z) = (1-(1-z)^alpha)^n
 ##' @author Marius Hofert
-##' note: - this is a probability mass function in x, where x in {n, n+1, ...}
+##' note: - p_{xn} = 0 for x < n; p_{nn} = alpha^n
 ##'       - numerically challenging, e.g., dsumSibuya(100, 96, 0.01) < 0 for all methods
 dsumSibuya <- function(x, n, alpha,
-		 method=c("log", "direct", "Rmpfr", "exp.log"), log=FALSE)
+                       method=c("log", "direct", "Rmpfr", "diff", "exp.log"), log=FALSE)
 {
     stopifnot(length(alpha) == 1, x == round(x), n == round(n), n >= 1)
     if((l.x <- length(x)) * (l.n <- length(n)) == 0)
@@ -729,6 +725,10 @@ dsumSibuya <- function(x, n, alpha,
                                           f.one(x[i], n[i]))))
 	   as.numeric(if(log) log(S) else S)
        },
+           "diff" = 
+       {
+           diff(choose(n:0*alpha, x), differences=n) * (-1)^x
+       },
 	   "exp.log" =
        {
 	   ## similar to method = "log", but without *proper/intelligent* log
@@ -783,34 +783,36 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE){
     ## where k in {1,..,d}, i in {1,..,n} [n = length(lx)]
     B <- l.a.k + (k-1) %*% t(lx)
     method <- match.arg(method)
-    res <- switch(method,
-                  "log.poly" = {
-                      ## stably compute log(colSums(exp(B))) (no overflow)
-                      ## Idea:
-                      ## (1) let b_k := log(a_{dk}(theta)) + (k-1)*lx and b_{max} := argmax{b_k}.
-                      ## (2) \sum_{k=1}^d a_{dk}(theta)\exp((k-1)*lx) = \sum_{k=1}^d \exp(log(a_{dk}(theta))
-                      ##     + (k-1)*lx) = \sum_{k=1}^d \exp(b_k) = \exp(b_{max})*\sum_{k=1}^d
-                      ##     \exp(b_k-b_{max})
-                      ## (3) => log(\sum...) = b_{max} + log(\sum_{k=1}^d \exp(b_k-b_{max}))
-                      max.B <- apply(B, 2, max)
-                      max.B + log(colSums(exp(B - rep(max.B, each=d))))
-                  },
-                  "log1p" = {
-                      ## use log(1 + sum(<smaller>)) = log1p(sum(<smaller>)),
-                      ## but we don't expect it to make a difference
-                      im <- apply(B, 2, which.max) # indices (vector) of maxima
-                      n <- length(lx) ; d1 <- d-1L
-                      max.B <- B[cbind(im, seq_len(n))] # get max(B[,i])_{i=1,..,n} == apply(B, 2, max)
-                      B.wo.max <- matrix(B[unlist(lapply(im, function(j) k[-j])) +
-                                           d*rep(0:(n-1), each = d1)], d1, n) # matrix B without maxima
-                      max.B + log1p(colSums(exp(B.wo.max - rep(max.B, each = d1))))
-                  },
-                  "poly" = {
-	              ## brute force ansatz
-                      log(colSums(exp(B)))
-                  },
-              {stop(sprintf("unsupported method '%s' in polyJ", method))})
-    if(log) res else exp(res)
+    switch(method,
+           "log.poly" = {
+               ## stably compute log(colSums(exp(B))) (no overflow)
+               ## Idea:
+               ## (1) let b_k := log(a_{dk}(theta)) + (k-1)*lx and b_{max} := argmax{b_k}.
+               ## (2) \sum_{k=1}^d a_{dk}(theta)\exp((k-1)*lx) = \sum_{k=1}^d \exp(log(a_{dk}(theta))
+               ##     + (k-1)*lx) = \sum_{k=1}^d \exp(b_k) = \exp(b_{max})*\sum_{k=1}^d
+               ##     \exp(b_k-b_{max})
+               ## (3) => log(\sum...) = b_{max} + log(\sum_{k=1}^d \exp(b_k-b_{max}))
+               max.B <- apply(B, 2, max)
+               res <- max.B + log(colSums(exp(B - rep(max.B, each=d))))
+               if(log) res else exp(res)
+           },
+           "log1p" = {
+               ## use log(1 + sum(<smaller>)) = log1p(sum(<smaller>)),
+               ## but we don't expect it to make a difference
+               im <- apply(B, 2, which.max) # indices (vector) of maxima
+               n <- length(lx) ; d1 <- d-1L
+               max.B <- B[cbind(im, seq_len(n))] # get max(B[,i])_{i=1,..,n} == apply(B, 2, max)
+               B.wo.max <- matrix(B[unlist(lapply(im, function(j) k[-j])) +
+                                    d*rep(0:(n-1), each = d1)], d1, n) # matrix B without maxima
+               res <- max.B + log1p(colSums(exp(B.wo.max - rep(max.B, each = d1))))
+               if(log) res else exp(res)
+           },
+           "poly" = {
+               ## brute force ansatz
+               res <- colSums(exp(B))
+               if(log) log(res) else res
+           },
+       {stop(sprintf("unsupported method '%s' in polyJ", method))})
 }
 
 ### ==== other numeric utilities ===============================================
@@ -1096,28 +1098,37 @@ cacopula <- function(v, u, family, theta, log = FALSE) {
 ##' @param degree order of derivative
 ##' @param n.MC Monte Carlo sample size
 ##' @param method different methods
-##'        direct: direct MC formula
-##'        log:    proper log
+##'        direct:      direct MC formula
+##'        log:         proper log
+##'        pois.direct: directly uses the Poisson density
+##'        pois:        intelligently uses the Poisson density with lsum
 ##' @param log if TRUE the log of psiDabs is returned
 ##' @author Marius Hofert
-psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("direct","log"),
-                      log=FALSE){
-    V0. <- getAcop(family)@V0(n.MC,theta)
-    l.V0. <- degree*log(V0.)
-    lx <- -V0. %*% t(t) + l.V0.
+psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("direct", "log", 
+                                                        "pois.direct", "pois"),
+                      log=FALSE)
+{
+    V <- getAcop(family)@V0(n.MC,theta)
     method <- match.arg(method)
     switch(method,
            "direct" = {
-               ## old code:
-               ## summands <- function(t) mean(exp(-V0.*t + l.V0.))
-               ## res <- unlist(lapply(t,summands))
-	       ## now:
+               lx <- -V %*% t(t) + degree*log(V)
 	       res <- colMeans(exp(lx))
                if(log) log(res) else res
            },
            "log" = {
-	       lx.max <- apply(lx, 2, max)
-               res <- lx.max + log(rowMeans(exp(t(lx) - lx.max)))
+               res <- lsum(-V %*% t(t) + degree*log(V) -log(n.MC))
+               if(log) res else exp(res)
+           },
+           "pois.direct" = {
+	       poi <- dpois(degree, lambda=V %*% t(t)) # (n.MC, length(t))-matrix
+               res <- factorial(degree)/t^degree * colMeans(poi)
+               if(log) log(res) else res
+           },
+           "pois" = {
+               lpoi <- dpois(degree, lambda=V %*% t(t), log=TRUE) # (n.MC, length(t))-matrix
+               b <- -log(n.MC) + lfactorial(degree) - degree*rep(log(t), each=n.MC) + lpoi # (n.MC, length(t))-matrix
+               res <- lsum(b)
                if(log) res else exp(res)
            },
            stop(sprintf("unsupported method '%s' in psiDabsMC", method)))
@@ -1133,15 +1144,15 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("direct","log")
 ##' @author Martin Maechler
 setTheta <- function(x, value, na.ok = TRUE) {
     stopifnot(is(x, "acopula"),
-	      is.numeric(value) | (ina <- is.na(value)))
+              is.numeric(value) | (ina <- is.na(value)))
     if(ina) {
-	if(!na.ok) stop("NA value, but 'na.ok' is not TRUE")
-	value <- NA_real_
+        if(!na.ok) stop("NA value, but 'na.ok' is not TRUE")
+        value <- NA_real_
     }
     if(ina || x@paraConstr(value)) ## parameter constraints are fulfilled
-	x@theta <- value
+        x@theta <- value
     else
-	stop("theta (=", format(value), ") does not fulfill paraConstr()")
+        stop("theta (=", format(value), ") does not fulfill paraConstr()")
     x
 }
 

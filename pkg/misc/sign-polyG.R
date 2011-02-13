@@ -34,6 +34,12 @@ sign.fafac(0.8, 5)
 sign.fafac(0.8, 6)
 sign.fafac(0.8, 16)
 sign.fafac(0.8, 17)
+## determine signs of the falling factorials
+## s <- unlist(lapply(alpha*k, function(z) prod(z-(0:(d-1)))))
+## signs <- (-1)^(d-k) * sign(s) ## see  ../misc/sign-polyG.R
+## signs  <- (-1)^(d-k) * (-1)^d * (2*(floor(alpha*k) %% 2) - 1)
+## signs  =  (-1)^k              * (2*(floor(alpha*k) %% 2) - 1)
+
 
 ## CAUTION: sign.fafac is not correct [see below for a corrected version]
 ## Ok: It is "proven"

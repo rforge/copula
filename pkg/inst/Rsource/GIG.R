@@ -115,8 +115,8 @@ dV0.GIG <- function(x, theta, log=FALSE){
 }
 
 ## Kendall's tau for fixed theta_1 as a function in theta_2 [vectorized]
-## note: this is numerically difficult, take, e.g., tau.GIG(1, 400)
-##       or even tau.GIG(0.00001,0.00001)
+## FIXME: this is numerically difficult, take, e.g., tau.GIG(c(1,400))
+##        or even tau.GIG(c(0.00001,0.00001))
 tau.GIG <- function(theta, ...){
     if(!is.matrix(theta)) theta <- rbind(theta)
     integrand <- function(t, theta)

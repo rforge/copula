@@ -1,6 +1,6 @@
 ## ==== features in next CRAN version ====
 
-(MH) implement forward difference for computing dsumSibuya
+(MH) make opower SMLE faster!
 (MH) implement 1st derivative of the log density w.r.t. theta
 (MH) implement MC engine for Fisher information
 (*) add (and fill) all help files for estimation and gof procedures
@@ -12,8 +12,8 @@
 (MM) is the new splom2 function in graphics.R okay? I implemented two color features
 (*) design a function that gets an outer nacopula and returns a matrix of numbers 
     which correspond to the different sectors; this can be used, e.g., for building 
-    a color-matrix for splom2 or for estimation purposes etc.
-(MM) maybe also update splomFOO. What was that for anyway? [we do not use it]
+    a [default] color-matrix for splom2 or for estimation purposes etc.
+(MM) maybe also update splomFOO. What was this function for again? [we do not use it]
 (MM) Change onacopula() such that it works via onacopulaL() and hence
      can be used also from other functions.
 (MM) maybe add an ASCII-plot for the hierarchical structure;
