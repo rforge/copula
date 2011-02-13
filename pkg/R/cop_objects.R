@@ -37,8 +37,8 @@ copAMH <-
                   ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE){
                       if(n.MC > 0){
-                          psiDabsMC(t, family="AMH", theta=theta, degree=degree, n.MC=n.MC,
-                                    log=log)
+                          psiDabsMC(t, family="AMH", theta=theta, degree=degree, 
+                                    n.MC=n.MC, log=log)
                       }else{
                           if(theta == 0) if(log) return(-t) else return(exp(-t)) # independence
                           ## Note: psiDabs(0, ...) is correct

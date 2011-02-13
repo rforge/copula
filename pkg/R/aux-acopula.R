@@ -1108,7 +1108,7 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("direct", "log"
                                                         "pois.direct", "pois"),
                       log=FALSE)
 {
-    V <- getAcop(family)@V0(n.MC,theta)
+    V <- getAcop(family)@V0(n.MC, theta)
     method <- match.arg(method)
     switch(method,
            "direct" = {

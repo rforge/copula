@@ -38,9 +38,11 @@ opower <- function(copbase, thetabase) {
               psiDabs = function(t, theta, degree=1, n.MC=0, 
               method=c("stirling", "binomial.coeff"), 
               log=FALSE){
-                  if(theta == 1) return(copbase@psiDabs(t, theta, degree=degree, n.MC=n.MC, log=log)) # copbase case
+                  if(theta == 1) return(copbase@psiDabs(t, theta, degree=degree, 
+                     n.MC=n.MC, log=log)) # copbase case
                   if(n.MC > 0){
-                      psiDabsMC(t, family=C., theta=theta, degree=degree, n.MC=n.MC, log=log)
+                      psiDabsMC(t, family=C., theta=theta, degree=degree, 
+                                n.MC=n.MC, log=log)
                   }else{
                       res <- numeric(n <- length(t))
                       res[is0 <- t == 0] <- Inf
@@ -50,12 +52,14 @@ opower <- function(copbase, thetabase) {
 	                  k <- 1:degree # compute everything once for 1:degree
                           beta <- 1/theta
                           t.beta <- t.^beta # beta = 1/theta for psi(t^beta)
+                          ## in principle, it would be efficient to vectorize 
+                          ## the psiDabs slots also in the parameter "degree", 
+                          ## but that would be even more complicated
                           lpsiDabs <- do.call(rbind, 
                                               lapply(k, function(k.) 
                                                      copbase@psiDabs(t.beta, 
                                                                      theta=thetabase, 
                                                                      degree=k., 
-                                                                     n.MC=n.MC, 
                                                                      log=TRUE))) # (degree,n)-matrix
                           lt <- log(t.)
                           lt.beta <- beta*lt
@@ -121,25 +125,20 @@ opower <- function(copbase, thetabase) {
                   ## auxiliary results
                   u. <- u[n01,, drop=FALSE]
                   psiI <- rowSums(C.@psiInv(u.,theta))
-                  res[n01] <- C.@psiDabs(psiI, theta, degree=d, n.MC=n.MC, log=TRUE)+
+                  res[n01] <- C.@psiDabs(psiI, theta, degree=d, n.MC=n.MC, log=TRUE) +
                       rowSums(C.@psiInvD1abs(u., theta, log=TRUE))
                   if(log) res else exp(res)
               },
               ## V0 and V01
-              V0 = function(n,theta) {
-                  if(theta == 1) {
-                      ## Sample from S(1,1,0,1;1)
-                      ## with Laplace-Stieltjes transform exp(-t)
-                      rep.int(1., n)
-                  } else {
-                      V0base <- copbase@V0(n,thetabase) # draw from the base generator
-                      alpha <- 1/theta
-                      ## Sample from S(alpha,1,(cos(alpha*pi/2))^(1/alpha),0;1)
-                      ## with Laplace-Stieltjes transform exp(-t^alpha)
-                      S <- rstable1(n, alpha, beta=1,
-                                    gamma = (cos(alpha*pi/2))^(1/alpha))
-                      S*V0base^theta
-                  }
+              V0 = function(n, theta) {
+	          V0base <- copbase@V0(n, thetabase)
+                  if(theta == 1) return(V0base) # the copula is copbase with thetabase
+                  alpha <- 1/theta
+                  ## Sample from S(alpha,1,(cos(alpha*pi/2))^(1/alpha),0;1)
+                  ## with Laplace-Stieltjes transform exp(-t^alpha)
+                  S <- rstable1(n, alpha, beta=1,
+                                gamma = (cos(alpha*pi/2))^(1/alpha))
+                  S*V0base^theta
               },
               dV0 = function(x, theta, log=FALSE){
                   stop("not implemented; it's the density of SV^theta, where V ~ F with LS[F] = copbase@psi and S ~ S(1/theta, 1, cos^theta(pi/(2*theta)), I_{theta==1}; 1)")
