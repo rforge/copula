@@ -855,7 +855,7 @@ lsum <- function(lx, l.off = apply(lx, 2, max)){
 lssum <- function (lxabs, signs, l.off = apply(lxabs, 2, max), strict = TRUE){ 
     stopifnot(is.matrix(lxabs))
     sum. <- colSums(signs * exp(lxabs - rep(l.off, each=nrow(lxabs))))
-    if (any(sum. <= 0)) 
+    if (any(is.nan(sum.) || sum. <= 0))
         if (strict) 
             stop("lssum found non-positive sums")
         else warning("lssum found non-positive sums")

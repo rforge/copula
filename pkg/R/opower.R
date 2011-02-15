@@ -93,7 +93,13 @@ opower <- function(copbase, thetabase) {
                                      ## => returns a vector of length n containing the values for one j. and all t
                                      j <- 1:degree	  	      
                                      b <- do.call(rbind, lapply(j, FUN=log.b.one.j)) # (degree, n)-matrix
+print("===debug:=====")
+print(b)
+print("========")
                                      signs <- sign.binom(beta, j, degree)
+print(signs)
+print("========")
+print(lssum(b, signs, strict=FALSE))
                                      res <- lfac[degree+1] - degree*lt + lssum(b, signs, strict=FALSE)
                                      if(log) res else exp(res)
                                  }, stop(sprintf("unsupported method '%s' in psiDabs",
