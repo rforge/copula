@@ -60,26 +60,23 @@ opower <- function(copbase, thetabase) {
                                                                      theta=thetabase, 
                                                                      degree=k., 
                                                                      log=TRUE))) # (degree,n)-matrix
-                          lt <- log(t.)
-                          lt.beta <- beta*lt
-                          bklt <- k %*% t(lt.beta) # (degree,n)-matrix
+                          bklt <- k %*% t(log(t.beta)) # (degree,n)-matrix
 	                  method <- match.arg(method)
                           switch(method,
-                                 "stirling" = { # much faster
-                                     lb <- log(beta)
+                                 "stirling" = { # much faster & less prone to errors
                                      s <- Stirling1.all(degree)
                                      b.one.j <- function(j.){
                                          k <- 1:j.
                                          signs <- (-1)^k
                                          lS <- log(Stirling2.all(j.))
-  					 a <- lpsiDabs[k,, drop=FALSE] + bklt[k,, drop=FALSE] + lS
+  					 a <- lS + lpsiDabs[k,, drop=FALSE] + bklt[k,, drop=FALSE]
 					 (-beta)^j. * abs(s[j.]) * colSums(signs*exp(a)) 
                                      }
                                      ## => returns a vector of length n containing the values for one j. and all t
                                      j <- 1:degree	  	      
                                      b <- do.call(rbind, lapply(j, FUN=b.one.j)) # (degree, n)-matrix
-                                     res <- colSums(b)/t^degree
-                                     if(log) log(res) else res
+                                     res <- colSums(b)
+                                     if(log) -degree*log(t)+log(res) else res/t^degree # without exp(log(..)), log(res) would produce NaN
                                  },
                                  "binomial.coeff" = {
                                      ## outer sum
@@ -88,18 +85,12 @@ opower <- function(copbase, thetabase) {
                                          k <- j.:degree
                                          a <- lpsiDabs[k,, drop=FALSE] + bklt[k,, drop=FALSE] - lfac[j.+1] - lfac[k-j.+1] # (degree-j.+1, n)-matrix
                                          ls. <- lsum(a) # length = n 
-                                         lchoose(beta*j., degree) + ls.
+                                         lchoose(beta*j., degree) + ls. # note: the lchoose() can be non-finite with this approach!
                                      }
                                      ## => returns a vector of length n containing the values for one j. and all t
                                      j <- 1:degree	  	      
                                      b <- do.call(rbind, lapply(j, FUN=log.b.one.j)) # (degree, n)-matrix
-print("===debug:=====")
-print(b)
-print("========")
                                      signs <- sign.binom(beta, j, degree)
-print(signs)
-print("========")
-print(lssum(b, signs, strict=FALSE))
                                      res <- lfac[degree+1] - degree*lt + lssum(b, signs, strict=FALSE)
                                      if(log) res else exp(res)
                                  }, stop(sprintf("unsupported method '%s' in psiDabs",
@@ -119,7 +110,7 @@ print(lssum(b, signs, strict=FALSE))
                   }
               },
               ## density
-              dacopula = function(u, theta, n.MC=0, method, log=FALSE){
+              dacopula = function(u, theta, n.MC=0, log=FALSE){
                   if(theta == 1) return(copbase@dacopula(u, theta, n.MC=n.MC, log=log)) # copbase case
                   if(!is.matrix(u)) u <- rbind(u)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
@@ -130,7 +121,7 @@ print(lssum(b, signs, strict=FALSE))
                   ## auxiliary results
                   u. <- u[n01,, drop=FALSE]
                   psiI <- rowSums(C.@psiInv(u.,theta))
-                  res[n01] <- C.@psiDabs(psiI, theta, degree=d, n.MC=n.MC, method=method, log=TRUE) +
+                  res[n01] <- C.@psiDabs(psiI, theta, degree=d, n.MC=n.MC, log=TRUE) +
                       rowSums(C.@psiInvD1abs(u., theta, log=TRUE))
                   if(log) res else exp(res)
               },
