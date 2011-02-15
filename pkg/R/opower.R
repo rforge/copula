@@ -36,8 +36,7 @@ opower <- function(copbase, thetabase) {
               },
               ## absolute value of generator derivatives
               psiDabs = function(t, theta, degree=1, n.MC=0, 
-              method=c("stirling", "binomial.coeff"), 
-              log=FALSE){
+              method=c("stirling", "binomial.coeff"), log=FALSE){
                   if(theta == 1) return(copbase@psiDabs(t, theta, degree=degree, 
                      n.MC=n.MC, log=log)) # copbase case
                   if(n.MC > 0){
@@ -114,7 +113,7 @@ opower <- function(copbase, thetabase) {
                   }
               },
               ## density
-              dacopula = function(u, theta, n.MC=0, log=FALSE){
+              dacopula = function(u, theta, n.MC=0, method, log=FALSE){
                   if(theta == 1) return(copbase@dacopula(u, theta, n.MC=n.MC, log=log)) # copbase case
                   if(!is.matrix(u)) u <- rbind(u)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
@@ -125,7 +124,7 @@ opower <- function(copbase, thetabase) {
                   ## auxiliary results
                   u. <- u[n01,, drop=FALSE]
                   psiI <- rowSums(C.@psiInv(u.,theta))
-                  res[n01] <- C.@psiDabs(psiI, theta, degree=d, n.MC=n.MC, log=TRUE) +
+                  res[n01] <- C.@psiDabs(psiI, theta, degree=d, n.MC=n.MC, method=method, log=TRUE) +
                       rowSums(C.@psiInvD1abs(u., theta, log=TRUE))
                   if(log) res else exp(res)
               },

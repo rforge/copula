@@ -37,36 +37,44 @@ psiInv.GIG <- function(t, theta, upper=if(theta[1] > -0.5) function(x) (1-log(x)
     t. <- t[!(t0 | t1)]
     l <- length(t.)
     up <- upper(t.)
-    unlist(lapply(1:l, function(i){
+    res <- unlist(lapply(1:l, function(i){
 	uniroot(function(t..) psi.GIG(t.., theta)-t.[i],
                 interval=c(0, up[i]), ...)$root
     }))
+    if(is.matrix(t)) matrix(res, ncol=ncol(t)) else res
 }
 
 ## generator derivatives
 psiDabs.GIG <- function(t, theta, degree=1, n.MC=0, log=FALSE){
     if(n.MC>0){
-        V0. <- V0.GIG(n.MC, theta)
-        l.V0. <- degree*log(V0.)
-        lx <- -V0. %*% t(t) + l.V0.
+        V <- V0.GIG(n.MC, theta)
+        lx <- -V %*% t(t) + degree*log(V)
         res <- colMeans(exp(lx))
-        if(log) log(res) else res
+        r <- if(log) log(res) else res
     }else{
         res <- numeric(n <- length(t))
         res[is0 <- t == 0] <- Inf
         res[isInf <- is.infinite(t)] <- -Inf
         if(any(n0Inf <- !(is0 | isInf))){
-            res[n0Inf] <- d*log(theta[2]/2)-(sqrt(1+t)-1)*theta[2]+
-                log(besselK(theta[2]*sqrt(1+t), nu=theta[1], expon.scaled=TRUE))-
-                    log(besselK(theta[2], nu=theta[1], expon.scaled=TRUE))-((theta[1]+d)/2)*log1p(t)
+            res[n0Inf] <- degree*log(theta[2]/2)-((theta[1]+degree)/2)*log1p(t) +
+                log(besselK(theta[2]*sqrt(1+t), nu=theta[1]+degree, expon.scaled=TRUE)) - 
+                    log(besselK(theta[2], nu=theta[1], expon.scaled=TRUE)) -
+                        (sqrt(1+t)-1)*theta[2]
         }
-        if(log) res else exp(res)
+        r <- if(log) res else exp(res)
     }
+    if(is.matrix(t)) matrix(r, ncol=ncol(t)) else r
 }
 
 ## derivative of the generator inverse
 psiInvD1abs.GIG <- function(t, theta, log=FALSE){
     res <- -psiDabs.GIG(psiInv.GIG(t, theta), theta, log=TRUE)
+    if(log) res else exp(res)
+}
+
+## derivative of the generator inverse with given psiInv = psiInv.GIG(t, theta)
+psiInvD1absInv.GIG <- function(psiInv, theta, log=FALSE){
+    res <- -psiDabs.GIG(psiInv, theta, log=TRUE)
     if(log) res else exp(res)
 }
 
@@ -80,12 +88,12 @@ dacopula.GIG <- function(u, theta, n.MC=0, log=FALSE){
     if(!any(n01)) return(res)
     ## auxiliary results
     u. <- u[n01,, drop=FALSE]
-    psiI <- matrix(psiInv.GIG(u., theta=theta), ncol=d) # this is the costly part if d is large
+    psiI <- psiInv.GIG(u., theta=theta) # this is costly if d is large
     psiI.sum <- rowSums(psiI)
     ## main part
     if(n.MC > 0){ # Monte Carlo
-        res[n01] <- psiDabs.GIG(psiI.sum, theta=theta, degree=d, n.MC=n.MC, log=TRUE) -
-            rowSums(matrix(psiInvD1abs.GIG(u., theta=theta, log=TRUE), ncol=d))
+        res[n01] <- psiDabs.GIG(psiI.sum, theta=theta, degree=d, n.MC=n.MC, log=TRUE) +
+            rowSums(psiInvD1absInv.GIG(psiI, theta=theta, log=TRUE))
     }else{ # explicit
         ## auxiliary function for density evaluation
         h <- function(t, k, theta, log=FALSE){
@@ -111,7 +119,7 @@ V0.GIG <- function(n, theta){
 ## density of V0
 dV0.GIG <- function(x, theta, log=FALSE){
     dens <- udgig(theta[1], 1, theta[2]^2)
-    if(log) log(ud(dens, x)) else ud(dens, x)
+    if(log) log(2*ud(dens, 2*x)) else 2*ud(dens, 2*x)
 }
 
 ## Kendall's tau for fixed theta_1 as a function in theta_2 [vectorized]
