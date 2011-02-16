@@ -376,24 +376,29 @@ copGumbel <-
                   ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree=1, n.MC=0,
                   method=eval(formals(polyG)$method), log = FALSE) {
+	              is0 <- t == 0
+                      isInf <- is.infinite(t)
+	              res <- numeric(n <- length(t))
+	              res[is0] <- Inf
+                      res[isInf] <- -Inf
+                      n0Inf <- !(is0 | isInf)
+                      if(all(!n0Inf)) return(if(log) res else exp(res))
+                      t. <- t[n0Inf]
                       if(n.MC > 0){
-                          psiDabsMC(t, family="Gumbel", theta=theta, degree=degree,
-                                    n.MC=n.MC, log=log)
+                          res[n0Inf] <- psiDabsMC(t, family="Gumbel", theta=theta, 
+                                                  degree=degree, n.MC=n.MC, log=TRUE)
                       }else{
-                          if(theta == 1) return(if(log) -t else exp(-t)) # independence
-                          res <- numeric(n <- length(t))
-                          res[is0 <- t == 0] <- Inf
-                          res[isInf <- is.infinite(t)] <- -Inf
-                          if(any(n0Inf <- !(is0 | isInf))){
-                              t. <- t[n0Inf]
+                          if(theta == 1){
+                              res[n0Inf] <- -t. # independence
+                          }else{
                               alpha <- 1/theta
                               lt <- log(t.)
-                              res <- -degree*lt -t^alpha +
+                              res[n0Inf] <- -degree*lt -t.^alpha +
                                   polyG(alpha*lt, alpha=alpha, d = degree,
                                         method=method, log=TRUE)
                           }
-                          if(log) res else exp(res)
                       }
+                      if(log) res else exp(res)
                   },
                   ## derivatives of the generator inverse
 		  psiInvD1abs = function(t, theta, log = FALSE){
@@ -533,23 +538,29 @@ copJoe <-
                   ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree = 1, n.MC=0,
                   method=eval(formals(polyJ)$method), log = FALSE) {
+                      is0 <- t == 0
+                      isInf <- is.infinite(t)
+                      res <- numeric(n <- length(t))
+                      res[is0] <- Inf
+                      res[isInf] <- -Inf
+                      n0Inf <- !(is0 | isInf)
+                      if(all(!n0Inf)) return(if(log) res else exp(res))
+                      t. <- t[n0Inf]
                       if(n.MC > 0){
-                          psiDabsMC(t, family="Joe", theta=theta, degree=degree,
-                                    n.MC=n.MC, log=log)
+                          res[n0Inf] <- psiDabsMC(t, family="Joe", theta=theta, 
+                                                  degree=degree, n.MC=n.MC, log=TRUE)
                       }else{
-                          if(theta == 1) return(if(log) -t else exp(-t)) # independence
-                          res <- numeric(n <- length(t))
-                          res[is0 <- t == 0] <- Inf
-                          res[isInf <- is.infinite(t)] <- -Inf
-                          if(any(n0Inf <- !(is0 | isInf))) {
+                          if(theta == 1){
+                              res[n0Inf] <- -t. # independence
+                          }else{
                               alpha <- 1/theta
-                              mt <- -t[n0Inf] # -t
+                              mt <- -t.
                               l1mt <- log(-expm1(mt)) # log(1-exp(-t))
-                              sum. <- polyJ(mt-l1mt, alpha, degree, method=method, log=log)
+                              sum. <- polyJ(mt-l1mt, alpha, degree, method=method, log=TRUE)
                               res[n0Inf] <- -log(theta) + mt - (1-alpha)*l1mt + sum.
                           }
-                          if(log) res else exp(res)
                       }
+                      if(log) res else exp(res)
                   },
                   ## derivatives of the generator inverse
 		  psiInvD1abs = function(t, theta, log = FALSE){

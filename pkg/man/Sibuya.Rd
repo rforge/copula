@@ -28,7 +28,7 @@ dSibuya(x, alpha, log = FALSE)
 pSibuya(x, alpha, lower.tail = TRUE, log.p = FALSE)
 
 dsumSibuya(x, n, alpha,
-	   method=c("log", "direct", "Rmpfr", "exp.log"), log=FALSE)
+	   method=c("log", "direct", "Rmpfr", "diff", "exp.log"), log=FALSE)
 }
 \arguments{
   \item{n}{

@@ -1098,37 +1098,46 @@ cacopula <- function(v, u, family, theta, log = FALSE) {
 ##' @param degree order of derivative
 ##' @param n.MC Monte Carlo sample size
 ##' @param method different methods
-##'        direct:      direct MC formula
 ##'        log:         proper log
+##'        direct:      direct MC formula
 ##'        pois.direct: directly uses the Poisson density
 ##'        pois:        intelligently uses the Poisson density with lsum
 ##' @param log if TRUE the log of psiDabs is returned
 ##' @author Marius Hofert
-psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("direct", "log", 
+psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("log", "direct", 
                                                         "pois.direct", "pois"),
                       log=FALSE)
 {
+    n <- length(t)
+    res <- numeric(n)
+    iInf <- is.infinite(t)
+    if(all(iInf)) return(res)
+    t. <- t[!iInf]
     V <- getAcop(family)@V0(n.MC, theta)
     method <- match.arg(method)
     switch(method,
-           "direct" = {
-               lx <- -V %*% t(t) + degree*log(V)
-	       res <- colMeans(exp(lx))
-               if(log) log(res) else res
-           },
-           "log" = {
-               res <- lsum(-V %*% t(t) + degree*log(V) -log(n.MC))
+	   "log" = { # intelligent log
+               res[!iInf] <- lsum(-V %*% t(t.) + degree*log(V) - log(n.MC))
+               res[iInf] <- -Inf
                if(log) res else exp(res)
            },
+           "direct" = { # direct method 
+               lx <- -V %*% t(t.) + degree*log(V)
+	       res[!iInf] <- colMeans(exp(lx)) # can be all zeros if lx is too small
+	       res[iInf] <- 0
+               if(log) log(res) else res
+           },
            "pois.direct" = {
-	       poi <- dpois(degree, lambda=V %*% t(t)) # (n.MC, length(t))-matrix
-               res <- factorial(degree)/t^degree * colMeans(poi)
+	       poi <- dpois(degree, lambda=V %*% t(t.)) # (n.MC, length(t.))-matrix
+               res[!iInf] <- factorial(degree)/t.^degree * colMeans(poi)
+               res[iInf] <- 0
                if(log) log(res) else res
            },
            "pois" = {
-               lpoi <- dpois(degree, lambda=V %*% t(t), log=TRUE) # (n.MC, length(t))-matrix
-               b <- -log(n.MC) + lfactorial(degree) - degree*rep(log(t), each=n.MC) + lpoi # (n.MC, length(t))-matrix
-               res <- lsum(b)
+               lpoi <- dpois(degree, lambda=V %*% t(t.), log=TRUE) # (n.MC, length(t.))-matrix
+               b <- -log(n.MC) + lfactorial(degree) - degree*rep(log(t.), each=n.MC) + lpoi # (n.MC, length(t.))-matrix
+               res[!iInf] <- lsum(b)
+               res[iInf] <- -Inf
                if(log) res else exp(res)
            },
            stop(sprintf("unsupported method '%s' in psiDabsMC", method)))

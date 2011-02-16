@@ -76,7 +76,7 @@ opower <- function(copbase, thetabase) {
                                      j <- 1:degree	  	      
                                      b <- do.call(rbind, lapply(j, FUN=b.one.j)) # (degree, n)-matrix
                                      res <- colSums(b)
-                                     if(log) -degree*log(t)+log(res) else res/t^degree # without exp(log(..)), log(res) would produce NaN
+                                     if(log) -degree*log(t.)+log(res) else res/t.^degree # without exp(log(..)), log(res) would produce NaN
                                  },
                                  "binomial.coeff" = {
                                      ## outer sum
@@ -91,7 +91,7 @@ opower <- function(copbase, thetabase) {
                                      j <- 1:degree	  	      
                                      b <- do.call(rbind, lapply(j, FUN=log.b.one.j)) # (degree, n)-matrix
                                      signs <- sign.binom(beta, j, degree)
-                                     res <- lfac[degree+1] - degree*lt + lssum(b, signs, strict=FALSE)
+                                     res <- lfac[degree+1] - degree*log(t.) + lssum(b, signs, strict=FALSE)
                                      if(log) res else exp(res)
                                  }, stop(sprintf("unsupported method '%s' in psiDabs",
                                                  method))) # end{switch}
