@@ -13,7 +13,7 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-stopifnot(require(Runuran), require(optimx), require(nacopula))
+stopifnot(require(Runuran), require(optimx))
 
 ## ==== GIG generator and related functions ====================================
 
@@ -48,7 +48,7 @@ psiInv.GIG <- function(t, theta, upper=if(theta[1] > -0.5) function(x) (1-log(x)
 psiDabs.GIG <- function(t, theta, degree=1, n.MC=0, log=FALSE){
     if(n.MC>0){
         V <- V0.GIG(n.MC, theta)
-        res <- lsum(-V %*% t(t) + degree*log(V) - log(n.MC))
+        res <- nacopula:::lsum(-V %*% t(t) + degree*log(V) - log(n.MC))
         r <- if(log) res else exp(res)
     }else{
         res <- numeric(n <- length(t))
