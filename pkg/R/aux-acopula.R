@@ -1108,8 +1108,7 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("log", "direct"
                                                         "pois.direct", "pois"),
                       log=FALSE)
 {
-    n <- length(t)
-    res <- numeric(n)
+    res <- numeric(length(t))
     V <- getAcop(family)@V0(n.MC, theta)
     method <- match.arg(method)
     switch(method,
@@ -1129,10 +1128,8 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("log", "direct"
            "log" = { # intelligent log
                iInf <- is.infinite(t)
                res[iInf] <- -Inf # log(0)
-               if(any(!iInf)){
-                   t. <- t[!iInf]
-                   res[!iInf] <- lsum(-V %*% t(t.) + degree*log(V) - log(n.MC))
-               }
+               if(any(!iInf))
+                   res[!iInf] <- lsum(-V %*% t(t[!iInf]) + degree*log(V) - log(n.MC))
                if(log) res else exp(res)
            },
            "direct" = { # direct method 

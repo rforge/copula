@@ -46,22 +46,22 @@ psiInv.GIG <- function(t, theta, upper=if(theta[1] > -0.5) function(x) (1-log(x)
 
 ## generator derivatives
 psiDabs.GIG <- function(t, theta, degree=1, n.MC=0, log=FALSE){
-    if(n.MC>0){
-        V <- V0.GIG(n.MC, theta)
-        res <- nacopula:::lsum(-V %*% t(t) + degree*log(V) - log(n.MC))
-        r <- if(log) res else exp(res)
-    }else{
-        res <- numeric(n <- length(t))
-        res[is0 <- t == 0] <- Inf
-        res[isInf <- is.infinite(t)] <- -Inf
-        if(any(n0Inf <- !(is0 | isInf))){
-            res[n0Inf] <- degree*log(theta[2]/2)-((theta[1]+degree)/2)*log1p(t) +
-                log(besselK(theta[2]*sqrt(1+t), nu=theta[1]+degree, expon.scaled=TRUE)) - 
+    res <- numeric(length(t))
+    iInf <- is.infinite(t)
+    res[iInf] <- -Inf
+    if(any(!iInf)){
+	t. <- t[!iInf]
+        if(n.MC>0){
+            V <- V0.GIG(n.MC, theta)
+            res[!iInf] <- nacopula:::lsum(-V %*% t(t.) + degree*log(V) - log(n.MC))
+        }else{
+            res[!iInf] <- degree*log(theta[2]/2)-((theta[1]+degree)/2)*log1p(t.) +
+                log(besselK(theta[2]*sqrt(1+t.), nu=theta[1]+degree, expon.scaled=TRUE)) - 
                     log(besselK(theta[2], nu=theta[1], expon.scaled=TRUE)) -
-                        (sqrt(1+t)-1)*theta[2]
+                        (sqrt(1+t.)-1)*theta[2]
         }
-        r <- if(log) res else exp(res)
     }
+    r <- if(log) res else exp(res)
     if(is.matrix(t)) matrix(r, ncol=ncol(t)) else r
 }
 
