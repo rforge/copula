@@ -1098,16 +1098,14 @@ cacopula <- function(v, u, family, theta, log = FALSE) {
 ##' @param degree order of derivative
 ##' @param n.MC Monte Carlo sample size
 ##' @param method different methods
-##'        default:     default
 ##'        log:         proper log
 ##'        direct:      direct MC formula
 ##'        pois.direct: directly uses the Poisson density
 ##'        pois:        intelligently uses the Poisson density with lsum
 ##' @param log if TRUE the log of psiDabs is returned
 ##' @author Marius Hofert
-psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("default", "log", 
-                                                        "direct", "pois.direct", 
-                                                        "pois"),
+psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("log", "direct", 
+                                                        "pois.direct", "pois"),
                       log=FALSE)
 {
     n <- length(t)
@@ -1115,18 +1113,19 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("default", "log
     V <- getAcop(family)@V0(n.MC, theta)
     method <- match.arg(method)
     switch(method,
-	   "default" = { # basically, use "direct" if numerically not critical and "log" otherwise 
-               lx <- -V %*% t(t) + degree*log(V)
-               explx <- exp(lx) # (n.MC, n)-matrix containing the summands
-               explx0 <- explx==0 # can be TRUE due to t == Inf or t finite but too large 
-               t.too.large <- unlist(lapply(1:n, function(x) any(explx0))) # boolean vector of length n indicating which column of explx contains zeros
-               r1 <- colMeans(explx[,!t.too.large, drop=FALSE])
-               res[!t.too.large] <- if(log) log(r1) else r1
-               r2 <- lsum(lx[,t.too.large, drop=FALSE] - log(n.MC))
-               res[t.too.large] <- if(log) r2 else exp(r2)
-               res[is.infinite(t)] <- if(log) -Inf else 0
-               res
-           },
+	   ## the following is not faster than "log":
+	   ## "default" = { # basically, use "direct" if numerically not critical and "log" otherwise 
+	   ##                lx <- -V %*% t(t) + degree*log(V)
+	   ##                explx <- exp(lx) # (n.MC, n)-matrix containing the summands
+	   ##                explx0 <- explx==0 # can be TRUE due to t == Inf or t finite but too large 
+	   ##                t.too.large <- unlist(lapply(1:n, function(x) any(explx0))) # boolean vector of length n indicating which column of explx contains zeros
+	   ##                r1 <- colMeans(explx[,!t.too.large, drop=FALSE])
+	   ##                res[!t.too.large] <- if(log) log(r1) else r1
+	   ##                r2 <- lsum(lx[,t.too.large, drop=FALSE] - log(n.MC))
+	   ##                res[t.too.large] <- if(log) r2 else exp(r2)
+	   ##                res[is.infinite(t)] <- if(log) -Inf else 0
+	   ##                res
+	   ##            },
            "log" = { # intelligent log
                iInf <- is.infinite(t)
                res[iInf] <- -Inf # log(0)
@@ -1137,24 +1136,14 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("default", "log
                if(log) res else exp(res)
            },
            "direct" = { # direct method 
-               iInf <- is.infinite(t)
-               res[iInf] <- 0
-               if(any(!iInf)){
-                   t. <- t[!iInf]
-                   lx <- -V %*% t(t.) + degree*log(V)
-                   res[!iInf] <- colMeans(exp(lx)) # can be all zeros if lx is too small [e.g., if t is too large]
-               }
+               lx <- -V %*% t(t) + degree*log(V)
+               res <- colMeans(exp(lx)) # can be all zeros if lx is too small [e.g., if t is too large]
                if(log) log(res) else res
            },
            "pois.direct" = {
-               iInf <- is.infinite(t)
-               res[iInf] <- 0
-               if(any(!iInf)){
-                   t. <- t[!iInf]
-                   poi <- dpois(degree, lambda=V %*% t(t.)) # (n.MC, length(t.))-matrix
-                   res[!iInf] <- factorial(degree)/t.^degree * colMeans(poi)
-               }
-               if(log) log(res) else res
+               poi <- dpois(degree, lambda=V %*% t(t))
+               res <- factorial(degree)/t^degree * colMeans(poi)
+               if(log) log(res) else res           
            },
            "pois" = {
                iInf <- is.infinite(t)
