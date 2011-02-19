@@ -32,12 +32,14 @@ psi.GIG <- function(t, theta)
 psiInv.GIG <- function(t, theta, upper=if(theta[1] > -0.5) function(x) (1-log(x)/theta[2])^2-1 else 
                        stop("initial interval for psiInv.GIG fails"), ...){ 
     res <- numeric(length(t))
-    res[t0 <- t==0] <- Inf
-    res[t1 <- t==1] <- 0
-    t. <- t[!(t0 | t1)]
-    l <- length(t.)
+    is0 <- t==0
+    is1 <- t==1
+    n01 <- !(is0 | is1)
+    res[is0] <- Inf
+    res[is1] <- 0
+    t. <- t[n01]
     up <- upper(t.)
-    res <- unlist(lapply(1:l, function(i){
+    res[n01] <- unlist(lapply(1:length(t.), function(i){
 	uniroot(function(t..) psi.GIG(t.., theta)-t.[i],
                 interval=c(0, up[i]), ...)$root
     }))
@@ -48,7 +50,7 @@ psiInv.GIG <- function(t, theta, upper=if(theta[1] > -0.5) function(x) (1-log(x)
 psiDabs.GIG <- function(t, theta, degree=1, n.MC=0, log=FALSE){
     res <- numeric(length(t))
     iInf <- is.infinite(t)
-    res[iInf] <- -Inf
+    res[iInf] <- -Inf # log(0)
     if(any(!iInf)){
 	t. <- t[!iInf]
         if(n.MC>0){
@@ -67,13 +69,7 @@ psiDabs.GIG <- function(t, theta, degree=1, n.MC=0, log=FALSE){
 
 ## derivative of the generator inverse
 psiInvD1abs.GIG <- function(t, theta, log=FALSE){
-    res <- -psiDabs.GIG(psiInv.GIG(t, theta), theta, log=TRUE)
-    if(log) res else exp(res)
-}
-
-## derivative of the generator inverse with given psiInv = psiInv.GIG(t, theta)
-psiInvD1absInv.GIG <- function(psiInv, theta, log=FALSE){
-    res <- -psiDabs.GIG(psiInv, theta, log=TRUE)
+    res <- -psiDabs.GIG(psiInv.GIG(t, theta=theta), theta=theta, log=TRUE)
     if(log) res else exp(res)
 }
 
@@ -91,8 +87,8 @@ dacopula.GIG <- function(u, theta, n.MC=0, log=FALSE){
     psiI.sum <- rowSums(psiI)
     ## main part
     if(n.MC > 0){ # Monte Carlo
-        res[n01] <- psiDabs.GIG(psiI.sum, theta=theta, degree=d, n.MC=n.MC, log=TRUE) +
-            rowSums(psiInvD1absInv.GIG(psiI, theta=theta, log=TRUE))
+        res[n01] <- psiDabs.GIG(psiI.sum, theta=theta, degree=d, n.MC=n.MC, log=TRUE) -
+            rowSums(psiDabs.GIG(psiI, theta=theta, log=TRUE))
     }else{ # explicit
         ## auxiliary function for density evaluation
         h <- function(t, k, theta, log=FALSE){
