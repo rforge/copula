@@ -282,8 +282,9 @@ copFrank <-
                           V <- C.@V0(n.MC, theta)
                           l <- d*(log(theta*V)-V*lp)
                           rs <- -theta*u.sum
-                          res[n01] <- rowMeans(exp(rs + l + lu %*% t(V-1)))
-                          if(log) log(res) else res
+                          lx <- rep(rs, each=n.MC) + l - log(n.MC) + (V-1) %*% t(lu) # (n.MC, nrow(u.))-matrix
+                          res[n01] <- lsum(lx) 
+                          if(log) res else exp(res)
                       }else{ # explicit
                           Li.arg <- -expm1(-theta)*exp(rowSums(lpu-lp))
                           Li. <- polylog(Li.arg, s = -(d-1), method = "neg", log=TRUE)
