@@ -176,10 +176,9 @@ copClayton <-
                           l <- d*log(theta*V)
                           theta. <- 1 + theta
                           psiI.sum <- rowSums(C.@psiInv(u., theta))
-                          ## stably compute log(colMeans(exp(B)))
-                          B <- l + theta.*l.u.mat - V %*% t(psiI.sum) # matrix of exponents; dimension n.MC x n ["V x u"]
-                          max.B <- apply(B, 2, max)
-                          res[n01] <- max.B + log(colMeans(exp(B - rep(max.B, each=n.MC))))
+                          ## stably compute log(colMeans(exp(lx)))
+                          lx <- l + theta.*l.u.mat - V %*% t(psiI.sum) # matrix of exponents; dimension n.MC x n ["V x u"]
+                          res[n01] <- lsum(lx)
                       }else{ # explicit
                           alpha <- 1/theta
                           d.a <- d + alpha
@@ -431,10 +430,9 @@ copGumbel <-
                           l <- d*log(theta*V)
                           sum. <- rowSums((theta-1)*lmlu + mlu)
                           sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
-                          ## stably compute log(colMeans(exp(B)))
-                          B <- l - V %*% t(psiI.) + sum.mat # matrix of exponents; dimension n.MC x n ["V x u"]
-                          max.B <- apply(B, 2, max)
-                          res[n01] <- max.B + log(colMeans(exp(B - rep(max.B, each=n.MC))))
+                          ## stably compute log(colMeans(exp(lx)))
+                          lx <- l - V %*% t(psiI.) + sum.mat # matrix of exponents; dimension n.MC x n ["V x u"]
+                          res[n01] <- lsum(lx)
                           if(log) res else exp(res)
                       }else{ # explicit
                           alpha <- 1/theta
@@ -592,10 +590,9 @@ copJoe <-
                           l <- d*log(theta*V)
                           sum. <- (theta-1)*l1_u
                           sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
-                          ## stably compute log(colMeans(exp(B)))
-                          B <- l + (V-1) %*% t(lh) + sum.mat # matrix of exponents; dimension n.MC x n ["V x u"]
-                          max.B <- apply(B, 2, max)
-                          res[n01] <- max.B + log(colMeans(exp(B - rep(max.B, each=n.MC))))
+                          ## stably compute log(colMeans(exp(lx)))
+                          lx <- l + (V-1) %*% t(lh) + sum.mat # matrix of exponents; dimension n.MC x n ["V x u"]
+                          res[n01] <- lsum(lx)
                       }else{
                           alpha <- 1/theta
                           l1_h <- log(-expm1(lh)) # log(1-h)                          

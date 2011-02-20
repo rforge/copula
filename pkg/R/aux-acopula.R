@@ -443,10 +443,8 @@ polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
            labsPoch <- vapply(k, function(j) sum(log(abs(alpha*j-(k-1L)))), NA_real_) # log|(alpha*k)_d|
            lfac <- lfactorial(k)
            ## build matrix of exponents
-           B <- llx + lppois + rep(labsPoch - lfac, n) + rep(x, each = d)
-           max.B <- apply(B, 2, max)
-           ## pull out maximum and sum the rest
-           res <- max.B + log(as.vector(signs %*% exp(B - rep(max.B, each=d))))
+           lxabs <- llx + lppois + rep(labsPoch - lfac, n) + rep(x, each = d)
+	   res <- lssum(lxabs, signs, strict=FALSE)    
            if(log) res else exp(res)
        },
            "pois.direct" =
@@ -505,13 +503,12 @@ polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
            ## for this, create a matrix B with (k,i)-th entry
            ## B[k,i] = log(a_{dk}(theta)) + k * lx[i],
            ##          where k in {1,..,d}, i in {1,..,n} [n = length(lx)]
-           B <- l.a.dk + k %*% t(lx)
+           logx <- l.a.dk + k %*% t(lx)
            if(log){
                ## compute log(colSums(exp(B))) stably (no overflow) with the idea of
                ## pulling out the maxima
-               max.B <- apply(B, 2, max)
-               max.B + log(colSums(exp(B - rep(max.B, each = d))))
-           }else colSums(exp(B))
+               lsum(logx)
+           }else colSums(exp(logx))
        },
            stop(sprintf("unsupported method '%s' in polyG",
                         method))
@@ -792,8 +789,7 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE){
                ##     + (k-1)*lx) = \sum_{k=1}^d \exp(b_k) = \exp(b_{max})*\sum_{k=1}^d
                ##     \exp(b_k-b_{max})
                ## (3) => log(\sum...) = b_{max} + log(\sum_{k=1}^d \exp(b_k-b_{max}))
-               max.B <- apply(B, 2, max)
-               res <- max.B + log(colSums(exp(B - rep(max.B, each=d))))
+               res <- lsum(B)
                if(log) res else exp(res)
            },
            "log1p" = {
