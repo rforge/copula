@@ -41,6 +41,7 @@ setClass("acopula",
                         paraConstr = "function",  # of (theta) ; constr(theta) |--> TRUE: "fulfilled"
                         psiInvD1abs = "function", # of (t,theta,log = FALSE) -- computes the absolute value of the first derivative of psiInv
                         dacopula = "function",    # of (u, theta, n.MC = 0, log = FALSE) -- computes the (log-)density of the Archimedean copula with parameter theta at the vector/matrix u (n.MC > 0: apply Monte Carlo with sample size n.MC)
+                        score = "function",       # of (u, theta) -- computes the score function
                         V0 = "function",	  # of (n,theta) -- RNGenerator
 			dV0 = "function",         # of (x,theta,log=FALSE) -- density of F=LS^{-1}[psi]
                         tau = "function",	  # of (theta)

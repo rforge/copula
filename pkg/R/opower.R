@@ -19,7 +19,7 @@
 ##' @param copbase a "base" copula, i.e. of class "acopula";
 ##'    must be one of the predefined families
 ##' @param thetabase the (univariate) parameter 'theta' for the base copula
-##' @return a new "acopula" object; the outer power copula
+##' @return a new "acopula" object; the outer power copula [with generator psi(t^(1/theta)]
 ##' @author Marius Hofert
 opower <- function(copbase, thetabase) {
     ## create object with name in here so it's in the environment and we can access it
@@ -124,6 +124,12 @@ opower <- function(copbase, thetabase) {
                   res[n01] <- C.@psiDabs(psiI, theta, degree=d, n.MC=n.MC, log=TRUE) +
                       rowSums(C.@psiInvD1abs(u., theta, log=TRUE))
                   if(log) res else exp(res)
+              },
+              ## score function
+              score = function(u, theta){
+                  if(!is.matrix(u)) u <- rbind(u)
+                  if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+                  stop("The score function is currently not implemented for outer power copulas")
               },
               ## V0 and V01
               V0 = function(n, theta) {

@@ -84,6 +84,17 @@ copAMH <-
                           if(log) res else exp(res)
                       }
                   },
+                  ## score function
+                  score = function(u, theta){
+	              if(!is.matrix(u)) u <- rbind(u)
+	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+                      omu <- 1-u
+                      b <- rowSums(omu/(1-theta*omu))
+                      h <- theta*apply(u/(1-theta*omu), 1, prod)
+                      -(d+1)/(1-theta) - 1/theta + b + (b+1/theta) *
+                          polylog(h, s=-(d+1), method="neg") /
+                              polylog(h, s=-d, method="neg")
+                  },
                   ## nesting constraint
                   nestConstr = function(theta0,theta1) {
                       C.@paraConstr(theta0) &&
@@ -188,6 +199,18 @@ copClayton <-
                       }
                       if(log) res else exp(res)
                   },
+                  ## score function
+                  score = function(u, theta){
+	              if(!is.matrix(u)) u <- rbind(u)
+	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+                      lu <- log(u)
+                      alpha <- 1/theta
+	              s1 <- (d-sum(1/(theta*(0:(d-1))+1)))*alpha - rowsums(lu)
+	              sigma <- rowSums(C.@psiInv(u, theta=theta))
+	              s2 <- alpha^2*log(sigma)
+	              s3 <- (d+alpha)*rowSums(u^(-theta)*log(u))/sigma
+	              s1+s2+s3
+                  },
                   ## nesting constraint
                   nestConstr = function(theta0,theta1) {
                       C.@paraConstr(theta0) &&
@@ -290,6 +313,19 @@ copFrank <-
                           res[n01] <- (d-1)*log(theta) + Li. - theta*u.sum - lu
                           if(log) res else exp(res)
                       }
+                  },
+                  ## score function
+                  score = function(u, theta){
+	              if(!is.matrix(u)) u <- rbind(u)
+	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+                      e <- exp(-theta)
+                      e. <- 1-e # 1-e^{-theta}
+                      e.u <- exp(-theta*u) # exp(-theta*u)
+                      e.u. <- 1 - e.u # 1 - exp(-theta*u)
+                      h <- e.*apply(e./e.u, 1, prod)
+                      factor <- rowSums(u*e.u/e.u.) - (d-1)*e/e.
+                      (d-1)/theta - rowSums(u/e.u.) + factor * 
+                          polylog(h, s=-d, method="neg") / polylog(h, s=-(d-1), method="neg")
                   },
                   ## nesting constraint
                   nestConstr = function(theta0,theta1) {
@@ -454,6 +490,12 @@ copGumbel <-
                           res
                       }
                   },
+                  ## score function
+                  score = function(u, theta){
+	              if(!is.matrix(u)) u <- rbind(u)
+	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+                      stop("The score function is currently not implemented for Gumbel copulas")
+                  },
                   ## nesting constraint
                   nestConstr = function(theta0,theta1) {
                       C.@paraConstr(theta0) &&
@@ -602,6 +644,12 @@ copJoe <-
                                                      log=TRUE)
                       }
                       if(log) res else exp(res)
+                  },
+                  ## score function
+                  score = function(u, theta){
+	              if(!is.matrix(u)) u <- rbind(u)
+	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+                      stop("The score function is currently not implemented for Joe copulas")
                   },
                   ## nesting constraint
                   nestConstr = function(theta0,theta1) {

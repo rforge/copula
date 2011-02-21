@@ -1,11 +1,9 @@
 ## ==== features in next CRAN version ====
 
-(MH) make opower SMLE faster!
-(MH) implement 1st derivative of the log density w.r.t. theta
 (MH) implement MC engine for Fisher information
 (*) add (and fill) all help files for estimation and gof procedures
 
-(*) numerous FIXME and TODO in the code
+(*) numerous FIXME and TODO in the code [already fixed some!]
 (MM) are the numerical issues for Kendall's tau for the GIG generator [see ./demo] solvable? see the plot of Kendall's tau there.
 (MM) can we create a function for the GIG generator [see ./demo] similar to opower()?
 
