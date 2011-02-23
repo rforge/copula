@@ -646,10 +646,24 @@ copJoe <-
                       if(log) res else exp(res)
                   },
                   ## score function
-                  score = function(u, theta){
+                  score = function(u, theta, method=eval(formals(polyJ)$method){
 	              if(!is.matrix(u)) u <- rbind(u)
 	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-                      stop("The score function is currently not implemented for Joe copulas")
+                      l1_u <- rowSums(log1p(-u)) # log(1-u)
+                      u.th <- (1-u)^theta # (1-u)^theta
+                      lh <- rowSums(log1p(-u.th)) # rowSums(log(1-(1-u)^theta)) = log(h) 
+                      l1_h <- log(-expm1(lh)) # log(1-h)    
+                      lh_l1_h <- lh - l1_h # log(h/(1-h))
+                      b <- rowSums(-l1_u*u.th/(1-u.th))
+                      lP <- polyJ(lh_l1_h, alpha, d, method=method, log=TRUE)
+                      k <- 1:d
+                      alpha <- 1/theta
+                      s <- alpha * unlist(lapply(k, function(k.) sum(1/(theta*(1:k.)-1))))
+                      ls <- log(s. + (k-1)*exp(log(b) - l1_h))
+                      l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha) + ls
+                      lQ <- lsum(l.a.k + (k-1) %*% t(lh_l1_h))
+                      (d-1)/theta + rowSums(l1_u) - l1_h/theta^2 + (1-1/theta)*
+                          lh_l1_h*b + exp(lQ-lP)
                   },
                   ## nesting constraint
                   nestConstr = function(theta0,theta1) {
@@ -705,18 +719,18 @@ copJoe <-
 		  lambdaU = function(theta) { 2-2^(1/theta) },
                   lambdaUInv = function(lambda) { log(2)/log(2-lambda) }
                   )
-        C.
-    })()# {copJoe}
+                  C.
+              })()# {copJoe}
 
 ### ==== naming stuff ==========================================================
 
-cNms <- c("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe")
-## == dput(ls("package:nacopula",pat="^cop"))
-nmsC <- unlist(lapply(cNms, function(.)get(.)@name))
-sNms <- abbreviate(nmsC, 1)
-## keep these {hidden, for now}:
-c_shortNames <- structure(sNms, names = nmsC)
-c_longNames  <- structure(nmsC, names = sNms)
-c_objNames   <- structure(cNms, names = nmsC)
-rm(cNms, nmsC, sNms)
+     cNms <- c("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe")
+     ## == dput(ls("package:nacopula",pat="^cop"))
+     nmsC <- unlist(lapply(cNms, function(.)get(.)@name))
+     sNms <- abbreviate(nmsC, 1)
+     ## keep these {hidden, for now}:
+     c_shortNames <- structure(sNms, names = nmsC)
+     c_longNames  <- structure(nmsC, names = sNms)
+     c_objNames   <- structure(cNms, names = nmsC)
+     rm(cNms, nmsC, sNms)
 
