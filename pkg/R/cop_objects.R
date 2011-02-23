@@ -646,7 +646,7 @@ copJoe <-
                       if(log) res else exp(res)
                   },
                   ## score function
-                  score = function(u, theta, method=eval(formals(polyJ)$method){
+                  score = function(u, theta, method=eval(formals(polyJ)$method)){
 	              if(!is.matrix(u)) u <- rbind(u)
 	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       l1_u <- rowSums(log1p(-u)) # log(1-u)

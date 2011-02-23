@@ -1,17 +1,18 @@
 ## ==== features in next CRAN version ====
 
-(MH) implement MC engine for Fisher information
-(*) add (and fill) all help files for estimation and gof procedures
-
 (*) numerous FIXME and TODO in the code [already fixed some!]
-(MM) are the numerical issues for Kendall's tau for the GIG generator [see ./demo] solvable? see the plot of Kendall's tau there.
-(MM) can we create a function for the GIG generator [see ./demo] similar to opower()?
+(*) design a function that gets an outer nacopula and returns a matrix of
+    numbers which correspond to the different sectors; this can be used, e.g.,
+    for building a [default] color-matrix for splom2 or for estimation purposes etc.
+
+(MH) Fisher information
+(MH) add (and fill) all help files for estimation and gof procedures
 
 (MM) is the new splom2 function in graphics.R okay? I implemented two color features
-(*) design a function that gets an outer nacopula and returns a matrix of numbers 
-    which correspond to the different sectors; this can be used, e.g., for building 
-    a [default] color-matrix for splom2 or for estimation purposes etc.
 (MM) maybe also update splomFOO. What was this function for again? [we do not use it]
+(MM) are the numerical issues for Kendall's tau for the GIG generator [see ./demo] 
+     solvable? see the plot of Kendall's tau there.
+(MM) can we create a function for the GIG generator [see ./demo] similar to opower()?
 (MM) Change onacopula() such that it works via onacopulaL() and hence
      can be used also from other functions.
 (MM) maybe add an ASCII-plot for the hierarchical structure;
@@ -23,7 +24,7 @@
 ## ==== long-term maybe ====
 
 (*) allow families to have outer power parameters (outer power families)
-(*) be compatible with package copula
+(MM) be compatible with package copula
 
 
 
