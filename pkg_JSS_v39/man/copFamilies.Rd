@@ -90,6 +90,11 @@ copJoe
   Hofert, M. (2010b),
   \emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
   Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
+
+  Marius Hofert and Martin Maechler (2011)
+  Nested Archimedean Copulas Meet R: The nacopula Package.
+  \emph{Journal of Statistical Software} \bold{39}(9), 1--20.
+  \url{http://www.jstatsoft.org/v39/i09/}.
 }
 \examples{
 ## Print a copAMH object and its structure
