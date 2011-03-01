@@ -11,12 +11,17 @@
   which to sample.
 }
 \usage{
-splom2(data, varnames, Vname="U", ...)
+splom2(data, varnames=NULL, Vname="U", xlab="", col.mat=
+		 matrix(trellis.par.get("plot.symbol")$col, nrow=nrow(data), ncol=ncol(data))...),
+       bg.col.mat=matrix(trellis.par.get("background")$col, nrow=nrow(data), ncol=ncol(data)), ...)
 }
 \arguments{
   \item{data}{numeric matrix or as.matrix(.)able}
   \item{varnames}{variable names, typically unspecified}
   \item{Vname}{character string to become the "base name" of the variables}
+  \item{xlab}{x-axis label}
+  \item{col.mat}{matrix of colors for the plots symbols}
+  \item{bg.col.mat}{matrix of colors for the background}
   \item{...}{further arguments to splom()}
 }
 \value{an splom() object}

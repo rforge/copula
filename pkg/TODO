@@ -5,13 +5,12 @@
     numbers which correspond to the different sectors; this can be used, e.g.,
     for building a [default] color-matrix for splom2 or for estimation purposes etc.
 
-(MH) Fisher information
+(MH) Fisher information; how to? keep score functions?
+     how to implement procedure based on log-likelihood only
 (MH) add (and fill) all help files for estimation and gof procedures
 
-(MM) is the new splom2 function in graphics.R okay? I implemented two color features
-(MM) maybe also update splomFOO. What was this function for again? [we do not use it]
-(MM) are the numerical issues for Kendall's tau for the GIG generator [see ./demo] 
-     solvable? see the plot of Kendall's tau there.
+(*) "profile likelihood"-way of constructing confidence intervals
+(MM) are the numerical issues for Kendall's tau for the GIG generator [see ./demo] solvable? see the plot of Kendall's tau there.
 (MM) can we create a function for the GIG generator [see ./demo] similar to opower()?
 (MM) Change onacopula() such that it works via onacopulaL() and hence
      can be used also from other functions.

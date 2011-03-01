@@ -23,8 +23,10 @@
 ##' @return a splom() object
 ##' @author Martin Maechler
 splom2 <- function(data, varnames=NULL, Vname="U", xlab = "",
-                   col.mat=matrix(rep("black", ncol(data)^2), ncol=ncol(data)), 
-                   bg.col.mat=matrix(rep(NA, ncol(data)^2), ncol=ncol(data)), ...)
+                   col.mat=matrix(trellis.par.get("plot.symbol")$col, nrow=nrow(data), 
+                   ncol=ncol(data)),
+                   bg.col.mat=matrix(trellis.par.get("background")$col, nrow=nrow(data), 
+                   ncol=ncol(data)), ...)
 {
     stopifnot(require(lattice),
 	      is.numeric(data <- as.matrix(data)),
@@ -32,7 +34,7 @@ splom2 <- function(data, varnames=NULL, Vname="U", xlab = "",
     if(is.null(varnames)) {
 	varnames <- do.call(expression,
 			    lapply(1:d, function(i)
-				   substitute(A[I], list(A = as.name(Vname), I=0+i))))
+				   substitute(italic(A[I]), list(A = as.name(Vname), I=0+i))))
     }
     ## From Deepayan Sarkar, working around missing feature
     ##		(which should be in next release) of lattice
@@ -46,58 +48,4 @@ splom2 <- function(data, varnames=NULL, Vname="U", xlab = "",
           }, ...)
 }
 
-##' Plots a scatter plot matrix of the provided data
-##'
-##' @title Adjusted scatter plot matrix
-##' @param data data matrix
-##' @param device graphic device to be used - as in trellis.device()
-##' @param color logical indicating if the plot is colored (as in trellis.device)
-##' @param outfilename name of the output file (without file ending)
-##' @param varnames variable names to be printed on the diagonal
-##' @param ... additional arguments passed to the splom call
-##' @return the lattice / grid plot object, invisibly
-##' @author Marius Hofert, Martin Maechler
-splomFOO <- function(data, device = getOption("device"),
-                     color = !(dev.name == "postscript"),
-                     varnames = NULL, Vname = "U", outfilename = "splom2", ...)
-{
-    stopifnot(require(lattice),
-	      is.numeric(data <- as.matrix(data)),
-	      (d <- ncol(data)) >= 1, # numeric matrix
-	      is.character(outfilename))
-
-    dev.name <-
-        if (is.character(device)) device else deparse(substitute(device))
-    if(is.null(varnames)) {
-	varnames <- do.call(expression,
-			    lapply(1:d, function(i)
-				   substitute(A[I], list(A = as.name(Vname), I=0+i))))
-    }
-    isdeviceFile <- dev.name %in% c("pdf", "postscript", "png")
-
-    ## FIXME: isn't that solved now?
-    ## AAARGH: splom() will *NOT* work with expression varnames
-    ## but the simple pairs() actually does:
-    ## pairs(data, varNames, gap=0)   # ok
-
-    if(isdeviceFile) {
-        file <- paste(outfilename,
-                      switch(device,
-                             pdf = "pdf",
-                             postscript = "ps",
-                             png = "png"),
-                      sep = ".")
-        trellis.device(device = device, color = color, file = file)
-    }
-    else
-        trellis.device(device = device, color = color)
-
-    print(G <- splom(~data[,1:d], varnames = varnames, ...))
-
-    if(isdeviceFile) {
-        cat("closing trellis.device",.Device, "\n")
-        dev.off()
-    }
-    invisible(G)
-}
 
