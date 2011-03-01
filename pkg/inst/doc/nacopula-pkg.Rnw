@@ -241,7 +241,7 @@ from $H$ usually boils down to sampling the copula $C$ under consideration.
 
 Alongside \textit{elliptical copulas}, i.e., the copulas arising from elliptical
  distributions via Sklar's Theorem (see, e.g.,
- \citet{embrechtslindskogmcneil2001}), Archimedean copulas play an important
+ \citet{embrechtslindskogmcneil2003}), Archimedean copulas play an important
  role  in practical applications. In contrast to elliptical ones, Archimedean
  copulas are given explicitly in terms of a generator. They are able to
  capture different kinds of tail dependencies, e.g., only upper tail dependence
@@ -258,9 +258,12 @@ Alongside \textit{elliptical copulas}, i.e., the copulas arising from elliptical
 
 The \R\ package \pkg{nacopula} implements several functions for working with
 Archimedean and nested Archimedean copulas. In contrast to other \R\ packages
- dealing with Archimedean copulas, e.g., \pkg{copula} or \pkg{fCopulae},
+dealing with Archimedean copulas, e.g., \pkg{copula} (\cite{copula1, copula2}) or
+\pkg{fCopulae} (\cite{fCopulae}),
 particular focus is put on nested Archimedean copulas. The \R\ package
 \pkg{nacopula} is the first \R\ package dealing with these functions.
+It is available from the Comprehensive R Archive Network at
+\url{http://CRAN.R-project.org/package=nacopula}.
 
 \section{Archimedean copulas}
 \subsection{Archimedean copulas and their properties}
@@ -503,7 +506,7 @@ str(C3joe.5)  # str[ucture] of object
 %NO more!\pagebreak
 Figure \ref{fig:AC_Joe} visualizes 500 vectors of random variates (each in $[0,1]^3$)
 from this copula with a scatter-plot matrix.  The \code{splom2()} function
-is a version of standard's \pkg{lattice} \code{splom()}, with the addition
+is a version of standard's \pkg{lattice} (\cite{lattice}) \code{splom()}, with the addition
 of using nice labels $U_1, U_2, \dots, U_d$ by default.
 <<ex1-U3>>=
 require(lattice)
@@ -1161,6 +1164,6 @@ coefficients are implemented. Currently supported Archimedean families include
 the well-known families of Ali-Mikhail-Haq, Clayton, Frank, Gumbel, and
 Joe. Each can be used in generalized form via ``outer power'' transformations.
 
-\bibliography{mh-biblio}
+\bibliography{nacopula}
 
 \end{document}
