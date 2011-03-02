@@ -1,5 +1,6 @@
-misc/
+src/misc.*
+inst/doc/auto.*
 Rplots.pdf
-inst/doc/.*-splom.*\.pdf
-inst/doc/.*\.(log|blg)
+inst/doc/.*-splom.*\.(pdf|png)
+inst/doc/.*\.(log|blg|aux|out|tex|bbl|jpg)
 

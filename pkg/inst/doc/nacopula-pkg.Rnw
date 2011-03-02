@@ -1,4 +1,4 @@
-\documentclass[article]{jss}
+\documentclass[article,nojss]{jss}
 %% NOTA BENE: More definitions --> further down
 %%%%%%%%%%%%
 %
@@ -207,7 +207,7 @@
 options(width=70, useFancyQuotes = FALSE, prompt="R> ", continue="+  ")
 Sys.setlocale("LC_MESSAGES","C")
 if(Sys.getenv("USER") == "maechler")# take CRAN's version, not development one:
-    library(nacopula, lib="/usr/local/app/R/R_local/library")
+    library(nacopula, lib="~/R/Pkgs/nacopula_CRAN_lib")
 @
 \section{Introduction}
 A \textit{copula} is a multivariate distribution function with standard

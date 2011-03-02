@@ -35,7 +35,7 @@
       Note that there is no informational loss by computing the absolute value
       since the derivatives alternate in sign (so that the generator derivative
       itself can be accessed with (-1)^\code{degree}\code{psiDabs}). The
-      number \code{n.MC} denotes the sample size for a Monte Carlo evaluation 
+      number \code{n.MC} denotes the sample size for a Monte Carlo evaluation
       approach. If \code{n.MC} is zero (the default), the
       generator derivatives are evaluated with their exact formulas. The
       optional parameter \code{log} (defaults to \code{FALSE}) indicates whether
@@ -129,7 +129,7 @@
   \code{\link{onacopula}()} can be used to construct a specific
   parametrized Archimedean copula, see the example below.
 }
-\references{
+\references{% -> ./copFamilies.Rd
   see those of the families, e.g., \code{\link{copGumbel}}.
 }
 \examples{
