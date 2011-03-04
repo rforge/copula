@@ -517,7 +517,8 @@ dim(U3 <- rnacopula(500, C3joe.5))
 \centering
 <<ex1-splom-def, eval=false>>=
 splom2(U3, cex = 0.4)
-<<ex1-splom, echo=FALSE, fig=TRUE, height=5>>=
+<<ex1-splom, echo=FALSE, fig=TRUE, height=5, keep.source=false>>=
+## NB: 'keep.source=false' is workaround-a-bug-in-R-devel-(2.13.x)--- and  2 x more "splom"
 print(
 <<ex1-splom-def>>
      )
@@ -997,7 +998,7 @@ j <- allComp(C_9_clayton)# copula component "numbers": 1:9 but in "correct order
 \centering
 <<ex2-splom-def, eval=FALSE>>=
 splom2(U9[, j], varnames= vnames, cex = 0.4, pscales = 0)
-<<ex2-splom, echo=FALSE, fig=TRUE, height=7>>=
+<<ex2-splom, echo=FALSE, fig=TRUE, height=7, keep.source=false>>=
 print(
 <<ex2-splom-def>>
       )
@@ -1103,7 +1104,7 @@ U3 <- rnacopula(500, opC3) ; stopifnot(dim(U3) == c(500,3))
 \centering
 <<opower-splom-def, eval=false>>=
 splom2(U3, cex = 0.4)
-<<opower-splom, echo=FALSE, fig=TRUE, height=5>>=
+<<opower-splom, echo=FALSE, fig=TRUE, height=5, keep.source=false>>=
 print(
 <<opower-splom-def>>
       )
