@@ -205,7 +205,8 @@
 %% Note: These are explained in '?RweaveLatex' :
 <<preliminaries, echo=FALSE, results=hide>>=
 options(width=70, useFancyQuotes = FALSE, prompt="R> ", continue="+  ")
-Sys.setlocale("LC_MESSAGES","C")
+if(.Platform$OS.type != "windows")
+  Sys.setlocale("LC_MESSAGES","C")
 if(Sys.getenv("USER") == "maechler")# take CRAN's version, not development one:
     library(nacopula, lib="~/R/Pkgs/nacopula_CRAN_lib")
 @
