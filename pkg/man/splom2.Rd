@@ -11,20 +11,22 @@
   which to sample.
 }
 \usage{
-splom2(data, varnames=NULL, Vname="U", xlab="", col.mat=
-		 matrix(trellis.par.get("plot.symbol")$col, nrow=nrow(data), ncol=ncol(data))...),
-       bg.col.mat=matrix(trellis.par.get("background")$col, nrow=nrow(data), ncol=ncol(data)), ...)
+splom2(data, varnames=NULL, Vname="U", xlab="",
+       col.mat = NULL, bg.col.mat = NULL, \dots)
 }
 \arguments{
   \item{data}{numeric matrix or as.matrix(.)able}
   \item{varnames}{variable names, typically unspecified}
   \item{Vname}{character string to become the "base name" of the variables}
   \item{xlab}{x-axis label}
-  \item{col.mat}{matrix of colors for the plots symbols}
-  \item{bg.col.mat}{matrix of colors for the background}
-  \item{...}{further arguments to splom()}
+  \item{col.mat}{matrix of colors for the plots symbols; by default
+    simply \code{\link[lattice]{trellis.par.get}("plot.symbol")$col}.}
+  \item{bg.col.mat}{matrix of colors for the background; by default
+    simply \code{\link[lattice]{trellis.par.get}("background")$col}.}
+  \item{\dots}{further arguments, passed to \code{\link[lattice]{splom}()}.}
 }
-\value{an splom() object}
+\value{from \code{\link{splom}()}, an \R object of class \code{"trellis"}.
+}
 \author{Martin Maechler, with a hint from Deepayan Sarkar; based on
   ideas from Marius Hofert.}
 \examples{

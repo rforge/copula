@@ -23,10 +23,7 @@
 ##' @return a splom() object
 ##' @author Martin Maechler
 splom2 <- function(data, varnames=NULL, Vname="U", xlab = "",
-                   col.mat=matrix(trellis.par.get("plot.symbol")$col, nrow=nrow(data), 
-                   ncol=ncol(data)),
-                   bg.col.mat=matrix(trellis.par.get("background")$col, nrow=nrow(data), 
-                   ncol=ncol(data)), ...)
+                   col.mat = NULL, bg.col.mat = NULL, ...)
 {
     stopifnot(require(lattice),
 	      is.numeric(data <- as.matrix(data)),
@@ -36,13 +33,18 @@ splom2 <- function(data, varnames=NULL, Vname="U", xlab = "",
 			    lapply(1:d, function(i)
 				   substitute(italic(A[I]), list(A = as.name(Vname), I=0+i))))
     }
+    n <- nrow(data)
+    if(is.null(col.mat))
+        col.mat <- matrix(trellis.par.get("plot.symbol")$col, n,d)
+    if(is.null(bg.col.mat))
+        bg.col.mat <- matrix(trellis.par.get("background")$col, n,d)
     ## From Deepayan Sarkar, working around missing feature
     ##		(which should be in next release) of lattice
     my.diag.panel <- function(x, varname, ...)
         diag.panel.splom(x, varname=parse(text=varname), ...)
     ## splom
     splom(~data[,1:d], varnames=varnames, diag.panel=my.diag.panel, xlab="",
-          panel=function(x, y, i, j, ...){
+          panel = function(x, y, i, j, ...) {
               panel.fill(bg.col.mat[i,j])
               panel.splom(x, y, col=col.mat[i,j])
           }, ...)
