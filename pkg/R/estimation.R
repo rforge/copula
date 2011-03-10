@@ -17,30 +17,6 @@
 
 ## ==== initial value/interval for optimization procedures =====================
 
-##' Compute an initial value for optimization/estimation routines (only a
-##' heuristic; if this fails, choose your own value)
-##'
-##' @title Compute initial value for estimation procedures
-##' @param u matrix of realizations following a copula
-##' @param family Archimedean family
-##' @return initial value which can be used for optimization 
-##' @author Marius Hofert
-paraOptVal <- function(u, family){
-    x <- apply(u,1,max)
-    theta.hat.G <- log(ncol(u))/(log(length(x))-log(sum(-log(x)))) # direct formula from edmle for Gumbel
-    tau.hat.G <- copGumbel@tau(theta.hat.G)
-    copFamily <- getAcop(family)
-    tau.ex <- switch(family, # extreme taus that can be dealt with in estimation/optimization/root-finding
-                     "AMH" = { c(0, 0.333333) },       
-                     "Clayton" = { c(5e-13, 0.98) }, 
-                     "Frank" = { c(1e-12, 0.98) }, 
-                     "Gumbel" = { c(0, 0.98) }, 
-                     "Joe" = { c(0, 0.98) }, 
-                     stop("unsupported family for paraOptVal"))
-    if(tau.ex[1] <= tau.hat.G && tau.hat.G <= tau.ex[2]) 
-        copFamily@tauInv(tau.hat.G) else stop("paraOptVal: tau.hat.G not attainable") 
-}
-
 ##' Compute an initial interval for optimization/estimation routines (only a
 ##' heuristic; if this fails, choose your own interval)
 ##'
@@ -51,6 +27,7 @@ paraOptVal <- function(u, family){
 ##' @return initial interval which can be used for optimization (e.g., for emle)
 ##' @author Marius Hofert
 paraOptInterval <- function(u, family, h=0.15){
+    stopifnot(h >= 0)
     x <- apply(u,1,max)
     theta.hat.G <- log(ncol(u))/(log(length(x))-log(sum(-log(x)))) # direct formula from edmle for Gumbel
     tau.hat.G <- copGumbel@tau(theta.hat.G)
@@ -62,9 +39,14 @@ paraOptInterval <- function(u, family, h=0.15){
                      "Gumbel" = { c(0, 0.98) }, 
                      "Joe" = { c(0, 0.98) }, 
                      stop("unsupported family for paraOptInterval"))
-    l <- max(tau.hat.G - h, tau.ex[1]) # admissible lower bound for tau
-    u <- min(tau.hat.G + h, tau.ex[2]) # admissible upper bound for tau
-    c(copFamily@tauInv(l), copFamily@tauInv(u))    
+    if(h > 0){ # parameter interval
+        l <- max(tau.hat.G - h, tau.ex[1]) # admissible lower bound for tau
+        u <- min(tau.hat.G + h, tau.ex[2]) # admissible upper bound for tau
+        c(copFamily@tauInv(l), copFamily@tauInv(u))    
+    }else{ # parameter value
+	if(tau.ex[1] <= tau.hat.G && tau.hat.G <= tau.ex[2]) 
+            copFamily@tauInv(tau.hat.G) else stop("paraOptInterval: tau.hat.G not attainable")
+    }
 }
 
 ## ==== Blomqvist's beta =======================================================
