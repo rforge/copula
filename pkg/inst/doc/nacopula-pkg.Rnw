@@ -2,12 +2,14 @@
 %% NOTA BENE: More definitions --> further down
 %%%%%%%%%%%%
 %
-%% almost as usual
 \author{Marius Hofert\thanks{The author (Willis Research Fellow) thanks Willis Re
     for financial support while this work was completed.} \\ETH Zurich
  \And
  Martin M\"achler \\ ETH Zurich}
-\title{Nested Archimedean Copulas Meet \R --- The \pkg{nacopula} Package}
+\title{Nested Archimedean Copulas Meet \R --- The \pkg{nacopula} Package%
+}%__\thanks{a version of this vignette, for \pkg{nacopula} 0.4\_4, has been published
+%__    in JSS, \url{http://www.jstatsoft.org/v39/i09}.}}
+%
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{Marius Hofert, Martin M\"achler} %% comma-separated
 \Plaintitle{Nested Archimedean Copulas Meet R---The nacopula Package} %% without formatting
