@@ -10,7 +10,6 @@
 (MH) add (and fill) all help files for estimation and gof procedures
 
 (*) "profile likelihood"-way of constructing confidence intervals
-(MM) are the numerical issues for Kendall's tau for the GIG generator [see ./demo] solvable? see the plot of Kendall's tau there.
 (MM) can we create a function for the GIG generator [see ./demo] similar to opower()?
 (MM) Change onacopula() such that it works via onacopulaL() and hence
      can be used also from other functions.

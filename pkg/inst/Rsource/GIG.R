@@ -29,8 +29,11 @@ psi.GIG <- function(t, theta)
 ##       modified Bessel functions of the third kind (besselK) given in 
 ##       Paris (1984) ("An inequality for the Bessel function J_v(vx)", 
 ##       SIAM J. Math. Anal. 15, 203--205)
-psiInv.GIG <- function(t, theta, upper=if(theta[1] > -0.5) function(x) (1-log(x)/theta[2])^2-1 else 
-                       stop("initial interval for psiInv.GIG fails"), ...){ 
+psiInv.GIG <- function(t, theta, upper=NULL, ...){ 
+    if(is.null(upper)){
+	if(theta[1] > -0.5) function(x) (1-log(x)/theta[2])^2-1 else 
+        stop("initial interval for psiInv.GIG fails")
+    }
     res <- numeric(length(t))
     is0 <- t==0
     is1 <- t==1
@@ -119,26 +122,42 @@ dV0.GIG <- function(x, theta, log=FALSE){
 
 ## Kendall's tau for fixed theta_1 as a function in theta_2 [vectorized]
 ## note: theta can be a vector of the form (nu,...,nu,theta,...,theta)
-## FIXME: this is numerically difficult, take, e.g., tau.GIG(c(1,400))
-##        or even tau.GIG(c(0.00001,0.00001))
-tau.GIG <- function(theta, ...){
+## theta.min denots the smallest theta for which no limiting formula is used
+tau.GIG <- function(theta, theta.min=1e-4, ...){
     if(!is.matrix(theta)) theta <- matrix(theta, ncol=2)
-    integrand <- function(t, theta)
-        t/(1+t)^(theta[1]+1)*(besselK(theta[2]*sqrt(1+t), nu=theta[1]+1)/
-                              besselK(theta[2], nu=theta[1]))^2
-    ## t/(1+t)^(theta[1]+1)*exp(2*(log(besselK(theta[2]*sqrt(1+t), nu=theta[1]+1))-log(besselK(theta[2], nu=theta[1]))))
-    res <- 1-theta[,2]^2*apply(theta, 1, function(x) 
-                               integrate(integrand, lower=0, upper=Inf, theta=x, ...)$value)
+    lim <- theta[,1]>0 & theta[,2]<theta.min # indices for which limiting formula for theta=0 is used (since numerically challenging)
+    res <- numeric(nrow(theta))
+    res[lim] <- 1/(1+2*theta[lim,1])
+    if(any(!lim)){
+	integrand <- function(t, theta){
+            st <- sqrt(1+t)
+            t*(theta[2]*besselK(theta[2]*st, nu=theta[1]+1)/(st^(theta[1]+1)*
+                                             besselK(theta[2], nu=theta[1])))^2
+        }
+	res[!lim] <- 1-apply(theta[!lim,,drop=FALSE], 1, function(x) 
+                             integrate(integrand, lower=0, upper=Inf, theta=x, ...)$value)
+    }
     names(res) <- NULL
     res
 }
 
-## tau inverse for all parameters fixed except one (given by NA)
-## note: initial interval has to be specified [e.g., c(1e-12,100)] since there 
+## inverse of Kendall's tau for all parameters fixed except the one given as NA
+## note: initial interval has to be specified [e.g., c(1e-30,100)] since there 
 ##       are no adequate bounds known
-tauInv.GIG <- function(tau, theta, interval, ...){
+tauInv.GIG <- function(tau, theta, interval, iargs=list(), theta.min=1e-4, ...){
     stopifnot(length(i <- which(is.na(theta))) == 1)
-    replace(theta, i, uniroot(function(th) tau.GIG(replace(theta, i, th))-tau, 
+    if(i!=1){ # theta[1]=nu is given
+	if(theta[1]<=0) stop("tauInv.GIG: only implemented for positive nu") 
+	max.tau <- 1/(1+2*theta[1])
+	if(tau>max.tau) stop(paste("tauInv.GIG: maximum attainable tau for nu=",
+                                   theta[1]," is ",round(max.tau,8),sep="")) # this assumes tau to be falling in theta (numerical experiments show this behavior)
+    }else{ # theta[2]=theta given
+	if(theta[2]<theta.min) return(2*tau/(1-tau)) # limiting formula
+    }
+    replace(theta, i, uniroot(function(th) do.call(tau.GIG, c(list(replace(theta, 
+                                                                           i, th), 
+                                                                   theta.min=theta.min), 
+                                                              iargs))-tau, 
                               interval=interval, ...)$root)
 }
 

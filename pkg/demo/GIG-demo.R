@@ -55,25 +55,18 @@ U <- rnacopula.GIG(n, d, theta)
 ## choose random initial point in a reasonable interval
 start <- c(runif(1, min=I[1,1], max=I[1,2]), runif(1, min=I[2,1], max=I[2,2]))
 
-## call optimizer for MLE
-system.time(res.MLE <- optimx(par=start, 
-                              fn=function(x) -sum(dacopula.GIG(U, x, n.MC=0, log=TRUE)), 
-                              lower=c(I[1,1],I[2,1]), upper=c(I[1,2],I[2,2]), 
-                              method="bobyqa"))
-res.MLE
-
-## call optimizer for SMLE
-system.time(res.SMLE <- optimx(par=start, 
-                               fn=function(x) -sum(dacopula.GIG(U, x, n.MC=10000, log=TRUE)), 
-                               lower=c(I[1,1],I[2,1]), upper=c(I[1,2],I[2,2]), 
-                               method="bobyqa"))
-res.SMLE
+## MLE
+system.time(res <- optimx(par=start, 
+                          fn=function(x) -sum(dacopula.GIG(U, x, n.MC=0, log=TRUE)), 
+                          lower=c(I[1,1],I[2,1]), upper=c(I[1,2],I[2,2]), 
+                          method="bobyqa"))
+res
 
 ## note: run time is mainly determined by the evaluations of psiInv.GIG
 
 ## ==== plot Kendall's tau as a function in theta for different nu's ====
 
-th1 <- c(0, 0.001, 0.5, 1, 5, 10)
+th1 <- c(0, 0.003, 0.5, 1, 5, 10)
 cols <- colorRampPalette(c("red", "orange", "darkgreen", "turquoise", "blue"), 
                          space="Lab")(length(th1))
 for(i in seq_along(th1))
@@ -83,6 +76,4 @@ for(i in seq_along(th1))
           lwd=1.4, col=cols[i])
 label <- as.expression(lapply(1:length(th1), function(i) substitute(nu==nu., list(nu.=th1[i]))))
 legend("topright", label, bty="n", lwd=1.4, col=cols)
-## conclusion: - largest range of tau's for theta_1 = 0
-##             - not possible to evaluate for theta_1 < 0
-##             - tau.GIG is numerically critical for theta_1 > 0 close to 0             
+## note: tau.GIG is numerically critical for theta_1 < 0
