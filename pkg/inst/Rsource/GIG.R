@@ -135,7 +135,8 @@ tau.GIG <- function(theta, theta.min=1e-4, ...){
                                              besselK(theta[2], nu=theta[1])))^2
         }
 	res[!lim] <- 1-apply(theta[!lim,,drop=FALSE], 1, function(x) 
-                             integrate(integrand, lower=0, upper=Inf, theta=x, ...)$value)
+                             integrate(integrand, lower=0, upper=Inf, theta=x, 
+                                       subdivisions=1000, ...)$value)
     }
     names(res) <- NULL
     res
@@ -147,7 +148,7 @@ tau.GIG <- function(theta, theta.min=1e-4, ...){
 tauInv.GIG <- function(tau, theta, interval, iargs=list(), theta.min=1e-4, ...){
     stopifnot(length(i <- which(is.na(theta))) == 1)
     if(i!=1){ # theta[1]=nu is given
-	if(theta[1]<=0) stop("tauInv.GIG: only implemented for positive nu") 
+	if(theta[1]<0) stop("tauInv.GIG: only implemented for non-negative nu") 
 	max.tau <- 1/(1+2*theta[1])
 	if(tau>max.tau) stop(paste("tauInv.GIG: maximum attainable tau for nu=",
                                    theta[1]," is ",round(max.tau,8),sep="")) # this assumes tau to be falling in theta (numerical experiments show this behavior)
