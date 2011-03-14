@@ -132,60 +132,66 @@ tryCatch.W.E <- function(expr){
          warning = w.handler), warning = W)
 }
 
-## Kendall's tau for fixed theta_1 as a function in theta_2 [vectorized]
-## note: theta can be a vector of the form (nu,...,nu,theta,...,theta)
-## theta.min denots the smallest theta for which no limiting formula is used, e.g., 0.002
-## for nu large, choose theta.min larger
-tau.GIG. <- function(theta, theta.min, ...){
-    if(!is.matrix(theta)) theta <- matrix(theta, ncol=2)
-    lim <- theta[,1]>0 & theta[,2]<theta.min # indices for which limiting formula for theta=0 is used (since numerically challenging)
-    res <- numeric(nrow(theta))
-    res[lim] <- 1/(1+2*theta[lim,1])
-    if(any(!lim)){
-	integrand <- function(t, theta){
+## Kendall's tau for fixed theta_1 as a function in theta_2 
+## quiet==TRUE means that neither warnings nor errors are returned, just NAs
+tau.GIG. <- function(theta, upper=c(200,200), quiet=TRUE, ...){ 
+    if(theta[1]<0) stop("tau.GIG.: only implemented for nu >= 0")
+    stopifnot(theta[1]<=upper[1], 0<theta[2], theta[2]<=upper[2]) 
+    ## determine minimal theta such that integration still works (before
+    ## asymptotic is used)
+    theta.min <- if(theta[1]<50){
+	1e-4 
+    }else{
+	if(theta[1]<100){
+            0.1 
+        }else{ 
+            l10 <- log(10)
+            exp(l10/50*theta[1]-3*l10)
+        }
+    }
+    ## either use heuristic or integration
+    if(theta[2]<theta.min){
+        1/(1+2*theta[1]) 
+    }else{
+        tau.integrand <- function(t, theta){
             st <- sqrt(1+t)
             t*(theta[2]*besselK(theta[2]*st, nu=theta[1]+1)/(st^(theta[1]+1)*
                                              besselK(theta[2], nu=theta[1])))^2
         }
-	res[!lim] <- 1-apply(theta[!lim,,drop=FALSE], 1, function(x) 
-                             integrate(integrand, lower=0, upper=Inf, theta=x, 
-                                       subdivisions=1000, ...)$value)
+        int <- tryCatch.W.E(integrate(tau.integrand, lower=0, upper=Inf, theta=theta, 
+                                      subdivisions=1000, ...)$value)
+        warn.err <- inherits(int$value, what="simpleError") | inherits(int$value, what="simpleWarning")
+        if(warn.err && quiet) NA else 1-int$value
     }
-    names(res) <- NULL
-    res
 }
 
-## wrapper for tau.GIG.
-## quiet==TRUE means that neither warnings nor errors are returned, just NAs
-tau.GIG <- function(theta, theta.min, quiet=TRUE, ...){
+## wrapper for tau.GIG. [vectorized]
+tau.GIG <- function(theta, upper=c(200,200), quiet=TRUE, ...){
     if(!is.matrix(theta)) theta <- matrix(theta, ncol=2)
-    if(quiet){
-        res <- tryCatch.W.E(tau.GIG.(theta, theta.min=theta.min, ...))
-        warn.err <- inherits(res$value, what="simpleError") | inherits(res$value, what="simpleWarning")
-        r <- rep(NA, nrow(theta))
-        r[!warn.err] <- res$value[!warn.err]
-        unlist(r)
-    }else{
-	tau.GIG.(theta, theta.min=theta.min, ...)
-    }
+    apply(theta, 1, tau.GIG., upper=upper, quiet=quiet, ...)
 }
 
 ## inverse of Kendall's tau for all parameters fixed except the one given as NA
 ## note: initial interval has to be specified [e.g., c(1e-30,200)] since there 
 ##       are no adequate bounds known
-tauInv.GIG <- function(tau, theta, interval, theta.min, iargs=list(), ...){
+tauInv.GIG <- function(tau, theta, upper=c(200,200), quiet=TRUE, iargs=list(), ...){
     stopifnot(length(i <- which(is.na(theta))) == 1)
-    if(i!=1){ # theta[1]=nu is given
-	if(theta[1]<0) stop("tauInv.GIG: only implemented for non-negative nu") 
-	max.tau <- 1/(1+2*theta[1])
-	if(tau>max.tau) stop(paste("tauInv.GIG: maximum attainable tau for nu=",
-                                   theta[1]," is ",round(max.tau,8),sep="")) # this assumes tau to be falling in theta (numerical experiments show this behavior)
-    }else{ # theta[2]=theta given
-	if(theta[2]<theta.min) return(2*tau/(1-tau)) # limiting formula
+    tau.min <- tau.GIG(upper, upper=upper, quiet=quiet)
+    if(tau<=tau.min) stop(paste("tauInv.GIG: tau must be greater than tau.min=",tau.min,sep=""))
+    if(i==1){ # wanted: nu; given: theta
+        interval <- c(0, upper[1])
+    }else{ # wanted: theta; given: nu
+        if(theta[1]<0) stop("tauInv.GIG: only implemented for nu >= 0") 
+        tau.max <- 1/(1+2*theta[1])
+        ## make sure we are in the range of attainable Kendall's tau
+        if(tau>=tau.max) stop(paste("tauInv.GIG: the supremum of attainable taus is",
+           round(tau.max,8))) # this assumes tau to be falling in theta (numerical experiments show this behavior)	
+        interval <- c(1e-100, upper[2])
     }
     replace(theta, i, uniroot(function(th) do.call(tau.GIG, c(list(replace(theta, 
                                                                            i, th), 
-                                                                   theta.min=theta.min), 
+                                                                   upper=upper, 
+                                                                   quiet=quiet), 
                                                               iargs))-tau, 
                               interval=interval, ...)$root)
 }

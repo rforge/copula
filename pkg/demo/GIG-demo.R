@@ -30,7 +30,7 @@ set.seed(1)
 d <- 5 # dimension
 tau <- 0.2 # specify Kendall's tau
 ## specify the theta vector such that Kendall's tau equals the given tau
-theta <- tauInv.GIG(tau, theta=c(1, NA), interval=c(1e-30,100), theta.min=1e-4)
+theta <- tauInv.GIG(tau, theta=c(1, NA))
 
 ## initial interval bounds for optimization
 h <- c(0.3, 0.3) # for initial interval for theta_1 and theta_2
@@ -70,7 +70,7 @@ th1 <- c(0, 0.003, 0.5, 1, 5, 10)
 cols <- colorRampPalette(c("red", "orange", "darkgreen", "turquoise", "blue"), 
                          space="Lab")(length(th1))
 for(i in seq_along(th1))
-    curve(tau.GIG(cbind(th1[i],x), theta.min=1e-4), 1e-12, 2, 
+    curve(tau.GIG(cbind(th1[i],x)), 1e-12, 2, 
           main="Kendall's tau for the GIG family", ylim=c(0,1),
           xlab=expression(theta), ylab=expression(tau(nu,theta)), add=(i>1), 
           lwd=1.4, col=cols[i])
