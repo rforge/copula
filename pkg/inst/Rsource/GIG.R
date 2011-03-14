@@ -31,7 +31,7 @@ psi.GIG <- function(t, theta)
 ##       SIAM J. Math. Anal. 15, 203--205)
 psiInv.GIG <- function(t, theta, upper=NULL, ...){ 
     if(is.null(upper)){
-	if(theta[1] > -0.5) function(x) (1-log(x)/theta[2])^2-1 else 
+	if(theta[1] > -0.5) upper <- function(x) (1-log(x)/theta[2])^2-1 else 
         stop("initial interval for psiInv.GIG fails")
     }
     res <- numeric(length(t))
@@ -120,10 +120,23 @@ dV0.GIG <- function(x, theta, log=FALSE){
     if(log) log(2*ud(dens, 2*x)) else 2*ud(dens, 2*x)
 }
 
+## Catch and save both warnings and errors and in the case of
+## a warning, also keep the computed result
+tryCatch.W.E <- function(expr){
+    W <- NULL
+    w.handler <- function(w){ # warning handler
+        W <<- w
+        invokeRestart("muffleWarning")
+    }
+    list(value = withCallingHandlers(tryCatch(expr, error = function(e) e),
+         warning = w.handler), warning = W)
+}
+
 ## Kendall's tau for fixed theta_1 as a function in theta_2 [vectorized]
 ## note: theta can be a vector of the form (nu,...,nu,theta,...,theta)
-## theta.min denots the smallest theta for which no limiting formula is used
-tau.GIG <- function(theta, theta.min=1e-4, ...){
+## theta.min denots the smallest theta for which no limiting formula is used, e.g., 0.002
+## for nu large, choose theta.min larger
+tau.GIG. <- function(theta, theta.min, ...){
     if(!is.matrix(theta)) theta <- matrix(theta, ncol=2)
     lim <- theta[,1]>0 & theta[,2]<theta.min # indices for which limiting formula for theta=0 is used (since numerically challenging)
     res <- numeric(nrow(theta))
@@ -142,10 +155,25 @@ tau.GIG <- function(theta, theta.min=1e-4, ...){
     res
 }
 
+## wrapper for tau.GIG.
+## quiet==TRUE means that neither warnings nor errors are returned, just NAs
+tau.GIG <- function(theta, theta.min, quiet=TRUE, ...){
+    if(!is.matrix(theta)) theta <- matrix(theta, ncol=2)
+    if(quiet){
+        res <- tryCatch.W.E(tau.GIG.(theta, theta.min=theta.min, ...))
+        warn.err <- inherits(res$value, what="simpleError") | inherits(res$value, what="simpleWarning")
+        r <- rep(NA, nrow(theta))
+        r[!warn.err] <- res$value[!warn.err]
+        unlist(r)
+    }else{
+	tau.GIG.(theta, theta.min=theta.min, ...)
+    }
+}
+
 ## inverse of Kendall's tau for all parameters fixed except the one given as NA
-## note: initial interval has to be specified [e.g., c(1e-30,100)] since there 
+## note: initial interval has to be specified [e.g., c(1e-30,200)] since there 
 ##       are no adequate bounds known
-tauInv.GIG <- function(tau, theta, interval, iargs=list(), theta.min=1e-4, ...){
+tauInv.GIG <- function(tau, theta, interval, theta.min, iargs=list(), ...){
     stopifnot(length(i <- which(is.na(theta))) == 1)
     if(i!=1){ # theta[1]=nu is given
 	if(theta[1]<0) stop("tauInv.GIG: only implemented for non-negative nu") 
