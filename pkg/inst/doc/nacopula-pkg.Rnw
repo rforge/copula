@@ -6,10 +6,10 @@
     for financial support while this work was completed.} \\ETH Zurich
  \And
  Martin M\"achler \\ ETH Zurich}
-\title{Nested Archimedean Copulas Meet \R --- The \pkg{nacopula} Package%
-}%__\thanks{a version of this vignette, for \pkg{nacopula} 0.4\_4, has been published
-%__    in JSS, \url{http://www.jstatsoft.org/v39/i09}.}}
-%
+\title{Nested Archimedean Copulas Meet \R --- The \pkg{nacopula} Package$^\dagger$%
+}
+\def\mythanks{a version of this paper, for \pkg{nacopula} 0.4\_4, has been published
+    in JSS, \url{http://www.jstatsoft.org/v39/i09}.}
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{Marius Hofert, Martin M\"achler} %% comma-separated
 \Plaintitle{Nested Archimedean Copulas Meet R---The nacopula Package} %% without formatting
@@ -213,6 +213,8 @@ if(Sys.getenv("USER") == "maechler")# take CRAN's version, not development one:
     library(nacopula, lib="~/R/Pkgs/nacopula_CRAN_lib")
 @
 \section{Introduction}
+\footnotemark{2}
+\footnotetext[2]{\mythanks}
 A \textit{copula} is a multivariate distribution function with standard
 uniform univariate margins. Standard references for an introduction
 are \citet{joe1997} or \citet{nelsen2007}.
