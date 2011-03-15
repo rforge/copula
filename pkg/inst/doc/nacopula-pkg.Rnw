@@ -6,8 +6,7 @@
     for financial support while this work was completed.} \\ETH Zurich
  \And
  Martin M\"achler \\ ETH Zurich}
-\title{Nested Archimedean Copulas Meet \R --- The \pkg{nacopula} Package$^\dagger$%
-}
+\title{Nested Archimedean Copulas Meet \R --- The \pkg{nacopula} Package}
 \def\mythanks{a version of this paper, for \pkg{nacopula} 0.4\_4, has been published
     in JSS, \url{http://www.jstatsoft.org/v39/i09}.}
 %% for pretty printing and a nice hypersummary also set:
@@ -150,6 +149,10 @@
 }
 \makeatother
 
+\long\def\symbolfootnote[#1]#2{\begingroup%
+  \def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+%% and \symbolfootnote[1]{footnote} to get an * , 2: dagger, 3: double dagger...
+%
 \newcommand*{\R}{\proglang{R}}%{\textsf{R}}
 %% Marius' commands
 \newcommand*{\eps}{\varepsilon}
@@ -212,9 +215,7 @@ if(.Platform$OS.type != "windows")
 if(Sys.getenv("USER") == "maechler")# take CRAN's version, not development one:
     library(nacopula, lib="~/R/Pkgs/nacopula_CRAN_lib")
 @
-\section{Introduction}
-\footnotemark{2}
-\footnotetext[2]{\mythanks}
+\section[Introduction]{Introduction \small~\footnote{\mythanks}}
 A \textit{copula} is a multivariate distribution function with standard
 uniform univariate margins. Standard references for an introduction
 are \citet{joe1997} or \citet{nelsen2007}.
