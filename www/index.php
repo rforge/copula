@@ -43,7 +43,13 @@ echo $contents; } ?>
 
 <!-- end of project description -->
 
-<p> No content added. </p>
+<p> Note the package vignette a version of which was published on JSS:
+<br>
+    Marius Hofert and Martin Maechler (2011)<br>
+    <a href="http://www.jstatsoft.org/v39/i09">Nested Archimedean Copulas Meet R:
+    The nacopula Package</a>,
+	<em>Journal of Statistical Software</em> <b>39</b>, issue 9.
+</p>
 
 <p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
 
