@@ -208,15 +208,20 @@ meth <- c("MH", "LD")
 nsim <- 100000 # a lot
 hist.breaks <- 200 # == function(nsim, <parameters>)
 
-##' @title Get file from internet - but do not "error out"
+##' @title If needed, get file from internet - but do not "error out"
 ##' @param file
 ##' @param remoteDIR
+##' @param method download method
+##' @param ... potentially further arguments to download.file()
 ##' @return logical: TRUE if download succeeded
 ##' @author Martin Maechler (22 Mar 2011)
 canGet <- function(file,
                    remoteDIR = "http://nacopula.r-forge.r-project.org/resources/",
                    method, ...)
 {
+    if(file.exists(file))
+        return(TRUE)
+    ## else try to down load it
     fullURL <- file.path(remoteDIR, file)
     r <- tryCatch( download.file(fullURL,
                                  destfile = file, method=method, ...),
