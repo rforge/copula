@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Marius Hofert and Martin Maechler
+## Copyright (C) 2010--2011  Marius Hofert and Martin Maechler
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -19,7 +19,7 @@ importFrom("gsl", debye_1)
 
 importFrom("ADGofTest", ad.test)
 
-importFrom("fBasics", dstable)
+importFrom("stabledist", dstable)
 
 exportClasses("acopula",
               "nacopula", "outer_nacopula",

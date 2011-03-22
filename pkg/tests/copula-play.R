@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Marius Hofert and Martin Maechler
+## Copyright (C) 2009--2011 Marius Hofert and Martin Maechler
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -14,7 +14,6 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 require(nacopula)
-set.seed(1)
 
 if(!dev.interactive())
     pdf("copula-play.pdf")
@@ -311,6 +310,7 @@ print.proc_time_list <- function (x, ...) {
 
 myAMH <- setTheta(copAMH, 0.7135001)
 thetavec <- c(0.1,0.3,0.5,0.7,0.9)
+set.seed(1)
 tstCop(myAMH, 0.9429679, thetavec = thetavec)
 
 ## ==== copClayton ===========================================================
@@ -323,6 +323,7 @@ tstCop(myClayton, 2, thetavec, lambdaL = thetavec, lambdaU = NA)
 
 myFrank <- setTheta(copFrank, 1.860884)
 thetavec <- c(0.5,1,2,5,10)
+set.seed(11)
 tstCop(myFrank, 5.736283, thetavec)
 
 ## with a slightly more extensive test:
@@ -343,4 +344,5 @@ tstCop(myGumbel,2, thetavec, lambdaL = NA, lambdaU = thetavec)
 
 myJoe <- setTheta(copJoe, 1.25)
 thetavec <- c(1.1,2,4,6,10)
+set.seed(111)
 tstCop(myJoe, 2, thetavec, lambdaL = NA, lambdaU = thetavec)
