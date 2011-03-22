@@ -208,10 +208,27 @@ meth <- c("MH", "LD")
 nsim <- 100000 # a lot
 hist.breaks <- 200 # == function(nsim, <parameters>)
 
+##' @title Get file from internet - but do not "error out"
+##' @param file
+##' @param remoteDIR
+##' @return logical: TRUE if download succeeded
+##' @author Martin Maechler (22 Mar 2011)
+canGet <- function(file,
+                   remoteDIR = "http://nacopula.r-forge.r-project.org/resources/",
+                   method, ...)
+{
+    fullURL <- file.path(remoteDIR, file)
+    r <- tryCatch( download.file(fullURL,
+                                 destfile = file, method=method, ...),
+                  error = function(e) e)
+    ## return:  TRUE if ok
+    !is(r, "error")
+}
+
 saveFile2 <- "retstable_st2.rda"
 saveFile3 <- "retstable_CPU2.rda"
 
-if(file.exists(saveFile2) && file.exists(saveFile3)) {
+if(file.exists(saveFile3) && canGet(saveFile2)) {
     ## we have precomputed it ...
     load (saveFile2)
     load (saveFile3)
@@ -276,7 +293,7 @@ if(getOption("width") < 100) options(width=100)
 
 ##' check the random variates via histogram plots
 ##'
-##' @title Graphical tests via histogram plots 
+##' @title Graphical tests via histogram plots
 ##' @param alphalab alpha label
 ##' @param V0lab V0 label
 ##' @param hlab h label
