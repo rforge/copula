@@ -37,7 +37,7 @@ copAMH <-
                   ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE){
                       if(n.MC > 0){
-                          psiDabsMC(t, family="AMH", theta=theta, degree=degree, 
+                          psiDabsMC(t, family="AMH", theta=theta, degree=degree,
                                     n.MC=n.MC, log=log)
                       }else{
                           if(theta == 0) if(log) return(-t) else return(exp(-t)) # independence
@@ -226,11 +226,9 @@ copClayton <-
                       alpha <- theta0/theta1
                       gamma <- (cos(pi/2*alpha)*V0)^(1/alpha)
                       delta <- V0*(alpha == 1)
-                      if(FALSE) ## new dstable() is vectorized in (x, gamma, delta) [but not the others]
-                          dst <- dstable(x, alpha=alpha, beta = 1, gamma=gamma, delta=delta, pm = 1, log=log)
-                      else ## old dstable() needs mapply(.)
-                          dst <- mapply(dstable,x, alpha=alpha, beta = 1, gamma=gamma,
-                                        delta=delta, pm = 1, log=log)
+		      ## NB: new dstable() is vectorized in (x, gamma, delta) [but not the others]
+		      dst <- dstable(x, alpha=alpha, beta = 1, gamma=gamma, delta=delta,
+				     pm = 1, log=log, tol = 128* .Machine$double.eps)
                       if(log) V0-x + dst else exp(V0-x) * dst
                   },
                   ## Kendall's tau
@@ -305,7 +303,7 @@ copFrank <-
                           l <- d*(log(theta*V)-V*lp)
                           rs <- -theta*u.sum
                           lx <- rep(rs, each=n.MC) + l - log(n.MC) + (V-1) %*% t(lu) # (n.MC, nrow(u.))-matrix
-                          res[n01] <- lsum(lx) 
+                          res[n01] <- lsum(lx)
                           if(log) res else exp(res)
                       }else{ # explicit
                           Li.arg <- -expm1(-theta)*exp(rowSums(lpu-lp))
@@ -324,7 +322,7 @@ copFrank <-
                       e.u. <- 1 - e.u # 1 - exp(-theta*u)
                       h <- e.*apply(e./e.u, 1, prod)
                       factor <- rowSums(u*e.u/e.u.) - (d-1)*e/e.
-                      (d-1)/theta - rowSums(u/e.u.) + factor * 
+                      (d-1)/theta - rowSums(u/e.u.) + factor *
                           polylog(h, s=-d, method="neg") / polylog(h, s=-(d-1), method="neg")
                   },
                   ## nesting constraint
@@ -421,7 +419,7 @@ copGumbel <-
                       if(all(!n0Inf)) return(if(log) res else exp(res))
                       t. <- t[n0Inf]
                       if(n.MC > 0){
-                          res[n0Inf] <- psiDabsMC(t, family="Gumbel", theta=theta, 
+                          res[n0Inf] <- psiDabsMC(t, family="Gumbel", theta=theta,
                                                   degree=degree, n.MC=n.MC, log=TRUE)
                       }else{
                           if(theta == 1){
@@ -539,10 +537,9 @@ copGumbel <-
                       alpha <- theta0/theta1
                       gamma <- (cos(pi/2*alpha)*V0)^(1/alpha)
                       delta <- V0*(alpha == 1)
-                      if(FALSE) ## new dstable() is vectorized in (x, gamma, delta) [but not the others]
-                          dstable(x, alpha=alpha, beta = 1, gamma=gamma, delta=delta, pm = 1, log=log)
-                      else ## old dstable() needs mapply(.)
-                          mapply(dstable,x, alpha=alpha, beta = 1, gamma=gamma, delta=delta, pm = 1, log=log)
+		      ## NB: new dstable() is vectorized in (x, gamma, delta) [but not the others]
+		      dstable(x, alpha=alpha, beta = 1, gamma=gamma, delta=delta, pm = 1, log=log,
+			      tol = 128* .Machine$double.eps)
                   },
                   ## Kendall's tau
 		  tau = function(theta) { (theta-1)/theta },
@@ -588,7 +585,7 @@ copJoe <-
                       if(all(!n0Inf)) return(if(log) res else exp(res))
                       t. <- t[n0Inf]
                       if(n.MC > 0){
-                          res[n0Inf] <- psiDabsMC(t, family="Joe", theta=theta, 
+                          res[n0Inf] <- psiDabsMC(t, family="Joe", theta=theta,
                                                   degree=degree, n.MC=n.MC, log=TRUE)
                       }else{
                           if(theta == 1){
@@ -622,10 +619,10 @@ copJoe <-
                       if(!any(n01)) return(res)
                       if(theta == 1){ res[n01] <- if(log) 0 else 1; return(res) } # independence
                       ## auxiliary results
-                      u. <- u[n01,, drop=FALSE] 
+                      u. <- u[n01,, drop=FALSE]
                       l1_u <- rowSums(log1p(-u.)) # log(1-u)
                       u.. <- (1-u.)^theta # (1-u)^theta
-                      lh <- rowSums(log1p(-u..)) # rowSums(log(1-(1-u)^theta)) = log(h) 
+                      lh <- rowSums(log1p(-u..)) # rowSums(log(1-(1-u)^theta)) = log(h)
                       ## main part
                       if(n.MC > 0){ # Monte Carlo
                           V <- C.@V0(n.MC, theta)
@@ -637,7 +634,7 @@ copJoe <-
                           res[n01] <- lsum(lx)
                       }else{
                           alpha <- 1/theta
-                          l1_h <- log(-expm1(lh)) # log(1-h)                          
+                          l1_h <- log(-expm1(lh)) # log(1-h)
                           lh_l1_h <- lh - l1_h # log(h/(1-h))
                           res[n01] <- (d-1)*log(theta) + (theta-1)*l1_u -
                               (1-alpha)*l1_h + polyJ(lh_l1_h, alpha, d, method=method,
@@ -651,8 +648,8 @@ copJoe <-
 	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       l1_u <- rowSums(log1p(-u)) # log(1-u)
                       u.th <- (1-u)^theta # (1-u)^theta
-                      lh <- rowSums(log1p(-u.th)) # rowSums(log(1-(1-u)^theta)) = log(h) 
-                      l1_h <- log(-expm1(lh)) # log(1-h)    
+                      lh <- rowSums(log1p(-u.th)) # rowSums(log(1-(1-u)^theta)) = log(h)
+                      l1_h <- log(-expm1(lh)) # log(1-h)
                       lh_l1_h <- lh - l1_h # log(h/(1-h))
                       b <- rowSums(-l1_u*u.th/(1-u.th))
                       lP <- polyJ(lh_l1_h, alpha, d, method=method, log=TRUE)
