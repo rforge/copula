@@ -186,7 +186,7 @@ gnacopula <- function(x, cop, n.bootstrap=0,
                                method=method)$statistic # compute the value of the test statistic
             ## progress output
             if(verbose && k%%10 == 0)
-                cat(sprintf("bootstrap progress: %4.1f%%\n", k/n.bootstrap*100))
+                cat(sprintf("bootstrap progress: %4f%%\n", k/n.bootstrap*100))
         }
         ## (4) estimate p-value -- FIXME: return an "htest" result
         mean(test.vec > test)

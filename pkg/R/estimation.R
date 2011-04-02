@@ -358,7 +358,7 @@ enacopula <- function(x, cop, method=c("mle", "smle", "dmle", "mde.normal.CvM",
                               "tau.tau.mean", "tau.theta.mean", "beta"), 
                       n.MC = if(method=="smle") 10000 else 0, 
                       interval=paraOptInterval(u, cop@copula@name), 
-                      do.pseudo=FALSE, xargs=list(), ...)
+                      do.pseudo=TRUE, xargs=list(), ...)
 {
     
     ## setup 
