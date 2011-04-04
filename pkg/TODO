@@ -4,6 +4,7 @@
 (*) design a function that gets an outer nacopula and returns a matrix of
     numbers which correspond to the different sectors; this can be used, e.g.,
     for building a [default] color-matrix for splom2 or for estimation purposes etc.
+(*) make paraOptInterval to work with both long and short names of families
 
 (MH) Fisher information; how to? keep score functions?
      how to implement procedure based on log-likelihood only

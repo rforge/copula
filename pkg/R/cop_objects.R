@@ -180,22 +180,21 @@ copClayton <-
                       ## auxiliary results
                       u. <- u[n01,, drop=FALSE]
                       l.u <- rowSums(-log(u.))
+                      psiI. <- rowSums(C.@psiInv(u., theta))
                       ## main part
                       if(n.MC > 0){ # Monte Carlo
                           l.u.mat <- matrix(rep(l.u, n.MC), nrow=n.MC, byrow=TRUE)
                           V <- C.@V0(n.MC, theta)
                           l <- d*log(theta*V)
                           theta. <- 1 + theta
-                          psiI.sum <- rowSums(C.@psiInv(u., theta))
                           ## stably compute log(colMeans(exp(lx)))
-                          lx <- l + theta.*l.u.mat - V %*% t(psiI.sum) # matrix of exponents; dimension n.MC x n ["V x u"]
+                          lx <- l + theta.*l.u.mat - V %*% t(psiI.) - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
                           res[n01] <- lsum(lx)
                       }else{ # explicit
                           alpha <- 1/theta
                           d.a <- d + alpha
-                          arg <- rowSums(u.^(-theta)-1)
                           res[n01] <- lgamma(d.a)-lgamma(alpha)+ d*log(theta) +
-                              (1+theta)*l.u - (d.a)*log1p(arg)
+                              (1+theta)*l.u - (d.a)*log1p(psiI.)
                       }
                       if(log) res else exp(res)
                   },
@@ -457,21 +456,21 @@ copGumbel <-
                       u. <- u[n01,, drop=FALSE]
                       mlu <- -log(u.) # -log(u)
                       lmlu <- log(mlu) # log(-log(u))
+                      psiI. <- rowSums(C.@psiInv(u., theta))
                       ## main part
                       if(n.MC > 0){ # Monte Carlo
-                          psiI. <- rowSums(C.@psiInv(u., theta))
                           V <- C.@V0(n.MC, theta)
                           l <- d*log(theta*V)
                           sum. <- rowSums((theta-1)*lmlu + mlu)
                           sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
                           ## stably compute log(colMeans(exp(lx)))
-                          lx <- l - V %*% t(psiI.) + sum.mat # matrix of exponents; dimension n.MC x n ["V x u"]
+                          lx <- l - V %*% t(psiI.) + sum.mat - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
                           res[n01] <- lsum(lx)
                           if(log) res else exp(res)
                       }else{ # explicit
                           alpha <- 1/theta
                           ## compute lx = alpha*log(sum(psiInv(u., theta)))
-                          lx <- alpha*log(rowSums(C.@psiInv(u., theta)))
+                          lx <- alpha*log(psiI.)
                           ## ==== former version [start] (numerically slightly more stable but slower) ====
                           ## im <- apply(u., 1, which.max)
                           ## mat.ind <- cbind(seq_len(n), im) # indices that pick out maxima from u.
@@ -630,7 +629,7 @@ copJoe <-
                           sum. <- (theta-1)*l1_u
                           sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
                           ## stably compute log(colMeans(exp(lx)))
-                          lx <- l + (V-1) %*% t(lh) + sum.mat # matrix of exponents; dimension n.MC x n ["V x u"]
+                          lx <- l + (V-1) %*% t(lh) + sum.mat - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
                           res[n01] <- lsum(lx)
                       }else{
                           alpha <- 1/theta
