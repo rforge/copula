@@ -205,17 +205,20 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
 	      is.nan(dnacopula(ocop.2d, c(1,0.5), log = TRUE)))
     cat0("[Ok]")
 
-    ## d > 2
+    ## d = 20, n.MC = 0
     cat("\n check dnacopula with log = TRUE for u being a random (20x20)-matrix:\n")
     CT <- c(CT, list(dnacopula. =
-                     system.time(lD <- dnacopula(ocop.20d,u, log = TRUE))))
-    print(lD); stopifnot(is.numeric(lD), is.finite(lD)); cat0("[Ok]")
+                     system.time(lD. <- dnacopula(ocop.20d, u, log = TRUE))))
+    print(lD.); stopifnot(is.numeric(lD.), is.finite(lD.)); cat0("[Ok]")
 
-    ## d > 2, MC
+    ## d = 20, n.MC > 0
     cat("\n check dnacopula with log = TRUE and MC for u being a random (20x20)-matrix:\n")
     CT <- c(CT, list(dnacopula. =
-                     system.time(lD <- dnacopula(ocop.20d,u, n.MC = 1000, log = TRUE))))
-    print(lD); stopifnot(is.numeric(lD), is.finite(lD)); cat0("[Ok]")
+                     system.time(lD.. <- dnacopula(ocop.20d, u, n.MC = 1000, log = TRUE))))
+    print(lD..); stopifnot(is.numeric(lD..), is.finite(lD..)); cat0("[Ok]")
+
+    ## d = 20, check if n.MC > 0 is close to n.MC = 0
+    stopifnot(all.equal(lD., lD.., tolerance=0.5))
 
     ## ==== (7) K ====
 
@@ -299,7 +302,7 @@ print.proc_time_list <- function (x, ...) {
             ## use 'Time ..' as that works with 'R CMD Rdiff'
             m <- 1000*x[[nm]]
             cat(sprintf("Time [ms] for %13s :%5.0f %6.0f %7.0f\n",
-            ##            2 4 6 8 0 2 4 6 8 0| (20 + (13-4)) = 29
+                        ##            2 4 6 8 0 2 4 6 8 0| (20 + (13-4)) = 29
                         nm, m[1], m[2], m[3]))
             ## cat(nm,":\n"); print(x[[nm]], ...)
         }
