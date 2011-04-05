@@ -31,9 +31,9 @@ paraOptInterval <- function(u, family, h=0.15){
     x <- apply(u,1,max)
     theta.hat.G <- log(ncol(u))/(log(length(x))-log(sum(-log(x)))) # direct formula from edmle for Gumbel
     tau.hat.G <- copGumbel@tau(theta.hat.G)
-    copFamily <- getAcop(family)
-    tau.ex <- switch(family, # extreme taus that can be dealt with in estimation/optimization/root-finding
-                     "AMH" = { c(0, 0.333333) },       
+    cop <- getAcop(family)
+    tau.ex <- switch(cop@name, # extreme taus that can be dealt with in estimation/optimization/root-finding
+                     "AMH" = { c(0, 0.333333) },      
                      "Clayton" = { c(5e-13, 0.98) }, 
                      "Frank" = { c(1e-12, 0.98) }, 
                      "Gumbel" = { c(0, 0.98) }, 
@@ -42,10 +42,10 @@ paraOptInterval <- function(u, family, h=0.15){
     if(h > 0){ # parameter interval
         l <- max(tau.hat.G - h, tau.ex[1]) # admissible lower bound for tau
         u <- min(tau.hat.G + h, tau.ex[2]) # admissible upper bound for tau
-        c(copFamily@tauInv(l), copFamily@tauInv(u))    
+        c(cop@tauInv(l), cop@tauInv(u))    
     }else{ # parameter value
 	if(tau.ex[1] <= tau.hat.G && tau.hat.G <= tau.ex[2]) 
-            copFamily@tauInv(tau.hat.G) else stop("paraOptInterval: tau.hat.G not attainable")
+            cop@tauInv(tau.hat.G) else stop("paraOptInterval: tau.hat.G not attainable")
     }
 }
 
