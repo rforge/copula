@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Marius Hofert and Martin Maechler
+## Copyright (C) 2010--2011 Marius Hofert and Martin Maechler
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -33,18 +33,18 @@ paraOptInterval <- function(u, family, h=0.15){
     tau.hat.G <- copGumbel@tau(theta.hat.G)
     cop <- getAcop(family)
     tau.ex <- switch(cop@name, # extreme taus that can be dealt with in estimation/optimization/root-finding
-                     "AMH" = { c(0, 0.333333) },      
-                     "Clayton" = { c(5e-13, 0.98) }, 
-                     "Frank" = { c(1e-12, 0.98) }, 
-                     "Gumbel" = { c(0, 0.98) }, 
-                     "Joe" = { c(0, 0.98) }, 
+                     "AMH" = { c(0, 0.333333) },
+                     "Clayton" = { c(5e-13, 0.98) },
+                     "Frank" = { c(1e-12, 0.98) },
+                     "Gumbel" = { c(0, 0.98) },
+                     "Joe" = { c(0, 0.98) },
                      stop("unsupported family for paraOptInterval"))
     if(h > 0){ # parameter interval
         l <- max(tau.hat.G - h, tau.ex[1]) # admissible lower bound for tau
         u <- min(tau.hat.G + h, tau.ex[2]) # admissible upper bound for tau
-        c(cop@tauInv(l), cop@tauInv(u))    
+        c(cop@tauInv(l), cop@tauInv(u))
     }else{ # parameter value
-	if(tau.ex[1] <= tau.hat.G && tau.hat.G <= tau.ex[2]) 
+	if(tau.ex[1] <= tau.hat.G && tau.hat.G <= tau.ex[2])
             cop@tauInv(tau.hat.G) else stop("paraOptInterval: tau.hat.G not attainable")
     }
 }
@@ -67,7 +67,7 @@ beta.hat <- function(u, scaling = FALSE){
     prod1 <- apply( less.u, 1, all)
     prod2 <- apply(!less.u, 1, all)
     b <- mean(prod1 + prod2)
-    if(scaling) b else {T <- 2^(ncol(u)-1); (T*b - 1)/(T - 1)} 
+    if(scaling) b else {T <- 2^(ncol(u)-1); (T*b - 1)/(T - 1)}
 }
 
 ##' Compute the population version of Blomqvist's beta for Archimedean copulas
@@ -86,7 +86,7 @@ beta. <- function(cop, theta, d, scaling = FALSE) {
     diags <- cop@psi(j*cop@psiInv(0.5, theta), theta) # compute diagonals
     b <- 1 + diags[d] + if(d < 30) sum((-1)^j * choose(d, j) * diags)
     else sum((-1)^j * exp(lchoose(d, j) + log(diags)))
-    if(scaling) b else { T <- 2^(d-1); (T*b - 1)/(T - 1)} 
+    if(scaling) b else { T <- 2^(d-1); (T*b - 1)/(T - 1)}
 }
 
 ##' Method-of-moment-like estimation of nested Archimedean copulas based on a
@@ -117,9 +117,9 @@ ebeta <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...){
 
 ## ==== Kendall's tau ==========================================================
 
-##' Compute pairwise estimators for nested Archimedean copulas based on Kendall's tau 
+##' Compute pairwise estimators for nested Archimedean copulas based on Kendall's tau
 ##'
-##' @title Pairwise estimators for nested Archimedean copulas based on Kendall's tau 
+##' @title Pairwise estimators for nested Archimedean copulas based on Kendall's tau
 ##' @param u matrix of realizations following the copula
 ##' @param cop outer_nacopula to be estimated
 ##' @param method tau.mean indicates that the average of the sample versions of
@@ -153,18 +153,18 @@ etau <- function(u, cop, method = c("tau.mean", "theta.mean"), ...)
 ##' Distances for minimum distance estimation
 ##'
 ##' @title Distances for minimum distance estimation
-##' @param u matrix of realizations (ideally) following U[0,1]^(d-1) or U[0,1]^d 
+##' @param u matrix of realizations (ideally) following U[0,1]^(d-1) or U[0,1]^d
 ##' @param method distance methods available:
 ##'        mde.normal.CvM  = map to a chi-square distribution (Cramer-von Mises distance)
 ##'        mde.normal.KS   = map to a chi-square distribution (Kolmogorov-Smirnov distance)
 ##'        mde.log.CvM     = map to an Erlang distribution (Cramer-von Mises distance)
 ##'        mde.log.KS      = map to an Erlang distribution (Kolmogorov-Smirnov distance)
-##' @return distance 
+##' @return distance
 ##' @author Marius Hofert
 emde.dist <- function(u, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.CvM",
                          "mde.log.KS")){
     if(!is.matrix(u)) u <- rbind(u)
-    d <- ncol(u)    
+    d <- ncol(u)
     n <- nrow(u)
     method <- match.arg(method) # match argument method
     switch(method,
@@ -182,27 +182,27 @@ emde.dist <- function(u, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
            },
            "mde.log.CvM" = { # map to an Erlang distribution
                y <- sort(rowSums(-log(u)))
-               Fvals <- pgamma(y, shape = d) 
+               Fvals <- pgamma(y, shape = d)
                weights <- (2*(1:n)-1)/(2*n)
                1/(12*n) + sum((weights - Fvals)^2)
            },
            "mde.log.KS" = { # map to an Erlang distribution
                y <- rowSums(-log(u))
-               Fvals <- pgamma(y, shape = d) 
+               Fvals <- pgamma(y, shape = d)
                i <- 1:n
                max(Fvals[i]-(i-1)/n, i/n-Fvals[i])
            },
            ## Note: The following multivariate distances turned out to be (far) too slow
            ## "mde.SB" = { # S_n^{(B)} from Genest et al. (2009)
            ##     sum1 <- sum(apply(1-u^2,1,prod))/2^(d-1)
-           ##     f <- function(i,j) prod(1-apply(rbind(u[i,],u[j,]), 2, max)) 
+           ##     f <- function(i,j) prod(1-apply(rbind(u[i,],u[j,]), 2, max))
            ##     sum2 <- 0
            ##     for(i in 1:n) sum2 <- sum2 + sum(unlist(lapply(1:n, function(j) f(i,j))))
            ##     n/3^d-sum1+sum2/n
            ## },
            ## "mde.SC" = { # S_n^{(C)} from Genest et al. (2009)
-           ##     C.hat <- function(u.vec,u.mat) mean(apply(t(apply(u.mat, 1, 
-           ##                                                       function(x) x <= 
+           ##     C.hat <- function(u.vec,u.mat) mean(apply(t(apply(u.mat, 1,
+           ##                                                       function(x) x <=
            ##                                                       u.vec)), 1, all))
            ##     sum((apply(u, 1, C.hat, u.mat = u) - apply(u, 1, prod))^2)
            ## },
@@ -223,7 +223,7 @@ emde.dist <- function(u, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
 ##' @author Marius Hofert
 emde <- function(u, cop, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.CvM",
                          "mde.log.KS"),
-                 interval = paraOptInterval(u, cop@copula@name), 
+                 interval = paraOptInterval(u, cop@copula@name),
                  include.K = ncol(u)<=5, ...)
 {
     stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 1)
@@ -235,7 +235,7 @@ emde <- function(u, cop, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
         u. <- gnacopulatrafo(u, cop, n.MC=0, do.pseudo=FALSE, include.K=include.K) # transform data [don't use MC here; too slow]
         emde.dist(u., method)
     }
-    optimize(distance, interval = interval, ...)	
+    optimize(distance, interval = interval, ...)
 }
 
 ## ==== Diagonal maximum likelihood estimation =================================
@@ -274,7 +274,7 @@ dDiag <- function(u, cop, log = FALSE){
 ##' @author Marius Hofert
 edmle <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...)
 {
-    stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 1, 
+    stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 1,
               max(cop@comp) == d) # dimension
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
@@ -286,7 +286,7 @@ edmle <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...)
         ## optimize
 	mLogL <- function(theta){ # -log-likelihood
             cop@copula@theta <- theta
-            -sum(dDiag(x, cop=cop, log=TRUE)) 
+            -sum(dDiag(x, cop=cop, log=TRUE))
         }
 	optimize(mLogL, interval=interval, ...)
     }
@@ -302,11 +302,11 @@ edmle <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...)
 ##' @param n.MC if > 0 SMLE is applied with sample size equal to n.MC; otherwise,
 ##'        MLE is applied
 ##' @param interval bivariate vector denoting the interval where optimization takes
-##'        place 
+##'        place
 ##' @param ... additional parameters for optimize
 ##' @return (simulated) maximum likelihood estimator; return value of optimize
 ##' @author Marius Hofert
-emle <- function(u, cop, n.MC=0, interval=paraOptInterval(u, cop@copula@name), ...)
+.emle <- function(u, cop, n.MC=0, interval=paraOptInterval(u, cop@copula@name), ...)
 {
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
@@ -319,15 +319,63 @@ emle <- function(u, cop, n.MC=0, interval=paraOptInterval(u, cop@copula@name), .
     optimize(mLogL, interval=interval, ...)
 }
 
+
+##' (Simulated) maximum likelihood estimation for nested Archimedean copulas
+##'
+##' @title (Simulated) maximum likelihood estimation for nested Archimedean copulas
+##' @param u matrix of realizations following the copula
+##' @param cop outer_nacopula to be estimated
+##' @param n.MC if > 0 SMLE is applied with sample size equal to n.MC; otherwise,
+##'        MLE is applied
+##' @param interval bivariate vector denoting the interval where optimization takes
+##'        place
+##' @param ... additional parameters for optimize
+##' @return an "mle2" object with the (simulated) maximum likelihood estimator.
+##' @author Martin Maechler and Marius Hofert
+emle <- function(u, cop, n.MC=0, optimizer="optimize", method,
+		 interval=paraOptInterval(u, cop@copula@name), ...)
+{
+    stopifnot(is(cop, "outer_nacopula"))
+    ## nLL <- function(theta) { # -log-likelihood
+    ##	   cop@copula@theta <- theta
+    ##	   -sum(dnacopula(cop, u, n.MC=n.MC, log=TRUE))
+    ## }
+    if(length(cop@childCops))
+	stop("currently, only Archimedean copulas are provided")
+    else ## For (*non*-nested) copulas only:
+	nLL <- function(theta)  # -(log-likelihood)
+	    -sum(cop@copula@dacopula(u, theta, n.MC=n.MC, log=TRUE))
+
+    ## optimize
+    if(!(is.null(optimizer) || is.na(optimizer))) {
+        stopifnot(require("bbmle"))
+        if(optimizer == "optimize")
+            mle2(minuslogl = nLL,
+                 optimizer = "optimize",
+                 lower = interval[1], upper = interval[2],
+                 ##vvv awkward to be needed, but it is - by mle2():
+                 start = list(theta= mean(interval)), ...)
+        else ## "general"
+            mle2(minuslogl = nLL,
+                 optimizer = optimizer,
+                 ##vvv awkward to be needed, but it is - by mle2():
+                 start = list(theta= mean(interval)), ...)
+    }
+    else
+	## use optim() .. [which uses suboptimal method for 1D, but provides Hessian]
+	mle(minuslogl = nLL, method = method,
+	    start = list(theta= mean(interval)), ...)
+}
+
 ## ==== Estimation wrapper =====================================================
 
 ##' Computes the pseudo-observations for the given data matrix
 ##'
-##' @title Pseudo-observations 
+##' @title Pseudo-observations
 ##' @param x matrix of random variates to be converted to pseudo-observations
 ##' @return pseudo-observations (matrix of the same dimensions as x)
 ##' @author Marius Hofert
-pobs <- function(x, na.last="keep", ties.method=c("average", "first", "random", "max", "min")) 
+pobs <- function(x, na.last="keep", ties.method=c("average", "first", "random", "max", "min"))
     apply(x,2,rank, na.last=na.last, ties.method=ties.method)/(nrow(x)+1)
 
 ##' Computes different parameter estimates for a nested Archimedean copula
@@ -353,42 +401,42 @@ pobs <- function(x, na.last="keep", ties.method=c("average", "first", "random", 
 ##' @param ... additional parameters for optimize
 ##' @return estimated value/vector according to the chosen method
 ##' @author Marius Hofert
-enacopula <- function(x, cop, method=c("mle", "smle", "dmle", "mde.normal.CvM", 
+enacopula <- function(x, cop, method=c("mle", "smle", "dmle", "mde.normal.CvM",
                               "mde.normal.KS", "mde.log.CvM", "mde.log.KS",
-                              "tau.tau.mean", "tau.theta.mean", "beta"), 
-                      n.MC = if(method=="smle") 10000 else 0, 
-                      interval=paraOptInterval(u, cop@copula@name), 
+                              "tau.tau.mean", "tau.theta.mean", "beta"),
+                      n.MC = if(method=="smle") 10000 else 0,
+                      interval=paraOptInterval(u, cop@copula@name),
                       do.pseudo=TRUE, xargs=list(), ...)
 {
-    
-    ## setup 
+
+    ## setup
     stopifnot(is(cop, "outer_nacopula"), is.list(xargs))
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
     u <- if(do.pseudo) pobs(x) else x
-    method <- match.arg(method) 
+    method <- match.arg(method)
 
     ## main part
     res <- switch(method,
-                  "mle" =            do.call(emle, c(list(u, cop, 
+                  "mle" =            do.call(.emle, c(list(u, cop,
                   interval = interval, ...), xargs)),
-                  "smle" =           do.call(emle, c(list(u, cop, n.MC = n.MC, 
+                  "smle" =           do.call(.emle, c(list(u, cop, n.MC = n.MC,
                   interval = interval, ...), xargs)),
-                  "dmle" =           do.call(edmle, c(list(u, cop, 
+                  "dmle" =           do.call(edmle, c(list(u, cop,
                   interval = interval, ...), xargs)),
-                  "mde.normal.CvM" = do.call(emde, c(list(u, cop, "mde.normal.CvM", 
+                  "mde.normal.CvM" = do.call(emde, c(list(u, cop, "mde.normal.CvM",
                   interval = interval, ...), xargs)),
-                  "mde.normal.KS" =  do.call(emde, c(list(u, cop, "mde.normal.KS", 
+                  "mde.normal.KS" =  do.call(emde, c(list(u, cop, "mde.normal.KS",
                   interval = interval, ...), xargs)),
-                  "mde.log.CvM" =    do.call(emde, c(list(u, cop, "mde.log.CvM", 
-                  interval = interval, ...), xargs)), 
-                  "mde.log.KS" =     do.call(emde, c(list(u, cop, "mde.log.KS", 
+                  "mde.log.CvM" =    do.call(emde, c(list(u, cop, "mde.log.CvM",
                   interval = interval, ...), xargs)),
-                  "tau.tau.mean" =   do.call(etau, c(list(u, cop, "tau.mean", ...), 
+                  "mde.log.KS" =     do.call(emde, c(list(u, cop, "mde.log.KS",
+                  interval = interval, ...), xargs)),
+                  "tau.tau.mean" =   do.call(etau, c(list(u, cop, "tau.mean", ...),
                   xargs)),
-                  "tau.theta.mean" = do.call(etau, c(list(u, cop, "theta.mean", ...), 
+                  "tau.theta.mean" = do.call(etau, c(list(u, cop, "theta.mean", ...),
                   xargs)),
-                  "beta" =           do.call(ebeta, c(list(u, cop, 
+                  "beta" =           do.call(ebeta, c(list(u, cop,
                   interval = interval, ...), xargs)),
                   stop("wrong estimation method"))
 
@@ -400,8 +448,8 @@ enacopula <- function(x, cop, method=c("mle", "smle", "dmle", "mde.normal.CvM",
            "smle" =           res$minimum,
            "dmle" =           res$minimum,
            "mde.normal.CvM" = res$minimum,
-           "mde.normal.KS" =  res$minimum, 
-           "mde.log.CvM" =    res$minimum,  
+           "mde.normal.KS" =  res$minimum,
+           "mde.log.CvM" =    res$minimum,
            "mde.log.KS" =     res$minimum,
            "tau.tau.mean" =   res,
            "tau.theta.mean" = res,

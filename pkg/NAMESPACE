@@ -15,6 +15,12 @@
 
 useDynLib(nacopula, .registration=TRUE)
 
+## Now  'Depend'  on  stats4 and bbmle :
+##importFrom("stats4", mle)
+## importMethodsFrom("stats4", coef,confint, logLik, BIC, summary, plot, profile)
+
+## importFrom("bbmle", mle2)
+
 importFrom("gsl", debye_1)
 
 importFrom("ADGofTest", ad.test)
