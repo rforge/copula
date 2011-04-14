@@ -1,9 +1,17 @@
 \name{emle}
-\alias{emle}
 \title{Maximum Likelihood Estimation for (Nested) Archimedean Copulas}
+\alias{emle}
+\alias{.emle}
+\description{
+  Compute (simulated) maximum likelihood estimators for (nested)
+  Archimedean copulas.
+}
 \usage{
 emle(u, cop, n.MC=0, optimizer="optimize", method,
      interval=paraOptInterval(u, cop@copula@name), \dots)
+
+.emle(u, cop, n.MC=0,
+      interval=paraOptInterval(u, cop@copula@name), \dots)
 }
 \arguments{
   \item{u}{matrix of realizations following the copula}
@@ -20,13 +28,9 @@ emle(u, cop, n.MC=0, optimizer="optimize", method,
     \R \code{\link[bbmle]{mle2}()} from package \pkg{bbmle}.}
   \item{method}{only when \code{optimizer} is \code{NULL}, the method to
     be used for \code{\link{optim}}.}
-  \item{interval}{bivariate vector denoting the interval where
-    optimization takes place.}
+  \item{interval}{numeric vector of length two, denoting the interval
+    where optimization takes place.}
   \item{\dots}{additional parameters passed to \code{\link{optimize}}.}
-}
- \description{
-  Compute (simulated) maximum likelihood estimators for (nested)
-  Archimedean copulas.
 }
 \author{Martin Maechler and Marius Hofert.
 }
@@ -34,11 +38,16 @@ emle(u, cop, n.MC=0, optimizer="optimize", method,
 ... ...
 }
 \value{
-  an \R object of class \code{"\link[bbmle:mle2-class]{mle2}"} with the
-  (simulated) maximum likelihood estimator.
+  \describe{
+    \item{emle():}{
+      an \R object of class \code{"\link[bbmle:mle2-class]{mle2}"} with the
+      (simulated) maximum likelihood estimator.}
+    \item{.emle():}{the \code{\link{list}} returned from
+      \code{\link{optimize}()}.}
+  }
 }
 \references{
-%% ~put references to the literature/web site here ~
+ ...
 }
 \seealso{
   \code{\link[bbmle]{mle2}} from package \pkg{bbmle} and
@@ -63,4 +72,3 @@ stopifnot(ci[1] <= theta, theta <= ci[2])
 plot(pfm)
 }
 \keyword{models}
-
