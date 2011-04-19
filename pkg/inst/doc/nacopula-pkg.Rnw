@@ -17,7 +17,7 @@
 %\VignetteIndexEntry{nacopula}
 %\VignetteDepends{nacopula}
 %\VignetteDepends{lattice}
-\SweaveOpts{engine=R,eps=FALSE,pdf=TRUE,width=7,height=4,strip.white="true",keep.source=TRUE}
+\SweaveOpts{engine=R,eps=FALSE,pdf=TRUE,width=7,height=4,strip.white=true,keep.source=TRUE}
 
 %% an abstract and keywords
 \Abstract{
@@ -89,11 +89,10 @@
 \usepackage{enumitem}%for automatic numbering of new enumerate environments
 \usepackage[
   format=hang,
-
   % NOT for JSS: labelsep=space,
   justification=justified,
-  singlelinecheck=false,
-  %NOT for JSS: labelfont=bf
+  singlelinecheck=false%,
+  % NOT for JSS: labelfont=bf
 ]{caption}%for captions
 \usepackage{tikz}%sophisticated graphics package
 \usepackage{tabularx}%for special table environment (tabularx-table)
