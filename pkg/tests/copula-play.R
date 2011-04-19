@@ -15,8 +15,7 @@
 
 require(nacopula)
 
-if(!dev.interactive())
-    pdf("copula-play.pdf")
+if(!dev.interactive(orNone=TRUE)) pdf("copula-play.pdf")
 
 ##' ==== testing psi ====
 

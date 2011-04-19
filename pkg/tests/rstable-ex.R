@@ -1,8 +1,8 @@
-## Copyright (C) 2010 Marius Hofert and Martin Maechler
+## Copyright (C) 2010-2011 Marius Hofert and Martin Maechler
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
-## Foundation; either version 3 of the License, or (at your option) any later 
+## Foundation; either version 3 of the License, or (at your option) any later
 ## version.
 ##
 ## This program is distributed in the hope that it will be useful, but WITHOUT
@@ -35,7 +35,7 @@ system.time(Z. <- r1C(10000, .2, beta=1, gamma= 45))
 
 ks.test(Z, Z.) # p-value ~ 0.50  they "are the same"
 
-pdf("rstable-ex.pdf")
+if(!dev.interactive(orNone=TRUE)) pdf("rstable-ex.pdf")
 qqplot(Z, Z., log = "xy") # looks nice
 acf(log(Z))  # "nice"
 acf(log(Z.)) # ditto
