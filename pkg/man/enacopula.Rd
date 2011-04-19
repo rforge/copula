@@ -64,7 +64,8 @@ enacopula(x, cop,
   \code{"\linkS4class{mle}"} which has useful methods not
   available for other estimators.
 
-  \code{\link{emde}}, ... % FIXME unfinished
+  \code{\link{emde}}, for minimum distance estimators, and, e.g.,
+  \code{\link{ebeta}} for the beta, tau, and diagonal-ML estimators.
 }
 \examples{
 tau <- 0.4

@@ -23,9 +23,15 @@
       \code{"\linkS4class{acopula}"}, denoting the top-level Archimedean copula of
       the nested Archimedean copula, i.e., the root copula.}
     \item{\code{comp}:}{an \code{\link{integer}} vector (possibly of
-      length 0) of indices of components in \code{1:d} which are not nested Archimedean copulas. Here, \eqn{d} denotes the \emph{dimension} of the random vectors under consideration, see the \code{dim()} method below.}
-    \item{\code{childCops}:}{A (possibly empty) \code{\link{list}} of
-      further nested Archimedean copulas (child copulas), i.e., objects of class \code{"nacopula"}. The \code{"nacopula"} objects therefore contain \code{"\linkS4class{acopula}"} objects as special cases.}
+      length 0) of indices of components in \code{1:d} which are not
+      nested Archimedean copulas.  Here, \eqn{d} denotes the
+      \emph{dimension} of the random vectors under consideration, see
+      the \code{dim()} method below.} 
+    \item{\code{childCops}:}{a (possibly empty) \code{\link{list}} of
+      further nested Archimedean copulas (child copulas), i.e., objects
+      of class \code{"nacopula"}.  The \code{"nacopula"} objects
+      therefore contain \code{"\linkS4class{acopula}"} objects as
+      special cases.} 
   }
 }
 \section{Methods}{

@@ -17,15 +17,21 @@ pnacopula(x, u)
 }
 \details{
   The value of an Archimedean copula \eqn{C} with generator \eqn{\psi}{psi} at
-  \eqn{u} is given by \deqn{C(\bm{u})=\psi(\psi^{-1}(u_1)+\dots+\psi^{-1}(u_d)),\ \bm{u}\in[0,1]^d.}{C(u)=psi(psi^{-1}(u_1)+...+psi^{-1}(u_d)), u in [0,1]^d.}
-  The value of a nested Archimedean copula is defined similarly, note that a
-  d-dimensional copula is called nested Archimedean if it is an Archimedean
-  copula with arguments possibly replaced by other nested Archimedean copulas.
+  \eqn{u} is given by
+  \deqn{C(\bm{u})=\psi(\psi^{-1}(u_1)+\dots+\psi^{-1}(u_d)),\ \bm{u}\in[0,1]^d.
+  }{    C(u) = psi(psi^{-1}(u_1)+...+psi^{-1}(u_d)), u in [0,1]^d.}
+  The value of a nested Archimedean copula is defined similarly.  Note that a
+  d-dimensional copula is called \emph{nested Archimedean} if it is an
+  Archimedean copula with arguments possibly replaced by other nested
+  Archimedean copulas.
 }
 \value{
   A \code{\link{numeric}} in \eqn{[0,1]} which is the copula evaluated
   at \code{u}. (Currently not parallelized.)
 }
+% \seealso{
+%% FIXME
+% }
 \author{Marius Hofert and Martin Maechler}
 \examples{
 ## Construct a three-dimensional nested Joe copula with parameters
