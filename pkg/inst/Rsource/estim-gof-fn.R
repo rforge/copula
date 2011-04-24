@@ -86,7 +86,7 @@ estimation.gof <- function(n, d, simFamily, tau, n.MC = if(method=="smle") 10000
 	                         estimation.method=esti.method,
                                  include.K=ncol(u)<=5, n.MC=n.MC, method=gof.method,
                                  do.pseudo = FALSE, do.pseudo.sim=FALSE, 
-                                 verbose = FALSE))
+                                 verbose = FALSE)$p.value)
         sig[k] <- if(gof[k] < 0.05) 1 else 0
         if(verbose){
             cat("   p-value        = ",r(gof[k]),"\n",

@@ -7,10 +7,11 @@
 (*) make paraOptInterval to work with both long and short names of families
 
 (MH) Fisher information; how to? keep score functions?
-     how to implement procedure based on log-likelihood only
 (MH) add (and fill) all help files for estimation and gof procedures
 
-(*) "profile likelihood"-way of constructing confidence intervals
+(*) GIG, opC in demo [with proper documentation]
+(*) opC: estimation example in man-examples
+
 (MM) can we create a function for the GIG generator [see ./demo] similar to opower()?
 (MM) Change onacopula() such that it works via onacopulaL() and hence
      can be used also from other functions.

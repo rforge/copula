@@ -16,26 +16,38 @@
 #### Goodness-of-fit testing for nested Archimedean copulas
 
 ##' Transforms supposedly U[0,1]^d distributed vectors of random variates to
-##' U[0,1]-distributed variates to check uniformity in a one-dimensional setup
-##'
-##' @title Transformation to a one-dimensional testing setting
+##' U[0,1]-distributed variates (for checking uniformity in a one-dimensional 
+##' setup)
+##' 
+##' @title Transformation to a one-dimensional test setting
 ##' @param u matrix of random variates to be transformed
 ##' @param method either "normal" (map to a chi-square distribution) or "log"
 ##'        (map to an Erlang distribution) 
 ##' @return the supposedly U[0,1] distributed variates
 ##' @author Marius Hofert
-g01 <- function(u, method=c("normal", "log")){
+g01trafo <- function(u, method=c("normal", "log")){
     stopifnot(all(0 <= u, u <= 1))
     if(!is.matrix(u)) u <- rbind(u)
     d <- ncol(u)
     method <- match.arg(method)
-    u. <- switch(method,
-                 "log" = { pgamma(rowSums(-log(u)),shape=d) },
-                 "normal" = { pchisq(rowSums(qnorm(u)^2),d) },
-                 stop("wrong choice of method"))
+    switch(method,
+           "log" = { pgamma(rowSums(-log(u)),shape=d) },
+           "normal" = { pchisq(rowSums(qnorm(u)^2),d) },
+           stop("wrong choice of method"))
+}
+
+##' Anderson-Darling test for U[0,1] of supposedly U[0,1]^d distributed data
+##'
+##' @title Anderson-Darling test for U[0,1] 
+##' @param u matrix of random variates
+##' @param method either "normal" (map to a chi-square distribution) or "log"
+##'        (map to an Erlang distribution) 
+##' @return Anderson-Darling test result
+##' @author Marius Hofert
+g01 <- function(u, method=c("normal", "log")){
+    u. <- g01trafo(u, method=method)
     if(any(is.na(u.))) stop("missing values in u. -- cannot use ad.test()")
-    ## check U[0,1] of u.
-    ad.test(u.)
+    ad.test(u.) # check U[0,1] for u.
 }
 
 ##' Kendall distribution function
@@ -48,8 +60,7 @@ g01 <- function(u, method=c("normal", "log")){
 ##'        to n.MC; otherwise the exact formula is used
 ##' @return Kendall distribution function at t
 ##' @author Marius Hofert
-K <- function(t, cop, d, n.MC=0)
-{
+K <- function(t, cop, d, n.MC=0){
     stopifnot(is(cop, "acopula"))
     psiI <- cop@psiInv(t, th <- cop@theta)
     n <- length(t)
@@ -144,9 +155,10 @@ gnacopulatrafo <- function(x, cop, do.pseudo=FALSE, include.K = ncol(x) <= 5,
 ##'        of the simulated data
 ##' @param ... additional arguments to enacopula
 ##' @param verbose if TRUE, the progress of the bootstrap is displayed
-##' @return p-value
+##' @return if n.bootstrap==0, then the result of the ad.test() call is returned,
+##'         otherwise, a list of results is returned
 ##' @author Marius Hofert and Martin Maechler
-##' FIXME: in case a bootstrap is used, it would be good to return a list also giving the estimated parameter
+##' FIXME: return an "htest" result
 gnacopula <- function(x, cop, n.bootstrap=0, 
                       estimation.method=eval(formals(enacopula)$method),
                       include.K = ncol(x)<=5, n.MC = if(ncol(x) <= 10) 0 else 10000, 
@@ -158,41 +170,52 @@ gnacopula <- function(x, cop, n.bootstrap=0,
         stop("currently, only Archimedean copulas are provided")
     if(!is.matrix(x)) x <- rbind(x)
     stopifnot((d <- ncol(x)) >= 2) 
-    if(do.pseudo) x <- pobs(x)
-    stopifnot(all(0 <= x, x <= 1))
-
     ## main part
-    if(n.bootstrap > 0){
-
-        n <- nrow(x)
-        ## (1) estimate the parameter by the provided method
+    if(n.bootstrap==0){ # no bootstrap, just transform the data to supposedly U[0,1]-distributed variates
+	g01(gnacopulatrafo(x, cop, do.pseudo=do.pseudo, include.K=include.K, 
+                           n.MC=n.MC), method=method)
+    }else{ # bootstrap
+	## (1) deal with pseudo-observations
+	if(do.pseudo) x <- pobs(x) else stopifnot(all(0 <= x, x <= 1))
+        ## (2) estimate the parameter by the provided method and define the 
+        ##     estimated copula
         theta.hat <- enacopula(x, cop, method=estimation.method, n.MC=n.MC, 
-                               do.pseudo=FALSE, ...) # since pseudo-observations were built earlier
+                               do.pseudo=FALSE, ...)
         cop.hat <- onacopulaL(cop@copula@name, list(theta.hat, 1:d)) # copula with theta.hat
-        ## (2) transform the data with the copula with estimated parameter and compute
-        ##     the test result according to the given method
-        test <- g01(gnacopulatrafo(x, cop.hat, do.pseudo=FALSE, include.K=include.K,
-                                   n.MC=n.MC), method=method)$statistic # compute the value of the test statistic 
-        ## (3) conduct the parametric bootstrap
-        test.vec <- numeric(n.bootstrap) # vector of test statistics
+        ## (3) transform the data with the copula with estimated parameter 
+        trafo <- gnacopulatrafo(x, cop.hat, do.pseudo=FALSE, include.K=include.K, 
+                                n.MC=n.MC) # transformed data in the unit hypercube
+        Y <- g01trafo(trafo, method=method) # transformed data in the unit interval
+	## (4) conduct the Anderson-Darling test 
+        if(any(is.na(Y))) stop("gnacopula: cannot use ad.test() due to missing values")
+	AD.test <- ad.test(Y) 
+        ## (5) conduct the parametric bootstrap
+        theta.hat. <- numeric(n.bootstrap) # vector of estimators
+        AD.test. <- vector("list", n.bootstrap) # vector of ad.test() results
         for(k in 1:n.bootstrap){
-            u <- rnacopula(n, cop.hat) # sample the copula with estimated parameter
-            if(do.pseudo.sim) u <- pobs(u) # compute pseudo-observations if necessary (do *not* compute them in the next line)
-            theta.hat.k <- enacopula(u, cop, method=estimation.method, n.MC=n.MC, 
-                                     do.pseudo=FALSE, ...) # estimate the copula parameter:
-            cop.k <- onacopulaL(cop@copula@name, list(theta.hat.k, 1:d)) # copula with theta.hat.k
-            test.vec[k] <- g01(gnacopulatrafo(u, cop.k, do.pseudo=FALSE,
-                                              include.K=include.K, n.MC=n.MC), 
-                               method=method)$statistic # compute the value of the test statistic
+	    ## (5.1) sample from the copula with estimated parameter and build
+	    ##       the corresponding pseudo-observations
+            u <- rnacopula(nrow(x), cop.hat) 
+            if(do.pseudo.sim) u <- pobs(u) 
+            ## (5.2) estimate the parameter by the provided method and define 
+            ##       the estimated copula
+            theta.hat.[k] <- enacopula(u, cop, method=estimation.method, 
+                                       n.MC=n.MC, do.pseudo=FALSE, ...)
+            cop.hat. <- onacopulaL(cop@copula@name, list(theta.hat.[k], 1:d)) 
+            ## (5.3) transform the data with the copula with estimated parameter 
+            trafo. <- gnacopulatrafo(u, cop.hat., do.pseudo=FALSE, 
+                                     include.K=include.K, n.MC=n.MC)
+            Y. <- g01trafo(trafo., method=method)
+            ## (5.4) conduct the Anderson-Darling test 
+            AD.test.[[k]] <- ad.test(Y.) 
             ## progress output
             if(verbose && k%%ceiling(n.bootstrap/100)==0)
                 cat(sprintf("bootstrap progress: %3.0f%%\n", k/n.bootstrap*100))
         }
-        ## (4) estimate p-value -- FIXME: return an "htest" result
-        mean(test.vec > test)
-
-    }else{ # no bootstrap -- but still a test (!)
-        g01(gnacopulatrafo(x, cop, do.pseudo=FALSE, include.K=include.K, n.MC=n.MC),
-            method=method)$p.value
+        ## (6) return results 
+        p.value <- mean(unlist(lapply(AD.test., function(x) x$statistic)) > 
+                       AD.test$statistic)
+        list(p.value=p.value, theta.hat=theta.hat, AD.test=AD.test, 
+             bootstrap=list(theta.hat=theta.hat., AD.test=AD.test.))
     }
 }
