@@ -7,7 +7,10 @@
 (*) make paraOptInterval to work with both long and short names of families
 
 (MH) Fisher information; how to? keep score functions?
-(MH) add (and fill) all help files for estimation and gof procedures
+(MH) add (and fill) all help files for estimation and gof procedures;
+     fill notably
+     	   man/K.Rd man/emde.Rd man/estim-misc.Rd
+
 
 (*) GIG, opC in demo [with proper documentation]
 (*) opC: estimation example in man-examples
@@ -18,8 +21,7 @@
 (MM) maybe add an ASCII-plot for the hierarchical structure;
      Actually, define setAs("nacopula", "dendrogram", ....) and then use
      dendrogram print()ing.
-(MM) dstable() from  fBasics is buggy ...
-      --> ~/R/MM/Pkg-ex/nacopula/dstable-problem.R
+
 
 ## ==== long-term maybe ====
 

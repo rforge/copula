@@ -13,11 +13,13 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-#### Is source()d from  demo(estimation.gof)  and also in some of the tests
+### is source()d from  demo(estimation.gof)  and also in some of the tests
+##		       ------------------- ==> ../../demo/estimation.gof.R
+##					       ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-## measuring user run time in milliseconds
+##' measures user run time in milliseconds
 utms <- function(x) 1000 * system.time(x)[[1]]
-## formatting such times "uniformly":
+##' formats such utms() times "uniformly":
 f.tms <- function(x) paste(round(x),"ms") # with a space (sep = " ") !
 
 ##' Demonstrates the fitting and goodness-of-fit capabilities for Archimedean
@@ -35,17 +37,12 @@ f.tms <- function(x) paste(round(x),"ms") # with a space (sep = " ") !
 ##' @param verbose
 ##' @return a numeric matrix ...
 ##' @author Marius Hofert and Martin Maechler
-estimation.gof <- function(n, d, simFamily, tau, n.MC = if(method=="smle") 10000 else 0,
+estimation.gof <- function(n, d, simFamily, tau,
+                           n.MC = if(method=="smle") 10000 else 0,
                            esti.method = eval(formals(enacopula)$method),
                            gof.method = eval(formals(gnacopula)$method),
                            checkFamilies = nacopula:::c_longNames, verbose = TRUE)
 {
-
-    if(simFamily=="AMH"){
-	n <- 200
-	warning("FIXME in estimation.gof: changed n to 200 for AMH")
-    }
-
     ## generate data
     copFamily <- getAcop(simFamily)
     theta <- copFamily@tauInv(tau)
@@ -66,9 +63,8 @@ estimation.gof <- function(n, d, simFamily, tau, n.MC = if(method=="smle") 10000
         ## estimate the parameter with the provided method
         cop.hat <- onacopulaL(checkFamilies[k],list(NA,1:d))
         if(verbose) cat("Estimation and GOF for ",checkFamilies[k],":\n\n",sep="")
-        ute[k] <- utms(est[k] <- enacopula(u, cop=cop.hat,
-                                           method=esti.method,
-                                           n.MC=n.MC, do.pseudo=FALSE))
+	ute[k] <- utms(est[k] <- enacopula(u, cop= cop.hat,
+					   method= esti.method, n.MC=n.MC))
         ## FIXME: test for "convergence" etc
         tau[k] <- cop.hat@copula@tau(est[k])
         if(verbose){
@@ -84,8 +80,7 @@ estimation.gof <- function(n, d, simFamily, tau, n.MC = if(method=="smle") 10000
         utg[k] <- utms(gof[k] <-
                        gnacopula(u, cop=cop.hat, n.bootstrap=0,
 	                         estimation.method=esti.method,
-                                 include.K=ncol(u)<=5, n.MC=n.MC, method=gof.method,
-                                 do.pseudo = FALSE, do.pseudo.sim=FALSE, 
+                                 include.K = ncol(u)<=5, n.MC=n.MC, method=gof.method,
                                  verbose = FALSE)$p.value)
         sig[k] <- if(gof[k] < 0.05) 1 else 0
         if(verbose){
@@ -102,5 +97,3 @@ estimation.gof <- function(n, d, simFamily, tau, n.MC = if(method=="smle") 10000
 	  P_value   = gof, "< 0.05"  = sig,
 	  timeGOF   = utg)
 }
-
-stopifnot(require(nacopula))

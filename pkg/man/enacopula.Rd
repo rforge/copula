@@ -6,16 +6,16 @@
   (unnested) Archimedean copulas, of possibly quite high dimensions.
 }
 \usage{
-enacopula(x, cop,
+enacopula(u, cop,
           method = c("mle", "smle", "dmle",
             "mde.normal.CvM", "mde.normal.KS", "mde.log.CvM", "mde.log.KS",
              "tau.tau.mean", "tau.theta.mean", "beta"),
           n.MC = if (method == "smle") 10000 else 0,
           interval = paraOptInterval(u, cop@copula@name),
-          do.pseudo = TRUE, xargs = list(), \dots)
+          xargs = list(), \dots)
 }
 \arguments{
-  \item{x}{numeric (data) matrix}
+  \item{u}{numeric (pseudo data) matrix (values in [0,1]).}
   \item{cop}{\code{\linkS4class{outer_nacopula}} to be estimated.
     Currently, only Archimedean (unnested) copulas can be estimated.}
   \item{method}{the estimation method, a \code{\link{character}}
@@ -41,8 +41,6 @@ enacopula(x, cop,
     otherwise MLE}%% is it used at all when method != "smle" ??
   \item{interval}{numeric vector of length two denoting the interval where
     optimization takes place, for "mle", "smle", and "dmle".}
-  \item{do.pseudo}{logical indicating if \code{x} should be
-    \dQuote{pseudo-transformed}.}
   \item{xargs}{list of additional arguments for the estimation
     procedure.}
   \item{\dots}{possibly additional arguments for

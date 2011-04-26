@@ -232,7 +232,7 @@ emde <- function(u, cop, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
     method <- match.arg(method) # match argument method
     distance <- function(theta){ # distance to be minimized
         cop@copula@theta <- theta
-        u. <- gnacopulatrafo(u, cop, n.MC=0, do.pseudo=FALSE, include.K=include.K) # transform data [don't use MC here; too slow]
+        u. <- gnacopulatrafo(u, cop, n.MC=0, include.K=include.K) # transform data [don't use MC here; too slow]
         emde.dist(u., method)
     }
     optimize(distance, interval = interval, ...)
@@ -381,7 +381,7 @@ pobs <- function(x, na.last="keep", ties.method=c("average", "first", "random", 
 ##' Computes different parameter estimates for a nested Archimedean copula
 ##'
 ##' @title Estimation procedures for nested Archimedean copulas
-##' @param x data matrix
+##' @param u data matrix
 ##' @param cop outer_nacopula to be estimated
 ##' @param method estimation method; can be
 ##'        "mle"             MLE
@@ -396,24 +396,22 @@ pobs <- function(x, na.last="keep", ties.method=c("average", "first", "random", 
 ##'        "beta"            multivariate Blomqvist's beta estimator
 ##' @param n.MC if > 0 it denotes the sample size for SMLE
 ##' @param interval initial optimization interval for "mle", "smle", and "dmle" (i.e., emle, dmle)
-##' @param do.pseudo  logical indicating if 'x' should be "pseudo-transformed"
 ##' @param xargs additional arguments for the estimation procedures
 ##' @param ... additional parameters for optimize
 ##' @return estimated value/vector according to the chosen method
 ##' @author Marius Hofert
-enacopula <- function(x, cop, method=c("mle", "smle", "dmle", "mde.normal.CvM",
+enacopula <- function(u, cop, method=c("mle", "smle", "dmle", "mde.normal.CvM",
                               "mde.normal.KS", "mde.log.CvM", "mde.log.KS",
                               "tau.tau.mean", "tau.theta.mean", "beta"),
                       n.MC = if(method=="smle") 10000 else 0,
                       interval=paraOptInterval(u, cop@copula@name),
-                      do.pseudo=TRUE, xargs=list(), ...)
+                      xargs=list(), ...)
 {
 
     ## setup
     stopifnot(is(cop, "outer_nacopula"), is.list(xargs))
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
-    u <- if(do.pseudo) pobs(x) else x
     method <- match.arg(method)
 
     ## main part

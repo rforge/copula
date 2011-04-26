@@ -69,6 +69,11 @@ summary(efm)
 pfm <- profile(efm)
 (ci <- confint(pfm))
 stopifnot(ci[1] <= theta, theta <= ci[2])
-plot(pfm)
+plot(pfm)               # |z| against theta
+plot(pfm, absVal=FALSE, #  z  against theta
+      show.points=TRUE) # showing how it's interpolated
+## and show the true theta:
+abline(v=theta, col="lightgray", lwd=2, lty=2)
+axis(1, pos = 0, at=theta, label=expression(theta[0]))
 }
 \keyword{models}

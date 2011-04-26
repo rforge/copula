@@ -14,6 +14,7 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 require(nacopula)
+sessionInfo() # will change too often.. but if we need the info
 
 ### ==== A faster, more testing version of demo(estimation.gof) : ==============
 
