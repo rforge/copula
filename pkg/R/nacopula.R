@@ -43,7 +43,7 @@ dnacopula <- function(x, u, log=FALSE, ...) {
 ##'        to n.MC; otherwise the exact formula is used
 ##' @param log if TRUE the log-density is evaluated
 ##' @author Marius Hofert
-dnacopulag <- function(x, u, n.MC=0, log = FALSE){
+dnacopulag <- function(x, u, n.MC=0, log = FALSE) {
     stopifnot(is(x, "outer_nacopula"))
     if(length(x@childCops))
         stop("currently, only Archimedean copulas are provided")
@@ -53,7 +53,7 @@ dnacopulag <- function(x, u, n.MC=0, log = FALSE){
     th <- acop@theta
     res <- rep(NaN,n <- nrow(u)) # density not defined on the margins
     n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
-    if(any(n01)){
+    if(any(n01)) {
         u. <- u[n01,, drop=FALSE]
 	psiI <- acop@psiInv(u[n01,],th)
 	psiID <- acop@psiInvD1abs(u[n01,],th)

@@ -44,7 +44,7 @@ g01trafo <- function(u, method = c("normal", "log")) {
 ##'	   (map to an Erlang distribution)
 ##' @return Anderson-Darling test result
 ##' @author Marius Hofert
-g01 <- function(u, method=c("normal", "log")){
+g01 <- function(u, method=c("normal", "log")) {
     u. <- g01trafo(u, method=method)
     if(any(is.na(u.))) stop("missing values in u. -- cannot use ad.test()")
     ad.test(u.) # check U[0,1] for u.
@@ -92,7 +92,7 @@ K <- function(t, cop, d, n.MC=0)
 		## ensure we are in [0,1] {numerical inaccuracy}
 		pmin(1, t[not01] + r)
 		## Former code:
-		## K2 <- function(psInv){
+		## K2 <- function(psInv) {
 		##    lpsiDabs <- unlist(lapply(j, cop@psiDabs,
 		##			      t=psInv, theta=th, log=TRUE))
 		##    sum(exp(lpsiDabs + j*log(psInv) - lfac.j))
@@ -188,7 +188,7 @@ gnacopula <- function(u, cop, n.bootstrap=0,
 	## (5) conduct the parametric bootstrap
 	theta.hat. <- numeric(n.bootstrap) # vector of estimators
 	AD.test. <- vector("list", n.bootstrap) # vector of ad.test() results
-	for(k in 1:n.bootstrap){
+	for(k in 1:n.bootstrap) {
 	    ## (5.1) sample from the copula with estimated parameter and build
 	    ##	     the corresponding pseudo-observations
 	    u. <- pobs(rnacopula(nrow(u), cop.hat))

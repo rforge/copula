@@ -53,7 +53,7 @@ tauAMH <- function(th) {
 ##' @param V0 numeric vector >= 0
 ##' @return optimal constant m for the fast rejection algorithm
 ##' @author Martin Maechler (based on Marius Hofert's code)
-m.opt.retst <- function(V0){
+m.opt.retst <- function(V0) {
     n <- length(V0)
     fV <- floor(V0)
     cV <- ceiling(V0)
@@ -89,7 +89,7 @@ m.opt.retst <- function(V0){
 ##' @param alpha parameter in (0,1]
 ##' @return St
 ##' @author Marius Hofert, Martin Maechler
-retstablerej <- function(m,V0,alpha){
+retstablerej <- function(m,V0,alpha) {
     gamm. <- (cos(alpha*pi/2)*V0/m)^(1/alpha)
     sum(unlist(lapply(integer(m),
 		      function(.) {
@@ -123,7 +123,7 @@ retstablerej <- function(m,V0,alpha){
 ##' @param h non-negative real number
 ##' @return vector of variates St
 ##' @author Marius Hofert, Martin Maechler
-retstableR <- function(alpha,V0, h = 1){
+retstableR <- function(alpha,V0, h = 1) {
     n <- length(V0)
     stopifnot(n >= 1, is.numeric(alpha), length(alpha) == 1,
 	      0 <= alpha, alpha <= 1) ## <- alpha > 1 ==> cos(pi/2 *alpha) < 0
@@ -282,7 +282,7 @@ rFFrank <- function(n, theta0, theta1, rej)
 ##' @param d number
 ##' @return sign(choose(alpha*j,d)*(-1)^(d-j))
 ##' @author Marius Hofert
-sign.binom <- function(alpha, j, d){
+sign.binom <- function(alpha, j, d) {
     stopifnot(0 < alpha, alpha < 1) # for alpha == 1 this function is not correct
     res <- rep(0, length(j))
     x <- alpha*j
@@ -416,7 +416,7 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"
 ##'       = (d!/k!)\sum_{l=1}^k (-1)^{d-l} \binom{k}{l}\binom{\alpha l}{d}
 ##' @author Marius Hofert
 polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
-                                "stirling", "stirling.horner", "sort", "horner", 
+                                "stirling", "stirling.horner", "sort", "horner",
                                 "direct", "dsumSibuya"), log=FALSE)
 {
     k <- 1:d
@@ -444,7 +444,7 @@ polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
            lfac <- lfactorial(k)
            ## build matrix of exponents
            lxabs <- llx + lppois + rep(labsPoch - lfac, n) + rep(x, each = d)
-	   res <- lssum(lxabs, signs, strict=FALSE)    
+	   res <- lssum(lxabs, signs, strict=FALSE)
            if(log) res else exp(res)
        },
            "pois.direct" =
@@ -504,7 +504,7 @@ polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
            ## B[k,i] = log(a_{dk}(theta)) + k * lx[i],
            ##          where k in {1,..,d}, i in {1,..,n} [n = length(lx)]
            logx <- l.a.dk + k %*% t(lx)
-           if(log){
+           if(log) {
                ## compute log(colSums(exp(B))) stably (no overflow) with the idea of
                ## pulling out the maxima
                lsum(logx)
@@ -569,7 +569,7 @@ rSibuya <- function(n,alpha) {
 }
 
 ##' Probability mass function of a Sibuya(alpha) distribution
-##' 
+##'
 ##' @title Probability mass function of a Sibuya(alpha) distribution
 ##' @param x evaluation point [integer]
 ##' @param alpha parameter alpha
@@ -580,7 +580,7 @@ dSibuya <- function(x, alpha, log=FALSE)
     if(log) lchoose(alpha, x) else abs(choose(alpha, x))
 
 ##' Distribution function of a Sibuya(alpha) distribution
-##' 
+##'
 ##' @title Distribution function of a Sibuya(alpha) distribution
 ##' @param x evaluation point [integer]
 ##' @param alpha parameter alpha
@@ -676,7 +676,7 @@ dsumSibuya <- function(x, n, alpha,
 	   ## determine the matrix of signs of (alpha*j,x)*(-1)^(x-j),
 	   ## j in {1,..,m} -- NB: does not depend on x !
 	   m <- max(n)
-	   signs <- unlist(lapply(1:m, function(j){
+	   signs <- unlist(lapply(1:m, function(j) {
 	       z <- alpha*j
 	       if(z == floor(z)) 0 else (-1)^(j-ceiling(z))
 	   }))
@@ -722,7 +722,7 @@ dsumSibuya <- function(x, n, alpha,
                                           f.one(x[i], n[i]))))
 	   as.numeric(if(log) log(S) else S)
        },
-           "diff" = 
+           "diff" =
        {
            diff(choose(n:0*alpha, x), differences=n) * (-1)^x
        },
@@ -770,7 +770,7 @@ dsumSibuya <- function(x, n, alpha,
 ##' @return \sum_{k=1}^d a_{dk}(theta) exp((k-1)*lx),
 ##'         where a_{dk}(theta) = S(d,k)*(k-1-alpha)_{k-1} = S(d,k)*Gamma((1:d)-alpha)/Gamma(1-alpha)
 ##' @author Marius Hofert and Martin Maechler
-polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE){
+polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE) {
     ## compute the log of the coefficients a_{dk}(theta)
     if(d > 220) stop("d > 220 not yet supported")# would need Stirling2.all(d, log=TRUE)
     k <- 1:d
@@ -813,11 +813,11 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE){
 
 ### ==== other numeric utilities ===============================================
 
-##' Properly compute log(x_1 + .. + x_n) for a given matrix of column vectors  
+##' Properly compute log(x_1 + .. + x_n) for a given matrix of column vectors
 ##' log(x_1),..,log(x_n)
 ##'
 ##' @title Properly compute the logarithm of a sum
-##' @param lx (d,n)-matrix containing the column vectors log(x_1),..,log(x_n) 
+##' @param lx (d,n)-matrix containing the column vectors log(x_1),..,log(x_n)
 ##'        each of dimension d
 ##' @param l.off the offset to substract and re-add; ideally in the order of max(.)
 ##' @return log(x_1 + .. + x_n) computed via
@@ -826,7 +826,7 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE){
 ##'         = log(x_max) + log(sum(exp(log(x)-log(x_max)))))
 ##'         = lx.max + log(sum(exp(lx-lx.max)))
 ##' @author Marius Hofert
-lsum <- function(lx, l.off = apply(lx, 2, max)){
+lsum <- function(lx, l.off = apply(lx, 2, max)) {
     stopifnot(is.matrix(lx)) # do not use cbind or rbind here, since it is not clear if the user specified only one vector log(x) or several vectors of dimension 1 !!!
     res <- l.off + log(colSums(exp(lx - rep(l.off, each=nrow(lx)))))
     if (is.vector(res)) names(res) <- NULL
@@ -848,11 +848,11 @@ lsum <- function(lx, l.off = apply(lx, 2, max)){
 ##'         = log(|x|_max) + log(sum(signs*exp(log(|x|)-log(|x|_max)))))
 ##'         = lxabs.max + log(sum(signs*exp(lxabs-lxabs.max)))
 ##' @author Marius Hofert and Martin Maechler
-lssum <- function (lxabs, signs, l.off = apply(lxabs, 2, max), strict = TRUE){ 
+lssum <- function (lxabs, signs, l.off = apply(lxabs, 2, max), strict = TRUE) {
     stopifnot(is.matrix(lxabs))
     sum. <- colSums(signs * exp(lxabs - rep(l.off, each=nrow(lxabs))))
     if (any(is.nan(sum.) || sum. <= 0))
-        if (strict) 
+        if (strict)
             stop("lssum found non-positive sums")
         else warning("lssum found non-positive sums")
     res <- l.off + log(sum.)
@@ -1100,7 +1100,7 @@ cacopula <- function(v, u, family, theta, log = FALSE) {
 ##'        pois:        intelligently uses the Poisson density with lsum
 ##' @param log if TRUE the log of psiDabs is returned
 ##' @author Marius Hofert
-psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("log", "direct", 
+psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("log", "direct",
                                                         "pois.direct", "pois"),
                       log=FALSE)
 {
@@ -1109,10 +1109,10 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("log", "direct"
     method <- match.arg(method)
     switch(method,
 	   ## the following is not faster than "log":
-	   ## "default" = { # basically, use "direct" if numerically not critical and "log" otherwise 
+	   ## "default" = { # basically, use "direct" if numerically not critical and "log" otherwise
 	   ##                lx <- -V %*% t(t) + degree*log(V)
 	   ##                explx <- exp(lx) # (n.MC, n)-matrix containing the summands
-	   ##                explx0 <- explx==0 # can be TRUE due to t == Inf or t finite but too large 
+	   ##                explx0 <- explx==0 # can be TRUE due to t == Inf or t finite but too large
 	   ##                t.too.large <- unlist(lapply(1:n, function(x) any(explx0))) # boolean vector of length n indicating which column of explx contains zeros
 	   ##                r1 <- colMeans(explx[,!t.too.large, drop=FALSE])
 	   ##                res[!t.too.large] <- if(log) log(r1) else r1
@@ -1128,7 +1128,7 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("log", "direct"
                    res[!iInf] <- lsum(-V %*% t(t[!iInf]) + degree*log(V) - log(n.MC))
                if(log) res else exp(res)
            },
-           "direct" = { # direct method 
+           "direct" = { # direct method
                lx <- -V %*% t(t) + degree*log(V)
                res <- colMeans(exp(lx)) # can be all zeros if lx is too small [e.g., if t is too large]
                if(log) log(res) else res
@@ -1136,12 +1136,12 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("log", "direct"
            "pois.direct" = {
                poi <- dpois(degree, lambda=V %*% t(t))
                res <- factorial(degree)/t^degree * colMeans(poi)
-               if(log) log(res) else res           
+               if(log) log(res) else res
            },
            "pois" = {
                iInf <- is.infinite(t)
                res[iInf] <- -Inf # log(0)
-               if(any(!iInf)){
+               if(any(!iInf)) {
                    t. <- t[!iInf]
                    lpoi <- dpois(degree, lambda=V %*% t(t.), log=TRUE) # (n.MC, length(t.))-matrix
                    b <- -log(n.MC) + lfactorial(degree) - degree*rep(log(t.), each=n.MC) + lpoi # (n.MC, length(t.))-matrix
@@ -1181,7 +1181,7 @@ setTheta <- function(x, value, na.ok = TRUE) {
 ##' @param int interval
 ##' @return parameter constraint function
 ##' @author Martin Maechler
-mkParaConstr <- function(int){
+mkParaConstr <- function(int) {
     stopifnot(is(int, "interval")) # for now
     is.o <- int@open
     eL <- substitute(LL <= theta, list(LL = int[1])); if(is.o[1]) eL[[1]] <-

@@ -26,7 +26,7 @@
 ##' @param h for enlarging the tau-interval
 ##' @return initial interval which can be used for optimization (e.g., for emle)
 ##' @author Marius Hofert
-paraOptInterval <- function(u, family, h=0.15){
+paraOptInterval <- function(u, family, h=0.15) {
     stopifnot(h >= 0)
     x <- apply(u,1,max)
     theta.hat.G <- log(ncol(u))/(log(length(x))-log(sum(-log(x)))) # direct formula from edmle for Gumbel
@@ -39,11 +39,11 @@ paraOptInterval <- function(u, family, h=0.15){
                      "Gumbel" = { c(0, 0.98) },
                      "Joe" = { c(0, 0.98) },
                      stop("unsupported family for paraOptInterval"))
-    if(h > 0){ # parameter interval
+    if(h > 0) { # parameter interval
         l <- max(tau.hat.G - h, tau.ex[1]) # admissible lower bound for tau
         u <- min(tau.hat.G + h, tau.ex[2]) # admissible upper bound for tau
         c(cop@tauInv(l), cop@tauInv(u))
-    }else{ # parameter value
+    } else { # parameter value
 	if(tau.ex[1] <= tau.hat.G && tau.hat.G <= tau.ex[2])
             cop@tauInv(tau.hat.G) else stop("paraOptInterval: tau.hat.G not attainable")
     }
@@ -61,7 +61,7 @@ paraOptInterval <- function(u, family, h=0.15){
 ##'                2^(1-d) in Blomqvist's beta are omitted
 ##' @return sample version of multivariate Blomqvist beta
 ##' @author Marius Hofert
-beta.hat <- function(u, scaling = FALSE){
+beta.hat <- function(u, scaling = FALSE) {
     stopifnot(all(0 <= u, u < 1))
     less.u <- u <= 0.5
     prod1 <- apply( less.u, 1, all)
@@ -102,7 +102,7 @@ beta. <- function(cop, theta, d, scaling = FALSE) {
 ##' @return Blomqvist beta estimator; return value of safeUroot (more or less
 ##'	    equal to the return value of uniroot)
 ##' @author Marius Hofert
-ebeta <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...){
+ebeta <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...) {
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
@@ -111,7 +111,7 @@ ebeta <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...){
     ##       beta anyway.
     b.hat <- beta.hat(u, scaling = TRUE)
     d <- ncol(u)
-    safeUroot(function(theta){beta.(cop@copula, theta, d, scaling=TRUE) - b.hat},
+    safeUroot(function(theta) {beta.(cop@copula, theta, d, scaling=TRUE) - b.hat},
               interval = interval, Sig = +1, check.conv = TRUE, ...)
 }
 
@@ -162,7 +162,7 @@ etau <- function(u, cop, method = c("tau.mean", "theta.mean"), ...)
 ##' @return distance
 ##' @author Marius Hofert
 emde.dist <- function(u, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.CvM",
-                         "mde.log.KS")){
+                         "mde.log.KS")) {
     if(!is.matrix(u)) u <- rbind(u)
     d <- ncol(u)
     n <- nrow(u)
@@ -230,7 +230,7 @@ emde <- function(u, cop, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
     method <- match.arg(method) # match argument method
-    distance <- function(theta){ # distance to be minimized
+    distance <- function(theta) { # distance to be minimized
         cop@copula@theta <- theta
         u. <- gnacopulatrafo(u, cop, n.MC=0, include.K=include.K) # transform data [don't use MC here; too slow]
         emde.dist(u., method)
@@ -248,16 +248,16 @@ emde <- function(u, cop, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
 ##' @param log if TRUE the log-density is evaluated
 ##' @return density of the diagonal of cop
 ##' @author Marius Hofert
-dDiag <- function(u, cop, log = FALSE){
+dDiag <- function(u, cop, log = FALSE) {
     stopifnot(is(cop, "outer_nacopula"), all(0 <= u, u <= 1), (d <- max(cop@comp)) > 0)
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
     acop <- cop@copula
     th <- acop@theta
-    if(log){
+    if(log) {
         log(d) + acop@psiDabs(d*acop@psiInv(u,th), th, log = TRUE) +
             acop@psiInvD1abs(u, th, log = TRUE)
-    }else{
+    } else {
         d*acop@psiDabs(d*acop@psiInv(u,th), th)*(acop@psiInvD1abs(u,th))
     }
 }
@@ -280,11 +280,11 @@ edmle <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...)
         stop("currently, only Archimedean copulas are provided")
     x <- apply(u,1,max) # data from the diagonal
     ## explicit estimator for Gumbel
-    if(cop@copula@name == "Gumbel"){
+    if(cop@copula@name == "Gumbel") {
 	list(minimum = log(d)/(log(length(x))-log(sum(-log(x)))), objective = 0) # return value of the same structure as for optimize
-    }else{
+    } else {
         ## optimize
-	mLogL <- function(theta){ # -log-likelihood
+	mLogL <- function(theta) { # -log-likelihood
             cop@copula@theta <- theta
             -sum(dDiag(x, cop=cop, log=TRUE))
         }
@@ -312,7 +312,7 @@ edmle <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...)
     if(length(cop@childCops))
 	stop("currently, only Archimedean copulas are provided")
     ## optimize
-    mLogL <- function(theta){ # -log-likelihood
+    mLogL <- function(theta) { # -log-likelihood
         cop@copula@theta <- theta
         -sum(dnacopula(cop, u, n.MC=n.MC, log=TRUE))
     }
