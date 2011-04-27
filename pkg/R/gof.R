@@ -174,6 +174,7 @@ gnacopula <- function(u, cop, n.bootstrap=0,
     } else { # bootstrap
 	## (2) estimate the parameter by the provided method and define the
 	##     estimated copula
+	if(!is.matrix(u)) u <- rbind(u)
 	theta.hat <- enacopula(u, cop, method=estimation.method, n.MC=n.MC, ...)
 	cop.hat <- onacopulaL(cop@copula@name, list(theta.hat, 1:d)) # copula with theta.hat
 	## (3) transform the data with the copula with estimated parameter

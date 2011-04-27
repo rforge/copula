@@ -35,45 +35,45 @@ opower <- function(copbase, thetabase) {
                   copbase@paraConstr(theta1) && theta1 >= theta0
               },
               ## absolute value of generator derivatives
-              psiDabs = function(t, theta, degree=1, n.MC=0, 
-              method=c("stirling", "binomial.coeff"), log=FALSE){
-                  if(theta == 1) return(copbase@psiDabs(t, theta, degree=degree, 
+              psiDabs = function(t, theta, degree=1, n.MC=0,
+              method=c("stirling", "binomial.coeff"), log=FALSE) {
+                  if(theta == 1) return(copbase@psiDabs(t, theta, degree=degree,
                      n.MC=n.MC, log=log)) # copbase case
-                  if(n.MC > 0){
-                      psiDabsMC(t, family=C., theta=theta, degree=degree, 
+                  if(n.MC > 0) {
+                      psiDabsMC(t, family=C., theta=theta, degree=degree,
                                 n.MC=n.MC, log=log)
-                  }else{
+                  } else {
                       res <- numeric(n <- length(t))
                       res[is0 <- t == 0] <- Inf
                       res[isInf <- is.infinite(t)] <- -Inf
-                      if(any(n0Inf <- !(is0 | isInf))){
+                      if(any(n0Inf <- !(is0 | isInf))) {
 	                  t. <- t[n0Inf]
 	                  k <- 1:degree # compute everything once for 1:degree
                           beta <- 1/theta
                           t.beta <- t.^beta # beta = 1/theta for psi(t^beta)
-                          ## in principle, it would be efficient to vectorize 
-                          ## the psiDabs slots also in the parameter "degree", 
+                          ## in principle, it would be efficient to vectorize
+                          ## the psiDabs slots also in the parameter "degree",
                           ## but that would be even more complicated
-                          lpsiDabs <- do.call(rbind, 
-                                              lapply(k, function(k.) 
-                                                     copbase@psiDabs(t.beta, 
-                                                                     theta=thetabase, 
-                                                                     degree=k., 
+                          lpsiDabs <- do.call(rbind,
+                                              lapply(k, function(k.)
+                                                     copbase@psiDabs(t.beta,
+                                                                     theta=thetabase,
+                                                                     degree=k.,
                                                                      log=TRUE))) # (degree,n)-matrix
                           bklt <- k %*% t(log(t.beta)) # (degree,n)-matrix
 	                  method <- match.arg(method)
                           switch(method,
                                  "stirling" = { # much faster & less prone to errors
                                      s <- Stirling1.all(degree)
-                                     b.one.j <- function(j.){
+                                     b.one.j <- function(j.) {
                                          k <- 1:j.
                                          signs <- (-1)^k
                                          lS <- log(Stirling2.all(j.))
   					 a <- lS + lpsiDabs[k,, drop=FALSE] + bklt[k,, drop=FALSE]
-					 (-beta)^j. * abs(s[j.]) * colSums(signs*exp(a)) 
+					 (-beta)^j. * abs(s[j.]) * colSums(signs*exp(a))
                                      }
                                      ## => returns a vector of length n containing the values for one j. and all t
-                                     j <- 1:degree	  	      
+                                     j <- 1:degree
                                      b <- do.call(rbind, lapply(j, FUN=b.one.j)) # (degree, n)-matrix
                                      res <- colSums(b)
                                      if(log) -degree*log(t.)+log(res) else res/t.^degree # without exp(log(..)), log(res) would produce NaN
@@ -81,14 +81,14 @@ opower <- function(copbase, thetabase) {
                                  "binomial.coeff" = {
                                      ## outer sum
                                      lfac <- lfactorial(0:degree) # log(0!), log(1!), .., log(degree!)
-                                     log.b.one.j <- function(j.){
+                                     log.b.one.j <- function(j.) {
                                          k <- j.:degree
                                          a <- lpsiDabs[k,, drop=FALSE] + bklt[k,, drop=FALSE] - lfac[j.+1] - lfac[k-j.+1] # (degree-j.+1, n)-matrix
-                                         ls. <- lsum(a) # length = n 
+                                         ls. <- lsum(a) # length = n
                                          lchoose(beta*j., degree) + ls. # note: the lchoose() can be non-finite with this approach!
                                      }
                                      ## => returns a vector of length n containing the values for one j. and all t
-                                     j <- 1:degree	  	      
+                                     j <- 1:degree
                                      b <- do.call(rbind, lapply(j, FUN=log.b.one.j)) # (degree, n)-matrix
                                      signs <- sign.binom(beta, j, degree)
                                      res <- lfac[degree+1] - degree*log(t.) + lssum(b, signs, strict=FALSE)
@@ -99,18 +99,18 @@ opower <- function(copbase, thetabase) {
                   }
               },
               ## derivatives of the generator inverse
-              psiInvD1abs = function(t, theta, log=FALSE){
+              psiInvD1abs = function(t, theta, log=FALSE) {
                   if(theta == 1) return(copbase@psiInvD1abs(t, theta, log=log)) # copbase case
-                  if(log){
+                  if(log) {
                       log(theta)+(theta-1)*log(copbase@psiInv(t,thetabase))+
                           copbase@psiInvD1abs(t, thetabase,log=TRUE)
-                  }else{
+                  } else {
                       theta*copbase@psiInv(t,thetabase)^(theta-1)*
                           copbase@psiInvD1abs(t, thetabase,log=FALSE)
                   }
               },
               ## density
-              dacopula = function(u, theta, n.MC=0, log=FALSE){
+              dacopula = function(u, theta, n.MC=0, log=FALSE) {
                   if(theta == 1) return(copbase@dacopula(u, theta, n.MC=n.MC, log=log)) # copbase case
                   if(!is.matrix(u)) u <- rbind(u)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
@@ -126,7 +126,7 @@ opower <- function(copbase, thetabase) {
                   if(log) res else exp(res)
               },
               ## score function
-              score = function(u, theta){
+              score = function(u, theta) {
                   if(!is.matrix(u)) u <- rbind(u)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                   stop("The score function is currently not implemented for outer power copulas")
@@ -142,7 +142,7 @@ opower <- function(copbase, thetabase) {
                                 gamma = (cos(alpha*pi/2))^(1/alpha))
                   S*V0base^theta
               },
-              dV0 = function(x, theta, log=FALSE){
+              dV0 = function(x, theta, log=FALSE) {
                   stop("not implemented; it's the density of SV^theta, where V ~ F with LS[F] = copbase@psi and S ~ S(1/theta, 1, cos^theta(pi/(2*theta)), I_{theta==1}; 1)")
               },
               V01 = function(V0,theta0,theta1) {
@@ -158,7 +158,7 @@ opower <- function(copbase, thetabase) {
                       ## with Laplace-Stieltjes transform exp(-V0*t^alpha)
                   }
               },
-              dV01 = function(x, V0, theta0, theta1, log=FALSE){
+              dV01 = function(x, V0, theta0, theta1, log=FALSE) {
                   copGumbel@dV01(x, V0, theta0, theta1, log=log)
               },
               ## Kendall's tau

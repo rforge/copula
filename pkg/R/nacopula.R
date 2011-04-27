@@ -39,7 +39,7 @@ dnacopula <- function(x, u, log=FALSE, ...) {
 ##' @title Density of nested Archimedean copulas (generic form)
 ##' @param x nacopula
 ##' @param u argument of the copula x
-##' @param n.MC if > 0 a Monte Carlo approach is applied with sample size equal 
+##' @param n.MC if > 0 a Monte Carlo approach is applied with sample size equal
 ##'        to n.MC; otherwise the exact formula is used
 ##' @param log if TRUE the log-density is evaluated
 ##' @author Marius Hofert
@@ -83,7 +83,7 @@ pnacopula <- function(x,u) {
                  theta=th)
     ## if u is a vector, res contains a names attribute, which we have to remove
     ## otherwise all.equal() in nac-experi.R fails
-    names(res) <- NULL 
+    names(res) <- NULL
     res
 }
 
@@ -229,7 +229,7 @@ onacopula <- function(family, nacStructure) {
         ##     b <- eval(b, pframe) ; stopifnot(is.numeric(b))
         ## }
 	else stopifnot(is.list(c))
-	stopifnot(is.numeric(a), length(a) == 1, is.numeric(b))
+	stopifnot(is.numeric(a) || is.na(a), length(a) == 1, is.numeric(b))
 	if(any(sapply(c, class) != "nacopula"))
 	    stop("third entry of 'nacStructure' must be NULL or list of 'C(..)' terms")
 	new(cClass, copula = setTheta(COP, a),

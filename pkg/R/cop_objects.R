@@ -35,11 +35,11 @@ copAMH <-
                   ## parameter interval
                   paraInterval = interval("[0,1)"),
                   ## absolute value of generator derivatives
-		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE){
-                      if(n.MC > 0){
+		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE) {
+                      if(n.MC > 0) {
                           psiDabsMC(t, family="AMH", theta=theta, degree=degree,
                                     n.MC=n.MC, log=log)
-                      }else{
+                      } else {
                           if(theta == 0) if(log) return(-t) else return(exp(-t)) # independence
                           ## Note: psiDabs(0, ...) is correct
                           t.et <- theta*exp(-t)
@@ -50,34 +50,34 @@ copAMH <-
                       }
                   },
                   ## derivatives of the generator inverse
-		  psiInvD1abs = function(t, theta, log = FALSE){
-                      if(log){
+		  psiInvD1abs = function(t, theta, log = FALSE) {
+                      if(log) {
                           log1p(-theta)-log(t)-log1p(-theta*(1-t))
-                      }else{
+                      } else {
                           (1-theta)/(t*(1-theta*(1-t)))
                       }
                   },
                   ## density
-		  dacopula = function(u, theta, n.MC=0, log=FALSE){
+		  dacopula = function(u, theta, n.MC=0, log=FALSE) {
                       if(!is.matrix(u)) u <- rbind(u)
                       if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       ## f() := NaN outside and on the boundary of the unit hypercube
                       res <- rep.int(NaN, n <- nrow(u))
                       n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
                       if(!any(n01)) return(res)
-                      if(theta == 0){ res[n01] <- if(log) 0 else 1; return(res) } # independence
+                      if(theta == 0) { res[n01] <- if(log) 0 else 1; return(res) } # independence
                       ## auxiliary results
                       u. <- u[n01,, drop=FALSE]
                       u.. <- -theta*(1-u.)
                       sum. <- rowSums(log(u.))
                       sum.. <- rowSums(log1p(u..))
                       ## main part
-                      if(n.MC > 0){ # Monte Carlo
+                      if(n.MC > 0) { # Monte Carlo
                           V <- C.@V0(n.MC, theta)
                           l <- d*log((1-theta)*V) # length = n.MC
                           res[n01] <- colMeans(exp(l + (V-1) %*% t(sum.) - (V+1) %*% t(sum..)))
                           if(log) log(res) else res
-                      }else{ # explicit
+                      } else { # explicit
                           Li.arg <- theta*apply(u./(1+u..), 1, prod)
                           Li. <- polylog(Li.arg, s = -d, method = "neg", log=TRUE)
                           res[n01] <- (d+1)*log1p(-theta)-log(theta)+Li.-sum.-sum..
@@ -85,7 +85,7 @@ copAMH <-
                       }
                   },
                   ## score function
-                  score = function(u, theta){
+                  score = function(u, theta) {
 	              if(!is.matrix(u)) u <- rbind(u)
 	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       omu <- 1-u
@@ -107,7 +107,7 @@ copAMH <-
                   V01 = function(V0,theta0,theta1) {
                       rnbinom(length(V0),V0,(1-theta1)/(1-theta0))+V0
                   },
-                  dV01 = function(x,V0,theta0,theta1,log = FALSE){
+                  dV01 = function(x,V0,theta0,theta1,log = FALSE) {
                       stopifnot(length(V0) == 1 || length(x) == length(V0))
                       dnbinom(x-V0,V0,(1-theta1)/(1-theta0),log = log)
                   },
@@ -154,11 +154,11 @@ copClayton <-
                   ## parameter interval
                   paraInterval = interval("(0,Inf)"),
                   ## absolute value of generator derivatives
-		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE){
-                      if(n.MC > 0){
+		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE) {
+                      if(n.MC > 0) {
                           psiDabsMC(t, family="Clayton", theta=theta, degree=degree,
                                     n.MC=n.MC, log=log)
-                      }else{
+                      } else {
                           ## Note: psiDabs(0, ...) is correct
                           alpha <- 1/theta
                           res <- lgamma(degree+alpha)-lgamma(alpha)-(degree+alpha)*log1p(t)
@@ -166,11 +166,11 @@ copClayton <-
                       }
                   },
                   ## derivatives of the generator inverse
-		  psiInvD1abs = function(t, theta, log = FALSE){
+		  psiInvD1abs = function(t, theta, log = FALSE) {
                       if(log) log(theta)-(1+theta)*log(t) else theta*t^(-(1+theta))
                   },
                   ## density
-		  dacopula = function(u, theta, n.MC=0, log=FALSE){
+		  dacopula = function(u, theta, n.MC=0, log=FALSE) {
                       if(!is.matrix(u)) u <- rbind(u)
                       if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       ## f() := NaN outside and on the boundary of the unit hypercube
@@ -182,7 +182,7 @@ copClayton <-
                       l.u <- rowSums(-log(u.))
                       psiI. <- rowSums(C.@psiInv(u., theta))
                       ## main part
-                      if(n.MC > 0){ # Monte Carlo
+                      if(n.MC > 0) { # Monte Carlo
                           l.u.mat <- matrix(rep(l.u, n.MC), nrow=n.MC, byrow=TRUE)
                           V <- C.@V0(n.MC, theta)
                           l <- d*log(theta*V)
@@ -190,7 +190,7 @@ copClayton <-
                           ## stably compute log(colMeans(exp(lx)))
                           lx <- l + theta.*l.u.mat - V %*% t(psiI.) - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
                           res[n01] <- lsum(lx)
-                      }else{ # explicit
+                      } else { # explicit
                           alpha <- 1/theta
                           d.a <- d + alpha
                           res[n01] <- lgamma(d.a)-lgamma(alpha)+ d*log(theta) +
@@ -199,7 +199,7 @@ copClayton <-
                       if(log) res else exp(res)
                   },
                   ## score function
-                  score = function(u, theta){
+                  score = function(u, theta) {
 	              if(!is.matrix(u)) u <- rbind(u)
 	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       lu <- log(u)
@@ -220,7 +220,7 @@ copClayton <-
 		  V0 = function(n,theta) { rgamma(n, shape = 1/theta) },
 		  dV0 = function(x,theta,log = FALSE) dgamma(x, shape = 1/theta, log),
                   V01 = function(V0,theta0,theta1) { retstable(alpha=theta0/theta1, V0) },
-                  dV01 = function(x,V0,theta0,theta1,log = FALSE){
+                  dV01 = function(x,V0,theta0,theta1,log = FALSE) {
                       stopifnot(length(V0) == 1 || length(x) == length(V0))
                       alpha <- theta0/theta1
                       gamma <- (cos(pi/2*alpha)*V0)^(1/alpha)
@@ -265,11 +265,11 @@ copFrank <-
                   ## parameter interval
                   paraInterval = interval("(0,Inf)"),
                   ## absolute value of generator derivatives
-		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE){
-                      if(n.MC > 0){
+		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE) {
+                      if(n.MC > 0) {
                           psiDabsMC(t, family="Frank", theta=theta, degree=degree,
                                     n.MC=n.MC, log=log)
-                      }else{
+                      } else {
                           ## Note: psiDabs(0, ...) is correct
                           p <- -expm1(-theta)
                           if(log)
@@ -279,11 +279,11 @@ copFrank <-
                       }
                   },
                   ## derivatives of the generator inverse
-		  psiInvD1abs = function(t, theta, log = FALSE){
+		  psiInvD1abs = function(t, theta, log = FALSE) {
                       if(log) log(theta)-log(expm1(theta*t)) else theta/expm1(theta*t)
                   },
                   ## density
-		  dacopula = function(u, theta, n.MC=0, log=FALSE){
+		  dacopula = function(u, theta, n.MC=0, log=FALSE) {
                       if(!is.matrix(u)) u <- rbind(u)
                       if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       ## f() := NaN outside and on the boundary of the unit hypercube
@@ -297,14 +297,14 @@ copFrank <-
                       lpu <- log1p(-exp(-theta*u.)) # log(1 - exp(-theta * u))
                       lu <- rowSums(lpu)
                       ## main part
-                      if(n.MC > 0){ # Monte Carlo
+                      if(n.MC > 0) { # Monte Carlo
                           V <- C.@V0(n.MC, theta)
                           l <- d*(log(theta*V)-V*lp)
                           rs <- -theta*u.sum
                           lx <- rep(rs, each=n.MC) + l - log(n.MC) + (V-1) %*% t(lu) # (n.MC, nrow(u.))-matrix
                           res[n01] <- lsum(lx)
                           if(log) res else exp(res)
-                      }else{ # explicit
+                      } else { # explicit
                           Li.arg <- -expm1(-theta)*exp(rowSums(lpu-lp))
                           Li. <- polylog(Li.arg, s = -(d-1), method = "neg", log=TRUE)
                           res[n01] <- (d-1)*log(theta) + Li. - theta*u.sum - lu
@@ -312,7 +312,7 @@ copFrank <-
                       }
                   },
                   ## score function
-                  score = function(u, theta){
+                  score = function(u, theta) {
 	              if(!is.matrix(u)) u <- rbind(u)
 	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       e <- exp(-theta)
@@ -332,11 +332,11 @@ copFrank <-
                   ## V0 (algorithm of Kemp (1981)) with density dV0 and V01 with density
                   ## dV01 corresponding to LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
 		  V0 = function(n,theta) rlog(n, -expm1(-theta), exp(-theta)),
-		  dV0 = function(x,theta,log = FALSE){
+		  dV0 = function(x,theta,log = FALSE) {
                       if(any(x != (x <- floor(x + 0.5)))) warning("x must be integer; is rounded with floor(x+0.5) otherwise")
-                      if(log){
+                      if(log) {
                           x*log1p(-exp(-theta))-log(x*theta)
-                      }else{
+                      } else {
                           p <- 1-exp(-theta)
                           p^x/(x*theta)
                       }
@@ -357,7 +357,7 @@ copFrank <-
                       if(log) res else exp(res)
                   },
                   ## Kendall's tau; debye_1() is from package 'gsl' :
-		  tau = function(theta){
+		  tau = function(theta) {
                       if((l <- length(theta)) == 0) return(numeric(0)) # to work with NULL
                       res <- numeric(l)
                       res[isN <- theta == 0] <- 0 # limiting case
@@ -366,7 +366,7 @@ copFrank <-
                           res[i] <- 1 + 4*(debye_1(theta[i]) - 1)/theta[i]
                       res
                   },
-                  tauInv = function(tau, tol = .Machine$double.eps^0.25, ...){
+                  tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
                       res <- tau
                       res[isN <- res == 0] <- 0 # limiting case
                       res[!isN] <- sapply(res[!isN], function(tau) {
@@ -417,13 +417,13 @@ copGumbel <-
                       n0Inf <- !(is0 | isInf)
                       if(all(!n0Inf)) return(if(log) res else exp(res))
                       t. <- t[n0Inf]
-                      if(n.MC > 0){
+                      if(n.MC > 0) {
                           res[n0Inf] <- psiDabsMC(t, family="Gumbel", theta=theta,
                                                   degree=degree, n.MC=n.MC, log=TRUE)
-                      }else{
-                          if(theta == 1){
+                      } else {
+                          if(theta == 1) {
                               res[n0Inf] <- -t. # independence
-                          }else{
+                          } else {
                               alpha <- 1/theta
                               lt <- log(t.)
                               res[n0Inf] <- -degree*lt -t.^alpha +
@@ -434,31 +434,31 @@ copGumbel <-
                       if(log) res else exp(res)
                   },
                   ## derivatives of the generator inverse
-		  psiInvD1abs = function(t, theta, log = FALSE){
-                      if(log){
+		  psiInvD1abs = function(t, theta, log = FALSE) {
+                      if(log) {
                           l.t <- log(t)
                           log(theta)+(theta-1)*log(-l.t)-l.t
-                      }else{
+                      } else {
                           theta*(-log(t))^(theta-1)/t
                       }
                   },
                   ## density
 		  dacopula = function(u, theta, n.MC=0, method=eval(formals(polyG)$method),
-                  log = FALSE){
+                  log = FALSE) {
                       if(!is.matrix(u)) u <- rbind(u)
                       if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       ## f() := NaN outside and on the boundary of the unit hypercube
                       res <- rep.int(NaN, n <- nrow(u))
                       n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
                       if(!any(n01)) return(res)
-                      if(theta == 1){ res[n01] <- if(log) 0 else 1; return(res) } # independence
+                      if(theta == 1) { res[n01] <- if(log) 0 else 1; return(res) } # independence
                       ## auxiliary results
                       u. <- u[n01,, drop=FALSE]
                       mlu <- -log(u.) # -log(u)
                       lmlu <- log(mlu) # log(-log(u))
                       psiI. <- rowSums(C.@psiInv(u., theta))
                       ## main part
-                      if(n.MC > 0){ # Monte Carlo
+                      if(n.MC > 0) { # Monte Carlo
                           V <- C.@V0(n.MC, theta)
                           l <- d*log(theta*V)
                           sum. <- rowSums((theta-1)*lmlu + mlu)
@@ -467,7 +467,7 @@ copGumbel <-
                           lx <- l - V %*% t(psiI.) + sum.mat - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
                           res[n01] <- lsum(lx)
                           if(log) res else exp(res)
-                      }else{ # explicit
+                      } else { # explicit
                           alpha <- 1/theta
                           ## compute lx = alpha*log(sum(psiInv(u., theta)))
                           lx <- alpha*log(psiI.)
@@ -488,7 +488,7 @@ copGumbel <-
                       }
                   },
                   ## score function
-                  score = function(u, theta){
+                  score = function(u, theta) {
 	              if(!is.matrix(u)) u <- rbind(u)
 	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       stop("The score function is currently not implemented for Gumbel copulas")
@@ -531,7 +531,7 @@ copGumbel <-
                           ## with Laplace-Stieltjes transform exp(-V0*t^alpha)
                       }
                   },
-                  dV01 = function(x,V0,theta0,theta1,log = FALSE){
+                  dV01 = function(x,V0,theta0,theta1,log = FALSE) {
                       stopifnot(length(V0) == 1 || length(x) == length(V0))
                       alpha <- theta0/theta1
                       gamma <- (cos(pi/2*alpha)*V0)^(1/alpha)
@@ -583,13 +583,13 @@ copJoe <-
                       n0Inf <- !(is0 | isInf)
                       if(all(!n0Inf)) return(if(log) res else exp(res))
                       t. <- t[n0Inf]
-                      if(n.MC > 0){
+                      if(n.MC > 0) {
                           res[n0Inf] <- psiDabsMC(t, family="Joe", theta=theta,
                                                   degree=degree, n.MC=n.MC, log=TRUE)
-                      }else{
-                          if(theta == 1){
+                      } else {
+                          if(theta == 1) {
                               res[n0Inf] <- -t. # independence
-                          }else{
+                          } else {
                               alpha <- 1/theta
                               mt <- -t.
                               l1mt <- log(-expm1(mt)) # log(1-exp(-t))
@@ -600,30 +600,30 @@ copJoe <-
                       if(log) res else exp(res)
                   },
                   ## derivatives of the generator inverse
-		  psiInvD1abs = function(t, theta, log = FALSE){
-                      if(log){
+		  psiInvD1abs = function(t, theta, log = FALSE) {
+                      if(log) {
                           log(theta)+(theta-1)*log1p(-t)-log1p(-(1-t)^theta)
-                      }else{
+                      } else {
                           theta/((1-t)^(1-theta)-(1-t))
                       }
                   },
                   ## density
 		  dacopula = function(u, theta, n.MC=0, method=eval(formals(polyJ)$method),
-                  log = FALSE){
+                  log = FALSE) {
                       if(!is.matrix(u)) u <- rbind(u)
                       if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       ## f() := NaN outside and on the boundary of the unit hypercube
                       res <- rep.int(NaN, n <- nrow(u))
                       n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
                       if(!any(n01)) return(res)
-                      if(theta == 1){ res[n01] <- if(log) 0 else 1; return(res) } # independence
+                      if(theta == 1) { res[n01] <- if(log) 0 else 1; return(res) } # independence
                       ## auxiliary results
                       u. <- u[n01,, drop=FALSE]
                       l1_u <- rowSums(log1p(-u.)) # log(1-u)
                       u.. <- (1-u.)^theta # (1-u)^theta
                       lh <- rowSums(log1p(-u..)) # rowSums(log(1-(1-u)^theta)) = log(h)
                       ## main part
-                      if(n.MC > 0){ # Monte Carlo
+                      if(n.MC > 0) { # Monte Carlo
                           V <- C.@V0(n.MC, theta)
                           l <- d*log(theta*V)
                           sum. <- (theta-1)*l1_u
@@ -631,7 +631,7 @@ copJoe <-
                           ## stably compute log(colMeans(exp(lx)))
                           lx <- l + (V-1) %*% t(lh) + sum.mat - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
                           res[n01] <- lsum(lx)
-                      }else{
+                      } else {
                           alpha <- 1/theta
                           l1_h <- log(-expm1(lh)) # log(1-h)
                           lh_l1_h <- lh - l1_h # log(h/(1-h))
@@ -642,7 +642,7 @@ copJoe <-
                       if(log) res else exp(res)
                   },
                   ## score function
-                  score = function(u, theta, method=eval(formals(polyJ)$method)){
+                  score = function(u, theta, method=eval(formals(polyJ)$method)) {
 	              if(!is.matrix(u)) u <- rbind(u)
 	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       l1_u <- rowSums(log1p(-u)) # log(1-u)
@@ -669,7 +669,7 @@ copJoe <-
                   ## V0 with density dV0 and V01 with density dV01 corresponding to
                   ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
 		  V0 = function(n,theta) rSibuya(n, 1/theta),
-		  dV0 = function(x,theta,log = FALSE){
+		  dV0 = function(x,theta,log = FALSE) {
                       if(log) lchoose(1/theta,x) else abs(choose(1/theta,x))
                   },
                   V01 = function(V0, theta0, theta1, approx = 10000) {
