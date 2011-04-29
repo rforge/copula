@@ -67,6 +67,20 @@ RR[,c(1:2,4:5),,]
 ## but here:
 apply(RR[,c("timeEstim","timeGOF"),,], c(4,1,2), mean)
 
+### Now do use the parametric bootstrap for better P-value:
+set.seed(11)
+##
+n <- 64    # small sample size
+d <- 5     # dimension
+tau <- 0.8 # Kendall's tau
+(theta <- copGumbel@tauInv(tau)) # == 5  [true parameter]
+
+R2 <- sapply(gofMeth, simplify="array", function(g)
+	     estimation.gof(n, d, copGumbel, tau = tau, n.MC = 0,
+			    n.bootstrap = 256,
+			    esti.method = "mle", gof.method = g))
+R2
+
 
 
 ## ==== MLE estimation by hand (for debugging purposes) ====
@@ -151,4 +165,3 @@ if(doPlot) {
             log = "xy", main = "K(t) [log-log scale]")
     legend("bottomright", legend=labs, lty=1:5, col=cols, bty="n")
 }
-

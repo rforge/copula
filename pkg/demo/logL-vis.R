@@ -17,10 +17,11 @@ require(nacopula)
 
 ##' @title [m]inus Log Likelihood for Archimedean copula "fast version"
 ##' @param theta parameter (length 1 for our current families)
-##' @param acop  Archimedean copula (of class "acopula")
-##' @param u    data matrix n x d
+##' @param acop Archimedean copula (of class "acopula")
+##' @param u data matrix n x d
 ##' @param n.MC if > 0 MC is applied with sample size equal to n.MC; otherwise,
 ##'        the exact formula is used
+##' @param ... potential further arguments, passed to <acop> @dacopula()
 ##' @return
 ##' @author Martin Maechler (Marius originally)
 mLogL <- function(theta, acop, u, n.MC=0, ...) { # -(log-likelihood)
@@ -43,7 +44,8 @@ curveLogL <- function(cop, u, xlim, main, XtrArgs=list(), ...) {
               length(cop@childCops) == 0# not yet *nested* A.copulas
               )
     acop <- cop@copula
-    th. <- acop@theta
+    th. <- acop@theta # the true theta
+    acop <- setTheta(acop, NA) # so it's clear, the true theta is not used below
     if(missing(main)) {
         tau. <- cop@copula@tau(th.)
         main <- substitute("Neg. Log Lik."~ -italic(l)(theta, UU) ~ TXT ~~
@@ -60,13 +62,18 @@ curveLogL <- function(cop, u, xlim, main, XtrArgs=list(), ...) {
                xlab = expression(theta),
                ylab = substitute(- log(L(theta, u, ~~ COP)), list(COP=acop@name)),
                ...)
-    axis(1, at = th., labels=expression(theta["*"]),
-         lwd=2, col="dark gray", tck = -1/30)
+    if(is.finite(th.))
+        axis(1, at = th., labels=expression(theta["*"]),
+             lwd=2, col="dark gray", tck = -1/30)
+    else warning("non-finite cop@copula@theta = ", th.)
     axis(1, at = paraOptInterval(u, acop@name),
          labels = FALSE, lwd = 2, col = 2, tck = 1/20)
     invisible(r)
 }
 
+
+
+###--------------------- "Joe" --- tau = 0.2 ---------------------------------
 
 n <- 200
 d <- 100
@@ -91,7 +98,6 @@ system.time(r1J  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="poly"),
                               add=TRUE, col=adjustcolor("red", .4)))
 system.time(r1m  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="log1p"),
                               add=TRUE, col=adjustcolor("blue",.5)))
-
 
 U2 <- rnacopula(n,cop)
 enacopula(U2, cop, "mle") # 1.4399  -- no warning any more
@@ -126,7 +132,7 @@ cop@copula@dacopula(U4[118,], theta=1.164, log = TRUE)
 ##  600.5926  (was Inf)
 ## now that we have  polyJ(...., log=TRUE)
 
-## Now a harder case:
+##--------------------- "Joe" --- harder cases: d = 150, tau = 0.3 -------------
 n <- 200
 d <- 150
 tau <- 0.3
@@ -136,8 +142,8 @@ U. <- rnacopula(n,cop)
 enacopula(U., cop, "mle") # 1.776743
 system.time(r. <- curveLogL(cop, U., c(1.1, 3)))
 ## still looks very good
-## and harder still
 
+##--------------------- "Joe" --- even harder: d = 180, tau = 0.4 -------------
 d <- 180
 tau <- 0.4
 (theta <- copJoe@tauInv(tau))# 2.219
@@ -166,7 +172,7 @@ system.time(r1 <- curveLogL(cop, U1, c(1, 2.1)))
 system.time(r2 <- curveLogL(cop, U2, c(1, 2.1)))
 system.time(r3 <- curveLogL(cop, U3, c(1, 2.1)))
 
-## Now a considerably tougher case :
+##--------------------- "Gumbel" ---  harder: d = 150, tau = 0.6 -------------
 d <- 150
 tau <- 0.6
 (theta <- copGumbel@tauInv(tau))# 2.5
@@ -197,3 +203,28 @@ mLogL(1.65, cG.5@copula, U4)# -23472.96
 
 dd <- cG.5@copula@dacopula(U4, 1.64, log = TRUE)
 summary(dd) ## no NaN's anymore
+
+###-------------------- "Frank" --- a case we found "hard": --------------------
+n <- 64
+d <- 5
+tau <- 0.8
+(theta <- copFrank@tauInv(tau))# 18.192
+(cop <- onacopulaL("Frank",list(theta,1:d)))
+set.seed(11) ## these seeds give no problem: 101, 41, 21
+U. <- rnacopula(n,cop)
+## forget the true theta:
+cop@copula <- setTheta(cop@copula, NA)
+emle(U., cop)## --> now fine: theta = 18.033 ,  Log-lik = 314.01
+
+## with MC :
+emle(U., cop, n.MC = 1e4)## takes a long time ... but then things are fine:
+## theta = 17.797
+
+cop@copula <- setTheta(cop@copula, theta)# for the plot:
+r. <- curveLogL(cop, U., c(1, 200))
+## now looks fine (well, "paraOptInterval" not really ..) -- with finite values much longer..
+## but still has -Inf: at end:
+tail(as.data.frame(r.), 15)
+if(FALSE) ## not yet :
+    stopifnot( is.finite( min(r.$y) ) )
+

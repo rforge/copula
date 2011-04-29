@@ -16,7 +16,9 @@
 require(nacopula)
 sessionInfo() # will change too often.. but if we need the info
 
-### ==== A faster, more testing version of demo(estimation.gof) : ==============
+### ==== A faster, more testing version of  demo(estimation.gof)  ==============
+##					i.e., ../demo/estimation.gof.R :
+##					      ~~~~~~~~~~~~~~~~~~~~~~~~
 
 source(system.file("Rsource", "estim-gof-fn.R", package="nacopula"))
 ## --> estimation.gof() etc
@@ -31,7 +33,7 @@ n <- 100 # sample size -- small here for CPU reasons
 d <- 5 # dimension
 tau <- 0.2 # Kendall's tau
 
-## ==== apply all procedures (to data from AMH) =================
+## ==== apply all procedures (to data from AMH) ================================
 
 simFamily <- "AMH"
 cop <- getAcop(simFamily)
@@ -58,8 +60,22 @@ options(digits = 5)
 ## *Not* the times here:
 RR[,c(1:2,4:5),,]
 
-## but here:
-apply(RR[,c("timeEstim","timeGOF"),,], c(4,1,2), mean)
+### Now do use the parametric bootstrap for better P-value:
+set.seed(11)
+##
+n <- 64    # small sample size
+d <- 5     # dimension
+tau <- 0.8 # Kendall's tau
+(theta <- copGumbel@tauInv(tau)) # == 5  [true parameter]
+
+## now [2011-04-29] should work: if(FALSE) { ## BUG -- FIXME -- emle() fails for Frank here !
+R2 <- sapply(gofMeth, simplify="array", function(g)
+	     estimation.gof(n, d, copGumbel, tau = tau, n.MC = 0,
+			    n.bootstrap = 256,
+			    esti.method = "mle", gof.method = g,
+                            checkFamilies = nacopula:::c_longNames[c("C","F","J", "G")]))
+R2
+## }
 
 cat('Time elapsed: ', proc.time(),'\n') # for ''statistical reasons''
 

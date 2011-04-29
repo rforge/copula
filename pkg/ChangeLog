@@ -1,3 +1,8 @@
+2011-04-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/special-func.R (polylog): introduce 'is.minus.log' so we can
+	get much more accurate Frank density for high correlation.
+
 2010-07-01  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Date): ready for CRAN submission

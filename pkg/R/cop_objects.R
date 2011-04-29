@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Marius Hofert and Martin Maechler
+## Copyright (C) 2010--2011  Marius Hofert and Martin Maechler
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -35,7 +35,7 @@ copAMH <-
                   ## parameter interval
                   paraInterval = interval("[0,1)"),
                   ## absolute value of generator derivatives
-		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE) {
+		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE, method = "negI-s-Stirling") {
                       if(n.MC > 0) {
                           psiDabsMC(t, family="AMH", theta=theta, degree=degree,
                                     n.MC=n.MC, log=log)
@@ -44,9 +44,9 @@ copAMH <-
                           ## Note: psiDabs(0, ...) is correct
                           t.et <- theta*exp(-t)
                           if(log)
-                              polylog(t.et, s = -degree, method = "neg", log=TRUE)+ log1p(-theta)-log(theta)
+                              polylog(t.et, s = -degree, method=method, log=TRUE)+ log1p(-theta)-log(theta)
                           else
-                              polylog(t.et, s = -degree, method = "neg")* (1-theta)/theta
+                              polylog(t.et, s = -degree, method=method)* (1-theta)/theta
                       }
                   },
                   ## derivatives of the generator inverse
@@ -58,7 +58,7 @@ copAMH <-
                       }
                   },
                   ## density
-		  dacopula = function(u, theta, n.MC=0, log=FALSE) {
+		  dacopula = function(u, theta, n.MC=0, log=FALSE, method = "negI-s-Stirling") {
                       if(!is.matrix(u)) u <- rbind(u)
                       if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       ## f() := NaN outside and on the boundary of the unit hypercube
@@ -79,7 +79,7 @@ copAMH <-
                           if(log) log(res) else res
                       } else { # explicit
                           Li.arg <- theta*apply(u./(1+u..), 1, prod)
-                          Li. <- polylog(Li.arg, s = -d, method = "neg", log=TRUE)
+                          Li. <- polylog(Li.arg, s = -d, method=method, log=TRUE)
                           res[n01] <- (d+1)*log1p(-theta)-log(theta)+Li.-sum.-sum..
                           if(log) res else exp(res)
                       }
@@ -92,8 +92,8 @@ copAMH <-
                       b <- rowSums(omu/(1-theta*omu))
                       h <- theta*apply(u/(1-theta*omu), 1, prod)
                       -(d+1)/(1-theta) - 1/theta + b + (b+1/theta) *
-                          polylog(h, s=-(d+1), method="neg") /
-                              polylog(h, s=-d, method="neg")
+                          polylog(h, s=-(d+1), method="negI-s-Stirling") /
+                              polylog(h, s=-d, method="negI-s-Stirling")
                   },
                   ## nesting constraint
                   nestConstr = function(theta0,theta1) {
@@ -265,7 +265,7 @@ copFrank <-
                   ## parameter interval
                   paraInterval = interval("(0,Inf)"),
                   ## absolute value of generator derivatives
-		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE) {
+		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE, method = "negI-s-Stirling") {
                       if(n.MC > 0) {
                           psiDabsMC(t, family="Frank", theta=theta, degree=degree,
                                     n.MC=n.MC, log=log)
@@ -273,9 +273,9 @@ copFrank <-
                           ## Note: psiDabs(0, ...) is correct
                           p <- -expm1(-theta)
                           if(log)
-                              polylog(p*exp(-t), s = -(degree-1), method = "neg", log=TRUE) - log(theta)
+                              polylog(p*exp(-t), s = -(degree-1), method=method, log=TRUE) - log(theta)
                           else
-                              polylog(p*exp(-t), s = -(degree-1), method = "neg")/theta
+                              polylog(p*exp(-t), s = -(degree-1), method=method)/theta
                       }
                   },
                   ## derivatives of the generator inverse
@@ -283,46 +283,51 @@ copFrank <-
                       if(log) log(theta)-log(expm1(theta*t)) else theta/expm1(theta*t)
                   },
                   ## density
-		  dacopula = function(u, theta, n.MC=0, log=FALSE) {
-                      if(!is.matrix(u)) u <- rbind(u)
-                      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-                      ## f() := NaN outside and on the boundary of the unit hypercube
-                      res <- rep.int(NaN, n <- nrow(u))
-                      n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
-                      if(!any(n01)) return(res)
-                      ## auxiliary results
-                      u. <- u[n01,, drop=FALSE]
-                      u.sum <- rowSums(u.)
-                      lp <- log1p(-exp(-theta)) # log(1-exp(-theta))
-                      lpu <- log1p(-exp(-theta*u.)) # log(1 - exp(-theta * u))
-                      lu <- rowSums(lpu)
-                      ## main part
-                      if(n.MC > 0) { # Monte Carlo
-                          V <- C.@V0(n.MC, theta)
-                          l <- d*(log(theta*V)-V*lp)
-                          rs <- -theta*u.sum
-                          lx <- rep(rs, each=n.MC) + l - log(n.MC) + (V-1) %*% t(lu) # (n.MC, nrow(u.))-matrix
-                          res[n01] <- lsum(lx)
-                          if(log) res else exp(res)
-                      } else { # explicit
-                          Li.arg <- -expm1(-theta)*exp(rowSums(lpu-lp))
-                          Li. <- polylog(Li.arg, s = -(d-1), method = "neg", log=TRUE)
-                          res[n01] <- (d-1)*log(theta) + Li. - theta*u.sum - lu
-                          if(log) res else exp(res)
-                      }
-                  },
+		  dacopula = function(u, theta, n.MC=0, log=FALSE, method = "negI-s-Stirling", Li.log.arg=TRUE)
+	      {
+		  if(!is.matrix(u)) u <- rbind(u)
+		  if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		  ## f() := NaN outside and on the boundary of the unit hypercube
+		  res <- rep.int(NaN, n <- nrow(u))
+		  n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
+		  if(!any(n01)) return(res)
+		  ## auxiliary results
+		  u. <- u[n01,, drop=FALSE]
+		  u.sum <- rowSums(u.)
+		  lp <- log1p(-exp(-theta)) # log(1-exp(-theta))
+		  lpu <- log1p(-exp(-theta*u.)) # log(1 - exp(-theta * u))
+		  lu <- rowSums(lpu)
+		  ## main part
+		  res[n01] <-
+		      if(n.MC > 0) { # Monte Carlo
+			  V <- C.@V0(n.MC, theta)
+			  l <- d*(log(theta*V)-V*lp)
+			  lx <- rep(-theta*u.sum, each=n.MC) + l - log(n.MC) + (V-1) %*% t(lu)
+					# (n.MC, nrow(u.))-matrix
+			  lsum(lx)
+		      } else { # explicit
+			  Li.arg <-
+			      if(Li.log.arg) lp + rowSums(lpu-lp)
+			      else -expm1(-theta)*exp(rowSums(lpu-lp))
+			  Li. <- polylog(Li.arg, s = -(d-1), log=TRUE,
+					 method=method, is.log.z = Li.log.arg)
+			  (d-1)*log(theta) + Li. - theta*u.sum - lu
+		      }
+		      if(log) res else exp(res)
+		  },
                   ## score function
                   score = function(u, theta) {
 	              if(!is.matrix(u)) u <- rbind(u)
 	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       e <- exp(-theta)
-                      e. <- 1-e # 1-e^{-theta}
-                      e.u <- exp(-theta*u) # exp(-theta*u)
-                      e.u. <- 1 - e.u # 1 - exp(-theta*u)
-                      h <- e.*apply(e./e.u, 1, prod)
-                      factor <- rowSums(u*e.u/e.u.) - (d-1)*e/e.
-                      (d-1)/theta - rowSums(u/e.u.) + factor *
-                          polylog(h, s=-d, method="neg") / polylog(h, s=-(d-1), method="neg")
+                      Ie <- -expm1(-theta) # == 1 - e == 1-e^{-theta}
+                      etu <- exp(mtu <- -theta*u) # exp(-theta*u)
+                      Ietu <- -expm1(mtu) ## = 1 - etu == 1 - exp(-theta*u)
+                      ## FIXME: allow 'Li.log.arg' -> psilog(*, is.log.z) as for dacopula() above
+                      h <- Ie*apply(Ie/etu, 1, prod)
+                      factor <- rowSums(u*etu/Ietu) - (d-1)*e/Ie
+                      (d-1)/theta - rowSums(u/Ietu) + factor *
+                          polylog(h, s=-d, method="negI-s-Stirling") / polylog(h, s=-(d-1), method="negI-s-Stirling")
                   },
                   ## nesting constraint
                   nestConstr = function(theta0,theta1) {
@@ -332,12 +337,14 @@ copFrank <-
                   ## V0 (algorithm of Kemp (1981)) with density dV0 and V01 with density
                   ## dV01 corresponding to LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
 		  V0 = function(n,theta) rlog(n, -expm1(-theta), exp(-theta)),
-		  dV0 = function(x,theta,log = FALSE) {
-                      if(any(x != (x <- floor(x + 0.5)))) warning("x must be integer; is rounded with floor(x+0.5) otherwise")
+		  dV0 = function(x,theta, log = FALSE) {
+		      if(any(x != (x. <- round(x)))) {
+                          x <- x.; warning("x has been rounded to integer")
+                      }
                       if(log) {
                           x*log1p(-exp(-theta))-log(x*theta)
                       } else {
-                          p <- 1-exp(-theta)
+                          p <- -expm1(-theta) # == 1-exp(-theta)
                           p^x/(x*theta)
                       }
                   },

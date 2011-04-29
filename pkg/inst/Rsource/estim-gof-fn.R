@@ -30,18 +30,23 @@ f.tms <- function(x) paste(round(x),"ms") # with a space (sep = " ") !
 ##' @param d dimension
 ##' @param simFamily Archimedean family to be sampled
 ##' @param tau degree of dependence of the sampled family in terms of Kendall's tau
+##' @param n.bootstrap
+##' @param include.K
 ##' @param n.MC if > 0 it denotes the sample size for SMLE
 ##' @param esti.method estimation method (see enacopula)
-##' @param gof.method  goodness-of-fit transformation (see gnacopula)
+##' @param gof.method goodness-of-fit transformation (see gnacopula)
 ##' @param checkFamilies vector of Archimedean families to be used for gof
 ##' @param verbose
+##' @param n.bootstrap, see gnacopula()
 ##' @return a numeric matrix ...
 ##' @author Marius Hofert and Martin Maechler
 estimation.gof <- function(n, d, simFamily, tau,
-                           n.MC = if(method=="smle") 10000 else 0,
-                           esti.method = eval(formals(enacopula)$method),
-                           gof.method = eval(formals(gnacopula)$method),
-                           checkFamilies = nacopula:::c_longNames, verbose = TRUE)
+			   n.bootstrap = 0, include.K = TRUE,
+			   n.MC = if(esti.method=="smle") 10000 else 0,
+			   esti.method = eval(formals(enacopula)$method),
+			   gof.method = eval(formals(gnacopula)$method),
+			   checkFamilies = nacopula:::c_longNames,
+			   verbose = TRUE)
 {
     ## generate data
     copFamily <- getAcop(simFamily)
@@ -59,7 +64,7 @@ estimation.gof <- function(n, d, simFamily, tau,
     gof.method <- match.arg(gof.method)
     n.cf <- length(checkFamilies)
     tau <- gof <- sig <- ute <- utg <- est <- numeric(n.cf)
-    for(k in 1:n.cf) {
+    for(k in seq_len(n.cf)) {
         ## estimate the parameter with the provided method
         cop.hat <- onacopulaL(checkFamilies[k],list(NA,1:d))
         if(verbose) cat("Estimation and GOF for ",checkFamilies[k],":\n\n",sep="")
@@ -74,15 +79,16 @@ estimation.gof <- function(n, d, simFamily, tau,
                 ## for 'R CMD Rdiff' to *not* look at differences there:
                 "Time estimation   = ",f.tms(ute[k]),"\n", sep="")
 	}
-       cop.hat@copula@theta <- est[k]
+	cop.hat@copula@theta <- est[k]
         ## apply a goodness-of-fit test to the estimated copula
         ## {{ use gnacopulatrafo() if you want the transformed u }}
-        utg[k] <- utms(gof[k] <-
-                       gnacopula(u, cop=cop.hat, n.bootstrap=0,
-	                         estimation.method=esti.method,
-                                 include.K = ncol(u)<=5, n.MC=n.MC, method=gof.method,
-                                 verbose = FALSE)$p.value)
-        sig[k] <- if(gof[k] < 0.05) 1 else 0
+	utg[k] <-
+	    utms(gof[k] <-
+		 gnacopula(u, cop=cop.hat, method = gof.method,
+			   estimation.method=esti.method,
+			   n.bootstrap=n.bootstrap, include.K=include.K,
+			   n.MC=n.MC, verbose = FALSE)$p.value)
+        sig[k] <- (gof[k] < 0.05) ## TRUE/FALSE <--> 1/0
         if(verbose){
             cat("   p-value        = ",r(gof[k]),"\n",
                 "   < 0.05         = ",if(sig[k]) "TRUE" else "FALSE","\n",
