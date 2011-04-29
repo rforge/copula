@@ -1,0 +1,392 @@
+## Copyright (C) 2010--2011 Marius Hofert and Martin Maechler
+##
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
+##
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
+
+#### Special Numeric Functions -- related to Archimedean Copulas
+#### -------------------------
+## ( where "other numeric utilities" in ./aux-acopula.R )
+
+##' @title Compute  f(a) = log(1 - exp(-a))  stably
+##' @param a numeric vector of positive values
+##' @param cutoff  log(2) is optimal, see  Maechler (201x) .....
+##' @return f(a)
+##' @author Martin Maechler, 13 May 2002
+log1exp <- function(a, cutoff = log(2)) ## << log(2) is optimal >>
+{
+    if(any(a <= 0)) stop("'a' > 0 needed")
+    r <- a
+    tst <- a <= cutoff
+    r[ tst] <- log(-expm1(-a[ tst]))
+    r[!tst] <- log1p(-exp(-a[!tst]))
+    r
+}
+
+##' The sign of choose(alpha*j,d)*(-1)^(d-j) vectorized in j
+##'
+##' @title The sign of choose(alpha*j,d)*(-1)^(d-j)
+##' @param alpha alpha in (0,1)
+##' @param j integer vector
+##' @param d integer
+##' @return sign(choose(alpha*j,d)*(-1)^(d-j))
+##' @author Marius Hofert
+sign.binom <- function(alpha, j, d) {
+    stopifnot(0 < alpha, alpha < 1) # for alpha == 1 this function is not correct
+    res <- numeric(length(j))
+    x <- alpha*j
+    nint <- x != floor(x) # TRUE iff not integer
+    res[nint] <- (-1)^(j[nint]-ceiling(x[nint]))
+    res
+}
+
+##' Properly compute log(x_1 + .. + x_n) for a given matrix of column vectors
+##' log(x_1),..,log(x_n)
+##'
+##' @title Properly compute the logarithm of a sum
+##' @param lx (d,n)-matrix containing the column vectors log(x_1),..,log(x_n)
+##'        each of dimension d
+##' @param l.off the offset to substract and re-add; ideally in the order of max(.)
+##' @return log(x_1 + .. + x_n) computed via
+##'         log(sum(x)) = log(sum(exp(log(x))))
+##'         = log(exp(log(x_max))*sum(exp(log(x)-log(x_max))))
+##'         = log(x_max) + log(sum(exp(log(x)-log(x_max)))))
+##'         = lx.max + log(sum(exp(lx-lx.max)))
+##' @author Marius Hofert (implementation), Martin Maechler (concept)
+lsum <- function(lx, l.off = apply(lx, 2, max)) {
+    stopifnot(is.matrix(lx)) # do not use cbind or rbind here, since it is not clear if the user specified only one vector log(x) or several vectors of dimension 1 !!!
+    l.off + log(colSums(exp(lx - rep(l.off, each=nrow(lx)))))
+}
+
+##' Properly compute log(-+x_1 -+ .. -+ x_n) for a given matrix of column vectors
+##' log(|x_1|),.., log(|x_n|) and corresponding signs sign(x_1),.., sign(x_n)
+##'
+##' @title Properly compute the logarithm of a sum with signed coefficients
+##' @param lxabs (d,n)-matrix containing the column vectors log(|x_1|),..,log(|x_n|)
+##'        each of dimension d
+##' @param signs corresponding matrix of signs sign(x_1), .., sign(x_n)
+##' @param l.off the offset to substract and re-add; ideally in the order of max(.)
+##' @param strict logical indicating if it should stop on some negative sums
+##' @return log(x_1 + .. + x_n) computed via
+##'         log(sum(x)) = log(sum(signs*exp(log(|x|))))
+##'         = log(exp(log(|x|_max))*sum(signs*exp(log(|x|)-log(|x|_max))))
+##'         = log(|x|_max) + log(sum(signs*exp(log(|x|)-log(|x|_max)))))
+##'         = lxabs.max + log(sum(signs*exp(lxabs-lxabs.max)))
+##' @author Marius Hofert and Martin Maechler
+lssum <- function (lxabs, signs, l.off = apply(lxabs, 2, max), strict = TRUE) {
+    stopifnot(is.matrix(lxabs))
+    sum. <- colSums(signs * exp(lxabs - rep(l.off, each=nrow(lxabs))))
+    if (any(is.nan(sum.) || sum. <= 0))
+        (if(strict) stop else warning)("lssum found non-positive sums")
+    l.off + log(sum.)
+}
+
+
+##' Compute Stirling numbers of the 1st kind
+##'
+##' s(n,k) = (-1)^{n-k} times
+##' the number of permutations of 1,2,…,n with exactly k cycles
+##'
+##' NIST DLMF 26.8 --> http://dlmf.nist.gov/26.8
+##'
+##' @title  Stirling Numbers of the 1st Kind
+##' @param n
+##' @param k
+##' @return s(n,k)
+##' @author Martin Maechler
+Stirling1 <- function(n,k)
+{
+    ## NOTA BENE: There's no "direct" method available here
+    stopifnot(length(n) == 1, length(k) == 1)
+    if (k < 0 || n < k) stop("'k' must be in 0..n !")
+    if(n == 0) return(1)
+    if(k == 0) return(0)
+    S1 <- function(n,k) {
+        if(k == 0 || n < k) return(0)
+        if(is.na(S <- St[[n]][k])) {
+            ## s(n,k) = s(n-1,k-1) - (n-1) * s(n-1,k) for all n, k >= 0
+            St[[n]][k] <<- S <- if(n1 <- n-1L)
+                S1(n1, k-1) - n1* S1(n1, k) else 1
+        }
+        S
+    }
+    if(compute <- (nt <- length(St <- get("S1.tab", .nacopEnv))) < n) {
+        ## extend the "table":
+        length(St) <- n
+        for(i in (nt+1L):n) St[[i]] <- rep.int(NA_real_, i)
+    }
+    else compute <- is.na(S <- St[[n]][k])
+    if(compute) {
+        S <- S1(n,k)
+        ## store it back:
+        assign("S1.tab", St, envir = .nacopEnv)
+    }
+    S
+}
+
+##' Full Vector of Stirling Numbers of the 1st Kind
+##'
+##' @title  Stirling1(n,k) for all k = 1..n
+##' @param n
+##' @return the same as sapply(1:n, Stirling1, n=n)
+##' @author Martin Maechler
+Stirling1.all <- function(n)
+{
+    stopifnot(length(n) == 1)
+    if(!n) return(numeric(0))
+    if(get("S1.full.n", .nacopEnv) < n) {
+        assign("S1.full.n", n, envir = .nacopEnv)
+        unlist(lapply(seq_len(n), Stirling1, n=n))# which fills "S1.tab"
+    }
+    else get("S1.tab", .nacopEnv)[[n]]
+}
+
+##' Compute Stirling numbers of the 2nd kind
+##'
+##' S^{(k)}_n = number of ways of partitioning a set of $n$ elements into $k$
+##'	non-empty subsets
+##' (Abramowitz/Stegun: 24,1,4 (p. 824-5 ; Table 24.4, p.835)
+##'   Closed Form : p.824 "C."
+##'
+##' @title  Stirling Numbers of the 2nd Kind
+##' @param n
+##' @param k
+##' @param method
+##' @return S(n,k) = S^{(k)}_n
+##' @author Martin Maechler, "direct": May 28 1992
+Stirling2 <- function(n,k, method = c("lookup.or.store","direct"))
+{
+    stopifnot(length(n) == 1, length(k) == 1)
+    if (k < 0 || n < k) stop("'k' must be in 0..n !")
+    method <- match.arg(method)
+    switch(method,
+           "direct" = {
+               sig <- rep(c(1,-1)*(-1)^k, length.out= k+1) # 1 for k=0; -1 1 (k=1)
+               k <- 0:k # (!)
+               ga <- gamma(k+1)
+               round(sum( sig * k^n /(ga * rev(ga))))
+           },
+           "lookup.or.store" = {
+               if(n == 0) return(1) ## else:
+               if(k == 0) return(0)
+               S2 <- function(n,k) {
+                   if(k == 0 || n < k) return(0)
+                   if(is.na(S <- St[[n]][k]))
+                       ## S(n,k) = S(n-1,k-1) + k * S(n-1,k)   for all n, k >= 0
+                       St[[n]][k] <<- S <- if(n1 <- n-1L)
+                           S2(n1, k-1) + k* S2(n1, k) else 1 ## n = k = 1
+                   S
+               }
+               if(compute <- (nt <- length(St <- get("S2.tab", .nacopEnv))) < n) {
+                   ## extend the "table":
+                   length(St) <- n
+                   for(i in (nt+1L):n) St[[i]] <- rep.int(NA_real_, i)
+               }
+               else compute <- is.na(S <- St[[n]][k])
+               if(compute) {
+                   S <- S2(n,k)
+                   ## store it back:
+                   assign("S2.tab", St, envir = .nacopEnv)
+               }
+               S
+           })
+}
+
+##' Full Vector of Stirling Numbers of the 2nd Kind
+##'
+##' @title  Stirling2(n,k) for all k = 1..n
+##' @param n
+##' @return the same as sapply(1:n, Stirling2, n=n)
+##' @author Martin Maechler
+Stirling2.all <- function(n)
+{
+    stopifnot(length(n) == 1)
+    if(!n) return(numeric(0))
+    if(get("S2.full.n", .nacopEnv) < n) {
+        assign("S2.full.n", n, envir = .nacopEnv)
+        unlist(lapply(seq_len(n), Stirling2, n=n))# which fills "S2.tab"
+    }
+    else get("S2.tab", .nacopEnv)[[n]]
+}
+
+
+##' Compute Eulerian numbers (German "Euler Zahlen")  A(n,k)
+##'
+##' A(n,k) = number of permutations of n with exactly  k ascents (or k descents)
+##' --> http://dlmf.nist.gov/26.14
+##'
+##' @title Eulerian Numbers
+##' @param n
+##' @param k
+##' @param method
+##' @return A(n,k) = < n \\ k >
+##' @author Martin Maechler, April 2011
+Eulerian <- function(n,k, method = c("lookup.or.store","direct"))
+{
+    stopifnot(length(n) == 1, length(k) == 1)
+    if(k < 0 || n < k) stop("'k' must be in 0..n !")
+    if(n && k == n) return(0)
+    ## have  __ 0 <= k < n __
+    method <- match.arg(method)
+    switch(method,
+	   "direct" = { ## CARE! suffers from cancellation, already for n=60
+	       if(k == 0) return(1)
+	       if(k == n) return(0)
+	       ## else 0 <= k < n >= 2
+	       ## http://dlmf.nist.gov/26.14.E9 :  A(n,k) = A(n, n-1-k),  n >= 1
+	       if(k >= (n+1)%/% 2) k <- n-(k+1L)
+	       k1 <- k+1L
+	       sig <- rep(c(1,-1), length.out = k1) # 1 for k=0; 1 -1 (k=1), ...
+	       round(sum( sig * choose(n+1, 0:k) * (k1:1L)^n ))
+	   },
+	   "lookup.or.store" = {
+	       Eul <- function(n,k) {
+		   ## Quick return for those that are *not* stored:
+		   if(k < 0 || k > n || (0 < n && n == k)) return(0)
+		   if(n == 0) return(1)
+		   ## now -- 0 <= k < n -- are stored
+		   if(is.na(r <- E.[[n]][k1 <- k+1L])) ## compute it (via recursion)
+		       ## A(n,k) = (k+1)* A(n-1,k) + (n-k)*A(n-1,k-1)	for n >= 2, k >= 0
+		       ## http://dlmf.nist.gov/26.14.E8
+		       E.[[n]][k1] <<- r <- if(n1 <- n-1L)
+			   k1*Eul(n1, k)+ (n-k)* Eul(n1, k-1) else 1 ## n=1, k=0
+		   r
+	       }
+	       if(compute <- (nt <- length(E. <- get("Eul.tab", .nacopEnv))) < n) {
+		   ## extend the "table":
+		   length(E.) <- n
+		   for(i in (nt+1L):n) E.[[i]] <- rep.int(NA_real_, i)
+	       }
+	       else compute <- is.na(E <- E.[[n]][k+1L])
+	       if(compute) {
+		   E <- Eul(n,k)
+		   ## store it back:
+		   assign("Eul.tab", E., envir = .nacopEnv)
+	       }
+	       E
+	   })
+}
+
+##' Full Vector of Eulerian Numbers == row of Euler triangle
+##'
+##' @title Eulerian(n,k) for all k = 0..n-1
+##' @param n
+##' @return (for n >= 1), the same as sapply(0:(n-1), Eulerian, n=n)
+##' @author Martin Maechler, April 2011
+Eulerian.all <- function(n)
+{
+    stopifnot(length(n) == 1, n >= 0)
+    if(!n) return(1)
+    if(get("Eul.full.n", .nacopEnv) < n) {
+	assign("Eul.full.n", n, envir = .nacopEnv)
+	unlist(lapply(0:(n-1L), Eulerian, n=n))# which fills "Eul.tab"
+    }
+    else get("Eul.tab", .nacopEnv)[[n]]
+}
+
+## Our environment for tables etc:  no hash, as it will contain *few* objects:
+.nacopEnv <- new.env(parent=emptyenv(), hash=FALSE)
+assign("S2.tab", list(), envir = .nacopEnv) ## S2.tab[[n]][k] == S(n, k)
+assign("S1.tab", list(), envir = .nacopEnv) ## S1.tab[[n]][k] == s(n, k)
+assign("S2.full.n", 0  , envir = .nacopEnv)
+assign("S1.full.n", 0  , envir = .nacopEnv)
+assign("Eul.tab", list(), envir = .nacopEnv) ## Eul.tab[[n]][k] == A(n, k) == < n \\ k > (Eulerian)
+assign("Eul.full.n", 0	, envir = .nacopEnv)
+
+
+##' From   http://en.wikipedia.org/wiki/Polylogarithm
+##' 1. For integer values of the polylogarithm order, the following
+##'   explicit expressions are obtained by repeated application of z·∂/∂z
+##'   to Li1(z):
+##' ---
+##'     {Li}_{1}(z) = -\ln(1-z)
+##'     {Li}_{0}(z) = {z \over 1-z}
+##'     {Li}_{-1}(z) = {z \over (1-z)^2}
+##'     {Li}_{-2}(z) = {z \,(1+z) \over (1-z)^3}
+##'     {Li}_{-3}(z) = {z \,(1+4z+z^2) \over (1-z)^4}
+##'     {Li}_{-4}(z) = {z \,(1+z) (1+10z+z^2) \over (1-z)^5}.
+##' ---
+##' Accordingly the polylogarithm reduces to a ratio of polynomials in
+##' z, and is therefore a rational function of z, for all nonpositive
+##' integer orders. The general case may be expressed as a finite sum:
+##' ---
+##' {Li}_{-n}(z) = \left(z \,{\partial \over \partial z} \right)^n \frac{z}{1-z}=
+##'     = \sum_{k=0}^n k! \,S(n+1,k+1) \left({z \over {1-z}} \right)^{k+1}
+##' \ \ (n=0,1,2,\ldots),
+##' ---
+##' where S(n,k) are the Stirling numbers of the second kind.
+##' Equivalent formulae applicable to negative integer orders are
+##' (Wood 1992, § 6):
+##' ---
+##'  {Li}_{-n}(z) = (-1)^{n+1} \sum_{k=0}^n k! S(n+1,k+1) (\frac{-1}{1-z})^{k+1} \
+##'     (n=1,2,3,\ldots),
+##'
+##' Compute the polylogarithm function \eqn{Li_s(z)}
+##'
+##' @title Polylogarithm Li_s(z)
+##' @param z numeric or complex vector
+##' @param s complex number; current implementation is aimed at s \in 0,-1,..
+##' @param method a string specifying the algorithm to be used
+##' @param logarithm logical specifying to return log(Li.(.)) instead of Li.(.)
+##' @param is.log.z logical; if TRUE, the specified 'z' argument is really  w = log(z);
+##' 	i.e., compute  Li_s(exp(w))  {and we typically have w < 0  <==> z < 1}
+##' @param n.sum  for "sum"--this is more for experiments etc
+##' @return numeric/complex vector as \code{z}
+##' @author Martin Maechler
+polylog <- function(z, s, method = c("sum", "negI-s-Stirling", "negI-s-Eulerian"),
+		    logarithm = FALSE, is.log.z = FALSE,
+		    ## for "sum" -- this is more for experiments etc:
+		    n.sum)
+{
+    if((nz <- length(z)) == 0 || (ns <- length(s)) == 0)
+	return((z+s)[FALSE])# of length 0
+    stopifnot(length(s) == 1) # for now
+    method <- match.arg(method)
+    if(is.log.z)# z = e^{w}
+	z <- exp(w <- z)
+
+    if(method == "sum") {
+	stopifnot((Mz <- Mod(z)) <= 1, Mz < 1 | Re(s) > 1,
+		  n.sum > 99, length(n.sum) == 1)
+	p <- polynEval((1:n.sum)^-s, z)
+	if(logarithm) (if(is.log.z) w else log(z)) +log(p) else z*p
+    } else {
+	## s is integer in {1, 0, -1, -2, ....}
+	stopifnot(s == as.integer(s), s <= 1)
+	if(s == 1) { ## result = -log(1 -z) = -log(1 - exp(w)) = -log1exp(-w)
+	    r <- if(is.log.z) -log1exp(-w) else -log1p(-z)
+	    return(if(logarithm) log(r) else r)
+	}
+	## s <= 0:
+	switch(method,
+	       "negI-s-Stirling" = {
+		   ## i.z := (1 - z) = 1 - exp(w)
+		   i.z <- if(is.log.z) -expm1(w) else (1 - z)
+		   r <- z/i.z ## = z/(1 - z)
+		   ## if(s == 0) return(r)
+		   n <- -as.integer(s)
+		   ## k1 <- seq_len(n+1)# == k+1, k = 0...n
+		   fac.k <- cumprod(c(1, seq_len(n)))
+		   S.n1.k1 <- Stirling2.all(n+1) ## == Stirling2(n+1, k+1)
+		   p <- polynEval(fac.k * S.n1.k1, r)
+		   ## log(r) = log(z / (1-z)) = logit(z) = qlogis(z),  and if(is.log.z)
+		   ##	log(r) = log(z / (1-z)) = log(z) - log(1-z) = w - log(1-exp(w)) =
+		   ##	       = w - log1exp(-w)
+		   if(logarithm) log(p) + if(is.log.z) w - log1exp(-w) else qlogis(z)
+		   else r*p
+	       },
+	       "negI-s-Eulerian" = {
+### FIXME:  use MM's super-duper formula, notably for small w
+	       },
+	       stop("unsupported method ", method))
+    }
+}

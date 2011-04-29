@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Marius Hofert and Martin Maechler
+## Copyright (C) 2010--2011 Marius Hofert and Martin Maechler
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -273,23 +273,6 @@ rFFrank <- function(n, theta0, theta1, rej)
 
 
 ### ==== Gumbel ================================================================
-
-##' The sign of choose(alpha*j,d)*(-1)^(d-j) vectorized in j
-##'
-##' @title The sign of choose(alpha*j,d)*(-1)^(d-j)
-##' @param alpha alpha in (0,1)
-##' @param j vector
-##' @param d number
-##' @return sign(choose(alpha*j,d)*(-1)^(d-j))
-##' @author Marius Hofert
-sign.binom <- function(alpha, j, d) {
-    stopifnot(0 < alpha, alpha < 1) # for alpha == 1 this function is not correct
-    res <- rep(0, length(j))
-    x <- alpha*j
-    nint <- x != floor(x) # TRUE iff not integer
-    res[nint] <- (-1)^(j[nint]-ceiling(x[nint]))
-    res
-}
 
 ### ==== compute the coefficients for polyG ====
 
@@ -648,7 +631,7 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 ##' @return p_{xn} = \sum_{j=1}^n choose(n,j)*choose(alpha*j,x)*(-1)^(x-j)
 ##'         which is a probability mass function in x on IN with generating function
 ##'         g(z) = (1-(1-z)^alpha)^n
-##' @author Marius Hofert
+##' @author Marius Hofert and Martin Maechler
 ##' note: - p_{xn} = 0 for x < n; p_{nn} = alpha^n
 ##'       - numerically challenging, e.g., dsumSibuya(100, 96, 0.01) < 0 for all methods
 dsumSibuya <- function(x, n, alpha,
@@ -673,8 +656,9 @@ dsumSibuya <- function(x, n, alpha,
 	   "log" =
        {
 	   ## computes *proper* log based on lssum
-	   ## determine the matrix of signs of (alpha*j,x)*(-1)^(x-j),
-	   ## j in {1,..,m} -- NB: does not depend on x !
+
+	   ## determine the matrix of signs of choose(alpha*j,x)*(-1)^(x-j),
+	   ## j in {1,..,m} -- which notably do *not* depend on x !
 	   m <- max(n)
 	   signs <- unlist(lapply(1:m, function(j) {
 	       z <- alpha*j
@@ -809,258 +793,6 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE) 
                if(log) log(res) else res
            },
        {stop(sprintf("unsupported method '%s' in polyJ", method))})
-}
-
-### ==== other numeric utilities ===============================================
-
-##' Properly compute log(x_1 + .. + x_n) for a given matrix of column vectors
-##' log(x_1),..,log(x_n)
-##'
-##' @title Properly compute the logarithm of a sum
-##' @param lx (d,n)-matrix containing the column vectors log(x_1),..,log(x_n)
-##'        each of dimension d
-##' @param l.off the offset to substract and re-add; ideally in the order of max(.)
-##' @return log(x_1 + .. + x_n) computed via
-##'         log(sum(x)) = log(sum(exp(log(x))))
-##'         = log(exp(log(x_max))*sum(exp(log(x)-log(x_max))))
-##'         = log(x_max) + log(sum(exp(log(x)-log(x_max)))))
-##'         = lx.max + log(sum(exp(lx-lx.max)))
-##' @author Marius Hofert
-lsum <- function(lx, l.off = apply(lx, 2, max)) {
-    stopifnot(is.matrix(lx)) # do not use cbind or rbind here, since it is not clear if the user specified only one vector log(x) or several vectors of dimension 1 !!!
-    res <- l.off + log(colSums(exp(lx - rep(l.off, each=nrow(lx)))))
-    if (is.vector(res)) names(res) <- NULL
-    res
-}
-
-##' Properly compute log(-+x_1 -+ .. -+ x_n) for a given matrix of column vectors
-##' log(|x_1|),.., log(|x_n|) and corresponding signs sign(x_1),.., sign(x_n)
-##'
-##' @title Properly compute the logarithm of a sum with signed coefficients
-##' @param lxabs (d,n)-matrix containing the column vectors log(|x_1|),..,log(|x_n|)
-##'        each of dimension d
-##' @param signs corresponding matrix of signs sign(x_1), .., sign(x_n)
-##' @param l.off the offset to substract and re-add; ideally in the order of max(.)
-##' @param strict logical indicating if it should stop on some negative sums
-##' @return log(x_1 + .. + x_n) computed via
-##'         log(sum(x)) = log(sum(signs*exp(log(|x|))))
-##'         = log(exp(log(|x|_max))*sum(signs*exp(log(|x|)-log(|x|_max))))
-##'         = log(|x|_max) + log(sum(signs*exp(log(|x|)-log(|x|_max)))))
-##'         = lxabs.max + log(sum(signs*exp(lxabs-lxabs.max)))
-##' @author Marius Hofert and Martin Maechler
-lssum <- function (lxabs, signs, l.off = apply(lxabs, 2, max), strict = TRUE) {
-    stopifnot(is.matrix(lxabs))
-    sum. <- colSums(signs * exp(lxabs - rep(l.off, each=nrow(lxabs))))
-    if (any(is.nan(sum.) || sum. <= 0))
-        if (strict)
-            stop("lssum found non-positive sums")
-        else warning("lssum found non-positive sums")
-    res <- l.off + log(sum.)
-    if (is.vector(res)) names(res) <- NULL
-    res
-}
-
-##' Compute Stirling numbers of the 1st kind
-##'
-##' s(n,k) = (-1)^{n-k} times
-##' the number of permutations of 1,2,…,n with exactly k cycles
-##'
-##' NIST DLMF 26.8 --> http://dlmf.nist.gov/26.8
-##'
-##' @title  Stirling Numbers of the 1st Kind
-##' @param n
-##' @param k
-##' @return s(n,k)
-##' @author Martin Maechler
-Stirling1 <- function(n,k)
-{
-    ## NOTA BENE: There's no "direct" method available here
-    stopifnot(length(n) == 1, length(k) == 1)
-    if (k < 0 || n < k) stop("'k' must be in 0..n !")
-    if(n == 0) return(1)
-    if(k == 0) return(0)
-    S1 <- function(n,k) {
-        if(k == 0 || n < k) return(0)
-        if(is.na(S <- St[[n]][k])) {
-            ## s(n,k) = s(n-1,k-1) - (n-1) * s(n-1,k) for all n, k >= 0
-            St[[n]][k] <<- S <- if(n1 <- n-1L)
-                S1(n1, k-1) - n1* S1(n1, k) else 1
-        }
-        S
-    }
-    if(compute <- (nt <- length(St <- get("S1.tab", .nacopEnv))) < n) {
-        ## extend the "table":
-        length(St) <- n
-        for(i in (nt+1L):n) St[[i]] <- rep.int(NA_real_, i)
-    }
-    else compute <- is.na(S <- St[[n]][k])
-    if(compute) {
-        S <- S1(n,k)
-        ## store it back:
-        assign("S1.tab", St, envir = .nacopEnv)
-    }
-    S
-}
-
-##' Full Vector of Stirling Numbers of the 1st Kind
-##'
-##' @title  Stirling1(n,k) for all k = 1..n
-##' @param n
-##' @return the same as sapply(1:n, Stirling1, n=n)
-##' @author Martin Maechler
-Stirling1.all <- function(n)
-{
-    stopifnot(length(n) == 1)
-    if(!n) return(numeric(0))
-    if(get("S1.full.n", .nacopEnv) < n) {
-        assign("S1.full.n", n, envir = .nacopEnv)
-        unlist(lapply(seq_len(n), Stirling1, n=n))
-    }
-    else get("S1.tab", .nacopEnv)[[n]]
-}
-
-##' Compute Stirling numbers of the 2nd kind
-##'
-##' S^{(k)}_n = number of ways of partitioning a set of $n$ elements into $k$
-##'	non-empty subsets
-##' (Abramowitz/Stegun: 24,1,4 (p. 824-5 ; Table 24.4, p.835)
-##'   Closed Form : p.824 "C."
-##'
-##' @title  Stirling Numbers of the 2nd Kind
-##' @param n
-##' @param k
-##' @param method
-##' @return S(n,k) = S^{(k)}_n
-##' @author Martin Maechler, "direct": May 28 1992
-Stirling2 <- function(n,k, method = c("lookup.or.store","direct"))
-{
-    stopifnot(length(n) == 1, length(k) == 1)
-    if (k < 0 || n < k) stop("'k' must be in 0..n !")
-    method <- match.arg(method)
-    switch(method,
-           "direct" = {
-               sig <- rep(c(1,-1)*(-1)^k, length= k+1) # 1 for k=0; -1 1 (k=1)
-               k <- 0:k # (!)
-               ga <- gamma(k+1)
-               round(sum( sig * k^n /(ga * rev(ga))))
-           },
-           "lookup.or.store" = {
-               if(n == 0) return(1) ## else:
-               if(k == 0) return(0)
-               S2 <- function(n,k) {
-                   if(k == 0 || n < k) return(0)
-                   if(is.na(S <- St[[n]][k]))
-                       ## S(n,k) = S(n-1,k-1) + k * S(n-1,k)   for all n, k >= 0
-                       St[[n]][k] <<- S <- if(n1 <- n-1L)
-                           S2(n1, k-1) + k* S2(n1, k) else 1 ## n = k = 1
-                   S
-               }
-               if(compute <- (nt <- length(St <- get("S2.tab", .nacopEnv))) < n) {
-                   ## extend the "table":
-                   length(St) <- n
-                   for(i in (nt+1L):n) St[[i]] <- rep.int(NA_real_, i)
-               }
-               else compute <- is.na(S <- St[[n]][k])
-               if(compute) {
-                   S <- S2(n,k)
-                   ## store it back:
-                   assign("S2.tab", St, envir = .nacopEnv)
-               }
-               S
-           })
-}
-
-##' Full Vector of Stirling Numbers of the 2nd Kind
-##'
-##' @title  Stirling2(n,k) for all k = 1..n
-##' @param n
-##' @return the same as sapply(1:n, Stirling2, n=n)
-##' @author Martin Maechler
-Stirling2.all <- function(n)
-{
-    stopifnot(length(n) == 1)
-    if(!n) return(numeric(0))
-    if(get("S2.full.n", .nacopEnv) < n) {
-        assign("S2.full.n", n, envir = .nacopEnv)
-        unlist(lapply(seq_len(n), Stirling2, n=n))
-    }
-    else get("S2.tab", .nacopEnv)[[n]]
-}
-
-## Our environment for tables etc:  no hash, as it will contain *few* objects:
-.nacopEnv <- new.env(parent=emptyenv(), hash=FALSE)
-assign("S2.tab", list(), envir = .nacopEnv) ## S2.tab[[n]][k] == S(n, k)
-assign("S1.tab", list(), envir = .nacopEnv) ## S1.tab[[n]][k] == s(n, k)
-assign("S2.full.n", 0  , envir = .nacopEnv)
-assign("S1.full.n", 0  , envir = .nacopEnv)
-
-
-##' From   http://en.wikipedia.org/wiki/Polylogarithm
-##' 1. For integer values of the polylogarithm order, the following
-##'   explicit expressions are obtained by repeated application of z·∂/∂z
-##'   to Li1(z):
-##' ---
-##'     {Li}_{1}(z) = -\ln(1-z)
-##'     {Li}_{0}(z) = {z \over 1-z}
-##'     {Li}_{-1}(z) = {z \over (1-z)^2}
-##'     {Li}_{-2}(z) = {z \,(1+z) \over (1-z)^3}
-##'     {Li}_{-3}(z) = {z \,(1+4z+z^2) \over (1-z)^4}
-##'     {Li}_{-4}(z) = {z \,(1+z) (1+10z+z^2) \over (1-z)^5}.
-##' ---
-##' Accordingly the polylogarithm reduces to a ratio of polynomials in
-##' z, and is therefore a rational function of z, for all nonpositive
-##' integer orders. The general case may be expressed as a finite sum:
-##' ---
-##' {Li}_{-n}(z) = \left(z \,{\partial \over \partial z} \right)^n \frac{z}{1-z}=
-##'     = \sum_{k=0}^n k! \,S(n+1,k+1) \left({z \over {1-z}} \right)^{k+1}
-##' \ \ (n=0,1,2,\ldots),
-##' ---
-##' where S(n,k) are the Stirling numbers of the second
-##' kind. Equivalent formulae applicable to negative integer orders are
-##' (Wood 1992, § 6):
-##' ---
-##'  {Li}_{-n}(z) = (-1)^{n+1} \sum_{k=0}^n k! \,S(n+1,k+1) \left({{-1} \over {1-z}} \right)^{k+1} \
-##'     (n=1,2,3,\ldots),
-##'
-##' Compute the polylogarithm function \eqn{Li_s(z)}
-##'
-##' @title Polylogarithm Li_s(z)
-##' @param z numeric or complex vector
-##' @param s complex number; current implementation is aimed at s \in 0,-1,..
-##' @param method a string specifying the algorithm to be used
-##' @param logarithm
-##' @return numeric/complex vector as \code{z}
-##' @author Martin Maechler
-polylog <- function(z,s, method = c("sum","negint-s_Stirling"), logarithm=FALSE,
-                    ## for "sum" -- this is more for experiments etc:
-                    n.sum)
-{
-    if((nz <- length(z)) == 0 || (ns <- length(s)) == 0)
-        return((z+s)[FALSE])# of length 0
-    stopifnot(length(s) == 1) # for now
-    method <- match.arg(method)
-    switch(method,
-           "sum" = {
-               stopifnot((Mz <- Mod(z)) <= 1, Mz < 1 | Re(s) > 1,
-                         n.sum > 99, length(n.sum) == 1)
-               if(logarithm)
-                   log(z)+log(polynEval((1:n.sum)^-s, z))
-               else z*polynEval((1:n.sum)^-s, z)
-           },
-           "negint-s_Stirling" = {
-               stopifnot(s == as.integer(s), s <= 1)
-               if(s == 1) return(-log1p(-z)) ## -ln(1 -z)
-               r <- z/(1 - z)
-               ## if(s == 0) return(r)
-               n <- -as.integer(s)
-               ## k1 <- seq_len(n+1)# == k+1, k = 0...n
-               fac.k <- cumprod(c(1, seq_len(n)))
-               S.n1.k1 <- Stirling2.all(n+1) ## == Stirling2(n+1, k+1)
-               if(logarithm)
-                   log(r)+ log(polynEval(fac.k * S.n1.k1, r))
-               else r* polynEval(fac.k * S.n1.k1, r)
-           },
-           stop("unsupported method ", method))
 }
 
 ### ==== other NON-numerics ====================================================
