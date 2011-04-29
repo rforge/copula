@@ -19,11 +19,13 @@ gnacopula(u, cop, n.bootstrap = 0,
 gnacopulatrafo(u, cop, include.K = TRUE, n.MC = 0)
 }
 \arguments{
-  \item{u}{(pseudo) data matrix, of values in \eqn{[0,1]}.}
+  \item{u}{numeric (pseudo data) matrix, of values in \eqn{[0,1]}.  Consider
+    using \code{gnacopula(\link{pobs}(x), ....)} for your data \code{x}.}
   \item{cop}{\code{"\linkS4class{outer_nacopula}"}, for
     \code{gnacopula()} with specified \eqn{H_0}{H0} parameters.}
   \item{n.bootstrap}{number of bootstrap replications.}
-  \item{estimation.method}{estimation method, see \code{\link{enacopula}}.}
+  \item{estimation.method}{estimation method, a \code{\link{character}}
+    string, see \code{\link{enacopula}}.}
   \item{include.K}{logical indicating whether the last component,
     \eqn{K()}, is also used or not.}
   \item{n.MC}{parameter \code{n.MC} for \code{\link{K}()}.}

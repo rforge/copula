@@ -15,7 +15,8 @@ enacopula(u, cop,
           xargs = list(), \dots)
 }
 \arguments{
-  \item{u}{numeric (pseudo data) matrix (values in [0,1]).}
+  \item{u}{numeric (pseudo data) matrix, of values in \eqn{[0,1]}.  Consider
+    using \code{enacopula(\link{pobs}(x), ....)} for your data \code{x}.}
   \item{cop}{\code{\linkS4class{outer_nacopula}} to be estimated.
     Currently, only Archimedean (unnested) copulas can be estimated.}
   \item{method}{the estimation method, a \code{\link{character}}
