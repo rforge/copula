@@ -283,7 +283,8 @@ copFrank <-
                       if(log) log(theta)-log(expm1(theta*t)) else theta/expm1(theta*t)
                   },
                   ## density
-		  dacopula = function(u, theta, n.MC=0, log=FALSE, method = "negI-s-Stirling", Li.log.arg=TRUE)
+		  dacopula = function(u, theta, n.MC=0, log=FALSE,
+				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
 	      {
 		  if(!is.matrix(u)) u <- rbind(u)
 		  if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2

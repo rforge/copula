@@ -5,23 +5,119 @@ require(nacopula)
 ##       ~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## Frank & mle ---- log-density is *REALLY* not good enough:
+## -----------
+## at least not for "GOF" where we may have "tail-dependent"
+## observations which are highly improbable under Frank and would
+## "need" a very large theta :
 
-(cop <- onacopulaL("Frank",list(NA, 1:5)))
-uu <- rbind(rep(.987, 5))
+
+p.log.f <- function(t0, t1, n.th = 256,
+                    thet.vec = seq(t0, t1, length.out= n.th),
+                    d, u0, uu = rbind(rep(u0, length.out = d)),
+                    cop = "Frank", legend.x = "bottomright",
+                    col = mapply(adjustcolor, col=c(1,3,2,4,1,2), alpha=c(2, 5:7, 4,2)/10),
+                    lwd = c(5,4,3,1,5,5), lty = 1:6)
+{
+    stopifnot(d == as.integer(d), length(d) == 1, d >= 2,
+              NCOL(uu) == d, is.numeric(thet.vec), length(thet.vec) > 1)
+    cop <- onacopulaL(getAcop(cop), list(NA, 1:d))
+
+    stopifnot(is.function(.f. <- cop@copula@dacopula))
+    ## meths <- c("negI-s-Stirling", "negI-s-Eulerian")
+    meths <- local({m <- eval(formals(polylog)$method);m[grep("^negI-s", m)]})
+    l.arr <- sapply(meths, function(meth)
+                {
+                    sapply(c(FALSE,TRUE), function(Li.log)
+                           sapply(thet.vec, .f., u = uu, log=TRUE,
+                                  method = meth, Li.log.arg=Li.log))
+                }, simplify = "array")
+    dim(l.arr) <- local({D <- dim(l.arr); c(D[1], prod(D[-1]))})
+    ## n x 4
+    nms <- c(t(outer(substring(meths, 8),
+                     paste("Li_n(", c("<reg.>", "log(arg)"), ")", sep=""),
+                     ##paste("Li.log.A=",c(FALSE,TRUE),sep=""),
+                     paste, sep="_")))
+    colnames(l.arr) <- nms
+
+    tit <- bquote(.(cop@copula@name)*" copula -  log density " ~~
+                  log~f(theta, bold(u)[d==.(d)]))
+    matplot(thet.vec, l.arr, type = "l", lwd=lwd, col=col, lty=lty,
+            main = tit, xlab=expression(theta), ylab = expression(log~f(theta, .)))
+    legend(legend.x, nms, col=col, lwd=lwd, lty=lty,
+           title = "polylog(.., method = \"*\")", inset = .01)
+    mkU <- function(u, n1 = 4, n2 = 2) {
+        n <- length(u <- c(u))
+        cu <- if(n > (n1+n2)) ## use "..."
+            c(format(head(u, n1)), "...", format(tail(u, n2))) else format(u)
+        paste("(", paste(cu, collapse = ", "), ")", sep="")
+    }
+    mtext(bquote(bold(u)[d==.(d)] == .(mkU(uu))), line=1/8)
+    invisible(structure(cbind(theta = thet.vec, l.arr),
+			u = uu, dacopula = .f.))
+}
+
+unattr <- function(obj) { mostattributes(obj) <- NULL ; obj }
+show. <- function(pmat) unattr(pmat)[, c(1,3,5,7)]
+
+if(!dev.interactive(orNone=TRUE)) pdf("estim-ex.pdf")
+
 th <- seq(1,60, by=1/4)
-## log-likelihood:
-l.th <- sapply(th, cop@copula@dacopula, u = uu, log=TRUE,
-## this was default ~ 2011-03:
-               method = "negI-s-Stirling", Li.log.arg=FALSE)
-plot(l.th ~ th, type = "l",   ## jumps from a noisy "12" to +Inf --- the horror
-     col=2, xlab = expression(theta))
-l.th2 <- sapply(th, cop@copula@dacopula, u = uu, log=TRUE,
-               method = "negI-s-Stirling", Li.log.arg=TRUE)
-lines(l.th2 ~ th, col="green2")
+show.(m1 <- p.log.f(thet.vec = th, d = 5, u0 = .987))
+## wow! asymptotic is quite good even here!
 
 ## using  MC  (instead of polylog(.))  also ``works'' {the function is noisy ..}:
-l.th.MC <- sapply(th, cop@copula@dacopula, u = uu, n.MC = 1e4, log=TRUE)
-matplot(th, cbind(l.th, l.th2, l.th.MC), type = "l",
-        col=c("red", "green2", "blue"), lty=c(2,1,3))
+l.th.MC <- sapply(th, attr(m1, "dacopula"), u = attr(m1, "u"),
+                  n.MC = 2000, log=TRUE) ## 2000: be speedy in test
+lines(th, l.th.MC, lwd=3, col=adjustcolor("sandybrown", .5))
+legend("right", "n.MC = 2000", lwd=3, col=adjustcolor("sandybrown", .5),
+       inset=.01)
+rm(th)
 
-cbind(th, l.th, l.th2)
+## Extend the range:
+show.(m2 <- p.log.f(1, 200, n.th=401, d = 5, u0 = .987))
+
+## Extend the range even more -- change u0
+show.(m3 <- p.log.f(10, 500, d = 5, u0 = .96))
+
+## higher d:
+show.(m4 <- p.log.f(10, 500, d = 12, u0 = 0.95))
+m5 <- p.log.f(10, 500, d = 12, u0 = 0.92)
+m6 <- p.log.f(1,  200, d = 12, u0 = c(0.8, 0.9), legend.x="topright")
+m7 <- p.log.f(1,  400, d = 12, u0 = c(0.88, 0.9))
+
+## whereas this now also overflows for Eulerian *AND* asymp. + log.arg:
+show.(mm <- p.log.f(10, 1000, d = 12, u0 = 0.9))
+
+##--> investigation shows that  w is *also* underflowing to 0  (!!!) :
+
+myTracer <- quote({
+    cat(sprintf("Tracing %s: variables at entry are\n",
+                ## the  -4   is purely by trial and error -- better?
+                deparse(sys.call(-4)[1])))
+    print(ls.str())
+})
+trace(polylog, tracer = myTracer, print=FALSE)
+## Tracing function "polylog" in package "nacopula"
+
+f <- attr(mm,"dacopula")
+
+f(attr(mm,"u"), 825, log=TRUE, method="negI-s-asymp")
+## ....
+## z : num -4.15e-322
+## [1] 61.48259
+f(attr(mm,"u"), 800, log=TRUE, method="negI-s-asymp")
+## z : num -2.44e-312
+
+if(FALSE)
+    debug(f)
+## and then realize that in f(), i.e.,  Frank's dacopula() final line,
+##     (d-1)*log(theta) + Li. - theta*u.sum - lu
+## the terms     Li. - (theta * u.sum)
+## 'more or less cancel' -- so if we could compute a
+###  *different* rescaled polylog() .. maybe we can get better
+
+untrace(polylog)
+
+## and similarly here:
+ll <- p.log.f(1, 12000, d = 12, u0 = 0.08)
+

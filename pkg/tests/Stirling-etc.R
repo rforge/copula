@@ -120,6 +120,9 @@ stopifnot(EQ(polylog(s =  1,  x, n.sum=10000), -log(1-x)),
 		    Vectorize(polylog,"z")(x, -4, "negI-s-Stirling")),
 	  identical(	      polylog	  (x, -4, "sum", n.sum=10000),
 		    Vectorize(polylog,"z")(x, -4, "sum", n.sum=10000)),
+	  EQ(polylog(x, -1, "negI-s-Eulerian"), x /(1-x)^2),
+	  EQ(polylog(x, -2, "negI-s-Eulerian"), x*(1+x)/(1-x)^3),
+	  EQ(polylog(x, -4, "negI-s-Eulerian"), x*(1+x)*(1+x*(10+x)) / (1-x)^5),
           TRUE)
 
 

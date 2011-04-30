@@ -15,7 +15,11 @@
 
 #### Special Numeric Functions -- related to Archimedean Copulas
 #### -------------------------
-## ( where "other numeric utilities" in ./aux-acopula.R )
+## ( were "other numeric utilities" in ./aux-acopula.R )
+
+
+polynEval <- function(coef, x) .Call(polyn_eval, coef, x)
+
 
 ##' @title Compute  f(a) = log(1 - exp(-a))  stably
 ##' @param a numeric vector of positive values
@@ -24,7 +28,8 @@
 ##' @author Martin Maechler, 13 May 2002
 log1exp <- function(a, cutoff = log(2)) ## << log(2) is optimal >>
 {
-    if(any(a <= 0)) stop("'a' > 0 needed")
+    if(any(a < 0))## a == 0  -->  -Inf  (in both cases)
+        stop("'a' >= 0 needed")
     r <- a
     tst <- a <= cutoff
     r[ tst] <- log(-expm1(-a[ tst]))
@@ -70,17 +75,17 @@ lsum <- function(lx, l.off = apply(lx, 2, max)) {
 ##' Properly compute log(-+x_1 -+ .. -+ x_n) for a given matrix of column vectors
 ##' log(|x_1|),.., log(|x_n|) and corresponding signs sign(x_1),.., sign(x_n)
 ##'
-##' @title Properly compute the logarithm of a sum with signed coefficients
+##' @title compute logarithm of a sum with signed large coefficients
 ##' @param lxabs (d,n)-matrix containing the column vectors log(|x_1|),..,log(|x_n|)
 ##'        each of dimension d
 ##' @param signs corresponding matrix of signs sign(x_1), .., sign(x_n)
 ##' @param l.off the offset to substract and re-add; ideally in the order of max(.)
 ##' @param strict logical indicating if it should stop on some negative sums
 ##' @return log(x_1 + .. + x_n) computed via
-##'         log(sum(x)) = log(sum(signs*exp(log(|x|))))
-##'         = log(exp(log(|x|_max))*sum(signs*exp(log(|x|)-log(|x|_max))))
-##'         = log(|x|_max) + log(sum(signs*exp(log(|x|)-log(|x|_max)))))
-##'         = lxabs.max + log(sum(signs*exp(lxabs-lxabs.max)))
+##'         log(sum(x)) = log(sum(sign(|x|)*exp(log(|x|))))
+##'         = log(exp(log(x0))*sum(signs*exp(log(|x|)-log(x0))))
+##'         = log(x0) + log(sum(signs* exp(log(|x|)-log(x0))))
+##'         = l.off   + log(sum(signs* exp(lxabs -  l.off  )))
 ##' @author Marius Hofert and Martin Maechler
 lssum <- function (lxabs, signs, l.off = apply(lxabs, 2, max), strict = TRUE) {
     stopifnot(is.matrix(lxabs))
@@ -238,7 +243,7 @@ Eulerian <- function(n,k, method = c("lookup.or.store","direct"))
     ## have  __ 0 <= k < n __
     method <- match.arg(method)
     switch(method,
-	   "direct" = { ## CARE! suffers from cancellation, already for n=60
+	   "direct" = { ## suffers from cancellation eventually ..
 	       if(k == 0) return(1)
 	       if(k == n) return(0)
 	       ## else 0 <= k < n >= 2
@@ -319,7 +324,7 @@ assign("Eul.full.n", 0	, envir = .nacopEnv)
 ##' z, and is therefore a rational function of z, for all nonpositive
 ##' integer orders. The general case may be expressed as a finite sum:
 ##' ---
-##' {Li}_{-n}(z) = \left(z \,{\partial \over \partial z} \right)^n \frac{z}{1-z}=
+##' {Li}_{-n}(z) = \left(z \,{\partial \over \partial z} \right)^n \frac{z}{1-z} =
 ##'     = \sum_{k=0}^n k! \,S(n+1,k+1) \left({z \over {1-z}} \right)^{k+1}
 ##' \ \ (n=0,1,2,\ldots),
 ##' ---
@@ -328,7 +333,13 @@ assign("Eul.full.n", 0	, envir = .nacopEnv)
 ##' (Wood 1992, § 6):
 ##' ---
 ##'  {Li}_{-n}(z) = (-1)^{n+1} \sum_{k=0}^n k! S(n+1,k+1) (\frac{-1}{1-z})^{k+1} \
-##'     (n=1,2,3,\ldots),
+##'     (n=1,2,3,...),
+##' and:
+##'  {Li}_{-n}(z) = \frac{1}{(1-z)^{n+1}} sum_{k=0}^{n-1} < n \ k >  z^{n-k}
+##'               = \frac{z \sum_{k=0}^{n-1} < n \ k >  z^k} {(1-z)^{n+1}},
+##' where  < n \ k >  are the  Eulerian numbers.
+##' All roots of Li−n(z) are distinct and real; they include z = 0.
+##' Duplication formula:  2^{1-s} Li_s(z^2) = Li_s(z) + Li_s(-z).
 ##'
 ##' Compute the polylogarithm function \eqn{Li_s(z)}
 ##'
@@ -342,7 +353,8 @@ assign("Eul.full.n", 0	, envir = .nacopEnv)
 ##' @param n.sum  for "sum"--this is more for experiments etc
 ##' @return numeric/complex vector as \code{z}
 ##' @author Martin Maechler
-polylog <- function(z, s, method = c("sum", "negI-s-Stirling", "negI-s-Eulerian"),
+polylog <- function(z, s, method = c("sum", "negI-s-Stirling",
+                          "negI-s-Eulerian", "negI-s-asymp-w0"),
 		    logarithm = FALSE, is.log.z = FALSE,
 		    ## for "sum" -- this is more for experiments etc:
 		    n.sum)
@@ -360,33 +372,66 @@ polylog <- function(z, s, method = c("sum", "negI-s-Stirling", "negI-s-Eulerian"
 	p <- polynEval((1:n.sum)^-s, z)
 	if(logarithm) (if(is.log.z) w else log(z)) +log(p) else z*p
     } else {
-	## s is integer in {1, 0, -1, -2, ....}
+	## "negI"-methods:  s \in {1, 0, -1, -2, ....}   "[neg]ative [I]nteger"
 	stopifnot(s == as.integer(s), s <= 1)
 	if(s == 1) { ## result = -log(1 -z) = -log(1 - exp(w)) = -log1exp(-w)
 	    r <- if(is.log.z) -log1exp(-w) else -log1p(-z)
 	    return(if(logarithm) log(r) else r)
 	}
 	## s <= 0:
+
+	## i.z := (1 - z) = 1 - exp(w)
+	i.z <- if(is.log.z) -expm1(w) else (1 - z)
+	n <- -as.integer(s)
 	switch(method,
-	       "negI-s-Stirling" = {
-		   ## i.z := (1 - z) = 1 - exp(w)
-		   i.z <- if(is.log.z) -expm1(w) else (1 - z)
-		   r <- z/i.z ## = z/(1 - z)
-		   ## if(s == 0) return(r)
-		   n <- -as.integer(s)
-		   ## k1 <- seq_len(n+1)# == k+1, k = 0...n
-		   fac.k <- cumprod(c(1, seq_len(n)))
-		   S.n1.k1 <- Stirling2.all(n+1) ## == Stirling2(n+1, k+1)
-		   p <- polynEval(fac.k * S.n1.k1, r)
-		   ## log(r) = log(z / (1-z)) = logit(z) = qlogis(z),  and if(is.log.z)
-		   ##	log(r) = log(z / (1-z)) = log(z) - log(1-z) = w - log(1-exp(w)) =
-		   ##	       = w - log1exp(-w)
-		   if(logarithm) log(p) + if(is.log.z) w - log1exp(-w) else qlogis(z)
-		   else r*p
-	       },
-	       "negI-s-Eulerian" = {
-### FIXME:  use MM's super-duper formula, notably for small w
-	       },
+	       "negI-s-Stirling" =
+	   {
+	       r <- z/i.z ## = z/(1 - z)
+	       ## if(n == 0) return(r)
+	       ## k1 <- seq_len(n+1)# == k+1, k = 0...n
+	       fac.k <- cumprod(c(1, seq_len(n)))
+	       S.n1.k1 <- Stirling2.all(n+1) ## == Stirling2(n+1, k+1)
+	       p <- polynEval(fac.k * S.n1.k1, r)
+	       ## log(r) = log(z / (1-z)) = logit(z) = qlogis(z),  and if(is.log.z)
+	       ## log(r) = log(z / (1-z)) = log(z) - log(1-z) = w - log(1-exp(w)) =
+	       ##	 = w - log1exp(-w)
+	       if(logarithm) log(p) + if(is.log.z) w - log1exp(-w) else qlogis(z)
+	       else r*p
+	   },
+	       "negI-s-Eulerian" =
+	   {
+	       ## Li_n(z) = \frac{z \sum_{k=0}^{n-1} < n \ k >	z^k} {(1-z)^{n+1}},
+	       Eu.n <- Eulerian.all(n)
+	       ## FIXME? do better for z=exp(w), or large n --> ## log(Eulerian) etc
+	       p <- polynEval(Eu.n, z)
+	       if(logarithm)
+		   log(p) +
+		       if(is.log.z) w - (n+1)*log1exp(-w)
+		       else log(z) - (n+1)*log1p(-z)
+	       else z*p / i.z^(n+1)
+	   },
+               "negI-s-asymp-w0" =
+               ## MM's asymptotic formula for small w = log(z):
+           {
+               if(!is.numeric(z) || z < 0)
+                   stop("need z > 0, or rather w = log(z) < 0 for method ",
+                        method,"; but z=",z)
+               if(!is.log.z) w <- log(z)
+               w <- -w # --> w > 0 , z = exp(-w)  as in "paper"
+               if(w >= 1)
+                   warning("w << 1 is prerequisite for method ",
+                           method, "; but w=", w)
+               ## zero-th-order ("simple")
+               if(logarithm) lgamma(n+1) - (n+1)*log(w) else gamma(n+1)*w^(-(n+1))
+
+### Frank: large theta: even w underflows to 0, and we could think of
+###        an argument  'is.loglog.z' where we specify
+###        1st arg. =  log(log(z)) = log(w)  --- TODO?
+
+
+## TODO:  use *first* order term  ... [ for small w  i.e. z ~<~ 1 ]
+           },
+
 	       stop("unsupported method ", method))
     }
 }
