@@ -35,20 +35,22 @@ copAMH <-
                   ## parameter interval
                   paraInterval = interval("[0,1)"),
                   ## absolute value of generator derivatives
-		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE, method = "negI-s-Stirling") {
-                      if(n.MC > 0) {
-                          psiDabsMC(t, family="AMH", theta=theta, degree=degree,
-                                    n.MC=n.MC, log=log)
-                      } else {
-                          if(theta == 0) if(log) return(-t) else return(exp(-t)) # independence
-                          ## Note: psiDabs(0, ...) is correct
-                          t.et <- theta*exp(-t)
-                          if(log)
-                              polylog(t.et, s = -degree, method=method, log=TRUE)+ log1p(-theta)-log(theta)
-                          else
-                              polylog(t.et, s = -degree, method=method)* (1-theta)/theta
-                      }
-                  },
+		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE, method = "negI-s-Euler", Li.log.arg=TRUE)
+	      {
+		  if(n.MC > 0) {
+		      psiDabsMC(t, family="AMH", theta=theta, degree=degree,
+				n.MC=n.MC, log=log)
+		  } else {
+		      if(theta == 0) if(log) return(-t) else return(exp(-t)) # independence
+		      ## Note: psiDabs(0, ...) is correct
+		      Li.arg <- if(Li.log.arg) log(theta) - t else theta*exp(-t)
+		      Li. <- polylog(Li.arg, s = -degree, method=method, is.log.z = Li.log.arg, log=log)
+		      if(log)
+			  Li. + log1p(-theta)-log(theta)
+		      else
+			  Li. * (1-theta)/theta
+		  }
+	      },
                   ## derivatives of the generator inverse
 		  psiInvD1abs = function(t, theta, log = FALSE) {
                       if(log) {
@@ -58,7 +60,7 @@ copAMH <-
                       }
                   },
                   ## density
-		  dacopula = function(u, theta, n.MC=0, log=FALSE, method = "negI-s-Stirling") {
+		  dacopula = function(u, theta, n.MC=0, log=FALSE, method = "negI-s-Euler", Li.log.arg=TRUE) {
                       if(!is.matrix(u)) u <- rbind(u)
                       if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       ## f() := NaN outside and on the boundary of the unit hypercube
@@ -68,20 +70,21 @@ copAMH <-
                       if(theta == 0) { res[n01] <- if(log) 0 else 1; return(res) } # independence
                       ## auxiliary results
                       u. <- u[n01,, drop=FALSE]
-                      u.. <- -theta*(1-u.)
+                      tIu <- -theta*(1-u.)
                       sum. <- rowSums(log(u.))
-                      sum.. <- rowSums(log1p(u..))
+                      sumIu <- rowSums(log1p(tIu))
                       ## main part
                       if(n.MC > 0) { # Monte Carlo
                           V <- C.@V0(n.MC, theta)
                           l <- d*log((1-theta)*V) # length = n.MC
-                          res[n01] <- colMeans(exp(l + (V-1) %*% t(sum.) - (V+1) %*% t(sum..)))
+                          res[n01] <- colMeans(exp(l + (V-1) %*% t(sum.) - (V+1) %*% t(sumIu)))
                           if(log) log(res) else res
-                      } else { # explicit
-                          Li.arg <- theta*apply(u./(1+u..), 1, prod)
-                          Li. <- polylog(Li.arg, s = -d, method=method, log=TRUE)
-                          res[n01] <- (d+1)*log1p(-theta)-log(theta)+Li.-sum.-sum..
-                          if(log) res else exp(res)
+		      } else { # explicit
+			  Li.arg <-
+			      if(Li.log.arg) log(theta) + sum. - sumIu else theta* apply(u./(1+tIu), 1, prod)
+			  Li. <- polylog(Li.arg, s = -d, method=method, is.log.z = Li.log.arg, log=TRUE)
+			  res[n01] <- (d+1)*log1p(-theta)-log(theta)+ Li. -sum. -sumIu
+			  if(log) res else exp(res)
                       }
                   },
                   ## score function
@@ -265,19 +268,21 @@ copFrank <-
                   ## parameter interval
                   paraInterval = interval("(0,Inf)"),
                   ## absolute value of generator derivatives
-		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE, method = "negI-s-Stirling") {
-                      if(n.MC > 0) {
-                          psiDabsMC(t, family="Frank", theta=theta, degree=degree,
-                                    n.MC=n.MC, log=log)
-                      } else {
-                          ## Note: psiDabs(0, ...) is correct
-                          p <- -expm1(-theta)
-                          if(log)
-                              polylog(p*exp(-t), s = -(degree-1), method=method, log=TRUE) - log(theta)
-                          else
-                              polylog(p*exp(-t), s = -(degree-1), method=method)/theta
-                      }
-                  },
+		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE,
+				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
+              {
+                  if(n.MC > 0) {
+                      psiDabsMC(t, family="Frank", theta=theta, degree=degree,
+                                n.MC=n.MC, log=log)
+                  } else {
+                      ## Note: psiDabs(0, ...) is correct
+                      p <- -expm1(-theta)
+		      Li.arg <- if(Li.log.arg) log(p) - t else p*exp(-t)
+		      Li. <- polylog(Li.arg, s = -(degree-1), log=log,
+				     method=method, is.log.z = Li.log.arg)
+		      if(log) Li. - log(theta) else Li. / theta
+                  }
+              },
                   ## derivatives of the generator inverse
 		  psiInvD1abs = function(t, theta, log = FALSE) {
                       if(log) log(theta)-log(expm1(theta*t)) else theta/expm1(theta*t)
@@ -628,8 +633,7 @@ copJoe <-
                       ## auxiliary results
                       u. <- u[n01,, drop=FALSE]
                       l1_u <- rowSums(log1p(-u.)) # log(1-u)
-                      u.. <- (1-u.)^theta # (1-u)^theta
-                      lh <- rowSums(log1p(-u..)) # rowSums(log(1-(1-u)^theta)) = log(h)
+                      lh <- rowSums(log1p(-(1-u.)^theta)) # rowSums(log(1-(1-u)^theta)) = log(h)
                       ## main part
                       if(n.MC > 0) { # Monte Carlo
                           V <- C.@V0(n.MC, theta)
