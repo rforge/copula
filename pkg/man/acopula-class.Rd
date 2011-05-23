@@ -50,7 +50,7 @@
       meanings of the parameters \code{n.MC} and \code{log} are as
       described before.}
     \item{\code{score}:}{a \code{\link{function}} computing the
-      \emph{derivative} of the density wrt the parameter \eqn{theta}.}
+      \emph{derivative} of the density with respect to the parameter \eqn{theta}.}
     \item{\code{paraInterval}:}{Either \code{\link{NULL}} or object of class
       \code{"\linkS4class{interval}"}, typically from a call such as
       \code{\link{interval}("[a,b)")}.}

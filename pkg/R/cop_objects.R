@@ -203,15 +203,16 @@ copClayton <-
                   },
                   ## score function
                   score = function(u, theta) {
-	              if(!is.matrix(u)) u <- rbind(u)
-	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+                      if(!is.matrix(u)) u <- rbind(u)
+                      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       lu <- log(u)
                       alpha <- 1/theta
-	              s1 <- (d-sum(1/(theta*(0:(d-1))+1)))*alpha - rowsums(lu)
-	              sigma <- rowSums(C.@psiInv(u, theta=theta))
-	              s2 <- alpha^2*log(sigma)
-	              s3 <- (d+alpha)*rowSums(u^(-theta)*log(u))/sigma
-	              s1+s2+s3
+                      j <- 0:(d-1)
+                      s1 <- (d-sum(1/(theta*j+1)))*alpha - rowSums(lu)
+                      t <- rowSums(C.@psiInv(u, theta=theta))
+                      s2 <- alpha^2*log(t)
+                      s3 <- (d+alpha)*rowSums(u^(-theta)*lu)/t
+                      s1+s2+s3
                   },
                   ## nesting constraint
                   nestConstr = function(theta0,theta1) {
@@ -269,7 +270,7 @@ copFrank <-
                   paraInterval = interval("(0,Inf)"),
                   ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE,
-				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
+                  method = "negI-s-Eulerian", Li.log.arg=TRUE)
               {
                   if(n.MC > 0) {
                       psiDabsMC(t, family="Frank", theta=theta, degree=degree,
@@ -289,7 +290,7 @@ copFrank <-
                   },
                   ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE,
-				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
+                  method = "negI-s-Eulerian", Li.log.arg=TRUE)
 	      {
 		  if(!is.matrix(u)) u <- rbind(u)
 		  if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
@@ -319,8 +320,8 @@ copFrank <-
 					 method=method, is.log.z = Li.log.arg)
 			  (d-1)*log(theta) + Li. - theta*u.sum - lu
 		      }
-		      if(log) res else exp(res)
-		  },
+                  if(log) res else exp(res)
+              },
                   ## score function
                   score = function(u, theta) {
 	              if(!is.matrix(u)) u <- rbind(u)
@@ -727,18 +728,18 @@ copJoe <-
 		  lambdaU = function(theta) { 2-2^(1/theta) },
                   lambdaUInv = function(lambda) { log(2)/log(2-lambda) }
                   )
-                  C.
-              })()# {copJoe}
+        C.
+    })()# {copJoe}
 
 ### ==== naming stuff ==========================================================
 
-     cNms <- c("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe")
-     ## == dput(ls("package:nacopula",pat="^cop"))
-     nmsC <- unlist(lapply(cNms, function(.)get(.)@name))
-     sNms <- abbreviate(nmsC, 1)
-     ## keep these {hidden, for now}:
-     c_shortNames <- structure(sNms, names = nmsC)
-     c_longNames  <- structure(nmsC, names = sNms)
-     c_objNames   <- structure(cNms, names = nmsC)
-     rm(cNms, nmsC, sNms)
+cNms <- c("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe")
+## == dput(ls("package:nacopula",pat="^cop"))
+nmsC <- unlist(lapply(cNms, function(.)get(.)@name))
+sNms <- abbreviate(nmsC, 1)
+## keep these {hidden, for now}:
+c_shortNames <- structure(sNms, names = nmsC)
+c_longNames  <- structure(nmsC, names = sNms)
+c_objNames   <- structure(cNms, names = nmsC)
+rm(cNms, nmsC, sNms)
 

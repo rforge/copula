@@ -7,11 +7,11 @@
   (\code{beta.hat()}) version of Blomqvist's beta for an Archimedean
   copula.
 
-  See the reference below for definitions and formula.
+  See the reference below for definitions and formulas.
 }
 \usage{
-beta.(cop, theta, d, scaling = FALSE)
-beta.hat(u, scaling = FALSE)
+beta.(cop, theta, d, scaling=FALSE)
+beta.hat(u, scaling=FALSE)
 }
 \arguments{
   \item{cop}{an Archimedean copula (of dimension \eqn{d}) to be
@@ -20,15 +20,13 @@ beta.hat(u, scaling = FALSE)
   \item{d}{dimension.}
   \item{scaling}{logical, if true, the factors 2^(d-1)/(2^(d-1)-1) and
     2^(1-d) in Blomqvist's beta are omitted.}
-
   \item{u}{For \code{beta.hat}: \dQuote{data} matrix (\eqn{n\times d}{n
       x d}) of d-dimensional observations distributed according to the copula.}
 }
 % \details{
 % }
 \value{
-  a number, Blomqvist's data for the corresponding data or Archimedean
-  copula.
+  a number, population version of Blomqvist's beta for the corresponding Archimedean copula or sample version of Blomqvist's beta for the given data.
 }
 \references{
   Schmid and Schmidt (2007)
@@ -46,6 +44,7 @@ beta.(copGumbel, 2.5, d = 5)
 d.set <- c(2:6, 8, 10, 15, 20, 30)
 cols <- adjustcolor(colorRampPalette(c("red", "orange", "blue"),
                                      space = "Lab")(length(d.set)), 0.8)
+## AMH:
 for(i in seq_along(d.set))
    curve(Vectorize(beta.,"theta")(copAMH, x, d = d.set[i]), 0, .999999,
          main = "Blomqvist's beta(.) for  AMH",

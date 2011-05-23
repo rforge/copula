@@ -1,5 +1,5 @@
 \name{emle}
-\title{Maximum Likelihood Estimation for (Nested) Archimedean Copulas}
+\title{Maximum Likelihood Estimators for (Nested) Archimedean Copulas}
 \alias{emle}
 \alias{.emle}
 \description{
@@ -9,64 +9,68 @@
 \usage{
 emle(u, cop, n.MC=0, optimizer="optimize", method,
      interval=paraOptInterval(u, cop@copula@name),
-     start = list(theta= mean(interval)),
+     start=list(theta=mean(interval)),
      \dots)
-
 .emle(u, cop, n.MC=0,
       interval=paraOptInterval(u, cop@copula@name), \dots)
 }
 \arguments{
-  \item{u}{matrix of realizations following the copula}
-  \item{cop}{outer_nacopula to be estimated}
-  \item{n.MC}{integer, if positive, \emph{simulated} maximum likelihood
-    estimation (\dQuote{SMLE}) is used with sample size equal to
-    \code{n.MC}; otherwise, MLE.  In SMLE, the density is evaluated via
-    (\dQuote{Monte Carlo}) simulation, whereas MLE uses high order
-    derivatives of the copula generator \eqn{\psi}.}
+  \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-)observations (each value in \eqn{[0,1]}) from the copula, where \eqn{n} denotes the sample size and \eqn{d} the dimension.}
+  \item{cop}{\code{\linkS4class{outer_nacopula}} to be estimated (currently only Archimedean copulas are provided).}
+  \item{n.MC}{\code{\link{integer}}, if positive, \emph{simulated} maximum likelihood
+    estimation (SMLE) is used with sample size equal to
+    \code{n.MC}; otherwise (\code{n.MC=0}), MLE. In SMLE, the \eqn{d}th generator derivative and thus the copula density is evaluated via
+    (Monte Carlo) simulation, whereas MLE uses the explicit formulas for the generator derivatives as found by Hofert et al. (2011b).}
   \item{optimizer}{a string or \code{NULL}, indicating the optimizer to
     be used, where \code{NULL} means to use \code{\link{optim}} via the
-    standard \R \code{\link[stats4]{mle}()} from package \pkg{stats4},
+    standard \R function \code{\link[stats4]{mle}()} from package \pkg{stats4},
     whereas the default, \code{"optimize"} uses \code{\link{optimize}} via
-    \R \code{\link[bbmle]{mle2}()} from package \pkg{bbmle}.}
+    the \R function \code{\link[bbmle]{mle2}()} from package \pkg{bbmle}.}
   \item{method}{only when \code{optimizer} is \code{NULL}, the method to
     be used for \code{\link{optim}}.}
-  \item{interval}{numeric vector of length two, denoting the interval
-    where optimization takes place.}
-  \item{start}{list of starting values, passed on.}
+  \item{interval}{nbivariate vector denoting the interval where
+	    optimization takes place. The default is computed as described in Hofert et al. (2011a).}
+  \item{start}{\code{\link{list}} of initial values, passed through.}
   \item{\dots}{additional parameters passed to \code{\link{optimize}}.}
 }
-\author{Martin Maechler and Marius Hofert.
-}
 \details{
-... ...
+   Exact formulas for the generator derivatives were derived in Hofert et al. (2011b). Based on these formulas one can compute the (log-)densities of the Archimedean copulas. Note that for some densities, the formulas are numerically highly non-trivial to compute and considerable efforts were put in to make the computations numerically feasible even in large dimensions (see the source code of the Gumbel copula, for example). Both MLE and SMLE showed good performance in the simulation study conducted by Hofert et al. (2011a) including the challenging one hundred dimensional case. Alternative estimators (see also \code{\link{enacopula}}) often used because of their numerical feasibility, might break down in much smaller dimensions.  
 }
 \value{
   \describe{
-    \item{emle():}{
-      an \R object of class \code{"\link[bbmle:mle2-class]{mle2}"} with the
+    \item{emle}{
+      an \R object of class \code{"\link[bbmle:mle2-class]{mle2}"} (and thus useful for obtaining confidence intervals) with the
       (simulated) maximum likelihood estimator.}
-    \item{.emle():}{the \code{\link{list}} returned from
-      \code{\link{optimize}()}.}
+    \item{.emle}{\code{\link{list}} as returned by
+      \code{\link{optimize}()} including the maximum likelihood estimator (does not confidence intervals but is typically faster).}
   }
 }
+\author{Martin Maechler and Marius Hofert.}
 \references{
- ...
+ 	Hofert, M., Maechler, M., and McNeil, A. J. (2011a),
+   \emph{Estimators for Archimedean copulas in high dimensions: A comparison},
+   to be submitted.
+  
+   Hofert, M., Maechler, M., and McNeil, A. J. (2011b),
+   \emph{Likelihood inference for Archimedean copulas},
+   to be submitted.
 }
 \seealso{
   \code{\link[bbmle]{mle2}} from package \pkg{bbmle} and
   \code{\link[stats4]{mle}} from \pkg{stats4} on which \code{mle2} is
-  modeled.
+  modeled. \code{\link{enacopula}} (wrapper for different estimators).
 }
 \examples{
 n <- 200
-d <-  80
-tau <- 0.2
-(theta <- copJoe@tauInv(tau))# 1.44381
-(cop <- onacopulaL("Joe",list(theta,1:d)))
+d <-  20
+tau <- 0.25
+(theta <- copGumbel@tauInv(tau)) # 4/3
+(cop <- onacopulaL("Gumbel", list(theta,1:d)))
 
 set.seed(1)
-U1 <- rnacopula(n,cop)
-efm <- emle(U1, cop)
+U <- rnacopula(n,cop)
+
+system.time(efm <- emle(U, cop))
 summary(efm)
 
 pfm <- profile(efm)

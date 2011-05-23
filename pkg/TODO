@@ -1,19 +1,35 @@
 ## ==== features in next CRAN version ====
 
-(*) numerous FIXME and TODO in the code [already fixed some!]
+(MH) add (and fill) all help files for estimation and gof procedures;
+     => only left: gnacopula.Rd + Sibuya.Rd; will do soon
+(MM) Questions:
+  o Maechler oder Mächler in References? 
+  o "2011a" auf *allen* Seiten oder nur auf denen wo auch "2011b" auch vorkommt?
+    [=> followed the former]
+  o accent bei emde.Rd: Cram{e}r... wie richtig?
+  o (almost) no linebreaks so far!... better for editing
+  o warum geht in enacopula.Rd verweis auf "emle." nicht [sondern nur auf emle]?
+  o was ist mit beta., beta.hat, dDiag,...? wo dokumentieren?
+  o references inconsistent: emph{journal} vs emph{paper title}; was richtig?
+  o Martin [plot-pRofi :-)]: add title & legend in example-plot in K.Rd
+  o is it okay to use rmvnorm in pobs.Rd? 
+
+(*) enacopula + other functions: check that all u's are indeed in [0,1]^d
+    => so far, no checks done
+(*) FIXME and TODO in the code
 (*) design a function that gets an outer nacopula and returns a matrix of
     numbers which correspond to the different sectors; this can be used, e.g.,
     for building a [default] color-matrix for splom2 or for estimation purposes etc.
-(*) make paraOptInterval to work with both long and short names of families
 
 (MH) Fisher information; how to? keep score functions?
-(MH) add (and fill) all help files for estimation and gof procedures;
-     fill notably
-     	   man/K.Rd man/emde.Rd man/estim-misc.Rd
-
-
-(*) GIG, opC in demo [with proper documentation]
+(*) GIG as proper object in extra file 
+(*) GIG, opC demos
 (*) opC: estimation example in man-examples
+(*) svn mv opower to trafos 
+(*) implement Khoudraji or Liebscher trafo incl. density etc.
+
+(*) GIG, opC in demo [with extensive comments]
+(MH) opC: estimation example in man-emle
 
 (MM) can we create a function for the GIG generator [see ./demo] similar to opower()?
 (MM) Change onacopula() such that it works via onacopulaL() and hence

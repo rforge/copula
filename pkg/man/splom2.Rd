@@ -6,9 +6,8 @@
   particularly useful for visualizing multivariate data sampled from
   copulas, notably nested Archimedean ones.
 
-  \bold{Experimental} currently!  We may replace the interface entirely,
-  e.g., to accept an \code{"\linkS4class{outer_nacopula}"} object from
-  which to sample.
+  \bold{Experimental} currently! We may replace the interface entirely,
+  e.g., to accept an \code{"\linkS4class{outer_nacopula}"}.
 }
 \usage{
 splom2(data, varnames=NULL, Vname="U", xlab="",

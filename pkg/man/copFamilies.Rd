@@ -12,8 +12,8 @@
   Specific Archimedean families (\code{"\linkS4class{acopula}"} objects)
   implemented in the package \pkg{nacopula}.
 
-  Currently, these families are \dQuote{classical} as from p.116 of Nelsen (2007),
-  more specifially, see table 1 of Hofert (2011).
+  These families are \dQuote{classical} as from p. 116 of Nelsen (2007).
+  More specifially, see table 1 of Hofert (2011).
 }
 \usage{
 copAMH

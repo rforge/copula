@@ -10,14 +10,14 @@ opower(copbase, thetabase)
 }
 \arguments{
   \item{copbase}{a "base" copula, i.e., a copula of class
-    \code{"\linkS4class{acopula}"}.  Must be one of the predefined families.}
+    \code{\linkS4class{acopula}}.  Must be one of the predefined families.}
   \item{thetabase}{the univariate parameter \eqn{\theta}{theta} for the
     generator of the base copula \code{copbase}. Hence, the copula which
     is transformed is fixed, i.e., does not depend on a parameter.}
 }
-\value{a new \code{"acopula"} object, namely the outer power copula
+\value{a new \code{\linkS4class{acopula}} object, namely the outer power copula
   based on the provided copula family \code{copbase} with fixed
-  parameter \code{thetabase}.  The transform introduces a parameter
+  parameter \code{thetabase}. The transform introduces a parameter
   \code{theta}, so one obtains a parametric Archimedean family object as
   return value. 
   

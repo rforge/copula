@@ -1,64 +1,87 @@
-\name{nac-estimators}
+\name{estim.misc}
 \alias{ebeta}
 \alias{edmle}
 \alias{etau}
-\title{Miscellaneous Estimators for Nested Archimedean Copulas}
+\title{Various Estimators for (Nested) Archimedean Copulas}
 \description{
-  Miscellaneous Estimators for Nested Archimedean Copulas, namely,
+  Various Estimators for (Nested) Archimedean Copulas, namely,
   \describe{
-    \item{ebeta}{Method-of-moment-like parameter estimation of nested
-      Archimedean copulas based on Blomqvist's beta.}
-    \item{edmle}{Maximum likelihood estimation based on the diagonal of a nested Archimedean copula.}
-    \item{etau}{Compute pairwise estimators for nested Archimedean
-      copulas based on Kendall's tau, see \code{\link{cor}(*, method="kendall")}.}
+    \item{ebeta}{Method-of-moments-like estimator based on (a multivariate version of) Blomqvist's beta.}
+    \item{edmle}{Maximum likelihood estimator based on the diagonal of a (nested) Archimedean copula.}
+    \item{etau}{Method-of-moments-like estimators based on (bivariate) Kendall's tau.}
   }
 }
 \usage{
 ebeta(u, cop, interval = paraOptInterval(u, cop@copula@name), ...)
 edmle(u, cop, interval = paraOptInterval(u, cop@copula@name), ...)
-etau (u, cop, method = c("tau.mean", "theta.mean"), ...)
+etau(u, cop, method = c("tau.mean", "theta.mean"), ...)
 }
 \arguments{
-  \item{u}{numeric matrix of realizations following the copula}
-  \item{cop}{outer_nacopula to be estimated}
+  \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-)observations (each value in \eqn{[0,1]}) from the copula, where \eqn{n} denotes the sample size and \eqn{d} the dimension.}
+  \item{cop}{\code{\linkS4class{outer_nacopula}} to be estimated (currently only Archimedean copulas are provided).}
   \item{interval}{bivariate vector denoting the interval where
-    optimization takes place}
-  \item{method}{a character string specifying the method (currently only
-    for \code{etau()}).}
-  \item{\dots}{possibly additional arguments for
-    \code{\link{cor}} (\code{etau}), for \code{\link{optimize}}
-    (\code{edmle}), or \code{\link{safeUroot}} (\code{ebeta}).}
+    optimization takes place. The default is computed as described in Hofert et
+    al. (2011a).}
+  \item{method}{a character string specifying the method (only
+    for \code{etau}), which has to be one (or a unique abbreviation) of
+	 \describe{
+      \item{\code{"tau.mean"}}{method-of-moments-like estimator based on averaged pairwise Kendall’s tau;}
+      \item{\code{"theta.mean"}}{average of the method-of-moments-like pairwise Kendall's tau estimators.}
+    }}
+  \item{\dots}{additional arguments passed to 
+    \code{\link{cor}} (for \code{etau}), to \code{\link{optimize}}
+    (for \code{edmle}), or to \code{\link{safeUroot}} (for \code{ebeta}).}
+}
+\details{
+   For \code{ebeta}, the parameter is estimated with a method-of-moments-like procedure such that the population version of the multivariate Blomqvist's beta matches its sample version.
+	
+	Note that the copula diagonal is a distribution function and the maximum of all components of a random vector following the copula is distributed according to this distribution function. For \code{edmle}, the parameter is estimated via maximum-likelihood estimation based on the diagonal. 
+	
+  For \code{etau}, the \code{method="tau.mean"}
+  indicates that the average of the sample versions of Kendall's tau are
+  computed first and then theta is determined such that the population version of Kendall's tau matches (if possible) this average of the sample versions of Kendall's tau; the \code{method="theta.mean"} stands for first computing all pairwise Kendall's tau estimators and then returning the mean of these estimators.
+
+  For more details, see Hofert et al. (2011a). 
+
+  Note that these estimators should be used with care, see the performance results in Hofert et al. (2011a). In particular, \code{etau} should be used with the (default) method \code{"tau.mean"} since \code{"theta.mean"} is both slower and more prone to errors.
 }
 \value{
   \describe{
-    \item{ebeta}{Blomqvist beta estimator, the return value of
-      \code{\link{safeUroot}}, i.e., almost the same as the value of
-      \code{\link{uniroot}}.}
-    \item{edmle}{diagonal maximum likelihood estimator, the return value of
-      \code{\link{optimize}()}.}
-    \item{etau}{averaged pairwise cor() estimators.}
+    \item{ebeta}{the return value of \code{\link{safeUroot}} (i.e., typically almost the same as the value of \code{\link{uniroot}}) giving the Blomqvist beta estimator.}
+    \item{edmle}{\code{\link{list}} as returned by \code{\link{optimize}}, including the diagonal maximum likelihood estimator.}
+    \item{etau}{method-of-moments-like estimator based on Kendall's tau for the chosen method.}
   }
 }
-\details{
-  For \code{etau()}, the \code{method} argument \code{"tau.mean"}
-  indicates that the average of the sample versions of Kendall's tau are
-  computed first and then theta is determined;
-  \code{"theta.mean"} stands for first computing all pairweise Kendall's tau
-  estimators and then returning the mean of these estimators.
-
-  For \code{ebeta()}, a method of moment principle equates the
-  Blomqvist's beta with the population version of the Archimedean copula.
-%% FIXME?  beta.() is currently *not* exported nor documented, hence we
-%% can't say more above.
-}
 \author{Marius Hofert}
+\references{
+   Hofert, M., Maechler, M., and McNeil, A. J. (2011a),
+   \emph{Estimators for Archimedean copulas in high dimensions: A comparison},
+   to be submitted.
+}
 \seealso{
-  \code{\link{enacopula}}, also for references and examples;
-  Specifically, the more sophisticated estimators,
-  \code{\link{emle}} (Maximum Likelihood) and
-  \code{\link{emde}} (Minimum Distance).
+  The more sophisticated estimators \code{\link{emle}} (Maximum Likelihood) and
+  \code{\link{emde}} (Minimum Distance). \code{\link{enacopula}} (wrapper for different estimators). 
 }
 \examples{
-%% FIXME
+n <- 200
+d <- 20
+tau <- 0.25
+(theta <- copGumbel@tauInv(tau)) # 4/3
+(cop <- onacopulaL("Gumbel", list(theta,1:d)))
+
+set.seed(1)
+U <- rnacopula(n, cop)
+
+system.time(theta.hat.beta <- ebeta(U, cop=cop))
+theta.hat.beta$root
+
+system.time(theta.hat.dmle <- edmle(U, cop=cop))
+theta.hat.dmle$minimum
+
+system.time(theta.hat.etau <- etau(U, cop=cop, method="tau.mean"))
+theta.hat.etau
+
+system.time(theta.hat.etau. <- etau(U, cop=cop, method="theta.mean"))
+theta.hat.etau.
 }
 \keyword{models}

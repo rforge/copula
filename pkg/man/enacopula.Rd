@@ -2,8 +2,8 @@
 \alias{enacopula}
 \title{Estimation Procedures for Nested Archimedean Copulas}
 \description{
-  A set of ten different estimators, currently for one-dimensional
-  (unnested) Archimedean copulas, of possibly quite high dimensions.
+  A set of ten different estimators, currently for one-parameter
+  Archimedean copulas, of possibly quite high dimensions.
 }
 \usage{
 enacopula(u, cop,
@@ -15,73 +15,67 @@ enacopula(u, cop,
           xargs = list(), \dots)
 }
 \arguments{
-  \item{u}{numeric (pseudo data) matrix, of values in \eqn{[0,1]}.  Consider
-    using \code{enacopula(\link{pobs}(x), ....)} for your data \code{x}.}
-  \item{cop}{\code{\linkS4class{outer_nacopula}} to be estimated.
-    Currently, only Archimedean (unnested) copulas can be estimated.}
-  \item{method}{the estimation method, a \code{\link{character}}
-    string. One (or a unique abbreviation) of
+  \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-)observations (each value in \eqn{[0,1]}) from the copula, where \eqn{n} denotes the sample size and \eqn{d} the dimension. Consider applying the function \code{\link{pobs}} first in order to obtain \code{u}.}
+  \item{cop}{\code{\linkS4class{outer_nacopula}} to be estimated (currently only Archimedean copulas are provided).}
+  \item{method}{a \code{\link{character}} string specifying the estimation method to be used, which has to be one (or a unique abbreviation) of
     \describe{
-      \item{\code{"mle"}}{MLE}
-      \item{\code{"smle"}}{SMLE}
-      \item{\code{"dmle"}}{MLE based on the diagonal}
-      \item{\code{"mde.normal.CvM"}}{minimum distance estimation based
-	on the chisq distribution and CvM distance}
+      \item{\code{"mle"}}{maximum likelihood estimator (MLE) computed via \code{\link{emle.}}.}
+      \item{\code{"smle"}}{simulated maximum likelihood estimator (SMLE) computed with the function \code{\link{emle.}}, where \code{n.MC} gives the Monte Carlo sample size.}
+      \item{\code{"dmle"}}{MLE based on the diagonal (DMLE), see \code{\link{edmle}}.}
+      \item{\code{"mde.normal.CvM"}}{minimum distance estimator based
+	on the chisq distribution and Cramer-von Mises distance, see \code{\link{emde}}.}
       \item{\code{"mde.normal.KS"}}{minimum distance estimation based on
-	the chisq distribution and KS distance}
+	the chisq distribution and Kolmogorov-Smirnov distance, see \code{\link{emde}}.}
       \item{\code{"mde.log.CvM"}}{minimum distance estimation based on
-	the Erlang distribution and CvM distance}
+	the Erlang distribution and Cramer-von Mises distance, see \code{\link{emde}}.}
       \item{\code{"mde.log.KS"}}{minimum distance estimation based on
-	the Erlang distribution and KS distance}
+	the Erlang distribution and Kolmogorov-Smirnov distance, see \code{\link{emde}}.}
       \item{\code{"tau.tau.mean"}}{averaged pairwise Kendall's tau estimator}
-      \item{\code{"tau.theta.mean"}}{average of Kendall's tau estimators}
+      \item{\code{"tau.theta.mean"}}{average of pairwise Kendall's tau estimators}
       \item{\code{"beta"}}{multivariate Blomqvist's beta estimator}
     }
   }
-  \item{n.MC}{integer; if positive, denotes the sample size for SMLE;
-    otherwise MLE}%% is it used at all when method != "smle" ??
-  \item{interval}{numeric vector of length two denoting the interval where
-    optimization takes place, for "mle", "smle", and "dmle".}
-  \item{xargs}{list of additional arguments for the estimation
-    procedure.}
-  \item{\dots}{possibly additional arguments for
-    \code{\link{optimize}}.}
+  \item{n.MC}{\code{\link{integer}}, if positive, simulated maximum likelihood estimation (SMLE) is used with sample size equal to \code{n.MC}.}
+  \item{interval}{bivariate vector denoting the interval where
+	    optimization takes place. The default is computed as described in Hofert et al. (2011a). Used for all methods except \code{"tau.tau.mean"} and \code{"tau.theta.mean"}.}
+  \item{xargs}{list of additional arguments for the chosen estimation method.}
+  \item{\dots}{additional arguments passed to \code{\link{optimize}}.}
 }
-% \details{
-%  TODO ?
-% }
+\details{
+ 	\code{\link{enacopula}} serves as a wrapper for the different implemented estimators and provides a uniform framework to utilize them. For more information, see the single estimators as given in the section \dQuote{See Also}. 
+}
 \value{
-  the estimated parameter, \eqn{\hat{\theta}}{th^}, i.e. a currently a
-    number as only one-dimensional Archimedean families are considered.
+  the estimated parameter, \eqn{\hat{\theta}}{hat(theta)}, i.e., currently a
+  number as only one-parameter Archimedean copulas are considered.
 }
 \author{Marius Hofert and Martin Maechler}
 \references{
-  Hofert, Maechler, McNeil (2011) .... .... %% FIXME
+  	Hofert, M., Maechler, M., and McNeil, A. J. (2011a),
+  \emph{Estimators for Archimedean copulas in high dimensions: A comparison},
+   to be submitted.
 }
 \seealso{
-  \code{\link{emle}} which returns a an object of
-  \code{"\linkS4class{mle}"} which has useful methods not
-  available for other estimators.
-
-  \code{\link{emde}}, for minimum distance estimators, and, e.g.,
-  \code{\link{ebeta}} for the beta, tau, and diagonal-ML estimators.
+  \code{\link{emle}} which returns an object of
+  \code{"\linkS4class{mle}"} providing useful methods not
+  available for other estimators. \code{\link{edmle}} for the diagonal maximum likelihood estimator. \code{\link{emde}} for the minimum distance estimators.
+  \code{\link{etau}} for the estimators based on Kendall's tau.
+  \code{\link{ebeta}} for the estimator based on Blomqvist's beta.
 }
 \examples{
-tau <- 0.4
-(theta <- copJoe@tauInv(tau))# 2.219
-d <-  20
-(cop20 <- onacopulaL("Joe",list(theta,1:d)))
+n <- 200
+d <- 20
+tau <- 0.25
+(theta <- copGumbel@tauInv(tau)) # 4/3
+(cop <- onacopulaL("Gumbel", list(theta,1:d)))
 
-(E.meths <- eval(formals(enacopula)$method))
-## "mle"  "smle" ... (all 10)
+set.seed(1)
+U <- rnacopula(n, cop)
 
-set.seed(7)
-U1 <- rnacopula(256, cop20)
-
-system.time( ## takes a few seconds (8--9 on nb-mm3)
- all.est <- sapply(E.meths, function(MET)
-               enacopula(U1, cop20, method = MET))
-)
-cbind(all.est, err = theta - all.est)# mle is best, even in this one example
+(meths <- eval(formals(enacopula)$method)) # "mle", "smle", ... 
+fun <- function(meth, u, cop, theta){
+	run.time <- system.time(val <- enacopula(u, cop=cop, method=meth))
+	list(value=val, error=val-theta, utime.ms=1000*run.time[[1]])
+}
+(res <- sapply(meths, fun, u=U, cop=cop, theta=theta))
 }
 \keyword{models}

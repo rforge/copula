@@ -152,7 +152,7 @@ gnacopulatrafo <- function(u, cop, include.K = TRUE, n.MC = 0)
 ##' @param ... additional arguments to enacopula
 ##' @param verbose if TRUE, the progress of the bootstrap is displayed
 ##' @return if n.bootstrap==0, then the result of the ad.test() call is returned,
-##'	    otherwise, a list of results is returned
+##'	        otherwise, a list of results is returned
 ##' @author Marius Hofert and Martin Maechler
 gnacopula <- function(u, cop, n.bootstrap=0,
 		      estimation.method=eval(formals(enacopula)$method),
@@ -172,40 +172,40 @@ gnacopula <- function(u, cop, n.bootstrap=0,
 	g01(gnacopulatrafo(u, cop, include.K=include.K, n.MC=n.MC),
 	    method = method)
     } else { # bootstrap
-	## (2) estimate the parameter by the provided method and define the
+	## (1) estimate the parameter by the provided method and define the
 	##     estimated copula
 	if(!is.matrix(u)) u <- rbind(u)
 	theta.hat <- enacopula(u, cop, method=estimation.method, n.MC=n.MC, ...)
 	cop.hat <- onacopulaL(cop@copula@name, list(theta.hat, 1:d)) # copula with theta.hat
-	## (3) transform the data with the copula with estimated parameter
+	## (2) transform the data with the copula with estimated parameter
 	trafo <- gnacopulatrafo(u, cop.hat, include.K=include.K, n.MC=n.MC)
 					# transformed data in the unit hypercube
 	Y <- g01trafo(trafo, method=method) # transformed data in the unit interval
-	## (4) conduct the Anderson-Darling test
+	## (3) conduct the Anderson-Darling test
 	if(any(is.na(Y))) stop("gnacopula: cannot use ad.test() due to missing values")
 	AD.test <- ad.test(Y)
 
-	## (5) conduct the parametric bootstrap
+	## (4) conduct the parametric bootstrap
 	theta.hat. <- numeric(n.bootstrap) # vector of estimators
 	AD.test. <- vector("list", n.bootstrap) # vector of ad.test() results
 	for(k in 1:n.bootstrap) {
-	    ## (5.1) sample from the copula with estimated parameter and build
+	    ## (4.1) sample from the copula with estimated parameter and build
 	    ##	     the corresponding pseudo-observations
 	    u. <- pobs(rnacopula(nrow(u), cop.hat))
-	    ## (5.2) estimate the parameter by the provided method and define
+	    ## (4.2) estimate the parameter by the provided method and define
 	    ##	     the estimated copula
 	    theta.hat.[k] <- enacopula(u., cop, method=estimation.method, n.MC=n.MC, ...)
 	    cop.hat. <- onacopulaL(cop@copula@name, list(theta.hat.[k], 1:d))
-	    ## (5.3) transform the data with the copula with estimated parameter
+	    ## (4.3) transform the data with the copula with estimated parameter
 	    trafo. <- gnacopulatrafo(u., cop.hat., include.K=include.K, n.MC=n.MC)
 	    Y. <- g01trafo(trafo., method=method)
-	    ## (5.4) conduct the Anderson-Darling test
+	    ## (4.4) conduct the Anderson-Darling test
 	    AD.test.[[k]] <- ad.test(Y.)
 	    ## progress output
 	    if(verbose && k %% ceiling(n.bootstrap/100) == 0)
 		cat(sprintf("bootstrap progress: %3.0f%%\n", k/n.bootstrap*100))
 	}
-	## (6) return results
+	## (5) return results
 	p.value <- mean(unlist(lapply(AD.test., function(x) x$statistic)) >
 		       AD.test$statistic)
 	structure(class = "htest",

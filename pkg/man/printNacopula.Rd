@@ -1,7 +1,7 @@
 \name{printNacopula}
 \alias{printNacopula}
 \alias{show,nacopula-method}
-\title{Print Compact Overview of Nested Archimedean Copula ("nacopula")}
+\title{Print Compact Overview of a Nested Archimedean Copula ("nacopula")}
 \description{
   Print a compact overview of a nested Archimedean copula, i.e., an
   object of class \code{"\linkS4class{nacopula}"}.

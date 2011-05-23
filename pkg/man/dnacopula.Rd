@@ -5,7 +5,7 @@
   Evaluates the density of an Archimedean copula.
 }
 \usage{
-dnacopula(x, u, log = FALSE, \dots)
+	dnacopula(x, u, log=FALSE, \dots)
 }
 \arguments{
   \item{x}{an object of class \code{"\linkS4class{outer_nacopula}"}.}
@@ -15,8 +15,8 @@ dnacopula(x, u, log = FALSE, \dots)
   \item{log}{logical indicating if the \code{\link{log}} of the density
     should be returned.}
   \item{\dots}{
-    optional further arguments passed to the copulas \code{dacopula}
-    function (slot), such as \code{n.MC}, (non-negative integer), for
+    optional further arguments passed to the copula's \code{dacopula}
+    function (slot), such as \code{n.MC} (non-negative integer) for
     possible Monte Carlo evaluation, see \code{dacopula} in
     \code{\linkS4class{acopula}}.}
 }
@@ -26,7 +26,7 @@ dnacopula(x, u, log = FALSE, \dots)
   \deqn{C(\bm{u})=\frac{\psi^{(d)}(\psi^{-1}(u_1)+\dots+\psi^{-1}(u_d))}{
       \prod_{j=1}^d\psi^\prime(\psi^{-1}(u_j))},\ \bm{u}\in(0,1)^d.
   }{C(u) = psi^{(d)}(psi^{-1}(u_1)+...+psi^{-1}(u_d)) /
-       (psi^prime(psi^{-1}(u_1))*...*psi^prime(psi^{-1}(u_d))),  u in (0,1)^d.}
+    (psi^prime(psi^{-1}(u_1))*...*psi^prime(psi^{-1}(u_d))),  u in (0,1)^d.}
 }
 \value{
   A \code{\link{numeric}} vector containing the values of the density of the
