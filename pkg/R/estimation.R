@@ -333,7 +333,10 @@ edmle <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...)
 ##' @return an "mle2" object with the (simulated) maximum likelihood estimator.
 ##' @author Martin Maechler and Marius Hofert
 emle <- function(u, cop, n.MC=0, optimizer="optimize", method,
-		 interval=paraOptInterval(u, cop@copula@name), ...)
+		 interval=paraOptInterval(u, cop@copula@name),
+                 ##vvv awkward to be needed, but it is - by mle2():
+                 start = list(theta= mean(interval)),
+                 ...)
 {
     stopifnot(is(cop, "outer_nacopula"))
     ## nLL <- function(theta) { # -log-likelihood
@@ -349,22 +352,19 @@ emle <- function(u, cop, n.MC=0, optimizer="optimize", method,
     ## optimize
     if(!(is.null(optimizer) || is.na(optimizer))) {
         stopifnot(require("bbmle"))
-        if(optimizer == "optimize")
-            mle2(minuslogl = nLL,
-                 optimizer = "optimize",
-                 lower = interval[1], upper = interval[2],
-                 ##vvv awkward to be needed, but it is - by mle2():
-                 start = list(theta= mean(interval)), ...)
-        else ## "general"
-            mle2(minuslogl = nLL,
-                 optimizer = optimizer,
-                 ##vvv awkward to be needed, but it is - by mle2():
-                 start = list(theta= mean(interval)), ...)
+	if(optimizer == "optimize")
+	    mle2(minuslogl = nLL, optimizer = "optimize",
+		 lower = interval[1], upper = interval[2],
+		 ##vvv awkward to be needed, but it is - by mle2():
+		 start=start, ...)
+	else ## "general"
+	    mle2(minuslogl = nLL, optimizer = optimizer,
+		 ##vvv awkward to be needed, but it is - by mle2():
+		 start=start, ...)
     }
     else
 	## use optim() .. [which uses suboptimal method for 1D, but provides Hessian]
-	mle(minuslogl = nLL, method = method,
-	    start = list(theta= mean(interval)), ...)
+	mle(minuslogl = nLL, method = method, start=start, ...)
 }
 
 ## ==== Estimation wrapper =====================================================

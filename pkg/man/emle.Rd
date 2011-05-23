@@ -8,7 +8,9 @@
 }
 \usage{
 emle(u, cop, n.MC=0, optimizer="optimize", method,
-     interval=paraOptInterval(u, cop@copula@name), \dots)
+     interval=paraOptInterval(u, cop@copula@name),
+     start = list(theta= mean(interval)),
+     \dots)
 
 .emle(u, cop, n.MC=0,
       interval=paraOptInterval(u, cop@copula@name), \dots)
@@ -30,6 +32,7 @@ emle(u, cop, n.MC=0, optimizer="optimize", method,
     be used for \code{\link{optim}}.}
   \item{interval}{numeric vector of length two, denoting the interval
     where optimization takes place.}
+  \item{start}{list of starting values, passed on.}
   \item{\dots}{additional parameters passed to \code{\link{optimize}}.}
 }
 \author{Martin Maechler and Marius Hofert.
