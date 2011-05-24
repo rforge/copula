@@ -1,8 +1,17 @@
 \name{K}
 \alias{K}
-\title{Kendall distribution function}
+\title{Kendall Distribution Function of a Copula}
 \description{
-  Kendall distribution function, i.e., the distribution function of the probability integral transformation.
+  Compute the Kendall distribution function of an Archimedean copula,
+  defined as
+  \deqn{K(t) = P(C(U_1,U_2,\dots,U_d) \le t),}{K(t) = P(C(U1,U2,\dots,Ud) <= t),}
+  where \eqn{t \in [0,1]}{t in [0,1]}, and the \eqn{d}-dimensional
+  \eqn{(U_1,U_2,\dots,U_d)}{(U1,U2,\dots,Ud)} is distributed according
+  to the copula \eqn{C}.
+
+  Note that this \dQuote{distribution function of the probability
+  integral transform} is known to be the uniform \eqn{K(t) = t}, for
+  \eqn{d = 1}, but is non-trivial for \eqn{d \ge 2}{d >= 2}.
 }
 \usage{
 K(t, cop, d, n.MC=0)
@@ -34,9 +43,9 @@ tau <- 0.5
 (cop <- onacopulaL("Gumbel", list(theta,1:d)))
 
 ## compute Kendall distribution function
-t <- (0:n)/n
-K. <- K(t, cop=cop@copula, d=d) # exact
-K.MC <- K(t, cop=cop@copula, d=d, n.MC=1000) # via Monte Carlo
+t <- seq(0,1, length.out = 255)
+Kt <- K(t, cop=cop@copula, d=d) # exact
+Kt.MC <- K(t, cop=cop@copula, d=d, n.MC=1000) # via Monte Carlo
 
 ## build sample from K
 set.seed(1)
@@ -46,8 +55,15 @@ W <- pnacopula(cop, u=U)
 ## plot empirical distribution function based on W
 ## and the corresponding theoretical Kendall distribution function
 ## (exact and via Monte Carlo)
-plot(ecdf(W), col="blue", xlim=c(0,1), verticals=TRUE, do.points=FALSE)
-lines(t, K.MC, col="green")
-lines(t, K., col="black")
+plot(ecdf(W), col="blue", xlim=c(0,1), verticals=TRUE,
+     main = expression("Empirical"~ F[n]( C(U) ) ~
+                       "and its Kendall distribution"~K(t)),
+     do.points=FALSE, asp=1)
+abline(0,1, lty=2); abline(h=0:1, v=0:1, lty=3, col="gray")
+lines(t, Kt.MC, col="red")
+lines(t, Kt, col="black")
+legend(.2,.6, expression(F[n],K(t), K[MC](t)),
+       col=c("blue","red","black"), lty=1, bty="n",
+       xjust = 0.25, yjust = 0.5)
 }
 \keyword{distribution}
