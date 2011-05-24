@@ -65,7 +65,9 @@ copAMH <-
                       if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       ## f() := NaN outside and on the boundary of the unit hypercube
                       res <- rep.int(NaN, n <- nrow(u))
-                      n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
+                      ## indices for which density has to be evaluated:
+                      n01 <- apply(u,1,function(x) all(0 < x, x < 1))
+
                       if(!any(n01)) return(res)
                       if(theta == 0) { res[n01] <- if(log) 0 else 1; return(res) } # independence
                       ## auxiliary results

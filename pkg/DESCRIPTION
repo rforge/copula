@@ -14,3 +14,4 @@ Imports: gsl, ADGofTest, stabledist
 Suggests: lattice, sfsmisc, Rmpfr (>= 0.2-6), bbmle
 License: GPL (>= 2)
 LazyData: yes
+Encoding: UTF-8

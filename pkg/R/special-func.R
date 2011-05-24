@@ -24,9 +24,9 @@ polynEval <- function(coef, x) .Call(polyn_eval, coef, x)
 ##' @title Compute  f(a) = log(1 - exp(-a))  stably
 ##' @param a numeric vector of positive values
 ##' @param cutoff  log(2) is optimal, see  Maechler (201x) .....
-##' @return f(a)
+##' @return f(a) == log(1 - exp(-a)) == log1p(-exp(-a)) == log(-expm1(-a))
 ##' @author Martin Maechler, 13 May 2002
-log1exp <- function(a, cutoff = log(2)) ## << log(2) is optimal >>
+log1mexpm <- function(a, cutoff = log(2)) ## << log(2) is optimal >>
 {
     if(any(a < 0))## a == 0  -->  -Inf  (in both cases)
         stop("'a' >= 0 needed")
@@ -354,8 +354,9 @@ assign("Eul.full.n", 0	, envir = .nacopEnv)
 ##' @return numeric/complex vector as \code{z}
 ##' @author Martin Maechler
 polylog <- function(z, s, method = c("sum", "negI-s-Stirling",
-                          "negI-s-Eulerian", "negI-s-asymp-w0"),
+			  "negI-s-Eulerian", "negI-s-asymp-w"),
 		    logarithm = FALSE, is.log.z = FALSE,
+                    is.logmlog = FALSE, asymp.w.order = 0,
 		    ## for "sum" -- this is more for experiments etc:
 		    n.sum)
 {
@@ -363,19 +364,27 @@ polylog <- function(z, s, method = c("sum", "negI-s-Stirling",
 	return((z+s)[FALSE])# of length 0
     stopifnot(length(s) == 1) # for now
     method <- match.arg(method)
-    if(is.log.z)# z = e^{w}
-	z <- exp(w <- z)
+    if(is.log.. <- is.log.z) {
+	if(is.logmlog)
+	    stop("cannot have *both* 'is.log.z' and 'is.logmlog'")
+	## z = e^{w}
+	w <- z
+    } else if(is.log.. <- is.logmlog) {
+	stopifnot((lw <- z) < 0)
+	w <- -exp(lw)
+    }
+    if(is.log..) z <- exp(w)
 
     if(method == "sum") {
 	stopifnot((Mz <- Mod(z)) <= 1, Mz < 1 | Re(s) > 1,
 		  n.sum > 99, length(n.sum) == 1)
 	p <- polynEval((1:n.sum)^-s, z)
-	if(logarithm) (if(is.log.z) w else log(z)) +log(p) else z*p
+	if(logarithm) (if(is.log..) w else log(z)) +log(p) else z*p
     } else {
-	## "negI"-methods:  s \in {1, 0, -1, -2, ....}   "[neg]ative [I]nteger"
+	## "negI"-methods:  s \in {1, 0, -1, -2, ....}	 "[neg]ative [I]nteger"
 	stopifnot(s == as.integer(s), s <= 1)
-	if(s == 1) { ## result = -log(1 -z) = -log(1 - exp(w)) = -log1exp(-w)
-	    r <- if(is.log.z) -log1exp(-w) else -log1p(-z)
+	if(s == 1) { ## result = -log(1 -z) = -log(1 - exp(w)) = -log1mexpm(-w)
+	    r <- if(is.log..) -log1mexpm(-w) else -log1p(-z)
 	    return(if(logarithm) log(r) else r)
 	}
 	## s <= 0:
@@ -394,8 +403,8 @@ polylog <- function(z, s, method = c("sum", "negI-s-Stirling",
 	       p <- polynEval(fac.k * S.n1.k1, r)
 	       ## log(r) = log(z / (1-z)) = logit(z) = qlogis(z),  and if(is.log.z)
 	       ## log(r) = log(z / (1-z)) = log(z) - log(1-z) = w - log(1-exp(w)) =
-	       ##	 = w - log1exp(-w)
-	       if(logarithm) log(p) + if(is.log.z) w - log1exp(-w) else qlogis(z)
+	       ##	 = w - log1mexpm(-w)
+	       if(logarithm) log(p) + if(is.log..) w - log1mexpm(-w) else qlogis(z)
 	       else r*p
 	   },
 	       "negI-s-Eulerian" =
@@ -406,31 +415,43 @@ polylog <- function(z, s, method = c("sum", "negI-s-Stirling",
 	       p <- polynEval(Eu.n, z)
 	       if(logarithm)
 		   log(p) +
-		       if(is.log.z) w - (n+1)*log1exp(-w)
+		       if(is.log..) w - (n+1)*log1mexpm(-w)
 		       else log(z) - (n+1)*log1p(-z)
 	       else z*p / i.z^(n+1)
 	   },
-               "negI-s-asymp-w0" =
-               ## MM's asymptotic formula for small w = log(z):
-           {
-               if(!is.numeric(z) || z < 0)
-                   stop("need z > 0, or rather w = log(z) < 0 for method ",
-                        method,"; but z=",z)
-               if(!is.log.z) w <- log(z)
-               w <- -w # --> w > 0 , z = exp(-w)  as in "paper"
-               if(w >= 1)
-                   warning("w << 1 is prerequisite for method ",
-                           method, "; but w=", w)
-               ## zero-th-order ("simple")
-               if(logarithm) lgamma(n+1) - (n+1)*log(w) else gamma(n+1)*w^(-(n+1))
+	       "negI-s-asymp-w" =
+	       ## MM's asymptotic formula for small w = log(z):
+	   {
+	       stopifnot(length(asymp.w.order) == 1, asymp.w.order >= 0)
+	       if(!is.numeric(z) || z < 0)
+		   stop("need z > 0, or rather w = log(z) < 0 for method ",
+			method,"; but z=",z)
+	       if(!is.log..) w <- log(z)
+	       w <- -w # --> w > 0 , z = exp(-w)  as in "paper", lw = log(w), w = exp(lw)
+	       if(w >= 1)
+		   warning("w << 1 is prerequisite for method ",
+			   method, "; but w=", w)
+	       n1 <- n+1L
+	       if(asymp.w.order == 0) { ## zero-th-order ("simple")
+		   if(logarithm) lgamma(n1) - n1*(if(is.logmlog)lw else log(w))
+		   else gamma(n1)* if(is.logmlog) exp(-lw*n1) else w^-n1
+	       } else if(asymp.w.order == 1) { ## 1st order
+		   stop("1-st order asympt: implementation unfinished")
+		   r <- if(logarithm) {
+		       ## main: lgamma(n+1) - (n+1)*log(w) + c1 ^ w^*(2*ceiling((n+1)/2))
+		       trm <-
+			   if(n %% 2) { ## n odd
+			   } else { ## n even
+			   }
+		   } else gamma(n+1)*w^(-(n+1)) +0-0+0-0+ Bernoulli()/factorial()
 
-### Frank: large theta: even w underflows to 0, and we could think of
-###        an argument  'is.loglog.z' where we specify
-###        1st arg. =  log(log(z)) = log(w)  --- TODO?
+	       } else stop("asymp.w.order = ",asymp.w.order," is not implemented")
 
-
-## TODO:  use *first* order term  ... [ for small w  i.e. z ~<~ 1 ]
-           },
+### TODO:
+###  Frank: large theta: even w underflows to 0, ---> use  is.logmlog = TRUE
+###
+### TODO 2): use *first* order term  ... [ for small w  i.e. z ~<~ 1 ]
+	   },
 
 	       stop("unsupported method ", method))
     }

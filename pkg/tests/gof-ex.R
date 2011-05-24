@@ -68,7 +68,7 @@ d <- 5     # dimension
 tau <- 0.8 # Kendall's tau
 (theta <- copGumbel@tauInv(tau)) # == 5  [true parameter]
 
-## now [2011-04-29] should work: if(FALSE) { ## BUG -- FIXME -- emle() fails for Frank here !
+## now [2011-04-29] should work:  emle() *did* fail for Frank here:
 R2 <- sapply(gofMeth, simplify="array", function(g)
 	     estimation.gof(n, d, copGumbel, tau = tau, n.MC = 0,
 			    n.bootstrap = 256,

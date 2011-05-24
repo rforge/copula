@@ -78,6 +78,8 @@ show.(m2 <- p.log.f(1, 200, n.th=401, d = 5, u0 = .987))
 
 ## Extend the range even more -- change u0
 show.(m3 <- p.log.f(10, 500, d = 5, u0 = .96))
+## and more
+show.(m3.2 <- p.log.f(10, 800, d = 5, u0 = .96))#-> breakdown at ~ 775..
 
 ## higher d:
 show.(m4 <- p.log.f(10, 500, d = 12, u0 = 0.95))
@@ -120,4 +122,5 @@ untrace(polylog)
 
 ## and similarly here:
 ll <- p.log.f(1, 12000, d = 12, u0 = 0.08)
+
 

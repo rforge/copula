@@ -453,7 +453,7 @@ C9.true <- rbind(c(1. ,rep(0.2,8)),
 stopifnot(dim(rC9) == c(n, 9),
           max(abs(C9-C9.true)) < eps.tau)
 prt.stats(C9,C9.true,rt)
-if(doPlots && dev.interactive()) # "large"
+if(doPlots && dev.interactive(orNone=TRUE)) # "large"
     pairs(rC9, gap = .1, pch = 20, cex = 0.2, col = rgb(.2,.1,.7, alpha = .5),
           main = paste(n," vectors of a ",d,
           "-dimensional nested Clayton copula",sep = ""))

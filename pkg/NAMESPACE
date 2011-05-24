@@ -57,7 +57,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"dSibuya", "pSibuya", "dsumSibuya", "rSibuya", "rSibuyaR"
        ,"rlog", "rlogR", "rF01Frank", "rF01Joe", "rFFrank", "rFJoe"
        ##
-       ,"log1exp"
+       ##,"logm1expm"
        ,"polylog", "Eulerian", "Stirling1", "Stirling2", "Eulerian.all", "Stirling1.all", "Stirling2.all"
        ,"psiDabsMC"
        ,"setTheta"
