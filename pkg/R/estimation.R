@@ -26,8 +26,9 @@
 ##' @param h for enlarging the tau-interval
 ##' @return initial interval which can be used for optimization (e.g., for emle)
 ##' @author Marius Hofert
-paraOptInterval <- function(u, family, h=0.15) {
-    stopifnot(h >= 0)
+paraOptInterval <- function(u, family, h=0.15)
+{
+    stopifnot(h >= 0, length(dim(u)) == 2)
     x <- apply(u,1,max)
     theta.hat.G <- log(ncol(u))/(log(length(x))-log(sum(-log(x)))) # direct formula from edmle for Gumbel
     tau.hat.G <- copGumbel@tau(theta.hat.G)

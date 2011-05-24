@@ -3,14 +3,15 @@
 (MH) add (and fill) all help files for estimation and gof procedures;
      => only left: gnacopula.Rd + Sibuya.Rd; will do soon
    emde: Reference Hering
+(MH) references inconsistent: \emph{journal} <<<< ist  richtig!
 
-  o (almost) no linebreaks so far!... better for editing.
+
+(MH/MM): (almost) no linebreaks so far!... better for editing.
     when finished --- add linebreaks !
 
 (MM) Questions:
   o "2011a" auf *allen* Seiten oder nur auf denen wo auch "2011b" auch vorkommt?
     [=> followed the former]
-  o references inconsistent: \emph{journal} <<<< ist  richtig!
   o Martin [plot-pRofi :-)]: add title & legend in example-plot in K.Rd
 
 MM answers:
