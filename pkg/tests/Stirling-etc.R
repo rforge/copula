@@ -126,34 +126,5 @@ stopifnot(EQ(polylog(s =  1,  x, n.sum=10000), -log(1-x)),
           TRUE)
 
 
-if(!dev.interactive(orNone=TRUE)) pdf("polylog-ex.pdf")
-
-p.Li <- function(s.set, from = -2.6, to = 1/4, ylim = c(-1, 0.5),
-                 colors = c("orange","brown", palette()), n = 201, ...)
-{
-    s.set <- sort(s.set, decreasing = TRUE)
-    s <- s.set[1] # <_ for auto-ylab
-    curve(polylog(x, s, method="negI-s-Stirling"), from, to,
-          col=colors[1], ylim=ylim, n=n, ...)
-    abline(h=0,v=0, col="gray")
-    for(is in seq_along(s.set)[-1])
-        curve(polylog(x, s=s.set[is], method="negI-s-Stirling"), add=TRUE, col = colors[is], n=n)
-    s <- rev(s.set)
-    legend("bottomright", paste("s =", s), col=colors[2-s], lty=1, bty="n")
-}
-
-## yellow is unbearable (on white):
-palette(local({p <- palette(); p[p=="yellow"] <- "goldenrod"; p}))
-
-## Wikipedia page plot (+/-):
-p.Li(1:-3, ylim= c(-.8, 0.6), colors = c(2:4,6:7))
-
-## and a bit more:
-p.Li(1:-5)
-
-## For the range we need it:
-ccol <- c(NA,NA, rep(palette(),10))
-p.Li(-1:-20, from=0, to=.99, colors=ccol, ylim = c(0, 10))
-## log-y scale:
-p.Li(-1:-20, from=0, to=.99, colors=ccol, ylim = c(.01, 1e7), log="y", yaxt="n")
-if(require("sfsmisc")) eaxis(2) else axis(2)
+##--> now do plots etc in  ../man/polylog.Rd :
+##                         ~~~~~~~~~~~~~~~~~
