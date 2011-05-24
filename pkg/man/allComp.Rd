@@ -2,7 +2,7 @@
 \alias{allComp}
 \title{All Components of a (Inner or Outer) Nested Archimedean Copula}
 \description{
-  Given the nested Archimedean copula \code{x}, return an integer vector of the \emph{indices} of all components of the corresponding \code{\linkS4class{outer_nacopula}} which are components of \code{x} (either direct components or components of possible child copulas). This is typically only used by programmers investigating the exact nesting structure.
+  Given the nested Archimedean copula \code{x}, return an integer vector of the \emph{indices} of all components of the corresponding \code{\linkS4class{outer_nacopula}} which are components of \code{x} (either direct components or components of possible child copulas).  This is typically only used by programmers investigating the exact nesting structure.
 
   For an \code{\linkS4class{outer_nacopula}} object
   \code{x}, \code{allComp(x)} must be the same as

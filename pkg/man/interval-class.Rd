@@ -47,7 +47,7 @@
 }
 \note{
   There are more sophisticated interval classes, functions and methods,
-  notably in package \pkg{Intervals}. We only use this as a simple
+  notably in package \pkg{Intervals}.  We only use this as a simple
   interface in order to specify our copula functions consistently.
 }
 \author{Martin Maechler}

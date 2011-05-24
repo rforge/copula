@@ -9,7 +9,7 @@
 }
 \arguments{
   \item{x}{an object of class \code{"\linkS4class{outer_nacopula}"}.}
-  \item{u}{argument of the copula x. Note that u can be a matrix in which case
+  \item{u}{argument of the copula x.  Note that u can be a matrix in which case
     the density is computed for each row of the matrix and the vector of
     values is returned.}
   \item{log}{logical indicating if the \code{\link{log}} of the density

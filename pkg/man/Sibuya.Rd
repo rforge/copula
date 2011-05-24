@@ -76,7 +76,7 @@ dsumSibuya(x, n, alpha,
   infinite mean and variance.
 
   For documentation and didactical purposes, \code{rSibuyaR} is a pure-\R
-  implementation of \code{rSibuya}. However, \code{rSibuyaR} is not as fast as
+  implementation of \code{rSibuya}.  However, \code{rSibuyaR} is not as fast as
   \code{rSibuya} (the latter being implemented in C).
 }
 \author{Marius Hofert, Martin Maechler}

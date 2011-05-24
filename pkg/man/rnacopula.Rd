@@ -20,12 +20,12 @@ rnacopula(n, x, ...)
 \details{
   The generation happens by calling \code{\link{rnchild}()} on
   each child copula (which itself recursively descends the tree implied
-  by the nested Archimedean structure). The algorithm is based on a
+  by the nested Archimedean structure).  The algorithm is based on a
   mixture representation of the generic distribution functions
   \eqn{F_{0}}{F0} and \eqn{F_{01}}{F01} and is presented in
-  McNeil~(2008) and Hofert~(2011a). Details about how to efficiently sample the 	  
+  McNeil(2008) and Hofert(2011a).  Details about how to efficiently sample the
   distribution functions \eqn{F_{0}}{F0} and \eqn{F_{01}}{F01} can be found in
-  Hofert~(2010), Hofert~(2012), and Hofert and Maechler (2011).
+  Hofert(2010), Hofert(2012), and Hofert and Mächler (2011).
 }
 \value{
   a \code{\link{numeric}} matrix containing the generated vectors of
@@ -34,7 +34,7 @@ rnacopula(n, x, ...)
 \author{Marius Hofert, Martin Maechler}
 \seealso{
   \code{\link{rnchild}}; classes \code{"\linkS4class{nacopula}"} and
-  \code{"\linkS4class{outer_nacopula}"}, see also \code{\link{onacopula}()}. Further, those of the Archimedean families, e.g., \code{\link{copGumbel}}.
+  \code{"\linkS4class{outer_nacopula}"}, see also \code{\link{onacopula}()}.  Further, those of the Archimedean families, e.g., \code{\link{copGumbel}}.
 }
 \references{
   McNeil, A. J. (2008),
@@ -53,9 +53,9 @@ rnacopula(n, x, ...)
   Sampling exponentially tilted stable distributions,
   \emph{ACM Transactions on Modeling and Computer Simulation}, \bold{22}, 1, page numbers: to be announced.
 
-  Hofert, M., Maechler, M. (2011),
+  Hofert, M. and Mächler, M. (2011),
   Nested Archimedean Copulas Meet R: The nacopula Package,
-  \emph{Journal of Statistical Software}, \bold{39}, 9, 1--20.  
+  \emph{Journal of Statistical Software}, \bold{39}, 9, 1--20.
 }
 \examples{
 ## Construct a three-dimensional nested Clayton copula with parameters
@@ -65,7 +65,7 @@ C3 <- onacopula("C", C(copClayton@tauInv(0.2), 1,
                        C(copClayton@tauInv(0.5), c(2,3))))
 C3
 
-## Sample n vectors of random variates from this copula. This involves
+## Sample n vectors of random variates from this copula.  This involves
 ## sampling exponentially tilted stable distributions
 n <- 1000
 U <- rnacopula(n, C3)

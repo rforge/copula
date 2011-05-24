@@ -28,7 +28,7 @@ retstableR(alpha, V0, h = 1)
   \item{h}{parameter in \eqn{[0,\infty)}{[0,Inf)}.}
   \item{method}{a character string denoting the method to use, currently
     either \code{"MH"} (Marius Hofert's algorithm) or \code{"LD"} (Luc Devroye's
- 	 algorithm). By default, when \code{NULL}, a smart choice is made to use the
+ 	 algorithm).  By default, when \code{NULL}, a smart choice is made to use the
     fastest of these methods depending on the specific values of \eqn{V_0}{V0}.}
 }
 \details{

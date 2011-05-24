@@ -23,16 +23,16 @@ rnchild(x, theta0, V0, ...)
 }
 \details{
   The generation is done recursively, descending the tree implied by the
-  nested Archimedean structure. The algorithm is based on a mixture
+  nested Archimedean structure.  The algorithm is based on a mixture
   representation and requires sampling \eqn{V_{01}\sim F_{01}}{V01 ~ F01}
-  given random variates \eqn{V_0\sim F_{0}}{V0 ~ F0}. Calling
-  \code{"rnchild"} is only intended for experts. The typical call of
+  given random variates \eqn{V_0\sim F_{0}}{V0 ~ F0}.  Calling
+  \code{"rnchild"} is only intended for experts.  The typical call of
   this function takes place through \code{\link{rnacopula}()}.
 }
 \value{
   a list with components
   \item{U}{a \code{\link{numeric}} matrix containing the vector of random
-    variates from the child copula. The number of rows of this matrix
+    variates from the child copula.  The number of rows of this matrix
     therefore equals the length of \eqn{V_{0}}{V0} and the number of
     columns corresponds to the dimension of the child copula.}
 

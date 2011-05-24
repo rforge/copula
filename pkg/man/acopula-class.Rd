@@ -34,19 +34,19 @@
       parameter \code{theta} and of the given \code{degree} (defaults to 1).
       Note that there is no informational loss by computing the absolute value
       since the derivatives alternate in sign (so that the generator derivative
-      itself can be accessed with (-1)^\code{degree}\code{psiDabs}). The
+      itself can be accessed with (-1)^\code{degree}\code{psiDabs}).  The
       number \code{n.MC} denotes the sample size for a Monte Carlo evaluation
-      approach. If \code{n.MC} is zero (the default), the
-      generator derivatives are evaluated with their exact formulas. The
+      approach.  If \code{n.MC} is zero (the default), the
+      generator derivatives are evaluated with their exact formulas.  The
       optional parameter \code{log} (defaults to \code{FALSE}) indicates whether
       or not the logarithmic value is returned.}
     \item{\code{psiInvD1abs}:}{a \code{\link{function}} computing the
       absolute derivative of the generator inverse (\code{psiInv()}) for
-      the given parameter \code{theta}. The optional parameter \code{log}
+      the given parameter \code{theta}.  The optional parameter \code{log}
       (defaults to \code{FALSE}) indicates whether the logarithm of the absolute
       value of the first derivative of \code{psiInv()} is returned.}
     \item{\code{dacopula}:}{a \code{\link{function}} computing the density
-      of the Archimedean copula at \code{u} with parameter \code{theta}. The
+      of the Archimedean copula at \code{u} with parameter \code{theta}.  The
       meanings of the parameters \code{n.MC} and \code{log} are as
       described before.}
     \item{\code{score}:}{a \code{\link{function}} computing the
@@ -70,7 +70,7 @@
       on the Archimedean family) of the distribution function whose
       Laplace-Stieltjes transform equals the generator \eqn{\psi}{psi} at the
       argument \code{x} (possibly a vector) for the given parameter
-      \code{theta}. An optional argument \code{log} indicates whether
+      \code{theta}.  An optional argument \code{log} indicates whether
       the logarithm of the mass or density is computed (defaults to
     	\code{FALSE}).}
     \item{\code{V01}:}{A \code{\link{function}} which gets a vector of
@@ -89,7 +89,7 @@
       corresponding to the distribution function \eqn{F_{01}}{F01}.
 
       Arguments are the evaluation point(s) \code{x}, the value(s) \code{V0},
-      and the parameters \code{theta0} and \code{theta1}. As for \code{dV0}, the
+      and the parameters \code{theta0} and \code{theta1}.  As for \code{dV0}, the
       optional argument \code{log} can be specified (defaults to \code{FALSE}).
       Note that if \code{x} is a vector, \code{V0} must either have
       length one (in which case \code{V0} is the same for every component of
@@ -118,7 +118,7 @@
     \item{show}{\code{signature("acopula")}: compact overview of the copula.}
   }
 }
-\author{Martin Maechler, Marius Hofert}
+\author{Martin Maechler and Marius Hofert}
 \seealso{
   Specific provided copula family objects, e.g.,
   \code{\link{copAMH}}, \code{\link{copClayton}}, \code{\link{copFrank}},

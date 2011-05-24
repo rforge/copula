@@ -26,7 +26,7 @@
 }
 \details{
   For documentation and didactical purposes, \code{rlogR} is a pure-\R
-  implementation of \code{rlog}. However, \code{rlogR} is not as fast as
+  implementation of \code{rlog}.  However, \code{rlogR} is not as fast as
   \code{rlog} (the latter being implemented in C).
 }
 \author{Marius Hofert, Martin Maechler}

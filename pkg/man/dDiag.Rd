@@ -2,7 +2,7 @@
 \alias{dDiag}
 \title{Density of the Diagonal of a nested Archimedean Copula}
 \description{
-  Evaluate the density of the diagonal of a d-dimensional nested Archimedean copula. Note that the diagonal of a copula is a cumulative distribution function. Currently, only Archimedean copulas are implemented.
+  Evaluate the density of the diagonal of a d-dimensional nested Archimedean copula.  Note that the diagonal of a copula is a cumulative distribution function.  Currently, only Archimedean copulas are implemented.
 }
 \usage{
 dDiag(u, cop, log=FALSE)
@@ -10,7 +10,7 @@ dDiag(u, cop, log=FALSE)
 \arguments{
   \item{u}{a numeric vector of evaluation points.}
   \item{cop}{a nested Archimedean copula object of class
-    \code{"\linkS4class{outer_nacopula}"}. This also determines the dimension via
+    \code{"\linkS4class{outer_nacopula}"}.  This also determines the dimension via
     the \code{comp} slot}
   \item{log}{logical indicating if the \code{\link{log}} of the density of the
     diagonal should be returned instead of just the diagonal density.}

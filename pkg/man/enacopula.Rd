@@ -15,7 +15,7 @@ enacopula(u, cop,
           xargs = list(), \dots)
 }
 \arguments{
-  \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-)observations (each value in \eqn{[0,1]}) from the copula, where \eqn{n} denotes the sample size and \eqn{d} the dimension. Consider applying the function \code{\link{pobs}} first in order to obtain \code{u}.}
+  \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-)observations (each value in \eqn{[0,1]}) from the copula, where \eqn{n} denotes the sample size and \eqn{d} the dimension.  Consider applying the function \code{\link{pobs}} first in order to obtain \code{u}.}
   \item{cop}{\code{\linkS4class{outer_nacopula}} to be estimated (currently only Archimedean copulas are provided).}
   \item{method}{a \code{\link{character}} string specifying the estimation method to be used, which has to be one (or a unique abbreviation) of
     \describe{
@@ -37,12 +37,12 @@ enacopula(u, cop,
   }
   \item{n.MC}{\code{\link{integer}}, if positive, simulated maximum likelihood estimation (SMLE) is used with sample size equal to \code{n.MC}.}
   \item{interval}{bivariate vector denoting the interval where
-	    optimization takes place. The default is computed as described in Hofert et al. (2011a). Used for all methods except \code{"tau.tau.mean"} and \code{"tau.theta.mean"}.}
+	    optimization takes place.  The default is computed as described in Hofert et al. (2011a).  Used for all methods except \code{"tau.tau.mean"} and \code{"tau.theta.mean"}.}
   \item{xargs}{list of additional arguments for the chosen estimation method.}
   \item{\dots}{additional arguments passed to \code{\link{optimize}}.}
 }
 \details{
- 	\code{\link{enacopula}} serves as a wrapper for the different implemented estimators and provides a uniform framework to utilize them. For more information, see the single estimators as given in the section \dQuote{See Also}. 
+ 	\code{\link{enacopula}} serves as a wrapper for the different implemented estimators and provides a uniform framework to utilize them.  For more information, see the single estimators as given in the section \dQuote{See Also}.
 }
 \value{
   the estimated parameter, \eqn{\hat{\theta}}{hat(theta)}, i.e., currently a
@@ -50,7 +50,7 @@ enacopula(u, cop,
 }
 \author{Marius Hofert and Martin Maechler}
 \references{
-  	Hofert, M., Maechler, M., and McNeil, A. J. (2011a),
+  Hofert, M., Mächler, M., and McNeil, A. J. (2011a),
   \emph{Estimators for Archimedean copulas in high dimensions: A comparison},
    to be submitted.
 }
@@ -71,7 +71,7 @@ tau <- 0.25
 set.seed(1)
 U <- rnacopula(n, cop)
 
-(meths <- eval(formals(enacopula)$method)) # "mle", "smle", ... 
+(meths <- eval(formals(enacopula)$method)) # "mle", "smle", ...
 fun <- function(meth, u, cop, theta){
 	run.time <- system.time(val <- enacopula(u, cop=cop, method=meth))
 	list(value=val, error=val-theta, utime.ms=1000*run.time[[1]])

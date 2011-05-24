@@ -32,8 +32,8 @@ copJoe
       parametric generator
       \deqn{\psi(t)=(1-\theta)/(\exp(t)-\theta),\	t\in[0,\infty],
       }{psi(t)=(1-theta)/(exp(t)-theta), t in [0,Inf],}
-      with \eqn{\theta\in[0,1)}{theta in [0,1)}. The range of
-      admissible Kendall's tau is [0,1/3). Note that the lower and upper
+      with \eqn{\theta\in[0,1)}{theta in [0,1)}.  The range of
+      admissible Kendall's tau is [0,1/3).  Note that the lower and upper
       tail-dependence coefficients are both zero, i.e., this copula
       family does not allow for tail dependence.}
 
@@ -41,17 +41,17 @@ copJoe
        parametric generator
        \deqn{\psi(t)=(1+t)^{-1/\theta},\ t\in[0,\infty],}{
 	      psi(t)=(1+t)^{-1/theta}, t in [0,Inf],}
-       with \eqn{\theta\in(0,\infty)}{theta in (0,Inf)}. The range of
+       with \eqn{\theta\in(0,\infty)}{theta in (0,Inf)}.  The range of
      admissible Kendall's tau, as well as that of the lower
-     tail-dependence coefficient, is (0,1). Note that this copula does
+     tail-dependence coefficient, is (0,1).  Note that this copula does
      not allow for upper tail dependence.}
 
      \item{\code{copFrank}:}{Archimedean family of Frank with parametric
        generator
        \deqn{-\log(1-(1-e^{-\theta})\exp(-t))/\theta,\ t\in[0,\infty]}{
 	     -log(1-(1-e^{-theta})exp(-t))/theta, t in [0,Inf],}
-     with \eqn{\theta\in(0,\infty)}{theta in (0,Inf)}. The range of
-     admissible Kendall's tau is (0,1). Note that this copula family
+     with \eqn{\theta\in(0,\infty)}{theta in (0,Inf)}.  The range of
+     admissible Kendall's tau is (0,1).  Note that this copula family
      does not allow for tail dependence.}
 
      \item{\code{copGumbel}:}{Archimedean family of Gumbel with
@@ -59,18 +59,18 @@ copJoe
        \deqn{\exp(-t^{1/\theta}),\ t\in[0,\infty]}{
 	      exp(-t^{1/theta}), t in [0,Inf],}
 	    with
-     \eqn{\theta\in[1,\infty)}{theta in [1,Inf)}. The range of
+     \eqn{\theta\in[1,\infty)}{theta in [1,Inf)}.  The range of
      admissible Kendall's tau, as well as that of the upper
-     tail-dependence coefficient, is [0,1). Note that this copula does
+     tail-dependence coefficient, is [0,1).  Note that this copula does
      not allow for lower tail dependence.}
 
      \item{\code{copJoe}:}{Archimedean family of Joe with parametric
        generator
        \deqn{1-(1-\exp(-t))^{1/\theta},\ t\in[0,\infty]}{
 	     1-(1-exp(-t))^{1/theta}, t in [0,Inf],}
-       with \eqn{\theta\in[1,\infty)}{theta in [1,Inf)}. The range of
+       with \eqn{\theta\in[1,\infty)}{theta in [1,Inf)}.  The range of
        admissible Kendall's tau, as well as that of the upper
-       tail-dependence coefficient, is [0,1). Note that this copula does
+       tail-dependence coefficient, is [0,1).  Note that this copula does
        not allow for lower tail dependence.}
   }
   Note that staying within one of these Archimedean families, all of
@@ -98,7 +98,7 @@ copJoe
   Efficiently sampling nested Archimedean copulas,
   \emph{Computational Statistics & Data Analysis} \bold{55}, 57--70.
 
-  Marius Hofert and Martin Maechler (2011)
+  Marius Hofert and Martin Mächler (2011)
   Nested Archimedean Copulas Meet R: The nacopula Package.
   \emph{Journal of Statistical Software} \bold{39}(9), 1--20.
   \url{http://www.jstatsoft.org/v39/i09/}.

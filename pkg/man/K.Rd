@@ -19,7 +19,7 @@ todo
 \value{Kendall distribution function at t}
 \author{Marius Hofert}
 \references{
-   Hofert, M., Maechler, M., and McNeil, A. J. (2011b),
+   Hofert, M., Mächler, M., and McNeil, A. J. (2011b),
    \emph{Likelihood inference for Archimedean copulas},
    to be submitted.
 }
@@ -33,7 +33,7 @@ tau <- 0.5
 (theta <- copGumbel@tauInv(tau)) # 2
 (cop <- onacopulaL("Gumbel", list(theta,1:d)))
 
-## compute Kendall distribution function 
+## compute Kendall distribution function
 t <- (0:n)/n
 K. <- K(t, cop=cop@copula, d=d) # exact
 K.MC <- K(t, cop=cop@copula, d=d, n.MC=1000) # via Monte Carlo
@@ -43,8 +43,8 @@ set.seed(1)
 U <- rnacopula(n, cop)
 W <- pnacopula(cop, u=U)
 
-## plot empirical distribution function based on W 
-## and the corresponding theoretical Kendall distribution function 
+## plot empirical distribution function based on W
+## and the corresponding theoretical Kendall distribution function
 ## (exact and via Monte Carlo)
 plot(ecdf(W), col="blue", xlim=c(0,1), verticals=TRUE, do.points=FALSE)
 lines(t, K.MC, col="green")

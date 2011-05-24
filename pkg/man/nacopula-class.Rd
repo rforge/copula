@@ -14,7 +14,7 @@
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("nacopula", ...)},
-  which is only intended for experts. Root copulas are typically constructed by
+  which is only intended for experts.  Root copulas are typically constructed by
   \code{\link{onacopula}(.)}.
 }
 \section{Slots}{
@@ -26,12 +26,12 @@
       length 0) of indices of components in \code{1:d} which are not
       nested Archimedean copulas.  Here, \eqn{d} denotes the
       \emph{dimension} of the random vectors under consideration, see
-      the \code{dim()} method below.} 
+      the \code{dim()} method below.}
     \item{\code{childCops}:}{a (possibly empty) \code{\link{list}} of
       further nested Archimedean copulas (child copulas), i.e., objects
       of class \code{"nacopula"}.  The \code{"nacopula"} objects
       therefore contain \code{"\linkS4class{acopula}"} objects as
-      special cases.} 
+      special cases.}
   }
 }
 \section{Methods}{
@@ -45,7 +45,7 @@
 }
 \author{Martin Maechler}
 \seealso{
-  \code{\link{onacopula}} for building (outer) "nacopula" objects. For the
+  \code{\link{onacopula}} for building (outer) "nacopula" objects.  For the
   class definition of the \code{copula} component, see \code{\linkS4class{acopula}}.
 }
 \examples{

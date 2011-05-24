@@ -20,7 +20,7 @@ etau(u, cop, method = c("tau.mean", "theta.mean"), ...)
   \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-)observations (each value in \eqn{[0,1]}) from the copula, where \eqn{n} denotes the sample size and \eqn{d} the dimension.}
   \item{cop}{\code{\linkS4class{outer_nacopula}} to be estimated (currently only Archimedean copulas are provided).}
   \item{interval}{bivariate vector denoting the interval where
-    optimization takes place. The default is computed as described in Hofert et
+    optimization takes place.  The default is computed as described in Hofert et
     al. (2011a).}
   \item{method}{a character string specifying the method (only
     for \code{etau}), which has to be one (or a unique abbreviation) of
@@ -28,22 +28,22 @@ etau(u, cop, method = c("tau.mean", "theta.mean"), ...)
       \item{\code{"tau.mean"}}{method-of-moments-like estimator based on averaged pairwise Kendall’s tau;}
       \item{\code{"theta.mean"}}{average of the method-of-moments-like pairwise Kendall's tau estimators.}
     }}
-  \item{\dots}{additional arguments passed to 
+  \item{\dots}{additional arguments passed to
     \code{\link{cor}} (for \code{etau}), to \code{\link{optimize}}
     (for \code{edmle}), or to \code{\link{safeUroot}} (for \code{ebeta}).}
 }
 \details{
    For \code{ebeta}, the parameter is estimated with a method-of-moments-like procedure such that the population version of the multivariate Blomqvist's beta matches its sample version.
-	
-	Note that the copula diagonal is a distribution function and the maximum of all components of a random vector following the copula is distributed according to this distribution function. For \code{edmle}, the parameter is estimated via maximum-likelihood estimation based on the diagonal. 
-	
+
+	Note that the copula diagonal is a distribution function and the maximum of all components of a random vector following the copula is distributed according to this distribution function.  For \code{edmle}, the parameter is estimated via maximum-likelihood estimation based on the diagonal.
+
   For \code{etau}, the \code{method="tau.mean"}
   indicates that the average of the sample versions of Kendall's tau are
   computed first and then theta is determined such that the population version of Kendall's tau matches (if possible) this average of the sample versions of Kendall's tau; the \code{method="theta.mean"} stands for first computing all pairwise Kendall's tau estimators and then returning the mean of these estimators.
 
-  For more details, see Hofert et al. (2011a). 
+  For more details, see Hofert et al. (2011a).
 
-  Note that these estimators should be used with care, see the performance results in Hofert et al. (2011a). In particular, \code{etau} should be used with the (default) method \code{"tau.mean"} since \code{"theta.mean"} is both slower and more prone to errors.
+  Note that these estimators should be used with care, see the performance results in Hofert et al. (2011a).  In particular, \code{etau} should be used with the (default) method \code{"tau.mean"} since \code{"theta.mean"} is both slower and more prone to errors.
 }
 \value{
   \describe{
@@ -54,13 +54,13 @@ etau(u, cop, method = c("tau.mean", "theta.mean"), ...)
 }
 \author{Marius Hofert}
 \references{
-   Hofert, M., Maechler, M., and McNeil, A. J. (2011a),
+   Hofert, M., Mächler, M., and McNeil, A. J. (2011a),
    \emph{Estimators for Archimedean copulas in high dimensions: A comparison},
    to be submitted.
 }
 \seealso{
   The more sophisticated estimators \code{\link{emle}} (Maximum Likelihood) and
-  \code{\link{emde}} (Minimum Distance). \code{\link{enacopula}} (wrapper for different estimators). 
+  \code{\link{emde}} (Minimum Distance). \code{\link{enacopula}} (wrapper for different estimators).
 }
 \examples{
 n <- 200

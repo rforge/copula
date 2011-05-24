@@ -17,7 +17,7 @@ g01trafo(u, method=c("normal","log"))
 }
 \arguments{
   \item{u}{\eqn{n\times d}{n x d}-matrix of supposedly \eqn{U[0,1]^d}-distributed data (each value in \eqn{[0,1]}) to be transformed or tested, where \eqn{n} denotes the sample size and \eqn{d} the dimension.}
-  \item{method}{a \code{\link{character}} string specifying the method to be used to transform the multivariate data to univariate data. The method has to be one (or a unique abbreviation) of 
+  \item{method}{a \code{\link{character}} string specifying the method to be used to transform the multivariate data to univariate data.  The method has to be one (or a unique abbreviation) of
     \describe{
 		\item{\code{"normal"}}{map to a \eqn{U[0,1]} distribution with the chi-square distribution function with \eqn{d} degrees of freedom applied to the sum of the squares of the quantile function of the standard normal distribution;}
 		\item{\code{"log"}}{map to a \eqn{U[0,1]} distribution with the Erlang distribution function (a special gamma distribution) with parameter \eqn{d} applied to the sum of the negative logarithms.}
