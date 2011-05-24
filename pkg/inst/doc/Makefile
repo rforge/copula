@@ -1,4 +1,4 @@
-###--- Makefile mainly from Douglas Bates
+###--- Makefile (adapted from pcalg & robustbase; origin from Douglas Bates)
 
 ## need to get 'texclean' command
 
@@ -35,6 +35,8 @@ paper-all.zip: $(DRIVERS:=.Rnw) $(DRIVERS:=.tex) $(DRIVERS:=.pdf) $(DRIVERS:=.R)
 
 %.pdf : %.tex *.bib
 	TEXINPUTS=${TPUTS} texi2pdf $<
+	qpdf --stream-data=compress $@ temp$@
+	mv temp$@ $@
 
 %.dvi : %.tex *.bib
 	TEXINPUTS=${TPUTS} texi2dvi $<
