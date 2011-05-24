@@ -4,17 +4,25 @@
      => only left: gnacopula.Rd + Sibuya.Rd; will do soon
    emde: Reference Hering
 
+  o (almost) no linebreaks so far!... better for editing.
+    when finished --- add linebreaks !
+
 (MM) Questions:
-  o Mächler -- in References !
   o "2011a" auf *allen* Seiten oder nur auf denen wo auch "2011b" auch vorkommt?
     [=> followed the former]
-  o accent bei emde.Rd: Cram{e}r... wie richtig?
-  o (almost) no linebreaks so far!... better for editing
-  o warum geht in enacopula.Rd verweis auf "emle." nicht [sondern nur auf emle]?
-  o was ist mit beta., beta.hat, dDiag,...? wo dokumentieren?
   o references inconsistent: \emph{journal} <<<< ist  richtig!
   o Martin [plot-pRofi :-)]: add title & legend in example-plot in K.Rd
-  o is it okay to use rmvnorm in pobs.Rd? <<<< MASS : mvrnorm (oder so)
+
+MM answers:
+  o Mächler --> \enc{Mächler}{Maechler}  in References -- done
+  o warum geht in enacopula.Rd verweis auf "emle." nicht [sondern nur auf emle]?
+        War falsch:  .emle()   !!
+  o was ist mit beta., beta.hat : --> man/beta.Blomqvist.Rd
+    	    	dDiag()		  --> man/dDiag.Rd
+  o is it okay to use rmvnorm in pobs.Rd?
+       No: use  MASS::mvrnorm()  **AND** add MASS to 'DESCRIPTION'
+
+
 
 (*) enacopula + other functions: check that all u's are indeed in [0,1]^d
     => so far, no checks done

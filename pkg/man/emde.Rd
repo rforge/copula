@@ -71,7 +71,7 @@ emde(u, cop,
 }
 \author{Marius Hofert}
 \references{
-   Hofert, M., Mächler, M., and McNeil, A. J. (2011a),
+   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011a),
    \emph{Estimators for Archimedean copulas in high dimensions: A comparison},
    to be submitted.
 
