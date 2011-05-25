@@ -180,9 +180,10 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
 
     ## ==== (5) cacopula ====
 
-    cat("\n(5) values of cacopula(v, rev(v), family, theta) for v=t01:\n")
-    CT <- c(CT, list(cacopula = system.time(cac <- cacopula(t01, rev(t01),
-                     family = cop@name, theta = theta0))))
+    cat("\n(5) values of cacopula(cbind(v,rev(v)), cop) for v=t01:\n")
+    cop. <- onacopulaL(cop@name, list(theta0, 1:2))
+    CT <- c(CT, list(cacopula. = system.time(cac <- cacopula(cbind(t01,rev(t01)),
+                     cop=cop.))))
     stopifnot(is.vector(cac), length(cac) == length(t01), 0 <= cac, cac <= 1)
     print(cac)
 

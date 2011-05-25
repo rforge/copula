@@ -23,23 +23,28 @@ K(t, cop, d, n.MC=0)
   \item{n.MC}{\code{\link{integer}}, if positive, a Monte Carlo approach is applied with sample size equal to \code{n.MC}; otherwise (\code{n.MC=0}) the exact formula is used based on the generator derivatives as found by Hofert et al. (2011b).}
 }
 \details{
-todo
+	For a completely monotone Archimedean generator \eqn{\psi}{psi}, 
+	\deqn{K(t)=\sum_{k=0}^{d-1}\frac{\psi^{(k)}(\psi^{-1}(t))}{k!} (-\psi^{-1}(t))^k,\ t\in[0,1],}{K(t)=sum(k=0,...,d-1)(psi^{(k)}(psi^{-1}(t)))/k! (-psi^{-1}(t))^k, t in [0,1],}
+	see Barbe et al. (1996).
 }
-\value{Kendall distribution function at t}
+\value{Kendall distribution function at \code{t}}
 \author{Marius Hofert}
 \references{
-   Hofert, M., Mächler, M., and McNeil, A. J. (2011b),
-   \emph{Likelihood inference for Archimedean copulas},
+	Barbe, P., Genest, C., Ghoudi, K., and R\enc{é}{e}millard, B. (1996),
+   On Kendall's Process,
+   \emph{Journal of Multivariate Analysis}, \bold{58}, 197--229.   
+
+   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011b),
+   Likelihood inference for Archimedean copulas,
    to be submitted.
 }
 \seealso{
-  \code{\link{gnacopula}} or \code{\link{emde}} (where \code{\link{K}} is used).
+  \code{\link{gnacopula}}, \code{\link{gnacopulatrafo}} or \code{\link{emde}} (where \code{\link{K}} is used).
 }
 \examples{
-n <- 200
-d <- 20
 tau <- 0.5
 (theta <- copGumbel@tauInv(tau)) # 2
+d <- 20
 (cop <- onacopulaL("Gumbel", list(theta,1:d)))
 
 ## compute Kendall distribution function
@@ -49,6 +54,7 @@ Kt.MC <- K(t, cop=cop@copula, d=d, n.MC=1000) # via Monte Carlo
 
 ## build sample from K
 set.seed(1)
+n <- 200
 U <- rnacopula(n, cop)
 W <- pnacopula(cop, u=U)
 

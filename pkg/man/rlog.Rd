@@ -31,12 +31,10 @@
 }
 \author{Marius Hofert, Martin Maechler}
 \references{
-  Kemp, A. W. (1981)
+  Kemp, A. W. (1981),
   Efficient Generation of Logarithmically Distributed Pseudo-Random Variables,
   \emph{Journal of the Royal Statistical Society: Series C (Applied
     Statistics)} \bold{30}, 3, 249--253.
-
-  Further, those of the Archimedean families, e.g., \code{\link{copGumbel}}.
 }
 \examples{
 ## Sample n random variates from a Log(p) distribution and plot a

@@ -86,20 +86,20 @@ copJoe
 }
 \author{Marius Hofert}
 \references{
-  Nelsen, R.B. (2007)
+  Nelsen, R.B. (2007),
   \emph{An Introduction to Copulas} (2nd ed.),
   Springer.
 
-  Hofert, M. (2010)
+  Hofert, M. (2010),
   \emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
   Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
 
-  Hofert, M. (2011)
+  Hofert, M. (2011),
   Efficiently sampling nested Archimedean copulas,
   \emph{Computational Statistics & Data Analysis} \bold{55}, 57--70.
 
-  Marius Hofert and Martin \enc{Mächler}{Maechler} (2011)
-  Nested Archimedean Copulas Meet R: The nacopula Package.
+  Marius Hofert and Martin \enc{Mächler}{Maechler} (2011),
+  Nested Archimedean Copulas Meet R: The nacopula Package.,
   \emph{Journal of Statistical Software} \bold{39}(9), 1--20.
   \url{http://www.jstatsoft.org/v39/i09/}.
 }

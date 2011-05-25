@@ -36,12 +36,14 @@ exportClasses("acopula",
 export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"getAcop"
        ,"cacopula", "dnacopula", "pnacopula", "rnacopula" ,"rnchild"
-       ## estimation -- (all functions for now -- FIXME ?)
+       ## estimation
        ## ,"coeffG", "polyG", "polyJ"
        ,"paraOptInterval"
        ,"beta.", "beta.hat", "pobs"
        ,"ebeta", "etau", "emde", "dDiag", "edmle", "emle", "enacopula"
-       ,"K", "g01trafo", "g01", "gnacopulatrafo", "gnacopula"
+       ## goodness-of-fit
+       ,"K", "g01trafo", "g01", "Rosenblatt", "gnacopulatrafo", "gnacopula"
+       ## misc
        ,"onacopula", "onacopulaL"
        ,"polynEval"
        ,"printNacopula"
@@ -56,7 +58,6 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
 
        ,"dSibuya", "pSibuya", "dsumSibuya", "rSibuya", "rSibuyaR"
        ,"rlog", "rlogR", "rF01Frank", "rF01Joe", "rFFrank", "rFJoe"
-       ##
        ##,"logm1expm"
        ,"polylog", "Eulerian", "Stirling1", "Stirling2", "Eulerian.all", "Stirling1.all", "Stirling2.all"
        ,"psiDabsMC"

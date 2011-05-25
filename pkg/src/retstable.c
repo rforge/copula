@@ -101,7 +101,7 @@ SEXP rstable_c(SEXP n, SEXP alpha)
  *			 V_0*I_{alpha = 1}, h*I_{alpha != 1}; 1)
  * with Laplace-Stieltjes transform exp(-V_0((h+t)^alpha-h^alpha)),
  * see Nolan's book for the parametrization, via the "fast rejection algorithm",
- * see Hofert (2010).
+ * see Hofert (2012).
  * @param St vector of random variates (result)
  * @param V0 vector of random variates V0
  * @param h parameter in [0,infinity)
@@ -371,7 +371,7 @@ void retstable_LD(double *St, const double V0[], double h, double alpha, int n)
  *			 V_0*I_{alpha = 1}, h*I_{alpha != 1}; 1)
  * with Laplace-Stieltjes transform exp(-V_0((h+t)^alpha-h^alpha)),
  * see Nolan's book for the parametrization, via the algorithms of
- * Devroye (2009) and Hofert (2010).
+ * Devroye (2009) and Hofert (2012).
  * @param V0_ R vector of type numeric(n) containing the random variates V0
  * @param h R parameter of type numeric(1)
  * @param alpha R parameter in (0,1] of type numeric(1)

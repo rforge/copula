@@ -49,7 +49,9 @@ retstableR(alpha, V0, h = 1)
   Efficiently sampling nested Archimedean copulas,
   \emph{Computational Statistics & Data Analysis} \bold{55}, 57--70.
 
-  Further, those of the Archimedean families, e.g., \code{\link{copGumbel}}.
+  Hofert, M. (2012),
+  Sampling exponentially tilted stable distributions,
+  \emph{ACM Transactions on Modeling and Computer Simulation}, \bold{22}, 1, page numbers: to be announced.
 }
 \examples{
 ## Draw random variates from an exponentially tilted stable distribution

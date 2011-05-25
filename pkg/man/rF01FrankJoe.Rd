@@ -55,11 +55,13 @@ rF01Joe(V0, alpha, approx)
   containing the generated random variates.
 }
 \author{Marius Hofert, Martin Maechler}
+\references{
+	Hofert, M. (2011),
+	Efficiently sampling nested Archimedean copulas,
+	\emph{Computational Statistics {\&} Data Analysis} \bold{55}, 57--70.
+}
 \seealso{
   \code{\link{rnacopula}}
-}
-\references{
-  See those of the Archimedean families, e.g., \code{\link{copGumbel}}.
 }
 \examples{
 ## Sample n random variates V0 ~ F0 for Frank and Joe with parameter

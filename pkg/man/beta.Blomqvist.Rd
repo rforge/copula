@@ -23,20 +23,21 @@ beta.hat(u, scaling=FALSE)
   \item{u}{For \code{beta.hat}: \dQuote{data} matrix (\eqn{n\times d}{n
       x d}) of d-dimensional observations distributed according to the copula.}
 }
-% \details{
-% }
 \value{
-  a number, population version of Blomqvist's beta for the corresponding Archimedean copula or sample version of Blomqvist's beta for the given data.
+  \describe{
+	\item{\code{beta.}:}{a number, being the population version of Blomqvist's beta for the corresponding Archimedean copula;}
+	\item{\code{beta.hat}:}{a number, being the sample version of Blomqvist's beta for the given data.}
+	}
 }
 \references{
-  Schmid and Schmidt (2007)
+  Schmid and Schmidt (2007),
   Nonparametric inference on multivariate versions of Blomqvist's beta
   and related measures of tail dependence,
   \emph{Metrika} \bold{66}, 323--354.
 }
 \author{Marius Hofert}
 \seealso{
-  \code{\linkS4class{acopula}}, ...
+  \code{\linkS4class{acopula}}
 }
 \examples{
 beta.(copGumbel, 2.5, d = 5)

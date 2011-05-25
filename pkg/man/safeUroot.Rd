@@ -51,11 +51,11 @@ safeUroot(f, interval, \dots,
   %% enlarged; in the other (usual) case, it is enlarged on both sides
   %% at the same time.
 }
-\author{Martin Maechler (from Martin's \R package \pkg{nor1mix}).
-}
 \value{
   A list with four components, \code{root}, \code{f.root}, \code{iter}
   and \code{estim.prec}, see \code{\link{uniroot}}.
+}
+\author{Martin Maechler (from Martin's \R package \pkg{nor1mix}).
 }
 \seealso{
   \code{\link{uniroot}}.

@@ -29,10 +29,10 @@ pobs(x, na.last = "keep",
 pobs
 
 ## Draw from a multivariate normal distribution
-n <- 1000
 d <- 20
 P <- matrix(rep(0.75, d*d), ncol=d)
 diag(P) <- rep(1, d)
+n <- 1000
 x <- MASS::mvrnorm(n, mu = rep(0, d), Sigma = P)
 
 ## Compute pseudo-observations (should roughly follow a Gaussian

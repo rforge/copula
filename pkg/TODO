@@ -1,46 +1,48 @@
 ## ==== features in next CRAN version ====
 
-(MH) add (and fill) all help files for estimation and gof procedures;
-     => only left: gnacopula.Rd + Sibuya.Rd; will do soon
-   emde: Reference Hering
-(MH) references inconsistent: \emph{journal} <<<< ist  richtig!
+(MM) please "smooth" the help pages
+(MM) include correct linebreaks afterwards (so that correct in manual)
 
+(MM) Ist die Beschreibung des Resultat-Objektes in gnacopula() richtig?
+(MM) in emde.Rd z.B. hat es oft doppelte Blanks als Leerzeichen. Warum?
 
-(MH/MM): (almost) no linebreaks so far!... better for editing.
-    when finished --- add linebreaks !
+(MM) shall we rename (rpd)Sibuya to (rpd)Sib as used in the text?
+(MM) some examples changed. Can you automatically update/create nacopula-Ex.R?
 
-(MM) Questions:
-  o "2011a" auf *allen* Seiten oder nur auf denen wo auch "2011b" auch vorkommt?
-    [=> followed the former]
-  o Martin [plot-pRofi :-)]: add title & legend in example-plot in K.Rd
+(MM) shall we use "Rtrafo" or even "gRtrafo" instead of "Rosenblatt"? 
+(MM) gnacopula: it would be nice to have another method switch for the two possible
+    trafos "Hering and Hofert" and "Rosenblatt".
+(MM) it always holds that psiDabsMC(0) != Inf; however, theoretically, this should
+     be Inf for Gumbel and Joe. Shall we introduce a family-base switch to return
+     the correct value at this boundary or shall we leave it as a flaw of MC that
+     it is not possible to get this value correct?  
 
-MM answers:
-  o Mächler --> \enc{Mächler}{Maechler}  in References -- done
-  o warum geht in enacopula.Rd verweis auf "emle." nicht [sondern nur auf emle]?
-        War falsch:  .emle()   !!
-  o was ist mit beta., beta.hat : --> man/beta.Blomqvist.Rd
-    	    	dDiag()		  --> man/dDiag.Rd
-  o is it okay to use rmvnorm in pobs.Rd?
-       No: use  MASS::mvrnorm()  **AND** add MASS to 'DESCRIPTION'
+(MM) further questions: 
+(1) I guess we can remove the FIXME on line 18 in cop_objects, can't we?
+(2) FIXME line 442 in estimation.R: return an object?
+(3) FIXME nacopula.R, line 203: onacopulaL() -- replacing nacStructure by nacList
+    => sounds useful
 
+(*) have to update Description; maybe: An R package for nested Archimedean copulas, providing a 
+ procedure for computing function values, characteristics such as Kendall's
+ tau and tail dependence coefficients, sampling algorithms for generating random variates, 
+estimation procedures, and goodness-of-fit tests.
 
+(*) inconsistent use of checks whether function arguments are in [0,1]^d or not:
+some functions don't check, others do (e.g., dDiag)
+=> remove checks everywhere due to performance? 
+(*) svn mv opower to trafos
+(*) GIG, opC in demo [with extensive comments]
+(MH) opC: estimation example in man-emle
 
-(*) enacopula + other functions: check that all u's are indeed in [0,1]^d
-    => so far, no checks done
 (*) FIXME and TODO in the code
 (*) design a function that gets an outer nacopula and returns a matrix of
     numbers which correspond to the different sectors; this can be used, e.g.,
     for building a [default] color-matrix for splom2 or for estimation purposes etc.
 
-(MH) Fisher information; how to? keep score functions?
 (*) GIG as proper object in extra file
 (*) GIG, opC demos
 (*) opC: estimation example in man-examples
-(*) svn mv opower to trafos
-(*) implement Khoudraji or Liebscher trafo incl. density etc.
-
-(*) GIG, opC in demo [with extensive comments]
-(MH) opC: estimation example in man-emle
 
 (MM) can we create a function for the GIG generator [see ./demo] similar to opower()?
 (MM) Change onacopula() such that it works via onacopulaL() and hence
@@ -52,6 +54,7 @@ MM answers:
 
 ## ==== long-term maybe ====
 
+(*) implement Khoudraji or Liebscher trafo incl. density etc.
 (*) allow families to have outer power parameters (outer power families)
 (MM) be compatible with package copula
 

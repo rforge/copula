@@ -273,7 +273,7 @@ dDiag <- function(u, cop, log = FALSE) {
 ##' @param ... additional parameters for optimize
 ##' @return diagonal maximum likelihood estimator; return value of optimize
 ##' @author Marius Hofert
-edmle <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...)
+edmle <- function(u, cop, interval=paraOptInterval(u, cop@copula@name), ...)
 {
     stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 1,
               max(cop@comp) == d) # dimension

@@ -109,17 +109,67 @@ K <- function(t, cop, d, n.MC=0)
     }
 }
 
-##' Transforms vectors of random variates following the given nested Archimedean
+##' Transforms vectors of random variates following the given (nested) Archimedean
 ##' copula (with specified parameters) to U[0,1]^d vectors of random variates
-##'
-##' @title Transformation of Hering, Hofert (2011)
+##' via Rosenblatt's transformation
+##' 
+##' @title Rosenblatt transformation for a (nested) Archimedean copula
+##' @param u data matrix
+##' @param cop an outer_nacopula
+##' @param n.MC parameter n.MC for evaluating the derivatives via Monte Carlo
+##' @return matrix of supposedly U[0,1]^d realizations
+##' @author Marius Hofert 
+Rosenblatt <- function(u, cop, n.MC=0){
+    stopifnot(is(cop, "outer_nacopula"))
+    if(length(cop@childCops))
+        stop("currently, only Archimedean copulas are provided")
+    if(!is.matrix(u)) u <- rbind(u)
+    stopifnot(0 <= u, u <=1)
+    cop <- cop@copula
+    th <- cop@theta
+    stopifnot(cop@paraConstr(th))
+    dim. <- dim(u) 
+    n <- dim.[1]
+    d <- dim.[2]
+    psiI <- cop@psiInv(u, theta=th)
+    psiI. <- t(apply(psiI, 1, cumsum))
+    ## compute all conditional probabilities 
+    if(n.MC==0){
+	C.j <- function(j){ # computes C(u_j | u_1,...,u_{j-1}) with the same idea as for cacopula
+            logD <- cop@psiDabs(c(psiI.[,j], psiI.[,j-1]), theta=th, 
+                                degree=j-1, n.MC=0, log=TRUE)
+            exp(logD[1:n]-logD[(n+1):(2*n)])
+        }
+    }else{ # n.MC > 0
+	## draw random variates
+	V <- cop@V0(n.MC, th)
+        C.j <- function(j){ # computes C(u_j | u_1,...,u_{j-1}) with the same idea as for cacopula
+            ## use same idea as default method of psiDabsMC
+            ## only difference: only draw V's once
+            arg <- c(psiI.[,j], psiI.[,j-1])
+            iInf <- is.infinite(arg)
+            logD <- numeric(2*n)
+            logD[iInf] <- -Inf
+            if(any(!iInf)) logD[!iInf] <- lsum(-V %*% t(arg[!iInf]) + 
+                                               (j-1) * log(V) - log(n.MC))
+            exp(logD[1:n]-logD[(n+1):(2*n)])
+        }
+    }
+    cbind(u[,1],sapply(2:d, C.j))
+}
+
+##' Transforms vectors of random variates following the given (nested) Archimedean
+##' copula (with specified parameters) to U[0,1]^d (or U[0,1]^(d-1)) vectors of 
+##' random variates via the transformation of Hering and Hofert (2011)
+##' 
+##' @title Transformation of Hering and Hofert (2011)
 ##' @param u data matrix
 ##' @param cop an outer_nacopula
 ##' @param include.K boolean indicating whether the last component, K, is also used or not
 ##' @param n.MC parameter n.MC for K
 ##' @return matrix of supposedly U[0,1]^d realizations
 ##' @author Marius Hofert and Martin Maechler
-gnacopulatrafo <- function(u, cop, include.K = TRUE, n.MC = 0)
+gnacopulatrafo <- function(u, cop, include.K=TRUE, n.MC=0)
 {
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
@@ -160,7 +210,7 @@ gnacopula <- function(u, cop, n.bootstrap=0,
 		      method = c("normal", "log"), verbose=TRUE, ...)
 {
     u.name <- deparse(substitute(u))
-    stopifnot(is(cop, "outer_nacopula"),
+    stopifnot(is(cop, "outer_nacopula"), n.bootstrap >= 0,
 	      (d <- NCOL(u)) >= 2, 0 <= u, u <= 1)
     if(length(cop@childCops))
 	stop("currently, only Archimedean copulas are provided")
@@ -207,7 +257,7 @@ gnacopula <- function(u, cop, n.bootstrap=0,
 	}
 	## (5) return results
 	p.value <- mean(unlist(lapply(AD.test., function(x) x$statistic)) >
-		       AD.test$statistic)
+                        AD.test$statistic)
 	structure(class = "htest",
 		  list(p.value=p.value, statistic = theta.hat, data.name = u.name,
 		       method = "Bootstrapped Anderson-Darling test of gnacopulatrafo()rmed data",

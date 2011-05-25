@@ -118,7 +118,7 @@
     \item{show}{\code{signature("acopula")}: compact overview of the copula.}
   }
 }
-\author{Martin Maechler and Marius Hofert}
+\author{Martin Maechler, Marius Hofert}
 \seealso{
   Specific provided copula family objects, e.g.,
   \code{\link{copAMH}}, \code{\link{copClayton}}, \code{\link{copFrank}},

@@ -797,23 +797,33 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE) 
 
 ### ==== other NON-numerics ====================================================
 
-##' Function which computes the conditional copula function C(v|u) of v given u
+##' Conditional copula function C(u[,d]|u[,1],...,u[,d-1]) 
 ##'
 ##' @title Conditional copula function
-##' @param v parameter v
-##' @param u parameter u
-##' @param family Archimedean family (name or object)
-##' @param theta parameter theta
-##' @param log if TRUE log(C(v|u)) is returned
+##' @param u (n x d)-matrix of evaluation points (first d-1 colums are conditioned on)
+##' @param cop an outer_nacopula
+##' @param n.MC Monte Carlo sample size
+##' @param log if TRUE the logarithm of the conditional copula is returned
 ##' @author Marius Hofert
-##' Note: for some families, this function makes sense for u == 0 or v == 0
-##'       since the corresponding limits can be computed; but not for all
-cacopula <- function(v, u, family, theta, log = FALSE) {
-    stopifnot(length(u) == length(v), 0 < u, u < 1, 0 < v, v < 1)
-    cop <- getAcop(family)
-    stopifnot(cop@paraConstr(theta))
-    res <- cop@psiDabs(rowSums(cop@psiInv(cbind(u, v), theta)), theta, log = TRUE) +
-        cop@psiInvD1abs(u, theta, log = TRUE)
+cacopula <- function(u, cop, n.MC=0, log=FALSE) {
+    stopifnot(is(cop, "outer_nacopula"))
+    if(length(cop@childCops))
+	stop("currently, only Archimedean copulas are provided")
+    if(!is.matrix(u)) u <- rbind(u)
+    stopifnot(0 <= u, u <= 1)
+    ## note: for some (but not all) families, cacopula also makes sense on
+    ##       the boundaries since the corresponding limits exist
+    th <- cop@copula@theta
+    stopifnot(cop@copula@paraConstr(th))
+    dim. <- dim(u) 
+    n <- dim.[1]
+    d <- dim.[2]
+    psiI <- cop@copula@psiInv(u, theta=th)
+    arg.denom <- rowSums(psiI[,1:(d-1), drop=FALSE])
+    arg.num <- arg.denom + psiI[,d]
+    logD <- cop@copula@psiDabs(c(arg.num, arg.denom), theta=th, degree=d-1, 
+                               n.MC=n.MC, log=TRUE) 
+    res <- logD[1:n]-logD[(n+1):(2*n)]
     if(log) res else exp(res)
 }
 
@@ -826,8 +836,8 @@ cacopula <- function(v, u, family, theta, log = FALSE) {
 ##' @param degree order of derivative
 ##' @param n.MC Monte Carlo sample size
 ##' @param method different methods
-##'        log:         proper log
-##'        direct:      direct MC formula
+##'        log:         proper log using lsum
+##'        direct:      direct evaluation of the sum
 ##'        pois.direct: directly uses the Poisson density
 ##'        pois:        intelligently uses the Poisson density with lsum
 ##' @param log if TRUE the log of psiDabs is returned

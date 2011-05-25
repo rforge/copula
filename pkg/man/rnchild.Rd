@@ -42,6 +42,11 @@ rnchild(x, theta0, V0, ...)
    the nested Archimedean copula \code{x}.}
 }
 \author{Marius Hofert, Martin Maechler}
+\references{
+	Hofert, M. (2011a),
+  A stochastic representation and sampling algorithm for nested Archimedean copulas,
+  \emph{Journal of Statistical Computation and Simulation}, in press.
+}
 \seealso{
   \code{\link{rnacopula}}, also for the references.
   Additionally, classes \code{"\linkS4class{nacopula}"}  and

@@ -45,14 +45,14 @@ emle(u, cop, n.MC=0, optimizer="optimize", method,
       \code{\link{optimize}()} including the maximum likelihood estimator (does not confidence intervals but is typically faster).}
   }
 }
-\author{Martin Maechler and Marius Hofert.}
+\author{Martin Maechler, Marius Hofert.}
 \references{
- 	Hofert, M., Maechler, M., and McNeil, A. J. (2011a),
-   \emph{Estimators for Archimedean copulas in high dimensions: A comparison},
+ 	Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011a),
+   Estimators for Archimedean copulas in high dimensions: A comparison,
    to be submitted.
-  
-   Hofert, M., Maechler, M., and McNeil, A. J. (2011b),
-   \emph{Likelihood inference for Archimedean copulas},
+
+   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011b),
+   Likelihood inference for Archimedean copulas,
    to be submitted.
 }
 \seealso{
@@ -61,20 +61,20 @@ emle(u, cop, n.MC=0, optimizer="optimize", method,
   modeled. \code{\link{enacopula}} (wrapper for different estimators).
 }
 \examples{
-n <- 200
-d <-  20
 tau <- 0.25
 (theta <- copGumbel@tauInv(tau)) # 4/3
+d <-  20
 (cop <- onacopulaL("Gumbel", list(theta,1:d)))
 
 set.seed(1)
+n <- 200
 U <- rnacopula(n,cop)
 
 system.time(efm <- emle(U, cop))
 summary(efm)
 
 pfm <- profile(efm)
-(ci <- confint(pfm))
+(ci <- confint(pfm, level=0.95))
 stopifnot(ci[1] <= theta, theta <= ci[2])
 plot(pfm)               # |z| against theta
 plot(pfm, absVal=FALSE, #  z  against theta

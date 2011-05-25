@@ -19,8 +19,8 @@ g01trafo(u, method=c("normal","log"))
   \item{u}{\eqn{n\times d}{n x d}-matrix of supposedly \eqn{U[0,1]^d}-distributed data (each value in \eqn{[0,1]}) to be transformed or tested, where \eqn{n} denotes the sample size and \eqn{d} the dimension.}
   \item{method}{a \code{\link{character}} string specifying the method to be used to transform the multivariate data to univariate data.  The method has to be one (or a unique abbreviation) of
     \describe{
-		\item{\code{"normal"}}{map to a \eqn{U[0,1]} distribution with the chi-square distribution function with \eqn{d} degrees of freedom applied to the sum of the squares of the quantile function of the standard normal distribution;}
-		\item{\code{"log"}}{map to a \eqn{U[0,1]} distribution with the Erlang distribution function (a special gamma distribution) with parameter \eqn{d} applied to the sum of the negative logarithms.}
+		\item{\code{"normal"}:}{map to a \eqn{U[0,1]} distribution with the chi-square distribution function with \eqn{d} degrees of freedom applied to the sum of the squares of the quantile function of the standard normal distribution;}
+		\item{\code{"log"}:}{map to a \eqn{U[0,1]} distribution with the Erlang distribution function (a special gamma distribution) with parameter \eqn{d} applied to the sum of the negative logarithms.}
     }
   }
 }
@@ -36,24 +36,24 @@ g01trafo(u, method=c("normal","log"))
   \code{g01trafo()} returns a numeric vector of length \eqn{n}
   (=\code{nrow(u)}) containing the univariate transformed values.
 }
+\author{Marius Hofert}
 \references{
   D'Agostino, R. B., Stephens, M. A. (1986),
   \emph{Goodness-of-fit techniques},
   Dekker.
 }
-\author{Marius Hofert}
 \seealso{
   \code{\link{gnacopula}} (where both functions are applied).
 }
 \examples{
-n <- 200
-d <- 20
 tau <- 0.25
 (theta <- copGumbel@tauInv(tau)) # 4/3
+d <- 20
 (cop <- onacopulaL("Gumbel", list(theta,1:d)))
 
 ## sample
 set.seed(1)
+n <- 200
 U <- rnacopula(n, cop)
 
 ## apply the transformation of Hering, Hofert (2011) to obtain U[0,1]^d data
@@ -61,7 +61,7 @@ U. <- gnacopulatrafo(U, cop=cop)
 
 ## map to U[0,1] data via the chi-square distribution
 Z <- g01trafo(U., method="normal")
-plot(1:length(Z), Z) # looks uniform as it should
+plot(1:length(Z), Z) # looks uniform (as expected)
 
 ## test via the Anderson-Darling test
 g01(U., method="normal") # applies g01trafo

@@ -362,7 +362,7 @@ copFrank <-
                       ## from F01 of Joe is applied (otherwise, the sum is
                       ## sampled via a logarithmic envelope for the summands)
                       ## approx is the largest number of summands before asymptotics is used (see copJoe@V01)
-                      ## FIXME: optimal value of rej (for approx = 10000) is not clear yet; rej = 1 is not bad, however
+                      ## FIXME: optimal value of rej (for approx = 10000) is not clear yet; rej = 1 is not bad, however;
                       ##        lgammacor gives underflow warnings for rej < 1
                       rF01Frank(V0, theta0, theta1, rej, approx)
                   },

@@ -1,6 +1,6 @@
 \name{enacopula}
 \alias{enacopula}
-\title{Estimation Procedures for Nested Archimedean Copulas}
+\title{Estimation Procedures for (Nested) Archimedean Copulas}
 \description{
   A set of ten different estimators, currently for one-parameter
   Archimedean copulas, of possibly quite high dimensions.
@@ -16,8 +16,8 @@ enacopula(u, cop,
 }
 \arguments{
   \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-)observations (each
-    value in \eqn{[0,1]}) from the copula, where \eqn{n} denotes the
-    sample size and \eqn{d} the dimension.  Consider applying the
+    value in \eqn{[0,1]}) from the copula to be estimated, where \eqn{n} denotes
+    the sample size and \eqn{d} the dimension.  Consider applying the
     function \code{\link{pobs}} first in order to obtain \code{u}.}
   \item{cop}{\code{\linkS4class{outer_nacopula}} to be estimated
     (currently only Archimedean copulas are provided).}
@@ -31,11 +31,11 @@ enacopula(u, cop,
 	\code{n.MC} gives the Monte Carlo sample size.}
       \item{\code{"dmle"}}{MLE based on the diagonal (DMLE), see \code{\link{edmle}}.}
       \item{\code{"mde.normal.CvM"}}{minimum distance estimator based
-	on the chisq distribution and Cramer-von Mises distance, see \code{\link{emde}}.}
+	on the chisq distribution and Cram\enc{é}{e}r-von Mises distance, see \code{\link{emde}}.}
       \item{\code{"mde.normal.KS"}}{minimum distance estimation based on
 	the chisq distribution and Kolmogorov-Smirnov distance, see \code{\link{emde}}.}
       \item{\code{"mde.log.CvM"}}{minimum distance estimation based on
-	the Erlang distribution and Cramer-von Mises distance, see \code{\link{emde}}.}
+	the Erlang distribution and Cram\enc{é}{e}r-von Mises distance, see \code{\link{emde}}.}
       \item{\code{"mde.log.KS"}}{minimum distance estimation based on
 	the Erlang distribution and Kolmogorov-Smirnov distance, see \code{\link{emde}}.}
       \item{\code{"tau.tau.mean"}}{averaged pairwise Kendall's tau estimator}
@@ -63,11 +63,15 @@ enacopula(u, cop,
   the estimated parameter, \eqn{\hat{\theta}}{hat(theta)}, i.e., currently a
   number as only one-parameter Archimedean copulas are considered.
 }
-\author{Marius Hofert and Martin Maechler}
+\author{Marius Hofert, Martin Maechler.}
 \references{
   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011a),
-  \emph{Estimators for Archimedean copulas in high dimensions: A comparison},
-   to be submitted.
+  Estimators for Archimedean copulas in high dimensions: A comparison,
+  to be submitted.
+
+  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011b),
+  Likelihood inference for Archimedean copulas,
+  to be submitted.
 }
 \seealso{
   \code{\link{emle}} which returns an object of \code{"\linkS4class{mle}"}
@@ -78,13 +82,13 @@ enacopula(u, cop,
   \code{\link{ebeta}} for the estimator based on Blomqvist's beta.
 }
 \examples{
-n <- 200
-d <- 20
 tau <- 0.25
 (theta <- copGumbel@tauInv(tau)) # 4/3
+d <- 20
 (cop <- onacopulaL("Gumbel", list(theta,1:d)))
 
 set.seed(1)
+n <- 200
 U <- rnacopula(n, cop)
 
 (meths <- eval(formals(enacopula)$method)) # "mle", "smle", ...

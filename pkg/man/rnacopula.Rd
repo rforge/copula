@@ -25,17 +25,13 @@ rnacopula(n, x, ...)
   \eqn{F_{0}}{F0} and \eqn{F_{01}}{F01} and is presented in
   McNeil(2008) and Hofert(2011a).  Details about how to efficiently sample the
   distribution functions \eqn{F_{0}}{F0} and \eqn{F_{01}}{F01} can be found in
-  Hofert(2010), Hofert(2012), and Hofert and Mächler (2011).
+  Hofert(2010), Hofert(2012), and Hofert and \enc{Mächler}{Maechler} (2011).
 }
 \value{
   a \code{\link{numeric}} matrix containing the generated vectors of
   random variates from the nested Archimedean copula object \code{x}.
 }
 \author{Marius Hofert, Martin Maechler}
-\seealso{
-  \code{\link{rnchild}}; classes \code{"\linkS4class{nacopula}"} and
-  \code{"\linkS4class{outer_nacopula}"}, see also \code{\link{onacopula}()}.  Further, those of the Archimedean families, e.g., \code{\link{copGumbel}}.
-}
 \references{
   McNeil, A. J. (2008),
   Sampling nested Archimedean copulas,
@@ -53,9 +49,13 @@ rnacopula(n, x, ...)
   Sampling exponentially tilted stable distributions,
   \emph{ACM Transactions on Modeling and Computer Simulation}, \bold{22}, 1, page numbers: to be announced.
 
-  Hofert, M. and Mächler, M. (2011),
+  Hofert, M. and \enc{Mächler}{Maechler}, M. (2011),
   Nested Archimedean Copulas Meet R: The nacopula Package,
   \emph{Journal of Statistical Software}, \bold{39}, 9, 1--20.
+}
+\seealso{
+  \code{\link{rnchild}}; classes \code{"\linkS4class{nacopula}"} and
+  \code{"\linkS4class{outer_nacopula}"}, see also \code{\link{onacopula}()}.  Further, those of the Archimedean families, e.g., \code{\link{copGumbel}}.
 }
 \examples{
 ## Construct a three-dimensional nested Clayton copula with parameters

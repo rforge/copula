@@ -18,11 +18,11 @@ emde(u, cop,
     method, which has to be one (or a unique abbreviation) of
     \describe{
       \item{\code{"mde.normal.CvM"}}{map to a chi-square distribution and then
-            use a Cramer-von Mises distance;}
+            use a Cram\enc{é}{e}r-von Mises distance;}
       \item{\code{"mde.normal.KS"}}{map to a chi-square distribution and then
             use Kolmogorov-Smirnov distance;}
       \item{\code{"mde.log.CvM"}}{map to an Erlang distribution and then use a
-            Cramer-von Mises distance;}
+            Cram\enc{é}{e}r-von Mises distance;}
       \item{\code{"mde.log.KS"}}{map to an Erlang distribution and then use a
             Kolmogorov-Smirnov distance.}
     }
@@ -37,15 +37,7 @@ emde(u, cop,
   \item{\dots}{additional arguments passed to \code{\link{optimize}}.}
 }
 \details{
-   Given a \eqn{d}-dimensional random vector \eqn{\bm{U}} following an
-   Archimedean copula \eqn{C} with generator \eqn{\psi}, Hering and
-   Hofert (2011) showed that \eqn{\bm{U}^\prime}{U^prime} is distributed
-   as \eqn{\mathrm{U}[0,1]^d}{U[0,1]^d}, where
-   \deqn{U_{j}^\prime=\left(\frac{\sum_{k=1}^{j}\psi^{-1}(U_{k})}{\sum_{k=1}^{j+1}\psi^{-1}(U_{k})}\right)^{j},\
-     j\in\{1,\dots,d-1\},\ U_{d}^\prime=K(C(\bm{U})).}{%
-     U_j^prime=((psi^{-1}(U_1)+...+psi^{-1}(U_j)) / (psi^{-1}(U_1)+...+psi^{-1}(U_{j+1})))^j, j in {1,...,d-1},
-     U_d^prime=K(C(U)).}
-   This transformation is first used to map the \eqn{n\times d}{n x d}-matrix
+   First, \code{\link{gnacopulatrafo}} is applied to map the \eqn{n\times d}{n x d}-matrix
    of given realizations to a \eqn{n\times d}{n x d}-matrix or
    \eqn{n\times (d-1)}{n x (d-1)}-matrix, depending on whether the last
    component \eqn{U^\prime_d}{U^prime_d} which involves the possibly
@@ -56,14 +48,14 @@ emde(u, cop,
    \code{method="mde.normal.KS"}) or the sum of the negative logarithms
    (for \code{method="mde.log.CvM"} and \code{method="mde.log.KS"}), the
    transformed quantities are mapped to a chi-square or an Erlang
-   distribution, respectively.  Afterwards, a Cramér-von Mises (for
+   distribution, respectively.  Afterwards, a Cram\enc{é}{e}r-von Mises (for
    \code{method="mde.normal.CvM"} and \code{method="mde.log.CvM"}) or
    Kolmogorov-Smirnov (for \code{method="mde.normal.KS"} and
    \code{method="mde.log.KS"}) distance is applied.  This is repeated in
    an optimization until the copula parameter is found such that this
    distance is minimized.
 
- Note that the same transformations as described above are applied for goodness-of-fit testing.
+   Note that the same transformations as described above are applied for goodness-of-fit testing.
 }
 \value{
   \code{\link{list}} as returned by \code{\link{optimize}}, including the
@@ -72,27 +64,29 @@ emde(u, cop,
 \author{Marius Hofert}
 \references{
    Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011a),
-   \emph{Estimators for Archimedean copulas in high dimensions: A comparison},
+   Estimators for Archimedean copulas in high dimensions: A comparison,
    to be submitted.
 
-   Hering ...  Hofert %% FIXME
+   Hering, C. and Hofert, M. (2011),
+	Goodness-of-fit tests for Archimedean copulas in large dimensions,
+	submitted.
 }
 \seealso{
   \code{\link{enacopula}} (wrapper for different estimators),
-  \code{\link{gnacopula}} (transformation \eqn{\bm{U}}{U} to
+  \code{\link{gnacopulatrafo}} (transformation \eqn{\bm{U}}{U} to
   \eqn{\bm{U}^\prime}{U^prime}),
   \code{\link{g01}} (transformation to a chi-square or Erlang
   distribution), and
   \code{\link{K}} (Kendall distribution function).
 }
 \examples{
-n <- 200
-d <- 20
 tau <- 0.25
 (theta <- copGumbel@tauInv(tau)) # 4/3
+d <- 20
 (cop <- onacopulaL("Gumbel", list(theta,1:d)))
 
 set.seed(1)
+n <- 200
 U <- rnacopula(n, cop)
 
 (meths <- eval(formals(emde)$method)) # "mde.normal.CvM", "mde.normal.KS", ...

@@ -25,12 +25,15 @@ opower(copbase, thetabase)
   (which is the outer power copula itself), \code{copbase}, and \code{thetabase}.
 }
 \author{Marius Hofert}
+\references{ 
+  Hofert, M. (2010),
+  \emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing},
+  Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
+}
 \seealso{
   The class \code{\linkS4class{acopula}} and our predefined "acopula"
   family objects in \code{\link{acopula-families}}.
 }
-% \references{% use those in the families
-% }
 \examples{
 ## Construct an outer power Clayton copula with parameter thetabase such that
 ## Kendall's tau equals 0.2

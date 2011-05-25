@@ -54,8 +54,8 @@ etau(u, cop, method = c("tau.mean", "theta.mean"), ...)
 }
 \author{Marius Hofert}
 \references{
-   Hofert, M., Mächler, M., and McNeil, A. J. (2011a),
-   \emph{Estimators for Archimedean copulas in high dimensions: A comparison},
+   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011a),
+   Estimators for Archimedean copulas in high dimensions: A comparison,
    to be submitted.
 }
 \seealso{
@@ -63,13 +63,13 @@ etau(u, cop, method = c("tau.mean", "theta.mean"), ...)
   \code{\link{emde}} (Minimum Distance). \code{\link{enacopula}} (wrapper for different estimators).
 }
 \examples{
-n <- 200
-d <- 20
 tau <- 0.25
 (theta <- copGumbel@tauInv(tau)) # 4/3
+d <- 20
 (cop <- onacopulaL("Gumbel", list(theta,1:d)))
 
 set.seed(1)
+n <- 200
 U <- rnacopula(n, cop)
 
 system.time(theta.hat.beta <- ebeta(U, cop=cop))
