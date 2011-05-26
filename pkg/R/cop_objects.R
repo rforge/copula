@@ -184,22 +184,21 @@ copClayton <-
                       if(!any(n01)) return(res)
                       ## auxiliary results
                       u. <- u[n01,, drop=FALSE]
-                      l.u <- rowSums(-log(u.))
-                      psiI. <- rowSums(C.@psiInv(u., theta))
+                      lu <- rowSums(log(u.))
+                      t <- rowSums(C.@psiInv(u., theta))
                       ## main part
                       if(n.MC > 0) { # Monte Carlo
-                          l.u.mat <- matrix(rep(l.u, n.MC), nrow=n.MC, byrow=TRUE)
+                          lu.mat <- matrix(rep(lu, n.MC), nrow=n.MC, byrow=TRUE)
                           V <- C.@V0(n.MC, theta)
                           l <- d*log(theta*V)
                           theta. <- 1 + theta
                           ## stably compute log(colMeans(exp(lx)))
-                          lx <- l + theta.*l.u.mat - V %*% t(psiI.) - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
+                          lx <- l - theta.*lu.mat - V %*% t(t) - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
                           res[n01] <- lsum(lx)
                       } else { # explicit
-                          alpha <- 1/theta
-                          d.a <- d + alpha
-                          res[n01] <- lgamma(d.a)-lgamma(alpha)+ d*log(theta) +
-                              (1+theta)*l.u - (d.a)*log1p(psiI.)
+	                  k <- 0:(d-1)
+	                  s <- sum(log1p(theta*k))
+	                  res[n01] <- s - (1+theta)*lu - (d+1/theta)*log1p(t)
                       }
                       if(log) res else exp(res)
                   },
@@ -472,7 +471,7 @@ copGumbel <-
                       u. <- u[n01,, drop=FALSE]
                       mlu <- -log(u.) # -log(u)
                       lmlu <- log(mlu) # log(-log(u))
-                      psiI. <- rowSums(C.@psiInv(u., theta))
+                      t <- rowSums(C.@psiInv(u., theta))
                       ## main part
                       if(n.MC > 0) { # Monte Carlo
                           V <- C.@V0(n.MC, theta)
@@ -480,13 +479,13 @@ copGumbel <-
                           sum. <- rowSums((theta-1)*lmlu + mlu)
                           sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
                           ## stably compute log(colMeans(exp(lx)))
-                          lx <- l - V %*% t(psiI.) + sum.mat - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
+                          lx <- l - V %*% t(t) + sum.mat - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
                           res[n01] <- lsum(lx)
                           if(log) res else exp(res)
                       } else { # explicit
                           alpha <- 1/theta
                           ## compute lx = alpha*log(sum(psiInv(u., theta)))
-                          lx <- alpha*log(psiI.)
+                          lx <- alpha*log(t)
                           ## ==== former version [start] (numerically slightly more stable but slower) ====
                           ## im <- apply(u., 1, which.max)
                           ## mat.ind <- cbind(seq_len(n), im) # indices that pick out maxima from u.
