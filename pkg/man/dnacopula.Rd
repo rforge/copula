@@ -5,7 +5,7 @@
   Evaluates the density of an Archimedean copula.
 }
 \usage{
-	dnacopula(x, u, log=FALSE, \dots)
+dnacopula(x, u, log=FALSE, \dots)
 }
 \arguments{
   \item{x}{an object of class \code{"\linkS4class{outer_nacopula}"}.}
@@ -26,7 +26,7 @@
   \deqn{c(\bm{u})=\frac{\psi^{(d)}(\psi^{-1}(u_1)+\dots+\psi^{-1}(u_d))}{
       \prod_{j=1}^d\psi^\prime(\psi^{-1}(u_j))},\ \bm{u}\in(0,1)^d.
   }{c(u) = psi^{(d)}(psi^{-1}(u_1)+...+psi^{-1}(u_d)) /
-    (psi^prime(psi^{-1}(u_1))*...*psi^prime(psi^{-1}(u_d))),  u in (0,1)^d.}
+           (psi'(psi^{-1}(u_1))*...*psi'(psi^{-1}(u_d))),  u in (0,1)^d.}
 }
 \value{
   A \code{\link{numeric}} vector containing the values of the density of the
@@ -34,13 +34,13 @@
 }
 \author{Marius Hofert, Martin Maechler}
 \references{
-	Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011a),
-   Estimators for Archimedean copulas in high dimensions: A comparison,
-   to be submitted.
+  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011a),
+  Estimators for Archimedean copulas in high dimensions: A comparison,
+  to be submitted.
 
-   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011b),
-   Likelihood inference for Archimedean copulas,
-   to be submitted.
+  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011b),
+  Likelihood inference for Archimedean copulas,
+  to be submitted.
 }
 \seealso{
   For more details about the derivatives of an Archimedean generator,

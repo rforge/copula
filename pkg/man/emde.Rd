@@ -40,7 +40,7 @@ emde(u, cop,
    First, \code{\link{gnacopulatrafo}} is applied to map the \eqn{n\times d}{n x d}-matrix
    of given realizations to a \eqn{n\times d}{n x d}-matrix or
    \eqn{n\times (d-1)}{n x (d-1)}-matrix, depending on whether the last
-   component \eqn{U^\prime_d}{U^prime_d} which involves the possibly
+   component \eqn{U^\prime_d}{U'_d} which involves the possibly
    numerically challenging Kendall distribution function \eqn{K} is used
    (\code{include.K=TRUE}) or not (\code{include.K=FALSE}).  Then, using
    either the sum of the squares of the quantile function of the
@@ -74,7 +74,7 @@ emde(u, cop,
 \seealso{
   \code{\link{enacopula}} (wrapper for different estimators),
   \code{\link{gnacopulatrafo}} (transformation \eqn{\bm{U}}{U} to
-  \eqn{\bm{U}^\prime}{U^prime}),
+  \eqn{\bm{U}^\prime}{U'}),
   \code{\link{g01}} (transformation to a chi-square or Erlang
   distribution), and
   \code{\link{K}} (Kendall distribution function).

@@ -53,20 +53,23 @@ gnacopulatrafo(u, cop, include.K = TRUE, n.MC = 0)
       \eqn{U_1=u_1,\dots,U_{j-1}=u_{j-1}}{U_1=u_1,...,U_{j-1}=u_{j-1}} is
       given by
       \deqn{C(u_j\,|\,u_1,\dots,u_{j-1})=\frac{\psi^{(j-1)}\Bigl(\sum_{k=1}^j\psi^{(-1)}(u_k)\Bigr)}{\psi^{(j-1)}\Bigl(\sum_{k=1}^{j-1}\psi^{(-1)}(u_k)\Bigr)}.}{%
-	    C(u_j | u_1,...,u_{j-1}) = (psi^{(j-1)}(sum(k=1..j) psi^{(-1)}(u_k)))/(psi^{(j-1)}(sum(k=1..j-1) psi^{(-1)}(u_k))).}
+	C(u_j | u_1,...,u_{j-1}) = (psi^{(j-1)}(sum(k=1..j )  psi^{(-1)}(u_k))) /
+                                   (psi^{(j-1)}(sum(k=1..j-1) psi^{(-1)}(u_k))).}
       This formula is either evaluated with the exact derivatives or, if \code{n.MC} is positive, via Monte Carlo, see \code{\link{psiDabsMC}}.}
 
     \item{\code{gnacopulatrafo}}{Given a \eqn{d}-dimensional random vector \eqn{\bm{U}} following an
       Archimedean copula \eqn{C} with generator \eqn{\psi}, Hering and
-      Hofert (2011) showed that \eqn{\bm{U}^\prime}{U^prime} is distributed
+      Hofert (2011) showed that \eqn{\bm{U}^\prime}{U'} is distributed
       as \eqn{\mathrm{U}[0,1]^d}{U[0,1]^d}, where
       \deqn{U_{j}^\prime=\left(\frac{\sum_{k=1}^{j}\psi^{-1}(U_{k})}{\sum_{k=1}^{j+1}\psi^{-1}(U_{k})}\right)^{j},\
 	j\in\{1,\dots,d-1\},\ U_{d}^\prime=K(C(\bm{U})).}{%
-	U_j^prime=((psi^{-1}(U_1)+...+psi^{-1}(U_j)) / (psi^{-1}(U_1)+...+psi^{-1}(U_{j+1})))^j, j in {1,...,d-1},
-	U_d^prime=K(C(U)).}
-      \code{gnacopulatrafo} applies this transformation row-wise to \code{u} and thus either a \eqn{n\times d}{n x d}-matrix or
+	U'_j=((psi^{-1}(U_1)+...+psi^{-1}(U_j)) /
+	      (psi^{-1}(U_1)+...+psi^{-1}(U_{j+1})))^j,  j in {1,...,d-1},
+	U'_d=K(C(U)).}
+      \code{gnacopulatrafo} applies this transformation row-wise to
+      \code{u} and thus either a \eqn{n\times d}{n x d}-matrix or
       \eqn{n\times (d-1)}{n x (d-1)}-matrix, depending on whether the last
-      component \eqn{U^\prime_d}{U^prime_d} which involves the possibly
+      component \eqn{U^\prime_d}{U'_d} which involves the possibly
       numerically challenging Kendall distribution function \eqn{K} is used
       (\code{include.K=TRUE}) or not (\code{include.K=FALSE})}
   }
