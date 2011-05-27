@@ -244,24 +244,35 @@ emde <- function(u, cop, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
 ##' Density of the diagonal of a nested Archimedean copula
 ##'
 ##' @title Diagonal density of a nested Archimedean copula
-##' @param u evaluation point
-##' @param cop outer_nacopula to be estimated
+##' @param u evaluation point in [0,1]
+##' @param cop outer_nacopula
 ##' @param log if TRUE the log-density is evaluated
 ##' @return density of the diagonal of cop
 ##' @author Marius Hofert
 dDiag <- function(u, cop, log = FALSE) {
     stopifnot(is(cop, "outer_nacopula"), all(0 <= u, u <= 1), (d <- max(cop@comp)) > 0)
-    if(length(cop@childCops))
+    if(length(cop@childCops)) {
         stop("currently, only Archimedean copulas are provided")
-    acop <- cop@copula
-    th <- acop@theta
+    }
+    else ## (non-nested) Archimedean :
+        dDiagA(u, d=d, cop = cop@copula, log=log)
+}
+
+##' @title Density of diagonal of d-dim. Archimedean copula
+##' @param u evaluation point in [0, 1]
+##' @param cop acopula
+##' @param log if TRUE the log-density is evaluated
+##' @return density of the diagonal of cop
+dDiagA <- function(u, d, cop, log = FALSE) {
+    stopifnot(is.finite(th <- cop@theta), d > 0)
     if(log) {
-        log(d) + acop@psiDabs(d*acop@psiInv(u,th), th, log = TRUE) +
-            acop@psiInvD1abs(u, th, log = TRUE)
+        log(d) + cop@psiDabs(d*cop@psiInv(u,th), th, log = TRUE) +
+            cop@psiInvD1abs(u, th, log = TRUE)
     } else {
-        d*acop@psiDabs(d*acop@psiInv(u,th), th)*(acop@psiInvD1abs(u,th))
+        d* cop@psiDabs(d*cop@psiInv(u,th), th) * cop@psiInvD1abs(u,th)
     }
 }
+
 
 ##' Maximum likelihood estimation based on the diagonal of a nested Archimedean copula
 ##'
