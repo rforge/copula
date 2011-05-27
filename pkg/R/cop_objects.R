@@ -27,7 +27,7 @@
 ### ==== Ali-Mikhail-Haq, see Nelsen (2007) p. 116, # 3 ========================
 
 copAMH <-
-    (function() { ## to get an environment where  .C  itself is accessible
+    (function() { ## to get an environment where  C.  itself is accessible
         C. <- new("acopula", name = "AMH",
                   ## generator
 		  psi = function(t,theta) { (1-theta)/(exp(t+0)-theta) },
@@ -151,7 +151,7 @@ copAMH <-
 ### ==== Clayton, see Nelsen (2007) p. 116, #1 (slightly simpler form) =========
 
 copClayton <-
-    (function() { ## to get an environment where  .C  itself is accessible
+    (function() { ## to get an environment where  C.  itself is accessible
         C. <- new("acopula", name = "Clayton",
                   ## generator
 		  psi = function(t,theta) { (1+t)^(-1/theta) },
@@ -256,7 +256,7 @@ copClayton <-
 
 ##' Frank object
 copFrank <-
-    (function() { ## to get an environment where  .C  itself is accessible
+    (function() { ## to get an environment where  C.  itself is accessible
         C. <- new("acopula", name = "Frank",
                   ## generator
 		  psi = function(t,theta) {
@@ -264,10 +264,16 @@ copFrank <-
                       ## == -log(1-(1-exp(-theta))*exp(-t))/theta
                   },
 		  psiInv = function(t,theta) {
-		      -log1p(exp(-theta)*expm1((1-t)*theta)/expm1(-theta))
-		      ## the above is numerically stable (also for t ~= 1, large theta) for :
-		      ## == -log(expm1(-theta*t)/expm1(-theta))
-		      ## == -log((exp(-theta*t)-1)/(exp(-theta)-1))
+		      ## == -log( (exp(-theta*t)-1) / (exp(-theta)-1) )
+		      tht <- t*theta # (-> recycling args)
+		      if(!length(tht)) return(tht) # {just for numeric(0) ..hmm}
+		      et <- expm1(-theta)
+		      ## FIXME ifelse() is not quite efficient
+		      ## FIXME(2): the "> c* th" is pi*Handgelenk
+		      ifelse(tht > .1*theta,
+			     -log1p(exp(-theta)*expm1(theta - tht)/et),
+		      ## the 1st is numerically stable for t ~= 1, large theta :
+			     -log(expm1(-tht)/et))
 		  },
                   ## parameter interval
                   paraInterval = interval("(0,Inf)"),
@@ -416,7 +422,7 @@ copFrank <-
 ### ==== Gumbel, see Nelsen (2007) p. 116, # 4 =================================
 
 copGumbel <-
-    (function() { ## to get an environment where  .C  itself is accessible
+    (function() { ## to get an environment where  C.  itself is accessible
         C. <- new("acopula", name = "Gumbel",
                   ## generator
 		  psi = function(t,theta) { exp(-t^(1/theta)) },
@@ -579,7 +585,7 @@ copGumbel <-
 
 ##' Joe object
 copJoe <-
-    (function() { ## to get an environment where .C itself is accessible
+    (function() { ## to get an environment where C. itself is accessible
         C. <- new("acopula", name = "Joe",
                   ## generator
 		  psi = function(t,theta) {
