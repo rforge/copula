@@ -264,14 +264,16 @@ copFrank <-
                       ## == -log(1-(1-exp(-theta))*exp(-t))/theta
                   },
 		  psiInv = function(t,theta) {
-                      -log(expm1(-theta*t)/expm1(-theta))
-                      ## == -log((exp(-theta*t)-1)/(exp(-theta)-1))
-                  },
+		      -log1p(exp(-theta)*expm1((1-t)*theta)/expm1(-theta))
+		      ## the above is numerically stable (also for t ~= 1, large theta) for :
+		      ## == -log(expm1(-theta*t)/expm1(-theta))
+		      ## == -log((exp(-theta*t)-1)/(exp(-theta)-1))
+		  },
                   ## parameter interval
                   paraInterval = interval("(0,Inf)"),
                   ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE,
-                  method = "negI-s-Eulerian", Li.log.arg=TRUE)
+				     method = "negI-s-Eulerian", Li.log.arg=TRUE)
               {
                   if(n.MC > 0) {
                       psiDabsMC(t, family="Frank", theta=theta, degree=degree,
@@ -291,7 +293,7 @@ copFrank <-
                   },
                   ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE,
-                  method = "negI-s-Eulerian", Li.log.arg=TRUE)
+				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
 	      {
 		  if(!is.matrix(u)) u <- rbind(u)
 		  if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
