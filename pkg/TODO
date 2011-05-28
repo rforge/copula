@@ -3,6 +3,8 @@
 (MM) please "smooth" the help pages
 (MM) include correct linebreaks afterwards (so that correct in manual)
 
+(MM) please make new example on emle.Rd nicer [fix problem with x-axis: show theta, theta hat], add title...
+
 (MM) Ist die Beschreibung des Resultat-Objektes in gnacopula() richtig?
 (MM) in emde.Rd z.B. hat es oft doppelte Blanks als Leerzeichen. Warum?
 
