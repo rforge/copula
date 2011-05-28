@@ -209,7 +209,10 @@
 %% Note: If there is markup in \(sub)section, then it has to be escape as above.
 %% Note: These are explained in '?RweaveLatex' :
 <<preliminaries, echo=FALSE, results=hide>>=
-options(width=70, useFancyQuotes = FALSE, prompt="R> ", continue="+  ")
+op.orig <-
+options(width = 70,
+        ## SweaveHooks= list(fig=function() par(mar=c(5.1, 4.1, 1.1, 2.1))),
+        useFancyQuotes = FALSE, prompt="R> ", continue="+  ")
 Sys.setenv(LANGUAGE = "en")
 if(.Platform$OS.type != "windows")
   Sys.setlocale("LC_MESSAGES","C")
@@ -1157,6 +1160,8 @@ my.strsplit(  packageDescription("nacopula")[["LastChanged"]]  )
 @
 <<nacopula-version,echo=FALSE>>=
 cat(strsplit(packageDescription("nacopula")[["LastChanged"]], "; *")[[1]],"", sep="\n")
+<<finalizing, echo=FALSE>>=
+options(op.orig)
 @
 
 \section{Conclusion}
