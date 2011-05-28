@@ -206,14 +206,13 @@ copClayton <-
                   score = function(u, theta) {
                       if(!is.matrix(u)) u <- rbind(u)
                       if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+                      k <- 0:(d-1)
+                      s <- sum(k/(theta*k+1))
                       lu <- log(u)
-                      alpha <- 1/theta
-                      j <- 0:(d-1)
-                      s1 <- (d-sum(1/(theta*j+1)))*alpha - rowSums(lu)
                       t <- rowSums(C.@psiInv(u, theta=theta))
-                      s2 <- alpha^2*log(t)
-                      s3 <- (d+alpha)*rowSums(u^(-theta)*lu)/t
-                      s1+s2+s3
+                      tp1 <- 1+t
+                      alpha <- 1/theta
+                      s-lu+alpha^2*log(tp1)-(d+alpha)*t/tp1
                   },
                   ## nesting constraint
                   nestConstr = function(theta0,theta1) {
@@ -272,14 +271,14 @@ copFrank <-
 		      ## FIXME(2): the "> c* th" is pi*Handgelenk
 		      ifelse(tht > .1*theta,
 			     -log1p(exp(-theta)*expm1(theta - tht)/et),
-		      ## the 1st is numerically stable for t ~= 1, large theta :
+                             ## the 1st is numerically stable for t ~= 1, large theta :
 			     -log(expm1(-tht)/et))
 		  },
                   ## parameter interval
                   paraInterval = interval("(0,Inf)"),
                   ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE,
-				     method = "negI-s-Eulerian", Li.log.arg=TRUE)
+                  method = "negI-s-Eulerian", Li.log.arg=TRUE)
               {
                   if(n.MC > 0) {
                       psiDabsMC(t, family="Frank", theta=theta, degree=degree,
@@ -299,7 +298,7 @@ copFrank <-
                   },
                   ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE,
-				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
+                  method = "negI-s-Eulerian", Li.log.arg=TRUE)
 	      {
 		  if(!is.matrix(u)) u <- rbind(u)
 		  if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2

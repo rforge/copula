@@ -32,7 +32,7 @@ dDiag(u, cop, log=FALSE)
 \examples{
 th. <- c(0.1, 0.2, 0.5, 0.8, 1.4, 2., 5.)
 curve(dDiag(x, cop=onacopulaL("Clayton", list(th.[1], 1:3))), 0, 1, n=1000,
-      ylab = "dDiag(x, *)", main = "diagonal densities of Clayton")
+      ylab = "dDiag(x, *)", main = "Diagonal densities of Clayton")
 abline(h=0, lty=3)
 for(j in 2:length(th.))
   curve(dDiag(x, cop=onacopulaL("Clayton", list(th.[j], 1:3))), add=TRUE, col=j,
