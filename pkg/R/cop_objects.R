@@ -122,7 +122,7 @@ copAMH <-
                   ## but numerically stable, including, theta -> 0
                   tauInv = function(tau, tol=.Machine$double.eps^0.25, ...) {
                       if(any(tau > 1/3))
-                          stop("Impossible for AMH copula to attain a Kendall's tau larger than 1/3")
+                          stop("Impossible for AMH copula to attain a Kendall's tau >= 1/3 (tau < 1/3 required)")
                       sapply(tau,function(tau) {
                           r <- safeUroot(function(th) tauAMH(th) - tau,
                                          interval = c(0, 1-1e-12),

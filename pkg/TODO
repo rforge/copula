@@ -33,8 +33,6 @@ interesting univariate distributions, e.g., the Sibuya distribution.
 some functions don't check, others do (e.g., dDiag)
 => remove checks everywhere due to performance? 
 
-(*) svn mv opower to trafos [as discussed]
-
 (*) FIXME and TODO in the code
 (*) design a function that gets an outer nacopula and returns a matrix of
     numbers which correspond to the different sectors; this can be used, e.g.,
