@@ -4,16 +4,10 @@
 (MM) include correct linebreaks afterwards (so that correct in manual)
 
 (MM) please make new example on emle.Rd nicer [fix problem with x-axis: show theta, theta hat], add title...
-
 (MM) Ist die Beschreibung des Resultat-Objektes in gnacopula() richtig?
-(MM) in emde.Rd z.B. hat es oft doppelte Blanks als Leerzeichen. Warum?
 
-(MM) shall we rename (rpd)Sibuya to (rpd)Sib as used in the text?
-(MM) some examples changed. Can you automatically update/create nacopula-Ex.R?
+(MM) how to create string with double quotes in method. in gnacopula?
 
-(MM) shall we use "Rtrafo" or even "gRtrafo" instead of "Rosenblatt"? 
-(MM) gnacopula: it would be nice to have another method switch for the two possible
-    trafos "Hering and Hofert" and "Rosenblatt".
 (MM) it always holds that psiDabsMC(0) != Inf; however, theoretically, this should
      be Inf for Gumbel and Joe. Shall we introduce a family-base switch to return
      the correct value at this boundary or shall we leave it as a flaw of MC that
@@ -25,17 +19,21 @@
 (3) FIXME nacopula.R, line 203: onacopulaL() -- replacing nacStructure by nacList
     => sounds useful
 
-(*) have to update Description; maybe: An R package for nested Archimedean copulas, providing a 
- procedure for computing function values, characteristics such as Kendall's
- tau and tail dependence coefficients, sampling algorithms for generating random variates, 
-estimation procedures, and goodness-of-fit tests.
+(*) it would be good to have tryCatch.W.E in the package [call it tryCatchWE -- easier to type]
+    Maybe one can also directly return a list with "value", "error", and "warning"?
+    [So far, "value" can also contain the errors => a bit unhandy, but maybe the only "elegant" general solution]
+
+(*) have to update Description; suggestion: An R package for working with nested Archimedean copulas. 
+ In particular, providing a procedure for computing function values and cube volumes, characteristics such as Kendall's
+ tau and tail dependence coefficients, efficient sampling algorithms, various
+estimation procedures, and goodness-of-fit tests. The package also contains certain
+interesting univariate distributions, e.g., the Sibuya distribution.
 
 (*) inconsistent use of checks whether function arguments are in [0,1]^d or not:
 some functions don't check, others do (e.g., dDiag)
 => remove checks everywhere due to performance? 
-(*) svn mv opower to trafos
-(*) GIG, opC in demo [with extensive comments]
-(MH) opC: estimation example in man-emle
+
+(*) svn mv opower to trafos [as discussed]
 
 (*) FIXME and TODO in the code
 (*) design a function that gets an outer nacopula and returns a matrix of
@@ -43,8 +41,8 @@ some functions don't check, others do (e.g., dDiag)
     for building a [default] color-matrix for splom2 or for estimation purposes etc.
 
 (*) GIG as proper object in extra file
-(*) GIG, opC demos
-(*) opC: estimation example in man-examples
+(*) GIG, opC demos [MH is working on it]
+    => opC in emle example section?
 
 (MM) can we create a function for the GIG generator [see ./demo] similar to opower()?
 (MM) Change onacopula() such that it works via onacopulaL() and hence
@@ -59,7 +57,7 @@ some functions don't check, others do (e.g., dDiag)
 (*) implement Khoudraji or Liebscher trafo incl. density etc.
 (*) allow families to have outer power parameters (outer power families)
 (MM) be compatible with package copula
-
+(*) include pairwise estimators for nACs
 
 
 

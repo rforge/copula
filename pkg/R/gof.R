@@ -119,7 +119,7 @@ K <- function(t, cop, d, n.MC=0)
 ##' @param n.MC parameter n.MC for evaluating the derivatives via Monte Carlo
 ##' @return matrix of supposedly U[0,1]^d realizations
 ##' @author Marius Hofert 
-Rosenblatt <- function(u, cop, n.MC=0){
+rtrafo <- function(u, cop, n.MC=0){
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
@@ -198,7 +198,11 @@ gnacopulatrafo <- function(u, cop, include.K=TRUE, n.MC=0)
 ##' @param estimation.method estimation method, see enacopula
 ##' @param include.K boolean whether K is included in the transformation
 ##' @param n.MC parameter n.MC for K
-##' @param method for g01, see there
+##' @param method gnacopula method; can be
+##'        "gnacopulatrafo.normal"  multivariate trafo: gnacopulatrafo; univariate trafo: g01trafo with method="normal"
+##'        "rtrafo.normal"          multivariate trafo: rtrafo;         univariate trafo: g01trafo with method="normal"
+##'        "gnacopulatrafo.log"     multivariate trafo: gnacopulatrafo; univariate trafo: g01trafo with method="log"
+##'        "rtrafo.log"             multivariate trafo: rtrafo;         univariate trafo: g01trafo with method="log"
 ##' @param ... additional arguments to enacopula
 ##' @param verbose if TRUE, the progress of the bootstrap is displayed
 ##' @return if n.bootstrap==0, then the result of the ad.test() call is returned,
@@ -207,20 +211,58 @@ gnacopulatrafo <- function(u, cop, include.K=TRUE, n.MC=0)
 gnacopula <- function(u, cop, n.bootstrap=0,
 		      estimation.method=eval(formals(enacopula)$method),
 		      include.K = TRUE, n.MC = 0,
-		      method = c("normal", "log"), verbose=TRUE, ...)
+		      method = c("gnacopulatrafo.normal", "rtrafo.normal", 
+                      "gnacopulatrafo.log", "rtrafo.log"), verbose=TRUE, ...)
 {
     u.name <- deparse(substitute(u))
     stopifnot(is(cop, "outer_nacopula"), n.bootstrap >= 0,
 	      (d <- NCOL(u)) >= 2, 0 <= u, u <= 1)
     if(length(cop@childCops))
 	stop("currently, only Archimedean copulas are provided")
-
+    
+    ## method switch
+    method <- match.arg(method)
+    s <- "Bootstrapped Anderson-Darling test (based on"
+    switch(method,
+           "gnacopulatrafo.normal" = {
+               multitrafo <- function(u, cop) gnacopulatrafo(u, cop=cop, 
+                                                             include.K=include.K,
+                                                             n.MC=n.MC)
+               unitrafo <- function(u) g01trafo(u, method="normal")
+               unitrafo. <- function(u) g01(u, method="normal")
+               method. <- paste(s," gnacopulatrafo(..., include.K=",include.K,
+                                ", n.MC=",n.MC,") and g01trafo(..., method=\"normal\")", sep="")
+           },
+           "rtrafo.normal" = {
+               multitrafo <- function(u, cop) rtrafo(u, cop=cop, n.MC=n.MC)
+               unitrafo <- function(u) g01trafo(u, method="normal") 
+               unitrafo. <- function(u) g01(u, method="normal")
+               method. <- paste(s," rtrafo(..., n.MC=",n.MC,
+                                ") and g01trafo(..., method=\"normal\")", sep="")
+           },
+           "gnacopulatrafo.log" = {
+               multitrafo <- function(u, cop) gnacopulatrafo(u, cop=cop, 
+                                                             include.K=include.K, 
+                                                             n.MC=n.MC)
+               unitrafo <- function(u) g01trafo(u, method="log")
+               unitrafo. <- function(u) g01(u, method="log")
+               method. <- paste(s," gnacopulatrafo(..., include.K=",
+                                include.K,", n.MC=",n.MC,") and g01trafo(..., method=\"log\")", sep="")
+           },
+           "rtrafo.log" = {
+               multitrafo <- function(u, cop) rtrafo(u, cop=cop, n.MC=n.MC)
+               unitrafo <- function(u) g01trafo(u, method="log")
+               unitrafo. <- function(u) g01(u, method="log")
+               method. <- paste(s," rtrafo(..., n.MC=",n.MC,
+                                ") and g01trafo(..., method=\"log\")", sep="")
+           },
+           stop("wrong goodness-of-fit method for gnacopula"))
+    
     ## main part
     if(n.bootstrap == 0) { ## no bootstrap,
 	## transform the data to supposedly U[0,1]-distributed variates, and
 	## return AD test:
-	g01(gnacopulatrafo(u, cop, include.K=include.K, n.MC=n.MC),
-	    method = method)
+	unitrafo.(multitrafo(u, cop))
     } else { # bootstrap
 	## (1) estimate the parameter by the provided method and define the
 	##     estimated copula
@@ -228,9 +270,8 @@ gnacopula <- function(u, cop, n.bootstrap=0,
 	theta.hat <- enacopula(u, cop, method=estimation.method, n.MC=n.MC, ...)
 	cop.hat <- onacopulaL(cop@copula@name, list(theta.hat, 1:d)) # copula with theta.hat
 	## (2) transform the data with the copula with estimated parameter
-	trafo <- gnacopulatrafo(u, cop.hat, include.K=include.K, n.MC=n.MC)
-					# transformed data in the unit hypercube
-	Y <- g01trafo(trafo, method=method) # transformed data in the unit interval
+	mtrafo <- multitrafo(u, cop.hat) # transformed data in the unit hypercube
+	Y <- unitrafo(mtrafo) # transformed data in the unit interval
 	## (3) conduct the Anderson-Darling test
 	if(any(is.na(Y))) stop("gnacopula: cannot use ad.test() due to missing values")
 	AD.test <- ad.test(Y)
@@ -247,8 +288,8 @@ gnacopula <- function(u, cop, n.bootstrap=0,
 	    theta.hat.[k] <- enacopula(u., cop, method=estimation.method, n.MC=n.MC, ...)
 	    cop.hat. <- onacopulaL(cop@copula@name, list(theta.hat.[k], 1:d))
 	    ## (4.3) transform the data with the copula with estimated parameter
-	    trafo. <- gnacopulatrafo(u., cop.hat., include.K=include.K, n.MC=n.MC)
-	    Y. <- g01trafo(trafo., method=method)
+	    mtrafo. <- multitrafo(u., cop.hat.)
+	    Y. <- unitrafo(mtrafo.)
 	    ## (4.4) conduct the Anderson-Darling test
 	    AD.test.[[k]] <- ad.test(Y.)
 	    ## progress output
@@ -260,7 +301,7 @@ gnacopula <- function(u, cop, n.bootstrap=0,
                         AD.test$statistic)
 	structure(class = "htest",
 		  list(p.value=p.value, statistic = theta.hat, data.name = u.name,
-		       method = "Bootstrapped Anderson-Darling test of gnacopulatrafo()rmed data",
+		       method = method.,
 		       AD.test=AD.test,
 		       bootStats = list(theta.hat=theta.hat., AD.test=AD.test.)))
     }

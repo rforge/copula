@@ -34,19 +34,24 @@ paraOptInterval <- function(u, family, h=0.15)
     tau.hat.G <- copGumbel@tau(theta.hat.G)
     cop <- getAcop(family)
     tau.ex <- switch(cop@name, # extreme taus that can be dealt with in estimation/optimization/root-finding
-                     "AMH" = { c(0, 0.333333) },
+                     "AMH" = { c(0, 0.3333) },
                      "Clayton" = { c(5e-13, 0.98) },
                      "Frank" = { c(1e-12, 0.98) },
                      "Gumbel" = { c(0, 0.98) },
                      "Joe" = { c(0, 0.98) },
                      stop("unsupported family for paraOptInterval"))
-    if(h > 0) { # parameter interval
+    if(h > 0) { # initial interval
         l <- max(tau.hat.G - h, tau.ex[1]) # admissible lower bound for tau
         u <- min(tau.hat.G + h, tau.ex[2]) # admissible upper bound for tau
         c(cop@tauInv(l), cop@tauInv(u))
-    } else { # parameter value
-	if(tau.ex[1] <= tau.hat.G && tau.hat.G <= tau.ex[2])
-            cop@tauInv(tau.hat.G) else stop("paraOptInterval: tau.hat.G not attainable")
+    } else { # initial value
+	if(tau.hat.G < tau.ex[1]){
+            cop@tauInv(tau.ex[1])
+	}else if(tau.hat.G > tau.ex[2]){
+            cop@tauInv(tau.ex[2])
+	}else{
+            cop@tauInv(tau.hat.G)
+	}
     }
 }
 
@@ -448,7 +453,7 @@ enacopula <- function(u, cop, method=c("mle", "smle", "dmle", "mde.normal.CvM",
                   xargs)),
                   "beta" =           do.call(ebeta, c(list(u, cop,
                   interval = interval, ...), xargs)),
-                  stop("wrong estimation method"))
+                  stop("wrong estimation method for enacopula"))
 
     ## FIXME: deal with result, check details, give warnings
 

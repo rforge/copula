@@ -1,28 +1,30 @@
 \name{gnacopula}
 \alias{gnacopula}
-\alias{Rosenblatt}
+\alias{rtrafo}
 \alias{gnacopulatrafo}
 \title{Goodness-of-Fit Testing for (Nested) Archimedean Copulas}
 \description{
   \code{gnacopula()} conducts a goodness-of-fit test for the given H0
   copula \code{cop} based on the data \code{u}.
 
-  \code{Rosenblatt()} transforms vectors of random variates following
+  \code{rtrafo()} transforms vectors of random variates following
   the given (nested) Archimedean copula (with specified parameters) to
   \eqn{U[0,1]^d} vectors of random variates via the transformation of
   Rosenblatt (1952).
 
   \code{gnacopulatrafo()} transforms vectors of random variates following
-  the given (nested) Archimedean copula (with specified parameters) to
-  \eqn{U[0,1]^d} vectors of random variates via the transformation of
-  Hering and Hofert (2011).
+  the given (nested) Archimedean copula (with specified parameters) to either
+  \eqn{U[0,1]^d} vectors (if \code{include.K=TRUE}) or \eqn{U[0,1]^(d-1)}
+  vectors (if \code{include.K=FALSE}) of random variates via the transformation
+  of Hering and Hofert (2011).
 }
 \usage{
 gnacopula(u, cop, n.bootstrap = 0,
           estimation.method = eval(formals(enacopula)$method),
-          include.K = TRUE, n.MC = 0, method = c("normal","log"),
-          verbose = TRUE, \dots)
-Rosenblatt(u, cop, n.MC = 0)
+          include.K = TRUE, n.MC = 0, method = c("gnacopulatrafo.normal",
+ 			"rtrafo.normal", "gnacopulatrafo.log", "rtrafo.log"), verbose = TRUE,
+ 			\dots)
+rtrafo(u, cop, n.MC = 0)
 gnacopulatrafo(u, cop, include.K = TRUE, n.MC = 0)
 }
 \arguments{
@@ -39,22 +41,30 @@ gnacopulatrafo(u, cop, include.K = TRUE, n.MC = 0)
   \item{include.K}{logical indicating whether the last component, involving
     \code{\link{K}}, is also used or not.}
   \item{n.MC}{parameter \code{n.MC} for \code{\link{K}}.}
-  \item{method}{for \code{\link{g01}}, see there.}
-  \item{\dots}{additional arguments to \code{\link{enacopula}}.}
+  \item{method}{a \code{\link{character}} string specifying the
+    goodness-of-fit method to be used, which has to be one (or a unique
+    abbreviation) of
+    \describe{
+      \item{\code{"gnacopulatrafo.normal"}}{uses the multivariate transformation of Hering and Hofert (2011) and the univariate transformation based on the chi-square distribution (see \code{\link{g01}} with \code{method="normal"}).}
+      \item{\code{"rtrafo.normal"}}{uses the multivariate transformation of Hering and Hofert (2011) and the univariate transformation based on the chi-square distribution (see \code{\link{g01}} with \code{method="normal"}).}
+      \item{\code{"gnacopulatrafo.log"}}{uses the multivariate transformation of Rosenblatt (1952) and the univariate transformation based on the Erlang distribution (see \code{\link{g01}} with \code{method="log"}).}
+      \item{\code{"rtrafo.log"}}{uses the multivariate transformation of Rosenblatt (1952) and the univariate transformation based on the Erlang distribution (see \code{\link{g01}} with \code{method="log"}).}
+  }}
   \item{verbose}{if TRUE, the progress of the bootstrap is displayed.}
+  \item{\dots}{additional arguments to \code{\link{enacopula}}.}  
 }
 \details{
   \describe{
     \item{\code{gnacopula}}{The bootstrap is explained in Genest et al. (2009), see also the source code.}
 
-    \item{\code{Rosenblatt}}{Given a \eqn{d}-dimensional random vector
+    \item{\code{rtrafo}}{Given a \eqn{d}-dimensional random vector
       \eqn{\bm{U}} following an Archimedean copula \eqn{C} with
       generator \eqn{\psi}, the conditional copula of \eqn{U_j=u_j} given
       \eqn{U_1=u_1,\dots,U_{j-1}=u_{j-1}}{U_1=u_1,...,U_{j-1}=u_{j-1}} is
       given by
       \deqn{C(u_j\,|\,u_1,\dots,u_{j-1})=\frac{\psi^{(j-1)}\Bigl(\sum_{k=1}^j\psi^{(-1)}(u_k)\Bigr)}{\psi^{(j-1)}\Bigl(\sum_{k=1}^{j-1}\psi^{(-1)}(u_k)\Bigr)}.}{%
 	C(u_j | u_1,...,u_{j-1}) = (psi^{(j-1)}(sum(k=1..j )  psi^{(-1)}(u_k))) /
-                                   (psi^{(j-1)}(sum(k=1..j-1) psi^{(-1)}(u_k))).}
+        (psi^{(j-1)}(sum(k=1..j-1) psi^{(-1)}(u_k))).}
       This formula is either evaluated with the exact derivatives or, if \code{n.MC} is positive, via Monte Carlo, see \code{\link{psiDabsMC}}.}
 
     \item{\code{gnacopulatrafo}}{Given a \eqn{d}-dimensional random vector \eqn{\bm{U}} following an
@@ -64,7 +74,7 @@ gnacopulatrafo(u, cop, include.K = TRUE, n.MC = 0)
       \deqn{U_{j}^\prime=\left(\frac{\sum_{k=1}^{j}\psi^{-1}(U_{k})}{\sum_{k=1}^{j+1}\psi^{-1}(U_{k})}\right)^{j},\
 	j\in\{1,\dots,d-1\},\ U_{d}^\prime=K(C(\bm{U})).}{%
 	U'_j=((psi^{-1}(U_1)+...+psi^{-1}(U_j)) /
-	      (psi^{-1}(U_1)+...+psi^{-1}(U_{j+1})))^j,  j in {1,...,d-1},
+	(psi^{-1}(U_1)+...+psi^{-1}(U_{j+1})))^j,  j in {1,...,d-1},
 	U'_d=K(C(U)).}
       \code{gnacopulatrafo} applies this transformation row-wise to
       \code{u} and thus either a \eqn{n\times d}{n x d}-matrix or
@@ -77,12 +87,12 @@ gnacopulatrafo(u, cop, include.K = TRUE, n.MC = 0)
 \value{
   \code{gnacopula} returns an \R object of class \code{"htest"}.
   In the case \code{n.bootstrap = 0}, this object is simply the return value
-  of \code{\link{g01}(\link{gnacopulatrafo}(...))}, otherwise the result also
+  of \code{\link{g01}(\link{gnacopulatrafo}(...))} (if \code{method="gnacopulatrafo.normal"} or \code{method="gnacopulatrafo.log"}) or \code{\link{g01}(\link{rtrafo}(...))} (if \code{method="rtrafo.normal"} or \code{method="rtrafo.log"}), otherwise the result also
   contains a list with the bootstrap results including the components
   \describe{
     \item{\code{AD.test}:}{the result of \code{\link{ad.test}} applied
-      to \code{\link{g01trafo}(\link{gnacopulatrafo}(...))} (and thus
-      the outcome of \code{\link{g01}(\link{gnacopulatrafo}(...))});}
+      to \code{\link{g01trafo}(\link{gnacopulatrafo}(...))} or \code{\link{g01trafo}(\link{rtrafo}(...))} (and thus
+      the outcome of \code{\link{g01}(\link{gnacopulatrafo}(...))} or \code{\link{g01}(\link{rtrafo}(...))}, respectively);}
 
     \item{\code{bootStats}:}{a list with component \code{theta.hat}
       containing the estimators of all bootstrap replications and
@@ -90,7 +100,7 @@ gnacopulatrafo(u, cop, include.K = TRUE, n.MC = 0)
       \code{\link{ad.test}} for all bootstrap replications.}
   }
 
-  \code{Rosenblatt} returns an \eqn{n\times d}{n x d}-matrix containing the transformed input \code{u}.
+  \code{rtrafo} returns an \eqn{n\times d}{n x d}-matrix containing the transformed input \code{u}.
 
   \code{gnacopulatrafo} returns an
   \eqn{n\times d}{n x d}- (for \code{include.K=TRUE}) or
@@ -137,11 +147,11 @@ res.H0.G <- gnacopula(U, cop=copG, n.bootstrap=10,
 res.H0.G$p.value # non-rejection according to 5\% level
 
 ## plot of the transformed data (Rosenblatt (1952)) to check uniformity
-U. <- Rosenblatt(U, cop=copG) # exact
+U. <- rtrafo(U, cop=copG) # exact
 pairs(U., cex=0.2) # looks good
 
 ## plot of the transformed data (Rosenblatt (1952)) to check uniformity
-U. <- Rosenblatt(U, cop=copG, n.MC=10000) # via Monte Carlo
+U. <- rtrafo(U, cop=copG, n.MC=10000) # via Monte Carlo
 pairs(U., cex=0.2) # looks good
 
 ## plot of the transformed data (Hering and Hofert (2011)) to check uniformity
@@ -159,7 +169,7 @@ res.H0.C$p.value # rejection according to 5\% level
 
 ## plot of the transformed data (Rosenblatt (1952)) to see the
 ## deviations from uniformity
-U. <- Rosenblatt(U, cop=copC, n.MC=0)
+U. <- rtrafo(U, cop=copC, n.MC=0)
 pairs(U., cex=0.2) # clearly visible
 
 ## plot of the transformed data (Hering and Hofert (2011)) to see the
