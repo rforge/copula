@@ -297,7 +297,7 @@ copFrank <-
               },
                   ## derivatives of the generator inverse
 		  psiInvD1abs = function(t, theta, log = FALSE) {
-                      if(log) log(theta)-log(expm1(theta*t)) else theta/expm1(theta*t)
+		      if(log) log(theta)- {y <- u*theta; y + log1mexpm(y)} else theta/expm1(u*theta)
                   },
                   ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE,
