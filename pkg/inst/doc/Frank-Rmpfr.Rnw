@@ -2,7 +2,9 @@
 %% NOTA BENE: More definitions --> further down
 %%%%%%%%%%%%
 %
-\author{Martin M\"achler \\ ETH Zurich}
+\author{Martin M\"achler \\ ETH Zurich%
+\\ \today%---- for now
+}
 \title{Numerically Stable Frank Copula Functions via Multiprecision:
   \proglang{R} Package \pkg{Rmpfr}}
 % \def\mythanks{a version of this paper, for \pkg{nacopula} 0.4\_4, has been published
@@ -17,6 +19,7 @@
 %\VignetteDepends{nacopula}
 %\VignetteDepends{Rmpfr}
 \SweaveOpts{engine=R,eps=FALSE,pdf=TRUE,width=7,height=5,strip.white=true,keep.source=TRUE}
+
 
 %% an abstract and keywords
 \Abstract{
@@ -78,43 +81,48 @@
 %% Marius' commands
 \newcommand*{\eps}{\varepsilon}
 %NON-STANDARD{bbm}:\newcommand*{\I}{\mathbbm{1}}
-\newcommand*{\I}{\mathbf{1}}
-\newcommand*{\IN}{\mathbb{N}}
-\newcommand*{\IK}{\mathbb{K}}
-\newcommand*{\IR}{\mathbb{R}}
-\newcommand*{\IC}{\mathbb{C}}
-\newcommand*{\IP}{\Prob}
-\newcommand*{\IE}{\E}
-\newcommand*{\V}{\operatorname*{V}}
-\newcommand*{\abs}{\operatorname*{abs}}
-\renewcommand*{\S}{\operatorname*{S}}
-\newcommand*{\tS}{\operatorname*{\tilde{S}}}
-\newcommand*{\ran}{\operatorname*{ran}}
-\newcommand*{\sgn}{\operatorname*{sgn}}
-\newcommand*{\sign}{\operatorname*{sign}}
-\newcommand*{\vp}{\varphi}
-\newcommand*{\vpi}{{\varphi^{-1}}}
-\newcommand*{\vppi}{{\varphi^{[-1]}}}
+% \newcommand*{\I}{\mathbf{1}}
+% \newcommand*{\IN}{\mathbb{N}}
+% \newcommand*{\IK}{\mathbb{K}}
+% \newcommand*{\IR}{\mathbb{R}}
+% \newcommand*{\IC}{\mathbb{C}}
+% \newcommand*{\IP}{\Prob}
+% \newcommand*{\IE}{\E}
+% \newcommand*{\V}{\operatorname*{V}}
+%- \abs{ab}  -->  | ab |   ``absolut Betrag''
+        \newcommand{\abs}[1]    {\left| #1 \right|}
+\newcommand*{\Li}[1]{\mathrm{Li}_{#1}}% polylog / polylogarithm
+% \renewcommand*{\S}{\operatorname*{S}}
+% \newcommand*{\tS}{\operatorname*{\tilde{S}}}
+% \newcommand*{\ran}{\operatorname*{ran}}
+%\newcommand*{\sgn}{\operatorname*{sgn}}
+\DeclareMathOperator{\sign}{sign}
 \newcommand*{\psiD}{\psi^\prime}
 \newcommand*{\psii}{{\psi^{-1}}}
 \newcommand*{\psiis}[1]{{\psi_{#1}^{-1}}}
-\renewcommand*{\L}{\mathcal{L}}
-\newcommand*{\Li}{\mathcal{L}^{-1}}
-\newcommand*{\LS}{\mathcal{LS}}
-\newcommand*{\LSi}{\LS^{-1}}
+% \renewcommand*{\L}{\mathcal{L}}
+% \newcommand*{\Li}{\mathcal{L}^{-1}}
+% \newcommand*{\LS}{\mathcal{LS}}
+% \newcommand*{\LSi}{\LS^{-1}}
 \newcommand{\tr}{\ensuremath{^\mathsf{T}}}% or  ^{\intercal}
 \renewcommand*{\O}{\mathcal{O}}
-\newcommand*{\Geo}{\operatorname*{Geo}}
-\newcommand*{\Exp}{\operatorname*{Exp}}
-\newcommand*{\Sibuya}{\operatorname*{Sibuya}}
-\newcommand*{\Log}{\operatorname*{Log}}
-\newcommand*{\U}{\operatorname*{U}}
-\newcommand*{\B}{\operatorname*{B}}
-\newcommand*{\NB}{\operatorname*{NB}}
-\newcommand*{\N}{\operatorname*{N}}
-\newcommand*{\Var}{\operatorname*{Var}}
-\newcommand*{\Cov}{\operatorname*{Cov}}
-\newcommand*{\Cor}{\operatorname*{Cor}}
+% \newcommand*{\Geo}{\operatorname*{Geo}}
+% \newcommand*{\Exp}{\operatorname*{Exp}}
+% \newcommand*{\Sibuya}{\operatorname*{Sibuya}}
+% \newcommand*{\Log}{\operatorname*{Log}}
+% \newcommand*{\U}{\operatorname*{U}}
+% \newcommand*{\B}{\operatorname*{B}}
+% \newcommand*{\NB}{\operatorname*{NB}}
+% \newcommand*{\N}{\operatorname*{N}}
+\DeclareMathOperator{\var}{var}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\cov}{cov}
+\DeclareMathOperator{\Cor}{Corr}
+\DeclareMathOperator{\cor}{corr}
+% \newcommand*{\Var}{\operatorname*{Var}}
+% \newcommand*{\Cov}{\operatorname*{Cov}}
+% \newcommand*{\Cor}{\operatorname*{Cor}}
 \hyphenation{Ar-chi-me-dean}
 
 %% journal specific aliases
@@ -131,7 +139,7 @@
 %% Note: These are explained in '?RweaveLatex' :
 <<preliminaries, echo=FALSE, results=hide>>=
 op.orig <-
-options(width = 70,
+options(width = 75,
         SweaveHooks= list(fig=function() par(mar=c(5.1, 4.1, 1.1, 2.1))),
         useFancyQuotes = FALSE,
         ## for JSS, but otherwise MM does not like it:
@@ -148,14 +156,16 @@ if(.Platform$OS.type != "windows")
   Sys.setlocale("LC_MESSAGES","C")
 @
 %\section[Introduction]{Introduction \small~\footnote{\mythanks}}
-\section{Introduction}
+%\section{Introduction}
+\section{The diagonal density of Frank's copula}
 
 The ``diagonal density'' of a copula $C(\cdot)$ is the density of
-$\max(U_1,U_2,\dots,U_d)$, where $(U_1,U_2,\dots,U_d)\tr \sim C$.
+$\max(U_1,U_2,\dots,U_d)$, where \linebreak[4]
+$\bm U = (U_1,U_2,\dots,U_d)\tr \sim C$.
 The (cumulative) distribution function, by definition,
 \begin{equation}
-  F^D(u) := Pr\left[ \max(U_1,U_2,\dots,U_d) \le u \right] =
-            Pr\left[U_1\le u, U_2,\le u, \dots, U_d\le u\right] = C(u,u,\dots,u),
+  F^D(u) := P\left[ \max(U_1,U_2,\dots,U_d) \le u \right] =
+            P\left[U_1\le u, U_2,\le u, \dots, U_d\le u\right] = C(u,u,\dots,u),
                 \label{eq:diagF}
 \end{equation}
 evaluates the copula only on the diagonal and is
@@ -169,8 +179,8 @@ the diagonal density is
 \begin{eqnarray}
   f^D(u) &=& \frac{d}{du}F^D(u) = \frac{d}{du}\psi\left(\sum\nolimits_{j=1}^d \psii(u)\right) =
   \frac{d}{du}\psi(d \psii(u)) =  \\
-   &=& \psi^\prime\!\left(d \psii(u)\right) \cdot d \cdot \frac{d}{du} \psii(u)
-   = d\: \psi^\prime\!\left(d \psii(u)\right) \cdot \left[\psii\right]^\prime(u).
+   &=& \psi^\prime\!\left(d\cdot \psii(u)\right) \cdot d \cdot \frac{d}{du} \psii(u)
+   = d\cdot \psi^\prime\!\left(d\cdot \psii(u)\right) \cdot \left[\psii\right]^\prime(u).
   \label{eq:fD}
 \end{eqnarray}
 
@@ -186,54 +196,78 @@ writeLines(head(capture.output(print(
                      )), -1))
 @
 where the three functions
-\code{psiDabs(t,thet)}$ = \bigl|\psi_\theta^\prime(t)\bigr|$,\\
-\code{psiInv(u,thet)}$ = \psi_\theta^{-1}(u)$, and
-\code{psiInvD1abs(u,thet)}$ = \bigl|[\psi_\theta^{-1}]^\prime(u) \bigr|$
+\begin{align}
+\mathtt{psiDabs(t,thet)} &= \bigl|\psi_\theta^\prime(t)\bigr|,\label{def:psiDabs}\\
+\mathtt{psiInv(u,thet)} &= \psi_\theta^{-1}(u), \ \mathrm{and}\label{def:psiInv}\\
+\mathtt{psiInvD1abs(u,thet)} &= \bigl|[\psi_\theta^{-1}]^\prime(u) \bigr| \label{def:psiInvD1abs}
+\end{align}
 are all provided by the slots of the corresponding Archimedean copula family.
 
 For the following explorations,  we need a more flexible definition which
-does not directly work with the copula family object,
+does not directly work with the copula family object, but gets the three
+functions as arguments,
 <<my-dDiagA>>=
-##' @title Density of diagonal of d-dim. Archimedean copula
-##' @param u (numeric vector of) evaluation point in [0, 1]
-##' @param th
-##' @param d
-##' @param psiInv, psiDabs,psiID1a the functions psi^{-1}(), |psi'|, and |[psi^{-1}]'|
-##' @param log if TRUE the log-density is evaluated
-##'
-##' @return [log] density of the diagonal of the copula
-dDiagA <- function(u, th, d, psiInv, psiDabs, psiID1a, log = FALSE) {
+dDiagA <- function(u, th, d, psiInv, psiDabs, psiInvD1abs, log = FALSE) {
     stopifnot(is.finite(th), d > 0, is.function(psiInv),
-              is.function(psiDabs), is.function(psiID1a))
+              is.function(psiDabs), is.function(psiInvD1abs))
     if(log) {
         log(d) + psiDabs(d*psiInv(u,th), th, log = TRUE) +
-            psiID1a(u, th, log = TRUE)
+            psiInvD1abs(u, th, log = TRUE)
     } else {
-        d* psiDabs(d*psiInv(u,th), th) * psiID1a(u,th)
+        d* psiDabs(d*psiInv(u,th), th) * psiInvD1abs(u,th)
     }
 }
 @
-Now, for the Frank copula,
+Now, for the Frank copula (see Hofert and M\"achler (2011)),% FIXME \cite{Hofert:Maechler:201....}
 \begin{eqnarray}
   \psi_\theta(t) &=& - \frac{1}{\theta}\log\left(1 - (1 - e^{-\theta})e^{-t}\right),
   \label{eq:psiFrank}
   \ \ \ \theta > 0,
-  \ \ \mathrm{and\ \ hence,}\\
-  \psi_\theta^{-1}(u) &=& - \log\left(\frac{e^{-u\theta} - 1}{e^{-\theta} - 1}\right).
+  \ \ \mathrm{\ \ hence,}
+  \\
+  \psi_\theta^{-1}(u) &=& - \log\left(\frac{e^{-u\theta} - 1}{e^{-\theta} - 1}\right),
   \label{eq:psiInvFrank}
+  \ \ \mathrm{\ \ and}
+  \\
+  %% psiDabs(t,thet)
+  (-1)^k {\psi_\theta}^{(k)}(t) = \bigl|{\psi_\theta}^{(k)}(t)\bigr| &=&
+  \frac{1}{\theta} \Li{k-1}((1-e^{-\theta})e^{-t}),
+  \label{eq:psiDabs}
+  \ \ \ \ \ \ \mathrm{and}
+  \\
+  %% psiInvD1abs.1(u,theta)
+  \bigl|[\psi_\theta^{-1}]^\prime(u) \bigr| &=& \theta/(e^{u\cdot\theta} - 1),
+  \label{eq:psiInvD1}
 \end{eqnarray}
-...
-...
+where $\Li{s}(z)$ is the \emph{polylogarithm of order} $s$ at $z$, defined
+as (analytic continuation of) $\sum_{k=1}^\infty \frac{z^k}{k^s}$. When $s
+= -n$, $n\in\mathbb{N}$, one has
+\begin{equation}
+  \label{eq:Li-n}
+  \Li{-n}(z) = \left(z \cdot \frac{\partial}{\partial z} \right)^n \frac{z}{1-z},
+\end{equation}
+and we note that here, only the first derivative is needed,
+$ - {\psi_\theta}^\prime(t) = \left|{\psi_\theta}^\prime(t)\right|$, and hence only
+\begin{equation}
+  \mathtt{polylog(z, s=0)} = \Li{0}(z) = z / (1 - z). \label{eq:polylog-0}
+\end{equation}
 
-in \pkg{nacopula}, we originally had the following definitions,
+First note that numerically, $e^{-a} - 1$ suffers from cancellation when $0
+< a \ll 1 $, and the \R\ (and C) function \code{expm1(-a)} is advisably used
+instead of \code{exp(-a) - 1}.
+For this reason, in \pkg{nacopula}, I had replaced the original \code{psiInv.0(u, th)}
+for $\psi_\theta^{-1}(u)$ by \code{psiInv.1()}, making use of \code{expm1()}.
+These and the derivative (\ref{eq:psiDabs})
+originally were
 <<def-orig-psi-func>>=
 psiInv.0 <- function(u,theta) -log( (exp(-theta*u)-1) / (exp(-theta)-1) )
 psiInv.1 <- function(u,theta) -log(expm1(-u*theta) / expm1(-theta))
-
 psiInvD1abs.1 <- function(u, theta, log = FALSE)
   if(log) log(theta)-log(expm1(u*theta)) else theta/expm1(u*theta)
-
-## and simplified, for 1st derivative ( " degree = 1 " ):
+@
+and the general $k$-th derivative (\ref{eq:psiInvD1}), simplified, for $k= 1$
+(\code{degree = 1}),
+<<def-orig-psiDabs>>=
 require("nacopula")# for polylog()
 psiDabs.1 <- function(t, theta, log=FALSE) {
   p <- -expm1(-theta)
@@ -243,11 +277,7 @@ psiDabs.1 <- function(t, theta, log=FALSE) {
 }
 @
 where we however now assume that the \code{polylog()} function for
-\code{s=0} would basically use the direct formula
-\begin{equation}
-  \mathtt{polylog(z, s=0)} = \mathrm{Li}_0(z) = z / (1 - z).
-  \label{eq:polylog-0}
-\end{equation}
+\code{s=0} would basically use the direct formula (\ref{eq:polylog-0})
 <<simpler-psiDabs>>=
 psiDabs.2 <- function(t, theta, log=FALSE) {
   w <- log(-expm1(-theta)) - t
@@ -255,7 +285,8 @@ psiDabs.2 <- function(t, theta, log=FALSE) {
   if(log) Li. - log(theta) else Li. / theta
 }
 @
- %% =======
+
+\section{Computing the ``diagonal MLE''}
 
 The most important use of the diagonal density is to compute the ``diagonal
 maximum likelihood estimator'', \code{dmle}, ${\hat\theta}^D$ which for a sample of observations
@@ -273,12 +304,12 @@ $\log f^D = \log f^D_\theta(u)$\code{= dDiag(u, theta, *, log=TRUE)}
 for non-small $\theta$ and ``large'' $u$, i.e., $u \approx 1$:
 <<dDiag-probl-big-theta, fig=TRUE>>=
 curve(dDiagA(x, th = 38, d = 2, psiInv = psiInv.0,
-             psiDabs=psiDabs.1, psiID1a=psiInvD1abs.1, log = TRUE),
+             psiDabs=psiDabs.1, psiInvD1abs=psiInvD1abs.1, log = TRUE),
       ylab = "dDiagA(x, theta= 38, *, log=TRUE)",
       0, 1, col = 4, n = 1000)
 ## and using the slightly better   psiInv.1  does not help here:
 curve(dDiagA(x, th = 38, d = 2, psiInv = psiInv.1,
-             psiDabs=psiDabs.2, psiID1a=psiInvD1abs.1, log = TRUE),
+             psiDabs=psiDabs.2, psiInvD1abs=psiInvD1abs.1, log = TRUE),
       add = TRUE, col = 2, n=1000)
 legend("bottom", c("psiInv.0()","psiInv.1()"),col=c(4,2), lty=1, bty="n")
 @
@@ -300,12 +331,12 @@ which when using \code{log1p(e)} for $\log(1+e)$ is much better numerically:
 <<dDiag-ok-big-theta, fig=TRUE>>=
 psiInv.2 <- function(u,theta) -log1p((exp(-u*theta)-exp(-theta)) / expm1(-theta))
 curve(dDiagA(x, th = 38, d = 2, psiInv = psiInv.2,
-             psiDabs=psiDabs.2, psiID1a=psiInvD1abs.1, log = TRUE),
+             psiDabs=psiDabs.2, psiInvD1abs=psiInvD1abs.1, log = TRUE),
       ylab = "dDiagA(x, theta= 38, *, log=TRUE)",
       0, 1, col = 4, n = 1000)
 ## previously
 curve(dDiagA(x, th = 38, d = 2, psiInv = psiInv.1,
-             psiDabs=psiDabs.2, psiID1a=psiInvD1abs.1, log = TRUE),
+             psiDabs=psiDabs.2, psiInvD1abs=psiInvD1abs.1, log = TRUE),
       add = TRUE, col = "darkgray", lwd=2, lty=3, n=1000)
 @
 
@@ -320,7 +351,7 @@ U. <- sort(apply(U, 1, max)) # build the max
 <<negLogL>>=
 mlogL <- function(theta)
     -sum(dDiagA(U., theta, d=d, psiInv = psiInv.2,
-                psiDabs=psiDabs.2, psiID1a=psiInvD1abs.1,
+                psiDabs=psiDabs.2, psiInvD1abs=psiInvD1abs.1,
                 log = TRUE))
 @
 Now, plot this negative log likelihood function in an interval $\theta$,
@@ -372,11 +403,11 @@ The flesh in the \code{mlogL()} computation is (up to the constant
 $\log(d)$, $d=5$), only the sum of the two terms
 <<mlogL_2terms, eval=false>>=
    psiDabs(d*psiInv(u,th), th, log = TRUE) +
-   psiID1a(u,              th, log = TRUE)
+   psiInvD1abs(u,              th, log = TRUE)
 @
 currently, with the three functions
 <<3f, eval=false>>=
-psiInv = psiInv.2; psiDabs = psiDabs.2; psiID1a = psiInvD1abs.1
+psiInv = psiInv.2; psiDabs = psiDabs.2; psiInvD1abs = psiInvD1abs.1
 @
 where we have already checked that the \code{psiInv()} function is ok, but
 can confirm, e.g., for $\theta = 50$, that it is.  Further note, that using
@@ -439,7 +470,7 @@ Let's see:
 <<nlogL-2>>=
 mlogL <- function(theta)
     -sum(dDiagA(U., theta, d=d, psiInv = psiInv.2,
-                psiDabs = psiDabs.3, psiID1a=psiInvD1abs.1,
+                psiDabs = psiDabs.3, psiInvD1abs=psiInvD1abs.1,
                 log = TRUE))
 <<llog-theta-plot-1>>=
 thet <- seq(11, 99, by = 1/4)
@@ -447,7 +478,7 @@ thet <- seq(11, 99, by = 1/4)
 nll <- vapply(thet, mlogL, 0.)
 plot(nll ~ thet, xlab=expression(theta),
      ylab = expression(- logLik(theta, .)),
-     type = "l", col="red2", lwd=1)
+     type = "l", col="red2", lwd=2)
 @
 Yes, indeed, using a numerically stable version for \code{psiDabs()}
 did solve the numerical problem of computing, the ``diagonal likelihood'',
@@ -458,7 +489,51 @@ but probably not really practical:
 <<llog-theta-plot-2,fig=true>>=
 thet <- 9:1000
 <<llog-theta-comPlot>>
+(th0 <- thet[i0 <- max(which(is.finite(nll)))])
+abline(v = th0, col="red2", lty="15", lwd=2)
 @
+
+where we see that for $\theta > \Sexpr{th0}$, \code{mlogL()} is not finite,
+e.g.,
+<<dDiag-large-thet>>=
+dDiagA(0.999, 715, d = d, psiInv = psiInv.2, psiDabs = psiDabs.3,
+                          psiInvD1abs = psiInvD1abs.1, log = TRUE)
+@
+which after closer inspection is from  the \code{psiInvD1abs(u, th, log =
+TRUE)} part of \code{dDiagA()} and that, see (\ref{def:psiInvD1abs}), uses
+\code{log(theta)-log(expm1(u*theta))},
+where clearly already \code{expm1(u*theta)) = expm1(0.999 * 715)} numerically overflows to \code{Inf}:
+<<psiID1-large-thet>>=
+psiInvD1abs.1(0.999, th = 715, log=TRUE)
+@
+However, as $\log(\mathrm{expm1}(y)) = \log(e^y -1) = \log(e^y(1 - e^{-y}))
+= y + \log(1 - e^{-y})$, the ``numerical stable'' solution is to replace
+\code{log(expm1(y))} by \code{y + log1mexpm(y)}, such that we will use
+<<def-psiInvD1abs-2>>=
+psiInvD1abs.2 <- function(u, theta, log = FALSE)
+  if(log) log(theta)- {y <- u*theta; y + log1mexpm(y)} else theta/expm1(u*theta)
+mlogL <- function(theta) -sum(dDiagA(U., theta, d=d, psiInv = psiInv.2,
+		psiDabs = psiDabs.3, psiInvD1abs = psiInvD1abs.2, log = TRUE))
+@
+Unfortunately, this improves the situation for large $\theta$ only slightly:
+<<llog-theta-plot-3,fig=true, echo=FALSE>>=
+plot(nll ~ thet, xlab=expression(theta),
+     ylab = expression(- logLik(theta, .)),
+     type = "l", col="red2", lwd=2)
+abline(v = th0, col="red2", lty="15", lwd=2)
+nll3 <- vapply(thet, mlogL, 0.)
+lines(nll3 ~ thet, col = "blue2", lwd=3, lty=2)
+mlogL(800)
+@
+where we can see, that this time, the numerical overflow to $\infty$
+happens in \code{psiDabs(d*psiInv(u,th), th, log = TRUE)}, as
+\code{d*psiInv(u,th) = 5*psiInv(0.999, th=800)}$=$\Sexpr{format(d*psiInv.2(u=0.999,th=800))}
+underflows to zero (by necessity).
+The only solution here is in allowing to pass the \emph{logarithm}
+$\log(t)$ instead of $t$ to \code{psiDabs()}, i.e., we start computing
+\code{log(psiInv(.))} directly (evading the underflow to 0 there).
+
+\dots \dots to be continued.
 
 
 \section{Session Information}
@@ -471,6 +546,6 @@ options(op.orig)
 
 \section{Conclusion}
 
-%\bibliography{Rmpfr,nacopula}
+%\bibliography{nacopula}% Rmpfr
 
 \end{document}
