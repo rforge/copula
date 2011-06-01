@@ -17,20 +17,21 @@
 
 ## NOTA BENE:  Write psi(), tau(), ... functions such that they *vectorize*
 ## ---------   *and* do work even for (non-numeric) NULL argument
-##          	{now checked in "acopula" validityMethod -- see ./AllClass.R }
+##		{now checked in "acopula" validityMethod -- see ./AllClass.R }
 
 ### ==== Ali-Mikhail-Haq, see Nelsen (2007) p. 116, # 3 ========================
 
 copAMH <-
     (function() { ## to get an environment where  C.  itself is accessible
-        C. <- new("acopula", name = "AMH",
-                  ## generator
+	C. <- new("acopula", name = "AMH",
+		  ## generator
 		  psi = function(t,theta) { (1-theta)/(exp(t+0)-theta) },
 		  psiInv = function(t,theta) { log((1-theta*(1-t))/t) },
-                  ## parameter interval
-                  paraInterval = interval("[0,1)"),
-                  ## absolute value of generator derivatives
-		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE, method = "negI-s-Euler", Li.log.arg=TRUE)
+		  ## parameter interval
+		  paraInterval = interval("[0,1)"),
+		  ## absolute value of generator derivatives
+		  psiDabs = function(t, theta, degree=1, n.MC=0,
+				     log=FALSE, method = "negI-s-Euler", Li.log.arg=TRUE)
 	      {
 		  lth <- log(theta)
 		  if(n.MC > 0) {
@@ -47,63 +48,63 @@ copAMH <-
 			  Li. * (1-theta)/theta
 		  }
 	      },
-                  ## derivatives of the generator inverse
+		  ## derivatives of the generator inverse
 		  psiInvD1abs = function(t, theta, log = FALSE) {
-                      if(log) {
-                          log1p(-theta)-log(t)-log1p(-theta*(1-t))
-                      } else {
-                          (1-theta)/(t*(1-theta*(1-t)))
-                      }
-                  },
-                  ## density
+		      if(log) {
+			  log1p(-theta)-log(t)-log1p(-theta*(1-t))
+		      } else {
+			  (1-theta)/(t*(1-theta*(1-t)))
+		      }
+		  },
+		  ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE, method = "negI-s-Euler", Li.log.arg=TRUE) {
 		      stopifnot(C.@paraConstr(theta))
-                      if(!is.matrix(u)) u <- rbind(u)
-                      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-                      ## f() := NaN outside and on the boundary of the unit hypercube
-                      res <- rep.int(NaN, n <- nrow(u))
-                      ## indices for which density has to be evaluated:
-                      n01 <- apply(u,1,function(x) all(0 < x, x < 1))
-                      if(!any(n01)) return(res)
-                      if(theta == 0) { res[n01] <- if(log) 0 else 1; return(res) } # independence
-                      ## auxiliary results
-                      u. <- u[n01,, drop=FALSE]
-                      tIu <- -theta*(1-u.)
-                      sum. <- rowSums(log(u.))
-                      sumIu <- rowSums(log1p(tIu))
-                      ## main part
-                      if(n.MC > 0) { # Monte Carlo
-                          V <- C.@V0(n.MC, theta)
-                          l <- d*log((1-theta)*V) # length = n.MC
-                          res[n01] <- colMeans(exp(l + (V-1) %*% t(sum.) - (V+1) %*% t(sumIu)))
-                          if(log) log(res) else res
+		      if(!is.matrix(u)) u <- rbind(u)
+		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		      ## f() := NaN outside and on the boundary of the unit hypercube
+		      res <- rep.int(NaN, n <- nrow(u))
+		      ## indices for which density has to be evaluated:
+		      n01 <- apply(u,1,function(x) all(0 < x, x < 1))
+		      if(!any(n01)) return(res)
+		      if(theta == 0) { res[n01] <- if(log) 0 else 1; return(res) } # independence
+		      ## auxiliary results
+		      u. <- u[n01,, drop=FALSE]
+		      tIu <- -theta*(1-u.)
+		      sum. <- rowSums(log(u.))
+		      sumIu <- rowSums(log1p(tIu))
+		      ## main part
+		      if(n.MC > 0) { # Monte Carlo
+			  V <- C.@V0(n.MC, theta)
+			  l <- d*log((1-theta)*V) # length = n.MC
+			  res[n01] <- colMeans(exp(l + (V-1) %*% t(sum.) - (V+1) %*% t(sumIu)))
+			  if(log) log(res) else res
 		      } else { # explicit
 			  Li.arg <-
 			      if(Li.log.arg) log(theta) + sum. - sumIu else theta* apply(u./(1+tIu), 1, prod)
 			  Li. <- polylog(Li.arg, s = -d, method=method, is.log.z = Li.log.arg, log=TRUE)
 			  res[n01] <- (d+1)*log1p(-theta)-log(theta)+ Li. -sum. -sumIu
 			  if(log) res else exp(res)
-                      }
-                  },
-                  ## score function
-                  score = function(u, theta) {
-	              stopifnot(C.@paraConstr(theta))
-	              if(!is.matrix(u)) u <- rbind(u)
-	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-                      omu <- 1-u
-                      b <- rowSums(omu/(1-theta*omu))
-                      h <- theta*apply(u/(1-theta*omu), 1, prod)
-                      -(d+1)/(1-theta) - 1/theta + b + (b+1/theta) *
-                          polylog(h, s=-(d+1), method="negI-s-Stirling") /
-                              polylog(h, s=-d, method="negI-s-Stirling")
-                  },
-                  ## nesting constraint
-                  nestConstr = function(theta0,theta1) {
-                      C.@paraConstr(theta0) &&
-                      C.@paraConstr(theta1) && theta1 >= theta0
-                  },
-                  ## V0 with density dV0 and V01 with density dV01 corresponding to
-                  ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
+		      }
+		  },
+		  ## score function
+		  score = function(u, theta) {
+		      stopifnot(C.@paraConstr(theta))
+		      if(!is.matrix(u)) u <- rbind(u)
+		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		      omu <- 1-u
+		      b <- rowSums(omu/(1-theta*omu))
+		      h <- theta*apply(u/(1-theta*omu), 1, prod)
+		      -(d+1)/(1-theta) - 1/theta + b + (b+1/theta) *
+			  polylog(h, s=-(d+1), method="negI-s-Stirling") /
+			      polylog(h, s=-d, method="negI-s-Stirling")
+		  },
+		  ## nesting constraint
+		  nestConstr = function(theta0,theta1) {
+		      C.@paraConstr(theta0) &&
+		      C.@paraConstr(theta1) && theta1 >= theta0
+		  },
+		  ## V0 with density dV0 and V01 with density dV01 corresponding to
+		  ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
 		  V0 = function(n,theta) rgeom(n, 1-theta) + 1,
 		  dV0 = function(x,theta,log = FALSE) dgeom(x-1, 1-theta, log),
                   V01 = function(V0,theta0,theta1) {
@@ -132,33 +133,33 @@ copAMH <-
                   },
                   ## lower tail dependence coefficient lambda_l
 		  lambdaL = function(theta) { 0*theta },
-                  lambdaLInv = function(lambda) {
-                      if(any(lambda != 0))
-                          stop("Any parameter for an Ali-Mikhail-Haq copula gives lambdaL = 0")
-                      NA * lambda
-                  },
-                  ## upper tail dependence coefficient lambda_u
+		  lambdaLInv = function(lambda) {
+		      if(any(lambda != 0))
+			  stop("Any parameter for an Ali-Mikhail-Haq copula gives lambdaL = 0")
+		      NA * lambda
+		  },
+		  ## upper tail dependence coefficient lambda_u
 		  lambdaU = function(theta) { 0*theta },
-                  lambdaUInv = function(lambda) {
-                      if(any(lambda != 0))
-                          stop("Any parameter for an Ali-Mikhail-Haq copula gives lambdaU = 0")
-                      NA * lambda
-                  }
-                  )
-        C.
+		  lambdaUInv = function(lambda) {
+		      if(any(lambda != 0))
+			  stop("Any parameter for an Ali-Mikhail-Haq copula gives lambdaU = 0")
+		      NA * lambda
+		  }
+		  )
+	C.
     })()# {copAMH}
 
 ### ==== Clayton, see Nelsen (2007) p. 116, #1 (slightly simpler form) =========
 
 copClayton <-
     (function() { ## to get an environment where  C.  itself is accessible
-        C. <- new("acopula", name = "Clayton",
-                  ## generator
+	C. <- new("acopula", name = "Clayton",
+		  ## generator
 		  psi = function(t,theta) { (1+t)^(-1/theta) },
 		  psiInv = function(t,theta) { t^(-theta) - 1 },
-                  ## parameter interval
-                  paraInterval = interval("(0,Inf)"),
-                  ## absolute value of generator derivatives
+		  ## parameter interval
+		  paraInterval = interval("(0,Inf)"),
+		  ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE) {
                       if(n.MC > 0) {
                           psiDabsMC(t, family="Clayton", theta=theta, degree=degree,
@@ -172,85 +173,85 @@ copClayton <-
                   },
                   ## derivatives of the generator inverse
 		  psiInvD1abs = function(t, theta, log = FALSE) {
-                      if(log) log(theta)-(1+theta)*log(t) else theta*t^(-(1+theta))
-                  },
-                  ## density
+		      if(log) log(theta)-(1+theta)*log(t) else theta*t^(-(1+theta))
+		  },
+		  ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE) {
 		      stopifnot(C.@paraConstr(theta))
-                      if(!is.matrix(u)) u <- rbind(u)
-                      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-                      ## f() := NaN outside and on the boundary of the unit hypercube
-                      res <- rep.int(NaN, n <- nrow(u))
-                      n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
-                      if(!any(n01)) return(res)
-                      ## auxiliary results
-                      u. <- u[n01,, drop=FALSE]
-                      lu <- rowSums(log(u.))
-                      t <- rowSums(C.@psiInv(u., theta))
-                      ## main part
-                      if(n.MC > 0) { # Monte Carlo
-                          lu.mat <- matrix(rep(lu, n.MC), nrow=n.MC, byrow=TRUE)
-                          V <- C.@V0(n.MC, theta)
-                          l <- d*log(theta*V)
-                          theta. <- 1 + theta
-                          ## stably compute log(colMeans(exp(lx)))
-                          lx <- l - theta.*lu.mat - V %*% t(t) - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
-                          res[n01] <- lsum(lx)
-                      } else { # explicit
-	                  k <- 0:(d-1)
-	                  s <- sum(log1p(theta*k))
-	                  res[n01] <- s - (1+theta)*lu - (d+1/theta)*log1p(t)
-                      }
-                      if(log) res else exp(res)
-                  },
-                  ## score function
-                  score = function(u, theta) {
-	              stopifnot(C.@paraConstr(theta))
-                      if(!is.matrix(u)) u <- rbind(u)
-                      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-                      k <- 0:(d-1)
-                      s <- sum(k/(theta*k+1))
-                      lu <- log(u)
-                      t <- rowSums(C.@psiInv(u, theta=theta))
-                      tp1 <- 1+t
-                      alpha <- 1/theta
-                      s-lu+alpha^2*log(tp1)-(d+alpha)*t/tp1
-                  },
-                  ## nesting constraint
-                  nestConstr = function(theta0,theta1) {
-                      C.@paraConstr(theta0) &&
-                      C.@paraConstr(theta1) && theta1 >= theta0
-                  },
-                  ## V0 with density dV0 and V01 with density dV01 corresponding to
-                  ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
+		      if(!is.matrix(u)) u <- rbind(u)
+		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		      ## f() := NaN outside and on the boundary of the unit hypercube
+		      res <- rep.int(NaN, n <- nrow(u))
+		      n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
+		      if(!any(n01)) return(res)
+		      ## auxiliary results
+		      u. <- u[n01,, drop=FALSE]
+		      lu <- rowSums(log(u.))
+		      t <- rowSums(C.@psiInv(u., theta))
+		      ## main part
+		      if(n.MC > 0) { # Monte Carlo
+			  lu.mat <- matrix(rep(lu, n.MC), nrow=n.MC, byrow=TRUE)
+			  V <- C.@V0(n.MC, theta)
+			  l <- d*log(theta*V)
+			  theta. <- 1 + theta
+			  ## stably compute log(colMeans(exp(lx)))
+			  lx <- l - theta.*lu.mat - V %*% t(t) - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
+			  res[n01] <- lsum(lx)
+		      } else { # explicit
+			  k <- 0:(d-1)
+			  s <- sum(log1p(theta*k))
+			  res[n01] <- s - (1+theta)*lu - (d+1/theta)*log1p(t)
+		      }
+		      if(log) res else exp(res)
+		  },
+		  ## score function
+		  score = function(u, theta) {
+		      stopifnot(C.@paraConstr(theta))
+		      if(!is.matrix(u)) u <- rbind(u)
+		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		      k <- 0:(d-1)
+		      s <- sum(k/(theta*k+1))
+		      lu <- log(u)
+		      t <- rowSums(C.@psiInv(u, theta=theta))
+		      tp1 <- 1+t
+		      alpha <- 1/theta
+		      s-lu+alpha^2*log(tp1)-(d+alpha)*t/tp1
+		  },
+		  ## nesting constraint
+		  nestConstr = function(theta0,theta1) {
+		      C.@paraConstr(theta0) &&
+		      C.@paraConstr(theta1) && theta1 >= theta0
+		  },
+		  ## V0 with density dV0 and V01 with density dV01 corresponding to
+		  ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
 		  V0 = function(n,theta) { rgamma(n, shape = 1/theta) },
 		  dV0 = function(x,theta,log = FALSE) dgamma(x, shape = 1/theta, log),
-                  V01 = function(V0,theta0,theta1) { retstable(alpha=theta0/theta1, V0) },
-                  dV01 = function(x,V0,theta0,theta1,log = FALSE) {
-                      stopifnot(length(V0) == 1 || length(x) == length(V0))
-                      alpha <- theta0/theta1
-                      gamma <- (cos(pi/2*alpha)*V0)^(1/alpha)
-                      delta <- V0*(alpha == 1)
+		  V01 = function(V0,theta0,theta1) { retstable(alpha=theta0/theta1, V0) },
+		  dV01 = function(x,V0,theta0,theta1,log = FALSE) {
+		      stopifnot(length(V0) == 1 || length(x) == length(V0))
+		      alpha <- theta0/theta1
+		      gamma <- (cos(pi/2*alpha)*V0)^(1/alpha)
+		      delta <- V0*(alpha == 1)
 		      ## NB: new dstable() is vectorized in (x, gamma, delta) [but not the others]
 		      dst <- dstable(x, alpha=alpha, beta = 1, gamma=gamma, delta=delta,
 				     pm = 1, log=log, tol = 128* .Machine$double.eps)
-                      if(log) V0-x + dst else exp(V0-x) * dst
-                  },
-                  ## Kendall's tau
+		      if(log) V0-x + dst else exp(V0-x) * dst
+		  },
+		  ## Kendall's tau
 		  tau = function(theta) { theta/(theta+2) },
-                  tauInv = function(tau) { 2*tau/(1-tau) },
-                  ## lower tail dependence coefficient lambda_l
+		  tauInv = function(tau) { 2*tau/(1-tau) },
+		  ## lower tail dependence coefficient lambda_l
 		  lambdaL = function(theta) { 2^(-1/theta) },
-                  lambdaLInv = function(lambda) { -1/log2(lambda) },
-                  ## upper tail dependence coefficient lambda_u
+		  lambdaLInv = function(lambda) { -1/log2(lambda) },
+		  ## upper tail dependence coefficient lambda_u
 		  lambdaU = function(theta) { 0*theta },
-                  lambdaUInv = function(lambda) {
-                      if(any(lambda != 0))
-                          stop("Any parameter for a Clayton copula gives lambdaU = 0")
-                      NA * lambda
-                  }
-                  )
-        C.
+		  lambdaUInv = function(lambda) {
+		      if(any(lambda != 0))
+			  stop("Any parameter for a Clayton copula gives lambdaU = 0")
+		      NA * lambda
+		  }
+		  )
+	C.
     })()# {copClayton}
 
 ### ==== Frank, see Nelsen (2007) p. 116, # 5 ==================================
@@ -258,12 +259,12 @@ copClayton <-
 ##' Frank object
 copFrank <-
     (function() { ## to get an environment where  C.  itself is accessible
-        C. <- new("acopula", name = "Frank",
-                  ## generator
+	C. <- new("acopula", name = "Frank",
+		  ## generator
 		  psi = function(t,theta) {
-                      -log1p(expm1(-theta)*exp(0-t))/theta
-                      ## == -log(1-(1-exp(-theta))*exp(-t))/theta
-                  },
+		      -log1p(expm1(-theta)*exp(0-t))/theta
+		      ## == -log(1-(1-exp(-theta))*exp(-t))/theta
+		  },
 		  psiInv = function(t,theta) {
 		      ## == -log( (exp(-theta*t)-1) / (exp(-theta)-1) )
 		      tht <- t*theta # (-> recycling args)
@@ -280,9 +281,9 @@ copFrank <-
 			     ## for small t (t < 0.01) :
 			     -log(expm1(-tht)/et1))
 		  },
-                  ## parameter interval
-                  paraInterval = interval("(0,Inf)"),
-                  ## absolute value of generator derivatives
+		  ## parameter interval
+		  paraInterval = interval("(0,Inf)"),
+		  ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE,
                   method = "negI-s-Eulerian", Li.log.arg=TRUE)
               {
@@ -295,15 +296,16 @@ copFrank <-
 		      Li. <- polylog(Li.arg, s = -(degree-1), log=log,
 				     method=method, is.log.z = Li.log.arg)
 		      if(log) Li. - log(theta) else Li. / theta
-                  }
-              },
-                  ## derivatives of the generator inverse
+		  }
+	      },
+		  ## derivatives of the generator inverse
 		  psiInvD1abs = function(t, theta, log = FALSE) {
-		      if(log) log(theta)- {y <- t*theta; y + log1mexpm(y)} else theta/expm1(t*theta)
-                  },
-                  ## density
+		      if(log) log(theta)- {y <- t*theta; y + log1mexpm(y)}
+		      else theta/expm1(t*theta)
+		  },
+		  ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE,
-                  method = "negI-s-Eulerian", Li.log.arg=TRUE)
+				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
 	      {
 		  stopifnot(C.@paraConstr(theta))
 		  if(!is.matrix(u)) u <- rbind(u)
@@ -334,108 +336,108 @@ copFrank <-
 					 method=method, is.log.z = Li.log.arg)
 			  (d-1)*log(theta) + Li. - theta*u.sum - lu
 		      }
-                  if(log) res else exp(res)
-              },
-                  ## score function
-                  score = function(u, theta) {
-	              stopifnot(C.@paraConstr(theta))
-	              if(!is.matrix(u)) u <- rbind(u)
-	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-                      e <- exp(-theta)
-                      Ie <- -expm1(-theta) # == 1 - e == 1-e^{-theta}
-                      etu <- exp(mtu <- -theta*u) # exp(-theta*u)
-                      Ietu <- -expm1(mtu) ## = 1 - etu == 1 - exp(-theta*u)
-                      ## FIXME: allow 'Li.log.arg' -> psilog(*, is.log.z) as for dacopula() above
-                      h <- Ie*apply(Ie/etu, 1, prod)
-                      factor <- rowSums(u*etu/Ietu) - (d-1)*e/Ie
-                      (d-1)/theta - rowSums(u/Ietu) + factor *
-                          polylog(h, s=-d, method="negI-s-Stirling") / polylog(h, s=-(d-1), method="negI-s-Stirling")
-                  },
-                  ## nesting constraint
-                  nestConstr = function(theta0,theta1) {
-                      C.@paraConstr(theta0) &&
-                      C.@paraConstr(theta1) && theta1 >= theta0
-                  },
-                  ## V0 (algorithm of Kemp (1981)) with density dV0 and V01 with density
-                  ## dV01 corresponding to LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
+		  if(log) res else exp(res)
+	      },
+		  ## score function
+		  score = function(u, theta) {
+		      stopifnot(C.@paraConstr(theta))
+		      if(!is.matrix(u)) u <- rbind(u)
+		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		      e <- exp(-theta)
+		      Ie <- -expm1(-theta) # == 1 - e == 1-e^{-theta}
+		      etu <- exp(mtu <- -theta*u) # exp(-theta*u)
+		      Ietu <- -expm1(mtu) ## = 1 - etu == 1 - exp(-theta*u)
+		      ## FIXME: allow 'Li.log.arg' -> psilog(*, is.log.z) as for dacopula() above
+		      h <- Ie*apply(Ie/etu, 1, prod)
+		      factor <- rowSums(u*etu/Ietu) - (d-1)*e/Ie
+		      (d-1)/theta - rowSums(u/Ietu) + factor *
+			  polylog(h, s=-d, method="negI-s-Stirling") / polylog(h, s=-(d-1), method="negI-s-Stirling")
+		  },
+		  ## nesting constraint
+		  nestConstr = function(theta0,theta1) {
+		      C.@paraConstr(theta0) &&
+		      C.@paraConstr(theta1) && theta1 >= theta0
+		  },
+		  ## V0 (algorithm of Kemp (1981)) with density dV0 and V01 with density
+		  ## dV01 corresponding to LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
 		  V0 = function(n,theta) rlog(n, -expm1(-theta), exp(-theta)),
 		  dV0 = function(x,theta, log = FALSE) {
 		      if(any(x != (x. <- round(x)))) {
-                          x <- x.; warning("x has been rounded to integer")
-                      }
-                      if(log) {
-                          x*log1mexpm(theta) - log(x*theta)
-                      } else {
-                          p <- -expm1(-theta) # == 1-exp(-theta)
-                          p^x/(x*theta)
-                      }
-                  },
-                  V01 = function(V0, theta0, theta1, rej = 1, approx = 10000) {
-                      ## rej method switch: if V0*theta_0*p0^(V0-1) > rej a rejection
-                      ## from F01 of Joe is applied (otherwise, the sum is
-                      ## sampled via a logarithmic envelope for the summands)
-                      ## approx is the largest number of summands before asymptotics is used (see copJoe@V01)
-                      ## FIXME: optimal value of rej (for approx = 10000) is not clear yet; rej = 1 is not bad, however;
-                      ##        lgammacor gives underflow warnings for rej < 1
-                      rF01Frank(V0, theta0, theta1, rej, approx)
-                  },
-                  dV01 = function(x,V0,theta0,theta1,log = FALSE) {
-                      stopifnot(length(V0) == 1 || length(x) == length(V0), all(x >= V0))
-                      lfactor <- x*log1mexpm(theta1) - V0*log1mexpm(theta0)
-                      res <- lfactor + dsumSibuya(x, V0, theta0/theta1, log=TRUE)
-                      if(log) res else exp(res)
-                  },
-                  ## Kendall's tau; debye_1() is from package 'gsl' :
+			  x <- x.; warning("x has been rounded to integer")
+		      }
+		      if(log) {
+			  x*log1mexpm(theta) - log(x*theta)
+		      } else {
+			  p <- -expm1(-theta) # == 1-exp(-theta)
+			  p^x/(x*theta)
+		      }
+		  },
+		  V01 = function(V0, theta0, theta1, rej = 1, approx = 10000) {
+		      ## rej method switch: if V0*theta_0*p0^(V0-1) > rej a rejection
+		      ## from F01 of Joe is applied (otherwise, the sum is
+		      ## sampled via a logarithmic envelope for the summands)
+		      ## approx is the largest number of summands before asymptotics is used (see copJoe@V01)
+		      ## FIXME: optimal value of rej (for approx = 10000) is not clear yet; rej = 1 is not bad, however;
+		      ##	lgammacor gives underflow warnings for rej < 1
+		      rF01Frank(V0, theta0, theta1, rej, approx)
+		  },
+		  dV01 = function(x,V0,theta0,theta1,log = FALSE) {
+		      stopifnot(length(V0) == 1 || length(x) == length(V0), all(x >= V0))
+		      lfactor <- x*log1mexpm(theta1) - V0*log1mexpm(theta0)
+		      res <- lfactor + dsumSibuya(x, V0, theta0/theta1, log=TRUE)
+		      if(log) res else exp(res)
+		  },
+		  ## Kendall's tau; debye_1() is from package 'gsl' :
 		  tau = function(theta) {
-                      if((l <- length(theta)) == 0) return(numeric(0)) # to work with NULL
-                      res <- numeric(l)
-                      res[isN <- theta == 0] <- 0 # limiting case
-                      res[na <- is.na(theta)] <- NA
-                      if(any(i <- !(na | isN)))
-                          res[i] <- 1 + 4*(debye_1(theta[i]) - 1)/theta[i]
-                      res
-                  },
-                  tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
-                      res <- tau
-                      res[isN <- res == 0] <- 0 # limiting case
-                      res[!isN] <- sapply(res[!isN], function(tau) {
-                          r <- safeUroot(function(th) C.@tau(th) - tau,
-                                         interval = c(1e-12, 198),
-                                         Sig = +1, tol=tol,
-                                         check.conv=TRUE, ...)
-                          r$root
-                      })
-                      res
-                  },
-                  ## lower tail dependence coefficient lambda_l
+		      if((l <- length(theta)) == 0) return(numeric(0)) # to work with NULL
+		      res <- numeric(l)
+		      res[isN <- theta == 0] <- 0 # limiting case
+		      res[na <- is.na(theta)] <- NA
+		      if(any(i <- !(na | isN)))
+			  res[i] <- 1 + 4*(debye_1(theta[i]) - 1)/theta[i]
+		      res
+		  },
+		  tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
+		      res <- tau
+		      res[isN <- res == 0] <- 0 # limiting case
+		      res[!isN] <- sapply(res[!isN], function(tau) {
+			  r <- safeUroot(function(th) C.@tau(th) - tau,
+					 interval = c(1e-12, 198),
+					 Sig = +1, tol=tol,
+					 check.conv=TRUE, ...)
+			  r$root
+		      })
+		      res
+		  },
+		  ## lower tail dependence coefficient lambda_l
 		  lambdaL = function(theta) { 0*theta },
-                  lambdaLInv = function(lambda) {
-                      if(any(lambda != 0))
-                          stop("Any parameter for a Frank copula gives lambdaL = 0")
-                      NA * lambda
-                  },
-                  ## upper tail dependence coefficient lambda_u
+		  lambdaLInv = function(lambda) {
+		      if(any(lambda != 0))
+			  stop("Any parameter for a Frank copula gives lambdaL = 0")
+		      NA * lambda
+		  },
+		  ## upper tail dependence coefficient lambda_u
 		  lambdaU = function(theta) { 0*theta },
-                  lambdaUInv = function(lambda) {
-                      if(any(lambda != 0))
-                          stop("Any parameter for a Frank copula gives lambdaU = 0")
-                      NA * lambda
-                  }
-                  )
-        C.
+		  lambdaUInv = function(lambda) {
+		      if(any(lambda != 0))
+			  stop("Any parameter for a Frank copula gives lambdaU = 0")
+		      NA * lambda
+		  }
+		  )
+	C.
     })()# {copFrank}
 
 ### ==== Gumbel, see Nelsen (2007) p. 116, # 4 =================================
 
 copGumbel <-
     (function() { ## to get an environment where  C.  itself is accessible
-        C. <- new("acopula", name = "Gumbel",
-                  ## generator
+	C. <- new("acopula", name = "Gumbel",
+		  ## generator
 		  psi = function(t,theta) { exp(-t^(1/theta)) },
 		  psiInv = function(t,theta) { (-log(t+0))^theta },
-                  ## parameter interval
-                  paraInterval = interval("[1,Inf)"),
-                  ## absolute value of generator derivatives
+		  ## parameter interval
+		  paraInterval = interval("[1,Inf)"),
+		  ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree=1, n.MC=0,
                   method=eval(formals(polyG)$method), log = FALSE) {
 	              is0 <- t == 0
@@ -464,128 +466,128 @@ copGumbel <-
                   },
                   ## derivatives of the generator inverse
 		  psiInvD1abs = function(t, theta, log = FALSE) {
-                      if(log) {
-                          l.t <- log(t)
-                          log(theta)+(theta-1)*log(-l.t)-l.t
-                      } else {
-                          theta*(-log(t))^(theta-1)/t
-                      }
-                  },
-                  ## density
-		  dacopula = function(u, theta, n.MC=0, method=eval(formals(polyG)$method),
-                  log = FALSE) {
-	              stopifnot(C.@paraConstr(theta))
-                      if(!is.matrix(u)) u <- rbind(u)
-                      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-                      ## f() := NaN outside and on the boundary of the unit hypercube
-                      res <- rep.int(NaN, n <- nrow(u))
-                      n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
-                      if(!any(n01)) return(res)
-                      if(theta == 1) { res[n01] <- if(log) 0 else 1; return(res) } # independence
-                      ## auxiliary results
-                      u. <- u[n01,, drop=FALSE]
-                      mlu <- -log(u.) # -log(u)
-                      lmlu <- log(mlu) # log(-log(u))
-                      t <- rowSums(C.@psiInv(u., theta))
-                      ## main part
-                      if(n.MC > 0) { # Monte Carlo
-                          V <- C.@V0(n.MC, theta)
-                          l <- d*log(theta*V)
-                          sum. <- rowSums((theta-1)*lmlu + mlu)
-                          sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
-                          ## stably compute log(colMeans(exp(lx)))
-                          lx <- l - V %*% t(t) + sum.mat - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
-                          res[n01] <- lsum(lx)
-                          if(log) res else exp(res)
-                      } else { # explicit
-                          alpha <- 1/theta
-                          ## compute lx = alpha*log(sum(psiInv(u., theta)))
-                          lx <- alpha*log(t)
-                          ## ==== former version [start] (numerically slightly more stable but slower) ====
-                          ## im <- apply(u., 1, which.max)
-                          ## mat.ind <- cbind(seq_len(n), im) # indices that pick out maxima from u.
-                          ## mlum <- mlu[mat.ind] # -log(u_max)
-                          ## mlum.mat <- matrix(rep(mlum, d), ncol = d)
-                          ## lx <- lmlu[mat.ind] + alpha*log(rowSums((mlu/mlum.mat)^theta)) # alpha*log(sum(psiInv(u, theta)))
-                          ## ==== former version [end] ====
-                          ## compute sum
-                          ls. <- polyG(lx, alpha, d, method=method, log=TRUE)-d*lx/alpha
-                          ## the rest
-                          cop.val <- pnacopula(onacopulaL("Gumbel", list(theta, 1:d)), u.)
-                          res[n01] <- d*log(theta) + rowSums((theta-1)*lmlu + mlu) + ls.
-                          res[n01] <- if(log) log(cop.val) + res[n01] else cop.val * exp(res[n01])
-                          res
-                      }
-                  },
-                  ## score function
-                  score = function(u, theta) {
-	              stopifnot(C.@paraConstr(theta))
-	              if(!is.matrix(u)) u <- rbind(u)
-	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-                      stop("The score function is currently not implemented for Gumbel copulas")
-                  },
-                  ## nesting constraint
-                  nestConstr = function(theta0,theta1) {
-                      C.@paraConstr(theta0) &&
-                      C.@paraConstr(theta1) && theta1 >= theta0
-                  },
-                  ## V0 with density dV0 and V01 with density dV01 corresponding to
-                  ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
+		      if(log) {
+			  l.t <- log(t)
+			  log(theta)+(theta-1)*log(-l.t)-l.t
+		      } else {
+			  theta*(-log(t))^(theta-1)/t
+		      }
+		  },
+		  ## density
+		  dacopula = function(u, theta, n.MC=0,
+				      method= eval(formals(polyG)$method), log = FALSE) {
+		      stopifnot(C.@paraConstr(theta))
+		      if(!is.matrix(u)) u <- rbind(u)
+		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		      ## f() := NaN outside and on the boundary of the unit hypercube
+		      res <- rep.int(NaN, n <- nrow(u))
+		      n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
+		      if(!any(n01)) return(res)
+		      if(theta == 1) { res[n01] <- if(log) 0 else 1; return(res) } # independence
+		      ## auxiliary results
+		      u. <- u[n01,, drop=FALSE]
+		      mlu <- -log(u.) # -log(u)
+		      lmlu <- log(mlu) # log(-log(u))
+		      t <- rowSums(C.@psiInv(u., theta))
+		      ## main part
+		      if(n.MC > 0) { # Monte Carlo
+			  V <- C.@V0(n.MC, theta)
+			  l <- d*log(theta*V)
+			  sum. <- rowSums((theta-1)*lmlu + mlu)
+			  sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
+			  ## stably compute log(colMeans(exp(lx)))
+			  lx <- l - V %*% t(t) + sum.mat - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
+			  res[n01] <- lsum(lx)
+			  if(log) res else exp(res)
+		      } else { # explicit
+			  alpha <- 1/theta
+			  ## compute lx = alpha*log(sum(psiInv(u., theta)))
+			  lx <- alpha*log(t)
+			  ## ==== former version [start] (numerically slightly more stable but slower) ====
+			  ## im <- apply(u., 1, which.max)
+			  ## mat.ind <- cbind(seq_len(n), im) # indices that pick out maxima from u.
+			  ## mlum <- mlu[mat.ind] # -log(u_max)
+			  ## mlum.mat <- matrix(rep(mlum, d), ncol = d)
+			  ## lx <- lmlu[mat.ind] + alpha*log(rowSums((mlu/mlum.mat)^theta)) # alpha*log(sum(psiInv(u, theta)))
+			  ## ==== former version [end] ====
+			  ## compute sum
+			  ls. <- polyG(lx, alpha, d, method=method, log=TRUE)-d*lx/alpha
+			  ## the rest
+			  cop.val <- pnacopula(onacopulaL("Gumbel", list(theta, 1:d)), u.)
+			  res[n01] <- d*log(theta) + rowSums((theta-1)*lmlu + mlu) + ls.
+			  res[n01] <- if(log) log(cop.val) + res[n01] else cop.val * exp(res[n01])
+			  res
+		      }
+		  },
+		  ## score function
+		  score = function(u, theta) {
+		      stopifnot(C.@paraConstr(theta))
+		      if(!is.matrix(u)) u <- rbind(u)
+		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		      stop("The score function is currently not implemented for Gumbel copulas")
+		  },
+		  ## nesting constraint
+		  nestConstr = function(theta0,theta1) {
+		      C.@paraConstr(theta0) &&
+		      C.@paraConstr(theta1) && theta1 >= theta0
+		  },
+		  ## V0 with density dV0 and V01 with density dV01 corresponding to
+		  ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
 		  V0 = function(n,theta) {
-                      if(theta == 1) {
-                          ## Sample from S(1,1,0,1;1)
-                          ## with Laplace-Stieltjes transform exp(-t)
-                          rep.int(1., n)
-                      } else {
-                          alpha <- 1/theta
-                          ## Sample from S(alpha,1,(cos(alpha*pi/2))^(1/alpha),0;1)
-                          ## with Laplace-Stieltjes transform exp(-t^alpha)
-                          rstable1(n, alpha, beta=1,
-                                   gamma = cos(alpha*pi/2)^(1/alpha))
-                          ## Note: calling sequence:
-                          ##       rstable1 -> rstable1C (in rstable1.R) -> rstable1C (in rstable1.R)
-                          ##       -> rstable_c (in retstable.c) -> rstable_vec (in retstable.c)
-                          ##       -> rstable0 (in retstable.c)
-                      }
-                  },
+		      if(theta == 1) {
+			  ## Sample from S(1,1,0,1;1)
+			  ## with Laplace-Stieltjes transform exp(-t)
+			  rep.int(1., n)
+		      } else {
+			  alpha <- 1/theta
+			  ## Sample from S(alpha,1,(cos(alpha*pi/2))^(1/alpha),0;1)
+			  ## with Laplace-Stieltjes transform exp(-t^alpha)
+			  rstable1(n, alpha, beta=1,
+				   gamma = cos(alpha*pi/2)^(1/alpha))
+			  ## Note: calling sequence:
+			  ##	   rstable1 -> rstable1C (in rstable1.R) -> rstable1C (in rstable1.R)
+			  ##	   -> rstable_c (in retstable.c) -> rstable_vec (in retstable.c)
+			  ##	   -> rstable0 (in retstable.c)
+		      }
+		  },
 		  dV0 = function(x,theta,log = FALSE) C.@dV01(x,1,1,theta,log),
-                  V01 = function(V0,theta0,theta1) {
-                      alpha <- theta0/theta1
-                      if(alpha == 1) {
-                          ## Sample from S(1,1,0,V0;1)
-                          ## with Laplace-Stieltjes transform exp(-V0*t)
-                          V0
-                      } else {
-                          rstable1(length(V0), alpha, beta=1,
-                                   gamma = (cos(alpha*pi/2)*V0)^(1/alpha))
-                          ## Sample from S(alpha,1,(cos(alpha*pi/2)V0)^(1/alpha),0;1)
-                          ## with Laplace-Stieltjes transform exp(-V0*t^alpha)
-                      }
-                  },
-                  dV01 = function(x,V0,theta0,theta1,log = FALSE) {
-                      stopifnot(length(V0) == 1 || length(x) == length(V0))
-                      alpha <- theta0/theta1
-                      gamma <- (cos(pi/2*alpha)*V0)^(1/alpha)
-                      delta <- V0*(alpha == 1)
+		  V01 = function(V0,theta0,theta1) {
+		      alpha <- theta0/theta1
+		      if(alpha == 1) {
+			  ## Sample from S(1,1,0,V0;1)
+			  ## with Laplace-Stieltjes transform exp(-V0*t)
+			  V0
+		      } else {
+			  rstable1(length(V0), alpha, beta=1,
+				   gamma = (cos(alpha*pi/2)*V0)^(1/alpha))
+			  ## Sample from S(alpha,1,(cos(alpha*pi/2)V0)^(1/alpha),0;1)
+			  ## with Laplace-Stieltjes transform exp(-V0*t^alpha)
+		      }
+		  },
+		  dV01 = function(x,V0,theta0,theta1,log = FALSE) {
+		      stopifnot(length(V0) == 1 || length(x) == length(V0))
+		      alpha <- theta0/theta1
+		      gamma <- (cos(pi/2*alpha)*V0)^(1/alpha)
+		      delta <- V0*(alpha == 1)
 		      ## NB: new dstable() is vectorized in (x, gamma, delta) [but not the others]
 		      dstable(x, alpha=alpha, beta = 1, gamma=gamma, delta=delta, pm = 1, log=log,
 			      tol = 128* .Machine$double.eps)
-                  },
-                  ## Kendall's tau
+		  },
+		  ## Kendall's tau
 		  tau = function(theta) { (theta-1)/theta },
-                  tauInv = function(tau) { 1/(1-tau) },
-                  ## lower tail dependence coefficient lambda_l
+		  tauInv = function(tau) { 1/(1-tau) },
+		  ## lower tail dependence coefficient lambda_l
 		  lambdaL = function(theta) { 0*theta },
-                  lambdaLInv = function(lambda) {
-                      if(any(lambda != 0))
-                          stop("Any parameter for a Gumbel copula gives lambdaL = 0")
-                      NA * lambda
-                  },
-                  ## upper tail dependence coefficient lambda_u
+		  lambdaLInv = function(lambda) {
+		      if(any(lambda != 0))
+			  stop("Any parameter for a Gumbel copula gives lambdaL = 0")
+		      NA * lambda
+		  },
+		  ## upper tail dependence coefficient lambda_u
 		  lambdaU = function(theta) { 2 - 2^(1/theta) },
-                  lambdaUInv = function(lambda) { 1/log2(2-lambda) }
-                  )
-        C.
+		  lambdaUInv = function(lambda) { 1/log2(2-lambda) }
+		  )
+	C.
     })()# {copGumbel}
 
 
@@ -594,16 +596,16 @@ copGumbel <-
 ##' Joe object
 copJoe <-
     (function() { ## to get an environment where C. itself is accessible
-        C. <- new("acopula", name = "Joe",
-                  ## generator
+	C. <- new("acopula", name = "Joe",
+		  ## generator
 		  psi = function(t,theta) {
-                      1 - (-expm1(0-t))^(1/theta)
-                      ## == 1 - (1-exp(-t))^(1/theta)
-                  },
+		      1 - (-expm1(0-t))^(1/theta)
+		      ## == 1 - (1-exp(-t))^(1/theta)
+		  },
 		  psiInv = function(t,theta) { -log1p(-(1-t)^theta) },
-                  ## parameter interval
-                  paraInterval = interval("[1,Inf)"),
-                  ## absolute value of generator derivatives
+		  ## parameter interval
+		  paraInterval = interval("[1,Inf)"),
+		  ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree = 1, n.MC=0,
                   method=eval(formals(polyJ)$method), log = FALSE) {
                       is0 <- t == 0
@@ -632,83 +634,83 @@ copJoe <-
                   },
                   ## derivatives of the generator inverse
 		  psiInvD1abs = function(t, theta, log = FALSE) {
-                      if(log) {
-                          log(theta)+(theta-1)*log1p(-t)-log1p(-(1-t)^theta)
-                      } else {
-                          theta/((1-t)^(1-theta)-(1-t))
-                      }
-                  },
-                  ## density
-		  dacopula = function(u, theta, n.MC=0, method=eval(formals(polyJ)$method),
-                  log = FALSE) {
-	              stopifnot(C.@paraConstr(theta))
-                      if(!is.matrix(u)) u <- rbind(u)
-                      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-                      ## f() := NaN outside and on the boundary of the unit hypercube
-                      res <- rep.int(NaN, n <- nrow(u))
-                      n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
-                      if(!any(n01)) return(res)
-                      if(theta == 1) { res[n01] <- if(log) 0 else 1; return(res) } # independence
-                      ## auxiliary results
-                      u. <- u[n01,, drop=FALSE]
-                      l1_u <- rowSums(log1p(-u.)) # log(1-u)
-                      lh <- rowSums(log1p(-(1-u.)^theta)) # rowSums(log(1-(1-u)^theta)) = log(h)
-                      ## main part
-                      if(n.MC > 0) { # Monte Carlo
-                          V <- C.@V0(n.MC, theta)
-                          l <- d*log(theta*V)
-                          sum. <- (theta-1)*l1_u
-                          sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
-                          ## stably compute log(colMeans(exp(lx)))
-                          lx <- l + (V-1) %*% t(lh) + sum.mat - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
-                          res[n01] <- lsum(lx)
-                      } else {
-                          alpha <- 1/theta
-                          l1_h <- log1mexpm(-lh) # log(1-h)
-                          lh_l1_h <- lh - l1_h # log(h/(1-h))
-                          res[n01] <- (d-1)*log(theta) + (theta-1)*l1_u -
-                              (1-alpha)*l1_h + polyJ(lh_l1_h, alpha, d, method=method,
-                                                     log=TRUE)
-                      }
-                      if(log) res else exp(res)
-                  },
-                  ## score function
-                  score = function(u, theta, method=eval(formals(polyJ)$method)) {
-	              stopifnot(C.@paraConstr(theta))
-	              if(!is.matrix(u)) u <- rbind(u)
-	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-                      l1_u <- rowSums(log1p(-u)) # log(1-u)
-                      u.th <- (1-u)^theta # (1-u)^theta
-                      lh <- rowSums(log1p(-u.th)) # rowSums(log(1-(1-u)^theta)) = log(h)
-                      l1_h <- log1mexpm(-lh) # log(1-h)
-                      lh_l1_h <- lh - l1_h # log(h/(1-h))
-                      b <- rowSums(-l1_u*u.th/(1-u.th))
-                      lP <- polyJ(lh_l1_h, alpha, d, method=method, log=TRUE)
-                      k <- 1:d
-                      alpha <- 1/theta
-                      s <- alpha * unlist(lapply(k, function(k.) sum(1/(theta*(1:k.)-1))))
-                      ls <- log(s. + (k-1)*exp(log(b) - l1_h))
-                      l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha) + ls
-                      lQ <- lsum(l.a.k + (k-1) %*% t(lh_l1_h))
-                      (d-1)/theta + rowSums(l1_u) - l1_h/theta^2 + (1-1/theta)*
-                          lh_l1_h*b + exp(lQ-lP)
-                  },
-                  ## nesting constraint
-                  nestConstr = function(theta0,theta1) {
-                      C.@paraConstr(theta0) &&
-                      C.@paraConstr(theta1) && theta1 >= theta0
-                  },
-                  ## V0 with density dV0 and V01 with density dV01 corresponding to
-                  ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
+		      if(log) {
+			  log(theta)+(theta-1)*log1p(-t)-log1p(-(1-t)^theta)
+		      } else {
+			  theta/((1-t)^(1-theta)-(1-t))
+		      }
+		  },
+		  ## density
+		  dacopula = function(u, theta, n.MC=0,
+				      method=eval(formals(polyJ)$method), log = FALSE) {
+		      stopifnot(C.@paraConstr(theta))
+		      if(!is.matrix(u)) u <- rbind(u)
+		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		      ## f() := NaN outside and on the boundary of the unit hypercube
+		      res <- rep.int(NaN, n <- nrow(u))
+		      n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
+		      if(!any(n01)) return(res)
+		      if(theta == 1) { res[n01] <- if(log) 0 else 1; return(res) } # independence
+		      ## auxiliary results
+		      u. <- u[n01,, drop=FALSE]
+		      l1_u <- rowSums(log1p(-u.)) # log(1-u)
+		      lh <- rowSums(log1p(-(1-u.)^theta)) # rowSums(log(1-(1-u)^theta)) = log(h)
+		      ## main part
+		      if(n.MC > 0) { # Monte Carlo
+			  V <- C.@V0(n.MC, theta)
+			  l <- d*log(theta*V)
+			  sum. <- (theta-1)*l1_u
+			  sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
+			  ## stably compute log(colMeans(exp(lx)))
+			  lx <- l + (V-1) %*% t(lh) + sum.mat - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
+			  res[n01] <- lsum(lx)
+		      } else {
+			  alpha <- 1/theta
+			  l1_h <- log1mexpm(-lh) # log(1-h)
+			  lh_l1_h <- lh - l1_h # log(h/(1-h))
+			  res[n01] <- (d-1)*log(theta) + (theta-1)*l1_u -
+			      (1-alpha)*l1_h + polyJ(lh_l1_h, alpha, d, method=method,
+						     log=TRUE)
+		      }
+		      if(log) res else exp(res)
+		  },
+		  ## score function
+		  score = function(u, theta, method=eval(formals(polyJ)$method)) {
+		      stopifnot(C.@paraConstr(theta))
+		      if(!is.matrix(u)) u <- rbind(u)
+		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		      l1_u <- rowSums(log1p(-u)) # log(1-u)
+		      u.th <- (1-u)^theta # (1-u)^theta
+		      lh <- rowSums(log1p(-u.th)) # rowSums(log(1-(1-u)^theta)) = log(h)
+		      l1_h <- log1mexpm(-lh) # log(1-h)
+		      lh_l1_h <- lh - l1_h # log(h/(1-h))
+		      b <- rowSums(-l1_u*u.th/(1-u.th))
+		      lP <- polyJ(lh_l1_h, alpha, d, method=method, log=TRUE)
+		      k <- 1:d
+		      alpha <- 1/theta
+		      s <- alpha * unlist(lapply(k, function(k.) sum(1/(theta*(1:k.)-1))))
+		      ls <- log(s. + (k-1)*exp(log(b) - l1_h))
+		      l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha) + ls
+		      lQ <- lsum(l.a.k + (k-1) %*% t(lh_l1_h))
+		      (d-1)/theta + rowSums(l1_u) - l1_h/theta^2 + (1-1/theta)*
+			  lh_l1_h*b + exp(lQ-lP)
+		  },
+		  ## nesting constraint
+		  nestConstr = function(theta0,theta1) {
+		      C.@paraConstr(theta0) &&
+		      C.@paraConstr(theta1) && theta1 >= theta0
+		  },
+		  ## V0 with density dV0 and V01 with density dV01 corresponding to
+		  ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
 		  V0 = function(n,theta) rSibuya(n, 1/theta),
 		  dV0 = function(x,theta,log = FALSE) {
-                      if(log) lchoose(1/theta,x) else abs(choose(1/theta,x))
-                  },
-                  V01 = function(V0, theta0, theta1, approx = 10000) {
-                      ## approx is the largest number of summands before asymptotics is used
-                      alpha <- theta0/theta1
-                      rF01Joe(V0, alpha, approx)
-                  },
+		      if(log) lchoose(1/theta,x) else abs(choose(1/theta,x))
+		  },
+		  V01 = function(V0, theta0, theta1, approx = 10000) {
+		      ## approx is the largest number of summands before asymptotics is used
+		      alpha <- theta0/theta1
+		      rF01Joe(V0, alpha, approx)
+		  },
 		  dV01 =
 		  function(x, V0, theta0, theta1,
 			   method= eval(formals(dsumSibuya)$method), log = FALSE) {
@@ -717,37 +719,37 @@ copJoe <-
 		      ## note: this is numerically challenging
 		      dsumSibuya(x, V0, theta0/theta1, method=method, log=log)
 		  },
-                  ## Kendall's tau
-                  ## noTerms: even for theta==0, the approximation error is < 10^(-5)
+		  ## Kendall's tau
+		  ## noTerms: even for theta==0, the approximation error is < 10^(-5)
 		  tau = function(theta, noTerms=446) {
-                      k <- noTerms:1
-                      sapply(theta,
-                             function(th) {
-                                 tk2 <- th*k + 2
-                                 1 - 4*sum(1/(k*tk2*(tk2 - th)))
-                                 ## ==... (1/(k*(th*k+2)*(th*(k-1)+2)))
-                             })
-                  },
-                  tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
-                      sapply(tau,function(tau) {
-                          r <- safeUroot(function(th) C.@tau(th) - tau,
-                                         interval = c(1, 98),
-                                         Sig = +1, tol=tol, check.conv=TRUE, ...)
-                          r$root
-                      })
-                  },
-                  ## lower tail dependence coefficient lambda_l
+		      k <- noTerms:1
+		      sapply(theta,
+			     function(th) {
+				 tk2 <- th*k + 2
+				 1 - 4*sum(1/(k*tk2*(tk2 - th)))
+				 ## ==... (1/(k*(th*k+2)*(th*(k-1)+2)))
+			     })
+		  },
+		  tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
+		      sapply(tau,function(tau) {
+			  r <- safeUroot(function(th) C.@tau(th) - tau,
+					 interval = c(1, 98),
+					 Sig = +1, tol=tol, check.conv=TRUE, ...)
+			  r$root
+		      })
+		  },
+		  ## lower tail dependence coefficient lambda_l
 		  lambdaL = function(theta) { 0*theta },
-                  lambdaLInv = function(lambda) {
-                      if(any(lambda != 0))
-                          stop("Any parameter for a Joe copula gives lambdaL = 0")
-                      NA * lambda
-                  },
-                  ## upper tail dependence coefficient lambda_u
+		  lambdaLInv = function(lambda) {
+		      if(any(lambda != 0))
+			  stop("Any parameter for a Joe copula gives lambdaL = 0")
+		      NA * lambda
+		  },
+		  ## upper tail dependence coefficient lambda_u
 		  lambdaU = function(theta) { 2-2^(1/theta) },
-                  lambdaUInv = function(lambda) { log(2)/log(2-lambda) }
-                  )
-        C.
+		  lambdaUInv = function(lambda) { log(2)/log(2-lambda) }
+		  )
+	C.
     })()# {copJoe}
 
 ### ==== naming stuff ==========================================================
