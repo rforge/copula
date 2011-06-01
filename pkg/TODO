@@ -3,12 +3,12 @@
 ## ==== major ====
 
 (MM) fix check [for Marius to work => build => brutus => tests]
-(MM) please change default in polylog to "negI-s-Eulerian"
-(MM) please "smooth" the help pages
+(MM) please "smooth" the help pages [pdf]
 (MM) include correct linebreaks afterwards (so that correct in manual)
+
+(*) use "u" instead of "t" for all inverses [TeX-like and R functions]
 (MM) please make new example on emle.Rd nicer [fix problem with x-axis: show theta, theta hat], add title...
-(MM) how to create string with double quotes? is currently buggy in gnacopula()?
-(MM) FIXME in enacopula (in estimation.R): return an object?
+
 (MM) can we create a function for the GIG generator [see ./demo] similar to opower()?
 (MM) Change onacopula() such that it works via onacopulaL() and hence
      can be used also from other functions.
@@ -43,6 +43,7 @@
 (*) allow families to have outer power parameters (outer power families)
 (*) be compatible with package copula
 (*) include pairwise estimators for nACs
+(*) FIXME in enacopula (in estimation.R): return an object?
 
 
 

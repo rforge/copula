@@ -39,64 +39,65 @@ opower <- function(copbase, thetabase) {
               method=c("stirling", "binomial.coeff"), log=FALSE) {
                   if(theta == 1) return(copbase@psiDabs(t, theta, degree=degree,
                      n.MC=n.MC, log=log)) # copbase case
+                  is0 <- t == 0
+                  isInf <- is.infinite(t) 
+                  res <- numeric(n <- length(t))
+                  res[is0] <- Inf # Note: psiDabs(0, ...) is correct (even for n.MC > 0)
+                  res[isInf] <- -Inf
+                  n0Inf <- !(is0 | isInf)
+                  if(all(!n0Inf)) return(if(log) res else exp(res))
+                  t. <- t[n0Inf]
                   if(n.MC > 0) {
-                      psiDabsMC(t, family=C., theta=theta, degree=degree,
-                                n.MC=n.MC, log=log)
+                      res[n0Inf] <- psiDabsMC(t, family=C., theta=theta, 
+                                              degree=degree, n.MC=n.MC, log=TRUE)
                   } else {
-                      res <- numeric(n <- length(t))
-                      res[is0 <- t == 0] <- Inf
-                      res[isInf <- is.infinite(t)] <- -Inf
-                      if(any(n0Inf <- !(is0 | isInf))) {
-	                  t. <- t[n0Inf]
-	                  k <- 1:degree # compute everything once for 1:degree
-                          beta <- 1/theta
-                          t.beta <- t.^beta # beta = 1/theta for psi(t^beta)
-                          ## in principle, it would be efficient to vectorize
-                          ## the psiDabs slots also in the parameter "degree",
-                          ## but that would be even more complicated
-                          lpsiDabs <- do.call(rbind,
-                                              lapply(k, function(k.)
-                                                     copbase@psiDabs(t.beta,
-                                                                     theta=thetabase,
-                                                                     degree=k.,
-                                                                     log=TRUE))) # (degree,n)-matrix
-                          bklt <- k %*% t(log(t.beta)) # (degree,n)-matrix
-	                  method <- match.arg(method)
-                          switch(method,
-                                 "stirling" = { # much faster & less prone to errors
-                                     s <- Stirling1.all(degree)
-                                     b.one.j <- function(j.) {
-                                         k <- 1:j.
-                                         signs <- (-1)^k
-                                         lS <- log(Stirling2.all(j.))
-  					 a <- lS + lpsiDabs[k,, drop=FALSE] + bklt[k,, drop=FALSE]
-					 (-beta)^j. * abs(s[j.]) * colSums(signs*exp(a))
-                                     }
-                                     ## => returns a vector of length n containing the values for one j. and all t
-                                     j <- 1:degree
-                                     b <- do.call(rbind, lapply(j, FUN=b.one.j)) # (degree, n)-matrix
-                                     res <- colSums(b)
-                                     if(log) -degree*log(t.)+log(res) else res/t.^degree # without exp(log(..)), log(res) would produce NaN
-                                 },
-                                 "binomial.coeff" = {
-                                     ## outer sum
-                                     lfac <- lfactorial(0:degree) # log(0!), log(1!), .., log(degree!)
-                                     log.b.one.j <- function(j.) {
-                                         k <- j.:degree
-                                         a <- lpsiDabs[k,, drop=FALSE] + bklt[k,, drop=FALSE] - lfac[j.+1] - lfac[k-j.+1] # (degree-j.+1, n)-matrix
-                                         ls. <- lsum(a) # length = n
-                                         lchoose(beta*j., degree) + ls. # note: the lchoose() can be non-finite with this approach!
-                                     }
-                                     ## => returns a vector of length n containing the values for one j. and all t
-                                     j <- 1:degree
-                                     b <- do.call(rbind, lapply(j, FUN=log.b.one.j)) # (degree, n)-matrix
-                                     signs <- sign.binom(beta, j, degree)
-                                     res <- lfac[degree+1] - degree*log(t.) + lssum(b, signs, strict=FALSE)
-                                     if(log) res else exp(res)
-                                 }, stop(sprintf("unsupported method '%s' in psiDabs",
-                                                 method))) # end{switch}
-                      }
+                      k <- 1:degree # compute everything once for 1:degree
+                      beta <- 1/theta
+                      t.beta <- t.^beta # beta = 1/theta for psi(t^beta)
+                      ## in principle, it would be efficient to vectorize
+                      ## the psiDabs slots also in the parameter "degree",
+                      ## but that would be even more complicated
+                      lpsiDabs <- do.call(rbind,
+                                          lapply(k, function(k.)
+                                                 copbase@psiDabs(t.beta,
+                                                                 theta=thetabase,
+                                                                 degree=k.,
+                                                                 log=TRUE))) # (degree,n)-matrix
+                      bklt <- k %*% t(log(t.beta)) # (degree,n)-matrix
+                      method <- match.arg(method)
+                      res[n0Inf] <- switch(method,
+                                           "stirling" = { # much faster & less prone to errors
+                                               s <- Stirling1.all(degree)
+                                               b.one.j <- function(j.) {
+                                                   k <- 1:j.
+                                                   signs <- (-1)^k
+                                                   lS <- log(Stirling2.all(j.))
+                                                   a <- lS + lpsiDabs[k,, drop=FALSE] + bklt[k,, drop=FALSE]
+                                                   (-beta)^j. * abs(s[j.]) * colSums(signs*exp(a))
+                                               }
+                                               ## => returns a vector of length n containing the values for one j. and all t
+                                               j <- 1:degree
+                                               b <- do.call(rbind, lapply(j, FUN=b.one.j)) # (degree, n)-matrix
+                                               -degree*log(t.)+log(colSums(b))
+                                           },
+                                           "binomial.coeff" = {
+                                               ## outer sum
+                                               lfac <- lfactorial(0:degree) # log(0!), log(1!), .., log(degree!)
+                                               log.b.one.j <- function(j.) {
+                                                   k <- j.:degree
+                                                   a <- lpsiDabs[k,, drop=FALSE] + bklt[k,, drop=FALSE] - lfac[j.+1] - lfac[k-j.+1] # (degree-j.+1, n)-matrix
+                                                   ls. <- lsum(a) # length = n
+                                                   lchoose(beta*j., degree) + ls. # note: the lchoose() can be non-finite with this approach!
+                                               }
+                                               ## => returns a vector of length n containing the values for one j. and all t
+                                               j <- 1:degree
+                                               b <- do.call(rbind, lapply(j, FUN=log.b.one.j)) # (degree, n)-matrix
+                                               signs <- sign.binom(beta, j, degree)
+                                               lfac[degree+1] - degree*log(t.) + lssum(b, signs, strict=FALSE)
+                                           }, stop(sprintf("unsupported method '%s' in psiDabs",
+                                                           method))) # end{switch}
                   }
+                  if(log) res else exp(res)
               },
               ## derivatives of the generator inverse
               psiInvD1abs = function(t, theta, log=FALSE) {
