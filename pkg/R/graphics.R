@@ -46,7 +46,7 @@ splom2 <- function(data, varnames=NULL, Vname="U", xlab = "",
     splom(~data[,1:d], varnames=varnames, diag.panel=my.diag.panel, xlab="",
           panel = function(x, y, i, j, ...) {
               panel.fill(bg.col.mat[i,j])
-              panel.splom(x, y, col=col.mat[i,j])
+              panel.splom(x, y, col=col.mat[i,j], ...)
           }, ...)
 }
 

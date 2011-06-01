@@ -13,7 +13,7 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-## ==== Demo of outer power Clayton copula =====================================
+## ==== Demo of the two-parameter outer power Clayton copula ===================
 
 ## ==== setup ==================================================================
 
@@ -25,7 +25,7 @@ library(grid)
 ## specify parameters
 n <- 100 # sample size
 d <- 10 # dimension
-thetabase <- 1
+thetabase <- 1 # fix thetabase
 tau <- 0.5 # => psi(t) = psi_thetabase(t^(1/theta)) with (thetabase,theta) = (1,4/3) (see below)
 
 ## adjustment for initial value
@@ -107,29 +107,33 @@ cop <- onacopulaL(opC, list(theta, 1:d))
 set.seed(1000)
 U <- rnacopula(n, cop)
 
+## plot
+splom2(U, cex=0.4, pscales=0, main=paste("Sample of size",n,
+                              "from an outer power Clayton copula")) 
+
 ## initial interval and value
 I <- ii.opC(U, h)
 start <- colMeans(I)
 
 ## without profiling: optim with "L-BFGS-B"
-optim(par=start, method="L-BFGS-B",
-      fn=function(x) nlogl.opC(x[1], theta=x[2], u=U),
-      lower=c(I[1,1], I[1,2]), upper=c(I[2,1], I[2,2]))
+system.time(optim(par=start, method="L-BFGS-B",
+                  fn=function(x) nlogl.opC(x[1], theta=x[2], u=U),
+                  lower=c(I[1,1], I[1,2]), upper=c(I[2,1], I[2,2])))
 
 ## with profiling: via mle (using optim with "L-BFGS-B")
 nLL <- function(thetabase, theta) nlogl.opC(thetabase, theta, u=U)
-ml <- mle(nLL, method="L-BFGS-B",
-          start=list(thetabase=mean(I[,1]), theta=mean(I[,2])),
-          lower=c(thetabase=I[1,1], theta=I[1,2]),
-          upper=c(thetabase=I[2,1], theta=I[2,2]))
+system.time(ml <- mle(nLL, method="L-BFGS-B",
+                      start=list(thetabase=mean(I[,1]), theta=mean(I[,2])),
+                      lower=c(thetabase=I[1,1], theta=I[1,2]),
+                      upper=c(thetabase=I[2,1], theta=I[2,2])))
 summary(ml)
 str(ml@details)
 
 ## with profiling: via mle2 (which uses optim with "L-BFGS-B")
-ml2 <- mle2(nlogl.opC, data=list(u=U), method="L-BFGS-B",
-            start=list(thetabase=mean(I[,1]), theta=mean(I[,2])),
-            lower=c(thetabase=I[1,1], theta=I[1,2]),
-            upper=c(thetabase=I[2,1], theta=I[2,2]))
+system.time(ml2 <- mle2(nlogl.opC, data=list(u=U), method="L-BFGS-B",
+                        start=list(thetabase=mean(I[,1]), theta=mean(I[,2])),
+                        lower=c(thetabase=I[1,1], theta=I[1,2]),
+                        upper=c(thetabase=I[2,1], theta=I[2,2])))
 summary(ml2)
 str(ml2@details)
 
@@ -140,13 +144,14 @@ str(ml2@details)
 prof <- profile(ml)
 if(FALSE) { ## FIXME (?)
     ## maybe this helps: https://stat.ethz.ch/pipermail/r-help/2005-July/076003.html
-    (ci <- confint(prof))
-    plot(prof, main="Profile plot for mle()")
+    ci <- confint(prof)
+    ci
+    plot(prof)
 }
 
 prof2 <- profile(ml2)
 (ci <- confint(prof2))
-plot(prof2, main="Profile plot for mle2()")
+plot(prof2)
 
 ## ==== -log-likelihood plots ==================================================
 
