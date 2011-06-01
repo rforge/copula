@@ -73,7 +73,8 @@
 \DefineVerbatimEnvironment{Soutput}{Verbatim}{fontsize=\small}
 \DefineVerbatimEnvironment{Scode}{Verbatim}{fontsize=\small,fontshape=sl}
 %% makes space between Sinput and Soutput smaller:
-%\fvset{listparameters={\setlength{\topsep}{0pt}}}% !! quite an effect!
+\fvset{listparameters={\setlength{\topsep}{0pt}}}% !! quite an effect!
+%% ??? FIXME but it also influences all other lists, itemize, ... ???? FIXME
 %%
 \setkeys{Gin}{width=\textwidth}% Sweave.sty has {width=0.8\textwidth}
 
@@ -178,9 +179,9 @@ For Archimedean copulas, i.e., where
 the diagonal density is
 \begin{eqnarray}
   f^D(u) &=& \frac{d}{du}F^D(u) = \frac{d}{du}\psi\left(\sum\nolimits_{j=1}^d \psii(u)\right) =
-  \frac{d}{du}\psi(d \psii(u)) =  \\
-   &=& \psi^\prime\!\left(d\cdot \psii(u)\right) \cdot d \cdot \frac{d}{du} \psii(u)
-   = d\cdot \psi^\prime\!\left(d\cdot \psii(u)\right) \cdot \left[\psii\right]^\prime(u).
+  \frac{d}{du}\psi(d\cdot \psii(u)) =  \nonumber\\
+   &=& \psi^\prime\!\left(d\cdot \psii(u)\right) \cdot d \cdot \frac{d}{du} \psii(u)\nonumber\\
+   &=& d\cdot \psi^\prime\!\left(d\cdot \psii(u)\right) \cdot \left[\psii\right]^\prime(u).
   \label{eq:fD}
 \end{eqnarray}
 
@@ -203,8 +204,8 @@ where the three functions
 \end{align}
 are all provided by the slots of the corresponding Archimedean copula family.
 
-For the following explorations,  we need a more flexible definition which
-does not directly work with the copula family object, but gets the three
+For the following explorations,  we need a definition of \code{dDiagA} which
+is more flexible as it does not work with the copula family object but gets the three
 functions as arguments,
 <<my-dDiagA>>=
 dDiagA <- function(u, th, d, psiInv, psiDabs, psiInvD1abs, log = FALSE) {
@@ -249,7 +250,7 @@ as (analytic continuation of) $\sum_{k=1}^\infty \frac{z^k}{k^s}$. When $s
 and we note that here, only the first derivative is needed,
 $ - {\psi_\theta}^\prime(t) = \left|{\psi_\theta}^\prime(t)\right|$, and hence only
 \begin{equation}
-  \mathtt{polylog(z, s=0)} = \Li{0}(z) = z / (1 - z). \label{eq:polylog-0}
+  \mathtt{polylog(z,\: s=0)} = \Li{0}(z) = z / (1 - z). \label{eq:polylog-0}
 \end{equation}
 
 First note that numerically, $e^{-a} - 1$ suffers from cancellation when $0
@@ -277,7 +278,8 @@ psiDabs.1 <- function(t, theta, log=FALSE) {
 }
 @
 where we however now assume that the \code{polylog()} function for
-\code{s=0} would basically use the direct formula (\ref{eq:polylog-0})
+\code{s=0} would basically use the direct formula (\ref{eq:polylog-0}),
+such that we use
 <<simpler-psiDabs>>=
 psiDabs.2 <- function(t, theta, log=FALSE) {
   w <- log(-expm1(-theta)) - t
@@ -355,13 +357,21 @@ mlogL <- function(theta)
                 log = TRUE))
 @
 Now, plot this negative log likelihood function in an interval $\theta$,
-close to what is proposed \pkg{nacopula}'s \code{paraOptInterval()} function:
+close to what is proposed \pkg{nacopula}'s \code{paraOptInterval()}
+function, defining a utility function that we'll reuse later:
 <<llog-theta-plot, fig=true>>=
+p.mlogL <- function(th, mlogL, col= "red2", lwd = 1, lty = 1,
+                    add= FALSE) {
+  stopifnot(is.numeric(th), is.function(mlogL))
+  nll <- vapply(th, mlogL, 0.)
+  if(add) lines(nll ~ th, col=col, lwd=lwd, lty=lty)
+  else plot(nll ~ th, xlab=expression(theta),
+            ylab = expression(- logLik(theta, .)),
+            type = "l", col=col, lwd=lwd, lty=lty)
+  invisible(nll) # return invisibly
+}
 thet <- seq(11, 99, by = 1/4)
-nll <- vapply(thet, mlogL, 0.)
-plot(nll ~ thet, xlab=expression(theta),
-     ylab = expression(- logLik(theta, .)),
-     type = "l", col="red2", lwd=1)
+p.mlogL(thet, mlogL)
 
 require("Rmpfr")## compute the same with *high* accuracy ...
 ## using three different precisions:
@@ -401,16 +411,20 @@ it needs more than 128 bits precision.
 Let's look at the phenomenon in more details now.
 The flesh in the \code{mlogL()} computation is (up to the constant
 $\log(d)$, $d=5$), only the sum of the two terms
-<<mlogL_2terms, eval=false>>=
+<<empty-prompt, echo=FALSE>>=
+op <- options(prompt = " ")
+<<mlogL_2terms, eval=FALSE>>=
    psiDabs(d*psiInv(u,th), th, log = TRUE) +
-   psiInvD1abs(u,              th, log = TRUE)
+   psiInvD1abs(u,          th, log = TRUE)
 @
 currently, with the three functions
 <<3f, eval=false>>=
 psiInv = psiInv.2; psiDabs = psiDabs.2; psiInvD1abs = psiInvD1abs.1
+<<reset-prompt, echo=FALSE>>=
+options(op)
 @
-where we have already checked that the \code{psiInv()} function is ok, but
-can confirm, e.g., for $\theta = 50$, that it is.  Further note, that using
+where we have already tried to ensure that the \code{psiInv()} function is
+ok, but now can confirm it, e.g., for $\theta = 50$.  Further note, that using
 high-precision arithmetic, we can also ``partially afford'' to use the
 simplistic \code{psiInv.0()} function instead the more stable
 \code{psiInv.2()} one:
@@ -430,8 +444,8 @@ legend("top", c("double prec.", "mpfr(*, precBits = 200)"),
        col= 1:2, lty=1:2, bty="n")
 @
 where we see a very large difference (note the \emph{$\log$} scale!) for
-$u \approx 1$, i.e., for very small \code{pI.U= psiInv.2(U., theta)}$ =
-\psi_\theta^{-1}(u)$.
+$u \approx 1$, i.e., for very small \linebreak[3] 
+\code{pI.U= psiInv.2(U., theta)}$ = \psi_\theta^{-1}(u)$.
 <<plot-psiDabs-zero, fig=TRUE>>=
 u0 <- 2^-(100:1)
 psD.n <-            psiDabs.2(u0, 40)
@@ -465,20 +479,13 @@ psiDabs.3 <- function(t, theta, log=FALSE) {
 }
 @
 Does this already solve the ``diagonal likelihood'' problem?
-Let's see:
-
-<<nlogL-2>>=
-mlogL <- function(theta)
-    -sum(dDiagA(U., theta, d=d, psiInv = psiInv.2,
-                psiDabs = psiDabs.3, psiInvD1abs=psiInvD1abs.1,
-                log = TRUE))
-<<llog-theta-plot-1>>=
-thet <- seq(11, 99, by = 1/4)
-<<llog-theta-comPlot,fig=true>>=
-nll <- vapply(thet, mlogL, 0.)
-plot(nll ~ thet, xlab=expression(theta),
-     ylab = expression(- logLik(theta, .)),
-     type = "l", col="red2", lwd=2)
+Let's see, using a
+<<nlogL-2-plot, fig=TRUE>>=
+p.mlogL(th = seq(11, 99, by = 1/4),
+        mlogL = (mlogL2 <- function(theta)
+                 -sum(dDiagA(U., theta, d=d, psiInv = psiInv.2,
+                            psiDabs = psiDabs.3, psiInvD1abs=psiInvD1abs.1,
+                            log = TRUE))), lwd = 2)
 @
 Yes, indeed, using a numerically stable version for \code{psiDabs()}
 did solve the numerical problem of computing, the ``diagonal likelihood'',
@@ -488,7 +495,7 @@ Well, if we really insist, there are more problems,
 but probably not really practical:
 <<llog-theta-plot-2,fig=true>>=
 thet <- 9:1000
-<<llog-theta-comPlot>>
+nll <- p.mlogL(thet, mlogL = mlogL2, lwd=2)
 (th0 <- thet[i0 <- max(which(is.finite(nll)))])
 abline(v = th0, col="red2", lty="15", lwd=2)
 @
@@ -512,24 +519,30 @@ However, as $\log(\mathrm{expm1}(y)) = \log(e^y -1) = \log(e^y(1 - e^{-y}))
 <<def-psiInvD1abs-2>>=
 psiInvD1abs.2 <- function(u, theta, log = FALSE)
   if(log) log(theta)- {y <- u*theta; y + log1mexpm(y)} else theta/expm1(u*theta)
-mlogL <- function(theta) -sum(dDiagA(U., theta, d=d, psiInv = psiInv.2,
-		psiDabs = psiDabs.3, psiInvD1abs = psiInvD1abs.2, log = TRUE))
 @
 Unfortunately, this improves the situation for large $\theta$ only slightly:
-<<llog-theta-plot-3,fig=true, echo=FALSE>>=
+<<llog-theta-plot-3, fig=TRUE>>=
 plot(nll ~ thet, xlab=expression(theta),
      ylab = expression(- logLik(theta, .)),
      type = "l", col="red2", lwd=2)
 abline(v = th0, col="red2", lty="15", lwd=2)
-nll3 <- vapply(thet, mlogL, 0.)
-lines(nll3 ~ thet, col = "blue2", lwd=3, lty=2)
-mlogL(800)
+nll3 <- p.mlogL(thet, mlogL = function(theta)
+                 -sum(dDiagA(U., theta, d=d, psiInv= psiInv.2, psiDabs= psiDabs.3,
+                             psiInvD1abs = psiInvD1abs.2, log = TRUE)),
+                col = "blue2", lwd=3, lty=2, add = TRUE)
+nll3[thet == 800]
 @
-where we can see, that this time, the numerical overflow to $\infty$
+where we can see, that this time, the numerical overflow to $-\infty$
 happens in \code{psiDabs(d*psiInv(u,th), th, log = TRUE)}, as
-\code{d*psiInv(u,th) = 5*psiInv(0.999, th=800)}$=$\Sexpr{format(d*psiInv.2(u=0.999,th=800))}
-underflows to zero (by necessity).
-The only solution here is in allowing to pass the \emph{logarithm}
+\code{psiInv(u,th) = psiInv(0.999, th=800)}$=$\Sexpr{format(psiInv.2(u=0.999,th=800))}
+underflows to zero --- by necessity: the correct value is smaller than the
+smallest representable double precision number:
+<<true-psiInv-small>>=
+pI <- psiInv.2(u=0.999, th= mpfr(800, 200))
+cat(sapply(list(pI, .Machine$double.xmin),
+           format, digits = 7), "\n")
+@
+The only solution here is to allow passing the \emph{logarithm}
 $\log(t)$ instead of $t$ to \code{psiDabs()}, i.e., we start computing
 \code{log(psiInv(.))} directly (evading the underflow to 0 there).
 
