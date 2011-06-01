@@ -32,16 +32,17 @@ copAMH <-
                   ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE, method = "negI-s-Euler", Li.log.arg=TRUE)
 	      {
+		  lth <- log(theta)
 		  if(n.MC > 0) {
-		      psiDabsMC(t, family="AMH", theta=theta, degree=degree,
-				n.MC=n.MC, log=log)
+                      psiDabsMC(t, family="AMH", theta=theta, degree=degree,
+                                n.MC=n.MC, log=log)
 		  } else {
+		      ## Note: psiDabs(0, ...) is correct, namely (1-theta)/theta * polylog(theta, s=-degree)
 		      if(theta == 0) if(log) return(-t) else return(exp(-t)) # independence
-		      ## Note: psiDabs(0, ...) is correct
-		      Li.arg <- if(Li.log.arg) log(theta) - t else theta*exp(-t)
+		      Li.arg <- if(Li.log.arg) lth - t else theta*exp(-t)
 		      Li. <- polylog(Li.arg, s = -degree, method=method, is.log.z = Li.log.arg, log=log)
 		      if(log)
-			  Li. + log1p(-theta)-log(theta)
+			  Li. + log1p(-theta)-lth
 		      else
 			  Li. * (1-theta)/theta
 		  }
@@ -119,7 +120,7 @@ copAMH <-
                   tauInv = function(tau, tol=.Machine$double.eps^0.25, ...) {
                       if(any(tau > 1/3)) {
 			  ct <- if(length(tau <- sort(tau, decreasing=TRUE)) > 3) 
-			              paste(paste(format(tau[1:3]),collapse=", "),", ...",sep="") else format(tau)
+                              paste(paste(format(tau[1:3]),collapse=", "),", ...",sep="") else format(tau)
                           stop("Kendall's tau < 1/3 required for AMH, but (largest sorted) tau = ", ct)
                       }
                       sapply(tau,function(tau) {
@@ -163,7 +164,7 @@ copClayton <-
                           psiDabsMC(t, family="Clayton", theta=theta, degree=degree,
                                     n.MC=n.MC, log=log)
                       } else {
-                          ## Note: psiDabs(0, ...) is correct
+                          ## Note: psiDabs(0, ...) is correct, namely gamma(d+1/theta)/gamma(1/theta)
                           alpha <- 1/theta
                           res <- lgamma(degree+alpha)-lgamma(alpha)-(degree+alpha)*log1p(t)
                           if(log) res else exp(res)
@@ -289,7 +290,7 @@ copFrank <-
                       psiDabsMC(t, family="Frank", theta=theta, degree=degree,
                                 n.MC=n.MC, log=log)
                   } else {
-                      ## Note: psiDabs(0, ...) is correct
+                      ## Note: psiDabs(0, ...) is correct, namely (1/theta)*polylog(1-exp(-theta), s=-(degree-1))
 		      Li.arg <- if(Li.log.arg) log1mexpm(theta) - t else -expm1(-theta)*exp(-t)
 		      Li. <- polylog(Li.arg, s = -(degree-1), log=log,
 				     method=method, is.log.z = Li.log.arg)
@@ -440,7 +441,7 @@ copGumbel <-
 	              is0 <- t == 0
                       isInf <- is.infinite(t)
 	              res <- numeric(n <- length(t))
-	              res[is0] <- Inf
+	              res[is0] <- if(theta==1) 0 else Inf # Note: psiDabs(0, ...) is correct (even for n.MC > 0)
                       res[isInf] <- -Inf
                       n0Inf <- !(is0 | isInf)
                       if(all(!n0Inf)) return(if(log) res else exp(res))
@@ -608,7 +609,7 @@ copJoe <-
                       is0 <- t == 0
                       isInf <- is.infinite(t)
                       res <- numeric(n <- length(t))
-                      res[is0] <- Inf
+                      res[is0] <- if(theta==1) 0 else Inf # Note: psiDabs(0, ...) is correct (even for n.MC > 0)
                       res[isInf] <- -Inf
                       n0Inf <- !(is0 | isInf)
                       if(all(!n0Inf)) return(if(log) res else exp(res))

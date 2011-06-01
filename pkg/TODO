@@ -2,6 +2,8 @@
 
 ## ==== major ====
 
+(MM) fix check [for Marius to work => build => brutus => tests]
+(MM) please change default in polylog to "negI-s-Eulerian"
 (MM) please "smooth" the help pages
 (MM) include correct linebreaks afterwards (so that correct in manual)
 (MM) please make new example on emle.Rd nicer [fix problem with x-axis: show theta, theta hat], add title...
