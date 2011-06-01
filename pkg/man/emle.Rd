@@ -116,6 +116,6 @@ axis(1, at=c(theta, efm@coef), padj = -.5, col.axis="magenta",
      label= expression(theta[0], hat(theta)[n]))
 abline(v=ci, col="gray30", lwd=2, lty=3)
 text(ci[2], extendrange(par("usr")[3:4], f= -.02)[1],
-     "95% conf.int.", col="gray30", adj = -0.1)
+     "95\% conf.int.", col="gray30", adj = -0.1)
 }
 \keyword{models}
