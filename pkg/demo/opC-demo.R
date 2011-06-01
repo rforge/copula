@@ -44,7 +44,7 @@ h <- c(0.4,0) # h_-, h_+
 ##'         2nd row: upper; 2 parameters => 2 cols]
 ##' @author Marius Hofert
 ii.opC <- function(U, h, method=c("etau","dmle.G")){
-    if(h[1]<0 || h[2]<0) stop("ii.opC: h[1] and h[2] have to be >= 0")
+    stopifnot(h >= 0, length(h) >= 2)
     I <- matrix(, nrow=2, ncol=2, dimnames=list(c("lower", "upper"), c("thetabase", "theta")))
     ## estimate Kendall's tau
     method <- match.arg(method)
@@ -58,9 +58,9 @@ ii.opC <- function(U, h, method=c("etau","dmle.G")){
                           theta.hat.G <- log(ncol(U))/(log(length(Z))-log(sum(-log(Z))))
                           copGumbel@tau(theta.hat.G)
                       },
-                      stop("ii.opC: wrong method"))
+                      stop("wrong method:", method))
     ## compute largest value of theta (for lower right endpoint of the inital interval)
-    if(tau.hat<=0) stop("ii.opC: tau.hat <= 0")
+    stopifnot(tau.hat > 0)
     tau.hat.hp <- min(tau.hat+h[2], 0.995)
     th.max <- 2*tau.hat.hp/(1-tau.hat.hp)
     I[2,1] <- th.max # largest value for theta (= thetabase)
@@ -123,7 +123,7 @@ ml <- mle(nLL, method="L-BFGS-B",
           lower=c(thetabase=I[1,1], theta=I[1,2]),
           upper=c(thetabase=I[2,1], theta=I[2,2]))
 summary(ml)
-ml@details
+str(ml@details)
 
 ## with profiling: via mle2 (which uses optim with "L-BFGS-B")
 ml2 <- mle2(nlogl.opC, data=list(u=U), method="L-BFGS-B",
@@ -131,16 +131,18 @@ ml2 <- mle2(nlogl.opC, data=list(u=U), method="L-BFGS-B",
             lower=c(thetabase=I[1,1], theta=I[1,2]),
             upper=c(thetabase=I[2,1], theta=I[2,2]))
 summary(ml2)
-ml2@details
+str(ml2@details)
 
 ## ==== plots ==================================================================
 
 ## ==== profile likelihood plots ===============================================
 
 prof <- profile(ml)
-(ci <- confint(prof))
-plot(prof, main="Profile plot for mle()")
-## FIXME: not working; maybe that helps: https://stat.ethz.ch/pipermail/r-help/2005-July/076003.html
+if(FALSE) { ## FIXME (?)
+    ## maybe this helps: https://stat.ethz.ch/pipermail/r-help/2005-July/076003.html
+    (ci <- confint(prof))
+    plot(prof, main="Profile plot for mle()")
+}
 
 prof2 <- profile(ml2)
 (ci <- confint(prof2))
@@ -167,14 +169,16 @@ opt <- ml@coef # optimizer-optimum
 opt.val <- c(opt, nlogl.opC.(opt, u=U)) # optimizer-optimum and its value
 pts <- rbind(true.val, opt.val) # points to add to wireframe plot
 title <- "-log-likelihood of an outer power Clayton copula" # title
-sub <- substitute(expression(paste(italic(n)==n.,"      ",italic(d)==d.,"      ",
-    tau==tau.,"      #: ",num.iter,sep="")), list(n.=n, d.=d, tau.=tau,
-    num.iter=ml@details$counts)) # subtitle
+sub <- substitute(italic(n) == N ~~~  italic(d)== D ~~~
+                  tau == TAU ~~~ "#{eval}:" ~ NIT,
+                  list(N=n, D=d, TAU= tau, NIT= ml@details$counts[[1]]))
+## lattice bug:
+sub <- as.expression(sub)
 
 ## wireframe
 wireframe(val.grid~grid[,1]*grid[,2], screen=list(z=70, x=-55), zoom=0.95,
           xlab=expression(italic(theta)), ylab=expression(italic(beta)),
-          zlab=list(expression(paste(-log~L,"(",theta,",",beta,")",sep="")), rot=90),
+          zlab = list(as.expression(-log~L * group("(",list(theta,beta),")")), rot=90),
           main=title, sub=sub, pts=pts, scales=list(col=1, arrows=FALSE),
           par.settings=list(axis.line=list(col="transparent"),
           clip=list(panel="off")), zlim=c(min(val.grid, pts[,3]),
