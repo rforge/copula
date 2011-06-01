@@ -3,10 +3,12 @@ Version: 0.7-8
 Date: 2011-05-24
 LastChanged: $LastChangedRevision$; $LastChangedDate$
 Title: Nested Archimedean Copulas
-Description: An R package for nested aka hierarchical Archimedean copulas, providing a
- procedure for computing function values, characteristics such as Kendall's
- tau and tail dependence coefficients, as well as sampling algorithms for
- generating random variates.
+Description: An R package for working with nested Archimedean copulas. 
+In particular, providing a procedure for computing function values and cube volumes, 
+characteristics such as Kendall's tau and tail dependence coefficients, efficient 
+sampling algorithms, various estimation procedures, and goodness-of-fit tests. 
+The package also contains certain interesting univariate distributions, 
+e.g., the Sibuya distribution.
 Author: Marius Hofert <marius.hofert@math.ethz.ch> and Martin Maechler
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Depends: methods, stats4

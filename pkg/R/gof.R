@@ -26,7 +26,6 @@
 ##' @return the supposedly U[0,1] distributed variates
 ##' @author Marius Hofert
 g01trafo <- function(u, method = c("normal", "log")) {
-    stopifnot(0 <= u, u <= 1)
     if(!is.matrix(u)) u <- rbind(u)
     d <- ncol(u)
     method <- match.arg(method)
@@ -62,8 +61,7 @@ g01 <- function(u, method=c("normal", "log")) {
 ##' @author Marius Hofert
 K <- function(t, cop, d, n.MC=0)
 {
-    stopifnot(is(cop, "acopula"), is.numeric(n.MC),
-	      is.numeric(d), length(d) == 1, d == round(d), d >= 1)
+    stopifnot(is(cop, "acopula"))
     psiI <- cop@psiInv(t, th <- cop@theta)
     n <- length(t)
     if(n.MC > 0) {
@@ -214,12 +212,14 @@ gnacopula <- function(u, cop, n.bootstrap=0,
 		      method = c("gnacopulatrafo.normal", "rtrafo.normal", 
                       "gnacopulatrafo.log", "rtrafo.log"), verbose=TRUE, ...)
 {
-    u.name <- deparse(substitute(u))
-    stopifnot(is(cop, "outer_nacopula"), n.bootstrap >= 0,
-	      (d <- NCOL(u)) >= 2, 0 <= u, u <= 1)
+    ## setup
+    if(!is.matrix(u)) u <- rbind(u)
+    stopifnot(0 <= u, u <= 1, is(cop, "outer_nacopula"), (d <- ncol(u)) >= 2,
+              max(cop@comp) == d, n.bootstrap >= 0, n.MC >= 0)
     if(length(cop@childCops))
 	stop("currently, only Archimedean copulas are provided")
-    
+    u.name <- deparse(substitute(u))
+
     ## method switch
     method <- match.arg(method)
     s <- "Bootstrapped Anderson-Darling test (based on"

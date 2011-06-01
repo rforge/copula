@@ -111,6 +111,7 @@ opower <- function(copbase, thetabase) {
               },
               ## density
               dacopula = function(u, theta, n.MC=0, log=FALSE) {
+	          stopifnot(C.@paraConstr(theta))
                   if(theta == 1) return(copbase@dacopula(u, theta, n.MC=n.MC, log=log)) # copbase case
                   if(!is.matrix(u)) u <- rbind(u)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
@@ -127,6 +128,7 @@ opower <- function(copbase, thetabase) {
               },
               ## score function
               score = function(u, theta) {
+	          stopifnot(C.@paraConstr(theta))
                   if(!is.matrix(u)) u <- rbind(u)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                   stop("The score function is currently not implemented for outer power copulas")

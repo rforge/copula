@@ -1,60 +1,45 @@
-## ==== features in next CRAN version ====
+## ==== TODO ====
+
+## ==== major ====
 
 (MM) please "smooth" the help pages
 (MM) include correct linebreaks afterwards (so that correct in manual)
-
 (MM) please make new example on emle.Rd nicer [fix problem with x-axis: show theta, theta hat], add title...
-(MM) Ist die Beschreibung des Resultat-Objektes in gnacopula() richtig?
-
-(MM) how to create string with double quotes in method. in gnacopula?
-
-(MM) it always holds that psiDabsMC(0) != Inf; however, theoretically, this should
-     be Inf for Gumbel and Joe. Shall we introduce a family-base switch to return
-     the correct value at this boundary or shall we leave it as a flaw of MC that
-     it is not possible to get this value correct?  
-
-(MM) further questions: 
-(1) I guess we can remove the FIXME on line 18 in cop_objects, can't we?
-(2) FIXME line 442 in estimation.R: return an object?
-(3) FIXME nacopula.R, line 203: onacopulaL() -- replacing nacStructure by nacList
-    => sounds useful
-
-(*) it would be good to have tryCatch.W.E in the package [call it tryCatchWE -- easier to type]
-    Maybe one can also directly return a list with "value", "error", and "warning"?
-    [So far, "value" can also contain the errors => a bit unhandy, but maybe the only "elegant" general solution]
-
-(*) have to update Description; suggestion: An R package for working with nested Archimedean copulas. 
- In particular, providing a procedure for computing function values and cube volumes, characteristics such as Kendall's
- tau and tail dependence coefficients, efficient sampling algorithms, various
-estimation procedures, and goodness-of-fit tests. The package also contains certain
-interesting univariate distributions, e.g., the Sibuya distribution.
-
-(*) inconsistent use of checks whether function arguments are in [0,1]^d or not:
-some functions don't check, others do (e.g., dDiag)
-=> remove checks everywhere due to performance? 
-
-(*) FIXME and TODO in the code
-(*) design a function that gets an outer nacopula and returns a matrix of
-    numbers which correspond to the different sectors; this can be used, e.g.,
-    for building a [default] color-matrix for splom2 or for estimation purposes etc.
-
-(*) GIG as proper object in extra file
-(*) GIG, opC demos [MH is working on it]
-    => opC in emle example section?
-
+(MM) how to create string with double quotes? is currently buggy in gnacopula()?
+(MM) FIXME in enacopula (in estimation.R): return an object?
 (MM) can we create a function for the GIG generator [see ./demo] similar to opower()?
 (MM) Change onacopula() such that it works via onacopulaL() and hence
      can be used also from other functions.
-(MM) maybe add an ASCII-plot for the hierarchical structure;
-     Actually, define setAs("nacopula", "dendrogram", ....) and then use
-     dendrogram print()ing.
+     => FIXME nacopula.R, line 203: onacopulaL() -- replacing nacStructure by nacList
 
+(*) check all FIXME and TODO in the code
+(*) fix estimation problems:
+    1) AMH & d=5
+    2) Clayton, tau=0.75
+    3) Frank, tau=0.75
+
+(MH) psiDabs-slots: fang' limit ab fuer t=0
+(MH) GIG as proper object in extra file
+(MH) GIG, opC demos [MH is working on it]
+    => opC in emle example section?
+
+## ==== minor ====
+
+(*) maybe add an ASCII-plot for the hierarchical structure;
+    Actually, define setAs("nacopula", "dendrogram", ....) and then use
+    dendrogram print()ing.
+(*) design a function that gets an outer nacopula and returns a matrix of
+    numbers which correspond to the different sectors; this can be used, e.g.,
+    for building a [default] color-matrix for splom2 or for estimation purposes etc.
+(*) it would be good to have tryCatch.W.E in the package [call it tryCatchWE -- easier to type]
+    Maybe one can also directly return a list with "value", "error", and "warning"?
+    [So far, "value" can also contain the errors => a bit unhandy, but maybe the only "elegant" general solution]
 
 ## ==== long-term maybe ====
 
 (*) implement Khoudraji or Liebscher trafo incl. density etc.
 (*) allow families to have outer power parameters (outer power families)
-(MM) be compatible with package copula
+(*) be compatible with package copula
 (*) include pairwise estimators for nACs
 
 

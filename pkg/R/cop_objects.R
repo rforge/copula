@@ -15,11 +15,6 @@
 
 #### List of supported Archimedean copulas
 
-## FIXME: Not "nice" that the names of the copula objects must be be used
-##	inside some of their components.
-## Possible solution:
-##	use *same* environment for  (tau, tauInv, paraConstr, nestConstr)
-
 ## NOTA BENE:  Write psi(), tau(), ... functions such that they *vectorize*
 ## ---------   *and* do work even for (non-numeric) NULL argument
 ##          	{now checked in "acopula" validityMethod -- see ./AllClass.R }
@@ -61,13 +56,13 @@ copAMH <-
                   },
                   ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE, method = "negI-s-Euler", Li.log.arg=TRUE) {
+		      stopifnot(C.@paraConstr(theta))
                       if(!is.matrix(u)) u <- rbind(u)
                       if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       ## f() := NaN outside and on the boundary of the unit hypercube
                       res <- rep.int(NaN, n <- nrow(u))
                       ## indices for which density has to be evaluated:
                       n01 <- apply(u,1,function(x) all(0 < x, x < 1))
-
                       if(!any(n01)) return(res)
                       if(theta == 0) { res[n01] <- if(log) 0 else 1; return(res) } # independence
                       ## auxiliary results
@@ -91,6 +86,7 @@ copAMH <-
                   },
                   ## score function
                   score = function(u, theta) {
+	              stopifnot(C.@paraConstr(theta))
 	              if(!is.matrix(u)) u <- rbind(u)
 	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       omu <- 1-u
@@ -121,8 +117,11 @@ copAMH <-
                   ## function(th)  1 - 2*((1-th)*(1-th)*log(1-th)+th)/(3*th*th)
                   ## but numerically stable, including, theta -> 0
                   tauInv = function(tau, tol=.Machine$double.eps^0.25, ...) {
-                      if(any(tau > 1/3))
-                          stop("Impossible for AMH copula to attain a Kendall's tau >= 1/3 (tau < 1/3 required)")
+                      if(any(tau > 1/3)) {
+			  ct <- if(length(tau <- sort(tau, decreasing=TRUE)) > 3) 
+			              paste(paste(format(tau[1:3]),collapse=", "),", ...",sep="") else format(tau)
+                          stop("Kendall's tau < 1/3 required for AMH, but (largest sorted) tau = ", ct)
+                      }
                       sapply(tau,function(tau) {
                           r <- safeUroot(function(th) tauAMH(th) - tau,
                                          interval = c(0, 1-1e-12),
@@ -176,6 +175,7 @@ copClayton <-
                   },
                   ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE) {
+		      stopifnot(C.@paraConstr(theta))
                       if(!is.matrix(u)) u <- rbind(u)
                       if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       ## f() := NaN outside and on the boundary of the unit hypercube
@@ -204,6 +204,7 @@ copClayton <-
                   },
                   ## score function
                   score = function(u, theta) {
+	              stopifnot(C.@paraConstr(theta))
                       if(!is.matrix(u)) u <- rbind(u)
                       if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       k <- 0:(d-1)
@@ -282,7 +283,7 @@ copFrank <-
                   paraInterval = interval("(0,Inf)"),
                   ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE,
-				     method = "negI-s-Eulerian", Li.log.arg=TRUE)
+                  method = "negI-s-Eulerian", Li.log.arg=TRUE)
               {
                   if(n.MC > 0) {
                       psiDabsMC(t, family="Frank", theta=theta, degree=degree,
@@ -303,6 +304,7 @@ copFrank <-
 		  dacopula = function(u, theta, n.MC=0, log=FALSE,
                   method = "negI-s-Eulerian", Li.log.arg=TRUE)
 	      {
+		  stopifnot(C.@paraConstr(theta))
 		  if(!is.matrix(u)) u <- rbind(u)
 		  if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
 		  ## f() := NaN outside and on the boundary of the unit hypercube
@@ -335,6 +337,7 @@ copFrank <-
               },
                   ## score function
                   score = function(u, theta) {
+	              stopifnot(C.@paraConstr(theta))
 	              if(!is.matrix(u)) u <- rbind(u)
 	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       e <- exp(-theta)
@@ -470,6 +473,7 @@ copGumbel <-
                   ## density
 		  dacopula = function(u, theta, n.MC=0, method=eval(formals(polyG)$method),
                   log = FALSE) {
+	              stopifnot(C.@paraConstr(theta))
                       if(!is.matrix(u)) u <- rbind(u)
                       if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       ## f() := NaN outside and on the boundary of the unit hypercube
@@ -514,6 +518,7 @@ copGumbel <-
                   },
                   ## score function
                   score = function(u, theta) {
+	              stopifnot(C.@paraConstr(theta))
 	              if(!is.matrix(u)) u <- rbind(u)
 	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       stop("The score function is currently not implemented for Gumbel copulas")
@@ -635,6 +640,7 @@ copJoe <-
                   ## density
 		  dacopula = function(u, theta, n.MC=0, method=eval(formals(polyJ)$method),
                   log = FALSE) {
+	              stopifnot(C.@paraConstr(theta))
                       if(!is.matrix(u)) u <- rbind(u)
                       if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       ## f() := NaN outside and on the boundary of the unit hypercube
@@ -667,6 +673,7 @@ copJoe <-
                   },
                   ## score function
                   score = function(u, theta, method=eval(formals(polyJ)$method)) {
+	              stopifnot(C.@paraConstr(theta))
 	              if(!is.matrix(u)) u <- rbind(u)
 	              if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                       l1_u <- rowSums(log1p(-u)) # log(1-u)

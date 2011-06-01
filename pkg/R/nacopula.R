@@ -44,7 +44,7 @@ dnacopula <- function(x, u, log=FALSE, ...) {
 ##' @param log if TRUE the log-density is evaluated
 ##' @author Marius Hofert
 dnacopulag <- function(x, u, n.MC=0, log = FALSE) {
-    stopifnot(is(x, "outer_nacopula"))
+    stopifnot(is(x, "outer_nacopula"), 0 <= u, u <= 1)
     if(length(x@childCops))
         stop("currently, only Archimedean copulas are provided")
     if(!is.matrix(u)) u <- rbind(u)
@@ -72,8 +72,7 @@ dnacopulag <- function(x, u, n.MC=0, log = FALSE) {
 ##' @author Marius Hofert, Martin Maechler
 pnacopula <- function(x,u) {
     if(!is.matrix(u)) u <- rbind(u)
-    stopifnot(is.numeric(u), 0 <= u, u <= 1,
-              ncol(u) >= dim(x)) # will be larger for children
+    stopifnot(ncol(u) >= dim(x)) # will be larger for children
     C <- x@copula
     th <- C@theta
     res <- C@psi(rowSums(## use u[,j, drop=FALSE] for the direct components 'comp':

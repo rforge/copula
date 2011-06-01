@@ -68,7 +68,6 @@ paraOptInterval <- function(u, family, h=0.15)
 ##' @return sample version of multivariate Blomqvist beta
 ##' @author Marius Hofert
 beta.hat <- function(u, scaling = FALSE) {
-    stopifnot(all(0 <= u, u < 1))
     less.u <- u <= 0.5
     prod1 <- apply( less.u, 1, all)
     prod2 <- apply(!less.u, 1, all)
@@ -87,7 +86,6 @@ beta.hat <- function(u, scaling = FALSE) {
 ##' @return population version of multivariate Blomqvist beta
 ##' @author Marius Hofert & Martin Maechler
 beta. <- function(cop, theta, d, scaling = FALSE) {
-    stopifnot(is(cop,"acopula"), cop@paraConstr(theta))
     j <- seq_len(d)
     diags <- cop@psi(j*cop@psiInv(0.5, theta), theta) # compute diagonals
     b <- 1 + diags[d] + if(d < 30) sum((-1)^j * choose(d, j) * diags)
@@ -108,8 +106,9 @@ beta. <- function(cop, theta, d, scaling = FALSE) {
 ##' @return Blomqvist beta estimator; return value of safeUroot (more or less
 ##'	    equal to the return value of uniroot)
 ##' @author Marius Hofert
-ebeta <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...) {
-    stopifnot(is(cop, "outer_nacopula"))
+ebeta <- function(u, cop, interval=paraOptInterval(u, cop@copula@name), ...) {
+    stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 2,
+              max(cop@comp) == d)
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
     ## Note: We do not need the constants 2^(d-1)/(2^(d-1)-1) and 2^(1-d) here,
@@ -137,7 +136,8 @@ ebeta <- function(u, cop, interval = paraOptInterval(u, cop@copula@name), ...) {
 ##' @author Marius Hofert
 etau <- function(u, cop, method = c("tau.mean", "theta.mean"), ...)
 {
-    stopifnot(is(cop, "outer_nacopula"))
+    stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 2,
+              max(cop@comp) == d)
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
     tau.hat.mat <- cor(u, method="kendall",...) # matrix of pairwise tau()
@@ -232,7 +232,8 @@ emde <- function(u, cop, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
                  interval = paraOptInterval(u, cop@copula@name),
                  include.K = ncol(u)<=5, ...)
 {
-    stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 1)
+    stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 2,
+              max(cop@comp) == d)
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
     method <- match.arg(method) # match argument method
@@ -255,7 +256,7 @@ emde <- function(u, cop, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
 ##' @return density of the diagonal of cop
 ##' @author Marius Hofert
 dDiag <- function(u, cop, log = FALSE) {
-    stopifnot(is(cop, "outer_nacopula"), all(0 <= u, u <= 1), (d <- max(cop@comp)) > 0)
+    stopifnot(is(cop, "outer_nacopula"), (d <- max(cop@comp)) >= 2)
     if(length(cop@childCops)) {
         stop("currently, only Archimedean copulas are provided")
     }
@@ -265,11 +266,13 @@ dDiag <- function(u, cop, log = FALSE) {
 
 ##' @title Density of diagonal of d-dim. Archimedean copula
 ##' @param u evaluation point in [0, 1]
+##' @param d dimension
 ##' @param cop acopula
 ##' @param log if TRUE the log-density is evaluated
 ##' @return density of the diagonal of cop
+##' @author Martin Maechler
 dDiagA <- function(u, d, cop, log = FALSE) {
-    stopifnot(is.finite(th <- cop@theta), d > 0)
+    stopifnot(is.finite(th <- cop@theta), d >= 2)
     if(log) {
         log(d) + cop@psiDabs(d*cop@psiInv(u,th), th, log = TRUE) +
             cop@psiInvD1abs(u, th, log = TRUE)
@@ -277,7 +280,6 @@ dDiagA <- function(u, d, cop, log = FALSE) {
         d* cop@psiDabs(d*cop@psiInv(u,th), th) * cop@psiInvD1abs(u,th)
     }
 }
-
 
 ##' Maximum likelihood estimation based on the diagonal of a nested Archimedean copula
 ##'
@@ -291,7 +293,7 @@ dDiagA <- function(u, d, cop, log = FALSE) {
 ##' @author Marius Hofert
 edmle <- function(u, cop, interval=paraOptInterval(u, cop@copula@name), ...)
 {
-    stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 1,
+    stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 2,
               max(cop@comp) == d) # dimension
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
@@ -355,7 +357,8 @@ emle <- function(u, cop, n.MC=0, optimizer="optimize", method,
                  start = list(theta= mean(interval)),
                  ...)
 {
-    stopifnot(is(cop, "outer_nacopula"))
+    stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 2,
+              max(cop@comp) == d)
     ## nLL <- function(theta) { # -log-likelihood
     ##	   cop@copula@theta <- theta
     ##	   -sum(dnacopula(cop, u, n.MC=n.MC, log=TRUE))
@@ -426,7 +429,9 @@ enacopula <- function(u, cop, method=c("mle", "smle", "dmle", "mde.normal.CvM",
 {
 
     ## setup
-    stopifnot(is(cop, "outer_nacopula"), is.list(xargs))
+    if(!is.matrix(u)) u <- rbind(u)
+    stopifnot(0 <= u, u <= 1, is(cop, "outer_nacopula"), (d <- ncol(u)) >= 2,
+              max(cop@comp) == d, n.MC >= 0, is.list(xargs))
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
     method <- match.arg(method)

@@ -29,7 +29,7 @@
 ##'         times for V0 and the other cells the run time for V01 corresponding
 ##'         to two given taus among "taus" based on the generated V0's
 ##' @author Marius Hofert
-timing <- function(n,family,taus,digits = 3,verbose = FALSE)
+timing <- function(n, family, taus, digits=3, verbose=FALSE)
 {
     ## setup
     f <- function(x) formatC(x, digits=digits, width = 8)

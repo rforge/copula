@@ -123,7 +123,7 @@ retstablerej <- function(m,V0,alpha) {
 ##' @param h non-negative real number
 ##' @return vector of variates St
 ##' @author Marius Hofert, Martin Maechler
-retstableR <- function(alpha,V0, h = 1) {
+retstableR <- function(alpha, V0, h=1) {
     n <- length(V0)
     stopifnot(n >= 1, is.numeric(alpha), length(alpha) == 1,
 	      0 <= alpha, alpha <= 1) ## <- alpha > 1 ==> cos(pi/2 *alpha) < 0
@@ -282,7 +282,7 @@ rFFrank <- function(n, theta0, theta1, rej)
 ##' @title Coefficients of the polynomial involved in the generator derivatives
 ##'        and density for Gumbel
 ##' @param d number of coefficients, d >= 1
-##' @param alpha parameter (1/theta)
+##' @param alpha parameter (1/theta) in (0,1]
 ##' @param method a character string, one of
 ##'    "sort":          compute coefficients via exp(log()) pulling out the maximum, and sort
 ##'    "horner":        uses polynEval()
@@ -296,7 +296,8 @@ rFFrank <- function(n, theta0, theta1, rej)
 coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"),
 		   log = FALSE, verbose = FALSE)
 {
-    stopifnot(is.numeric(d), length(d) == 1, d >= 1)
+    stopifnot(is.numeric(d), length(d) == 1, d >= 1, length(alpha) == 1, 
+              0 < alpha, alpha <= 1)
     a <- numeric(d) # for the a_{dk}(theta)'s
     method <- match.arg(method)
     switch(method,
@@ -379,7 +380,7 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"
 ##' @param lx = log(x); where x: evaluation point (vector);
 ##'        e.g., for copGumbel@dacopula, lx = alpha*log(rowSums(psiInv(u)))
 ##'        where u = (u_1,..,u_d) is the evaluation point of the density of Joe's copula)
-##' @param alpha parameter (1/theta)
+##' @param alpha parameter (1/theta) in (0,1]
 ##' @param d number of summands, >= 1
 ##' @param method a string, one of
 ##'   "default"         uses a combination of the other methods
@@ -403,6 +404,7 @@ polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
                                 "direct", "dsumSibuya"), log=FALSE)
 {
     k <- 1:d
+    stopifnot(length(alpha)==1, 0 < alpha, alpha <= 1)
     method <- match.arg(method)
     switch(method,
 	   "default" =
@@ -509,11 +511,11 @@ polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
 ##'
 ##' @title Sampling Sibuya(alpha) distributions
 ##' @param n  sample size
-##' @param alpha parameter
+##' @param alpha parameter in (0,1]
 ##' @return vector of random variates V
 ##' @author Marius Hofert, Martin Maechler
-rSibuyaR <- function(n,alpha) {
-    stopifnot((n <- as.integer(n)) >= 0)
+rSibuyaR <- function(n, alpha) {
+    stopifnot((n <- as.integer(n)) >= 0, length(alpha)==1, 0 < alpha, alpha <= 1)
     V <- numeric(n)
     if(n >= 1) {
         if(alpha == 1) {
@@ -542,12 +544,11 @@ rSibuyaR <- function(n,alpha) {
 ##' algorithm of Hofert (2011), Proposition 3.2. C version.
 ##'
 ##' @title Efficiently sampling Sibuya(alpha) distributions
-##' @param n  sample size
-##' @param alpha parameter
+##' @param n sample size (has to be numeric, >= 0)
+##' @param alpha parameter in (0,1]
 ##' @return vector of random variates V
 ##' @author Martin Maechler
-rSibuya <- function(n,alpha) {
-    stopifnot(is.numeric(n), n >= 0)
+rSibuya <- function(n, alpha) {
     .Call(rSibuya_vec_c, n, alpha)
 }
 
@@ -637,7 +638,8 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 dsumSibuya <- function(x, n, alpha,
                        method=c("log", "direct", "Rmpfr", "diff", "exp.log"), log=FALSE)
 {
-    stopifnot(length(alpha) == 1, x == round(x), n == round(n), n >= 1)
+    stopifnot(x == round(x), n == round(n), n >= 1, length(alpha) == 1, 
+              0 < alpha, alpha <= 1)
     if((l.x <- length(x)) * (l.n <- length(n)) == 0)
 	return(numeric())
     if((len <- l.x) != l.n) { ## do recycle to common length
@@ -744,7 +746,7 @@ dsumSibuya <- function(x, n, alpha,
 ##'        was used earlier; e.g., for copJoe@dacopula, lx = log(h(u)/(1-h(u))) for
 ##'        h(u) = \prod_{j=1}^d(1-(1-u_j)^theta), where u = (u_1,..,u_d) is the
 ##'        evaluation point of the density of Joe's copula)
-##' @param alpha parameter (1/theta)
+##' @param alpha parameter (1/theta) in (0,1]
 ##' @param d number of summands
 ##' @param method different methods, can be
 ##'        "log.poly" intelligent log version
@@ -755,6 +757,7 @@ dsumSibuya <- function(x, n, alpha,
 ##'         where a_{dk}(theta) = S(d,k)*(k-1-alpha)_{k-1} = S(d,k)*Gamma((1:d)-alpha)/Gamma(1-alpha)
 ##' @author Marius Hofert and Martin Maechler
 polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE) {
+    stopifnot(length(alpha)==1, 0 < alpha, alpha <= 1)
     ## compute the log of the coefficients a_{dk}(theta)
     if(d > 220) stop("d > 220 not yet supported")# would need Stirling2.all(d, log=TRUE)
     k <- 1:d
@@ -842,6 +845,8 @@ cacopula <- function(u, cop, n.MC=0, log=FALSE) {
 ##'        pois:        intelligently uses the Poisson density with lsum
 ##' @param log if TRUE the log of psiDabs is returned
 ##' @author Marius Hofert
+##' Note: psiDabsMC(0) is always finite, although, theoretically, psiDabs(0) may 
+##'       be Inf (e.g., for Gumbel and Joe)
 psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("log", "direct",
                                                         "pois.direct", "pois"),
                       log=FALSE)
