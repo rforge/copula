@@ -9,7 +9,6 @@
 (*) use "u" instead of "t" for all inverses [TeX-like and R functions]
 (MM) please make new example on emle.Rd nicer [fix problem with x-axis: show theta, theta hat], add title...
 
-(MM) can we create a function for the GIG generator [see ./demo] similar to opower()?
 (MM) Change onacopula() such that it works via onacopulaL() and hence
      can be used also from other functions.
      => FIXME nacopula.R, line 203: onacopulaL() -- replacing nacStructure by nacList
@@ -20,10 +19,9 @@
     2) Clayton, tau=0.75
     3) Frank, tau=0.75
 
-(MH) psiDabs-slots: fang' limit ab fuer t=0
-(MH) GIG as proper object in extra file
-(MH) GIG, opC demos [MH is working on it]
-    => opC in emle example section?
+(MH) GIG demo
+(*) FIXME opC-demo.R
+(*) mention demos in estimation help file
 
 ## ==== minor ====
 
@@ -44,6 +42,7 @@
 (*) be compatible with package copula
 (*) include pairwise estimators for nACs
 (*) FIXME in enacopula (in estimation.R): return an object?
+(*) can we create a function for the GIG generator similar to opower()?
 
 
 
