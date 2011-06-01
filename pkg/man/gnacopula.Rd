@@ -34,7 +34,7 @@ gnacopulatrafo(u, cop, include.K = TRUE, n.MC = 0)
   \item{cop}{\eqn{H_0}{H0}-\code{"\linkS4class{outer_nacopula}"} with specified
     parameters to be tested for (currently only Archimedean copulas are provided).}
   \item{n.bootstrap}{non-negative integer giving the number of bootstrap
-    replications. If \code{n.bootstrap=0}, then \code{\link{g01}} is
+    replications.  If \code{n.bootstrap=0}, then \code{\link{g01}} is
     applied to \code{\link{gnacopulatrafo}} with the chosen parameters.}
   \item{estimation.method}{estimation method, a \code{\link{character}}
     string used to determine the estimation method to be applied, see \code{\link{enacopula}}.}
@@ -51,7 +51,7 @@ gnacopulatrafo(u, cop, include.K = TRUE, n.MC = 0)
       \item{\code{"rtrafo.log"}}{uses the multivariate transformation of Rosenblatt (1952) and the univariate transformation based on the Erlang distribution (see \code{\link{g01}} with \code{method="log"}).}
   }}
   \item{verbose}{if TRUE, the progress of the bootstrap is displayed.}
-  \item{\dots}{additional arguments to \code{\link{enacopula}}.}  
+  \item{\dots}{additional arguments to \code{\link{enacopula}}.}
 }
 \details{
   \describe{

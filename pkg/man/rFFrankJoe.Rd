@@ -5,8 +5,15 @@
 \description{
   Generate a vector of variates \eqn{V \sim F}{V ~ F} from the distribution
   function \eqn{F} with Laplace-Stieltjes transform
-  \deqn{(1-(1-\exp(-t)(1-e^{-\theta_1}))^\alpha)/(1-e^{-\theta_0}),}{(1-(1-exp(-t)*(1-e^(-theta1)))^alpha)/(1-e^(-theta0)),}
-  for Frank, or \deqn{1-(1-\exp(-t))^\alpha,}{1-(1-exp(-t))^alpha} for Joe, respectively, where \eqn{\theta_0}{theta0} and \eqn{\theta_1}{theta1} denote two parameters of Frank (i.e., \eqn{\theta_0,\theta_1\in(0,\infty)}{theta0,theta1 in (0,Inf)}) and Joe (i.e., \eqn{\theta_0,\theta_1\in[1,\infty)}{theta0,theta1 in [1,Inf)}) satisfying \eqn{\theta_0\le\theta_1}{theta0 <= theta1} and \eqn{\alpha=\theta_0/\theta_1}{alpha=theta0/theta1}. 
+  \deqn{(1-(1-\exp(-t)(1-e^{-\theta_1}))^\alpha)/(1-e^{-\theta_0}),
+  }{(1-(1-exp(-t)*(1-e^(-theta1)))^alpha)/(1-e^(-theta0)),}
+  for Frank, or
+  \deqn{1-(1-\exp(-t))^\alpha,}{1-(1-exp(-t))^alpha} for Joe, respectively,
+  where \eqn{\theta_0}{theta0} and \eqn{\theta_1}{theta1} denote two parameters
+  of Frank (i.e., \eqn{\theta_0,\theta_1\in(0,\infty)}{theta0,theta1 in (0,Inf)})
+  and Joe (i.e., \eqn{\theta_0,\theta_1\in[1,\infty)}{theta0,theta1 in [1,Inf)})
+  satisfying \eqn{\theta_0\le\theta_1}{theta0 <= theta1}
+  and \eqn{\alpha=\theta_0/\theta_1}{alpha=theta0/theta1}.
 }
 \usage{
 rFFrank(n, theta0, theta1, rej)
@@ -26,16 +33,14 @@ rFJoe(n, alpha)
   numeric vector of random variates \eqn{V} of length \code{n}.
 }
 \details{
-	\code{rFFrank(n, theta0, theta1, rej)} simply calls \code{rF01Frank(rep(1,n), theta0, theta1, rej, 1)} and \code{rFJoe(n, alpha)} simply calls \code{rSibuya(n, alpha)}.
+  \code{rFFrank(n, theta0, theta1, rej)} simply calls
+  \code{\link{rF01Frank}(rep(1,n), theta0, theta1, rej, 1)} and
+  \code{rFJoe(n, alpha)} simply calls \code{\link{rSibuya}(n, alpha)}.
 }
 \author{Marius Hofert}
-\references{
-  Hofert, M. (2011),
-  Efficiently sampling nested Archimedean copulas,
-  \emph{Computational Statistics {\&} Data Analysis} \bold{55}, 57--70.
-}
 \seealso{
-  \code{\link{rF01Frank}}, \code{\link{rF01Joe}}, \code{\link{rSibuya}}, and \code{\link{rnacopula}}.
+  \code{\link{rF01Frank}}, \code{\link{rF01Joe}}, also for references.
+  \code{\link{rSibuya}}, and \code{\link{rnacopula}}.
 }
 \examples{
 ## Simple definition of the functions:

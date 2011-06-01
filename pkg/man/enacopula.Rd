@@ -8,8 +8,9 @@
 \usage{
 enacopula(u, cop,
           method = c("mle", "smle", "dmle",
-            "mde.normal.CvM", "mde.normal.KS", "mde.log.CvM", "mde.log.KS",
-             "tau.tau.mean", "tau.theta.mean", "beta"),
+                     "mde.normal.CvM", "mde.normal.KS",
+                     "mde.log.CvM", "mde.log.KS",
+                     "tau.tau.mean", "tau.theta.mean", "beta"),
           n.MC = if (method == "smle") 10000 else 0,
           interval = paraOptInterval(u, cop@copula@name),
           xargs = list(), \dots)
@@ -65,11 +66,11 @@ enacopula(u, cop,
 }
 \author{Marius Hofert, Martin Maechler.}
 \references{
-  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011a),
+  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011a).
   Estimators for Archimedean copulas in high dimensions: A comparison,
   to be submitted.
 
-  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011b),
+  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011b).
   Likelihood inference for Archimedean copulas,
   to be submitted.
 }

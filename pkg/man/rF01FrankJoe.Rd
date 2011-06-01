@@ -6,8 +6,8 @@
   \code{rF01Frank}:
   Generate a vector of random variates \eqn{V_{01}\sim F_{01}}{V01 ~ F01}
   with Laplace-Stieltjes transform
-  \deqn{\psi_{01}(t;V_0)=\Bigl(\frac{1-(1-\exp(-t)(1-e^{-\theta_1}))^{\theta_0/\theta_1}}{1-e^{-\theta_0}}\Bigr)^{V_0}.}{%
-    psi01(t;V0) = ((1-(1-exp(-t)*(1-e^(-theta1)))^(theta0/theta1))/(1-e^(-theta0)))^V0.}
+  \deqn{\psi_{01}(t;V_0)=\Bigl(\frac{1-(1-\exp(-t)(1-e^{-\theta_1}))^{\theta_0/\theta_1}}{1-e^{-\theta_0}}\Bigr)^{V_0}.
+  }{psi01(t;V0) = ((1-(1-exp(-t)*(1-e^(-theta1)))^(theta0/theta1))/(1-e^(-theta0)))^V0.}
 
   for the given	realizations \eqn{V_0}{V0} of Frank's \eqn{F_0}{F0} and the
   parameters \eqn{\theta_0,\theta_1\in(0,\infty)}{theta0, theta1 in (0,Inf)}
@@ -56,11 +56,14 @@ rF01Joe(V0, alpha, approx)
 }
 \author{Marius Hofert, Martin Maechler}
 \references{
-	Hofert, M. (2011),
-	Efficiently sampling nested Archimedean copulas,
-	\emph{Computational Statistics {\&} Data Analysis} \bold{55}, 57--70.
+  Hofert, M. (2011).
+  Efficiently sampling nested Archimedean copulas.
+  \emph{Computational Statistics & Data Analysis} \bold{55}, 57--70.
 }
 \seealso{
+  \code{\link{rFFrank}}, \code{\link{rFJoe}}, \code{\link{rSibuya}},
+  and \code{\link{rnacopula}}.
+
   \code{\link{rnacopula}}
 }
 \examples{

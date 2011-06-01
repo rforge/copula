@@ -127,19 +127,19 @@ curve(copJoe@tau(x), xlim = c(1, 10), ylim = c(0,1), col = 4)
 ## The copula families currently provided:
 (famNms <- ls("package:nacopula", patt="^cop[A-Z]"))
 
-op <- par(mfrow=c(length(famNms),2), mar = .6+c(2,1.4,1,1), mgp = c(1.1, 0.4,0))
+op <- par(mfrow= c(length(famNms), 2),
+          mar = .6+ c(2,1.4,1,1), mgp = c(1.1, 0.4, 0))
 for(nm in famNms) { Cf <- get(nm)
    thet <- Cf@tauInv(0.3)
    curve(Cf@psi(x, theta = thet), 0, 5,
-         xlab=expression(x), ylab="", ylim=0:1,
-         main = substitute(list(NAM *"  "* psi(x, theta == TH), tau == 0.3),
+         xlab = expression(x), ylab="", ylim=0:1, col = 2,
+         main = substitute(list(NAM ~~~ psi(x, theta == TH), tau == 0.3),
                            list(NAM=Cf@name, TH=thet)))
    I <- Cf@paraInterval
    Iu <- pmin(10, I[2])
-   ## if(I[2] == Inf) { Iu <- 1000; log <- "x" } else { Iu <- I[2]; log <- "" }
-   curve(Cf@tau(x), I[1], Iu,
-         xlab = substitute(theta \%in\% II, list(II = format(I))), ylab="",
-         main=substitute(NAM * " " * tau(theta), list(NAM=Cf@name)))
+   curve(Cf@tau(x), I[1], Iu, col = 3,
+         xlab = bquote(theta \%in\% .(format(I))), ylab = "",
+         main = substitute(NAM ~~ tau(theta), list(NAM=Cf@name)))
 }
 par(op)
 

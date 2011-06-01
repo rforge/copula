@@ -2,9 +2,8 @@
 \alias{polynEval}
 \title{Evaluate Polynomials}
 \description{
-  Evaluate a univariate polynomial at \code{x},
-  i.e., compute \code{coef[1] + coef[2]*x + ... + coef[p+1]* x^p},
-  where \code{x} is typically a vector.
+  Evaluate a univariate polynomial at \code{x}, i.e., compute \code{coef[1] + coef[2]*x+
+    ... + coef[p+1]* x^p},  where \code{x} is typically a vector.
 }
 \usage{
 polynEval(coef, x)

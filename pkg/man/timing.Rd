@@ -10,15 +10,15 @@ timing(n, family, taus, digits = 3, verbose = FALSE)
 }
 \arguments{
   \item{n}{integer specifying the sample size to be used for the random
-    variates \eqn{V_0}{V0} and \eqn{V_{01}{V01}}.}
+    variates \eqn{V_0}{V0} and \eqn{V_{01}}{V01}.}
   \item{family}{the Archimedean family (class
     \code{"\linkS4class{acopula}"}) for which \eqn{V_0}{V0} and
-    \eqn{V_{01}{V01} are sampled}.}
+    \eqn{V_{01}}{V01} are sampled.}
   \item{taus}{\code{\link{numeric}} vector of Kendall's taus.  This vector is
- 	 converted to a vector of copula parameters \eqn{theta}, which then serve as
+    converted to a vector of copula parameters \eqn{theta}, which then serve as
     \eqn{theta_0}{theta0} and \eqn{theta_1}{theta1} for a three-dimensional
-	 fully nested Archimedean copula of the specified \code{family}.  First, for
-	 each \eqn{theta_0}{theta0}, \code{n} random variates \eqn{V_0}{V0} are
+    fully nested Archimedean copula of the specified \code{family}.  First, for
+    each \eqn{theta_0}{theta0}, \code{n} random variates \eqn{V_0}{V0} are
     generated.  Then, given the particular \eqn{theta_0}{theta0} and the
     realizations \eqn{V_0}{V0}, \code{n} random variates
     \eqn{V_{01}}{V01} are generated for each \eqn{theta_1}{theta1}
