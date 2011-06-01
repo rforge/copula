@@ -3,7 +3,7 @@
 %%%%%%%%%%%%
 %
 \author{Martin M\"achler \\ ETH Zurich%
-\\ \today%---- for now
+\\ May 2011 {\tiny (\LaTeX'ed \today)}%---- for now
 }
 \title{Numerically Stable Frank Copula Functions via Multiprecision:
   \proglang{R} Package \pkg{Rmpfr}}
@@ -150,7 +150,7 @@ copDDir <- system.file('doc', package='nacopula')
 copSrcDDir <- { if(Sys.getenv("USER") == "maechler")
                     '~/R/Pkgs/nacopula/inst/doc' else
                 file.path(dirname(tempdir()),"nacopula-saveDir") }
-if(!file.exists(copSrcDDir)) stopifnot(dir.create(fd))
+if(!file.exists(copSrcDDir)) stopifnot(dir.create(copSrcDDir))
 
 Sys.setenv(LANGUAGE = "en")
 if(.Platform$OS.type != "windows")
@@ -444,7 +444,7 @@ legend("top", c("double prec.", "mpfr(*, precBits = 200)"),
        col= 1:2, lty=1:2, bty="n")
 @
 where we see a very large difference (note the \emph{$\log$} scale!) for
-$u \approx 1$, i.e., for very small \linebreak[3] 
+$u \approx 1$, i.e., for very small \linebreak[3]
 \code{pI.U= psiInv.2(U., theta)}$ = \psi_\theta^{-1}(u)$.
 <<plot-psiDabs-zero, fig=TRUE>>=
 u0 <- 2^-(100:1)
