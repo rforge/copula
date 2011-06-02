@@ -8,7 +8,7 @@
 \alias{Stirling2.all}
 \description{
   Compute Eulerian numbers and Stirling numbers of the first and second
-  kind, possibly for all \eqn{k} \dQuote{at once}.
+  kind, possibly vectorized for all \eqn{k} \dQuote{at once}.
 }
 \usage{
 Stirling1(n, k)
@@ -24,7 +24,7 @@ Eulerian.all (n)
   \item{k}{integer in \code{0:n}.}
   \item{method}{for \code{Eulerian()} and \code{Stirling2()}, string
     specifying the method to be used.  \code{"direct"} uses the explicit
-    formula (which may suffer from some cancellation for \dQuote{large}
+    formula (which may suffer from some cancelation for \dQuote{large}
     \code{n}).}
 }
 \details{
@@ -48,7 +48,7 @@ Eulerian.all (n)
   \code{Stirling1.all(n)} is the same as \code{sapply(1:n, Stirling1, n=n)},
   and\cr
   \code{Stirling2.all(n)} is the same as \code{sapply(1:n, Stirling2, n=n)},
-  but more efficiently.
+  but more efficient.
 }
 \note{
   For typical double precision arithmetic,\cr

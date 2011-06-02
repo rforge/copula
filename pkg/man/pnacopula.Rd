@@ -1,15 +1,15 @@
 \name{pnacopula}
 \alias{pnacopula}
-\title{Evaluation of Nested Archimedean Copulas}
+\title{Evaluation of (Nested) Archimedean Copulas}
 \description{
-  \code{pnacopula} evaluates a nested Archimedean copula (object of class
+  \code{pnacopula} evaluates a (nested) Archimedean copula (object of class
   \code{\linkS4class{nacopula}}) at the given vector or matrix \code{u}.
 }
 \usage{
 pnacopula(x, u)
 }
 \arguments{
-  \item{x}{a (nested) Archimedean copula of dimension \eqn{d}, i.e., an
+  \item{x}{(nested) Archimedean copula of dimension \eqn{d}, i.e., an
     object of class \code{\linkS4class{nacopula}}, typically from
     \code{\link{onacopula}(..)}.}
   \item{u}{a \code{\link{numeric}} vector of length \eqn{d} or matrix with \eqn{d}

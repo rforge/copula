@@ -2,9 +2,9 @@
 \alias{rnacopula}
 \title{Sampling Nested Archimedean Copulas}
 \description{
-  Random number generation from nested Archimedean copulas (of class
+  Random number generation for nested Archimedean copulas (of class
   \code{\linkS4class{outer_nacopula}}, specifically), aka
-  \dQuote{sampling} nested Archimedean copulas will generate \code{n}
+  \emph{sampling} nested Archimedean copulas will generate \code{n}
   random vectors of dimension \eqn{d} (= \code{dim(x)}).
 }
 \usage{
@@ -28,7 +28,7 @@ rnacopula(n, x, ...)
   Hofert(2010), Hofert(2012), and Hofert and \enc{Mächler}{Maechler} (2011).
 }
 \value{
-  a \code{\link{numeric}} matrix containing the generated vectors of
+  \code{\link{numeric}} matrix containing the generated vectors of
   random variates from the nested Archimedean copula object \code{x}.
 }
 \author{Marius Hofert, Martin Maechler}

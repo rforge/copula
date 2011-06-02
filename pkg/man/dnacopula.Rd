@@ -22,11 +22,11 @@ dnacopula(x, u, log=FALSE, \dots)
 }
 \details{
   If it exists, the density of an Archimedean copula \eqn{C} with
-  generator \eqn{\psi}{psi} at \eqn{\bm{u}}{u} is given by
-  \deqn{c(\bm{u})=\frac{\psi^{(d)}(\psi^{-1}(u_1)+\dots+\psi^{-1}(u_d))}{
-      \prod_{j=1}^d\psi^\prime(\psi^{-1}(u_j))},\ \bm{u}\in(0,1)^d.
-  }{c(u) = psi^{(d)}(psi^{-1}(u_1)+...+psi^{-1}(u_d)) /
-           (psi'(psi^{-1}(u_1))*...*psi'(psi^{-1}(u_d))),  u in (0,1)^d.}
+  generator \eqn{\psi}{psi} at \eqn{\bm{u}\in(0,1)^d}{u in (0,1)} is given by
+  \deqn{c(\bm{u})=\psi^{(d)}(\psi^{-1}(u_1)+\dots+\psi^{-1}(u_d))\prod_{j=1}^d(\psi^{-1}(u_j))^\prime=\frac{\psi^{(d)}(\psi^{-1}(u_1)+\dots+\psi^{-1}(u_d))}{
+      \prod_{j=1}^d\psi^\prime(\psi^{-1}(u_j))}.
+   }{c(u) = psi^{(d)}(psi^{-1}(u_1)+...+psi^{-1}(u_d)) prod(j=1..d) (psi^{-1}(u_j))' = psi^{(d)}(psi^{-1}(u_1)+...+psi^{-1}(u_d)) /
+           (psi'(psi^{-1}(u_1))*...*psi'(psi^{-1}(u_d))).}
 }
 \value{
   A \code{\link{numeric}} vector containing the values of the density of the

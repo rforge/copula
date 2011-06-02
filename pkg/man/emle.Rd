@@ -19,7 +19,7 @@ emle(u, cop, n.MC=0, optimizer="optimize", method,
     value in \eqn{[0,1]}) from the copula, with \eqn{n} the sample size
     and \eqn{d} the dimension.}
   \item{cop}{\code{\linkS4class{outer_nacopula}} to be estimated
-    (currently only non-nested, i.e., Archimedean copulas are admitted).}
+    (currently only non-nested, i.e., Archime-dean copulas are admitted).}
   \item{n.MC}{\code{\link{integer}}, if positive, \emph{simulated} maximum
     likelihood estimation (SMLE) is used with sample size equal to
     \code{n.MC}; otherwise (\code{n.MC=0}), MLE.  In SMLE, the \eqn{d}th
@@ -78,7 +78,9 @@ emle(u, cop, n.MC=0, optimizer="optimize", method,
 \seealso{
   \code{\link[bbmle]{mle2}} from package \pkg{bbmle} and
   \code{\link[stats4]{mle}} from \pkg{stats4} on which \code{mle2} is
-  modeled. \code{\link{enacopula}} (wrapper for different estimators).
+  modeled. \code{\link{enacopula}} (wrapper for different estimators). 
+  \code{\link{demo}(opC-demo)} and \code{\link{demo}(GIG-demo)} for
+  examples of two-parameter families.
 }
 \examples{
 tau <- 0.25
@@ -110,12 +112,14 @@ logL <- function(x) -efm@minuslogl(x)
        # == -sum(copGumbel@dacopula(U, theta=x, log=TRUE))
 logL. <- Vectorize(logL)
 I <- paraOptInterval(U, "Gumbel")
-curve(logL., from=I[1], to=I[2], xlab=quote(theta), ylab="log-likelihood")
+curve(logL., from=I[1], to=I[2], xlab=quote(theta), 
+      ylab="log-likelihood",
+      main="log-likelihood for Gumbel on the initial interval")
 abline(v = c(theta, efm@coef), col="magenta", lwd=2, lty=2)
-axis(1, at=c(theta, efm@coef), padj = -.5, col.axis="magenta",
-     label= expression(theta[0], hat(theta)[n]))
+axis(1, at=c(theta, efm@coef), padj = c(-0.5, -0.8), hadj = -0.2,
+     col.axis="magenta", label= expression(theta[0], hat(theta)[n]))
 abline(v=ci, col="gray30", lwd=2, lty=3)
-text(ci[2], extendrange(par("usr")[3:4], f= -.02)[1],
-     "95\% conf.int.", col="gray30", adj = -0.1)
+text(ci[2], extendrange(par("usr")[3:4], f= -.04)[1],
+     "95\% conf. int.", col="gray30", adj = -0.1)
 }
 \keyword{models}

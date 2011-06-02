@@ -33,18 +33,19 @@
       value of the derivative of the generator \eqn{\psi}{psi} for the given
       parameter \code{theta} and of the given \code{degree} (defaults to 1).
       Note that there is no informational loss by computing the absolute value
-      since the derivatives alternate in sign (so that the generator derivative
-      itself can be accessed with (-1)^\code{degree}\code{psiDabs}).  The
+      since the derivatives alternate in sign (the generator derivative
+      is simmply (-1)^\code{degree} times \code{psiDabs}).  The
       number \code{n.MC} denotes the sample size for a Monte Carlo evaluation
       approach.  If \code{n.MC} is zero (the default), the
       generator derivatives are evaluated with their exact formulas.  The
       optional parameter \code{log} (defaults to \code{FALSE}) indicates whether
       or not the logarithmic value is returned.}
     \item{\code{psiInvD1abs}:}{a \code{\link{function}} computing the
-      absolute derivative of the generator inverse (\code{psiInv()}) for
-      the given parameter \code{theta}.  The optional parameter \code{log}
-      (defaults to \code{FALSE}) indicates whether the logarithm of the absolute
-      value of the first derivative of \code{psiInv()} is returned.}
+      absolute value of the derivative of the generator inverse
+ 		(\code{psiInv()}) for the given parameter \code{theta}.  The optional
+ 		parameter \code{log} (defaults to \code{FALSE}) indicates whether the
+ 		logarithm of the absolute value of the first derivative of \code{psiInv()}
+      is returned.}
     \item{\code{dacopula}:}{a \code{\link{function}} computing the density
       of the Archimedean copula at \code{u} with parameter \code{theta}.  The
       meanings of the parameters \code{n.MC} and \code{log} are as
@@ -111,7 +112,7 @@
 \section{Methods}{
   \describe{
     \item{initialize}{\code{signature(.Object = "acopula")}: is used to
-      automatically construct the \code{paraConstr} function slot, when
+      automatically construct the function slot \code{paraConstr}, when
       the \code{paraInterval} is provided (typically via
       \code{\link{interval}()}).}
 
@@ -127,9 +128,9 @@
 
   A \emph{nested} Archimedean copula \emph{without}
   child copulas, see class \code{"\linkS4class{nacopula}"},
-  is a proper Archimedean copula, and hence,
+  is a proper Archime-dean copula, and hence,
   \code{\link{onacopula}()} can be used to construct a specific
-  parametrized Archimedean copula, see the example below.
+  parametrized Archime-dean copula, see the example below.
 }
 \references{% -> ./copFamilies.Rd
   see those of the families, e.g., \code{\link{copGumbel}}.

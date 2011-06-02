@@ -13,8 +13,8 @@ safeUroot(f, interval, \dots,
   \code{\link{uniroot}()} searches for a root (i.e., zero) of the
   function \code{f} with respect to its first argument.
 
-  \dQuote{Safety} is provided by a search for the correct \code{interval
-    = c(lower,upper)} in case \code{sign(f(x))} does not of the satisfy the
+  \dQuote{Safe} means searching for the correct \code{interval
+    = c(lower,upper)} if \code{sign(f(x))} does not satisfy the
   requirements at the interval end points, see the \sQuote{Details}
   section.
 }
@@ -27,7 +27,7 @@ safeUroot(f, interval, \dots,
   \item{f.lower, f.upper}{function value at \code{lower} or \code{upper}
     endpoint, respectively.}
   \item{Sig}{\emph{desired} sign of \code{f(upper)}, or \code{\link{NULL}}.}
-  \item{check.conv}{logical indicating if a convergence warning from the
+  \item{check.conv}{logical indicating whether a convergence warning of the
     underlying \code{\link{uniroot}} should be caught as an error.}
   \item{tol}{the desired accuracy, i.e., convergence tolerance.}
   \item{maxiter}{maximal number of iterations}

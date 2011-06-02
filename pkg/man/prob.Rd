@@ -13,7 +13,7 @@
 prob(x, l, u)
 }
 \arguments{
-  \item{x}{a (nested) Archimedean copula of dimension \eqn{d}, i.e., an object
+  \item{x}{(nested) Archimedean copula of dimension \eqn{d}, i.e., an object
     of class \code{\linkS4class{nacopula}}, typically constructed with
     \code{\link{onacopula}(..)}.}
   \item{l, u}{\eqn{d}-dimensional, \code{\link{numeric}}, lower and

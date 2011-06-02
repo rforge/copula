@@ -11,10 +11,10 @@
 
 \title{Class "interval" of simple Intervals}
 \description{
-  The S4 \code{\link{class}}) \code{"interval"} is a simple class for numeric
-  interval.
+  The S4 \code{\link{class}} \code{"interval"} is a simple class for numeric
+  intervals.
 
-  \code{"maybeInterval"} is a simple class union (see
+  \code{"maybeInterval"} is a class union (see
   \code{\link{setClassUnion}}) of \code{"interval"} and \code{"NULL"}.
 }
 \section{Objects from the Class}{

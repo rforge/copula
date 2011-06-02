@@ -20,12 +20,12 @@ beta.hat(u, scaling=FALSE)
   \item{d}{dimension.}
   \item{scaling}{logical, if true, the factors 2^(d-1)/(2^(d-1)-1) and
     2^(1-d) in Blomqvist's beta are omitted.}
-  \item{u}{For \code{beta.hat}: \dQuote{data} matrix (\eqn{n\times d}{n
-      x d}) of d-dimensional observations distributed according to the copula.}
+  \item{u}{For \code{beta.hat}: 	(\eqn{n\times d}{n x d})-matrix of
+      d-dimensional observations distributed according to the copula.}
 }
 \value{
   \describe{
-	\item{\code{beta.}:}{a number, being the population version of Blomqvist's beta for the corresponding Archimedean copula;}
+	\item{\code{beta.}:}{a number, being the population version of Blomqvist's beta for the corresponding Archime-dean copula;}
 	\item{\code{beta.hat}:}{a number, being the sample version of Blomqvist's beta for the given data.}
 	}
 }

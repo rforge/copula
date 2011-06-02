@@ -2,16 +2,17 @@
 \alias{K}
 \title{Kendall Distribution Function of a Copula}
 \description{
-  Compute the Kendall distribution function of an Archimedean copula,
+  Compute the \emph{Kendall distribution function} of an Archimedean copula,
   defined as
   \deqn{K(t) = P(C(U_1,U_2,\dots,U_d) \le t),}{K(t) = P(C(U1,U2,\dots,Ud) <= t),}
   where \eqn{t \in [0,1]}{t in [0,1]}, and the \eqn{d}-dimensional
   \eqn{(U_1,U_2,\dots,U_d)}{(U1,U2,\dots,Ud)} is distributed according
-  to the copula \eqn{C}.
+  to the copula \eqn{C}. 
 
-  Note that this \dQuote{distribution function of the probability
-  integral transform} is known to be the uniform \eqn{K(t) = t}, for
-  \eqn{d = 1}, but is non-trivial for \eqn{d \ge 2}{d >= 2}.
+  Note that the random variable \eqn{C(U_1,U_2,\dots,U_d)}{C(U_1,U_2,...,U_d)}
+ is known as \emph{probability integral transform}. Its distribution function
+  \eqn{K} is equal to the identity if \eqn{d = 1}, but is non-trivial for 
+ \eqn{d \ge 2}{d >= 2}.
 }
 \usage{
 K(t, cop, d, n.MC=0)

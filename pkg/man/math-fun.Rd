@@ -3,7 +3,7 @@
 \alias{sinc}
 \title{Sinc, Zolotarev's, and Other Mathematical Utility Functions}
 \description{
-  \code{sinc(x)} computes the \dQuote{sinc} function
+  \code{sinc(x)} computes the \emph{sinc function}
   \eqn{s(x)=\sin(x)/x}{s(x) = sin(x)/x} for \eqn{x\ne 0}{x != 0} and \eqn{s(0) = 1},
   such that \eqn{s()} is continuous, also at \eqn{x = 0}.
 

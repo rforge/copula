@@ -25,17 +25,17 @@ polylog(z, s,
 \arguments{
   \item{z}{numeric or complex vector}
   \item{s}{complex number; current implementation is aimed at
-    \eqn{s \in \{0,-1,\dots}{s in 0,-1,...}.}
+    \eqn{s \in \{0,-1,\dots\}}{s in (0,-1,...)}}
   \item{method}{a string specifying the algorithm to be used.}
-  \item{logarithm}{logical specifying to return log(Li.(.)) instead of Li.(.).}
+  \item{logarithm}{logical specified to return log(Li.(.)) instead of Li.(.)}
   \item{is.log.z}{logical; if TRUE, the specified \code{z} argument is
     really \eqn{w = \log(z)}{w = log(z)};
-    i.e., we compute \eqn{Li_s(exp(w))}, and we typically have \eqn{w < 0},
-    or equivalently, \eqn{z < 1}.}
-  \item{is.logmlog}{logical; if TRUE, the specified \code{z} argument is
-    really \eqn{lw = \log(-w) = \log(-\log(z))}{lw = log(-w) = log(-log(z))}
-    (where as above, \eqn{w = log(z)}).}
-  \item{asymp.w.order}{only default is implemented currently...}
+    i.e., we compute \eqn{Li_s(\exp(w))}{Li_s(exp(w))}, and we typically have
+ 	\eqn{w < 0}, or equivalently, \eqn{z < 1}.}
+  \item{is.logmlog}{logical; if TRUE, the specified argument \code{z} is
+    \eqn{lw = \log(-w) = \log(-\log(z))}{lw = log(-w) = log(-log(z))}
+    (where as above, \eqn{w = \log(z)}{w = log(z)}).}
+  \item{asymp.w.order}{currently only default is implemented.}
   \item{n.sum}{for \code{method="sum"} only: the number of terms used.}
 }
 \details{
@@ -44,7 +44,7 @@ polylog(z, s,
 
 For integer values of the polylogarithm order, the following
 explicit expressions are obtained by repeated application of
-\eqn{z \cdot \frac{\partial}{\partial z}}{z * d/dz} to \eqn{Li_1(z)}:
+\eqn{z \frac{\partial}{\partial z}}{z * d/dz} to \eqn{Li_1(z)}:
 %---
 \deqn{
   \mathrm{Li}_{1}(z) = -\log(1-z), \ \
@@ -117,11 +117,11 @@ polylog(z = 1, s = 2, n.sum = 1e5)
 pi^2 / 6
 
 z1 <- c(0.95, 0.99, 0.995, 0.999, 0.9999)
-(L3. <- polylog(      z1,      s= -3, method="negI-s-Euler")) # close to Inf
-all.equal(L3.,
-        polylog(  log(z1),     s= -3, method="negI-s-Euler", is.log.z=TRUE))
-all.equal(L3.,
-        polylog(log(-log(z1)), s= -3, method="negI-s-Euler", is.logmlog=TRUE))
+L   <- polylog(         z1,  s=-3,method="negI-s-Euler") # close to Inf
+LL  <- polylog(     log(z1), s=-3,method="negI-s-Euler",is.log.z=TRUE)
+LLL <- polylog(log(-log(z1)),s=-3,method="negI-s-Euler",is.logmlog=TRUE)
+all.equal(L, LL)
+all.equal(L, LLL)
 
 p.Li <- function(s.set, from = -2.6, to = 1/4, ylim = c(-1, 0.5),
                  colors = c("orange","brown", palette()), n = 201, ...)
@@ -135,7 +135,7 @@ p.Li <- function(s.set, from = -2.6, to = 1/4, ylim = c(-1, 0.5),
         curve(polylog(x, s=s.set[is], method="negI-s-Stirling"),
               add=TRUE, col = colors[is], n=n)
     s <- rev(s.set)
-    legend("bottomright", paste("s =", s), col=colors[2-s], lty=1, bty="n")
+    legend("bottomright",paste("s =",s), col=colors[2-s], lty=1, bty="n")
 }
 
 ## yellow is unbearable (on white):

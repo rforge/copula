@@ -24,6 +24,9 @@ library(bbmle)
 library(lattice)
 library(grid)
 
+do.profile <- FALSE # set this to TRUE to compute profile-likelihood plots (time-consuming)
+## without the profile-likelihood plots, the demo takes about 5min on a standard laptop
+
 ## ==== plot Kendall's tau as a function in theta for different nu's ====
 
 th1 <- c(0, 0.1, 0.5, 1, 5, 10)
@@ -154,17 +157,21 @@ str(ml2@details)
 
 ## ==== profile likelihood plots ===============================================
 
-system.time(prof <- profile(ml))
-                                        # if(FALSE) { ## FIXME (?)
-## maybe this helps: https://stat.ethz.ch/pipermail/r-help/2005-July/076003.html
-ci <- confint(prof)
-ci
-plot(prof)
-                                        # }
+if(do.profile){
+    
+    system.time(prof <- profile(ml))
+    if(FALSE) { ## FIXME (?)
+        ## maybe this helps: https://stat.ethz.ch/pipermail/r-help/2005-July/076003.html
+        ci <- confint(prof)
+        ci
+        plot(prof)
+    }
 
-system.time(prof2 <- profile(ml2)) # profiling (time-consuming)
-(ci <- confint(prof2))
-plot(prof2)
+    system.time(prof2 <- profile(ml2)) # profiling (time-consuming)
+    (ci <- confint(prof2))
+    plot(prof2)
+
+}
 
 ## ==== -log-likelihood plots ==================================================
 

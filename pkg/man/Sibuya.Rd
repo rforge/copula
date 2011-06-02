@@ -41,8 +41,8 @@ rSibuya(n, alpha)
 dSibuya(x, alpha, log=FALSE)
 pSibuya(x, alpha, lower.tail=TRUE, log.p=FALSE)
 
-dsumSibuya(x, n, alpha,
-	   method=c("log", "direct", "Rmpfr", "diff", "exp.log"), log=FALSE)
+dsumSibuya(x, n, alpha, method=c("log", "direct", "Rmpfr", "diff", 
+           "exp.log"), log=FALSE)
 }
 \arguments{
   \item{n}{
@@ -55,8 +55,8 @@ dsumSibuya(x, n, alpha,
   \item{x}{vector of \code{\link{integer}} values (\dQuote{quantiles}) \eqn{x} at which to
     compute the probability mass or cumulative probability.}
   \item{log, log.p}{\code{\link{logical}}; if TRUE, probabilities p are given as log(p).}
-  \item{lower.tail}{\code{\link{logical}}; if TRUE (default), probabilities are
-    \eqn{P(X \le x)}{P(X <= x)}, otherwise, \eqn{P(X > x)}.}
+  \item{lower.tail}{\code{\link{logical}}; if TRUE (the default), probabilities
+      are \eqn{P(X \le x)}{P(X <= x)}, otherwise, \eqn{P(X > x)}.}
   \item{method}{character string specifying which computational method is to be
     applied.  Implemented are:
     \describe{

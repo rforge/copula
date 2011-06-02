@@ -38,8 +38,8 @@ etau(u, cop, method = c("tau.mean", "theta.mean"), ...)
 	Note that the copula diagonal is a distribution function and the maximum of all components of a random vector following the copula is distributed according to this distribution function.  For \code{edmle}, the parameter is estimated via maximum-likelihood estimation based on the diagonal.
 
   For \code{etau}, the \code{method="tau.mean"}
-  indicates that the average of the sample versions of Kendall's tau are
-  computed first and then theta is determined such that the population version of Kendall's tau matches (if possible) this average of the sample versions of Kendall's tau; the \code{method="theta.mean"} stands for first computing all pairwise Kendall's tau estimators and then returning the mean of these estimators.
+  means that the average of sample versions of Kendall's tau are
+  computed first and then the parameter is determined such that the population version of Kendall's tau matches this average (if possible); the \code{method="theta.mean"} stands for first computing all pairwise Kendall's tau estimators and then returning the mean of these estimators.
 
   For more details, see Hofert et al. (2011a).
 
@@ -47,9 +47,9 @@ etau(u, cop, method = c("tau.mean", "theta.mean"), ...)
 }
 \value{
   \describe{
-    \item{ebeta}{the return value of \code{\link{safeUroot}} (i.e., typically almost the same as the value of \code{\link{uniroot}}) giving the Blomqvist beta estimator.}
-    \item{edmle}{\code{\link{list}} as returned by \code{\link{optimize}}, including the diagonal maximum likelihood estimator.}
-    \item{etau}{method-of-moments-like estimator based on Kendall's tau for the chosen method.}
+    \item{\code{ebeta}}{the return value of \code{\link{safeUroot}} (i.e., typically almost the same as the value of \code{\link{uniroot}}) giving the Blomqvist beta estimator.}
+    \item{\code{edmle}}{\code{\link{list}} as returned by \code{\link{optimize}}, including the diagonal maximum likelihood estimator.}
+    \item{\code{etau}}{method-of-moments-like estimator based on Kendall's tau for the chosen method.}
   }
 }
 \author{Marius Hofert}

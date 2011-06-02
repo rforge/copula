@@ -58,7 +58,7 @@ enacopula(u, cop,
   \code{\link{enacopula}} serves as a wrapper for the different
   implemented estimators and provides a uniform framework to utilize
   them.  For more information, see the single estimators as given in the
-  section \dQuote{See Also}.
+  section \sQuote{See Also}.
 }
 \value{
   the estimated parameter, \eqn{\hat{\theta}}{hat(theta)}, i.e., currently a
@@ -77,6 +77,8 @@ enacopula(u, cop,
 \seealso{
   \code{\link{emle}} which returns an object of \code{"\linkS4class{mle}"}
   providing useful methods not available for other estimators.
+  \code{\link{demo}(opC-demo)} and \code{\link{demo}(GIG-demo)} for
+  examples of two-parameter families.
   \code{\link{edmle}} for the diagonal maximum likelihood estimator.
   \code{\link{emde}} for the minimum distance estimators.
   \code{\link{etau}} for the estimators based on Kendall's tau.

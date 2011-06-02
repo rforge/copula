@@ -12,7 +12,7 @@ cacopula(u, cop, n.MC=0, log=FALSE)
   \item{u}{\eqn{n\times d}{n x d}-matrix; the conditioning is done on the values
 in the first \eqn{d-1} columns.}
   \item{cop}{\code{"\linkS4class{outer_nacopula}"} with specified    
-    parameter (currently only Archimedean copulas are provided).}
+    parameters (only Archimedean copulas are currently provided).}
   \item{n.MC}{Monte Carlo sample size.}
   \item{log}{if TRUE the logarithm of the conditional copula function is returned.}
 }

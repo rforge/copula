@@ -1,29 +1,17 @@
 ## ==== TODO ====
 
-## ==== major ====
-
-(MM) fix check [for Marius to work => build => brutus => tests]
-(MM) please "smooth" the help pages [pdf]
-(MM) include correct linebreaks afterwards (so that correct in manual)
-
-(*) use "u" instead of "t" for all inverses [TeX-like and R functions]
-(MM) please make new example on emle.Rd nicer [fix problem with x-axis: show theta, theta hat], add title...
-
+(MM) there are still some .Rd files (e.g., estim-misc.Rd), which do not contain
+     linebreaks in the paragraphs [just in the .Rd file -- pdf looks fine]. Can
+     this create problems in the html [or any other] version?
 (MM) Change onacopula() such that it works via onacopulaL() and hence
      can be used also from other functions.
      => FIXME nacopula.R, line 203: onacopulaL() -- replacing nacStructure by nacList
-
-(*) check all FIXME and TODO in the code
+(*) check all FIXME and TODO in the code => did we miss anything (important)?
+(*) fix dDiag for Joe and: large theta & close to 1
 (*) fix estimation problems:
     1) AMH & d=5
     2) Clayton, tau=0.75
     3) Frank, tau=0.75
-
-(MH) GIG demo
-(*) FIXME opC-demo.R
-(*) mention demos in estimation help file
-
-## ==== minor ====
 
 (*) maybe add an ASCII-plot for the hierarchical structure;
     Actually, define setAs("nacopula", "dendrogram", ....) and then use

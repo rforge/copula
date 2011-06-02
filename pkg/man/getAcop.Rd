@@ -13,7 +13,7 @@ getAcop(family, check=TRUE)
     the \code{\link{acopula-families}} documentation,
     \cr
     or an \code{\linkS4class{acopula}} family object.}
-  \item{check}{logical indicating if the class of the return value
+  \item{check}{logical indicating whether the class of the return value
     should be checked to be \code{"\linkS4class{acopula}"}.}
 }
 \value{an \code{"\linkS4class{acopula}"} family object, typically one of

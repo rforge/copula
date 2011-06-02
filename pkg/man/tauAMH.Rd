@@ -30,6 +30,6 @@ tauAMH(th)
 \examples{
 tauAMH(c(0, 2^-40, 2^-20))
 curve(tauAMH, 0, 1)
-curve(tauAMH, 1e-12, 1, log = "xy") # linear, tau ~= 2/9 * theta, in the limit
+curve(tauAMH, 1e-12, 1, log="xy") # linear, tau ~= 2/9*theta in the limit
 }
 \keyword{distribution}

@@ -9,9 +9,8 @@
 rnchild(x, theta0, V0, ...)
 }
 \arguments{
-  \item{x}{an \R object of \code{\link{class}}
-    \code{"\linkS4class{nacopula}"}, typically emerging from and
-    \code{"\linkS4class{outer_nacopula}"} constructed with
+  \item{x}{an \code{"\linkS4class{nacopula}"} object, typically emerging from an
+    \code{"\linkS4class{outer_nacopula}"} object constructed with
     \code{\link{onacopula}()}.}
   \item{theta0}{the parameter (vector) of the parent Archimedean copula
     which contains \code{x} as a child.}
@@ -42,14 +41,9 @@ rnchild(x, theta0, V0, ...)
    the nested Archimedean copula \code{x}.}
 }
 \author{Marius Hofert, Martin Maechler}
-\references{
-	Hofert, M. (2011a),
-  A stochastic representation and sampling algorithm for nested Archimedean copulas,
-  \emph{Journal of Statistical Computation and Simulation}, in press.
-}
 \seealso{
   \code{\link{rnacopula}}, also for the references.
-  Additionally, classes \code{"\linkS4class{nacopula}"}  and
+  Further, classes \code{"\linkS4class{nacopula}"}  and
   \code{"\linkS4class{outer_nacopula}"}, see also \code{\link{onacopula}()}.
 }
 \examples{
@@ -60,7 +54,7 @@ theta0 <- copClayton@tauInv(.2)
 theta1 <- copClayton@tauInv(.5)
 C3 <- onacopula("C", C(theta0, 1, C(theta1, c(2,3))))
 
-## Sample n random variates from V0 ~ F0, a Gamma(1/theta0,1) distribution.
+## Sample n random variates V0 ~ F0 (a Gamma(1/theta0,1) distribution)
 n <- 1000
 V0 <- copClayton@V0(n, theta0)
 

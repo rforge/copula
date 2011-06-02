@@ -7,7 +7,7 @@
 %
 \title{Class "nacopula" of Nested Archimedean Copulas}
 \description{
-  The class of Nested Archimedean Copulas, \code{"nacopula"},
+  Class of nested Archimedean Copulas, \code{"nacopula"},
   and its \emph{specification} \code{"outer_nacopula"}
   differ only by the validation method, which is stricter for the
   outer(most) copula (the root copula).
@@ -53,9 +53,9 @@
 showClass("nacopula")
 showClass("outer_nacopula")
 
-## Construct a three-dimensional nested Frank copula with parameters chosen
-## such that the Kendall's tau of the respective bivariate margins are
-## 0.2 and 0.5.
+## Construct a three-dimensional nested Frank copula with parameters 
+## chosen such that the Kendall's tau of the respective bivariate margins 
+## are 0.2 and 0.5.
 theta0 <- copFrank@tauInv(.2)
 theta1 <- copFrank@tauInv(.5)
 C3 <- onacopula("F", C(theta0, 1, C(theta1, c(2,3))))
