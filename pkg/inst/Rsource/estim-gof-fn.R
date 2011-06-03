@@ -70,7 +70,6 @@ estimation.gof <- function(n, d, simFamily, tau,
         if(verbose) cat("Estimation and GOF for ",checkFamilies[k],":\n\n",sep="")
 	ute[k] <- utms(est[k] <- enacopula(u, cop= cop.hat,
 					   method= esti.method, n.MC=n.MC))
-        ## FIXME: test for "convergence" etc
         tau[k] <- cop.hat@copula@tau(est[k])
         if(verbose){
             cat("   theta hat      = ",r(est[k]),"\n",

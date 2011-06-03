@@ -1,21 +1,24 @@
-## ==== TODO ====
+## ==== major ====
 
 (MM) there are still some .Rd files (e.g., estim-misc.Rd), which do not contain
      linebreaks in the paragraphs [just in the .Rd file -- pdf looks fine]. Can
      this create problems in the html [or any other] version?
+(MM) is the FIXME in Sibuya.Rd (line 12) solvable?
 (MM) Change onacopula() such that it works via onacopulaL() and hence
      can be used also from other functions.
-     => FIXME nacopula.R, line 203: onacopulaL() -- replacing nacStructure by nacList
-(*) check all FIXME and TODO in the code => did we miss anything (important)?
-(*) fix dDiag for Joe and: large theta & close to 1
-(*) fix estimation problems:
+     => FIXME nacopula.R, line 202: onacopulaL() -- replacing nacStructure by nacList
+(MM) fix dDiag for Joe and: large theta & close to 1 [MH: the problem seems similar to Frank]
+
+(*) fix estimation problems [MH wrote a problem_finder (currently in Brutus' queue)]:
     1) AMH & d=5
     2) Clayton, tau=0.75
     3) Frank, tau=0.75
 
-(*) maybe add an ASCII-plot for the hierarchical structure;
-    Actually, define setAs("nacopula", "dendrogram", ....) and then use
-    dendrogram print()ing.
+## ==== minor ====
+
+(MM) add an ASCII-plot for the hierarchical structure;
+     Actually, define setAs("nacopula", "dendrogram", ....) and then use
+     dendrogram print()ing.
 (*) design a function that gets an outer nacopula and returns a matrix of
     numbers which correspond to the different sectors; this can be used, e.g.,
     for building a [default] color-matrix for splom2 or for estimation purposes etc.

@@ -26,7 +26,7 @@ copAMH <-
 	C. <- new("acopula", name = "AMH",
 		  ## generator
 		  psi = function(t,theta) { (1-theta)/(exp(t+0)-theta) },
-		  psiInv = function(t,theta) { log((1-theta*(1-t))/t) },
+		  psiInv = function(u,theta) { log((1-theta*(1-u))/u) },
 		  ## parameter interval
 		  paraInterval = interval("[0,1)"),
 		  ## absolute value of generator derivatives
@@ -49,11 +49,11 @@ copAMH <-
 		  }
 	      },
 		  ## derivatives of the generator inverse
-		  psiInvD1abs = function(t, theta, log = FALSE) {
+		  psiInvD1abs = function(u, theta, log = FALSE) {
 		      if(log) {
-			  log1p(-theta)-log(t)-log1p(-theta*(1-t))
+			  log1p(-theta)-log(u)-log1p(-theta*(1-u))
 		      } else {
-			  (1-theta)/(t*(1-theta*(1-t)))
+			  (1-theta)/(u*(1-theta*(1-u)))
 		      }
 		  },
 		  ## density
@@ -156,7 +156,7 @@ copClayton <-
 	C. <- new("acopula", name = "Clayton",
 		  ## generator
 		  psi = function(t,theta) { (1+t)^(-1/theta) },
-		  psiInv = function(t,theta) { t^(-theta) - 1 },
+		  psiInv = function(u,theta) { u^(-theta) - 1 },
 		  ## parameter interval
 		  paraInterval = interval("(0,Inf)"),
 		  ## absolute value of generator derivatives
@@ -172,8 +172,8 @@ copClayton <-
                       }
                   },
                   ## derivatives of the generator inverse
-		  psiInvD1abs = function(t, theta, log = FALSE) {
-		      if(log) log(theta)-(1+theta)*log(t) else theta*t^(-(1+theta))
+		  psiInvD1abs = function(u, theta, log = FALSE) {
+		      if(log) log(theta)-(1+theta)*log(u) else theta*u^(-(1+theta))
 		  },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE) {
@@ -265,21 +265,21 @@ copFrank <-
 		      -log1p(expm1(-theta)*exp(0-t))/theta
 		      ## == -log(1-(1-exp(-theta))*exp(-t))/theta
 		  },
-		  psiInv = function(t,theta) {
-		      ## == -log( (exp(-theta*t)-1) / (exp(-theta)-1) )
-		      tht <- t*theta # (-> recycling args)
-		      if(!length(tht)) return(tht) # {just for numeric(0) ..hmm}
+		  psiInv = function(u,theta) {
+		      ## == -log( (exp(-theta*u)-1) / (exp(-theta)-1) )
+		      thu <- u*theta # (-> recycling args)
+		      if(!length(thu)) return(thu) # {just for numeric(0) ..hmm}
 		      et1 <- expm1(-theta)
 		      ## FIXME ifelse() is not quite efficient
 		      ## FIXME(2): the "> c* th" is pi*Handgelenk
-		      ifelse(tht > .01*theta, # tht = t*th > .01*th <==> t > 0.01
+		      ifelse(thu > .01*theta, # thu = u*th > .01*th <==> u > 0.01
 			 {   e.t <- exp(-theta)
-			     ifelse(e.t > 0 & abs(theta - tht) < 1/2,# th -th*t = th(1-t) < 1/2
-				    -log1p(e.t * expm1(theta - tht)/et1),
-				    -log1p((exp(-tht)- e.t) / et1))
+			     ifelse(e.t > 0 & abs(theta - thu) < 1/2,# th -th*u = th(1-u) < 1/2
+				    -log1p(e.t * expm1(theta - thu)/et1),
+				    -log1p((exp(-thu)- e.t) / et1))
 			 },
-			     ## for small t (t < 0.01) :
-			     -log(expm1(-tht)/et1))
+			     ## for small u (u < 0.01) :
+			     -log(expm1(-thu)/et1))
 		  },
 		  ## parameter interval
 		  paraInterval = interval("(0,Inf)"),
@@ -299,9 +299,9 @@ copFrank <-
 		  }
 	      },
 		  ## derivatives of the generator inverse
-		  psiInvD1abs = function(t, theta, log = FALSE) {
-		      if(log) log(theta)- {y <- t*theta; y + log1mexpm(y)}
-		      else theta/expm1(t*theta)
+		  psiInvD1abs = function(u, theta, log = FALSE) {
+		      if(log) log(theta)- {y <- u*theta; y + log1mexpm(y)}
+		      else theta/expm1(u*theta)
 		  },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE,
@@ -434,7 +434,7 @@ copGumbel <-
 	C. <- new("acopula", name = "Gumbel",
 		  ## generator
 		  psi = function(t,theta) { exp(-t^(1/theta)) },
-		  psiInv = function(t,theta) { (-log(t+0))^theta },
+		  psiInv = function(u,theta) { (-log(u+0))^theta },
 		  ## parameter interval
 		  paraInterval = interval("[1,Inf)"),
 		  ## absolute value of generator derivatives
@@ -465,12 +465,12 @@ copGumbel <-
                       if(log) res else exp(res)
                   },
                   ## derivatives of the generator inverse
-		  psiInvD1abs = function(t, theta, log = FALSE) {
+		  psiInvD1abs = function(u, theta, log = FALSE) {
+		      lu <- log(u)
 		      if(log) {
-			  l.t <- log(t)
-			  log(theta)+(theta-1)*log(-l.t)-l.t
+			  log(theta)+(theta-1)*log(-lu)-lu
 		      } else {
-			  theta*(-log(t))^(theta-1)/t
+			  theta*(-lu)^(theta-1)/u
 		      }
 		  },
 		  ## density
@@ -602,7 +602,7 @@ copJoe <-
 		      1 - (-expm1(0-t))^(1/theta)
 		      ## == 1 - (1-exp(-t))^(1/theta)
 		  },
-		  psiInv = function(t,theta) { -log1p(-(1-t)^theta) },
+		  psiInv = function(u, theta) { -log1p(-(1-u)^theta) },
 		  ## parameter interval
 		  paraInterval = interval("[1,Inf)"),
 		  ## absolute value of generator derivatives
@@ -633,11 +633,11 @@ copJoe <-
                       if(log) res else exp(res)
                   },
                   ## derivatives of the generator inverse
-		  psiInvD1abs = function(t, theta, log = FALSE) {
+		  psiInvD1abs = function(u, theta, log = FALSE) {
 		      if(log) {
-			  log(theta)+(theta-1)*log1p(-t)-log1p(-(1-t)^theta)
+			  log(theta)+(theta-1)*log1p(-u)-log1p(-(1-u)^theta)
 		      } else {
-			  theta/((1-t)^(1-theta)-(1-t))
+			  theta/((1-u)^(1-theta)-(1-u))
 		      }
 		  },
 		  ## density

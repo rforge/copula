@@ -120,7 +120,7 @@ system.time(optim(par=start, method="L-BFGS-B",
                   fn=function(x) nlogl.opC(x[1], theta=x[2], u=U),
                   lower=c(I[1,1], I[1,2]), upper=c(I[2,1], I[2,2])))
 
-## with profiling: via mle (using optim with "L-BFGS-B")
+## with profiling: via mle (uses optim with "L-BFGS-B")
 nLL <- function(thetabase, theta) nlogl.opC(thetabase, theta, u=U)
 system.time(ml <- mle(nLL, method="L-BFGS-B",
                       start=list(thetabase=mean(I[,1]), theta=mean(I[,2])),
@@ -129,7 +129,7 @@ system.time(ml <- mle(nLL, method="L-BFGS-B",
 summary(ml)
 str(ml@details)
 
-## with profiling: via mle2 (which uses optim with "L-BFGS-B")
+## with profiling: via mle2 (uses optim with "L-BFGS-B")
 system.time(ml2 <- mle2(nlogl.opC, data=list(u=U), method="L-BFGS-B",
                         start=list(thetabase=mean(I[,1]), theta=mean(I[,2])),
                         lower=c(thetabase=I[1,1], theta=I[1,2]),

@@ -117,8 +117,6 @@ if(!exists("doPlot")) doPlot <- TRUE
 t01 <- (0:256)/256 # evaluation points
 
 cols <- c("black","orange3","red3","darkgreen","blue") # not very light ones
-## TODO: work with *list* of copulas, and extra names *and* theta's (!)
-##       to be also put in labels
 labs <- c("AMH","Clayton","Frank","Gumbel","Joe")
 
 ## ==== plots of the densities of the diagonals ====
