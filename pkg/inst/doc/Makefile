@@ -2,7 +2,7 @@
 
 ## need to get 'texclean' command
 
-DRIVERS = nacopula-pkg
+DRIVERS = nacopula-pkg Frank-Rmpfr
 #R_LIB = /usr/local/lib/R
 R_LIB = /usr/local/app/R/current
 #R_PROG = R-devel
