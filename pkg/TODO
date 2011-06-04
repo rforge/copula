@@ -9,10 +9,10 @@
      => FIXME nacopula.R, line 202: onacopulaL() -- replacing nacStructure by nacList
 (MM) fix dDiag for Joe and: large theta & close to 1 [MH: the problem seems similar to Frank]
 
-(*) fix estimation problems [MH wrote a problem_finder (currently in Brutus' queue)]:
-    1) AMH & d=5
-    2) Clayton, tau=0.75
-    3) Frank, tau=0.75
+(*) fix estimation problems [MH wrote a problem_finder]:
+    1) AMH & d=5 [=> make fail-safe]
+    2) Clayton, tau=0.75 [=> todo]
+    3) Frank, tau=0.75 [=> todo]
 
 ## ==== minor ====
 
