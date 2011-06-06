@@ -378,7 +378,7 @@ require("Rmpfr")## compute the same with *high* accuracy ...
 MPrecBits <- c(160, 128, 96)
 mkNm <- function(bits) sprintf("%03d.bits", bits)
 ## As it takes a while seconds, cache the result:
-fnam <- "mlogL_mpfr.rda"
+fnam <- sprintf("mlogL_mpfr_%s.rda", Sys.info()[["machine"]])
 if (!file.exists(fn <- file.path(copDDir,fnam))) {
   print(system.time(
     nllMP <- lapply(MPrecBits, function(pBit) {
