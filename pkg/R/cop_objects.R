@@ -30,16 +30,20 @@ copAMH <-
 		  ## parameter interval
 		  paraInterval = interval("[0,1)"),
 		  ## absolute value of generator derivatives
-		  psiDabs = function(t, theta, degree=1, n.MC=0,
-				     log=FALSE, method = "negI-s-Euler", Li.log.arg=TRUE)
+		  psiDabs = function(t, theta, degree = 1, n.MC = 0, log = FALSE,
+				     is.log.t = FALSE,
+				     method = "negI-s-Eulerian", Li.log.arg=TRUE)
 	      {
 		  lth <- log(theta)
 		  if(n.MC > 0) {
-                      psiDabsMC(t, family="AMH", theta=theta, degree=degree,
-                                n.MC=n.MC, log=log)
+		      if(is.log.t) t <- exp(t) # very cheap for now
+		      psiDabsMC(t, family="AMH", theta=theta, degree=degree,
+				n.MC=n.MC, log=log)
 		  } else {
+### FIXME: deal with  is.log.t
+
 		      ## Note: psiDabs(0, ...) is correct, namely (1-theta)/theta * polylog(theta, s=-degree)
-		      if(theta == 0) if(log) return(-t) else return(exp(-t)) # independence
+		      if(theta == 0) return(if(log) -t else exp(-t)) # independence
 		      Li.arg <- if(Li.log.arg) lth - t else theta*exp(-t)
 		      Li. <- polylog(Li.arg, s = -degree, method=method, is.log.z = Li.log.arg, log=log)
 		      if(log)
@@ -57,7 +61,7 @@ copAMH <-
 		      }
 		  },
 		  ## density
-		  dacopula = function(u, theta, n.MC=0, log=FALSE, method = "negI-s-Euler", Li.log.arg=TRUE) {
+		  dacopula = function(u, theta, n.MC=0, log=FALSE, method = "negI-s-Eulerian", Li.log.arg=TRUE) {
 		      stopifnot(C.@paraConstr(theta))
 		      if(!is.matrix(u)) u <- rbind(u)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
@@ -118,19 +122,32 @@ copAMH <-
                   tau = tauAMH, ##-> ./aux-acopula.R
                   ## function(th)  1 - 2*((1-th)*(1-th)*log(1-th)+th)/(3*th*th)
                   ## but numerically stable, including, theta -> 0
-                  tauInv = function(tau, tol=.Machine$double.eps^0.25, ...) {
-                      if(any(tau > 1/3)) {
-			  ct <- if(length(tau <- sort(tau, decreasing=TRUE)) > 3) 
-                              paste(paste(format(tau[1:3]),collapse=", "),", ...",sep="") else format(tau)
-                          stop("Kendall's tau < 1/3 required for AMH, but (largest sorted) tau = ", ct)
-                      }
-                      sapply(tau,function(tau) {
-                          r <- safeUroot(function(th) tauAMH(th) - tau,
-                                         interval = c(0, 1-1e-12),
-                                         Sig = +1, tol = tol, check.conv=TRUE, ...)
-                          r$root
-                      })
-                  },
+                  tauInv = function(tau, tol=.Machine$double.eps^0.25, check=TRUE, warn=TRUE, ...) {
+		      if((L <- any(tau > 1/3)) || any(tau < 0)) {
+			  ct <- if(length(ct <- sort(tau, decreasing = L)) > 3)
+			      paste(paste(format(ct[1:3]),collapse=", "),", ...",sep="") else format(ct)
+			  msg <- "For AMH, Kendall's tau must be in [0, 1/3], but ("
+			  if(check)
+			      stop(msg, if(L) "largest" else "smallest", " sorted) tau = ", ct)
+			  else {
+                              if(warn)
+                                  warning(msg, if(L) "largest" else "smallest", " sorted) tau = ", ct)
+			      r <- tau
+			      r[sml <- tau <=  0 ] <- 0
+			      r[lrg <- tau >= 1/3] <- 1
+			      ok <- !sml & !lrg
+			      r[ok] <- C.@tauInv(tau[ok], tol=tol, ...)
+			      return(r)
+			  }
+		      }
+		      vapply(tau, function(tau) {
+			  if(abs(tau - 1/3) < 1e-10) return(1.) ## else:
+			  r <- safeUroot(function(th) tauAMH(th) - tau,
+					 interval = c(0, 1-1e-12),
+					 Sig = +1, tol = tol, check.conv=TRUE, ...)
+			  r$root
+		      }, 0.)
+		  },
                   ## lower tail dependence coefficient lambda_l
 		  lambdaL = function(theta) { 0*theta },
 		  lambdaLInv = function(lambda) {
@@ -265,13 +282,19 @@ copFrank <-
 		      -log1p(expm1(-theta)*exp(0-t))/theta
 		      ## == -log(1-(1-exp(-theta))*exp(-t))/theta
 		  },
-		  psiInv = function(u,theta) {
+		  psiInv = function(u, theta, log = FALSE) {
 		      ## == -log( (exp(-theta*u)-1) / (exp(-theta)-1) )
 		      thu <- u*theta # (-> recycling args)
 		      if(!length(thu)) return(thu) # {just for numeric(0) ..hmm}
-		      et1 <- expm1(-theta)
+		      et1 <- expm1(-theta) # e^{-th} - 1 < 0
 		      ## FIXME ifelse() is not quite efficient
 		      ## FIXME(2): the "> c* th" is pi*Handgelenk
+### FIXME: use  delta = exp(-thu)*(1 - exp(thu-th)/ (-et1) =
+###                   = exp(-thu)* expm1(thu-theta)/et1   (4)
+
+###-- do small Rmpfr-study to find the best form -- (4) above and the three forms below
+
+### FIXME 2 --- case  log=TRUE --
 		      ifelse(thu > .01*theta, # thu = u*th > .01*th <==> u > 0.01
 			 {   e.t <- exp(-theta)
 			     ifelse(e.t > 0 & abs(theta - thu) < 1/2,# th -th*u = th(1-u) < 1/2
@@ -284,8 +307,9 @@ copFrank <-
 		  ## parameter interval
 		  paraInterval = interval("(0,Inf)"),
 		  ## absolute value of generator derivatives
-		  psiDabs = function(t, theta, degree=1, n.MC=0, log=FALSE,
-                  method = "negI-s-Eulerian", Li.log.arg=TRUE)
+		  psiDabs = function(t, theta, degree = 1, n.MC = 0, log = FALSE,
+				     is.log.t = FALSE,
+				     method = "negI-s-Eulerian", Li.log.arg = TRUE)
               {
                   if(n.MC > 0) {
                       psiDabsMC(t, family="Frank", theta=theta, degree=degree,
@@ -439,7 +463,7 @@ copGumbel <-
 		  paraInterval = interval("[1,Inf)"),
 		  ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree=1, n.MC=0,
-                  method=eval(formals(polyG)$method), log = FALSE) {
+				     method=eval(formals(polyG)$method), log = FALSE) {
 	              is0 <- t == 0
                       isInf <- is.infinite(t)
 	              res <- numeric(n <- length(t))
@@ -606,8 +630,8 @@ copJoe <-
 		  ## parameter interval
 		  paraInterval = interval("[1,Inf)"),
 		  ## absolute value of generator derivatives
-		  psiDabs = function(t, theta, degree = 1, n.MC=0,
-                  method=eval(formals(polyJ)$method), log = FALSE) {
+		  psiDabs = function(t, theta, degree = 1, n.MC = 0,
+				     method= eval(formals(polyJ)$method), log = FALSE) {
                       is0 <- t == 0
                       isInf <- is.infinite(t)
                       res <- numeric(n <- length(t))
@@ -662,7 +686,8 @@ copJoe <-
 			  sum. <- (theta-1)*l1_u
 			  sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
 			  ## stably compute log(colMeans(exp(lx)))
-			  lx <- l + (V-1) %*% t(lh) + sum.mat - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
+                          ## matrix of exponents; dimension n.MC x n ["V x u"] :
+			  lx <- l + (V-1) %*% t(lh) + sum.mat - log(n.MC)
 			  res[n01] <- lsum(lx)
 		      } else {
 			  alpha <- 1/theta

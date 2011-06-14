@@ -134,7 +134,7 @@ ebeta <- function(u, cop, interval=paraOptInterval(u, cop@copula@name), ...) {
 ##' @param ... additional arguments to cor()
 ##' @return averaged pairwise cor() estimators
 ##' @author Marius Hofert
-etau <- function(u, cop, method = c("tau.mean", "theta.mean"), ...)
+etau <- function(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...)
 {
     stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 2,
               max(cop@comp) == d)
@@ -142,13 +142,15 @@ etau <- function(u, cop, method = c("tau.mean", "theta.mean"), ...)
         stop("currently, only Archimedean copulas are provided")
     tau.hat.mat <- cor(u, method="kendall",...) # matrix of pairwise tau()
     tau.hat <- tau.hat.mat[upper.tri(tau.hat.mat)] # all tau hat's
+    tau_inv <- if(cop@copula@name == "AMH")
+	function(tau) cop@copula@tauInv(tau, check=FALSE, warn=warn) else cop@copula@tauInv
     method <- match.arg(method)
     switch(method,
            "tau.mean" = {
-               cop@copula@tauInv(mean(tau.hat)) # Kendall's tau corresponding to the mean of the tau hat's
+               tau_inv(mean(tau.hat)) # Kendall's tau corresponding to the mean of the tau hat's
            },
            "theta.mean" = {
-               mean(cop@copula@tauInv(tau.hat)) # mean of the Kendall's tau
+               mean(tau_inv(tau.hat)) # mean of the Kendall's tau
            },
        {stop("wrong method")})
 

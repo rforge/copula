@@ -14,7 +14,7 @@
 \usage{
 ebeta(u, cop, interval = paraOptInterval(u, cop@copula@name), ...)
 edmle(u, cop, interval = paraOptInterval(u, cop@copula@name), ...)
-etau(u, cop, method = c("tau.mean", "theta.mean"), ...)
+etau(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...)
 }
 \arguments{
   \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-)observations (each value in \eqn{[0,1]}) from the copula, where \eqn{n} denotes the sample size and \eqn{d} the dimension.}
@@ -27,7 +27,9 @@ etau(u, cop, method = c("tau.mean", "theta.mean"), ...)
 	 \describe{
       \item{\code{"tau.mean"}}{method-of-moments-like estimator based on averaged pairwise Kendall’s tau;}
       \item{\code{"theta.mean"}}{average of the method-of-moments-like pairwise Kendall's tau estimators.}
-    }}
+  }}
+  \item{warn}{logical indicating if \code{etau()} should warn for the
+    \code{"AMH"} family, when tau is outside \eqn{[0, 1/3]}.}
   \item{\dots}{additional arguments passed to
     \code{\link{cor}} (for \code{etau}), to \code{\link{optimize}}
     (for \code{edmle}), or to \code{\link{safeUroot}} (for \code{ebeta}).}

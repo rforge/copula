@@ -387,7 +387,7 @@ if (!file.exists(fn <- file.path(copDDir,fnam))) {
         for(i in seq_along(thet)) nlM[i] <- mlogL(thM[i])
         nlM
     })
-  )) ## 91.226 0.013 91.506
+  )) ## 91.226 0.013 91.506 [nb-mm icore 5]
     names(nllMP) <- mkNm(MPrecBits)
     save(nllMP, file = file.path(copSrcDDir, fnam))
 } else load(fn)

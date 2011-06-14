@@ -10,7 +10,7 @@
 (MM) fix dDiag for Joe and: large theta & close to 1 [MH: the problem seems similar to Frank]
 
 (*) fix estimation problems [MH wrote a problem_finder]:
-    1) AMH & d=5 [=> make fail-safe]
+    1) AMH & d=5 [=> make fail-safe --- DONE{MM}
     2) Clayton, tau=0.75 [=> todo]
     3) Frank, tau=0.75 [=> todo]
 

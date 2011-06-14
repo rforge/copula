@@ -22,14 +22,22 @@
 ##' @title Ali-Mikhail-Haq ("AMH")'s  tau(theta)
 ##' @param th
 ##' @return 1 - 2*((1-th)*(1-th)*log(1-th)+th)/(3*th*th)
-##' numerically accurately, notably for th -> 0
+##' numerically accurately, for both limits  th -> 0  &  th -> 1
 ##' @author Martin Maechler
 tauAMH <- function(th) {
     if(length(th) == 0) return(numeric(0)) # to work with NULL
     r <- th
     na <- is.na(th)
     lrg <- (th > 0.01) & !na
-    r[lrg] <- (function(t) 1 - 2*((1-t)*(1-t)*log1p(-t) + t)/(3*t*t))(th[lrg])
+    f. <- function(t) {
+	## 1 - 2*((1-t)*(1-t)*log1p(-t) + t) / (3*t*t)
+	r <- t
+	r[i1 <- (1-t) == 0] <- 1/3
+        t <- t[s <- !i1]
+	r[s] <- 1 - 2*((1-t)^2 *log1p(-t) + t) / (3*t*t)
+	r
+    }
+    r[lrg] <- f.(th[lrg])
     if(any(!lrg & !na)) {
 	l1 <- !lrg & !na & (ll1 <- th > 2e-4) ## --> k = 7
 	r[l1] <- (function(x) 2*x/9*(1+ x*(1/4 + x/10*(1 + x*(1/2 + x/3.5)))))(th[l1])
@@ -296,7 +304,7 @@ rFFrank <- function(n, theta0, theta1, rej)
 coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"),
 		   log = FALSE, verbose = FALSE)
 {
-    stopifnot(is.numeric(d), length(d) == 1, d >= 1, length(alpha) == 1, 
+    stopifnot(is.numeric(d), length(d) == 1, d >= 1, length(alpha) == 1,
               0 < alpha, alpha <= 1)
     a <- numeric(d) # for the a_{dk}(theta)'s
     method <- match.arg(method)
@@ -638,7 +646,7 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 dsumSibuya <- function(x, n, alpha,
                        method=c("log", "direct", "Rmpfr", "diff", "exp.log"), log=FALSE)
 {
-    stopifnot(x == round(x), n == round(n), n >= 1, length(alpha) == 1, 
+    stopifnot(x == round(x), n == round(n), n >= 1, length(alpha) == 1,
               0 < alpha, alpha <= 1)
     if((l.x <- length(x)) * (l.n <- length(n)) == 0)
 	return(numeric())
@@ -800,7 +808,7 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE) 
 
 ### ==== other NON-numerics ====================================================
 
-##' Conditional copula function C(u[,d]|u[,1],...,u[,d-1]) 
+##' Conditional copula function C(u[,d]|u[,1],...,u[,d-1])
 ##'
 ##' @title Conditional copula function
 ##' @param u (n x d)-matrix of evaluation points (first d-1 colums are conditioned on)
@@ -818,14 +826,14 @@ cacopula <- function(u, cop, n.MC=0, log=FALSE) {
     ##       the boundaries since the corresponding limits exist
     th <- cop@copula@theta
     stopifnot(cop@copula@paraConstr(th))
-    dim. <- dim(u) 
+    dim. <- dim(u)
     n <- dim.[1]
     d <- dim.[2]
     psiI <- cop@copula@psiInv(u, theta=th)
     arg.denom <- rowSums(psiI[,1:(d-1), drop=FALSE])
     arg.num <- arg.denom + psiI[,d]
-    logD <- cop@copula@psiDabs(c(arg.num, arg.denom), theta=th, degree=d-1, 
-                               n.MC=n.MC, log=TRUE) 
+    logD <- cop@copula@psiDabs(c(arg.num, arg.denom), theta=th, degree=d-1,
+                               n.MC=n.MC, log=TRUE)
     res <- logD[1:n]-logD[(n+1):(2*n)]
     if(log) res else exp(res)
 }
@@ -845,11 +853,11 @@ cacopula <- function(u, cop, n.MC=0, log=FALSE) {
 ##'        pois:        intelligently uses the Poisson density with lsum
 ##' @param log if TRUE the log of psiDabs is returned
 ##' @author Marius Hofert
-##' Note: psiDabsMC(0) is always finite, although, theoretically, psiDabs(0) may 
+##' Note: psiDabsMC(0) is always finite, although, theoretically, psiDabs(0) may
 ##'       be Inf (e.g., for Gumbel and Joe)
-psiDabsMC <- function(t, family, theta, degree=1, n.MC, method=c("log", "direct",
-                                                        "pois.direct", "pois"),
-                      log=FALSE)
+psiDabsMC <- function(t, family, theta, degree=1, n.MC,
+                      method=c("log", "direct", "pois.direct", "pois"),
+                      log = FALSE)# not yet: is.log.t = FALSE)
 {
     res <- numeric(length(t))
     V <- getAcop(family)@V0(n.MC, theta)
