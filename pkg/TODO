@@ -9,10 +9,18 @@
      => FIXME nacopula.R, line 202: onacopulaL() -- replacing nacStructure by nacList
 (MM) fix dDiag for Joe and: large theta & close to 1 [MH: the problem seems similar to Frank]
 
+(*) fix the following problem:
+cop <- onacopulaL("Frank", list(200, 1:2)); rnacopula(100, cop)
+maybe use limit copulas also for other families (upper frechet bound)
 (*) fix estimation problems [MH wrote a problem_finder]:
     1) AMH & d=5 [=> make fail-safe --- DONE{MM}
     2) Clayton, tau=0.75 [=> todo]
     3) Frank, tau=0.75 [=> todo]
+(MH) document problem with Anderson-Darling test & empirical margins
+(MH) implement Bruno's test statistic
+(*) implement log-slot for all psiInv; also psi's?
+(*) implement gnacopula with proper exp(log()) ... using log-slots of psiInv
+(*) make paraOptInterval safer and document what users should do for "extreme" parameters
 
 ## ==== minor ====
 
