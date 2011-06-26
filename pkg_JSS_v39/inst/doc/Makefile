@@ -18,6 +18,15 @@ TPUTS = ${TEXINPUTS}:${R_LIB}/share/texmf//
 all: $(DRIVERS:=.pdf)
 	${MAKE} clean
 
+paper-etc: $(DRIVERS:=.zip)
+$(DRIVERS:=.zip): $(DRIVERS:=.Rnw) $(DRIVERS:=.pdf) $(DRIVERS:=.R) *.bib
+	zip $@ $^
+	ls -l $@ ; zipinfo $@
+
+paper-all.zip: $(DRIVERS:=.Rnw) $(DRIVERS:=.tex) $(DRIVERS:=.pdf) $(DRIVERS:=.R) *.bib $(wildcard $(DRIVERS)-*.pdf)
+	zip $@ $^
+	ls -l $@ ; zipinfo $@
+
 %.tex: %.Rnw
 	${R_PROG} CMD Sweave $<
 

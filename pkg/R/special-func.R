@@ -456,3 +456,37 @@ polylog <- function(z, s, method = c("sum", "negI-s-Stirling",
 	       stop("unsupported method ", method))
     }
 }
+
+
+### FIXME: Do *cache* the full triangle,  "similarly" to Stirling
+##  ------
+
+##' Generate all Bernoulli numbers up to the n-th,
+##' using the Akiyama-Tanigawa algorithm
+##'
+##' @title Bernoulli Numbers up to Order n
+##' @param n
+##' @return numeric vector of length n, containing B(n)
+##' @author Martin Maechler, 25 Jun 2011 (night train Vienna - Zurich)
+Bernoulli.all <- function(n, precBits = NULL, verbose = getOption("verbose"))
+{
+    stopifnot(length(n <- as.integer(n)) == 1)
+    if(verbose) stopifnot(require("MASS"))
+    nn <- seq_len(n1 <- n+1L) ## <- FIXME, make this work with Rmpfr optionally
+    if(!is.numeric(precBits) || !is.finite(precBits)) {
+        B <- numeric(n1)
+        Bv <- 1/nn
+    } else {
+        stopifnot(require("Rmpfr"), length(precBits) == 1, precBits >= 10)
+        B <- mpfr(numeric(n1), precBits=precBits)
+        Bv <- mpfr(1, precBits=precBits)/nn
+    }
+    for(m in seq_len(n1)) {
+        ## length(Bv) == n+1+1-m = n+2-m
+        if(verbose) { cat(m-1,":"); print(MASS::fractions(Bv)) }
+        B[m] <- Bv[1L]
+        if(m <= n) ## recursion:
+            Bv <- seq_len(n1-m) * (Bv[-(n1+1L-m)] - Bv[-1L])
+    }
+    B
+}
