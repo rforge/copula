@@ -114,7 +114,7 @@ if(!exists("doPlot")) doPlot <- TRUE
 
 ## ==== setup for plots ====
 
-t01 <- (0:256)/256 # evaluation points
+u <- (0:256)/256 # evaluation points
 
 cols <- c("black","orange3","red3","darkgreen","blue") # not very light ones
 labs <- c("AMH","Clayton","Frank","Gumbel","Joe")
@@ -123,17 +123,17 @@ labs <- c("AMH","Clayton","Frank","Gumbel","Joe")
 
 d <- 5
 th <- c(0.7135001, 0.5, 1.860884, 1.25, 1.25)
-dDmat <- cbind(dDiag.A = dDiag(t01,cop=onacopulaL("AMH", list(th[1], 1:d))),
-               dDiag.C = dDiag(t01,cop=onacopulaL("Clayton", list(th[2], 1:d))),
-               dDiag.F = dDiag(t01,cop=onacopulaL("Frank", list(th[3], 1:d))),
-               dDiag.G = dDiag(t01,cop=onacopulaL("Gumbel", list(th[4], 1:d))),
-               dDiag.J = dDiag(t01,cop=onacopulaL("Joe", list(th[5], 1:d))))
+dDmat <- cbind(dDiag.A = dDiag(u,cop=onacopulaL("AMH", list(th[1], 1:d))),
+               dDiag.C = dDiag(u,cop=onacopulaL("Clayton", list(th[2], 1:d))),
+               dDiag.F = dDiag(u,cop=onacopulaL("Frank", list(th[3], 1:d))),
+               dDiag.G = dDiag(u,cop=onacopulaL("Gumbel", list(th[4], 1:d))),
+               dDiag.J = dDiag(u,cop=onacopulaL("Joe", list(th[5], 1:d))))
 
 if(doPlot) {
-    matplot(t01, dDmat, type="l", col=cols, xlab="t", ylab="dDiag(t)")
+    matplot(u, dDmat, type="l", col=cols, xlab="t", ylab="dDiag(t)")
     legend("bottomright", legend=labs, lty=1:5, col=cols, bty="n")
     ## and in log-log scale:
-    matplot(t01, dDmat, type="l", col=cols, xlab="t",
+    matplot(u, dDmat, type="l", col=cols, xlab="t",
             log = "xy", main = "dDiag(t) [log-log scale]")
     legend("bottomright", legend=labs, lty=1:5, col=cols, bty="n")
 }
@@ -141,12 +141,12 @@ if(doPlot) {
 ## ==== plots of the Kendall distribution functions ====
 
 d <- 10
-Kmat <- cbind(K.A = K(t01,setTheta(copAMH, th[1]),d),
-              K.C = K(t01,setTheta(copClayton, th[2]),d),
-              K.F = K(t01,setTheta(copFrank, th[3]),d),
-              K.G = K(t01,setTheta(copGumbel, th[4]),d),
-              K.J = K(t01,setTheta(copJoe, th[5]),d))
-head(mm <- cbind(t = t01, Kmat))
+Kmat <- cbind(K.A = K(u,setTheta(copAMH, th[1]),d),
+              K.C = K(u,setTheta(copClayton, th[2]),d),
+              K.F = K(u,setTheta(copFrank, th[3]),d),
+              K.G = K(u,setTheta(copGumbel, th[4]),d),
+              K.J = K(u,setTheta(copJoe, th[5]),d))
+head(mm <- cbind(t = u, Kmat))
 tail(mm)
 
 dK <- apply(Kmat, 2, diff)
@@ -156,10 +156,10 @@ summary(dK)
 ## MM: this is  "unavoidable" because of the numerics behind ...
 
 if(doPlot) {
-    matplot(t01, Kmat, type="l", col=cols, xlab="t", ylab="K(t)")
+    matplot(u, Kmat, type="l", col=cols, xlab="t", ylab="K(u)")
     legend("bottomright", legend=labs, lty=1:5, col=cols, bty="n")
     ## and in log-log scale:
-    matplot(t01, Kmat, type="l", col=cols, xlab="t",
-            log = "xy", main = "K(t) [log-log scale]")
+    matplot(u, Kmat, type="l", col=cols, xlab="t",
+            log = "xy", main = "K(u) [log-log scale]")
     legend("bottomright", legend=labs, lty=1:5, col=cols, bty="n")
 }

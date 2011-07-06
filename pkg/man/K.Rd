@@ -1,11 +1,11 @@
 \name{K}
 \alias{K}
-\title{Kendall Distribution Function of a Copula}
+\title{Kendall Distribution Function of an Archimedean Copula}
 \description{
   Compute the \emph{Kendall distribution function} of an Archimedean copula,
   defined as
-  \deqn{K(t) = P(C(U_1,U_2,\dots,U_d) \le t),}{K(t) = P(C(U1,U2,\dots,Ud) <= t),}
-  where \eqn{t \in [0,1]}{t in [0,1]}, and the \eqn{d}-dimensional
+  \deqn{K(u) = P(C(U_1,U_2,\dots,U_d) \le u),}{K(u) = P(C(U1,U2,\dots,Ud) <= u),}
+  where \eqn{u \in [0,1]}{u in [0,1]}, and the \eqn{d}-dimensional
   \eqn{(U_1,U_2,\dots,U_d)}{(U1,U2,\dots,Ud)} is distributed according
   to the copula \eqn{C}. 
 
@@ -15,20 +15,20 @@
  \eqn{d \ge 2}{d >= 2}.
 }
 \usage{
-K(t, cop, d, n.MC=0)
+K(u, cop, d, n.MC=0)
 }
 \arguments{
-  \item{t}{evaluation point(s) (have to be in \eqn{[0,1]}).}
+  \item{u}{evaluation point(s) (have to be in \eqn{[0,1]}).}
   \item{cop}{acopula with specified parameter.}
   \item{d}{dimension.}
   \item{n.MC}{\code{\link{integer}}, if positive, a Monte Carlo approach is applied with sample size equal to \code{n.MC}; otherwise (\code{n.MC=0}) the exact formula is used based on the generator derivatives as found by Hofert et al. (2011b).}
 }
 \details{
 	For a completely monotone Archimedean generator \eqn{\psi}{psi}, 
-	\deqn{K(t)=\sum_{k=0}^{d-1}\frac{\psi^{(k)}(\psi^{-1}(t))}{k!} (-\psi^{-1}(t))^k,\ t\in[0,1],}{K(t)=sum(k=0,...,d-1)(psi^{(k)}(psi^{-1}(t)))/k! (-psi^{-1}(t))^k, t in [0,1],}
+	\deqn{K(u)=\sum_{k=0}^{d-1}\frac{\psi^{(k)}(\psi^{-1}(u))}{k!} (-\psi^{-1}(u))^k,\ u\in[0,1],}{K(u)=sum(k=0,...,d-1)(psi^{(k)}(psi^{-1}(u)))/k! (-psi^{-1}(u))^k, u in [0,1],}
 	see Barbe et al. (1996).
 }
-\value{Kendall distribution function at \code{t}}
+\value{Kendall distribution function at \code{u}}
 \author{Marius Hofert}
 \references{
 	Barbe, P., Genest, C., Ghoudi, K., and R\enc{é}{e}millard, B. (1996),
@@ -49,9 +49,9 @@ d <- 20
 (cop <- onacopulaL("Gumbel", list(theta,1:d)))
 
 ## compute Kendall distribution function
-t <- seq(0,1, length.out = 255)
-Kt <- K(t, cop=cop@copula, d=d) # exact
-Kt.MC <- K(t, cop=cop@copula, d=d, n.MC=1000) # via Monte Carlo
+u <- seq(0,1, length.out = 255)
+Ku <- K(u, cop=cop@copula, d=d) # exact
+Ku.MC <- K(u, cop=cop@copula, d=d, n.MC=1000) # via Monte Carlo
 
 ## build sample from K
 set.seed(1)
@@ -64,12 +64,12 @@ W <- pnacopula(cop, u=U)
 ## (exact and via Monte Carlo)
 plot(ecdf(W), col="blue", xlim=c(0,1), verticals=TRUE,
      main = expression("Empirical"~ F[n]( C(U) ) ~
-                       "and its Kendall distribution"~K(t)),
+                       "and its Kendall distribution"~K(u)),
      do.points=FALSE, asp=1)
 abline(0,1, lty=2); abline(h=0:1, v=0:1, lty=3, col="gray")
-lines(t, Kt.MC, col="red")
-lines(t, Kt, col="black")
-legend(.2,.6, expression(F[n],K(t), K[MC](t)),
+lines(u, Ku.MC, col="red")
+lines(u, Ku, col="black")
+legend(.2,.6, expression(F[n],K(u), K[MC](u)),
        col=c("blue","red","black"), lty=1, bty="n",
        xjust = 0.25, yjust = 0.5)
 }

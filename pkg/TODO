@@ -8,19 +8,41 @@
      can be used also from other functions.
      => FIXME nacopula.R, line 202: onacopulaL() -- replacing nacStructure by nacList
 (MM) fix dDiag for Joe and: large theta & close to 1 [MH: the problem seems similar to Frank]
+(*) found bug in rnacopula: generating just 1 sample (n=1) is not possible because "length(dm <- dim(m)) == 2" is not true [line 149 in nacopula.R]; most likely, we need a "drop=FALSE" in line 147 to fix that
+(MM) fix bug in emle; minimal example:
+################################################################################
+library(nacopula)
+library(bbmle)
+set.seed(1)
+cop <- onacopulaL("Clayton", list(theta=1, 1:3)) # 3-dimensional Clayton copula with parameter 1
+U <- rnacopula(2, cop) # sample from this copula
+emle(U, cop=cop, optimizer="optim", method="L-BFGS-B", start=list(theta=2), 
+     lower=0.1, upper=3)
+## => emle seems to *not* pass the method argument!
+nLL <- function(theta) -sum(cop@copula@dacopula(U, theta=theta, log=TRUE)) # -log-likelihood
 
-(*) fix the following problem:
+mle2(minuslogl=nLL, optimizer="optim", method="L-BFGS-B", start=list(theta=2), 
+     lower=0.1, upper=3)
+## => works!
+################################################################################
+
+(*) fix the following problems:
 cop <- onacopulaL("Frank", list(200, 1:2)); rnacopula(100, cop)
 maybe use limit copulas also for other families (upper frechet bound)
 (*) fix estimation problems [MH wrote a problem_finder]:
-    1) AMH & d=5 [=> make fail-safe --- DONE{MM}
-    2) Clayton, tau=0.75 [=> todo]
-    3) Frank, tau=0.75 [=> todo]
+    2) Clayton, tau=0.75 [for dmle: due to diagonal; for others: not reproducible => check with simu]
+    3) Frank, tau=0.75 [due to log(psiInv()) => maybe solved (check!) by Martin's recent implementation of psiInv of Frank]
+(*) implement gnacopula with proper exp(log()) ... using log-slots of psiInv
 (MH) document problem with Anderson-Darling test & empirical margins
 (MH) implement Bruno's test statistic
-(*) implement log-slot for all psiInv; also psi's?
-(*) implement gnacopula with proper exp(log()) ... using log-slots of psiInv
+(*) shall we rename dDiagA to dDiagg ("g" for "generic", as for dnacopulag)?
+    => or use dDiagG (also dnacopulaG)?
+
+DONE:
+(*) implement log-slot for all psiInv; also psi's? => DONE (except for Frank, this is just log(psiInv()))
+(*) replace K(t) by K(u) => arg is in [0,1]
 (*) make paraOptInterval safer and document what users should do for "extreme" parameters
+1) AMH & d=5 [=> make fail-safe --- DONE{MM}
 
 ## ==== minor ====
 

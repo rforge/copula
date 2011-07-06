@@ -28,7 +28,9 @@
     \item{\code{psi}, \code{psiInv}:}{The (Archimedean) generator
       \eqn{\psi}{psi} (with \eqn{\psi}{psi}(t)=\eqn{\exp}{exp}(-t) being the
       generator of the independence copula) and its inverse
-      (\code{\link{function}}).}
+      (\code{\link{function}}). \code{psiInv} has an optional argument
+      \code{log} which, if \code{TRUE} returns the logarithm of inverse of the
+      generator.}
     \item{\code{psiDabs}:}{A \code{\link{function}} which computes the absolute
       value of the derivative of the generator \eqn{\psi}{psi} for the given
       parameter \code{theta} and of the given \code{degree} (defaults to 1).

@@ -52,54 +52,56 @@ g01 <- function(u, method=c("normal", "log")) {
 ##' Kendall distribution function
 ##'
 ##' @title Kendall distribution function
-##' @param t evaluation point(s)
+##' @param u evaluation point(s)
 ##' @param cop acopula with specified parameter
 ##' @param d dimension
 ##' @param n.MC if > 0 a Monte Carlo approach is applied with sample size equal
 ##'	   to n.MC; otherwise the exact formula is used
-##' @return Kendall distribution function at t
+##' @return Kendall distribution function at u
 ##' @author Marius Hofert
-K <- function(t, cop, d, n.MC=0)
+K <- function(u, cop, d, n.MC=0)
 {
     stopifnot(is(cop, "acopula"))
-    psiI <- cop@psiInv(t, th <- cop@theta)
-    n <- length(t)
+    th <- cop@theta
+    n <- length(u)
     if(n.MC > 0) {
 	stopifnot(is.finite(n.MC))
 	V <- cop@V0(n.MC,th)
+	psiI <- cop@psiInv(u, th)
 	unlist(lapply(psiI, function(psInv) mean(ppois(d-1, V* psInv))))
     } else {
 	K. <- numeric(n)
-	K.[is0 <- t == 0] <- 0
-	K.[is1 <- t == 1] <- 1
+	K.[is0 <- u == 0] <- 0
+	K.[is1 <- u == 1] <- 1
 	if(length(not01 <- seq_len(n)[!(is0 | is1)]))
 	    K.[not01] <- if(d == 1) {
-		t[not01]
+		u[not01]
 	    } else if(d == 2) {
-		t[not01] + psiI[not01] / cop@psiInvD1abs(t[not01],th)
+		u[not01] + cop@psiInv(u[not01], theta=th) / cop@psiInvD1abs(u[not01], th)
 	    } else { ## d >= 3 :
 		j <- seq_len(d-1)
+		lpsiI. <- cop@psiInv(u[not01], theta=th, log=TRUE)
 		lpsiDabs <- do.call(rbind,
 				    lapply(j, function(j.)
-					   cop@psiDabs(psiI[not01],
+					   cop@psiDabs(exp(lpsiI.),
 						       theta=th,
 						       degree=j.,
 						       log=TRUE))) # (d-1,n)-matrix with n = length(not01)
 		lfac.j <- cumsum(log(j)) ## == lfactorial(j)
-		r <- colSums(exp(lpsiDabs + j %*% t(log(psiI[not01])) - lfac.j))
+		r <- colSums(exp(lpsiDabs + j %*% t(lpsiI.) - lfac.j))
 		## ensure we are in [0,1] {numerical inaccuracy}
-		pmin(1, t[not01] + r)
+		pmin(1, u[not01] + r)
 		## Former code:
 		## K2 <- function(psInv) {
 		##    lpsiDabs <- unlist(lapply(j, cop@psiDabs,
-		##			      t=psInv, theta=th, log=TRUE))
+		##			      u=psInv, theta=th, log=TRUE))
 		##    sum(exp(lpsiDabs + j*log(psInv) - lfac.j))
 		## }
-		## pmin(1, t[not01] + unlist(lapply(psiI[not01], K2)))
+		## pmin(1, u[not01] + unlist(lapply(psiI[not01], K2)))
 		##
 		## NB: AMH, Clayton, Frank are numerically not quite monotone near one;
 		## --  this does not change that {but maybe slightly *more* accurate}:
-		## psiDabs. <- unlist(lapply(j, cop@psiDabs, t = psInv, theta = th,
+		## psiDabs. <- unlist(lapply(j, cop@psiDabs, u = psInv, theta = th,
 		##						 log = FALSE))
 		##		       sum(psiDabs.*psInv^j/factorial(j))
 	    }

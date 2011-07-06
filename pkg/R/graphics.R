@@ -22,8 +22,8 @@
 ##' @param ... further arguments to splom()
 ##' @return a splom() object
 ##' @author Martin Maechler
-splom2 <- function(data, varnames=NULL, Vname="U", xlab = "",
-                   col.mat = NULL, bg.col.mat = NULL, ...)
+splom2 <- function(data, varnames=NULL, Vname="U", xlab="",
+                   col.mat=NULL, bg.col.mat=NULL, ...)
 {
     stopifnot(require(lattice),
 	      is.numeric(data <- as.matrix(data)),

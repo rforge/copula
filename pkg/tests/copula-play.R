@@ -71,13 +71,13 @@ checkifnot <- function(expr, prefix = "check if", true = "[Ok]")
 ##' @param thetavec vector of parameters
 ##' @param i10 values where psi is evaluated
 ##' @param nRnd number of generated V0's and V01's
-##' @param t01 values where psiinv is evaluated
+##' @param u01 values where psiinv is evaluated
 ##' @param lambdaLvec vector of lower tail-dependence coefficients
 ##' @param lambdaUvec vector of upper tail-dependence coefficients
 ##' @return list of measurements
 ##' @author Marius Hofert, Martin Maechler
 tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
-                   nRnd = 50, t01 = (1:63)/64, # exact binary fractions
+                   nRnd = 50, u01 = (1:63)/64, # exact binary fractions
                    lambdaLvec = NA_real_, lambdaUvec = NA_real_)
 {
     stopifnot(is(cop, "acopula"))
@@ -99,16 +99,16 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     print(p.i)
     checkifnot(identical(numeric(0), cop@psiInv(numeric(0), theta = theta0)))
     checkifnot(cop@psiInv(0, theta = theta0) == Inf)
-    cat0("\nvalues of psiInv at t01:")
+    cat0("\nvalues of psiInv at u01:")
     CT <- c(CT, list(psiI = system.time(pi.t <-
-                     cop@psiInv(t01, theta = theta0))))
+                     cop@psiInv(u01, theta = theta0))))
     print(pi.t)
     CT[["psiI"]] <- CT[["psiI"]] +
         system.time(pi.pi <- cop@psiInv(p.i,theta = theta0))
     CT[["psi" ]] <- CT[["psi" ]] +
         system.time(p.pit <- cop@psi(pi.t, theta = theta0))
     cat0("check if psiInv(psi(i10))==i10: ", all.equal(pi.pi, i10))
-    cat0("check if psi(psiInv(t01))==t01: ", all.equal(p.pit, t01))
+    cat0("check if psi(psiInv(u01))==u01: ", all.equal(p.pit, u01))
 
     ## ==== (2.2) psiDabs ====
 
@@ -139,9 +139,9 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
 
     ## ==== (2.3) psiInvD1abs ====
 
-    cat0("\nvalues of psiInvD1abs at t01:")
+    cat0("\nvalues of psiInvD1abs at u01:")
     CT <- c(CT, list(psiInvD1abs. = system.time(psiInvD1abs. <-
-                     cop@psiInvD1abs(t01, theta = theta0))))
+                     cop@psiInvD1abs(u01, theta = theta0))))
     print(psiInvD1abs.)
     stopifnot(all(psiInvD1abs. >= 0, is.numeric(psiInvD1abs.), !is.nan(psiInvD1abs.)))
     cat("check the class of psiInvD1abs(0,theta): ")
@@ -180,11 +180,11 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
 
     ## ==== (5) cacopula ====
 
-    cat("\n(5) values of cacopula(cbind(v,rev(v)), cop) for v=t01:\n")
+    cat("\n(5) values of cacopula(cbind(v,rev(v)), cop) for v=u01:\n")
     cop. <- onacopulaL(cop@name, list(theta0, 1:2))
-    CT <- c(CT, list(cacopula. = system.time(cac <- cacopula(cbind(t01,rev(t01)),
+    CT <- c(CT, list(cacopula. = system.time(cac <- cacopula(cbind(u01,rev(u01)),
                      cop=cop.))))
-    stopifnot(is.vector(cac), length(cac) == length(t01), 0 <= cac, cac <= 1)
+    stopifnot(is.vector(cac), length(cac) == length(u01), 0 <= cac, cac <= 1)
     print(cac)
 
     ## ==== (6) dnacopula (log = TRUE) ====
@@ -222,7 +222,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
 
     ## ==== (7) K ====
 
-    check.K.t01 <- function(K){
+    check.K.u01 <- function(K){
 	d.K <- diff(K)
 	if(any(neg <- d.K < 0)){ # happens for AMH, Clayton, and Frank (near 1)
             if(any(Neg <- abs(d.K[neg]) > 1e-15* abs(K[-1][neg]))) {
@@ -231,29 +231,29 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
                 print(cbind(K = K[-1][Neg], diff.K = d.K[Neg]))
             }
 	}
-	stopifnot(is.numeric(K), length(K) == length(t01), 0 <= K, K <= 1)
+	stopifnot(is.numeric(K), length(K) == length(u01), 0 <= K, K <= 1)
     }
 
     ## K for d = 2
-    cat("\n(7) values of K for d = 2 at t01:\n")
-    CT <- c(CT, list(K = system.time(K. <- K(t01, cop, d = 2))))
-    check.K.t01( print(K.) )
+    cat("\n(7) values of K for d = 2 at u01:\n")
+    CT <- c(CT, list(K = system.time(K. <- K(u01, cop, d = 2))))
+    check.K.u01( print(K.) )
     cat("check if K(0) = 0 and K(1) = 1: ")
     stopifnot(K(0, cop, d = 2)==0,
               K(1, cop, d = 2)==1)
     cat0("[Ok]")
     ## K for d = 10
-    cat("\nvalues of K for d = 10 at t01:\n")
-    CT <- c(CT, list(K = system.time(K. <- K(t01, cop, d = 10))))
-    check.K.t01( print(K.) )
+    cat("\nvalues of K for d = 10 at u01:\n")
+    CT <- c(CT, list(K = system.time(K. <- K(u01, cop, d = 10))))
+    check.K.u01( print(K.) )
     cat("check if K(0) = 0 and K(1) = 1: ")
     stopifnot(K(0, cop, d = 10)==0,
               K(1, cop, d = 10)==1)
     cat0("[Ok]")
     ## K for d = 10 and MC
-    cat("\nvalues of K for d = 10 and MC at t01:\n")
-    CT <- c(CT, list(K = system.time(K. <- K(t01, cop, d = 10, n.MC = 1000))))
-    check.K.t01( print(K.) )
+    cat("\nvalues of K for d = 10 and MC at u01:\n")
+    CT <- c(CT, list(K = system.time(K. <- K(u01, cop, d = 10, n.MC = 1000))))
+    check.K.u01( print(K.) )
     cat("check if K(0)=0 and K(1)=1: ")
     stopifnot(K(0, cop, d = 10, n.MC = 1000)==0,
               K(1, cop, d = 10, n.MC = 1000)==1)

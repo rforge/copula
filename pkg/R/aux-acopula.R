@@ -299,8 +299,8 @@ rFFrank <- function(n, theta0, theta1, rej)
 ##' @param log boolean which determines if the logarithm is returned
 ##' @param verbose logical for method == sort
 ##' @return a_{dk}(theta) = (-1)^{d-k}\sum_{j=k}^d alpha^j * s(d,j) * S(j,k)
-##' note: this function is known to cause numerical problems, e.g., for d=100, alpha=0.8
 ##' @author Marius Hofert und Martin Maechler
+##' note: this function is known to cause numerical problems, e.g., for d=100, alpha=0.8
 coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"),
 		   log = FALSE, verbose = FALSE)
 {

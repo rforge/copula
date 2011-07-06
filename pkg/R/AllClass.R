@@ -33,14 +33,14 @@ setClassUnion("maybeInterval", c("interval", "NULL"))
 setClass("acopula",
 	 representation(name = "character",
                         psi = "function",         # of (t, theta) -- the generator
-                        psiInv = "function",      # of (p, theta) -- psi_inverse: \psi^{-1}(p) = t
+                        psiInv = "function",      # of (u, theta, log=FALSE) -- (log-)psi_inverse: \psi^{-1}(u)=t
 			## when theta is one-dimensional, specifying the interval is more convenient:
                         paraInterval = "maybeInterval", # [.,.]  (.,.], etc .. parameter interval
-                        psiDabs = "function",     # of (t, theta, degree = 1, n.MC = 0, log = FALSE) -- (-1)^d * the degree-th generator derivative
+                        psiDabs = "function",     # of (t, theta, degree=1, n.MC=0, log=FALSE) -- (-1)^d * the degree-th generator derivative
                         theta = "numeric",        # value of theta or  'NA'  (for unspecified)
                         paraConstr = "function",  # of (theta) ; constr(theta) |--> TRUE: "fulfilled"
-                        psiInvD1abs = "function", # of (t,theta,log = FALSE) -- computes the absolute value of the first derivative of psiInv
-                        dacopula = "function",    # of (u, theta, n.MC = 0, log = FALSE) -- computes the (log-)density of the Archimedean copula with parameter theta at the vector/matrix u (n.MC > 0: apply Monte Carlo with sample size n.MC)
+                        psiInvD1abs = "function", # of (t,theta,log=FALSE) -- computes the absolute value of the first derivative of psiInv
+                        dacopula = "function",    # of (u, theta, n.MC=0, log=FALSE) -- computes the (log-)density of the Archimedean copula with parameter theta at the vector/matrix u (n.MC > 0: apply Monte Carlo with sample size n.MC)
                         score = "function",       # of (u, theta) -- computes the score function
                         V0 = "function",	  # of (n,theta) -- RNGenerator
 			dV0 = "function",         # of (x,theta,log=FALSE) -- density of F=LS^{-1}[psi]

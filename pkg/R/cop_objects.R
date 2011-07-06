@@ -25,14 +25,17 @@ copAMH <-
     (function() { ## to get an environment where  C.  itself is accessible
 	C. <- new("acopula", name = "AMH",
 		  ## generator
-		  psi = function(t,theta) { (1-theta)/(exp(t+0)-theta) },
-		  psiInv = function(u,theta) { log((1-theta*(1-u))/u) },
+		  psi = function(t, theta) { (1-theta)/(exp(t+0)-theta) },
+		  psiInv = function(u, theta, log=FALSE){ 
+			res <- log((1-theta*(1-u))/u) # alternative: log1p((1-theta)*(1/u-1))
+			if(log) log(res) else res
+		  },
 		  ## parameter interval
 		  paraInterval = interval("[0,1)"),
 		  ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree = 1, n.MC = 0, log = FALSE,
-				     is.log.t = FALSE,
-				     method = "negI-s-Eulerian", Li.log.arg=TRUE)
+                  is.log.t = FALSE,
+                  method = "negI-s-Eulerian", Li.log.arg=TRUE)
 	      {
 		  lth <- log(theta)
 		  if(n.MC > 0) {
@@ -40,8 +43,7 @@ copAMH <-
 		      psiDabsMC(t, family="AMH", theta=theta, degree=degree,
 				n.MC=n.MC, log=log)
 		  } else {
-### FIXME: deal with  is.log.t
-
+                      ## FIXME: deal with  is.log.t
 		      ## Note: psiDabs(0, ...) is correct, namely (1-theta)/theta * polylog(theta, s=-degree)
 		      if(theta == 0) return(if(log) -t else exp(-t)) # independence
 		      Li.arg <- if(Li.log.arg) lth - t else theta*exp(-t)
@@ -172,8 +174,11 @@ copClayton <-
     (function() { ## to get an environment where  C.  itself is accessible
 	C. <- new("acopula", name = "Clayton",
 		  ## generator
-		  psi = function(t,theta) { (1+t)^(-1/theta) },
-		  psiInv = function(u,theta) { u^(-theta) - 1 },
+		  psi = function(t, theta) { (1+t)^(-1/theta) },
+		  psiInv = function(u, theta, log=FALSE){ 
+			res <- u^(-theta) - 1 
+			if(log) log(res) else res
+		  },
 		  ## parameter interval
 		  paraInterval = interval("(0,Inf)"),
 		  ## absolute value of generator derivatives
@@ -278,11 +283,11 @@ copFrank <-
     (function() { ## to get an environment where  C.  itself is accessible
 	C. <- new("acopula", name = "Frank",
 		  ## generator
-		  psi = function(t,theta) {
+		  psi = function(t, theta) {
 		      -log1p(expm1(-theta)*exp(0-t))/theta
 		      ## == -log(1-(1-exp(-theta))*exp(-t))/theta
 		  },
-		  psiInv = function(u, theta, log = FALSE) {
+		  psiInv = function(u, theta, log=FALSE) {
 		      ## == -log( (exp(-theta*u)-1) / (exp(-theta)-1) )
 		      thu <- u*theta # (-> recycling args)
 		      if(!length(thu)) return(thu) # {just for numeric(0) ..hmm}
@@ -308,8 +313,8 @@ copFrank <-
 		  paraInterval = interval("(0,Inf)"),
 		  ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree = 1, n.MC = 0, log = FALSE,
-				     is.log.t = FALSE,
-				     method = "negI-s-Eulerian", Li.log.arg = TRUE)
+                  is.log.t = FALSE,
+                  method = "negI-s-Eulerian", Li.log.arg = TRUE)
               {
                   if(n.MC > 0) {
                       psiDabsMC(t, family="Frank", theta=theta, degree=degree,
@@ -329,7 +334,7 @@ copFrank <-
 		  },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE,
-				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
+                  method = "negI-s-Eulerian", Li.log.arg=TRUE)
 	      {
 		  stopifnot(C.@paraConstr(theta))
 		  if(!is.matrix(u)) u <- rbind(u)
@@ -457,13 +462,15 @@ copGumbel <-
     (function() { ## to get an environment where  C.  itself is accessible
 	C. <- new("acopula", name = "Gumbel",
 		  ## generator
-		  psi = function(t,theta) { exp(-t^(1/theta)) },
-		  psiInv = function(u,theta) { (-log(u+0))^theta },
+		  psi = function(t, theta) { exp(-t^(1/theta)) },
+		  psiInv = function(u, theta, log=FALSE){ 
+			if(log) theta*log(-log(u)) else (-log(u+0))^theta 
+		  },
 		  ## parameter interval
 		  paraInterval = interval("[1,Inf)"),
 		  ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree=1, n.MC=0,
-				     method=eval(formals(polyG)$method), log = FALSE) {
+                  method=eval(formals(polyG)$method), log = FALSE) {
 	              is0 <- t == 0
                       isInf <- is.infinite(t)
 	              res <- numeric(n <- length(t))
@@ -499,7 +506,7 @@ copGumbel <-
 		  },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0,
-				      method= eval(formals(polyG)$method), log = FALSE) {
+                  method= eval(formals(polyG)$method), log = FALSE) {
 		      stopifnot(C.@paraConstr(theta))
 		      if(!is.matrix(u)) u <- rbind(u)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
@@ -622,16 +629,19 @@ copJoe <-
     (function() { ## to get an environment where C. itself is accessible
 	C. <- new("acopula", name = "Joe",
 		  ## generator
-		  psi = function(t,theta) {
+		  psi = function(t, theta) {
 		      1 - (-expm1(0-t))^(1/theta)
 		      ## == 1 - (1-exp(-t))^(1/theta)
 		  },
-		  psiInv = function(u, theta) { -log1p(-(1-u)^theta) },
+		  psiInv = function(u, theta, log=FALSE){ 
+			res <- -log1p(-(1-u)^theta) 
+			if(log) log(res) else res
+		  },
 		  ## parameter interval
 		  paraInterval = interval("[1,Inf)"),
 		  ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree = 1, n.MC = 0,
-				     method= eval(formals(polyJ)$method), log = FALSE) {
+                  method= eval(formals(polyJ)$method), log = FALSE) {
                       is0 <- t == 0
                       isInf <- is.infinite(t)
                       res <- numeric(n <- length(t))
@@ -666,7 +676,7 @@ copJoe <-
 		  },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0,
-				      method=eval(formals(polyJ)$method), log = FALSE) {
+                  method=eval(formals(polyJ)$method), log = FALSE) {
 		      stopifnot(C.@paraConstr(theta))
 		      if(!is.matrix(u)) u <- rbind(u)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
