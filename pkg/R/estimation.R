@@ -26,9 +26,12 @@
 ##' @param value logical determining if an interval (the default) or an initial
 ##'        value should be returned
 ##' @param u matrix of realizations following a copula
+##' @param method method for obtaining initial values
+##' @param ... further arguments to cor() for method="tau.mean"
 ##' @return initial interval or value which can be used for optimization 
 ##' @author Marius Hofert
-initOpt <- function(family, tau.range=NULL, value=FALSE, u){
+initOpt <- function(family, tau.range=NULL, value=FALSE, u, method=c("tau.Gumbel", 
+                                                            "tau.mean"), ...){
     cop <- getAcop(family)
     if(is.null(tau.range)){
 	eps <- 1e-8
@@ -42,15 +45,26 @@ initOpt <- function(family, tau.range=NULL, value=FALSE, u){
     }
     if(!value) return(cop@tauInv(tau.range)) # for value=FALSE, u is not required
     stopifnot(length(dim(u)) == 2)
-    x <- apply(u,1,max)
-    theta.hat.G <- log(ncol(u))/(log(length(x))-log(sum(-log(x)))) # direct formula from edmle for Gumbel
-    tau.hat.G <- copGumbel@tau(theta.hat.G)
-    if(tau.hat.G < tau.range[1]){
+    method <- match.arg(method)
+    ## estimate Kendall's tau
+    tau.hat <- switch(method,
+                      "tau.Gumbel"={
+                          x <- apply(u, 1, max)
+                          theta.hat.G <- log(ncol(u))/(log(length(x))-log(sum(-log(x)))) # direct formula from edmle for Gumbel
+                          copGumbel@tau(theta.hat.G)
+                      },
+                      "tau.mean"={
+                          tau.hat.mat <- cor(u, method="kendall", ...) # matrix of pairwise tau()
+                          mean(tau.hat.mat[upper.tri(tau.hat.mat)]) # mean of estimated taus
+                      },
+                      stop("wrong method for initOpt"))
+    ## truncate if required
+    if(tau.hat < tau.range[1]){
         cop@tauInv(tau.range[1])
-    }else if(tau.hat.G > tau.range[2]){
+    }else if(tau.hat > tau.range[2]){
         cop@tauInv(tau.range[2])
     }else{
-        cop@tauInv(tau.hat.G) # parameter of cop that corresponds to the Kendall's tau of Gumbel
+        cop@tauInv(tau.hat) 
     }
 }   
 
