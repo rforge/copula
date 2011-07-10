@@ -48,6 +48,9 @@
  		parameter \code{log} (defaults to \code{FALSE}) indicates whether the
  		logarithm of the absolute value of the first derivative of \code{psiInv()}
       is returned.}
+    \item{\code{dDiag}:}{a \code{\link{function}} computing the density of the
+      diagonal of the Archimedean copula at \code{u} with parameter
+      \code{theta}.  The parameter \code{log} is as described before.}
     \item{\code{dacopula}:}{a \code{\link{function}} computing the density
       of the Archimedean copula at \code{u} with parameter \code{theta}.  The
       meanings of the parameters \code{n.MC} and \code{log} are as

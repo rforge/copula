@@ -1,4 +1,4 @@
-## ==== major ====
+#### major (to fix before next release) ########################################
 
 (MM) there are still some .Rd files (e.g., estim-misc.Rd), which do not contain
      linebreaks in the paragraphs [just in the .Rd file -- pdf looks fine]. Can
@@ -6,11 +6,13 @@
 (MM) is the FIXME in Sibuya.Rd (line 12) solvable?
 (MM) Change onacopula() such that it works via onacopulaL() and hence
      can be used also from other functions.
-     => FIXME nacopula.R, line 202: onacopulaL() -- replacing nacStructure by nacList
-(MM) fix dDiag for Joe and: large theta & close to 1 [MH: the problem seems similar to Frank]
-(*) found bug in rnacopula: generating just 1 sample (n=1) is not possible because "length(dm <- dim(m)) == 2" is not true [line 149 in nacopula.R]; most likely, we need a "drop=FALSE" in line 147 to fix that
+     s. FIXME nacopula.R, line 202: onacopulaL() -- replacing nacStructure by 
+     nacList
+(MM) found bug in rnacopula: generating just 1 sample (n=1) is not possible 
+     because "length(dm <- dim(m)) == 2" is not true [line 149 in nacopula.R]; 
+     MH: most likely, we need a "drop=FALSE" in line 147 to fix that.
 (MM) fix bug in emle; minimal example:
-################################################################################
+## ==== snippet start ====
 library(nacopula)
 library(bbmle)
 set.seed(1)
@@ -24,39 +26,49 @@ nLL <- function(theta) -sum(cop@copula@dacopula(U, theta=theta, log=TRUE)) # -lo
 mle2(minuslogl=nLL, optimizer="optim", method="L-BFGS-B", start=list(theta=2), 
      lower=0.1, upper=3)
 ## => works!
-################################################################################
+## ==== snippet end ====
 
-(*) fix the following problems:
-cop <- onacopulaL("Frank", list(200, 1:2)); rnacopula(100, cop)
-maybe use limit copulas also for other families (upper frechet bound)
-(*) fix estimation problems [MH wrote a problem_finder]:
-    2) Clayton, tau=0.75 [for dmle: due to diagonal; for others: not reproducible => check with simu]
-    3) Frank, tau=0.75 [due to log(psiInv()) => maybe solved (check!) by Martin's recent implementation of psiInv of Frank]
-(*) implement gnacopula with proper exp(log()) ... using log-slots of psiInv
+(MH) oxford style guide for manual!
+(MH) check linebreaks in man pages before final release
+(MH) fix the following problems:
+     cop <- onacopulaL("Frank", list(200, 1:2)); rnacopula(100, cop)
+     maybe use limit copulas also for other families (upper frechet bound)
+(MH) implement gnacopula with proper exp(log()) ... using log-slots of psiInv
 (MH) document problem with Anderson-Darling test & empirical margins
 (MH) implement Bruno's test statistic
-(*) shall we rename dDiagA to dDiagg ("g" for "generic", as for dnacopulag)?
-    => or use dDiagG (also dnacopulaG)?
 
 DONE:
-(*) implement log-slot for all psiInv; also psi's? => DONE (except for Frank, this is just log(psiInv()))
+(*) built in a dDiag slot for all families 
+(*) implement log-slot for all psiInv; also psi's? => DONE (except for Frank, 
+    this is just log(psiInv()))
 (*) replace K(t) by K(u) => arg is in [0,1]
-(*) make paraOptInterval safer and document what users should do for "extreme" parameters
-1) AMH & d=5 [=> make fail-safe --- DONE{MM}
+(*) make paraOptInterval safer and document what users should do for "extreme" 
+    parameters
+(*) AMH & d=5 [=> make fail-safe --- DONE{MM}
+(*) paraOptInterval: this function is *evil*! Although it finds good *initial 
+    values*, it does *not* find good *initial intervals* [e.g., for Clayton]. 
+    Using these initial intervals in the optimization is dangerous because it 
+    is not ensured that the optimum lies in the given interval. 
+    MH: implemented a new function called initOpt. It provides initial intervals
+        (reasonably large for the optimization to work; not depending on u) or 
+        initial values. This function does not create the impression that the 
+        computed initial intervals contain the optimal parameter. 
 
-## ==== minor ====
+#### minor #####################################################################
 
-(MM) add an ASCII-plot for the hierarchical structure;
-     Actually, define setAs("nacopula", "dendrogram", ....) and then use
-     dendrogram print()ing.
+(*) add an ASCII-plot for the hierarchical structure;
+    Actually, define setAs("nacopula", "dendrogram", ....) and then use
+    dendrogram print()ing.
 (*) design a function that gets an outer nacopula and returns a matrix of
     numbers which correspond to the different sectors; this can be used, e.g.,
     for building a [default] color-matrix for splom2 or for estimation purposes etc.
-(*) it would be good to have tryCatch.W.E in the package [call it tryCatchWE -- easier to type]
+(*) it would be good to have tryCatch.W.E in the package [call it tryCatchWE -- 
+    easier to type]
     Maybe one can also directly return a list with "value", "error", and "warning"?
-    [So far, "value" can also contain the errors => a bit unhandy, but maybe the only "elegant" general solution]
+    [So far, "value" can also contain the errors => a bit unhandy, but maybe the 
+    only "elegant" general solution]
 
-## ==== long-term maybe ====
+#### long-term maybe ###########################################################
 
 (*) implement Khoudraji or Liebscher trafo incl. density etc.
 (*) allow families to have outer power parameters (outer power families)

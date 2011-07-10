@@ -289,6 +289,16 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
          all.equal(uT.I, lambdaUvec))
     class(CT) <- "proc_time_list"
     CT
+    
+    ## ==== (11) dDiag ====
+    
+    cat("\n(11) dDiag at u01 for d=10:\n")
+    CT <- c(CT, list(dDiag = system.time(dDiag. <- cop@dDiag(u01, theta=theta0, 
+                     d=10))))
+    print(dDiag.)
+    stopifnot(is.numeric(dDiag.), all(dDiag. > 0))
+    cat0("[Ok]")
+
 }
 
 ##' print() method for the tstCop() results

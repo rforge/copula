@@ -8,7 +8,7 @@
 emde(u, cop,
      method=c("mde.normal.CvM", "mde.normal.KS",
               "mde.log.CvM",    "mde.log.KS"),
-     interval=paraOptInterval(u, cop@copula@name),
+     interval=initOpt(cop@copula@name),
      include.K = ncol(u) <= 5, \dots)
 }
 \arguments{

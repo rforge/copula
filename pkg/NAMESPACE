@@ -38,7 +38,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"cacopula", "dnacopula", "pnacopula", "rnacopula" ,"rnchild"
        ## estimation
        ## ,"coeffG", "polyG", "polyJ"
-       ,"paraOptInterval"
+       ,"initOpt"
        ,"beta.", "beta.hat", "pobs"
        ,"ebeta", "etau", "emde", "dDiag", "edmle", "emle", "enacopula"
        ## goodness-of-fit

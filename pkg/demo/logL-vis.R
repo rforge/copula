@@ -66,7 +66,7 @@ curveLogL <- function(cop, u, xlim, main, XtrArgs=list(), ...) {
         axis(1, at = th., labels=expression(theta["*"]),
              lwd=2, col="dark gray", tck = -1/30)
     else warning("non-finite cop@copula@theta = ", th.)
-    axis(1, at = paraOptInterval(u, acop@name),
+    axis(1, at = initOpt(acop@name),
          labels = FALSE, lwd = 2, col = 2, tck = 1/20)
     invisible(r)
 }
@@ -222,7 +222,7 @@ emle(U., cop, n.MC = 1e4)## takes a long time ... but then things are fine:
 
 cop@copula <- setTheta(cop@copula, theta)# for the plot:
 r. <- curveLogL(cop, U., c(1, 200))
-## now looks fine (well, "paraOptInterval" not really ..) -- with finite values much longer..
+## now looks fine (well, not really ..) -- with finite values much longer..
 ## but still has -Inf: at end:
 tail(as.data.frame(r.), 15)
 if(FALSE) ## not yet :

@@ -8,11 +8,11 @@
 }
 \usage{
 emle(u, cop, n.MC=0, optimizer="optimize", method,
-     interval=paraOptInterval(u, cop@copula@name),
-     start=list(theta=mean(interval)),
+     interval=initOpt(cop@copula@name),
+     start=list(theta=initOpt(cop@copula@name, value=TRUE, u=u)),
      \dots)
 .emle(u, cop, n.MC=0,
-      interval=paraOptInterval(u, cop@copula@name), \dots)
+      interval=initOpt(cop@copula@name), \dots)
 }
 \arguments{
   \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-)observations (each
@@ -111,10 +111,10 @@ axis(1, pos = 0, at=theta, label=expression(theta[0]))
 logL <- function(x) -efm@minuslogl(x)
        # == -sum(copGumbel@dacopula(U, theta=x, log=TRUE))
 logL. <- Vectorize(logL)
-I <- paraOptInterval(U, "Gumbel")
+I <- c(cop@copula@tauInv(0.1), cop@copula@tauInv(0.4))
 curve(logL., from=I[1], to=I[2], xlab=quote(theta), 
       ylab="log-likelihood",
-      main="log-likelihood for Gumbel on the initial interval")
+      main="log-likelihood for Gumbel")
 abline(v = c(theta, efm@coef), col="magenta", lwd=2, lty=2)
 axis(1, at=c(theta, efm@coef), padj = c(-0.5, -0.8), hadj = -0.2,
      col.axis="magenta", label= expression(theta[0], hat(theta)[n]))

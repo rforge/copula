@@ -39,7 +39,8 @@ setClass("acopula",
                         psiDabs = "function",     # of (t, theta, degree=1, n.MC=0, log=FALSE) -- (-1)^d * the degree-th generator derivative
                         theta = "numeric",        # value of theta or  'NA'  (for unspecified)
                         paraConstr = "function",  # of (theta) ; constr(theta) |--> TRUE: "fulfilled"
-                        psiInvD1abs = "function", # of (t,theta,log=FALSE) -- computes the absolute value of the first derivative of psiInv
+                        psiInvD1abs = "function", # of (t, theta, log=FALSE) -- computes the absolute value of the first derivative of psiInv
+                        dDiag = "function",       # of (u, theta, log=FALSE) -- compute the density of the diagonal
                         dacopula = "function",    # of (u, theta, n.MC=0, log=FALSE) -- computes the (log-)density of the Archimedean copula with parameter theta at the vector/matrix u (n.MC > 0: apply Monte Carlo with sample size n.MC)
                         score = "function",       # of (u, theta) -- computes the score function
                         V0 = "function",	  # of (n,theta) -- RNGenerator

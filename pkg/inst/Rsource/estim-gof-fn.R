@@ -69,7 +69,7 @@ estimation.gof <- function(n, d, simFamily, tau,
         cop.hat <- onacopulaL(checkFamilies[k],list(NA,1:d))
         if(verbose) cat("Estimation and GOF for ",checkFamilies[k],":\n\n",sep="")
 	ute[k] <- utms(est[k] <- enacopula(u, cop= cop.hat,
-					   method= esti.method, n.MC=n.MC))
+					   method= esti.method, n.MC=n.MC))										
         tau[k] <- cop.hat@copula@tau(est[k])
         if(verbose){
             cat("   theta hat      = ",r(est[k]),"\n",

@@ -357,7 +357,7 @@ mlogL <- function(theta)
                 log = TRUE))
 @
 Now, plot this negative log likelihood function in an interval $\theta$,
-close to what is proposed \pkg{nacopula}'s \code{paraOptInterval()}
+close to what is proposed \pkg{nacopula}'s \code{initOpt()}
 function, defining a utility function that we'll reuse later:
 <<llog-theta-plot, fig=true>>=
 p.mlogL <- function(th, mlogL, col= "red2", lwd = 1, lty = 1,

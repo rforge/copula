@@ -12,7 +12,7 @@ enacopula(u, cop,
                      "mde.log.CvM", "mde.log.KS",
                      "tau.tau.mean", "tau.theta.mean", "beta"),
           n.MC = if (method == "smle") 10000 else 0,
-          interval = paraOptInterval(u, cop@copula@name),
+          interval = initOpt(cop@copula@name),
           xargs = list(), \dots)
 }
 \arguments{

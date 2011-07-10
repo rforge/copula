@@ -15,48 +15,44 @@
 
 #### Estimation for nested Archimedean copulas
 
-## ==== initial value/interval for optimization procedures =====================
+## ==== initial interval/value for optimization procedures =====================
 
-##' Compute an initial interval for optimization/estimation routines (only a
-##' heuristic; if this fails, choose your own interval)
+##' Compute an initial interval or value for optimization/estimation routines 
+##' (only a heuristic; if this fails, choose your own interval or value)
 ##'
-##' @title Compute initial interval for estimation procedures
-##' @param u matrix of realizations following a copula
+##' @title Compute an initial interval or value for estimation procedures
 ##' @param family Archimedean family
-##' @param h for enlarging the tau-interval
 ##' @param tau.range vector containing lower and upper admissible Kendall's tau
-##' @return initial interval which can be used for optimization (e.g., for emle)
+##' @param value logical determining if an interval (the default) or an initial
+##'        value should be returned
+##' @param u matrix of realizations following a copula
+##' @return initial interval or value which can be used for optimization 
 ##' @author Marius Hofert
-paraOptInterval <- function(u, family, h=0.15, tau.range=NULL)
-{
-    stopifnot(0 <= h, h <= 1, length(dim(u)) == 2)
+initOpt <- function(family, tau.range=NULL, value=FALSE, u){
+    cop <- getAcop(family)
+    if(is.null(tau.range)){
+	eps <- 1e-8
+        tau.range <- switch(cop@name, # limiting (attainable) taus that can be dealt with in estimation/optimization/root-finding
+                            "AMH" = { c(0, 1/3-eps) },
+                            "Clayton" = { c(eps, 0.95) },
+                            "Frank" = { c(eps, 0.94) }, # beyond that, estimation.gof() fails for ebeta()!
+                            "Gumbel" = { c(0, 0.95) },
+                            "Joe" = { c(0, 0.95) },
+                            stop("unsupported family for initOpt"))
+    }
+    if(!value) return(cop@tauInv(tau.range)) # for value=FALSE, u is not required
+    stopifnot(length(dim(u)) == 2)
     x <- apply(u,1,max)
     theta.hat.G <- log(ncol(u))/(log(length(x))-log(sum(-log(x)))) # direct formula from edmle for Gumbel
     tau.hat.G <- copGumbel@tau(theta.hat.G)
-    cop <- getAcop(family)
-    if(is.null(tau.range)){
-        tau.range <- switch(cop@name, # limiting (attainable) taus that can be dealt with in estimation/optimization/root-finding
-                          "AMH" = { c(0, 0.3333) },
-                          "Clayton" = { c(5e-13, 0.95) },
-                          "Frank" = { c(1e-12, 0.95) },
-                          "Gumbel" = { c(0, 0.95) },
-                          "Joe" = { c(0, 0.95) },
-                          stop("unsupported family for paraOptInterval"))
+    if(tau.hat.G < tau.range[1]){
+        cop@tauInv(tau.range[1])
+    }else if(tau.hat.G > tau.range[2]){
+        cop@tauInv(tau.range[2])
+    }else{
+        cop@tauInv(tau.hat.G) # parameter of cop that corresponds to the Kendall's tau of Gumbel
     }
-    if(h > 0) { # initial interval
-        l <- max(tau.hat.G - h, tau.range[1]) # admissible lower bound for tau
-        u <- min(tau.hat.G + h, tau.range[2]) # admissible upper bound for tau
-        c(cop@tauInv(l), cop@tauInv(u))
-    } else { # initial value
-	if(tau.hat.G < tau.range[1]){
-            cop@tauInv(tau.range[1])
-	}else if(tau.hat.G > tau.range[2]){
-            cop@tauInv(tau.range[2])
-	}else{
-            cop@tauInv(tau.hat.G)
-	}
-    }
-}
+}   
 
 ## ==== Blomqvist's beta =======================================================
 
@@ -88,7 +84,7 @@ beta.hat <- function(u, scaling = FALSE) {
 ##'                2^(1-d) in Blomqvist's beta are omitted
 ##' @return population version of multivariate Blomqvist beta
 ##' @author Marius Hofert & Martin Maechler
-beta. <- function(cop, theta, d, scaling = FALSE) {
+beta. <- function(cop, theta, d, scaling=FALSE) {
     j <- seq_len(d)
     diags <- cop@psi(j*cop@psiInv(0.5, theta), theta) # compute diagonals
     b <- 1 + diags[d] + if(d < 30) sum((-1)^j * choose(d, j) * diags)
@@ -109,7 +105,7 @@ beta. <- function(cop, theta, d, scaling = FALSE) {
 ##' @return Blomqvist beta estimator; return value of safeUroot (more or less
 ##'	    equal to the return value of uniroot)
 ##' @author Marius Hofert
-ebeta <- function(u, cop, interval=paraOptInterval(u, cop@copula@name), ...) {
+ebeta <- function(u, cop, interval=initOpt(cop@copula@name), ...) {
     stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 2,
               max(cop@comp) == d)
     if(length(cop@childCops))
@@ -120,7 +116,7 @@ ebeta <- function(u, cop, interval=paraOptInterval(u, cop@copula@name), ...) {
     b.hat <- beta.hat(u, scaling = TRUE)
     d <- ncol(u)
     safeUroot(function(theta) {beta.(cop@copula, theta, d, scaling=TRUE) - b.hat},
-              interval = interval, Sig = +1, check.conv = TRUE, ...)
+              interval=interval, Sig=+1, check.conv=TRUE, ...)
 }
 
 ## ==== Kendall's tau ==========================================================
@@ -234,7 +230,7 @@ emde.dist <- function(u, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
 ##' @author Marius Hofert
 emde <- function(u, cop, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.CvM",
                          "mde.log.KS"),
-                 interval = paraOptInterval(u, cop@copula@name),
+                 interval = initOpt(cop@copula@name),
                  include.K = ncol(u)<=5, ...)
 {
     stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 2,
@@ -265,11 +261,10 @@ dDiag <- function(u, cop, log=FALSE) {
     if(length(cop@childCops)) {
         stop("currently, only Archimedean copulas are provided")
     }
-    else ## (non-nested) Archimedean :
-        dDiagA(u, d=d, cop=cop@copula, log=log)
+    else cop@copula@dDiag(u, theta=cop@copula@theta, d=d, log=log)
 }
 
-##' @title Density of diagonal of d-dim. Archimedean copula
+##' @title Generic density of the diagonal of d-dim. Archimedean copula
 ##' @param u evaluation point in [0, 1]
 ##' @param d dimension
 ##' @param cop acopula
@@ -296,7 +291,7 @@ dDiagA <- function(u, d, cop, log=FALSE) {
 ##' @param ... additional parameters for optimize
 ##' @return diagonal maximum likelihood estimator; return value of optimize
 ##' @author Marius Hofert
-edmle <- function(u, cop, interval=paraOptInterval(u, cop@copula@name), ...)
+edmle <- function(u, cop, interval=initOpt(cop@copula@name), ...)
 {
     stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 2,
               max(cop@comp) == d) # dimension
@@ -331,7 +326,7 @@ edmle <- function(u, cop, interval=paraOptInterval(u, cop@copula@name), ...)
 ##' @return (simulated) maximum likelihood estimator; return value of optimize
 ##' @author Marius Hofert
 ##' note: this is a *fast* version (based on optimize()) called from enacopula
-.emle <- function(u, cop, n.MC=0, interval=paraOptInterval(u, cop@copula@name), ...)
+.emle <- function(u, cop, n.MC=0, interval=initOpt(cop@copula@name), ...)
 {
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
@@ -359,9 +354,9 @@ edmle <- function(u, cop, interval=paraOptInterval(u, cop@copula@name), ...)
 ##' @author Martin Maechler and Marius Hofert
 ##' note: this is the *slower* version which also allows for profiling
 emle <- function(u, cop, n.MC=0, optimizer="optimize", method,
-		 interval=paraOptInterval(u, cop@copula@name),
+		 interval=initOpt(cop@copula@name),
                  ##vvv awkward to be needed, but it is - by mle2():
-                 start = list(theta= mean(interval)),
+                 start = list(theta=initOpt(cop@copula@name, value=TRUE, u=u)),
                  ...)
 {
     stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 2,
@@ -431,7 +426,7 @@ enacopula <- function(u, cop, method=c("mle", "smle", "dmle", "mde.normal.CvM",
                               "mde.normal.KS", "mde.log.CvM", "mde.log.KS",
                               "tau.tau.mean", "tau.theta.mean", "beta"),
                       n.MC = if(method=="smle") 10000 else 0,
-                      interval=paraOptInterval(u, cop@copula@name),
+                      interval=initOpt(cop@copula@name),
                       xargs=list(), ...)
 {
 

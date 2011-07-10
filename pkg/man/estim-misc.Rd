@@ -12,8 +12,8 @@
   }
 }
 \usage{
-ebeta(u, cop, interval = paraOptInterval(u, cop@copula@name), ...)
-edmle(u, cop, interval = paraOptInterval(u, cop@copula@name), ...)
+ebeta(u, cop, interval = initOpt(cop@copula@name), ...)
+edmle(u, cop, interval = initOpt(cop@copula@name), ...)
 etau(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...)
 }
 \arguments{

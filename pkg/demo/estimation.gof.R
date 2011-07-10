@@ -97,7 +97,7 @@ mLogL <- function(theta,cop.hat,u){
     cop.hat@copula@theta <- theta
     -sum(dnacopula(cop.hat, u, log = TRUE))
 }
-(est <- optimize(mLogL, interval = paraOptInterval(u,copFamily), cop.hat = cop.hat,
+(est <- optimize(mLogL, interval = initOpt(copFamily), cop.hat = cop.hat,
                  u = u))
 
 ## evaluate the density at u for a specified parameter
