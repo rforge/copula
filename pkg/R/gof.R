@@ -179,11 +179,14 @@ gnacopulatrafo <- function(u, cop, include.K=TRUE, n.MC=0)
 	      0 <= u, u <= 1)
     ## trafo
     th <- cop@copula@theta
-    psiI <- cop@copula@psiInv(u, th) # matrix psi^{-1}(u)
-    cumsum.psiI <- apply(psiI, 1, cumsum) # rowwise cumulative sums; caution: output is transposed
-    u. <- matrix(unlist(lapply(1:(d-1), function(k) (cumsum.psiI[k,]/cumsum.psiI[k+1,])^k)),
-		 ncol=d-1) # transformed components (uniformly under H_0)
-    if(include.K) u. <- cbind(u., K(cop@copula@psi(cumsum.psiI[d,], th),
+    lpsiI <- cop@copula@psiInv(u, th, log=TRUE) # matrix log(psi^{-1}(u))
+    lcumsum <- matrix(unlist(lapply(1:d, function(j) lsum(t(lpsiI[,1:j, 
+                                                                  drop=FALSE])))), 
+                      ncol=d)
+    u. <- matrix(unlist(lapply(1:(d-1), function(k) exp(k*(lcumsum[,k]-
+                                                           lcumsum[,k+1])) )),
+		 ncol=d-1) # transformed components (uniform under H_0)
+    if(include.K) u. <- cbind(u., K(cop@copula@psi(exp(lcumsum[,d]), th),
 				    cop=cop@copula, d=d, n.MC=n.MC))
     u.
 }

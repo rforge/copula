@@ -6,14 +6,14 @@
   routines (only a heuristic; if this fails, choose your own interval or value).
 }
 \usage{
-initOpt(family, tau.range=NULL, value=FALSE, u, method=c("tau.Gumbel",
-        "tau.mean"), ...)
+initOpt(family, tau.range=NULL, value=FALSE, u, 
+	     method=c("tau.Gumbel", "tau.mean"), ...)
 }
 \arguments{
   \item{family}{Archimedean family to find an initial interval for.}
   \item{tau.range}{vector containing lower and upper admissible Kendall's tau.}
-  \item{value}{logical indicating whether an initial interval (the default) or
-    an initial value should be returned.}
+  \item{value}{\code{\link{logical}} indicating whether an initial interval (the
+    default) or an initial value should be returned.}
   \item{u}{matrix of realizations following the copula family specified by \code{family}.  Note that \code{u} can be omitted if \code{value=FALSE}.}
   \item{method}{a \code{\link{character}} string specifying the method to be
     used to compute an estimate of Kendall's tau.  This has to be one (or a
@@ -31,7 +31,7 @@ initOpt(family, tau.range=NULL, value=FALSE, u, method=c("tau.Gumbel",
   For \code{method="tau.mean"} and \code{value=TRUE}, the mean of pairwise
   sample versions of Kendall's tau is computed as an estimator of the Kendall's
   tau of the Archimedean copula family provided.  This can be slow, especially
-  when the dimension is large.  The default method \code{method="tau.Gumbel"}
+  if the dimension is large.  Method \code{method="tau.Gumbel"} (the default)
   uses the explicit and thus very fast diagonal maximum-likelihood estimator for
   Gumbel's family to find initial values.  Given this estimator
   \eqn{\hat{\theta}^\mathrm{G}}{hat(theta)^G}, the corresponding Kendall's tau
