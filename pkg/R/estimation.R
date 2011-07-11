@@ -311,17 +311,15 @@ edmle <- function(u, cop, interval=initOpt(cop@copula@name), ...)
               max(cop@comp) == d) # dimension
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
-    x <- apply(u,1,max) # data from the diagonal
+    x <- apply(u, 1, max) # data from the diagonal
     ## explicit estimator for Gumbel
     if(cop@copula@name == "Gumbel") {
 	list(minimum = log(d)/(log(length(x))-log(sum(-log(x)))), objective = 0) # return value of the same structure as for optimize
     } else {
         ## optimize
-	mLogL <- function(theta) { # -log-likelihood
-            cop@copula@theta <- theta
-            -sum(dDiag(x, cop=cop, log=TRUE))
-        }
-	optimize(mLogL, interval=interval, ...)
+	nlogL <- function(theta) # -log-likelihood of the diagonal
+            -sum(cop@copula@dDiag(x, theta=theta, d=d, log=TRUE))
+	optimize(nlogL, interval=interval, ...)
     }
 }
 

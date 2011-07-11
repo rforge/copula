@@ -28,10 +28,16 @@ mle2(minuslogl=nLL, optimizer="optim", method="L-BFGS-B", start=list(theta=2),
 ## => works!
 ## ==== snippet end ====
 
-(MH) check linebreaks in man pages before final release
-(MH) oxford style guide for manual!
+(MM) next giant run brought the following awareness:
+(1) tauInv for Frank is not fail-safe: safeUroot tries to enlarge interval and then fails
+    => we should deal with this
+(2) Frank and Joe both have trouble for DMLE, even in small dimensions and for all parameters
+=> if (1) and (2) are fixed, we can run the giant simulation for tau=0.75
+
 (MH) implement Bruno's + Christian's test statistic; mention that convergence of AD not clear
      => split method in meth1d and meth
+(MH) check linebreaks in man pages before final release
+(MH) oxford style guide for manual!
 
 #### DONE ######################################################################
 
