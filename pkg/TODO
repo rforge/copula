@@ -30,7 +30,8 @@ mle2(minuslogl=nLL, optimizer="optim", method="L-BFGS-B", start=list(theta=2),
 
 (MH) check linebreaks in man pages before final release
 (MH) oxford style guide for manual!
-(MH) implement Bruno's test statistic
+(MH) implement Bruno's + Christian's test statistic; mention that convergence of AD not clear
+     => split method in meth1d and meth
 
 #### DONE ######################################################################
 

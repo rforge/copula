@@ -244,11 +244,12 @@ copClayton <-
 		      lu <- log(u)
 		      t <- rowSums(C.@psiInv(u, theta=theta))
 		      ltp1 <- log(1+t)
-		      lx <- log(-lu)-theta*lu
+		      lx <- t(log(-lu)-theta*lu) # caution: lsum needs an (d,n)-matrix
 		      ldt <- lsum(lx) # log of the derivative of t w.r.t. theta
 		      alpha <- 1/theta
 		      k <- 0:(d-1)
-		      sum(k/(theta*k+1))-lu+alpha^2*ltp1-(d+alpha)*exp(ldt-ltp1)
+		      sum(k/(theta*k+1))-rowSums(lu)+alpha^2*ltp1-(d+alpha)*
+                          exp(ldt-ltp1)
 		  },
 		  ## nesting constraint
 		  nestConstr = function(theta0,theta1) {
