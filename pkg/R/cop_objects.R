@@ -62,11 +62,12 @@ copAMH <-
 			  (1-theta)/(u*(1-theta*(1-u)))
 		      }
 		  },
-		  ## density of the diagonal
+		  ## density of the diagonal (vectorized in u and theta)
 		  dDiag = function(u, theta, d, log=FALSE){
-                      x <- (1-theta*(1-u))/u
-                      if(log) log(d)+2*(log(x-theta)-log(x^d-theta))+(d-1)*log(x) else
+                      x <- t((1-(1-u) %*% t(theta))/u) # (length(theta), length(u))-matrix
+                      res <- if(log) log(d)+2*(log(x-theta)-log(x^d-theta))+(d-1)*log(x) else
                       d*((x-theta)/(x^d-theta))^2*x^(d-1)
+                      if(length(u)==1 || length(theta)==1) as.vector(res) else t(res)
                   },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE, method = "negI-s-Eulerian", Li.log.arg=TRUE) {
@@ -203,10 +204,12 @@ copClayton <-
 		  psiInvD1abs = function(u, theta, log = FALSE) {
 		      if(log) log(theta)-(1+theta)*log(u) else theta*u^(-(1+theta))
 		  },
-		  ## density of the diagonal
+		  ## density of the diagonal (vectorized in u and theta)
 		  dDiag = function(u, theta, d, log=FALSE){
-                      if(log) log(d)-(1+1/theta)*log(1+(d-1)*(1-u^theta)) else
-                      d*(1+(d-1)*(1-u^theta))^(-(1+1/theta))
+                      res <- if(log) log(d)-t((1+1/theta)*t(log(1+(d-1)*(1-outer(u, theta, FUN="^"))))) else
+                      d*t(t(1+(d-1)*(1-outer(u, theta, FUN="^")))^(-(1+1/theta))) 
+                      if(length(u)==1 || length(theta)==1) res <- as.vector(res)
+                      res
                   },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE) {
@@ -344,12 +347,13 @@ copFrank <-
 		      if(log) log(theta)- {y <- u*theta; y + log1mexpm(y)}
 		      else theta/expm1(u*theta)
 		  },
-		  ## density of the diagonal
+		  ## density of the diagonal (vectorized in u and theta)
 		  dDiag = function(u, theta, d, log=FALSE){
                       h <- -expm1(-theta)
-                      x <- -expm1(-theta*u)/h
+                      x <- t(-expm1(-theta %*% t(u))/h) # (length(u) x length(theta))-matrix
+                      if(length(u)==1 || length(theta)==1) x <- as.vector(x)
                       if(log) log(d)+(d-1)*log(x)+log((1-h*x)/(1-h*x^d)) else
-                      d*x^(d-1)*(1-h*x)/(1-h*x^d) 
+                      d*x^(d-1)*(1-h*x)/(1-h*x^d)
                   },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE,
@@ -523,15 +527,13 @@ copGumbel <-
 			  theta*(-lu)^(theta-1)/u
 		      }
 		  },
-		  ## density of the diagonal
+		  ## density of the diagonal (vectorized in u and theta)
 		  dDiag = function(u, theta, d, log=FALSE){
                       alpha <- 1/theta
                       dalpha <- d^alpha
-                      if(log){
-                          alpha*log(d)+(dalpha-1)*log(u)
-                      }else{
-                          dalpha*u^(dalpha-1)
-                      }
+                      res <- if(log) (dalpha-1) %*% t(log(u)) + alpha*log(d) else 
+                      dalpha*t(outer(u, dalpha-1, FUN="^"))
+                      if(length(u)==1 || length(theta)==1) as.vector(res) else t(res)
                   },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0,
@@ -703,11 +705,12 @@ copJoe <-
 			  theta/((1-u)^(1-theta)-(1-u))
 		      }
 		  },
-		  ## density of the diagonal
+		  ## density of the diagonal (vectorized in u and theta)
 		  dDiag = function(u, theta, d, log=FALSE){
-                      x <- 1-(1-u)^theta
-                      if(log) log(d)+(1/theta-1)*log((1-x^d)/(1-x))+(d-1)*log(x) else
+                      x <- 1-outer(1-u, theta, FUN="^") # (length(u), length(theta))-matrix
+                      res <- if(log) log(d)+(d-1)*log(x)+(1/theta-1)*(log(1-x^d)-log(1-x)) else
                       d*((1-x^d)/(1-x))^(1/theta-1)*x^(d-1)
+                      if(length(u)==1 || length(theta)==1) as.vector(res) else res
                   },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0,
