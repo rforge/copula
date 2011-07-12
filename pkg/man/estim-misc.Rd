@@ -29,7 +29,9 @@ etau(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...)
       \item{\code{"theta.mean"}}{average of the method-of-moments-like pairwise Kendall's tau estimators.}
   }}
   \item{warn}{logical indicating if \code{etau()} should warn for the
-    \code{"AMH"} family, when tau is outside \eqn{[0, 1/3]}.}
+    \code{"AMH"} family (when tau is outside \eqn{[0, 1/3]}) and in general if
+    at least one of the computed pairwise sample versions of Kendall's tau is
+    negative.}
   \item{\dots}{additional arguments passed to
     \code{\link{cor}} (for \code{etau}), to \code{\link{optimize}}
     (for \code{edmle}), or to \code{\link{safeUroot}} (for \code{ebeta}).}

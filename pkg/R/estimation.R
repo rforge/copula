@@ -144,6 +144,8 @@ ebeta <- function(u, cop, interval=initOpt(cop@copula@name), ...) {
 ##'               Kendall's tau are computed first and then theta is determined;
 ##'               theta.mean stands for first computing all Kendall's tau
 ##'               estimators and then returning the mean of these estimators
+##' @param warn logical determining if warnings are produced (for AMH and in
+##'        general for pairwise sample versions of Kendall's tau < 0)
 ##' @param ... additional arguments to cor()
 ##' @return averaged pairwise cor() estimators
 ##' @author Marius Hofert
@@ -155,6 +157,17 @@ etau <- function(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...)
         stop("currently, only Archimedean copulas are provided")
     tau.hat.mat <- cor(u, method="kendall",...) # matrix of pairwise tau()
     tau.hat <- tau.hat.mat[upper.tri(tau.hat.mat)] # all tau hat's
+    ## check if there are tau's < 0
+    if((l <- length(ind <- which(tau.hat < 0))) > 0){
+	if(warn){
+	    ct <- sort(tau.hat[ind])
+            ct <- if(l > 3) paste(paste(format(ct[1:3]), collapse=", "),
+                                  ", ...",sep="") else format(ct)
+            warning("etau: There are",l,"pairwise Kendall's tau < 0 (the smallest being tau = ", ct)
+        }
+        tau.hat[ind] <- 0
+    }
+    ## apply tauInv in the appropriate way
     tau_inv <- if(cop@copula@name == "AMH")
 	function(tau) cop@copula@tauInv(tau, check=FALSE, warn=warn) else cop@copula@tauInv
     method <- match.arg(method)
@@ -166,7 +179,6 @@ etau <- function(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...)
                mean(tau_inv(tau.hat)) # mean of the Kendall's tau
            },
        {stop("wrong method")})
-
 }
 
 ## ==== Minimum distance estimation ============================================
