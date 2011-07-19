@@ -462,31 +462,123 @@ polylog <- function(z, s, method = c("sum", "negI-s-Stirling",
 ##  ------
 
 ##' Generate all Bernoulli numbers up to the n-th,
-##' using the Akiyama-Tanigawa algorithm
+##' using diverse algorithms
 ##'
 ##' @title Bernoulli Numbers up to Order n
 ##' @param n
 ##' @return numeric vector of length n, containing B(n)
 ##' @author Martin Maechler, 25 Jun 2011 (night train Vienna - Zurich)
-Bernoulli.all <- function(n, precBits = NULL, verbose = getOption("verbose"))
+Bernoulli.all <-
+    function(n, method = c("A-T", "sumBin", "sumRamanujan", "asymptotic"),
+                          precBits = NULL, verbose = getOption("verbose"))
 {
     stopifnot(length(n <- as.integer(n)) == 1)
-    if(verbose) stopifnot(require("MASS"))
-    nn <- seq_len(n1 <- n+1L) ## <- FIXME, make this work with Rmpfr optionally
-    if(!is.numeric(precBits) || !is.finite(precBits)) {
-        B <- numeric(n1)
-        Bv <- 1/nn
-    } else {
-        stopifnot(require("Rmpfr"), length(precBits) == 1, precBits >= 10)
-        B <- mpfr(numeric(n1), precBits=precBits)
-        Bv <- mpfr(1, precBits=precBits)/nn
-    }
-    for(m in seq_len(n1)) {
-        ## length(Bv) == n+1+1-m = n+2-m
-        if(verbose) { cat(m-1,":"); print(MASS::fractions(Bv)) }
-        B[m] <- Bv[1L]
-        if(m <= n) ## recursion:
-            Bv <- seq_len(n1-m) * (Bv[-(n1+1L-m)] - Bv[-1L])
-    }
+    method <- match.arg(method)
+    switch(method,
+           "A-T" =
+       {
+           if(verbose) stopifnot(require("MASS"))
+           nn <- seq_len(n1 <- n+1L) ## <- FIXME, make this work with Rmpfr optionally
+           if(!is.numeric(precBits) || !is.finite(precBits)) {
+               B <- numeric(n1)
+               Bv <- 1/nn
+           } else {
+               stopifnot(require("Rmpfr"), length(precBits) == 1, precBits >= 10)
+               B <- mpfr(numeric(n1), precBits=precBits)
+               Bv <- mpfr(1, precBits=precBits)/nn
+           }
+           for(m in seq_len(n1)) {
+               ## length(Bv) == n+1+1-m = n+2-m
+               if(verbose) { cat(m-1,":"); print(MASS::fractions(Bv)) }
+               B[m] <- Bv[1L]
+               if(m <= n) ## recursion:
+                   Bv <- seq_len(n1-m) * (Bv[-(n1+1L-m)] - Bv[-1L])
+           }
+       },
+           "sumBin" = , "sumRamanujan" = , "asymptotic" =
+       {
+           B <- c(1, -1/2)
+           if(n <= 1) return(B[1:(n+1)])
+           Bn <- Bernoulli(n, method=method)#-> fill "Bern.tab" cache
+           B <- c(B, numeric(n-2), Bn)
+           ##     0:1  2...n-1
+           ii <- seq_len((n-1L) %/% 2)
+           B[ii*2L] <- get("Bern.tab", .nacopEnv)[[method]][ii]
+       },
+           stop(sprintf("method '%s' not yet implemented", method))
+           )## end{switch}
     B
 }
+
+## FIXME: The Akiyama-Tanigawa algorithm formula is numerically >> bad <<
+
+## Instead, use the recursive definition of Bernoulli numbers, or
+
+assign("Bern.tab", list(), envir = .nacopEnv) ## Bern.tab[[method]][n] == Bernoulli_{2n}
+
+Bernoulli <- function(n, method = c("sumBin", "sumRamanujan", "asymptotic"),
+                      verbose = FALSE)
+{
+    if(n <= 1) {
+        if(n == 0) 1 else -1/2
+    } else if(n %% 2) 0
+    else { ## n >= 2, even
+	method <- match.arg(method)
+	## if(double.precision)
+	if(n > 224) return(if(n %% 4) -Inf else Inf) # overflow
+	n2 <- n %/% 2
+	if(length(Bt <- get("Bern.tab", .nacopEnv)[[method]]) < n2 ||
+	   is.na(B <- Bt[n2])) {
+	    ## compute it -- and cache it
+	    switch(method,
+                   "asymptotic" =
+               {
+                   ## B <- (-1)^(n2+1) * 2*(1 + 2^-n)* exp(lfactorial(n) - n * log(2*pi))
+                   B <- (-1)^(n2+1) * 2*exp(lgamma(n+1) + log1p(2^-n + 3^-n) - n * log(2*pi))
+                   ## where we replace zeta(n) = 1 + 1/2^n + 1/3^n + 1/4^n + ...
+                   ## by   1 + 1/2^n + 1/3^n
+                   ## http://en.wikipedia.org/wiki/Bernoulli_number#Asymptotic_approximation
+               },
+		   "sumBin" =
+	       {
+		   ## This is R-slow for n ~= 1000, but ok for n ~= 100
+		   s <- 0
+		   binc <- 1
+		   n.1 <- n - 1L
+		   for(j in 0:n.1) { ## binc == choose(n, j)
+                       if(verbose) {
+                           cat(sprintf("(n,j)=(%d,%d): Bin.cf= %g", n,j, round(binc)))
+                           Bj <- Bernoulli(j)
+                           cat(sprintf(" Bj= %g\n", Bj))
+                           s <- s + binc * Bj / (n-j+1L)
+                       } else s <- s + binc * Bernoulli(j) / (n-j+1L)
+		       if(j < n.1)
+			   binc <- round(binc * (n-j)/(j+1L))
+		   }
+		   B <- -s
+		   ## Cache it: update the *current* table (updated in the mean time!)
+		   Btab <- get("Bern.tab", .nacopEnv)
+		   Btab[[method]][n2] <- B
+		   assign("Bern.tab", Btab, envir = .nacopEnv)
+	       },
+		   stop(sprintf("method '%s' not yet implemented", method))
+		   )## end{switch}
+	}
+	B
+    }
+}
+
+
+## slightly more efficiently,  Ramanujan's congruences:
+## == http://en.wikipedia.org/wiki/Bernoulli_number#Ramanujan.27s_congruences
+##------------------------------------------------------------------------
+## Ramanujan's congruences
+
+## The following relations, due to Ramanujan, provide a more efficient method for calculating Bernoulli numbers:
+
+##     {{m+3}\choose{m}}B_m=\begin{cases} {{m+3}\over3}-\sum\limits_{j=1}^{m/6}{m+3\choose{m-6j}}B_{m-6j}, & \mbox{if}\ m\equiv 0\pmod{6};\\ {{m+3}\over3}-\sum\limits_{j=1}^{(m-2)/6}{m+3\choose{m-6j}}B_{m-6j}, & \mbox{if}\ m\equiv 2\pmod{6};\\ -{{m+3}\over6}-\sum\limits_{j=1}^{(m-4)/6}{m+3\choose{m-6j}}B_{m-6j}, & \mbox{if}\ m\equiv 4\pmod{6}.\end{cases}
+##------------------------------------------------------------------------
+
+##---> Free Python implementations are here
+##>> http://en.literateprograms.org/Bernoulli_numbers_%28Python%29
+##--> see
