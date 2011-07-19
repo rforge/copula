@@ -163,7 +163,8 @@ etau <- function(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...)
 	    ct <- sort(tau.hat[ind])
             ct <- if(l > 3) paste(paste(format(ct[1:3]), collapse=", "),
                                   ", ...",sep="") else format(ct)
-            warning("etau: There are",l,"pairwise Kendall's tau < 0 (the smallest being tau = ", ct)
+            warning("etau: There ",if(l==1) "is " else "are ",l," pairwise Kendall's tau < 0, ",
+                    if(l==1) "" else "the smallest ","being tau = ", ct)
         }
         tau.hat[ind] <- 0
     }

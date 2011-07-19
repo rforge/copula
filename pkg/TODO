@@ -34,9 +34,12 @@ mle2(minuslogl=nLL, optimizer="optim", method="L-BFGS-B", start=list(theta=2),
 (*) implement gnacopula with proper exp(log()) ... using log-slots of psiInv
 (*) make paraOptInterval safer and document what users should do for "extreme" parameters
 
+(MM) please check etau() if correctly implemented 
+
+(*) write nice little function that provides confidence intervals for tau and lambda's
 (MM) next giant run brought the following awareness:
 (1) tauInv for Frank is not fail-safe: safeUroot tries to enlarge interval and then fails
-    => we should deal with this
+    => (MH): should be fixed now!!! [see in the next run]
 (2) Frank and Joe both have trouble for DMLE, even in small dimensions and for all parameters
 => if (1) and (2) are fixed, we can run the giant simulation for tau=0.75
 
@@ -47,6 +50,7 @@ mle2(minuslogl=nLL, optimizer="optim", method="L-BFGS-B", start=list(theta=2),
 
 #### DONE ######################################################################
 
+(MH) dDiag devectorize
 (MH) built in a dDiag slot for all families 
 (MH) implement log-slot for all psiInv; also psi's? => DONE (except for Frank, 
     this is just log(psiInv()))
