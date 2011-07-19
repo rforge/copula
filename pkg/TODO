@@ -28,6 +28,11 @@ mle2(minuslogl=nLL, optimizer="optim", method="L-BFGS-B", start=list(theta=2),
      lower=0.1, upper=3)
 ## => works!
 ## ==== snippet end ====
+(MH) document problem with Anderson-Darling test & empirical margins
+(MH) implement Bruno's test statistic
+(*) implement log-slot for all psiInv; also psi's?
+(*) implement gnacopula with proper exp(log()) ... using log-slots of psiInv
+(*) make paraOptInterval safer and document what users should do for "extreme" parameters
 
 (MM) next giant run brought the following awareness:
 (1) tauInv for Frank is not fail-safe: safeUroot tries to enlarge interval and then fails

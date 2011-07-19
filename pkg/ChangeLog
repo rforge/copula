@@ -1,3 +1,8 @@
+2011-06-26  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/special-func.R (Bernoulli, Bernoulli.all): first "experiments":
+	need accuracy even more than speed.
+
 2011-04-28  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/special-func.R (polylog): introduce 'is.minus.log' so we can
