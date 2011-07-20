@@ -65,7 +65,10 @@ rnacopula(n, x, ...)
 C3 <- onacopula("C", C(copClayton@tauInv(0.2), 1,
                        C(copClayton@tauInv(0.5), c(2,3))))
 C3
-
+\dontshow{
+stopifnot(nrow(rnacopula(1, C3)) == 1,
+          nrow(rnacopula(0, C3)) == 0)
+}
 ## Sample n vectors of random variates from this copula.  This involves
 ## sampling exponentially tilted stable distributions
 n <- 1000

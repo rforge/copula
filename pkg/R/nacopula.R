@@ -144,7 +144,7 @@ rnacopula <- function(n, x, ...)
     j <- c(x@comp, unlist(lapply(childL, `[[`, "indCol")))
     ## extra check
     stopifnot(length(j) == ncol(mat))
-    m <- mat[,order(j)]	# permute data and return
+    m <- mat[,order(j), drop=FALSE] # permute data and return
     ## extra checks
     stopifnot(length(dm <- dim(m)) == 2, dm == dim(mat))
     m
@@ -177,7 +177,8 @@ rnchild <- function(x, theta0, V0,...)
     r <- matrix(rexp(n*dns), n, dns) # generate the non-sectorial part
     ## put pieces together: first own comp.s, then the children's :
     mat <- Cp@psi(r/V01, theta1) # transform
-    mat <- cbind(mat, do.call(cbind, lapply(childL, `[[`, "U")))
+    if(length(childL) && length(U <- lapply(childL, `[[`, "U")))
+	mat <- cbind(mat, do.call(cbind, U))
     ## get correct sorting order:
     j <- c(x@comp, unlist(lapply(childL, `[[`, "indCol")))
     list(U = mat, indCol = j) # get list and return

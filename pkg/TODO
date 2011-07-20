@@ -6,11 +6,8 @@
 (MM) is the FIXME in Sibuya.Rd (line 12) solvable?
 (MM) Change onacopula() such that it works via onacopulaL() and hence
      can be used also from other functions.
-     s. FIXME nacopula.R, line 202: onacopulaL() -- replacing nacStructure by 
+     s. FIXME nacopula.R, line 202: onacopulaL() -- replacing nacStructure by
      nacList
-(MM) found bug in rnacopula: generating just 1 sample (n=1) is not possible 
-     because "length(dm <- dim(m)) == 2" is not true [line 149 in nacopula.R]; 
-     MH: most likely, we need a "drop=FALSE" in line 147 to fix that.
 (MM) please check the dDiag slots in cop_objects.R; can they be simplified?
 (MM) fix bug in emle; minimal example:
 ## ==== snippet start ====
@@ -19,12 +16,12 @@ library(bbmle)
 set.seed(1)
 cop <- onacopulaL("Clayton", list(theta=1, 1:3)) # 3-dimensional Clayton copula with parameter 1
 U <- rnacopula(2, cop) # sample from this copula
-emle(U, cop=cop, optimizer="optim", method="L-BFGS-B", start=list(theta=2), 
+emle(U, cop=cop, optimizer="optim", method="L-BFGS-B", start=list(theta=2),
      lower=0.1, upper=3)
 ## => emle seems to *not* pass the method argument!
 nLL <- function(theta) -sum(cop@copula@dacopula(U, theta=theta, log=TRUE)) # -log-likelihood
 
-mle2(minuslogl=nLL, optimizer="optim", method="L-BFGS-B", start=list(theta=2), 
+mle2(minuslogl=nLL, optimizer="optim", method="L-BFGS-B", start=list(theta=2),
      lower=0.1, upper=3)
 ## => works!
 ## ==== snippet end ====
@@ -34,7 +31,7 @@ mle2(minuslogl=nLL, optimizer="optim", method="L-BFGS-B", start=list(theta=2),
 (*) implement gnacopula with proper exp(log()) ... using log-slots of psiInv
 (*) make paraOptInterval safer and document what users should do for "extreme" parameters
 
-(MM) please check etau() if correctly implemented 
+(MM) please check etau() if correctly implemented
 
 (*) write nice little function that provides confidence intervals for tau and lambda's
 (MM) next giant run brought the following awareness:
@@ -51,24 +48,24 @@ mle2(minuslogl=nLL, optimizer="optim", method="L-BFGS-B", start=list(theta=2),
 #### DONE ######################################################################
 
 (MH) dDiag devectorize
-(MH) built in a dDiag slot for all families 
-(MH) implement log-slot for all psiInv; also psi's? => DONE (except for Frank, 
+(MH) built in a dDiag slot for all families
+(MH) implement log-slot for all psiInv; also psi's? => DONE (except for Frank,
     this is just log(psiInv()))
 (MH) replace K(t) by K(u) => arg is in [0,1]
-(MH) make paraOptInterval safer and document what users should do for "extreme" 
+(MH) make paraOptInterval safer and document what users should do for "extreme"
     parameters
-(MM) AMH & d=5 => make fail-safe 
-(MH) paraOptInterval: this function is *evil*! Although it finds good *initial 
-     values*, it does *not* find good *initial intervals* [e.g., for Clayton]. 
-     Using these initial intervals in the optimization is dangerous because it 
-     is not ensured that the optimum lies in the given interval. 
+(MM) AMH & d=5 => make fail-safe
+(MH) paraOptInterval: this function is *evil*! Although it finds good *initial
+     values*, it does *not* find good *initial intervals* [e.g., for Clayton].
+     Using these initial intervals in the optimization is dangerous because it
+     is not ensured that the optimum lies in the given interval.
      MH: implemented a new function called initOpt. It provides initial intervals
-         (reasonably large for the optimization to work; not depending on u) or 
-         initial values. This function does not create the impression that the 
-         computed initial intervals contain the optimal parameter. 
+         (reasonably large for the optimization to work; not depending on u) or
+         initial values. This function does not create the impression that the
+         computed initial intervals contain the optimal parameter.
 (MH) improve initOpt with pairwise tau
 (MH) implement gnacopulatrafo with proper exp(log()) ... using log-slots of psiInv
-(MH) put in new meaning of warn-slot of etau() in the man page 
+(MH) put in new meaning of warn-slot of etau() in the man page
 
 #### Minor #####################################################################
 
@@ -81,10 +78,10 @@ mle2(minuslogl=nLL, optimizer="optim", method="L-BFGS-B", start=list(theta=2),
 (*) design a function that gets an outer nacopula and returns a matrix of
     numbers which correspond to the different sectors; this can be used, e.g.,
     for building a [default] color-matrix for splom2 or for estimation purposes etc.
-(*) it would be good to have tryCatch.W.E in the package [call it tryCatchWE -- 
+(*) it would be good to have tryCatch.W.E in the package [call it tryCatchWE --
     easier to type]
     Maybe one can also directly return a list with "value", "error", and "warning"?
-    [So far, "value" can also contain the errors => a bit unhandy, but maybe the 
+    [So far, "value" can also contain the errors => a bit unhandy, but maybe the
     only "elegant" general solution]
 
 #### Long-term maybe ###########################################################

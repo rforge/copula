@@ -133,10 +133,10 @@ retstablerej <- function(m,V0,alpha) {
 ##' @author Marius Hofert, Martin Maechler
 retstableR <- function(alpha, V0, h=1) {
     n <- length(V0)
-    stopifnot(n >= 1, is.numeric(alpha), length(alpha) == 1,
+    stopifnot(is.numeric(alpha), length(alpha) == 1,
 	      0 <= alpha, alpha <= 1) ## <- alpha > 1 ==> cos(pi/2 *alpha) < 0
     ## case alpha==1
-    if(alpha == 1) { # alpha == 1 => St corresponds to a point mass at V0 with
+    if(alpha == 1 || n == 0) { # alpha == 1 => St corresponds to a point mass at V0 with
 	return(V0) # Laplace-Stieltjes transform exp(-V0*t)
     }
     ## else alpha != 1 : call fast rejection algorithm with optimal m
@@ -162,10 +162,11 @@ retstableR <- function(alpha, V0, h=1) {
 ##' @author Martin Maechler
 retstableC <- function(alpha, V0, h = 1, method = NULL) {
     n <- length(V0)
-    stopifnot(n >= 1, is.numeric(alpha), length(alpha) == 1,
+    stopifnot(is.numeric(alpha), length(alpha) == 1,
 	      0 < alpha, alpha <= 1,
 	      is.numeric(h), length(h) == 1, h > 0)
-    if(alpha == 1) { # alpha == 1 => St corresponds to a point mass at V0 with
+    if(alpha == 1 || n == 0) {
+	## alpha == 1 => St corresponds to a point mass at V0 with
 	V0           # Laplace-Stieltjes transform exp(-V0*t)
     }
     else {

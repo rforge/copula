@@ -53,7 +53,6 @@ rnchild(x, theta0, V0, ...)
 theta0 <- copClayton@tauInv(.2)
 theta1 <- copClayton@tauInv(.5)
 C3 <- onacopula("C", C(theta0, 1, C(theta1, c(2,3))))
-
 ## Sample n random variates V0 ~ F0 (a Gamma(1/theta0,1) distribution)
 n <- 1000
 V0 <- copClayton@V0(n, theta0)
@@ -61,7 +60,9 @@ V0 <- copClayton@V0(n, theta0)
 ## Given these variates V0, sample the child copula, i.e., the bivariate
 ## nested Clayton copula with parameter theta1
 U23 <- rnchild(C3@childCops[[1]], theta0, V0)
-
+\dontshow{% also works with 0-length V0:
+stopifnot(dim(rnchild(C3@childCops[[1]], theta0, numeric(0))$U) == c(0,2))
+}
 ## Now build the three-dimensional vectors of random variates by hand
 U1 <- copClayton@psi(rexp(n)/V0, theta0)
 U <- cbind(U1, U23$U)

@@ -60,7 +60,12 @@ alpha <- .2
 V0 <- rgamma(200, 1)
 rETS <- retstable(alpha, V0)
 
-## Plot the random variates
-plot(rETS)
+## Distribution plot the random variates -- log-scaled
+hist(log(rETS), prob=TRUE)
+lines(density(log(rETS)), col=2)
+rug (log(rETS))
+
+## it works for 0-length  V0 as well:
+.N <- numeric(0) ; stopifnot(identical(.N, retstable(alpha, .N)))
 }
 \keyword{distribution}
