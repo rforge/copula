@@ -17,7 +17,7 @@
 
 ## ==== initial interval/value for optimization procedures =====================
 
-##' Compute an initial interval or value for optimization/estimation routines 
+##' Compute an initial interval or value for optimization/estimation routines
 ##' (only a heuristic; if this fails, choose your own interval or value)
 ##'
 ##' @title Compute an initial interval or value for estimation procedures
@@ -28,9 +28,9 @@
 ##' @param u matrix of realizations following a copula
 ##' @param method method for obtaining initial values
 ##' @param ... further arguments to cor() for method="tau.mean"
-##' @return initial interval or value which can be used for optimization 
+##' @return initial interval or value which can be used for optimization
 ##' @author Marius Hofert
-initOpt <- function(family, tau.range=NULL, value=FALSE, u, method=c("tau.Gumbel", 
+initOpt <- function(family, tau.range=NULL, value=FALSE, u, method=c("tau.Gumbel",
                                                             "tau.mean"), ...){
     cop <- getAcop(family)
     if(is.null(tau.range)){
@@ -64,9 +64,9 @@ initOpt <- function(family, tau.range=NULL, value=FALSE, u, method=c("tau.Gumbel
     }else if(tau.hat > tau.range[2]){
         cop@tauInv(tau.range[2])
     }else{
-        cop@tauInv(tau.hat) 
+        cop@tauInv(tau.hat)
     }
-}   
+}
 
 ## ==== Blomqvist's beta =======================================================
 
@@ -404,6 +404,11 @@ emle <- function(u, cop, n.MC=0, optimizer="optimize", method,
 		 lower = interval[1], upper = interval[2],
 		 ##vvv awkward to be needed, but it is - by mle2():
 		 start=start, ...)
+	else if(optimizer == "optim") {
+	    message(" optimizer = \"optim\" -- using mle2(); consider optimizer=NULL instead")
+	    mle2(minuslogl = nLL, optimizer = "optim", method = method,
+		 start=start, ...)
+	}
 	else ## "general"
 	    mle2(minuslogl = nLL, optimizer = optimizer,
 		 ##vvv awkward to be needed, but it is - by mle2():
@@ -442,7 +447,7 @@ pobs <- function(x, na.last="keep", ties.method=c("average", "first", "random", 
 ##'        "tau.theta.mean"  average of Kendall's tau estimators
 ##'        "beta"            multivariate Blomqvist's beta estimator
 ##' @param n.MC if > 0 it denotes the sample size for SMLE
-##' @param interval initial optimization interval for "mle", "smle", and "dmle" 
+##' @param interval initial optimization interval for "mle", "smle", and "dmle"
 ##' @param xargs additional arguments for the estimation procedures
 ##' @param ... additional parameters for optimize
 ##' @return estimated value/vector according to the chosen method

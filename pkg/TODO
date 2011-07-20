@@ -9,22 +9,6 @@
      s. FIXME nacopula.R, line 202: onacopulaL() -- replacing nacStructure by
      nacList
 (MM) please check the dDiag slots in cop_objects.R; can they be simplified?
-(MM) fix bug in emle; minimal example:
-## ==== snippet start ====
-library(nacopula)
-library(bbmle)
-set.seed(1)
-cop <- onacopulaL("Clayton", list(theta=1, 1:3)) # 3-dimensional Clayton copula with parameter 1
-U <- rnacopula(2, cop) # sample from this copula
-emle(U, cop=cop, optimizer="optim", method="L-BFGS-B", start=list(theta=2),
-     lower=0.1, upper=3)
-## => emle seems to *not* pass the method argument!
-nLL <- function(theta) -sum(cop@copula@dacopula(U, theta=theta, log=TRUE)) # -log-likelihood
-
-mle2(minuslogl=nLL, optimizer="optim", method="L-BFGS-B", start=list(theta=2),
-     lower=0.1, upper=3)
-## => works!
-## ==== snippet end ====
 (MH) document problem with Anderson-Darling test & empirical margins
 (MH) implement Bruno's test statistic
 (*) implement log-slot for all psiInv; also psi's?

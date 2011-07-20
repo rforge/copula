@@ -32,9 +32,9 @@ emle(u, cop, n.MC=0, optimizer="optimize", method,
     standard \R function \code{\link[stats4]{mle}()} from package \pkg{stats4},
     whereas the default, \code{"optimize"} uses \code{\link{optimize}} via
     the \R function \code{\link[bbmle]{mle2}()} from package \pkg{bbmle}.}
-  \item{method}{only when \code{optimizer} is \code{NULL}, the method to
-    be used for \code{\link{optim}}.}
-  \item{interval}{nbivariate vector denoting the interval where
+  \item{method}{only when \code{optimizer} is \code{NULL} or
+    \code{"optim"}, the method to be used for \code{\link{optim}}.}
+  \item{interval}{bivariate vector denoting the interval where
     optimization takes place.  The default is computed as described in
     Hofert et al. (2011a).}
   \item{start}{\code{\link{list}} of initial values, passed through.}
@@ -78,7 +78,7 @@ emle(u, cop, n.MC=0, optimizer="optimize", method,
 \seealso{
   \code{\link[bbmle]{mle2}} from package \pkg{bbmle} and
   \code{\link[stats4]{mle}} from \pkg{stats4} on which \code{mle2} is
-  modeled. \code{\link{enacopula}} (wrapper for different estimators). 
+  modeled. \code{\link{enacopula}} (wrapper for different estimators).
   \code{\link{demo}(opC-demo)} and \code{\link{demo}(GIG-demo)} for
   examples of two-parameter families.
 }
@@ -112,7 +112,7 @@ logL <- function(x) -efm@minuslogl(x)
        # == -sum(copGumbel@dacopula(U, theta=x, log=TRUE))
 logL. <- Vectorize(logL)
 I <- c(cop@copula@tauInv(0.1), cop@copula@tauInv(0.4))
-curve(logL., from=I[1], to=I[2], xlab=quote(theta), 
+curve(logL., from=I[1], to=I[2], xlab=quote(theta),
       ylab="log-likelihood",
       main="log-likelihood for Gumbel")
 abline(v = c(theta, efm@coef), col="magenta", lwd=2, lty=2)
