@@ -1,5 +1,14 @@
 require(nacopula)
 
+## From source(system.file("test-tools.R", package = "Matrix")) :
+showProc.time <- local({
+    pct <- proc.time()
+    function() { ## CPU elapsed __since last called__
+	ot <- pct ; pct <<- proc.time()
+	cat('Time elapsed: ', (pct - ot)[1:3],'\n')
+    }
+})
+
 ### We have other implicit estimation "tests" in  demo(estimation.gof)
 ## i.e., ../demo/estimation.gof.R
 ##       ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -73,6 +82,8 @@ legend("right", "n.MC = 2000", lwd=3, col=adjustcolor("sandybrown", .5),
        inset=.01)
 rm(th)
 
+showProc.time()
+
 ## Extend the range:
 show.(m2 <- p.log.f(1, 200, n.th=401, d = 5, u0 = .987))
 
@@ -80,6 +91,8 @@ show.(m2 <- p.log.f(1, 200, n.th=401, d = 5, u0 = .987))
 show.(m3 <- p.log.f(10, 500, d = 5, u0 = .96))
 ## and more
 show.(m3.2 <- p.log.f(10, 800, d = 5, u0 = .96))#-> breakdown at ~ 775..
+
+showProc.time()
 
 ## higher d:
 show.(m4 <- p.log.f(10, 500, d = 12, u0 = 0.95))
@@ -123,4 +136,18 @@ untrace(polylog)
 ## and similarly here:
 ll <- p.log.f(1, 12000, d = 12, u0 = 0.08)
 
+showProc.time()
+
+###------- Diagonal MLE --- dDiag() , etc ----------------------------------
 
+## Some basic  dDiag() checks  {that failed earlier}:
+stopifnot(identical(0, dDiag(0, onacopulaL("AMH", list(0.5, 1:4)))),
+          all.equal(dDiag(.9, onacopulaL("Frank", list(44, 1:3))),
+                    1.008252, tol= 1e-5),
+          all.equal(dDiag(.9, onacopulaL("Joe",   list(44, 1:3))),
+                    1.025283, tol= 1e-5),
+          TRUE)
+
+demo("dDiag-plots", package = "nacopula")
+
+showProc.time()
