@@ -7,7 +7,7 @@
 }
 \usage{
 initOpt(family, tau.range=NULL, value=FALSE, u, 
-	     method=c("tau.Gumbel", "tau.mean"), ...)
+	     method=c("tau.Gumbel", "tau.mean"), warn=TRUE, ...)
 }
 \arguments{
   \item{family}{Archimedean family to find an initial interval for.}
@@ -25,7 +25,8 @@ initOpt(family, tau.range=NULL, value=FALSE, u,
 	versions of Kendall's tau is applied.}
     }
   }
-  \item{...}{additional arguments passed to \code{cor()} when \code{method="tau.mean"}}
+  \item{warn}{logical indicating if warnings are printed for \code{method="tau.Gumbel"} if the diagonal maximum-likelihood estimator is smaller than 1.}
+  \item{...}{additional arguments passed to \code{cor()} when \code{method="tau.mean"}.}
 }
 \details{
   For \code{method="tau.mean"} and \code{value=TRUE}, the mean of pairwise

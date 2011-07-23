@@ -13,7 +13,7 @@
 }
 \usage{
 ebeta(u, cop, interval = initOpt(cop@copula@name), ...)
-edmle(u, cop, interval = initOpt(cop@copula@name), ...)
+edmle(u, cop, interval = initOpt(cop@copula@name), warn=TRUE, ...)
 etau(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...)
 }
 \arguments{
@@ -24,22 +24,25 @@ etau(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...)
     al. (2011a).}
   \item{method}{a character string specifying the method (only
     for \code{etau}), which has to be one (or a unique abbreviation) of
-	 \describe{
+    \describe{
       \item{\code{"tau.mean"}}{method-of-moments-like estimator based on averaged pairwise Kendall’s tau;}
       \item{\code{"theta.mean"}}{average of the method-of-moments-like pairwise Kendall's tau estimators.}
   }}
-  \item{warn}{logical indicating if \code{etau()} should warn for the
-    \code{"AMH"} family (when tau is outside \eqn{[0, 1/3]}) and in general if
-    at least one of the computed pairwise sample versions of Kendall's tau is
-    negative.}
+  \item{warn}{logical indicating if warnings are printed:
+    \describe{
+      \item{\code{edmle()}}{for the family of \code{"Gumbel"} if the 
+	diagonal maximum-likelihood estimator is smaller than 1.}
+      \item{\code{etau()}}{for the family of \code{"AMH"} if tau is outside
+	\eqn{[0, 1/3]} and in general if	at least one of the computed pairwise sample
+	versions of Kendall's tau is negative.}}}
   \item{\dots}{additional arguments passed to
     \code{\link{cor}} (for \code{etau}), to \code{\link{optimize}}
     (for \code{edmle}), or to \code{\link{safeUroot}} (for \code{ebeta}).}
 }
 \details{
-   For \code{ebeta}, the parameter is estimated with a method-of-moments-like procedure such that the population version of the multivariate Blomqvist's beta matches its sample version.
+  For \code{ebeta}, the parameter is estimated with a method-of-moments-like procedure such that the population version of the multivariate Blomqvist's beta matches its sample version.
 
-	Note that the copula diagonal is a distribution function and the maximum of all components of a random vector following the copula is distributed according to this distribution function.  For \code{edmle}, the parameter is estimated via maximum-likelihood estimation based on the diagonal.
+  Note that the copula diagonal is a distribution function and the maximum of all components of a random vector following the copula is distributed according to this distribution function.  For \code{edmle}, the parameter is estimated via maximum-likelihood estimation based on the diagonal.
 
   For \code{etau}, the \code{method="tau.mean"}
   means that the average of sample versions of Kendall's tau are
@@ -58,9 +61,9 @@ etau(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...)
 }
 \author{Marius Hofert}
 \references{
-   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011a),
-   Estimators for Archimedean copulas in high dimensions: A comparison,
-   to be submitted.
+  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011a),
+  Estimators for Archimedean copulas in high dimensions: A comparison,
+  to be submitted.
 }
 \seealso{
   The more sophisticated estimators \code{\link{emle}} (Maximum Likelihood) and

@@ -27,11 +27,14 @@
 ##'        value should be returned
 ##' @param u matrix of realizations following a copula
 ##' @param method method for obtaining initial values
+##' @param warn logical indicating whether a warning message is printed (the 
+##'        default) if the DMLE for Gumbel is < 1 or not
 ##' @param ... further arguments to cor() for method="tau.mean"
 ##' @return initial interval or value which can be used for optimization
 ##' @author Marius Hofert
 initOpt <- function(family, tau.range=NULL, value=FALSE, u, method=c("tau.Gumbel",
-                                                            "tau.mean"), ...){
+                                                            "tau.mean"), warn=TRUE,
+                    ...){
     cop <- getAcop(family)
     if(is.null(tau.range)){
 	eps <- 1e-8
@@ -51,6 +54,10 @@ initOpt <- function(family, tau.range=NULL, value=FALSE, u, method=c("tau.Gumbel
                       "tau.Gumbel"={
                           x <- apply(u, 1, max)
                           theta.hat.G <- log(ncol(u))/(log(length(x))-log(sum(-log(x)))) # direct formula from edmle for Gumbel
+                          if(theta.hat.G < 1){
+                              if(warn) warning("initOpt: DMLE for Gumbel = ",theta.hat.G," < 1; is set to 1")
+                              theta.hat.G <- 1
+			  }
                           copGumbel@tau(theta.hat.G)
                       },
                       "tau.mean"={
@@ -144,8 +151,9 @@ ebeta <- function(u, cop, interval=initOpt(cop@copula@name), ...) {
 ##'               Kendall's tau are computed first and then theta is determined;
 ##'               theta.mean stands for first computing all Kendall's tau
 ##'               estimators and then returning the mean of these estimators
-##' @param warn logical determining if warnings are produced (for AMH and in
-##'        general for pairwise sample versions of Kendall's tau < 0)
+##' @param warn logical indicating whether warnings are produced (for AMH and in
+##'        general for pairwise sample versions of Kendall's tau < 0) [the default]
+##'        or not
 ##' @param ... additional arguments to cor()
 ##' @return averaged pairwise cor() estimators
 ##' @author Marius Hofert
@@ -315,10 +323,12 @@ dDiagA <- function(u, d, cop, log=FALSE) {
 ##' @param cop outer_nacopula to be estimated
 ##' @param interval bivariate vector denoting the interval where optimization takes
 ##'        place
+##' @param warn logical indicating whether a warning message is printed (the 
+##'        default) if the DMLE for Gumbel is < 1 or not
 ##' @param ... additional parameters for optimize
 ##' @return diagonal maximum likelihood estimator; return value of optimize
 ##' @author Marius Hofert
-edmle <- function(u, cop, interval=initOpt(cop@copula@name), ...)
+edmle <- function(u, cop, interval=initOpt(cop@copula@name), warn=TRUE, ...)
 {
     stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 2,
               max(cop@comp) == d) # dimension
@@ -327,7 +337,12 @@ edmle <- function(u, cop, interval=initOpt(cop@copula@name), ...)
     x <- apply(u, 1, max) # data from the diagonal
     ## explicit estimator for Gumbel
     if(cop@copula@name == "Gumbel") {
-	list(minimum = log(d)/(log(length(x))-log(sum(-log(x)))), objective = 0) # return value of the same structure as for optimize
+	theta.hat.G <- log(d)/(log(length(x))-log(sum(-log(x))))
+	if(theta.hat.G < 1){
+            if(warn) warning("edmle: DMLE for Gumbel = ",theta.hat.G," < 1; is set to 1")
+            theta.hat.G <- 1
+	}
+	list(minimum = theta.hat.G, objective = 0) # return value of the same structure as for optimize
     } else {
         ## optimize
 	nlogL <- function(theta) # -log-likelihood of the diagonal
