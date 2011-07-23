@@ -27,7 +27,7 @@
 ##'        value should be returned
 ##' @param u matrix of realizations following a copula
 ##' @param method method for obtaining initial values
-##' @param warn logical indicating whether a warning message is printed (the 
+##' @param warn logical indicating whether a warning message is printed (the
 ##'        default) if the DMLE for Gumbel is < 1 or not
 ##' @param ... further arguments to cor() for method="tau.mean"
 ##' @return initial interval or value which can be used for optimization
@@ -332,7 +332,7 @@ dDiagA <- function(u, d, cop, log=FALSE) {
 ##' @param cop outer_nacopula to be estimated
 ##' @param interval bivariate vector denoting the interval where optimization takes
 ##'        place
-##' @param warn logical indicating whether a warning message is printed (the 
+##' @param warn logical indicating whether a warning message is printed (the
 ##'        default) if the DMLE for Gumbel is < 1 or not
 ##' @param ... additional parameters for optimize
 ##' @return diagonal maximum likelihood estimator; return value of optimize
@@ -347,8 +347,8 @@ edmle <- function(u, cop, interval=initOpt(cop@copula@name), warn=TRUE, ...)
     ## explicit estimator for Gumbel
     if(cop@copula@name == "Gumbel") {
 	theta.hat.G <- log(d)/(log(length(x))-log(sum(-log(x))))
-	if(theta.hat.G < 1){
-            if(warn) warning("edmle: DMLE for Gumbel = ",theta.hat.G," < 1; is set to 1")
+	if(!is.finite(theta.hat.G) || theta.hat.G < 1) {
+            if(warn) warning("edmle: DMLE for Gumbel = ",theta.hat.G,"; not in [1, Inf); is set to 1")
             theta.hat.G <- 1
 	}
 	list(minimum = theta.hat.G, objective = 0) # return value of the same structure as for optimize
