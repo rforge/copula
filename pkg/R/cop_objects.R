@@ -26,7 +26,7 @@ copAMH <-
 	C. <- new("acopula", name = "AMH",
 		  ## generator
 		  psi = function(t, theta) { (1-theta)/(exp(t+0)-theta) },
-		  psiInv = function(u, theta, log=FALSE){ 
+		  psiInv = function(u, theta, log=FALSE) {
                       res <- log((1-theta*(1-u))/u) # alternative: log1p((1-theta)*(1/u-1))
                       if(log) log(res) else res
 		  },
@@ -63,13 +63,21 @@ copAMH <-
 		      }
 		  },
 		  ## density of the diagonal
-		  dDiag = function(u, theta, d, log=FALSE){
+		  dDiag = function(u, theta, d, log=FALSE) {
                       x <- (1-(1-u)*theta)/u
-                      if(log) log(d)+2*(log(x-theta)-log(x^d-theta))+(d-1)*log(x) else
-                      d*((x-theta)/(x^d-theta))^2*x^(d-1)
+		      if(any(iI <- is.infinite(x))) { ## for u == 0 (seems unneeded for small u << 1 ?)
+			  u[iI] <- 0
+			  ok <- !iI
+			  u[ok] <- C.@dDiag(u[ok], theta, d=d, log=log)
+			  return(u)
+		      }
+		      if(log) log(d)+ (d-1)*log(x) + 2*(log(x-theta)-log(x^d-theta))
+		      else d* x^(d-1) * ((x-theta)/(x^d-theta))^2
                   },
 		  ## density
-		  dacopula = function(u, theta, n.MC=0, log=FALSE, method = "negI-s-Eulerian", Li.log.arg=TRUE) {
+		  dacopula = function(u, theta, n.MC=0, log=FALSE,
+				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
+                  {
 		      stopifnot(C.@paraConstr(theta))
 		      if(!is.matrix(u)) u <- rbind(u)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
@@ -181,8 +189,8 @@ copClayton <-
 	C. <- new("acopula", name = "Clayton",
 		  ## generator
 		  psi = function(t, theta) { (1+t)^(-1/theta) },
-		  psiInv = function(u, theta, log=FALSE){ 
-                      res <- u^(-theta) - 1 
+		  psiInv = function(u, theta, log=FALSE) {
+                      res <- u^(-theta) - 1
                       if(log) log(res) else res
 		  },
 		  ## parameter interval
@@ -203,10 +211,10 @@ copClayton <-
 		  psiInvD1abs = function(u, theta, log = FALSE) {
 		      if(log) log(theta)-(1+theta)*log(u) else theta*u^(-(1+theta))
 		  },
-		  ## density of the diagonal 
+		  ## density of the diagonal
 		  dDiag = function(u, theta, d, log=FALSE){
                       if(log) log(d)-(1+1/theta)*log(1+(d-1)*(1-u^theta)) else
-                      d*(1+(d-1)*(1-u^theta))^(-(1+1/theta)) 
+                      d*(1+(d-1)*(1-u^theta))^(-(1+1/theta))
                   },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE) {
@@ -231,7 +239,7 @@ copClayton <-
 			  lx <- l - theta.*lu.mat - V %*% t(t) - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
 			  res[n01] <- lsum(lx)
 		      } else { # explicit
-			  res[n01] <- sum(log1p(theta*(0:(d-1)))) - (1+theta)*lu - 
+			  res[n01] <- sum(log1p(theta*(0:(d-1)))) - (1+theta)*lu -
                               (d+1/theta)*log1p(t)
 		      }
 		      if(log) res else exp(res)
@@ -311,22 +319,21 @@ copFrank <-
 
 ###-- do small Rmpfr-study to find the best form -- (4) above and the three forms below
 
-### FIXME 2 --- case  log=TRUE --
-		      ifelse(thu > .01*theta, # thu = u*th > .01*th <==> u > 0.01
-			 {   e.t <- exp(-theta)
-			     ifelse(e.t > 0 & abs(theta - thu) < 1/2,# th -th*u = th(1-u) < 1/2
-				    -log1p(e.t * expm1(theta - thu)/et1),
-				    -log1p((exp(-thu)- e.t) / et1))
-			 },
-			     ## for small u (u < 0.01) :
-			     -log(expm1(-thu)/et1))
+		      r <- ifelse(thu > .01*theta, # thu = u*th > .01*th <==> u > 0.01
+                              {   e.t <- exp(-theta)
+                                  ifelse(e.t > 0 & abs(theta - thu) < 1/2,# th -th*u = th(1-u) < 1/2
+                                         -log1p(e.t * expm1(theta - thu)/et1),
+                                         -log1p((exp(-thu)- e.t) / et1))
+                              },
+                                  ## for small u (u < 0.01) :
+                                  -log(expm1(-thu)/et1))
+                      if(log) log(r) else r
 		  },
 		  ## parameter interval
 		  paraInterval = interval("(0,Inf)"),
 		  ## absolute value of generator derivatives
-		  psiDabs = function(t, theta, degree = 1, n.MC = 0, log = FALSE,
-                  is.log.t = FALSE,
-                  method = "negI-s-Eulerian", Li.log.arg = TRUE)
+		  psiDabs = function(t, theta, degree = 1, n.MC = 0, log = FALSE, is.log.t = FALSE,
+				     method = "negI-s-Eulerian", Li.log.arg = TRUE)
               {
                   if(n.MC > 0) {
                       psiDabsMC(t, family="Frank", theta=theta, degree=degree,
@@ -344,16 +351,16 @@ copFrank <-
 		      if(log) log(theta)- {y <- u*theta; y + log1mexpm(y)}
 		      else theta/expm1(u*theta)
 		  },
-		  ## density of the diagonal 
-		  dDiag = function(u, theta, d, log=FALSE){
+		  ## density of the diagonal
+		  dDiag = function(u, theta, d, log=FALSE) {
                       h <- -expm1(-theta)
-                      x <- -expm1(-theta*u)/h 
+                      x <- -expm1(-theta*u)/h
                       if(log) log(d)+(d-1)*log(x)+log((1-h*x)/(1-h*x^d)) else
-                      d*x^(d-1)*(1-h*x)/(1-h*x^d)
+                      d*x^(d-1) * (1-h*x)/(1-h*x^d)
                   },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE,
-                  method = "negI-s-Eulerian", Li.log.arg=TRUE)
+				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
 	      {
 		  stopifnot(C.@paraConstr(theta))
 		  if(!is.matrix(u)) u <- rbind(u)
@@ -482,8 +489,8 @@ copGumbel <-
 	C. <- new("acopula", name = "Gumbel",
 		  ## generator
 		  psi = function(t, theta) { exp(-t^(1/theta)) },
-		  psiInv = function(u, theta, log=FALSE){ 
-                      if(log) theta*log(-log(u)) else (-log(u+0))^theta 
+		  psiInv = function(u, theta, log=FALSE) {
+                      if(log) theta*log(-log(u)) else (-log(u+0))^theta
 		  },
 		  ## parameter interval
 		  paraInterval = interval("[1,Inf)"),
@@ -523,16 +530,16 @@ copGumbel <-
 			  theta*(-lu)^(theta-1)/u
 		      }
 		  },
-		  ## density of the diagonal 
-		  dDiag = function(u, theta, d, log=FALSE){
+		  ## density of the diagonal
+		  dDiag = function(u, theta, d, log=FALSE) {
                       alpha <- 1/theta
-                      dalpha <- d^alpha
-                      if(log) (dalpha-1)*log(u)+alpha*log(d) else 
-                      dalpha*u^(dalpha-1)
+                      da <- d^alpha
+                      if(log) (da-1)*log(u) + alpha*log(d) else da*u^(da-1)
                   },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0,
-                  method= eval(formals(polyG)$method), log = FALSE) {
+				      method = eval(formals(polyG)$method), log = FALSE)
+              {
 		      stopifnot(C.@paraConstr(theta))
 		      if(!is.matrix(u)) u <- rbind(u)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
@@ -659,8 +666,8 @@ copJoe <-
 		      1 - (-expm1(0-t))^(1/theta)
 		      ## == 1 - (1-exp(-t))^(1/theta)
 		  },
-		  psiInv = function(u, theta, log=FALSE){ 
-                      res <- -log1p(-(1-u)^theta) 
+		  psiInv = function(u, theta, log=FALSE) {
+                      res <- -log1p(-(1-u)^theta)
                       if(log) log(res) else res
 		  },
 		  ## parameter interval
@@ -700,15 +707,16 @@ copJoe <-
 			  theta/((1-u)^(1-theta)-(1-u))
 		      }
 		  },
-		  ## density of the diagonal 
+		  ## density of the diagonal
 		  dDiag = function(u, theta, d, log=FALSE){
                       x <- 1-(1-u)^theta
                       if(log) log(d)+(d-1)*log(x)+(1/theta-1)*(log(1-x^d)-log(1-x)) else
-                      d*((1-x^d)/(1-x))^(1/theta-1)*x^(d-1)
+                      d*x^(d-1) * ((1-x^d)/(1-x))^(1/theta-1)
                   },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0,
-                  method=eval(formals(polyJ)$method), log = FALSE) {
+				      method = eval(formals(polyJ)$method), log = FALSE)
+              {
 		      stopifnot(C.@paraConstr(theta))
 		      if(!is.matrix(u)) u <- rbind(u)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2

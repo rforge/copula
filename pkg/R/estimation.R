@@ -346,12 +346,12 @@ edmle <- function(u, cop, interval=initOpt(cop@copula@name), warn=TRUE, ...)
     x <- apply(u, 1, max) # data from the diagonal
     ## explicit estimator for Gumbel
     if(cop@copula@name == "Gumbel") {
-	theta.hat.G <- log(d)/(log(length(x))-log(sum(-log(x))))
-	if(!is.finite(theta.hat.G) || theta.hat.G < 1) {
-            if(warn) warning("edmle: DMLE for Gumbel = ",theta.hat.G,"; not in [1, Inf); is set to 1")
-            theta.hat.G <- 1
+	th.G <- log(d)/(log(length(x))-log(sum(-log(x))))
+	if(!is.finite(th.G) || th.G < 1) {
+            if(warn) warning("edmle: DMLE for Gumbel = ",th.G,"; not in [1, Inf); is set to 1")
+            th.G <- 1
 	}
-	list(minimum = theta.hat.G, objective = 0) # return value of the same structure as for optimize
+	list(minimum = th.G, objective = 0) # return value of the same structure as for optimize
     } else {
         ## optimize
 	nlogL <- function(theta) # -log-likelihood of the diagonal
