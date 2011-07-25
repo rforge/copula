@@ -674,31 +674,32 @@ copJoe <-
 		  paraInterval = interval("[1,Inf)"),
 		  ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree = 1, n.MC = 0,
-                  method= eval(formals(polyJ)$method), log = FALSE) {
-                      is0 <- t == 0
-                      isInf <- is.infinite(t)
-                      res <- numeric(n <- length(t))
-                      res[is0] <- if(theta==1) 0 else Inf # Note: psiDabs(0, ...) is correct (even for n.MC > 0)
-                      res[isInf] <- -Inf
-                      n0Inf <- !(is0 | isInf)
-                      if(all(!n0Inf)) return(if(log) res else exp(res))
-                      t. <- t[n0Inf]
-                      if(n.MC > 0) {
-                          res[n0Inf] <- psiDabsMC(t, family="Joe", theta=theta,
-                                                  degree=degree, n.MC=n.MC, log=TRUE)
+                  		     method= eval(formals(polyJ)$method), log = FALSE)
+              {
+                  is0 <- t == 0
+                  isInf <- is.infinite(t)
+                  res <- numeric(n <- length(t))
+                  res[is0] <- if(theta==1) 0 else Inf # Note: psiDabs(0, ...) is correct (even for n.MC > 0)
+                  res[isInf] <- -Inf
+                  n0Inf <- !(is0 | isInf)
+                  if(all(!n0Inf)) return(if(log) res else exp(res))
+                  t. <- t[n0Inf]
+                  if(n.MC > 0) {
+                      res[n0Inf] <- psiDabsMC(t, family="Joe", theta=theta,
+                                              degree=degree, n.MC=n.MC, log=TRUE)
+                  } else {
+                      if(theta == 1) {
+                          res[n0Inf] <- -t. # independence
                       } else {
-                          if(theta == 1) {
-                              res[n0Inf] <- -t. # independence
-                          } else {
-                              alpha <- 1/theta
-                              mt <- -t.
-                              l1mt <- log1mexpm(t.)# log(1-exp(-t))
-                              sum. <- polyJ(mt-l1mt, alpha, degree, method=method, log=TRUE)
-                              res[n0Inf] <- -log(theta) + mt - (1-alpha)*l1mt + sum.
-                          }
+                          alpha <- 1/theta
+                          mt <- -t.
+                          l1mt <- log1mexpm(t.) # log(1-exp(-t))
+                          sum. <- polyJ(mt-l1mt, alpha, degree, method=method, log=TRUE)
+                          res[n0Inf] <- -log(theta) + mt - (1-alpha)*l1mt + sum.
                       }
-                      if(log) res else exp(res)
-                  },
+                  }
+                  if(log) res else exp(res)
+              },
                   ## derivatives of the generator inverse
 		  psiInvD1abs = function(u, theta, log = FALSE) {
 		      if(log) {
@@ -708,11 +709,15 @@ copJoe <-
 		      }
 		  },
 		  ## density of the diagonal
-		  dDiag = function(u, theta, d, log=FALSE){
-                      x <- 1-(1-u)^theta
-                      if(log) log(d)+(d-1)*log(x)+(1/theta-1)*(log(1-x^d)-log(1-x)) else
-                      d*x^(d-1) * ((1-x^d)/(1-x))^(1/theta-1)
-                  },
+		  dDiag = function(u, theta, d, log=FALSE) {
+		      ##  d* x^(d-1) * ((1-x^d)/(1-x)) ^ (1/theta-1), where  x = 1 - (1-u)^theta
+		      ##  we use  (1-x^d)/(1-x) === circRat((1-u)^theta, d)
+		      Ix <- (1-u)^theta
+		      x <- 1-Ix
+		      if(log) log(d)+ (d-1)*log(x) + (1/theta-1)*log(circRat(Ix, d))
+		      ## FIXME? for log-case: log(circRat(Ix, d)) = log1p(-x^d)-theta*log1p(-u))
+		      else d* x^(d-1) * circRat(Ix, d)^(1/theta-1)
+		  },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0,
 				      method = eval(formals(polyJ)$method), log = FALSE)

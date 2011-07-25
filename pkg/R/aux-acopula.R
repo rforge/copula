@@ -376,8 +376,8 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"
 		   if(log) log(abs(sm)) else (-1)^(d-k.)*sm
 	       }, NA_real_)
 	   },
-       {stop(sprintf("unsupported method '%s' in coeffG", method))}
-           ) ## switch()
+	   stop(sprintf("unsupported method '%s' in coeffG", method))
+	   ) ## switch()
 } ## coeffG()
 
 ### ==== compute the polynomial for Gumbel ====
@@ -504,9 +504,8 @@ polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
                lsum(logx)
            }else colSums(exp(logx))
        },
-           stop(sprintf("unsupported method '%s' in polyG",
-                        method))
-           ) # end{switch}
+	   stop(sprintf("unsupported method '%s' in polyG", method))
+	   ) # end{switch}
 }
 
 
@@ -755,15 +754,15 @@ dsumSibuya <- function(x, n, alpha,
 ##'        was used earlier; e.g., for copJoe@dacopula, lx = log(h(u)/(1-h(u))) for
 ##'        h(u) = \prod_{j=1}^d(1-(1-u_j)^theta), where u = (u_1,..,u_d) is the
 ##'        evaluation point of the density of Joe's copula)
-##' @param alpha parameter (1/theta) in (0,1]
+##' @param alpha parameter alpha ( := 1/theta ) in (0,1]
 ##' @param d number of summands
 ##' @param method different methods, can be
 ##'        "log.poly" intelligent log version
 ##'        "log1p"    additonally uses log1p
 ##'        "poly"     brute force log version
 ##' @param log boolean which determines if the logarithm is returned
-##' @return \sum_{k=1}^d a_{dk}(theta) exp((k-1)*lx),
-##'         where a_{dk}(theta) = S(d,k)*(k-1-alpha)_{k-1} = S(d,k)*Gamma((1:d)-alpha)/Gamma(1-alpha)
+##' @return \sum_{k=1}^d a_{d,k}(theta) exp((k-1)*lx) = \sum_{k=0}^{d-1} a_{d,k+1}(theta) x^k
+##'         where a_{d,k}(theta) = S(d,k)*(k-1-alpha)_{k-1} = S(d,k)*Gamma((1:d)-alpha)/Gamma(1-alpha)
 ##' @author Marius Hofert and Martin Maechler
 polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE) {
     stopifnot(length(alpha)==1, 0 < alpha, alpha <= 1)
@@ -785,8 +784,7 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE) 
                ##     + (k-1)*lx) = \sum_{k=1}^d \exp(b_k) = \exp(b_{max})*\sum_{k=1}^d
                ##     \exp(b_k-b_{max})
                ## (3) => log(\sum...) = b_{max} + log(\sum_{k=1}^d \exp(b_k-b_{max}))
-               res <- lsum(B)
-               if(log) res else exp(res)
+               if(log) lsum(B) else exp(lsum(B))
            },
            "log1p" = {
                ## use log(1 + sum(<smaller>)) = log1p(sum(<smaller>)),
@@ -804,8 +802,48 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE) 
                res <- colSums(exp(B))
                if(log) log(res) else res
            },
-       {stop(sprintf("unsupported method '%s' in polyJ", method))})
+       stop(sprintf("unsupported method '%s' in polyJ", method)))
 }
+
+##' Circular/Rational function	(1 - x^d)/(1 - x) for x ~~ 1, i.e.,
+##' compute (1 - x^d)/(1 - x) = (1 - (1-e)^d) / e   for	 e = 1-x (<< 1) and integer d
+##'
+##' @title Circular/Rational function  (1 - (1-e)^d) / e  {incl. limit e -> 0}
+##' @param e numeric vector in [0, 1]
+##' @param d integer (scalar), >= 1
+##' @return (1 - (1-e)^d) / e
+##' @author Martin Maechler, Date: 25 Jul 2011
+circRat <- function(e, d)
+{
+### TODO (?):  improve "log=TRUE", for e ~= 1:	log(circRat(e, d)) = log1p(-x^d) - log(e)
+    stopifnot(length(d) == 1, d == as.integer(d), d >= 1)
+    if(d <= 6)
+	switch(d,
+	       1-0*e, ## <<- d = 1
+	       2-e,   ## <<- d = 2: 1 2 1
+	       3-e*(3-e),#   d = 3: 1 3 3 1
+	       4-e*(6-e*(4-e)),		       ## d = 4: 1 4 6 4 1
+	       5-e*(10-e*(10-e*(5-e))),	       ## d = 5: 1 5 10 10 5 1
+	       6-e*(15-e*(20-e*(15-e*(6-e))))  ## d = 6: 1 6 15 20 15 6 1
+	       )
+    else { ## d >= 7 ---------------
+	r <- e
+	eps <- .Machine$double.eps
+	if(any(l1 <- ((d1 <- (d-1)/2)*e < eps)))
+	    r[l1] <- d
+	if(any(l2 <- !l1 & ((d2 <- (d-2)/3)*(e2 <- e*e) < eps)))
+	    r[l2] <- d*(1 - d1*e[l2])
+	if(any(l3 <- !l1 & !l2 & ((d3 <- (d-3)/4)*e*e2 < eps)))
+	    r[l3] <- d*(1 - d1*e[l3]*(1 - d2*e[l3]))
+	## and for the remaining ones, we afford a little precision loss:
+	if(any(lrg <- !l1 & !l2 & !l3)) {
+	    e <- e[lrg]
+	    r[lrg] <- (1 - (1-e)^d)/e
+	}
+	r
+    }
+}
+
 
 ### ==== other NON-numerics ====================================================
 
@@ -905,7 +943,7 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC,
                }
                if(log) res else exp(res)
            },
-           stop(sprintf("unsupported method '%s' in psiDabsMC", method)))
+	   stop(sprintf("unsupported method '%s' in psiDabsMC", method)))
 }
 
 ##' Function for setting the parameter in an acopula
