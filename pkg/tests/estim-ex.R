@@ -149,5 +149,13 @@ stopifnot(identical(0, dDiag(0, onacopulaL("AMH", list(0.5, 1:4)))),
           TRUE)
 
 demo("dDiag-plots", package = "nacopula")
+##    -----------> ../demo/dDiag-plots.R
+
+showProc.time()
+
+## A problem to solve:
+curve(copAMH@dDiag(exp(-x), theta=.9, d=4, log=TRUE), 0, 500, n=2001,
+      col = 2, lwd= 2,
+      main = "FIXME (*not* urgent): dDiag(u, <AMH>,  log=TRUE)   for small u")
 
 showProc.time()

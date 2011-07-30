@@ -66,7 +66,7 @@ copAMH <-
 		  dDiag = function(u, theta, d, log=FALSE) {
                       x <- (1-(1-u)*theta)/u
 		      if(any(iI <- is.infinite(x))) { ## for u == 0 (seems unneeded for small u << 1 ?)
-			  u[iI] <- 0
+			  u[iI] <- if(log) -Inf else 0
 			  ok <- !iI
 			  u[ok] <- C.@dDiag(u[ok], theta, d=d, log=log)
 			  return(u)
@@ -353,11 +353,22 @@ copFrank <-
 		  },
 		  ## density of the diagonal
 		  dDiag = function(u, theta, d, log=FALSE) {
-                      h <- -expm1(-theta)
-                      x <- -expm1(-theta*u)/h
-                      if(log) log(d)+(d-1)*log(x)+log((1-h*x)/(1-h*x^d)) else
-                      d*x^(d-1) * (1-h*x)/(1-h*x^d)
-                  },
+		      r <- ut <- u*theta
+		      ## h <- -expm1(-ut) # 1 - exp(-u * theta)
+		      ## L <- ut > log(2)*.Machine$double.digits # <==> exp(-ut) < Mach..eps <==> h=1
+                      ## empirically, this is "better:"
+		      ## (more in ../demo/dDiag-plots.R -- should also depend on d !
+		      L <- ut > 25   # [L]arge
+		      S <- ut < 0.10 # [S]mall
+		      M <- !L & !S   # [M]edium
+		      ## recycle (u, theta):
+		      u	 <- rep(u,     length.out=length(ut))
+		      th <- rep(theta, length.out=length(ut))
+		      r[L] <- dDiagFrank(u[L], th[L], d, log=log, method = "poly2")
+		      r[M] <- dDiagFrank(u[M], th[M], d, log=log, method = "poly4")
+		      r[S] <- dDiagFrank(u[S], th[S], d, log=log, method = "m1")
+		      r
+		  },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE,
 				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
@@ -496,7 +507,7 @@ copGumbel <-
 		  paraInterval = interval("[1,Inf)"),
 		  ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree=1, n.MC=0,
-                  method=eval(formals(polyG)$method), log = FALSE) {
+				     method = eval(formals(polyG)$method), log = FALSE) {
 	              is0 <- t == 0
                       isInf <- is.infinite(t)
 	              res <- numeric(n <- length(t))

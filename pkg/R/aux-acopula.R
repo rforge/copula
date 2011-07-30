@@ -280,6 +280,72 @@ rF01Frank <- function(V0, theta0, theta1, rej, approx) {
 rFFrank <- function(n, theta0, theta1, rej)
     rF01Frank(rep(1,n),theta0,theta1,rej,1) # approx = 1 (dummy)
 
+dDiagFrank <- function(u, theta, d, log=FALSE,
+		       method = c("auto", paste("poly",1:4,sep=""),
+                       "polyFull",  "m1", "MH", "MMH"))
+{
+    stopifnot(length(d <- as.integer(d)) == 1, d >= 1)
+    r <- ut <- u*theta
+    Ie <- -expm1(-ut) # 1 - exp(-u * theta)
+    ## L <- ut > log(2)*.Machine$double.digits # <==> exp(-ut) < Mach..eps
+    method <- match.arg(method)
+    if(method == "auto")
+	method <- {
+	    if(d <= 3) "poly1" else
+	    if(d <= 6) paste("poly", d-2, sep="")
+	    else ## this is not really good: but (u*th) is *vector*
+		"polyFull"
+    }
+    if(substr(method, 1,4) == "poly") {
+	e.ut <- exp(-ut)
+	ep <- (e.ut - exp(ut-theta))/Ie # "FIXME": maybe improve, testing  u > 1/2
+	d1 <- d-1
+	D <- d + d1*ep
+        if(d > 2) { # <==> d1 = d-1 >= 2
+            f <- 1 + ep
+            delt <- e.ut * f
+	    D <- D + f* delt *
+		switch(method,
+		       "poly1" = d1*(d-2L)/2,
+		       "poly2" = d1*(d-2L)/2 *(1 + (d-3L)/3 * delt),
+		       "poly3" = d1*(d-2L)/2 *(1 + (d-3L)/3 * delt *
+                       (1 + (d-4L)/4 * delt)),
+		       "poly4" = d1*(d-2L)/2 *(1 + (d-3L)/3 * delt *
+                       (1 + (d-4L)/4 * delt*(1 + (d-5L)/5 * delt))),
+		       "polyFull" = { ## full polynomial formula
+			   if(is(ut, "mpfr"))
+			       sfsmisc::polyn.eval(chooseMpfr.all(d1)[-1], x = delt)
+			   else		 polynEval(choose      (d1, 2:d1), x = delt)
+		       },
+		       stop("invalid poly* method: ", method,
+			    ". Should never happen") )
+	}
+        if(log) log(d) - log(D) else d / D
+    }
+    else switch(method,
+	   "m1" = {
+	       h <- -expm1(-theta) # =	1 - exp(-theta)
+	       D <- (h/Ie)^(d-1) - Ie # D := [d]enominator
+	       if(log) log(d) -ut -log(D) else d*exp(-ut) / D
+	   },
+	   "MH" = { # Marius Hofert
+	       h <- -expm1(-theta) # =	1 - exp(-theta)
+	       x <- Ie/h
+	       if(log) log(d)+(d-1)*log(x)+log((1-h*x)/(1-h*x^d)) else
+	       d*x^(d-1)*(1-h*x)/(1-h*x^d)
+	   },
+	   "MMH" = { # Martin's version of "MH"
+	       h <- -expm1(-theta) # =	1 - exp(-theta)
+	       x <- Ie/h #-> h*x = Ie
+	       r <- ## log( (1-h*x)/(1-h*x^d) ); 1-h*x = 1-Ie = exp(-u * theta) = exp(-ut)
+		   -ut - log1p(-h*x^d)
+	       if(log) log(d)+(d-1)*log(x) + r else d*x^(d-1)*exp(r)
+	   },
+	   stop("impossible method: ", method,". Should never happen"))
+}
+
+
+
 
 ### ==== Gumbel ================================================================
 

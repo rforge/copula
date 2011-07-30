@@ -3,6 +3,7 @@
 (MM) there are still some .Rd files (e.g., estim-misc.Rd), which do not contain
      linebreaks in the paragraphs [just in the .Rd file -- pdf looks fine]. Can
      this create problems in the html [or any other] version?
+     --> for f in *Rd; do printf '%20s: ' $f ; printf '%4d\n' `maxcol $f` ; done
 (MM) is the FIXME in Sibuya.Rd (line 12) solvable?
 (MM) Change onacopula() such that it works via onacopulaL() and hence
      can be used also from other functions.
