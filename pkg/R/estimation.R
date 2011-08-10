@@ -297,8 +297,9 @@ dDiag <- function(u, cop, log=FALSE) {
         stop("currently, only Archimedean copulas are provided")
     }
     else ## (non-nested) Archimedean :
-        dDiagA(u, d=d, cop = cop@copula, log=log)
-    ## FIXME:cop@copula@dDiag(u, theta=cop@copula@theta, d=d, log=log)
+    ## FIXME: choose one or the other (if a family has no such slot)
+    ##    dDiagA(u, d=d, cop = cop@copula, log=log)
+    cop@copula@dDiag(u, theta=cop@copula@theta, d=d, log=log)
 }
 
 ##' @title Generic density of the diagonal of d-dim. Archimedean copula
