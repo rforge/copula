@@ -6,15 +6,15 @@
   routines (only a heuristic; if this fails, choose your own interval or value).
 }
 \usage{
-initOpt(family, tau.range=NULL, value=FALSE, u, 
+initOpt(family, tau.range=NULL, interval=TRUE, u, 
 	     method=c("tau.Gumbel", "tau.mean"), warn=TRUE, ...)
 }
 \arguments{
   \item{family}{Archimedean family to find an initial interval for.}
   \item{tau.range}{vector containing lower and upper admissible Kendall's tau.}
-  \item{value}{\code{\link{logical}} indicating whether an initial interval (the
-    default) or an initial value should be returned.}
-  \item{u}{matrix of realizations following the copula family specified by \code{family}.  Note that \code{u} can be omitted if \code{value=FALSE}.}
+  \item{interval}{\code{\link{logical}} indicating whether an initial interval
+    (the default) or an initial value should be returned.}
+  \item{u}{matrix of realizations following the copula family specified by \code{family}.  Note that \code{u} can be omitted if \code{interval=TRUE}.}
   \item{method}{a \code{\link{character}} string specifying the method to be
     used to compute an estimate of Kendall's tau.  This has to be one (or a
     unique abbreviation) of
@@ -29,7 +29,7 @@ initOpt(family, tau.range=NULL, value=FALSE, u,
   \item{...}{additional arguments passed to \code{cor()} when \code{method="tau.mean"}.}
 }
 \details{
-  For \code{method="tau.mean"} and \code{value=TRUE}, the mean of pairwise
+  For \code{method="tau.mean"} and \code{interval=FALSE}, the mean of pairwise
   sample versions of Kendall's tau is computed as an estimator of the Kendall's
   tau of the Archimedean copula family provided.  This can be slow, especially
   if the dimension is large.  Method \code{method="tau.Gumbel"} (the default)
@@ -46,8 +46,9 @@ initOpt(family, tau.range=NULL, value=FALSE, u,
   family for which the initial value is to be computed.  Note that if the 
   estimated Kendall's tau does not lie in the range of Kendall's tau as provided
   by the bivariate vector \code{tau.range}, the point in \code{tau.range}
-  closest to the estimated Kendall's tau is chosen. The default 
-  (\code{value=FALSE}) returns a reasonably large initial
+  closest to the estimated Kendall's tau is chosen. 
+
+  The default (\code{interval=TRUE}) returns a reasonably large initial
   interval, see the default of \code{tau.range} in the definition of
   \code{initOpt} for the chosen values (in terms of Kendall's tau).  These
   default values cover a large range of concordance.  If this interval is
@@ -55,7 +56,8 @@ initOpt(family, tau.range=NULL, value=FALSE, u,
   too large, a \sQuote{distance to concordance} can be used to determine
   parameter values such that the corresponding Kendall's taus share a certain
   distance to the initial value.  For more details, see Hofert et al. (2011a). 
-  Finally, let us note that \code{u} is not required if \code{value=FALSE}.
+  Finally, let us note that for the case \code{interval=TRUE}, \code{u} is not
+  required.
 }
 \value{initial interval which can be used for optimization (e.g., for
   \code{\link{emle}}).
@@ -87,6 +89,6 @@ U <- rnacopula(n, cop)
 initOpt("Gumbel") # contains theta
 
 ## Initial values:
-initOpt("Gumbel", value=TRUE, u=U) # 1.3195
-initOpt("Gumbel", value=TRUE, u=U, method="tau.mean") # 1.2844
+initOpt("Gumbel", interval=FALSE, u=U) # 1.3195
+initOpt("Gumbel", interval=FALSE, u=U, method="tau.mean") # 1.2844
 }

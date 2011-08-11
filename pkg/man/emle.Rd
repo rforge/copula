@@ -9,7 +9,7 @@
 \usage{
 emle(u, cop, n.MC=0, optimizer="optimize", method,
      interval=initOpt(cop@copula@name),
-     start=list(theta=initOpt(cop@copula@name, value=TRUE, u=u)),
+     start=list(theta=initOpt(cop@copula@name, interval=FALSE, u=u)),
      \dots)
 .emle(u, cop, n.MC=0,
       interval=initOpt(cop@copula@name), \dots)

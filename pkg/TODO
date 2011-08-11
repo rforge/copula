@@ -1,34 +1,20 @@
 #### Major (to fix before next release) ########################################
 
-(MM) there are still some .Rd files (e.g., estim-misc.Rd), which do not contain
+(*) there are still some .Rd files (e.g., estim-misc.Rd), which do not contain
      linebreaks in the paragraphs [just in the .Rd file -- pdf looks fine]. Can
      this create problems in the html [or any other] version?
      --> for f in *Rd; do printf '%20s: ' $f ; printf '%4d\n' `maxcol $f` ; done
-(MM) is the FIXME in Sibuya.Rd (line 12) solvable?
-(MM) Change onacopula() such that it works via onacopulaL() and hence
-     can be used also from other functions.
-     s. FIXME nacopula.R, line 202: onacopulaL() -- replacing nacStructure by
-     nacList
-(MM) please check the dDiag slots in cop_objects.R; can they be simplified?
+
 (MH) document problem with Anderson-Darling test & empirical margins
 (MH) implement Bruno's test statistic
-(*) implement log-slot for all psiInv; also psi's?
-(*) implement gnacopula with proper exp(log()) ... using log-slots of psiInv
-(*) make paraOptInterval safer and document what users should do for "extreme" parameters
-
-(MM) please check etau() if correctly implemented
-
-(*) write nice little function that provides confidence intervals for tau and lambda's
-(MM) next giant run brought the following awareness:
-(1) tauInv for Frank is not fail-safe: safeUroot tries to enlarge interval and then fails
-    => (MH): should be fixed now!!! [see in the next run]
-(2) Frank and Joe both have trouble for DMLE, even in small dimensions and for all parameters
-=> if (1) and (2) are fixed, we can run the giant simulation for tau=0.75
-
+(MH) implement gnacopula with proper exp(log()) ... using log-slots of psiInv
+(MH) make paraOptInterval safer and document what users should do for "extreme" parameters
 (MH) implement Bruno's + Christian's test statistic; mention that convergence of AD not clear
      => split method in meth1d and meth
 (MH) check linebreaks in man pages before final release
 (MH) oxford style guide for manual!
+
+(*) write nice little function that provides confidence intervals for tau and lambda's
 
 #### DONE ######################################################################
 
@@ -51,6 +37,12 @@
 (MH) improve initOpt with pairwise tau
 (MH) implement gnacopulatrafo with proper exp(log()) ... using log-slots of psiInv
 (MH) put in new meaning of warn-slot of etau() in the man page
+(MH) implement log-slot for all psiInv; also psi's?
+(MM) please check the dDiag slots in cop_objects.R; can they be simplified?
+(MM) Change onacopula() such that it works via onacopulaL() and hence
+     can be used also from other functions.
+     s. FIXME nacopula.R, line 202: onacopulaL() -- replacing nacStructure by
+     nacList
 
 #### Minor #####################################################################
 

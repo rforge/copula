@@ -549,7 +549,7 @@ copGumbel <-
                   },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0,
-				      method = eval(formals(polyG)$method), log = FALSE)
+				      method = eval(formals(polyG)$method), log=FALSE)
               {
 		      stopifnot(C.@paraConstr(theta))
 		      if(!is.matrix(u)) u <- rbind(u)

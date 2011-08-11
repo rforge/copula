@@ -23,8 +23,8 @@
 ##' @title Compute an initial interval or value for estimation procedures
 ##' @param family Archimedean family
 ##' @param tau.range vector containing lower and upper admissible Kendall's tau
-##' @param value logical determining if an interval (the default) or an initial
-##'        value should be returned
+##' @param interval logical determining if an initial interval (the default) or 
+##'        an initial value should be returned
 ##' @param u matrix of realizations following a copula
 ##' @param method method for obtaining initial values
 ##' @param warn logical indicating whether a warning message is printed (the
@@ -32,7 +32,7 @@
 ##' @param ... further arguments to cor() for method="tau.mean"
 ##' @return initial interval or value which can be used for optimization
 ##' @author Marius Hofert
-initOpt <- function(family, tau.range=NULL, value=FALSE, u, method=c("tau.Gumbel",
+initOpt <- function(family, tau.range=NULL, interval=TRUE, u, method=c("tau.Gumbel",
                                                             "tau.mean"), warn=TRUE,
                     ...){
     cop <- getAcop(family)
@@ -41,17 +41,17 @@ initOpt <- function(family, tau.range=NULL, value=FALSE, u, method=c("tau.Gumbel
         tau.range <- switch(cop@name, # limiting (attainable) taus that can be dealt with in estimation/optimization/root-finding
                             "AMH" = { c(0, 1/3-eps) },
                             "Clayton" = { c(eps, 0.95) },
-                            "Frank" = { c(eps, 0.94) }, # beyond that, estimation.gof() fails for ebeta()!
+                            "Frank" = { c(eps, 0.94) }, # FIXME: beyond that, estimation.gof() fails for ebeta()!
                             "Gumbel" = { c(0, 0.95) },
                             "Joe" = { c(0, 0.95) },
                             stop("unsupported family for initOpt"))
     }
-    if(!value) return(cop@tauInv(tau.range)) # for value=FALSE, u is not required
+    if(interval) return(cop@tauInv(tau.range)) # u is not required
     stopifnot(length(dim(u)) == 2)
     method <- match.arg(method)
     ## estimate Kendall's tau
     tau.hat <- switch(method,
-                      "tau.Gumbel"={
+                      "tau.Gumbel" = {
                           x <- apply(u, 1, max)
                           theta.hat.G <- log(ncol(u))/(log(length(x))-log(sum(-log(x)))) # direct formula from edmle for Gumbel
                           if(theta.hat.G < 1){
@@ -60,19 +60,19 @@ initOpt <- function(family, tau.range=NULL, value=FALSE, u, method=c("tau.Gumbel
 			  }
                           copGumbel@tau(theta.hat.G)
                       },
-                      "tau.mean"={
+                      "tau.mean" = {
                           tau.hat.mat <- cor(u, method="kendall", ...) # matrix of pairwise tau()
                           mean(tau.hat.mat[upper.tri(tau.hat.mat)]) # mean of estimated taus
                       },
                       stop("wrong method for initOpt"))
     ## truncate if required
-    if(tau.hat < tau.range[1]){
-        cop@tauInv(tau.range[1])
+    cop@tauInv(if(tau.hat < tau.range[1]){
+        tau.range[1]
     }else if(tau.hat > tau.range[2]){
-        cop@tauInv(tau.range[2])
+        tau.range[2]
     }else{
-        cop@tauInv(tau.hat)
-    }
+        tau.hat
+    })
 }
 
 ## ==== Blomqvist's beta =======================================================
@@ -406,7 +406,7 @@ edmle <- function(u, cop, interval=initOpt(cop@copula@name), warn=TRUE, ...)
 emle <- function(u, cop, n.MC=0, optimizer="optimize", method,
 		 interval=initOpt(cop@copula@name),
                  ##vvv awkward to be needed, but it is - by mle2():
-                 start = list(theta=initOpt(cop@copula@name, value=TRUE, u=u)),
+                 start = list(theta=initOpt(cop@copula@name, interval=FALSE, u=u)),
                  ...)
 {
     stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 2,
