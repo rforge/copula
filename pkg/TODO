@@ -5,47 +5,18 @@
      this create problems in the html [or any other] version?
      --> for f in *Rd; do printf '%20s: ' $f ; printf '%4d\n' `maxcol $f` ; done
 
+(MH) check linebreaks in man pages before final release
+(MH) oxford style guide for manual!
 (MH) document problem with Anderson-Darling test & empirical margins
 (MH) implement Bruno's test statistic
 (MH) implement gnacopula with proper exp(log()) ... using log-slots of psiInv
 (MH) make paraOptInterval safer and document what users should do for "extreme" parameters
 (MH) implement Bruno's + Christian's test statistic; mention that convergence of AD not clear
      => split method in meth1d and meth
-(MH) check linebreaks in man pages before final release
-(MH) oxford style guide for manual!
-
-(*) write nice little function that provides confidence intervals for tau and lambda's
-
-#### DONE ######################################################################
-
-(MH) dDiag devectorize
-(MH) built in a dDiag slot for all families
-(MH) implement log-slot for all psiInv; also psi's? => DONE (except for Frank,
-    this is just log(psiInv()))
-(MH) replace K(t) by K(u) => arg is in [0,1]
-(MH) make paraOptInterval safer and document what users should do for "extreme"
-    parameters
-(MM) AMH & d=5 => make fail-safe
-(MH) paraOptInterval: this function is *evil*! Although it finds good *initial
-     values*, it does *not* find good *initial intervals* [e.g., for Clayton].
-     Using these initial intervals in the optimization is dangerous because it
-     is not ensured that the optimum lies in the given interval.
-     MH: implemented a new function called initOpt. It provides initial intervals
-         (reasonably large for the optimization to work; not depending on u) or
-         initial values. This function does not create the impression that the
-         computed initial intervals contain the optimal parameter.
-(MH) improve initOpt with pairwise tau
-(MH) implement gnacopulatrafo with proper exp(log()) ... using log-slots of psiInv
-(MH) put in new meaning of warn-slot of etau() in the man page
-(MH) implement log-slot for all psiInv; also psi's?
-(MM) please check the dDiag slots in cop_objects.R; can they be simplified?
-(MM) Change onacopula() such that it works via onacopulaL() and hence
-     can be used also from other functions.
-     s. FIXME nacopula.R, line 202: onacopulaL() -- replacing nacStructure by
-     nacList
 
 #### Minor #####################################################################
 
+(*) write nice little function that provides confidence intervals for tau and lambda's
 (*) fix:
     cop <- onacopulaL("Frank", list(200, 1:2)); rnacopula(100, cop)
     maybe use limit copulas also for other families (upper frechet bound)

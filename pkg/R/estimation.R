@@ -32,9 +32,8 @@
 ##' @param ... further arguments to cor() for method="tau.mean"
 ##' @return initial interval or value which can be used for optimization
 ##' @author Marius Hofert
-initOpt <- function(family, tau.range=NULL, interval=TRUE, u, method=c("tau.Gumbel",
-                                                            "tau.mean"), warn=TRUE,
-                    ...){
+initOpt <- function(family, tau.range=NULL, interval=TRUE, u, method=c("tau.Gumbel", 
+                                                              "tau.mean"), warn=TRUE, ...){
     cop <- getAcop(family)
     if(is.null(tau.range)){
 	eps <- 1e-8
@@ -142,6 +141,36 @@ ebeta <- function(u, cop, interval=initOpt(cop@copula@name), ...) {
 
 ## ==== Kendall's tau ==========================================================
 
+##' Sample tau checker
+##' 
+##' @title Check sample versions of Kendall's tau 
+##' @param x vector of sample versions of Kendall's tau to be checked for whether
+##'        they are in the range of tau of the corresponding family
+##' @param family Archimedean family
+##' @return checked and (if check failed) modified x
+##' @author Marius Hofert   
+tau.checker <- function(x, family, warn=TRUE){
+    eps <- 1e-8
+    tau.range <- switch(family, # limiting (attainable) taus that can be dealt with by copFamily@tauInv()
+                        "AMH" = { c(0, 1/3) }, # limit is correct in copAMH@tauInv(c(0,1/3))
+                        "Clayton" = { c(0, 1-eps) }, # copClayton@tauInv(c(0,1-eps))
+                        "Frank" = { c(eps, 1-eps) }, # copFrank@tauInv(c(0,1-eps))
+                        "Gumbel" = { c(0, 1-eps) }, # copGumbel@tauInv(c(0,1-eps))
+                        "Joe" = { c(0, 1-eps) }, # copJoe@tauInv(c(0,1-eps))
+                        stop("unsupported family for initOpt"))
+    toosmall <- which(x < tau.range[1])
+    toolarge <- which(x > tau.range[2])
+    if(warn && length(toosmall)+length(toolarge) > 0){
+	r <- range(x)
+	warning("tau.checker: modified the x values out of range; min(x) = ",r[1],", max(x) = ",r[2])
+	
+    }
+    x. <- x
+    x.[toosmall] <- tau.range[1]
+    x.[toolarge] <- tau.range[2]
+    x.
+}
+
 ##' Compute pairwise estimators for nested Archimedean copulas based on Kendall's tau
 ##'
 ##' @title Pairwise estimators for nested Archimedean copulas based on Kendall's tau
@@ -157,35 +186,28 @@ ebeta <- function(u, cop, interval=initOpt(cop@copula@name), ...) {
 ##' @param ... additional arguments to cor()
 ##' @return averaged pairwise cor() estimators
 ##' @author Marius Hofert
-etau <- function(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...)
-{
+etau <- function(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...){
     stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 2,
               max(cop@comp) == d)
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
     tau.hat.mat <- cor(u, method="kendall",...) # matrix of pairwise tau()
     tau.hat <- tau.hat.mat[upper.tri(tau.hat.mat)] # all tau hat's
-    ## check if there are tau's < 0
-    if((l <- length(ind <- which(tau.hat < 0))) > 0){
-	if(warn){
-	    ct <- sort(tau.hat[ind])
-            ct <- if(l > 3) paste(paste(format(ct[1:3]), collapse=", "),
-                                  ", ...",sep="") else format(ct)
-            warning("etau: There ",if(l==1) "is " else "are ",l," pairwise Kendall's tau < 0, ",
-                    if(l==1) "" else "the smallest ","being tau = ", ct)
-        }
-        tau.hat[ind] <- 0
-    }
-    ## apply tauInv in the appropriate way
+    ## define tau^{-1}
     tau_inv <- if(cop@copula@name == "AMH")
 	function(tau) cop@copula@tauInv(tau, check=FALSE, warn=warn) else cop@copula@tauInv
+    ## check and apply tauInv in the appropriate way
     method <- match.arg(method)
     switch(method,
            "tau.mean" = {
-               tau_inv(mean(tau.hat)) # Kendall's tau corresponding to the mean of the tau hat's
+	       mean.tau.hat <- mean(tau.hat) # mean of pairwise tau.hat
+	       mean.tau.hat. <- tau.checker(mean.tau.hat, family=cop@copula@name, 
+                                            warn=warn) # check the mean 
+               tau_inv(mean.tau.hat.) # Kendall's tau corresponding to the mean of the sample versions of Kendall's taus
            },
            "theta.mean" = {
-               mean(tau_inv(tau.hat)) # mean of the Kendall's tau
+	       tau.hat. <- tau.checker(tau.hat, family=cop@copula@name, warn=warn) # check all values
+               mean(tau_inv(tau.hat.)) # mean of the pairwise Kendall's tau estimators
            },
        {stop("wrong method")})
 }
@@ -264,9 +286,8 @@ emde.dist <- function(u, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
 ##' @return minimum distance estimator; return value of optimize
 ##' @author Marius Hofert
 emde <- function(u, cop, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.CvM",
-                         "mde.log.KS"),
-                 interval = initOpt(cop@copula@name),
-                 include.K = TRUE, ...)
+                         "mde.log.KS"), interval = initOpt(cop@copula@name),
+                 include.K = FALSE, ...)
 {
     stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 2,
               max(cop@comp) == d)
@@ -297,9 +318,9 @@ dDiag <- function(u, cop, log=FALSE) {
         stop("currently, only Archimedean copulas are provided")
     }
     else ## (non-nested) Archimedean :
-    ## FIXME: choose one or the other (if a family has no such slot)
-    ##    dDiagA(u, d=d, cop = cop@copula, log=log)
-    cop@copula@dDiag(u, theta=cop@copula@theta, d=d, log=log)
+        ## FIXME: choose one or the other (if a family has no such slot)
+        ##    dDiagA(u, d=d, cop = cop@copula, log=log)
+        cop@copula@dDiag(u, theta=cop@copula@theta, d=d, log=log)
 }
 
 ##' @title Generic density of the diagonal of d-dim. Archimedean copula
@@ -458,7 +479,7 @@ pobs <- function(x, na.last="keep", ties.method=c("average", "first", "random", 
 ##' Computes different parameter estimates for a nested Archimedean copula
 ##'
 ##' @title Estimation procedures for nested Archimedean copulas
-##' @param u data matrix
+##' @param u data matrix (of pseudo-observations or from the copula "directly")
 ##' @param cop outer_nacopula to be estimated
 ##' @param method estimation method; can be
 ##'        "mle"             MLE
