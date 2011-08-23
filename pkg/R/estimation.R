@@ -23,7 +23,7 @@
 ##' @title Compute an initial interval or value for estimation procedures
 ##' @param family Archimedean family
 ##' @param tau.range vector containing lower and upper admissible Kendall's tau
-##' @param interval logical determining if an initial interval (the default) or 
+##' @param interval logical determining if an initial interval (the default) or
 ##'        an initial value should be returned
 ##' @param u matrix of realizations following a copula
 ##' @param method method for obtaining initial values
@@ -266,7 +266,7 @@ emde.dist <- function(u, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
 emde <- function(u, cop, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.CvM",
                          "mde.log.KS"),
                  interval = initOpt(cop@copula@name),
-                 include.K = ncol(u)<=5, ...)
+                 include.K = TRUE, ...)
 {
     stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 2,
               max(cop@comp) == d)

@@ -9,36 +9,43 @@ emde(u, cop,
      method=c("mde.normal.CvM", "mde.normal.KS",
               "mde.log.CvM",    "mde.log.KS"),
      interval=initOpt(cop@copula@name),
-     include.K = ncol(u) <= 5, \dots)
+     include.K = FALSE, \dots)
 }
 \arguments{
-  \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-)observations (each value in \eqn{[0,1]}) from the copula, where \eqn{n} denotes the sample size and \eqn{d} the dimension.}
-  \item{cop}{\code{\linkS4class{outer_nacopula}} to be estimated (currently only Archimedean copulas are provided).}
+  \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-)observations (each
+    value in \eqn{[0,1]}) from the copula, where \eqn{n} denotes the
+    sample size and \eqn{d} the dimension.}
+  \item{cop}{\code{\linkS4class{outer_nacopula}} to be estimated
+    (currently only Archimedean copulas are provided).}
   \item{method}{a \code{\link{character}} string specifying the distance
     method, which has to be one (or a unique abbreviation) of
     \describe{
-      \item{\code{"mde.normal.CvM"}}{map to an Erlang distribution and using a chi-square distribution and Cram\enc{é}{e}r-von Mises distance;}
-      \item{\code{"mde.normal.KS"}}{map to an Erlang distribution and using a chi-square distribution and Kolmogorov-Smirnov distance;}
-      \item{\code{"mde.log.CvM"}}{map to an Erlang distribution and using a Erlang distribution and Cram\enc{é}{e}r-von Mises distance;}
-      \item{\code{"mde.log.KS"}}{map to an Erlang distribution and using a Kolmogorov-Smir-nov distance.}
+      \item{\code{"mde.normal.CvM"}}{map to an Erlang distribution and
+	using a chi-square distribution and Cram\enc{é}{e}r-von Mises distance;}
+      \item{\code{"mde.normal.KS"}}{map to an Erlang distribution and
+	using a chi-square distribution and Kolmogorov-Smirnov distance;}
+      \item{\code{"mde.log.CvM"}}{map to an Erlang distribution and
+	using a Erlang distribution and Cram\enc{é}{e}r-von Mises distance;}
+      \item{\code{"mde.log.KS"}}{map to an Erlang distribution and using
+	a Kolmogorov-Smirnov distance.}
+
     }
     The four methods are described in Hofert et al. (2011a).  See also the
     \sQuote{Details} section.}
   \item{interval}{bivariate vector denoting the interval where
-    optimization takes place.  The default is computed as described in Hofert et
-    al. (2011a).}
-  \item{include.K}{logical indicating whether the last component, the Kendall
-    distribution function K, is also used or not (see the \sQuote{Details}
-    section for more information).}
+    optimization takes place.  The default is computed as described in Hofert et al.(2011a).}
+  \item{include.K}{logical indicating whether the last component, the
+    (possibly numerically challenging) Kendall distribution function \eqn{K}, is used
+    (\code{include.K=TRUE}) or not.  Note that the default is
+    \code{\link{FALSE}} here, where it is \code{TRUE} in the underlying
+    \code{\link{gnacopulatrafo}()} function.}
   \item{\dots}{additional arguments passed to \code{\link{optimize}}.}
 }
 \details{
    First, \code{\link{gnacopulatrafo}} is applied to map the \eqn{n\times d}{n x d}-matrix
    of given realizations to a \eqn{n\times d}{n x d}-matrix or
    \eqn{n\times (d-1)}{n x (d-1)}-matrix, depending on whether the last
-   component which involves the (possibly
-   numerically challenging) Kendall distribution function \eqn{K} is used
-   (\code{include.K=TRUE}) or not (\code{include.K=FALSE}).  Second, using
+   component is included (\code{include.K=TRUE}) or not.  Second, using
    either the sum of squares of the standard normal quantile function (for
    \code{method="mde.normal.CvM"} and
    \code{method="mde.normal.KS"}) or the sum of negative logarithms
@@ -50,7 +57,8 @@ emde(u, cop,
    applied.  This is repeated in an optimization until the copula parameter is
    found such that this distance is minimized.
 
-   Note that the same transformations as described above are applied for goodness-of-fit testing, see the \sQuote{See Also} section).
+   Note that the same transformations as described above are applied for
+   goodness-of-fit testing, see the \sQuote{See Also} section).
 }
 \value{
   \code{\link{list}} as returned by \code{\link{optimize}}, including the
@@ -67,7 +75,7 @@ emde(u, cop,
 	submitted.
 }
 \seealso{
-  \code{\link{enacopula}} (wrapper for different estimators), 
+  \code{\link{enacopula}} (wrapper for different estimators),
   \code{\link{gnacopula}} (wrapper for different goodness-of-fit tests),
   \code{\link{gnacopulatrafo}} (transformation to a multivariate uniform
    distribution),
