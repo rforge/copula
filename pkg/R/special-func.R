@@ -29,7 +29,7 @@ polynEval <- function(coef, x) .Call(polyn_eval, coef, x)
 log1mexpm <- function(a, cutoff = log(2)) ## << log(2) is optimal >>
 {
     if(any(a < 0))## a == 0  -->  -Inf  (in both cases)
-        stop("'a' >= 0 needed")
+	warning("'a' >= 0 needed")
     r <- a
     tst <- a <= cutoff
     r[ tst] <- log(-expm1(-a[ tst]))
