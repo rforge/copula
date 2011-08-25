@@ -19,7 +19,7 @@
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("interval", ...)},
-  but typically rather via \code{\link{interval}()}.
+  but typically they are built via \code{\link{interval}()}.
 }
 \section{Slots}{
   \describe{

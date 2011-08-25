@@ -25,8 +25,8 @@ etau(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...)
   \item{method}{a character string specifying the method (only
     for \code{etau}), which has to be one (or a unique abbreviation) of
     \describe{
-      \item{\code{"tau.mean"}}{method-of-moments-like estimator based on averaged pairwise Kendall’s tau;}
-      \item{\code{"theta.mean"}}{average of the method-of-moments-like pairwise Kendall's tau estimators.}
+      \item{\code{"tau.mean"}}{method-of-moments-like estimator based on the average of pairwise sample versions of Kendall’s tau;}
+      \item{\code{"theta.mean"}}{average of the method-of-moments-like Kendall's tau estimators.}
   }}
   \item{warn}{logical indicating if warnings are printed:
     \describe{

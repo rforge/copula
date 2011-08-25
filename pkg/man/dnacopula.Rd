@@ -15,7 +15,7 @@ dnacopula(x, u, log=FALSE, \dots)
   \item{log}{logical indicating if the \code{\link{log}} of the density
     should be returned.}
   \item{\dots}{
-    optional further arguments passed to the copula's \code{dacopula}
+    optional arguments passed to the copula's \code{dacopula}
     function (slot), such as \code{n.MC} (non-negative integer) for
     possible Monte Carlo evaluation (see \code{dacopula} in
     \code{\linkS4class{acopula}}).}

@@ -6,7 +6,7 @@ opower(copbase, thetabase)
 }
 \description{
   Build a new Archimedean copula by applying the outer power
-  transformation to a given Archimedean copula.
+  transformation to a given \ifelse{latex}{Archi-medean}{Archimedean} copula.
 }
 \arguments{
   \item{copbase}{a "base" copula, that is, a copula of class

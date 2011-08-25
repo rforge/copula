@@ -33,9 +33,9 @@ rFJoe(n, alpha)
   numeric vector of random variates \eqn{V} of length \code{n}.
 }
 \details{
-  \code{rFFrank(n, theta0, theta1, rej)} simply calls
+  \code{rFFrank(n, theta0, theta1, rej)} calls
   \code{\link{rF01Frank}(rep(1,n), theta0, theta1, rej, 1)} and
-  \code{rFJoe(n, alpha)} simply calls \code{\link{rSibuya}(n, alpha)}.
+  \code{rFJoe(n, alpha)} calls \code{\link{rSibuya}(n, alpha)}.
 }
 \author{Marius Hofert}
 \seealso{

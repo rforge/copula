@@ -27,7 +27,7 @@ emde(u, cop,
       \item{\code{"mde.gamma.CvM"}}{map to an Erlang distribution and
 	using a Erlang distribution and Cram\enc{é}{e}r-von Mises distance;}
       \item{\code{"mde.gamma.KS"}}{map to an Erlang distribution and using
-	a Kolmogorov-Smirnov distance.}
+	a \ifelse{latex}{Kolmogorov-Smir-nov}{Kolmogorov-Smirnov} distance.}
 
     }
     The four methods are described in Hofert et al. (2011a); see also the
@@ -46,14 +46,14 @@ emde(u, cop,
    of given realizations to a \eqn{n\times d}{n x d}-matrix or
    \eqn{n\times (d-1)}{n x (d-1)}-matrix, depending on whether the last
    component is included (\code{include.K=TRUE}) or not.  Second, using
-   either the sum of squares of the standard normal quantile function (for
-   \code{method="mde.chisq.CvM"} and
+   either the sum of squares of the standard normal quantile function
+   (\code{method="mde.chisq.CvM"} and
    \code{method="mde.chisq.KS"}) or the sum of negative logarithms
-   (for \code{method="mde.gamma.CvM"} and \code{method="mde.gamma.KS"}), a map to a
+   (\code{method="mde.gamma.CvM"} and \code{method="mde.gamma.KS"}), a map to a
    chi-square or an Erlang distribution is applied, respectively.  Finally, a
-   Cram\enc{é}{e}r-von Mises (for \code{method="mde.chisq.CvM"} and
-   \code{method="mde.gamma.CvM"}) or Kolmogorov-Smirnov (for
-   \code{method="mde.chisq.KS"} and \code{method="mde.gamma.KS"}) distance is
+   Cram\enc{é}{e}r-von Mises (\code{method="mde.chisq.CvM"} and
+   \code{method="mde.gamma.CvM"}) or Kolmogorov-Smirnov
+   (\code{method="mde.chisq.KS"} and \code{method="mde.gamma.KS"}) distance is
    applied.  This is repeated in an optimization until the copula parameter is
    found such that this distance is minimized.
 

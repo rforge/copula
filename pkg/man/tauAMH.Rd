@@ -5,7 +5,7 @@
   Compute Kendall's Tau of an Ali-Mikhail-Haq ("AMH") Archimedean copula
   with parameter \code{theta}.  While that's analytically given
   explicitly, as
-  \deqn{\frac{1 - 2((1-\theta)(1-\theta)\cdot\log(1-\theta) + \theta)}{3\theta^2},}{
+  \deqn{1-\frac{2((1-\theta)^2\log(1-\theta) + \theta)}{3\theta^2},}{
     1 - 2((1-t)(1-t)log(1-t) + t)/(3*t^2),}
   for \code{th}\eqn{=\theta}{=t};
   numerically, care has to be taken when \eqn{\theta \to 0}, avoiding accuracy
@@ -19,7 +19,7 @@ tauAMH(th)
 }
 \value{
   a vector of the same length as \code{th},
-  with values of \code{2*((1-th)*(1-th)*log(1-th) + th) / (3*th^2)},
+  with values of \eqn{2(\theta+(1-\theta)^2\log(1-\theta))/(3\theta^2)}{2*((1-th)*(1-th)*log(1-th) + th) / (3*th^2)}, 
   numerically accurately, to at least around 12 decimal digits.
 }
 \author{Martin Maechler}

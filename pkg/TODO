@@ -11,13 +11,11 @@
 be made faster? Especially "Remillard" is slow (although B Remillard told me that his
 method is faster than C. Genest's.)
 (MM) does ./demo/estimation.gof.R work for you? R hangs (on MH's Mac) after 20min.
-=> maybe that (line 51) should also be made more fail-safe. 
+=> maybe that should also be made more fail-safe (line 51). 
 (MM) is ./demo/estimation.gof.R too slow?
-(MM) is the check too slow? [time gof check = 5 times the time for everything else]
-
-
-(MH) oxford style guide for manual!
-(MH) check linebreaks in man pages before final release
+(MM) is the check too slow? [time gof-check is about 5 times the time for everything else together]
+(MM) tauAMH.Rd: Is the \eqn{...}{...} in line 22 correct or do you mean \eqn{1-...}{1-...} (= tau)?
+(MM) todo in Bernoulli.Rd: can it be removed / is it done?
 
 #### Minor #####################################################################
 

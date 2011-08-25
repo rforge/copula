@@ -3,8 +3,8 @@
 \alias{Bernoulli.all}
 \title{Compute Bernoulli Numbers}
 \description{
-  Compute the n-th Bernoulli number, or
-  generate all Bernoulli numbers up to the n-th,
+  Compute the \eqn{n}th Bernoulli number, or
+  generate all Bernoulli numbers up to the \eqn{n}th,
   using diverse \code{method}s, that is, algorithms.
 
   \bold{NOTE} the current default methods will be changed -- to get
@@ -20,8 +20,8 @@ Bernoulli.all(n, method = c("A-T", "sumBin", "sumRamanujan", "asymptotic"),
   \item{n}{positive integer, indicating the index of the largest (and
     last) of the Bernoulli numbers needed.}
   \item{method}{character string, specifying which method should be
-    applied. \code{"A-T"}, the Akiyama-Tanigawa algorithm may be cute
-    and simple, but has bad numerical properties.
+    applied. \code{"A-T"}, which stands for the Akiyama-Tanigawa algorithm
+    may be nice and simple, but has bad numerical properties.
   \code{"sumRamanujan"} is somewhat more efficient but not yet
   implemented.}
   \item{precBits}{currently only for \code{method = "A-T"} --
@@ -61,7 +61,8 @@ MASS::fractions(B10)
 system.time(B50  <- Bernoulli.all(50))# still "no time"
 system.time(B100 <- Bernoulli.all(100))# still less than a milli second
 
-## Using Bernoulli() is not much slower, but hopeful *more* accurate! %% Check first - TODO
+## Using Bernoulli() is not much slower, but hopeful *more* accurate! 
+## Check first - TODO
 system.time(B.1c <- Bernoulli(100))
 ## reset the cache:
 assign("Bern.tab", list(), envir = nacopula:::.nacopEnv)

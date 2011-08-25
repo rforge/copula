@@ -19,7 +19,7 @@ emle(u, cop, n.MC=0, optimizer="optimize", method,
     value in \eqn{[0,1]}) from the copula, with \eqn{n} the sample size
     and \eqn{d} the dimension.}
   \item{cop}{\code{\linkS4class{outer_nacopula}} to be estimated
-    (currently only non-nested, that is, Archimedean copulas are admitted).}
+    (currently only non-nested, that is, \ifelse{latex}{Archi-medean}{Archimedean} copulas are admitted).}
   \item{n.MC}{\code{\link{integer}}, if positive, \emph{simulated} maximum
     likelihood estimation (SMLE) is used with sample size equal to
     \code{n.MC}; otherwise (\code{n.MC=0}), MLE.  In SMLE, the \eqn{d}th

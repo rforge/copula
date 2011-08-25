@@ -15,7 +15,7 @@
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("acopula", ...)}.
-  For several well-known Archimedean copula families, the package \pkg{nacopula}
+  For several well-known \ifelse{latex}{Archi-medean}{Archimedean} copula families, the package \pkg{nacopula}
   already provides such family objects.
 }
 \section{Slots}{
@@ -56,10 +56,10 @@
       meanings of the parameters \code{n.MC} and \code{log} are as
       described before.}
     \item{\code{score}:}{a \code{\link{function}} computing the
-      \emph{derivative} of the density with respect to the parameter \eqn{theta}.}
-    \item{\code{paraInterval}:}{Either \code{\link{NULL}} or object of class
-      \code{"\linkS4class{interval}"}, typically from a call such as
-      \code{\link{interval}("[a,b)")}.}
+      \emph{derivative} of the density with respect to the parameter \eqn{\theta}{theta}.}
+    \item{\code{paraInterval}:}{Either \code{\link{NULL}} or an object of class
+      \code{"\linkS4class{interval}"}, which is typically obtained from a call
+      such as \code{\link{interval}("[a,b)")}.}
     \item{\code{paraConstr}:}{A function of \code{theta} returning
       \code{TRUE} if and only if \code{theta} is a valid parameter value.  Note
       that \code{paraConstr} is built automatically from the interval,
@@ -133,7 +133,7 @@
 
   A \emph{nested} Archimedean copula \emph{without}
   child copulas (see class \code{"\linkS4class{nacopula}"})
-  is a proper Archimedean copula, and hence,
+  is a proper \ifelse{latex}{Archime-dean}{Archimedean} copula, and hence,
   \code{\link{onacopula}()} can be used to construct a specific
   parametrized Archimedean copula; see the example below.
 }
