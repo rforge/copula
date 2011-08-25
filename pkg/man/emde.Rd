@@ -30,7 +30,7 @@ emde(u, cop,
 	a Kolmogorov-Smirnov distance.}
 
     }
-    The four methods are described in Hofert et al. (2011a).  See also the
+    The four methods are described in Hofert et al. (2011a); see also the
     \sQuote{Details} section.}
   \item{interval}{bivariate vector denoting the interval where
     optimization takes place.  The default is computed as described in Hofert et al.(2011a).}
@@ -58,7 +58,7 @@ emde(u, cop,
    found such that this distance is minimized.
 
    Note that the same transformations as described above are applied for
-   goodness-of-fit testing, see the \sQuote{See Also} section).
+   goodness-of-fit testing; see the \sQuote{See Also} section).
 }
 \value{
   \code{\link{list}} as returned by \code{\link{optimize}}, including the

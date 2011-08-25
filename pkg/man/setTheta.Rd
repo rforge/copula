@@ -4,8 +4,8 @@
 \description{
   Set or change the parameter \eqn{\theta}{theta} (\code{theta}) of
   an Archimedean copula \code{x} of class \code{"\linkS4class{acopula}"}.  This
-  is used for constructing copula models with specified parameter, as, e.g.,
-  in \code{\link{onacopula}()}.
+  is used for constructing copula models with specified parameter, as, for
+  example, in \code{\link{onacopula}()}.
 }
 \usage{
 setTheta(x, value, na.ok = TRUE)

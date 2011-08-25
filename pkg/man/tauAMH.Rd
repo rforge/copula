@@ -9,7 +9,7 @@
     1 - 2((1-t)(1-t)log(1-t) + t)/(3*t^2),}
   for \code{th}\eqn{=\theta}{=t};
   numerically, care has to be taken when \eqn{\theta \to 0}, avoiding accuracy
-  loss already, e.g., for \eqn{\theta} as large as \code{theta = 0.001}.
+  loss already, for example, for \eqn{\theta} as large as \code{theta = 0.001}.
 }
 \usage{
 tauAMH(th)

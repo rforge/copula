@@ -25,7 +25,7 @@ K(u, cop, d, n.MC=0)
 }
 \details{
 	For a completely monotone Archimedean generator \eqn{\psi}{psi}, 
-	\deqn{K(u)=\sum_{k=0}^{d-1}\frac{\psi^{(k)}(\psi^{-1}(u))}{k!} (-\psi^{-1}(u))^k,\ u\in[0,1],}{K(u)=sum(k=0,...,d-1)(psi^{(k)}(psi^{-1}(u)))/k! (-psi^{-1}(u))^k, u in [0,1],}
+	\deqn{K(u)=\sum_{k=0}^{d-1}\frac{\psi^{(k)}(\psi^{-1}(u))}{k!} (-\psi^{-1}(u))^k,\ u\in[0,1];}{K(u)=sum(k=0,...,d-1)(psi^{(k)}(psi^{-1}(u)))/k! (-psi^{-1}(u))^k, u in [0,1];}
 	see Barbe et al. (1996).
 }
 \value{Kendall distribution function at \code{u}}

@@ -16,7 +16,7 @@ rnchild(x, theta0, V0, ...)
     which contains \code{x} as a child.}
   \item{V0}{a \code{\link{numeric}} vector of realizations of
     \eqn{V_{0}}{V0} following \eqn{F_{0}}{F0} whose length determines the
-    number of generated vectors, i.e., for each realization
+    number of generated vectors, that is, for each realization
     \eqn{V_{0}}{V0}, a vector of variates from \code{x} is generated.}
   \item{\dots}{possibly further arguments for the given copula family.}
 }
@@ -43,8 +43,8 @@ rnchild(x, theta0, V0, ...)
 \author{Marius Hofert, Martin Maechler}
 \seealso{
   \code{\link{rnacopula}}, also for the references.
-  Further, classes \code{"\linkS4class{nacopula}"}  and
-  \code{"\linkS4class{outer_nacopula}"}, see also \code{\link{onacopula}()}.
+  Further, classes \code{"\linkS4class{nacopula}"} and
+  \code{"\linkS4class{outer_nacopula}"}; see also \code{\link{onacopula}()}.
 }
 \examples{
 ## Construct a three-dimensional nested Clayton copula with parameters
@@ -57,7 +57,7 @@ C3 <- onacopula("C", C(theta0, 1, C(theta1, c(2,3))))
 n <- 1000
 V0 <- copClayton@V0(n, theta0)
 
-## Given these variates V0, sample the child copula, i.e., the bivariate
+## Given these variates V0, sample the child copula, that is, the bivariate
 ## nested Clayton copula with parameter theta1
 U23 <- rnchild(C3@childCops[[1]], theta0, V0)
 \dontshow{% also works with 0-length V0:

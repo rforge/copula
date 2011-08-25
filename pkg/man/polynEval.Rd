@@ -2,7 +2,7 @@
 \alias{polynEval}
 \title{Evaluate Polynomials}
 \description{
-  Evaluate a univariate polynomial at \code{x} (typically a vector), i.e.,
+  Evaluate a univariate polynomial at \code{x} (typically a vector), that is,
   compute \code{coef[1] + coef[2]*x + ... + coef[p+1]* x^p}.
 }
 \usage{
@@ -26,7 +26,7 @@ polynEval(coef, x)
 \author{Martin Maechler; the \R version has been in package
   \pkg{sfsmisc} for ages.}
 \seealso{For a much more sophisticated treatment of polynomials, use the
-  \code{polynom} package (e.g., evaluation can be done via
+  \code{polynom} package (for example, evaluation can be done via
 \code{\link[polynom]{predict.polynomial}}).
 }
 \examples{

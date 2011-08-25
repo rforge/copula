@@ -17,8 +17,8 @@
   sampling \eqn{F_{01}}{F01}.  If
   \eqn{\code{rej} < V_0\theta_0(1-e^{-\theta_0})^{V_0-1}}{%
     rej < V0*theta_0*(1-e^{-theta0})^(V0-1)}
-  a rejection from \eqn{F_{01}}{F01} of Joe is applied, see
-  \code{rF01Joe} (the meaning of the parameter \code{approx} is
+  a rejection from \eqn{F_{01}}{F01} of Joe is applied (see
+  \code{rF01Joe}; the meaning of the parameter \code{approx} is
   explained below), otherwise a sum is sampled with a logarithmic
   envelope for each summand.
 

@@ -30,7 +30,7 @@ polylog(z, s,
   \item{logarithm}{logical specified to return log(Li.(.)) instead of Li.(.)}
   \item{is.log.z}{logical; if TRUE, the specified \code{z} argument is
     really \eqn{w = \log(z)}{w = log(z)};
-    i.e., we compute \eqn{Li_s(\exp(w))}{Li_s(exp(w))}, and we typically have
+    that is, we compute \eqn{Li_s(\exp(w))}{Li_s(exp(w))}, and we typically have
  	\eqn{w < 0}, or equivalently, \eqn{z < 1}.}
   \item{is.logmlog}{logical; if TRUE, the specified argument \code{z} is
     \eqn{lw = \log(-w) = \log(-\log(z))}{lw = log(-w) = log(-log(z))}
@@ -82,7 +82,7 @@ Equivalent formulae applicable to negative integer orders are
   Li_{-n}(z) = 1/((1-z)^(n+1)) sum(k=0..(n-1);  < n \ k >  z^(n-k)) =
              = (z \sum_{k=0}^{n-1} < n \ k >  z^k) / ((1-z)^(n+1)),  (n=1,2,3,..),}
 where \eqn{\left\langle {n \atop k} \right\rangle}{< n \ k >}  are the
-Eulerian numbers, see also \code{\link{Eulerian}}.
+Eulerian numbers; see also \code{\link{Eulerian}}.
 
 % All roots of Li_{-n}(z) are distinct and real; they include z = 0.
 
@@ -109,7 +109,7 @@ Eulerian numbers, see also \code{\link{Eulerian}}.
   New York: North-Holland. ISBN 0-444-00550-1.
 }
 \seealso{
-  is used in MLE for some A.copulas, see \code{\link{emle}}.
+  is used in MLE for some Archimedean copulas; see \code{\link{emle}}.
 }
 \examples{
 polylog(z = 1, s = 2, n.sum = 1e5)

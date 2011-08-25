@@ -17,8 +17,8 @@ dnacopula(x, u, log=FALSE, \dots)
   \item{\dots}{
     optional further arguments passed to the copula's \code{dacopula}
     function (slot), such as \code{n.MC} (non-negative integer) for
-    possible Monte Carlo evaluation, see \code{dacopula} in
-    \code{\linkS4class{acopula}}.}
+    possible Monte Carlo evaluation (see \code{dacopula} in
+    \code{\linkS4class{acopula}}).}
 }
 \details{
   If it exists, the density of an Archimedean copula \eqn{C} with
@@ -44,7 +44,7 @@ dnacopula(x, u, log=FALSE, \dots)
 }
 \seealso{
   For more details about the derivatives of an Archimedean generator,
-  see, e.g., \code{psiDabs} in class \code{\linkS4class{acopula}}.
+  see, for example, \code{psiDabs} in class \code{\linkS4class{acopula}}.
 }
 \examples{
 ## Construct a twenty-dimensional Gumbel copula with parameter chosen

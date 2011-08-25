@@ -14,7 +14,7 @@
    rlog(n, p, Ip = 1 - p)
 }
 \arguments{
-  \item{n}{sample size, i.e., length of the resulting vector of random
+  \item{n}{sample size, that is, length of the resulting vector of random
     variates.}
   \item{p}{parameter in \eqn{(0,1)}.}
   \item{Ip}{\eqn{= 1 - p}, possibly more accurate, e.g, when

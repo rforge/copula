@@ -13,7 +13,7 @@
   implemented in the package \pkg{nacopula}.
 
   These families are \dQuote{classical} as from p. 116 of Nelsen (2007).
-  More specifially, see table 1 of Hofert (2011).
+  More specifially, see Table 1 of Hofert (2011).
 }
 \usage{
 copAMH
@@ -34,7 +34,7 @@ copJoe
       }{psi(t)=(1-theta)/(exp(t)-theta), t in [0,Inf],}
       with \eqn{\theta\in[0,1)}{theta in [0,1)}.  The range of
       admissible Kendall's tau is [0,1/3).  Note that the lower and upper
-      tail-dependence coefficients are both zero, i.e., this copula
+      tail-dependence coefficients are both zero, that is, this copula
       family does not allow for tail dependence.}
 
      \item{\code{copClayton}:}{Archimedean family of Clayton with

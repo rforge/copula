@@ -3,7 +3,7 @@
 \alias{show,nacopula-method}
 \title{Print Compact Overview of a Nested Archimedean Copula ("nacopula")}
 \description{
-  Print a compact overview of a nested Archimedean copula, i.e., an
+  Print a compact overview of a nested Archimedean copula, that is, an
   object of class \code{"\linkS4class{nacopula}"}.
   Calling \code{printNacopula} explicitly allows to customize the
   printing behavior.  Otherwise, the \code{\link{show}()} method calls
@@ -24,11 +24,11 @@ printNacopula(x, labelKids=NA, deltaInd=, indent.str="",
     with \code{labelKids} being the default or \code{TRUE}, otherwise it is
     five (for \code{labelKids=FALSE}).}
   \item{indent.str}{a \code{\link{character}} string specifying the
-    indentation, i.e., the string that should be \emph{prepended} on the
+    indentation, that is, the string that should be \emph{prepended} on the
     first line of output, and determine the amount of blanks for the
     remaining lines.}
   \item{digits, width}{number of significant digits, and desired print
-    width, see \code{\link{print.default}}.}
+    width; see \code{\link{print.default}}.}
   \item{\dots}{potentially further arguments, passed to methods.}
 }
 \value{

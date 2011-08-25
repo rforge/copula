@@ -9,11 +9,11 @@ opower(copbase, thetabase)
   transformation to a given Archimedean copula.
 }
 \arguments{
-  \item{copbase}{a "base" copula, i.e., a copula of class
+  \item{copbase}{a "base" copula, that is, a copula of class
     \code{\linkS4class{acopula}}.  Must be one of the predefined families.}
   \item{thetabase}{the univariate parameter \eqn{\theta}{theta} for the
     generator of the base copula \code{copbase}.  Hence, the copula which
-    is transformed is fixed, i.e., does not depend on a parameter.}
+    is transformed is fixed, that is, does not depend on a parameter.}
 }
 \value{a new \code{\linkS4class{acopula}} object, namely the outer power copula
   based on the provided copula family \code{copbase} with fixed
@@ -40,7 +40,7 @@ opower(copbase, thetabase)
 thetabase <- copClayton@tauInv(0.2)
 opC <- opower(copClayton, thetabase) # "acopula" obj. (unspecified theta)
 
-## Construct a 3d nested Archimedean copula based on opC, i.e., a nested 
+## Construct a 3d nested Archimedean copula based on opC, that is, a nested 
 ## outer power Clayton copula.  The parameters theta are chosen such that
 ## Kendall's tau equals 0.4 and 0.6 for the outer and inner sector,
 ## respectively.

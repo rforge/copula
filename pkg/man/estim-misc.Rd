@@ -50,11 +50,11 @@ etau(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...)
 
   For more details, see Hofert et al. (2011a).
 
-  Note that these estimators should be used with care, see the performance results in Hofert et al. (2011a).  In particular, \code{etau} should be used with the (default) method \code{"tau.mean"} since \code{"theta.mean"} is both slower and more prone to errors.
+  Note that these estimators should be used with care; see the performance results in Hofert et al. (2011a).  In particular, \code{etau} should be used with the (default) method \code{"tau.mean"} since \code{"theta.mean"} is both slower and more prone to errors.
 }
 \value{
   \describe{
-    \item{\code{ebeta}}{the return value of \code{\link{safeUroot}} (i.e., typically almost the same as the value of \code{\link{uniroot}}) giving the Blomqvist beta estimator.}
+    \item{\code{ebeta}}{the return value of \code{\link{safeUroot}} (that is, typically almost the same as the value of \code{\link{uniroot}}) giving the Blomqvist beta estimator.}
     \item{\code{edmle}}{\code{\link{list}} as returned by \code{\link{optimize}}, including the diagonal maximum likelihood estimator.}
     \item{\code{etau}}{method-of-moments-like estimator based on Kendall's tau for the chosen method.}
   }

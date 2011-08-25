@@ -21,7 +21,7 @@
 \section{Slots}{
   \describe{
     \item{\code{name}:}{A string (class \code{"character"}) describing
-      the copula family, e.g., "AMH" (or simply "A"), "Clayton" ("C"),
+      the copula family, for example, "AMH" (or simply "A"), "Clayton" ("C"),
       "Frank" ("F"), "Gumbel" ("G"), or "Joe" ("J").}
     \item{\code{theta}:}{Parameter value, a \code{\link{numeric}}, where
       \code{NA} means \dQuote{unspecified}.}
@@ -126,19 +126,19 @@
 }
 \author{Martin Maechler, Marius Hofert}
 \seealso{
-  Specific provided copula family objects, e.g.,
+  Specific provided copula family objects, for example,
   \code{\link{copAMH}}, \code{\link{copClayton}}, \code{\link{copFrank}},
   \code{\link{copGumbel}}, \code{\link{copJoe}}.
   \cr To access these, you may also use \code{\link{getAcop}}.
 
   A \emph{nested} Archimedean copula \emph{without}
-  child copulas, see class \code{"\linkS4class{nacopula}"},
-  is a proper Archime-dean copula, and hence,
+  child copulas (see class \code{"\linkS4class{nacopula}"})
+  is a proper Archimedean copula, and hence,
   \code{\link{onacopula}()} can be used to construct a specific
-  parametrized Archime-dean copula, see the example below.
+  parametrized Archimedean copula; see the example below.
 }
 \references{% -> ./copFamilies.Rd
-  see those of the families, e.g., \code{\link{copGumbel}}.
+  See those of the families, for example, \code{\link{copGumbel}}.
 }
 \examples{
 ## acopula class information

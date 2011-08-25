@@ -26,7 +26,7 @@
   the algorithm described in Hofert (2011), Proposition 3.2.
 
   \code{dsumSibuya} gives the probability mass function of the
-  \eqn{n}-fold convolution of Sibuya variables, i.e., the sum of \eqn{n}
+  \eqn{n}-fold convolution of Sibuya variables, that is, the sum of \eqn{n}
   independent Sibuya random variables,
   \eqn{S = \sum_{i=1}^n X_i}{S = sum(i=1..n) X[i]}, where
   \eqn{X_i \sim \mathrm{Sib}(\alpha)}{X[i] ~ Sib(alpha)}.
@@ -46,7 +46,7 @@ dsumSibuya(x, n, alpha, method=c("log", "direct", "Rmpfr", "diff",
 }
 \arguments{
   \item{n}{
-    for \code{rSibuya}: sample size, i.e., length of the resulting
+    for \code{rSibuya}: sample size, that is, length of the resulting
     vector of random variates.
     \cr
     for \code{dsumSibuya}: the number \eqn{n} of summands.
@@ -74,7 +74,7 @@ dsumSibuya(x, n, alpha, method=c("log", "direct", "Rmpfr", "diff",
   }
 }
 \details{
-  The Sibuya distribution has \bold{no} finite moments, i.e., specifically
+  The Sibuya distribution has \bold{no} finite moments, that is, specifically
   infinite mean and variance.
 
   For documentation and didactical purposes, \code{rSibuyaR} is a pure-\R
@@ -83,7 +83,7 @@ dsumSibuya(x, n, alpha, method=c("log", "direct", "Rmpfr", "diff",
 
   Note that the sum to evaluate for \code{dsumSibuya} is numerically
   highly challenging, even already for small
-  \eqn{\alpha}{alpha} values (e.g., \eqn{n \ge 10}{n >= 10}),
+  \eqn{\alpha}{alpha} values (for example, \eqn{n \ge 10}{n >= 10}),
   and therefore should be used with care.  It may require high-precision
   arithmetic which can be accessed with \code{method="Rmpfr"} (and the
   \pkg{Rmpfr} package).

@@ -22,7 +22,7 @@ timing(n, family, taus, digits = 3, verbose = FALSE)
     generated.  Then, given the particular \eqn{theta_0}{theta0} and the
     realizations \eqn{V_0}{V0}, \code{n} random variates
     \eqn{V_{01}}{V01} are generated for each \eqn{theta_1}{theta1}
-    fulfilling the sufficient nesting condition, see \code{paraConstr}
+    fulfilling the sufficient nesting condition; see \code{paraConstr}
     in \code{\linkS4class{acopula}}.}
   \item{digits}{number of digits for the output.}
   \item{verbose}{logical indicating if timing output should generated

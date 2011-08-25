@@ -8,11 +8,10 @@
 getAcop(family, check=TRUE)
 }
 \arguments{
-  \item{family}{either a \code{\link{character}} string, the short or longer form
-    of the Archimedean family name (e.g., "Clayton" or simply "C"), see
-    the \code{\link{acopula-families}} documentation,
-    \cr
-    or an \code{\linkS4class{acopula}} family object.}
+  \item{family}{either a \code{\link{character}} string, the short or longer
+    form of the Archimedean family name (for example, "Clayton" or simply "C";
+    see the \code{\link{acopula-families}} documentation), or an
+    \code{\linkS4class{acopula}} family object.}
   \item{check}{logical indicating whether the class of the return value
     should be checked to be \code{"\linkS4class{acopula}"}.}
 }

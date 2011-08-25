@@ -7,7 +7,7 @@
   copulas, notably nested Archimedean ones.
 
   \bold{Experimental} We may replace the interface entirely,
-  e.g., to accept an \code{"\linkS4class{outer_nacopula}"}.
+  for example, to accept an \code{"\linkS4class{outer_nacopula}"}.
 }
 \usage{
 splom2(data, varnames=NULL, Vname="U", xlab="",

@@ -13,7 +13,7 @@ rnacopula(n, x, ...)
 \arguments{
   \item{x}{an \R object of \code{\link{class}}
     \code{"\linkS4class{outer_nacopula}"}, typically from \code{\link{onacopula}()}.}
-  \item{n}{integer specifying the sample size, i.e., the number of
+  \item{n}{integer specifying the sample size, that is, the number of
     copula-distributed random vectors \eqn{\mathbf{U}_i}{U_i}, to be generated.}
   \item{\dots}{possibly further arguments for the given copula family.}
 }
@@ -55,8 +55,8 @@ rnacopula(n, x, ...)
 }
 \seealso{
   \code{\link{rnchild}}; classes \code{"\linkS4class{nacopula}"} and
-  \code{"\linkS4class{outer_nacopula}"}, see also \code{\link{onacopula}()}.
-  Further, those of the Archimedean families, e.g., \code{\link{copGumbel}}.
+  \code{"\linkS4class{outer_nacopula}"}; see also \code{\link{onacopula}()}.
+  Further, those of the Archimedean families, for example, \code{\link{copGumbel}}.
 }
 \examples{
 ## Construct a three-dimensional nested Clayton copula with parameters

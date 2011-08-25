@@ -10,8 +10,8 @@
   for Frank, or
   \deqn{1-(1-\exp(-t))^\alpha,}{1-(1-exp(-t))^alpha} for Joe, respectively,
   where \eqn{\theta_0}{theta0} and \eqn{\theta_1}{theta1} denote two parameters
-  of Frank (i.e., \eqn{\theta_0,\theta_1\in(0,\infty)}{theta0,theta1 in (0,Inf)})
-  and Joe (i.e., \eqn{\theta_0,\theta_1\in[1,\infty)}{theta0,theta1 in [1,Inf)})
+  of Frank (that is, \eqn{\theta_0,\theta_1\in(0,\infty)}{theta0,theta1 in (0,Inf)})
+  and Joe (that is, \eqn{\theta_0,\theta_1\in[1,\infty)}{theta0,theta1 in [1,Inf)})
   satisfying \eqn{\theta_0\le\theta_1}{theta0 <= theta1}
   and \eqn{\alpha=\theta_0/\theta_1}{alpha=theta0/theta1}.
 }

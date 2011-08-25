@@ -8,7 +8,7 @@
   exponent \eqn{\alpha\in(0,2]}{alpha in (0,2]},
   skewness \eqn{\beta\in[-1,1]}{beta in [-1,1]},
   scale    \eqn{\gamma\in[0,\infty)}{gamma in [0,Inf)}, and
-  location \eqn{\delta\in\mathbf{R}}{delta in IR}, see Nolan (2010) for
+  location \eqn{\delta\in\mathbf{R}}{delta in IR}; see Nolan (2010) for
   the parameterization \eqn{k\in\{0,1\}}{k in {0,1}}.  The case
   \eqn{\gamma=0} is understood as the unit jump at \eqn{\delta}.
 }
@@ -36,7 +36,7 @@ rstable1(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
   parameterization.  This is the parameterization used by Samorodnitsky and
   Taqqu (1994), and is a slight modification of Zolotarev's (A)
   parameterization.  It is the form with the most simple form of the
-  characteristic function, see Nolan (2010, p. 8).
+  characteristic function; see Nolan (2010, p. 8).
 
   \code{pm = 0} is the \dQuote{S0} parameterization: based on the (M)
   representation of Zolotarev for an alpha stable distribution with

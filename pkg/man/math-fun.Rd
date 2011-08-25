@@ -22,7 +22,7 @@ A..Z(x, alpha, I.alpha = 1 - alpha)
     when \code{alpha} is very close to 1.}
 }
 \details{
-  For more details about Zolotarev's function, see, e.g., Devroye (2009).
+  For more details about Zolotarev's function, see, for example, Devroye (2009).
 }
 \value{
   \code{A..Z(x,alpha)} is \eqn{\tilde A_{Z}(x,\alpha)}{A~Z(x,alpha)},

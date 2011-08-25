@@ -49,7 +49,7 @@ initOpt(family, tau.range=NULL, interval=TRUE, u,
   closest to the estimated Kendall's tau is chosen. 
 
   The default (\code{interval=TRUE}) returns a reasonably large initial
-  interval, see the default of \code{tau.range} in the definition of
+  interval; see the default of \code{tau.range} in the definition of
   \code{initOpt} for the chosen values (in terms of Kendall's tau).  These
   default values cover a large range of concordance.  If this interval is
   (still) too small, one can adjust it by providing \code{tau.range}. If it is
@@ -59,7 +59,7 @@ initOpt(family, tau.range=NULL, interval=TRUE, u,
   Finally, let us note that for the case \code{interval=TRUE}, \code{u} is not
   required.
 }
-\value{initial interval which can be used for optimization (e.g., for
+\value{initial interval which can be used for optimization (for example, for
   \code{\link{emle}}).
 }
 \author{Marius Hofert}

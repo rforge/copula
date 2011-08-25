@@ -18,11 +18,10 @@ onacopula (family, nacStructure)
 onacopulaL(family, nacList)
 }
 \arguments{
-  \item{family}{either a \code{\link{character}} string, the short or longer form
-    of the Archimedean family name (e.g., "Clayton" or simply "C"), see
-    the \code{\link{acopula-families}} documentation,
-    \cr
-    or an \code{\linkS4class{acopula}} family object.}
+  \item{family}{either a \code{\link{character}} string, the short 
+    or longer form of the Archimedean family name (for example, 
+    "Clayton" or simply "C"); see the \code{\link{acopula-families}}
+    documentation, or an \code{\linkS4class{acopula}} family object.}
   \item{nacStructure}{a \dQuote{formula} of the form
     \deqn{C(\theta, c(i_1,\dots,i_c), list(C(..), ..., C(..))).}{C(th, c(i1,..ic), list(C(..), ..., C(..))).}
     Note that \eqn{C()} has (maximally) three arguments: the first is
@@ -44,7 +43,7 @@ onacopulaL(family, nacList)
   }
 }
 \value{
-  An outer nested Archimedean copula object, i.e., of class
+  An outer nested Archimedean copula object, that is, of class
   \code{"\linkS4class{outer_nacopula}"}.
 }
 \author{Martin Maechler}
@@ -53,7 +52,7 @@ onacopulaL(family, nacList)
   \code{"\linkS4class{outer_nacopula}"}, and \code{"\linkS4class{acopula}"}.
 }
 \references{
-  Those of the Archimedean families, e.g., \code{\link{copGumbel}}.
+  Those of the Archimedean families, for example, \code{\link{copGumbel}}.
 }
 \examples{
 ## Construct a ten-dimensional Joe copula with parameter such that 

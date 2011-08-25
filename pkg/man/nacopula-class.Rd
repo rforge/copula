@@ -21,14 +21,14 @@
   \describe{
     \item{\code{copula}:}{an object of class
       \code{"\linkS4class{acopula}"}, denoting the top-level Archimedean copula of
-      the nested Archimedean copula, i.e., the root copula.}
+      the nested Archimedean copula, that is, the root copula.}
     \item{\code{comp}:}{an \code{\link{integer}} vector (possibly of
       length 0) of indices of components in \code{1:d} which are not
       nested Archimedean copulas.  Here, \eqn{d} denotes the
-      \emph{dimension} of the random vectors under consideration, see
+      \emph{dimension} of the random vectors under consideration; see
       the \code{dim()} method below.}
     \item{\code{childCops}:}{a (possibly empty) \code{\link{list}} of
-      further nested Archimedean copulas (child copulas), i.e., objects
+      further nested Archimedean copulas (child copulas), that is, objects
       of class \code{"nacopula"}.  The \code{"nacopula"} objects
       therefore contain \code{"\linkS4class{acopula}"} objects as
       special cases.}
@@ -60,7 +60,7 @@ theta0 <- copFrank@tauInv(.2)
 theta1 <- copFrank@tauInv(.5)
 C3 <- onacopula("F", C(theta0, 1, C(theta1, c(2,3))))
 
-C3 # displaying it, using show(C3), see  help(printNacopula)
+C3 # displaying it, using show(C3); see help(printNacopula)
 
 ## What is the dimension of this copula?
 dim(C3)

@@ -10,12 +10,12 @@ safeUroot(f, interval, \dots,
 }
 \description{
   \code{safeUroot()} as a \dQuote{safe} version of
-  \code{\link{uniroot}()} searches for a root (i.e., zero) of the
+  \code{\link{uniroot}()} searches for a root (that is, zero) of the
   function \code{f} with respect to its first argument.
 
   \dQuote{Safe} means searching for the correct \code{interval
     = c(lower,upper)} if \code{sign(f(x))} does not satisfy the
-  requirements at the interval end points, see the \sQuote{Details}
+  requirements at the interval end points; see the \sQuote{Details}
   section.
 }
 \arguments{
@@ -29,13 +29,13 @@ safeUroot(f, interval, \dots,
   \item{Sig}{\emph{desired} sign of \code{f(upper)}, or \code{\link{NULL}}.}
   \item{check.conv}{logical indicating whether a convergence warning of the
     underlying \code{\link{uniroot}} should be caught as an error.}
-  \item{tol}{the desired accuracy, i.e., convergence tolerance.}
+  \item{tol}{the desired accuracy, that is, convergence tolerance.}
   \item{maxiter}{maximal number of iterations}
   \item{trace}{number determining tracing}
 }
 \details{
   If it is \emph{known how} \eqn{f} changes sign at the root
-  \eqn{x_0}{x0}, i.e., if the function is increasing or decreasing there,
+  \eqn{x_0}{x0}, that is, if the function is increasing or decreasing there,
   \code{Sig} can be specified, typically as \eqn{S := \pm 1}{S:= +/- 1},
   to require \eqn{S = \mathrm{sign}(f(x_0 + \epsilon))}{S = sign(f(x0 + eps))}
   at the solution.  In that case, the search interval \eqn{[l,u]} must
@@ -53,7 +53,7 @@ safeUroot(f, interval, \dots,
 }
 \value{
   A list with four components, \code{root}, \code{f.root}, \code{iter}
-  and \code{estim.prec}, see \code{\link{uniroot}}.
+  and \code{estim.prec}; see \code{\link{uniroot}}.
 }
 \author{Martin Maechler (from Martin's \R package \pkg{nor1mix}).
 }

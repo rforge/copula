@@ -49,7 +49,7 @@ rtrafo(u, cop, n.MC=0)
       \deqn{C(u_j\,|\,u_1,\dots,u_{j-1})=\frac{\psi^{(j-1)}\Bigl(\sum_{k=1}^j\psi^{(-1)}(u_k)\Bigr)}{\psi^{(j-1)}\Bigl(\sum_{k=1}^{j-1}\psi^{(-1)}(u_k)\Bigr)}.}{%
 	C(u_j | u_1,...,u_{j-1}) = (psi^{(j-1)}(sum(k=1..j)  psi^{(-1)}(u_k))) /
         (psi^{(j-1)}(sum(k=1..j-1) psi^{(-1)}(u_k))).}
-      This formula is either evaluated with the exact derivatives or, if \code{n.MC} is positive, via Monte Carlo, see \code{\link{psiDabsMC}}. Rosenblatt (1952) showed that \eqn{\bm{U}^\prime\sim\mathrm{U}[0,1]^d}{U'~U[0,1]^d}, where
+      This formula is either evaluated with the exact derivatives or, if \code{n.MC} is positive, via Monte Carlo; see \code{\link{psiDabsMC}}. Rosenblatt (1952) showed that \eqn{\bm{U}^\prime\sim\mathrm{U}[0,1]^d}{U'~U[0,1]^d}, where
       \eqn{U_1^\prime=U_1}{U'_1=U_1}, \eqn{U_2^\prime=C(U_2\,|\,U_1)}{U'_2=C(U_2|U_1)}, ..., and \eqn{U_d^\prime=C(U_d\,|\,U_1,\dots,U_{d-1})}{U'_d=C(U_d|U_1,...,U_{d-1})}.
       \code{rtrafo} applies this transformation row-wise to
       \code{u} and thus returns an \eqn{n\times d}{n x d}-matrix.}

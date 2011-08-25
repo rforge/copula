@@ -27,7 +27,7 @@ gtrafouni(u, method=c("chisq", "gamma", "Remillard", "Genest"))
   \item{n.bootstrap}{positive integer giving the number of bootstrap
     replications.}
   \item{estimation.method}{\code{\link{character}}
-    string determining the estimation method, see \code{\link{enacopula}}.}
+    string determining the estimation method; see \code{\link{enacopula}}.}
   \item{include.K}{logical indicating whether the last component, involving the
     Kendall distribution function \code{\link{K}}, is used in the transformation
     \code{\link{htrafo}} of Hering and Hofert (2011). Note that this is only

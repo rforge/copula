@@ -11,8 +11,8 @@
   with parameters
   \eqn{\alpha\in(0,1]}{alpha in (0,1]}, \eqn{V_0\in(0,\infty)}{V0 in (0,Inf)},
   and \eqn{h\in[0,\infty)}{h in [0,Inf)} and corresponding Laplace-Stieltjes transform
-  \deqn{\exp(-V_0((h+t)^\alpha-h^\alpha)),\ t\in[0,\infty],
-  }{exp(-V0((h+t)^alpha-h^alpha)), t in [0,Inf],}
+  \deqn{\exp(-V_0((h+t)^\alpha-h^\alpha)),\ t\in[0,\infty];
+  }{exp(-V0((h+t)^alpha-h^alpha)), t in [0,Inf];}
   see the references for more details about this distribution.
 }
 \usage{
@@ -21,9 +21,9 @@ retstableR(alpha, V0, h = 1)
 }
 \arguments{
   \item{alpha}{parameter in \eqn{(0,1]}.}
-  \item{V0}{vector of values in \eqn{(0,\infty)}{(0,Inf)} (e.g., when
+  \item{V0}{vector of values in \eqn{(0,\infty)}{(0,Inf)} (for example, when
     sampling nested Clayton copulas, these are random variates from
-    \eqn{F_0}{F0}), i.e., the distribution corresponding to
+    \eqn{F_0}{F0}), that is, the distribution corresponding to
     \eqn{\psi_0}{psi0}.}
   \item{h}{parameter in \eqn{[0,\infty)}{[0,Inf)}.}
   \item{method}{a character string denoting the method to use, currently
@@ -37,8 +37,7 @@ retstableR(alpha, V0, h = 1)
   recommended in simulations when run time matters.
 }
 \value{
-  A vector of variates from \eqn{\tilde{S}(\alpha, 1, .....)}{tS(alpha, 1, .....)},
-  see above.
+  A vector of variates from \eqn{\tilde{S}(\alpha, 1, .....)}{tS(alpha, 1, .....)}; see above.
 }
 \author{Marius Hofert, Martin Maechler}
 \seealso{

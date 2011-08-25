@@ -5,7 +5,7 @@
 \description{
   Compute the n-th Bernoulli number, or
   generate all Bernoulli numbers up to the n-th,
-  using diverse \code{method}s, i.e., algorithms.
+  using diverse \code{method}s, that is, algorithms.
 
   \bold{NOTE} the current default methods will be changed -- to get
   better accuracy !
