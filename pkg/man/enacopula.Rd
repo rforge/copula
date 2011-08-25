@@ -58,7 +58,15 @@ enacopula(u, cop,
   \code{\link{enacopula}} serves as a wrapper for the different
   implemented estimators and provides a uniform framework to utilize
   them.  For more information, see the single estimators as given in the
-  section \sQuote{See Also}.
+  section \sQuote{See Also}. 
+
+  Note that Hofert, \enc{Mächler}{Maechler}, and McNeil (2011a) compared these 
+  estimators. Their findings include a rather poor performance and numerically
+  challenging problems of some of these estimators. In particular, the
+  estimators obtained by \code{method="mde.gamma.CvM"},
+  \code{method="mde.gamma.KS"}, \code{method="tau.theta.mean"}, and
+  \code{method="beta"} should be used with care (or not at all). Overall, MLE
+  performed best (by far).
 }
 \value{
   the estimated parameter, \eqn{\hat{\theta}}{hat(theta)}, i.e., currently a

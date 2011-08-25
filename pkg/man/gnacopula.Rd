@@ -1,112 +1,103 @@
 \name{gnacopula}
 \alias{gnacopula}
-\alias{rtrafo}
-\alias{gnacopulatrafo}
+\alias{gtrafouni}
 \title{Goodness-of-Fit Testing for (Nested) Archimedean Copulas}
 \description{
-  \code{gnacopula()} conducts a goodness-of-fit test for the given \eqn{H_0}
-  copula \code{cop} based on the data \code{u}.
+  \code{gnacopula()} conducts a goodness-of-fit test for the given
+  (\eqn{H_0}-)copula \code{cop} based on the (copula-)data \code{u}.
 
-  \code{rtrafo()} transforms vectors of random variates following
-  the given (nested) Archimedean copula (with specified parameters) to
-  \eqn{\mathrm{U}[0,1]^d}{U[0,1]^d} vectors of random variates via the
-  transformation of Rosenblatt (1952).
-
-  \code{gnacopulatrafo()} transforms vectors of random variates of
-  the specified (nested) Archime-dean copula to either
-  \eqn{\mathrm{U}[0,1]^d}{U[0,1]^d} (if \code{include.K=TRUE}) or
-  \eqn{\mathrm{U}[0,1]^{d-1}}{U[0,1]^(d-1)} (if \code{include.K=FALSE}) vectors
-  of random variates via the transformation of Hering and Hofert (2011).
+  \code{gtrafouni()} transforms supposedly \eqn{\mathrm{U}[0,1]^d}{U[0,1]^d}
+  distributed vectors of random variates to univariate data (for testing in a 
+  one-dimensional setup).
 }
 \usage{
-gnacopula(u, cop, n.bootstrap = 0,
-          estimation.method = eval(formals(enacopula)$method),
-          include.K = TRUE, n.MC = 0, 
-          method = c("gnacopulatrafo.normal", "rtrafo.normal",
-                     "gnacopulatrafo.log", "rtrafo.log"), 
-          verbose = TRUE, \dots)
-rtrafo(u, cop, n.MC = 0)
-gnacopulatrafo(u, cop, include.K = TRUE, n.MC = 0)
+gnacopula(u, cop, n.bootstrap,
+          estimation.method=eval(formals(enacopula)$method),
+          include.K=TRUE, n.MC=0, trafo=c("Hering.Hofert", "Rosenblatt"),
+          method=eval(formals(gtrafouni)$method), verbose=TRUE, \dots)
+gtrafouni(u, method=c("chisq", "gamma", "Remillard", "Genest"))
 }
 \arguments{
-  \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-)observations (each
+  \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-/copula-)observations (each
     value in \eqn{[0,1]}) from the copula to be tested.  Consider applying the
     function \code{\link{pobs}} first in order to obtain \code{u}.}
   \item{cop}{\eqn{H_0}-\code{"\linkS4class{outer_nacopula}"} with specified
-    parameters to be tested for (currently only Archimedean copulas are provided).}
-  \item{n.bootstrap}{non-negative integer giving the number of bootstrap
-    replications.  If zero, \code{\link{g01}} is
-    applied to \code{\link{gnacopulatrafo}} with the chosen parameters.}
+    parameters to be tested for (currently only Archimedean copulas are
+    provided).}
+  \item{n.bootstrap}{positive integer giving the number of bootstrap
+    replications.}
   \item{estimation.method}{\code{\link{character}}
     string determining the estimation method, see \code{\link{enacopula}}.}
-  \item{include.K}{logical indicating whether the last component, involving
-    \code{\link{K}}, is also used or not.}
-  \item{n.MC}{parameter \code{n.MC} for \code{\link{K}}.}
+  \item{include.K}{logical indicating whether the last component, involving the
+    Kendall distribution function \code{\link{K}}, is used in the transformation
+    \code{\link{htrafo}} of Hering and Hofert (2011). Note that this is only
+    relevant if \code{trafo="Hering.Hofert"}.}
+  \item{n.MC}{parameter \code{n.MC} for \code{\link{htrafo}} (and thus for \code{\link{K}}) if \code{trafo="Hering.Hofert"} and for \code{\link{rtrafo}} if \code{trafo="Rosenblatt"}.}
+  \item{trafo}{a \code{\link{character}} string specifying the multivariate 
+    transformation performed for goodness-of-fit testing, which has to be one
+    (or a unique abbreviation) of
+    \describe{
+      \item{\code{"Hering.Hofert"}}{for the multivariate transformation of
+	Hering and Hofert (2011); see \code{\link{htrafo}}.}
+      \item{\code{"Hering.Hofert"}}{for the multivariate transformation of
+	Rosenblatt (1952); see \code{\link{rtrafo}}.}
+  }}
   \item{method}{a \code{\link{character}} string specifying the
     goodness-of-fit method to be used, which has to be one (or a unique
     abbreviation) of
     \describe{
-      \item{\code{"gnacopulatrafo.normal"}}{for the multivariate transformation of Hering and Hofert (2011) and the univariate transformation based on the chi-square distribution (see \code{\link{g01}} with \code{method="normal"}).}
-      \item{\code{"rtrafo.normal"}}{for the multivariate transformation of Hering and Hofert (2011) and the univariate transformation based on the chi-square distribution (see \code{\link{g01}} with \code{method="normal"}).}
-      \item{\code{"gnacopulatrafo.log"}}{for the multivariate transformation of Rosenblatt (1952) and the univariate transformation based on the Erlang distribution (see \code{\link{g01}} with \code{method="log"}).}
-      \item{\code{"rtrafo.log"}}{for the multivariate transformation of Rosenblatt (1952) and the univariate transformation based on the Erlang distribution (see \code{\link{g01}} with \code{method="log"}).}
+      \item{\code{"chisq"}}{for computing (supposedly)
+	\eqn{\mathrm{U}[0,1]}{U[0,1]}-distributed (under \eqn{H_0}) random variates
+	via the distribution function of a chi-square distribution with \eqn{d}
+	degrees of freedom. To be more precise, the variates
+	\deqn{\chi_d^2\Bigl(\sum_{j=1}^d(\Phi^{-1}(u_{ij}))^2\Bigr)}{pchisq((Phi^{-1}(u_{i1}))^2+...+(Phi^{-1}(u_{id}))^2, df=d)}
+	are returned, where \eqn{\Phi^{-1}}{Phi^{-1}} denotes the quantile function
+	of the standard normal distribution function, \eqn{\chi_d^2}{pchisq(.,df=d)}
+	denotes the distribution function of the chi-square distribution with \eqn{d}
+	degrees of freedom, and \eqn{u_{ij}} is the \eqn{j}th component in the
+   \eqn{i}th row of \code{u}.
+      }
+      \item{\code{"gamma"}}{similar to \code{method="chisq"} but computing
+	\deqn{\Gamma_d\Bigl(\sum_{j=1}^d(-\log u_{ij})\Bigr),}{pgamma(-log(u_{i1})-...-log(u_{id}), shape=d),}
+	where \eqn{\Gamma_d}{pgamma(.,shape=d)} denotes the distribution function of
+	the gamma distribution with shape parameter \eqn{d} and shape parameter one
+	(being equal to an Erlang(\eqn{d}) distribution function).}
+      \item{\code{"Remillard"}}{for computing the test statistic \eqn{\mathrm{S_n^{(B)}}}{S[n]^(B)} in Genest, R\enc{é}{e}millard, Beaudoin (2009).}
+      \item{\code{"Genest"}}{for computing the test statistic \eqn{\mathrm{S_n^{(C)}}}{S[n]^(C)} in Genest, R\enc{é}{e}millard, Beaudoin (2009).}
   }}
-  \item{verbose}{if TRUE, the progress of the bootstrap is displayed.}
+  \item{verbose}{if \code{TRUE}, the progress of the bootstrap is displayed.}
   \item{\dots}{additional arguments to \code{\link{enacopula}}.}
 }
 \details{
   \describe{
-    \item{\code{gnacopula}}{The bootstrap is explained in Genest et al. (2009), see also the source code.}
+    The function \code{gnacopula} performs a bootstrap
+    for the goodness-of-fit test specified by \code{trafo} and \code{method}. 
+    The transformation given by \code{trafo} specifies the multivariate
+    transformation which is first applied to the (copula-) data \code{u}
+    (typically, the pseudo-observations are used); see \code{\link{htrafo}} or \code{\link{rtrafo}} for more details. The argument \code{method} specifies the particular goodness-of-fit test carried out, which is either the Anderson-Darling test for the univariate standard uniform distribution (for \code{method="chisq"} or \code{method="gamma"}) in a one-dimensional setup or the tests described in Genest, R\enc{é}{e}millard, Beaudoin (2009) for the multivariate standard uniform distribution directly in a multivariate setup. As estimation method, the method provided by \code{estimation.method} is used. 
 
-    \item{\code{rtrafo}}{Given a \eqn{d}-dimensional random vector
-      \eqn{\bm{U}} following an Archimedean copula \eqn{C} with
-      generator \eqn{\psi}, the conditional copula of \eqn{U_j=u_j} given
-      \eqn{U_1=u_1,\dots,U_{j-1}=u_{j-1}}{U_1=u_1,...,U_{j-1}=u_{j-1}} is
-      given by
-      \deqn{C(u_j\,|\,u_1,\dots,u_{j-1})=\frac{\psi^{(j-1)}\Bigl(\sum_{k=1}^j\psi^{(-1)}(u_k)\Bigr)}{\psi^{(j-1)}\Bigl(\sum_{k=1}^{j-1}\psi^{(-1)}(u_k)\Bigr)}.}{%
-	C(u_j | u_1,...,u_{j-1}) = (psi^{(j-1)}(sum(k=1..j)  psi^{(-1)}(u_k))) /
-        (psi^{(j-1)}(sum(k=1..j-1) psi^{(-1)}(u_k))).}
-      This formula is either evaluated with the exact derivatives or, if \code{n.MC} is positive, via Monte Carlo, see \code{\link{psiDabsMC}}. Rosenblatt (1952) showed that \eqn{\bm{U}^\prime\sim\mathrm{U}[0,1]^d}{U'~U[0,1]^d}, where
-		\eqn{U_1^\prime=U_1}{U'_1=U_1}, \eqn{U_2^\prime=C(U_2\,|\,U_1)}{U'_2=C(U_2|U_1)}, ..., and \eqn{U_d^\prime=C(U_d\,|\,U_1,\dots,U_{d-1})}{U'_d=C(U_d|U_1,...,U_{d-1})}.
-		\code{rtrafo} applies this transformation row-wise to
-      \code{u} and thus returns an \eqn{n\times d}{n x d}-matrix.}
+    As a word of warning, one should be working carefully with the variety of different goodness-of-fit tests that can be performed with \code{gnacopula}. For example, among the possible estimation methods to be chosen, only MLE is known to be consistent (under conditions to be verified). Furthermore, for the tests based on 
+    the Anderson-Darling test statistic, it is theoretically not clear whether the bootstrap converges. These functions should therefore be used with care! 
 
-    \item{\code{gnacopulatrafo}}{Given a \eqn{d}-dimensional random vector \eqn{\bm{U}} following an
-      Archimedean copula \eqn{C} with generator \eqn{\psi}, Hering and
-      Hofert (2011) showed that \eqn{\bm{U}^\prime\sim\mathrm{U}[0,1]^d}{U'~U[0,1]^d}, where
-      \deqn{U_{j}^\prime=\left(\frac{\sum_{k=1}^{j}\psi^{-1}(U_{k})}{\sum_{k=1}^{j+1}\psi^{-1}(U_{k})}\right)^{j},\
-	j\in\{1,\dots,d-1\},\ U_{d}^\prime=K(C(\bm{U})).}{%
-	U'_j=((psi^{-1}(U_1)+...+psi^{-1}(U_j)) /
-	(psi^{-1}(U_1)+...+psi^{-1}(U_{j+1})))^j,  j in {1,...,d-1},
-	U'_d=K(C(U)).}
-      \code{gnacopulatrafo} applies this transformation row-wise to
-      \code{u} and thus returns either an \eqn{n\times d}{n x d}- or an
-      \eqn{n\times (d-1)}{n x (d-1)}-matrix, depending on whether the last
-      component \eqn{U^\prime_d}{U'_d} which involves the (possibly
-      numerically challenging) Kendall distribution function \eqn{K} is used
-      (\code{include.K=TRUE}) or not (\code{include.K=FALSE}).}
+    Since \R is widely used by practitioners, a word of warning concerning goodness-of-fit tests in general is also advisable. Goodness-of-fit tests are often (ab)used in practice to "justify" an assumption under which one then continues to work (carelessly). From a mathematical point of view, this is not correct. 
   }
 }
 \value{
   \code{gnacopula} returns an \R object of class \code{"htest"}.
-  If \code{n.bootstrap} is zero, this object is the return value
-  of \code{\link{g01}(\link{gnacopulatrafo}(...))} (if \code{method} equals \code{"gnacopulatrafo.*"}) or \code{\link{g01}(\link{rtrafo}(...))} (if \code{method} equals {"rtrafo.*"}), otherwise the result also
-  contains a list with the bootstrap results including the components
+  This object contains a list with the bootstrap results including the components
   \describe{
-    \item{\code{AD.test}:}{the result of \code{\link{ad.test}} applied
-      to \code{\link{g01trafo}(\link{gnacopulatrafo}(...))} or to
- 		\code{\link{g01trafo}(\link{rtrafo}(...))};}
-
-    \item{\code{bootStats}:}{a list with component \code{theta.hat}
-      containing the estimators of all bootstrap replications and
-      component \code{AD.test} containing the results of
-      \code{\link{ad.test}} for all bootstrap replications.}
+    \item{\code{p.value}:}{the bootstrapped p-value;}
+    \item{\code{statistic}:}{the value of the test statistic computed for the data \code{u};}
+    \item{\code{data.name}:}{the name of \code{u};}
+    \item{\code{method}:}{a \code{\link{character}} describing the goodness-of-fit test applied;}
+    \item{\code{estimator}:}{the estimator computed for the data \code{u};}
+    \item{\code{bootStats}:}{a list with component \code{estimator}
+      containing the estimators for all bootstrap replications and
+      component \code{statistic} containing the values of the test statistic for each bootstrap replication.}
   }
 
-  \code{rtrafo} returns an \eqn{n\times d}{n x d}-matrix containing the transformed input \code{u}.
-
-  \code{gnacopulatrafo} returns an
-  \eqn{n\times d}{n x d}- or \eqn{n\times (d-1)}{n x (d-1)}-matrix (depending on whether \code{include.K} is \code{TRUE} or \code{FALSE}) containing the transformed input \code{u}.
+  \code{gtrafouni} returns a numeric vector of length \eqn{n}
+  (=\code{nrow(u)}) containing the univariate transformed values.
 }
 \author{Marius Hofert, Martin Maechler.}
 \references{
@@ -127,61 +118,61 @@ gnacopulatrafo(u, cop, include.K = TRUE, n.MC = 0)
   to be submitted.
 }
 \seealso{
-  \code{\link{g01}} for the transformation(s) to the univariate setting.
+  \code{\link{gtrafo}} for the multivariate transformation(s) \code{\link{htrafo}} and \code{\link{rtrafo}} involved and \code{\link{K}} for the Kendall distribution function.
 }
 \examples{
 tau <- 0.5
-(theta <- copGumbel@tauInv(tau)) # 2
+(theta <- copGumbel@tauInv(tau)) # 2 
 d <- 5
 (copG <- onacopulaL("Gumbel", list(theta,1:d)))
 
 set.seed(1)
 n <- 1000
-X <- rnacopula(n, copG)
-X <- qnorm(X) # x now follows a meta-Gumbel model with N(0,1) marginals
-U <- pobs(X) # build pseudo-observations
+x <- rnacopula(n, copG)
+x <- qnorm(x) # x now follows a meta-Gumbel model with N(0,1) marginals
+u <- pobs(x) # build pseudo-observations
 
-## check if the data comes from a meta-Gumbel model
-## (choose larger n.bootstrap in a realistic setup)
-res.H0.G <- gnacopula(U, cop=copG, n.bootstrap=10,
-                      estimation.method="mle")
+## check if the data comes from a meta-Gumbel model (choose larger n.bootstrap
+## in a realistic setup)
+res.H0.G <- gnacopula(u, cop=copG, n.bootstrap=10,
+                      estimation.method="mle") 
+## => uses the transformation of Hering and Hofert (2011), including 
+##    the Kendall distribution function K and the mapping to a univariate
+##    setting via the chi-square distribution. The final test carried out 
+##    is the Anderson-Darling test.
 res.H0.G$p.value # non-rejection according to 5\% level
 
 ## plot of the transformed data (Rosenblatt (1952))
-U. <- rtrafo(U, cop=copG) # exact
-pairs(U., cex=0.2) # looks good
-
-## plot of the transformed data (Rosenblatt (1952)) 
-U. <- rtrafo(U, cop=copG, n.MC=10000) # via Monte Carlo
-pairs(U., cex=0.2) # looks good
+u.prime <- rtrafo(u, cop=copG) # exact
+pairs(u.prime, cex=0.2) # looks good
 
 ## plot of the transformed data (Hering and Hofert (2011)) 
-U. <- gnacopulatrafo(U, cop=copG)
-pairs(U., cex=0.2) # looks good
+u.prime. <- htrafo(u, cop=copG)
+pairs(u.prime., cex=0.2) # looks good
 
-## what about a meta-Clayton model?
-## (choose larger n.bootstrap in a realistic setup)
+## what about a meta-Clayton model? (choose larger n.bootstrap in a 
+## realistic setup)
 ## note: the parameter of the Clayton copula is only a dummy,
 ##       it will be estimated anyway
-copC <- onacopulaL("Clayton", list(1,1:d))
-res.H0.C <- gnacopula(U, cop=copC, n.bootstrap=10,
+copC <- onacopulaL("Clayton", list(1, 1:d))
+res.H0.C <- gnacopula(u, cop=copC, n.bootstrap=10,
 	              estimation.method="mle")
 res.H0.C$p.value # rejection according to 5\% level
 
-## plot of the transformed data (Rosenblatt (1952)) to see the
-## deviations from uniformity
-U. <- rtrafo(U, cop=copC, n.MC=0)
-pairs(U., cex=0.2) # clearly visible
+## plot of the transformed data (Hering and Hofert (2011)) to see the deviations
+## from uniformity
+u.prime <- htrafo(u, cop=copC) # transform the data
+pairs(u.prime, cex=0.2) # clearly visible
 
-## plot of the transformed data (Hering and Hofert (2011)) to see the
-## deviations from uniformity
-U. <- gnacopulatrafo(U, cop=copC, include.K=TRUE, n.MC=0)
-pairs(U., cex=0.2) # clearly visible
+## plot of the transformed data (Rosenblatt (1952)) to see the deviations from
+## uniformity
+u.prime. <- rtrafo(u, cop=copC) # transform the data
+pairs(u.prime., cex=0.2) # clearly visible
 
-## and for the map to a supposedly U[0,1] distribution?
-Z <- g01trafo(U.)
-plot(1:length(Z), Z)
-## a bit harder to see, but still not perfectly uniform (as expected)
+## plot the supposedly U[0,1] distributed variates
+z <- gtrafouni(u.prime)
+plot(1:length(z), z)
+## a bit harder to see, but not perfectly uniform (as expected)
 }
 \keyword{htest}
 \keyword{distribution}

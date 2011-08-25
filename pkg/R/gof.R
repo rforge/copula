@@ -78,7 +78,7 @@ K <- function(u, cop, d, n.MC=0)
 }
 
 ##' Transforms supposedly U[0,1]^d distributed vectors of random variates to
-##' univariate distributed data (for testing in a one-dimensional setup)
+##' univariate data (for testing in a one-dimensional setup)
 ##'
 ##' @title Transformation to a one-dimensional test setting
 ##' @param u matrix of random variates to be transformed (typically
@@ -288,7 +288,7 @@ gnacopula <- function(u, cop, n.bootstrap,
         ## (1) estimate the parameter by the provided estimation method and 
         ##     define the estimated copula
         if(!is.matrix(u)) u <- rbind(u)
-        theta.hat <- enacopula(u, cop, method=estimation.method, n.MC=n.MC, ...)
+        theta.hat <- enacopula(u, cop, method=estimation.method, ...)
         cop.hat <- onacopulaL(cop@copula@name, list(theta.hat, 1:d)) # copula with theta.hat
 
         ## (2) transform the data with the copula with estimated parameter
@@ -310,7 +310,7 @@ gnacopula <- function(u, cop, n.bootstrap,
 
             ## (4.2) estimate the parameter by the provided method and define
             ##	     the estimated copula
-            theta.hat.[k] <- enacopula(u., cop, method=estimation.method, n.MC=n.MC, ...)
+            theta.hat.[k] <- enacopula(u., cop, method=estimation.method, ...)
             cop.hat. <- onacopulaL(cop@copula@name, list(theta.hat.[k], 1:d))
 
             ## (4.3) transform the data with the copula with estimated parameter
