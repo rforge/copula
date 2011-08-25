@@ -42,7 +42,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"beta.", "beta.hat", "pobs"
        ,"ebeta", "etau", "emde", "dDiag", "edmle", "emle", "enacopula"
        ## goodness-of-fit
-       ,"K", "g01trafo", "g01", "rtrafo", "gnacopulatrafo", "gnacopula"
+       ,"K", "gtrafouni", "rtrafo", "htrafo", "gnacopula"
        ## misc
        ,"onacopula", "onacopulaL"
        ,"polynEval"

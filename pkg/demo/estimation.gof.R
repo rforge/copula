@@ -14,76 +14,67 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 require(nacopula)
-options(warn = 1)
+options(warn=1)
 
-#### ==== Estimation and goodness-of-fit =======================================
+### Estimation and goodness-of-fit #############################################
 
 source(system.file("Rsource", "estim-gof-fn.R", package="nacopula"))
 ## --> estimation.gof() etc
 
-### ==== setup ====
+### setup 
 
-## Use all available estimation and GOF methods:
+## Use all available estimation and GoF methods:
 (estMeth <- eval(formals(enacopula)$method))
+(gofTraf <- eval(formals(gnacopula)$trafo))
 (gofMeth <- eval(formals(gnacopula)$method))
 
 set.seed(1) # set seed
 
-n <- 256 # sample size
+n <- 128 # sample size 
 d <- 5 # dimension
-tau <- 0.2 # Kendall's tau
+tau <- 0.25 # Kendall's tau
 
-## ==== apply all procedures (to data from AMH) ================================
+### apply all procedures (to data from AMH) ####################################
 
 simFamily <- "AMH"
 cop <- getAcop(simFamily)
 theta <- cop@tauInv(tau) # true parameter
 
 ## start the loop
-cat("\n## ==== data from ",simFamily," (n = ",n,", d = ",d,", theta = ",
-    format(theta),", tau = ", format(tau),") ====\n\n",sep="")
+cat("\n### data from ",simFamily," (n = ",n,", d = ",d,", theta = ",
+    format(theta),", tau = ", format(tau),") ###\n\n",sep="")
 
 if(getRversion() <= "2.13")
     source(system.file("Rsource", "fixup-sapply.R", package="nacopula"))
 
-## For now, don't use the mde methods here, they take long
-i.mde.meths <- grep("^mde", estMeth)
-e.meths <- estMeth[-i.mde.meths]
-
-RR <- sapply(e.meths, simplify="array", function(e)
+## note: this might take a while...
+RR <- sapply(estMeth, simplify="array", function(e)
          {
-             sapply(gofMeth, simplify="array", function(g)
-                    estimation.gof(n, d, simFamily, tau = tau, n.MC = 0,
-                                   esti.method = e, gof.method = g))
+             sapply(gofTraf, simplify="array", function(gt)
+                {
+                    sapply(gofMeth, simplify="array", function(gm)
+                           estimation.gof(n, d=d, simFamily=simFamily, tau=tau, 
+	                                  n.MC=if(e=="smle") 1000 else 0, # also chosen small due to run time
+                                          n.bootstrap=16, # some methods are time consuming; for particular methods, please choose a larger number here, for example 1000
+                                          include.K=TRUE, esti.method=e, 
+                                          gof.trafo=gt, gof.method=gm))
+                })
          })
 
 str(RR)
-## Now print RR smartly (well, "to be improved"):
-options(digits = 5)
+dimnames(RR)
 
-## *Not* the times here:
-RR[,c(1:2,4:5),,]
+## Now print RR 
+options(digits=5)
 
-## but here:
-apply(RR[,c("timeEstim","timeGOF"),,], c(4,1,2), mean)
+## *Not* the times here...
+RR[,c("theta_hat","tau_hat","P_value","< 0.05"),,,]
 
-### Now do use the parametric bootstrap for better P-value:
-set.seed(11)
-##
-n <- 64    # small sample size
-d <- 5     # dimension
-tau <- 0.8 # Kendall's tau
-(theta <- copGumbel@tauInv(tau)) # == 5  [true parameter]
-
-R2 <- sapply(gofMeth, simplify="array", function(g)
-	     estimation.gof(n, d, copGumbel, tau = tau, n.MC = 0,
-			    n.bootstrap = 256,
-			    esti.method = "mle", gof.method = g))
-R2
+## ... but here
+apply(RR[,c("timeEstim","timeGoF"),,,], c(3,1,2,4), mean)
 
 
-
-## ==== MLE estimation by hand (for debugging purposes) ====
+### MLE estimation by hand (for debugging purposes) ############################
 
 ## generate the data
 simFamily <- getAcop("AMH") # choose your desired family
@@ -95,58 +86,58 @@ copFamily <- "Joe" # family to be estimated
 cop.hat <- onacopulaL(copFamily,list(NA,1:d))
 mLogL <- function(theta,cop.hat,u){
     cop.hat@copula@theta <- theta
-    -sum(dnacopula(cop.hat, u, log = TRUE))
+    -sum(dnacopula(cop.hat, u, log=TRUE))
 }
-(est <- optimize(mLogL, interval = initOpt(copFamily), cop.hat = cop.hat,
-                 u = u))
+(est <- optimize(mLogL, interval=initOpt(copFamily), cop.hat=cop.hat,
+                 u=u))
 
 ## evaluate the density at u for a specified parameter
 theta <- 14
 cop.hat@copula@theta <- theta
-(log.dens <- dnacopula(cop.hat, u, log = TRUE))
+(log.dens <- dnacopula(cop.hat, u, log=TRUE))
 -sum(log.dens)
 
-## ==== Plots ==================================================================
+### Plots ######################################################################
 
 if(!dev.interactive()) # e.g. when run as part of R CMD check
     pdf("demo_est-gof.pdf")
 if(!exists("doPlot")) doPlot <- TRUE
 
-## ==== setup for plots ====
+### setup for plots 
 
 u <- (0:256)/256 # evaluation points
 
 cols <- c("black","orange3","red3","darkgreen","blue") # not very light ones
 labs <- c("AMH","Clayton","Frank","Gumbel","Joe")
 
-## ==== plots of the densities of the diagonals ====
+### plots of the densities of the diagonals 
 
 d <- 5
 th <- c(0.7135001, 0.5, 1.860884, 1.25, 1.25)
-dDmat <- cbind(dDiag.A = dDiag(u,cop=onacopulaL("AMH", list(th[1], 1:d))),
-               dDiag.C = dDiag(u,cop=onacopulaL("Clayton", list(th[2], 1:d))),
-               dDiag.F = dDiag(u,cop=onacopulaL("Frank", list(th[3], 1:d))),
-               dDiag.G = dDiag(u,cop=onacopulaL("Gumbel", list(th[4], 1:d))),
-               dDiag.J = dDiag(u,cop=onacopulaL("Joe", list(th[5], 1:d))))
+dDmat <- cbind(dDiag.A=dDiag(u,cop=onacopulaL("AMH", list(th[1], 1:d))),
+               dDiag.C=dDiag(u,cop=onacopulaL("Clayton", list(th[2], 1:d))),
+               dDiag.F=dDiag(u,cop=onacopulaL("Frank", list(th[3], 1:d))),
+               dDiag.G=dDiag(u,cop=onacopulaL("Gumbel", list(th[4], 1:d))),
+               dDiag.J=dDiag(u,cop=onacopulaL("Joe", list(th[5], 1:d))))
 
 if(doPlot) {
     matplot(u, dDmat, type="l", col=cols, xlab="t", ylab="dDiag(t)")
     legend("bottomright", legend=labs, lty=1:5, col=cols, bty="n")
     ## and in log-log scale:
     matplot(u, dDmat, type="l", col=cols, xlab="t",
-            log = "xy", main = "dDiag(t) [log-log scale]")
+            log="xy", main="dDiag(t) [log-log scale]")
     legend("bottomright", legend=labs, lty=1:5, col=cols, bty="n")
 }
 
-## ==== plots of the Kendall distribution functions ====
+### plots of the Kendall distribution functions 
 
 d <- 10
-Kmat <- cbind(K.A = K(u,setTheta(copAMH, th[1]),d),
-              K.C = K(u,setTheta(copClayton, th[2]),d),
-              K.F = K(u,setTheta(copFrank, th[3]),d),
-              K.G = K(u,setTheta(copGumbel, th[4]),d),
-              K.J = K(u,setTheta(copJoe, th[5]),d))
-head(mm <- cbind(t = u, Kmat))
+Kmat <- cbind(K.A=K(u,setTheta(copAMH, th[1]),d),
+              K.C=K(u,setTheta(copClayton, th[2]),d),
+              K.F=K(u,setTheta(copFrank, th[3]),d),
+              K.G=K(u,setTheta(copGumbel, th[4]),d),
+              K.J=K(u,setTheta(copJoe, th[5]),d))
+head(mm <- cbind(t=u, Kmat))
 tail(mm)
 
 dK <- apply(Kmat, 2, diff)
@@ -160,6 +151,6 @@ if(doPlot) {
     legend("bottomright", legend=labs, lty=1:5, col=cols, bty="n")
     ## and in log-log scale:
     matplot(u, Kmat, type="l", col=cols, xlab="t",
-            log = "xy", main = "K(u) [log-log scale]")
+            log="xy", main="K(u) [log-log scale]")
     legend("bottomright", legend=labs, lty=1:5, col=cols, bty="n")
 }

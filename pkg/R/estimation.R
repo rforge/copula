@@ -151,10 +151,19 @@ ebeta <- function(u, cop, interval=initOpt(cop@copula@name), ...) {
 ##' @author Marius Hofert   
 tau.checker <- function(x, family, warn=TRUE){
     eps <- 1e-8
-    tau.range <- switch(family, # limiting (attainable) taus that can be dealt with by copFamily@tauInv()
-                        "AMH" = { c(0, 1/3) }, # limit is correct in copAMH@tauInv(c(0,1/3))
-                        "Clayton" = { c(0, 1-eps) }, # copClayton@tauInv(c(0,1-eps))
-                        "Frank" = { c(eps, 1-eps) }, # copFrank@tauInv(c(0,1-eps))
+    tau.range <- switch(family, 
+                        ## limiting (attainable) taus that can be dealt with by
+                        ## copFamily@tauInv() *and* that can be used to construct
+                        ## a corresponding copula object; checked via:
+                        ## eps <- 1e-8
+                        ## th <- copAMH@tauInv(c(0,1/3-eps)); onacopulaL("AMH",list(th[1], 1:5)); onacopulaL("AMH",list(th[2], 1:5))
+                        ## th <- copClayton@tauInv(c(eps,1-eps)); onacopulaL("Clayton",list(th[1], 1:5)); onacopulaL("Clayton",list(th[2], 1:5))
+                        ## th <- copFrank@tauInv(c(eps,1-eps)); onacopulaL("Frank",list(th[1], 1:5)); onacopulaL("Frank",list(th[2], 1:5))
+                        ## th <- copGumbel@tauInv(c(0,1-eps)); onacopulaL("Gumbel",list(th[1], 1:5)); onacopulaL("Gumbel",list(th[2], 1:5))
+                        ## th <- copJoe@tauInv(c(0,1-eps)); onacopulaL("Joe",list(th[1], 1:5)); onacopulaL("Joe",list(th[2], 1:5))
+                        "AMH" = { c(0, 1/3-eps) }, 
+                        "Clayton" = { c(eps, 1-eps) }, # copClayton@tauInv(c(eps,1-eps))
+                        "Frank" = { c(eps, 1-eps) }, # copFrank@tauInv(c(eps,1-eps))
                         "Gumbel" = { c(0, 1-eps) }, # copGumbel@tauInv(c(0,1-eps))
                         "Joe" = { c(0, 1-eps) }, # copJoe@tauInv(c(0,1-eps))
                         stop("unsupported family for initOpt"))
@@ -162,8 +171,13 @@ tau.checker <- function(x, family, warn=TRUE){
     toolarge <- which(x > tau.range[2])
     if(warn && length(toosmall)+length(toolarge) > 0){
 	r <- range(x)
-	warning("tau.checker: modified the x values out of range; min(x) = ",r[1],", max(x) = ",r[2])
-	
+	if(length(x) == 1){
+            warning("tau.checker: found (and adjusted) an x value out of range (x = ",
+                    x,")")	
+	}else{
+            warning("tau.checker: found (and adjusted) x values out of range (min(x) = ",
+                    r[1],", max(x) = ",r[2],")")	
+        }
     }
     x. <- x
     x.[toosmall] <- tau.range[1]
@@ -219,38 +233,38 @@ etau <- function(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...){
 ##' @title Distances for minimum distance estimation
 ##' @param u matrix of realizations (ideally) following U[0,1]^(d-1) or U[0,1]^d
 ##' @param method distance methods available:
-##'        mde.normal.CvM  = map to a chi-square distribution (Cramer-von Mises distance)
-##'        mde.normal.KS   = map to a chi-square distribution (Kolmogorov-Smirnov distance)
-##'        mde.log.CvM     = map to an Erlang distribution (Cramer-von Mises distance)
-##'        mde.log.KS      = map to an Erlang distribution (Kolmogorov-Smirnov distance)
+##'        mde.chisq.CvM  = map to a chi-square distribution (Cramer-von Mises distance)
+##'        mde.chisq.KS   = map to a chi-square distribution (Kolmogorov-Smirnov distance)
+##'        mde.gamma.CvM  = map to an Erlang (gamma) distribution (Cramer-von Mises distance)
+##'        mde.gamma.KS   = map to an Erlang (gamma) distribution (Kolmogorov-Smirnov distance)
 ##' @return distance
 ##' @author Marius Hofert
-emde.dist <- function(u, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.CvM",
-                         "mde.log.KS")) {
+emde.dist <- function(u, method = c("mde.chisq.CvM", "mde.chisq.KS", "mde.gamma.CvM",
+                         "mde.gamma.KS")) {
     if(!is.matrix(u)) u <- rbind(u)
     d <- ncol(u)
     n <- nrow(u)
     method <- match.arg(method) # match argument method
     switch(method,
-           "mde.normal.CvM" = { # map to a chi-square distribution
+           "mde.chisq.CvM" = { # map to a chi-square distribution
                y <- sort(rowSums(qnorm(u)^2))
                Fvals <- pchisq(y, d)
                weights <- (2*(1:n)-1)/(2*n)
                1/(12*n) + sum((weights - Fvals)^2)
            },
-           "mde.normal.KS" = { # map to a chi-square distribution
+           "mde.chisq.KS" = { # map to a chi-square distribution
                y <- sort(rowSums(qnorm(u)^2))
                Fvals <- pchisq(y, d)
                i <- 1:n
                max(Fvals[i]-(i-1)/n, i/n-Fvals[i])
            },
-           "mde.log.CvM" = { # map to an Erlang distribution
+           "mde.gamma.CvM" = { # map to an Erlang distribution
                y <- sort(rowSums(-log(u)))
                Fvals <- pgamma(y, shape = d)
                weights <- (2*(1:n)-1)/(2*n)
                1/(12*n) + sum((weights - Fvals)^2)
            },
-           "mde.log.KS" = { # map to an Erlang distribution
+           "mde.gamma.KS" = { # map to an Erlang distribution
                y <- rowSums(-log(u))
                Fvals <- pgamma(y, shape = d)
                i <- 1:n
@@ -285,8 +299,8 @@ emde.dist <- function(u, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
 ##' @param ... additional parameters for optimize
 ##' @return minimum distance estimator; return value of optimize
 ##' @author Marius Hofert
-emde <- function(u, cop, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.CvM",
-                         "mde.log.KS"), interval = initOpt(cop@copula@name),
+emde <- function(u, cop, method = c("mde.chisq.CvM", "mde.chisq.KS", "mde.gamma.CvM",
+                         "mde.gamma.KS"), interval = initOpt(cop@copula@name),
                  include.K = FALSE, ...)
 {
     stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 2,
@@ -296,7 +310,7 @@ emde <- function(u, cop, method = c("mde.normal.CvM", "mde.normal.KS", "mde.log.
     method <- match.arg(method) # match argument method
     distance <- function(theta) { # distance to be minimized
         cop@copula@theta <- theta
-        u. <- gnacopulatrafo(u, cop, n.MC=0, include.K=include.K) # transform data [don't use MC here; too slow]
+        u. <- htrafo(u, cop=cop, include.K=include.K, n.MC=0) # transform data [don't use MC here; too slow]
         emde.dist(u., method)
     }
     optimize(distance, interval = interval, ...)
@@ -485,10 +499,10 @@ pobs <- function(x, na.last="keep", ties.method=c("average", "first", "random", 
 ##'        "mle"             MLE
 ##'        "smle"            SMLE
 ##'        "dmle"            MLE based on the diagonal
-##'        "mde.normal.CvM"  minimum distance estimation based on the chisq distribution and CvM distance
-##'        "mde.normal.KS"   minimum distance estimation based on the chisq distribution and KS distance
-##'        "mde.log.CvM"     minimum distance estimation based on the Erlang distribution and CvM distance
-##'        "mde.log.KS"      minimum distance estimation based on the Erlang distribution and KS distance
+##'        "mde.chisq.CvM"   minimum distance estimation based on the chisq distribution and CvM distance
+##'        "mde.chisq.KS"    minimum distance estimation based on the chisq distribution and KS distance
+##'        "mde.gamma.CvM"   minimum distance estimation based on the Erlang distribution and CvM distance
+##'        "mde.gamma.KS"    minimum distance estimation based on the Erlang distribution and KS distance
 ##'        "tau.tau.mean"    averaged pairwise Kendall's tau estimator
 ##'        "tau.theta.mean"  average of Kendall's tau estimators
 ##'        "beta"            multivariate Blomqvist's beta estimator
@@ -498,8 +512,8 @@ pobs <- function(x, na.last="keep", ties.method=c("average", "first", "random", 
 ##' @param ... additional parameters for optimize
 ##' @return estimated value/vector according to the chosen method
 ##' @author Marius Hofert
-enacopula <- function(u, cop, method=c("mle", "smle", "dmle", "mde.normal.CvM",
-                              "mde.normal.KS", "mde.log.CvM", "mde.log.KS",
+enacopula <- function(u, cop, method=c("mle", "smle", "dmle", "mde.chisq.CvM",
+                              "mde.chisq.KS", "mde.gamma.CvM", "mde.gamma.KS",
                               "tau.tau.mean", "tau.theta.mean", "beta"),
                       n.MC = if(method=="smle") 10000 else 0,
                       interval=initOpt(cop@copula@name),
@@ -522,13 +536,13 @@ enacopula <- function(u, cop, method=c("mle", "smle", "dmle", "mde.normal.CvM",
                   interval = interval, ...), xargs)),
                   "dmle" =           do.call(edmle, c(list(u, cop,
                   interval = interval, ...), xargs)),
-                  "mde.normal.CvM" = do.call(emde, c(list(u, cop, "mde.normal.CvM",
+                  "mde.chisq.CvM" =  do.call(emde, c(list(u, cop, "mde.chisq.CvM",
                   interval = interval, ...), xargs)),
-                  "mde.normal.KS" =  do.call(emde, c(list(u, cop, "mde.normal.KS",
+                  "mde.chisq.KS" =   do.call(emde, c(list(u, cop, "mde.chisq.KS",
                   interval = interval, ...), xargs)),
-                  "mde.log.CvM" =    do.call(emde, c(list(u, cop, "mde.log.CvM",
+                  "mde.gamma.CvM" =  do.call(emde, c(list(u, cop, "mde.gamma.CvM",
                   interval = interval, ...), xargs)),
-                  "mde.log.KS" =     do.call(emde, c(list(u, cop, "mde.log.KS",
+                  "mde.gamma.KS" =   do.call(emde, c(list(u, cop, "mde.gamma.KS",
                   interval = interval, ...), xargs)),
                   "tau.tau.mean" =   do.call(etau, c(list(u, cop, "tau.mean", ...),
                   xargs)),
@@ -545,10 +559,10 @@ enacopula <- function(u, cop, method=c("mle", "smle", "dmle", "mde.normal.CvM",
            "mle" =            res$minimum,
            "smle" =           res$minimum,
            "dmle" =           res$minimum,
-           "mde.normal.CvM" = res$minimum,
-           "mde.normal.KS" =  res$minimum,
-           "mde.log.CvM" =    res$minimum,
-           "mde.log.KS" =     res$minimum,
+           "mde.chisq.CvM" =  res$minimum,
+           "mde.chisq.KS" =   res$minimum,
+           "mde.gamma.CvM" =  res$minimum,
+           "mde.gamma.KS" =   res$minimum,
            "tau.tau.mean" =   res,
            "tau.theta.mean" = res,
            "beta" =           res$root,

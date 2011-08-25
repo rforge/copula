@@ -6,8 +6,8 @@
 }
 \usage{
 emde(u, cop,
-     method=c("mde.normal.CvM", "mde.normal.KS",
-              "mde.log.CvM",    "mde.log.KS"),
+     method=c("mde.chisq.CvM", "mde.chisq.KS",
+              "mde.gamma.CvM", "mde.gamma.KS"),
      interval=initOpt(cop@copula@name),
      include.K = FALSE, \dots)
 }
@@ -20,13 +20,13 @@ emde(u, cop,
   \item{method}{a \code{\link{character}} string specifying the distance
     method, which has to be one (or a unique abbreviation) of
     \describe{
-      \item{\code{"mde.normal.CvM"}}{map to an Erlang distribution and
+      \item{\code{"mde.chisq.CvM"}}{map to an Erlang distribution and
 	using a chi-square distribution and Cram\enc{é}{e}r-von Mises distance;}
-      \item{\code{"mde.normal.KS"}}{map to an Erlang distribution and
+      \item{\code{"mde.chisq.KS"}}{map to an Erlang distribution and
 	using a chi-square distribution and Kolmogorov-Smirnov distance;}
-      \item{\code{"mde.log.CvM"}}{map to an Erlang distribution and
+      \item{\code{"mde.gamma.CvM"}}{map to an Erlang distribution and
 	using a Erlang distribution and Cram\enc{é}{e}r-von Mises distance;}
-      \item{\code{"mde.log.KS"}}{map to an Erlang distribution and using
+      \item{\code{"mde.gamma.KS"}}{map to an Erlang distribution and using
 	a Kolmogorov-Smirnov distance.}
 
     }
@@ -38,22 +38,22 @@ emde(u, cop,
     (possibly numerically challenging) Kendall distribution function \eqn{K}, is used
     (\code{include.K=TRUE}) or not.  Note that the default is
     \code{\link{FALSE}} here, where it is \code{TRUE} in the underlying
-    \code{\link{gnacopulatrafo}()} function.}
+    \code{\link{htrafo}()} function.}
   \item{\dots}{additional arguments passed to \code{\link{optimize}}.}
 }
 \details{
-   First, \code{\link{gnacopulatrafo}} is applied to map the \eqn{n\times d}{n x d}-matrix
+   First, \code{\link{htrafo}} is applied to map the \eqn{n\times d}{n x d}-matrix
    of given realizations to a \eqn{n\times d}{n x d}-matrix or
    \eqn{n\times (d-1)}{n x (d-1)}-matrix, depending on whether the last
    component is included (\code{include.K=TRUE}) or not.  Second, using
    either the sum of squares of the standard normal quantile function (for
-   \code{method="mde.normal.CvM"} and
-   \code{method="mde.normal.KS"}) or the sum of negative logarithms
-   (for \code{method="mde.log.CvM"} and \code{method="mde.log.KS"}), a map to a
+   \code{method="mde.chisq.CvM"} and
+   \code{method="mde.chisq.KS"}) or the sum of negative logarithms
+   (for \code{method="mde.gamma.CvM"} and \code{method="mde.gamma.KS"}), a map to a
    chi-square or an Erlang distribution is applied, respectively.  Finally, a
-   Cram\enc{é}{e}r-von Mises (for \code{method="mde.normal.CvM"} and
-   \code{method="mde.log.CvM"}) or Kolmogorov-Smirnov (for
-   \code{method="mde.normal.KS"} and \code{method="mde.log.KS"}) distance is
+   Cram\enc{é}{e}r-von Mises (for \code{method="mde.chisq.CvM"} and
+   \code{method="mde.gamma.CvM"}) or Kolmogorov-Smirnov (for
+   \code{method="mde.chisq.KS"} and \code{method="mde.gamma.KS"}) distance is
    applied.  This is repeated in an optimization until the copula parameter is
    found such that this distance is minimized.
 
@@ -77,9 +77,9 @@ emde(u, cop,
 \seealso{
   \code{\link{enacopula}} (wrapper for different estimators),
   \code{\link{gnacopula}} (wrapper for different goodness-of-fit tests),
-  \code{\link{gnacopulatrafo}} (transformation to a multivariate uniform
+  \code{\link{htrafo}} (transformation to a multivariate uniform
    distribution),
-  \code{\link{g01}} (transformation to a chi-square or Erlang
+  \code{\link{gtrafouni}} (transformation to a chi-square or Erlang
   distribution), and
   \code{\link{K}} (Kendall distribution function).
 }
@@ -93,7 +93,7 @@ set.seed(1)
 n <- 200
 U <- rnacopula(n, cop)
 
-(meths <- eval(formals(emde)$method)) # "mde.normal.CvM", ...
+(meths <- eval(formals(emde)$method)) # "mde.chisq.CvM", ...
 fun <- function(meth, u, cop, theta){
 	run.time <- system.time(val <- emde(u, cop=cop, method=meth)$minimum)
 	list(value=val, error=val-theta, utime.ms=1000*run.time[[1]])

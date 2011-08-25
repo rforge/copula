@@ -15,7 +15,7 @@ showProc.time <- local({
 
 ## Frank & mle ---- log-density is *REALLY* not good enough:
 ## -----------
-## at least not for "GOF" where we may have "tail-dependent"
+## at least not for "GoF" where we may have "tail-dependent"
 ## observations which are highly improbable under Frank and would
 ## "need" a very large theta :
 

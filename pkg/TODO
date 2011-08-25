@@ -5,14 +5,17 @@
      this create problems in the html [or any other] version?
      --> for f in *Rd; do printf '%20s: ' $f ; printf '%4d\n' `maxcol $f` ; done
 
-(MH) check linebreaks in man pages before final release
-(MH) oxford style guide for manual!
+(MM) please take a look at gtrafouni() in ./R/gof.R: Can "Remillard" (and "Genest")
+be made faster? Especially "Remillard" is slow (although B Remillard told me that his
+method is faster than C. Genest's.)
+(MM) does ./demo/estimation.gof.R work for you? R hangs (on MH's Mac) after 20min.
+=> maybe that (line 51) should also be made more fail-safe. 
+
+(MH) new gof help pages
 (MH) document problem with Anderson-Darling test & empirical margins
-(MH) implement Bruno's test statistic
-(MH) implement gnacopula with proper exp(log()) ... using log-slots of psiInv
-(MH) make paraOptInterval safer and document what users should do for "extreme" parameters
-(MH) implement Bruno's + Christian's test statistic; mention that convergence of AD not clear
-     => split method in meth1d and meth
+(MH) mention that convergence of AD not clear 
+(MH) oxford style guide for manual!
+(MH) check linebreaks in man pages before final release
 
 #### Minor #####################################################################
 

@@ -16,71 +16,70 @@
 require(nacopula)
 sessionInfo() # will change too often.. but if we need the info
 
-### ==== A faster, more testing version of  demo(estimation.gof)  ==============
-##					i.e., ../demo/estimation.gof.R :
-##					      ~~~~~~~~~~~~~~~~~~~~~~~~
+### A faster, more checking version of demo(estimation.gof) 
+### that is, of ../demo/estimation.gof.R
+##              ~~~~~~~~~~~~~~~~~~~~~~~~
+## Note: This is only for proof of concept, the numbers chosen are not reasonable
+##       for proper (estimation and) goodness-of-fit testing
 
 source(system.file("Rsource", "estim-gof-fn.R", package="nacopula"))
 ## --> estimation.gof() etc
 
-## Use all available estimation and GOF methods:
-(estMeth <- eval(formals(enacopula)$method))
+## Use selected estimation and all GoF methods:
+(estMeth <- c("mle", "smle", "dmle", "tau.tau.mean", "mde.chisq.CvM", "mde.chisq.KS")) # only those methods that worked comparably well without numerical flaws
+(gofTraf <- eval(formals(gnacopula)$trafo))
 (gofMeth <- eval(formals(gnacopula)$method))
 
 set.seed(1) # set seed
 
-n <- 100 # sample size -- small here for CPU reasons
+n <- 64 # sample size [small here for CPU reasons]
 d <- 5 # dimension
-tau <- 0.2 # Kendall's tau
+tau <- 0.25 # Kendall's tau
 
-## ==== apply all procedures (to data from AMH) ================================
+### apply all procedures (to data from AMH) ####################################
 
 simFamily <- "AMH"
 cop <- getAcop(simFamily)
 theta <- cop@tauInv(tau) # true parameter
 
 ## start the loop
-cat("\n## ==== data from ",simFamily," (n = ",n,", d = ",d,", theta = ",
-    format(theta),", tau = ", format(tau),") ====\n\n",sep="")
+cat("\n### data from ",simFamily," (n = ",n,", d = ",d,", theta = ",
+    format(theta),", tau = ", format(tau),") ###\n\n",sep="")
 
 if(getRversion() <= "2.13")
     source(system.file("Rsource", "fixup-sapply.R", package="nacopula"))
 
+## note: this might (still) take a while...
 RR <- sapply(estMeth, simplify="array", function(e)
          {
-             sapply(gofMeth, simplify="array", function(g)
-                    estimation.gof(n, d, simFamily, tau = tau, n.MC = 0,
-                                   esti.method = e, gof.method = g))
+             sapply(gofTraf, simplify="array", function(gt)
+                {
+                    sapply(gofMeth, simplify="array", function(gm)
+                           estimation.gof(n, d=d, simFamily=simFamily, tau=tau, 
+	                                  n.MC=if(e=="smle") 1000 else 0, # also chosen small due to run time
+                                          n.bootstrap=1, # same here; for a particular method under consideration, please choose a larger number here, for example 1000
+                                          include.K=TRUE, esti.method=e, 
+                                          gof.trafo=gt, gof.method=gm))
+                })
          })
 
 str(RR)
-## Now print RR smartly (well, "to be improved"):
-options(digits = 5)
+dimnames(RR)
 
-## *Not* the times here:
-RR[,c(1:2,4:5),,]
+## Now print RR 
+options(digits=5)
 
-### Now do use the parametric bootstrap for better P-value:
-set.seed(11)
-##
-n <- 64    # small sample size
-d <- 5     # dimension
-tau <- 0.8 # Kendall's tau
-(theta <- copGumbel@tauInv(tau)) # == 5  [true parameter]
+## *Not* the times here...
+RR[,c("theta_hat", "tau_hat", "P_value", "< 0.05"),,,]
 
-## now [2011-04-29] should work:  emle() *did* fail for Frank here:
-R2 <- sapply(gofMeth, simplify="array", function(g)
-	     estimation.gof(n, d, copGumbel, tau = tau, n.MC = 0,
-			    n.bootstrap = 256,
-			    esti.method = "mle", gof.method = g,
-                            checkFamilies = nacopula:::c_longNames[c("C","F","J", "G")]))
-R2
-## }
+## ... but here
+apply(RR[,c("timeEstim","timeGoF"),,,], c(3,1,2,4), mean)
+
 
 cat('Time elapsed: ', proc.time(),'\n') # for ''statistical reasons''
 
-### Make sure the log-Likelihood demos run: ==================================
+### Make sure the log-Likelihood demos run: ####################################
 
-demo("logL-vis", package = "nacopula")
+demo("logL-vis", package="nacopula")
 
 cat('Time elapsed: ', proc.time(),'\n') # for ''statistical reasons''

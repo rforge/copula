@@ -40,7 +40,7 @@ K(u, cop, d, n.MC=0)
    to be submitted.
 }
 \seealso{
-  \code{\link{gnacopula}}, \code{\link{gnacopulatrafo}} or \code{\link{emde}} (where \code{\link{K}} is used).
+  \code{\link{gnacopula}}, \code{\link{htrafo}} or \code{\link{emde}} (where \code{\link{K}} is used).
 }
 \examples{
 tau <- 0.5

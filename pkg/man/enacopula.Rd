@@ -8,8 +8,8 @@
 \usage{
 enacopula(u, cop,
           method = c("mle", "smle", "dmle",
-                     "mde.normal.CvM", "mde.normal.KS",
-                     "mde.log.CvM", "mde.log.KS",
+                     "mde.chisq.CvM", "mde.chisq.KS",
+                     "mde.gamma.CvM", "mde.gamma.KS",
                      "tau.tau.mean", "tau.theta.mean", "beta"),
           n.MC = if (method == "smle") 10000 else 0,
           interval = initOpt(cop@copula@name),
@@ -31,13 +31,13 @@ enacopula(u, cop,
 	computed with the function \code{\link{.emle}}, where
 	\code{n.MC} gives the Monte Carlo sample size.}
       \item{\code{"dmle"}}{MLE based on the diagonal (DMLE), see \code{\link{edmle}}.}
-      \item{\code{"mde.normal.CvM"}}{minimum distance estimator based
+      \item{\code{"mde.chisq.CvM"}}{minimum distance estimator based
 	on the chisq distribution and Cram\enc{é}{e}r-von Mises distance, see \code{\link{emde}}.}
-      \item{\code{"mde.normal.KS"}}{minimum distance estimation based on
+      \item{\code{"mde.chisq.KS"}}{minimum distance estimation based on
 	the chisq distribution and Kolmogorov-Smirnov distance, see \code{\link{emde}}.}
-      \item{\code{"mde.log.CvM"}}{minimum distance estimation based on
+      \item{\code{"mde.gamma.CvM"}}{minimum distance estimation based on
 	the Erlang distribution and Cram\enc{é}{e}r-von Mises distance, see \code{\link{emde}}.}
-      \item{\code{"mde.log.KS"}}{minimum distance estimation based on
+      \item{\code{"mde.gamma.KS"}}{minimum distance estimation based on
 	the Erlang distribution and Kolmogorov-Smirnov distance, see \code{\link{emde}}.}
       \item{\code{"tau.tau.mean"}}{averaged pairwise Kendall's tau estimator}
       \item{\code{"tau.theta.mean"}}{average of pairwise Kendall's tau estimators}
