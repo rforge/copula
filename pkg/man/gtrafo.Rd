@@ -1,5 +1,5 @@
-\name{gnacopula}
-\alias{gnacopula}
+\name{gtrafo}
+\alias{gtrafo}
 \alias{htrafo}
 \alias{rtrafo}
 \title{Goodness-of-Fit Testing Transformations for (Nested) Archimedean Copulas}
