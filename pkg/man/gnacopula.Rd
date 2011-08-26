@@ -71,7 +71,8 @@ gtrafouni(u, method=c("chisq", "gamma", "Remillard", "Genest"))
       \item{\code{"Genest"}}{for computing the test statistic
 	\eqn{\mathrm{S_n^{(C)}}}{S[n]^(C)} from Genest et al.(2009).}
   }}
-  \item{verbose}{if \code{TRUE}, the progress of the bootstrap is displayed.}
+  \item{verbose}{if \code{TRUE}, the progress of the bootstrap is
+    displayed via \code{\link[utils]{txtProgressBar}}.}
   \item{\dots}{additional arguments to \code{\link{enacopula}}.}
 }
 \details{

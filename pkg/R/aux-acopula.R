@@ -13,9 +13,10 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
+paste0 <- function(...) paste(..., sep="")
+
 #### Functions and Methods for "acopula" objects
 #### class definition in ./AllClass.R
-
 
 ### ==== Ali-Mikhail-Haq == "AMH" ==============================================
 
@@ -1113,7 +1114,6 @@ printNacopula <-
     if(nk) {
         cat(sprintf("%sand %d child copula%s\n", bl, nk, if(nk > 1)"s" else ""))
         doLab <- if(is.na(labelKids)) nk > 1 else as.logical(labelKids)
-        paste0 <- function(...) paste(..., sep="")
         if(doLab) {
             hasNms <- !is.null(nms <- names(kids))
             lab <- if(hasNms) paste0(nms,": ") else paste0(seq_len(nk),") ")

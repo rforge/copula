@@ -84,7 +84,7 @@ K <- function(u, cop, d, n.MC=0)
 ##' @param u matrix of random variates to be transformed (typically
 ##'        pseudo-observations obtained from gtrafo())
 ##' @param method trafo method. Available are:
-##'        "chisq"    : map to a chi-square distribution using the standard normal 
+##'        "chisq"    : map to a chi-square distribution using the standard normal
 ##'                     quantile function
 ##'        "gamma"    : map to an Erlang (= gamma) distribution using the logarithm
 ##'        "Remillard": the test statistic S_n^{(B)} in Genest, Remillard, Beaudoin (2009)
@@ -113,7 +113,7 @@ gtrafouni <- function(u, method = c("chisq", "gamma", "Remillard", "Genest"))
 	   "Genest" = {
 	       n <- nrow(u)
 	       Dn <- apply(u, 1, function(u.){
-                   ## u. is one row. We want to know the number of rows of u 
+                   ## u. is one row. We want to know the number of rows of u
                    ## that are (all) componentwise <= u.
                    mean(apply(u <= u., 1, all)) # TRUE <=> the whole row in u is <= u.
                })
@@ -128,13 +128,13 @@ gtrafouni <- function(u, method = c("chisq", "gamma", "Remillard", "Genest"))
 ##' Transforms vectors of random variates following the given (nested) Archimedean
 ##' copula (with specified parameters) to U[0,1]^d vectors of random variates
 ##' via Rosenblatt's transformation
-##' 
+##'
 ##' @title Rosenblatt transformation for a (nested) Archimedean copula
 ##' @param u data matrix
 ##' @param cop an outer_nacopula
 ##' @param n.MC parameter n.MC for evaluating the derivatives via Monte Carlo
 ##' @return matrix of supposedly U[0,1]^d realizations
-##' @author Marius Hofert 
+##' @author Marius Hofert
 rtrafo <- function(u, cop, n.MC=0)
 {
     stopifnot(is(cop, "outer_nacopula"))
@@ -145,15 +145,15 @@ rtrafo <- function(u, cop, n.MC=0)
     cop <- cop@copula
     th <- cop@theta
     stopifnot(cop@paraConstr(th))
-    dim. <- dim(u) 
+    dim. <- dim(u)
     n <- dim.[1]
     d <- dim.[2]
     psiI <- cop@psiInv(u, theta=th)
     psiI. <- t(apply(psiI, 1, cumsum))
-    ## compute all conditional probabilities 
+    ## compute all conditional probabilities
     if(n.MC==0){
 	C.j <- function(j){ # computes C(u_j | u_1,...,u_{j-1}) with the same idea as for cacopula
-            logD <- cop@psiDabs(c(psiI.[,j], psiI.[,j-1]), theta=th, 
+            logD <- cop@psiDabs(c(psiI.[,j], psiI.[,j-1]), theta=th,
                                 degree=j-1, n.MC=0, log=TRUE)
             exp(logD[1:n]-logD[(n+1):(2*n)])
         }
@@ -167,7 +167,7 @@ rtrafo <- function(u, cop, n.MC=0)
             iInf <- is.infinite(arg)
             logD <- numeric(2*n)
             logD[iInf] <- -Inf
-            if(any(!iInf)) logD[!iInf] <- lsum(-V %*% t(arg[!iInf]) + 
+            if(any(!iInf)) logD[!iInf] <- lsum(-V %*% t(arg[!iInf]) +
                                                (j-1) * log(V) - log(n.MC))
             exp(logD[1:n]-logD[(n+1):(2*n)])
         }
@@ -176,13 +176,13 @@ rtrafo <- function(u, cop, n.MC=0)
 }
 
 ##' Transforms vectors of random variates following the given (nested) Archimedean
-##' copula (with specified parameters) to U[0,1]^d (or U[0,1]^(d-1)) vectors of 
+##' copula (with specified parameters) to U[0,1]^d (or U[0,1]^(d-1)) vectors of
 ##' random variates via the transformation of Hering and Hofert (2011)
-##' 
+##'
 ##' @title Transformation of Hering and Hofert (2011)
 ##' @param u data matrix
 ##' @param cop an outer_nacopula
-##' @param include.K boolean indicating whether the last component, K, is also 
+##' @param include.K boolean indicating whether the last component, K, is also
 ##'        used (include.K = TRUE)
 ##' @param n.MC parameter n.MC for K
 ##' @return matrix of supposedly U[0,1]^d realizations
@@ -198,8 +198,8 @@ htrafo <- function(u, cop, include.K=TRUE, n.MC=0)
     ## trafo
     th <- cop@copula@theta
     lpsiI <- cop@copula@psiInv(u, th, log=TRUE) # matrix log(psi^{-1}(u))
-    lcumsum <- matrix(unlist(lapply(1:d, function(j) lsum(t(lpsiI[,1:j, 
-                                                                  drop=FALSE])))), 
+    lcumsum <- matrix(unlist(lapply(1:d, function(j) lsum(t(lpsiI[,1:j,
+                                                                  drop=FALSE])))),
                       ncol=d)
     u. <- matrix(unlist(lapply(1:(d-1), function(k) exp(k*(lcumsum[,k]-
                                                            lcumsum[,k+1])) )),
@@ -228,14 +228,14 @@ htrafo <- function(u, cop, include.K=TRUE, n.MC=0)
 ##'        of gtrafouni
 ##' @param verbose if TRUE, the progress of the bootstrap is displayed
 ##' @param ... additional arguments to enacopula
-##' @return htest object 
+##' @return htest object
 ##' @author Marius Hofert and Martin Maechler
 gnacopula <- function(u, cop, n.bootstrap,
-		      estimation.method=eval(formals(enacopula)$method),
-		      include.K=TRUE, n.MC=0,
-		      trafo=c("Hering.Hofert", "Rosenblatt"),
-		      method=eval(formals(gtrafouni)$method),
-		      verbose=TRUE, ...)
+		      estimation.method= eval(formals(enacopula)$method),
+		      include.K= TRUE, n.MC= 0,
+		      trafo= c("Hering.Hofert", "Rosenblatt"),
+		      method= eval(formals(gtrafouni)$method),
+		      verbose= TRUE, ...)
 {
     ## setup
     if(!is.matrix(u)) u <- rbind(u)
@@ -243,94 +243,90 @@ gnacopula <- function(u, cop, n.bootstrap,
               max(cop@comp) == d, n.bootstrap >= 0, n.MC >= 0)
     if(length(cop@childCops))
 	stop("currently, only Archimedean copulas are provided")
+    if(n.bootstrap == 0)
+	stop("Choose a reasonable number of bootstrap replications or
+apply the transformations yourself,  see ?gnacopula.")
     u.name <- deparse(substitute(u))
 
     ## build multivariate transformation
     trafo <- match.arg(trafo)
     method <- match.arg(method)
-    gtrafomulti <- switch(trafo,
-                          "Hering.Hofert" = {
-                              function(u, cop) htrafo(u, cop=cop, include.K=include.K, n.MC=n.MC)
-                          },
-                          "Rosenblatt" = {
-                              function(u, cop) rtrafo(u, cop=cop, n.MC=n.MC)               
-                          },
-                          stop("gnacopula: wrong argument trafo"))
+    gtrafomulti <-
+        switch(trafo,
+               "Hering.Hofert" = {
+                   function(u, cop) htrafo(u, cop=cop, include.K=include.K, n.MC=n.MC)
+               },
+               "Rosenblatt" = {
+                   function(u, cop) rtrafo(u, cop=cop, n.MC=n.MC)
+               },
+               stop("invalid 'trafo' argument"))
 
     ## build test statistic function and string describing the method
     string <- "Bootstrapped test of"
-    test.stat <- switch(method, # define test statistic (and correct string describing the procedure)
-                        "chisq" = {
-                            string <- paste(string, "Anderson and Darling (with trafo = ",
-                                            trafo, " and method = ", method, ")", sep="")
-                            function(x) ad.test(x)$statistic
-                        },
-                        "gamma" = {
-                            string <- paste(string, "Anderson and Darling (with trafo = ",
-                                            trafo, " and method = ", method, ")", sep="")
-                            function(x) ad.test(x)$statistic
-                        },
-                        "Remillard" = {
-                            string <- paste(string, "Remillard (with trafo = ", trafo, ")")
-                            function(x) x
-                        },
-                        "Genest" = {
-                            string <- paste(string, "Genest (with trafo = ", trafo, ")")
-                            function(x) x
-                        },
-                        stop("gnacopula: wrong argument method"))
+    test.stat <-
+	switch(method, # define test statistic (and correct string describing the procedure)
+	       "chisq" =,
+	       "gamma" = {
+		   string <- paste0(string, "Anderson and Darling (with trafo = ",
+				    trafo, " and method = ", method, ")")
+		   function(x) ad.test(x)$statistic
+	       },
+	       "Remillard" = {
+		   string <- paste0(string, "Remillard (with trafo = ", trafo, ")")
+		   function(x) x
+	       },
+	       "Genest" = {
+		   string <- paste0(string, "Genest (with trafo = ", trafo, ")")
+		   function(x) x
+	       },
+	       stop("wrong 'method' argument"))
 
-    ## main part
-    if(n.bootstrap == 0) { 
-	stop("Please choose a reasonable number of bootstrap replications or apply transformations of the data yourself, see ?gnacopula.")
-    } else { # bootstrap
-	
-        ## (1) estimate the parameter by the provided estimation method and 
-        ##     define the estimated copula
-        if(!is.matrix(u)) u <- rbind(u)
-        theta.hat <- enacopula(u, cop, method=estimation.method, ...)
-        cop.hat <- onacopulaL(cop@copula@name, list(theta.hat, 1:d)) # copula with theta.hat
+    ## main part --- Bootstrapping ------------------
 
-        ## (2) transform the data with the copula with estimated parameter
-        u.prime <- gtrafomulti(u, cop=cop.hat) # transformed data in the unit hypercube
-        Y <- gtrafouni(u.prime, method=method) # transformed data 
+    ## (1) estimate the parameter by the provided estimation method and
+    ##	   define the estimated copula
+    if(!is.matrix(u)) u <- rbind(u)
+    theta.hat <- enacopula(u, cop, method=estimation.method, ...)
+    cop.hat <- onacopulaL(cop@copula@name, list(theta.hat, 1:d)) # copula with theta.hat
 
-        ## (3) conduct the Anderson-Darling test or compute the test statistic (depends on method)
-	teststat <- test.stat(Y)
-	
-        ## (4) conduct the parametric bootstrap
-        theta.hat. <- numeric(n.bootstrap) # vector of estimators
-        teststat. <- vector("list", n.bootstrap) # vector of test.stat() results
-        pb <- txtProgressBar(max=n.bootstrap, style = 3) # setup progress bar
-        for(k in 1:n.bootstrap) {
-            
-            ## (4.1) sample from the copula with estimated parameter and build
-            ##	     the corresponding pseudo-observations
-            u. <- pobs(rnacopula(nrow(u), cop.hat))
+    ## (2) transform the data with the copula with estimated parameter
+    u.prime <- gtrafomulti(u, cop=cop.hat) # transformed data in the unit hypercube
+    Y <- gtrafouni(u.prime, method=method) # transformed data
 
-            ## (4.2) estimate the parameter by the provided method and define
-            ##	     the estimated copula
-            theta.hat.[k] <- enacopula(u., cop, method=estimation.method, ...)
-            cop.hat. <- onacopulaL(cop@copula@name, list(theta.hat.[k], 1:d))
+    ## (3) conduct the Anderson-Darling test or compute the test statistic (depends on method)
+    teststat <- test.stat(Y)
 
-            ## (4.3) transform the data with the copula with estimated parameter
-            u.prime. <- gtrafomulti(u., cop=cop.hat.)
-            Y. <- gtrafouni(u.prime., method=method)
+    ## (4) conduct the parametric bootstrap
+    theta.hat. <- numeric(n.bootstrap) # vector of estimators
+    teststat. <- vector("list", n.bootstrap) # vector of test.stat() results
+    if(verbose) pb <- txtProgressBar(max=n.bootstrap, style = 3) # setup progress bar
+    for(k in 1:n.bootstrap) {
 
-            ## (4.4) conduct the Anderson-Darling test or compute the test statistic (depends on method)
-            teststat.[[k]] <- test.stat(Y.)
+	## (4.1) sample from the copula with estimated parameter and build
+	##	     the corresponding pseudo-observations
+	u. <- pobs(rnacopula(nrow(u), cop.hat))
 
-            setTxtProgressBar(pb, k) # update progress bar
+	## (4.2) estimate the parameter by the provided method and define
+	##	     the estimated copula
+	theta.hat.[k] <- enacopula(u., cop, method=estimation.method, ...)
+	cop.hat. <- onacopulaL(cop@copula@name, list(theta.hat.[k], 1:d))
 
-        }
-	close(pb) # close progress bar
-	
-        ## (5) build and return results
-	p.value <- mean(unlist(teststat.) > teststat)
-        structure(class = "htest",
-                  list(p.value=p.value, statistic=teststat, data.name=u.name, 
-                       method=string, estimator=theta.hat, 
-                       bootStats = list(estimator=theta.hat., statistic=teststat.)))
+	## (4.3) transform the data with the copula with estimated parameter
+	u.prime. <- gtrafomulti(u., cop=cop.hat.)
+	Y. <- gtrafouni(u.prime., method=method)
 
+	## (4.4) conduct the Anderson-Darling test or compute the test statistic (depends on method)
+	teststat.[[k]] <- test.stat(Y.)
+
+        if(verbose) setTxtProgressBar(pb, k) # update progress bar
     }
+    if(verbose) close(pb) # close progress bar
+
+    ## (5) build and return results
+    structure(class = "htest",
+	      list(p.value= mean(unlist(teststat.) > teststat),
+                   statistic = teststat, data.name = u.name,
+		   method=string, estimator=theta.hat,
+		   bootStats = list(estimator=theta.hat., statistic=teststat.)))
+
 }
