@@ -7,11 +7,11 @@
   \deqn{K(u) = P(C(U_1,U_2,\dots,U_d) \le u),}{K(u) = P(C(U1,U2,\dots,Ud) <= u),}
   where \eqn{u \in [0,1]}{u in [0,1]}, and the \eqn{d}-dimensional
   \eqn{(U_1,U_2,\dots,U_d)}{(U1,U2,\dots,Ud)} is distributed according
-  to the copula \eqn{C}. 
+  to the copula \eqn{C}.
 
   Note that the random variable \eqn{C(U_1,U_2,\dots,U_d)}{C(U_1,U_2,...,U_d)}
  is known as \emph{probability integral transform}. Its distribution function
-  \eqn{K} is equal to the identity if \eqn{d = 1}, but is non-trivial for 
+  \eqn{K} is equal to the identity if \eqn{d = 1}, but is non-trivial for
  \eqn{d \ge 2}{d >= 2}.
 }
 \usage{
@@ -21,26 +21,32 @@ K(u, cop, d, n.MC=0)
   \item{u}{evaluation point(s) (have to be in \eqn{[0,1]}).}
   \item{cop}{acopula with specified parameter.}
   \item{d}{dimension.}
-  \item{n.MC}{\code{\link{integer}}, if positive, a Monte Carlo approach is applied with sample size equal to \code{n.MC}; otherwise (\code{n.MC=0}) the exact formula is used based on the generator derivatives as found by Hofert et al. (2011b).}
+  \item{n.MC}{\code{\link{integer}}, if positive, a Monte Carlo approach
+    is applied with sample size equal to \code{n.MC}; otherwise
+    (\code{n.MC=0}) the exact formula is used based on the generator
+    derivatives as found by Hofert et al. (2011b).}
 }
 \details{
-	For a completely monotone Archimedean generator \eqn{\psi}{psi}, 
-	\deqn{K(u)=\sum_{k=0}^{d-1}\frac{\psi^{(k)}(\psi^{-1}(u))}{k!} (-\psi^{-1}(u))^k,\ u\in[0,1];}{K(u)=sum(k=0,...,d-1)(psi^{(k)}(psi^{-1}(u)))/k! (-psi^{-1}(u))^k, u in [0,1];}
-	see Barbe et al. (1996).
+  For a completely monotone Archimedean generator \eqn{\psi}{psi},
+  \deqn{K(u)=\sum_{k=0}^{d-1}
+    \frac{\psi^{(k)}(\psi^{-1}(u))}{k!} (-\psi^{-1}(u))^k,\ u\in[0,1];}{%
+    K(u)=sum(k=0,...,d-1) psi^{(k)}(psi^{-1}(u))/k! (-psi^{-1}(u))^k, u in [0,1];}
+  see Barbe et al. (1996).
 }
 \value{Kendall distribution function at \code{u}}
 \author{Marius Hofert}
 \references{
-	Barbe, P., Genest, C., Ghoudi, K., and R\enc{é}{e}millard, B. (1996),
-   On Kendall's Process,
-   \emph{Journal of Multivariate Analysis}, \bold{58}, 197--229.   
+  Barbe, P., Genest, C., Ghoudi, K., and R\enc{é}{e}millard, B. (1996),
+  On Kendall's Process,
+  \emph{Journal of Multivariate Analysis}, \bold{58}, 197--229.
 
-   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011b),
-   Likelihood inference for Archimedean copulas,
-   to be submitted.
+  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011b),
+  Likelihood inference for Archimedean copulas,
+  to be submitted.
 }
 \seealso{
-  \code{\link{gnacopula}}, \code{\link{htrafo}} or \code{\link{emde}} (where \code{\link{K}} is used).
+  \code{\link{gnacopula}}, \code{\link{htrafo}} or \code{\link{emde}}
+  (where \code{\link{K}} is used).
 }
 \examples{
 tau <- 0.5

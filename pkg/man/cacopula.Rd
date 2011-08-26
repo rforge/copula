@@ -2,8 +2,9 @@
 \alias{cacopula}
 \title{Conditional Copula Function}
 \description{
-  Compute the conditional copula function \eqn{C(u_d\,|\,u_1,\dots,u_{d-1})}{C(u[d]|u[1],...,u[d-1])} of
-  \eqn{u_d}{u[d]} given \eqn{u_1,\dots,u_{d-1}}{u[1],...,u[d-1]}.
+  Compute the conditional copula function
+  \eqn{C(u_d\,|\,u_1,\dots,u_{d-1})}{C(u[d]|u[1],...,u[d-1])}
+  of \eqn{u_d}{u[d]} given \eqn{u_1,\dots,u_{d-1}}{u[1],...,u[d-1]}.
 }
 \usage{
 cacopula(u, cop, n.MC=0, log=FALSE)
@@ -11,17 +12,20 @@ cacopula(u, cop, n.MC=0, log=FALSE)
 \arguments{
   \item{u}{\eqn{n\times d}{n x d}-matrix; the conditioning is done on the values
 in the first \eqn{d-1} columns.}
-  \item{cop}{\code{"\linkS4class{outer_nacopula}"} with specified    
+  \item{cop}{\code{"\linkS4class{outer_nacopula}"} with specified
     parameters (only Archimedean copulas are currently provided).}
   \item{n.MC}{Monte Carlo sample size.}
   \item{log}{if TRUE the logarithm of the conditional copula function is returned.}
 }
 \value{
-  \code{\link{numeric}} vector of length \eqn{n} containing the conditional copula function of \eqn{u_d}{u[d]} given \eqn{u_1,\dots,u_{d-1}}{u[1],...,u[d-1]}.
+  \code{\link{numeric}} vector of length \eqn{n} containing the
+  conditional copula function of \eqn{u_d}{u[d]} given
+  \eqn{u_1,\dots,u_{d-1}}{u[1],...,u[d-1]}.
 }
 \author{Marius Hofert}
 \note{
-  For some (but not all) families, this function also makes sense on the boundaries (if the corresponding limits can be computed).
+  For some (but not all) families, this function also makes sense on the
+  boundaries (if the corresponding limits can be computed).
 }
 \seealso{
   \code{\link{acopula-families}}.

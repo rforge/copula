@@ -15,8 +15,9 @@
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("acopula", ...)}.
-  For several well-known \ifelse{latex}{Archi-medean}{Archimedean} copula families, the package \pkg{nacopula}
-  already provides such family objects.
+  For several well-known \ifelse{latex}{Archi-medean}{Archimedean}
+  copula families, the package \pkg{nacopula} already provides such
+  family objects.
 }
 \section{Slots}{
   \describe{
@@ -44,10 +45,10 @@
       or not the logarithmic value is returned.}
     \item{\code{psiInvD1abs}:}{a \code{\link{function}} computing the
       absolute value of the derivative of the generator inverse
- 		(\code{psiInv()}) for the given parameter \code{theta}.  The optional
- 		parameter \code{log} (defaults to \code{FALSE}) indicates whether the
- 		logarithm of the absolute value of the first derivative of \code{psiInv()}
-      is returned.}
+      (\code{psiInv()}) for the given parameter \code{theta}.  The optional
+      parameter \code{log} (defaults to \code{FALSE}) indicates whether
+      the logarithm of the absolute value of the first derivative of
+      \code{psiInv()} is returned.}
     \item{\code{dDiag}:}{a \code{\link{function}} computing the density of the
       diagonal of the Archimedean copula at \code{u} with parameter
       \code{theta}.  The parameter \code{log} is as described before.}
@@ -55,8 +56,8 @@
       of the Archimedean copula at \code{u} with parameter \code{theta}.  The
       meanings of the parameters \code{n.MC} and \code{log} are as
       described before.}
-    \item{\code{score}:}{a \code{\link{function}} computing the
-      \emph{derivative} of the density with respect to the parameter \eqn{\theta}{theta}.}
+    \item{\code{score}:}{a \code{\link{function}} computing the \emph{derivative}
+      of the density with respect to the parameter \eqn{\theta}{theta}.}
     \item{\code{paraInterval}:}{Either \code{\link{NULL}} or an object of class
       \code{"\linkS4class{interval}"}, which is typically obtained from a call
       such as \code{\link{interval}("[a,b)")}.}

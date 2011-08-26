@@ -18,9 +18,10 @@ tauAMH(th)
   \item{th}{numeric vector with values in \eqn{[0,1]}.}
 }
 \value{
-  a vector of the same length as \code{th},
-  with values of \eqn{2(\theta+(1-\theta)^2\log(1-\theta))/(3\theta^2)}{2*((1-th)*(1-th)*log(1-th) + th) / (3*th^2)}, 
-  numerically accurately, to at least around 12 decimal digits.
+  a vector of the same length as \code{th}, with values of
+  \eqn{1 - 2(\theta+(1-\theta)^2\log(1-\theta))/(3\theta^2)}{1 -
+    2*((1-th)*(1-th)*log(1-th) + th) / (3*th^2)}, numerically
+  accurately, to at least around 12 decimal digits.
 }
 \author{Martin Maechler}
 \seealso{

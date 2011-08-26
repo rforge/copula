@@ -18,12 +18,13 @@ onacopula (family, nacStructure)
 onacopulaL(family, nacList)
 }
 \arguments{
-  \item{family}{either a \code{\link{character}} string, the short 
-    or longer form of the Archimedean family name (for example, 
+  \item{family}{either a \code{\link{character}} string, the short
+    or longer form of the Archimedean family name (for example,
     "Clayton" or simply "C"); see the \code{\link{acopula-families}}
     documentation, or an \code{\linkS4class{acopula}} family object.}
   \item{nacStructure}{a \dQuote{formula} of the form
-    \deqn{C(\theta, c(i_1,\dots,i_c), list(C(..), ..., C(..))).}{C(th, c(i1,..ic), list(C(..), ..., C(..))).}
+    \deqn{C(\theta, c(i_1,\dots,i_c), list(C(..), ..., C(..))).}{%
+      C(th, c(i1,..ic), list(C(..), ..., C(..))).}
     Note that \eqn{C()} has (maximally) three arguments: the first is
     the copula parameter (vector) \eqn{\theta}{theta}, the second a
     (possibly empty) vector of integer indices of components (for the
@@ -55,7 +56,7 @@ onacopulaL(family, nacList)
   Those of the Archimedean families, for example, \code{\link{copGumbel}}.
 }
 \examples{
-## Construct a ten-dimensional Joe copula with parameter such that 
+## Construct a ten-dimensional Joe copula with parameter such that
 ## Kendall's tau equals 0.5
 theta <- copJoe@tauInv(0.5)
 C10 <- onacopula("J",C(theta,1:10))
@@ -64,8 +65,8 @@ C10 <- onacopula("J",C(theta,1:10))
 C10. <- onacopulaL("J",list(theta,1:10))
 stopifnot(identical(C10, C10.))
 
-## Construct a three-dimensional nested Gumbel copula with parameters 
-## such that Kendall's tau of the respective bivariate margins are 0.2 
+## Construct a three-dimensional nested Gumbel copula with parameters
+## such that Kendall's tau of the respective bivariate margins are 0.2
 ## and 0.5.
 theta0 <- copGumbel@tauInv(.2)
 theta1 <- copGumbel@tauInv(.5)

@@ -27,7 +27,9 @@ A..Z(x, alpha, I.alpha = 1 - alpha)
 \value{
   \code{A..Z(x,alpha)} is \eqn{\tilde A_{Z}(x,\alpha)}{A~Z(x,alpha)},
   defined as
-  \deqn{\frac{\sin(\alpha x)^\alpha\sin((1-\alpha)x)^{1-\alpha}}{\sin(x)},\ x\in[0,\pi],}{sin(alpha*x)^alpha * sin((1-alpha)*x)^(1-alpha) / sin(x), x in [0,pi],}
+  \deqn{\frac{\sin(\alpha x)^\alpha\sin((1-\alpha)x)^{1-\alpha}}{\sin(x)},\
+    x\in[0,\pi],}{%
+    sin(alpha*x)^alpha * sin((1-alpha)*x)^(1-alpha) / sin(x),  x in [0,pi],}
 
   where \eqn{\alpha\in(0,1]}{alpha in (0,1]} is \code{alpha}.
 }
@@ -37,7 +39,8 @@ A..Z(x, alpha, I.alpha = 1 - alpha)
 }
 \references{
   Devroye, L. (2009)
-  Random variate generation for exponentially and polynomially tilted stable distributions,
+  Random variate generation for exponentially and polynomially tilted
+  stable distributions,
   \emph{ACM Transactions on Modeling and Computer Simulation} \bold{19}, 18, 1--20.
 }
 \examples{

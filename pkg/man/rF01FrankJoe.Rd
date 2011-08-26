@@ -6,9 +6,11 @@
   \code{rF01Frank}:
   Generate a vector of random variates \eqn{V_{01}\sim F_{01}}{V01 ~ F01}
   with Laplace-Stieltjes transform
-  \deqn{\psi_{01}(t;V_0)=\Bigl(\frac{1-(1-\exp(-t)(1-e^{-\theta_1}))^{\theta_0/\theta_1}}{1-e^{-\theta_0}}\Bigr)^{V_0}.
-  }{psi01(t;V0) = ((1-(1-exp(-t)*(1-e^(-theta1)))^(theta0/theta1))/(1-e^(-theta0)))^V0.}
-
+  \deqn{\psi_{01}(t;V_0)=
+    \Bigl(\frac{1-(1-\exp(-t)(1-e^{-\theta_1}))^{\theta_0/\theta_1}}{1-e^{-\theta_0}}
+    \Bigr)^{V_0}.}{%
+    psi01(t;V0) = ((1-(1-exp(-t)*(1-e^-theta1))^(theta0/theta1))/(1-e^-theta0))^V0.
+  }
   for the given	realizations \eqn{V_0}{V0} of Frank's \eqn{F_0}{F0} and the
   parameters \eqn{\theta_0,\theta_1\in(0,\infty)}{theta0, theta1 in (0,Inf)}
   such that \eqn{\theta_0\le\theta_1}{theta0 <= theta1}.  This distribution
@@ -35,8 +37,9 @@
   that \eqn{\theta_0\le\theta_1}{theta0 <= theta1}.  The parameter
   \code{approx} denotes the largest number of summands in the
   sum-representation of \eqn{V_{01}}{V01} before the asymptotic
-  \deqn{V_{01}=V_0^{1/\alpha}S(\alpha,1,\cos^{1/\alpha}(\alpha\pi/2),\mathbf{1}_{\{\alpha=1\}};1)}{%
-    V0^(1/alpha)S(alpha,1,cos^(1/alpha)(alpha*pi/2),1_(alpha==1);1)}
+  \deqn{V_{01}=V_0^{1/\alpha}S(\alpha,1,\cos^{1/\alpha}(\alpha\pi/2),
+    \mathbf{1}_{\{\alpha=1\}};1)}{%
+    V01 = V0^(1/alpha) S(alpha,1, cos^(1/alpha)(alpha*pi/2), 1_(alpha==1); 1)}
   is used to sample \eqn{V_{01}}{V01}.
 }
 \usage{

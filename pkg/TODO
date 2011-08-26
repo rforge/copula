@@ -1,21 +1,17 @@
 #### Major (to fix before next release) ########################################
 
-(*) there are still some .Rd files (e.g., estim-misc.Rd), which do not contain
-     linebreaks in the paragraphs [just in the .Rd file -- pdf looks fine]. Can
-     this create problems in the html [or any other] version?
-     --> for f in *Rd; do printf '%20s: ' $f ; printf '%4d\n' `maxcol $f` ; done
-
-(MM) please read the "word of warning(s)" in gnacopula.Rd, maybe you want to add/
-     improve on something?
-(MM) please take a look at gtrafouni() in ./R/gof.R: Can "Remillard" (and "Genest")
-be made faster? Especially "Remillard" is slow (although B Remillard told me that his
-method is faster than C. Genest's.)
 (MM) does ./demo/estimation.gof.R work for you? R hangs (on MH's Mac) after 20min.
-=> maybe that should also be made more fail-safe (line 51). 
+  => maybe that should also be made more fail-safe (line 51).
 (MM) is ./demo/estimation.gof.R too slow?
 (MM) is the check too slow? [time gof-check is about 5 times the time for everything else together]
-(MM) tauAMH.Rd: Is the \eqn{...}{...} in line 22 correct or do you mean \eqn{1-...}{1-...} (= tau)?
-(MM) todo in Bernoulli.Rd: can it be removed / is it done?
+
+#### Intermediate #####################################################################
+
+(MM) R/special-func.R & man/Bernoulli.Rd: Research for better algorithms <--> Rmpfr
+
+(MM) please take a look at gtrafouni() in ./R/gof.R: Can "Remillard" (and "Genest")
+ be made faster? Especially "Remillard" is slow (although B Remillard told me that his
+ method is faster than C. Genest's.)
 
 #### Minor #####################################################################
 
@@ -34,6 +30,11 @@ method is faster than C. Genest's.)
     Maybe one can also directly return a list with "value", "error", and "warning"?
     [So far, "value" can also contain the errors => a bit unhandy, but maybe the
     only "elegant" general solution]
+
+(*) From time to time (well, whenever Marius has.. ;-)) check the .Rd files
+    for overlong lines, i.e. apply
+      for f in *Rd; do printf '%20s: ' $f ; printf '%4d\n' `maxcol $f` ; done
+
 
 #### Long-term maybe ###########################################################
 

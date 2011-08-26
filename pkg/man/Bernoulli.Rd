@@ -9,6 +9,7 @@
 
   \bold{NOTE} the current default methods will be changed -- to get
   better accuracy !
+%%--> ../R/special-func.R
 }
 \usage{
 Bernoulli    (n, method = c("sumBin", "sumRamanujan", "asymptotic"),
@@ -61,7 +62,7 @@ MASS::fractions(B10)
 system.time(B50  <- Bernoulli.all(50))# still "no time"
 system.time(B100 <- Bernoulli.all(100))# still less than a milli second
 
-## Using Bernoulli() is not much slower, but hopeful *more* accurate! 
+## Using Bernoulli() is not much slower, but hopefully *more* accurate!
 ## Check first - TODO
 system.time(B.1c <- Bernoulli(100))
 ## reset the cache:

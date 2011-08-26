@@ -7,7 +7,7 @@
   (\eqn{H_0}-)copula \code{cop} based on the (copula-)data \code{u}.
 
   \code{gtrafouni()} transforms supposedly \eqn{\mathrm{U}[0,1]^d}{U[0,1]^d}
-  distributed vectors of random variates to univariate data (for testing in a 
+  distributed vectors of random variates to univariate data (for testing in a
   one-dimensional setup).
 }
 \usage{
@@ -24,16 +24,17 @@ gtrafouni(u, method=c("chisq", "gamma", "Remillard", "Genest"))
   \item{cop}{\eqn{H_0}-\code{"\linkS4class{outer_nacopula}"} with specified
     parameters to be tested for (currently only Archimedean copulas are
     provided).}
-  \item{n.bootstrap}{positive integer giving the number of bootstrap
-    replications.}
+  \item{n.bootstrap}{positive integer specifying the number of bootstrap replicates.}
   \item{estimation.method}{\code{\link{character}}
     string determining the estimation method; see \code{\link{enacopula}}.}
   \item{include.K}{logical indicating whether the last component, involving the
     Kendall distribution function \code{\link{K}}, is used in the transformation
-    \code{\link{htrafo}} of Hering and Hofert (2011). Note that this is only
-    relevant if \code{trafo="Hering.Hofert"}.}
-  \item{n.MC}{parameter \code{n.MC} for \code{\link{htrafo}} (and thus for \code{\link{K}}) if \code{trafo="Hering.Hofert"} and for \code{\link{rtrafo}} if \code{trafo="Rosenblatt"}.}
-  \item{trafo}{a \code{\link{character}} string specifying the multivariate 
+    \code{\link{htrafo}} of Hering and Hofert (2011).  Note that this only
+    applies to \code{trafo="Hering.Hofert"}.}
+  \item{n.MC}{parameter \code{n.MC} for \code{\link{htrafo}} (and thus
+    for \code{\link{K}}) if \code{trafo="Hering.Hofert"} and for
+    \code{\link{rtrafo}} if \code{trafo="Rosenblatt"}.}
+  \item{trafo}{a \code{\link{character}} string specifying the multivariate
     transformation performed for goodness-of-fit testing, which has to be one
     (or a unique abbreviation) of
     \describe{
@@ -41,7 +42,8 @@ gtrafouni(u, method=c("chisq", "gamma", "Remillard", "Genest"))
 	Hering and Hofert (2011); see \code{\link{htrafo}}.}
       \item{\code{"Hering.Hofert"}}{for the multivariate transformation of
 	Rosenblatt (1952); see \code{\link{rtrafo}}.}
-  }}
+    }
+  }
   \item{method}{a \code{\link{character}} string specifying the
     goodness-of-fit method to be used, which has to be one (or a unique
     abbreviation) of
@@ -50,37 +52,57 @@ gtrafouni(u, method=c("chisq", "gamma", "Remillard", "Genest"))
 	\eqn{\mathrm{U}[0,1]}{U[0,1]}-distributed (under \eqn{H_0}) random variates
 	via the distribution function of a chi-square distribution with \eqn{d}
 	degrees of freedom. To be more precise, the variates
-	\deqn{\chi_d^2\Bigl(\sum_{j=1}^d(\Phi^{-1}(u_{ij}))^2\Bigr)}{pchisq((Phi^{-1}(u_{i1}))^2+...+(Phi^{-1}(u_{id}))^2, df=d)}
+	\deqn{\chi_d^2\Bigl(\sum_{j=1}^d(\Phi^{-1}(u_{ij}))^2\Bigr)}{%
+	  pchisq((Phi^{-1}(u_{i1}))^2+...+(Phi^{-1}(u_{id}))^2, df=d)}
 	are returned, where \eqn{\Phi^{-1}}{Phi^{-1}} denotes the quantile function
 	of the standard normal distribution function, \eqn{\chi_d^2}{pchisq(.,df=d)}
 	denotes the distribution function of the chi-square distribution with \eqn{d}
-	degrees of freedom, and \eqn{u_{ij}} is the \eqn{j}th component in the
-   \eqn{i}th row of \code{u}.
-      }
+	degrees of freedom, and \eqn{u_{ij}} is the \eqn{j}th component
+	in the \eqn{i}th row of \code{u}.}
+
       \item{\code{"gamma"}}{similar to \code{method="chisq"} but computing
-	\deqn{\Gamma_d\Bigl(\sum_{j=1}^d(-\log u_{ij})\Bigr),}{pgamma(-log(u_{i1})-...-log(u_{id}), shape=d),}
+	\deqn{\Gamma_d\Bigl(\sum_{j=1}^d(-\log u_{ij})\Bigr),}{%
+	  pgamma(-log(u_{i1})-...-log(u_{id}), shape=d),}
 	where \eqn{\Gamma_d}{pgamma(.,shape=d)} denotes the distribution function of
 	the gamma distribution with shape parameter \eqn{d} and shape parameter one
 	(being equal to an Erlang(\eqn{d}) distribution function).}
-      \item{\code{"Remillard"}}{for computing the test statistic \eqn{\mathrm{S_n^{(B)}}}{S[n]^(B)} in Genest, R\enc{é}{e}millard, Beaudoin (2009).}
-      \item{\code{"Genest"}}{for computing the test statistic \eqn{\mathrm{S_n^{(C)}}}{S[n]^(C)} in Genest, R\enc{é}{e}millard, Beaudoin (2009).}
+      \item{\code{"Remillard"}}{for computing the test statistic
+	\eqn{\mathrm{S_n^{(B)}}}{S[n]^(B)} from Genest, R\enc{é}{e}millard, Beaudoin (2009).}
+      \item{\code{"Genest"}}{for computing the test statistic
+	\eqn{\mathrm{S_n^{(C)}}}{S[n]^(C)} from Genest et al.(2009).}
   }}
   \item{verbose}{if \code{TRUE}, the progress of the bootstrap is displayed.}
   \item{\dots}{additional arguments to \code{\link{enacopula}}.}
 }
 \details{
-  \describe{
-    The function \code{gnacopula} performs a bootstrap
-    for the goodness-of-fit test specified by \code{trafo} and \code{method}. 
-    The transformation given by \code{trafo} specifies the multivariate
-    transformation which is first applied to the (copula-) data \code{u}
-    (typically, the pseudo-observations are used); see \code{\link{htrafo}} or \code{\link{rtrafo}} for more details. The argument \code{method} specifies the particular goodness-of-fit test carried out, which is either the Anderson-Darling test for the univariate standard uniform distribution (for \code{method="chisq"} or \code{method="gamma"}) in a one-dimensional setup or the tests described in Genest, R\enc{é}{e}millard, Beaudoin (2009) for the multivariate standard uniform distribution directly in a multivariate setup. As estimation method, the method provided by \code{estimation.method} is used. 
+  The function \code{gnacopula} performs a bootstrap for the
+  goodness-of-fit test specified by \code{trafo} and \code{method}.  The
+  transformation given by \code{trafo} specifies the multivariate
+  transformation which is first applied to the (copula-) data \code{u}
+  (typically, the pseudo-observations are used); see
+  \code{\link{htrafo}} or \code{\link{rtrafo}} for more details. The
+  argument \code{method} specifies the particular goodness-of-fit test
+  carried out, which is either the Anderson-Darling test for the
+  univariate standard uniform distribution (for \code{method="chisq"} or
+  \code{method="gamma"}) in a one-dimensional setup or the tests
+  described in Genest, R\enc{é}{e}millard, Beaudoin (2009) for the
+  multivariate standard uniform distribution directly in a multivariate
+  setup.  As estimation method, the method provided by
+  \code{estimation.method} is used.
 
-    As a word of warning, one should be working carefully with the variety of different goodness-of-fit tests that can be performed with \code{gnacopula}. For example, among the possible estimation methods to be chosen, only MLE is known to be consistent (under conditions to be verified). Furthermore, for the tests based on 
-    the Anderson-Darling test statistic, it is theoretically not clear whether the bootstrap converges. These functions should therefore be used with care! 
+  As a word of warning, one should be working carefully with the variety
+  of different goodness-of-fit tests that can be performed with
+  \code{gnacopula()}.  For example, among the possible estimation methods
+  to be chosen, only MLE is known to be consistent (under conditions to
+  be verified).  Furthermore, for the tests based on the Anderson-Darling
+  test statistic, it is theoretically not clear whether the bootstrap
+  converges. These functions should therefore be used with care!
 
-    Since \R is widely used by practitioners, a word of warning concerning goodness-of-fit tests in general is also advisable. Goodness-of-fit tests are often (ab)used in practice to "justify" an assumption under which one then continues to work (carelessly). From a mathematical point of view, this is not correct. 
-  }
+  Since \R is widely used by practitioners, a word of warning concerning
+  goodness-of-fit tests \emph{in general} is also advisable.
+  Goodness-of-fit tests are often (ab)used in practice to
+  \dQuote{justify} an assumption under which one then continues to work
+  (carelessly).  From a mathematical point of view, this is not correct.
 }
 \value{
   \code{gnacopula} returns an \R object of class \code{"htest"}.
@@ -93,7 +115,8 @@ gtrafouni(u, method=c("chisq", "gamma", "Remillard", "Genest"))
     \item{\code{estimator}:}{the estimator computed for the data \code{u};}
     \item{\code{bootStats}:}{a list with component \code{estimator}
       containing the estimators for all bootstrap replications and
-      component \code{statistic} containing the values of the test statistic for each bootstrap replication.}
+      component \code{statistic} containing the values of the test statistic
+      for each bootstrap replication.}
   }
 
   \code{gtrafouni} returns a numeric vector of length \eqn{n}
@@ -118,11 +141,13 @@ gtrafouni(u, method=c("chisq", "gamma", "Remillard", "Genest"))
   to be submitted.
 }
 \seealso{
-  \code{\link{gtrafo}} for the multivariate transformation(s) \code{\link{htrafo}} and \code{\link{rtrafo}} involved and \code{\link{K}} for the Kendall distribution function.
+  \code{\link{gtrafo}} for the multivariate transformation(s)
+  \code{\link{htrafo}} and \code{\link{rtrafo}} involved and
+  \code{\link{K}} for the Kendall distribution function.
 }
 \examples{
 tau <- 0.5
-(theta <- copGumbel@tauInv(tau)) # 2 
+(theta <- copGumbel@tauInv(tau)) # 2
 d <- 5
 (copG <- onacopulaL("Gumbel", list(theta,1:d)))
 
@@ -135,10 +160,10 @@ u <- pobs(x) # build pseudo-observations
 ## check if the data comes from a meta-Gumbel model (choose larger n.bootstrap
 ## in a realistic setup)
 res.H0.G <- gnacopula(u, cop=copG, n.bootstrap=10,
-                      estimation.method="mle") 
-## => uses the transformation of Hering and Hofert (2011), including 
+                      estimation.method="mle")
+## => uses the transformation of Hering and Hofert (2011), including
 ##    the Kendall distribution function K and the mapping to a univariate
-##    setting via the chi-square distribution. The final test carried out 
+##    setting via the chi-square distribution. The final test carried out
 ##    is the Anderson-Darling test.
 res.H0.G$p.value # non-rejection according to 5\% level
 
@@ -146,11 +171,11 @@ res.H0.G$p.value # non-rejection according to 5\% level
 u.prime <- rtrafo(u, cop=copG) # exact
 pairs(u.prime, cex=0.2) # looks good
 
-## plot of the transformed data (Hering and Hofert (2011)) 
+## plot of the transformed data (Hering and Hofert (2011))
 u.prime. <- htrafo(u, cop=copG)
 pairs(u.prime., cex=0.2) # looks good
 
-## what about a meta-Clayton model? (choose larger n.bootstrap in a 
+## what about a meta-Clayton model? (choose larger n.bootstrap in a
 ## realistic setup)
 ## note: the parameter of the Clayton copula is only a dummy,
 ##       it will be estimated anyway
