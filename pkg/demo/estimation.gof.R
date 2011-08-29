@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Marius Hofert and Martin Maechler
+## Copyright (C) 2010--2011 Marius Hofert and Martin Maechler
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -19,9 +19,9 @@ options(warn=1)
 ### Estimation and goodness-of-fit #############################################
 
 source(system.file("Rsource", "estim-gof-fn.R", package="nacopula"))
-## --> estimation.gof() etc
+## ../inst/Rsource/estim-gof-fn.R   --> estimation.gof() etc
 
-### setup 
+### setup
 
 ## Use all available estimation and GoF methods:
 (estMeth <- eval(formals(enacopula)$method))
@@ -30,7 +30,7 @@ source(system.file("Rsource", "estim-gof-fn.R", package="nacopula"))
 
 set.seed(1) # set seed
 
-n <- 128 # sample size 
+n <- 128 # sample size
 d <- 5 # dimension
 tau <- 0.25 # Kendall's tau
 
@@ -48,23 +48,23 @@ if(getRversion() <= "2.13")
     source(system.file("Rsource", "fixup-sapply.R", package="nacopula"))
 
 ## note: this might take a while...
-RR <- sapply(estMeth, simplify="array", function(e)
-         {
-             sapply(gofTraf, simplify="array", function(gt)
-                {
-                    sapply(gofMeth, simplify="array", function(gm)
-                           estimation.gof(n, d=d, simFamily=simFamily, tau=tau, 
-	                                  n.MC=if(e=="smle") 1000 else 0, # also chosen small due to run time
-                                          n.bootstrap=16, # some methods are time consuming; for particular methods, please choose a larger number here, for example 1000
-                                          include.K=TRUE, esti.method=e, 
-                                          gof.trafo=gt, gof.method=gm))
-                })
-         })
+RR <- sapply(estMeth, simplify="array", function(e) {
+    sapply(gofTraf, simplify="array", function(gt) {
+	sapply(gofMeth, simplify="array", function(gm)
+	       estimation.gof(n, d=d, simFamily=simFamily, tau=tau,
+			      n.MC= if(e=="smle") 1000 else 0, # also small due to run time
+			      n.bootstrap= 16, # <-- as some methods are time consuming,
+			      ## please choose a larger number here, e.g., 1000,
+			      ## for particular methods.
+			      include.K = TRUE, esti.method = e,
+			      gof.trafo = gt, gof.method = gm))
+    })
+})
 
 str(RR)
 dimnames(RR)
 
-## Now print RR 
+## Now print RR
 options(digits=5)
 
 ## *Not* the times here...
@@ -103,14 +103,14 @@ if(!dev.interactive()) # e.g. when run as part of R CMD check
     pdf("demo_est-gof.pdf")
 if(!exists("doPlot")) doPlot <- TRUE
 
-### setup for plots 
+### setup for plots
 
 u <- (0:256)/256 # evaluation points
 
 cols <- c("black","orange3","red3","darkgreen","blue") # not very light ones
 labs <- c("AMH","Clayton","Frank","Gumbel","Joe")
 
-### plots of the densities of the diagonals 
+### plots of the densities of the diagonals
 
 d <- 5
 th <- c(0.7135001, 0.5, 1.860884, 1.25, 1.25)
@@ -129,7 +129,7 @@ if(doPlot) {
     legend("bottomright", legend=labs, lty=1:5, col=cols, bty="n")
 }
 
-### plots of the Kendall distribution functions 
+### plots of the Kendall distribution functions
 
 d <- 10
 Kmat <- cbind(K.A=K(u,setTheta(copAMH, th[1]),d),

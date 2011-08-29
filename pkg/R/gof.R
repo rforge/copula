@@ -90,28 +90,28 @@ K <- function(u, cop, d, n.MC=0)
 ##'        "Remillard": the test statistic S_n^{(B)} in Genest, Remillard, Beaudoin (2009)
 ##'        "Genest"   : the test statistic S_n^{(C)} in Genest, Remillard, Beaudoin (2009)
 ##' @return the transformed variates
-##' @author Marius Hofert
+##' @author Marius Hofert and Martin Maechler
+## MM: Der Funktionsname passt mir nicht... "ouni" ist hässlich (wieso auch "trafo"? Jede R Funktion ist eine "Trafo" in einem gewissen Sinn..
+## Brainstorm   unid21() ("d to 1 dimensional")
 gtrafouni <- function(u, method = c("chisq", "gamma", "Remillard", "Genest"))
 {
     if(!is.matrix(u)) u <- rbind(u)
     d <- ncol(u)
+    n <- nrow(u)
     method <- match.arg(method)
     switch(method,
 	   "chisq" = pchisq(rowSums(qnorm(u)^2), d),
 	   "gamma" = pgamma(rowSums(-log(u)), shape=d),
 	   "Remillard" = {
-               lx <- log1p(-u^2)
-               sum1 <- exp(lsum(t(lx)))
-               sum2 <- mean(apply(u, 1, function(u.){
-                   sum(apply(u, 1, function(u..){
-                       prod(1-apply(cbind(u., u..), 1, max))
-                   }))
-               }))
-               n <- nrow(u)
-               n/3^d - 1/2^(d-1) * sum1 + sum2
+	       u <- t(u)
+	       sum1 <- exp(lsum(log1p(-u^2)))
+	       ## FIXME(MM): should use lsum(log1p(.)) as sum1 ; should work w/o nested apply(.)
+	       sum2 <- mean(apply(u, 2, function(u.) { # u. is in R^d
+		   sum(apply(u, 2, function(u..) prod(1- pmax(u., u..))))
+	       }))
+	       n/3^d - sum1/2^(d-1) + sum2
            },
 	   "Genest" = {
-	       n <- nrow(u)
 	       Dn <- apply(u, 1, function(u.){
                    ## u. is one row. We want to know the number of rows of u
                    ## that are (all) componentwise <= u.
@@ -271,12 +271,9 @@ apply the transformations yourself,  see ?gnacopula.")
 				    trafo, " and method = ", method, ")")
 		   function(x) ad.test(x)$statistic
 	       },
-	       "Remillard" = {
-		   string <- paste0(string, "Remillard (with trafo = ", trafo, ")")
-		   function(x) x
-	       },
+	       "Remillard" =,
 	       "Genest" = {
-		   string <- paste0(string, "Genest (with trafo = ", trafo, ")")
+		   string <- paste0(string, " ", method," (with trafo = ", trafo, ")")
 		   function(x) x
 	       },
 	       stop("wrong 'method' argument"))
