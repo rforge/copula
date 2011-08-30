@@ -47,12 +47,12 @@ cat("\n### data from ",simFamily," (n = ",n,", d = ",d,", theta = ",
 if(getRversion() <= "2.13")
     source(system.file("Rsource", "fixup-sapply.R", package="nacopula"))
 
-## note: this might take a while...
-RR <- sapply(estMeth, simplify="array", function(e) {
-    sapply(gofTraf, simplify="array", function(gt) {
+## As "smle" is the slowest by far, we need to leave it away here:
+estM.1 <- estMeth[estMeth != "smle"]
+RR <- sapply(estM.1, simplify="array", function(e) {
+       sapply(gofTraf, simplify="array", function(gt) {
 	sapply(gofMeth, simplify="array", function(gm)
 	       estimation.gof(n, d=d, simFamily=simFamily, tau=tau,
-			      n.MC= if(e=="smle") 1000 else 0, # also small due to run time
 			      n.bootstrap= 16, # <-- as some methods are time consuming,
 			      ## please choose a larger number here, e.g., 1000,
 			      ## for particular methods.

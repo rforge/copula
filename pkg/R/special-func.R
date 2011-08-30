@@ -25,16 +25,20 @@ polynEval <- function(coef, x) .Call(polyn_eval, coef, x)
 ##' @param a numeric vector of positive values
 ##' @param cutoff  log(2) is optimal, see  Maechler (201x) .....
 ##' @return f(a) == log(1 - exp(-a)) == log1p(-exp(-a)) == log(-expm1(-a))
-##' @author Martin Maechler, 13 May 2002
+##' @author Martin Maechler, May 2002 .. Aug. 2011
 log1mexpm <- function(a, cutoff = log(2)) ## << log(2) is optimal >>
 {
-    if(any(a < 0))## a == 0  -->  -Inf  (in both cases)
+    if(has.na <- any(ina <- is.na(a))) {
+	y <- a
+	a <- a[ok <- !ina]
+    }
+    if(any(a < 0))## a == 0  -->  -Inf	(in both cases)
 	warning("'a' >= 0 needed")
-    r <- a
     tst <- a <= cutoff
+    r <- a
     r[ tst] <- log(-expm1(-a[ tst]))
     r[!tst] <- log1p(-exp(-a[!tst]))
-    r
+    if(has.na) { y[ok] <- r ; y } else r
 }
 
 ##' The sign of choose(alpha*j,d)*(-1)^(d-j) vectorized in j
