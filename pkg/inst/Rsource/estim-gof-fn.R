@@ -41,14 +41,14 @@ f.tms <- function(x) paste(round(x),"ms") # with a space (sep=" ") !
 ##' @return a numeric matrix ...
 ##' @author Marius Hofert and Martin Maechler
 estimation.gof <- function(n, d, simFamily, tau,
-			   n.bootstrap=1, # dummy number of bootstrap replications
-			   include.K=TRUE, 
-			   n.MC=if(esti.method=="smle") 10000 else 0,
-			   esti.method=eval(formals(enacopula)$method), 
-			   gof.trafo=eval(formals(gnacopula)$trafo),                           
-			   gof.method=eval(formals(gnacopula)$method),
-			   checkFamilies=nacopula:::c_longNames,
-			   verbose=TRUE)
+			   n.bootstrap = 1, # dummy number of bootstrap replications
+			   include.K = TRUE,
+			   n.MC = if(esti.method=="smle") 10000 else 0,
+			   esti.method = eval(formals(enacopula)$method),
+			   gof.trafo =	 eval(formals(gnacopula)$trafo),
+			   gof.method =	 eval(formals(gnacopula)$method),
+			   checkFamilies = nacopula:::c_longNames,
+			   verbose = TRUE)
 {
     ## generate data
     copFamily <- getAcop(simFamily)
@@ -72,7 +72,7 @@ estimation.gof <- function(n, d, simFamily, tau,
         cop.hat <- onacopulaL(checkFamilies[k],list(NA,1:d))
         if(verbose) cat("Estimation and GoF for ",checkFamilies[k],":\n\n",sep="")
 	ute[k] <- utms(est[k] <- enacopula(u, cop=cop.hat,
-					   method=esti.method, n.MC=n.MC))										
+					   method=esti.method, n.MC=n.MC))
         tau[k] <- cop.hat@copula@tau(est[k])
         if(verbose){
             cat("   theta hat      = ",r(est[k]),"\n",
@@ -91,12 +91,11 @@ estimation.gof <- function(n, d, simFamily, tau,
 			   include.K=include.K, n.MC=n.MC,
 			   trafo=gof.trafo, method=gof.method,
 			   verbose=FALSE)$p.value)
-        sig[k] <- (gof[k] < 0.05) # TRUE/FALSE <--> 1/0
-        if(verbose){
-            cat("   p-value        = ",r(gof[k]),"\n",
-                "   < 0.05         = ",if(sig[k]) "TRUE" else "FALSE","\n",
-                "Time GoF comp = ",f.tms(utg[k]),"\n\n", sep="")
-	}
+	sig[k] <- (gof[k] < 0.05) # TRUE/FALSE <--> 1/0 -- Careful: may be  NA !
+	if(verbose)
+	    cat("   p-value	   = ",r(gof[k]),"\n",
+		"   < 0.05	   = ", format(sig[k]), "\n",
+		"Time GoF comp = ",f.tms(utg[k]),"\n\n", sep="")
     }
 
     ## result
