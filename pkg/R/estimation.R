@@ -32,7 +32,7 @@
 ##' @param ... further arguments to cor() for method="tau.mean"
 ##' @return initial interval or value which can be used for optimization
 ##' @author Marius Hofert
-initOpt <- function(family, tau.range=NULL, interval=TRUE, u, method=c("tau.Gumbel", 
+initOpt <- function(family, tau.range=NULL, interval=TRUE, u, method=c("tau.Gumbel",
                                                               "tau.mean"), warn=TRUE, ...){
     cop <- getAcop(family)
     if(is.null(tau.range)){
@@ -142,16 +142,16 @@ ebeta <- function(u, cop, interval=initOpt(cop@copula@name), ...) {
 ## ==== Kendall's tau ==========================================================
 
 ##' Sample tau checker
-##' 
-##' @title Check sample versions of Kendall's tau 
+##'
+##' @title Check sample versions of Kendall's tau
 ##' @param x vector of sample versions of Kendall's tau to be checked for whether
 ##'        they are in the range of tau of the corresponding family
 ##' @param family Archimedean family
 ##' @return checked and (if check failed) modified x
-##' @author Marius Hofert   
+##' @author Marius Hofert
 tau.checker <- function(x, family, warn=TRUE){
     eps <- 1e-8
-    tau.range <- switch(family, 
+    tau.range <- switch(family,
                         ## limiting (attainable) taus that can be dealt with by
                         ## copFamily@tauInv() *and* that can be used to construct
                         ## a corresponding copula object; checked via:
@@ -161,7 +161,7 @@ tau.checker <- function(x, family, warn=TRUE){
                         ## th <- copFrank@tauInv(c(eps,1-eps)); onacopulaL("Frank",list(th[1], 1:5)); onacopulaL("Frank",list(th[2], 1:5))
                         ## th <- copGumbel@tauInv(c(0,1-eps)); onacopulaL("Gumbel",list(th[1], 1:5)); onacopulaL("Gumbel",list(th[2], 1:5))
                         ## th <- copJoe@tauInv(c(0,1-eps)); onacopulaL("Joe",list(th[1], 1:5)); onacopulaL("Joe",list(th[2], 1:5))
-                        "AMH" = { c(0, 1/3-eps) }, 
+                        "AMH" = { c(0, 1/3-eps) },
                         "Clayton" = { c(eps, 1-eps) }, # copClayton@tauInv(c(eps,1-eps))
                         "Frank" = { c(eps, 1-eps) }, # copFrank@tauInv(c(eps,1-eps))
                         "Gumbel" = { c(0, 1-eps) }, # copGumbel@tauInv(c(0,1-eps))
@@ -173,10 +173,10 @@ tau.checker <- function(x, family, warn=TRUE){
 	r <- range(x)
 	if(length(x) == 1){
             warning("tau.checker: found (and adjusted) an x value out of range (x = ",
-                    x,")")	
+                    x,")")
 	}else{
             warning("tau.checker: found (and adjusted) x values out of range (min(x) = ",
-                    r[1],", max(x) = ",r[2],")")	
+                    r[1],", max(x) = ",r[2],")")
         }
     }
     x. <- x
@@ -215,8 +215,8 @@ etau <- function(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...){
     switch(method,
            "tau.mean" = {
 	       mean.tau.hat <- mean(tau.hat) # mean of pairwise tau.hat
-	       mean.tau.hat. <- tau.checker(mean.tau.hat, family=cop@copula@name, 
-                                            warn=warn) # check the mean 
+	       mean.tau.hat. <- tau.checker(mean.tau.hat, family=cop@copula@name,
+                                            warn=warn) # check the mean
                tau_inv(mean.tau.hat.) # Kendall's tau corresponding to the mean of the sample versions of Kendall's taus
            },
            "theta.mean" = {
@@ -526,6 +526,8 @@ enacopula <- function(u, cop, method=c("mle", "smle", "dmle", "mde.chisq.CvM",
               max(cop@comp) == d, n.MC >= 0, is.list(xargs))
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
+    if(n.MC > 0 && method != "smle")
+	stop("n.MC > 0  is not applicable to method '%s'", method)
     method <- match.arg(method)
 
     ## main part

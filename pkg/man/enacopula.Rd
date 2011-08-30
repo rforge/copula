@@ -44,9 +44,8 @@ enacopula(u, cop,
       \item{\code{"beta"}}{multivariate Blomqvist's beta estimator}
     }
   }
-  \item{n.MC}{\code{\link{integer}}, if positive, simulated maximum
-    likelihood estimation (SMLE) is used with sample size equal to
-    \code{n.MC}.}
+  \item{n.MC}{only for \code{method = "smle"}: \code{\link{integer}},
+    sample size for simulated maximum likelihood estimation.}
   \item{interval}{bivariate vector denoting the interval where
     optimization takes place.  The default is computed as described in
     Hofert et al. (2011a).  Used for all methods except
@@ -58,9 +57,9 @@ enacopula(u, cop,
   \code{\link{enacopula}} serves as a wrapper for the different
   implemented estimators and provides a uniform framework to utilize
   them.  For more information, see the single estimators as given in the
-  section \sQuote{See Also}. 
+  section \sQuote{See Also}.
 
-  Note that Hofert, \enc{Mächler}{Maechler}, and McNeil (2011a) compared these 
+  Note that Hofert, \enc{Mächler}{Maechler}, and McNeil (2011a) compared these
   estimators. Their findings include a rather poor performance and numerically
   challenging problems of some of these estimators. In particular, the
   estimators obtained by \code{method="mde.gamma.CvM"},

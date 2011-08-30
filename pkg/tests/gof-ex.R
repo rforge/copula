@@ -16,7 +16,7 @@
 require(nacopula)
 sessionInfo() # will change too often.. but if we need the info
 
-### A faster, more checking version of demo(estimation.gof) 
+### A faster, more checking version of demo(estimation.gof)
 ### that is, of ../demo/estimation.gof.R
 ##              ~~~~~~~~~~~~~~~~~~~~~~~~
 ## Note: This is only for proof of concept, the numbers chosen are not reasonable
@@ -25,8 +25,7 @@ sessionInfo() # will change too often.. but if we need the info
 source(system.file("Rsource", "estim-gof-fn.R", package="nacopula"))
 ## --> estimation.gof() etc
 
-## Use selected estimation and all GoF methods:
-(estMeth <- c("mle", "smle", "dmle", "tau.tau.mean", "mde.chisq.CvM", "mde.chisq.KS")) # only those methods that worked comparably well without numerical flaws
+## Use GoF methods:
 (gofTraf <- eval(formals(gnacopula)$trafo))
 (gofMeth <- eval(formals(gnacopula)$method))
 
@@ -50,30 +49,26 @@ if(getRversion() <= "2.13")
     source(system.file("Rsource", "fixup-sapply.R", package="nacopula"))
 
 ## note: this might (still) take a while...
-RR <- sapply(estMeth, simplify="array", function(e)
+RR <- sapply(gofTraf, simplify="array", function(gt)
          {
-             sapply(gofTraf, simplify="array", function(gt)
-                {
-                    sapply(gofMeth, simplify="array", function(gm)
-                           estimation.gof(n, d=d, simFamily=simFamily, tau=tau, 
-	                                  n.MC=if(e=="smle") 1000 else 0, # also chosen small due to run time
-                                          n.bootstrap=1, # same here; for a particular method under consideration, please choose a larger number here, for example 1000
-                                          include.K=TRUE, esti.method=e, 
-                                          gof.trafo=gt, gof.method=gm))
-                })
+             sapply(gofMeth, simplify="array", function(gm)
+                    estimation.gof(n, d=d, simFamily=simFamily, tau=tau,
+                                   n.bootstrap=1, # << "nonsense" for speed reasons;..
+### for a particular method under consideration, please choose a larger number here, for example 1000
+                                   include.K=TRUE, esti.method = "mle",
+                                   gof.trafo=gt, gof.method=gm))
          })
-
 str(RR)
 dimnames(RR)
 
-## Now print RR 
+## Now print RR
 options(digits=5)
 
-## *Not* the times here...
-RR[,c("theta_hat", "tau_hat", "P_value", "< 0.05"),,,]
+## No times here...
+RR[,c("theta_hat", "tau_hat", "P_value", "< 0.05"),,]
 
-## ... but here
-apply(RR[,c("timeEstim","timeGoF"),,,], c(3,1,2,4), mean)
+## ... but rather here, separately:
+apply(RR[,c("timeEstim","timeGoF"),,], c(3,1,2), mean)
 
 
 cat('Time elapsed: ', proc.time(),'\n') # for ''statistical reasons''

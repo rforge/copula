@@ -3,7 +3,6 @@
 (MM) does ./demo/estimation.gof.R work for you? R hangs (on MH's Mac) after 20min.
   => maybe that should also be made more fail-safe (line 51).
 (MM) is ./demo/estimation.gof.R too slow?  --- YES!!  Remillard is  *HORRIBLE*
-(MM) is the check too slow? [time gof-check is about 5 times the time for everything else together]
 
 #### Intermediate #####################################################################
 

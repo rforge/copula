@@ -159,3 +159,25 @@ curve(copAMH@dDiag(exp(-x), theta=.9, d=4, log=TRUE), 0, 500, n=2001,
       main = "FIXME (*not* urgent): dDiag(u, <AMH>,  log=TRUE)   for small u")
 
 showProc.time()
+
+##----------- Test all estimation methods ----------------
+
+## all methods
+(estMeth <- eval(formals(enacopula)$method))
+
+## Use selected (the best 6) estimation methods:
+## (estMeth <- c("mle", "smle", "dmle", "tau.tau.mean", "mde.chisq.CvM", "mde.chisq.KS"))
+
+n <- 128
+d <- 6 ; theta <- 2
+(cop <- onacopula("Clayton", C(theta, 1:d)))
+set.seed(1)
+U <- rnacopula(n, cop)
+
+rr <- sapply(estMeth, function(e) {
+    enacopula(U, cop, e, n.MC = if(e == "smle") 1000 else 0)
+})
+
+round(cbind(rr, bias = rr - theta), 3)
+
+showProc.time()
