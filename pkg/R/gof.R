@@ -248,6 +248,13 @@ gnacopula <- function(u, cop, n.bootstrap,
 apply the transformations yourself,  see ?gnacopula.")
     u.name <- deparse(substitute(u))
 
+    ## additional warnings for now
+    estimation.method <- match.arg(estimation.method)
+    if(estimation.method != "mle"){
+	if(estimation.method == "smle") warning("'estimation.method = \"smle\"' may be time-consuming!") else
+	warning("Consistency for the chosen estimation.method is not clear. Additionally, numerical problems might appear.")
+    } 
+
     ## build multivariate transformation
     trafo <- match.arg(trafo)
     method <- match.arg(method)
