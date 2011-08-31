@@ -1,6 +1,6 @@
 Package: nacopula
-Version: 0.7-8
-Date: 2011-08-30
+Version: 0.7-9
+Date: 2011-08-31
 LastChanged: $LastChangedRevision$; $LastChangedDate$
 Title: Nested Archimedean Copulas
 Description: An R package for working with nested Archimedean copulas.
@@ -13,7 +13,7 @@ Author: Marius Hofert <marius.hofert@math.ethz.ch> and Martin Maechler
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Depends: R (>= 2.11.0), methods, stats4
 Imports: gsl, ADGofTest, stabledist
-Suggests: lattice, MASS, sfsmisc, Rmpfr (>= 0.2-6), bbmle
+Suggests: lattice, MASS, sfsmisc, Rmpfr, bbmle
 License: GPL (>= 2)
 LazyData: yes
 Encoding: UTF-8
