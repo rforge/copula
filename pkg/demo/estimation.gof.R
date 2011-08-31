@@ -49,8 +49,11 @@ if(getRversion() <= "2.13")
 
 ## As "smle" is the slowest by far, we need to leave it away here:
 estM.1 <- estMeth[estMeth != "smle"]
-RR <- sapply(estM.1, simplify="array", function(e) {
-       sapply(gofTraf, simplify="array", function(gt) {
+## Hmm, but actually, we currently only recommend to use GOF for the MLE,
+## and that save CPU time, too :
+e <- "mle" ## RR <- sapply(estM.1, simplify="array", function(e) {
+RR <-
+      sapply(gofTraf, simplify="array", function(gt) {
 	sapply(gofMeth, simplify="array", function(gm)
 	       estimation.gof(n, d=d, simFamily=simFamily, tau=tau,
 			      n.bootstrap= 16, # <-- as some methods are time consuming,
@@ -59,7 +62,7 @@ RR <- sapply(estM.1, simplify="array", function(e) {
 			      include.K = TRUE, esti.method = e,
 			      gof.trafo = gt, gof.method = gm))
     })
-})
+## })
 
 str(RR)
 dimnames(RR)
@@ -68,10 +71,12 @@ dimnames(RR)
 options(digits=5)
 
 ## *Not* the times here...
-RR[,c("theta_hat","tau_hat","P_value","< 0.05"),,,]
+##RR[,c("theta_hat","tau_hat","P_value","< 0.05"),,,]
+  RR[,c("theta_hat","tau_hat","P_value","< 0.05"),,]
 
 ## ... but here
-apply(RR[,c("timeEstim","timeGoF"),,,], c(3,1,2,4), mean)
+## apply(RR[,c("timeEstim","timeGoF"),,,], c(3,1,2,4), mean)
+   apply(RR[,c("timeEstim","timeGoF"),,],  c(3,1,2), mean)
 
 
 ### MLE estimation by hand (for debugging purposes) ############################
