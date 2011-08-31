@@ -50,7 +50,7 @@ if(getRversion() <= "2.13")
 ## As "smle" is the slowest by far, we need to leave it away here:
 estM.1 <- estMeth[estMeth != "smle"]
 ## Hmm, but actually, we currently only recommend to use GOF for the MLE,
-## and that save CPU time, too :
+## and that saves CPU time, too :
 e <- "mle" ## RR <- sapply(estM.1, simplify="array", function(e) {
 RR <-
       sapply(gofTraf, simplify="array", function(gt) {

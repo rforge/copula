@@ -102,7 +102,8 @@ gtrafouni(u, method = c("chisq", "gamma", "Remillard", "Genest"))
   converges.  Consequently, the results obtained should be treated with 
   care.  Moreover, several estimation methods are known to be prone to 
   numerical errors (see Hofert et al. (2011a)) and are thus not 
-  recommended to be used in the bootstrap. 
+  recommended to be used in the bootstrap. A warning is given if 
+  \code{gnacopula()} is called with a method not being MLE.
 
   Since \R is widely used by practitioners, a word of warning concerning
   goodness-of-fit tests \emph{in general} is also advisable.
