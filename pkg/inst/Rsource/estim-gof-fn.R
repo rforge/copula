@@ -66,7 +66,8 @@ estimation.gof <- function(n, d, simFamily, tau,
     gof.trafo <- match.arg(gof.trafo)
     gof.method <- match.arg(gof.method)
     n.cf <- length(checkFamilies)
-    tau <- gof <- sig <- ute <- utg <- est <- numeric(n.cf)
+    sig <- logical(n.cf)
+    tau <- gof <- ute <- utg <- est <- numeric(n.cf)
     for(k in seq_len(n.cf)) {
         ## estimate the parameter with the provided method
         cop.hat <- onacopulaL(checkFamilies[k],list(NA,1:d))
