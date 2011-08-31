@@ -95,12 +95,14 @@ gtrafouni(u, method = c("chisq", "gamma", "Remillard", "Genest"))
 
   A word of warning: Do work carefully with the variety of different
   goodness-of-fit tests that can be performed with \code{gnacopula()}.
-  For example, among the possible estimation methods to be chosen, only
+  For example, among the possible estimation methods at hand, only
   MLE is known to be consistent (under conditions to be verified).
   Furthermore, for the tests based on the Anderson-Darling test
   statistic, it is theoretically not clear whether the bootstrap
-  converges.  Consequently, interpretation of the results should be
-  cautious.
+  converges.  Consequently, the results obtained should be treated with 
+  care.  Moreover, several estimation methods are known to be prone to 
+  numerical errors (see Hofert et al. (2011a)) and are thus not 
+  recommended to be used in the bootstrap. 
 
   Since \R is widely used by practitioners, a word of warning concerning
   goodness-of-fit tests \emph{in general} is also advisable.
@@ -143,7 +145,7 @@ gtrafouni(u, method = c("chisq", "gamma", "Remillard", "Genest"))
 
   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011b),
   Likelihood inference for Archimedean copulas,
-  to be submitted.
+  submitted.
 }
 \seealso{
   \code{\link{gtrafo}} for the multivariate transformation(s)

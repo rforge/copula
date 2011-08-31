@@ -59,7 +59,7 @@ initOpt(family, tau.range=NULL, interval = TRUE, u,
   (still) too small, one can adjust it by providing \code{tau.range}. If it is
   too large, a \sQuote{distance to concordance} can be used to determine
   parameter values such that the corresponding Kendall's taus share a certain
-  distance to the initial value.  For more details, see Hofert et al. (2011a).
+  distance to the initial value.  For more details, see Hofert et al. (2011b).
   Finally, let us note that for the case \code{interval=TRUE}, \code{u} is not
   required.
 }
@@ -68,9 +68,9 @@ initOpt(family, tau.range=NULL, interval = TRUE, u,
 }
 \author{Marius Hofert}
 \references{
-  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011a),
-  Estimators for Archimedean copulas in high dimensions: A comparison,
-  to be submitted.
+  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011b).
+  Likelihood inference for Archimedean copulas;
+  submitted.
 }
 \seealso{
   \code{\link{enacopula}}, \code{\link{emle}}, \code{\link{edmle}},

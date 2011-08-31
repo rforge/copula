@@ -42,7 +42,7 @@ dnacopula(x, u, log=FALSE, \dots)
 
   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011b),
   Likelihood inference for Archimedean copulas,
-  to be submitted.
+  submitted.
 }
 \seealso{
   For more details about the derivatives of an Archimedean generator,

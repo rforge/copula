@@ -79,7 +79,7 @@ enacopula(u, cop,
 
   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011b).
   Likelihood inference for Archimedean copulas,
-  to be submitted.
+  submitted.
 }
 \seealso{
   \code{\link{emle}} which returns an object of \code{"\linkS4class{mle}"}

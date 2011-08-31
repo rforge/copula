@@ -90,7 +90,7 @@ rtrafo(u, cop, n.MC=0)
 
   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011b),
   Likelihood inference for Archimedean copulas,
-  to be submitted.
+  submitted.
 }
 \seealso{
   \code{\link{gnacopula}} where both transformations are applied or
