@@ -12,10 +12,10 @@
 }
 \usage{
 gnacopula(u, cop, n.bootstrap,
-          estimation.method=eval(formals(enacopula)$method),
-          include.K=TRUE, n.MC=0, trafo=c("Hering.Hofert", "Rosenblatt"),
+          estimation.method = eval(formals(enacopula)$method),
+          include.K=TRUE, n.MC=0, trafo= c("Hering.Hofert", "Rosenblatt"),
           method=eval(formals(gtrafouni)$method), verbose=TRUE, \dots)
-gtrafouni(u, method=c("chisq", "gamma", "Remillard", "Genest"))
+gtrafouni(u, method = c("chisq", "gamma", "Remillard", "Genest"))
 }
 \arguments{
   \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-/copula-)observations (each
@@ -26,7 +26,9 @@ gtrafouni(u, method=c("chisq", "gamma", "Remillard", "Genest"))
     provided).}
   \item{n.bootstrap}{positive integer specifying the number of bootstrap replicates.}
   \item{estimation.method}{\code{\link{character}}
-    string determining the estimation method; see \code{\link{enacopula}}.}
+    string determining the estimation method; see
+    \code{\link{enacopula}}.  We currently only recommend \code{"mle"} (or maybe
+    \code{"smle"}).}
   \item{include.K}{logical indicating whether the last component, involving the
     Kendall distribution function \code{\link{K}}, is used in the transformation
     \code{\link{htrafo}} of Hering and Hofert (2011).  Note that this only
@@ -91,13 +93,14 @@ gtrafouni(u, method=c("chisq", "gamma", "Remillard", "Genest"))
   setup.  As estimation method, the method provided by
   \code{estimation.method} is used.
 
-  As a word of warning, one should be working carefully with the variety
-  of different goodness-of-fit tests that can be performed with
-  \code{gnacopula()}.  For example, among the possible estimation methods
-  to be chosen, only MLE is known to be consistent (under conditions to
-  be verified).  Furthermore, for the tests based on the Anderson-Darling
-  test statistic, it is theoretically not clear whether the bootstrap
-  converges. These functions should therefore be used with care!
+  A word of warning: Do work carefully with the variety of different
+  goodness-of-fit tests that can be performed with \code{gnacopula()}.
+  For example, among the possible estimation methods to be chosen, only
+  MLE is known to be consistent (under conditions to be verified).
+  Furthermore, for the tests based on the Anderson-Darling test
+  statistic, it is theoretically not clear whether the bootstrap
+  converges.  Consequently, interpretation of the results should be
+  cautious.
 
   Since \R is widely used by practitioners, a word of warning concerning
   goodness-of-fit tests \emph{in general} is also advisable.
@@ -112,7 +115,8 @@ gtrafouni(u, method=c("chisq", "gamma", "Remillard", "Genest"))
     \item{\code{p.value}:}{the bootstrapped p-value;}
     \item{\code{statistic}:}{the value of the test statistic computed for the data \code{u};}
     \item{\code{data.name}:}{the name of \code{u};}
-    \item{\code{method}:}{a \code{\link{character}} describing the goodness-of-fit test applied;}
+    \item{\code{method}:}{a \code{\link{character}} describing the
+      goodness-of-fit test applied;}
     \item{\code{estimator}:}{the estimator computed for the data \code{u};}
     \item{\code{bootStats}:}{a list with component \code{estimator}
       containing the estimators for all bootstrap replications and
@@ -203,4 +207,3 @@ plot(1:length(z), z)
 \keyword{htest}
 \keyword{distribution}
 \keyword{multivariate}
-
