@@ -1,8 +1,11 @@
 #### Major (to fix before next release) ########################################
 
-(MM) does ./demo/estimation.gof.R work for you? R hangs (on MH's Mac) after 20min.
-  => maybe that should also be made more fail-safe (line 51).
-(MM) is ./demo/estimation.gof.R too slow?  --- YES!!  Remillard is  *HORRIBLE*
+(MM) ./tests/estim-ex.R: demo("dDiag-plots", package = "nacopula")
+    --> ./demo/dDiag-plots.R and they use the  4.5 MB large
+    	./inst/rData/Frank-dDiag.rda file
+  Change "the system" :  (1) put this in .Rbuildignore
+                         (2) use download.file() instead or do not run the
+			 check or ...
 
 #### Intermediate #####################################################################
 

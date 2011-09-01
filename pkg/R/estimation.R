@@ -78,7 +78,7 @@ initOpt <- function(family, tau.range=NULL, interval=TRUE, u, method=c("tau.Gumb
 
 ##' Compute the sample version of Blomqvist's beta,
 ##' see, e.g., Schmid and Schmidt (2007) "Nonparametric inference on multivariate
-##' versions of Blomqvist’s beta and related measures of tail dependence"
+##' versions of Blomqvist's beta and related measures of tail dependence"
 ##'
 ##' @title Sample version of Blomqvist's beta
 ##' @param u matrix of realizations following the copula

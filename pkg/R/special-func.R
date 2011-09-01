@@ -103,7 +103,7 @@ lssum <- function (lxabs, signs, l.off = apply(lxabs, 2, max), strict = TRUE) {
 ##' Compute Stirling numbers of the 1st kind
 ##'
 ##' s(n,k) = (-1)^{n-k} times
-##' the number of permutations of 1,2,…,n with exactly k cycles
+##' the number of permutations of 1,2,...,n with exactly k cycles
 ##'
 ##' NIST DLMF 26.8 --> http://dlmf.nist.gov/26.8
 ##'
@@ -342,7 +342,7 @@ assign("Eul.full.n", 0	, envir = .nacopEnv)
 ##'  {Li}_{-n}(z) = \frac{1}{(1-z)^{n+1}} sum_{k=0}^{n-1} < n \ k >  z^{n-k}
 ##'               = \frac{z \sum_{k=0}^{n-1} < n \ k >  z^k} {(1-z)^{n+1}},
 ##' where  < n \ k >  are the  Eulerian numbers.
-##' All roots of Li−n(z) are distinct and real; they include z = 0.
+##' All roots of Li_n(z) are distinct and real; they include z = 0.
 ##' Duplication formula:  2^{1-s} Li_s(z^2) = Li_s(z) + Li_s(-z).
 ##'
 ##' Compute the polylogarithm function \eqn{Li_s(z)}
