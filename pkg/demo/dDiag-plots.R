@@ -88,31 +88,11 @@ r.dDiag.200.L <- lapply(nacopula:::c_longNames,
 ### Experiment with and Explore dDiagFrank() methods ----------------------
 ###                             ============
 
+source(system.file("Rsource", "utils.R", package="nacopula"))##--> ... nCorrDigits()
+
 dDiagF <- nacopula:::dDiagFrank
 meths <- eval(formals(dDiagF)$method)
 (meths <- meths[meths != "auto"])# now 8 of them ..
-
-relErr <- function(target, current) {
-    ## relative error, but give 0 when absolute error==0
-    ## assert( <length current> is multiple of <length target>) :
-    n <- length(target <- as.vector(target))
-    if(length(current) %% n)
-	stop("length(current) must be a multiple of length(target)")
-    RE <- current
-    RE[] <- 0
-    fr <- current/target
-    neq <- is.na(current) | (current != target)
-    RE[neq] <- 1 - fr[neq]
-    RE
-}
-nCorrDigits <- function(target, current, zeroDigs = 16) {
-    stopifnot(zeroDigs >= -log10(.Machine$double.eps))# = 15.65
-    RE <- relErr(target, current)
-    r <- -log10(abs(RE))
-    r[RE == 0] <- zeroDigs
-    r[is.na(RE) | r < 0] <- 0 # no correct digit, when relErr is NA
-    r
-}
 
 ## a set of  u's  which  "goes into corners":
 tt <- 2^(-32:-2)
@@ -148,23 +128,9 @@ dim(rNum)
 dimnames(rNum) <- list(tu.attr$dimnames$th, NULL, paste("d",d.set, sep="="), meths)
 str(rNum)
 
-isMMae <- identical("maechler",Sys.getenv("USER"))
-develR <- isMMae ## maybe extend ..
-pkgSrc <- {
-    if(isMMae) "~/R/Pkgs/nacopula"
-    else if(develR) stop("need writable pkg dir for developer") }
-(filR <- file.path("rData", "Frank-dDiag.rda"))
-(if(develR) sFileR.dev <- file.path(pkgSrc, "inst", filR))
-
-(sFileR <- system.file(filR, package="nacopula"))
-## where to *save* the result, when we don't have any -- must be writable
-sFileW <- {
-    if(isMMae) file.path(pkgSrc, "demo", "Frank-dDiag-mpfr.rda")
-    ## else if(...) ....
-    else tempfile("nacop-Frank-dDiag-mpfr", fileext="rda")}
-
-if(file.exists(sFileR)) attach(sFileR) else {
-    ##                  --------------
+filR <- "Frank-dDiag.rda"
+if(canGet(filR)) attach(filR) else {
+    ##           ------------
     ## Compute for more about 10 minutes --- using
     ## package Rmpfr - we need here
     stopifnot(require("Rmpfr"))
@@ -202,8 +168,11 @@ print(system.time({ ## this *does* take some time,
 ## d =  120:  61.319  [Ok]
 ## d =  180:  118.95  [Ok]
 ## d =  250:  181.59  [Ok]
-##     User      System verstrichen
-##  553.665       0.138     554.079
+##    user  system elapsed
+## 553.665   0.138 554.079
+##-- lynne:  40% faster ---
+##    user  system elapsed
+## 349.165   1.495 351.810
 
 length(r.Xct <- do.call(c, r.mpfr))# a long vector --> somewhat slow
 ## 82940
@@ -215,7 +184,19 @@ dimnames(r.xct) <- dimnames(rNum)[1:3]
 objL1 <- c("u", "taus", "thetas", "d.set",
            "m.tu", "meths", "rNum", "r.xct")
 objL2 <- c(objL1, "m.M", "r.Xct")
+
+isMMae <- identical("maechler",Sys.getenv("USER"))
+## where to *save* the result, when we don't have any -- must be writable
+sFileW <- {
+    if(isMMae) file.path("~/R/Pkgs/nacopula", "demo", "Frank-dDiag-mpfr.rda")
+    ## else if(...) ....
+    else tempfile("nacop-Frank-dDiag-mpfr", fileext="rda")}
+develR <- isMMae ## maybe extend ..
 if(develR) { ## need to save the file that "goes with nacopula":
+    resourceDir <- {
+        if(isMMae) "~/R/D/R-forge/nacopula/www/resources"
+        else if(develR) stop("need writable pkg dir for developer") }
+    sFileR.dev <- file.path(resourceDir, filR)
     save(list = objL1, file = sFileR.dev)
     ## + the one with full Rmpfr objects:
     dim     (r.Xct) <- dim     (rNum) [1:3]

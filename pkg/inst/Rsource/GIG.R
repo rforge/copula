@@ -13,6 +13,8 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
+source(system.file("Rsource", "utils.R", package="nacopula"))
+##--> tryCatch.W.E(), canGet()
 stopifnot(require(Runuran), require(optimx))
 
 ## ==== GIG generator and related functions ====================================
@@ -23,15 +25,15 @@ psi.GIG <- function(t, theta)
     (1+t)^(-theta[1]/2)*besselK(theta[2]*sqrt(1+t),nu=theta[1])/
     besselK(theta[2],nu=theta[1])
 
-## generator inverse 
+## generator inverse
 ## note: the initial interval is only valid for theta_1 > -1/2
-##       it can be large, but it's finite; it is based on an inequality about 
-##       modified Bessel functions of the third kind (besselK) given in 
-##       Paris (1984) ("An inequality for the Bessel function J_v(vx)", 
+##       it can be large, but it's finite; it is based on an inequality about
+##       modified Bessel functions of the third kind (besselK) given in
+##       Paris (1984) ("An inequality for the Bessel function J_v(vx)",
 ##       SIAM J. Math. Anal. 15, 203--205)
-psiInv.GIG <- function(t, theta, upper=NULL, ...){ 
+psiInv.GIG <- function(t, theta, upper=NULL, ...){
     if(is.null(upper)){
-	if(theta[1] > -0.5) upper <- function(x) (1-log(x)/theta[2])^2-1 else 
+	if(theta[1] > -0.5) upper <- function(x) (1-log(x)/theta[2])^2-1 else
         stop("initial interval for psiInv.GIG fails")
     }
     res <- numeric(length(t))
@@ -42,7 +44,7 @@ psiInv.GIG <- function(t, theta, upper=NULL, ...){
     res[is1] <- 0
     t. <- t[n01]
     up <- upper(t.)
-    res[n01] <- unlist(lapply(1:length(t.), function(i){
+    res[n01] <- unlist(lapply(seq_along(t.), function(i){
 	uniroot(function(t..) psi.GIG(t.., theta)-t.[i],
                 interval=c(0, up[i]), ...)$root
     }))
@@ -61,7 +63,7 @@ psiDabs.GIG <- function(t, theta, degree=1, n.MC=0, log=FALSE){
             res[!iInf] <- nacopula:::lsum(-V %*% t(t.) + degree*log(V) - log(n.MC))
         }else{
             res[!iInf] <- degree*log(theta[2]/2)-((theta[1]+degree)/2)*log1p(t.) +
-                log(besselK(theta[2]*sqrt(1+t.), nu=theta[1]+degree, expon.scaled=TRUE)) - 
+                log(besselK(theta[2]*sqrt(1+t.), nu=theta[1]+degree, expon.scaled=TRUE)) -
                     log(besselK(theta[2], nu=theta[1], expon.scaled=TRUE)) -
                         (sqrt(1+t.)-1)*theta[2]
         }
@@ -101,7 +103,7 @@ dacopula.GIG <- function(u, theta, n.MC=0, log=FALSE){
         }
         ## result
         res[n01] <- h(psiI.sum, k=d, theta=theta, log=TRUE) + (d-1)*
-            log(besselK(theta[2], nu=theta[1])) - rowSums(h(psiI, k=1, theta=theta, 
+            log(besselK(theta[2], nu=theta[1])) - rowSums(h(psiI, k=1, theta=theta,
                                   log=TRUE))
     }
     if(log) res else exp(res)
@@ -120,45 +122,33 @@ dV0.GIG <- function(x, theta, log=FALSE){
     if(log) log(2*ud(dens, 2*x)) else 2*ud(dens, 2*x)
 }
 
-## Catch and save both warnings and errors and in the case of
-## a warning, also keep the computed result
-tryCatch.W.E <- function(expr){
-    W <- NULL
-    w.handler <- function(w){ # warning handler
-        W <<- w
-        invokeRestart("muffleWarning")
-    }
-    list(value = withCallingHandlers(tryCatch(expr, error = function(e) e),
-         warning = w.handler), warning = W)
-}
-
-## Kendall's tau for fixed theta_1 as a function in theta_2 
+## Kendall's tau for fixed theta_1 as a function in theta_2
 ## quiet==TRUE means that neither warnings nor errors are returned, just NAs
-tau.GIG. <- function(theta, upper=c(200,200), quiet=TRUE, ...){ 
+tau.GIG. <- function(theta, upper=c(200,200), quiet=TRUE, ...){
     if(theta[1]<0) stop("tau.GIG.: only implemented for nu >= 0")
-    stopifnot(theta[1]<=upper[1], 0<theta[2], theta[2]<=upper[2]) 
+    stopifnot(theta[1]<=upper[1], 0<theta[2], theta[2]<=upper[2])
     ## determine minimal theta such that integration still works (before
     ## asymptotic is used)
     theta.min <- if(theta[1]<50){
-	1e-4 
+	1e-4
     }else{
 	if(theta[1]<100){
-            0.1 
-        }else{ 
+            0.1
+        }else{
             l10 <- log(10)
             exp(l10/50*theta[1]-3*l10)
         }
     }
     ## either use heuristic or integration
     if(theta[2]<theta.min){
-        1/(1+2*theta[1]) 
+        1/(1+2*theta[1])
     }else{
         tau.integrand <- function(t, theta){
             st <- sqrt(1+t)
             t*(theta[2]*besselK(theta[2]*st, nu=theta[1]+1)/(st^(theta[1]+1)*
                                              besselK(theta[2], nu=theta[1])))^2
         }
-        int <- tryCatch.W.E(integrate(tau.integrand, lower=0, upper=Inf, theta=theta, 
+        int <- tryCatch.W.E(integrate(tau.integrand, lower=0, upper=Inf, theta=theta,
                                       subdivisions=1000, ...)$value)
         warn.err <- inherits(int$value, what="simpleError") | inherits(int$value, what="simpleWarning")
         if(warn.err && quiet) NA else 1-int$value
@@ -172,7 +162,7 @@ tau.GIG <- function(theta, upper=c(200,200), quiet=TRUE, ...){
 }
 
 ## inverse of Kendall's tau for all parameters fixed except the one given as NA
-## note: initial interval has to be specified [e.g., c(1e-30,200)] since there 
+## note: initial interval has to be specified [e.g., c(1e-30,200)] since there
 ##       are no adequate bounds known
 tauInv.GIG <- function(tau, theta, upper=c(200,200), quiet=TRUE, iargs=list(), ...){
     stopifnot(length(i <- which(is.na(theta))) == 1)
@@ -181,18 +171,18 @@ tauInv.GIG <- function(tau, theta, upper=c(200,200), quiet=TRUE, iargs=list(), .
     if(i==1){ # wanted: nu; given: theta
         interval <- c(0, upper[1])
     }else{ # wanted: theta; given: nu
-        if(theta[1]<0) stop("tauInv.GIG: only implemented for nu >= 0") 
+        if(theta[1]<0) stop("tauInv.GIG: only implemented for nu >= 0")
         tau.max <- 1/(1+2*theta[1])
         ## make sure we are in the range of attainable Kendall's tau
         if(tau>=tau.max) stop(paste("tauInv.GIG: the supremum of attainable taus is",
-           round(tau.max,8))) # this assumes tau to be falling in theta (numerical experiments show this behavior)	
+           round(tau.max,8))) # this assumes tau to be falling in theta (numerical experiments show this behavior)
         interval <- c(1e-100, upper[2])
     }
-    replace(theta, i, uniroot(function(th) do.call(tau.GIG, c(list(replace(theta, 
-                                                                           i, th), 
-                                                                   upper=upper, 
-                                                                   quiet=quiet), 
-                                                              iargs))-tau, 
+    replace(theta, i, uniroot(function(th) do.call(tau.GIG, c(list(replace(theta,
+                                                                           i, th),
+                                                                   upper=upper,
+                                                                   quiet=quiet),
+                                                              iargs))-tau,
                               interval=interval, ...)$root)
 }
 

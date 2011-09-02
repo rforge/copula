@@ -18,6 +18,9 @@
 ####  --> Experiments with retstable*() versions
 
 require(nacopula)
+source(system.file("Rsource", "utils.R", package="nacopula"))
+##--> tryCatch.W.E(), canGet()
+
 
 ### --- ======      --------------------------#--
 ### --- Part I ---  Experiments with retstableR()
@@ -207,28 +210,6 @@ nh     <- length(   h <- c(0.5, 0.75, 1, 1.5, 2, 5, 10))
 meth <- c("MH", "LD")
 nsim <- 100000 # a lot
 hist.breaks <- 200 # == function(nsim, <parameters>)
-
-##' @title If needed, get file from internet - but do not "error out"
-##' @param file
-##' @param remoteDIR
-##' @param method download method
-##' @param ... potentially further arguments to download.file()
-##' @return logical: TRUE if download succeeded
-##' @author Martin Maechler (22 Mar 2011)
-canGet <- function(file,
-                   remoteDIR = "http://nacopula.r-forge.r-project.org/resources/",
-                   method, ...)
-{
-    if(file.exists(file))
-        return(TRUE)
-    ## else try to down load it
-    fullURL <- file.path(remoteDIR, file)
-    r <- tryCatch( download.file(fullURL,
-                                 destfile = file, method=method, ...),
-                  error = function(e) e)
-    ## return:  TRUE if ok
-    !is(r, "error")
-}
 
 saveFile2 <- "retstable_st2.rda"
 saveFile3 <- "retstable_CPU2.rda"
