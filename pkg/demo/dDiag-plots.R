@@ -129,6 +129,13 @@ dimnames(rNum) <- list(tu.attr$dimnames$th, NULL, paste("d",d.set, sep="="), met
 str(rNum)
 
 filR <- "Frank-dDiag.rda"
+##       ---------------
+if(isMMae <- identical("maechler",Sys.getenv("USER"))) {
+   resourceDir <- "~/R/D/R-forge/nacopula/www/resources"
+   if(file.exists(ff <- file.path(resourceDir, filR)))
+       cat("Will use ", (filR <- ff),"\n")
+}
+develR <- isMMae ## || ....  Marius _TODO_ extend ..
 if(canGet(filR)) attach(filR) else {
     ##           ------------
     ## Compute for more about 10 minutes --- using
@@ -185,17 +192,14 @@ objL1 <- c("u", "taus", "thetas", "d.set",
            "m.tu", "meths", "rNum", "r.xct")
 objL2 <- c(objL1, "m.M", "r.Xct")
 
-isMMae <- identical("maechler",Sys.getenv("USER"))
 ## where to *save* the result, when we don't have any -- must be writable
 sFileW <- {
     if(isMMae) file.path("~/R/Pkgs/nacopula", "demo", "Frank-dDiag-mpfr.rda")
     ## else if(...) ....
     else tempfile("nacop-Frank-dDiag-mpfr", fileext="rda")}
-develR <- isMMae ## maybe extend ..
 if(develR) { ## need to save the file that "goes with nacopula":
-    resourceDir <- {
-        if(isMMae) "~/R/D/R-forge/nacopula/www/resources"
-        else if(develR) stop("need writable pkg dir for developer") }
+    if(!exists("resourceDir") || !file.exists(resourceDir))
+        stop("need writable pkg dir for developer")
     sFileR.dev <- file.path(resourceDir, filR)
     save(list = objL1, file = sFileR.dev)
     ## + the one with full Rmpfr objects:
