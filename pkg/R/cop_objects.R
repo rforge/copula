@@ -76,36 +76,36 @@ copAMH <-
                   },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE,
-				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
-                  {
-		      stopifnot(C.@paraConstr(theta))
-		      if(!is.matrix(u)) u <- rbind(u)
-		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-		      ## f() := NaN outside and on the boundary of the unit hypercube
-		      res <- rep.int(NaN, n <- nrow(u))
-		      ## indices for which density has to be evaluated:
-		      n01 <- apply(u,1,function(x) all(0 < x, x < 1))
-		      if(!any(n01)) return(res)
-		      if(theta == 0) { res[n01] <- if(log) 0 else 1; return(res) } # independence
-		      ## auxiliary results
-		      u. <- u[n01,, drop=FALSE]
-		      tIu <- -theta*(1-u.)
-		      sum. <- rowSums(log(u.))
-		      sumIu <- rowSums(log1p(tIu))
-		      ## main part
-		      if(n.MC > 0) { # Monte Carlo
-			  V <- C.@V0(n.MC, theta)
-			  l <- d*log((1-theta)*V) # length = n.MC
-			  res[n01] <- colMeans(exp(l + (V-1) %*% t(sum.) - (V+1) %*% t(sumIu)))
-			  if(log) log(res) else res
-		      } else { # explicit
-			  Li.arg <-
-			      if(Li.log.arg) log(theta) + sum. - sumIu else theta* apply(u./(1+tIu), 1, prod)
-			  Li. <- polylog(Li.arg, s = -d, method=method, is.log.z = Li.log.arg, log=TRUE)
-			  res[n01] <- (d+1)*log1p(-theta)-log(theta)+ Li. -sum. -sumIu
-			  if(log) res else exp(res)
-		      }
-		  },
+                  method = "negI-s-Eulerian", Li.log.arg=TRUE)
+              {
+                  stopifnot(C.@paraConstr(theta))
+                  if(!is.matrix(u)) u <- rbind(u)
+                  if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+                  ## f() := NaN outside and on the boundary of the unit hypercube
+                  res <- rep.int(NaN, n <- nrow(u))
+                  ## indices for which density has to be evaluated:
+                  n01 <- apply(u,1,function(x) all(0 < x, x < 1))
+                  if(!any(n01)) return(res)
+                  if(theta == 0) { res[n01] <- if(log) 0 else 1; return(res) } # independence
+                  ## auxiliary results
+                  u. <- u[n01,, drop=FALSE]
+                  tIu <- -theta*(1-u.)
+                  sum. <- rowSums(log(u.))
+                  sumIu <- rowSums(log1p(tIu))
+                  ## main part
+                  if(n.MC > 0) { # Monte Carlo
+                      V <- C.@V0(n.MC, theta)
+                      res[n01] <- colMeans(exp(d*(log1p(-theta) + log(V)) + 
+                                               (V-1) %*% t(sum.) - (V+1) %*% t(sumIu)))
+                      if(log) log(res) else res
+                  } else { # explicit
+                      Li.arg <-
+                          if(Li.log.arg) log(theta) + sum. - sumIu else theta* apply(u./(1+tIu), 1, prod)
+                      Li. <- polylog(Li.arg, s = -d, method=method, is.log.z = Li.log.arg, log=TRUE)
+                      res[n01] <- (d+1)*log1p(-theta)-log(theta)+ Li. -sum. -sumIu
+                      if(log) res else exp(res)
+                  }
+              },
 		  ## score function
 		  score = function(u, theta) {
 		      stopifnot(C.@paraConstr(theta))
@@ -233,10 +233,12 @@ copClayton <-
 		      if(n.MC > 0) { # Monte Carlo
 			  lu.mat <- matrix(rep(lu, n.MC), nrow=n.MC, byrow=TRUE)
 			  V <- C.@V0(n.MC, theta)
-			  l <- d*log(theta*V)
-			  theta. <- 1 + theta
 			  ## stably compute log(colMeans(exp(lx)))
-			  lx <- l - theta.*lu.mat - V %*% t(t) - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
+			  lx <- d*(log(theta) + log(V)) - log(n.MC) - (1+theta)*lu.mat - V %*% t(t) # matrix of exponents; dimension n.MC x n ["V x u"]
+			  ## note: smle goes wrong if:
+			  ##       (1) d*log(theta*V) [old code]
+			  ##       (2) U is small (simultaneously)
+			  ##       (3) theta is large
 			  res[n01] <- lsum(lx)
 		      } else { # explicit
 			  res[n01] <- sum(log1p(theta*(0:(d-1)))) - (1+theta)*lu -
@@ -333,7 +335,7 @@ copFrank <-
 		  paraInterval = interval("(0,Inf)"),
 		  ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree = 1, n.MC = 0, log = FALSE, is.log.t = FALSE,
-				     method = "negI-s-Eulerian", Li.log.arg = TRUE)
+                  method = "negI-s-Eulerian", Li.log.arg = TRUE)
               {
                   if(n.MC > 0) {
                       psiDabsMC(t, family="Frank", theta=theta, degree=degree,
@@ -371,7 +373,7 @@ copFrank <-
 		  },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0, log=FALSE,
-				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
+                  method = "negI-s-Eulerian", Li.log.arg=TRUE)
 	      {
 		  stopifnot(C.@paraConstr(theta))
 		  if(!is.matrix(u)) u <- rbind(u)
@@ -390,9 +392,9 @@ copFrank <-
 		  res[n01] <-
 		      if(n.MC > 0) { # Monte Carlo
 			  V <- C.@V0(n.MC, theta)
-			  l <- d*(log(theta*V)-V*lp)
-			  lx <- rep(-theta*u.sum, each=n.MC) + l - log(n.MC) + (V-1) %*% t(lu)
-					# (n.MC, nrow(u.))-matrix
+			  lx <- rep(-theta*u.sum, each=n.MC) + d*(log(theta) + 
+                                                  log(V) - V*lp) - log(n.MC) + 
+                                                      (V-1) %*% t(lu)
 			  lsum(lx)
 		      } else { # explicit
 			  Li.arg <-
@@ -507,7 +509,7 @@ copGumbel <-
 		  paraInterval = interval("[1,Inf)"),
 		  ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree=1, n.MC=0,
-				     method = eval(formals(polyG)$method), log = FALSE) {
+                  method = eval(formals(polyG)$method), log = FALSE) {
 	              is0 <- t == 0
                       isInf <- is.infinite(t)
 	              res <- numeric(n <- length(t))
@@ -549,51 +551,50 @@ copGumbel <-
                   },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0,
-				      method = eval(formals(polyG)$method), log=FALSE)
+                  method = eval(formals(polyG)$method), log=FALSE)
               {
-		      stopifnot(C.@paraConstr(theta))
-		      if(!is.matrix(u)) u <- rbind(u)
-		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-		      ## f() := NaN outside and on the boundary of the unit hypercube
-		      res <- rep.int(NaN, n <- nrow(u))
-		      n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
-		      if(!any(n01)) return(res)
-		      if(theta == 1) { res[n01] <- if(log) 0 else 1; return(res) } # independence
-		      ## auxiliary results
-		      u. <- u[n01,, drop=FALSE]
-		      mlu <- -log(u.) # -log(u)
-		      lmlu <- log(mlu) # log(-log(u))
-		      t <- rowSums(C.@psiInv(u., theta))
-		      ## main part
-		      if(n.MC > 0) { # Monte Carlo
-			  V <- C.@V0(n.MC, theta)
-			  l <- d*log(theta*V)
-			  sum. <- rowSums((theta-1)*lmlu + mlu)
-			  sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
-			  ## stably compute log(colMeans(exp(lx)))
-			  lx <- l - V %*% t(t) + sum.mat - log(n.MC) # matrix of exponents; dimension n.MC x n ["V x u"]
-			  res[n01] <- lsum(lx)
-			  if(log) res else exp(res)
-		      } else { # explicit
-			  alpha <- 1/theta
-			  ## compute lx = alpha*log(sum(psiInv(u., theta)))
-			  lx <- alpha*log(t)
-			  ## ==== former version [start] (numerically slightly more stable but slower) ====
-			  ## im <- apply(u., 1, which.max)
-			  ## mat.ind <- cbind(seq_len(n), im) # indices that pick out maxima from u.
-			  ## mlum <- mlu[mat.ind] # -log(u_max)
-			  ## mlum.mat <- matrix(rep(mlum, d), ncol = d)
-			  ## lx <- lmlu[mat.ind] + alpha*log(rowSums((mlu/mlum.mat)^theta)) # alpha*log(sum(psiInv(u, theta)))
-			  ## ==== former version [end] ====
-			  ## compute sum
-			  ls. <- polyG(lx, alpha, d, method=method, log=TRUE)-d*lx/alpha
-			  ## the rest
-			  cop.val <- pnacopula(onacopulaL("Gumbel", list(theta, 1:d)), u.)
-			  res[n01] <- d*log(theta) + rowSums((theta-1)*lmlu + mlu) + ls.
-			  res[n01] <- if(log) log(cop.val) + res[n01] else cop.val * exp(res[n01])
-			  res
-		      }
-		  },
+                  stopifnot(C.@paraConstr(theta))
+                  if(!is.matrix(u)) u <- rbind(u)
+                  if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+                  ## f() := NaN outside and on the boundary of the unit hypercube
+                  res <- rep.int(NaN, n <- nrow(u))
+                  n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
+                  if(!any(n01)) return(res)
+                  if(theta == 1) { res[n01] <- if(log) 0 else 1; return(res) } # independence
+                  ## auxiliary results
+                  u. <- u[n01,, drop=FALSE]
+                  mlu <- -log(u.) # -log(u)
+                  lmlu <- log(mlu) # log(-log(u))
+                  t <- rowSums(C.@psiInv(u., theta))
+                  ## main part
+                  if(n.MC > 0) { # Monte Carlo
+                      V <- C.@V0(n.MC, theta)
+                      sum. <- rowSums((theta-1)*lmlu + mlu)
+                      sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
+                      ## stably compute log(colMeans(exp(lx)))
+                      lx <- d*(log(theta)+log(V)) - log(n.MC) - V %*% t(t) + sum.mat  # matrix of exponents; dimension n.MC x n ["V x u"]
+                      res[n01] <- lsum(lx)
+                      if(log) res else exp(res)
+                  } else { # explicit
+                      alpha <- 1/theta
+                      ## compute lx = alpha*log(sum(psiInv(u., theta)))
+                      lx <- alpha*log(t)
+                      ## ==== former version [start] (numerically slightly more stable but slower) ====
+                      ## im <- apply(u., 1, which.max)
+                      ## mat.ind <- cbind(seq_len(n), im) # indices that pick out maxima from u.
+                      ## mlum <- mlu[mat.ind] # -log(u_max)
+                      ## mlum.mat <- matrix(rep(mlum, d), ncol = d)
+                      ## lx <- lmlu[mat.ind] + alpha*log(rowSums((mlu/mlum.mat)^theta)) # alpha*log(sum(psiInv(u, theta)))
+                      ## ==== former version [end] ====
+                      ## compute sum
+                      ls. <- polyG(lx, alpha, d, method=method, log=TRUE)-d*lx/alpha
+                      ## the rest
+                      cop.val <- pnacopula(onacopulaL("Gumbel", list(theta, 1:d)), u.)
+                      res[n01] <- d*log(theta) + rowSums((theta-1)*lmlu + mlu) + ls.
+                      res[n01] <- if(log) log(cop.val) + res[n01] else cop.val * exp(res[n01])
+                      res
+                  }
+              },
 		  ## score function
 		  score = function(u, theta) {
 		      stopifnot(C.@paraConstr(theta))
@@ -685,7 +686,7 @@ copJoe <-
 		  paraInterval = interval("[1,Inf)"),
 		  ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree = 1, n.MC = 0,
-                  		     method= eval(formals(polyJ)$method), log = FALSE)
+                  method= eval(formals(polyJ)$method), log = FALSE)
               {
                   is0 <- t == 0
                   isInf <- is.infinite(t)
@@ -731,40 +732,40 @@ copJoe <-
 		  },
 		  ## density
 		  dacopula = function(u, theta, n.MC=0,
-				      method = eval(formals(polyJ)$method), log = FALSE)
+                  method = eval(formals(polyJ)$method), log = FALSE)
               {
-		      stopifnot(C.@paraConstr(theta))
-		      if(!is.matrix(u)) u <- rbind(u)
-		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-		      ## f() := NaN outside and on the boundary of the unit hypercube
-		      res <- rep.int(NaN, n <- nrow(u))
-		      n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
-		      if(!any(n01)) return(res)
-		      if(theta == 1) { res[n01] <- if(log) 0 else 1; return(res) } # independence
-		      ## auxiliary results
-		      u. <- u[n01,, drop=FALSE]
-		      l1_u <- rowSums(log1p(-u.)) # log(1-u)
-		      lh <- rowSums(log1p(-(1-u.)^theta)) # rowSums(log(1-(1-u)^theta)) = log(h)
-		      ## main part
-		      if(n.MC > 0) { # Monte Carlo
-			  V <- C.@V0(n.MC, theta)
-			  l <- d*log(theta*V)
-			  sum. <- (theta-1)*l1_u
-			  sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
-			  ## stably compute log(colMeans(exp(lx)))
-                          ## matrix of exponents; dimension n.MC x n ["V x u"] :
-			  lx <- l + (V-1) %*% t(lh) + sum.mat - log(n.MC)
-			  res[n01] <- lsum(lx)
-		      } else {
-			  alpha <- 1/theta
-			  l1_h <- log1mexpm(-lh) # log(1-h)
-			  lh_l1_h <- lh - l1_h # log(h/(1-h))
-			  res[n01] <- (d-1)*log(theta) + (theta-1)*l1_u -
-			      (1-alpha)*l1_h + polyJ(lh_l1_h, alpha, d, method=method,
-						     log=TRUE)
-		      }
-		      if(log) res else exp(res)
-		  },
+                  stopifnot(C.@paraConstr(theta))
+                  if(!is.matrix(u)) u <- rbind(u)
+                  if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+                  ## f() := NaN outside and on the boundary of the unit hypercube
+                  res <- rep.int(NaN, n <- nrow(u))
+                  n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
+                  if(!any(n01)) return(res)
+                  if(theta == 1) { res[n01] <- if(log) 0 else 1; return(res) } # independence
+                  ## auxiliary results
+                  u. <- u[n01,, drop=FALSE]
+                  l1_u <- rowSums(log1p(-u.)) # log(1-u)
+                  lh <- rowSums(log1p(-(1-u.)^theta)) # rowSums(log(1-(1-u)^theta)) = log(h)
+                  ## main part
+                  if(n.MC > 0) { # Monte Carlo
+                      V <- C.@V0(n.MC, theta)
+                      sum. <- (theta-1)*l1_u
+                      sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
+                      ## stably compute log(colMeans(exp(lx)))
+                      ## matrix of exponents; dimension n.MC x n ["V x u"] :
+                      lx <- d*(log(theta) + log(V)) + (V-1) %*% t(lh) + 
+                          sum.mat - log(n.MC)
+                      res[n01] <- lsum(lx)
+                  } else {
+                      alpha <- 1/theta
+                      l1_h <- log1mexpm(-lh) # log(1-h)
+                      lh_l1_h <- lh - l1_h # log(h/(1-h))
+                      res[n01] <- (d-1)*log(theta) + (theta-1)*l1_u -
+                          (1-alpha)*l1_h + polyJ(lh_l1_h, alpha, d, method=method,
+                                                 log=TRUE)
+                  }
+                  if(log) res else exp(res)
+              },
 		  ## score function
 		  score = function(u, theta, method=eval(formals(polyJ)$method)) {
 		      stopifnot(C.@paraConstr(theta))

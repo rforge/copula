@@ -58,13 +58,14 @@ sign.binom <- function(alpha, j, d) {
     res
 }
 
-##' Properly compute log(x_1 + .. + x_n) for a given matrix of column vectors
-##' log(x_1),..,log(x_n)
+##' Properly compute log(x_1 + .. + x_n) for a given (n x d)-matrix of n row 
+##' vectors log(x_1),..,log(x_n) (each of dimension d)
 ##'
 ##' @title Properly compute the logarithm of a sum
-##' @param lx (d,n)-matrix containing the column vectors log(x_1),..,log(x_n)
+##' @param lx (n x d)-matrix containing the row vectors log(x_1),..,log(x_n)
 ##'        each of dimension d
-##' @param l.off the offset to substract and re-add; ideally in the order of max(.)
+##' @param l.off the offset to substract and re-add; ideally in the order of 
+##'        the maximum of each column
 ##' @return log(x_1 + .. + x_n) computed via
 ##'         log(sum(x)) = log(sum(exp(log(x))))
 ##'         = log(exp(log(x_max))*sum(exp(log(x)-log(x_max))))
@@ -72,7 +73,9 @@ sign.binom <- function(alpha, j, d) {
 ##'         = lx.max + log(sum(exp(lx-lx.max)))
 ##' @author Marius Hofert (implementation), Martin Maechler (concept)
 lsum <- function(lx, l.off = apply(lx, 2, max)) {
-    stopifnot(is.matrix(lx)) # do not use cbind or rbind here, since it is not clear if the user specified only one vector log(x) or several vectors of dimension 1 !!!
+    ## do not use cbind or rbind here, since it is not clear if the user specified 
+    ## only one vector log(x) or several vectors of dimension 1 !!!
+    stopifnot(is.matrix(lx)) 
     l.off + log(colSums(exp(lx - rep(l.off, each=nrow(lx)))))
 }
 

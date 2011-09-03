@@ -6,6 +6,8 @@
   Change "the system" :  (1) put this in .Rbuildignore
                          (2) use download.file() instead or do not run the
 			 check or ...
+			
+(*) bug fixes for estimation methods!
 
 #### Intermediate #####################################################################
 

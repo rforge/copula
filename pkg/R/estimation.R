@@ -270,20 +270,8 @@ emde.dist <- function(u, method = c("mde.chisq.CvM", "mde.chisq.KS", "mde.gamma.
                i <- 1:n
                max(Fvals[i]-(i-1)/n, i/n-Fvals[i])
            },
-           ## Note: The following multivariate distances turned out to be (far) too slow
-           ## "mde.SB" = { # S_n^{(B)} from Genest et al. (2009)
-           ##     sum1 <- sum(apply(1-u^2,1,prod))/2^(d-1)
-           ##     f <- function(i,j) prod(1-apply(rbind(u[i,],u[j,]), 2, max))
-           ##     sum2 <- 0
-           ##     for(i in 1:n) sum2 <- sum2 + sum(unlist(lapply(1:n, function(j) f(i,j))))
-           ##     n/3^d-sum1+sum2/n
-           ## },
-           ## "mde.SC" = { # S_n^{(C)} from Genest et al. (2009)
-           ##     C.hat <- function(u.vec,u.mat) mean(apply(t(apply(u.mat, 1,
-           ##                                                       function(x) x <=
-           ##                                                       u.vec)), 1, all))
-           ##     sum((apply(u, 1, C.hat, u.mat = u) - apply(u, 1, prod))^2)
-           ## },
+           ## Note: The distances S_n^{(B)} and S_n^{(C)} turned out to be (far) 
+           ##       too slow.
            stop("wrong distance method"))
 }
 

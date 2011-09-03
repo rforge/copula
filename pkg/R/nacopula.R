@@ -55,8 +55,8 @@ dnacopulag <- function(x, u, n.MC=0, log = FALSE) {
     n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
     if(any(n01)) {
         u. <- u[n01,, drop=FALSE]
-	psiI <- acop@psiInv(u[n01,],th)
-	psiID <- acop@psiInvD1abs(u[n01,],th)
+	psiI <- acop@psiInv(u.,th)
+	psiID <- acop@psiInvD1abs(u.,th)
         res[n01] <- acop@psiDabs(rowSums(psiI),theta = th,degree = d, n.MC = n.MC, log = log)
         res[n01] <- if(log) res[n01] + rowSums(log(psiID)) else res[n01] * apply(psiID,1,prod)
     }
