@@ -280,16 +280,19 @@ emde.dist <- function(u, method = c("mde.chisq.CvM", "mde.chisq.KS", "mde.gamma.
 ##' @title Minimum distance estimation for nested Archimedean copulas
 ##' @param u matrix of realizations following the copula
 ##' @param cop outer_nacopula to be estimated
+##' @param method distance methods available, see emde.dist
 ##' @param interval bivariate vector denoting the interval where optimization takes
 ##'        place
-##' @param include.K boolean indicating whether the last component, K, is also used or not
-##' @param method distance methods available, see emde.dist
+##' @param include.K logical indicating whether the last component, K, is also 
+##'        used or not
+##' @param repara logical indicating whether the distance function is
+##'        reparameterized for the optimization 
 ##' @param ... additional parameters for optimize
 ##' @return minimum distance estimator; return value of optimize
 ##' @author Marius Hofert
 emde <- function(u, cop, method = c("mde.chisq.CvM", "mde.chisq.KS", "mde.gamma.CvM",
                          "mde.gamma.KS"), interval = initOpt(cop@copula@name),
-                 include.K = FALSE, ...)
+                 include.K = FALSE, repara = TRUE, ...)
 {
     stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 2,
               max(cop@comp) == d)
@@ -301,7 +304,13 @@ emde <- function(u, cop, method = c("mde.chisq.CvM", "mde.chisq.KS", "mde.gamma.
         u. <- htrafo(u, cop=cop, include.K=include.K, n.MC=0) # transform data [don't use MC here; too slow]
         emde.dist(u., method)
     }
-    optimize(distance, interval = interval, ...)
+    if(repara){
+	opt <- optimize(function(alpha) distance(1/alpha), interval=1/interval[2:1], ...)
+	opt$minimum <- 1/opt$minimum
+	opt
+    }else{
+        optimize(distance, interval=interval, ...)	
+    }
 }
 
 ## ==== Diagonal maximum likelihood estimation =================================
