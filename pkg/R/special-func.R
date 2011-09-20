@@ -58,13 +58,13 @@ sign.binom <- function(alpha, j, d) {
     res
 }
 
-##' Properly compute log(x_1 + .. + x_n) for a given (n x d)-matrix of n row 
+##' Properly compute log(x_1 + .. + x_n) for a given (n x d)-matrix of n row
 ##' vectors log(x_1),..,log(x_n) (each of dimension d)
 ##'
 ##' @title Properly compute the logarithm of a sum
 ##' @param lx (n x d)-matrix containing the row vectors log(x_1),..,log(x_n)
 ##'        each of dimension d
-##' @param l.off the offset to substract and re-add; ideally in the order of 
+##' @param l.off the offset to substract and re-add; ideally in the order of
 ##'        the maximum of each column
 ##' @return log(x_1 + .. + x_n) computed via
 ##'         log(sum(x)) = log(sum(exp(log(x))))
@@ -73,9 +73,9 @@ sign.binom <- function(alpha, j, d) {
 ##'         = lx.max + log(sum(exp(lx-lx.max)))
 ##' @author Marius Hofert (implementation), Martin Maechler (concept)
 lsum <- function(lx, l.off = apply(lx, 2, max)) {
-    ## do not use cbind or rbind here, since it is not clear if the user specified 
+    ## do not use cbind or rbind here, since it is not clear if the user specified
     ## only one vector log(x) or several vectors of dimension 1 !!!
-    stopifnot(is.matrix(lx)) 
+    stopifnot(length(dim(lx)) == 2L) # is.matrix(.) generalized
     l.off + log(colSums(exp(lx - rep(l.off, each=nrow(lx)))))
 }
 
@@ -95,7 +95,7 @@ lsum <- function(lx, l.off = apply(lx, 2, max)) {
 ##'         = l.off   + log(sum(signs* exp(lxabs -  l.off  )))
 ##' @author Marius Hofert and Martin Maechler
 lssum <- function (lxabs, signs, l.off = apply(lxabs, 2, max), strict = TRUE) {
-    stopifnot(is.matrix(lxabs))
+    stopifnot(length(dim(lxabs)) == 2L) # is.matrix(.) generalized
     sum. <- colSums(signs * exp(lxabs - rep(l.off, each=nrow(lxabs))))
     if (any(is.nan(sum.) || sum. <= 0))
         (if(strict) stop else warning)("lssum found non-positive sums")
@@ -588,4 +588,4 @@ Bernoulli <- function(n, method = c("sumBin", "sumRamanujan", "asymptotic"),
 
 ##---> Free Python implementations are here
 ##>> http://en.literateprograms.org/Bernoulli_numbers_%28Python%29
-##--> see
+##--> MM: see ../misc/Bernoulli_numbers_(Python)/

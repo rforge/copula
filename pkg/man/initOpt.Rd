@@ -11,7 +11,9 @@ initOpt(family, tau.range=NULL, interval = TRUE, u,
 }
 \arguments{
   \item{family}{Archimedean family to find an initial interval for.}
-  \item{tau.range}{vector containing lower and upper admissible Kendall's tau.}
+  \item{tau.range}{numeric vector containing lower and upper admissible
+    Kendall's tau, or \code{NULL} which choses family-specific defaults,
+    see the function definition.}
   \item{interval}{\code{\link{logical}} indicating whether an initial interval
     (the default) or an initial value should be returned.}
   \item{u}{matrix of realizations following the copula family specified

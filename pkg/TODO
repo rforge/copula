@@ -1,12 +1,5 @@
 #### Major (to fix before next release) ########################################
 
-(MM) ./tests/estim-ex.R: demo("dDiag-plots", package = "nacopula")
-    --> ./demo/dDiag-plots.R and they use the  4.5 MB large
-    	./inst/rData/Frank-dDiag.rda file
-  Change "the system" :  (1) put this in .Rbuildignore
-                         (2) use download.file() instead or do not run the
-			 check or ...
-			
 (*) bug fixes for estimation methods!
 
 #### Intermediate #####################################################################
