@@ -53,6 +53,11 @@ emle(u, cop, n.MC=0, optimizer="optimize", method,
    Alternative estimators (see also \code{\link{enacopula}}) often used
    because of their numerical feasibility, might break down in much
    smaller dimensions.
+
+   Note: SMLE for Clayton currently faces serious numerical issues and is 
+   due to further research.  This is only interesting from a theoretical point
+   of view, since the exact derivatives are known and numerically non-critical
+   to evaluate. 
 }
 \value{
   \describe{
