@@ -19,6 +19,8 @@ showProc.time <- local({
 ## observations which are highly improbable under Frank and would
 ## "need" a very large theta :
 
+if(getRversion() <= "2.13")
+    source(system.file("Rsource", "fixup-sapply.R", package="nacopula"))
 
 p.log.f <- function(t0, t1, n.th = 256,
                     thet.vec = seq(t0, t1, length.out= n.th),
