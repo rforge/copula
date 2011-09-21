@@ -95,7 +95,7 @@ copAMH <-
                   ## main part
                   if(n.MC > 0) { # Monte Carlo
                       V <- C.@V0(n.MC, theta)
-                      res[n01] <- colMeans(exp(d*(log1p(-theta) + log(V)) + 
+                      res[n01] <- colMeans(exp(d*(log1p(-theta) + log(V)) +
                                                (V-1) %*% t(sum.) - (V+1) %*% t(sumIu)))
                       if(log) log(res) else res
                   } else { # explicit
@@ -392,8 +392,8 @@ copFrank <-
 		  res[n01] <-
 		      if(n.MC > 0) { # Monte Carlo
 			  V <- C.@V0(n.MC, theta)
-			  lx <- rep(-theta*u.sum, each=n.MC) + d*(log(theta) + 
-                                                  log(V) - V*lp) - log(n.MC) + 
+			  lx <- rep(-theta*u.sum, each=n.MC) + d*(log(theta) +
+                                                  log(V) - V*lp) - log(n.MC) +
                                                       (V-1) %*% t(lu)
 			  lsum(lx)
 		      } else { # explicit
@@ -621,7 +621,7 @@ copGumbel <-
 			  rstable1(n, alpha, beta=1,
 				   gamma = cos(alpha*pi/2)^(1/alpha))
 			  ## Note: calling sequence:
-			  ##	   rstable1 -> rstable1C (in rstable1.R) -> rstable1C (in rstable1.R)
+			  ##	   rstable1 == rstable1C (in rstable1.R)
 			  ##	   -> rstable_c (in retstable.c) -> rstable_vec (in retstable.c)
 			  ##	   -> rstable0 (in retstable.c)
 		      }
@@ -753,7 +753,7 @@ copJoe <-
                       sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
                       ## stably compute log(colMeans(exp(lx)))
                       ## matrix of exponents; dimension n.MC x n ["V x u"] :
-                      lx <- d*(log(theta) + log(V)) + (V-1) %*% t(lh) + 
+                      lx <- d*(log(theta) + log(V)) + (V-1) %*% t(lh) +
                           sum.mat - log(n.MC)
                       res[n01] <- lsum(lx)
                   } else {
