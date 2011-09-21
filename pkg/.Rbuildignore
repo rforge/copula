@@ -1,4 +1,4 @@
-src/misc.*
+misc.*
 inst/doc/auto.*
 Rplots.pdf
 inst/doc/.*-splom.*\.(pdf|png)
