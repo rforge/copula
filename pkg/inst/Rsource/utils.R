@@ -14,19 +14,20 @@ tryCatch.W.E <- function(expr){
 ##' @param file
 ##' @param remoteDIR
 ##' @param method download method
+##' @param mode writing mode,    see ?download.file
 ##' @param ... potentially further arguments to download.file()
 ##' @return logical: TRUE if download succeeded
 ##' @author Martin Maechler (22 Mar 2011)
 canGet <- function(file,
                    remoteDIR = "http://nacopula.r-forge.r-project.org/resources",
-                   method, ...)
+                   method, mode = "wb", ...)
 {
     if(file.exists(file))
         return(TRUE)
     ## else try to down load it
     fullURL <- file.path(remoteDIR, file)
-    r <- tryCatch( download.file(fullURL,
-                                 destfile = file, method=method, ...),
+    r <- tryCatch( download.file(fullURL, destfile = file,
+                                 method=method, mode=mode, ...),
                   error = function(e) e, warning = function(w) w)
     ok <- !is(r, "condition") && r == 0
     if(!ok && file.exists(file)) ## try to remove a newly created empty file

@@ -60,13 +60,14 @@ rbind(C.direct = system.time(Sd <- Stirling2(100,10, method="direct")),
       C.lookup = system.time(Sl <- Stirling2(100,10, method="lookup")))
 ## should be equal; and lookup time should be "zero" when called again:
 stopifnot(all.equal(Sd, Sl, tol = 1e-15),
-          print(system.time(for(i in 1:20) S. <- Stirling2(100, 10))[[1]]) <= 0.010)
-
+          print(system.time(for(i in 1:20) S. <- Stirling2(100, 10))[[1]]) <= 0.020)
+## 0.010 fails on good ole' Solaris when that is busy..
 ## Here, the direct method already overflows, but the "lookup" still works
 rbind(C.direct = system.time(Sd <- Stirling2(200,190, method="direct")),
       C.lookup = system.time(Sl <- Stirling2(200,190, method="lookup")))
 Sd ; Sl
-stopifnot(print(system.time(for(i in 1:20) S. <- Stirling2(200,190))[[1]]) <= 0.020)# 0.010 occasionally barely fails (prints "0.010") on Martin's X201
+stopifnot(print(system.time(for(i in 1:20) S. <- Stirling2(200,190))[[1]]) <= 0.025)
+# 0.010 occasionally barely fails (prints "0.010") on Martin's X201
 
 ### ---- Eulerian Numbers -------------------------------------------------------
 
