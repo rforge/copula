@@ -31,12 +31,12 @@ paper-all.zip: $(DRIVERS:=.Rnw) $(DRIVERS:=.tex) $(DRIVERS:=.pdf) $(DRIVERS:=.R)
 	${R_PROG} CMD Stangle $<
 
 %.pdf : %.tex *.bib
-	texi2pdf $<
+	${R_PROG} CMD texi2pdf $<
 	qpdf --stream-data=compress $@ temp$@
 	mv temp$@ $@
 
 %.dvi : %.tex *.bib
-	texi2dvi $<
+	${R_PROG} CMD texi2dvi $<
 ## To make the paper (size in bytes) much smaller, use
 ##  make nacopula-pkg-ex2-splom.png ; pdflatex nacopula-pkg
 %.png : %.pdf

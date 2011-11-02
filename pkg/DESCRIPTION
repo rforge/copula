@@ -1,6 +1,6 @@
 Package: nacopula
-Version: 0.7-9-1
-Date: 2011-09-23
+Version: 0.8-0
+Date: 2011-..-..
 LastChanged: $LastChangedRevision$; $LastChangedDate$
 Title: Nested Archimedean Copulas
 Description: An R package for working with nested Archimedean copulas.
@@ -11,7 +11,7 @@ Description: An R package for working with nested Archimedean copulas.
   such as the Sibuya distribution, the polylogarithm, Stirling and Eulerian numbers.
 Author: Marius Hofert <marius.hofert@math.ethz.ch> and Martin Maechler
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
-Depends: R (>= 2.11.0), methods, stats4
+Depends: R (>= 2.12.0), methods, stats4
 Imports: gsl, ADGofTest, stabledist
 Suggests: lattice, MASS, sfsmisc, Rmpfr, bbmle
 License: GPL (>= 2)
