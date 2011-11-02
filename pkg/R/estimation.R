@@ -270,7 +270,7 @@ emde.dist <- function(u, method = c("mde.chisq.CvM", "mde.chisq.KS", "mde.gamma.
                i <- 1:n
                max(Fvals[i]-(i-1)/n, i/n-Fvals[i])
            },
-           ## Note: The distances S_n^{(B)} and S_n^{(C)} turned out to be (far) 
+           ## Note: The distances S_n^{(B)} and S_n^{(C)} turned out to be (far)
            ##       too slow.
            stop("wrong distance method"))
 }
@@ -283,16 +283,16 @@ emde.dist <- function(u, method = c("mde.chisq.CvM", "mde.chisq.KS", "mde.gamma.
 ##' @param method distance methods available, see emde.dist
 ##' @param interval bivariate vector denoting the interval where optimization takes
 ##'        place
-##' @param include.K logical indicating whether the last component, K, is also 
+##' @param include.K logical indicating whether the last component, K, is also
 ##'        used or not
 ##' @param repara logical indicating whether the distance function is
-##'        reparameterized for the optimization 
+##'        reparameterized for the optimization
 ##' @param ... additional parameters for optimize
 ##' @return minimum distance estimator; return value of optimize
 ##' @author Marius Hofert
 emde <- function(u, cop, method = c("mde.chisq.CvM", "mde.chisq.KS", "mde.gamma.CvM",
                          "mde.gamma.KS"), interval = initOpt(cop@copula@name),
-                 include.K = FALSE, repara = TRUE, ...)
+                 include.K = FALSE, repara = cop@copula@name!="AMH", ...)
 {
     stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 2,
               max(cop@comp) == d)
@@ -309,7 +309,7 @@ emde <- function(u, cop, method = c("mde.chisq.CvM", "mde.chisq.KS", "mde.gamma.
 	opt$minimum <- 1/opt$minimum
 	opt
     }else{
-        optimize(distance, interval=interval, ...)	
+        optimize(distance, interval=interval, ...)
     }
 }
 
