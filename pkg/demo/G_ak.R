@@ -20,8 +20,8 @@ library(nacopula)
 
 coeffG <- nacopula:::coeffG
 
-## ==== step (1): look at the a_k's, check if they can be evaluated ====
 
+### step (1): look at the a_k's, check if they can be evaluated ################
 
 ## Now, explore things seriously :
 asN <- function(x, name=deparse(substitute(x))[1]) {

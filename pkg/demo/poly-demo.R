@@ -19,9 +19,10 @@ library(lattice)
 
 options(warn=1)
 
-## ==== plot of poly* (= polyG, polyJ) for all methods =========================
 
-## ==== expected evaluation points for estimating Gumbel and Joe copulas ====
+### plot of poly* (= polyG, polyJ) for all methods #############################
+
+### expected evaluation points for estimating Gumbel and Joe copulas ###########
 
 eep.fun <- function(family, alpha, d, n.MC=5000){
     vapply(alpha, function(alph)
@@ -44,7 +45,8 @@ eep.fun <- function(family, alpha, d, n.MC=5000){
        }, NA_real_)
 }
 
-## ==== plot function for a vector of alphas ====
+
+### plot function for a vector of alphas
 
 plot.poly <- function(family, xlim, ylim, method, alpha, d){
     len <- length(alpha)
@@ -73,7 +75,8 @@ plot.poly <- function(family, xlim, ylim, method, alpha, d){
     legend("bottomright", label, bty="n", lwd=1.4, col=cols)
 }
 
-## ==== animation in alpha ====
+
+### animation in alpha
 
 ## animation of poly* functions
 ## m = number of frames
@@ -114,9 +117,10 @@ poly.ani <- function(family, m, d, method, xlim, ylim){
     res
 }
 
-## ==== Gumbel =================================================================
 
-## ==== plots for small d ====
+### Gumbel #####################################################################
+
+### plots for small d
 
 family <- "Gumbel"
 alpha <- c(0.99, 0.5, 0.01) # alphas; plot largest first, so that all values are visible
@@ -133,7 +137,7 @@ for(i in seq_along(meths)){
 }
 ## => all are fine, even for the much larger range than the expected values
 
-## ==== plots for large d ====
+### plots for large d
 
 d <- 100
 xlim <- c(1e-16, 200)
@@ -163,7 +167,8 @@ plot.poly(family, xlim=xlim, ylim=ylim, method="horner", alpha=alpha, d=d) # log
 plot.poly(family, xlim=xlim, ylim=ylim, method="direct", alpha=alpha, d=d) # log(< 0)
 plot.poly(family, xlim=xlim, ylim=ylim, method="dsumSibuya", alpha=alpha, d=d) # okay for large alpha
 
-## ==== run time comparison of the methods that worked for some parameter ====
+
+### run time comparison of the methods that worked for some parameter
 
 set.seed(1)
 x <- runif(100000, min=0.01, max=120)
@@ -205,7 +210,8 @@ stopifnot(all(!is.nan(y.dsumSibuya))) # check
 ## - fastest for small and moderate alpha: "stirling"
 ## - further methods tried: pulling out max() for "stirling" => does not increase precision
 
-## ==== more detailed graphical precision comparison in d = 100 ====
+
+### more detailed graphical precision comparison in d = 100
 
 ## dsumSibuya
 m <- 49
@@ -227,7 +233,8 @@ polyG.ani.stirling <- poly.ani(family, m, d=d, method="stirling",
 saveHTML(for(i in 1:m) print(polyG.ani.stirling[[i]]$plot))
 ## => works for alpha <= 0.56
 
-## ==== check default method ====
+
+### check default method
 
 ## comparison with Maple (Digits = 100)
 v1 <- nacopula:::polyG(log(1), alpha=0.01, d=d, log=TRUE)
@@ -251,9 +258,9 @@ polyG.ani.default <- poly.ani(family, m, d=d, method="default",
 saveHTML(for(i in 1:m) print(polyG.ani.default[[i]]$plot))
 
 
-## ==== Joe ====================================================================
+### Joe ########################################################################
 
-## ==== plots for small d ====
+## plots for small d
 
 set.seed(1)
 family <- "Joe"
@@ -271,7 +278,7 @@ for(i in seq_along(meths)){
 }
 ## => does not work for any reasonable x range
 
-## ==== plots for large d ====
+## plots for large d
 
 set.seed(1)
 d <- 100
@@ -292,7 +299,7 @@ plot.poly(family, xlim=xlim, ylim=ylim, method="log1p", alpha=alpha, d=d)
 plot.poly(family, xlim=xlim, ylim=ylim, method="poly", alpha=alpha, d=d)
 ## => does not work for any reasonable x range
 
-## ==== run time comparison of the methods that worked for some parameter ====
+### run time comparison of the methods that worked for some parameter
 
 set.seed(1)
 x <- runif(100000, min=0.01, max=1e100)

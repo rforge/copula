@@ -15,14 +15,16 @@
 
 require(nacopula)
 
-## ==== Results of using timing() =============================================
+
+### Results of using timing() ##################################################
 
 set.seed(1) # set seed
 
 n <- 10000
-taus <- c(0.05,(1:9)/10,0.95) 
+taus <- c(0.05,(1:9)/10,0.95)
 
-## ==== AMH ====
+
+### AMH
 
 timing(n,"AMH",taus[taus < 0.33])
 
@@ -37,7 +39,8 @@ timing(n,"AMH",taus[taus < 0.33])
 ## V0:  uniformly fast
 ## V01: uniformly fast
 
-## ==== Clayton ====
+
+### Clayton
 
 timing(n,"Clayton",taus)
 
@@ -57,9 +60,10 @@ timing(n,"Clayton",taus)
 
 ## conclusion:
 ## V0:  uniformly fast
-## V01: faster for larger parameter 
+## V01: faster for larger parameter
 
-## ==== Frank ====
+
+### Frank
 
 timing(n,"Frank",taus)
 
@@ -81,7 +85,8 @@ timing(n,"Frank",taus)
 ## V0:  uniformly fast
 ## V01: depending on theta0, theta1, and approx (due to rej)
 
-## ==== Gumbel ====
+
+### Gumbel
 
 timing(n,"Gumbel",taus)
 
@@ -103,7 +108,8 @@ timing(n,"Gumbel",taus)
 ## V0:  uniformly fast
 ## V01: uniformly fast
 
-## ==== Joe ====
+
+### Joe
 
 timing(n,"Joe",taus)
 
@@ -122,6 +128,6 @@ timing(n,"Joe",taus)
 ##      0.95 6   NA   NA   NA   NA   NA   NA   NA   NA   NA   NA
 
 ## conclusion:
-## V0:  (almost) uniformly fast 
+## V0:  (almost) uniformly fast
 ## V01: increasing in theta0 and theta1
 ## V01 depends on theta0 and theta1 [but is bounded due to approx-parameter]

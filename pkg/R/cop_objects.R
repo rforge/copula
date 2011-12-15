@@ -19,7 +19,8 @@
 ## ---------   *and* do work even for (non-numeric) NULL argument
 ##		{now checked in "acopula" validityMethod -- see ./AllClass.R }
 
-### ==== Ali-Mikhail-Haq, see Nelsen (2007) p. 116, # 3 ========================
+
+### Ali-Mikhail-Haq, see Nelsen (2007) p. 116, # 3 #############################
 
 copAMH <-
     (function() { ## to get an environment where  C.  itself is accessible
@@ -182,7 +183,8 @@ copAMH <-
 	C.
     })()# {copAMH}
 
-### ==== Clayton, see Nelsen (2007) p. 116, #1 (slightly simpler form) =========
+
+### Clayton, see Nelsen (2007) p. 116, #1 (slightly simpler form) ##############
 
 copClayton <-
     (function() { ## to get an environment where  C.  itself is accessible
@@ -298,7 +300,8 @@ copClayton <-
 	C.
     })()# {copClayton}
 
-### ==== Frank, see Nelsen (2007) p. 116, # 5 ==================================
+
+### Frank, see Nelsen (2007) p. 116, # 5 #######################################
 
 ##' Frank object
 copFrank <-
@@ -495,7 +498,8 @@ copFrank <-
 	C.
     })()# {copFrank}
 
-### ==== Gumbel, see Nelsen (2007) p. 116, # 4 =================================
+
+### Gumbel, see Nelsen (2007) p. 116, # 4 ######################################
 
 copGumbel <-
     (function() { ## to get an environment where  C.  itself is accessible
@@ -667,7 +671,7 @@ copGumbel <-
     })()# {copGumbel}
 
 
-### ==== Joe, see Nelsen (2007) p. 116, # 6 ====================================
+### Joe, see Nelsen (2007) p. 116, # 6 #########################################
 
 ##' Joe object
 copJoe <-
@@ -844,7 +848,8 @@ copJoe <-
 	C.
     })()# {copJoe}
 
-### ==== naming stuff ==========================================================
+
+### naming stuff ###############################################################
 
 cNms <- c("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe")
 ## == dput(ls("package:nacopula",pat="^cop"))

@@ -17,7 +17,8 @@ require(nacopula)
 
 if(!dev.interactive(orNone=TRUE)) pdf("copula-play.pdf")
 
-##' ==== testing psi ====
+
+### testing psi
 
 myCop <- setTheta(copAMH, value = 0.5) # is maybe more natural
 
@@ -30,7 +31,8 @@ curve(psi(myCop)(x), 0, 4)
 ##' but this can also be done directly [ => same curve "on top" :]
 curve(myCop@psi(x, theta = myCop@theta),  0, 4, col = 2, add = TRUE)
 
-##' ==== testing Kendall's tau ====
+
+### testing Kendall's tau
 
 p.Tau <- function(cop, n = 201, xlim = pmin(paraI, 50), ...) {
     stopifnot(is(cop, "acopula"))
@@ -47,7 +49,8 @@ p.Tau(copFrank, xlim = c(0, 80), ylim= 0:1) # fast via debye_1()
 p.Tau(copGumbel)
 p.Tau(copJoe, ylim = 0:1, yaxs="i")
 
-### ==== test function ==== ------------------------------------------------
+
+### test function ##############################################################
 
 ##' @title stopifnot() plus output
 ##' @param expr
@@ -85,14 +88,14 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     theta0 <- cop@theta
     CT <- list()
 
-    ## ==== (1) cop name ====
+    ### (1) cop name
 
     cat0(sprintf("(1) copula family: %10s, theta0 = %g",
                  cop@name, theta0))
 
-    ## ==== (2) generator ====
+    ### (2) generator
 
-    ## ==== (2.1) psi and psiInv ====
+    ### (2.1) psi and psiInv
 
     cat("\n(2) values of psi at i10:\n")
     CT <- c(CT, list(psi = system.time(p.i <- cop@psi(i10,theta = theta0))))
@@ -110,7 +113,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     cat0("check if psiInv(psi(i10))==i10: ", all.equal(pi.pi, i10))
     cat0("check if psi(psiInv(u01))==u01: ", all.equal(p.pit, u01))
 
-    ## ==== (2.2) psiDabs ====
+    ### (2.2) psiDabs
 
     ## psiDabs with degree = 10
     cat0("\nvalues of psiDabs with degree=10 at i10:")
@@ -137,7 +140,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
               is.numeric(at.0), !is.nan(at.0))
     cat0("[Ok]")
 
-    ## ==== (2.3) psiInvD1abs ====
+    ### (2.3) psiInvD1abs
 
     cat0("\nvalues of psiInvD1abs at u01:")
     CT <- c(CT, list(psiInvD1abs. = system.time(psiInvD1abs. <-
@@ -149,7 +152,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     stopifnot(is.numeric(at.0),!is.nan(at.0))
     cat0("[Ok]")
 
-    ## ==== (3) parameter interval ====
+    ### (3) parameter interval
 
     cat("\n(3) parameter interval:\n")
     print(cop@paraInterval)
@@ -157,7 +160,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     cat0("nesting condition for theta0 and theta1 fulfilled: ",
          cop@nestConstr(theta0,theta1))
 
-    ## ==== (4) V0, dV0, V01, dV01 ====
+    ### (4) V0, dV0, V01, dV01
 
     ## V0
     CT <- c(CT, list(V0 = system.time(V0 <- cop@V0(nRnd,theta0))))
@@ -178,7 +181,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
                      theta1=theta1))))
     print(dV01.i)
 
-    ## ==== (5) cacopula ====
+    ### (5) cacopula
 
     cat("\n(5) values of cacopula(cbind(v,rev(v)), cop) for v=u01:\n")
     cop. <- onacopulaL(cop@name, list(theta0, 1:2))
@@ -187,7 +190,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     stopifnot(is.vector(cac), length(cac) == length(u01), 0 <= cac, cac <= 1)
     print(cac)
 
-    ## ==== (6) dnacopula (log = TRUE) ====
+    ### (6) dnacopula (log = TRUE)
 
     u <- matrix(runif(400),ncol=20)
     ocop.2d <- onacopulaL(cop@name,list(theta0,1:2))
@@ -220,7 +223,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     ## d = 20, check if n.MC > 0 is close to n.MC = 0
     stopifnot(all.equal(lD., lD.., tolerance=0.5))
 
-    ## ==== (7) K ====
+    ### (7) K
 
     check.K.u01 <- function(K){
 	d.K <- diff(K)
@@ -259,7 +262,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
               K(1, cop, d = 10, n.MC = 1000)==1)
     cat0("[Ok]")
 
-    ## ==== (8) tau, tauInv ====
+    ### (8) tau, tauInv
 
     cat("\n(8) tau at thetavec:\n")
     CT <- c(CT, list(tau = system.time(ta <- cop@tau(thetavec))))
@@ -270,7 +273,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     lambdaLvec <- rep(as.double(lambdaLvec), length.out= nt)
     lambdaUvec <- rep(as.double(lambdaUvec), length.out= nt)
 
-    ## ==== (9) lambdaL, lambdaLInv ====
+    ### (9) lambdaL, lambdaLInv
 
     cat("\n(9) lambdaL at thetavec:\n")
     CT <- c(CT, list(lambdaL = system.time(lT <- cop@lambdaL(thetavec))))
@@ -279,7 +282,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     cat0("check if lambdaLInv(lambdaL(thetavec))==lambdaLvec: ",
          all.equal(lT.I, lambdaLvec))
 
-    ## ==== (10) lambdaU, lambdaUInv ====
+    ### (10) lambdaU, lambdaUInv
 
     cat("\n(10) lambdaU at thetavec:\n")
     CT <- c(CT, list(lambdaU = system.time(uT <- cop@lambdaU(thetavec))))
@@ -289,11 +292,11 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
          all.equal(uT.I, lambdaUvec))
     class(CT) <- "proc_time_list"
     CT
-    
-    ## ==== (11) dDiag ====
-    
+
+    ### (11) dDiag
+
     cat("\n(11) dDiag at u01 for d=10:\n")
-    CT <- c(CT, list(dDiag = system.time(dDiag. <- cop@dDiag(u01, theta=theta0, 
+    CT <- c(CT, list(dDiag = system.time(dDiag. <- cop@dDiag(u01, theta=theta0,
                      d=10))))
     print(dDiag.)
     stopifnot(is.numeric(dDiag.), all(dDiag. > 0))
@@ -319,20 +322,21 @@ print.proc_time_list <- function (x, ...) {
     invisible(x)
 }
 
-## ==== copAMH ===============================================================
+
+### copAMH #####################################################################
 
 myAMH <- setTheta(copAMH, 0.7135001)
 thetavec <- c(0.1,0.3,0.5,0.7,0.9)
 set.seed(1)
 tstCop(myAMH, 0.9429679, thetavec = thetavec)
 
-## ==== copClayton ===========================================================
+### copClayton #################################################################
 
 myClayton <- setTheta(copClayton, 0.5)
 thetavec <- c(0.5,1,2,5,10)
 tstCop(myClayton, 2, thetavec, lambdaL = thetavec, lambdaU = NA)
 
-## ==== copFrank =============================================================
+### copFrank ###################################################################
 
 myFrank <- setTheta(copFrank, 1.860884)
 thetavec <- c(0.5,1,2,5,10)
@@ -347,13 +351,13 @@ stopifnot(all.equal(tau.th, tau.F, tol = 0.0001),
           all.equal(myFrank@tauInv(tau.F, tol = 1e-14), thetavec, tol=1e-11))
 
 
-## ==== copGumbel ============================================================
+### copGumbel
 
 myGumbel <- setTheta(copGumbel, 1.25)
 thetavec <- c(1,2,4,6,10)
 tstCop(myGumbel,2, thetavec, lambdaL = NA, lambdaU = thetavec)
 
-## ==== copJoe ===============================================================
+### copJoe #####################################################################
 
 myJoe <- setTheta(copJoe, 1.25)
 thetavec <- c(1.1,2,4,6,10)

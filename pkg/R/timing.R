@@ -13,13 +13,12 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-#### Timing for the implemented nested Archimedean copulas
 
-## ==== timing =================================================================
+### Timing for the implemented nested Archimedean copulas
 
 ##' Computes user times for the admissible parameter combinations provided by "taus"
 ##'
-##' @title Timing frailties 
+##' @title Timing frailties
 ##' @param n number of variates to be generated
 ##' @param family the (nested) Archimedean family to be timed
 ##' @param taus the sequence of Kendall's tau to be tested

@@ -84,7 +84,6 @@ r.dDiag.75 <- lapply(nacopula:::c_longNames,
 r.dDiag.200.L <- lapply(nacopula:::c_longNames,
                     function(family) p.dDiag(family, d = 200, log=TRUE))
 
-
 ### Experiment with and Explore dDiagFrank() methods ----------------------
 ###                             ============
 

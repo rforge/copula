@@ -15,7 +15,8 @@
 
 #### Estimation for nested Archimedean copulas
 
-## ==== initial interval/value for optimization procedures =====================
+
+### initial interval/value for optimization procedures #########################
 
 ##' Compute an initial interval or value for optimization/estimation routines
 ##' (only a heuristic; if this fails, choose your own interval or value)
@@ -74,7 +75,8 @@ initOpt <- function(family, tau.range=NULL, interval=TRUE, u, method=c("tau.Gumb
     })
 }
 
-## ==== Blomqvist's beta =======================================================
+
+### Blomqvist's beta ###########################################################
 
 ##' Compute the sample version of Blomqvist's beta,
 ##' see, e.g., Schmid and Schmidt (2007) "Nonparametric inference on multivariate
@@ -139,7 +141,8 @@ ebeta <- function(u, cop, interval=initOpt(cop@copula@name), ...) {
               interval=interval, Sig=+1, check.conv=TRUE, ...)
 }
 
-## ==== Kendall's tau ==========================================================
+
+### Kendall's tau ##############################################################
 
 ##' Sample tau checker
 ##'
@@ -226,7 +229,8 @@ etau <- function(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...){
        {stop("wrong method")})
 }
 
-## ==== Minimum distance estimation ============================================
+
+### Minimum distance estimation ################################################
 
 ##' Distances for minimum distance estimation
 ##'
@@ -313,7 +317,8 @@ emde <- function(u, cop, method = c("mde.chisq.CvM", "mde.chisq.KS", "mde.gamma.
     }
 }
 
-## ==== Diagonal maximum likelihood estimation =================================
+
+### Diagonal maximum likelihood estimation #####################################
 
 ##' Density of the diagonal of a nested Archimedean copula
 ##'
@@ -393,7 +398,8 @@ edmle <- function(u, cop, interval=initOpt(cop@copula@name), warn=TRUE, ...)
     }
 }
 
-## ==== (Simulated) maximum likelihood estimation ==============================
+
+### (Simulated) maximum likelihood estimation ##################################
 
 ##' (Simulated) maximum likelihood estimation for nested Archimedean copulas
 ##'
@@ -429,12 +435,15 @@ edmle <- function(u, cop, interval=initOpt(cop@copula@name), warn=TRUE, ...)
 ##' @param cop outer_nacopula to be estimated
 ##' @param n.MC if > 0 SMLE is applied with sample size equal to n.MC; otherwise,
 ##'        MLE is applied
+##' @param optimizer optimizer used
+##' @param method optim's method to be used (when optimizer=NULL or "optim")
 ##' @param interval bivariate vector denoting the interval where optimization takes
 ##'        place
+##' @param start list containing the initial value(s) (unfortunately required by mle2)
 ##' @param ... additional parameters for optimize
 ##' @return an "mle2" object with the (simulated) maximum likelihood estimator.
 ##' @author Martin Maechler and Marius Hofert
-##' note: this is the *slower* version which also allows for profiling
+##' Note: this is the *slower* version which also allows for profiling
 emle <- function(u, cop, n.MC=0, optimizer="optimize", method,
 		 interval=initOpt(cop@copula@name),
                  ##vvv awkward to be needed, but it is - by mle2():
@@ -476,7 +485,8 @@ emle <- function(u, cop, n.MC=0, optimizer="optimize", method,
 	mle(minuslogl = nLL, method = method, start=start, ...)
 }
 
-## ==== Estimation wrapper =====================================================
+
+### Estimation wrapper #########################################################
 
 ##' Computes the pseudo-observations for the given data matrix
 ##'

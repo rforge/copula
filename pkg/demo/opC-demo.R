@@ -13,9 +13,10 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-## ==== Demo of the two-parameter outer power Clayton copula ===================
 
-## ==== setup ==================================================================
+### Demo of the two-parameter outer power Clayton copula #######################
+
+### setup ######################################################################
 
 library(nacopula)
 library(bbmle)
@@ -31,7 +32,8 @@ tau <- 0.5 # => psi(t) = psi_thetabase(t^(1/theta)) with (thetabase,theta) = (1,
 ## adjustment for initial value
 h <- c(0.4,0) # h_-, h_+
 
-## ==== functions ==============================================================
+
+### functions ##################################################################
 
 ##' Initial interval for opC
 ##'
@@ -94,7 +96,8 @@ nlogl.opC <- function(thetabase, theta, u){
 ## vectorized version
 nlogl.opC. <- function(theta, u) nlogl.opC(theta[1], theta=theta[2], u=u)
 
-## ==== estimation =============================================================
+
+### estimation #################################################################
 
 ## determine theta such that tau is matched (for given thetabase)
 opC <- opower(copClayton, thetabase) # outer power Clayton copula
@@ -109,7 +112,7 @@ U <- rnacopula(n, cop)
 
 ## plot
 splom2(U, cex=0.4, pscales=0, main=paste("Sample of size",n,
-                              "from an outer power Clayton copula")) 
+                              "from an outer power Clayton copula"))
 
 ## initial interval and value
 I <- ii.opC(U, h)
@@ -137,9 +140,10 @@ system.time(ml2 <- mle2(nlogl.opC, data=list(u=U), method="L-BFGS-B",
 summary(ml2)
 str(ml2@details)
 
-## ==== plots ==================================================================
 
-## ==== profile likelihood plots ===============================================
+### plots ######################################################################
+
+### profile likelihood plots ###################################################
 
 prof <- profile(ml)
 if(FALSE) { ## FIXME (?)
@@ -153,7 +157,8 @@ prof2 <- profile(ml2)
 (ci <- confint(prof2))
 plot(prof2)
 
-## ==== -log-likelihood plots ==================================================
+
+### -log-likelihood plots ######################################################
 
 ## for the plots, we use the standard mathematical notation (theta, beta)
 ## instead of (thetabase, theta)
@@ -165,7 +170,8 @@ beta <- seq(I[1,2], I[2,2], length.out=m) # grid points for theta
 grid <- expand.grid(theta=th, beta=beta) # grid
 val.grid <- apply(grid, 1, nlogl.opC., u=U) # value of the -log-likelihood on the grid
 
-## ==== wireframe ====
+
+### wireframe
 
 ## plot settings
 true.theta <- c(thetabase, theta)
@@ -203,7 +209,8 @@ wireframe(val.grid~grid[,1]*grid[,2], screen=list(z=70, x=-55), zoom=0.95,
              text=list(c("True value", "Optimum of optimizer")), padding.text=3,
              cex=1, align=TRUE, transparent=TRUE))
 
-## ==== levelplot ====
+
+### levelplot
 
 ## plot settings
 xlim. <- c(min(grid[,1]),max(grid[,1]))

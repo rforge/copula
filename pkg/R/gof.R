@@ -15,7 +15,8 @@
 
 #### Goodness-of-fit testing for nested Archimedean copulas
 
-## ==== transformations to univariate quantities ===============================
+
+### transformations to univariate quantities ###################################
 
 ##' Kendall distribution function
 ##'
@@ -123,7 +124,8 @@ gtrafouni <- function(u, method = c("chisq", "gamma", "Remillard", "Genest"))
  	   stop("gtrafouni: unsupported method ", method))
 }
 
-## ==== multivariate transformations ===========================================
+
+### multivariate transformations ###############################################
 
 ##' Transforms vectors of random variates following the given (nested) Archimedean
 ##' copula (with specified parameters) to U[0,1]^d vectors of random variates
@@ -209,7 +211,8 @@ htrafo <- function(u, cop, include.K=TRUE, n.MC=0)
     u.
 }
 
-## ==== Gof wrapper ============================================================
+
+### Gof wrapper ################################################################
 
 ##' Conducts a goodness-of-fit test for the given H0 copula cop based on the
 ##' (copula) data u
@@ -253,7 +256,7 @@ apply the transformations yourself,  see ?gnacopula.")
     if(estimation.method != "mle"){
 	if(estimation.method == "smle") warning("'estimation.method = \"smle\"' may be time-consuming!") else
 	warning("Consistency for the chosen estimation.method is not clear. Additionally, numerical problems might appear.")
-    } 
+    }
 
     ## build multivariate transformation
     trafo <- match.arg(trafo)
