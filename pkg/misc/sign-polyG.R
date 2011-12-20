@@ -52,7 +52,7 @@ sign.fafac(0.8, 17)
 alpha <- 0.9
 d <- 2
 j <- 1:d
-sign.binom(alpha, 1:d, )
+signFF(alpha, 1:d, )
 sign(choose(alpha*j, d)*(-1)^(d-j))
 (-1)^d * (2*(floor(alpha*j) %% 2) - 1) # => formula above is not correct!
 
@@ -60,4 +60,4 @@ sign(choose(alpha*j, d)*(-1)^(d-j))
 alpha <- 0.9
 d <- 3
 j <- 1:d
-all(sign.binom(alpha, 1:d, d) == sign(choose(alpha*j, d)*(-1)^(d-j)))
+all(signFF(alpha, 1:d, d) == sign(choose(alpha*j, d)*(-1)^(d-j)))

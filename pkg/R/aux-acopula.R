@@ -495,33 +495,27 @@ polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
        },
            "pois" =
        {
-           ## determine sign of (-1)^(d-j)*(alpha*j)_d, j=1,..,d
-           signs <- (-1)^k* (2*(floor(alpha*k) %% 2) - 1)
-
            ## build list of b's
            n <- length(lx)
-           x <- exp(lx) ## e^lx = x
+           x <- exp(lx)                                   # e^lx = x
            lppois <- outer(d-k, x, FUN=ppois, log.p=TRUE) # a (d x n)-matrix; log(ppois(d-k, x))
-           llx <- k %*% t(lx) # also a (d x n)-matrix; k*lx
+           llx <- k %*% t(lx)           # also a (d x n)-matrix; k*lx
            labsPoch <- vapply(k, function(j) sum(log(abs(alpha*j-(k-1L)))), NA_real_) # log|(alpha*j)_d|, j=1,..,d
-           lfac <- lfactorial(k) # log(j!), j=1,..,d
+           lfac <- lfactorial(k)        # log(j!), j=1,..,d
            ## build matrix of exponents
            lxabs <- llx + lppois + rep(labsPoch - lfac, n) + rep(x, each = d)
-	   res <- lssum(lxabs, signs, strict=FALSE)
+           res <- lssum(lxabs, signFF(alpha, k, d), strict=FALSE)
            if(log) res else exp(res)
        },
            "pois.direct" =
        {
-           ## determine sign of (-1)^(d-j)*(alpha*j)_d, j=1,..,d
-           signs <- (-1)^k * (2*(floor(alpha*k) %% 2) - 1)
-
            ## build coefficients
            xfree <- lchoose(alpha*k,d) + lfactorial(d) - lfactorial(k)
            x <- exp(lx)
            lppois <- outer(d-k, x, FUN=ppois, log.p=TRUE) # (length(x),d)-matrix
            klx <- lx %*% t(k)
            exponents <- exp(t(x+klx)+lppois+xfree) # (d,length(x))-matrix
-           res <- as.vector(signs %*% exponents)
+           res <- as.vector(signFF(alpha, k, d) %*% exponents)
            if(log) log(res) else res
        },
            "stirling" =
@@ -712,105 +706,101 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 ##' @author Marius Hofert and Martin Maechler
 ##' note: - p_{xn} = 0 for x < n; p_{nn} = alpha^n
 ##'       - numerically challenging, e.g., dsumSibuya(100, 96, 0.01) < 0 for all methods
-dsumSibuya <- function(x, n, alpha,
-                       method=c("log", "direct", "Rmpfr", "diff", "exp.log"), log=FALSE)
+dsumSibuya <- function(x, n, alpha, method=c("log", "direct", "Rmpfr", "diff",
+                                    "exp.log"), log=FALSE)
 {
     stopifnot(x == round(x), n == round(n), n >= 1, length(alpha) == 1,
               0 < alpha, alpha <= 1)
     if((l.x <- length(x)) * (l.n <- length(n)) == 0)
-	return(numeric())
+        return(numeric())
     if((len <- l.x) != l.n) { ## do recycle to common length
-	len <- max(l.x, l.n)
-	if(l.x < len)
-	    x <- rep(x, length.out = len)
-	else ## if(l.n < len)
-	    n <- rep(n, length.out = len)
+        len <- max(l.x, l.n)
+        if(l.x < len)
+            x <- rep(x, length.out = len)
+        else ## if(l.n < len)
+            n <- rep(n, length.out = len)
     }
     if(alpha == 1)
-	return(x == n)
+        return(x == n)
     ii <- seq_len(len)
     method <- if(missing(method) && is(alpha, "mpfr"))
         "Rmpfr" else match.arg(method)
     switch(method,
-	   "log" =
+           "log" =
        {
-	   ## computes *proper* log based on lssum
+           ## computes *proper* log based on lssum
 
-	   ## determine the matrix of signs of choose(alpha*j,x)*(-1)^(x-j),
-	   ## j in {1,..,m} -- which notably do *not* depend on x !
-	   m <- max(n)
-	   signs <- unlist(lapply(1:m, function(j) {
-	       z <- alpha*j
-	       if(z == floor(z)) 0 else (-1)^(j-ceiling(z))
-	   }))
-	   ## for one pair of x and n:
-	   f.one <- function(x,n) {
-	       if(x < n) return(-Inf)	# = log(0)
-	       j <- seq_len(n)
-	       lxabs <- lchoose(n, j) + lchoose(alpha*j, x)
-	       ## *NON*-strict -- otherwise need try() :
-	       lssum(as.matrix(lxabs), signs[j], strict=FALSE)
-	   }
-	   S. <- sapply(ii, function(i) f.one(x[i], n[i]))
-	   if(log) S. else exp(S.)
+           ## determine the matrix of signs of choose(alpha*j,x)*(-1)^(x-j),
+           ## j in {1,..,m} -- which notably do *not* depend on x !
+           signs <- signFF(alpha, 1:max(n), x)
+           ## for one pair of x and n:
+           f.one <- function(x,n) {
+               if(x < n) return(-Inf)	# = log(0)
+               j <- seq_len(n)
+               lxabs <- lchoose(n, j) + lchoose(alpha*j, x)
+               ## *NON*-strict -- otherwise need try() :
+               lssum(as.matrix(lxabs), signs[j], strict=FALSE)
+           }
+           S. <- sapply(ii, function(i) f.one(x[i], n[i]))
+           if(log) S. else exp(S.)
        },
-	   "direct" =
+           "direct" =
        {
-	   ## brute force evaluation of the sum and its log
-	   f.one <- function(x,n) {
-	       if(x < n) return(0)
-	       j <- seq_len(n)
-	       sum(choose(n,j)*choose(alpha*j,x)*(-1)^(x-j))
-	   }
-	   S <- sapply(ii, function(i) f.one(x[i], n[i]))
-	   if(log) log(S) else S
+           ## brute force evaluation of the sum and its log
+           f.one <- function(x,n) {
+               if(x < n) return(0)
+               j <- seq_len(n)
+               sum(choose(n,j)*choose(alpha*j,x)*(-1)^(x-j))
+           }
+           S <- sapply(ii, function(i) f.one(x[i], n[i]))
+           if(log) log(S) else S
        },
-	   "Rmpfr" =
+           "Rmpfr" =
        {
            ## as "direct" but using high-precision arithmetic, where
            ## the precision should be set via alpha = mpfr(*, precBits= .)
-	   stopifnot(require(Rmpfr))
+           stopifnot(require(Rmpfr))
 
            ## FIXME: for one n and many x -- should be made *much* faster!
 
            if(!is(alpha, "mpfr"))
                alpha <- mpfr(alpha, precB = max(100, min(x, 10000)))
-	   mpfr.0 <- mpfr(0, precBits = getPrec(alpha))
-	   f.one <- function(x,n) {
-	       if(x < n) return(mpfr.0)
-	       j <- seq_len(n)
-	       sum(chooseMpfr.all(n)*chooseMpfr(alpha*j,x)*(-1)^(x-j))
-	   }
-	   S <- new("mpfr", unlist(lapply(ii, function(i)
+           mpfr.0 <- mpfr(0, precBits = getPrec(alpha))
+           f.one <- function(x,n) {
+               if(x < n) return(mpfr.0)
+               j <- seq_len(n)
+               sum(chooseMpfr.all(n)*chooseMpfr(alpha*j,x)*(-1)^(x-j))
+           }
+           S <- new("mpfr", unlist(lapply(ii, function(i)
                                           f.one(x[i], n[i]))))
-	   as.numeric(if(log) log(S) else S)
+           as.numeric(if(log) log(S) else S)
        },
            "diff" =
        {
            diff(choose(n:0*alpha, x), differences=n) * (-1)^x
        },
-	   "exp.log" =
+           "exp.log" =
        {
-	   ## similar to method = "log", but without *proper/intelligent* log
-	   ## and inefficient due to the signs (old version)
-	   f.one <- function(x,n) {
-	       if(x < n) return(0)
-	       j <- seq_len(n) ## indices of the summands
-	       signs <- (-1)^(j+x)
-	       ## determine the signs of choose(j*alpha,x) for each component of j
-	       to.subtract <- 0:(x-1)
-	       sig.choose <-
-		   unlist(lapply(j, function(l)
-				 prod(sign(l*alpha-to.subtract)) ))
-	       signs <- signs*sig.choose
-	       binom.coeffs <- exp(lchoose(n,j) + lchoose(j*alpha,x))
-	       sum(signs*binom.coeffs)
-	   }
-	   S <- sapply(ii, function(i) f.one(x[i], n[i]))
-	   if(log) log(S) else S
+           ## similar to method = "log", but without *proper/intelligent* log
+           ## and inefficient due to the signs (old version)
+           f.one <- function(x,n) {
+               if(x < n) return(0)
+               j <- seq_len(n) ## indices of the summands
+               signs <- (-1)^(j+x)
+               ## determine the signs of choose(j*alpha,x) for each component of j
+               to.subtract <- 0:(x-1)
+               sig.choose <-
+                   unlist(lapply(j, function(l)
+                                 prod(sign(l*alpha-to.subtract)) ))
+               signs <- signs*sig.choose
+               binom.coeffs <- exp(lchoose(n,j) + lchoose(j*alpha,x))
+               sum(signs*binom.coeffs)
+           }
+           S <- sapply(ii, function(i) f.one(x[i], n[i]))
+           if(log) log(S) else S
        },
-	   ## otherwise
-	   stop(sprintf("unsupported method '%s' in dsumSibuya", method)))
+           ## otherwise
+           stop(sprintf("unsupported method '%s' in dsumSibuya", method)))
 }
 
 ### polynomial evaluation for Joe

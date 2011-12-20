@@ -44,17 +44,21 @@ log1mexpm <- function(a, cutoff = log(2)) ## << log(2) is optimal >>
 ##' The sign of choose(alpha*j,d)*(-1)^(d-j) vectorized in j
 ##'
 ##' @title The sign of choose(alpha*j,d)*(-1)^(d-j)
-##' @param alpha alpha in (0,1)
+##' @param alpha alpha (scalar) in (0,1]
 ##' @param j integer vector
-##' @param d integer
+##' @param d integer (scalar)
 ##' @return sign(choose(alpha*j,d)*(-1)^(d-j))
 ##' @author Marius Hofert
-sign.binom <- function(alpha, j, d) {
-    stopifnot(0 < alpha, alpha < 1) # for alpha == 1 this function is not correct
+signFF <- function(alpha, j, d) {
+    stopifnot(0 < alpha, alpha <= 1)
     res <- numeric(length(j))
-    x <- alpha*j
-    nint <- x != floor(x) # TRUE iff not integer
-    res[nint] <- (-1)^(j[nint]-ceiling(x[nint]))
+    if(alpha == 1) {
+       res[j == d] <- 1
+    } else {
+        x <- alpha*j
+        ind <- x != floor(x)
+        res[ind] <- (-1)^(j[ind]-ceiling(x[ind]))
+    }
     res
 }
 
