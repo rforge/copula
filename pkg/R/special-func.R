@@ -45,12 +45,15 @@ log1mexpm <- function(a, cutoff = log(2)) ## << log(2) is optimal >>
 ##'
 ##' @title The sign of choose(alpha*j,d)*(-1)^(d-j)
 ##' @param alpha alpha (scalar) in (0,1]
-##' @param j integer vector
-##' @param d integer (scalar)
+##' @param j integer vector in {1,..,d}
+##' @param d integer (scalar) > 0
 ##' @return sign(choose(alpha*j,d)*(-1)^(d-j))
 ##' @author Marius Hofert
+##' Note: If alpha=1, then
+##'       sign( choose(alpha*j, d)*(-1)^(d-j) ) == (-1)^(d-j) if j > d and
+##'       sign( choose(alpha*j, d)*(-1)^(d-j) ) == 0 if j = 0
 signFF <- function(alpha, j, d) {
-    stopifnot(0 < alpha, alpha <= 1)
+    stopifnot(0 < alpha, alpha <= 1, d > 0, 0 < j, j <= d)
     res <- numeric(length(j))
     if(alpha == 1) {
        res[j == d] <- 1
