@@ -434,7 +434,7 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"
 	       s.abs <- abs(Stirling1.all(d))
 	       k <- 1:d
 	       S <- lapply(k, Stirling2.all)## S[[n]][i] contains S(n,i), i = 1,...,n
-	       pol <- vapply(k, function(k.) {
+       pol <- vapply(k, function(k.) {
 		   j <- 0:(d-k.)
 		   ## compute coefficients (c_k = |s(d,j+k)|*S(j+k,k))
 		   c.j <- s.abs[j+k.] * vapply(j, function(i) S[[i+k.]][k.], 1.)
@@ -734,8 +734,10 @@ dsumSibuya <- function(x, n, alpha,
     ## "FIXME": from coeffG(), always have  {x = d, n = 1:d} -- can be faster *not* recycling
     if((len <- l.x) != l.n) { ## do recycle to common length
         len <- max(l.x, l.n)
-        if(l.x < len)
-            x <- rep(x, length.out = len)
+	if(l.x < len) {
+	    x. <- x
+	    x <- rep(x, length.out = len)
+	}
         else ## if(l.n < len)
             n <- rep(n, length.out = len)
     }
@@ -784,19 +786,20 @@ dsumSibuya <- function(x, n, alpha,
                alpha <- mpfr(alpha, precB = max(100, min(x, 10000)))
            mpfr.0 <- mpfr(0, precBits = getPrec(alpha))
 
-	   if(l.x == 1 && l.n == x && all(n == seq_len(x))) { ## Special case -- from coeffG()
+           ## FIXME
+	   if(FALSE && l.x == 1 && l.n == x. && all(n == seq_len(x.))) { ## Special case -- from coeffG()
 	       message("fast special case ..") ## <- just for now
-	       ## change notation (for now)`
-	       j <- n	 # == 1:d
-	       n <- x[1] # == d
+	       ## change notation (for now)
+	       j <- n  # == 1:d
+	       n <- x. # == d
 	       c.n <- chooseMpfr.all(n)
 	       ca.j <- chooseMpfr(alpha*j,n)*(-1)^(n-j)
 	       f.sp <- function(j) {
 		   j. <- seq_len(j)
 		   sum(c.n[j.] * ca.j[j.])
 	       }
-	       S <- new("mpfr", vapply(j, f.sp, 1.))
-
+               stop("fast special case -- is still wrong !")
+	       S <- new("mpfr", unlist(lapply(j, f.sp)))
            } else { ## usual case
                f.one <- function(x,n) {
                    if(x < n) return(mpfr.0)

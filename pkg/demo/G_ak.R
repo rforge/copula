@@ -24,30 +24,50 @@ coeffG <- nacopula:::coeffG
 ### step (1): look at the a_k's, check if they can be evaluated ################
 
 ## Now, explore things seriously :
+
+## use all methods for a set of alpha and d.vec
+meth <- eval(formals(coeffG)$method)
+## for now - do not use deprecated ..
+(meth <- meth[!(meth %in% c("dsumSibuya", "RmpfrM"))])
+
+## need the fixed sapply() {or R >= 2.13.x} :
+if(getRversion() < "2.13")
+    source(system.file("Rsource", "fixup-sapply.R", package="nacopula"))
+
 asN <- function(x, name=deparse(substitute(x))[1]) {
     names(x) <- paste(name, vapply(x, format, ""), sep="=")
     x
 }
-## use all methods for a set of alpha and d.vec
-(meth <- eval(formals(coeffG)$method))
-alpha <- c(.1, .3, .5, .7, .8, .9, .99, .995)## = 1 - tau
-d.vec <- c(5,10*(1:10), 20*(6:10))
+cG.all <- function(alphas, d.s, meths = NULL) {
+    stopifnot(is.numeric(alpha), is.numeric(d.vec))
+    if(is.null(meths)) {
+        meths <- eval(formals(coeffG)$method)
+        ## for now - do not use deprecated ..
+        meths <- meths[!(meths %in% c("dsumSibuya", "RmpfrM"))]
+    } else stopifnot(is.character(meths))
 
-## *really* need the fixed sapply() {or R >= 2.13.x} !
-## get the improved sapply():
-if(getRversion() < "2.13")
-    source(system.file("Rsource", "fixup-sapply.R", package="nacopula"))
+    sapply(asN(d.vec, "d"), function(d) {
+        cat("\nd = ", d,"\n--------\n\n")
+        sapply(asN(alpha), function(al) {
+            cat("alpha = ", format(al), "\n")
+            sapply(meth, coeffG, d=d, alpha=al, log=TRUE)
+        }, simplify = "array")
+    }, simplify=FALSE)
+}
+
+alphas <- c(.1, .3, .5, .7, .8, .9, .99, .995)## = 1 - tau
+## desirable, but too long for demo:
+## d.vec <- c(5,10*(1:10), 20*(6:10))
+##--> smaller and fewer for now:
+d.vec <- c(5,10*c(1:3, 5, 7, 10, 15))
+d.vec <- c(5,10*c(1:3, 5))
 
 options(warn = 1)# show them immediately
 
-ak.all <- sapply(asN(d.vec, "d"), function(d) {
-    cat("\nd = ", d,"\n--------\n\n")
-    sapply(asN(alpha), function(al) {
-        cat("alpha = ", format(al), "\n")
-        sapply(meth, coeffG, d=d, alpha=al, log=TRUE)
-    }, simplify = "array")
-}, simplify=FALSE)
-## --> > 50 warnings
+ak.all <- cG.all(alphas = alphas, d.s = d.vec)
+## --> > many warnings, only for  d >= 30
+## d =  30, alpha in {0.1, 0.3}
+## d >= 40: for all alpha
 
 str(head(ak.all, 3))
 ak.all$`d=20`[,,"alpha=0.99"]
