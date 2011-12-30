@@ -45,15 +45,15 @@ log1mexpm <- function(a, cutoff = log(2)) ## << log(2) is optimal >>
 ##'
 ##' @title The sign of choose(alpha*j,d)*(-1)^(d-j)
 ##' @param alpha alpha (scalar) in (0,1]
-##' @param j integer vector in {1,..,d}
-##' @param d integer (scalar) > 0
+##' @param j integer vector in {0,..,d}
+##' @param d integer (scalar) >= 0
 ##' @return sign(choose(alpha*j,d)*(-1)^(d-j))
 ##' @author Marius Hofert
 ##' Note: If alpha=1, then
 ##'       sign( choose(alpha*j, d)*(-1)^(d-j) ) == (-1)^(d-j) if j > d and
 ##'       sign( choose(alpha*j, d)*(-1)^(d-j) ) == 0 if j = 0
 signFF <- function(alpha, j, d) {
-    stopifnot(0 < alpha, alpha <= 1, d > 0, 0 < j, j <= d)
+    stopifnot(0 < alpha, alpha <= 1, d >= 0, 0 <= j, j <= d)
     res <- numeric(length(j))
     if(alpha == 1) {
        res[j == d] <- 1
@@ -306,6 +306,8 @@ Eulerian.all <- function(n)
     stopifnot(length(n) == 1, n >= 0)
     if(!n) return(1)
     if(get("Eul.full.n", .nacopEnv) < n) {
+        ## FIXME: do the assign() only when the lapply() below does *not* fail
+        ##  on.exit( ... ) ?
 	assign("Eul.full.n", n, envir = .nacopEnv)
 	unlist(lapply(0:(n-1L), Eulerian, n=n))# which fills "Eul.tab"
     }

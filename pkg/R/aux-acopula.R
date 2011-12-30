@@ -362,7 +362,7 @@ dDiagFrank <- function(u, theta, d, log=FALSE,
 ##'    "sort":          compute coefficients via exp(log()) pulling out the maximum, and sort
 ##'    "horner":        uses polynEval()
 ##'    "direct":        brute force approach
-##'    "dsumSibuya":    uses dsumSibuya() - FIXME? allow to specify *which* dsumS.. method
+##'    "dsSib.<FOO>":   uses dsumSibuya(..., method= "<FOO>")
 ##' @param log boolean which determines if the logarithm is returned
 ##' @param verbose logical for method == sort
 ##' @return a_{dk}(theta) = (-1)^{d-k}\sum_{j=k}^d alpha^j * s(d,j) * S(j,k), k in
@@ -371,14 +371,25 @@ dDiagFrank <- function(u, theta, d, log=FALSE,
 ##' Note: - This function is known to cause numerical problems, e.g., for d=100,
 ##'         alpha=0.8
 ##'       - sign(s(n,k)) = (-1)^{n-k}
-coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"),
+coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya",
+			     paste("dsSib", eval(formals(dsumSibuya)$method), sep=".")),
 		   log = FALSE, verbose = FALSE)
 {
     stopifnot(is.numeric(d), length(d) == 1, d >= 1, length(alpha) == 1,
-              0 < alpha, alpha <= 1)
+	      0 < alpha, alpha <= 1)
     a <- numeric(d) # for the a_{dk}(theta)'s
     method <- match.arg(method)
-    switch(method,
+    if(method == "dsumSibuya") {
+        message("method 'dsumSibuya' is deprecated.\n  ",
+        	"use method = 'dsSib.log' instead")
+        method <- "dsSib.log"
+    }
+    Meth <-
+	if(grepl("^dsSib", method)) {
+	    meth.dsSib <- sub("^dsSib\\.(.*)", "\\1", method)
+	    "dsSib"
+	} else method
+    switch(Meth,
 	   "sort" = {
 	       ls <- log(abs(Stirling1.all(d))) # log(|s(d, i)|), i=1:d
 	       lS <- lapply(1:d, function(n) log(Stirling2.all(n)))
@@ -408,26 +419,25 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"
 		   attr(a, "wrong.signs") <- wrong.sign
 	       a
 	   },
-	   "dsumSibuya" = {
+	   "dsSib" = {
 	       ## coefficients via dsumSibuya
 	       ## a_{dk}(theta) = d!/k! * dsumSibuya(d, k, alpha)
 	       k <- 1:d
 	       ck <- ## c_k := d!/k!
 		   if(log) c(0,cumsum(log(d:2)))[d:1]
 		   else c(1,cumprod(d:2))[d:1]
-	       p <- dsumSibuya(d, k, alpha, log=log)
+	       p <- dsumSibuya(d, k, alpha, method = meth.dsSib, log=log)
+               ##   ----------              -------------------
 	       if(log) p + ck else p * ck
 	   },
 	   "horner" = {
 	       s.abs <- abs(Stirling1.all(d))
-	       S <- lapply(1:d, Stirling2.all)
-               ## S[[n]][i] contains S(n,i), i = 1,...,n
 	       k <- 1:d
+	       S <- lapply(k, Stirling2.all)## S[[n]][i] contains S(n,i), i = 1,...,n
 	       pol <- vapply(k, function(k.) {
 		   j <- 0:(d-k.)
 		   ## compute coefficients (c_k = |s(d,j+k)|*S(j+k,k))
-		   c.j <- s.abs[j+k.] *
-		       unlist(lapply(j, function(i) S[[i+k.]][k.]))
+		   c.j <- s.abs[j+k.] * vapply(j, function(i) S[[i+k.]][k.], 1.)
 		   polynEval(c.j, -alpha)
 	       }, NA_real_)
 
@@ -436,11 +446,11 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"
 	   "direct" = {
 	       s <- Stirling1.all(d) # s(d,1), ..., s(d,d)
 	       k <- 1:d
-	       S <- lapply(k, Stirling2.all) # S[[k]][n] contains S(k,n), n = 1,...,k
+	       S <- lapply(k, Stirling2.all)## S[[n]][i] contains S(n,i), i = 1,...,n
 	       vapply(k, function(k.) {
 		   j <- k.:d
 		   ## extract a column of Stirling2 numbers:
-		   S. <- unlist(lapply(j, function(i) S[[i]][k.]))
+		   S. <- vapply(j, function(i) S[[i]][k.], 1.)
 		   sm <- sum(alpha^j * s[j]*S.)
 		   if(log) log(abs(sm)) else (-1)^(d-k.)*sm
 	       }, NA_real_)
@@ -458,7 +468,7 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"
 ##' @param lx = log(x); where x: evaluation point (vector);
 ##'        e.g., for copGumbel@dacopula, lx = alpha*log(rowSums(psiInv(u)))
 ##'        where u = (u_1,..,u_d) is the evaluation point of the density of Joe's copula)
-##' @param alpha parameter (1/theta) in (0,1]
+##' @param alpha parameter in (0,1]   alpha := 1/theta = 1 - tau
 ##' @param d number of summands, >= 1
 ##' @param method a string, one of
 ##'   "default"         uses a combination of the other methods
@@ -466,10 +476,7 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"
 ##'   "pois"            uses ppois with pulling out max
 ##'   "stirling"        uses the representation via Stirling numbers and once horner
 ##'   "stirling.horner" uses the representation via Stirling numbers and twice horner
-##'   "sort"            compute the coefficients via exp(log()), pulling out the max and sort
-##'   "horner"          uses polynEval
-##'   "direct"          brute force approach
-##'   "dsumSibuya"            uses dsumSibuya()
+##'    .....            all the method from coeffG(), see there
 ##' @param log boolean which determines if the logarithm is returned
 ##' @return \sum_{k=1}^d  a_{dk}(\theta)  x ^ k
 ##'       = \sum_{k=1}^d  a_{dk} *     exp(lx*k)
@@ -477,21 +484,30 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"
 ##'       = (-1)^{d-k}\sum_{j=k}^d \theta^{-j} s(d,j) S(j,k)
 ##'       = (d!/k!)\sum_{l=1}^k (-1)^{d-l} \binom{k}{l}\binom{\alpha l}{d}
 ##' @author Marius Hofert
-polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
-                                "stirling", "stirling.horner", "sort", "horner",
-                                "direct", "dsumSibuya"), log=FALSE)
+polyG <- function(lx, alpha, d, method=
+                  c("default", "pois", "pois.direct", "stirling", "stirling.horner",
+                    coeffG.methods),
+                  log=FALSE)
 {
+    stopifnot(length(alpha)==1, 0 < alpha, alpha <= 1,
+              d == as.integer(d), d >= 1)
     k <- 1:d
-    stopifnot(length(alpha)==1, 0 < alpha, alpha <= 1)
-    method <- match.arg(method)
-    switch(method,
+    ## with a fixed match.arg(): method <- match.arg(method) ## -- R 2.15. ??
+    method <- match.arg(method, choices = eval(formals()[["method"]]))
+    Meth <- if(method %in% coeffG.methods) "coeffG" else method
+    switch(Meth,
 	   "default" =
        {
-	   method <- if(d <= 100)
-               if(alpha <= 0.54) "stirling" else if(alpha <= 0.77)
-                   "pois.direct" else "dsumSibuya"
-           else "pois" # slower but more stable, e.g., for d=150
-	   polyG(lx=lx, alpha=alpha, d=d, method=method, log=log)
+           ## default method: the following is clearly too simple
+           ## ------- should even use different methods for different  x := exp(lx)
+
+	   Recall(lx, alpha=alpha, d=d,
+                  method = if(d <= 100) {
+                      if(alpha <= 0.54) "stirling"
+                      else if(alpha <= 0.77) "pois.direct"
+                      else "dsSib.log"
+                  } else "pois", # slower but more stable, e.g., for d=150
+                  log=log)
        },
            "pois" =
        {
@@ -541,21 +557,21 @@ polyG <- function(lx, alpha, d, method=c("default", "pois", "pois.direct",
 	   s <- Stirling1.all(d) # s(d,1), ..., s(d,d)
 	   S <- lapply(k, Stirling2.all) # S[[l]][n] contains S(l,n), n = 1,...,l
 	   len <- length(x)
-           poly <- matrix(unlist(lapply(k, function(k.) polynEval(S[[k.]],-x))), nrow=len) # (len,d)-matrix
-           res <- (-1)^(d-1)*alpha*x*unlist(lapply(1:len, function(x) polynEval(s*poly[x,], alpha)))
+           poly <- matrix(vapply(k, function(k.) polynEval(S[[k.]],-x), 1.), nrow=len) # (len,d)-matrix
+           res <- (-1)^(d-1)*alpha*x* vapply(1:len, function(i) polynEval(s*poly[i,], alpha), 1.)
            if(log) log(res) else res
            ## the following code was *not* faster
            ## poly <- t(sapply(k, function(k.) polynEval(S[[k.]],-x))) # (d,len(x))-matrix
            ## coeff <- if(length(x)==1) t(s*poly) else s*poly
            ## res <- (-1)^(d-1)*alpha*x*apply(coeff, 2, polynEval, x=alpha)
        },
-           "sort" =, "horner" =, "direct" =, "dsumSibuya" =
+           "coeffG" = ## <<< all the different 'coeffG' methods --------------------
        {
-           ## note: these methods are all know to show numerical deficiencies
+           ## note: these methods are all known to show numerical deficiencies
            if(d > 220) stop("d > 220 not yet supported") # would need Stirling2.all(d, log=TRUE)
            ## compute the log of the coefficients:
-           a.dk <- coeffG(d, alpha, method=method)
-           l.a.dk <- log(a.dk) # note: theoretically a.dk > 0 but due to numerical issues, this might not always be the case
+	   l.a.dk <- coeffG(d, alpha, method=method, log = TRUE)
+	   ##	     ~~~~~~			     ~~~~~~~~~~
            ## evaluate the sum
            ## for this, create a matrix B with (k,i)-th entry
            ## B[k,i] = log(a_{dk}(theta)) + k * lx[i],
@@ -688,31 +704,34 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 ### polynomial evaluation for Joe
 
 ##' Inner probability mass function for a nested Joe copula, i.e. a Sibuya sum
+##' also used in coeffG() -> polyG() for Gumbel's copula
 ##'
 ##' @title Inner probability mass function for a nested Joe copula
-##' @param x vector (or number) of natural numbers >= n
+##' @param x vector (or number) of natural numbers
 ##' @param n vector (or number) of natural numbers
 ##' @param alpha parameter in (0,1]
 ##' @param method method applied
 ##'        log:      proper log computation based on lssum
 ##'        direct:   brute-force evaluation of the sum and its log
-##'        Rmpfr:    multi-precision
+##'        Rmpfr, RmpfrM:    multi-precision; the latter *return* multi-prec.
 ##'        diff:     via forward differences
 ##'        exp.log:  similar to method = "log", but without *proper/intelligent* log
 ##' @param log boolean which determines if the logarithm is returned
-##' @return p_{xn} = \sum_{j=1}^n choose(n,j)*choose(alpha*j,x)*(-1)^(x-j)
+##' @return p_{x,n} = \sum_{j=1}^n choose(n,j)*choose(alpha*j,x)*(-1)^(x-j)
 ##'         which is a probability mass function in x on IN with generating function
 ##'         g(z) = (1-(1-z)^alpha)^n
 ##' @author Marius Hofert and Martin Maechler
-##' note: - p_{xn} = 0 for x < n; p_{nn} = alpha^n
+##' note: - p_{x,n} = 0 for x < n;  p_{n,n} = alpha^n
 ##'       - numerically challenging, e.g., dsumSibuya(100, 96, 0.01) < 0 for all methods
-dsumSibuya <- function(x, n, alpha, method=c("log", "direct", "Rmpfr", "diff",
-                                    "exp.log"), log=FALSE)
+dsumSibuya <- function(x, n, alpha,
+                       method= c("log", "direct", "Rmpfr", "RmpfrM", "diff", "exp.log"),
+                       log=FALSE)
 {
-    stopifnot(x == round(x), n == round(n), n >= 1, length(alpha) == 1,
+    stopifnot(x == round(x), n == round(n), n >= 0, length(alpha) == 1,
               0 < alpha, alpha <= 1)
-    if((l.x <- length(x)) * (l.n <- length(n)) == 0)
+    if((l.x <- length(x)) == 0 || (l.n <- length(n)) == 0)
         return(numeric())
+    ## "FIXME": from coeffG(), always have  {x = d, n = 1:d} -- can be faster *not* recycling
     if((len <- l.x) != l.n) { ## do recycle to common length
         len <- max(l.x, l.n)
         if(l.x < len)
@@ -732,7 +751,7 @@ dsumSibuya <- function(x, n, alpha, method=c("log", "direct", "Rmpfr", "diff",
 
            ## determine the matrix of signs of choose(alpha*j,x)*(-1)^(x-j),
            ## j in {1,..,m} -- which notably do *not* depend on x !
-           signs <- signFF(alpha, 1:max(n), x)
+           signs <- signFF(alpha, seq_len(max(n)), x)
            ## for one pair of x and n:
            f.one <- function(x,n) {
                if(x < n) return(-Inf)	# = log(0)
@@ -741,8 +760,8 @@ dsumSibuya <- function(x, n, alpha, method=c("log", "direct", "Rmpfr", "diff",
                ## *NON*-strict -- otherwise need try() :
                lssum(as.matrix(lxabs), signs[j], strict=FALSE)
            }
-           S. <- sapply(ii, function(i) f.one(x[i], n[i]))
-           if(log) S. else exp(S.)
+	   S <- mapply(f.one, x, n, USE.NAMES = FALSE)
+           if(log) S else exp(S)
        },
            "direct" =
        {
@@ -752,32 +771,49 @@ dsumSibuya <- function(x, n, alpha, method=c("log", "direct", "Rmpfr", "diff",
                j <- seq_len(n)
                sum(choose(n,j)*choose(alpha*j,x)*(-1)^(x-j))
            }
-           S <- sapply(ii, function(i) f.one(x[i], n[i]))
+	   S <- mapply(f.one, x, n, USE.NAMES = FALSE)
            if(log) log(S) else S
        },
-           "Rmpfr" =
+           "Rmpfr" =,
+           "RmpfrM" =
        {
            ## as "direct" but using high-precision arithmetic, where
            ## the precision should be set via alpha = mpfr(*, precBits= .)
            stopifnot(require(Rmpfr))
-
-           ## FIXME: for one n and many x -- should be made *much* faster!
-
            if(!is(alpha, "mpfr"))
                alpha <- mpfr(alpha, precB = max(100, min(x, 10000)))
            mpfr.0 <- mpfr(0, precBits = getPrec(alpha))
-           f.one <- function(x,n) {
-               if(x < n) return(mpfr.0)
-               j <- seq_len(n)
-               sum(chooseMpfr.all(n)*chooseMpfr(alpha*j,x)*(-1)^(x-j))
+
+	   if(l.x == 1 && l.n == x && all(n == seq_len(x))) { ## Special case -- from coeffG()
+	       message("fast special case ..") ## <- just for now
+	       ## change notation (for now)`
+	       j <- n	 # == 1:d
+	       n <- x[1] # == d
+	       c.n <- chooseMpfr.all(n)
+	       ca.j <- chooseMpfr(alpha*j,n)*(-1)^(n-j)
+	       f.sp <- function(j) {
+		   j. <- seq_len(j)
+		   sum(c.n[j.] * ca.j[j.])
+	       }
+	       S <- new("mpfr", vapply(j, f.sp, 1.))
+
+           } else { ## usual case
+               f.one <- function(x,n) {
+                   if(x < n) return(mpfr.0)
+                   j <- seq_len(n)
+                   sum(chooseMpfr.all(n)*chooseMpfr(alpha*j,x)*(-1)^(x-j))
+               }
+               S <- new("mpfr", mapply(f.one, x, n, USE.NAMES=FALSE))
            }
-           S <- new("mpfr", unlist(lapply(ii, function(i)
-                                          f.one(x[i], n[i]))))
-           as.numeric(if(log) log(S) else S)
+           if(method == "Rmpfr")
+               as.numeric(if(log) log(S) else S)
+           else           if(log) log(S) else S
        },
-           "diff" =
+	   "diff" =
        {
-           diff(choose(n:0*alpha, x), differences=n) * (-1)^x
+	   S. <- mapply(function(x,n) diff(choose(n:0*alpha, x), differences=n) * (-1)^x,
+			x, n, USE.NAMES = FALSE)
+	   if(log) log(S.) else S.
        },
            "exp.log" =
        {
@@ -789,14 +825,14 @@ dsumSibuya <- function(x, n, alpha, method=c("log", "direct", "Rmpfr", "diff",
                signs <- (-1)^(j+x)
                ## determine the signs of choose(j*alpha,x) for each component of j
                to.subtract <- 0:(x-1)
-               sig.choose <-
-                   unlist(lapply(j, function(l)
-                                 prod(sign(l*alpha-to.subtract)) ))
+	       sig.choose <-
+		   vapply(j, function(l) prod(sign(l*alpha-to.subtract)),
+			  1., USE.NAMES=FALSE)
                signs <- signs*sig.choose
                binom.coeffs <- exp(lchoose(n,j) + lchoose(j*alpha,x))
                sum(signs*binom.coeffs)
            }
-           S <- sapply(ii, function(i) f.one(x[i], n[i]))
+	   S <- mapply(f.one, x, n, USE.NAMES = FALSE)
            if(log) log(S) else S
        },
            ## otherwise
@@ -1148,3 +1184,7 @@ getAcop <- function(family, check=TRUE) {
         family
     else stop("'family' must be an \"acopula\" object or family name")
 }
+
+
+coeffG.methods <- eval(formals(coeffG)$method)# - namespace hidden
+## --> accesses formals(dsumSibuya) .. hence at end

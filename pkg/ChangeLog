@@ -1,3 +1,8 @@
+2011-12-27  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/aux-acopula.R (coeffG): 'method' now contains all dsumSibuya()
+	methods; former "dsumSibuya" is deprecated in favor of "dsSib.log".
+
 2011-08-31  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.7-9, ready for CRAN; released as 0.7-9-1, 2011-09-23

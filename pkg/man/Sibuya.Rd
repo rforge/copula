@@ -41,8 +41,9 @@ rSibuya(n, alpha)
 dSibuya(x, alpha, log=FALSE)
 pSibuya(x, alpha, lower.tail=TRUE, log.p=FALSE)
 
-dsumSibuya(x, n, alpha, method=c("log", "direct", "Rmpfr", "diff", 
-           "exp.log"), log=FALSE)
+dsumSibuya(x, n, alpha,
+           method=c("log", "direct", "Rmpfr", "RmpfrM", "diff", "exp.log"),
+           log=FALSE)
 }
 \arguments{
   \item{n}{
@@ -65,10 +66,14 @@ dsumSibuya(x, n, alpha, method=c("log", "direct", "Rmpfr", "diff",
 	  sum(j=1..n) choose(n,j) * choose(j*alpha,x) * (-1)^(x-j)}
 	in a numerically stable way;}
       \item{\code{"direct"}}{directly evaluates the sum;}
-      \item{\code{"Rmpfr"}}{as \code{method="direct"} but using high-precision arithmetic;}
+      \item{\code{"Rmpfr"} an \code{"RmpfrM"}}{are as \code{method="direct"}
+        but use high-precision arithmetic; \code{"Rmpfr"} returns
+           \code{\link{double}}s whereas \code{"RmpfrM"} gives
+           \code{\link[Rmpfr]{mpfr}} high-precision numbers.
+      }
       \item{\code{"diff"}}{interprets the sum as a forward difference
 	and computes it via \code{diff};}
-      \item{\code{"exp.log"}}{as \code{method="log"} but without
+      \item{\code{"exp.log"}}{is as \code{method="log"} but without
 	numerically stable evaluation (not recommended, use with care).}
     }
   }

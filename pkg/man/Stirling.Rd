@@ -43,8 +43,8 @@ Eulerian.all (n)
 \value{
   \eqn{A(n,k)}, \eqn{s(n,k)} or \eqn{S(n,k) = S^{(k)}_n}{S(n,k)}, respectively.
 
-  \code{Eulerian.all(n)} is the same as \code{sapply(0:(n-1), Stirling1,
-  n=n)} (for \eqn{n > 0}), \cr
+  \code{Eulerian.all(n)} is the same as \code{sapply(0:(n-1), Eulerian, n=n)}
+  (for \eqn{n > 0}), \cr
   \code{Stirling1.all(n)} is the same as \code{sapply(1:n, Stirling1, n=n)},
   and\cr
   \code{Stirling2.all(n)} is the same as \code{sapply(1:n, Stirling2, n=n)},
