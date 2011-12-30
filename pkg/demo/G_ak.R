@@ -30,13 +30,15 @@ asN <- function(x, name=deparse(substitute(x))[1]) {
 }
 ## use all methods for a set of alpha and d.vec
 (meth <- eval(formals(coeffG)$method))
-alpha <- c(.3, .5, .7, .8, .9, .99, .995)
-d.vec <- c(5,seq(10, 90, by=5))
+alpha <- c(.1, .3, .5, .7, .8, .9, .99, .995)## = 1 - tau
+d.vec <- c(5,10*(1:10), 20*(6:10))
 
 ## *really* need the fixed sapply() {or R >= 2.13.x} !
 ## get the improved sapply():
 if(getRversion() < "2.13")
     source(system.file("Rsource", "fixup-sapply.R", package="nacopula"))
+
+options(warn = 1)# show them immediately
 
 ak.all <- sapply(asN(d.vec, "d"), function(d) {
     cat("\nd = ", d,"\n--------\n\n")
@@ -75,7 +77,7 @@ chk.all # quite interesting
 
 ## An example showing that for  "dsumSibuya" the problem is exactly *small* alphas:
 plot (a.k.H <- coeffG(100, 0.01, method = "horner"), type = "l", lwd=3, log="y")
-lines(a.k.J <- coeffG(100, 0.01, method = "dsumSibuya"), col=2, type ="o")
+lines(a.k.J <- coeffG(100, 0.01, method = "dsSib.log"), col=2, type ="o")
 lines(a.k.s <- coeffG(100, 0.01, method = "sort"), col=3, type ="l")
 lines(a.k.d <- coeffG(100, 0.01, method = "direct"),
       col=adjustcolor("blue"), type ="l", lwd=4)
