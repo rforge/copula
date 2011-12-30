@@ -37,11 +37,10 @@ initOpt <- function(family, tau.range=NULL, interval=TRUE, u, method=c("tau.Gumb
                                                               "tau.mean"), warn=TRUE, ...){
     cop <- getAcop(family)
     if(is.null(tau.range)){
-	eps <- 1e-8
         tau.range <- switch(cop@name, # limiting (attainable) taus that can be dealt with in estimation/optimization/root-finding
-                            "AMH" = { c(0, 1/3-eps) },
-                            "Clayton" = { c(eps, 0.95) },
-                            "Frank" = { c(eps, 0.94) }, # FIXME: beyond that, estimation.gof() fails for ebeta()!
+                            "AMH" = { c(0, 1/3-5e-5) }, # FIXME: closer to 1, emle's mle2 fails
+                            "Clayton" = { c(1e-8, 0.95) },
+                            "Frank" = { c(1e-8, 0.94) }, # FIXME: beyond that, estimation.gof() fails for ebeta()!
                             "Gumbel" = { c(0, 0.95) },
                             "Joe" = { c(0, 0.95) },
                             stop("unsupported family for initOpt"))
