@@ -18,7 +18,61 @@ library(nacopula)
 #### Testing /  exploring  coeffG(), the coefficients  a_k  for
 #### the Gumbel copula's generator derivatives and copula density
 
-coeffG <- nacopula:::coeffG
+###--- Part 1 ----  Investigate  dsumSibuya() -----------------
+
+## Use dsumSibuya() the way it's used from coeffG() :
+dsSib <- function(d, alpha, method, log=TRUE) {
+    stopifnot(length(d) == 1, d >= 1, is.numeric(alpha), is.character(method))
+    dsumSibuya(x=d, n = 1:d, alpha=alpha, method=method, log=log)
+}
+(ds.MethsA <- eval(formals(dsumSibuya)$method))
+ds.Meths  <- ds.MethsA[ds.MethsA != "RmpfrM"]
+(ds.Meths1 <- ds.Meths [ds.Meths  != "Rmpfr"])
+dsSibA <- function(d, alpha, methods = ds.Meths, log=TRUE) {
+    stopifnot(length(d) == 1, d >= 1, is.numeric(alpha))
+    structure(
+              vapply(methods, dsumSibuya, FUN.VALUE = rep.int(NA_real_, d),
+                     x=d, n = 1:d, alpha=alpha, log=log),
+              alpha=alpha, log=log)
+}
+p.dsSib <- function(dsSmat, type="l", ...) {
+    stopifnot(is.matrix(dsSmat), (p <- ncol(dsSmat)) >= 1,
+              is.numeric(alp <- attr(dsSmat, "alpha")))
+    d <- nrow(dsSmat)
+    matplot (dsSmat, type=type, xlab = quote(k), ylab = "",
+             main = paste("dsumSibuya(x= (d= )", d,
+             ", n= (k= ) 1:d, alpha=", formatC(alp),", log = ",attr(dsSmat,"log"),")",
+             sep=""), col=1:p, lty=1, ...)
+    legend("topright", colnames(dsSmat),
+           pch = if(type %in%c("o","b","p")) paste(1:p),
+           col=1:p, lty=1, bty="n")
+}
+
+str(m50..1 <- dsSibA(50, alpha = 0.1))
+stopifnot(is.matrix(m50..1))
+p.dsSib(m50..1)## -- now Rmpfr has no NaN anymore!
+
+p.dsSib(dsSibA(60, alpha = 0.4))
+p.dsSib(dsSibA(70, alpha = 0.4))
+p.dsSib(dsSibA(80, alpha = 0.4), type="b")
+
+p.dsSib(dsSibA(70,  alpha = 0.1))
+## more extreme:
+p.dsSib(dsSibA(100, alpha = 0.01))
+
+##--> For small alpha and "large" d,  even Rmpfr
+## is not good enough...
+
+## Look at the values *before* log(.) :
+dsumSibuya(50, 1:50, alpha=0.1, method="Rmpfr")
+dd <- dsumSibuya(50, 1:50, alpha=mpfr(0.1, 200), method="Rmpfr")# now -- higher prec. -- all fine!
+plot(dd, log="y")
+
+
+
+###--- Part 2 ------------------------------------------------
+
+ coeffG <- nacopula:::coeffG
 
 
 ### step (1): look at the a_k's, check if they can be evaluated ################
@@ -26,9 +80,13 @@ coeffG <- nacopula:::coeffG
 ## Now, explore things seriously :
 
 ## use all methods for a set of alpha and d.vec
-meth <- eval(formals(coeffG)$method)
-## for now - do not use deprecated ..
-(meth <- meth[!(meth %in% c("dsumSibuya", "RmpfrM"))])
+cGmeths <- function() {
+    mm <- eval(formals(coeffG)$method)
+    ## for now - do not use deprecated,..
+    mm[!(mm %in% c("dsumSibuya", "dsSib.RmpfrM"))]
+}
+
+cGmeths()
 
 ## need the fixed sapply() {or R >= 2.13.x} :
 if(getRversion() < "2.13")
@@ -38,24 +96,22 @@ asN <- function(x, name=deparse(substitute(x))[1]) {
     names(x) <- paste(name, vapply(x, format, ""), sep="=")
     x
 }
-cG.all <- function(alphas, d.s, meths = NULL) {
-    stopifnot(is.numeric(alpha), is.numeric(d.vec))
-    if(is.null(meths)) {
-        meths <- eval(formals(coeffG)$method)
-        ## for now - do not use deprecated ..
-        meths <- meths[!(meths %in% c("dsumSibuya", "RmpfrM"))]
-    } else stopifnot(is.character(meths))
 
-    sapply(asN(d.vec, "d"), function(d) {
+cG.all <- function(alpha, d.s, meths = NULL) {
+    if(is.null(meths)) meths <- cGmeths()
+    stopifnot(is.numeric(alpha), is.numeric(d.s), is.character(meths))
+    ##
+    ## the asN(.) below ensure nice dimnames
+    sapply(asN(d.s, "d"), function(d) {
         cat("\nd = ", d,"\n--------\n\n")
         sapply(asN(alpha), function(al) {
             cat("alpha = ", format(al), "\n")
-            sapply(meth, coeffG, d=d, alpha=al, log=TRUE)
+            sapply(meths, coeffG, d=d, alpha=al, log=TRUE)
         }, simplify = "array")
     }, simplify=FALSE)
 }
 
-alphas <- c(.1, .3, .5, .7, .8, .9, .99, .995)## = 1 - tau
+alph.vec <- c(.1, .3, .5, .7, .8, .9, .99, .995)## = 1 - tau
 ## desirable, but too long for demo:
 ## d.vec <- c(5,10*(1:10), 20*(6:10))
 ##--> smaller and fewer for now:
@@ -64,13 +120,15 @@ d.vec <- c(5,10*c(1:3, 5))
 
 options(warn = 1)# show them immediately
 
-ak.all <- cG.all(alphas = alphas, d.s = d.vec)
+ak.all <- cG.all(alpha = alph.vec, d.s = d.vec)
 ## --> > many warnings, only for  d >= 30
 ## d =  30, alpha in {0.1, 0.3}
 ## d >= 40: for all alpha
 
+stopifnot("array" == sapply(ak.all, class))
 str(head(ak.all, 3))
 ak.all$`d=20`[,,"alpha=0.99"]
+## TODO improve the checks, now we have the dsSib.Rmpfr version
 chk1 <- function(ak.mat, tol = 1e-7) {
     stopifnot(is.matrix(ak.mat), (d <- nrow(ak.mat)) >= 2)
     n.meth <- ncol(ak.mat)
@@ -79,12 +137,26 @@ chk1 <- function(ak.mat, tol = 1e-7) {
 }
 
 chk1(ak.all$`d=20`[,,"alpha=0.3"])
-chk1(ak.all$`d=90`[,,"alpha=0.3"])
+## chk1(ak.all$`d=90`[,,"alpha=0.3"])
 
 chk.all <-
     lapply(ak.all, function(ak.arr) apply(ak.arr, 3, chk1))
+chk.all # quite interesting -- but is the median the truth ??
 
-chk.all # quite interesting
+ak.all$`d=50`[,,"alpha=0.1"] ##--> we see that some "Rmpfr" results got NaN !!!
+
+source(system.file("test-tools-1.R", package="Matrix"))#-> relErr()
+relE.ak <- function(ak.mat, tol = 1e-7, trNam = "dsSib.Rmpfr") {
+    stopifnot(is.matrix(ak.mat), (d <- nrow(ak.mat)) >= 2,
+              is.numeric(true <- ak.mat[, trNam]))
+    n.meth <- ncol(ak.mat)
+    apply(ak.mat[,trNam != colnames(ak.mat)], 2, relErr, target= true)
+}
+
+relE.ak(ak.all$`d=20`[,,"alpha=0.3"])
+relE.all <- lapply(ak.all, function(ak.arr) apply(ak.arr, 3, relE.ak))
+print(relE.all, digits = 4) # --- wow!
+
 
 ## For d = 5,..85  this is fine (unless for large alpha (!) :
 

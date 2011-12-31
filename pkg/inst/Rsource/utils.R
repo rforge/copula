@@ -35,13 +35,15 @@ canGet <- function(file,
     ok
 }
 
+if(FALSE)## is now in
+    system.file(package="Matrix", "test-tools-1.R")
 ##' Compute the relative error between target and current vector
 ##' @title Relative Error (:= 0 when absolute error == 0)
 ##' @param target
 ##' @param current
 ##' @return vector of the same length as target and current
 ##' @author Martin Maechler
-relErr <- function(target, current) {
+relErrV <- function(target, current) {
     ## relative error, but give 0 when absolute error==0
     ## assert( <length current> is multiple of <length target>) :
     n <- length(target <- as.vector(target))
@@ -63,7 +65,7 @@ relErr <- function(target, current) {
 ##' @author Martin Maechler
 nCorrDigits <- function(target, current, zeroDigs = 16) {
     stopifnot(zeroDigs >= -log10(.Machine$double.eps))# = 15.65
-    RE <- relErr(target, current)
+    RE <- relErrV(target, current)
     r <- -log10(abs(RE))
     r[RE == 0] <- zeroDigs
     r[is.na(RE) | r < 0] <- 0 # no correct digit, when relErr is NA

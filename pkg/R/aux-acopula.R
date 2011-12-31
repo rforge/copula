@@ -357,7 +357,8 @@ dDiagFrank <- function(u, theta, d, log=FALSE,
 ##' @title Coefficients of the polynomial involved in the generator derivatives
 ##'        and density for Gumbel
 ##' @param d number of coefficients, d >= 1
-##' @param alpha parameter (1/theta) in (0,1]
+##' @param alpha parameter (1/theta) in (0,1];
+##'     you maye use  mpfr(alph, precBits = <n_prec>)  for higher precision "Rmpfr*" methods
 ##' @param method a character string, one of
 ##'    "sort":          compute coefficients via exp(log()) pulling out the maximum, and sort
 ##'    "horner":        uses polynEval()
@@ -365,7 +366,7 @@ dDiagFrank <- function(u, theta, d, log=FALSE,
 ##'    "dsSib.<FOO>":   uses dsumSibuya(..., method= "<FOO>")
 ##' @param log boolean which determines if the logarithm is returned
 ##' @param verbose logical for method == sort
-##' @return a_{dk}(theta) = (-1)^{d-k}\sum_{j=k}^d alpha^j * s(d,j) * S(j,k), k in
+##' @return a_k(theta, d) = (-1)^{d-k}\sum_{j=k}^d alpha^j * s(d,j) * S(j,k), k in
 ##'         {1,..,d}
 ##' @author Marius Hofert and Martin Maechler
 ##' Note: - This function is known to cause numerical problems, e.g., for d=100,
@@ -377,7 +378,7 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"
 {
     stopifnot(is.numeric(d), length(d) == 1, d >= 1, length(alpha) == 1,
 	      0 < alpha, alpha <= 1)
-    a <- numeric(d) # for the a_{dk}(theta)'s
+    a <- numeric(d) # for the a_k(theta, d)'s
     method <- match.arg(method)
     if(method == "dsumSibuya") {
         message("method 'dsumSibuya' is deprecated.\n  ",
@@ -395,7 +396,7 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"
 	       lS <- lapply(1:d, function(n) log(Stirling2.all(n)))
 	       ##-> lS[[n]][i] contains log(S(n,i)), i = 1,..,n
                wrong.sign <- integer()
-	       for(k in 1:d) { # deal with a_{dk}(theta)
+	       for(k in 1:d) { # deal with a_k(theta, d)
 		   j <- k:d
 		   ## compute b_j = log(alpha^j*|s(d,j)|*S(j,k)), j = k,..,d
 		   b <- j * log(alpha) + ls[j] +
@@ -421,7 +422,7 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"
 	   },
 	   "dsSib" = {
 	       ## coefficients via dsumSibuya
-	       ## a_{dk}(theta) = d!/k! * dsumSibuya(d, k, alpha)
+	       ## a_k(theta,d) = d!/k! * dsumSibuya(d, k, alpha)
 	       k <- 1:d
 	       ck <- ## c_k := d!/k!
 		   if(log) c(0,cumsum(log(d:2)))[d:1]
@@ -434,7 +435,7 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"
 	       s.abs <- abs(Stirling1.all(d))
 	       k <- 1:d
 	       S <- lapply(k, Stirling2.all)## S[[n]][i] contains S(n,i), i = 1,...,n
-       pol <- vapply(k, function(k.) {
+	       pol <- vapply(k, function(k.) {
 		   j <- 0:(d-k.)
 		   ## compute coefficients (c_k = |s(d,j+k)|*S(j+k,k))
 		   c.j <- s.abs[j+k.] * vapply(j, function(i) S[[i+k.]][k.], 1.)
@@ -724,69 +725,70 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 ##' note: - p_{x,n} = 0 for x < n;  p_{n,n} = alpha^n
 ##'       - numerically challenging, e.g., dsumSibuya(100, 96, 0.01) < 0 for all methods
 dsumSibuya <- function(x, n, alpha,
-                       method= c("log", "direct", "Rmpfr", "RmpfrM", "diff", "exp.log"),
-                       log=FALSE)
+		       method= c("log", "direct", "Rmpfr", "Rmpfr0", "RmpfrM", "diff", "exp.log"),
+		       log=FALSE)
 {
     stopifnot(x == round(x), n == round(n), n >= 0, length(alpha) == 1,
-              0 < alpha, alpha <= 1)
+	      0 < alpha, alpha <= 1)
     if((l.x <- length(x)) == 0 || (l.n <- length(n)) == 0)
-        return(numeric())
+	return(numeric())
     ## "FIXME": from coeffG(), always have  {x = d, n = 1:d} -- can be faster *not* recycling
     if((len <- l.x) != l.n) { ## do recycle to common length
-        len <- max(l.x, l.n)
+	len <- max(l.x, l.n)
 	if(l.x < len) {
 	    x. <- x
 	    x <- rep(x, length.out = len)
 	}
-        else ## if(l.n < len)
-            n <- rep(n, length.out = len)
+	else ## if(l.n < len)
+	    n <- rep(n, length.out = len)
     }
     if(alpha == 1)
-        return(x == n)
-    ii <- seq_len(len)
+	return(x == n)
     method <- if(missing(method) && is(alpha, "mpfr"))
-        "Rmpfr" else match.arg(method)
+	"Rmpfr" else match.arg(method)
     switch(method,
-           "log" =
+	   "log" =
        {
-           ## computes *proper* log based on lssum
+	   ## computes *proper* log based on lssum
 
-           ## determine the matrix of signs of choose(alpha*j,x)*(-1)^(x-j),
-           ## j in {1,..,m} -- which notably do *not* depend on x !
-           signs <- signFF(alpha, seq_len(max(n)), x)
-           ## for one pair of x and n:
-           f.one <- function(x,n) {
-               if(x < n) return(-Inf)	# = log(0)
-               j <- seq_len(n)
-               lxabs <- lchoose(n, j) + lchoose(alpha*j, x)
-               ## *NON*-strict -- otherwise need try() :
-               lssum(as.matrix(lxabs), signs[j], strict=FALSE)
-           }
+	   ## determine the matrix of signs of choose(alpha*j,x)*(-1)^(x-j),
+	   ## j in {1,..,m} -- which notably do *not* depend on x !
+	   signs <- signFF(alpha, seq_len(max(n)), x)
+	   ## for one pair of x and n:
+	   f.one <- function(x,n) {
+	       if(x < n) return(-Inf)	# = log(0)
+	       j <- seq_len(n)
+	       lxabs <- lchoose(n, j) + lchoose(alpha*j, x)
+	       ## *NON*-strict -- otherwise need try() :
+	       lssum(as.matrix(lxabs), signs[j], strict=FALSE)
+	   }
 	   S <- mapply(f.one, x, n, USE.NAMES = FALSE)
-           if(log) S else exp(S)
+	   if(log) S else exp(S)
        },
-           "direct" =
+	   "direct" =
        {
-           ## brute force evaluation of the sum and its log
-           f.one <- function(x,n) {
-               if(x < n) return(0)
-               j <- seq_len(n)
-               sum(choose(n,j)*choose(alpha*j,x)*(-1)^(x-j))
-           }
+	   ## brute force evaluation of the sum and its log
+	   f.one <- function(x,n) {
+	       if(x < n) return(0)
+	       j <- seq_len(n)
+	       sum(choose(n,j)*choose(alpha*j,x)*(-1)^(x-j))
+	   }
 	   S <- mapply(f.one, x, n, USE.NAMES = FALSE)
-           if(log) log(S) else S
+	   if(log) log(S) else S
        },
-           "Rmpfr" =,
-           "RmpfrM" =
+	   "Rmpfr" =,
+	   "Rmpfr0" =,
+	   "RmpfrM" =
        {
-           ## as "direct" but using high-precision arithmetic, where
-           ## the precision should be set via alpha = mpfr(*, precBits= .)
-           stopifnot(require(Rmpfr))
-           if(!is(alpha, "mpfr"))
-               alpha <- mpfr(alpha, precB = max(100, min(x, 10000)))
-           mpfr.0 <- mpfr(0, precBits = getPrec(alpha))
-
-           ## FIXME
+	   ## as "direct" but using high-precision arithmetic, where
+	   ## the precision should be set via alpha = mpfr(*, precBits= .)
+	   stopifnot(require(Rmpfr))
+	   if(!is(alpha, "mpfr"))
+	       alpha <- mpfr(alpha, precB = max(100, min(x, 10000)))
+	   pr. <- getPrec(alpha)
+	   mpfr.0 <- mpfr(0, precBits = pr.)
+	   mayRecall <- (method != "Rmpfr0")
+	   ## FIXME
 	   if(FALSE && l.x == 1 && l.n == x. && all(n == seq_len(x.))) { ## Special case -- from coeffG()
 	       message("fast special case ..") ## <- just for now
 	       ## change notation (for now)
@@ -798,19 +800,45 @@ dsumSibuya <- function(x, n, alpha,
 		   j. <- seq_len(j)
 		   sum(c.n[j.] * ca.j[j.])
 	       }
-               stop("fast special case -- is still wrong !")
+	       stop("fast special case -- is still wrong !")
 	       S <- new("mpfr", unlist(lapply(j, f.sp)))
-           } else { ## usual case
-               f.one <- function(x,n) {
-                   if(x < n) return(mpfr.0)
-                   j <- seq_len(n)
-                   sum(chooseMpfr.all(n)*chooseMpfr(alpha*j,x)*(-1)^(x-j))
-               }
-               S <- new("mpfr", mapply(f.one, x, n, USE.NAMES=FALSE))
-           }
-           if(method == "Rmpfr")
-               as.numeric(if(log) log(S) else S)
-           else           if(log) log(S) else S
+	   } else { ## usual case
+	       f.one <- function(x,n) {
+		   if(x < n) return(mpfr.0)
+		   j <- seq_len(n)
+		   ## now do this in parts {to analyze}:
+		   ## sum(chooseMpfr.all(n)*chooseMpfr(alpha*j,x)*(-1)^(x-j))
+		   c.n <- chooseMpfr.all(n)
+		   ca.j <- chooseMpfr(alpha*j,x) * (-1)^(x-j)
+		   trms <- c.n * ca.j
+		   S <- sum(trms) # <-- sum of *huge* (partly alternating) terms getting almost 0
+		   if(mayRecall) {
+		       recall <- (S <= 0)
+		       if(recall) { ## complete loss of precision -- recall with higher precision
+			   newPrec <- round(1.5 * pr.)
+			   MSG <- " |--> S < 0"
+		       } else {		# S > 0 :
+			   bitLoss <- round(as.numeric(log2(max(abs(trms)) / S )), 1)
+			   recall <- (pr. - bitLoss < 20) ## less than 20 bits precision left
+			   if(recall) {
+			       newPrec <- pr. + 30
+			       MSG <- paste("-> bit loss =", bitLoss)
+			   }
+		       }
+		       if(recall) {
+			   message(sprintf("dsumSibuya(%d, %d, alpha= %g, method='%s'): %s ==> recalled with new prec. %d",
+					   x, n, as.numeric(alpha), method, MSG, newPrec))
+			   dsumSibuya(x,n, alpha = roundMpfr(alpha, newPrec),
+				      method="RmpfrM", log=FALSE)
+		       } else S
+		   } else S
+	       }
+	       S <- new("mpfr", mapply(f.one, x, n, USE.NAMES=FALSE))
+	   }
+	   if(method == "RmpfrM")
+	       if(log) log(S) else S
+	   else
+	       as.numeric(if(log) log(S) else S)
        },
 	   "diff" =
        {
@@ -818,28 +846,28 @@ dsumSibuya <- function(x, n, alpha,
 			x, n, USE.NAMES = FALSE)
 	   if(log) log(S.) else S.
        },
-           "exp.log" =
+	   "exp.log" =
        {
-           ## similar to method = "log", but without *proper/intelligent* log
-           ## and inefficient due to the signs (old version)
-           f.one <- function(x,n) {
-               if(x < n) return(0)
-               j <- seq_len(n) ## indices of the summands
-               signs <- (-1)^(j+x)
-               ## determine the signs of choose(j*alpha,x) for each component of j
-               to.subtract <- 0:(x-1)
+	   ## similar to method = "log", but without *proper/intelligent* log
+	   ## and inefficient due to the signs (old version)
+	   f.one <- function(x,n) {
+	       if(x < n) return(0)
+	       j <- seq_len(n) ## indices of the summands
+	       signs <- (-1)^(j+x)
+	       ## determine the signs of choose(j*alpha,x) for each component of j
+	       to.subtract <- 0:(x-1)
 	       sig.choose <-
 		   vapply(j, function(l) prod(sign(l*alpha-to.subtract)),
 			  1., USE.NAMES=FALSE)
-               signs <- signs*sig.choose
-               binom.coeffs <- exp(lchoose(n,j) + lchoose(j*alpha,x))
-               sum(signs*binom.coeffs)
-           }
+	       signs <- signs*sig.choose
+	       binom.coeffs <- exp(lchoose(n,j) + lchoose(j*alpha,x))
+	       sum(signs*binom.coeffs)
+	   }
 	   S <- mapply(f.one, x, n, USE.NAMES = FALSE)
-           if(log) log(S) else S
+	   if(log) log(S) else S
        },
-           ## otherwise
-           stop(sprintf("unsupported method '%s' in dsumSibuya", method)))
+	   ## otherwise
+	   stop(sprintf("unsupported method '%s' in dsumSibuya", method)))
 }
 
 ### polynomial evaluation for Joe
