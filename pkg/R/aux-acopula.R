@@ -558,7 +558,7 @@ polyG <- function(lx, alpha, d, method=
 	   s <- Stirling1.all(d) # s(d,1), ..., s(d,d)
 	   S <- lapply(k, Stirling2.all) # S[[l]][n] contains S(l,n), n = 1,...,l
 	   len <- length(x)
-           poly <- matrix(vapply(k, function(k.) polynEval(S[[k.]],-x), 1.), nrow=len) # (len,d)-matrix
+           poly <- matrix(unlist(lapply(k, function(k.) polynEval(S[[k.]],-x))), nrow=len) # (len,d)-matrix
            res <- (-1)^(d-1)*alpha*x* vapply(1:len, function(i) polynEval(s*poly[i,], alpha), 1.)
            if(log) log(res) else res
            ## the following code was *not* faster
