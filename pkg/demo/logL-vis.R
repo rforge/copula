@@ -219,12 +219,15 @@ system.time(f.ML <- emle(U., cop)); f.ML ## --> fine: theta = 18.033, Log-lik = 
 system.time(f.mlMC <- emle(U., cop, n.MC = 1e4))## takes a long time
 ## (7.5 sec on nb-mm3 2010)
 stopifnot(
-          all.equal(unname(coef(f.ML)), 18.03331, tol= 1e-6)
-          ,
-          all.equal(f.ML@min, -314.0143, tol=1e-6)
-          ,
-          all.equal(unname(coef(f.mlMC)), 17.817523, tol= 1e-6)
-          )
+	  all.equal(unname(coef(f.ML)), 18.03331, tol= 1e-6)
+	  ,
+	  all.equal(f.ML@min, -314.0143, tol=1e-6)
+	  ,
+	  ## Simulate MLE (= SMLE) is "extra" random,  hmm...
+	  all.equal(unname(coef(f.mlMC)), 17.8, tol= 0.01)
+	  ##		   64-bit ubuntu: 17.817523
+	  ##		 ? 64-bit Mac:	  17.741
+	 )
 
 cop@copula <- setTheta(cop@copula, theta)# for the plot:
 r. <- curveLogL(cop, U., c(1, 200))
