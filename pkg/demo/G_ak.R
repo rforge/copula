@@ -56,11 +56,11 @@ p.dsSib(dsSibA(60, alpha = 0.4))
 p.dsSib(dsSibA(70, alpha = 0.4))
 p.dsSib(dsSibA(80, alpha = 0.4), type="b")
 
-p.dsSib(dsSibA(70,  alpha = 0.1))
+p.dsSib(ds70 <- dsSibA(70,  alpha = 0.1))
 ## more extreme:
-p.dsSib(dsSibA(100, alpha = 0.01))
+p.dsSib(ds1c <- dsSibA(100, alpha = 0.01))
 
-##--> For small alpha and "large" d,  even Rmpfr
+##--> For small alpha and "large" d,  even Rmpfr  (now "Rmpfr0")
 ## is not good enough...
 
 ## Look at the values *before* log(.) :
@@ -72,7 +72,7 @@ plot(dd, log="y")
 
 ###--- Part 2 ------------------------------------------------
 
- coeffG <- nacopula:::coeffG
+coeffG <- nacopula:::coeffG
 
 
 ### step (1): look at the a_k's, check if they can be evaluated ################
