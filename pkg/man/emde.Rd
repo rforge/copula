@@ -9,7 +9,7 @@ emde(u, cop,
      method=c("mde.chisq.CvM", "mde.chisq.KS",
               "mde.gamma.CvM", "mde.gamma.KS"),
      interval=initOpt(cop@copula@name),
-     include.K = FALSE, repara = cop@copula@name!="AMH", \dots)
+     include.K = FALSE, repara = TRUE, \dots)
 }
 \arguments{
   \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-)observations (each
@@ -40,9 +40,8 @@ emde(u, cop,
     \code{\link{FALSE}} here, where it is \code{TRUE} in the underlying
     \code{\link{htrafo}()} function.}
   \item{repara}{logical indicating whether the distance function to be
-        optimized is reparametrized in one over the parameter (the
-    default for all families except AMH since the lower endpoint of the
-    admissible parameter interval is zero).}
+    optimized is reparametrized (the default); see the code for more
+    details.}
   \item{\dots}{additional arguments passed to \code{\link{optimize}}.}
 }
 \details{

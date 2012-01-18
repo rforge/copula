@@ -295,7 +295,7 @@ emde.dist <- function(u, method = c("mde.chisq.CvM", "mde.chisq.KS", "mde.gamma.
 ##' @author Marius Hofert
 emde <- function(u, cop, method = c("mde.chisq.CvM", "mde.chisq.KS", "mde.gamma.CvM",
                          "mde.gamma.KS"), interval = initOpt(cop@copula@name),
-                 include.K = FALSE, repara = cop@copula@name!="AMH", ...)
+                 include.K = FALSE, repara = TRUE, ...)
 {
     stopifnot(is(cop, "outer_nacopula"), is.numeric(d <- ncol(u)), d >= 2,
               max(cop@comp) == d)
@@ -308,8 +308,30 @@ emde <- function(u, cop, method = c("mde.chisq.CvM", "mde.chisq.KS", "mde.gamma.
         emde.dist(u., method)
     }
     if(repara){
-	opt <- optimize(function(alpha) distance(1/alpha), interval=1/interval[2:1], ...)
-	opt$minimum <- 1/opt$minimum
+        ## reparameterization function
+        rfun <- function(x, inverse=FALSE){ # reparameterization
+            switch(cop@copula@name,
+                   "AMH"={
+                       x
+                   },
+                   "Clayton"={
+                       if(inverse) tan(x*pi/2) else atan(x)*2/pi
+                   },
+                   "Frank"={
+                       if(inverse) tan(x*pi/2) else atan(x)*2/pi
+                   },
+                   "Gumbel"={
+                       if(inverse) 1/(1-x) else 1-1/x
+                   },
+                   "Joe"={
+                       if(inverse) 1/(1-x) else 1-1/x
+                   },
+                   stop("emde: Reparameterization got unsupported family"))
+        }
+        ## optimize
+	opt <- optimize(function(alpha) distance(rfun(alpha)),
+                        interval=rfun(interval), ...)
+	opt$minimum <- rfun(opt$minimum, inverse=TRUE)
 	opt
     }else{
         optimize(distance, interval=interval, ...)
