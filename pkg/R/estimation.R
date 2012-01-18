@@ -329,7 +329,7 @@ emde <- function(u, cop, method = c("mde.chisq.CvM", "mde.chisq.KS", "mde.gamma.
                    stop("emde: Reparameterization got unsupported family"))
         }
         ## optimize
-	opt <- optimize(function(alpha) distance(rfun(alpha)),
+	opt <- optimize(function(alpha) distance(rfun(alpha, inverse=TRUE)),
                         interval=rfun(interval), ...)
 	opt$minimum <- rfun(opt$minimum, inverse=TRUE)
 	opt
