@@ -191,6 +191,14 @@ setClass("outer_nacopula", contains = "nacopula",
 setMethod("dim", signature(x = "nacopula"),
 	  function(x) length(x@comp) + sum(unlist(lapply(x@childCops, dim))))
 
+
+##' @title nesting depth of a NAcopula
+##' @param x object of class "nacopula"
+##' @return integer
+nesdepth <- function(x) {
+    if(length(ch <- x@childCops)) 1L+ max(vapply(ch, nesdepth, 1L)) else 1L
+}
+
 ## also needed in validity above -- defined recursively, too :
 allComp <- function(x) {
     stopifnot(is(x, "nacopula"))

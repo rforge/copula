@@ -42,7 +42,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ## goodness-of-fit
        ,"K", "gtrafouni", "rtrafo", "htrafo", "gnacopula"
        ## misc
-       ,"onacopula", "onacopulaL"
+       ,"onacopula", "onacopulaL", "nesdepth"
        ,"polynEval"
        ,"printNacopula"
        ,"interval"

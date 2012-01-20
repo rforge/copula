@@ -53,8 +53,8 @@
 showClass("nacopula")
 showClass("outer_nacopula")
 
-## Construct a three-dimensional nested Frank copula with parameters 
-## chosen such that the Kendall's tau of the respective bivariate margins 
+## Construct a three-dimensional nested Frank copula with parameters
+## chosen such that the Kendall's tau of the respective bivariate margins
 ## are 0.2 and 0.5.
 theta0 <- copFrank@tauInv(.2)
 theta1 <- copFrank@tauInv(.5)

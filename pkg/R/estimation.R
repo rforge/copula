@@ -33,8 +33,9 @@
 ##' @param ... further arguments to cor() for method="tau.mean"
 ##' @return initial interval or value which can be used for optimization
 ##' @author Marius Hofert
-initOpt <- function(family, tau.range=NULL, interval=TRUE, u, method=c("tau.Gumbel",
-                                                              "tau.mean"), warn=TRUE, ...){
+initOpt <- function(family, tau.range=NULL, interval=TRUE, u,
+                    method=c("tau.Gumbel", "tau.mean"), warn=TRUE, ...)
+{
     cop <- getAcop(family)
     if(is.null(tau.range)){
         tau.range <- switch(cop@name, # limiting (attainable) taus that can be dealt with in estimation/optimization/root-finding

@@ -1,3 +1,7 @@
+2012-01-20  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/AllClass.R (nesdepth): nesdepth(<NAC>) gives the nesting depth.
+
 2011-12-27  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/aux-acopula.R (coeffG): 'method' now contains all dsumSibuya()
