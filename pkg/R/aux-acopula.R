@@ -742,7 +742,6 @@ dsumSibuya <- function(x, n, alpha,
 	else ## if(l.n < len)
 	    n <- rep(n, length.out = len)
     }
-    stopifnot(x >= n) # check if all x's are >= than all n's
     if(alpha == 1)
 	return(x == n)
     method <- if(missing(method) && is(alpha, "mpfr"))

@@ -53,14 +53,17 @@ log1mexpm <- function(a, cutoff = log(2)) ## << log(2) is optimal >>
 ##'       sign( choose(alpha*j, d)*(-1)^(d-j) ) == (-1)^(d-j) if j > d and
 ##'       sign( choose(alpha*j, d)*(-1)^(d-j) ) == 0 if j = 0
 signFF <- function(alpha, j, d) {
-    stopifnot(0 < alpha, alpha <= 1, d >= 0, 0 <= j, j <= d)
+    stopifnot(0 < alpha, alpha <= 1, d >= 0, 0 <= j)
     res <- numeric(length(j))
     if(alpha == 1) {
-       res[j == d] <- 1
+	res[j == d] <- 1
+	res[j > d] <- (-1)^(d-j)
     } else {
-        x <- alpha*j
-        ind <- x != floor(x)
-        res[ind] <- (-1)^(j[ind]-ceiling(x[ind]))
+	res[j > d] <- NA # the formula below does not hold {TODO: find correct sign}
+        ## we do not need them in dsumSibuya() and other places...
+	x <- alpha*j
+	ind <- x != floor(x)
+	res[ind] <- (-1)^(j[ind]-ceiling(x[ind]))
     }
     res
 }
