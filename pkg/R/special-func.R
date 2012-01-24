@@ -26,6 +26,12 @@ polynEval <- function(coef, x) .Call(polyn_eval, coef, x)
 ##' @param cutoff  log(2) is optimal, see  Maechler (201x) .....
 ##' @return f(a) == log(1 - exp(-a)) == log1p(-exp(-a)) == log(-expm1(-a))
 ##' @author Martin Maechler, May 2002 .. Aug. 2011
+##' @references _TODO_
+##'  see <<log1mexpm>> in ../inst/doc/Frank-Rmpfr.Rnw  which has
+##' {log(-expm1(-theta))} ... underflows for
+##' large theta, and hence should be replaced by the generally accurate
+##' %% as shown by   Maechler (2011) --- FIXME: finally right that small paper!!
+##' %%               =========================  ~/R/MM/NUMERICS/log1-exp.R
 log1mexpm <- function(a, cutoff = log(2)) ## << log(2) is optimal >>
 {
     if(has.na <- any(ina <- is.na(a))) {

@@ -75,9 +75,9 @@ copAMH <-
 		      if(log) log(d)+ (d-1)*log(x) + 2*(log(x-theta)-log(x^d-theta))
 		      else d* x^(d-1) * ((x-theta)/(x^d-theta))^2
                   },
-		  ## density
+		  ## density  AMH
 		  dacopula = function(u, theta, n.MC=0, log=FALSE,
-                  method = "negI-s-Eulerian", Li.log.arg=TRUE)
+				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
               {
                   stopifnot(C.@paraConstr(theta))
                   if(!is.matrix(u)) u <- rbind(u)
@@ -218,7 +218,7 @@ copClayton <-
                       if(log) log(d)-(1+1/theta)*log(1+(d-1)*(1-u^theta)) else
                       d*(1+(d-1)*(1-u^theta))^(-(1+1/theta))
                   },
-		  ## density
+		  ## density  Clayton
 		  dacopula = function(u, theta, n.MC=0, log=FALSE) {
 		      stopifnot(C.@paraConstr(theta))
 		      if(!is.matrix(u)) u <- rbind(u)
@@ -374,9 +374,9 @@ copFrank <-
 		      r[S] <- dDiagFrank(u[S], th[S], d, log=log, method = "m1")
 		      r
 		  },
-		  ## density
+		  ## density  Frank
 		  dacopula = function(u, theta, n.MC=0, log=FALSE,
-                  method = "negI-s-Eulerian", Li.log.arg=TRUE)
+				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
 	      {
 		  stopifnot(C.@paraConstr(theta))
 		  if(!is.matrix(u)) u <- rbind(u)
@@ -553,9 +553,9 @@ copGumbel <-
                       da <- d^alpha
                       if(log) (da-1)*log(u) + alpha*log(d) else da*u^(da-1)
                   },
-		  ## density
+		  ## density  Gumbel
 		  dacopula = function(u, theta, n.MC=0,
-                  method = eval(formals(polyG)$method), log=FALSE)
+				      method = eval(formals(polyG)$method), log=FALSE)
               {
                   stopifnot(C.@paraConstr(theta))
                   if(!is.matrix(u)) u <- rbind(u)
@@ -734,9 +734,9 @@ copJoe <-
 		      ## FIXME? for log-case: log(circRat(Ix, d)) = log1p(-x^d)-theta*log1p(-u))
 		      else d* x^(d-1) * circRat(Ix, d)^(1/theta-1)
 		  },
-		  ## density
+		  ## density  Joe
 		  dacopula = function(u, theta, n.MC=0,
-                  method = eval(formals(polyJ)$method), log = FALSE)
+				      method = eval(formals(polyJ)$method), log = FALSE)
               {
                   stopifnot(C.@paraConstr(theta))
                   if(!is.matrix(u)) u <- rbind(u)
