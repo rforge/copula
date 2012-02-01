@@ -261,7 +261,7 @@ if(file.exists(saveFile3) && canGet(saveFile2)) {
 						St..[,"LD"])$p.value
 	    }
 	    cat("\nProc.time(): ",format(proc.time()[1]),"; ",
-		round(format(100*count/(nalpha*nV0)), width=3), "% done\n\n",sep="")
+		format(100*count/(nalpha*nV0), digits=3), "% done\n\n",sep="")
 	    count <- count + 1
 	}
     }
