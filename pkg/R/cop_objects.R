@@ -748,7 +748,7 @@ copJoe <-
                   if(theta == 1) { res[n01] <- if(log) 0 else 1; return(res) } # independence
                   ## auxiliary results
                   u. <- u[n01,, drop=FALSE]
-                  l1_u <- rowSums(log1p(-u.)) # log(1-u)
+                  l1_u <- rowSums(log1p(-u.)) # sum_j log(1-u_j)
                   lh <- rowSums(log1p(-(1-u.)^theta)) # rowSums(log(1-(1-u)^theta)) = log(h)
                   ## main part
                   if(n.MC > 0) { # Monte Carlo
