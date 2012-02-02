@@ -10,7 +10,7 @@
 }
 \usage{
 htrafo(u, cop, include.K=TRUE, n.MC=0)
-rtrafo(u, cop, n.MC=0)
+rtrafo(u, cop, m=d, n.MC=0)
 }
 \arguments{
   \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-/copula-)observations (each
@@ -20,10 +20,13 @@ rtrafo(u, cop, n.MC=0)
   \item{cop}{the \code{"\linkS4class{outer_nacopula}"} with specified
     parameters based on which the transformation is computed (currently only
     Archimedean copulas are provided).}
-  \item{n.MC}{parameter \code{n.MC} for \code{\link{K}} (for \code{htrafo})
-    or for approximating the derivatives involved (for \code{rtrafo}).}
   \item{include.K}{logical indicating whether the last component, involving the
     Kendall distribution function \code{\link{K}}, is used in \code{htrafo}.}
+  \item{m}{integer between 2 and \eqn{d} indicating the order up to which the
+    conditional distributions are computed (the largest being the
+    \eqn{m}th given all with index smaller than \eqn{m}).}
+  \item{n.MC}{parameter \code{n.MC} for \code{\link{K}} (for \code{htrafo})
+    or for approximating the derivatives involved (for \code{rtrafo}).}
 }
 \details{
   \describe{
@@ -56,12 +59,13 @@ rtrafo(u, cop, n.MC=0)
       This formula is either evaluated with the exact derivatives or, if
       \code{n.MC} is positive, via Monte Carlo; see \code{\link{psiDabsMC}}.
       Rosenblatt (1952) showed that
-      \eqn{\bm{U}^\prime\sim\mathrm{U}[0,1]^d}{U'~U[0,1]^d}, where
+      \eqn{\bm{U}^\prime\sim\mathrm{U}[0,1]^m}{U'~U[0,1]^m}, where
       \eqn{U_1^\prime=U_1}{U'_1=U_1},
       \eqn{U_2^\prime=C(U_2\,|\,U_1)}{U'_2=C(U_2|U_1)}, ..., and
-      \eqn{U_d^\prime=C(U_d\,|\,U_1,\dots,U_{d-1})}{U'_d=C(U_d|U_1,...,U_{d-1})}.
+      \eqn{U_m^\prime=C(U_m\,|\,U_1,\dots,U_{m-1})}{U'_m=C(U_m|U_1,...,U_{m-1})}.
       \code{rtrafo} applies this transformation row-wise to
-      \code{u} and thus returns an \eqn{n\times d}{n x d}-matrix.
+      \code{u} (with default \eqn{m=d}) and thus returns an
+      \eqn{n\times m}{n x m}-matrix.
     }
   }
 }

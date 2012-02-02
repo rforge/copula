@@ -78,11 +78,11 @@ signFF <- function(alpha, j, d) {
 ##' vectors log(x_1),..,log(x_n) (each of dimension d)
 ##'
 ##' @title Properly compute the logarithm of a sum
-##' @param lx (n x d)-matrix containing the row vectors log(x_1),..,log(x_n)
+##' @param lx (n,d)-matrix containing the row vectors log(x_1),..,log(x_n)
 ##'        each of dimension d
 ##' @param l.off the offset to substract and re-add; ideally in the order of
 ##'        the maximum of each column
-##' @return log(x_1 + .. + x_n) computed via
+##' @return log(x_1 + .. + x_n) [i.e., of dimension d] computed via
 ##'         log(sum(x)) = log(sum(exp(log(x))))
 ##'         = log(exp(log(x_max))*sum(exp(log(x)-log(x_max))))
 ##'         = log(x_max) + log(sum(exp(log(x)-log(x_max)))))
@@ -104,7 +104,7 @@ lsum <- function(lx, l.off = apply(lx, 2, max)) {
 ##' @param signs corresponding matrix of signs sign(x_1), .., sign(x_n)
 ##' @param l.off the offset to substract and re-add; ideally in the order of max(.)
 ##' @param strict logical indicating if it should stop on some negative sums
-##' @return log(x_1 + .. + x_n) computed via
+##' @return log(x_1 + .. + x_n) [i.e., of dimension d] computed via
 ##'         log(sum(x)) = log(sum(sign(|x|)*exp(log(|x|))))
 ##'         = log(exp(log(x0))*sum(signs*exp(log(|x|)-log(x0))))
 ##'         = log(x0) + log(sum(signs* exp(log(|x|)-log(x0))))

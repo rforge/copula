@@ -457,10 +457,12 @@ edmle <- function(u, cop, interval=initOpt(cop@copula@name), warn=TRUE, ...)
 ##' @param cop outer_nacopula to be estimated
 ##' @param n.MC if > 0 SMLE is applied with sample size equal to n.MC; otherwise,
 ##'        MLE is applied
-##' @param optimizer optimizer used
-##' @param method optim's method to be used (when optimizer=NULL or "optim")
-##' @param interval bivariate vector denoting the interval where optimization takes
-##'        place
+##' @param optimizer optimizer used (if optimizer=NULL (or NA), then mle (instead
+##'        of mle2) is used with the provided method)
+##' @param method optim's method to be used (when optimizer=NULL or "optim" and
+##'        in these cases method is a required argument)
+##' @param interval bivariate vector denoting the interval where optimization
+##'        takes place
 ##' @param start list containing the initial value(s) (unfortunately required by mle2)
 ##' @param ... additional parameters for optimize
 ##' @return an "mle2" object with the (simulated) maximum likelihood estimator.
