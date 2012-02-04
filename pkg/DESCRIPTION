@@ -1,6 +1,6 @@
 Package: nacopula
 Version: 0.8-0
-Date: 2012-02-01
+Date: 2012-02-03
 LastChanged: $LastChangedRevision$; $LastChangedDate$
 Title: Nested Archimedean Copulas
 Description: An R package for working with nested Archimedean copulas.
@@ -9,7 +9,7 @@ Description: An R package for working with nested Archimedean copulas.
   sampling algorithms, various estimators, and goodness-of-fit tests.
   The package also contains related univariate distributions and special functions
   such as the Sibuya distribution, the polylogarithm, Stirling and Eulerian numbers.
-Author: Marius Hofert <marius.hofert@math.ethz.ch> and Martin Maechler <maechler@stat.math.ethz.ch>
+Author: Marius Hofert <marius.hofert@math.ethz.ch> and Martin Maechler
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Depends: R (>= 2.12.0), methods, stats4
 Imports: gsl, ADGofTest, stabledist

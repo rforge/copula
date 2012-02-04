@@ -29,7 +29,7 @@ tauAMH <- function(th) {
     if(length(th) == 0) return(numeric(0)) # to work with NULL
     r <- th
     na <- is.na(th)
-    lrg <- (th > 0.01) & !na
+    lrg <- (th > 0.01) & !na ## for "large" theta (<=> theta >= 0.01), use standard formula
     f. <- function(t) {
 	## 1 - 2*((1-t)*(1-t)*log1p(-t) + t) / (3*t*t)
 	r <- t
@@ -39,6 +39,12 @@ tauAMH <- function(th) {
 	r
     }
     r[lrg] <- f.(th[lrg])
+    ## Otherwise use "smart" Taylor polynomials: for given order, *drop* the last two..
+    ## with the following coefficients:
+    ##_ x <- polynomial()
+    ##_ MASS::fractions(as.vector(mkAMHtau.0series(12,TRUE) * 9/(2*x)))
+    ##  1  1/4  1/10  1/20  1/35  1/56  1/84  1/120  1/165  1/220
+
     if(any(!lrg & !na)) {
 	l1 <- !lrg & !na & (ll1 <- th > 2e-4) ## --> k = 7
 	r[l1] <- (function(x) 2*x/9*(1+ x*(1/4 + x/10*(1 + x*(1/2 + x/3.5)))))(th[l1])
