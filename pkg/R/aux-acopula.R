@@ -790,7 +790,7 @@ dsumSibuya <- function(x, n, alpha,
 	   ## the precision should be set via alpha = mpfr(*, precBits= .)
 	   stopifnot(require(Rmpfr))
 	   if(!is(alpha, "mpfr"))
-	       alpha <- mpfr(alpha, precB = max(100, min(x, 10000)))
+	       alpha <- mpfr(alpha, precBits = max(100, min(x, 10000)))
 	   pr. <- getPrec(alpha)
 	   mpfr.0 <- mpfr(0, precBits = pr.)
 	   mayRecall <- (method != "Rmpfr0")
