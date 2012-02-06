@@ -26,7 +26,7 @@ source(system.file("Rsource", "utils.R", package="nacopula"))
 ##--> tryCatch.W.E(), canGet()
 
 ## it works for 0-length  V0 as well:
-.N <- numeric(0) ; stopifnot(identical(.N, retstable(alpha, .N)))
+.N <- numeric(0) ; stopifnot(identical(.N, retstable(1/4, .N)))
 
 ## This is from "next version of Matrix" test-tools-1.R:
 showSys.time <- function(expr) {
@@ -46,7 +46,7 @@ set.seed(17); showSys.time(rET.H <- retstable (alpha, V0, method= "MH"))
 set.seed(17); showSys.time(rET.D <- retstable (alpha, V0, method= "LD"))
 set.seed(17); showSys.time(rET.R <- retstableR(alpha, V0))
 T <- function(r) r^(1/8) # log() is too much
-bp <- boxplot(T(rET1), T(rET1.H), T(rET1.D), T(rET.R),
+bp <- boxplot(T(rET), T(rET.H), T(rET.D), T(rET.R),
               notch=TRUE, col = "thistle")
 (meds <- bp$stats[3,])
 
