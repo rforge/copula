@@ -2,6 +2,7 @@
 \alias{onacopula}
 \alias{onacopulaL}
 \alias{nacopula}
+\alias{nac2list}
 \title{Constructing (Outer) Nested Archimedean Copulas}
 \description{
   Constructing (outer) nested Archimedean copulas (class
@@ -16,6 +17,7 @@
 %onacopula (family, nacStructure, envir=environment())
 onacopula (family, nacStructure)
 onacopulaL(family, nacList)
+nac2list(x)
 }
 \arguments{
   \item{family}{either a \code{\link{character}} string, the short
@@ -42,10 +44,16 @@ onacopulaL(family, nacList)
       \code{list()}.
     }
   }
+  \item{x}{an \code{"\linkS4class{nacopula}"}, (typically
+    \code{"\linkS4class{outer_nacopula}"}) object.}
 }
 \value{
+  \code{onacopula[L]()}:
   An outer nested Archimedean copula object, that is, of class
   \code{"\linkS4class{outer_nacopula}"}.
+
+  \code{nac2list}: a \code{\link{list}} exactly like the \code{naclist}
+  argument to \code{onacopulaL}.
 }
 \author{Martin Maechler}
 \seealso{
@@ -63,7 +71,8 @@ C10 <- onacopula("J",C(theta,1:10))
 
 ## Equivalent construction with onacopulaL():
 C10. <- onacopulaL("J",list(theta,1:10))
-stopifnot(identical(C10, C10.))
+stopifnot(identical(C10, C10.),
+          identical(nac2list(C10), list(theta, 1:10)))
 
 ## Construct a three-dimensional nested Gumbel copula with parameters
 ## such that Kendall's tau of the respective bivariate margins are 0.2

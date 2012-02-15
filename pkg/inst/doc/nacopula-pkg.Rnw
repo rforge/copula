@@ -675,7 +675,7 @@ nodes (referred to as \textit{leaves}) of the tree. In the example, it will be
 of length one, containing a (non-nested) bivariate copula for the components
 $u_2$ and $u_3$.
 
-The class \code{outer_nacopula} is a version of the same class (i.e., it
+The class \code{outer\_nacopula} is a version of the same class (i.e., it
 ``contains'' \code{nacopula} without any further slots), just with
 stricter validity checking, namely requiring that all components from all
 child copulas are exactly the set $\{1,2,\dots,d\}$.

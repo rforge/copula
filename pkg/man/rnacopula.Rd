@@ -56,6 +56,9 @@ rnacopula(n, x, ...)
 \seealso{
   \code{\link{rnchild}}; classes \code{"\linkS4class{nacopula}"} and
   \code{"\linkS4class{outer_nacopula}"}; see also \code{\link{onacopula}()}.
+  \code{\link{rnacModel}} creates random nacopula \emph{models}, i.e.,
+  the input \code{x} for \code{rnacopula(n, x)}.
+
   Further, those of the Archimedean families, for example, \code{\link{copGumbel}}.
 }
 \examples{
@@ -78,4 +81,3 @@ U <- rnacopula(n, C3)
 splom2(U)
 }
 \keyword{distribution}
-

@@ -204,3 +204,5 @@ allComp <- function(x) {
     stopifnot(is(x, "nacopula"))
     c(x@comp, unlist(lapply(x@childCops, allComp)))
 }
+##' no check version:
+.allComp <- function(x) c(x@comp, unlist(lapply(x@childCops, .allComp)))

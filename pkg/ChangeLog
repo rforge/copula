@@ -1,3 +1,7 @@
+2012-02-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.8-0, released to CRAN
+
 2012-01-20  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/AllClass.R (nesdepth): nesdepth(<NAC>) gives the nesting depth.

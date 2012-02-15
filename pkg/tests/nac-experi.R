@@ -460,6 +460,16 @@ if(doPlots && dev.interactive(orNone=TRUE)) # "large"
           main = paste(n," vectors of a ",d,
           "-dimensional nested Clayton copula",sep = ""))
 
+### 25d Clayton ==============================================
+c25 <- onacopula("Clayton", C(0.5, 17,
+                               list(C(2,   20:18),
+                                    C(2.5, c(25,23, 8:12)),
+                                    C(2.25,c(24,21), C(4, 3:5)),
+                                    C(1.5, c(22,15:16), C(1.7, 1:2)),
+                                    C(3,   c(6:7, 14:13)))))
+stopifnot(identical(sort(allComp(c25)), 1:25))
+c25
+
 ### 125d Clayton copula example ################################################
 
 c125 <- onacopula("Clayton", C(0.5, , # no direct components

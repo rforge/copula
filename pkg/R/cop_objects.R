@@ -501,6 +501,7 @@ copFrank <-
 
 ### Gumbel, see Nelsen (2007) p. 116, # 4 ######################################
 
+##' Gumbel object
 copGumbel <-
     (function() { ## to get an environment where  C.  itself is accessible
 	C. <- new("acopula", name = "Gumbel",
@@ -582,7 +583,7 @@ copGumbel <-
                   } else { # explicit
                       alpha <- 1/theta
                       ## compute lx = alpha*log(sum(psiInv(u., theta)))
-                      lx <- alpha*log(t)
+                      lx <- alpha*log(t) ## == log(t^alpha) == log( t^(1/theta) )
                       ## ==== former version [start] (numerically slightly more stable but slower) ====
                       ## im <- apply(u., 1, which.max)
                       ## mat.ind <- cbind(seq_len(n), im) # indices that pick out maxima from u.
@@ -592,10 +593,11 @@ copGumbel <-
                       ## ==== former version [end] ====
                       ## compute sum
                       ls. <- polyG(lx, alpha, d, method=method, log=TRUE)-d*lx/alpha
-                      ## the rest
-                      cop.val <- pnacopula(onacopulaL("Gumbel", list(theta, 1:d)), u.)
-                      res[n01] <- d*log(theta) + rowSums((theta-1)*lmlu + mlu) + ls.
-                      res[n01] <- if(log) log(cop.val) + res[n01] else cop.val * exp(res[n01])
+		      ## the rest
+                      ## C() = psi(t(.)) = exp(-t ^ alpha)
+		      lnC <- -exp(lx) ## = - t^alpha
+		      res[n01] <- lnC + d*log(theta) + rowSums((theta-1)*lmlu + mlu) + ls.
+		      if(!log) res[n01] <- exp(res[n01])
                       res
                   }
               },

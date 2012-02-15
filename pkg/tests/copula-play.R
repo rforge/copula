@@ -356,6 +356,10 @@ stopifnot(all.equal(tau.th, tau.F, tol = 0.0001),
 myGumbel <- setTheta(copGumbel, 1.25)
 thetavec <- c(1,2,4,6,10)
 tstCop(myGumbel,2, thetavec, lambdaL = NA, lambdaU = thetavec)
+u <- seq(0,1, length=32 + 1)[-c(1,32+1)]
+u <- as.matrix(expand.grid(u,u))
+myGumbel@dacopula(u, theta=1.25)
+
 
 ### copJoe #####################################################################
 

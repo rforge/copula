@@ -258,3 +258,158 @@ onacopulaL <- function(family, nacList) {
     mkC("outer_nacopula", nacList)
 }
 
+##' @title The *inverse* of onacopulaL
+##' @param x an (outer) nacopula
+##' @return a list like the 'nacList' argument of onacopulaL()
+##' @author Martin Maechler
+nac2list <- function(x) {
+    stopifnot(is(x, "nacopula"))
+    if(length(kids <- x@childCops))# recurse
+        list(x@copula@theta, x@comp, lapply(kids, nac2list))
+    else list(x@copula@theta, x@comp)
+}
+
+##'*randomly* construct a nested Archimedean copula model
+##' @title Random nacopula Model
+##' @param family the Archimedean family
+##' @param d integer >=2; the dimension
+##' @param pr.comp probability of a direct component on each level
+##' @param rtau0 a \code{\link{function}} to generate a (random) tau,
+##'   corresponding to theta0, the outermost theta.
+##' @return an 'outer_nacopula'
+##' @author Martin Maechler,  10 Feb 2012
+rnacModel <- function(family, d, pr.comp, rtau0 = function() rbeta(1, 2,4),
+                      order=c("random", "each", "seq"), digits.theta = 2)
+{
+### TODO:  1) depth.max [default "Inf" = d]
+### ----   2) distribution instead of uniform {1,..., n%/% 2}  for nkids
+
+    COP <- getAcop(family)
+    stopifnot(length(d) == 1, d == round(d), d >= 2,
+	      length(pr.comp) == 1, 0 < pr.comp, pr.comp < 1,
+	      is.function(rtau0),
+	      length(digits.theta) == 1, is.numeric(digits.theta))
+    ## Do: construct a random nacList  and call onacopulaL()
+    ## Care: theta values must obey family specific nesting constraints
+    ##	  we use paraInterval +	 theta1 >= theta0  [ok for the 5 families]
+
+    RR <- if(do.round <- digits.theta < 17)
+	function(t) round(t, digits.theta) else identity
+    stopifnot(is.numeric(t0 <- rtau0()), length(t0) == 1, abs(t0) <= 1)
+    theta0 <- RR(COP@tauInv(t0))
+    bound.th <- as.numeric(COP@paraInterval)[2]
+    rtheta <- { ## function to generate child copula thetas
+	if(bound.th == Inf) function(min.th) # in [min.th, Inf)
+	    RR(1/runif(1, 0, 1/min.th))
+       else function(min.th) RR(runif(1, min.th, bound.th))
+    }
+
+    rComp <- switch(match.arg(order),
+                    "random" = function(n, size)      sample.int(n, size=size),
+                    "each"   = function(n, size) sort(sample.int(n, size=size)),
+                    "seq"    = function(n, size) seq_len(size))
+    ## mkL(): The function to be called recursively
+    ## cs (originally = 1:d) := the set of component IDs to choose from
+    mkL <- function(cs, theta) {
+	nc <- length(cs)
+        if(nc < 2) {
+            stop("nc = ",nc," < 2 -- should not happen")
+        } else if(nc == 2) {
+            ncomp <- 2
+            comp <- cs
+            cs <- integer(0)
+            nc <- length(cs)
+        } else { ## nc >= 3
+            ncomp <- rbinom(1, size=nc, prob = pr.comp)
+            if(nc == 3) ## two cases: either 3 comp, or 1 comp + 1 childcop
+                if(ncomp == 0) ncomp <- 1
+            if(ncomp) {
+                if(ncomp+1 == nc) ## cannot leave only one for children
+                    ncomp <- ncomp+1
+                ii <- rComp(nc, size=ncomp)
+                comp <- cs[ ii]
+                cs   <- cs[-ii]
+                nc <- length(cs)
+            } else comp <- integer(0)   # and keep cs
+        }
+	if(nc) {
+	    if(nc < 2) stop("internal error - nc=", nc, " < 2")
+	    ## choose number of child copulas (>= 1)
+	    nkids <- sample.int(nc %/% 2, size=1)
+	    if(!ncomp && nkids == 1)## if no 'comp's, at least *two* child copulas:
+		nkids <- 2
+	    ## now, at least two components (from cs) must go to each "kid"
+	    if(nkids * 2 > nc)
+		stop("internal error: 'nkids * 2 > nc': nkids=",nkids)
+	    nc. <- nc - 2*nkids
+	    n.each <- 2 + as.vector(rmultinom(1, size= nc.,
+					      prob=rep.int(1/nkids, nkids)))
+	    stopifnot(sum(n.each) == nc)
+            ## i.each: The coordinate IDs for each child copula
+	    i.each <- as.list(n.each)
+	    ind <- cs # the indices from which to choose
+	    for(i in seq_along(i.each)) {
+                ii <- rComp(length(ind), size=n.each[i])
+		i.each[[i]] <- ind[ii]
+		ind <- ind[-ii]
+	    }
+	    ## now recurse for each child copula
+	    LL <- lapply(i.each, function(ie)
+			 mkL(ie, theta= rtheta(min.th = theta)))
+	    list(theta, comp, LL)
+	}
+	else list(theta, comp)
+    }## mkL()
+
+    nacl <- mkL(cs = 1:d, theta0)
+    onacopulaL(COP, nacl)
+}
+
+##' @title Pairwise thetas of Nested Archimedean Copula
+##' @param x an (outer) nacopula (with thetas sets)
+##' @return matrix [d x d] of thetas, T,  T[j,k] = theta of C(U_j,U_k)
+##' @author Martin Maechler
+##' @note This version is simple (to program) but "not so pretty":
+##'  1) .allComp() recurses every time
+##'  2) we overwrite some matrix element several times ..
+##' --> instead using the *longer* nacPairthetas() below
+nacPairthetas0 <- function(x) {
+    stopifnot(is(x, "nacopula"))
+    d <- dim(x)
+    T <- matrix(NA_real_, d,d)
+
+    ## setT() : Set thetas for "sub copula" x
+    ## x : nacopula
+    ## iB: subset {1:d}, the components *below*
+    setT <- function(x, iB) {
+	T[iB, iB] <<- x@copula@theta
+	for(kk in x@childCops)# recurse
+	    setT(kk, .allComp(kk))
+    }
+    setT(x, 1:d)
+    T
+}## nacPairthetas0
+
+##' @title Pairwise thetas of Nested Archimedean Copula
+##' @param x an (outer) nacopula (with thetas sets)
+##' @return matrix [d x d] of thetas, T,  T[j,k] = theta of C(U_j,U_k)
+##' @author Martin Maechler
+nacPairthetas <- function(x) {
+    stopifnot(is(x, "nacopula"))
+    d <- dim(x)
+    T <- matrix(NA_real_, d,d)
+    ## setT() : Set thetas for "sub copula" x; return its 'comp'
+    setT <- function(x) {
+        ii <- x@comp
+        th <- x@copula@theta
+        T[ii,ii] <<- th
+	for(kk in x@childCops) {# recurse
+	    ik <- setT(kk)
+            T[ii,ik] <<- T[ik,ii] <<- th
+            ii <- c(ii,ik)
+        }
+        ii
+    }
+    setT(x)
+    T
+}## nacPairthetas

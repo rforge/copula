@@ -13,6 +13,7 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
+if(getRversion() < "2.15")
 paste0 <- function(...) paste(..., sep="")
 
 #### Functions and Methods for "acopula" objects
@@ -1081,9 +1082,7 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC,
 
 ### Non-numerics ###############################################################
 
-##' Function for setting the parameter in an acopula
-##'
-##' @title Settting the parameter in an acopula
+##' @title Setting the parameter in an acopula
 ##' @param x acopula
 ##' @param value parameter value
 ##' @param na.ok logical indicating if NA values are ok for theta
@@ -1169,9 +1168,11 @@ printNacopula <-
     mkBlanks <- function(n) paste(rep.int(" ", n), collapse="")
     bl <- mkBlanks(nIS <- nchar(indent.str))
 
+    ccl <- if(extends(cl, "outer_nacopula"))
+        paste0('"',cl,'" of dim. ', dim(x)) else paste0('"',cl,'"')
     ## cat(sprintf(" __deltaInd = %d, nIS = %d__ ", deltaInd, nIS))
-    ch1 <- sprintf("%sNested Archimedean copula (\"%s\"), with ",
-                   indent.str, cl)
+    ch1 <- sprintf("%sNested Archimedean copula (%s), with ",
+                   indent.str, ccl)
     ch2 <- if(length(c.j <- x@comp)) {
         sprintf("slot \n%s'comp'   = %s", bl,
                 paste("(",paste(c.j, collapse=", "),")", sep=""))
