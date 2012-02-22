@@ -76,11 +76,11 @@ rcopula(copula, n)
   Mathematica and then processed by \code{deriv} to give
   algorithmic expressions. The maximum dimension implemented is 10 for
   Clayton and Gumbel, and 6 for Frank.
-  
+
   The distribution function of a \code{t} copula uses \code{pmvt} from
   package \code{mvtnorm}. The density function of a \code{t} copula uses the
   \code{dmst} from package \code{sn}.
-  
+
   The random number generator for an Archimedean copula uses the
   conditional approach for the bivariate case and the Marshal-Olkin (1988)
   approach for dimension greater than 2.
@@ -92,18 +92,18 @@ rcopula(copula, n)
 \references{
   E.W. Frees and E.A. Valdez (1998). Understanding relationships using
   copulas.  \emph{North American Actuarial Journal}, 2:1--25.
-  
+
   C. Genest and A.-C. Favre (2007). Everything you always wanted to know
   about copula modeling but were afraid to ask. \emph{Journal of
     Hydrologic Engineering}, 12:347--368.
-  
+
   H. Joe (1997). \emph{Multivariate Models and Dependence Concepts}.
   Chapman and Hall, London.
 
   A.W. Marshal and I. Olkin (1988). Families of multivariate
   distributions. \emph{Journal of the American Statistical Association},
   83:834--841.
-      
+
   R.B. Nelsen (2006). \emph{An introduction to Copulas}. Springer, New York.
 }
 \seealso{
@@ -120,12 +120,16 @@ dcopula(norm.cop, x)
 pcopula(norm.cop, x)
 persp(norm.cop, dcopula)
 contour(norm.cop, pcopula)
+
 ## a 3-dimensional normal copula
 u <- rcopula(normalCopula(0.5, dim = 3), 1000)
-## scatterplot3d(u)
+if(require("scatterplot3d"))
+  scatterplot3d(u)
+
 ## a 3-dimensional clayton copula
 v <- rcopula(claytonCopula(2, dim = 3), 1000)
-## scatterplot3d(v)
+if(require("scatterplot3d"))
+  scatterplot3d(v)
 }
-\keyword{distribution}% at least one, from doc/KEYWORDS
-\keyword{multivariate}% __ONLY ONE__ keyword per line
+\keyword{distribution}
+\keyword{multivariate}

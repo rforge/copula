@@ -9,9 +9,9 @@ Author: Jun Yan <jun.yan@uconn.edu> and
  Martin Maechler <maechler@stat.math.ethz.ch>
 Maintainer: Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
-Depends: R (>= 2.14), methods, stats4, scatterplot3d, pspline
-Imports: gsl, ADGofTest, stabledist, graphics, mvtnorm
-Suggests: lattice, MASS, sfsmisc, Rmpfr, bbmle, Matrix
+Depends: R (>= 2.14), methods, pspline
+Imports: stats4, graphics, gsl, ADGofTest, stabledist, mvtnorm
+Suggests: lattice, MASS, Matrix, sfsmisc, Rmpfr, bbmle, scatterplot3d
 Enhances: nor1mix
 Description: Classes (S4) of commonly used copulas including elliptical
         (normal and t), Archimedean (Clayton, Gumbel, Frank, and

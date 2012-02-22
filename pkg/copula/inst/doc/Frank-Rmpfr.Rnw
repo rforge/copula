@@ -7,7 +7,7 @@
 }
 \title{Numerically Stable Frank Copula Functions via Multiprecision:
   \proglang{R} Package \pkg{Rmpfr}}
-% \def\mythanks{a version of this paper, for \pkg{nacopula} 0.4\_4, has been published
+% \def\mythanks{a version of this paper, for \pkg{copula} 0.4\_4, has been published
 %     in JSS, \url{http://www.jstatsoft.org/v39/i09}.}
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{Martin M\"achler} %% comma-separated
@@ -23,7 +23,7 @@
 
 %% an abstract and keywords
 \Abstract{
-  The package \pkg{nacopula} ....
+  The package \pkg{copula} ....
   ... Archimedean copulas
 
   The package \pkg{Rmpfr} ....
@@ -185,7 +185,7 @@ the diagonal density is
   \label{eq:fD}
 \end{eqnarray}
 
-For this reason, the \pkg{nacopula} package's \code{dDiag()} function for
+For this reason, the \pkg{copula} package's \code{dDiag()} function for
 computing the diagonal density $f^D(u)$ makes use of the following
 %% ==> lines 261 ff from ~/R/Pkgs/nacopula/R/estimation.R
 %%                       ================================
@@ -256,7 +256,7 @@ $ - {\psi_\theta}^\prime(t) = \left|{\psi_\theta}^\prime(t)\right|$, and hence o
 First note that numerically, $e^{-a} - 1$ suffers from cancellation when $0
 < a \ll 1 $, and the \R\ (and C) function \code{expm1(-a)} is advisably used
 instead of \code{exp(-a) - 1}.
-For this reason, in \pkg{nacopula}, I had replaced the original \code{psiInv.0(u, th)}
+For this reason, in \pkg{copula}, I had replaced the original \code{psiInv.0(u, th)}
 for $\psi_\theta^{-1}(u)$ by \code{psiInv.1()}, making use of \code{expm1()}.
 These and the derivative (\ref{eq:psiDabs})
 originally were
@@ -269,7 +269,7 @@ psiInvD1abs.1 <- function(u, theta, log = FALSE)
 and the general $k$-th derivative (\ref{eq:psiInvD1}), simplified, for $k= 1$
 (\code{degree = 1}),
 <<def-orig-psiDabs>>=
-require("nacopula")# for polylog()
+require("copula")# for polylog()
 psiDabs.1 <- function(t, theta, log=FALSE) {
   p <- -expm1(-theta)
   Li. <- polylog(log(p) - t, s = 0, log=log,
@@ -357,7 +357,7 @@ mlogL <- function(theta)
                 log = TRUE))
 @
 Now, plot this negative log likelihood function in an interval $\theta$,
-close to what is proposed \pkg{nacopula}'s \code{initOpt()}
+close to what is proposed \pkg{copula}'s \code{initOpt()}
 function, defining a utility function that we'll reuse later:
 <<llog-theta-plot, fig=true>>=
 p.mlogL <- function(th, mlogL, col= "red2", lwd = 1, lty = 1,

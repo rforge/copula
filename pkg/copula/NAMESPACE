@@ -4,7 +4,9 @@ useDynLib(copula, .registration=TRUE)
 
 importFrom("graphics", persp, contour)
 
-importFrom("mvtnorm", dmvnorm, pmvnorm, dmvt, pmvt)
+importFrom("mvtnorm",
+           dmvnorm, pmvnorm, rmvnorm,
+           dmvt, pmvt, rmvt)
 
 ## FIXME[instead of "Depends"]: importFrom(pspline)
 

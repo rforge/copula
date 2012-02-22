@@ -1,0 +1,62 @@
+##-*- org -*--> use Emacs to view this, and there the [Tab] key + [Org] menu
+
+* LICENCE etc
+
+
+* R/sysdata.rda : ouah!   Please tell us more about this,
+  notably about how it is computed {so it can be recomputed, in case
+  pspline changes ...}.
+  - Note taken on [2012-02-21 Tue 18:52]
+
+***  R code for inspection:
+
+    attach("~/R/Pkgs/copula/R/sysdata.rda")
+    ls.str(pos=2, all=TRUE)
+    ## or even
+    print(ls.str(pos=2, all=TRUE), max.level = 3)
+
+
+* copula code which is not used --- moved to ./misc/
+** the previous file (+directory) names where:
+ - R/mult.R
+ - src/mult.c
+ - src/mygsl_util.c
+
+
+* C code
+** enable registration for the old 'copula' part
+ - quite a bit {see commented part in ./NAMESPACE }
+   can we automate ?
+
+** move  from .C() towards .Call()
+
+** gsl - debye ===> Think of  'LinkingTo: gsl' in DESCRIPTION
+   and then *not* carry gsl-source code anymore.
+
+
+** in all *.c files from former copula: use Doxygen instead of hand made
+   function header documentation.
+
+
+* New(?) (Super)classes for "merging the class structure"
+
+
+* New Wrapper functions
+  or rather extending one or the other function names
+
+** distribution/density/ ... functions
+
+** random number generation
+
+
+* Deprecation of Old Stuff
+
+
+* Documentation etc
+
+ -  ChangeLog *merge* the two (nacopula + copula2)
+
+ -   inst/doc/nacopula-pkg.Rnw  -- keep file name, but rewrite including
+    *Title*  (s/nacopula package/Nested Archimedean Copulas in the copula package/
+
+ -
