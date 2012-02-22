@@ -30,18 +30,16 @@ fgmCopula <- function(param, dim = 2) {
         stop("wrong parameters")
 
     ## power set of {1,...,dim} in integer notation
-    subsets <-  .C("k_power_set", 
+    subsets <-  .C(k_power_set, 
                    as.integer(dim),
                    as.integer(dim),
-                   subsets = integer(2^dim),
-                   PACKAGE="copula")$subsets
+                   subsets = integer(2^dim))$subsets
     ## power set in character vector: {}, {1}, {2}, ..., {1,2}, ..., {1,...,dim}
-    subsets.char <-  .C("k_power_set_char", 
+    subsets.char <-  .C(k_power_set_char, 
                         as.integer(dim),
                         as.integer(2^dim),
                         as.integer(subsets),
-                        sc = character(2^dim),
-                        PACKAGE="copula")$sc
+                        sc = character(2^dim))$sc
 
     ## expression of the cdf
     cdfExpr <- function(n,sc) {
@@ -82,7 +80,7 @@ fgmCopula <- function(param, dim = 2) {
     pdf <- pdfExpr(dim,subsets.char)
 
     ## create new object
-    val <- new("fgmCopula",
+    new("fgmCopula",
                dimension = dim,
                parameters = param,
                exprdist = c(cdf = cdf, pdf = pdf),
@@ -90,7 +88,6 @@ fgmCopula <- function(param, dim = 2) {
                param.lowbnd = rep(-1, 2^dim - dim - 1),
                param.upbnd = rep(1, 2^dim - dim - 1),
                message = "Farlie-Gumbel-Morgenstern copula family")
-    val
 }
 
 #########################################################
@@ -101,13 +98,12 @@ rfgmCopula <- function(copula, n) {
     dim <- copula@dimension
     alpha <- copula@parameters
     if (dim > 2)
-        warning("random generation needs to be properply tested")
-    val <- .C("rfgm",
+        warning("random generation needs to be properly tested")
+    val <- .C(rfgm,
               as.integer(dim),
               as.double(c(rep(0,dim+1),alpha)),
               as.integer(n),
-              out = double(n * dim),
-              PACKAGE="copula")$out
+              out = double(n * dim))$out
     matrix(val, n, dim, byrow=TRUE)
 }
 
@@ -124,8 +120,7 @@ pfgmCopula <- function(copula, u) {
     cdf <- copula@exprdist$cdf
     for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
     for (i in (dim + 2):2^dim) assign(paste("alpha", i, sep=""), param[i - dim - 1])
-    val <- eval(cdf)
-    val
+    eval(cdf)
 }
 
 #########################################################
@@ -141,8 +136,7 @@ dfgmCopula <- function(copula, u) {
     pdf <- copula@exprdist$pdf
     for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
     for (i in (dim + 2):2^dim) assign(paste("alpha", i, sep=""), param[i - dim - 1])
-    val <- eval(pdf)
-    val
+    eval(pdf)
 }
 
 #########################################################

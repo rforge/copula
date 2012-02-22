@@ -107,7 +107,7 @@ setMethod("spearmansRho", signature("evCopula"), spearmansRhoEvCopula)
 
 ## Rank-based version of the Pickands and CFG estimator
 Anfun <- function(x, w, estimator = "CFG", corrected = TRUE)
-  {
+{
     n <- nrow(x)
     m <- length(w)
     
@@ -115,23 +115,21 @@ Anfun <- function(x, w, estimator = "CFG", corrected = TRUE)
     u <- apply(x,2,rank)/(n+1)
 
     if (estimator == "CFG")
-      .C("A_CFG",
+      .C(A_CFG,
          as.integer(n),
          as.double(-log(u[,1])),
          as.double(-log(u[,2])),
          as.double(w),
          as.integer(m),
          as.integer(corrected),
-         A = double(m),
-         PACKAGE="copula")$A   
+         A = double(m))$A   
     else
-      .C("A_Pickands",
+      .C(A_Pickands,
          as.integer(n),
          as.double(-log(u[,1])),
          as.double(-log(u[,2])),
          as.double(w),
          as.integer(m),
          as.integer(corrected),
-         A = double(m),
-         PACKAGE="copula")$A    
-  }
+         A = double(m))$A    
+}

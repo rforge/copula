@@ -29,7 +29,7 @@
 gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
                         estimator = "CFG", m = 1000, print.every = 100,
                         optim.method = "Nelder-Mead")
-  {
+{
     n <- nrow(x)
     
     ## make pseudo-observations
@@ -43,15 +43,14 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
     g <- seq(0,1-1/m,by=1/m)
 
     ## compute the test statistic
-    s <- .C("cramer_vonMises_Afun",
+    s <- .C(cramer_vonMises_Afun,
             as.integer(n),
             as.integer(m),
             as.double(-log(u[,1])),
             as.double(-log(u[,2])),
             as.double(Afun(fcop,g)),
             stat = double(2),
-            as.integer(estimator == "CFG"),
-            PACKAGE="copula")$stat
+            as.integer(estimator == "CFG"))$stat
     
     ## simulation of the null distribution
     s0 <- matrix(NA, N, 2)
@@ -67,15 +66,14 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
         fcop0 <-  fitCopula(copula, u0, method, estimate.variance=FALSE,
                             optim.method=optim.method)@copula
        
-        s0[i,] <-  .C("cramer_vonMises_Afun",
+        s0[i,] <- .C(cramer_vonMises_Afun,
                      as.integer(n),
                      as.integer(m),
                      as.double(-log(u0[,1])),
                      as.double(-log(u0[,2])),
                      as.double(Afun(fcop0,g)),
                      stat = double(2),
-                     as.integer(estimator == "CFG"),
-                     PACKAGE="copula")$stat
+                     as.integer(estimator == "CFG"))$stat
       }
 
     ## corrected version only
@@ -85,7 +83,7 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
 
     class(gof) <- "gofCopula"
     gof
-  }
+}
 
 #######################################################3
 ## version for simulations
@@ -93,8 +91,8 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
 ## not exported
 
 gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
-                        m = 1000, print.every = 100, optim.method = "Nelder-Mead")
-  {
+                    m = 1000, print.every = 100, optim.method = "Nelder-Mead")
+{
     n <- nrow(x)
     p <- ncol(x)
     
@@ -106,37 +104,36 @@ gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
                       optim.method=optim.method)@copula
 
     ## statistic based on Cn
-    sCn <- .C("cramer_vonMises",
+    sCn <- .C(cramer_vonMises,
               as.integer(n),
               as.integer(p),
               as.double(u),
               as.double(pcopula(fcop,u)),
-              stat = double(1),
-              PACKAGE="copula")$stat
+              stat = double(1))$stat
     
     ## where to compute Afun
     g <- seq(0,1-1/m,by=1/m)
 
     ## compute the CFG test statistic
-    sCFG <- .C("cramer_vonMises_Afun",
+    sCFG <- .C(cramer_vonMises_Afun,
                as.integer(n),
                as.integer(m),
                as.double(-log(u[,1])),
                as.double(-log(u[,2])),
                as.double(Afun(fcop,g)),
                stat = double(2),
-               as.integer(1), # estimator == "CFG"),
-               PACKAGE="copula")$stat
+               as.integer(1)# estimator == "CFG"
+               )$stat 
     ## compute the Pickands test statistic
-    sPck <- .C("cramer_vonMises_Afun",
+    sPck <- .C(cramer_vonMises_Afun,
                as.integer(n),
                as.integer(m),
                as.double(-log(u[,1])),
                as.double(-log(u[,2])),
                as.double(Afun(fcop,g)),
                stat = double(2),
-               as.integer(0), # estimator == "CFG"),
-               PACKAGE="copula")$stat
+               as.integer(0) # estimator == Pickard
+               )$stat
 
     s <- c(sCn, sCFG, sPck)
     
@@ -157,36 +154,35 @@ gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
         fcop0 <-  fitCopula(copula, u0, method, estimate.variance=FALSE,
                             optim.method=optim.method)@copula
 
-        sCn0 <- .C("cramer_vonMises",
+        sCn0 <- .C(cramer_vonMises,
                    as.integer(n),
                    as.integer(p),
                    as.double(u0),
                    as.double(pcopula(fcop0,u0)),
-                   stat = double(1),
-                   PACKAGE="copula")$stat
+                   stat = double(1))$stat
 
-        sCFG0 <-  .C("cramer_vonMises_Afun",
+        sCFG0 <-  .C(cramer_vonMises_Afun,
                      as.integer(n),
                      as.integer(m),
                      as.double(-log(u0[,1])),
                      as.double(-log(u0[,2])),
                      as.double(Afun(fcop0,g)),
                      stat = double(2),
-                     as.integer(1), # estimator == "CFG"),
-                     PACKAGE="copula")$stat
-        sPck0 <-  .C("cramer_vonMises_Afun",
+                     as.integer(1) # estimator == "CFG"
+                     )$stat
+        sPck0 <-  .C(cramer_vonMises_Afun,
                      as.integer(n),
                      as.integer(m),
                      as.double(-log(u0[,1])),
                      as.double(-log(u0[,2])),
                      as.double(Afun(fcop0,g)),
                      stat = double(2),
-                     as.integer(0), # estimator == "CFG"),
-                     PACKAGE="copula")$stat
+                     as.integer(0) # estimator == Pickard
+                     )$stat
         s0[i,] <- c(sCn0, sCFG0, sPck0)
       }
     
-    return(list(statistic=s,
-                pvalue=sapply(1:5, function(i) (sum(s0[,i] >= s[i])+0.5)/(N+1)),
-                parameters=fcop@parameters))
-  }
+    list(statistic = s,
+         pvalue = sapply(1:5, function(i) (sum(s0[,i] >= s[i])+0.5)/(N+1)),
+         parameters = fcop@parameters)
+}

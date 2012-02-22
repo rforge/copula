@@ -38,6 +38,5 @@
 rlogseries <- function(n, alpha) {
   val <- integer(n)
   alpha <- rep(alpha, len = n)
-  .C("rlogseries_R", as.integer(n), as.double(alpha), val = as.integer(val),
-     PACKAGE = "copula")$val
+  .C(rlogseries_R, as.integer(n), as.double(alpha), val = as.integer(val))$val
 }

@@ -58,14 +58,12 @@ debye1 <- function(x, give=FALSE, strict=TRUE){
 debye2 <- function(x, give=FALSE, strict=TRUE){
   attr <- attributes(x)
   x.vec <- as.vector(x)
-  jj <- .C("debye_2",
+  jj <- .C(debye_2,
            as.double(abs(x.vec)),  ## added abs by JY
            as.integer(length(x.vec)),
            val=as.double(x.vec),
            err=as.double(x.vec),
-           status=as.integer(0*x.vec),
-           PACKAGE="copula"
-           )
+           status=as.integer(0*x.vec))
   val <- ifelse(x.vec >= 0, jj$val, jj$val - x.vec * 2/ 3) ## k = 2
   err <- jj$err
   status <- jj$status
@@ -88,14 +86,12 @@ debye2 <- function(x, give=FALSE, strict=TRUE){
 ## debye3 <- function(x, give=FALSE, strict=TRUE){
 ##   attr <- attributes(x)
 ##   x.vec <- as.vector(x)
-##   jj <- .C("debye_3",
+##   jj <- .C(debye_3,
 ##            as.double(x.vec),
 ##            as.integer(length(x.vec)),
 ##            val=as.double(x.vec),
 ##            err=as.double(x.vec),
-##            status=as.integer(0*x.vec),
-##            PACKAGE="copula"
-##            )
+##            status=as.integer(0*x.vec))
 ##   val <- jj$val
 ##   err <- jj$err
 ##   status <- jj$status

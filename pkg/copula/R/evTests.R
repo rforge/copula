@@ -19,6 +19,9 @@
 ##
 #################################################################################
 
+##------- FIXME{MM}: Shouldn't all these inherit from "htest" (and use its print() method)?
+##        and ditto for all other ./*Tests.R  !!!
+
 ###################################################################
 ## EV test based on Cn
 ###################################################################
@@ -57,7 +60,7 @@ evTestC <- function(x, N = 1000)
       m <- n
     }
 
-  out <- .C("evtest",
+  out <- .C(evtest,
             as.double(u),
             as.integer(n),
             as.integer(p),
@@ -69,8 +72,7 @@ evTestC <- function(x, N = 1000)
             s0 = double(N * nr),
             as.integer(der2n),
             as.double(offsetstat),
-            stat = double(nr),
-            PACKAGE="copula")
+            stat = double(nr))[c("s0", "stat")]
 
   ## s <- out$stat
   ## s0 <- matrix(out$s0, ncol = nr, byrow = TRUE)
@@ -95,6 +97,7 @@ print.evTest <- function(x, ...)
 {
   cat("Statistic:", x$statistic,
       "with p-value", x$pvalue, "\n\n")
+  invisible(x)
 }
 
 ###################################################################
@@ -116,7 +119,7 @@ evTestA <- function(x, N = 1000, derivatives = "An")
   offset <- 0.5
 
   ## compute the test statistic
-  s <- .C("evtestA_stat",
+  s <- .C(evtestA_stat,
           as.double(u[,1]),
           as.double(u[,2]),
           as.integer(n),
@@ -125,11 +128,10 @@ evTestA <- function(x, N = 1000, derivatives = "An")
           as.integer(m),
           as.integer(estimator == "CFG"),
           stat = double(1),
-          as.double(offset),
-          PACKAGE="copula")$stat
+          as.double(offset))$stat
 
   if (derivatives == "Cn")
-    s0 <- .C("evtestA",
+    s0 <- .C(evtestA,
              as.double(u[,1]),
              as.double(u[,2]),
              as.integer(n),
@@ -138,10 +140,9 @@ evTestA <- function(x, N = 1000, derivatives = "An")
              as.integer(m),
              as.integer(estimator == "CFG"),
              as.integer(N),
-             s0 = double(N),
-             PACKAGE="copula")$s0
+             s0 = double(N))$s0
   else
-    s0 <- .C("evtestA_derA",
+    s0 <- .C(evtestA_derA,
              as.double(u[,1]),
              as.double(u[,2]),
              as.integer(n),
@@ -150,8 +151,7 @@ evTestA <- function(x, N = 1000, derivatives = "An")
              as.integer(m),
              as.integer(estimator == "CFG"),
              as.integer(N),
-             s0 = double(N),
-             PACKAGE="copula")$s0
+             s0 = double(N))$s0
 
   evt <- list(statistic=s, pvalue=(sum(s0 >= s)+0.5)/(N+1))
   class(evt) <- "evTest"
@@ -172,38 +172,35 @@ evTestAA <- function(x, N = 1000,  derivatives = "Cn", m = 100)
   g <- seq(1/m, 1 - 1/m, len = m)
 
   ## compute the test statistic
-  s <- .C("evTestAA_stat",
+  s <- .C(evTestAA_stat,
           as.double(-log(u[,1])),
           as.double(-log(u[,2])),
           as.integer(n),
           as.double(g),
           as.integer(m),
-          stat = double(1),
-          PACKAGE="copula")$stat
+          stat = double(1))$stat
 
   if (derivatives == "Cn")
-    s0 <- .C("evTestAA",
+    s0 <- .C(evTestAA,
              as.double(u[,1]),
              as.double(u[,2]),
              as.integer(n),
              as.double(g),
              as.integer(m),
              as.integer(N),
-             s0 = double(N),
-             PACKAGE="copula")$s0
+             s0 = double(N))$s0
   else
-    s0 <- .C("evTestAA_derA",
+    s0 <- .C(evTestAA_derA,
              as.double(u[,1]),
              as.double(u[,2]),
              as.integer(n),
              as.double(g),
              as.integer(m),
              as.integer(N),
-             s0 = double(N),
-             PACKAGE="copula")$s0
+             s0 = double(N))$s0
 
-  return(list(statistic=s, pvalue=(sum(s0 >= s)+0.5)/(N+1),s0=s0))
-
+  structure(class = "evTest",
+            list(statistic=s, pvalue=(sum(s0 >= s)+0.5)/(N+1),s0=s0))
 }
 
 ###################################################################
@@ -250,7 +247,7 @@ ind.matrix <- function(X)
   M1*M2
 }
 
-## calculating the thetas
+## calculating the thetas for GKRstatistic
 thetas <- function(X)
 {
   mu <- numeric(7)
@@ -312,29 +309,26 @@ Sn <- function(X)
   M <- ind.matrix(X)*D  #delete entries on the diagonal
   w <- sum(M)
   w.sq <- sum((M%*%t(M))*D)
-  Sn <- -1+(8*w)/(n*(n-1))-(9*w.sq)/(n*(n-1)*(n-2))
-  Sn
+  -1 + (8*w)/(n*(n-1)) - (9*w.sq)/(n*(n-1)*(n-2))
 }
 
 ## Jackknife variance estimator THIS CODE CAN BE IMPROVED!!!!!!!
 GKRJack <- function(X)
-  {
-    n <- nrow(X)
-    Sn <- Sn(X)
-    VSn <- numeric()
-    for(i in 1:n){
-      cond <- !(1:n == i)
-      VSn[i] <- Sn(X[cond,])
-    }
-    var <- ((n-1)/n)*(sum((VSn-rep(Sn,n))^2))
-    return(list(Sn=Sn,var=var))
-  }
-
-
-## Calculation of Sn and its fininte sample and asymptotic variance; theta41 = theta[4], theta42 = theta[5], theta51 = theta[6] and theta52=theta[7]
-GKRstatistic <- function(X,variance=c("fsample","asymptotic","all")) #If variance="all", the function gives the asymptotic (var[1]), finite sample (var[2]) and jackknife variance (var[3]) of sqrt(n)*Sn.
 {
-  variance <- match.arg(variance,c("fsample","asymptotic","all"))
+    stopifnot(is.numeric(n <- nrow(X)))
+    Sn <- Sn(X)
+    VSn <- vapply(1:n, function(i) Sn(X[-i, ,drop=FALSE]), 1.)
+    list(Sn=Sn, var = (n-1)/n * sum(VSn - Sn)^2)
+}
+
+
+## Calculation of Sn and its finite sample and asymptotic variance;
+## theta41 = theta[4], theta42 = theta[5], theta51 = theta[6] and theta52=theta[7]
+## If variance="all", the function gives the asymptotic (var[1]), finite sample (var[2])
+## and jackknife variance (var[3]) of sqrt(n)*Sn.
+GKRstatistic <- function(X, variance=c("fsample","asymptotic","all"))
+{
+  variance <- match.arg(variance)
   n <- nrow(X)
   psi <- numeric(5)
   mu <- numeric(7)
@@ -384,9 +378,9 @@ GKRstatistic <- function(X,variance=c("fsample","asymptotic","all")) #If varianc
 ## Test function: GKR test
 ##########################################################
 
-evTestK <- function(x, method = "fsample")
+evTestK <- function(x, method = c("fsample","asymptotic","jackknife"))
 {
-  method <- match.arg(method,c("fsample","asymptotic","jackknife"))
+  method <- match.arg(method)
   n <- nrow(x)
   negvar <- FALSE
   tmp <- switch(method,
@@ -400,13 +394,13 @@ evTestK <- function(x, method = "fsample")
                 "jackknife"=n*tmp$var
                 )
   if(var < 0){
-    ##print("Variance estimator less then zero, using jackknife instead")
+    message("Variance estimator less then zero, using jackknife instead")## <- MM: reactivated 2012-02-22
     negvar <- TRUE
     var <- n*GKRJack(x)$var
     method <- "jackknife"
   }
 
-  Tn <- (sqrt(n)*tmp$Sn)/(sqrt(var))
+  Tn <- sqrt(n)*tmp$Sn/sqrt(var)
   ##calpha <- qnorm((1-alpha/2))
   ##reject <- (abs(Tn)>calpha)
   p.value <- pnorm(-abs(Tn))+pnorm(abs(Tn),lower.tail=FALSE)
