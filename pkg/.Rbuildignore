@@ -1,7 +1,0 @@
-/misc.*
-Rplots.pdf
-inst/doc/auto.*
-inst/doc/Makefile
-inst/doc/.*-splom.*\.(pdf|png)
-inst/doc/.*\.(log|blg|aux|out|tex|bbl|jpg)
-
