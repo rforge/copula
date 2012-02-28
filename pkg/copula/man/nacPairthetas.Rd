@@ -47,7 +47,7 @@ stopifnot(isSymmetric(PT))
 m100
 
 ## image(PT)# not ok -- want one color per theta
-nt <- length(th0 <- unique(c(PT)))
+nt <- length(th0 <- unique(PT[!is.na(PT)]))
 th1 <- c(th0[1]/2, th0, 1.25*th0[nt])
 ths <- (th1[-1]+th1[-(nt+2)])/2
 image(log(PT), breaks = ths, col = heat.colors(nt))

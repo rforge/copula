@@ -387,6 +387,7 @@ nacPairthetas0 <- function(x) {
 	    setT(kk, .allComp(kk))
     }
     setT(x, 1:d)
+    diag(T) <- rep.int(NA_real_, d)
     T
 }## nacPairthetas0
 
@@ -411,5 +412,6 @@ nacPairthetas <- function(x) {
         ii
     }
     setT(x)
+    diag(T) <- rep.int(NA_real_, d)
     T
 }## nacPairthetas
