@@ -146,7 +146,7 @@ options(width = 75,
         ## for JSS, but otherwise MM does not like it:
         ## prompt="R> ",
         continue="  ")# 2 (or 3) blanks: use same length as 'prompt'
-copDDir <- system.file('doc', package='nacopula')
+copDDir <- system.file('doc', package='copula')
 copSrcDDir <- { if(Sys.getenv("USER") == "maechler")
                     '~/R/Pkgs/copula/inst/doc' else
                 file.path(dirname(tempdir()),"copula-Frank-saveDir") }
@@ -187,7 +187,7 @@ the diagonal density is
 
 For this reason, the \pkg{copula} package's \code{dDiag()} function for
 computing the diagonal density $f^D(u)$ makes use of the following
-%% ==> lines 261 ff from ~/R/Pkgs/nacopula/R/estimation.R
+%% ==> lines 261 ff from ~/R/Pkgs/copula/R/estimation.R
 %%                       ================================
 <<nacopula-dDiagA, eval=FALSE>>=
 copula:::dDiagA

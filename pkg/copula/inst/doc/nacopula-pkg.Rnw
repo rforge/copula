@@ -21,7 +21,7 @@
 
 %% an abstract and keywords
 \Abstract{
-  The package \pkg{nacopula} provides procedures for constructing
+  The package \pkg{copula} (formerly \pkg{nacopula}) provides procedures for constructing
   nested Archimedean copulas in any dimensions and with any kind of nesting
   structure, generating vectors of random variates from the constructed
   objects, computing function values and probabilities of falling into
@@ -217,7 +217,7 @@ Sys.setenv(LANGUAGE = "en")
 if(.Platform$OS.type != "windows")
   Sys.setlocale("LC_MESSAGES","C")
 if(Sys.getenv("USER") == "maechler")# take CRAN's version, not development one:
-    require("nacopula", lib="~/R/Pkgs/CRAN_lib")
+    require("copula", lib="~/R/Pkgs/CRAN_lib")
 @
 \section[Introduction]{Introduction \small~\footnote{\mythanks}}
 A \textit{copula} is a multivariate distribution function with standard
@@ -266,14 +266,15 @@ Alongside \textit{elliptical copulas}, i.e., the copulas arising from elliptical
 ``nested Archimedean copulas'' and allow to model hierarchical dependence
  structures.
 
-The \R\ package \pkg{nacopula} implements several functions for working with
+The \R\ package \pkg{copula} (formerly \pkg{nacopula}) implements several functions for working with
 Archimedean and nested Archimedean copulas. In contrast to other \R\ packages
 dealing with Archimedean copulas, e.g., \pkg{copula} (\cite{copula1, copula2}) or
 \pkg{fCopulae} (\cite{fCopulae}),
 particular focus is put on nested Archimedean copulas. The \R\ package
-\pkg{nacopula} is the first \R\ package dealing with these functions.
+\pkg{nacopula} had been the first \R\ package dealing with these functions,
+and is now part of the \R\ package \pkg{copula}.
 It is available from the Comprehensive R Archive Network at
-\url{http://CRAN.R-project.org/package=nacopula}.
+\url{http://CRAN.R-project.org/package=copula}.
 
 \section{Archimedean copulas}
 \subsection{Archimedean copulas and their properties}
@@ -321,7 +322,7 @@ for a distribution function $F$ on the positive real line.
 
 Note that the distribution function $F$ is known for virtually all commonly
 used Archimedean generators, see, e.g., \citet[p.\ 62]{hofert2010c}. The
-package \pkg{nacopula} currently provides the most widely used families of
+package \pkg{copula} currently provides the most widely used families of
 Ali-Mikhail-Haq, Clayton, Frank, Gumbel, and Joe; see Table~\ref{tab:cop-families-psi}
 for the generators and their corresponding distribution functions. Except
 for Clayton's family, where we use a slightly simpler generator, these
@@ -332,8 +333,8 @@ objects (for more information about the statistical software \R, see \citet[2.11
 $\psi$, \code{psi}, its inverse $\psii$, \code{psiInv},
 and the ``sampler'', i.e., random number generator for $V\sim F$, as \code{V0}:
 <<acopula-family>>=
-require(nacopula)
-ls("package:nacopula", pattern = "^cop[A-Z]")
+require(copula)
+ls("package:copula", pattern = "^cop[A-Z]")
 copClayton
 copClayton@psi
 copClayton@psiInv # the inverse of psi(), psi^{-1}
@@ -647,7 +648,7 @@ $C(\cdot\,;\psi_2)$ and $C(\cdot\,;\psi_0)$ is the parent of
 $C(\cdot\,;\psi_1)$.
 
 In \R, because of the recursive tree structure, a powerful approach is to
-use a recursive class definition: In the \pkg{nacopula} package, we
+use a recursive class definition: In the \pkg{copula} package, we
 define the \code{nacopula} (\textbf{n}ested \textbf{a}rchimedean
 \textbf{copula}) class, with three components (\code{slots}),
 \begin{Schunk}
@@ -711,7 +712,7 @@ stopifnot(identical(C3,
 The recursive definition (\ref{nac}) of nested Archimedean copulas not only leads to
 recursive class definitions in \R, but also to recursive functions for
 computations involving such ``nacopulas''.
-All the following functions and methods (from our package \code{nacopula})
+All the following functions and methods (from our package \code{copula})
 are defined recursively, typically using
 \code{lapply(x@childCops,} \textit{<fun>}\code{)}:
 The utilities \code{dim()}, \code{allComp()}, \code{printNacopula()} (which is the hidden
@@ -761,7 +762,7 @@ sufficient nesting condition if $\theta_i\le\theta_j$; equivalently, if $\tau_i\
 sufficient nesting condition if $\psi_i$ and $\psi_j$ belong to different
 Archimedean families is usually more complicated, see, \citet{hofert2010c}. Such
 combinations of Archimedean families are therefore currently not implemented in
-the \R\ package \pkg{nacopula}.
+the \R\ package \pkg{copula}.
 
 \subsection{Sampling}
 If the sufficient nesting condition is fulfilled for all %% appearing
@@ -798,7 +799,7 @@ sample
 \end{align*}
 as all distribution functions $F_{ij}$ take the same form as $F_{01}$, only
 the parameters may differ.
-In our \R\ package \pkg{nacopula}, the supported Archimedean family
+In our \R\ package \pkg{copula} (formerly \pkg{nacopula}), the supported Archimedean family
 objects therefore provide the three slots \code{V0}, \code{nestConstr}, and \code{V01},
 all functions. \code{nestConstr}, is a
 \code{function(}$\theta_0$\code{, }$\theta_1$\code{)} which returns \code{TRUE}
@@ -886,7 +887,7 @@ given in (\ref{exptilted}) may be sampled by either the algorithm of
 author reports that the complexity of his algorithm is bounded, the latter
 author shows that the complexity of his algorithm is $\O(V_{0}h^{\alpha})$.
 We implemented both algorithms for sampling (\ref{exptilted}) in the package
-\pkg{nacopula} and decide for each drawn $V_0$ which method is to be
+\pkg{nacopula} (now \pkg{copula}) and decide for each drawn $V_0$ which method is to be
 applied. As a simple rule, investigated by several parameter combinations,
 the default chooses the method of \citet{hofert2011a} if
 $V_{0}h^{\alpha}<4$ and the one of \citet{devroye2009} otherwise. As
@@ -905,7 +906,7 @@ $\alpha=\theta_0/\theta_1$, hence, see Table~\ref{tab:cop-families-psi},
  function \code{rSibuya(., }$\alpha$\code{)} we provide. For large $V_0$ an
  approximation based on a stable distribution may be used, see
  \citet{hofert2011a}. Finally, Frank's family is more complicated. We refer to
- the source code of the package \pkg{nacopula} and references therein for more
+ the source code of the package \pkg{copula} and references therein for more
 details.
 
 \subsection{A nine-dimensional nested Clayton copula}
@@ -1064,10 +1065,10 @@ in terms of the Kendall's tau of the copula generated by the base generator
 $\psi$. Further, note that if the tail-dependence coefficients exist, they are
 greater than or equal to the ones corresponding to the copula generated by the
 base generator. For the Archimedean families implemented in the package
-\pkg{nacopula}, these can all be computed explicitly.
+\pkg{copula}, these can all be computed explicitly.
 
 The goal of this section is to show how one might work with outer power
-Archimedean copulas with the package \pkg{nacopula}.
+Archimedean copulas with the package \pkg{copula}.
 For now, we use the outer power transformation \code{opower()}
 which generates an outer power family based on the provided copula family
 \code{copbase} with corresponding parameter \code{thetabase}.
@@ -1080,7 +1081,7 @@ families, each including the power as an extra parameter (such that
 \code{theta}, i.e., $\theta$, will become 2-dimensional), rather than
 using the \code{opower()} construction below. This section therefore should be
 considered mainly as an outlook to further features of the package
-\pkg{nacopula}, where this transformation is not required anymore for working
+\pkg{copula}, where this transformation is not required anymore for working
 with outer power Archimedean copulas.
 
 Using this transformation, we define a valid outer power Clayton copula with
@@ -1152,20 +1153,20 @@ rbind(th0 =
 toLatex(sessionInfo())
 @
 %%
-%% packageDescription("nacopula")[c("Version", "LastChanged")]
-%% Now,  packageDescription("nacopula")[["LastChanged"]]  is too long,
+%% packageDescription("copula")[c("Version", "LastChanged")]
+%% Now,  packageDescription("copula")[["LastChanged"]]  is too long,
 %% ----> we "cheat" as follows:
-<<nacopula-version, eval=FALSE>>=
-my.strsplit(  packageDescription("nacopula")[["LastChanged"]]  )
+<<copula-version, eval=FALSE>>=
+my.strsplit(  packageDescription("copula")[["LastChanged"]]  )
 @
-<<nacopula-version,echo=FALSE>>=
-cat(strsplit(packageDescription("nacopula")[["LastChanged"]], "; *")[[1]],"", sep="\n")
+<<copula-version,echo=FALSE>>=
+cat(strsplit(packageDescription("copula")[["LastChanged"]], "; *")[[1]],"", sep="\n")
 <<finalizing, echo=FALSE>>=
 options(op.orig)
 @
 
 \section{Conclusion}
-The package \pkg{nacopula} allows us to easily construct and work with nested
+The package \pkg{copula} (formerly \pkg{nacopula}) allows us to easily construct and work with nested
 Archimedean copulas. First and foremost, fast sampling algorithms for these copulas
 are implemented. As a by-product, the package also provides related mathematical
 and random number generating functions, e.g., efficient
