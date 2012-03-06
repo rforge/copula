@@ -1,6 +1,10 @@
 ##-*- org -*--> use Emacs to view this, and there the [Tab] key + [Org] menu
 
 * LICENCE etc
+** Einstein's rule: Keep it as simple as possible (but not simpler)
+
+*** All the Copyright headers in R/*.R  src/*.c etc need to be
+    streamlined; typically containing all 4 names.
 
 
 * R/sysdata.rda : ouah!   Please tell us more about this,
@@ -40,6 +44,8 @@
 
 * New(?) (Super)classes for "merging the class structure"
 
+*** formner nacopula  c_longNames etc  --> rename to .ac_longNames *and* export
+    (ac = Archimdean copula)
 
 * New Wrapper functions
   or rather extending one or the other function names
@@ -51,12 +57,21 @@
 
 * Deprecation of Old Stuff
 
+   - with warning
+   - on help pages
+
 
 * Documentation etc
 
- -  ChangeLog *merge* the two (nacopula + copula2)
+    - inst/doc/nacopula-pkg.Rnw  -- keep file name, but rewrite including
+      *Title*  (s/nacopula package/Nested Archimedean Copulas in the copula package/
 
- -   inst/doc/nacopula-pkg.Rnw  -- keep file name, but rewrite including
-    *Title*  (s/nacopula package/Nested Archimedean Copulas in the copula package/
+    -
 
- -
+
+* Miscellaneous functions
+
+*** indepTest()  takes a while {ok}, *BUT* cannot be interrupted (quickly enough)
+   - shouldn't it {and all other tests} return a (valid) object of class
+     "htest" (maybe "htest" in addition to the specific S3 class)?
+     --> we would probably not need extra print() methods, and just use print.htest()
