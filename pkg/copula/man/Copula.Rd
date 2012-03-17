@@ -107,7 +107,7 @@ rcopula(copula, n)
   R.B. Nelsen (2006). \emph{An introduction to Copulas}. Springer, New York.
 }
 \seealso{
-  \code{\link{copula-class}},
+  the \code{\linkS4class{copula}} class,
   \code{\link{ellipCopula}},
   \code{\link{archmCopula}},
   \code{\link{fgmCopula}}. }

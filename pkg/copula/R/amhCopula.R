@@ -50,7 +50,7 @@ amhCopula <- function(param, dim = 2) {
     expr <- gsub("s", expr, "(1 - alpha) / (exp(s) - alpha)")
     parse(text = expr)
   }
-  
+
   pdfExpr <- function(cdf, n) {
     val <- cdf
     for (i in 1:n) {
@@ -62,20 +62,18 @@ amhCopula <- function(param, dim = 2) {
 ##   if (dim > 2 && param[1] < 0)
 ##     stop("param can be negative only for dim = 2")
   if (dim > 2) stop("dim can only be 2 for this copula")
-  
-  cdf <- cdfExpr(dim)
-  if (dim <= 6)  pdf <- pdfExpr(cdf, dim)
-  else pdf <- NULL
 
-  val <- new("amhCopula",
-             dimension = dim,
-             parameters = param[1],
-             exprdist = c(cdf = cdf, pdf = pdf),
-             param.names = "param",
-             param.lowbnd = -1,
-             param.upbnd = 1,
-             message = "Amh copula family; Archimedean copula")
-  val
+  cdf <- cdfExpr(dim)
+  pdf <- if (dim <= 6)  pdfExpr(cdf, dim) else NULL
+
+  new("amhCopula",
+      dimension = dim,
+      parameters = param[1],
+      exprdist = c(cdf = cdf, pdf = pdf),
+      param.names = "param",
+      param.lowbnd = -1,
+      param.upbnd = 1,
+      message = "Amh copula family; Archimedean copula")
 }
 
 
@@ -100,7 +98,7 @@ damhCopula <- function(copula, u) {
   ## bivariate anyway
   u1 <- u[,1]
   u2 <- u[,2]
-  (-1 + alpha^2*(-1 + u1 + u2 - u1*u2) - alpha*(-2 + u1 + u2 + u1*u2)) / (-1 + alpha*(-1 + u1)*(-1 + u2))^3 
+  (-1 + alpha^2*(-1 + u1 + u2 - u1*u2) - alpha*(-2 + u1 + u2 + u1*u2)) / (-1 + alpha*(-1 + u1)*(-1 + u2))^3
 }
 
 
@@ -124,7 +122,7 @@ ramhCopula <- function(copula, n) {
   cbind(u, v)
 }
 
-kendallsTauAmhCopula <- function(copula, ...) {
+kendallsTauAmhCopula <- function(copula) {
   alpha <- copula@parameters[1]
   ## Nelsen (2006, p.172)
   ## range of tau: [(5 - 8 log 2) / 3, 1/3] ~= [-0.1817, 0.3333]

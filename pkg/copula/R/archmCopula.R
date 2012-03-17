@@ -24,15 +24,14 @@ archmCopula <- function(family, param, dim = 2, ...) {
   fam <- pmatch(family, familiesImplemented, -1)
   if (fam == -1)
     stop(paste("Valid family names are", familiesImplemented))
-  copula <- switch(fam,
-                   claytonCopula(param, dim = dim),
-                   frankCopula(param, dim = dim),
-                   gumbelCopula(param, dim = dim),
-                   amhCopula(param, dim = 2)
-                   )
-  copula
-}
 
+  switch(fam,
+         claytonCopula(param, dim = dim),
+         frankCopula  (param, dim = dim),
+         gumbelCopula (param, dim = dim),
+         amhCopula    (param, dim = 2)
+         )
+}
 
 
 kendallsTauArchmCopula <- function(copula) {

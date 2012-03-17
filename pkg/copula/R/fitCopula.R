@@ -78,25 +78,27 @@ setMethod("summary", signature("fitCopula"), summaryFitCopula)
 ################################################################
 
 fitCopula <- function(copula, data,
-                      method = "mpl", 
+                      method = "mpl",
                       start = NULL,
                       lower = NULL, upper = NULL,
                       optim.control = list(maxit=1000),
                       optim.method = "BFGS",
                       estimate.variance = TRUE,
-                      hideWarnings = TRUE) {
-  if (method == "ml") 
-    fit <- fitCopula.ml(data, copula, start, lower, upper, optim.control,
-                        optim.method, estimate.variance, hideWarnings)
-  else if (method == "mpl")
-    fit <- fitCopula.mpl(copula, data, start, lower, upper, optim.control,
-                         optim.method, estimate.variance, hideWarnings)
-  else if (method == "itau")
-    fit <- fitCopula.itau(copula, data, estimate.variance)
-  else if (method == "irho")
-    fit <- fitCopula.irho(copula, data, estimate.variance)
-  else stop("Implemented methods are: ml, mpl, itau, and irho.")
-  fit
+                      hideWarnings = TRUE)
+{
+  switch(method,
+	 "ml" =
+	 fitCopula.ml(data, copula, start, lower, upper, optim.control,
+		      optim.method, estimate.variance, hideWarnings),
+	 "mpl" =
+	 fitCopula.mpl(copula, data, start, lower, upper, optim.control,
+		       optim.method, estimate.variance, hideWarnings),
+	 "itau" =
+	 fitCopula.itau(copula, data, estimate.variance),
+	 "irho" =
+	 fitCopula.irho(copula, data, estimate.variance),
+	 ## otherwise
+	 stop("Implemented methods are: ml, mpl, itau, and irho."))
 }
 
 ###############################################################
@@ -118,19 +120,18 @@ fitCopula.mpl <- function(copula, data, start=NULL,
     }
     else start <- copula@parameters
   }
-  
+
   fit <- fitCopula.ml(data, copula, start, lower, upper,
                       optim.control, optim.method, FALSE, hideWarnings)
   var.est <- if(estimate.variance) varPL(fit@copula, data) / nrow(data) else matrix(NA, q, q)
-  ans <- new("fitCopula",
-             estimate = fit@estimate,
-             var.est = var.est,
-             method = "maximum pseudo-likelihood",
-             loglik = fit@loglik,
-             convergence = fit@convergence,
-             nsample = nrow(data),
-             copula = fit@copula)
-  ans
+  new("fitCopula",
+      estimate = fit@estimate,
+      var.est = var.est,
+      method = "maximum pseudo-likelihood",
+      loglik = fit@loglik,
+      convergence = fit@convergence,
+      nsample = nrow(data),
+      copula = fit@copula)
 }
 
 ###############################################################
@@ -143,21 +144,21 @@ fitCopula.itau <- function(copula, data, estimate.variance=TRUE) {
   tau <- cor(data, method="kendall")
   itau <- fitKendall(copula, tau)
   itau <- itau[lower.tri(itau)]
-  if ("ellipCopula" %in% is(copula) && copula@dispstr == "ar1") { ## special treatment
-    estimate <- exp(lm(log(itau) ~ X - 1)$coef)
-  } else  estimate <- lm(itau ~ X - 1)$coef
+  estimate <-
+      if (is(copula, "ellipCopula") && copula@dispstr == "ar1") ## special treatment
+          exp(coef(lm(log(itau) ~ X - 1))) else coef(lm(itau ~ X - 1))
   attributes(estimate) <- NULL ## strip attributes
   copula@parameters[1:q] <- estimate
-  var.est <- if (estimate.variance) varKendall(copula, data) / nrow(data) else matrix(NA, q, q)
-  ans <- new("fitCopula",
-             estimate = estimate,
-             var.est = var.est,
-             method = "inversion of Kendall's tau",
-             loglik = as.numeric(NA), ## otherwise, class "fitCopula" complains.
-             convergence = as.integer(NA),
-             nsample = nrow(data),
-             copula = copula)
-  ans 
+  var.est <- if (estimate.variance)
+      varKendall(copula, data) / nrow(data) else matrix(NA, q, q)
+  new("fitCopula",
+      estimate = estimate,
+      var.est = var.est,
+      method = "inversion of Kendall's tau",
+      loglik = NA_real_,
+      convergence = NA_integer_,
+      nsample = nrow(data),
+      copula = copula)
 }
 
 ###############################################################
@@ -170,21 +171,19 @@ fitCopula.irho <- function(copula, data, estimate.variance=TRUE) {
   rho <- cor(data, method="spearman")
   irho <- fitSpearman(copula, rho)
   irho <- irho[lower.tri(irho)]
-  if ("ellipCopula" %in% is(copula) && copula@dispstr == "ar1") { ## special treatment
-    estimate <- exp(lm(log(irho) ~ X - 1)$coef)
-  } else  estimate <- lm(irho ~ X - 1)$coef
+  estimate <- if (is(copula, "ellipCopula") && copula@dispstr == "ar1") ## special treatment
+      exp(coef(lm(log(irho) ~ X - 1))) else coef(lm(irho ~ X - 1))
   attributes(estimate) <- NULL ## strip attributes
   copula@parameters[1:q] <- estimate
   var.est <- if (estimate.variance) varSpearman(copula, data)/nrow(data) else matrix(NA, q, q)
-  ans <- new("fitCopula",
-             estimate = estimate,
-             var.est = var.est,
-             method = "inversion of Spearman's rho",
-             loglik = as.numeric(NA),
-             convergence = as.integer(NA),
-             nsample = nrow(data),
-             copula = copula)
-  ans
+  new("fitCopula",
+      estimate = estimate,
+      var.est = var.est,
+      method = "inversion of Spearman's rho",
+      loglik = as.numeric(NA),
+      convergence = as.integer(NA),
+      nsample = nrow(data),
+      copula = copula)
 }
 
 ###############################################################
@@ -203,7 +202,7 @@ chkParamBounds <- function(copula) {
 loglikCopula <- function(param, x, copula, hideWarnings=FALSE) {
   slot(copula, "parameters") <- param
   if (!chkParamBounds(copula)) return(NaN)
-  
+
   ## messageOut may be used for debugging
   if (hideWarnings) {
     messageOut <- textConnection("fitMessages", open="w", local=TRUE)
@@ -211,7 +210,7 @@ loglikCopula <- function(param, x, copula, hideWarnings=FALSE) {
     options(warn = -1) ## ignore warnings; can be undesirable!
   }
   loglik <- try(sum(log(dcopula(copula, x))))
-  
+
   if (hideWarnings) {
     options(warn = 0)
     sink(type="message"); sink(); close(messageOut)
@@ -228,8 +227,8 @@ fitCopula.ml <- function(data, copula, start=NULL,
                          hideWarnings=FALSE) {
   if (copula@dimension != ncol(data))
     stop("The dimention of the data and copula do not match.\n")
-  
-  if (is.null(start)) start <- fitCopula.itau(copula, data, FALSE)@estimate  
+
+  if (is.null(start)) start <- fitCopula.itau(copula, data, FALSE)@estimate
   if (length(copula@parameters) != length(start))
     stop("The length of start and copula parameters do not match.\n")
 
@@ -273,16 +272,15 @@ fitCopula.ml <- function(data, copula, start=NULL,
     if (inherits(var.est, "try-error"))
       warning("Hessian matrix not invertible")
   } else var.est <- matrix(NA, q, q)
-  
-  ans <- new("fitCopula",
-             estimate = fit$par,
-             var.est = var.est,
-             method = "maximum likelihood",
-             loglik = loglik,
-             convergence = as.integer(convergence),
-             nsample = nrow(data),
-             copula = copula)
-  ans
+
+  new("fitCopula",
+      estimate = fit$par,
+      var.est = var.est,
+      method = "maximum likelihood",
+      loglik = loglik,
+      convergence = as.integer(convergence),
+      nsample = nrow(data),
+      copula = copula)
 }
 
 #######################################################################
@@ -317,9 +315,9 @@ fitSpearman <- function(cop,rho)  {
         sigma[i,j] <- calibSpearmansRho(cop,rho[i,j])
         sigma[j,i] <- sigma[i,j]
       }
-  
+
   ## make positive definite if necessary
-  if ("ellipCopula" %in% is(cop))
+  if (is(cop, "ellipCopula"))
     makePosDef(sigma, delta=0.001)
   else
     sigma
@@ -336,9 +334,9 @@ fitKendall <- function(cop,tau) {
         sigma[i,j] <- calibKendallsTau(cop,tau[i,j])
         sigma[j,i] <- sigma[i,j]
       }
-  
+
   ## make positive definite if necessary
-  if ("ellipCopula" %in% is(cop))
+  if (is(cop, "ellipCopula"))
     makePosDef(sigma, delta=0.001)
   else
     sigma
@@ -353,14 +351,14 @@ influ.terms <- function(u, influ, q)
 {
   p <- ncol(u)
   n <- nrow(u)
-  
+
   o <- ob <- matrix(0,n,p)
   for (i in 1:p)
     {
       o[,i] <- order(u[,i], decreasing=TRUE)
       ob[,i] <- rank(u[,i])
     }
-  
+
   out <- matrix(0,n,q)
   for (i in 1:p)
       out <- out + rbind(rep(0,q),apply(influ[[i]][o[,i],,drop=FALSE],2,cumsum))[n + 1 - ob[,i],,drop=FALSE] / n
@@ -377,12 +375,12 @@ varPL <- function(cop,u)
       q <- length(cop@parameters)
       return(matrix(NA, q, q))
     }
-    
+
     p <- cop@dimension
     n <- nrow(u)
-    
+
     ## influence: second part
-    ## integrals computed from the original pseudo-obs u by Monte Carlo 
+    ## integrals computed from the original pseudo-obs u by Monte Carlo
     dcop <- dcopwrap(cop,u) ## wrapper
     influ0 <- derPdfWrtParams(cop,u)/dcop
     derArg <- derPdfWrtArgs(cop,u)/dcop
@@ -392,8 +390,8 @@ varPL <- function(cop,u)
         influ[[i]] <- influ0 * derArg[,i]
 
     q <- length(cop@parameters)
-    inve <- solve(var(influ0)) 
-    
+    inve <- solve(var(influ0))
+
     return(inve %*% var(influ0 - influ.terms(u,influ,q)) %*% inve)
   }
 
@@ -410,8 +408,8 @@ getL <- function(copula) {
 
   dgidx <- outer(1:p, 1:p, "-")
   dgidx <- dgidx[lower.tri(dgidx)]
-  
-  if (!("ellipCopula" %in% is(copula))) {
+
+  if (!is(copula, "ellipCopula")) {
     matrix(1/pp, nrow=pp, ncol=1)
   } else if (copula@dispstr == "ex") {
     matrix(1/pp, nrow=pp, ncol=1)
@@ -436,8 +434,8 @@ getXmat <- function(copula) {
 
   dgidx <- outer(1:p, 1:p, "-")
   dgidx <- dgidx[lower.tri(dgidx)]
-  
-  if (!("ellipCopula" %in% is(copula))) { ## one-parameter non-elliptical copula
+
+  if (!is(copula, "ellipCopula")) { ## one-parameter non-elliptical copula
     matrix(1, nrow=pp, ncol=1)
   } else if (copula@dispstr == "ex") {
     matrix(1, nrow=pp, ncol=1)
@@ -460,22 +458,21 @@ varInfluAr1 <- function(cop, v, L, der) {
   p <- cop@dimension
   pp <- p * (p - 1) / 2
   n <- nrow(v)
-  
+
   ## estimate log(r) first, then log(theta), and then exponetiate back
   ## r is the lower.tri of sigma
   sigma <- getSigma(cop) # assuming cop is the fitted copula
   ## influ for log(r)
   r <- sigma[lower.tri(sigma)]
   der <- if (der == "tau") tauDerFun(cop)(r) else rhoDerFun(cop)(r)
-  D <- diag(pp)
-  diag(D) <-  1 / r / der
-  v <- v %*% D 
+  D <- diag(x = 1 / r / der, pp)
+  v <- v %*% D
   ## influ for log(theta)
   v <- v %*% L
-  
+
   ## influ for theta
   theta <- cop@parameters[1]
-  v %*% theta  
+  v %*% theta
 }
 
 varKendall <- function(cop,u) {
@@ -495,7 +492,7 @@ varKendall <- function(cop,u) {
   for (j in 1:(p-1)) {
     for (i in (j+1):p) {
       for (k in 1:n) ## can this be vectorized?
-        ec[k] <- sum(u[,i] <= u[k,i] & u[,j] <= u[k,j])/n 
+        ec[k] <- sum(u[,i] <= u[k,i] & u[,j] <= u[k,j])/n
       v[,l] <- 2 * ec - u[,i] - u[,j]
       l <- l + 1
     }
@@ -505,7 +502,7 @@ varKendall <- function(cop,u) {
   L <- t(solve(crossprod(X), t(X)))
   ## Caution: diag(0.5) is not a 1x1 matrix of 0.5!!! check it out.
   D <- if (length(cop@parameters) == 1) 1 / tauDer(cop) else diag(1 / tauDer(cop))
-  if ("ellipCopula" %in% is(cop) && cop@dispstr == "ar1") { ## special treatment
+  if (is(cop, "ellipCopula") && cop@dispstr == "ar1") { ## special treatment
     v <- varInfluAr1(cop, v, L, "tau")
     return(16 * var(v))
   } else return(16 * var(v %*% L %*% D))
@@ -525,28 +522,32 @@ varSpearman <- function(cop,u)  {
     return(matrix(NA, q, q))
   }
 
-  p <- cop@dimension
-  n <- nrow(u) 
+  stopifnot((p <- cop@dimension) >= 2)
+  n <- nrow(u)
   v <- matrix(0,n,p*(p-1)/2)
-    
+
   ord <- apply(u, 2, order, decreasing=TRUE)
   ordb <- apply(u, 2, rank)
 
   l <- 1
   for (j in 1:(p-1)) {
-    for (i in (j+1):p)  { 
-      v[,l] <- u[,i] * u[,j] + c(0, cumsum(u[ord[,i], j]))[n + 1 - ordb[,i]]/ n + c(0, cumsum(u[ord[,j], i]))[n + 1 - ordb[,j]] / n
+    for (i in (j+1):p)  {
+      v[,l] <- u[,i] * u[,j] +
+          c(0, cumsum(u[ord[,i], j]))[n + 1 - ordb[,i]] / n +
+          c(0, cumsum(u[ord[,j], i]))[n + 1 - ordb[,j]] / n
       l <- l + 1
     }
   }
   ## L <- getL(cop)
   X <- getXmat(cop)
   L <- t(solve(crossprod(X), t(X)))
-  ## Caution: diag(0.5) is not a 1x1 matrix of 0.5!!! check it out.
-  D <- if (length(cop@parameters) == 1) 1 / rhoDer(cop) else diag(1 / rhoDer(cop))
-  if ("ellipCopula" %in% is(cop) && cop@dispstr == "ar1") {
-    v <- varInfluAr1(cop, v, L, "rho")
-    return(144 * var(v))
-  } else return(144 * var(v %*% L %*% D))
+  if (is(cop, "ellipCopula") && cop@dispstr == "ar1") {
+      v <- varInfluAr1(cop, v, L, "rho")
+      144 * var(v)
+  } else {
+      ## Caution: diag(0.5) is not a 1x1 matrix of 0.5!!! check it out.
+      D <- if (length(cop@parameters) == 1) 1 / rhoDer(cop) else diag(1 / rhoDer(cop))
+      144 * var(v %*% L %*% D)
+  }
 }
 

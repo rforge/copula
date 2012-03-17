@@ -328,8 +328,10 @@ trCorr <- rbind(c(1,0.2,0.2),
 stopifnot(is.numeric(rC3), is.matrix(rC3),
 	  dim(rC3) == c(n, 3),max(abs(C3-trCorr)) < eps.tau)
 prt.stats(C3,trCorr,rt)
-if(doPlots)
+if(doPlots) {
+    stopifnot(require("KernSmooth"))## for smoothScatter()
     pairs(rC3, panel = function(...) { par(new = TRUE); smoothScatter(...) })
+}
 
 ### 2d Clayton copula example ##################################################
 

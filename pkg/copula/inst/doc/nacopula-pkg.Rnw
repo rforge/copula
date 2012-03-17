@@ -216,8 +216,8 @@ options(width = 70,
 Sys.setenv(LANGUAGE = "en")
 if(.Platform$OS.type != "windows")
   Sys.setlocale("LC_MESSAGES","C")
-if(Sys.getenv("USER") == "maechler")# take CRAN's version, not development one:
-    require("copula", lib="~/R/Pkgs/CRAN_lib")
+## if(Sys.getenv("USER") == "maechler")# take CRAN's version, not development one:
+##    require("copula", lib="~/R/Pkgs/CRAN_lib")
 @
 \section[Introduction]{Introduction \small~\footnote{\mythanks}}
 A \textit{copula} is a multivariate distribution function with standard

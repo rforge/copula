@@ -22,13 +22,13 @@
 genFunClayton <- function(copula, u) {
   alpha <- copula@parameters[1]
   ## (u^(-alpha) - 1) / alpha ## This is in Nelson Table 4.1; alpha in denom redundant
-  u^(-alpha) - 1 
+  u^(-alpha) - 1
 }
 
 genInvClayton <- function(copula, s) {
   alpha <- copula@parameters[1]
   ## (1 + alpha * s)^(-1/alpha) ## corresponding to the comment above
-  (1 + s)^(-1/alpha) 
+  (1 + s)^(-1/alpha)
 }
 
 genFunDer1Clayton <- function(copula, u) {
@@ -52,7 +52,7 @@ claytonCopula <- function(param, dim = 2) {
     expr <- paste("(1 + (", expr, "))^ (-1/alpha)")
     parse(text = expr)
   }
-  
+
   pdfExpr <- function(cdf, n) {
     val <- cdf
     for (i in 1:n) {
@@ -148,11 +148,11 @@ dclaytonCopula.pdf <- function(copula, u) {
   ## clean up
   val[apply(u, 1, function(v) any(v < 0))] <- 0
   val[apply(u, 1, function(v) any(v > 1))] <- 0
-  
+
   val[apply(u, 1, function(v) any(v == 0) & any(v > 0))] <- 0
-  
+
   ## if (alpha > 0)
-  ## else 
+  ## else
   val
 }
 
@@ -196,10 +196,10 @@ spearmansRhoClaytonCopula <- function(copula) {
 calibSpearmansRhoClaytonCopula <- function(copula, rho) {
   claytonRhoInvNeg <- approxfun(x = .claytonRhoNeg$assoMeasFun$fm$ysmth,
                                 y = .claytonRhoNeg$assoMeasFun$fm$x)
-  
+
   claytonRhoInvPos <- approxfun(x = .claytonRhoPos$assoMeasFun$fm$ysmth,
                                 y = .claytonRhoPos$assoMeasFun$fm$x)
-  
+
   ss <- .claytonRhoNeg$ss
   theta <- ifelse(rho <= 0, claytonRhoInvNeg(rho), claytonRhoInvPos(rho))
   .claytonRhoPos$trFuns$backwardTransf(theta, ss)
@@ -210,7 +210,7 @@ rhoDerClaytonCopula <- function(copula) {
   claytonRhoDer(alpha)
 }
 
-tailIndexClaytonCopula <- function(copula, ...) {
+tailIndexClaytonCopula <- function(copula) {
   upper <- 0
   alpha <- copula@parameters
   lower <- ifelse(alpha > 0, 2 ^ (-1/alpha), 0)

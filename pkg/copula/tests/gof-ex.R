@@ -45,9 +45,6 @@ theta <- cop@tauInv(tau) # true parameter
 cat("\n### data from ",simFamily," (n = ",n,", d = ",d,", theta = ",
     format(theta),", tau = ", format(tau),") ###\n\n",sep="")
 
-if(getRversion() <= "2.13")
-    source(system.file("Rsource", "fixup-sapply.R", package="copula"))
-
 ## note: this might (still) take a while...
 RR <- sapply(gofTraf, simplify="array", function(gt)
          {

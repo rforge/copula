@@ -5,7 +5,7 @@
 \alias{tailIndex}
 \alias{calibKendallsTau}
 \alias{calibSpearmansRho}
-  
+
 \alias{kendallsTau-methods}
 \alias{kendallsTau,ANY-method}
 \alias{kendallsTau,copula-method}
@@ -91,10 +91,10 @@
   calibrates the copula parameter given the value of Kendall's Tau or Spearman's Rho.
 }
 \usage{
-kendallsTau(copula, ...)
-spearmansRho(copula, ...)
-tailIndex(copula, ...)
-calibKendallsTau(copula, tau)
+kendallsTau(copula)
+spearmansRho(copula)
+tailIndex(copula, \dots)
+calibKendallsTau (copula, tau)
 calibSpearmansRho(copula, rho)
 }
 \arguments{
@@ -106,7 +106,7 @@ calibSpearmansRho(copula, rho)
 \details{
   The calibration function in fact returns a moment estimate of the
   parameter for one-parameter copulas.
-  
+
   When there are no closed-form expressions for Kendall's tau or
   Spearman's rho, the calibration functions use numerical
   approximation techniques (see the last reference). For closed-form

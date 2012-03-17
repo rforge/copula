@@ -99,10 +99,10 @@ gtrafouni(u, method = c("chisq", "gamma", "Remillard", "Genest"))
   MLE is known to be consistent (under conditions to be verified).
   Furthermore, for the tests based on the Anderson-Darling test
   statistic, it is theoretically not clear whether the bootstrap
-  converges.  Consequently, the results obtained should be treated with 
-  care.  Moreover, several estimation methods are known to be prone to 
-  numerical errors (see Hofert et al. (2011a)) and are thus not 
-  recommended to be used in the bootstrap. A warning is given if 
+  converges.  Consequently, the results obtained should be treated with
+  care.  Moreover, several estimation methods are known to be prone to
+  numerical errors (see Hofert et al. (2011a)) and are thus not
+  recommended to be used in the bootstrap. A warning is given if
   \code{gnacopula()} is called with a method not being MLE.
 
   Since \R is widely used by practitioners, a word of warning concerning
@@ -152,6 +152,9 @@ gtrafouni(u, method = c("chisq", "gamma", "Remillard", "Genest"))
   \code{\link{gtrafo}} for the multivariate transformation(s)
   \code{\link{htrafo}} and \code{\link{rtrafo}} involved and
   \code{\link{K}} for the Kendall distribution function.
+
+  \code{\link{gofCopula}} for other (parametric bootstrap) based
+  GOF tests.
 }
 \examples{
 tau <- 0.5

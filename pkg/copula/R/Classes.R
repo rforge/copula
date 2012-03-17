@@ -22,7 +22,7 @@
 ###################################################
 ##### basic copula class
 ###################################################
-setClass("copula", 
+setClass("copula",
          representation(dimension = "numeric",
                         parameters = "numeric",
                         param.names = "character",
@@ -54,8 +54,8 @@ setClass("copula",
 setGeneric("dcopula", function(copula, u) standardGeneric("dcopula"))
 setGeneric("pcopula", function(copula, u) standardGeneric("pcopula"))
 setGeneric("rcopula", function(copula, n) standardGeneric("rcopula"))
-setGeneric("kendallsTau", function(copula, ...) standardGeneric("kendallsTau"))
-setGeneric("spearmansRho", function(copula, ...) standardGeneric("spearmansRho"))
+setGeneric("kendallsTau", function(copula) standardGeneric("kendallsTau"))
+setGeneric("spearmansRho", function(copula) standardGeneric("spearmansRho"))
 setGeneric("tailIndex", function(copula, ...) standardGeneric("tailIndex"))
 setGeneric("calibKendallsTau", function(copula, tau) standardGeneric("calibKendallsTau"))
 setGeneric("calibSpearmansRho", function(copula, rho) standardGeneric("calibSpearmansRho"))
@@ -196,7 +196,7 @@ setClass("galambosCopula",
          contains = list("evCopula")
          )
 
-## gumbel copula, also an archm copula; 
+## gumbel copula, also an archm copula;
 setClass("gumbelCopula",
          representation = representation("archmCopula"),
          contains = list("archmCopula", "evCopula")
@@ -227,7 +227,7 @@ setClass("tevCopula",
 setGeneric("Afun", function(copula, w) standardGeneric("Afun"))
 setGeneric("AfunDer", function(copula, w) standardGeneric("AfunDer"))
 setGeneric("derAfunWrtParam", function(copula, w) standardGeneric("derAfunWrtParam"))
-           
+
 #######################################################
 #### other copulas
 #######################################################
@@ -242,14 +242,14 @@ setClass("fgmCopula",
              if (dim == 2)
                  return(TRUE);
              param <- object@parameters
-             valid <- .C(validity_fgm, 
+             valid <- .C(validity_fgm,
                          as.integer(dim),
                          as.double(c(rep(0,dim+1),param)),
                          valid = integer(1))$valid
              if (valid == 0)
                  return("Bad vector of parameters")
              else
-                 return(TRUE)   
+                 return(TRUE)
          },
          contains = list("copula")
          )

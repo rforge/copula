@@ -28,13 +28,14 @@ evCopula <- function(family, param, dim = 2, ...) {
   familiesImplemented <- c("galambos", "gumbel", "huslerReiss")
   fam <- pmatch(family, familiesImplemented, -1)
   if (fam == -1)
-    stop(paste("Valid family names are", familiesImplemented))
-  copula <- switch(fam,
-                   galambosCopula(param),
-                   gumbelCopula(param),
-                   huslerReissCopula(param)
-                   )
-  copula
+    stop("Valid family names are ",
+         paste(familiesImplemented, collapse=", "))
+
+  switch(fam,
+         galambosCopula   (param),
+         gumbelCopula     (param),
+         huslerReissCopula(param)
+         )
 }
 
 tailIndexEvCopula <- function(copula) {
@@ -56,7 +57,7 @@ revCopula <- function(copula, n) {
   ## hdensity is pretty much centered around 0.5.
   ## In particular, it generates peculiar numbers for galambosCopula with
   ## alpha >= 30. Don't how to solve yet.
-  
+
   M <- hdensity(copula, 0.5) ## maximum obtained at 0.5 for symmetric copula
   z <- rep(NA, n)
   ndone <- 0
@@ -69,7 +70,7 @@ revCopula <- function(copula, n) {
     ngood <- min(ngood, n - ndone)
     z[ndone + 1:ngood] <- ucand[accept][1:ngood]
     ndone <- ndone + ngood
-    if (ndone == n) break    
+    if (ndone == n) break
   }
   ders <- AfunDer(copula, z)
   pz <- z * (1 - z) * ders$der2 / hdensity(copula, z) / Afun(copula, z)
@@ -110,7 +111,7 @@ Anfun <- function(x, w, estimator = "CFG", corrected = TRUE)
 {
     n <- nrow(x)
     m <- length(w)
-    
+
     ## make pseudo-observations
     u <- apply(x,2,rank)/(n+1)
 
@@ -122,7 +123,7 @@ Anfun <- function(x, w, estimator = "CFG", corrected = TRUE)
          as.double(w),
          as.integer(m),
          as.integer(corrected),
-         A = double(m))$A   
+         A = double(m))$A
     else
       .C(A_Pickands,
          as.integer(n),
@@ -131,5 +132,5 @@ Anfun <- function(x, w, estimator = "CFG", corrected = TRUE)
          as.double(w),
          as.integer(m),
          as.integer(corrected),
-         A = double(m))$A    
+         A = double(m))$A
 }

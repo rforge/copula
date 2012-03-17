@@ -38,7 +38,6 @@ gofCopula(copula, x, N = 1000, method = "mpl",
   \item{optim.method}{ the method for \code{\link{optim}()}.}
 }
 \details{
-
   If the parametric bootstrap is used, the dependence parameters of
   the hypothesized copula family can be estimated either by maximizing
   the pseudo-likelihood or by inverting Kendall's tau or Spearman's rho.
@@ -98,7 +97,12 @@ gofCopula(copula, x, N = 1000, method = "mpl",
   approximate p-values. One way of dealing with ties was suggested in the
   last reference.
 }
-\seealso{ \code{\link{fitCopula}}, \code{\link{ellipCopula}}. }
+\seealso{
+  \code{\link{fitCopula}}, \code{\link{ellipCopula}}.
+
+  \code{\link{gnacopula}} for other goodness-of-fit tests for (nested)
+  Archimedean copulas.
+}
 \examples{
 ## the following example is available in batch through
 ## demo(gofCopula)

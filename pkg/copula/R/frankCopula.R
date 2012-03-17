@@ -53,7 +53,7 @@ frankCopula <- function(param, dim = 2) {
     expr <- paste("-1/alpha * log(1 + exp(-(", expr, ")) * (exp(-alpha) - 1))")
     parse(text = expr)
   }
-  
+
   pdfExpr <- function(cdf, n) {
     val <- cdf
     for (i in 1:n) {
@@ -79,9 +79,9 @@ frankCopula <- function(param, dim = 2) {
 }
 
 rfrankBivCopula <- function(copula, n) {
-  val <- cbind(runif(n), runif(n)) 
+  val <- cbind(runif(n), runif(n))
   ## to fix numerical rounding problems for alpha >35 but not for alpha < -35
-  alpha <- - abs(copula@parameters[1]) 
+  alpha <- - abs(copula@parameters[1])
   val[,2] <- -1/alpha * log(1 + val[,2] * (1 - exp(-alpha)) / (exp(-alpha * val[,1]) * (val[,2] - 1) - val[,2])) ## reference: Joe (1997, p.147)
   if (copula@parameters[1] > 0) val[,2] <- 1 - val[,2]
   val
@@ -163,7 +163,7 @@ spearmansRhoFrankCopula <- function(copula) {
     1 - 12/alpha * (debye1(alpha) - debye2(alpha))
 }
 
-tailIndexFrankCopula <- function(copula, ...) {
+tailIndexFrankCopula <- function(copula) {
   c(lower=0, upper=0)
 }
 

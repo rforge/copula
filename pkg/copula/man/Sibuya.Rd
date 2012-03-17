@@ -43,6 +43,7 @@ pSibuya(x, alpha, lower.tail=TRUE, log.p=FALSE)
 
 dsumSibuya(x, n, alpha,
            method=c("log", "direct", "Rmpfr", "Rmpfr0", "RmpfrM", "diff", "exp.log"),
+           mpfr = list(minPrec = 21, fac = 1.25, verbose=TRUE),
            log=FALSE)
 }
 \arguments{
@@ -82,6 +83,13 @@ dsumSibuya(x, n, alpha,
       \item{\code{"exp.log"}}{is as \code{method="log"} but without
 	numerically stable evaluation (not recommended, use with care).}
     }
+  }
+  \item{mpfr}{for \code{method = "Rmpfr"} or \code{"RmpfrM"} only: a
+    list of
+    \cr \code{minPrec}: minimal (estimated) precision in bits,
+    \cr \code{fac}: factor with which current precision is multiplied if
+    it is not sufficient.
+    \cr \code{verbose}: determining if and how much is printed.
   }
 }
 \details{

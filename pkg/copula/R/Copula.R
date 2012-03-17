@@ -62,7 +62,7 @@ setMethod("show", signature("copula"), showCopula)
 ##   lower <- c(.eps, .eps)
 ##   upper <- c(1 - .eps, 1 - .eps)
 ##   integ <- adapt(ndim=2, lower=lower, upper=upper, functn=integrand, ...)$value
-##   12 * integ - 3                 
+##   12 * integ - 3
 ## }
 
 
@@ -71,7 +71,7 @@ tailIndexCopula <- function(copula, eps = .Machine$double.eps^0.5) {
   u <- eps
   v <- 1 - u
   lower <- pcopula(copula, c(u, u))/u
-  upper <- (1 - 2 * v + pcopula(copula, c(v, v)))/ (1 - v)
+  upper <- (1 - 2 * v + pcopula(copula, c(v, v)))/ u
   c(lower=lower, upper=upper)
 }
 
@@ -101,7 +101,6 @@ calibSpearmansRhoCopula <- function(copula, rho) {
     copula@parameters <- theta
     spearmansRho(copula) - rho
   }
-  .eps <- .Machine$double.eps^.5
   lower <- copula@param.lowbnd
   upper <- copula@param.upbnd
 ##   lower <- ifelse(lower == -Inf, -.Machine$double.xmax^.5, lower)
