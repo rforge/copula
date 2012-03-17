@@ -130,7 +130,7 @@ str(rNum)
 filR <- "Frank-dDiag.rda"
 ##       ---------------
 if(isMMae <- identical("maechler",Sys.getenv("USER"))) {
-   resourceDir <- "~/R/D/R-forge/copula/www/resources"
+   resourceDir <- "~/R/D/R-forge/nacopula/www/resources"
    if(file.exists(ff <- file.path(resourceDir, filR)))
        cat("Will use ", (filR <- ff),"\n")
 }

@@ -35,6 +35,15 @@ dsSibA <- function(d, alpha, methods = ds.Meths, log=TRUE) {
                      x=d, n = 1:d, alpha=alpha, log=log),
               alpha=alpha, log=log)
 }
+
+dsSibMpfr <- function(d, alpha, minPrec = 21, fac.prec = 33/32, log=TRUE, verbose=TRUE) {
+    ## fac.prec = 33/32 = 1.0..  ==> try to not waste -- only get "minimally needed" precision
+    stopifnot(length(d) == 1, d >= 1, is.numeric(alpha))
+    r <- dsumSibuya(x=d, n = 1:d, alpha=alpha, method = "RmpfrM", log=log,
+                    mpfr = list(minPrec= minPrec, fac = fac.prec, verbose=verbose))
+    list(dsumSib = as.numeric(r), prec = getPrec(r))
+}
+
 p.dsSib <- function(dsSmat, type="l", ...) {
     stopifnot(is.matrix(dsSmat), (p <- ncol(dsSmat)) >= 1,
               is.numeric(alp <- attr(dsSmat, "alpha")))
@@ -52,20 +61,91 @@ str(m50..1 <- dsSibA(50, alpha = 0.1))
 stopifnot(is.matrix(m50..1))
 p.dsSib(m50..1)## -- now Rmpfr has no NaN anymore!
 
-p.dsSib(dsSibA(60, alpha = 0.4))
-p.dsSib(dsSibA(70, alpha = 0.4))
+str(r50.1 <- dsSibMpfr(50, 0.1))# accurate "prec" estimates
+plot(r50.1$prec)
+
+str(r50.01 <- dsSibMpfr(50, 0.01))# accurate "prec" estimates
+plot(r50.01$prec)
+
+str(r60.01 <- dsSibMpfr(60, 0.01))# accurate "prec" estimates
+plot(r60.01$prec)
+
+str(r70.2 <- dsSibMpfr(70, 0.2))
+plot(r70.2$prec)
+
+str(r70.4 <- dsSibMpfr(70, 0.4))
+plot(r70.4$prec)
+
+str(r80.4 <- dsSibMpfr(80, 0.4))
+plot(r80.4$prec)
+
+str(r80.1 <- dsSibMpfr(80, 0.1, verbose=FALSE))
+plot(r80.1$prec)
+
+str(r120.1 <- dsSibMpfr(120, 0.1, verbose=FALSE))
+plot(r120.1$prec)
+
+system.time(# takes a few minutes!
+str(r150.1 <- dsSibMpfr(150, 0.1, verbose=FALSE))
+)
+plot(r150.1$prec) # up to 600 something
+
+system.time(# takes a few minutes!
+str(r150.01 <- dsSibMpfr(150, 0.01, verbose=FALSE))
+)
+##    user  system elapsed
+## 172.563   0.004 173.086
+plot(r150.01$prec) # up to ~ 1200
+
+system.time(
+str(r100.001 <- dsSibMpfr(100, 0.001, verbose=FALSE))
+)
+##    user  system elapsed
+## 103.226   0.356 103.900
+plot(r100.001$prec) # up to ~ 1100
+
+system.time(
+str(r90.02 <- dsSibMpfr(90, 0.02, verbose=FALSE))
+)
+##   user  system elapsed
+## 46.479   0.148  46.764
+plot(r90.02$prec) # up to ~ 600
+
+system.time(
+str(r40.1em4 <- dsSibMpfr(40, 1e-4))
+)
+ ##   user  system elapsed
+ ## 17.745   0.036  17.847
+plot(r40.1em4$prec) # up to ~ 600
+
+## quite fast
+str(r150.99 <- dsSibMpfr(150, 0.99))
+plot(r150.99$prec)# ?? all have prec = 150
+plot(r150.99$dsumSib)
+## all methods are ok for large alpha :
+p.dsSib(dsSibA(150, alpha = 0.99))
+
+if(FALSE) # at D-Math, ETH Zurich:
+setwd("/u/maechler/R/Pkgs/copula/demo")
+save(list = ls(patt="^r[0-9]"), file = "dsSibMpfr_set.rda")
+attach("dsSibMpfr_set.rda")
+
+## TODO:  Data frame / Matrix  -- col.  (d, k, alpha, dsumSib, prec)
+## ----- and find "simple" model    prec ~ f(d, k, alpha)
+
+
 p.dsSib(dsSibA(80, alpha = 0.4), type="b")
 
-p.dsSib(ds70 <- dsSibA(70,  alpha = 0.1))
+p.dsSib(ds70 <- dsSibA(70,  alpha = 0.1))## many more recalls
 ## more extreme:
-p.dsSib(ds1c <- dsSibA(100, alpha = 0.01))
+p.dsSib(ds1c <- dsSibA(100, alpha = 0.01))## many many more recalls
 
-##--> For small alpha and "large" d,  even Rmpfr  (now "Rmpfr0")
-## is not good enough...
+##--> For small alpha and "large" d,  even Rmpfr0
+## is not good enough...  and we may need quite high precision
 
 ## Look at the values *before* log(.) :
 dsumSibuya(50, 1:50, alpha=0.1, method="Rmpfr")
-dd <- dsumSibuya(50, 1:50, alpha=mpfr(0.1, 200), method="Rmpfr")# now -- higher prec. -- all fine!
+dd <- dsumSibuya(50, 1:50, alpha=mpfr(0.1, 200), method="Rmpfr")# now -- higher prec. -- "all" fine!
 plot(dd, log="y")
 
 
@@ -87,10 +167,6 @@ cGmeths <- function() {
 }
 
 cGmeths()
-
-## need the fixed sapply() {or R >= 2.13.x} :
-if(getRversion() < "2.13")
-    source(system.file("Rsource", "fixup-sapply.R", package="copula"))
 
 asN <- function(x, name=deparse(substitute(x))[1]) {
     names(x) <- paste(name, vapply(x, format, ""), sep="=")

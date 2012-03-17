@@ -25,7 +25,7 @@ do.animation <- require("animation") && (!exists("dont.animate") || !dont.animat
 
 options(warn=1)
 
-### expected evaluation points for estimating Gumbel and Joe copulas ###########
+## expected evaluation points for estimating Gumbel and Joe copulas ###########
 eep.fun <- function(family, alpha, d, n.MC=5000){
     vapply(alpha, function(alph)
        {
@@ -147,9 +147,10 @@ pp5 <- sapply(my.polyG.meths, function(met) {
     r
 }, simplify = FALSE)
 ## => all are fine, even for the much larger range than the expected values: all finite:
-t(sapply(pp5, function(L) apply(L$f.x, 2, function(.) sum(!is.finite(.)))))
+t(sapply(pp5, function(L) apply(L$f.x, 2, function(.) sum(!is.finite(.)))))#-> 0 0 0 {no non-finite}
 
-### plots for large d
+
+### plots for large d --- quite different picture!
 
 xlim <- c(1e-16, 200)
 ylim <- c(300, 600)
@@ -164,6 +165,7 @@ pp100 <- sapply(my.polyG.meths, function(met) {
 t(sapply(pp100, function(L) apply(L$f.x, 2, function(.) sum(!is.finite(.)))))
 ##-> only "default", "direct", and "dsSib.Rmpfr" have no NA's
 ## but what about the *values*?
+
 
 ### method == "pois"
 plot.poly(family, xlim=xlim, ylim=ylim, method="pois", alpha=alpha, d=100)
@@ -185,7 +187,9 @@ plot.poly(family, xlim=xlim, ylim=ylim, method="stirling.horner", alpha=alpha, d
 plot.poly(family, xlim=xlim, ylim=ylim, method="sort", alpha=alpha, d=100) # log(< 0)
 plot.poly(family, xlim=xlim, ylim=ylim, method="horner", alpha=alpha, d=100) # log(< 0)
 plot.poly(family, xlim=xlim, ylim=ylim, method="direct", alpha=alpha, d=100) # log(< 0)
-plot.poly(family, xlim=xlim, ylim=ylim, method="dsumSibuya", alpha=alpha, d=100) # okay for large alpha
+plot.poly(family, xlim=xlim, ylim=ylim, method="dsumSibuya", alpha=alpha, d=100) # okay for large alpha *only* ??
+## this is *slow* and needs many "recall"s [and of course *looks* good]!
+plot.poly(family, xlim=xlim, ylim=ylim, method="dsSib.Rmpfr", alpha=alpha, d=100)
 
 
 ### run time comparison of the methods that worked for some parameter

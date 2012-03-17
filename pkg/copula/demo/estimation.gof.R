@@ -44,9 +44,6 @@ theta <- cop@tauInv(tau) # true parameter
 cat("\n### data from ",simFamily," (n = ",n,", d = ",d,", theta = ",
     format(theta),", tau = ", format(tau),") ###\n\n",sep="")
 
-if(getRversion() <= "2.13")
-    source(system.file("Rsource", "fixup-sapply.R", package="copula"))
-
 ## As "smle" is the slowest by far, we need to leave it away here:
 estM.1 <- estMeth[estMeth != "smle"]
 ## Hmm, but actually, we currently only recommend to use GOF for the MLE,

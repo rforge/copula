@@ -733,6 +733,7 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 ##'       - numerically challenging, e.g., dsumSibuya(100, 96, 0.01) < 0 for all methods
 dsumSibuya <- function(x, n, alpha,
 		       method= c("log", "direct", "Rmpfr", "Rmpfr0", "RmpfrM", "diff", "exp.log"),
+                       mpfr = list(minPrec = 21, fac = 1.25, verbose=TRUE),
 		       log=FALSE)
 {
     stopifnot(x == round(x), n == round(n), n >= 0, length(alpha) == 1,
@@ -792,9 +793,15 @@ dsumSibuya <- function(x, n, alpha,
 	   stopifnot(require(Rmpfr))
 	   if(!is(alpha, "mpfr"))
 	       alpha <- mpfr(alpha, precBits = max(100, min(x, 10000)))
+## FIXME: Hmm, when recalling, alpha becomes more and more precise, even going from n[i] to n[i+1]
+###
+### that's not ok.. strictly should only recall for those (x,n) pairs where it's needed
 	   pr. <- getPrec(alpha)
 	   mpfr.0 <- mpfr(0, precBits = pr.)
 	   mayRecall <- (method != "Rmpfr0")
+           stopifnot(is.numeric(minPrec <- mpfr$minPrec),
+                     is.numeric(fac.pr <- mpfr$fac), fac.pr > 1,
+                     length(mpfr$verbose) == 1)
 	   ## FIXME
 	   if(FALSE && l.x == 1 && l.n == x. && all(n == seq_len(x.))) { ## Special case -- from coeffG()
 	       message("fast special case ..") ## <- just for now
@@ -810,7 +817,7 @@ dsumSibuya <- function(x, n, alpha,
 	       stop("fast special case -- is still wrong !")
 	       S <- new("mpfr", unlist(lapply(j, f.sp)))
 	   } else { ## usual case
-	       f.one <- function(x,n) {
+	       f.one <- function(x,n, alpha) {
 		   if(x < n) return(mpfr.0)
 		   j <- seq_len(n)
 		   ## now do this in parts {to analyze}:
@@ -822,25 +829,26 @@ dsumSibuya <- function(x, n, alpha,
 		   if(mayRecall) {
 		       recall <- (S <= 0)
 		       if(recall) { ## complete loss of precision -- recall with higher precision
-			   newPrec <- round(1.5 * pr.)
 			   MSG <- " |--> S < 0"
+			   newPrec <- round(fac.pr * pr.)
 		       } else {		# S > 0 :
 			   bitLoss <- round(as.numeric(log2(max(abs(trms)) / S )), 1)
-			   recall <- (pr. - bitLoss < 20) ## less than 20 bits precision left
-			   if(recall) {
-			       newPrec <- pr. + 30
+			   recall <- (pr. - bitLoss < minPrec) ## less than 'minPrec' bits precision left
+			   if(recall)
 			       MSG <- paste("-> bit loss =", bitLoss)
-			   }
+			   newPrec <- round(max(minPrec + bitLoss, fac.pr * pr.))
+			   ## newPrec <- round(fac.pr * pr.)
 		       }
 		       if(recall) {
-			   message(sprintf("dsumSibuya(%d, %d, alpha= %g, method='%s'): %s ==> recalled with new prec. %d",
-					   x, n, as.numeric(alpha), method, MSG, newPrec))
-			   dsumSibuya(x,n, alpha = roundMpfr(alpha, newPrec),
+			   if(mpfr$verbose)
+                               message(sprintf("dsumSibuya(%d, %d, alpha= %g [pr = %d], method='%s'): %s ==> recalled w/ new prec. %d",
+					   x, n, as.numeric(alpha), as.integer(pr.), method, MSG, newPrec))
+			   dsumSibuya(x,n, alpha = roundMpfr(alpha, newPrec), mpfr = mpfr,
 				      method="RmpfrM", log=FALSE)
 		       } else S
 		   } else S
-	       }
-	       S <- new("mpfr", mapply(f.one, x, n, USE.NAMES=FALSE))
+	       }## end{ f.one() }
+	       S <- new("mpfr", mapply(f.one, x, n, alpha, USE.NAMES=FALSE))
 	   }
 	   if(method == "RmpfrM")
 	       if(log) log(S) else S
