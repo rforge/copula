@@ -115,12 +115,20 @@ calibSpearmansRho(copula, rho)
   expression for the normal copula as an approximation.
 }
 \references{
-  E.W. Frees and E.A. Valdez (1998). Understanding relationships using
-  copulas.  \emph{North American Actuarial Journal}, 2:1--25.
+  E.W. Frees and E.A. Valdez (1998)
+  Understanding relationships using copulas.
+  \emph{North American Actuarial Journal} \bold{2}, 1--25.
 
   I. Kojadinovic and J. Yan (2010). Comparison of three semiparametric methods
   for estimating dependence parameters in copula models.
-  \emph{Insurance: Mathematics and Economics}, 47:52--63.
+  \emph{Insurance: Mathematics and Economics} \bold{47}, 52--63.
+}
+\seealso{
+  The \code{\linkS4class{acopula}} class objects have slots,
+  \code{tau}, \code{lambdaL}, and \code{lambdaU} providing functions for
+  \code{kendallsTau()}, and the two tail indices \code{tailIndex()},
+
+  and slot \code{\link{tauInv}} for \code{calibKendallsTau()}.
 }
 \examples{
 gumbel.cop <- gumbelCopula(3)
@@ -128,12 +136,23 @@ kendallsTau(gumbel.cop)
 spearmansRho(gumbel.cop)
 tailIndex(gumbel.cop)
 
+stopifnot(all.equal(kendallsTau(gumbel.cop), copGumbel@tau(3)),
+
+          all.equal(tailIndex(gumbel.cop),
+                    c(copGumbel@lambdaL(3), copGumbel@lambdaU(3)),
+                    check.attr=FALSE),
+
+          all.equal(calibKendallsTau (gumbel.cop, 0.681),
+                    copGumbel@tauInv(0.681))
+)
+
+
 ## let us compute the sample versions
 x <- rcopula(gumbel.cop, 200)
 cor(x, method = "kendall")
 cor(x, method = "spearman")
 ## compare with the true parameter value 3
-calibKendallsTau(gumbel.cop, cor(x, method="kendall")[1,2])
+calibKendallsTau (gumbel.cop, cor(x, method="kendall")[1,2])
 calibSpearmansRho(gumbel.cop, cor(x, method="spearman")[1,2])
 }
 \keyword{multivariate}
