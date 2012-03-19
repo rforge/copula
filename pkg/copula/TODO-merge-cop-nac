@@ -1,77 +1,65 @@
 ##-*- org -*--> use Emacs to view this, and there the [Tab] key + [Org] menu
 
 * LICENCE etc
-** Einstein's rule: Keep it as simple as possible (but not simpler)
+MM: Einstein's rule: Keep it as simple as possible (but not simpler)
+All the Copyright headers in R/*.R  src/*.c etc need to be streamlined;
+typically containing all 4 names.
+MH: I can do that (once Ivan and Jun agree)
 
-*** All the Copyright headers in R/*.R  src/*.c etc need to be
-    streamlined; typically containing all 4 names.
-
-
-* R/sysdata.rda : ouah!   Please tell us more about this,
-  notably about how it is computed {so it can be recomputed, in case
-  pspline changes ...}.
-  - Note taken on [2012-02-21 Tue 18:52]
-
-***  R code for inspection:
-
-    attach("~/R/Pkgs/copula/R/sysdata.rda")
-    ls.str(pos=2, all=TRUE)
-    ## or even
-    print(ls.str(pos=2, all=TRUE), max.level = 3)
-
+* R/sysdata.rda : ouah!
+MM, MH: Please tell us more about this,
+notably about how it is computed {so it can be recomputed, in case
+pspline changes ...}.
+- Note taken on [2012-02-21 Tue 18:52]
+**  R code for inspection:
+ attach("~/R/Pkgs/copula/R/sysdata.rda")
+ ls.str(pos=2, all=TRUE)
+ ## or even
+ print(ls.str(pos=2, all=TRUE), max.level = 3)
 
 * copula code which is not used --- moved to ./misc/
-** the previous file (+directory) names where:
- - R/mult.R
- - src/mult.c
- - src/mygsl_util.c
-
+MM: the previous file (+directory) names were:
+    - R/mult.R
+    - src/mult.c
+    - src/mygsl_util.c
 
 * C code
 ** enable registration for the old 'copula' part
- - quite a bit {see commented part in ./NAMESPACE }
-   can we automate ?
+- quite a bit {see commented part in ./NAMESPACE }
+  can we automate ?
 
 ** move  from .C() towards .Call()
 
-** gsl - debye ===> Think of  'LinkingTo: gsl' in DESCRIPTION
-   and then *not* carry gsl-source code anymore.
+** gsl - debye ===> Think of  'LinkingTo: gsl' in DESCRIPTION and then *not* carry gsl-source code anymore.
 
-
-** in all *.c files from former copula: use Doxygen instead of hand made
-   function header documentation.
-
+** in all *.c files from former copula: use Doxygen instead of hand made function header documentation.
+MH: I can also work on that (but I would like to first discuss with MM how
+Doxygen headers should exactly look like in C code [C-c C-o not working])
 
 * New(?) (Super)classes for "merging the class structure"
-
-*** formner nacopula  c_longNames etc  --> rename to .ac_longNames *and* export
-    (ac = Archimdean copula)
+** formner nacopula  c_longNames etc  --> rename to .ac_longNames *and* export
+(ac = Archimdean copula)
 
 * New Wrapper functions
-  or rather extending one or the other function names
-
+or rather extending one or the other function names
 ** distribution/density/ ... functions
-
 ** random number generation
-
+MH: MM and I wrote wrappers for the two elliptical copulas (normal, t) and the
+Archimedean ones. Can't we include those 'as is'? They are also needed for the
+graphical GoF test we introduced and which we want to put in the package anyway.
 
 * Deprecation of Old Stuff
-
-   - with warning
-   - on help pages
-
+- with warning
+- on help pages
 
 * Documentation etc
-
-    - inst/doc/nacopula-pkg.Rnw  -- keep file name, but rewrite including
-      *Title*  (s/nacopula package/Nested Archimedean Copulas in the copula package/
-
-    -
-
+- inst/doc/nacopula-pkg.Rnw  -- keep file name, but rewrite including
+  *Title*  (s/nacopula package/Nested Archimedean Copulas in the copula package/
+MH: shouldn't be too hard, I could do that.
 
 * Miscellaneous functions
-
-*** indepTest()  takes a while {ok}, *BUT* cannot be interrupted (quickly enough)
-   - shouldn't it {and all other tests} return a (valid) object of class
-     "htest" (maybe "htest" in addition to the specific S3 class)?
-     --> we would probably not need extra print() methods, and just use print.htest()
+** MM, MH: indepTest()  takes a while {ok}, *BUT* cannot be interrupted (quickly enough)
+    - shouldn't it {and all other tests} return a (valid) object of class
+    "htest" (maybe "htest" in addition to the specific S3 class)?
+    --> we would probably not need extra print() methods, and just use print.htest()
+** MH: In the long run, I suggest calling functions like f(x, foo=1, bar=2) instead of f(x, 1, 2). This makes the code more readable (naming all arguments except the first one). For example, the call of fitCopula.ml from within fitCopula.mpl
