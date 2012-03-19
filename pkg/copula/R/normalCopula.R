@@ -22,17 +22,16 @@
 
 normalCopula <- function(param, dim = 2, dispstr = "ex") {
   pdim <- length(param)
-  val <- new("normalCopula",
-             dispstr = dispstr,
-             dimension = dim,
-             parameters = param,
-             param.names = paste("rho", 1:pdim, sep="."),
-             param.lowbnd = rep(-1, pdim),
-             param.upbnd = rep(1, pdim),
-             message = "Normal copula family",
-             getRho = function(obj) {obj@parameters}
-             )
-  val
+  new("normalCopula",
+      dispstr = dispstr,
+      dimension = dim,
+      parameters = param,
+      param.names = paste("rho", 1:pdim, sep="."),
+      param.lowbnd = rep(-1, pdim),
+      param.upbnd = rep(1, pdim),
+      message = "Normal copula family",
+      getRho = function(obj) {obj@parameters}
+      )
 }
 
 
@@ -44,17 +43,14 @@ rnormalCopula <- function(copula, n) {
 
 
 pnormalCopula <- function(copula, u) {
-  mycdf.vector <- function(x) {
-    pmvnorm(lower = rep(-Inf, dim), upper = qnorm(x), sigma = sigma)
-  }
+  mycdf.vector <- function(qu)
+      pmvnorm(lower = i.lower, upper = qu, sigma = sigma)
 
   dim <- copula@dimension
+  i.lower <- rep.int(-Inf, dim)
   sigma <- getSigma(copula)
-  if (is.vector(u)) u <- matrix(u, ncol = dim)
-  u[u <= 0] <- 0
-  u[u >= 1] <- 1
-  val <- apply(u, 1, mycdf.vector)
-  val
+  u <- matrix(pmax(0, pmin(1, u)), ncol = dim)
+  apply(qnorm(u), 1, mycdf.vector)
 }
 
 dnormalCopula <- function(copula, u) {

@@ -26,8 +26,7 @@ setClass("fitMvdc",
                         convergence = "integer",
                         nsample = "integer",
                         mvdc = "mvdc"),
-         validity = function(object) TRUE,
-         contains = list()         
+         validity = function(object) TRUE
          )
 
 
@@ -35,8 +34,7 @@ setClass("summaryFitMvdc",
          representation(loglik = "numeric",
                         convergence = "integer",
                         parameters = "data.frame"),
-         validity = function(object) TRUE,
-         contains = list()
+         validity = function(object) TRUE
          )
 
 showFitMvdc <- function(object) {
@@ -65,7 +63,7 @@ showFitMvdc <- function(object) {
     print(foo@parameters[sum(marNpar) + copParIdx, 1:4, drop=FALSE])
   else
     print(foo@parameters[sum(marNpar) + copParIdx, 1:2, drop=FALSE])
-  
+
   cat("The maximized loglikelihood is ", foo@loglik, "\n")
   cat("The convergence code is ", foo@convergence, "see ?optim.\n")
 }
@@ -81,7 +79,7 @@ summaryFitMvdc <- function(object) {
   p <- object@mvdc@copula@dimension
 
   if (sum(marNpar) == 0) margpnames <- NULL
-  else if(object@mvdc@marginsIdentical){ 
+  else if(object@mvdc@marginsIdentical){
     margpnames <- c(paste(paste("m", lapply(object@mvdc@paramMargins, names)[[1]], sep=".")))
   }
   else{
@@ -92,11 +90,10 @@ summaryFitMvdc <- function(object) {
   dimnames(parameters) <-
     list(pnames,
          c("Estimate", "Std. Error", "z value", "Pr(>|z|)"))
-  ret <- new("summaryFitMvdc",
-             loglik = object@loglik,
-             convergence = object@convergence,
-             parameters = parameters)
-  ret
+  new("summaryFitMvdc",
+      loglik = object@loglik,
+      convergence = object@convergence,
+      parameters = parameters)
 }
 
 
@@ -115,20 +112,16 @@ loglikMvdc <- function(param, x, mvdc, suppressMessages=FALSE) {
   for (i in 1:p) {
     if (marNpar[i] > 0) {
       ## parnames <- mvdc@paramMargins[[i]]
-      k <- ifelse(margid,1,i)
+      k <- if(margid) 1 else i
       par <- param[idx1[k]: idx2[k]]
       ## names(par) <- parnames
       ## mvdc@paramMargins[i] <- as.list(par)
       for (j in 1:marNpar[i]) mvdc@paramMargins[[i]][j] <- par[j]
-    }      
+    }
   }
-  if (idx2[p] == 0) { # no marginal parameters
-    mvdc@copula@parameters <- param
-  }
-  else if(margid)
-      mvdc@copula@parameters <- param[- (1:idx2[1])]
-  else
-      mvdc@copula@parameters <- param[- (1:rev(idx2)[1])]
+  mvdc@copula@parameters <-
+      if (idx2[p] == 0) # no marginal parameters
+          param else if(margid) param[- (1:idx2[1])] else param[- (1:rev(idx2)[1])]
 
   ## messageOut may be used for debugging
   if (suppressMessages) {
@@ -171,17 +164,16 @@ fitMvdc <- function(data, mvdc, start,
   loglik <- fit$val
 
   fit.last <- optim(fit$par, loglikMvdc, method=method, mvdc=mvdc, x =data, suppressMessages=TRUE, control=c(control, maxit=1), hessian=TRUE)
-    
+
   var.est <- try(solve(-fit.last$hessian))
   if (inherits(var.est, "try-error"))
     warning("Hessian matrix not invertible")
 
-  ans <- new("fitMvdc",
+  new("fitMvdc",
              estimate = fit$par,
              var.est = var.est,
              loglik = loglik,
              convergence = fit$convergence,
              nsample = nrow(data),
              mvdc = mvdc)
-  ans
 }

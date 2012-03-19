@@ -71,7 +71,7 @@ claytonCopula <- function(param, dim = 2) {
              parameters = param[1],
              exprdist = c(cdf = cdf, pdf = pdf),
              param.names = "param",
-             param.lowbnd = ifelse(dim == 2, -1, 0),
+             param.lowbnd = if(dim == 2) -1 else 0,
              param.upbnd = Inf,
              message = "Clayton copula family; Archimedean copula")
   val
@@ -114,8 +114,7 @@ pclaytonCopula <- function(copula, u) {
   if (abs(alpha) <= .Machine$double.eps^.9) return (apply(u, 1, prod))
   cdf <- copula@exprdist$cdf
   for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
-  val <- eval(cdf)
-  pmax(val, 0)
+  pmax(eval(cdf), 0)
 }
 
 
@@ -173,7 +172,7 @@ claytonRhoFun <- function(alpha) {
   valFunPos <- .claytonRhoPos$assoMeasFun$valFun
   theta <- forwardTransf(alpha, ss)
 
-  c(ifelse(alpha <= 0, valFunNeg(theta), valFunPos(theta)))
+  as.vector(if(alpha <= 0) valFunNeg(theta) else valFunPos(theta))
 }
 
 claytonRhoDer <- function(alpha) {
@@ -184,7 +183,7 @@ claytonRhoDer <- function(alpha) {
   valFunPos <- .claytonRhoPos$assoMeasFun$valFun
   theta <- forwardTransf(alpha, ss)
 
-  c(ifelse(alpha <= 0, valFunNeg(theta, 1), valFunPos(theta, 1))) * forwardDer(alpha, ss)
+  as.vector(if(alpha <= 0) valFunNeg(theta, 1) else valFunPos(theta, 1)) * forwardDer(alpha, ss)
 }
 
 spearmansRhoClaytonCopula <- function(copula) {
@@ -201,7 +200,7 @@ calibSpearmansRhoClaytonCopula <- function(copula, rho) {
                                 y = .claytonRhoPos$assoMeasFun$fm$x)
 
   ss <- .claytonRhoNeg$ss
-  theta <- ifelse(rho <= 0, claytonRhoInvNeg(rho), claytonRhoInvPos(rho))
+  theta <- if(rho <= 0) claytonRhoInvNeg(rho) else claytonRhoInvPos(rho)
   .claytonRhoPos$trFuns$backwardTransf(theta, ss)
 }
 
@@ -211,10 +210,9 @@ rhoDerClaytonCopula <- function(copula) {
 }
 
 tailIndexClaytonCopula <- function(copula) {
-  upper <- 0
   alpha <- copula@parameters
-  lower <- ifelse(alpha > 0, 2 ^ (-1/alpha), 0)
-  c(lower=lower, upper=upper)
+  c(lower= if(alpha > 0) 2 ^ (-1/alpha) else 0,
+    upper= 0)
 }
 
 tauDerClaytonCopula <- function(copula) {

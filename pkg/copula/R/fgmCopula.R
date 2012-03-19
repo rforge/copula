@@ -25,17 +25,17 @@
 
 fgmCopula <- function(param, dim = 2) {
     if (!is.numeric(dim) || dim < 2)
-        stop("dim should be a numeric greater than 2")    
+        stop("dim should be a numeric greater than 2")
     if (!is.numeric(param) && length(param) != 2^dim - dim - 1)
         stop("wrong parameters")
 
     ## power set of {1,...,dim} in integer notation
-    subsets <-  .C(k_power_set, 
+    subsets <-  .C(k_power_set,
                    as.integer(dim),
                    as.integer(dim),
                    subsets = integer(2^dim))$subsets
     ## power set in character vector: {}, {1}, {2}, ..., {1,2}, ..., {1,...,dim}
-    subsets.char <-  .C(k_power_set_char, 
+    subsets.char <-  .C(k_power_set_char,
                         as.integer(dim),
                         as.integer(2^dim),
                         as.integer(subsets),
@@ -57,11 +57,11 @@ fgmCopula <- function(param, dim = 2) {
                 expr3 <- paste(expr3, " * (1 - u", j, ")", sep="")
             expr2 <- paste(expr2,"+",expr3)
         }
- 
+
         expr <- paste(expr1," * (", expr2, ")")
         parse(text = expr)
     }
-    
+
     ## expression of the pdf
     pdfExpr <- function(n,sc) {
         expr2 <- "1"
@@ -75,7 +75,7 @@ fgmCopula <- function(param, dim = 2) {
         }
         parse(text = expr2)
     }
-    
+
     cdf <- cdfExpr(dim,subsets.char)
     pdf <- pdfExpr(dim,subsets.char)
 
@@ -143,14 +143,14 @@ dfgmCopula <- function(copula, u) {
 
 kendallsTauFgmCopula <- function(copula) {
     alpha <- copula@parameters[1]
-    2 * alpha / 9                              
+    2 * alpha / 9
 }
 
 #########################################################
 
 spearmansRhoFgmCopula <- function(copula) {
     alpha <- copula@parameters[1]
-    1 * alpha / 3                              
+    1 * alpha / 3
 }
 
 #########################################################
@@ -158,8 +158,7 @@ spearmansRhoFgmCopula <- function(copula) {
 calibKendallsTauFgmCopula <- function(copula, tau) {
   if (any(tau < -2/9 | tau > 2/9))
     warning("tau is out of the range [-2/9, 2/9]")
-  ifelse(tau <= -2/9, -1,
-         ifelse(tau >= 2/9, 1, 9 * tau / 2))
+  pmax(-1, pmin(1, 9 * tau / 2))
 }
 
 #########################################################
@@ -167,8 +166,7 @@ calibKendallsTauFgmCopula <- function(copula, tau) {
 calibSpearmansRhoFgmCopula <- function(copula, rho) {
   if (any(rho < -1/3 | rho > 1/3))
     warning("rho is out of the range [-1/3, 1/3]")
-  ifelse(rho <= -1/3, -1,
-         ifelse(rho >= 1/3, 1, 3 * rho))
+  pmax(-1, pmin(1, r * rho))
 }
 
 #########################################################

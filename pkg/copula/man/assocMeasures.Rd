@@ -91,14 +91,14 @@
   calibrates the copula parameter given the value of Kendall's Tau or Spearman's Rho.
 }
 \usage{
-kendallsTau(copula)
+kendallsTau (copula)
 spearmansRho(copula)
 tailIndex(copula, \dots)
 calibKendallsTau (copula, tau)
 calibSpearmansRho(copula, rho)
 }
 \arguments{
-  \item{copula}{ a \code{"copula"} object. }
+  \item{copula}{an \R object of class \code{"\linkS4class{copula}"}.}
   \item{tau}{ a numerical value of Kendall's Tau in [-1, 1]. }
   \item{rho}{ a numerical value of Spearman's Rho in [-1, 1]. }
   \item{\dots}{ currently nothing. }
@@ -127,8 +127,8 @@ calibSpearmansRho(copula, rho)
   The \code{\linkS4class{acopula}} class objects have slots,
   \code{tau}, \code{lambdaL}, and \code{lambdaU} providing functions for
   \code{kendallsTau()}, and the two tail indices \code{tailIndex()},
-
-  and slot \code{\link{tauInv}} for \code{calibKendallsTau()}.
+  and slot \code{tauInv} for \code{calibKendallsTau()}, see the
+  examples, and \code{\link{copGumbel}}, etc.
 }
 \examples{
 gumbel.cop <- gumbelCopula(3)

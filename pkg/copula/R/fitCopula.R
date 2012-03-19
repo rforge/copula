@@ -30,19 +30,18 @@ setClass("fitCopula",
                         method = "character",
                         loglik = "numeric",
                         convergence = "integer",
+                        optimOpts = "list",
                         nsample = "integer",
-                        copula = "copula"),
-         validity = function(object) TRUE,
-         contains = list()
+                        copula = "copula")
+         ## FIXME validity = function(object) TRUE
          )
 
 setClass("summaryFitCopula",
          representation(method = "character",
                         loglik = "numeric",
                         convergence = "integer",
-                        parameters = "data.frame"),
-         validity = function(object) TRUE,
-         contains = list()
+                        parameters = "data.frame")
+         ## FIXME validity = function(object) TRUE
          )
 
 showFitCopula <- function(object) {
@@ -62,12 +61,12 @@ summaryFitCopula <- function(object) {
   dimnames(parameters) <-
     list(object@copula@param.names,
          c("Estimate", "Std. Error", "z value", "Pr(>|z|)"))
-  ret <- new("summaryFitCopula",
-             method = object@method,
-             loglik = object@loglik,
-             convergence = object@convergence,
-             parameters = parameters)
-  ret
+  ## MM{FIXME}: S4 class is overkill here
+  new("summaryFitCopula",
+      method = object@method,
+      loglik = object@loglik,
+      convergence = object@convergence,
+      parameters = parameters)
 }
 
 setMethod("show", signature("fitCopula"), showFitCopula)
@@ -122,7 +121,8 @@ fitCopula.mpl <- function(copula, data, start=NULL,
   }
 
   fit <- fitCopula.ml(data, copula, start, lower, upper,
-                      optim.control, optim.method, FALSE, hideWarnings)
+                      optim.control, optim.method,
+                      estimate.variance=FALSE, hideWarnings)
   var.est <- if(estimate.variance) varPL(fit@copula, data) / nrow(data) else matrix(NA, q, q)
   new("fitCopula",
       estimate = fit@estimate,
@@ -130,6 +130,7 @@ fitCopula.mpl <- function(copula, data, start=NULL,
       method = "maximum pseudo-likelihood",
       loglik = fit@loglik,
       convergence = fit@convergence,
+      optimOpts = fit@optimOpts,
       nsample = nrow(data),
       copula = fit@copula)
 }
@@ -226,7 +227,7 @@ fitCopula.ml <- function(data, copula, start=NULL,
                          estimate.variance=TRUE,
                          hideWarnings=FALSE) {
   if (copula@dimension != ncol(data))
-    stop("The dimention of the data and copula do not match.\n")
+    stop("The dimension of the data and copula do not match.\n")
 
   if (is.null(start)) start <- fitCopula.itau(copula, data, FALSE)@estimate
   if (length(copula@parameters) != length(start))
@@ -239,8 +240,8 @@ fitCopula.ml <- function(data, copula, start=NULL,
   if (!is.null(optim.control[[1]])) control <- c(control, optim.control)
   q <- length(copula@parameters)
   eps <- .Machine$double.eps ^ 0.5
-  if (is.null(lower)) lower <- ifelse(method %in% c("Brent","L-BFGS-B"), copula@param.lowbnd + eps, -Inf)
-  if (is.null(upper)) upper <- ifelse(method %in% c("Brent","L-BFGS-B"), copula@param.upbnd - eps, Inf)
+  if (is.null(lower)) lower <- if(method %in% c("Brent","L-BFGS-B")) copula@param.lowbnd + eps else -Inf
+  if (is.null(upper)) upper <- if(method %in% c("Brent","L-BFGS-B")) copula@param.upbnd  - eps else Inf
 ##  if (p >= 2) {
   if (TRUE) {
     fit <- optim(start, loglikCopula,
@@ -279,6 +280,7 @@ fitCopula.ml <- function(data, copula, start=NULL,
       method = "maximum likelihood",
       loglik = loglik,
       convergence = as.integer(convergence),
+      optimOpts = list(method = method, control = control),
       nsample = nrow(data),
       copula = copula)
 }
@@ -307,7 +309,7 @@ makePosDef <- function (mat, delta = 0.001) {
 #########################################################
 ## rho given as a square matrix
 fitSpearman <- function(cop,rho)  {
-  p <- ncol(rho)
+  stopifnot(is.numeric(p <- ncol(rho)), p == nrow(rho))
   sigma <- matrix(1,p,p)
   for (j in 1:(p-1))
     for (i in (j+1):p)
@@ -326,7 +328,7 @@ fitSpearman <- function(cop,rho)  {
 #########################################################
 ## tau given as a square matrix
 fitKendall <- function(cop,tau) {
-  p <- ncol(tau)
+  stopifnot(is.numeric(p <- ncol(tau)), p == nrow(tau))
   sigma <- matrix(1,p,p)
   for (j in 1:(p-1))
     for (i in (j+1):p)

@@ -73,15 +73,16 @@ revCopula <- function(copula, n) {
     if (ndone == n) break
   }
   ders <- AfunDer(copula, z)
-  pz <- z * (1 - z) * ders$der2 / hdensity(copula, z) / Afun(copula, z)
+  Az <- Afun(copula, z)
+  pz <- z * (1 - z) * ders$der2 / hdensity(copula, z) / Az
   w <- rep(NA, n)
   mix1 <- runif(n) <= pz
   nmix1 <- sum(mix1)
-  if (any(mix1)) w[mix1] <- runif(nmix1)
+  if (any( mix1)) w[ mix1] <- runif(nmix1)
   if (any(!mix1)) w[!mix1] <- runif(n - nmix1) * runif(n - nmix1)
   ## CFG (2000, p.39)
-  cbind(exp(z * log(w)/Afun(copula, z)),
-        exp((1 - z) * log(w)/Afun(copula, z)))
+  l.A <- log(w)/Az
+  exp(cbind(z * l.A, (1 - z) * l.A))
 }
 
 #### These one-dimensional numerical integrations are quite accurate.
@@ -107,30 +108,33 @@ setMethod("spearmansRho", signature("evCopula"), spearmansRhoEvCopula)
 #################################################################################
 
 ## Rank-based version of the Pickands and CFG estimator
-Anfun <- function(x, w, estimator = "CFG", corrected = TRUE)
+Anfun <- function(x, w, estimator = c("CFG", "Pickands"), corrected = TRUE)
 {
     n <- nrow(x)
     m <- length(w)
 
     ## make pseudo-observations
     u <- apply(x,2,rank)/(n+1)
+    mlu <- -log(u)
 
-    if (estimator == "CFG")
-      .C(A_CFG,
-         as.integer(n),
-         as.double(-log(u[,1])),
-         as.double(-log(u[,2])),
-         as.double(w),
-         as.integer(m),
-         as.integer(corrected),
-         A = double(m))$A
-    else
-      .C(A_Pickands,
-         as.integer(n),
-         as.double(-log(u[,1])),
-         as.double(-log(u[,2])),
-         as.double(w),
-         as.integer(m),
-         as.integer(corrected),
-         A = double(m))$A
+  switch(match.arg(estimator),
+	 "CFG" =
+	 .C(A_CFG,
+	    as.integer(n),
+	    mlu[,1],
+	    mlu[,2],
+	    as.double(w),
+	    as.integer(m),
+	    as.integer(corrected),
+	    A = double(m))$A,
+	 "Pickands" =
+	 .C(A_Pickands,
+	    as.integer(n),
+	    mlu[,1],
+	    mlu[,2],
+	    as.double(w),
+	    as.integer(m),
+	    as.integer(corrected),
+	    A = double(m))$A,
+	 stop("invalid 'estimator' : ", estimator))
 }
