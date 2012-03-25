@@ -1,28 +1,21 @@
-#################################################################################
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
-##   R package Copula by Jun Yan and Ivan Kojadinovic Copyright (C) 2009
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
 ##
-##   This file is part of the R package copula.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
 ##
-##   The R package copula is free software: you can redistribute it and/or modify
-##   it under the terms of the GNU General Public License as published by
-##   the Free Software Foundation, either version 3 of the License, or
-##   (at your option) any later version.
-##
-##   The R package copula is distributed in the hope that it will be useful,
-##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##   GNU General Public License for more details.
-##
-##   You should have received a copy of the GNU General Public License
-##   along with the R package copula. If not, see <http://www.gnu.org/licenses/>.
-##
-#################################################################################
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
 
-#################################################################################
-## Goodness-of-fit test for copulas: wrapper function
-## Calls either gofMCLT.PL, gofMCLT.KS or gofPB
-#################################################################################
+
+### Goodness-of-fit test for copulas: wrapper function
+### Calls either gofMCLT.PL, gofMCLT.KS or gofPB
 
 ## copula is a copula of the desired family
 
@@ -73,10 +66,9 @@ print.gofCopula <- function(x, ...)
       "with p-value", x$pvalue, "\n\n")
 }
 
-##############################################################################
-## Goodness-of-fit test based on the parametric bootstrap
-## as proposed by Genest et al. (2008)
-##############################################################################
+
+### Goodness-of-fit test based on the parametric bootstrap
+### as proposed by Genest et al. (2008)
 
 ## copula is a copula of the desired family whose parameters, if necessary,
 ## will be used as starting values in fitCopula
@@ -128,14 +120,11 @@ gofPB <- function(copula, x, N, method, print.every, optim.method)
   }
 
 
-##############################################################################
-## Goodness-of-fit test based on the multiplier approach
-## and rank correlation coefficients
-##############################################################################
+### Goodness-of-fit test based on the multiplier approach
+### and rank correlation coefficients
 
-############################################################################
-## additional influence terms
-############################################################################
+## additional influence terms ##################################################
+
 influ.add <- function(x0, y0, influ1, influ2)
 {
   M <- nrow(y0)
@@ -202,13 +191,10 @@ gofMCLT.KS <- function(cop, x, N, method, M)
                 parameters=cop@parameters))
   }
 
-###########################################################################
-## Multivariate multipler gof based on MPL
-###########################################################################
 
-#########################################################
+## Multivariate multipler gof based on MPL #####################################
+
 ## influence coefficients
-#########################################################
 
 influCoef <- function(cop,u,v)
 {
@@ -233,9 +219,8 @@ influCoef <- function(cop,u,v)
     return(solve(e) %*% t(derPdfWrtParams(cop,u)/dcopwrap(cop,u) - add.influ(u,v,influ,q)))
 }
 
-#########################################################
+
 ## second part of influence coefficients
-#########################################################
 
 add.influ <- function(u, v, influ, q)
 {
@@ -259,9 +244,8 @@ add.influ <- function(u, v, influ, q)
   return(out)
 }
 
-#########################################################
+
 ## goodness-of-fit test
-#########################################################
 
 ## cop is a copula of the desired family whose parameters, if necessary, will be used
 ## as starting values in fitCopula

@@ -1,27 +1,20 @@
-#################################################################################
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
-##   R package Copula by Jun Yan and Ivan Kojadinovic Copyright (C) 2009
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
 ##
-##   This file is part of the R package copula.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
 ##
-##   The R package copula is free software: you can redistribute it and/or modify
-##   it under the terms of the GNU General Public License as published by
-##   the Free Software Foundation, either version 3 of the License, or
-##   (at your option) any later version.
-##
-##   The R package copula is distributed in the hope that it will be useful,
-##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##   GNU General Public License for more details.
-##
-##   You should have received a copy of the GNU General Public License
-##   along with the R package copula. If not, see <http://www.gnu.org/licenses/>.
-##
-#################################################################################
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
 
-#################################################################################
-## Goodness-of-fit test for extreme value copulas
-#################################################################################
+
+### Goodness-of-fit test for extreme value copulas #############################
 
 ## copula is a copula of the desired family whose parameters, if necessary,
 ## will be used as starting values in fitCopula
@@ -31,7 +24,7 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
                         optim.method = "Nelder-Mead")
 {
     n <- nrow(x)
-    
+
     ## make pseudo-observations
     u <- apply(x,2,rank)/(n+1)
 
@@ -51,7 +44,7 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
             as.double(Afun(fcop,g)),
             stat = double(2),
             as.integer(estimator == "CFG"))$stat
-    
+
     ## simulation of the null distribution
     s0 <- matrix(NA, N, 2)
     if (print.every > 0)
@@ -61,11 +54,11 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
         if (print.every > 0 & i %% print.every == 0)
           cat(paste("Iteration",i,"\n"))
         u0 <- apply(rcopula(fcop,n),2,rank)/(n+1)
-        
+
         ## fit the copula
         fcop0 <-  fitCopula(copula, u0, method, estimate.variance=FALSE,
                             optim.method=optim.method)@copula
-       
+
         s0[i,] <- .C(cramer_vonMises_Afun,
                      as.integer(n),
                      as.integer(m),
@@ -85,7 +78,8 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
     gof
 }
 
-#######################################################3
+################################################################################
+
 ## version for simulations
 ## was named gofEVCopula before
 ## not exported
@@ -95,7 +89,7 @@ gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
 {
     n <- nrow(x)
     p <- ncol(x)
-    
+
     ## make pseudo-observations
     u <- apply(x,2,rank)/(n+1)
 
@@ -110,7 +104,7 @@ gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
               as.double(u),
               as.double(pcopula(fcop,u)),
               stat = double(1))$stat
-    
+
     ## where to compute Afun
     g <- seq(0,1-1/m,by=1/m)
 
@@ -123,7 +117,7 @@ gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
                as.double(Afun(fcop,g)),
                stat = double(2),
                as.integer(1)# estimator == "CFG"
-               )$stat 
+               )$stat
     ## compute the Pickands test statistic
     sPck <- .C(cramer_vonMises_Afun,
                as.integer(n),
@@ -136,7 +130,7 @@ gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
                )$stat
 
     s <- c(sCn, sCFG, sPck)
-    
+
     ## simulation of the null distribution
     s0 <- matrix(NA, N, 5)
     if (print.every > 0)
@@ -149,7 +143,7 @@ gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
         if (print.every > 0 & i %% print.every == 0)
           cat(paste("Iteration",i,"\n"))
         u0 <- apply(rcopula(fcop,n),2,rank)/(n+1)
-        
+
         ## fit the copula
         fcop0 <-  fitCopula(copula, u0, method, estimate.variance=FALSE,
                             optim.method=optim.method)@copula
@@ -181,7 +175,7 @@ gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
                      )$stat
         s0[i,] <- c(sCn0, sCFG0, sPck0)
       }
-    
+
     list(statistic = s,
          pvalue = sapply(1:5, function(i) (sum(s0[,i] >= s[i])+0.5)/(N+1)),
          parameters = fcop@parameters)

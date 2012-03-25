@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Marius Hofert and Martin Maechler
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -12,6 +12,7 @@
 ##
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
+
 
 require(copula)
 
@@ -72,8 +73,7 @@ curveLogL <- function(cop, u, xlim, main, XtrArgs=list(), ...) {
 }
 
 
-
-###--------------------- "Joe" --- tau = 0.2 ---------------------------------
+### "Joe", tau = 0.2 ###########################################################
 
 n <- 200
 d <- 100
@@ -132,7 +132,9 @@ cop@copula@dacopula(U4[118,], theta=1.164, log = TRUE)
 ##  600.5926  (was Inf)
 ## now that we have  polyJ(...., log=TRUE)
 
-##--------------------- "Joe" --- harder cases: d = 150, tau = 0.3 -------------
+
+### "Joe", harder cases: d = 150, tau = 0.3 ####################################
+
 n <- 200
 d <- 150
 tau <- 0.3
@@ -143,7 +145,8 @@ enacopula(U., cop, "mle") # 1.776743
 system.time(r. <- curveLogL(cop, U., c(1.1, 3)))
 ## still looks very good
 
-##--------------------- "Joe" --- even harder: d = 180, tau = 0.4 -------------
+### "Joe", even harder: d = 180, tau = 0.4 #####################################
+
 d <- 180
 tau <- 0.4
 (theta <- copJoe@tauInv(tau))# 2.219
@@ -154,7 +157,8 @@ system.time(r. <- curveLogL(cop, U., c(1.1, 4)))
 ## still looks very good
 
 
-###--------------------- The same for  Gumbel ---------------------------------
+### The same for Gumbel ########################################################
+
 n <- 200
 d <- 100
 tau <- 0.2
@@ -172,7 +176,8 @@ system.time(r1 <- curveLogL(cop, U1, c(1, 2.1)))
 system.time(r2 <- curveLogL(cop, U2, c(1, 2.1)))
 system.time(r3 <- curveLogL(cop, U3, c(1, 2.1)))
 
-##--------------------- "Gumbel" ---  harder: d = 150, tau = 0.6 -------------
+### "Gumbel", harder: d = 150, tau = 0.6 #######################################
+
 d <- 150
 tau <- 0.6
 (theta <- copGumbel@tauInv(tau))# 2.5
@@ -204,7 +209,9 @@ mLogL(1.65, cG.5@copula, U4)# -23472.96
 dd <- cG.5@copula@dacopula(U4, 1.64, log = TRUE)
 summary(dd) ## no NaN's anymore
 
-###-------------------- "Frank" --- a case we found "hard": --------------------
+
+### "Frank", a case we found "hard" ############################################
+
 n <- 64
 d <- 5
 tau <- 0.8

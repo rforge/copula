@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Marius Hofert and Martin Maechler
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -13,12 +13,13 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-library(copula)
+
+require(copula)
 
 #### Testing /  exploring  coeffG(), the coefficients  a_k  for
 #### the Gumbel copula's generator derivatives and copula density
 
-###--- Part 1 ----  Investigate  dsumSibuya() -----------------
+### Part 1: Investigate dsumSibuya() ###########################################
 
 ## Use dsumSibuya() the way it's used from coeffG() :
 dsSib <- function(d, alpha, method, log=TRUE) {
@@ -149,8 +150,7 @@ dd <- dsumSibuya(50, 1:50, alpha=mpfr(0.1, 200), method="Rmpfr")# now -- higher 
 plot(dd, log="y")
 
 
-
-###--- Part 2 ------------------------------------------------
+### Part 2 #####################################################################
 
 coeffG <- copula:::coeffG
 

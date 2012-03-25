@@ -1,23 +1,18 @@
-#################################################################################
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
-##   R package Copula by Jun Yan and Ivan Kojadinovic Copyright (C) 2009
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
 ##
-##   This file is part of the R package copula.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
 ##
-##   The R package copula is free software: you can redistribute it and/or modify
-##   it under the terms of the GNU General Public License as published by
-##   the Free Software Foundation, either version 3 of the License, or
-##   (at your option) any later version.
-##
-##   The R package copula is distributed in the hope that it will be useful,
-##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##   GNU General Public License for more details.
-##
-##   You should have received a copy of the GNU General Public License
-##   along with the R package copula. If not, see <http://www.gnu.org/licenses/>.
-##
-#################################################################################
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
+
 
 tCopula <- function(param, dim = 2, dispstr = "ex", df = 4, df.fixed = FALSE) {
   pdim <- length(param)
@@ -31,7 +26,7 @@ tCopula <- function(param, dim = 2, dispstr = "ex", df = 4, df.fixed = FALSE) {
     param.lowbnd <- c(param.lowbnd, 1) ## qt won't work for df < 1
     param.upbnd <- c(param.upbnd, Inf)
   }
-  
+
   val <- new("tCopula",
              dispstr = dispstr,
              dimension = dim,
@@ -98,7 +93,7 @@ showTCopula <- function(object) {
 }
 
 tailIndexTCopula <- function(copula) {
-#### McNeil, Frey, Embrechts (2005), p.211
+### McNeil, Frey, Embrechts (2005), p.211
   df <- getdf(copula)
   rho <- copula@getRho(copula)
   upper <- lower <- 2 * pt(- sqrt((df + 1) * ( 1 - rho) / (1 + rho)), df=df + 1)

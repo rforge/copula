@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Marius Hofert and Martin Maechler
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -13,10 +13,11 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-library(copula)
+
+require(copula)
 (isLinux <- identical("Linux", Sys.info()[["sysname"]]))
 
-### ---------------- Stirling numbers of the 1st kind ---------------------------
+### Stirling numbers of the 1st kind ###########################################
 
 S1.10 <- c(0, -362880, 1026576, -1172700, 723680,
            -269325, 63273, -9450, 870, -45, 1)
@@ -41,7 +42,8 @@ system.time(s2c <- Stirling1(200,190)); s2c
 stopifnot(identical(S., s2c), !isLinux || s2 <= 0.020)
 ## 0.010 occasionally barely fails (prints "0.010") on Martin's X201
 
-### ---------------- Stirling numbers of the 2nd kind ---------------------------
+
+### Stirling numbers of the 2nd kind ###########################################
 
 S2.10 <- c(0, 1, 511, 9330, 34105, 42525, 22827, 5880, 750, 45, 1)
 stopifnot(sapply(0:10, Stirling2, n=10, method="direct") == S2.10,
@@ -70,7 +72,8 @@ Sd ; Sl
 stopifnot(!isLinux || s4 <= 0.025)
 # 0.010 occasionally barely fails (prints "0.010") on Martin's X201
 
-### ---- Eulerian Numbers -------------------------------------------------------
+
+### Eulerian Numbers ###########################################################
 
 ##' cheap "direct" version of Eulerian.all():
 Euleri.A <- function(n)
@@ -107,7 +110,7 @@ e170 <- p.Eul(170) ## clear problem in center -- close to overflow though
 max(e170[,"E1"]) # 7.5964e+305 -- almost maximum
 
 
-### ---------------- Polylogarithm Function -------------------------------------
+### Polylogarithm Function #####################################################
 
 EQ <- function(x,y, tol = 1e-15) all.equal(x,y, tol=tol)
 
@@ -126,7 +129,6 @@ stopifnot(EQ(polylog(s =  1,  x, n.sum=10000), -log(1-x)),
 	  EQ(polylog(x, -2, "negI-s-Eulerian"), x*(1+x)/(1-x)^3),
 	  EQ(polylog(x, -4, "negI-s-Eulerian"), x*(1+x)*(1+x*(10+x)) / (1-x)^5),
           TRUE)
-
 
 ##--> now do plots etc in  ../man/polylog.Rd :
 ##                         ~~~~~~~~~~~~~~~~~

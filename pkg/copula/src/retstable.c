@@ -1,19 +1,20 @@
 /*
- Copyright (C) 2010 Marius Hofert and Martin Maechler
+  Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 
- This program is free software; you can redistribute it and/or modify it under
- the terms of the GNU General Public License as published by the Free Software
- Foundation; either version 3 of the License, or (at your option) any later
- version.
+  This program is free software; you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation; either version 3 of the License, or (at your option) any later
+  version.
 
- This program is distributed in the hope that it will be useful, but WITHOUT
- ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- details.
+  This program is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+  details.
 
- You should have received a copy of the GNU General Public License along with
- this program; if not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License along with
+  this program; if not, see <http://www.gnu.org/licenses/>.
 */
+
 
 #include <Rmath.h>
 
@@ -349,7 +350,7 @@ void retstable_LD(double *St, const double V0[], double h, double alpha, int n)
 	    }
 	    E = -log(Z);
 	    /**< check rejection condition */
-		c = a*(X-m)+exp((1/alpha)*log(lambda_alpha)-b*log(m))*(pow(m/X,b)-1); /**< Marius Hofert: numerically more stable for small alpha */		
+		c = a*(X-m)+exp((1/alpha)*log(lambda_alpha)-b*log(m))*(pow(m/X,b)-1); /**< Marius Hofert: numerically more stable for small alpha */
 	    if(X < m) c -= N_*N_/2.;
 	    else if(X > m+delta) c -= E_;
 
@@ -360,7 +361,7 @@ void retstable_LD(double *St, const double V0[], double h, double alpha, int n)
 	 * to those of the distribution corresponding to the Laplace-Stieltjes
 	 * transform exp(-V_0((h+t)^alpha-h^alpha)).
 	*/
-	St[i] = exp(1/alpha*log(V0[i])-b*log(X)); /**< Marius Hofert: numerically more stable for small alpha */	
+	St[i] = exp(1/alpha*log(V0[i])-b*log(X)); /**< Marius Hofert: numerically more stable for small alpha */
 
     } /**< end for */
     return;

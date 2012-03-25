@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Marius Hofert and Martin Maechler
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -13,10 +13,9 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-#### -----------------------------------------------------------------------------------
-#### Explore, i.e., plot of poly* (= polyG, polyJ) for all methods #####################
-####                                 =====  =====
-#### -----------------------------------------------------------------------------------
+
+### Explore, i.e., plot of poly* (= polyG, polyJ) for all methods ##############
+###                                 =====  =====
 
 library(copula)
 library(lattice)
@@ -150,7 +149,7 @@ pp5 <- sapply(my.polyG.meths, function(met) {
 t(sapply(pp5, function(L) apply(L$f.x, 2, function(.) sum(!is.finite(.)))))#-> 0 0 0 {no non-finite}
 
 
-### plots for large d --- quite different picture!
+### plots for large d -- quite different picture!
 
 xlim <- c(1e-16, 200)
 ylim <- c(300, 600)
@@ -231,7 +230,7 @@ stopifnot(all(is.finite(y.dsSib.log))) # check
 
 ### check default method
 
-## comparison with Maple (Digits = 100) --------------
+## comparison with Maple (Digits = 100)
 v1 <- polyG(log(1), alpha=0.01, d=100, log=TRUE)
 v2 <- polyG(log(1), alpha=0.5 , d=100, log=TRUE)
 v3 <- polyG(log(1), alpha=0.99, d=100, log=TRUE)
@@ -287,10 +286,10 @@ if(do.animation)
 saveHTML(for(i in 1:m) print(polyG.ani.default[[i]]$plot),
          outdir=file.path(tempdir(),"G_default"))
 
-
-### Joe ##################################################################################
 
-## plots for small d ----------------------------------------------------------------
+### Joe ########################################################################
+
+## plots for small d ###########################################################
 
 family <- "Joe"
 polyJ <- copula:::polyJ
@@ -311,7 +310,7 @@ Jpp5 <-  sapply(Jmeths, function(met) {
 ## => "poly" does not work for any reasonable x range -- others ok
 t(sapply(Jpp5, function(L) apply(L$f.x, 2, function(.) sum(!is.finite(.)))))
 
-## plots for large d ----------------------------------------------------------------
+## plots for large d ###########################################################
 
 set.seed(1)
 xlim <- c(1e-16, 1e120)
@@ -330,9 +329,10 @@ Jpp100 <-  sapply(Jmeths, function(met) {
 ## => "poly" does not work for any reasonable x range -- others ok
 t(sapply(Jpp100, function(L) apply(L$f.x, 2, function(.) sum(!is.finite(.)))))
 
-##--- i.e. same "message" for d=5 and d= 100 -----------------------------------------
+## i.e. same "message" for d=5 and d=100
 
-### run time comparison of the methods that worked for some parameter
+
+### run time comparison of the methods that worked for some parameter ##########
 ### --------
 
 set.seed(1)
@@ -379,4 +379,3 @@ if(do.animation)
 saveHTML(for(i in 1:m) print(polyJ.ani.default[[i]]$plot),
          outdir=file.path(tempdir(),"J_log.poly"))
 ## => rather extreme but seems to be fine
-

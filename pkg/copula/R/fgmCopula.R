@@ -1,27 +1,20 @@
-#################################################################################
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
-##   R package Copula by Jun Yan and Ivan Kojadinovic Copyright (C) 2009
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
 ##
-##   This file is part of the R package copula.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
 ##
-##   The R package copula is free software: you can redistribute it and/or modify
-##   it under the terms of the GNU General Public License as published by
-##   the Free Software Foundation, either version 3 of the License, or
-##   (at your option) any later version.
-##
-##   The R package copula is distributed in the hope that it will be useful,
-##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##   GNU General Public License for more details.
-##
-##   You should have received a copy of the GNU General Public License
-##   along with the R package copula. If not, see <http://www.gnu.org/licenses/>.
-##
-#################################################################################
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
 
-#########################################################
 
-## constructor
+## constructor #################################################################
 
 fgmCopula <- function(param, dim = 2) {
     if (!is.numeric(dim) || dim < 2)
@@ -90,9 +83,8 @@ fgmCopula <- function(param, dim = 2) {
                message = "Farlie-Gumbel-Morgenstern copula family")
 }
 
-#########################################################
 
-## random number generation
+### random number generation ###################################################
 
 rfgmCopula <- function(copula, n) {
     dim <- copula@dimension
@@ -107,9 +99,8 @@ rfgmCopula <- function(copula, n) {
     matrix(val, n, dim, byrow=TRUE)
 }
 
-#########################################################
 
-## cdf of the copula
+### cdf of the copula ##########################################################
 
 pfgmCopula <- function(copula, u) {
     if (any(u < 0) || any(u > 1))
@@ -123,9 +114,7 @@ pfgmCopula <- function(copula, u) {
     eval(cdf)
 }
 
-#########################################################
-
-## pdf of the copula
+## pdf of the copula ###########################################################
 
 dfgmCopula <- function(copula, u) {
     if (any(u < 0) || any(u > 1))
@@ -139,21 +128,21 @@ dfgmCopula <- function(copula, u) {
     eval(pdf)
 }
 
-#########################################################
+## Kendall's tau
 
 kendallsTauFgmCopula <- function(copula) {
     alpha <- copula@parameters[1]
     2 * alpha / 9
 }
 
-#########################################################
+## Spearman's rho
 
 spearmansRhoFgmCopula <- function(copula) {
     alpha <- copula@parameters[1]
     1 * alpha / 3
 }
 
-#########################################################
+## calibration via tau
 
 calibKendallsTauFgmCopula <- function(copula, tau) {
   if (any(tau < -2/9 | tau > 2/9))
@@ -161,7 +150,7 @@ calibKendallsTauFgmCopula <- function(copula, tau) {
   pmax(-1, pmin(1, 9 * tau / 2))
 }
 
-#########################################################
+## calibration via rho
 
 calibSpearmansRhoFgmCopula <- function(copula, rho) {
   if (any(rho < -1/3 | rho > 1/3))
@@ -169,7 +158,8 @@ calibSpearmansRhoFgmCopula <- function(copula, rho) {
   pmax(-1, pmin(1, r * rho))
 }
 
-#########################################################
+
+################################################################################
 
 setMethod("rcopula", signature("fgmCopula"), rfgmCopula)
 setMethod("pcopula", signature("fgmCopula"), pfgmCopula)

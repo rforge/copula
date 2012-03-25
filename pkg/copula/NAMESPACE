@@ -1,6 +1,6 @@
 useDynLib(copula, .registration=TRUE)
 
-###--------------------- Part I -- Former copula --------------------------------
+### Part I: Former copula ######################################################
 
 importFrom("graphics", persp, contour)
 
@@ -82,7 +82,8 @@ S3method(print, exchTest)
 ## export(fitCopula.repar)
 ## export(multcomp) ---> R/mult.R
 
-###--------------------- Part II -- Former nacopula ----------------------------
+
+### Part II: Former nacopula ###################################################
 
 ## Copyright (C) 2010--2011  Marius Hofert and Martin Maechler
 ##

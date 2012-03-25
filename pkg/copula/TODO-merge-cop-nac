@@ -1,22 +1,23 @@
 ##-*- org -*--> use Emacs to view this, and there the [Tab] key + [Org] menu
 
-* LICENCE etc
+* DONE LICENCE etc
 MM: Einstein's rule: Keep it as simple as possible (but not simpler)
 All the Copyright headers in R/*.R  src/*.c etc need to be streamlined;
 typically containing all 4 names.
 MH: I can do that (once Ivan and Jun agree)
 JY: I agree
+=> MH: done on 2012-03-25 (for simplicity, I used "2012" everywhere)
 
 * R/sysdata.rda : ouah!
 MM, MH: Please tell us more about this,
 notably about how it is computed {so it can be recomputed, in case
 pspline changes ...}.
-JY: Sorry for having to use this. The objects stored here are used to 
-return Kendall's tau and Spearman's rho and their inverse functions 
-for copulas for which explicit formulas are not available. We used 
+JY: Sorry for having to use this. The objects stored here are used to
+return Kendall's tau and Spearman's rho and their inverse functions
+for copulas for which explicit formulas are not available. We used
 simulation over a grid of (possibly transformed) parameter values
 and smoothed the results with pspline. Some details can be found
-in the appendix of Kojadinovic and Yan (2010, IME). The R scripts 
+in the appendix of Kojadinovic and Yan (2010, IME). The R scripts
 that generated sysdata.rda were moved out of the package source.
 We can put them back. The best place is under inst?
 - Note taken on [2012-02-21 Tue 18:52]
@@ -77,3 +78,4 @@ MH: shouldn't be too hard, I could do that.
     "htest" (maybe "htest" in addition to the specific S3 class)?
     --> we would probably not need extra print() methods, and just use print.htest()
 ** MH: In the long run, I suggest calling functions like f(x, foo=1, bar=2) instead of f(x, 1, 2). This makes the code more readable (naming all arguments except the first one). For example, the call of fitCopula.ml from within fitCopula.mpl
+** MH: Jun, Ivan: E.R only defines E <- exp(1). We should remove this.

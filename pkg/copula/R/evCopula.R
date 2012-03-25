@@ -1,28 +1,20 @@
-#################################################################################
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
-##   R package Copula by Jun Yan and Ivan Kojadinovic Copyright (C) 2009
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
 ##
-##   This file is part of the R package copula.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
 ##
-##   The R package copula is free software: you can redistribute it and/or modify
-##   it under the terms of the GNU General Public License as published by
-##   the Free Software Foundation, either version 3 of the License, or
-##   (at your option) any later version.
-##
-##   The R package copula is distributed in the hope that it will be useful,
-##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##   GNU General Public License for more details.
-##
-##   You should have received a copy of the GNU General Public License
-##   along with the R package copula. If not, see <http://www.gnu.org/licenses/>.
-##
-#################################################################################
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
 
-## Extreme-value copulas
 
-###################################################################
-###################################################################
+### Extreme-value copulas ######################################################
 
 evCopula <- function(family, param, dim = 2, ...) {
   familiesImplemented <- c("galambos", "gumbel", "huslerReiss")
@@ -85,8 +77,8 @@ revCopula <- function(copula, n) {
   exp(cbind(z * l.A, (1 - z) * l.A))
 }
 
-#### These one-dimensional numerical integrations are quite accurate.
-#### They are much better than two-dimensional integration based on function adapt.
+### These one-dimensional numerical integrations are quite accurate.
+### They are much better than two-dimensional integration based on function adapt.
 
 kendallsTauEvCopula <- function(copula) {
   integrand <- function(x) x * (1 - x) / Afun(copula, x) * AfunDer(copula, x)$der2
@@ -103,9 +95,8 @@ setMethod("rcopula", signature("evCopula"), revCopula)
 setMethod("kendallsTau", signature("evCopula"), kendallsTauEvCopula)
 setMethod("spearmansRho", signature("evCopula"), spearmansRhoEvCopula)
 
-#################################################################################
-## Nonparametric estimators of the Pickands dependence function
-#################################################################################
+
+### Nonparametric estimators of the Pickands dependence function ###############
 
 ## Rank-based version of the Pickands and CFG estimator
 Anfun <- function(x, w, estimator = c("CFG", "Pickands"), corrected = TRUE)

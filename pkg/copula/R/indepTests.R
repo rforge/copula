@@ -1,23 +1,17 @@
-#################################################################################
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
-##   R package Copula by Jun Yan and Ivan Kojadinovic Copyright (C) 2009
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
 ##
-##   This file is part of the R package copula.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
 ##
-##   The R package copula is free software: you can redistribute it and/or modify
-##   it under the terms of the GNU General Public License as published by
-##   the Free Software Foundation, either version 3 of the License, or
-##   (at your option) any later version.
-##
-##   The R package copula is distributed in the hope that it will be useful,
-##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##   GNU General Public License for more details.
-##
-##   You should have received a copy of the GNU General Public License
-##   along with the R package copula. If not, see <http://www.gnu.org/licenses/>.
-##
-#################################################################################
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
 ## Computes the sum of binomial coefficients
@@ -29,15 +23,13 @@ binom.sum <- function(n,k)
     bs
 }
 
-#################################################################
-##
+################################################################################
+
 ##  Multivariate independence test based on the empirical
 ##  copula process as proposed by Christian Genest and Bruno
 ##  Rémillard (2004), Test 13:2, pages 335-369.
 ##
 ##  Ivan Kojadinovic, May 2007
-##
-##############################################################################
 
 # simulate the distribution of TA for A of cardinality 2 to m under independence
 
@@ -80,7 +72,7 @@ indepTestSim <- function(n,p,m=p,N=1000,print.every=100)
                    dist.tippett.independence = r.$tippett0))
 }
 
-##############################################################################
+################################################################################
 
 # test in itself
 
@@ -148,18 +140,16 @@ indepTest <- function(x, d, alpha=0.05)
                    beta=beta, global.statistic=r.$G, global.statistic.pvalue=r.$globpval))
 }
 
-#################################################################
-##
+################################################################################
+
 ##  Serial independence test based on the empirical
 ##  copula process as proposed by Christian Genest and Bruno
 ##  Rémillard (2004), Test 13:2, pages 335-369.
 ##
 ##  Ivan Kojadinovic, May 2007
-##
-##############################################################################
 
-# simulate the distribution of TAs for A of cardinality 2 to m
-# containing 1 under serial independence
+## simulate the distribution of TAs for A of cardinality 2 to m
+## containing 1 under serial independence
 
 serialIndepTestSim <- function(n,lag.max,m=lag.max+1,N=1000,print.every=100)
 {
@@ -208,7 +198,7 @@ serialIndepTestSim <- function(n,lag.max,m=lag.max+1,N=1000,print.every=100)
 		   dist.tippett.independence = R $tippett0))
 }
 
-##############################################################################
+################################################################################
 
 # test in itself
 
@@ -276,14 +266,12 @@ serialIndepTest <- function(x, d, alpha=0.05)
 		   beta=beta, global.statistic=R $G, global.statistic.pvalue=R $globpval))
 }
 
-##############################################################################
-##
+################################################################################
+
 ##  Independence test among random vectors based on the empirical
 ##  copula process
 ##
 ##  Ivan Kojadinovic, December 2007
-##
-##############################################################################
 
 multIndepTest <- function(x, d, m=length(d), N=1000, alpha=0.05,
                           print.every=100)
@@ -365,14 +353,12 @@ multIndepTest <- function(x, d, m=length(d), N=1000, alpha=0.05,
 		    beta=beta, global.statistic=R $I, global.statistic.pvalue=R $Ipval))
 }
 
-##############################################################################
-##
+################################################################################
+
 ##  Multivariate serial independence test based on the empirical
 ##  copula process
 ##
 ##  Ivan Kojadinovic, December 2007
-##
-##############################################################################
 
 multSerialIndepTest <- function(x, lag.max, m=lag.max+1, N=1000, alpha=0.05,
                                 print.every=100)
@@ -456,11 +442,7 @@ multSerialIndepTest <- function(x, lag.max, m=lag.max+1, N=1000, alpha=0.05,
 		   beta=beta, global.statistic=R $I, global.statistic.pvalue=R $Ipval))
 }
 
-##############################################################################
-#
-#   Dependogram
-#
-##############################################################################
+## Dependogram #################################################################
 
 dependogram <- function(test, pvalues=FALSE, print=FALSE)
 {
@@ -500,9 +482,8 @@ dependogram <- function(test, pvalues=FALSE, print=FALSE)
 }
 
 
-#############################################################################
-## summary and show methods for class 'indepTest'
-#############################################################################
+## summary and show methods for class 'indepTest' ##############################
+
 print.indepTest <- function(x, ...)
 {
   cat("\nGlobal Cramer-von Mises statistic:", x$global.statistic,
@@ -513,7 +494,7 @@ print.indepTest <- function(x, ...)
 
 }
 
-##############################################################################
+################################################################################
 
 ## myEcdf <- function(x) {
 ##   N <- length(x)

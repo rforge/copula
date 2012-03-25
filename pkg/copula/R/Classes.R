@@ -1,27 +1,21 @@
-#################################################################################
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
-##   R package Copula by Jun Yan and Ivan Kojadinovic Copyright (C) 2009
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
 ##
-##   This file is part of the R package copula.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
 ##
-##   The R package copula is free software: you can redistribute it and/or modify
-##   it under the terms of the GNU General Public License as published by
-##   the Free Software Foundation, either version 3 of the License, or
-##   (at your option) any later version.
-##
-##   The R package copula is distributed in the hope that it will be useful,
-##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##   GNU General Public License for more details.
-##
-##   You should have received a copy of the GNU General Public License
-##   along with the R package copula. If not, see <http://www.gnu.org/licenses/>.
-##
-#################################################################################
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
 
-###################################################
-##### basic copula class
-###################################################
+
+### basic copula class #########################################################
+
 setClass("copula",
          representation(dimension = "numeric",
                         parameters = "numeric",
@@ -65,9 +59,9 @@ setGeneric("rhoDer", function(copula, ...) standardGeneric("rhoDer"))
 setGeneric("tauDerFun", function(copula) standardGeneric("tauDerFun"))
 setGeneric("rhoDerFun", function(copula) standardGeneric("rhoDerFun"))
 
-###################################################
-#### independent copula class
-###################################################
+
+### independent copula class ###################################################
+
 ## setClass("indepCopula",
 ##          representation(dimension = "numeric",
 ##                         message = "character"),
@@ -80,9 +74,8 @@ setClass("indepCopula",
          )
 
 
-###############################################################
-#### elliptical copulas, contains normalCopula and tCopula
-###############################################################
+### elliptical copulas, contains normalCopula and tCopula ######################
+
 validRho <- function(dispstr, dim, lenRho) {
   if (dispstr == "ar1" || dispstr == "ex")
     if (lenRho != 1) return ("Param should have length 1 for dispstr == ar1 or ex")
@@ -142,10 +135,8 @@ setClass("tCopula",
 ## methods for ellipCopula??
 
 
-############################################################
-#### archimedean copulas, contains clayton, gumbel, frank,
-#### amh, ...
-############################################################
+### Archimedean copulas, contains AMH, Clayton, Frank, Gumbel, ... #############
+
 setClass("archmCopula",
          representation = representation("copula",
            exprdist = "expression"),
@@ -173,16 +164,13 @@ setClass("amhCopula",
          )
 
 ## methods for archmCopulas
-
 setGeneric("genFun", function(copula, u) standardGeneric("genFun"))
 setGeneric("genInv", function(copula, s) standardGeneric("genInv"))
 setGeneric("genFunDer1", function(copula, u) standardGeneric("genFunDer1"))
 setGeneric("genFunDer2", function(copula, u) standardGeneric("genFunDer2"))
 
-#######################################################
-#### extreme value copulas, contains galambos, husler-reiss,
-#### gumbel, ...
-#######################################################
+
+### Extreme value copulas, contains galambos, husler-reiss, gumbel, ... ########
 
 setClass("evCopula",
          representation = representation("copula"),
@@ -228,9 +216,8 @@ setGeneric("Afun", function(copula, w) standardGeneric("Afun"))
 setGeneric("AfunDer", function(copula, w) standardGeneric("AfunDer"))
 setGeneric("derAfunWrtParam", function(copula, w) standardGeneric("derAfunWrtParam"))
 
-#######################################################
-#### other copulas
-#######################################################
+
+### Other copulas ##############################################################
 
 ## Farlie-Gumbel-Morgenstern multivariate copula
 setClass("fgmCopula",
@@ -261,9 +248,9 @@ setClass("plackettCopula",
          contains = list("copula")
          )
 
-#######################################################
-#### multivariate distibution via copula
-#######################################################
+
+### Multivariate distibution via copula ########################################
+
 setClass("mvdc",
          representation(copula = "copula",
                         margins = "character",

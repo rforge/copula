@@ -1,23 +1,18 @@
-#################################################################################
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
-##   R package Copula by Jun Yan and Ivan Kojadinovic Copyright (C) 2009
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
 ##
-##   This file is part of the R package copula.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
 ##
-##   The R package copula is free software: you can redistribute it and/or modify
-##   it under the terms of the GNU General Public License as published by
-##   the Free Software Foundation, either version 3 of the License, or
-##   (at your option) any later version.
-##
-##   The R package copula is distributed in the hope that it will be useful,
-##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##   GNU General Public License for more details.
-##
-##   You should have received a copy of the GNU General Public License
-##   along with the R package copula. If not, see <http://www.gnu.org/licenses/>.
-##
-#################################################################################
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
+
 
 AfunHuslerReiss <- function(copula, w) {
   alpha <- copula@parameters[1]
@@ -40,10 +35,10 @@ AfunDerHuslerReiss <- function(copula, w) {
     .expr12 <- 1/.expr7
     .value <- .expr1 * log(.expr3)
     .grad <- array(0, c(length(.value), 1L), list(NULL, c("w")))
-    .hessian <- array(0, c(length(.value), 1L, 1L), list(NULL, 
+    .hessian <- array(0, c(length(.value), 1L, 1L), list(NULL,
         c("w"), c("w")))
     .grad[, "w"] <- .expr1 * (.expr9/.expr3)
-    .hessian[, "w", "w"] <- .expr1 * ((.expr12 + (.expr12 + w * 
+    .hessian[, "w", "w"] <- .expr1 * ((.expr12 + (.expr12 + w *
         (2 * .expr2)/.expr7^2))/.expr3 - .expr9 * .expr9/.expr3^2)
     attr(.value, "gradient") <- .grad
     attr(.value, "hessian") <- .hessian
@@ -115,7 +110,7 @@ dhuslerReissCopula <- function(copula, u) {
   alpha <- copula@parameters[1]
   ## Joe (1997, p.142)
   u1p <- -log(u1); u2p <- -log(u2); z <- u1p / u2p
-  val <- 1/ (u1 * u2) * pcopula(copula, u) * 
+  val <- 1/ (u1 * u2) * pcopula(copula, u) *
     (pnorm(1/alpha - 0.5 * alpha * log(z)) *
      pnorm(1/alpha + 0.5 * alpha * log(z)) +
      0.5 * alpha / u2p * dnorm(1/alpha + 0.5 * alpha * log(z)))
@@ -136,7 +131,8 @@ rhuslerReissCopula <- function(copula, n) {
   cbind(u1, u2)
 }
 
-#######################################################################
+################################################################################
+
 ## This block is copied from ../../copulaUtils/assoc/
 
 huslerReissTauFun <- function(alpha) {
@@ -157,7 +153,7 @@ calibKendallsTauHuslerReissCopula <- function(copula, tau) {
   if (any(tau < 0)) warning("tau is out of the range [0, 1]")
   huslerReissTauInv <- approxfun(x = .huslerReissTau$assoMeasFun$fm$ysmth,
                                  y = .huslerReissTau$assoMeasFun$fm$x, rule = 2)
-  
+
   ss <- .huslerReissTau$ss
   theta <- huslerReissTauInv(tau)
   ifelse(tau <= 0, 0, .huslerReissTau$trFuns$backwardTransf(theta, ss))
@@ -198,7 +194,7 @@ calibSpearmansRhoHuslerReissCopula <- function(copula, rho) {
   if (any(rho < 0)) warning("rho is out of the range [0, 1]")
   huslerReissRhoInv <- approxfun(x = .huslerReissRho$assoMeasFun$fm$ysmth,
                                  y = .huslerReissRho$assoMeasFun$fm$x, rule = 2)
-  
+
   ss <- .huslerReissRho$ss
   theta <- huslerReissRhoInv(rho)
   ifelse(rho <= 0, 0, .huslerReissRho$trFuns$backwardTransf(theta, ss))
@@ -218,7 +214,8 @@ rhoDerHuslerReissCopula <- function(copula) {
   alpha <- copula@parameters[1]
   huslerReissRhoDer(alpha)
 }
-############################################################################
+
+################################################################################
 
 setMethod("pcopula", signature("huslerReissCopula"), phuslerReissCopula)
 setMethod("dcopula", signature("huslerReissCopula"), dhuslerReissCopula)

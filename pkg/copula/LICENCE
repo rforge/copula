@@ -1,10 +1,8 @@
 Copyrights
 ==========
 
-Some files are copyright (C) 2009-2011 Marius Hofert and Martin Maechler.
-Other files are copyright (C) 2007-2011 Jun Yan and Ivan Kojadinovic
-and yet other files are copyright (C) 2012
-    Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
+After the merge of nacopula with copula, all files are:
+Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 
 
 Licence
@@ -24,9 +22,9 @@ The file share/licenses/GPL-3 in the R (source or binary) distribution is a
 copy of version 3 of the 'GNU General Public License'.
 That can also be viewed at http://www.r-project.org/licenses/
 
-Ivan Kojadinovic,  ....
-Jun Yan, ....
+Marius Hofert
+Ivan Kojadinovic
+Martin Maechler
+Jun Yan
 
-Martin Maechler & Marius Hofert
-ETH Zurich
 

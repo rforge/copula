@@ -1,23 +1,17 @@
-#################################################################################
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
-##   R package Copula by Jun Yan and Ivan Kojadinovic Copyright (C) 2009
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
 ##
-##   This file is part of the R package copula.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
 ##
-##   The R package copula is free software: you can redistribute it and/or modify
-##   it under the terms of the GNU General Public License as published by
-##   the Free Software Foundation, either version 3 of the License, or
-##   (at your option) any later version.
-##
-##   The R package copula is distributed in the hope that it will be useful,
-##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##   GNU General Public License for more details.
-##
-##   You should have received a copy of the GNU General Public License
-##   along with the R package copula. If not, see <http://www.gnu.org/licenses/>.
-##
-#################################################################################
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
 AfunGumbel <- function(copula, w) {
@@ -41,11 +35,11 @@ AfunDerGumbel <- function(copula, w) {
     .expr22 <- .expr9 - 1
     .value <- .expr4^.expr5
     .grad <- array(0, c(length(.value), 1L), list(NULL, c("w")))
-    .hessian <- array(0, c(length(.value), 1L, 1L), list(NULL, 
+    .hessian <- array(0, c(length(.value), 1L, 1L), list(NULL,
         c("w"), c("w")))
     .grad[, "w"] <- .expr8 * .expr15
-    .hessian[, "w", "w"] <- .expr4^(.expr7 - 1) * (.expr7 * .expr14) * 
-        .expr15 + .expr8 * (.expr5 * (w^.expr22 * .expr9 * alpha + 
+    .hessian[, "w", "w"] <- .expr4^(.expr7 - 1) * (.expr7 * .expr14) *
+        .expr15 + .expr8 * (.expr5 * (w^.expr22 * .expr9 * alpha +
         .expr2^.expr22 * .expr9 * alpha))
     attr(.value, "gradient") <- .grad
     attr(.value, "hessian") <- .hessian
@@ -86,7 +80,7 @@ gumbelCopula <- function(param, dim = 2) {
     expr <- paste("exp(- (", expr, ")^ (1/alpha))")
     parse(text = expr)
   }
-  
+
   pdfExpr <- function(cdf, n) {
     val <- cdf
     for (i in 1:n) {
@@ -202,12 +196,12 @@ calibSpearmansRhoGumbelCopula <- function(copula, rho) {
   if (any(rho < 0)) warning("rho is out of the range [0, 1]")
   gumbelRhoInv <- approxfun(x = .gumbelRho$assoMeasFun$fm$ysmth,
                             y = .gumbelRho$assoMeasFun$fm$x, rule = 2)
-  
+
   ss <- .gumbelRho$ss
   theta <- gumbelRhoInv(rho)
   .gumbelRho$trFuns$backwardTransf(theta, ss)
 }
-  
+
 
 tauDerGumbelCopula <- function(copula) {
   return( 1 / copula@parameters^2 )

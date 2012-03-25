@@ -1,23 +1,17 @@
-#################################################################################
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
-##   R package Copula by Jun Yan and Ivan Kojadinovic Copyright (C) 2009
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
 ##
-##   This file is part of the R package copula.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
 ##
-##   The R package copula is free software: you can redistribute it and/or modify
-##   it under the terms of the GNU General Public License as published by
-##   the Free Software Foundation, either version 3 of the License, or
-##   (at your option) any later version.
-##
-##   The R package copula is distributed in the hope that it will be useful,
-##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##   GNU General Public License for more details.
-##
-##   You should have received a copy of the GNU General Public License
-##   along with the R package copula. If not, see <http://www.gnu.org/licenses/>.
-##
-#################################################################################
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
 perspCopula <- function(x, fun, n = 51, theta = -30, phi = 30, expand = 0.618, ...) {
@@ -76,10 +70,9 @@ setMethod("persp", signature("mvdc"), perspMvdc)
 setMethod("contour", signature("mvdc"), contourMvdc)
 
 
-####################################################################
-#### Graphical tools for detecting dependence
-#### Genest and Farve (2007, Journal of Hydrologic Engineering)
-####################################################################
+### Graphical tools for detecting dependence
+### Genest and Farve (2007, Journal of Hydrologic Engineering)
+
 ChiPlot <- function(x, plot=TRUE, pval = 0.95, ...) {
 #### originally proposed by Fisher and Switzer (1985 Biometrika, 2001 Am. Stat.)
   ## x is a n by 2 matrix
@@ -126,7 +119,7 @@ KPlot <- function(x, plot=TRUE, ...) {
               function(i) integrate(integrand, 0, 1, i = i,
                                     rel.tol=.Machine$double.eps^0.25)$value)
   W <- n * choose(n - 1, 1:n - 1) * W
-  
+
   if (plot) {
     plot(W, H, xlim=c(0, 1), ylim=c(0, 1))
     curve(K0(x), add=TRUE, col="blue")
@@ -140,20 +133,8 @@ KPlot <- function(x, plot=TRUE, ...) {
 ## ChiPlot(cbind(x, y))
 ## KPlot(cbind(x, y))
 
-## Copyright (C) 2010 Marius Hofert and Martin Maechler
-##
-## This program is free software; you can redistribute it and/or modify it under
-## the terms of the GNU General Public License as published by the Free Software
-## Foundation; either version 3 of the License, or (at your option) any later
-## version.
-##
-## This program is distributed in the hope that it will be useful, but WITHOUT
-## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
-## details.
-##
-## You should have received a copy of the GNU General Public License along with
-## this program; if not, see <http://www.gnu.org/licenses/>.
+################################################################################
+
 
 ##' @title A scatter plot matrix with nice variable names
 ##' @param data numeric matrix or as.matrix(.)able

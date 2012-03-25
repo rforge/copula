@@ -1,4 +1,4 @@
-## Copyright (C) 2010--2011  Marius Hofert and Martin Maechler
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -13,12 +13,12 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-#### List of supported Archimedean copulas
+
+### List of supported Archimedean copulas
 
 ## NOTA BENE:  Write psi(), tau(), ... functions such that they *vectorize*
 ## ---------   *and* do work even for (non-numeric) NULL argument
 ##		{now checked in "acopula" validityMethod -- see ./AllClass.R }
-
 
 ### Ali-Mikhail-Haq, see Nelsen (2007) p. 116, # 3 #############################
 

@@ -1,28 +1,20 @@
-#################################################################################
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
-##   R package Copula by Jun Yan and Ivan Kojadinovic Copyright (C) 2009
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
 ##
-##   This file is part of the R package copula.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
 ##
-##   The R package copula is free software: you can redistribute it and/or modify
-##   it under the terms of the GNU General Public License as published by
-##   the Free Software Foundation, either version 3 of the License, or
-##   (at your option) any later version.
-##
-##   The R package copula is distributed in the hope that it will be useful,
-##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##   GNU General Public License for more details.
-##
-##   You should have received a copy of the GNU General Public License
-##   along with the R package copula. If not, see <http://www.gnu.org/licenses/>.
-##
-#################################################################################
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-################################################################
-## Class fitCopula
-################################################################
+### Class fitCopula ############################################################
 
 setClass("fitCopula",
          representation(estimate = "numeric",
@@ -72,9 +64,8 @@ summaryFitCopula <- function(object) {
 setMethod("show", signature("fitCopula"), showFitCopula)
 setMethod("summary", signature("fitCopula"), summaryFitCopula)
 
-################################################################
-## Wrapper function
-################################################################
+
+## Wrapper function ############################################################
 
 fitCopula <- function(copula, data,
                       method = "mpl",
@@ -100,9 +91,8 @@ fitCopula <- function(copula, data,
 	 stop("Implemented methods are: ml, mpl, itau, and irho."))
 }
 
-###############################################################
-## fitCopula with maximizing pseudo-likelihood
-###############################################################
+
+## fitCopula with maximizing pseudo-likelihood #################################
 
 fitCopula.mpl <- function(copula, data, start=NULL,
                           lower=NULL, upper=NULL,
@@ -135,9 +125,8 @@ fitCopula.mpl <- function(copula, data, start=NULL,
       copula = fit@copula)
 }
 
-###############################################################
-## fitCopula using inversion of Kendall's tau
-###############################################################
+
+## fitCopula using inversion of Kendall's tau ##################################
 
 fitCopula.itau <- function(copula, data, estimate.variance=TRUE) {
   q <- length(copula@parameters)
@@ -162,9 +151,8 @@ fitCopula.itau <- function(copula, data, estimate.variance=TRUE) {
       copula = copula)
 }
 
-###############################################################
-## fitCopula using inversion of Spearman's rho
-###############################################################
+
+## fitCopula using inversion of Spearman's rho #################################
 
 fitCopula.irho <- function(copula, data, estimate.variance=TRUE) {
   q <- length(copula@parameters)
@@ -187,9 +175,8 @@ fitCopula.irho <- function(copula, data, estimate.variance=TRUE) {
       copula = copula)
 }
 
-###############################################################
-## fitCopula using maximum pseudo-likelihood
-###############################################################
+
+## fitCopula using maximum pseudo-likelihood ###################################
 
 chkParamBounds <- function(copula) {
   param <- copula@parameters
@@ -285,9 +272,8 @@ fitCopula.ml <- function(data, copula, start=NULL,
       copula = copula)
 }
 
-#######################################################################
-## functions used in estimation and variance computation
-######################################################################
+
+## functions used in estimation and variance computation #######################
 
 ## taken from QRMlib and modified
 ## credit to Alexander McNeil and Scott Ulman
@@ -306,7 +292,6 @@ makePosDef <- function (mat, delta = 0.001) {
     mat
 }
 
-#########################################################
 ## rho given as a square matrix
 fitSpearman <- function(cop,rho)  {
   stopifnot(is.numeric(p <- ncol(rho)), p == nrow(rho))
@@ -325,7 +310,6 @@ fitSpearman <- function(cop,rho)  {
     sigma
 }
 
-#########################################################
 ## tau given as a square matrix
 fitKendall <- function(cop,tau) {
   stopifnot(is.numeric(p <- ncol(tau)), p == nrow(tau))
@@ -345,9 +329,7 @@ fitKendall <- function(cop,tau) {
 }
 
 
-###############################################################
-## variance/covariance of the pseudo-likelihood estimator
-###############################################################
+## variance/covariance of the pseudo-likelihood estimator ######################
 
 influ.terms <- function(u, influ, q)
 {
@@ -397,9 +379,8 @@ varPL <- function(cop,u)
     return(inve %*% var(influ0 - influ.terms(u,influ,q)) %*% inve)
   }
 
-#################################################################################
-## variance of the estimator based on Kendall's tau
-#################################################################################
+
+## variance of the estimator based on Kendall's tau ############################
 
 ## cop is the FITTED copula
 ## u are the available pseudo-observations
@@ -510,9 +491,8 @@ varKendall <- function(cop,u) {
   } else return(16 * var(v %*% L %*% D))
 }
 
-##############################################################################
-## variance of the estimator based on Spearman's rho
-##############################################################################
+
+## variance of the estimator based on Spearman's rho ###########################
 
 ## cop is the FITTED copula
 ## u are the available pseudo-observations

@@ -1,30 +1,24 @@
-#################################################################################
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
-##   R package Copula by Jun Yan and Ivan Kojadinovic Copyright (C) 2009
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
 ##
-##   This file is part of the R package copula.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
 ##
-##   The R package copula is free software: you can redistribute it and/or modify
-##   it under the terms of the GNU General Public License as published by
-##   the Free Software Foundation, either version 3 of the License, or
-##   (at your option) any later version.
-##
-##   The R package copula is distributed in the hope that it will be useful,
-##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##   GNU General Public License for more details.
-##
-##   You should have received a copy of the GNU General Public License
-##   along with the R package copula. If not, see <http://www.gnu.org/licenses/>.
-##
-#################################################################################
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
+
 
 ##------- FIXME{MM}: Shouldn't all these inherit from "htest" (and use its print() method)?
 ##        and ditto for all other ./*Tests.R  !!!
 
-###################################################################
-## EV test based on Cn
-###################################################################
+
+### EV test based on Cn ########################################################
 
 evTestC <- function(x, N = 1000)
 {
@@ -100,9 +94,8 @@ print.evTest <- function(x, ...)
   invisible(x)
 }
 
-###################################################################
-## EV test based on An
-###################################################################
+
+### EV test based on An ########################################################
 
 evTestA <- function(x, N = 1000, derivatives = "An")
 {
@@ -158,9 +151,8 @@ evTestA <- function(x, N = 1000, derivatives = "An")
   evt
 }
 
-###################################################################
-## EV test based on An CFG - An Pickands
-###################################################################
+
+### EV test based on An CFG - An Pickands ######################################
 
 evTestAA <- function(x, N = 1000,  derivatives = "Cn", m = 100)
 {
@@ -203,11 +195,10 @@ evTestAA <- function(x, N = 1000,  derivatives = "Cn", m = 100)
             list(statistic=s, pvalue=(sum(s0 >= s)+0.5)/(N+1),s0=s0))
 }
 
-###################################################################
-## EV test based on K - Ben Ghorbal, Neslehova and Genest (2009)
-## Canadian Journal of Statistics, volume 37
-## Code provided by Johanna Neslehova
-###################################################################
+
+### EV test based on K - Ben Ghorbal, Neslehova and Genest (2009)
+### Canadian Journal of Statistics, volume 37
+### Code provided by Johanna Neslehova
 
 ## internal functions
 I <- function(X,i,j)
@@ -301,7 +292,7 @@ thetas <- function(X)
   return(list(mu=mu,theta=theta))
 }
 
-##calculation of the GKR test statistic Sn
+## calculation of the GKR test statistic Sn
 Sn <- function(X)
 {
   n <- nrow(X)
@@ -320,7 +311,6 @@ GKRJack <- function(X)
     VSn <- vapply(1:n, function(i) Sn(X[-i, ,drop=FALSE]), 1.)
     list(Sn=Sn, var = (n-1)/n * sum(VSn - Sn)^2)
 }
-
 
 ## Calculation of Sn and its finite sample and asymptotic variance;
 ## theta41 = theta[4], theta42 = theta[5], theta51 = theta[6] and theta52=theta[7]
@@ -374,9 +364,8 @@ GKRstatistic <- function(X, variance=c("fsample","asymptotic","all"))
   return(list(Sn=Sn,tau=tau,mu=mu,psi=psi,var=var))
 }
 
-##########################################################
-## Test function: GKR test
-##########################################################
+
+### Test function: GKR test ####################################################
 
 evTestK <- function(x, method = c("fsample","asymptotic","jackknife"))
 {

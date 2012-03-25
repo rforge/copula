@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Marius Hofert and Martin Maechler
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -13,9 +13,9 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-####  Generating Exponentially Tilted Stable Random Vars (r ET stable)
-####  ================================================================
-####  --> Experiments with retstable*() versions
+###  Generating Exponentially Tilted Stable Random Vars (r ET stable)
+###  ================================================================
+###  --> Experiments with retstable*() versions
 
 require(copula)
 source(system.file("Rsource", "utils.R", package="copula"))

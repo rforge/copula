@@ -1,3 +1,19 @@
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
+##
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
+##
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
+
+
 p.dDiag <-
     function(family, d, n = 1000, log = FALSE,
 	     tau = c(0.01,
@@ -84,7 +100,7 @@ r.dDiag.75 <- lapply(copula:::c_longNames,
 r.dDiag.200.L <- lapply(copula:::c_longNames,
                     function(family) p.dDiag(family, d = 200, log=TRUE))
 
-### Experiment with and Explore dDiagFrank() methods ----------------------
+### Experiment with and Explore dDiagFrank() methods ###########################
 ###                             ============
 
 source(system.file("Rsource", "utils.R", package="copula"))##--> ... nCorrDigits()

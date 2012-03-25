@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Marius Hofert and Martin Maechler
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -20,10 +20,10 @@
 
 source(system.file("Rsource", "GIG.R", package="copula"))
 
-library(copula)
-library(bbmle)
-library(lattice)
-library(grid)
+require(copula)
+require(bbmle)
+require(lattice)
+require(grid)
 
 do.profile <- FALSE # set this to TRUE to compute profile-likelihood plots (time-consuming)
 ## without the profile-likelihood plots, the demo takes about 5min on a standard laptop

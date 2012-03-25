@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Marius Hofert and Martin Maechler
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -13,7 +13,8 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-### TODO Should we try to be compatible to  'Copula' package ??
+
+### TODO Should we try to be compatible to 'Copula' package ??
 
 ## This has advantage that arithmetic with scalars works "for free" already:
 setClass("interval", contains =  "numeric", # of length 2

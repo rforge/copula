@@ -1,27 +1,20 @@
-#################################################################################
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
-##   R package Copula by Jun Yan and Ivan Kojadinovic Copyright (C) 2009
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
 ##
-##   This file is part of the R package copula.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
 ##
-##   The R package copula is free software: you can redistribute it and/or modify
-##   it under the terms of the GNU General Public License as published by
-##   the Free Software Foundation, either version 3 of the License, or
-##   (at your option) any later version.
-##
-##   The R package copula is distributed in the hope that it will be useful,
-##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##   GNU General Public License for more details.
-##
-##   You should have received a copy of the GNU General Public License
-##   along with the R package copula. If not, see <http://www.gnu.org/licenses/>.
-##
-#################################################################################
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
 
-#######################################################
-#### asymmetric copulas
-#######################################################
+
+### asymmetric copulas #########################################################
 
 setClass("asymCopula",
          representation = representation(
@@ -68,7 +61,7 @@ asymCopula <- function(shapes, copula1, copula2) {
              message = "Asymmetric Copula")
 }
 
-  
+
 getCopulaComps <- function(object) {
   p1 <- length(object@copula1@parameters)
   p2 <- length(object@copula2@parameters)
@@ -120,7 +113,7 @@ dasymCopula <- function(copula, u) {
   part4 <- pcopula(copula1, gu1) * dcopula(copula2, gu2) * gfunDer(u[,2], a2) * gfunDer(u[,1], a1)
   part1 + part2 + part3 + part4
 }
-  
+
 rasymCopula <- function(copula, n) {
   comps <- getCopulaComps(copula)
   a1 <- comps$shape[1];  a2 <- comps$shape[2]

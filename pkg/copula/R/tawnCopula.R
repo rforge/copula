@@ -1,23 +1,17 @@
-#################################################################################
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
-##   R package Copula by Jun Yan and Ivan Kojadinovic Copyright (C) 2009
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
 ##
-##   This file is part of the R package copula.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
 ##
-##   The R package copula is free software: you can redistribute it and/or modify
-##   it under the terms of the GNU General Public License as published by
-##   the Free Software Foundation, either version 3 of the License, or
-##   (at your option) any later version.
-##
-##   The R package copula is distributed in the hope that it will be useful,
-##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##   GNU General Public License for more details.
-##
-##   You should have received a copy of the GNU General Public License
-##   along with the R package copula. If not, see <http://www.gnu.org/licenses/>.
-##
-#################################################################################
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
 AfunTawn <- function(copula, w) {
@@ -32,7 +26,7 @@ AfunDerTawn <- function(copula, w) {
   value <- eval(expression({
     .value <- alpha * w^2 - alpha * w + 1
     .grad <- array(0, c(length(.value), 1L), list(NULL, c("w")))
-    .hessian <- array(0, c(length(.value), 1L, 1L), list(NULL, 
+    .hessian <- array(0, c(length(.value), 1L, 1L), list(NULL,
         c("w"), c("w")))
     .grad[, "w"] <- alpha * (2 * w) - alpha
     .hessian[, "w", "w"] <- alpha * 2
@@ -63,7 +57,7 @@ tawnCopula <- function(param) {
              message = "Tawn copula family; Extreme value copula")
   val
 }
-  
+
 ptawnCopula <- function(copula, u) {
   dim <- copula@dimension
   if (is.vector(u)) u <- matrix(u, nrow = 1)
@@ -107,8 +101,8 @@ tauDerTawnCopula <- function(copula) {
     .expr7 <- sqrt(.expr6)
     .value <- .expr5/.expr7 - 2
     .grad <- array(0, c(length(.value), 1L), list(NULL, c("alpha")))
-    .grad[, "alpha"] <- 8 * (0.5 * ((1/.expr1 + alpha/.expr1^2) * 
-        .expr2^-0.5)/(1 + .expr3^2))/.expr7 - .expr5 * (0.5 * 
+    .grad[, "alpha"] <- 8 * (0.5 * ((1/.expr1 + alpha/.expr1^2) *
+        .expr2^-0.5)/(1 + .expr3^2))/.expr7 - .expr5 * (0.5 *
         ((.expr1 - alpha) * .expr6^-0.5))/.expr7^2
     attr(.value, "gradient") <- .grad
     .value
@@ -150,16 +144,17 @@ rhoDerTawnCopula <- function(copula) {
     .expr16 <- .expr1 - alpha
     .value <- .expr11/.expr13 - 3
     .grad <- array(0, c(length(.value), 1L), list(NULL, c("alpha")))
-    .grad[, "alpha"] <- 12 * (.expr16 + (8 * (0.5 * (.expr16 * 
-        .expr2^-0.5)) * .expr8 + .expr4 * ((0.5 * alpha^-0.5/.expr6 + 
-        .expr5 * (0.5 * .expr1^-0.5)/.expr6^2)/(1 + .expr7^2))))/.expr13 - 
+    .grad[, "alpha"] <- 12 * (.expr16 + (8 * (0.5 * (.expr16 *
+        .expr2^-0.5)) * .expr8 + .expr4 * ((0.5 * alpha^-0.5/.expr6 +
+        .expr5 * (0.5 * .expr1^-0.5)/.expr6^2)/(1 + .expr7^2))))/.expr13 -
         .expr11 * (.expr12 - 2 * .expr1 * alpha)/.expr13^2
     attr(.value, "gradient") <- .grad
     .value
   }), list(alpha = alpha))
-  attr(value, "gradient")  
+  attr(value, "gradient")
 }
-###########################################################################
+
+################################################################################
 
 setMethod("pcopula", signature("tawnCopula"), ptawnCopula)
 setMethod("dcopula", signature("tawnCopula"), dtawnCopula)

@@ -1,23 +1,18 @@
-#################################################################################
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
-##   R package Copula by Jun Yan and Ivan Kojadinovic Copyright (C) 2009
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
 ##
-##   This file is part of the R package copula.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
 ##
-##   The R package copula is free software: you can redistribute it and/or modify
-##   it under the terms of the GNU General Public License as published by
-##   the Free Software Foundation, either version 3 of the License, or
-##   (at your option) any later version.
-##
-##   The R package copula is distributed in the hope that it will be useful,
-##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##   GNU General Public License for more details.
-##
-##   You should have received a copy of the GNU General Public License
-##   along with the R package copula. If not, see <http://www.gnu.org/licenses/>.
-##
-#################################################################################
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
+
 
 ## Schlather copula; does not offer full range of dependence
 setClass("schlatherCopula",
@@ -27,7 +22,7 @@ setClass("schlatherCopula",
          )
 
 AfunSchlather <- function(copula, w) { ## one-parameter for now
-  alpha <- copula@parameters[1]   
+  alpha <- copula@parameters[1]
   A <- 0.5 * (1 + sqrt(1 - 2 * (alpha + 1) * w * (1 - w)))
   ifelse(w == 0 | w == 1, 1, A)
 }
@@ -43,7 +38,7 @@ AfunDerSchlather <- function(copula, w) {
     .expr4 <- 1 - w
     .value <- 0.5 * (1 + (1 - .expr3 * .expr4))
     .grad <- array(0, c(length(.value), 1L), list(NULL, c("w")))
-    .hessian <- array(0, c(length(.value), 1L, 1L), list(NULL, 
+    .hessian <- array(0, c(length(.value), 1L, 1L), list(NULL,
         c("w"), c("w")))
     .grad[, "w"] <- -(0.5 * (.expr2 * .expr4 - .expr3))
     .hessian[, "w", "w"] <- 0.5 * (.expr2 + .expr2)
@@ -101,11 +96,7 @@ dschlatherCopula <- function(copula, u) {
 }
 
 
-#######################################################################
-## This block is copied from ../../copulaUtils/assoc/
-
-
-############################################################################
+## This block is copied from ../../copulaUtils/assoc/ ##########################
 
 #setMethod("pcopula", signature("schlatherCopula"), pschlatherCopula)
 #setMethod("dcopula", signature("schlatherCopula"), dschlatherCopula)
