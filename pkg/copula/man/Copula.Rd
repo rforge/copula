@@ -19,6 +19,7 @@
 \alias{dcopula,indepCopula-method}
 \alias{dcopula,asymCopula-method}
 \alias{dcopula,asymExplicitCopula-method}
+\alias{dcopula,nacopula-method}
 
 \alias{pcopula,claytonCopula-method}
 \alias{pcopula,frankCopula-method}
@@ -35,6 +36,7 @@
 \alias{pcopula,indepCopula-method}
 \alias{pcopula,asymCopula-method}
 \alias{pcopula,asymExplicitCopula-method}
+\alias{pcopula,nacopula-method}
 
 
 \alias{rcopula,claytonCopula-method}
@@ -51,6 +53,7 @@
 \alias{rcopula,indepCopula-method}
 \alias{rcopula,asymCopula-method}
 \alias{rcopula,asymExplicitCopula-method}
+\alias{rcopula,nacopula-method}
 
 \title{Copula distribution functions}
 \description{
@@ -58,17 +61,21 @@
   \code{copula} object.
 }
 \usage{
-dcopula(copula, u)
-pcopula(copula, u)
-rcopula(copula, n)
+dcopula(copula, u, log=FALSE, \dots)
+pcopula(copula, u, \dots)
+rcopula(copula, n, \dots)
 }
 \arguments{
-  \item{copula}{ a \code{"copula"} object. }
-  \item{u}{ a vector of the copula dimension or a matrix with number of
+  \item{copula}{an \R object of class \code{"\linkS4class{Copula}"},
+    (i.e., \code{"\linkS4class{copula}"} or  \code{"\linkS4class{nacopula}"}).}
+  \item{u}{a vector of the copula dimension or a matrix with number of
     rows being the copula dimension, giving the coordinates of the
     points where the density or distribution function needs to be evaluated.
   }
-  \item{n}{ number of observations to be generated. }
+  \item{log}{logical indicating if the \eqn{\log(f(\cdot))}{log(f(.))}
+    should be returned instead of \eqn{f(\cdot)}{f(.)}.}
+  \item{n}{(for \code{rcopula()}:) number of observations to be generated.}
+  \item{\dots}{further optional arguments for some methods, e.g., \code{method}.}
 }
 \details{
   The density function of an Archimedean copula was obtained by

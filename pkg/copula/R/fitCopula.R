@@ -42,6 +42,7 @@ showFitCopula <- function(object) {
   print(foo@parameters)
   if (!is.na(foo@loglik)) cat("The maximized loglikelihood is ", foo@loglik, "\n")
   if (!is.na(foo@convergence)) cat("The convergence code is ", foo@convergence, "\n")
+  invisible(object)
 }
 
 summaryFitCopula <- function(object) {

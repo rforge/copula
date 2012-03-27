@@ -20,9 +20,8 @@ plackettCopula <- function(param) {
 
   pdfExpr <- parse(text = "((1 + (alpha - 1) * (u1 + u2))^2 - 4 * alpha * (alpha - 1) * u1 * u2)^(- 3/2) * alpha * (1 + (alpha - 1) * (u1 + u2 - 2 * u1 * u2))")
 
-  ## dim = 2
-  dim <- 2
-  val <- new("plackettCopula",
+  dim <- 2L
+  new("plackettCopula",
              dimension = dim,
              parameters = param[1],
              exprdist = c(cdf = cdfExpr, pdf = pdfExpr),
@@ -30,12 +29,11 @@ plackettCopula <- function(param) {
              param.lowbnd = 0,
              param.upbnd = Inf,
              message = "Plackett copula family")
-  val
 }
 
 pplackettCopula <- function(copula, u) {
   dim <- copula@dimension
-  if (is.vector(u)) u <- matrix(u, nrow = 1)
+  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   u1 <- u[,1]
   u2 <- u[,2]
@@ -45,14 +43,15 @@ pplackettCopula <- function(copula, u) {
   0.5 / eta * (1 + eta * (u1 + u2) - ((1 + eta * (u1 + u2))^2 - 4 * alpha * eta * u1 * u2)^0.5)
 }
 
-dplackettCopula <- function(copula, u) {
+dplackettCopula <- function(copula, u, log = FALSE, ...) {
   dim <- copula@dimension
-  if (is.vector(u)) u <- matrix(u, nrow = 1)
+  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   u1 <- u[,1]
   u2 <- u[,2]
   alpha <- copula@parameters[1]
   eta <- alpha - 1
+  if(log) stop("'log=TRUE' not yet implemented")
   ## Joe (1997, p.141)
   ((1 + eta * (u1 + u2))^2 - 4 * alpha * eta * u1 * u2)^(- 3/2) * alpha * (1 + eta * (u1 + u2 - 2 * u1 * u2))
 }

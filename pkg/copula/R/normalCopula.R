@@ -14,8 +14,9 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-normalCopula <- function(param, dim = 2, dispstr = "ex") {
+normalCopula <- function(param, dim = 2L, dispstr = "ex") {
   pdim <- length(param)
+  dim <- as.integer(dim)
   new("normalCopula",
       dispstr = dispstr,
       dimension = dim,
@@ -37,31 +38,30 @@ rnormalCopula <- function(copula, n) {
 
 
 pnormalCopula <- function(copula, u) {
-  mycdf.vector <- function(qu)
-      pmvnorm(lower = i.lower, upper = qu, sigma = sigma)
-
   dim <- copula@dimension
   i.lower <- rep.int(-Inf, dim)
   sigma <- getSigma(copula)
   u <- matrix(pmax(0, pmin(1, u)), ncol = dim)
-  apply(qnorm(u), 1, mycdf.vector)
+  apply(qnorm(u), 1, function(qu)
+        pmvnorm(lower = i.lower, upper = qu, sigma = sigma))
 }
 
-dnormalCopula <- function(copula, u) {
+dnormalCopula <- function(copula, u, log=FALSE, ...) {
   dim <- copula@dimension
   sigma <- getSigma(copula)
-  if (is.vector(u)) u <- matrix(u, ncol = dim)
+  if(!is.matrix(u)) u <- matrix(u, ncol = dim)
   x <- qnorm(u)
-  val <- dmvnorm(x, sigma = sigma) / apply(x, 1, function(v) prod(dnorm(v)))
-  val[apply(u, 1, function(v) any(v <= 0))] <- 0
-  val[apply(u, 1, function(v) any(v >= 1))] <- 0
-  val
+  ## work in log-scale [less over-/under-flow, then (maybe) transform:
+  val <- dmvnorm(x, sigma = sigma, log=TRUE) - rowSums(dnorm(x, log=TRUE))
+  if(any(out <- !is.na(u) & (u <= 0 | u >= 1))) val[out] <- -Inf
+  if(log) val else exp(val)
 }
 
 
 showNormalCopula <- function(object) {
   showCopula(object)
   if (object@dimension > 2) cat("dispstr: ", object@dispstr, "\n")
+  invisible(object)
 }
 
 

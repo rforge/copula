@@ -412,3 +412,20 @@ nacPairthetas <- function(x) {
     diag(T) <- rep.int(NA_real_, d)
     T
 }## nacPairthetas
+
+###-- methods - glue  former "copula" <--> former "nacopula" ---------
+
+setMethod("dcopula", "nacopula",
+          function(copula, u, log = FALSE, ...) {
+              C <- copula@copula
+              th <- C@theta
+              if(any(is.na(th)))
+                  warning("'theta' is NA -- maybe rather apply to setTheta(.)")
+              C@dacopula(u, th, log=log, ...)
+          })
+
+setMethod("pcopula", "nacopula", function(copula, u) pnacopula(copula, u))
+
+setMethod("rcopula", "nacopula",
+	  function(copula, n, ...) ## argument reversal ..
+	  rnacopula(n, copula, ...))

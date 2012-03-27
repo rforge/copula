@@ -70,13 +70,12 @@ derAfunWrtParamHuslerReiss <- function(copula, w) {
 }
 
 huslerReissCopula <- function(param) {
-  ## dim = 2
-  dim <- 2
+  dim <- 2L
   cdf <- expression( exp(log(u1 * u2) *  ((log(u2) / log(u1 * u2)) * pnorm(1 / alpha + 0.5 * alpha * log((log(u2) / log(u1 * u2)) /(1 - (log(u2) / log(u1 * u2))))) +    (1 - (log(u2) / log(u1 * u2))) * pnorm(1 / alpha - 0.5 * alpha * log((log(u2) / log(u1 * u2)) / (1 - (log(u2) / log(u1 * u2)))))) ) )
   derCdfWrtU1 <- D(cdf, "u1")
   pdf <- D(derCdfWrtU1, "u2")
 
-  val <- new("huslerReissCopula",
+  new("huslerReissCopula",
              dimension = dim,
              exprdist = c(cdf = cdf, pdf = pdf),
              parameters = param[1],
@@ -84,13 +83,12 @@ huslerReissCopula <- function(param) {
              param.lowbnd = 0,
              param.upbnd = Inf,
              message = "Husler-Reiss copula family; Extreme value copula")
-  val
 }
 
 
 phuslerReissCopula <- function(copula, u) {
   dim <- copula@dimension
-  if (is.vector(u)) u <- matrix(u, nrow = 1)
+  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   u1 <- u[,1]
   u2 <- u[,2]
@@ -101,13 +99,14 @@ phuslerReissCopula <- function(copula, u) {
       - u2p * pnorm(1/alpha + 0.5 * alpha * log(u2p / u1p)))
 }
 
-dhuslerReissCopula <- function(copula, u) {
+dhuslerReissCopula <- function(copula, u, log=FALSE, ...) {
   dim <- copula@dimension
-  if (is.vector(u)) u <- matrix(u, nrow = 1)
+  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   u1 <- u[,1]
   u2 <- u[,2]
   alpha <- copula@parameters[1]
+  if(log) stop("'log=TRUE' not yet implemented")
   ## Joe (1997, p.142)
   u1p <- -log(u1); u2p <- -log(u2); z <- u1p / u2p
   val <- 1/ (u1 * u2) * pcopula(copula, u) *

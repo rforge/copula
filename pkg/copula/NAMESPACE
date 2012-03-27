@@ -25,7 +25,7 @@ export(genFun, genInv, genFunDer1, genFunDer2)
 export(Afun, AfunDer, Anfun)
 
 exportClasses(mvdc)
-exportClasses(copula, ellipCopula, archmCopula, evCopula)
+exportClasses(Copula, copula, ellipCopula, archmCopula, evCopula)
 exportClasses(indepCopula)
 exportClasses(normalCopula, tCopula)
 exportClasses(claytonCopula, frankCopula, gumbelCopula, amhCopula)

@@ -1001,7 +1001,7 @@ cacopula <- function(u, cop, n.MC=0, log=FALSE) {
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
 	stop("currently, only Archimedean copulas are provided")
-    if(!is.matrix(u)) u <- rbind(u)
+    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     stopifnot(0 <= u, u <= 1)
     ## note: for some (but not all) families, cacopula also makes sense on
     ##       the boundaries since the corresponding limits exist

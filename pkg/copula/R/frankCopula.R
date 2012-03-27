@@ -36,7 +36,7 @@ genFunDer2Frank <- function(copula, u) {
 ##   eval(genInvDerFrank.expr[n + 1], list(s=s, alpha=copula@parameters[1]))
 ## }
 
-frankCopula <- function(param, dim = 2) {
+frankCopula <- function(param, dim = 2L) {
   ## get expressions of cdf and pdf
   cdfExpr <- function(n) {
     expr <-   "- log( (exp(- alpha * u1) - 1) / (exp(- alpha) - 1) )"
@@ -56,7 +56,7 @@ frankCopula <- function(param, dim = 2) {
     val
   }
 
-  if (dim > 2 && param[1] < 0)
+  if ((dim <- as.integer(dim)) > 2 && param[1] < 0)
     stop("param can be negative only for dim = 2")
   cdf <- cdfExpr(dim)
   if (dim <= 6)  pdf <- pdfExpr(cdf, dim)
@@ -106,7 +106,7 @@ rfrankCopula <- function(copula, n) {
 
 pfrankCopula <- function(copula, u) {
   dim <- copula@dimension
-  if (is.vector(u)) u <- matrix(u, ncol = dim)
+  if(!is.matrix(u)) u <- matrix(u, ncol = dim)
   cdf <- copula@exprdist$cdf
   dim <- copula@dimension
   alpha <- copula@parameters[1]
@@ -115,12 +115,13 @@ pfrankCopula <- function(copula, u) {
   eval(cdf)
 }
 
-dfrankCopula <- function(copula, u) {
-  if (is.vector(u)) u <- matrix(u, nrow = 1)
+dfrankCopula <- function(copula, u, log=FALSE, ...) {
+  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   pdf <- copula@exprdist$pdf
   dim <- copula@dimension
   for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   alpha <- copula@parameters[1]
+  if(log) stop("'log=TRUE' not yet implemented")
   if (abs(alpha) <= .Machine$double.eps^.9) return (rep(1, nrow(u)))
   val <- eval(pdf)
 #  val[apply(u, 1, function(v) any(v <= 0))] <- 0
@@ -129,7 +130,7 @@ dfrankCopula <- function(copula, u) {
 }
 
 ## dfrankCopula.expr <- function(copula, u) {
-##   if (is.vector(u)) u <- matrix(u, nrow = 1)
+##   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 ##   s <- apply(genFunFrank(copula, u), 1, sum)
 ##   pdf <- genInvDerFrank(copula, s, copula@dimension) *
 ##     apply(genFunDerFrank(copula, u, 1), 1, prod)
@@ -139,7 +140,7 @@ dfrankCopula <- function(copula, u) {
 dfrankCopula.pdf <- function(copula, u) {
   dim <- copula@dimension
   if (dim > 6) stop("Frank copula PDF not implemented for dimension > 6.")
-  if (is.vector(u)) u <- matrix(u, nrow = 1)
+  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   alpha <- copula@parameters[1]
   c(eval(frankCopula.pdf.algr[dim]))

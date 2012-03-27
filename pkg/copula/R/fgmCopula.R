@@ -16,9 +16,9 @@
 
 ## constructor #################################################################
 
-fgmCopula <- function(param, dim = 2) {
-    if (!is.numeric(dim) || dim < 2)
-        stop("dim should be a numeric greater than 2")
+fgmCopula <- function(param, dim = 2L) {
+    if (!is.numeric(dim) || (dim <- as.integer(dim)) < 2)
+        stop("dim should be an integer of at least 2")
     if (!is.numeric(param) && length(param) != 2^dim - dim - 1)
         stop("wrong parameters")
 
@@ -106,7 +106,7 @@ pfgmCopula <- function(copula, u) {
     if (any(u < 0) || any(u > 1))
         stop("u values should lie between 0 and 1")
     dim <- copula@dimension
-    if (is.vector(u)) u <- matrix(u, ncol = dim)
+    if(!is.matrix(u)) u <- matrix(u, ncol = dim)
     param <- copula@parameters
     cdf <- copula@exprdist$cdf
     for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
@@ -116,12 +116,13 @@ pfgmCopula <- function(copula, u) {
 
 ## pdf of the copula ###########################################################
 
-dfgmCopula <- function(copula, u) {
+dfgmCopula <- function(copula, u, log=FALSE, ...) {
     if (any(u < 0) || any(u > 1))
         stop("u values should lie between 0 and 1")
     dim <- copula@dimension
-    if (is.vector(u)) u <- matrix(u, ncol = dim)
+    if(!is.matrix(u)) u <- matrix(u, ncol = dim)
     param <- copula@parameters
+    if(log) stop("'log=TRUE' not yet implemented")
     pdf <- copula@exprdist$pdf
     for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
     for (i in (dim + 2):2^dim) assign(paste("alpha", i, sep=""), param[i - dim - 1])

@@ -69,7 +69,7 @@ genFunDer2Gumbel <- function(copula, u) {
   eval(gumbelCopula.genfunDer.expr[2], list(u=u, alpha=copula@parameters[1]))
 }
 
-gumbelCopula <- function(param, dim = 2) {
+gumbelCopula <- function(param, dim = 2L) {
   ## get expressions of cdf and pdf
   cdfExpr <- function(n) {
     expr <- "( - log(u1))^alpha"
@@ -89,10 +89,9 @@ gumbelCopula <- function(param, dim = 2) {
     val
   }
 
-  cdf <- cdfExpr(dim)
-  if (dim <= 6)  pdf <- pdfExpr(cdf, dim)
-  else pdf <- NULL
-  val <- new("gumbelCopula",
+  cdf <- cdfExpr((dim <- as.integer(dim)))
+  pdf <- if (dim <= 6) pdfExpr(cdf, dim) else NULL
+  new("gumbelCopula",
              dimension = dim,
              parameters = param[1],
              exprdist = c(cdf = cdf, pdf = pdf),
@@ -100,7 +99,6 @@ gumbelCopula <- function(param, dim = 2) {
              param.lowbnd = 1,
              param.upbnd = Inf,
              message = "Gumbel copula family; Archimedean copula; Extreme value copula")
-  val
 }
 
 
@@ -122,7 +120,7 @@ rgumbelCopula <- function(copula, n) {
 
 pgumbelCopula <- function(copula, u) {
   dim <- copula@dimension
-  if (is.vector(u)) u <- matrix(u, ncol = dim)
+  if(!is.matrix(u)) u <- matrix(u, ncol = dim)
   cdf <- copula@exprdist$cdf
   dim <- copula@dimension
   for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
@@ -131,19 +129,20 @@ pgumbelCopula <- function(copula, u) {
   pmax(val, 0)
 }
 
-dgumbelCopula <- function(copula, u) {
-  if (is.vector(u)) u <- matrix(u, nrow = 1)
+dgumbelCopula <- function(copula, u, log=FALSE, ...) {
+  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   pdf <- copula@exprdist$pdf
   dim <- copula@dimension
   for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   alpha <- copula@parameters[1]
+  if(log) stop("'log=TRUE' not yet implemented")
   eval(pdf)
 }
 
 dgumbelCopula.pdf <- function(copula, u) {
   dim <- copula@dimension
   if (dim > 10) stop("Gumbel copula PDF not implemented for dimension > 10.")
-  if (is.vector(u)) u <- matrix(u, nrow = 1)
+  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   alpha <- copula@parameters[1]
   c(eval(gumbelCopula.pdf.algr[dim]))

@@ -55,8 +55,7 @@ AfunDerTev <- function(copula, w) {
 }
 
 tevCopula <- function(param, df = 4, df.fixed = FALSE) {
-  ## dim = 2
-  dim <- 2
+  dim <- 2L
   pdim <- length(param)
   parameters <- param
   param.names <- paste("rho", 1:pdim, sep=".")
@@ -68,7 +67,7 @@ tevCopula <- function(param, df = 4, df.fixed = FALSE) {
     param.lowbnd <- c(param.lowbnd, 1) ## qt won't work for df < 1
     param.upbnd <- c(param.upbnd, Inf)
   }
-  val <- new("tevCopula",
+  new("tevCopula",
              dimension = dim,
              parameters = parameters,
              df = df,
@@ -77,25 +76,25 @@ tevCopula <- function(param, df = 4, df.fixed = FALSE) {
              param.lowbnd = param.lowbnd,
              param.upbnd = param.upbnd,
              message = paste("t-EV copula family",
-               if(df.fixed) paste("df fixed at", df) else NULL)
-             )
-  val
+               if(df.fixed) paste("df fixed at", df)))
 }
 
 ptevCopula <- function(copula, u) {
   dim <- copula@dimension
-  if (is.vector(u)) u <- matrix(u, nrow = 1)
+  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   u1 <- u[,1]; u2 <- u[,2]
   logu <- log(u1 * u2)
   exp(logu * AfunTev(copula, log(u2) / logu))
 }
 
-dtevCopula <- function(copula, u) {
+dtevCopula <- function(copula, u, log=FALSE, ...) {
   dim <- copula@dimension
-  if (is.vector(u)) u <- matrix(u, nrow = 1)
+  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   u1 <- u[,1]; u2 <- u[,2]
+
+  if(log) stop("'log=TRUE' not yet implemented")
 
   C <- ptevCopula(copula, u)
   logu <- log(u1 * u2)

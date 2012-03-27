@@ -16,38 +16,40 @@
 
 ### basic copula class #########################################################
 
+##' Check validity of "copula"  (not exported for now)
+validCopula <- function(object) {
+    dim <- object@dimension
+    if (dim != as.integer(dim))
+        return("dim must be integer")
+    if (dim < 2)
+        return("dim must be >= 2")
+    param <- object@parameters
+    upper <- object@param.upbnd
+    lower <- object@param.lowbnd
+    lp <- length(param)
+    if (lp != length(upper) && length(upper) != 1)
+        return("Parameter and upper bound have non-equal length")
+    if (lp != length(lower) && length(lower) != 1)
+        return("Parameter and lower bound have non-equal length")
+    if (any(is.na(param) | param > upper | param < lower))
+        return("Parameter value out of bound")
+    else return (TRUE)
+}
+
 setClass("copula",
-         representation(dimension = "numeric",
+         representation(dimension = "integer", # as for "nacopula"
                         parameters = "numeric",
                         param.names = "character",
                         param.lowbnd = "numeric",
                         param.upbnd = "numeric",
-                        message = "character"),
-         #validity = validCopula,
-         validity = function(object) {
-           dim <- object@dimension
-           if (dim != as.integer(dim))
-             return("dim must be integer")
-           if (dim < 2)
-             return("dim must be >= 2")
-           param <- object@parameters
-           upper <- object@param.upbnd
-           lower <- object@param.lowbnd
-           if (length(param) != length(upper))
-             return("Parameter and upper bound have non-equal length")
-           if (length(param) != length(lower))
-             return("Parameter and lower bound have non-equal length")
-           if (any(is.na(param) | param > upper | param < lower))
-             return("Parameter value out of bound")
-           else return (TRUE)
-         },
-         contains = list()
-         )
+                        message = "character",
+                        "VIRTUAL"),
+         validity = validCopula)
 
 ## general methods for copula
-setGeneric("dcopula", function(copula, u) standardGeneric("dcopula"))
-setGeneric("pcopula", function(copula, u) standardGeneric("pcopula"))
-setGeneric("rcopula", function(copula, n) standardGeneric("rcopula"))
+setGeneric("dcopula", function(copula, u, log=FALSE, ...) standardGeneric("dcopula"))
+setGeneric("pcopula", function(copula, u, ...) standardGeneric("pcopula"))
+setGeneric("rcopula", function(copula, n, ...) standardGeneric("rcopula"))
 setGeneric("kendallsTau", function(copula) standardGeneric("kendallsTau"))
 setGeneric("spearmansRho", function(copula) standardGeneric("spearmansRho"))
 setGeneric("tailIndex", function(copula, ...) standardGeneric("tailIndex"))
@@ -62,59 +64,50 @@ setGeneric("rhoDerFun", function(copula) standardGeneric("rhoDerFun"))
 
 ### independent copula class ###################################################
 
-## setClass("indepCopula",
-##          representation(dimension = "numeric",
-##                         message = "character"),
-##          contains = list()
-##          )
-setClass("indepCopula",
-         representation = representation("copula",
-           exprdist = "expression"),
-         contains = list("copula")
-         )
-
+setClass("indepCopula", contains = "copula",
+         representation(exprdist = "expression"))
 
 ### elliptical copulas, contains normalCopula and tCopula ######################
 
 validRho <- function(dispstr, dim, lenRho) {
-  if (dispstr == "ar1" || dispstr == "ex")
-    if (lenRho != 1) return ("Param should have length 1 for dispstr == ar1 or ex")
-  if (dispstr == "un")
-    if (lenRho != dim * (dim - 1) / 2)
-      return("Param should have length dim * (dim - 1) / 2 for dispstr == un")
-  if (dispstr == "toep")
-    if (lenRho != dim - 1)
-      return("Param should have length dim - 1 for dispstr == toep")
-  return(TRUE)
+    switch(dispstr, ## checking for correct 'dispstr'
+	   "ar1" =, "ex" = {
+	       if (lenRho != 1)
+		   return(sprintf("'rho' parameter should have length 1 for 'dispstr' = \"%s\"",
+				  dispstr))
+	   },
+	   "un" = {
+	       if (lenRho != dim * (dim - 1) / 2)
+		   return("Param should have length dim * (dim - 1) / 2 for dispstr == un")
+	   },
+	   "toep" = {
+	       if (lenRho != dim - 1)
+		   return("Param should have length dim - 1 for dispstr == toep")
+	   },
+	   ## otherwise
+	   return("'dispstr' not supported (yet)"))
+
+    return(TRUE)
 }
 
 validEllipCopula <- function(object) {
-  dispstr <- object@dispstr
-  if (is.na(match(dispstr, c("ar1", "ex", "toep", "un"))))
-    return ("dispstr not supported")
-  dim <- object@dimension
   rho <- object@getRho(object)
-  validRho(dispstr, dim, length(rho))
+  validRho(dispstr=object@dispstr, dim=object@dimension,
+           length(rho))
 }
 
-setClass("ellipCopula",
-         representation = representation("copula",
-           dispstr = "character", getRho="function"),
-         validity = validEllipCopula,
-         contains = list("copula")
-         )
+setClass("ellipCopula", contains = "copula",
+         representation(dispstr = "character", getRho="function"),
+         validity = validEllipCopula)
 
-## normal copula
+if(FALSE) # not yet needed -- validEllipCopula() is used anyway
+##' normal copula
 validNormalCopula <- function(object) {
   validEllipCopula(object)
   ## can do more if needed here
 }
-
-setClass("normalCopula",
-         representation = representation("ellipCopula"),
-         validity = validNormalCopula,
-         contains = list("ellipCopula")
-         )
+setClass("normalCopula", contains = "ellipCopula")
+         ## validity = validNormalCopula)
 
 ## t copula
 validTCopula <- function(object) {
@@ -123,13 +116,9 @@ validTCopula <- function(object) {
   validEllipCopula(object)
 }
 
-setClass("tCopula",
-         representation = representation("ellipCopula",
-           df = "numeric",
-           df.fixed = "logical"),
-         validity = validTCopula,
-         contains = list("ellipCopula")
-         )
+setClass("tCopula", representation(df = "numeric", df.fixed = "logical"),
+         contains = "ellipCopula",
+         validity = validTCopula)
 
 
 ## methods for ellipCopula??
@@ -137,31 +126,19 @@ setClass("tCopula",
 
 ### Archimedean copulas, contains AMH, Clayton, Frank, Gumbel, ... #############
 
-setClass("archmCopula",
-         representation = representation("copula",
-           exprdist = "expression"),
-         contains = list("copula")
-         )
+setClass("archmCopula", representation(exprdist = "expression", "VIRTUAL"),
+	 contains = "copula")
 
 ## clayton copula
-setClass("claytonCopula",
-         representation = representation("archmCopula"),
-         contains = list("archmCopula")
-         )
+setClass("claytonCopula", contains = "archmCopula")
 
 ## gumbel copula, also an ev copula
 
 ## frank copula
-setClass("frankCopula",
-         representation = representation("archmCopula"),
-         contains = list("archmCopula")
-         )
+setClass("frankCopula", contains = "archmCopula")
 
 ## amh copula
-setClass("amhCopula",
-         representation = representation("archmCopula"),
-         contains = list("archmCopula")
-         )
+setClass("amhCopula", contains = "archmCopula")
 
 ## methods for archmCopulas
 setGeneric("genFun", function(copula, u) standardGeneric("genFun"))
@@ -172,45 +149,26 @@ setGeneric("genFunDer2", function(copula, u) standardGeneric("genFunDer2"))
 
 ### Extreme value copulas, contains galambos, husler-reiss, gumbel, ... ########
 
-setClass("evCopula",
-         representation = representation("copula"),
-         contains = list("copula")
-         )
+setClass("evCopula", representation("VIRTUAL"), contains = "copula")
 
 ## galambos copula
-setClass("galambosCopula",
-         representation = representation("evCopula",
-           exprdist = "expression"),
-         contains = list("evCopula")
-         )
+setClass("galambosCopula", representation(exprdist = "expression"),
+         contains = "evCopula")
 
 ## gumbel copula, also an archm copula;
-setClass("gumbelCopula",
-         representation = representation("archmCopula"),
-         contains = list("archmCopula", "evCopula")
-         )
+setClass("gumbelCopula", contains = list("archmCopula", "evCopula"))
 
 ## husler-reiss copula
-setClass("huslerReissCopula",
-         representation = representation("evCopula",
-           exprdist = "expression"),
-         contains = list("evCopula")
-         )
+setClass("huslerReissCopula",representation(exprdist = "expression"),
+         contains = "evCopula")
 
 ## tawn copula; does not offer full range of dependence
-setClass("tawnCopula",
-         representation = representation("evCopula",
-           exprdist = "expression"),
-         contains = list("evCopula")
-         )
+setClass("tawnCopula", representation(exprdist = "expression"),
+         contains = "evCopula")
 
 ## tEV copula
-setClass("tevCopula",
-         representation = representation("evCopula",
-           df = "numeric",
-           df.fixed = "logical"),
-         contains = list("evCopula")
-         )
+setClass("tevCopula", representation(df = "numeric", df.fixed = "logical"),
+         contains = "evCopula")
 
 setGeneric("Afun", function(copula, w) standardGeneric("Afun"))
 setGeneric("AfunDer", function(copula, w) standardGeneric("AfunDer"))
@@ -220,14 +178,13 @@ setGeneric("derAfunWrtParam", function(copula, w) standardGeneric("derAfunWrtPar
 ### Other copulas ##############################################################
 
 ## Farlie-Gumbel-Morgenstern multivariate copula
-setClass("fgmCopula",
-         representation = representation("copula",
-         exprdist = "expression"),
+setClass("fgmCopula", representation(exprdist = "expression"),
+         contains = "copula",
          ## verify that the pdf is positive at each vertex of [0,1]^dim
          validity = function(object) {
              dim <- object@dimension
              if (dim == 2)
-                 return(TRUE);
+                 return(TRUE)
              param <- object@parameters
              valid <- .C(validity_fgm,
                          as.integer(dim),
@@ -237,17 +194,12 @@ setClass("fgmCopula",
                  return("Bad vector of parameters")
              else
                  return(TRUE)
-         },
-         contains = list("copula")
-         )
+         })
+
 
 ## plackett copula
-setClass("plackettCopula",
-         representation = representation("copula",
-           exprdist = "expression"),
-         contains = list("copula")
-         )
-
+setClass("plackettCopula",representation(exprdist = "expression"),
+         contains = "copula")
 
 ### Multivariate distibution via copula ########################################
 
@@ -256,20 +208,29 @@ setClass("mvdc",
                         margins = "character",
                         paramMargins = "list",
          		marginsIdentical = "logical"),
-         validity = function(object){
-           dim <- object@copula@dimension
-           stopifnot(dim == length(object@margins))
-           stopifnot(dim == length(object@paramMargins))
+         validity = function(object) {
+           dim <- object@copula@dimension # guaranteed to be >= 2
+           if(dim != length(object@margins))
+               return("'dimension' does not match margins' length")
+           if(dim != length(object@paramMargins))
+               return("'dimension' does not match paraMargins' length")
            if(object@marginsIdentical){
              if(!all(object@margins[1] == object@margins[-1]))
                return("margins are not identical")
-             for(i in 2:dim){
-               if(!identical( object@paramMargins[[1]], object@paramMargins[[i]]))
+             pm1 <- object@paramMargins[[1]]
+             for(i in 2:dim) {
+               if(!identical(pm1, object@paramMargins[[i]]))
                  return("margins are not identical")
              }
            }
            TRUE
-         }
-         )
+         })
 
 ## methods like {dpr}mvdc are defined in mvdc.R
+
+###-------------------------- Glue   "copula" <-> "nacopula"
+
+##' The mother of all copula classes:
+setClassUnion("Copula",
+              members = c("copula", "nacopula"))
+## NB: "acopula" *not* : It has no dimension, is rather a family object

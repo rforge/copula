@@ -52,14 +52,12 @@ showFitMvdc <- function(object) {
     }
   }
   cat("Copula:\n")
-  copParIdx <- 1:length(object@mvdc@copula@parameters)
-  if(margid)
-    print(foo@parameters[sum(marNpar) + copParIdx, 1:4, drop=FALSE])
-  else
-    print(foo@parameters[sum(marNpar) + copParIdx, 1:2, drop=FALSE])
-
+  copParIdx <- seq_along(object@mvdc@copula@parameters)
+  print(foo@parameters[sum(marNpar) + copParIdx,
+                       if(margid) 1:4 else 1:2, drop=FALSE])
   cat("The maximized loglikelihood is ", foo@loglik, "\n")
   cat("The convergence code is ", foo@convergence, "see ?optim.\n")
+  invisible(object)
 }
 
 summaryFitMvdc <- function(object) {
@@ -72,17 +70,15 @@ summaryFitMvdc <- function(object) {
   marNpar <- unlist(lapply(object@mvdc@paramMargins, length))
   p <- object@mvdc@copula@dimension
 
-  if (sum(marNpar) == 0) margpnames <- NULL
-  else if(object@mvdc@marginsIdentical){
-    margpnames <- c(paste(paste("m", lapply(object@mvdc@paramMargins, names)[[1]], sep=".")))
-  }
-  else{
-    margpnames <- c(paste(paste("m", rep(1:p, marNpar), sep=""),
-                          unlist(lapply(object@mvdc@paramMargins, names)), sep="."))
-  }
-  pnames <- c(margpnames, object@mvdc@copula@param.names)
+  margpnames <-
+      if (sum(marNpar) == 0) NULL
+      else if(object@mvdc@marginsIdentical)
+          c(paste(paste("m", lapply(object@mvdc@paramMargins, names)[[1]], sep=".")))
+      else
+          c(paste(paste("m", rep(1:p, marNpar), sep=""),
+                  unlist(lapply(object@mvdc@paramMargins, names)), sep="."))
   dimnames(parameters) <-
-    list(pnames,
+    list(c(margpnames, object@mvdc@copula@param.names),
          c("Estimate", "Std. Error", "z value", "Pr(>|z|)"))
   new("summaryFitMvdc",
       loglik = object@loglik,

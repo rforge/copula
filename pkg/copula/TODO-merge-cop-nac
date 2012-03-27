@@ -55,9 +55,12 @@ Doxygen headers should exactly look like in C code [C-c C-o not working])
 ** formner nacopula  c_longNames etc  --> rename to .ac_longNames *and* export
 (ac = Archimdean copula)
 
+** DONE new class "Copula" := {copula, nacopula}
 * New Wrapper functions
 or rather extending one or the other function names
 ** distribution/density/ ... functions
+*** DONE dcopula(), pcopula(), rcopula()  (for "nacopula")
+*** d*():  allow  log=TRUE  [DONE for t and normal]
 ** random number generation
 MH: MM and I wrote wrappers for the two elliptical copulas (normal, t) and the
 Archimedean ones. Can't we include those 'as is'? They are also needed for the
@@ -67,9 +70,11 @@ graphical GoF test we introduced and which we want to put in the package anyway.
 - with warning
 - on help pages
 
-* DONE Documentation etc
-- inst/doc/nacopula-pkg.Rnw  -- keep file name, but rewrite including
-  *Title*  (s/nacopula package/Nested Archimedean Copulas in the copula package/
+* Documentation etc
+*** DONE inst/doc/nacopula-pkg.Rnw  -- keep file name, maybe rewrite including
+ *Title*  (s/nacopula package/Nested Archimedean Copulas in the copula package/)
+*** \link{} between  old-copula and old-nacopula  functionality
+*** write a small vignette with a table of "the same function names"
 
 * Miscellaneous functions
 ** MM, MH: indepTest()  takes a while {ok}, *BUT* cannot be interrupted (quickly enough)
@@ -77,4 +82,4 @@ graphical GoF test we introduced and which we want to put in the package anyway.
     "htest" (maybe "htest" in addition to the specific S3 class)?
     --> we would probably not need extra print() methods, and just use print.htest()
 ** MH: In the long run, I suggest calling functions like f(x, foo=1, bar=2) instead of f(x, 1, 2). This makes the code more readable (naming all arguments except the first one). For example, the call of fitCopula.ml from within fitCopula.mpl
-** MH: Jun, Ivan: E.R only defines E <- exp(1). We should remove this.
+** MH: @ Jun, Ivan: file R/E.R  only defines E <- exp(1). We should remove this (or move to another file).

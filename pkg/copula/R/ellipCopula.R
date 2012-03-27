@@ -36,16 +36,15 @@ getSigma <- function(copula) {
   sigma
 }
 
-ellipCopula <- function(family, param, dim = 2, dispstr = "ex", df = 4, ...) {
+ellipCopula <- function(family, param, dim = 2L, dispstr = "ex", df = 4, ...) {
   familiesImplemented <- c("normal", "t")
   fam <- pmatch(family, familiesImplemented, -1)
   if (fam == -1)
     stop(paste("Valid family names are", familiesImplemented))
-  copula <- switch(fam,
-                   normalCopula(param, dim = dim, dispstr = dispstr),
-                   tCopula(param, dim = dim, dispstr = dispstr, df = df, ...)
-                   )
-  copula
+  switch(fam,
+         normalCopula(param, dim = dim, dispstr = dispstr),
+         tCopula(param, dim = dim, dispstr = dispstr, df = df, ...)
+         )
 }
 
 calibKendallsTauEllipCopula <- function(copula, tau) {

@@ -40,14 +40,13 @@ AfunDerTawn <- function(copula, w) {
 }
 
 tawnCopula <- function(param) {
-  ## dim = 2
-  dim <- 2
+  dim <- 2L
   ## See Table 1 from Ghoudi, Khoudraji, and Rivest (1998, CJS, in french)
   cdf <- expression( u1 * u2 * exp( - alpha * log(u1) * log(u2) / log(u1 * u2)) )
   derCdfWrtU1 <- D(cdf, "u1")
   pdf <- D(derCdfWrtU1, "u2")
 
-  val <- new("tawnCopula",
+  new("tawnCopula",
              dimension = dim,
              exprdist = c(cdf = cdf, pdf = pdf),
              parameters = param[1],
@@ -55,22 +54,23 @@ tawnCopula <- function(param) {
              param.lowbnd = 0,
              param.upbnd = 1,
              message = "Tawn copula family; Extreme value copula")
-  val
 }
 
 ptawnCopula <- function(copula, u) {
   dim <- copula@dimension
-  if (is.vector(u)) u <- matrix(u, nrow = 1)
+  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   alpha <- copula@parameters[1]
   c(eval(tawnCopula.cdf.algr[dim]))
 }
 
-dtawnCopula <- function(copula, u) {
+dtawnCopula <- function(copula, u, log=FALSE, ...) {
   dim <- copula@dimension
-  if (is.vector(u)) u <- matrix(u, nrow = 1)
+  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
+  if(log) stop("'log=TRUE' not yet implemented")
   for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   alpha <- copula@parameters[1]
+
   c(eval(tawnCopula.pdf.algr[dim]))
 }
 

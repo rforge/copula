@@ -32,7 +32,7 @@ genFunDer2Amh <- function(copula, u) {
 }
 
 
-amhCopula <- function(param, dim = 2) {
+amhCopula <- function(param, dim = 2L) {
   ## get expressions of cdf and pdf
   cdfExpr <- function(n) {
     expr <-   "log((1 - alpha * (1 - u1)) / u1)"
@@ -55,7 +55,7 @@ amhCopula <- function(param, dim = 2) {
 
 ##   if (dim > 2 && param[1] < 0)
 ##     stop("param can be negative only for dim = 2")
-  if (dim > 2) stop("dim can only be 2 for this copula")
+  if((dim <- as.integer(dim))> 2) stop("dim can only be 2 for this copula")
 
   cdf <- cdfExpr(dim)
   pdf <- if (dim <= 6)  pdfExpr(cdf, dim) else NULL
@@ -73,7 +73,7 @@ amhCopula <- function(param, dim = 2) {
 
 pamhCopula <- function(copula, u) {
   dim <- copula@dimension
-  if (is.vector(u)) u <- matrix(u, ncol = dim)
+  if(!is.matrix(u)) u <- matrix(u, ncol = dim)
   alpha <- copula@parameters[1]
   if (abs(alpha) <= .Machine$double.eps^.9) return (apply(u, 1, prod))
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
@@ -83,10 +83,11 @@ pamhCopula <- function(copula, u) {
 }
 
 
-damhCopula <- function(copula, u) {
+damhCopula <- function(copula, u, log = FALSE, ...) {
   dim <- copula@dimension
-  if (is.vector(u)) u <- matrix(u, ncol = dim)
+  if(!is.matrix(u)) u <- matrix(u, ncol = dim)
   alpha <- copula@parameters[1]
+  if(log) stop("'log=TRUE' not yet implemented")
   if (abs(alpha) <= .Machine$double.eps^.9) return (rep(1, nrow(u)))
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   ## bivariate anyway

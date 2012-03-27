@@ -14,7 +14,7 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-indepCopula <- function(dim = 2) {
+indepCopula <- function(dim = 2L) {
     ## get expressions of cdf and pdf
   cdfExpr <- function(n) {
     uis <- paste("u", 1:n, sep="")
@@ -29,10 +29,10 @@ indepCopula <- function(dim = 2) {
     }
     val
   }
-  cdf <- cdfExpr(dim)
+  cdf <- cdfExpr((dim <- as.integer(dim)))
   pdf <- pdfExpr(cdf, dim)
 
-  val <- new("indepCopula",
+  new("indepCopula",
              dimension = dim,
              exprdist = c(cdf=cdf, pdf=pdf),
              parameters = double(0),
@@ -40,7 +40,6 @@ indepCopula <- function(dim = 2) {
              param.lowbnd = double(0),
              param.upbnd = double(0),
              message = "Independence copula")
-  val
 }
 
 AfunIndep <- function(copula, w) {
@@ -52,16 +51,16 @@ rindepCopula <- function(copula, n) {
   matrix(runif(n * dim), nrow = n)
 }
 
-pindepCopula <- function(copula, u) {
-  if (is.vector(u)) u <- matrix(u, nrow = 1)
+pindepCopula <- function(copula, u, log.p=FALSE) {
+  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   stopifnot (ncol(u) == copula@dimension)
-  apply(u, 1, prod)
+  if(log.p) rowSums(log(u)) else apply(u, 1, prod)
 }
 
-dindepCopula <- function(copula, u) {
-  if (is.vector(u)) u <- matrix(u, nrow = 1)
+dindepCopula <- function(copula, u, log=FALSE, ...) {
+  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   stopifnot (ncol(u) == copula@dimension)
-  rep(1, nrow(u))
+  rep.int(if(log) 0 else 1, nrow(u))
 }
 
 ## kendallsTauIndepCopula <- function(copula) {

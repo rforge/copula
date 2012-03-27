@@ -1,7 +1,7 @@
 Package: copula
 Version: 0.99-0
-Date: 2012-03-19
-LastChanged: $LastChangedRevision$; $LastChangedDate$
+Date: $Date$
+Revision: $Revision$
 Title: Multivariate Dependence with Copulas
 Author: Jun Yan <jun.yan@uconn.edu> and
  Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>,
@@ -49,5 +49,5 @@ Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R
 	rstable1.R safeUroot.R special-func.R
 	schlatherCopula.R stable.R
 	timing.R trafos.R
-        tCopula.R tawnCopula.R tawnExpr.R tevCopula.R
+        tCopula.R tawnCopula.R tawnExpr.R tevCopula.R  zzz.R
 Encoding: UTF-8

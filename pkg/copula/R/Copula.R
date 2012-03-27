@@ -14,18 +14,7 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-### constructor
-### this function is outdated; may even be removed; ev in not covered yet
-copula <- function(family, param, dim = 2, ...) {
-  familiesImplemented <- c("normal", "t", "clayton", "frank", "gumbel", "amh")
-  fam <- pmatch(family, familiesImplemented, -1)
-  if (fam == -1)
-    stop(paste("Valid family names are", familiesImplemented))
-  if (fam <= 2) ellipCopula(family, param, dim, ...)
-  else archmCopula(family, param, dim, ...)
-}
-
-### show method
+##' show method
 showCopula <- function(object) {
   cat(object@message, "\n")
   cat("Dimension: ", object@dimension, "\n")
@@ -34,6 +23,7 @@ showCopula <- function(object) {
     for (i in (1:length(object@parameters)))
       cat("  ", object@param.names[i], " = ", object@parameters[i], "\n")
   }
+  invisible(object)
 }
 
 setMethod("show", signature("copula"), showCopula)
@@ -102,3 +92,11 @@ calibSpearmansRhoCopula <- function(copula, rho) {
 
 # setMethod("calibKendallsTau", signature("copula"), calibKendallsTauCopula)
 # setMethod("calibSpearmansRho", signature("copula"), calibSpearmansRhoCopula)
+
+###-- "Copula" methods + glue  former "copula" <--> former "nacopula" ---------
+
+setMethod("dim", "copula",
+	  function(x) x@dimension)
+
+## Dummy bail-out methods for all generics --> ./zzz.R
+##  "nacopula" methods                     --> ./nacopula.R

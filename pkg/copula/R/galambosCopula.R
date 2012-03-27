@@ -96,13 +96,12 @@ derAfunWrtParamGalambos <- function(copula, w) {
 
 
 galambosCopula <- function(param) {
-  ## dim = 2
-  dim <- 2
+  dim <- 2L
   cdf <- expression( exp(log(u1 * u2) *  (1 - ((log(u2) / log(u1 * u2))^(-alpha) + (1 - (log(u2) / log(u1 * u2)))^(-alpha))^(-1/alpha))) )
   derCdfWrtU1 <- D(cdf, "u1")
   pdf <- D(derCdfWrtU1, "u2")
 
-  val <- new("galambosCopula",
+  new("galambosCopula",
              dimension = dim,
              exprdist = c(cdf = cdf, pdf = pdf),
              parameters = param[1],
@@ -110,22 +109,22 @@ galambosCopula <- function(param) {
              param.lowbnd = 0,
              param.upbnd = Inf,
              message = "Galambos copula family; Extreme value copula")
-  val
 }
 
 pgalambosCopula <- function(copula, u) {
   dim <- copula@dimension
-  if (is.vector(u)) u <- matrix(u, nrow = 1)
+  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   alpha <- copula@parameters[1]
   c(eval(galambosCopula.algr$cdf))
 }
 
-dgalambosCopula <- function(copula, u) {
+dgalambosCopula <- function(copula, u, log=FALSE, ...) {
   dim <- copula@dimension
   alpha <- copula@parameters[1]
+  if(log) stop("'log=TRUE' not yet implemented")
   if (abs(alpha) <= .Machine$double.eps^.9) return (rep(1, nrow(u)))
-  if (is.vector(u)) u <- matrix(u, nrow = 1)
+  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   c(eval(galambosCopula.algr$pdf))
 }

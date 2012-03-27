@@ -86,7 +86,7 @@ AfunAsymCopula <- function(copula, w) {
 }
 
 pasymCopula <- function(copula, u) {
-  if (is.vector(u)) u <- matrix(u, ncol = 2)
+  if(!is.matrix(u)) u <- matrix(u, ncol = 2)
   comps <- getCopulaComps(copula)
   a1 <- comps$shape[1];  a2 <- comps$shape[2]
   copula1 <- comps$copula1; copula2 <- comps$copula2
@@ -95,12 +95,13 @@ pasymCopula <- function(copula, u) {
   pcopula(copula1, gu1) * pcopula(copula2, gu2)
 }
 
-dasymCopula <- function(copula, u) {
+dasymCopula <- function(copula, u, log=FALSE, ...) {
   ## WARNING:
   ## The following derivation assumes that both components are symmetric!
   ## See dC1du and dC2du; they don't distinguish u1 or u2.
-  if (is.vector(u)) u <- matrix(u, ncol = 2)
+  if(!is.matrix(u)) u <- matrix(u, ncol = 2)
   comps <- getCopulaComps(copula)
+  if(log) stop("'log=TRUE' not yet implemented")
   a1 <- comps$shape[1];  a2 <- comps$shape[2]
   copula1 <- comps$copula1; copula2 <- comps$copula2
   gu1 <- cbind(gfun(u[,1], 1 - a1), gfun(u[,2], 1 - a2))

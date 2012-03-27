@@ -58,10 +58,8 @@ derAfunWrtParamSchlather <- function(copula, w) {
 }
 
 schlatherCopula <- function(param) {
-  ## dim = 2
-  dim <- 2
-
-  val <- new("huslerReissCopula",
+  dim <- 2L
+  new("huslerReissCopula",
              dimension = dim,
              ## exprdist = c(cdf = cdf, pdf = pdf),
              parameters = param[1],
@@ -69,13 +67,12 @@ schlatherCopula <- function(param) {
              param.lowbnd = -1,
              param.upbnd = 1,
              message = "Schlather copula family; Extreme value copula")
-  val
 }
 
 
 pschlatherCopula <- function(copula, u) {
   dim <- copula@dimension
-  if (is.vector(u)) u <- matrix(u, nrow = 1)
+  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   u1 <- u[,1]
   u2 <- u[,2]
@@ -85,9 +82,9 @@ pschlatherCopula <- function(copula, u) {
   u1 * u2 * exp(AfunSchlather(copula, w))
 }
 
-dschlatherCopula <- function(copula, u) {
+dschlatherCopula <- function(copula, u, log=FALSE, ...) {
   dim <- copula@dimension
-  if (is.vector(u)) u <- matrix(u, nrow = 1)
+  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   u1 <- u[,1]
   u2 <- u[,2]
