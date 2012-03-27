@@ -80,7 +80,7 @@ copAMH <-
 				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
               {
                   stopifnot(C.@paraConstr(theta))
-                  if(!is.matrix(u)) u <- rbind(u)
+		  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                   ## f() := NaN outside and on the boundary of the unit hypercube
                   res <- rep.int(NaN, n <- nrow(u))
@@ -110,7 +110,7 @@ copAMH <-
 		  ## score function
 		  score = function(u, theta) {
 		      stopifnot(C.@paraConstr(theta))
-		      if(!is.matrix(u)) u <- rbind(u)
+		      if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
 		      omu <- 1-u
 		      b <- rowSums(omu/(1-theta*omu))
@@ -221,7 +221,7 @@ copClayton <-
 		  ## density  Clayton
 		  dacopula = function(u, theta, n.MC=0, log=FALSE) {
 		      stopifnot(C.@paraConstr(theta))
-		      if(!is.matrix(u)) u <- rbind(u)
+		      if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
 		      ## f() := NaN outside and on the boundary of the unit hypercube
 		      res <- rep.int(NaN, n <- nrow(u))
@@ -251,7 +251,7 @@ copClayton <-
 		  ## score function
 		  score = function(u, theta) {
 		      stopifnot(C.@paraConstr(theta))
-		      if(!is.matrix(u)) u <- rbind(u)
+		      if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
 		      lu <- log(u)
 		      t <- rowSums(C.@psiInv(u, theta=theta))
@@ -379,7 +379,7 @@ copFrank <-
 				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
 	      {
 		  stopifnot(C.@paraConstr(theta))
-		  if(!is.matrix(u)) u <- rbind(u)
+		  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		  if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
 		  ## f() := NaN outside and on the boundary of the unit hypercube
 		  res <- rep.int(NaN, n <- nrow(u))
@@ -412,7 +412,7 @@ copFrank <-
 		  ## score function
 		  score = function(u, theta) {
 		      stopifnot(C.@paraConstr(theta))
-		      if(!is.matrix(u)) u <- rbind(u)
+		      if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
 		      e <- exp(-theta)
 		      Ie <- -expm1(-theta) # == 1 - e == 1-e^{-theta}
@@ -559,7 +559,7 @@ copGumbel <-
 				      method = eval(formals(polyG)$method), log=FALSE)
               {
                   stopifnot(C.@paraConstr(theta))
-                  if(!is.matrix(u)) u <- rbind(u)
+                  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                   ## f() := NaN outside and on the boundary of the unit hypercube
                   res <- rep.int(NaN, n <- nrow(u))
@@ -604,7 +604,7 @@ copGumbel <-
 		  ## score function
 		  score = function(u, theta) {
 		      stopifnot(C.@paraConstr(theta))
-		      if(!is.matrix(u)) u <- rbind(u)
+		      if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
 		      stop("The score function is currently not implemented for Gumbel copulas")
 		  },
@@ -741,7 +741,7 @@ copJoe <-
 				      method = eval(formals(polyJ)$method), log = FALSE)
               {
                   stopifnot(C.@paraConstr(theta))
-                  if(!is.matrix(u)) u <- rbind(u)
+                  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                   ## f() := NaN outside and on the boundary of the unit hypercube
                   res <- rep.int(NaN, n <- nrow(u))
@@ -775,7 +775,7 @@ copJoe <-
 		  ## score function
 		  score = function(u, theta, method=eval(formals(polyJ)$method)) {
 		      stopifnot(C.@paraConstr(theta))
-		      if(!is.matrix(u)) u <- rbind(u)
+		      if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
 		      l1_u <- rowSums(log1p(-u)) # log(1-u)
 		      u.th <- (1-u)^theta # (1-u)^theta

@@ -30,7 +30,7 @@ dnacopula <- function(x, u, log=FALSE, ...) {
     stopifnot(is(x, "outer_nacopula"))
     if(length(x@childCops))
 	stop("currently, only Archimedean copulas are provided")
-    if(!is.matrix(u)) u <- rbind(u)
+    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     if((d <- ncol(u)) < 2) stop("u should be at least bivariate")
     x@copula@dacopula(u, x@copula@theta, log=log, ...)
 }
@@ -48,7 +48,7 @@ dnacopulag <- function(x, u, n.MC=0, log = FALSE) {
     stopifnot(is(x, "outer_nacopula"), 0 <= u, u <= 1)
     if(length(x@childCops))
         stop("currently, only Archimedean copulas are provided")
-    if(!is.matrix(u)) u <- rbind(u)
+    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     if((d <- ncol(u)) < 2) stop("u should be at least bivariate")
     acop <- x@copula
     th <- acop@theta
@@ -72,19 +72,15 @@ dnacopulag <- function(x, u, n.MC=0, log = FALSE) {
 ##' @return f_x(u)
 ##' @author Marius Hofert, Martin Maechler
 pnacopula <- function(x,u) {
-    if(!is.matrix(u)) u <- rbind(u)
+    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     stopifnot(ncol(u) >= dim(x)) # will be larger for children
     C <- x@copula
     th <- C@theta
-    res <- C@psi(rowSums(## use u[,j, drop=FALSE] for the direct components 'comp':
-                         cbind(C@psiInv(u[,x@comp, drop=FALSE], theta=th),
-                               ## and recurse down for the children:
-                               C@psiInv(unlist(lapply(x@childCops, pnacopula, u=u)), theta=th))),
-                 theta=th)
-    ## if u is a vector, res contains a names attribute, which we have to remove
-    ## otherwise all.equal() in nac-experi.R fails
-    names(res) <- NULL
-    res
+    C@psi(rowSums(## use u[,j, drop=FALSE] for the direct components 'comp':
+		  cbind(C@psiInv(u[,x@comp, drop=FALSE], theta=th),
+			## and recurse down for the children:
+			C@psiInv(unlist(lapply(x@childCops, pnacopula, u=u)), theta=th))),
+	  theta=th)
 }
 
 ##' Compute the probability P[l < U <= u]  where U ~ copula x.

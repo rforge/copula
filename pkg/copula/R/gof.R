@@ -96,7 +96,7 @@ K <- function(u, cop, d, n.MC=0)
 ## Brainstorm   unid21() ("d to 1 dimensional")
 gtrafouni <- function(u, method = c("chisq", "gamma", "Remillard", "Genest"))
 {
-    if(!is.matrix(u)) u <- rbind(u)
+    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     d <- ncol(u)
     n <- nrow(u)
     method <- match.arg(method)
@@ -144,7 +144,7 @@ rtrafo <- function(u, cop, m=d, n.MC=0)
     stopifnot(is(cop, "outer_nacopula"), 2 <= m, m <= d)
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
-    if(!is.matrix(u)) u <- rbind(u)
+    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     stopifnot(0 <= u, u <=1)
     cop <- cop@copula
     th <- cop@theta
@@ -196,7 +196,7 @@ htrafo <- function(u, cop, include.K=TRUE, n.MC=0)
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
 	stop("currently, only Archimedean copulas are provided")
-    if(!is.matrix(u)) u <- rbind(u)
+    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     stopifnot((d <- ncol(u)) >= 2,
 	      0 <= u, u <= 1)
     ## trafo
@@ -243,7 +243,7 @@ gnacopula <- function(u, cop, n.bootstrap,
 		      verbose= TRUE, ...)
 {
     ## setup
-    if(!is.matrix(u)) u <- rbind(u)
+    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     stopifnot(0 <= u, u <= 1, is(cop, "outer_nacopula"), (d <- ncol(u)) >= 2,
               max(cop@comp) == d, n.bootstrap >= 0, n.MC >= 0)
     if(length(cop@childCops))
@@ -294,7 +294,7 @@ apply the transformations yourself,  see ?gnacopula.")
 
     ## (1) estimate the parameter by the provided estimation method and
     ##	   define the estimated copula
-    if(!is.matrix(u)) u <- rbind(u)
+    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     theta.hat <- enacopula(u, cop, method=estimation.method, ...)
     cop.hat <- onacopulaL(cop@copula@name, list(theta.hat, 1:d)) # copula with theta.hat
 

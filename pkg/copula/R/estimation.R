@@ -245,7 +245,7 @@ etau <- function(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...){
 ##' @author Marius Hofert
 emde.dist <- function(u, method = c("mde.chisq.CvM", "mde.chisq.KS", "mde.gamma.CvM",
                          "mde.gamma.KS")) {
-    if(!is.matrix(u)) u <- rbind(u)
+    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     d <- ncol(u)
     n <- nrow(u)
     method <- match.arg(method) # match argument method
@@ -552,7 +552,7 @@ enacopula <- function(u, cop, method=c("mle", "smle", "dmle", "mde.chisq.CvM",
 {
 
     ## setup
-    if(!is.matrix(u)) u <- rbind(u)
+    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     stopifnot(0 <= u, u <= 1, is(cop, "outer_nacopula"), (d <- ncol(u)) >= 2,
               max(cop@comp) == d, n.MC >= 0, is.list(xargs))
     if(length(cop@childCops))
