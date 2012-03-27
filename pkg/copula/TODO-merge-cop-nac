@@ -67,10 +67,9 @@ graphical GoF test we introduced and which we want to put in the package anyway.
 - with warning
 - on help pages
 
-* Documentation etc
+* DONE Documentation etc
 - inst/doc/nacopula-pkg.Rnw  -- keep file name, but rewrite including
   *Title*  (s/nacopula package/Nested Archimedean Copulas in the copula package/
-MH: shouldn't be too hard, I could do that.
 
 * Miscellaneous functions
 ** MM, MH: indepTest()  takes a while {ok}, *BUT* cannot be interrupted (quickly enough)

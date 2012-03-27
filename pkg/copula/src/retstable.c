@@ -28,7 +28,7 @@
  * @param alpha parameter in (0,1]
  * @return S0
  * @author Marius Hofert, Martin Maechler
-*/
+ */
 double rstable0(double alpha){
 	/**< S(1, 1, 0, 1; 1) with Laplace-Stieltjes transform exp(-t) */
 	if(alpha == 1.) return 1.;
@@ -47,7 +47,7 @@ double rstable0(double alpha){
  * @param alpha parameter in (0,1]
  * @return S
  * @author Marius Hofert, Martin Maechler
-*/
+ */
 double rstable(double alpha){
     if(alpha == 1.)
 	return 1./0.; /**< Inf or NaN */
@@ -65,7 +65,7 @@ double rstable(double alpha){
  * @param alpha parameter in (0,1]
  * @return none
  * @author Marius Hofert, Martin Maechler
-*/
+ */
 void rstable_vec(double S[], const int n, const double alpha){
     if(n >= 1) {
 	double cf = pow(cos(M_PI_2*alpha), -1./alpha);
@@ -272,7 +272,7 @@ void retstable_LD(double *St, const double V0[], double h, double alpha, int n)
 	return;
    }
 
-   /**< compute variables not depending on V0 */
+   // compute variables not depending on V0
    const double c1 = sqrt(M_PI_2);
    const double c2 = 2.+c1;
    double b = (1.-alpha)/alpha;
@@ -327,7 +327,7 @@ void retstable_LD(double *St, const double V0[], double h, double alpha, int n)
 		if(U >= 0 && U <= M_PI && gamma < 1) d += xi;
 		rho *= d;
 		Z = W*rho;
-	    } while( !(U < M_PI && Z <= 1.)); /**< check rejection condition */
+	    } while( !(U < M_PI && Z <= 1.)); /* check rejection condition */
 
 	    double
 		a = pow(A_(U,alpha), 1./(1.-alpha)),
