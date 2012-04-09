@@ -1,5 +1,5 @@
 
-R version 2.15.0 Patched (2012-04-01 r58897) -- "Easter Beagle"
+R version 2.15.0 Patched (2012-04-09 r58947) -- "Easter Beagle"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: x86_64-unknown-linux-gnu (64-bit)
@@ -40,7 +40,9 @@ Loading required package: pspline
 > tryfCop <- (Sys.getenv("USER") == "maechler"
 + 	    ) || nzchar(Sys.getenv("R_copula_check_fCop"))
 > 
-> if(tryfCop) .r <- require
+> if(tryfCop) { ## will only "work" if not "--as-cran"
++     .r <- require
++     tryfCop <- suppressWarnings(.r(fCopulae, quietly=TRUE)) }
 > 
 > ## From system.file("test-tools-1.R", package="Matrix"):
 > ## Make sure errors are signaled
@@ -87,15 +89,11 @@ Loading required package: pspline
 +            numTailIndexUpper(gumbC40, 1 - 1e-7), tol=1e-8)
 + )
 > 
-> if(tryfCop && .r(fCopulae)) { ## Rmetrics
+> if(tryfCop) { ## Rmetrics
 +     C <- parchmCopula(u.1,u.1, alpha=40, type = "4", alternative = TRUE)
 +     stopifnot(all.equal(ut40,     (1-2*u.1+C)/(1-u.1),
 +                         check.attr=FALSE, tol= 1e-14))
 + }
-Loading required package: fCopulae
-Warning message:
-In library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE,  :
-  there is no package called 'fCopulae'
 > 
 > 
 > ### Lower Tail Dependence-------------------------
@@ -108,14 +106,10 @@ In library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = T
  [1] 0.9220088 0.8997447 0.8711360 0.8501003 0.8295725 0.8031951 0.7837999
  [8] 0.7648732 0.7405529 0.7226705 0.7052198 0.6827963 0.6663085
 > 
-> if(tryfCop && .r(fCopulae)) { ## Rmetrics
+> if(tryfCop) { ## Rmetrics
 +     C <-  parchmCopula(S, alpha=20, type = "4", alternative = FALSE)
 +     stopifnot(all.equal(lt20, C/u.0, check.attr=FALSE, tol= 1e-14))
 + }
-Loading required package: fCopulae
-Warning message:
-In library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE,  :
-  there is no package called 'fCopulae'
 > 
 > signif(numTailIndexLower(gumbC3, 10^-(5*(1:40))),   3)#--> 0
  [1] 5.02e-02 2.52e-03 1.26e-04 6.33e-06 3.18e-07 1.59e-08 7.99e-10 4.01e-11
@@ -209,16 +203,12 @@ Parameters:
 +     all.equal(p.fC, p., check.attr=FALSE, tol= 0.002)
 +     )
 + }
-Loading required package: fCopulae
-Warning message:
-In library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE,  :
-  there is no package called 'fCopulae'
 > 
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ''statistical reasons''
-Time elapsed:  0.876 0.036 0.91 0 0 
+Time elapsed:  0.824 0.02 0.843 0 0 
 > 
 > proc.time()
    user  system elapsed 
-  0.876   0.036   0.910 
+  0.824   0.020   0.843 

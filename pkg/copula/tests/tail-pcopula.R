@@ -20,7 +20,9 @@ tryfCop <- TRUE # for interactive convenience
 tryfCop <- (Sys.getenv("USER") == "maechler"
 	    ) || nzchar(Sys.getenv("R_copula_check_fCop"))
 
-if(tryfCop) .r <- require
+if(tryfCop) { ## will only "work" if not "--as-cran"
+    .r <- require
+    tryfCop <- suppressWarnings(.r(fCopulae, quietly=TRUE)) }
 
 ## From system.file("test-tools-1.R", package="Matrix"):
 ## Make sure errors are signaled
@@ -63,7 +65,7 @@ stopifnot(
            numTailIndexUpper(gumbC40, 1 - 1e-7), tol=1e-8)
 )
 
-if(tryfCop && .r(fCopulae)) { ## Rmetrics
+if(tryfCop) { ## Rmetrics
     C <- parchmCopula(u.1,u.1, alpha=40, type = "4", alternative = TRUE)
     stopifnot(all.equal(ut40,     (1-2*u.1+C)/(1-u.1),
                         check.attr=FALSE, tol= 1e-14))
@@ -78,7 +80,7 @@ S <- cbind(u.0,u.0)
 ## (C1  <- C/u.0)
 (lt20 <- numTailIndexLower(gumbC20, u.0))
 
-if(tryfCop && .r(fCopulae)) { ## Rmetrics
+if(tryfCop) { ## Rmetrics
     C <-  parchmCopula(S, alpha=20, type = "4", alternative = FALSE)
     stopifnot(all.equal(lt20, C/u.0, check.attr=FALSE, tol= 1e-14))
 }
