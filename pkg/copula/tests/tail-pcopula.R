@@ -14,8 +14,13 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 require(copula)
-if(FALSE) # not as standard test
-require(fCopulae)
+## fCopulae: don't do on CRAN, and really "can not" suggest fCopulae
+tryfCop <- TRUE # for interactive convenience
+## when run as BATCH:
+tryfCop <- (Sys.getenv("USER") == "maechler"
+	    ) || nzchar(Sys.getenv("R_copula_check_fCop"))
+
+if(tryfCop) .r <- require
 
 ## From system.file("test-tools-1.R", package="Matrix"):
 ## Make sure errors are signaled
@@ -58,8 +63,7 @@ stopifnot(
            numTailIndexUpper(gumbC40, 1 - 1e-7), tol=1e-8)
 )
 
-
-if(any("package:fCopulae" %in% search())) {## # R/Rmetrics:
+if(tryfCop && .r(fCopulae)) { ## Rmetrics
     C <- parchmCopula(u.1,u.1, alpha=40, type = "4", alternative = TRUE)
     stopifnot(all.equal(ut40,     (1-2*u.1+C)/(1-u.1),
                         check.attr=FALSE, tol= 1e-14))
@@ -74,7 +78,7 @@ S <- cbind(u.0,u.0)
 ## (C1  <- C/u.0)
 (lt20 <- numTailIndexLower(gumbC20, u.0))
 
-if(any("package:fCopulae" %in% search())) {## # R/Rmetrics:
+if(tryfCop && .r(fCopulae)) { ## Rmetrics
     C <-  parchmCopula(S, alpha=20, type = "4", alternative = FALSE)
     stopifnot(all.equal(lt20, C/u.0, check.attr=FALSE, tol= 1e-14))
 }
@@ -136,7 +140,7 @@ stopifnot( {
 
 (ut. <- numTailIndexUpper(t.7.3, u.1))
 
-if(any("package:fCopulae" %in% search())) {## # R/Rmetrics:
+if(tryfCop && .r(fCopulae)) { ## Rmetrics
     p.fC <- pellipticalCopula(u = u.1, v = u.1, rho = 0.7, param = c(nu=3))
     p. <- pcopula(t.7.3, u = cbind(u.1, u.1))
     ## they are really not "so equal"
