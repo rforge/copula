@@ -35,8 +35,6 @@ gofCopula <- function(copula, x, N = 1000, method = "mpl",
     if (copula@dimension != p)
       stop("The copula and the data should be of the same dimension")
 
-
-
     gof <-
         switch(match.arg(simulation),
                "pb" = { ## parametric bootstrap
@@ -54,7 +52,7 @@ gofCopula <- function(copula, x, N = 1000, method = "mpl",
                        stop("Invalid estimation method")
                },
                ## otherwise:
-               stop("Invalid simulation method"))
+               stop("Invalid simulation method ", match.arg(simulation)))
     class(gof) <- "gofCopula"
     gof
 }

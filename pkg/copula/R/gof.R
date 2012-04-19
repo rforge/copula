@@ -294,7 +294,6 @@ apply the transformations yourself,  see ?gnacopula.")
 
     ## (1) estimate the parameter by the provided estimation method and
     ##	   define the estimated copula
-    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     theta.hat <- enacopula(u, cop, method=estimation.method, ...)
     cop.hat <- onacopulaL(cop@copula@name, list(theta.hat, 1:d)) # copula with theta.hat
 

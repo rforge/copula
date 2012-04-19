@@ -82,11 +82,11 @@ rtrafo(u, cop, m=d, n.MC=0)
 \references{
   Genest, C., R\enc{é}{e}millard, B., and Beaudoin, D. (2009),
   Goodness-of-fit tests for copulas: A review and a power study
-  \emph{Insurance: Mathematics and Economics}, \bold{44}, 199--213.
+  \emph{Insurance: Mathematics and Economics} \bold{44}, 199--213.
 
   Rosenblatt, M. (1952),
   Remarks on a Multivariate Transformation,
-  \emph{The Annals of Mathematical Statistics}, \bold{23}, 3, 470--472.
+  \emph{The Annals of Mathematical Statistics} \bold{23}, 3, 470--472.
 
   Hering, C. and Hofert, M. (2011),
   Goodness-of-fit tests for Archimedean copulas in large dimensions,

@@ -20,7 +20,7 @@ gofCopula(copula, x, N = 1000, method = "mpl",
 }
 
 \arguments{
-  \item{copula}{ object of class \code{"copula"} representing the
+  \item{copula}{ object of class \code{"\linkS4class{copula}"} representing the
     hypothesized copula family.}
   \item{x}{ a data matrix that will be transformed to pseudo-observations. }
   \item{N}{ number of bootstrap or multiplier iterations to be used to
@@ -98,7 +98,7 @@ gofCopula(copula, x, N = 1000, method = "mpl",
   last reference.
 }
 \seealso{
-  \code{\link{fitCopula}}, \code{\link{ellipCopula}}.
+  \code{\link{fitCopula}()}, \code{\link{ellipCopula}}.
 
   \code{\link{gnacopula}} for other goodness-of-fit tests for (nested)
   Archimedean copulas.
