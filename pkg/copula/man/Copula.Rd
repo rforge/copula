@@ -113,7 +113,7 @@ rcopula(copula, n, \dots)
   R.B. Nelsen (2006). \emph{An introduction to Copulas}. Springer, New York.
 }
 \seealso{
-  the \code{\linkS4class{copula}} class,
+  the \code{\linkS4class{copula}} and \code{\linkS4class{acopula}} classes,
   \code{\link{ellipCopula}},
   \code{\link{archmCopula}},
   \code{\link{fgmCopula}}. }
@@ -133,9 +133,20 @@ if(require("scatterplot3d"))
   scatterplot3d(u)
 
 ## a 3-dimensional clayton copula
-v <- rcopula(claytonCopula(2, dim = 3), 1000)
+cl3 <- claytonCopula(2, dim = 3)
+v <- rcopula(cl3, 1000)
+pairs(v)
 if(require("scatterplot3d"))
   scatterplot3d(v)
+
+## Compare with the "nacopula" version :
+fu1 <- dcopula(cl3, v)
+fu2 <- copClayton@dacopula(v, theta = 2)
+Fu1 <- pcopula(cl3, v)
+Fu2 <- pnacopula(onacopula("Clayton", C(2.0, 1:3)), v)
+## The density and cumulative values are the same:
+stopifnot(all.equal(fu1, fu2, tol= 1e-14),
+          all.equal(Fu1, Fu2, tol= 1e-15))
 }
 \keyword{distribution}
 \keyword{multivariate}
