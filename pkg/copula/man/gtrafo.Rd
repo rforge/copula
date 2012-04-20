@@ -103,8 +103,7 @@ rtrafo(u, cop, m=d, n.MC=0)
 \examples{
 tau <- 0.5
 (theta <- copGumbel@tauInv(tau)) # 2
-d <- 5
-(copG <- onacopulaL("Gumbel", list(theta,1:d)))
+(copG <- onacopulaL("Gumbel", list(theta, 1:5))) # d = 5
 
 set.seed(1)
 n <- 1000
@@ -114,16 +113,16 @@ u <- pobs(x) # build pseudo-observations
 
 ## graphically check if the data comes from a meta-Gumbel model
 ## with the transformation of Hering and Hofert (2011):
-u.prime <- htrafo(u, cop=copG) # transform the data
-pairs(u.prime, cex=0.2) # looks good
+u.h <- htrafo(u, cop=copG) # transform the data
+pairs(u.h, cex=0.2) # looks good
 
 ## with the transformation of Rosenblatt (1952):
-u.prime. <- rtrafo(u, cop=copG) # transform the data
-pairs(u.prime., cex=0.2) # looks good
+u.r <- rtrafo(u, cop=copG) # transform the data
+pairs(u.r, cex=0.2) # looks good
 
 ## what about a meta-Clayton model?
 ## the parameter is chosen such that Kendall's tau equals (the same) tau
-copC <- onacopulaL("Clayton", list(copClayton@tauInv(tau), 1:d))
+copC <- onacopulaL("Clayton", list(copClayton@tauInv(tau), 1:5))
 
 ## plot of the transformed data (Hering and Hofert (2011)) to see the
 ## deviations from uniformity
@@ -138,4 +137,3 @@ pairs(u.prime., cex=0.2) # clearly visible
 \keyword{transformation}
 \keyword{distribution}
 \keyword{multivariate}
-

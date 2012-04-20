@@ -32,17 +32,18 @@ MM: the previous file (+directory) names were:
     - R/mult.R
     - src/mult.c
     - src/mygsl_util.c
-JY: Ivan, I think we should export an empCopula function. I always
+* Exporting a bit more of hidden internal functions:
+** JY: Ivan, I think we should export an empCopula function. I always
 thought it was unnecessary because it can be obtained with mecdf.
 But people have asked for it.
+** MM: Also, look at ./man/copula-internal.Rd :  e.g. schlatherCopula ??
 
 * C code
-** enable registration for the old 'copula' part
-- quite a bit {see commented part in ./NAMESPACE }
-  can we automate ?
-
-** move  from .C() towards .Call()
-JY: Agree. Quite a few them. Can it wait?
+** DONE [src/init.c] enable registration for the old 'copula' part
+** (NO) move  from .C() towards .Call()
+JY: Agree. Quite a few them. Can it wait?  MM: Definitely; Actually, I
+think it's not worth the effort; particularly now that I've spent all the
+effort writing src/init.c for registration of all of the .C(..) routines.
 
 ** gsl - debye ===> Think of  'LinkingTo: gsl' in DESCRIPTION and then *not* carry gsl-source code anymore.
 JY: Agree.
@@ -69,6 +70,9 @@ graphical GoF test we introduced and which we want to put in the package anyway.
 * Deprecation of Old Stuff
 - with warning
 - on help pages
+** Notably the NAC Archimedean families are probably uniformly 'better' than
+   the "J-I" ones.
+*** Write testing code that "proves" this.
 
 * Documentation etc
 *** DONE inst/doc/nacopula-pkg.Rnw  -- keep file name, maybe rewrite including
@@ -81,5 +85,13 @@ graphical GoF test we introduced and which we want to put in the package anyway.
     - shouldn't it {and all other tests} return a (valid) object of class
     "htest" (maybe "htest" in addition to the specific S3 class)?
     --> we would probably not need extra print() methods, and just use print.htest()
-** MH: In the long run, I suggest calling functions like f(x, foo=1, bar=2) instead of f(x, 1, 2). This makes the code more readable (naming all arguments except the first one). For example, the call of fitCopula.ml from within fitCopula.mpl
-** MH: @ Jun, Ivan: file R/E.R  only defines E <- exp(1). We should remove this (or move to another file).
+** MH: In the long run, I suggest calling functions like f(x, foo=1, bar=2) instead of f(x, 1, 2).
+  This makes the code more readable and more error-prone (naming all
+  arguments except the first one).
+*** DONE For example, the call of fitCopula.ml from within fitCopula.mpl
+** DONE MH: @ Jun, Ivan: file R/E.R  only defines E <- exp(1). Reason(MM): work around silly 'CMD check' warnings.
+But we should move that to another R/*.R
+
+
+* Testing: ./tests/  must grow, notably for "Jun-Ivan functions"
+** maybe take  ./tests/copula-play.R  as sophisticated role model.

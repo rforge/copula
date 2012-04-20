@@ -6,9 +6,6 @@ DRIVERS = nacopula-pkg Frank-Rmpfr
 
 #R_PROG = R-devel
 R_PROG = R
-#R_CALL = ${R_PROG} --vanilla --silent
-#                  ^^^^^^^^^ also loses R_LIBS
-R_CALL = ${R_PROG} --no-init-file --no-save --silent
 
 ## "Writing R Extensions" requires: 1st target must also clean up
 ## NB: This is *BAD* for submitting to JSS (which needs  $(DRIVERS).tex !)
@@ -34,7 +31,7 @@ paper-all.zip: $(DRIVERS:=.Rnw) $(DRIVERS:=.tex) $(DRIVERS:=.pdf) $(DRIVERS:=.R)
 
 %.pdf : %.tex *.bib
 	${R_PROG} CMD texi2pdf $<
-	Rscript -e 'tools::compactPDF("$@", gs_quality = "ebook")'
+	$(R_HOME)/bin/Rscript -e 'tools::compactPDF("$@", gs_quality = "ebook")'
 #	qpdf --stream-data=compress --object-streams=generate $@ temp$@
 
 

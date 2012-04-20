@@ -141,6 +141,9 @@ gtrafouni <- function(u, method = c("chisq", "gamma", "Remillard", "Genest"))
 ##' @author Marius Hofert
 rtrafo <- function(u, cop, m=d, n.MC=0)
 {
+    d. <- dim(u)
+    n <- d.[1]
+    d <- d.[2]
     stopifnot(is(cop, "outer_nacopula"), 2 <= m, m <= d)
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
@@ -149,9 +152,6 @@ rtrafo <- function(u, cop, m=d, n.MC=0)
     cop <- cop@copula
     th <- cop@theta
     stopifnot(cop@paraConstr(th))
-    dim. <- dim(u)
-    n <- dim.[1]
-    d <- dim.[2]
     psiI <- cop@psiInv(u, theta=th)
     psiI. <- t(apply(psiI, 1, cumsum))
     ## compute all conditional probabilities
