@@ -57,8 +57,7 @@ Doxygen headers should exactly look like in C code [C-c C-o not working])
 (ac = Archimdean copula)
 
 ** DONE new class "Copula" := {copula, nacopula}
-* New Wrapper functions
-or rather extending one or the other function names
+* New Wrapper functions or rather extending one or the other function names
 ** distribution/density/ ... functions
 *** DONE dcopula(), pcopula(), rcopula()  (for "nacopula")
 *** d*():  allow  log=TRUE  [DONE for t and normal]

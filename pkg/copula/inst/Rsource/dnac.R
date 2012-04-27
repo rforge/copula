@@ -14,6 +14,11 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
+### Densities of two-level nested Archimedean copulas ##########################
+
+## Note: see http://arxiv.org/abs/1204.2410 for more details
+
+
 ### setup ######################################################################
 
 ## load packages
