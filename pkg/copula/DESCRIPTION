@@ -34,7 +34,7 @@ Description: Classes (S4) of commonly used copulas including elliptical
  such as the Sibuya distribution, the polylogarithm, Stirling and Eulerian numbers.
 License: GPL (>= 3)
 Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R
-	cop_objects.R derCdfPdf.R E.R amhCopula.R amhExpr.R
+	cop_objects.R derCdfPdf.R amhCopula.R amhExpr.R
         archmCopula.R asymCopula.R asymExplicitCopula.R claytonCopula.R
         claytonExpr.R debye.R ellipCopula.R
 	estimation.R evCopula.R evTests.R
