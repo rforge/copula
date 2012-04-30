@@ -345,7 +345,7 @@ copFrank <-
                                 n.MC=n.MC, log=log)
                   } else {
                       ## Note: psiDabs(0, ...) is correct, namely (1/theta)*polylog(1-exp(-theta), s=-(degree-1))
-		      Li.arg <- if(Li.log.arg) log1mexpm(theta) - t else -expm1(-theta)*exp(-t)
+		      Li.arg <- if(Li.log.arg) log1mexp(theta) - t else -expm1(-theta)*exp(-t)
 		      Li. <- polylog(Li.arg, s = -(degree-1), log=log,
 				     method=method, is.log.z = Li.log.arg)
 		      if(log) Li. - log(theta) else Li. / theta
@@ -353,7 +353,7 @@ copFrank <-
 	      },
 		  ## derivatives of the generator inverse
 		  psiInvD1abs = function(u, theta, log = FALSE) {
-		      if(log) log(theta)- {y <- u*theta; y + log1mexpm(y)}
+		      if(log) log(theta)- {y <- u*theta; y + log1mexp(y)}
 		      else theta/expm1(u*theta)
 		  },
 		  ## density of the diagonal
@@ -388,8 +388,8 @@ copFrank <-
 		  ## auxiliary results
 		  u. <- u[n01,, drop=FALSE]
 		  u.sum <- rowSums(u.)
-		  lp  <- log1mexpm(theta)    # log(1 - exp(-theta))
-		  lpu <- log1mexpm(theta*u.) # log(1 - exp(-theta * u))
+		  lp  <- log1mexp(theta)    # log(1 - exp(-theta))
+		  lpu <- log1mexp(theta*u.) # log(1 - exp(-theta * u))
 		  lu <- rowSums(lpu)
 		  ## main part
 		  res[n01] <-
@@ -437,7 +437,7 @@ copFrank <-
 			  x <- x.; warning("x has been rounded to integer")
 		      }
 		      if(log) {
-			  x*log1mexpm(theta) - log(x*theta)
+			  x*log1mexp(theta) - log(x*theta)
 		      } else {
 			  p <- -expm1(-theta) # == 1-exp(-theta)
 			  p^x/(x*theta)
@@ -454,7 +454,7 @@ copFrank <-
 		  },
 		  dV01 = function(x,V0,theta0,theta1,log = FALSE) {
 		      stopifnot(length(V0) == 1 || length(x) == length(V0), all(x >= V0))
-		      lfactor <- x*log1mexpm(theta1) - V0*log1mexpm(theta0)
+		      lfactor <- x*log1mexp(theta1) - V0*log1mexp(theta0)
 		      res <- lfactor + dsumSibuya(x, V0, theta0/theta1, log=TRUE)
 		      if(log) res else exp(res)
 		  },
@@ -711,7 +711,7 @@ copJoe <-
                       } else {
                           alpha <- 1/theta
                           mt <- -t.
-                          l1mt <- log1mexpm(t.) # log(1-exp(-t))
+                          l1mt <- log1mexp(t.) # log(1-exp(-t))
                           sum. <- polyJ(mt-l1mt, alpha, degree, method=method, log=TRUE)
                           res[n0Inf] <- -log(theta) + mt - (1-alpha)*l1mt + sum.
                       }
@@ -764,7 +764,7 @@ copJoe <-
                       res[n01] <- lsum(lx)
                   } else {
                       alpha <- 1/theta
-                      l1_h <- log1mexpm(-lh) # log(1-h)
+                      l1_h <- log1mexp(-lh) # log(1-h)
                       lh_l1_h <- lh - l1_h # log(h/(1-h))
                       res[n01] <- (d-1)*log(theta) + (theta-1)*l1_u -
                           (1-alpha)*l1_h + polyJ(lh_l1_h, alpha, d, method=method,
@@ -780,7 +780,7 @@ copJoe <-
 		      l1_u <- rowSums(log1p(-u)) # log(1-u)
 		      u.th <- (1-u)^theta # (1-u)^theta
 		      lh <- rowSums(log1p(-u.th)) # rowSums(log(1-(1-u)^theta)) = log(h)
-		      l1_h <- log1mexpm(-lh) # log(1-h)
+		      l1_h <- log1mexp(-lh) # log(1-h)
 		      lh_l1_h <- lh - l1_h # log(h/(1-h))
 		      b <- rowSums(-l1_u*u.th/(1-u.th))
 		      lP <- polyJ(lh_l1_h, alpha, d, method=method, log=TRUE)

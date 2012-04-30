@@ -191,7 +191,7 @@ loglikCopula <- function(param, x, copula, hideWarnings=FALSE) {
     sink(messageOut); sink(messageOut, type="message")
     options(warn = -1) ## ignore warnings; can be undesirable!
   }
-  ## FIXME: use
+  ## FIXME: as soon as *ALL*  dcopula() methods have a  'log' argument which works {add tests !!}
   ## loglik <- try(sum(dcopula(copula, x, log=TRUE)))
   loglik <- try(sum(log(dcopula(copula, x))))
 
