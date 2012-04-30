@@ -92,7 +92,7 @@ copCreate <- function(family, theta, d, ...)
                ## Note: ... args are:
                ## dispstr="ex" (exchangeable), "ar1" (AR1), "toep" (Toeplitz), "un"
                ##         (unstructured)
-               ## df=4 (degrees of freedom)
+               ## df (degrees of freedom)
                ## df.fixed=FALSE (TRUE means that d.o.f. will be considered as fixed
                ##          and won't be estimated)
            },
@@ -193,14 +193,14 @@ rcop <- function(n, cop)
 ##' @return density of the specified copula evaluated at u
 ##' @author Marius Hofert
 ##' Note: same idea as in R package "copula" but with intelligent log-slot
-dellip <- function(u, family, P, log=FALSE, df=4, ...)
+dellip <- function(u, family, P, log=FALSE, df, ...)
 {
     switch(family,
            "normal"={
-               dmvnorm(qnorm(u), sigma=P, log=log, ...)
+               mvtnorm::dmvnorm(qnorm(u), sigma=P, log=log, ...)
            },
            "t"={
-               dmvt(qt(u, df=df), sigma=P, df=df, log=log, ...)
+               mvtnorm::dmvt(qt(u, df=df), sigma=P, df=df, log=log, ...)
            },
            stop("family ", family, " not yet supported"))
 }
