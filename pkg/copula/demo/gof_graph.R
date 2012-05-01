@@ -19,8 +19,8 @@
 require(copula)
 
 source(system.file("Rsource", "wrapper.R", package="copula"))
-source(system.file("Rsource", "gof-graph.R", package="copula"))
-source(system.file("Rsource", "graphics.R", package="copula"))
+source(system.file("Rsource", "ggraph-tools.R", package="copula"))
+source(system.file("Rsource", "ggraph-graphics.R", package="copula"))
 
 
 ### Example 1: 5d Gumbel copula ################################################

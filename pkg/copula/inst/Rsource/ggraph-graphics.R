@@ -99,7 +99,7 @@ pairs2 <- function(gcu.u,
     if(missing(labels)){ ## if no labels are giving, choose a reasonable default:
         ## the jth column in the pairs plot corresponds to the plot of (u_j, C(u_i|u_j)) => choose  .|u_j
 	labels <- as.expression( lapply(1:d, function(j)
-	    substitute(ring(phantom("_")) *"|"* italic(u)[ind], list(ind=j))) )
+            substitute(phantom()%.%"|"* italic(u)[ind], list(ind=j))) )
     }
     else { # labels are given (possibly == "none")
         labels <- match.arg(labels, "none")
