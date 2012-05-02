@@ -60,27 +60,26 @@ if(d > 10){
 ### Example 1: Plots ###########################################################
 
 ## 1) plain
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".")
+pairsRosenblatt(cu.u, pvalueMat=pmat)
 
-## 2) with title
+## 2) with title, no subtitle
 pwRoto <- "Pairwise Rosenblatt transformed observations"
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=pwRoto)
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=pwRoto, sub=NULL)
 
-## 3) with title and subtitle
+## 3) with title and manual subtitle
 gp <- format(gpviTest(pmat), digits=1, nsmall=1)
 sub <- paste(names(gp), gp, sep=": ")
 sub. <- paste(paste(sub[1:3], collapse=", "), "\n",
-              paste(sub[4:6], collapse=", "), "\n",
-              paste(sub[7:8], collapse=", "), sep="")
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=pwRoto, sub=sub., sub.line=6.8)
+              paste(sub[4:7], collapse=", "), sep="")
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=pwRoto, sub=sub., sub.line=5.4)
 
 ## 4) two-line title including expressions, and centered
 title <- list(paste(pwRoto, "to test"),
               substitute(italic(H[0]:C~~bold("is Gumbel with"~~tau==tau.)),
                          list(tau.=tau)))
 main.line <- c(4, 1.4)
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, main.line=main.line,
-                main.centered=TRUE, sub=sub., sub.line=6.8)
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".",
+                main=title, main.line=main.line, main.centered=TRUE)
 
 ## 5) omit panel borders
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", panel.border=FALSE)
@@ -203,13 +202,7 @@ title <- list(paste(pwRoto, "to test"),
                                                       ~~tau[2]==tau2)),
                          list(tau0=tau0[1], tau1=tau0[2], tau2=tau0[3])))
 main.line <- c(4, 1.4)
-gp <- format(gpviTest(pmat), digits=1, nsmall=1)
-sub <- paste(names(gp), gp, sep=": ")
-sub. <- paste(paste(sub[1:3], collapse=", "), "\n",
-              paste(sub[4:6], collapse=", "), "\n",
-              paste(sub[7:8], collapse=", "), sep="")
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, main.line=main.line,
-                sub=sub., sub.line=6.8)
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, main.line=main.line)
 
 
 ### Example 3: 5d t_4 copula (fixed/known d.o.f., estimated P) #################
@@ -254,10 +247,4 @@ which(pmat < 0.05, arr.ind=TRUE)
 title <- list("Pairwise Rosenblatt transformed pseudo-observations",
               expression(bold("to test")~~italic(H[0]:C~~bold("is t")[4])))
 main.line <- c(4, 1.4)
-gp <- format(gpviTest(pmat), digits=1, nsmall=1)
-sub <- paste(names(gp), gp, sep=": ")
-sub. <- paste(paste(sub[1:3], collapse=", "), "\n",
-              paste(sub[4:6], collapse=", "), "\n",
-              paste(sub[7:8], collapse=", "), sep="")
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, main.line=main.line,
-                sub=sub., sub.line=6.8)
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, main.line=main.line)

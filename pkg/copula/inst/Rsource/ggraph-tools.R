@@ -158,15 +158,30 @@ pviTest <- function(piTest){
 ##' Computing a global p-value
 ##'
 ##' @title Computing a global p-value
-##' @param pvalueMat matrix of pairwise p-values
-##' @param method method for pvalueMat (how the p-values are adjusted)
+##' @param pvalues (matrix of pairwise) p-values
+##' @param method vector of methods for pvalues (how the p-values are adjusted)
 ##' @param globalFun function determining how to compute a global p-value from a
 ##'        matrix of pairwise adjusted p-values
 ##' @return global p-values for each of the specified methods (of how to adjust the
 ##'         pairwise p-values)
 ##' @author Marius Hofert
-gpviTest <- function(pvalueMat, method=p.adjust.methods, globalFun=min){
-    pvals <- pvalueMat[!is.na(pvalueMat)] # vector
-    sapply(p.adjust.methods, function(meth) globalFun(p.adjust(pvals, method=meth)))
+gpviTest <- function(pvalues, method=p.adjust.methods, globalFun=min){
+    pvalues <- pvalues[!is.na(pvalues)] # vector
+    if(all(c("fdr","BH") %in% method))## p.adjust():  "fdr" is alias for "BH"
+	method <- method[method != "fdr"]
+    sapply(method, function(meth) globalFun(p.adjust(pvalues, method=meth)))
 }
 
+gpviTest0 <- function(pvalues) {
+    pvalues <- pvalues[!is.na(pvalues)] # vector
+    c("minimum" = min(pvalues),
+      "global (Bonferroni/Holm)" = min(p.adjust(pvalues, method="holm")))
+}
+
+gpviString <- function(pvalues, sep = "   ", digits = 2) {
+    pv <- gpviTest0(pvalues)
+    paste0("p-values:", sep,
+	  paste(paste(names(pv), sapply(pv, format.pval, digits=digits),
+		      sep=": "),
+		collapse=paste0(";",sep)))
+}
