@@ -172,8 +172,8 @@ pairs2 <- function(gcu.u,
 	    plot.new()
 	    ## determine whether we are on the diagonal
 	    mfg <- par("mfg") # for checking afterwards
+	    ok <- TRUE
 	    if(i == j) {
-		ok <- FALSE
 		if(has.labs) {
 		    ## The following line is commented out since it changes par("usr")
 		    ## on the diagonal. I don't see why this is useful. Indeed, it
@@ -193,7 +193,8 @@ pairs2 <- function(gcu.u,
 			       font=font.labels)
 		}
 	    } else { # i != j
-		ok <- !any(is.na(xls[,j]), is.na(yls[,i]))
+		if(any(is.na(xls[,j]), is.na(yls[,i])))
+		    ok <- FALSE
 		if(ok) {
 		    plot.window(xlim=xls[,j], ylim=yls[,i])
 		    y <- gcu.u[,i,j]
