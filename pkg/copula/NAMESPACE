@@ -135,7 +135,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"opower"
        ,"prob"
        ,"timing"
-       ## Should we provide these in a separate (very small) R package ?
+       ## Should we provide these in a separate (very small) R pakage ?
        ,"sinc", "A..Z"
        ,"rstable1"
        ,"retstable", "retstableR"
