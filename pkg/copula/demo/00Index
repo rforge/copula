@@ -6,6 +6,7 @@ G_ak		Coefficients a_k for Gumbel's density derivatives, MLE, etc
 GIG-demo        Generalized Inverse Gaussian Archimedean copulas
 logL-vis	Log Likelihood Visualizations
 opC-demo	Outer power copula (Clayton only, for now)
+dnac-demo       Usage of densities of two-level nested Archimedean copulas
 polyGJ		Investigating precision and run time of polyG and polyJ
 dDiag-plots	Plotting dDiag() densities (over range of families, theta, d)
 timings		Using timing() to measure speed of basic Archimedean families
