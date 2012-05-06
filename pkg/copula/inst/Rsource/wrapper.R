@@ -203,7 +203,8 @@ dellip <- function(u, family, P, log=FALSE, df, ...)
            },
            "t"={
                qt. <- qt(u, df=df)
-               val <- dmvt(qt., sigma=P, df=df, log=TRUE) -
+               ## note: for dmvt, log=TRUE is actually the default
+               val <- mvtnorm::dmvt(qt., sigma=P, df=df, log=TRUE) -
                    rowSums(dt(qt., df=df, log=TRUE))
                if(log) val else exp(val)
            },
