@@ -192,15 +192,20 @@ rcop <- function(n, cop)
 ##' @param ... additional args passed to dmvnorm/dmvt
 ##' @return density of the specified copula evaluated at u
 ##' @author Marius Hofert
-##' Note: same idea as in R package "copula" but with intelligent log-slot
 dellip <- function(u, family, P, log=FALSE, df, ...)
 {
     switch(family,
            "normal"={
-               mvtnorm::dmvnorm(qnorm(u), sigma=P, log=log, ...)
+               qnorm. <- qnorm(u)
+               val <- mvtnorm::dmvnorm(qnorm., sigma=P, log=TRUE) -
+                   rowSums(dnorm(qnorm., log=TRUE))
+               if(log) val else exp(val)
            },
            "t"={
-               mvtnorm::dmvt(qt(u, df=df), sigma=P, df=df, log=log, ...)
+               qt. <- qt(u, df=df)
+               val <- dmvt(qt., sigma=P, df=df, log=TRUE) -
+                   rowSums(dt(qt., df=df, log=TRUE))
+               if(log) val else exp(val)
            },
            stop("family ", family, " not yet supported"))
 }
