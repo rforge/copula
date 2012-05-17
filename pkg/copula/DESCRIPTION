@@ -10,8 +10,8 @@ Author: Jun Yan <jun.yan@uconn.edu> and
 Maintainer: Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Depends: R (>= 2.14.0), methods, pspline
-Imports: stats4, graphics, gsl, ADGofTest, stabledist, mvtnorm
-Suggests: lattice, MASS, Matrix, KernSmooth, sfsmisc, Rmpfr, bbmle, scatterplot3d
+Imports: stats4, graphics, gsl, ADGofTest, stabledist, mvtnorm, Rmpfr (>= 0.4-7)
+Suggests: lattice, MASS, Matrix, KernSmooth, sfsmisc, bbmle, scatterplot3d
 Enhances: nor1mix
 Description: Classes (S4) of commonly used copulas including elliptical
         (normal and t), Archimedean (Clayton, Gumbel, Frank, and
@@ -23,9 +23,9 @@ Description: Classes (S4) of commonly used copulas including elliptical
         models with variance estimate. Independence tests among random
         variables and random vectors. Serial independence tests for
         univariate and multivariate continuous time series.
-        Goodness-of-fit tests for copulas based on multipliers and on
-        the parametric bootstrap. Bivariate and multivariate tests of
-	extreme-value dependence. Bivariate tests of exchangeability.
+ Goodness-of-fit tests for copulas based on multipliers, the parametric
+ bootstrap with several transformation options. Bivariate and multivariate
+ tests of extreme-value dependence. Bivariate tests of exchangeability.
  Now with former 'nacopula' for working with nested Archimedean copulas.
  Specifically, providing procedures for computing function values and cube volumes,
  characteristics such as Kendall's tau and tail dependence coefficients, efficient

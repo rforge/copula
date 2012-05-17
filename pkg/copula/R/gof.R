@@ -273,19 +273,20 @@ apply the transformations yourself,  see ?gnacopula.")
                },
                stop("invalid 'trafo' argument"))
 
-    ## build test statistic function and string describing the method
-    string <- "Bootstrapped test of"
+    ## build test statistic function and 'meth' string describing the method
+    meth <- paste0("Bootstrapped (B =", n.bootstrap,") test of ")
+    meth2 <- paste0(method,", est.method = ", estimation.method)
     test.stat <-
-	switch(method, # define test statistic (and correct string describing the procedure)
+	switch(method,
 	       "chisq" =,
 	       "gamma" = {
-		   string <- paste0(string, "Anderson and Darling (with trafo = ",
-				    trafo, " and method = ", method, ")")
+		   meth <- paste0(meth, "Anderson and Darling (with trafo = ",
+				    trafo, " and method = ", meth2, ")")
 		   function(x) ad.test(x)$statistic
 	       },
 	       "Remillard" =,
 	       "Genest" = {
-		   string <- paste0(string, " ", method," (with trafo = ", trafo, ")")
+		   meth <- paste0(meth, meth2," (with trafo = ", trafo, ")")
 		   function(x) x
 	       },
 	       stop("wrong 'method' argument"))
@@ -334,7 +335,7 @@ apply the transformations yourself,  see ?gnacopula.")
     structure(class = "htest",
 	      list(p.value= mean(unlist(teststat.) > teststat),
                    statistic = teststat, data.name = u.name,
-		   method=string, estimator=theta.hat,
+		   method=meth, estimator=theta.hat,
 		   bootStats = list(estimator=theta.hat., statistic=teststat.)))
 
 }

@@ -111,6 +111,14 @@ importFrom("ADGofTest", ad.test)
 
 importFrom("stabledist", dstable)
 
+## As we use it in "bad cases" polyG(), dsumSibuya(),..:
+importFrom("Rmpfr",
+	   mpfr, chooseMpfr, chooseMpfr.all,
+	   getPrec, roundMpfr, sumBinomMpfr)
+## currently needed when Rmpfr is detached, as it influences "numeric" (e.g. in examples testing):
+importClassesFrom("Rmpfr",
+                  mpfr, atomicVector, array_or_vector, Mnumber)
+
 exportClasses("acopula",
               "nacopula", "outer_nacopula",
               "interval", "maybeInterval"
@@ -142,7 +150,9 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"dSibuya", "pSibuya", "dsumSibuya", "rSibuya", "rSibuyaR"
        ,"rlog", "rlogR", "rF01Frank", "rF01Joe", "rFFrank", "rFJoe"
        ,"log1mexp"
-       ,"polylog", "Bernoulli", "Bernoulli.all", "Eulerian", "Stirling1", "Stirling2", "Eulerian.all", "Stirling1.all", "Stirling2.all"
+       ,"polylog", "Bernoulli", "Bernoulli.all"
+       ,"Eulerian", "Stirling1", "Stirling2"
+       ,"Eulerian.all", "Stirling1.all", "Stirling2.all"
        ,"psiDabsMC"
        ,"setTheta"
        ,"tauAMH"
@@ -156,6 +166,3 @@ exportMethods(## for both own and "other" generics:
 	      "%in%", "dim",
 	      "format", "show"
 	      )
-
-if(getRversion() < "2.12")
-    export("adjustcolor")

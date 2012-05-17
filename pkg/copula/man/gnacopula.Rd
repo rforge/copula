@@ -27,8 +27,8 @@ gtrafouni(u, method = c("chisq", "gamma", "Remillard", "Genest"))
   \item{n.bootstrap}{positive integer specifying the number of bootstrap replicates.}
   \item{estimation.method}{\code{\link{character}}
     string determining the estimation method; see
-    \code{\link{enacopula}}.  We currently only recommend \code{"mle"} (or maybe
-    \code{"smle"}).}
+    \code{\link{enacopula}}.  We currently only recommend the default
+  \code{"mle"} (or maybe \code{"smle"}).}
   \item{include.K}{logical indicating whether the last component, involving the
     Kendall distribution function \code{\link{K}}, is used in the transformation
     \code{\link{htrafo}} of Hering and Hofert (2011).  Note that this only
@@ -170,8 +170,7 @@ u <- pobs(x) # build pseudo-observations
 
 ## check if the data comes from a meta-Gumbel model (choose larger n.bootstrap
 ## in a realistic setup)
-res.H0.G <- gnacopula(u, cop=copG, n.bootstrap=10,
-                      estimation.method="mle")
+res.H0.G <- gnacopula(u, cop=copG, n.bootstrap=10)
 ## => uses the transformation of Hering and Hofert (2011), including
 ##    the Kendall distribution function K and the mapping to a univariate
 ##    setting via the chi-square distribution. The final test carried out
