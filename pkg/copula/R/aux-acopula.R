@@ -833,6 +833,7 @@ dsumSibuya <- function(x, n, alpha,
 	   "Rmpfr" =,  "Rmpfr0" =,
 	   "RmpfrM" =, "Rmpfr0M" =
        {
+	   stopifnot(require("Rmpfr"))
 	   ## as "direct" but using high-precision arithmetic, where
 	   ## the precision should be set via alpha = mpfr(*, precBits= .)
 	   mayRecall <- !grepl("Rmpfr0", method) ## only if not "Rmpfr0(M)"
@@ -843,11 +844,14 @@ dsumSibuya <- function(x, n, alpha,
 			 is.numeric(fac.pr <- mpfr$fac), fac.pr > 1,
 			 length(mpfr$verbose) == 1)
 	   }
-	   if(!is(alpha, "mpfr"))
-	       pr. <- 64 # minimum
-           else
-               pr. <- getPrec(alpha)
-	   mpfr.0 <- mpfr(0, precBits = pr.)
+	   mayRecall <- !grepl("Rmpfr0", method) ## only if not "Rmpfr0(M)"
+	   if(mayRecall) {
+	       stopifnot(is.numeric(minPrec <- mpfr$minPrec),
+			 is.numeric(fac.pr <- mpfr$fac), fac.pr > 1,
+			 length(mpfr$verbose) == 1)
+	   }
+	   mpfr.0 <- mpfr(0, precBits =
+			  if(!is(alpha, "mpfr")) 64 else getPrec(alpha))
 	   ## FIXME: --- speedup possible! ---
 	   if(FALSE && l.x == 1 && l.n == x. && all(n == seq_len(x.))) { ## Special case -- from coeffG()
 	       message("fast special case ..") ## <- just for now

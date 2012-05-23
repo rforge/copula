@@ -111,6 +111,7 @@ importFrom("ADGofTest", ad.test)
 
 importFrom("stabledist", dstable)
 
+if(FALSE) {## currently do not "depend" on Rmpfr's correct installation:
 ## As we use it in "bad cases" polyG(), dsumSibuya(),..:
 importFrom("Rmpfr",
 	   mpfr, chooseMpfr, chooseMpfr.all,
@@ -118,6 +119,7 @@ importFrom("Rmpfr",
 ## currently needed when Rmpfr is detached, as it influences "numeric" (e.g. in examples testing):
 importClassesFrom("Rmpfr",
                   mpfr, atomicVector, array_or_vector, Mnumber)
+}
 
 exportClasses("acopula",
               "nacopula", "outer_nacopula",

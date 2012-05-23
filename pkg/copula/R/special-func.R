@@ -506,7 +506,8 @@ Bernoulli.all <-
                B <- numeric(n1)
                Bv <- 1/nn
            } else {
-               stopifnot(length(precBits) == 1, precBits >= 10)
+	       stopifnot(require("Rmpfr"),
+			 length(precBits) == 1, precBits >= 10)
                B <- mpfr(numeric(n1), precBits=precBits)
                Bv <- mpfr(1, precBits=precBits)/nn
            }
