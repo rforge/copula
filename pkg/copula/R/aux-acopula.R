@@ -1133,15 +1133,17 @@ cacopula <- function(u, cop, n.MC=0, log=FALSE) {
 ##'        pois.direct: directly uses the Poisson density
 ##'        pois:        intelligently uses the Poisson density with lsum
 ##' @param log if TRUE the log of psiDabs is returned
-##' @author Marius Hofert
+##' @param is.log.t if TRUE, the argument t contains log(<mathematical t>)
+##' @author Marius Hofert, Martin Maechler
 ##' Note: psiDabsMC(0) is always finite, although, theoretically, psiDabs(0) may
 ##'       be Inf (e.g., for Gumbel and Joe)
 psiDabsMC <- function(t, family, theta, degree=1, n.MC,
                       method=c("log", "direct", "pois.direct", "pois"),
-                      log = FALSE)# not yet: is.log.t = FALSE)
+                      log = FALSE, is.log.t = FALSE)
 {
     res <- numeric(length(t))
     V <- getAcop(family)@V0(n.MC, theta)
+    Vt <- if(is.log.t) function(tt) V %*% t(exp(tt)) else function(tt) V %*% t(tt)
     method <- match.arg(method)
     switch(method,
 	   ## the following is not faster than "log":
@@ -1161,26 +1163,27 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC,
                iInf <- is.infinite(t)
                res[iInf] <- -Inf # log(0)
                if(any(!iInf))
-                   res[!iInf] <- lsum(-V %*% t(t[!iInf]) + degree*log(V) - log(n.MC))
+                   res[!iInf] <- lsum(-Vt(t[!iInf]) + degree*log(V) - log(n.MC))
                if(log) res else exp(res)
            },
            "direct" = { # direct method
-               lx <- -V %*% t(t) + degree*log(V)
+               lx <- -Vt(t) + degree*log(V)
                res <- colMeans(exp(lx)) # can be all zeros if lx is too small [e.g., if t is too large]
                if(log) log(res) else res
            },
            "pois.direct" = {
-               poi <- dpois(degree, lambda=V %*% t(t))
-               res <- factorial(degree)/t^degree * colMeans(poi)
+               m.poi <- colMeans(dpois(degree, lambda=Vt(t)))
+               ## is.log.t:  "t^degree" = exp(t)^degree = exp(t * degree)
+               res <- factorial(degree)*(if(is.log.t) exp(-t * degree) else t^-degree) * m.poi
                if(log) log(res) else res
            },
            "pois" = {
                iInf <- is.infinite(t)
                res[iInf] <- -Inf # log(0)
                if(any(!iInf)) {
-                   t. <- t[!iInf]
-                   lpoi <- dpois(degree, lambda=V %*% t(t.), log=TRUE) # (n.MC, length(t.))-matrix
-                   b <- -log(n.MC) + lfactorial(degree) - degree*rep(log(t.), each=n.MC) + lpoi # (n.MC, length(t.))-matrix
+                   t <- t[!iInf]
+                   lpoi <- dpois(degree, lambda=Vt(t), log=TRUE) # (n.MC, length(t))-matrix
+                   b <- -log(n.MC) + lfactorial(degree) - degree*rep(if(is.log.t)t else log(t), each=n.MC) + lpoi
                    res[!iInf] <- lsum(b)
                }
                if(log) res else exp(res)
