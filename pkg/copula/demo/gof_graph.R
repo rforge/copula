@@ -18,10 +18,12 @@
 
 require(copula)
 
-source(system.file("Rsource", "wrapper.R", package="copula"))
-source(system.file("Rsource", "ggraph-tools.R", package="copula"))
-source(system.file("Rsource", "ggraph-graphics.R", package="copula"))
+copFile <- function(f) system.file("Rsource", f, package="copula", mustWork=TRUE)
+source(copFile("wrapper.R"))
+source(copFile("ggraph-tools.R"))
+source(copFile("ggraph-graphics.R"))
 
+setSeeds <- TRUE
 
 ### Example 1: 5d Gumbel copula ################################################
 
@@ -29,13 +31,14 @@ source(system.file("Rsource", "ggraph-graphics.R", package="copula"))
 n <- 1000 # sample size
 d <- 5 # dimension
 family <- "Gumbel" # copula family
+tau <- 0.5
+if(setSeeds) set.seed(1)
 
 ## define and sample the copula (= H0 copula), build pseudo-observations
 cop <- getAcop(family)
-th <- cop@tauInv(tau <- 0.5) # correct parameter value
+th <- cop@tauInv(tau) # correct parameter value
 copH0 <- onacopulaL(family, list(th, 1:d)) # define H0 copula
-U <- rcop(n, cop=copH0)
-U. <- pobs(U)
+U. <- pobs(rcop(n, cop=copH0))
 
 ## create array of pairwise copH0-transformed data columns
 cu.u <- pairwiseCcop(U., copH0)
@@ -73,7 +76,7 @@ sub. <- paste(paste(sub[1:3], collapse=", "), "\n",
               paste(sub[4:7], collapse=", "), sep="")
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=pwRoto, sub=sub., sub.line=5.4)
 
-## 4) two-line title including expressions, and centered
+## 4) two-line title including expressions, and centered  --- JCGS, Fig.1(left) ---
 title <- list(paste(pwRoto, "to test"),
               substitute(italic(H[0]:C~~bold("is Gumbel with"~~tau==tau.)),
                          list(tau.=tau)))
@@ -169,6 +172,7 @@ if(FALSE){
 n <- 1000 # sample size
 d <- 5 # dimension
 family <- "Gumbel" # copula family
+if(setSeeds) set.seed(2)
 
 ## define and sample the copula, build pseudo-observations
 cop <- getAcop(family)
@@ -202,7 +206,9 @@ title <- list(paste(pwRoto, "to test"),
                                                       ~~tau[2]==tau2)),
                          list(tau0=tau0[1], tau1=tau0[2], tau2=tau0[3])))
 main.line <- c(4, 1.4)
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, main.line=main.line)
+## --- JCGS, Fig.1(right) ---
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, main.line=main.line,
+                main.centered=TRUE)
 
 
 ### Example 3: 5d t_4 copula (fixed/known d.o.f., estimated P) #################
@@ -212,6 +218,7 @@ n <- 1000 # sample size
 d <- 5 # dimension
 family <- "t" # copula family
 df <- 4 # degrees of freedom
+if(setSeeds) set.seed(4)
 
 ## define and sample the copula, build pseudo-observations
 tau <- c(0.2, 0.4, 0.6)
@@ -247,4 +254,107 @@ which(pmat < 0.05, arr.ind=TRUE)
 title <- list("Pairwise Rosenblatt transformed pseudo-observations",
               expression(bold("to test")~~italic(H[0]:C~~bold("is t")[4])))
 main.line <- c(4, 1.4)
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, main.line=main.line)
+## --- JCGS, Fig.2(left) ---
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, main.line=main.line,
+                main.centered=TRUE)
+## --- JCGS, Fig.2(right) ---
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, main.line=main.line,
+                method = "QQchisq", main.centered=TRUE)
+
+
+
+### Example 4: SMI constituents ################################################
+
+begSMI <- "2011-09-09"
+endSMI <- "2012-03-28"
+##-- read *public* data ------------------------------
+require(zoo)# -> to access all the zoo methods
+if(file.exists(SMI.dfil <- "SMI_yh.rda")) load(SMI.dfil) else {
+    require(tseries)
+    symSMI <- c("ABBN.VX","ATLN.VX","ADEN.VX","CSGN.VX","GIVN.VX","HOLN.VX",
+    	    "BAER.VX","NESN.VX","NOVN.VX","CFR.VX", "ROG.VX", "SGSN.VX",
+    	    "UHR.VX", "SREN.VX","SCMN.VX","SYNN.VX","SYST.VX","RIGN.VX",
+    	    "UBSN.VX","ZURN.VX")
+    lSMI <- sapply(symSMI, function(sym)
+    	       get.hist.quote(instrument = sym, start= begSMI, end= endSMI,
+    			      quote = "Close", provider = "yahoo",
+    			      ## fails: retclass= "its", #-> POSIXct
+    			      drop=TRUE))
+    ## check if stock data have the same length for each company.
+    sapply(lSMI, length)
+
+    ## "concatenate" all:
+    SMIo <- do.call(cbind, lSMI)
+    ## and fill in the NAs
+    SMI <- na.fill(SMIo, "extend")
+    colnames(SMI) <- sub("\\.VX", "", colnames(SMI))
+
+    save(symSMI, lSMI, SMI, file=SMI.dfil)
+}
+
+n <- nrow(SMI)
+d <- ncol(SMI)
+
+x <- diff(log(SMI))[-1,] # build log-returns
+u <- pobs(x) # build pseudo-observations
+
+## --- JCGS, Fig.3 ---
+pairs(u, gap=0, pch=".", xaxt="n", yaxt="n", main="Pseudo-observations of the log-returns of the SMI",
+      labels=as.expression( sapply(1:d, function(j) bquote(italic(hat(U)[.(j)]))) ))
+
+tau <- cor(u, method="kendall") # estimate pairwise tau
+P <- tauInv(tau, family="normal") # compute corresponding matrix of pairwise correlations (equal to family="t")
+
+### Estimate (a) t-copula(s) with the approach of Demarta, McNeil (2005)
+
+## compute a positive-definite estimator of P
+P. <- nearPD(P, corr=TRUE)$mat
+## image(P.) # nice (because 'P.' is a Matrix-pkg Matrix)
+
+## estimate nu via MLE for given P
+## nus <- seq(.5, 128, by=.5)
+## nLLt.nu <- sapply(nus, nLLt, P=as.matrix(P.), u=u)
+## for optimization, use s.th. like:
+## optimize(nLLt, interval=c(.5, 128), P=as.matrix(P.), u=u)$minimum
+## plot(nus, nLLt.nu, type="l", xlab=bquote(nu),
+##      ylab=expression(-logL(nu)))
+## plot(nus, nLLt.nu, type="l", xlab=bquote(nu),
+##      ylab=expression(-logL(nu)), log = "xy")
+## okay, ... points to a Gaussian copula
+
+## define the H0 copula
+## Note: that's the same result when using pseudo-observations since estimation via
+##       tau is invariant under strictly increasing transformations
+P.. <- P.[lower.tri(P.)] # note: upper.tri() would lead to the wrong result due to the required ordering!
+copH0 <- copCreate("normal", theta=P.., d=ncol(P.), dispstr="un")
+
+## create array of pairwise copH0-transformed data columns
+cu.u <- pairwiseCcop(u, copH0)
+
+if(setSeeds) set.seed(8)
+## compute pairwise matrix of p-values and corresponding colors
+if(file.exists(pwfil <- "pwIT5.rda")) load(pwfil) else {
+  pwIT <- pairwiseIndepTest(cu.u, verbose=TRUE) # (d,d)-matrix of test results
+  save(pwIT, file=pwfil)
+}
+pmat <- pviTest(pwIT) # pick out p-values
+cc <- pairsColList(pmat) # compute corresponding colors
+
+## which pairs violate H0?
+## (ind <- which(pmat < 0.05, arr.ind=TRUE)) # => none!
+
+{## testing *multivariate normality*
+    require(mvnormtest)
+
+    print( mshapiro.test(t(x)) )
+    ## => p-value < 2.2e-16
+    ## => Multivariate normal dependence structure seems fine, but
+    ##  *not* multivariate normal distribution
+}
+
+## pairwise Rosenblatt plot --- JCGS, Fig.4 ---
+title <- list("Pairwise Rosenblatt transformed pseudo-observations",
+              expression(bold("to test")~~italic(H[0]:C~~bold("is Gaussian"))))
+pairsRosenblatt(cu.u, pvalueMat=pmat, method="none", cex.labels=0.75,
+                key.space=1.5,
+                main.centered=TRUE, main=title, main.line=c(3, 0.4))
