@@ -22,6 +22,7 @@
 
 ### Ali-Mikhail-Haq, see Nelsen (2007) p. 116, # 3 #############################
 
+##' AMH object
 copAMH <-
     (function() { ## to get an environment where  C.  itself is accessible
 	C. <- new("acopula", name = "AMH",
@@ -35,8 +36,8 @@ copAMH <-
 		  paraInterval = interval("[0,1)"),
 		  ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree = 1, n.MC = 0, log = FALSE,
-                  is.log.t = FALSE,
-                  method = "negI-s-Eulerian", Li.log.arg=TRUE)
+				     is.log.t = FALSE,
+				     method = "negI-s-Eulerian", Li.log.arg=TRUE)
 	      {
 		  lth <- log(theta)
 		  if(n.MC > 0) {
@@ -45,6 +46,8 @@ copAMH <-
 				n.MC=n.MC, log=log)
 		  } else {
                       ## FIXME: deal with  is.log.t
+		      if(is.log.t) t <- exp(t) # very cheap for now
+
 		      ## Note: psiDabs(0, ...) is correct, namely (1-theta)/theta * polylog(theta, s=-degree)
 		      if(theta == 0) return(if(log) -t else exp(-t)) # independence
 		      Li.arg <- if(Li.log.arg) lth - t else theta*exp(-t)
@@ -126,7 +129,11 @@ copAMH <-
 		  },
 		  ## V0 with density dV0 and V01 with density dV01 corresponding to
 		  ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
-		  V0 = function(n,theta) rgeom(n, 1-theta) + 1,
+		  V0 = function(n,theta, log=FALSE) {
+                      if(log) stop("'log=TRUE' not yet implemented")
+                      else
+                          rgeom(n, 1-theta) + 1
+                  },
 		  dV0 = function(x,theta,log = FALSE) dgeom(x-1, 1-theta, log),
                   V01 = function(V0,theta0,theta1) {
                       rnbinom(length(V0),V0,(1-theta1)/(1-theta0))+V0
@@ -186,6 +193,7 @@ copAMH <-
 
 ### Clayton, see Nelsen (2007) p. 116, #1 (slightly simpler form) ##############
 
+##' Clayton object
 copClayton <-
     (function() { ## to get an environment where  C.  itself is accessible
 	C. <- new("acopula", name = "Clayton",
@@ -270,7 +278,9 @@ copClayton <-
 		  },
 		  ## V0 with density dV0 and V01 with density dV01 corresponding to
 		  ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
-		  V0 = function(n,theta) { rgamma(n, shape = 1/theta) },
+		  V0 = function(n,theta, log=FALSE) {
+                      if(log) stop("'log=TRUE' not yet implemented")
+                      else rgamma(n, shape = 1/theta) },
 		  dV0 = function(x,theta,log = FALSE) dgamma(x, shape = 1/theta, log),
 		  V01 = function(V0,theta0,theta1) { retstable(alpha=theta0/theta1, V0) },
 		  dV01 = function(x,V0,theta0,theta1,log = FALSE) {
@@ -338,7 +348,7 @@ copFrank <-
 		  paraInterval = interval("(0,Inf)"),
 		  ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree = 1, n.MC = 0, log = FALSE, is.log.t = FALSE,
-                  method = "negI-s-Eulerian", Li.log.arg = TRUE)
+				     method = "negI-s-Eulerian", Li.log.arg = TRUE)
               {
                   if(n.MC > 0) {
                       psiDabsMC(t, family="Frank", theta=theta, degree=degree,
@@ -431,7 +441,14 @@ copFrank <-
 		  },
 		  ## V0 (algorithm of Kemp (1981)) with density dV0 and V01 with density
 		  ## dV01 corresponding to LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
-		  V0 = function(n,theta) rlog(n, -expm1(-theta), exp(-theta)),
+		  V0 = function(n,theta, log=FALSE) {
+                      if(log) stop("'log=TRUE' not yet implemented")
+                      else {
+                          if(-theta < .Machine$double.min.exp*log(2))
+                              stop("'theta' is too large in Frank's V0();  maybe use log=TRUE")
+                          rlog(n, -expm1(-theta), exp(-theta))
+                      }
+                  },
 		  dV0 = function(x,theta, log = FALSE) {
 		      if(any(x != (x. <- round(x)))) {
 			  x <- x.; warning("x has been rounded to integer")
@@ -514,7 +531,7 @@ copGumbel <-
 		  paraInterval = interval("[1,Inf)"),
 		  ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree=1, n.MC=0,
-                  method = eval(formals(polyG)$method), log = FALSE) {
+				     method = eval(formals(polyG)$method), log = FALSE) {
 	              is0 <- t == 0
                       isInf <- is.infinite(t)
 	              res <- numeric(n <- length(t))
@@ -615,12 +632,13 @@ copGumbel <-
 		  },
 		  ## V0 with density dV0 and V01 with density dV01 corresponding to
 		  ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
-		  V0 = function(n,theta) {
+		  V0 = function(n,theta, log=FALSE) {
 		      if(theta == 1) {
 			  ## Sample from S(1,1,0,1;1)
 			  ## with Laplace-Stieltjes transform exp(-t)
-			  rep.int(1., n)
+			  rep.int(if(log) 0. else 1., n)
 		      } else {
+                          if(log) stop("'log=TRUE' not yet implemented")
 			  alpha <- 1/theta
 			  ## Sample from S(alpha,1,(cos(alpha*pi/2))^(1/alpha),0;1)
 			  ## with Laplace-Stieltjes transform exp(-t^alpha)
@@ -692,7 +710,7 @@ copJoe <-
 		  paraInterval = interval("[1,Inf)"),
 		  ## absolute value of generator derivatives
 		  psiDabs = function(t, theta, degree = 1, n.MC = 0,
-                  method= eval(formals(polyJ)$method), log = FALSE)
+				     method= eval(formals(polyJ)$method), log = FALSE)
               {
                   is0 <- t == 0
                   isInf <- is.infinite(t)
@@ -800,7 +818,9 @@ copJoe <-
 		  },
 		  ## V0 with density dV0 and V01 with density dV01 corresponding to
 		  ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
-		  V0 = function(n,theta) rSibuya(n, 1/theta),
+		  V0 = function(n,theta, log=FALSE) {
+                      if(log) stop("'log=TRUE' not yet implemented")
+                      else rSibuya(n, 1/theta) },
 		  dV0 = function(x,theta,log = FALSE) {
 		      if(log) lchoose(1/theta,x) else abs(choose(1/theta,x))
 		  },

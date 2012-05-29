@@ -11,7 +11,9 @@ Maintainer: Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Depends: R (>= 2.14.0), methods, pspline
 Imports: stats4, graphics, gsl, ADGofTest, stabledist, mvtnorm
-Suggests: lattice, MASS, Matrix, KernSmooth, sfsmisc, bbmle, scatterplot3d, Rmpfr
+Suggests: lattice, MASS, Matrix, KernSmooth, sfsmisc, bbmle, scatterplot3d, Rmpfr,
+	  mvnormtest, tseries, zoo
+SuggestsComments: packages mvnormtest, tseries, zoo  are only used in demos
 Enhances: nor1mix
 Description: Classes (S4) of commonly used copulas including elliptical
         (normal and t), Archimedean (Clayton, Gumbel, Frank, and
@@ -49,5 +51,5 @@ Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R
 	rstable1.R safeUroot.R special-func.R
 	schlatherCopula.R stable.R
 	timing.R trafos.R
-        tCopula.R tawnCopula.R tawnExpr.R tevCopula.R  zzz.R
+        tCopula.R tawnCopula.R tawnExpr.R tevCopula.R zzz.R
 Encoding: UTF-8
