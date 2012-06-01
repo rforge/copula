@@ -1,5 +1,7 @@
 #### Major (to fix before next release) ########################################
 
+(*) rtrafo() {and probably htrafo()} --- "fail" (are *wrong*!) for n = 1
+
 (*) bug fixes for estimation methods!
 
 #### Intermediate #####################################################################
@@ -16,6 +18,10 @@
 (MM) please take a look at gtrafouni() in ./R/gof.R: Can "Remillard" (and "Genest")
  be made faster? Especially "Remillard" is slow (although B Remillard told me that his
  method is faster than C. Genest's.)
+
+(MM) rtrafo() is now "available" for "t" and "normal" thanks to the Master
+     thesis of Yongsheng Wang.  (--> ...../function-gof.R )
+     --> enable that, and  write a better wrapper for  gnacopula() / gofCopula()
 
 #### Minor #####################################################################
 

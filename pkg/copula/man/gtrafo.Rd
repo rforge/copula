@@ -30,7 +30,7 @@ rtrafo(u, cop, m=d, n.MC=0)
 }
 \details{
   \describe{
-    \item{\code{gnacopulatrafo}}{Given a \eqn{d}-dimensional random vector \eqn{\bm{U}} following an
+    \item{\code{htrafo}}{Given a \eqn{d}-dimensional random vector \eqn{\bm{U}} following an
       Archimedean copula \eqn{C} with generator \eqn{\psi}, Hering and
       Hofert (2011) showed that \eqn{\bm{U}^\prime\sim\mathrm{U}[0,1]^d}{U'~U[0,1]^d}, where
       \deqn{U_{j}^\prime=\left(\frac{\sum_{k=1}^{j}\psi^{-1}(U_{k})}{
@@ -39,7 +39,7 @@ rtrafo(u, cop, m=d, n.MC=0)
 	U'_j=((psi^{-1}(U_1)+...+psi^{-1}(U_j)) /
 	(psi^{-1}(U_1)+...+psi^{-1}(U_{j+1})))^j,  j in {1,...,d-1},
 	U'_d=K(C(U)).}
-      \code{gnacopulatrafo} applies this transformation row-wise to
+      \code{htrafo} applies this transformation row-wise to
       \code{u} and thus returns either an \eqn{n\times d}{n x d}- or an
       \eqn{n\times (d-1)}{n x (d-1)}-matrix, depending on whether the last
       component \eqn{U^\prime_d}{U'_d} which involves the (possibly
