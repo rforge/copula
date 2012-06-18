@@ -73,7 +73,9 @@ pairs2 <- function(gcu.u,
 	      dc == c((n <- dc[1]),(d <- dc[2]), d), d>=2)
 
     panel <- match.fun(panel)
-    if(d * d > 500 - 3) stop("Currently, layout() only allows 500 different plot areas\n This limit was now reached. It might be extended in the future.")
+    if(d * d > 500 - 3 && getRversion() < "2.16.0")
+        stop("Currently, layout() only allows 500 different plot areas. This limit\n  ",
+             "is reached for d=",d,".  It will be extended for R 2.16.0 (and later).")
 
     ## preliminaries ###########################################################
 
