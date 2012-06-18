@@ -103,7 +103,7 @@ gtrafouni <- function(u, method = c("chisq", "gamma", "Remillard", "Genest"))
     switch(method,
 	   "chisq" = pchisq(rowSums(qnorm(u)^2), d),
 	   "gamma" = pgamma(rowSums(-log(u)), shape=d),
-	   "Remillard" = {
+	   "Remillard" = { ## S_n(B)
 	       u <- t(u)
 	       sum1 <- exp(lsum(log1p(-u^2)))
 	       ## FIXME(MM): should use lsum(log1p(.)) as sum1 ; should work w/o nested apply(.)
@@ -112,7 +112,7 @@ gtrafouni <- function(u, method = c("chisq", "gamma", "Remillard", "Genest"))
 	       }))
 	       n/3^d - sum1/2^(d-1) + sum2
            },
-	   "Genest" = {
+	   "Genest" = {  ## S_n(C)
 	       Dn <- apply(u, 1, function(u.){
                    ## u. is one row. We want to know the number of rows of u
                    ## that are (all) componentwise <= u.
@@ -278,13 +278,13 @@ apply the transformations yourself,  see ?gnacopula.")
     meth2 <- paste0(method,", est.method = ", estimation.method)
     test.stat <-
 	switch(method,
-	       "chisq" =,
+	       "chisq" =, ## A_n
 	       "gamma" = {
 		   meth <- paste0(meth, "Anderson and Darling (with trafo = ",
 				    trafo, " and method = ", meth2, ")")
 		   function(x) ad.test(x)$statistic
 	       },
-	       "Remillard" =,
+	       "Remillard" =,## S_n(B) and S_n(C)
 	       "Genest" = {
 		   meth <- paste0(meth, meth2," (with trafo = ", trafo, ")")
 		   function(x) x
