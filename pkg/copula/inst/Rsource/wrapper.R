@@ -116,6 +116,11 @@ copCreate <- function(family, theta, d, ...)
 
 ### Kendall's tau ##############################################################
 
+if(FALSE) { ## MM__FIXME__  "old copula" already has kendallsTau() and calibKendallsTau()
+showMethods("calibKendallsTau", incl=TRUE)
+showMethods("kendallsTau", incl=TRUE)
+}## Rather use these by providing "nacopula" methods !!
+
 ##' Determine tau from given theta (matricized)
 ##'
 ##' @title Determine tau from given theta
@@ -159,6 +164,8 @@ tauInv <- function(tau, family, ...)
 
 ### Sampling ###################################################################
 
+## MM: should call rCopula()
+
 ##' Sampling elliptical and (nested) Archimedean copulas
 ##'
 ##' @title Sampling elliptical and (nested) Archimedean copulas
@@ -195,6 +202,9 @@ rcop <- function(n, cop)
 ##' @author Marius Hofert (and MMa)
 dellip <- function(u, family, P, log=FALSE, df, ...)
 {
+    ## We assume that this will be part of 'copula' which has dmvt() etc in its NAMESPACE
+    if(FALSE)## _OR_ that the caller of this function has executed
+        require("mvtnorm")# typically faster than using mvtnorm::* all the time
     val <-
 	switch(family,
 	       "normal" =
