@@ -94,45 +94,46 @@ K <- function(u, cop, d, n.MC=0)
 ##' @author Marius Hofert and Martin Maechler
 ## MM: Der Funktionsname passt mir nicht... "ouni" ist hässlich (wieso auch "trafo"? Jede R Funktion ist eine "Trafo" in einem gewissen Sinn..
 ## Brainstorm   unid21() ("d to 1 dimensional")
-gofTstat <- function(u, method = c("chisq", "gamma", "SnB", "SnC"), simple=FALSE)
+gofTstat <- function(u, method = c("chisq", "gamma", "SnB", "SnC"))
 {
     if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     d <- ncol(u)
     n <- nrow(u)
     method <- match.arg(method)
     switch(method,
-	   "chisq" = pchisq(rowSums(qnorm(u)^2), d),
-	   "gamma" = pgamma(rowSums(-log(u)), shape=d),
-	   "SnB" = { ## S_n(B)
-               if(simple)  { ## simple easy numerically bad
-                   sum1 <- sum(apply(1 - u^2, 1, prod))
-                   sum2 <- numeric(n)
-                   for(i in 1:n) {
-                       s <- 0
-                       for(j in 1:n) s <- s+ prod(1 - pmax(u[i,], u[j,]))
-                       sum2[i] <- s
-                   }
-                   sum2 <- mean(sum2)
-               } else {
-                   u <- t(u)            # d x n
-                   sum1 <- exp(lsum(log1p(-u^2)))
-                   ## FIXME(MM): should use lsum(log1p(.)) as sum1 ; should work w/o nested apply(.)
-                   sum2 <- mean(apply(u, 2, function(u.) { # u. is in R^d
-                       sum(apply(u, 2, function(u..) prod(1- pmax(u., u..))))
-                   }))
-               }
-	       n/3^d - sum1/2^(d-1) + sum2
-           },
-	   "SnC" = { ## S_n(C)
-	       Dn <- apply(u, 1, function(u.){
-                   ## u. is one row. We want to know the number of rows of u
-                   ## that are (all) componentwise <= u.
-                   mean(apply(u <= u., 1, all)) # TRUE <=> the whole row in u is <= u.
-               })
-               Cperp <- apply(u, 1, prod)
-               sum((Dn-Cperp)^2)
-           },
- 	   stop("gofTstat: unsupported method ", method))
+	   "chisq" = ad.test(pchisq(rowSums(qnorm(u)^2), d))$statistic,
+	   "gamma" = ad.test(pgamma(rowSums(-log(u)), shape=d))$statistic,
+	   "SnB" =
+       { ## S_n(B)
+	   sum1 <- sum(apply(1 - u^2, 1, prod))
+	   sum2 <- numeric(n)
+	   for(i in 1:n) {
+	       s <- 0
+	       for(j in 1:n) s <- s+ prod(1 - pmax(u[i,], u[j,]))
+	       sum2[i] <- s
+	   }
+	   sum2 <- mean(sum2)
+
+	   ## previous (partly wrong) code:
+	   ## u <- t(u)		   # d x n
+	   ## sum1 <- exp(lsum(log1p(-u^2)))
+	   ## ## FIXME(MM): should use lsum(log1p(.)) as sum1; work w/o nested apply(.)
+	   ## sum2 <- mean(apply(u, 2, function(u.) { # u. is in R^d
+	   ##	  sum(apply(u, 2, function(u..) prod(1- pmax(u., u..))))
+
+	   n/3^d - sum1/2^(d-1) + sum2
+       },
+	   "SnC" =
+       { ## S_n(C)
+	   Dn <- apply(u, 1, function(u.){
+	       ## u. is one row. We want to know the number of rows of u
+	       ## that are (all) componentwise <= u.
+	       mean(apply(u <= u., 1, all)) # TRUE <=> the whole row in u is <= u.
+	   })
+	   Cperp <- apply(u, 1, prod)
+	   sum((Dn-Cperp)^2)
+       },
+	   stop("gofTstat: unsupported method ", method))
 }
 
 
@@ -287,18 +288,16 @@ apply the transformations yourself,  see ?gnacopula.")
     ## build test statistic function and 'meth' string describing the method
     meth <- paste0("Bootstrapped (B =", n.bootstrap,") test of ")
     meth2 <- paste0(method,", est.method = ", estimation.method)
-    test.stat <-
+    meth <-
 	switch(method,
 	       "chisq" =, ## A_n
 	       "gamma" = {
-		   meth <- paste0(meth, "Anderson and Darling (with trafo = ",
+		   paste0(meth, "Anderson and Darling (with trafo = ",
 				    trafo, " and method = ", meth2, ")")
-		   function(x) ad.test(x)$statistic
 	       },
 	       "SnB" =,## S_n(B) and S_n(C)
 	       "SnC" = {
-		   meth <- paste0(meth, meth2," (with trafo = ", trafo, ")")
-		   function(x) x
+		   paste0(meth, meth2," (with trafo = ", trafo, ")")
 	       },
 	       stop("wrong 'method' argument"))
 
@@ -311,14 +310,13 @@ apply the transformations yourself,  see ?gnacopula.")
 
     ## (2) transform the data with the copula with estimated parameter
     u.prime <- gtrafomulti(u, cop=cop.hat) # transformed data in the unit hypercube
-    Y <- gofTstat(u.prime, method=method) # transformed data
+    T <- gofTstat(u.prime, method=method) # transformed data
 
     ## (3) conduct the Anderson-Darling test or compute the test statistic (depends on method)
-    teststat <- test.stat(Y)
 
     ## (4) conduct the parametric bootstrap
     theta.hat. <- numeric(n.bootstrap) # vector of estimators
-    teststat. <- vector("list", n.bootstrap) # vector of test.stat() results
+    T. <- vector("list", n.bootstrap) # vector of test.stat() results
     if(verbose) pb <- txtProgressBar(max=n.bootstrap, style = 3) # setup progress bar
     for(k in 1:n.bootstrap) {
 
@@ -333,10 +331,9 @@ apply the transformations yourself,  see ?gnacopula.")
 
 	## (4.3) transform the data with the copula with estimated parameter
 	u.prime. <- gtrafomulti(u., cop=cop.hat.)
-	Y. <- gofTstat(u.prime., method=method)
+	T.[[k]] <- gofTstat(u.prime., method=method)
 
 	## (4.4) conduct the Anderson-Darling test or compute the test statistic (depends on method)
-	teststat.[[k]] <- test.stat(Y.)
 
         if(verbose) setTxtProgressBar(pb, k) # update progress bar
     }
@@ -344,9 +341,9 @@ apply the transformations yourself,  see ?gnacopula.")
 
     ## (5) build and return results
     structure(class = "htest",
-	      list(p.value= mean(unlist(teststat.) > teststat),
-                   statistic = teststat, data.name = u.name,
+	      list(p.value= mean(unlist(T.) > T),
+                   statistic = T, data.name = u.name,
 		   method=meth, estimator=theta.hat,
-		   bootStats = list(estimator=theta.hat., statistic=teststat.)))
+		   bootStats = list(estimator=theta.hat., statistic=T.)))
 
 }
