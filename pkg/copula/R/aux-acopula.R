@@ -1097,6 +1097,7 @@ circRat <- function(e, d)
 ##' @param n.MC Monte Carlo sample size
 ##' @param log if TRUE the logarithm of the conditional copula is returned
 ##' @author Marius Hofert
+
 cacopula <- function(u, cop, n.MC=0, log=FALSE) {
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))

@@ -88,13 +88,13 @@ K <- function(u, cop, d, n.MC=0)
 ##'        "chisq"    : map to a chi-square distribution using the standard normal
 ##'                     quantile function
 ##'        "gamma"    : map to an Erlang (= gamma) distribution using the logarithm
-##'        "Remillard": the test statistic S_n^{(B)} in Genest, Remillard, Beaudoin (2009)
-##'        "Genest"   : the test statistic S_n^{(C)} in Genest, Remillard, Beaudoin (2009)
+##'        "SnB": the test statistic S_n^{(B)} in Genest, Remillard, Beaudoin (2009)
+##'        "SnC"   : the test statistic S_n^{(C)} in Genest, Remillard, Beaudoin (2009)
 ##' @return the transformed variates
 ##' @author Marius Hofert and Martin Maechler
 ## MM: Der Funktionsname passt mir nicht... "ouni" ist hässlich (wieso auch "trafo"? Jede R Funktion ist eine "Trafo" in einem gewissen Sinn..
 ## Brainstorm   unid21() ("d to 1 dimensional")
-gtrafouni <- function(u, method = c("chisq", "gamma", "Remillard", "Genest"))
+gofTstat <- function(u, method = c("chisq", "gamma", "SnB", "SnC"), simple=FALSE)
 {
     if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     d <- ncol(u)
@@ -103,16 +103,27 @@ gtrafouni <- function(u, method = c("chisq", "gamma", "Remillard", "Genest"))
     switch(method,
 	   "chisq" = pchisq(rowSums(qnorm(u)^2), d),
 	   "gamma" = pgamma(rowSums(-log(u)), shape=d),
-	   "Remillard" = { ## S_n(B)
-	       u <- t(u)
-	       sum1 <- exp(lsum(log1p(-u^2)))
-	       ## FIXME(MM): should use lsum(log1p(.)) as sum1 ; should work w/o nested apply(.)
-	       sum2 <- mean(apply(u, 2, function(u.) { # u. is in R^d
-		   sum(apply(u, 2, function(u..) prod(1- pmax(u., u..))))
-	       }))
+	   "SnB" = { ## S_n(B)
+               if(simple)  { ## simple easy numerically bad
+                   sum1 <- sum(apply(1 - u^2, 1, prod))
+                   sum2 <- numeric(n)
+                   for(i in 1:n) {
+                       s <- 0
+                       for(j in 1:n) s <- s+ prod(1 - pmax(u[i,], u[j,]))
+                       sum2[i] <- s
+                   }
+                   sum2 <- mean(sum2)
+               } else {
+                   u <- t(u)            # d x n
+                   sum1 <- exp(lsum(log1p(-u^2)))
+                   ## FIXME(MM): should use lsum(log1p(.)) as sum1 ; should work w/o nested apply(.)
+                   sum2 <- mean(apply(u, 2, function(u.) { # u. is in R^d
+                       sum(apply(u, 2, function(u..) prod(1- pmax(u., u..))))
+                   }))
+               }
 	       n/3^d - sum1/2^(d-1) + sum2
            },
-	   "Genest" = {  ## S_n(C)
+	   "SnC" = { ## S_n(C)
 	       Dn <- apply(u, 1, function(u.){
                    ## u. is one row. We want to know the number of rows of u
                    ## that are (all) componentwise <= u.
@@ -121,7 +132,7 @@ gtrafouni <- function(u, method = c("chisq", "gamma", "Remillard", "Genest"))
                Cperp <- apply(u, 1, prod)
                sum((Dn-Cperp)^2)
            },
- 	   stop("gtrafouni: unsupported method ", method))
+ 	   stop("gofTstat: unsupported method ", method))
 }
 
 
@@ -132,7 +143,7 @@ gtrafouni <- function(u, method = c("chisq", "gamma", "Remillard", "Genest"))
 ##' via Rosenblatt's transformation
 ##'
 ##' @title Rosenblatt transformation for a (nested) Archimedean copula
-##' @param u data matrix
+##' @param u matrix of (pseudo-/copula-)observations
 ##' @param cop an outer_nacopula
 ##' @param m # order up to which Rosenblatt's transform is computed, i.e.,
 ##'        C(u_j | u_1,...,u_{j-1}), j=2,..,m
@@ -157,7 +168,7 @@ rtrafo <- function(u, cop, m=d, n.MC=0)
     ## compute all conditional probabilities
     if(n.MC==0){
 	C.j <- function(j){ # computes C(u_j | u_1,...,u_{j-1}) with the same idea as for cacopula
-            logD <- cop@psiDabs(c(psiI.[,j], psiI.[,j-1]), theta=th,
+	    logD <- cop@psiDabs(as.vector(psiI.[,c(j,j-1)]), theta=th,
                                 degree=j-1, n.MC=0, log=TRUE)
             exp(logD[1:n]-logD[(n+1):(2*n)])
         }
@@ -230,7 +241,7 @@ htrafo <- function(u, cop, include.K=TRUE, n.MC=0)
 ##'        "Hering.Hofert" the transformation of Hering, Hofert (2011)
 ##'        "Rosenblatt" the transformation of Rosenblatt (1952)
 ##' @param method univariate goodness-of-fit transformation; available are those
-##'        of gtrafouni
+##'        of gofTstat
 ##' @param verbose if TRUE, the progress of the bootstrap is displayed
 ##' @param ... additional arguments to enacopula
 ##' @return htest object
@@ -239,7 +250,7 @@ gnacopula <- function(u, cop, n.bootstrap,
 		      estimation.method= eval(formals(enacopula)$method),
 		      include.K= TRUE, n.MC= 0,
 		      trafo= c("Hering.Hofert", "Rosenblatt"),
-		      method= eval(formals(gtrafouni)$method),
+		      method= eval(formals(gofTstat)$method),
 		      verbose= TRUE, ...)
 {
     ## setup
@@ -284,8 +295,8 @@ apply the transformations yourself,  see ?gnacopula.")
 				    trafo, " and method = ", meth2, ")")
 		   function(x) ad.test(x)$statistic
 	       },
-	       "Remillard" =,## S_n(B) and S_n(C)
-	       "Genest" = {
+	       "SnB" =,## S_n(B) and S_n(C)
+	       "SnC" = {
 		   meth <- paste0(meth, meth2," (with trafo = ", trafo, ")")
 		   function(x) x
 	       },
@@ -300,7 +311,7 @@ apply the transformations yourself,  see ?gnacopula.")
 
     ## (2) transform the data with the copula with estimated parameter
     u.prime <- gtrafomulti(u, cop=cop.hat) # transformed data in the unit hypercube
-    Y <- gtrafouni(u.prime, method=method) # transformed data
+    Y <- gofTstat(u.prime, method=method) # transformed data
 
     ## (3) conduct the Anderson-Darling test or compute the test statistic (depends on method)
     teststat <- test.stat(Y)
@@ -322,7 +333,7 @@ apply the transformations yourself,  see ?gnacopula.")
 
 	## (4.3) transform the data with the copula with estimated parameter
 	u.prime. <- gtrafomulti(u., cop=cop.hat.)
-	Y. <- gtrafouni(u.prime., method=method)
+	Y. <- gofTstat(u.prime., method=method)
 
 	## (4.4) conduct the Anderson-Darling test or compute the test statistic (depends on method)
 	teststat.[[k]] <- test.stat(Y.)
