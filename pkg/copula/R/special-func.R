@@ -80,11 +80,12 @@ signFF <- function(alpha, j, d) {
 ##'        each of dimension d
 ##' @param l.off the offset to substract and re-add; ideally in the order of
 ##'        the maximum of each column
-##' @return log(x_1 + .. + x_n) [i.e., of dimension d] computed via
+##' @return log(x_1 + .. + x_n) [i.e., OF DIMENSION d!!!] computed via
 ##'         log(sum(x)) = log(sum(exp(log(x))))
 ##'         = log(exp(log(x_max))*sum(exp(log(x)-log(x_max))))
 ##'         = log(x_max) + log(sum(exp(log(x)-log(x_max)))))
 ##'         = lx.max + log(sum(exp(lx-lx.max)))
+##'         => VECTOR OF DIMENSION d
 ##' @author Marius Hofert (implementation), Martin Maechler (concept)
 lsum <- function(lx, l.off = apply(lx, 2, max)) {
     ## do not use cbind or rbind here, since it is not clear if the user specified

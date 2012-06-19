@@ -33,8 +33,7 @@
 ##' @param cex.labels pairs() argument
 ##' @param font.labels pairs() argument
 ##' @param gap pairs() argument
-##' @param axes logical indicating whether axes are drawn (if g1 is not a
-##'	   function, they are omitted automatically)
+##' @param axes logical indicating whether axes are drawn
 ##' @param panel.border logical indicating whether a border is drawn around the
 ##'	   pairs (or not; to mimic the behavior of image())
 ##' @param key logical indicating whether a color key is drawn

@@ -78,62 +78,76 @@ K <- function(u, cop, d, n.MC=0)
     }
 }
 
-##' Transforms supposedly U[0,1]^d distributed vectors of random variates to
-##' univariate data (for testing in a one-dimensional setup)
+##' Test statistics for various goodness-of-fit tests of (supposedly) U[0,1]^d
+##' distributed vectors of random variates
 ##'
-##' @title Transformation to a one-dimensional test setting
-##' @param u matrix of random variates to be transformed (typically
-##'        pseudo-observations obtained from gtrafo())
-##' @param method trafo method. Available are:
-##'        "chisq"    : map to a chi-square distribution using the standard normal
-##'                     quantile function
-##'        "gamma"    : map to an Erlang (= gamma) distribution using the logarithm
-##'        "SnB": the test statistic S_n^{(B)} in Genest, Remillard, Beaudoin (2009)
-##'        "SnC"   : the test statistic S_n^{(C)} in Genest, Remillard, Beaudoin (2009)
-##' @return the transformed variates
+##' @title Test statistics for U[0,1]^d
+##' @param u matrix of (pseudo-/copula-)observations
+##' @param method various test statistics. Available are:
+##'        "AnChisq": Anderson-Darling test statistic after map to a chi-square
+##'                   distribution using the standard normal quantile function
+##'        "AnGamma": Anderson-Darling test statistic after map to an Erlang/Gamma
+##'                   distribution using the logarithm
+##'        "SnB"  : the test statistic S_n^{(B)} in Genest, Remillard, Beaudoin (2009)
+##'        "SnC"  : the test statistic S_n^{(C)} in Genest, Remillard, Beaudoin (2009)
+##' @return values of the chosen test statistic
 ##' @author Marius Hofert and Martin Maechler
-## MM: Der Funktionsname passt mir nicht... "ouni" ist hässlich (wieso auch "trafo"? Jede R Funktion ist eine "Trafo" in einem gewissen Sinn..
-## Brainstorm   unid21() ("d to 1 dimensional")
-gofTstat <- function(u, method = c("chisq", "gamma", "SnB", "SnC"))
+gofTstat <- function(u, method = c("AnChisq", "AnGamma", "SnB", "SnC"))
 {
     if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     d <- ncol(u)
     n <- nrow(u)
     method <- match.arg(method)
     switch(method,
-	   "chisq" = ad.test(pchisq(rowSums(qnorm(u)^2), d))$statistic,
-	   "gamma" = ad.test(pgamma(rowSums(-log(u)), shape=d))$statistic,
+	   "AnChisq" = ad.test( pchisq(rowSums(qnorm(u)^2), d) )$statistic,
+	   "AnGamma" = ad.test( pgamma(rowSums(-log(u)), shape=d) )$statistic,
 	   "SnB" =
        { ## S_n(B)
-	   sum1 <- sum(apply(1 - u^2, 1, prod))
-	   sum2 <- numeric(n)
-	   for(i in 1:n) {
-	       s <- 0
-	       for(j in 1:n) s <- s+ prod(1 - pmax(u[i,], u[j,]))
-	       sum2[i] <- s
-	   }
-	   sum2 <- mean(sum2)
-
-	   ## previous (partly wrong) code:
-	   ## u <- t(u)		   # d x n
-	   ## sum1 <- exp(lsum(log1p(-u^2)))
-	   ## ## FIXME(MM): should use lsum(log1p(.)) as sum1; work w/o nested apply(.)
-	   ## sum2 <- mean(apply(u, 2, function(u.) { # u. is in R^d
-	   ##	  sum(apply(u, 2, function(u..) prod(1- pmax(u., u..))))
-
+           lu2 <- log1p(-u^2) # n x d matrix of log(1-u_{ij}^2)
+           ## Note (modulo rowSums/colSums):
+           ## Idea: sum1 = sum(prod(1-u^2)) = sum(exp(sum(lu2)))
+           ## = exp(log( sum(exp(rowSums(lu2))) )) = exp(lsum(rowSums(lu2)))
+           slu2 <- rowSums(lu2) # vector of length n
+           slu2 <- matrix(slu2, ncol=1) # lsum() needs a matrix!
+           sum1 <- exp(lsum(slu2)) # must be a value
+           ## 2) The notation here is similar to Genest, Remillard,
+           ## Beaudoin (2009) but we interchange k and j (since j always runs
+           ## in 1:d). That being said...
+           lu <- log1p(-u) # n x d matrix of log(1-u_{ij})
+           ln <- log(n)
+           ## Idea:
+           ##   1/n sum_i sum_k prod_j (1-max(u_{ij},u_{kj}))
+           ## = 1/n sum_i sum_k exp( sum_j log(1-max{.,.}) )
+           ## = 1/n sum_i sum_k exp( sum_j log(min{1-u_{ij},1-u_{kj}}) )
+           ## = 1/n sum_i sum_k exp( sum_j min{ log(1-u_{ij}), log(1-u_{kj}) })
+           ## = 1/n sum_i sum_k exp( sum(pmin{ lu[i,], lu[k,]}) )
+           ## = 1/n sum_i exp( log(sum_k exp( sum(pmin{ lu[i,], lu[k,]}) )) )
+           ## = 1/n sum_i exp( lsum( sum(pmin{ lu[i,], lu[k,]}) ) )
+           ## = sum_i exp(-log(n) + lsum( sum(pmin{ lu[i,], lu[k,]}) ))
+           ## = sum_i exp(-log(n) + lsum_{over k in 1:n}( sum(pmin{ lu[i,], lu[k,]}) ))
+           ## => for each fixed i, (l)apply lsum()
+           sum2mands <- unlist(lapply(1:n, function(i){
+               ## now i is fixed
+               sum.k <- unlist(lapply(1:n, function(k){
+                   sum(pmin(lu[i,], lu[k,])) # sum over k (n-dim. vector)
+               }))
+               ls.i <- lsum(matrix(sum.k, ncol=1)) # lsum( sum(pmin(...)) ) for fixed i; 1 value
+               exp(-ln+ls.i)
+           }))
+           sum2 <- sum(sum2mands)
 	   n/3^d - sum1/2^(d-1) + sum2
        },
 	   "SnC" =
        { ## S_n(C)
-	   Dn <- apply(u, 1, function(u.){
+	   Dn <- apply(u, 1, function(u.){ # Dn is a vector of length n
 	       ## u. is one row. We want to know the number of rows of u
 	       ## that are (all) componentwise <= u.
-	       mean(apply(u <= u., 1, all)) # TRUE <=> the whole row in u is <= u.
+	       mean(apply(t(u) <= u., 2, all)) # TRUE <=> the whole row in u is <= u.
 	   })
-	   Cperp <- apply(u, 1, prod)
+           Cperp <- apply(u, 1, prod)
 	   sum((Dn-Cperp)^2)
        },
-	   stop("gofTstat: unsupported method ", method))
+	   stop("unsupported method ", method))
 }
 
 
@@ -168,6 +182,7 @@ rtrafo <- function(u, cop, m=d, n.MC=0)
     psiI. <- t(apply(psiI, 1, cumsum))
     ## compute all conditional probabilities
     if(n.MC==0){
+        ## Note: C(u_j | u_1,...,u_{j-1}) = \psi^{(j-1)}(\sum_{k=1}^j \psi^{-1}(u_k)) / \psi^{(j-1)}(\sum_{k=1}^{j-1} \psi^{-1}(u_k))
 	C.j <- function(j){ # computes C(u_j | u_1,...,u_{j-1}) with the same idea as for cacopula
 	    logD <- cop@psiDabs(as.vector(psiI.[,c(j,j-1)]), theta=th,
                                 degree=j-1, n.MC=0, log=TRUE)
@@ -241,8 +256,7 @@ htrafo <- function(u, cop, include.K=TRUE, n.MC=0)
 ##' @param trafo multivariate goodness-of-fit transformation; available are:
 ##'        "Hering.Hofert" the transformation of Hering, Hofert (2011)
 ##'        "Rosenblatt" the transformation of Rosenblatt (1952)
-##' @param method univariate goodness-of-fit transformation; available are those
-##'        of gofTstat
+##' @param method test statistic for the test of U[0,1]^d; see gofTstat()
 ##' @param verbose if TRUE, the progress of the bootstrap is displayed
 ##' @param ... additional arguments to enacopula
 ##' @return htest object
@@ -290,8 +304,8 @@ apply the transformations yourself,  see ?gnacopula.")
     meth2 <- paste0(method,", est.method = ", estimation.method)
     meth <-
 	switch(method,
-	       "chisq" =, ## A_n
-	       "gamma" = {
+	       "AnChisq" =, ## A_n
+	       "AnGamma" = { ## A_n with gamma distribution
 		   paste0(meth, "Anderson and Darling (with trafo = ",
 				    trafo, " and method = ", meth2, ")")
 	       },
@@ -331,10 +345,9 @@ apply the transformations yourself,  see ?gnacopula.")
 
 	## (4.3) transform the data with the copula with estimated parameter
 	u.prime. <- gtrafomulti(u., cop=cop.hat.)
-	T.[[k]] <- gofTstat(u.prime., method=method)
 
-	## (4.4) conduct the Anderson-Darling test or compute the test statistic (depends on method)
-
+	## (4.4) compute the test statistic
+        T.[[k]] <- gofTstat(u.prime., method=method)
         if(verbose) setTxtProgressBar(pb, k) # update progress bar
     }
     if(verbose) close(pb) # close progress bar

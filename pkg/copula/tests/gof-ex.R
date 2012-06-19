@@ -134,3 +134,53 @@ for(fitMeth in c("mpl")) {
     print(gofCopula(t.cop, x, N = 10, method = fitMeth, simulation="mult"))
 }
 showProc.time()
+
+
+### Test complicated implementation of SnB and SnC test statistics #############
+
+##' Simple versions of the test statistics of Genest, Remillard, Beaudoin (2009)
+##'
+##' @title Simple versions of the test statistics of Genest, Remillard, Beaudoin (2009)
+##'        for testing U[0,1]^d
+##' @param u n x d matrix of (pseudo-/copula-)observations
+##' @param method one of "SnB" or "SnC"; see Genest, Remillard, Beaudoin (2009)
+##' @return values of the chosen test statistic
+##' @author Marius Hofert
+gofTstatTester <- function(u, method=c("SnB", "SnC")){
+    if(!is.matrix(u)) u <- rbind(u, deparse.level=0L)
+    d <- ncol(u)
+    n <- nrow(u)
+    method <- match.arg(method)
+    switch(method,
+	   "SnB" =
+       { ## S_n(B)
+	   sum1 <- sum(apply(1 - u^2, 1, prod)) / 2^(d-1)
+	   sum2 <- numeric(n)
+	   for(i in 1:n) {
+	       s <- 0
+	       for(j in 1:n) s <- s + prod(1 - pmax(u[i,], u[j,]))
+	       sum2[i] <- s
+	   }
+	   n/3^d - sum1 + mean(sum2)
+       },
+	   "SnC" =
+       { ## S_n(C)
+           Dn <- rep(0, n) # Dn
+           for(i in 1:n){
+               for(k in 1:n){
+                   Dn[i] <- Dn[i] + all(u[k,] <= u[i,])/n
+               }
+           }
+	   Cperp <- apply(u, 1, prod) # independence copula Pi
+	   sum((Dn-Cperp)^2)
+       },
+	   stop("unsupported method ", method))
+}
+
+## Test
+n <- 200
+d <- 3
+set.seed(1)
+u <- matrix(runif(n*d), ncol=d)
+all.equal(gofTstatTester(u, method="SnB"), gofTstat(u, method="SnB"))
+all.equal(gofTstatTester(u, method="SnC"), gofTstat(u, method="SnC"))

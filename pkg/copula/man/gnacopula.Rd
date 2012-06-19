@@ -12,7 +12,7 @@ gnacopula(u, cop, n.bootstrap,
           estimation.method = eval(formals(enacopula)$method),
           include.K=TRUE, n.MC=0, trafo= c("Hering.Hofert", "Rosenblatt"),
           method=eval(formals(gofTstat)$method), verbose=TRUE, \dots)
-gofTstat(u, method = c("chisq", "gamma", "SnB", "SnC"))
+gofTstat(u, method = c("AnChisq", "AnGamma", "SnB", "SnC"))
 }
 \arguments{
   \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-/copula-)observations (each
@@ -44,22 +44,26 @@ gofTstat(u, method = c("chisq", "gamma", "SnB", "SnC"))
     }
   }
   \item{method}{a \code{\link{character}} string specifying the
-    goodness-of-fit method to be used, which has to be one (or a unique
+    goodness-of-fit test statistic to be used, which has to be one (or a unique
     abbreviation) of
     \describe{
-      \item{\code{"chisq"}}{for computing (supposedly)
-	\eqn{\mathrm{U}[0,1]}{U[0,1]}-distributed (under \eqn{H_0}) random variates
-	via the distribution function of a chi-square distribution with \eqn{d}
-	degrees of freedom. To be more precise, the variates
+      \item{\code{"AnChisq"}}{Anderson-Darling test statistic for
+	computing (supposedly) \eqn{\mathrm{U}[0,1]}{U[0,1]}-distributed
+	(under \eqn{H_0}) random variates via the distribution function
+	of chi-square distribution with \eqn{d}
+	degrees of freedom. To be more precise, the Anderson-Darling
+	test statistc of the variates
 	\deqn{\chi_d^2\Bigl(\sum_{j=1}^d(\Phi^{-1}(u_{ij}))^2\Bigr)}{%
 	  pchisq((Phi^{-1}(u_{i1}))^2+...+(Phi^{-1}(u_{id}))^2, df=d)}
-	are returned, where \eqn{\Phi^{-1}}{Phi^{-1}} denotes the quantile function
+	is computed (via \code{ADGofTest::ad.test}), where
+	\eqn{\Phi^{-1}}{Phi^{-1}} denotes the quantile function
 	of the standard normal distribution function, \eqn{\chi_d^2}{pchisq(.,df=d)}
 	denotes the distribution function of the chi-square distribution with \eqn{d}
 	degrees of freedom, and \eqn{u_{ij}} is the \eqn{j}th component
 	in the \eqn{i}th row of \code{u}.}
 
-      \item{\code{"gamma"}}{similar to \code{method="chisq"} but computing
+      \item{\code{"AnGamma"}}{similar to \code{method="AnChisq"} but
+	based on the variates
 	\deqn{\Gamma_d\Bigl(\sum_{j=1}^d(-\log u_{ij})\Bigr),}{%
 	  pgamma(-log(u_{i1})-...-log(u_{id}), shape=d),}
 	where \eqn{\Gamma_d}{pgamma(.,shape=d)} denotes the distribution function of
@@ -83,8 +87,8 @@ gofTstat(u, method = c("chisq", "gamma", "SnB", "SnC"))
   \code{\link{htrafo}} or \code{\link{rtrafo}} for more details. The
   argument \code{method} specifies the particular goodness-of-fit test
   carried out, which is either the Anderson-Darling test for the
-  univariate standard uniform distribution (for \code{method="chisq"} or
-  \code{method="gamma"}) in a one-dimensional setup or the tests
+  univariate standard uniform distribution (for \code{method="AnChisq"} or
+  \code{method="AnGamma"}) in a one-dimensional setup or the tests
   described in Genest, R\enc{é}{e}millard, Beaudoin (2009) for the
   multivariate standard uniform distribution directly in a multivariate
   setup.  As estimation method, the method provided by
@@ -124,8 +128,7 @@ gofTstat(u, method = c("chisq", "gamma", "SnB", "SnC"))
       for each bootstrap replication.}
   }
 
-  \code{gofTstat} returns a numeric vector of length \eqn{n}
-  (=\code{nrow(u)}) containing the univariate transformed values.
+  \code{gofTstat} returns a numeric value (the test statistic).
 }
 \author{Marius Hofert, Martin Maechler.}
 \references{
