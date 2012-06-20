@@ -100,13 +100,12 @@ system.time(r1m  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="log1p"),
                               add=TRUE, col=adjustcolor("blue",.5)))
 
 U2 <- rnacopula(n,cop)
-enacopula(U2, cop, "mle") # 1.4399  -- no warning any more
 ## the density for the *correct* parameter looks okay
 summary(dnacopula(cop, U2))
 ## hmm:  max = 5.5e177
 system.time(r2 <- curveLogL(cop, U2, c(1, 2.5)))
-
-mLogL(1.8, cop@copula, U2)# -4070.148 (was -Inf)
+stopifnot(all.equal(enacopula(U2, cop, "mle"), 1.43991422),
+          all.equal(mLogL(1.8, cop@copula, U2), -4070.14762))# (was -Inf)
 
 U3 <- rnacopula(n,cop)
 enacopula(U3, cop, "mle") # 1.44957
@@ -124,13 +123,11 @@ mLogL(1.2,    cop@copula, U4)
 system.time(r4. <- curveLogL(cop, U4, c(1, 1.01)))
 system.time(r4. <- curveLogL(cop, U4, c(1, 1.0001)))
 system.time(r4. <- curveLogL(cop, U4, c(1, 1.000001)))
-##--> limit goes *VERY* steeply  up to .. probably 0
+##--> limit goes *VERY* steeply  up to  0
 
-mLogL(1.2,    cop@copula, U4)
 ##--> theta 1.164 is about the boundary:
-cop@copula@dacopula(U4[118,], theta=1.164, log = TRUE)
-##  600.5926  (was Inf)
-## now that we have  polyJ(...., log=TRUE)
+stopifnot(all.equal(600.59261959,
+  cop@copula@dacopula(U4[118,], theta=1.164, log = TRUE)))## was "Inf"
 
 
 ### "Joe", harder cases: d = 150, tau = 0.3 ####################################
@@ -157,10 +154,10 @@ system.time(r. <- curveLogL(cop, U., c(1.1, 4)))
 ## still looks very good
 
 
-### The same for Gumbel ########################################################
+### Similar for Gumbel ########################################################
 
 n <- 200
-d <- 100
+d <- 50 # smaller 'd' -- so as to not need 'Rmpfr' here
 tau <- 0.2
 (theta <- copGumbel@tauInv(tau))# 1.25
 (cop <- onacopulaL("Gumbel",list(theta,1:d)))
@@ -188,13 +185,15 @@ U4 <- rnacopula(n,cG.5)
 U5 <- rnacopula(n,cG.5)
 U6 <- rnacopula(n,cG.5)
 
-enacopula(U4, cG.5, "mle") # 2.475672
-enacopula(U5, cG.5, "mle") # 2.484243
-enacopula(U6, cG.5, "mle") # 2.504111
+system.time(
+ ee.8 <- c(enacopula(U4, cG.5, "mle", tol=1e-8),
+           enacopula(U5, cG.5, "mle", tol=1e-8),
+           enacopula(U6, cG.5, "mle", tol=1e-8)))
+stopifnot(all.equal(ee.8, c(2.475672593, 2.484244765, 2.504107749)))
 
 ##--> Plots with "many" likelihood evaluations
 (th. <- seq(1, 3, by= 1/4))
-## each of these take about 3.3 seconds [nb-mm3]
+## each of these take about 3.3 seconds [nb-mm3] -- take *longer* with Rmpfr
 system.time(r4 <- sapply(th., mLogL, acop=cG.5@copula, u=U4))
 system.time(r5 <- sapply(th., mLogL, acop=cG.5@copula, u=U5))
 system.time(r6 <- sapply(th., mLogL, acop=cG.5@copula, u=U6))
@@ -223,7 +222,7 @@ U. <- rnacopula(n,cop)
 cop@copula <- setTheta(cop@copula, NA)
 system.time(f.ML <- emle(U., cop)); f.ML ## --> fine: theta = 18.033, Log-lik = 314.01
 ## with MC :
-system.time(f.mlMC <- emle(U., cop, n.MC = 1e4))## takes a long time
+system.time(f.mlMC <- emle(U., cop, n.MC = 1e4))## takes a while
 ## (7.5 sec on nb-mm3 2010)
 stopifnot(
 	  all.equal(unname(coef(f.ML)), 18.03331, tol= 1e-6)
@@ -238,8 +237,8 @@ stopifnot(
 
 cop@copula <- setTheta(cop@copula, theta)# for the plot:
 r. <- curveLogL(cop, U., c(1, 200))
-## now looks fine (well, not really ..) -- with finite values much longer..
-## but still has -Inf: at end:
+## now looks fine
 tail(as.data.frame(r.), 15)
-stopifnot( is.finite( r.$y ) )
-
+stopifnot( is.finite( r.$y ),
+	  ## and is convex (everywhere):
+	  diff(r.$y, d=2) > 0)
