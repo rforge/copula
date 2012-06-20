@@ -39,8 +39,6 @@ showProc.time <- local({
 (gofTraf <- eval(formals(gnacopula)$trafo))
 (gofMeth <- eval(formals(gnacopula)$method))
 
-set.seed(1) # set seed
-
 n <- 64 # sample size [small here for CPU reasons]
 d <- 5 # dimension
 tau <- 0.25 # Kendall's tau
@@ -57,24 +55,22 @@ cat("\n### data from ",simFamily," (n = ",n,", d = ",d,", theta = ",
 
 showProc.time()
 
+set.seed(1) # set seed
 ## note: this might (still) take a while...
 RR <- sapply(gofTraf, simplify="array", function(gt)
          {
              sapply(gofMeth, simplify="array", function(gm)
                     estimation.gof(n, d=d, simFamily=simFamily, tau=tau,
-                                   n.bootstrap=1, # << "nonsense" for speed reasons;..
+				   n.bootstrap= 3, # << "nonsense" for speed reasons;..
 ### for a particular method under consideration, please choose a larger number here, for example 1000
                                    include.K=TRUE, esti.method = "mle",
-                                   gof.trafo=gt, gof.method=gm))
+                                   gof.trafo=gt, gof.method=gm, verbose=FALSE))
          })
-str(RR)
-dimnames(RR)
-
 showProc.time()
+str(RR, vec.len=8)
 
 ## Now print RR
 options(digits=5)
-
 ## No times here...
 RR[,c("theta_hat", "tau_hat", "P_value", "< 0.05"),,]
 
@@ -165,7 +161,7 @@ gofTstatTester <- function(u, method=c("SnB", "SnC")){
        },
 	   "SnC" =
        { ## S_n(C)
-           Dn <- rep(0, n) # Dn
+	   Dn <- numeric(n)
            for(i in 1:n){
                for(k in 1:n){
                    Dn[i] <- Dn[i] + all(u[k,] <= u[i,])/n
@@ -182,5 +178,12 @@ n <- 200
 d <- 3
 set.seed(1)
 u <- matrix(runif(n*d), ncol=d)
-all.equal(gofTstatTester(u, method="SnB"), gofTstat(u, method="SnB"))
-all.equal(gofTstatTester(u, method="SnC"), gofTstat(u, method="SnC"))
+showProc.time()
+system.time(B. <- gofTstat(u, method="SnB"))
+system.time(C. <- gofTstat(u, method="SnC"))
+stopifnot(all.equal(gofTstatTester(u, method="SnB"), B. <- gofTstat(u, method="SnB")),
+          all.equal(gofTstatTester(u, method="SnC"), C. <- gofTstat(u, method="SnC")))
+c(SnB = B., SnC = C.)
+
+
+

@@ -108,12 +108,11 @@ gofTstat <- function(u, method = c("AnChisq", "AnGamma", "SnB", "SnC"))
            ## Idea: sum1 = sum(prod(1-u^2)) = sum(exp(sum(lu2)))
            ## = exp(log( sum(exp(rowSums(lu2))) )) = exp(lsum(rowSums(lu2)))
            slu2 <- rowSums(lu2) # vector of length n
-           slu2 <- matrix(slu2, ncol=1) # lsum() needs a matrix!
-           sum1 <- exp(lsum(slu2)) # must be a value
+	   sum1 <- exp(lsum(matrix(slu2, ncol=1))) # lsum() needs a matrix; result: 1 value
            ## 2) The notation here is similar to Genest, Remillard,
            ## Beaudoin (2009) but we interchange k and j (since j always runs
            ## in 1:d). That being said...
-           lu <- log1p(-u) # n x d matrix of log(1-u_{ij})
+	   lu <- t(log1p(-u)) # t(n x d matrix of log(1-u_{ij})) --> accessing columns
            ln <- log(n)
            ## Idea:
            ##   1/n sum_i sum_k prod_j (1-max(u_{ij},u_{kj}))
@@ -126,16 +125,14 @@ gofTstat <- function(u, method = c("AnChisq", "AnGamma", "SnB", "SnC"))
            ## = sum_i exp(-log(n) + lsum( sum(pmin{ lu[i,], lu[k,]}) ))
            ## = sum_i exp(-log(n) + lsum_{over k in 1:n}( sum(pmin{ lu[i,], lu[k,]}) ))
            ## => for each fixed i, (l)apply lsum()
-           sum2mands <- unlist(lapply(1:n, function(i){
-               ## now i is fixed
-               sum.k <- unlist(lapply(1:n, function(k){
-                   sum(pmin(lu[i,], lu[k,])) # sum over k (n-dim. vector)
-               }))
-               ls.i <- lsum(matrix(sum.k, ncol=1)) # lsum( sum(pmin(...)) ) for fixed i; 1 value
-               exp(-ln+ls.i)
-           }))
-           sum2 <- sum(sum2mands)
-	   n/3^d - sum1/2^(d-1) + sum2
+	   sum2mands <- unlist(lapply(1:n, function(i){
+	       lu.i <- lu[,i] ## now i is fixed
+	       sum.k <- vapply(1:n, function(k)# sum over k (n-dim. vector)
+			       sum(pmin(lu.i, lu[,k])), 0.)
+	       ls.i <- lsum(matrix(sum.k, ncol=1)) # lsum( sum(pmin(...)) ) for fixed i; 1 value
+	       exp(-ln + ls.i)
+	   }))
+	   n/3^d - sum1/2^(d-1) + sum(sum2mands)
        },
 	   "SnC" =
        { ## S_n(C)
@@ -358,5 +355,4 @@ apply the transformations yourself,  see ?gnacopula.")
                    statistic = T, data.name = u.name,
 		   method=meth, estimator=theta.hat,
 		   bootStats = list(estimator=theta.hat., statistic=T.)))
-
 }

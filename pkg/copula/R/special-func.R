@@ -490,11 +490,14 @@ polylog <- function(z, s, method = c("sum", "negI-s-Stirling",
 ##'
 ##' @title Bernoulli Numbers up to Order n
 ##' @param n
+##' @param method
+##' @param precBits
+##' @param verbose
 ##' @return numeric vector of length n, containing B(n)
 ##' @author Martin Maechler, 25 Jun 2011 (night train Vienna - Zurich)
 Bernoulli.all <-
     function(n, method = c("A-T", "sumBin", "sumRamanujan", "asymptotic"),
-                          precBits = NULL, verbose = getOption("verbose"))
+             precBits = NULL, verbose = getOption("verbose"))
 {
     stopifnot(length(n <- as.integer(n)) == 1)
     method <- match.arg(method)

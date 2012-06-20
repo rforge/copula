@@ -88,14 +88,19 @@ if(require("Rmpfr")) { ## note that it has its own Bernoulli() !
  round(log10(abs(1 - B100.250/B100.1k))[seq(1,99,by=2)], 2)
 
  ## some accuracy investigation:
- nn <- 12:80; nn <- nn[nn \%\% 2 == 0]; nn
+ nn <- 8:100; nn <- nn[nn \%\% 2 == 0]; nn
  B.asy  <- sapply(nn, copula::Bernoulli, method="asymp")
  B.sumB <- sapply(nn, copula::Bernoulli, method="sumBin")
- B.prec <- Rmpfr::Bernoulli(nn, precBits = 512)
+ B.prec <- Rmpfr::Bernoulli(nn, precBits = 2048)
  relErr <- as.numeric(1 - B.asy  / B.prec)
  relE2 <-  as.numeric(1 - B.sumB / B.prec)
- matplot(nn, abs(cbind(relErr, relE2)),
+
+ matplot(nn, abs(cbind(relErr, relE2)), pch=1:2,
+         main = "| rel.Error { Bernoulli(n) } |",
+         xlab = expression(n), axes=FALSE,
 	 ylim = c(1e-15, 1e-4), log="y", type="b")
+ sfsmisc::eaxis(1); sfsmisc::eaxis(2)
+ legend("topright", c("asymp","sumBin"), bty="n", col=1:2, lty=1:2, pch=1:2)
  ##--> an optimal "hybrid" method will use "asymp" from about n ~= 20
 
 }## end if(require("Rmpfr"))

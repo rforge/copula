@@ -4,6 +4,8 @@
 
 (*) bug fixes for estimation methods!
 
+(*) bug fixes for estimation methods!  {still relevant ??}
+
 #### Intermediate #####################################################################
 
 (MM) opower() --> either produce acopula with parameter *vector*, or
@@ -13,7 +15,6 @@
      possibly a new slot ...
   Longer term: want to *estimate* those correctly [MLE at least].
 
-(MM) R/special-func.R & man/Bernoulli.Rd: Research for better algorithms <--> Rmpfr
 
 (MM) please take a look at gtrafouni() in ./R/gof.R: Can "Remillard" (and "Genest")
  be made faster? Especially "Remillard" is slow (although B Remillard told me that his
