@@ -142,10 +142,11 @@ showProc.time()
 ##' @param method one of "SnB" or "SnC"; see Genest, Remillard, Beaudoin (2009)
 ##' @return values of the chosen test statistic
 ##' @author Marius Hofert
-gofTstatTester <- function(u, method=c("SnB", "SnC")){
+gofTstatSimple <- function(u, method=c("SnB", "SnC")){
     if(!is.matrix(u)) u <- rbind(u, deparse.level=0L)
     d <- ncol(u)
     n <- nrow(u)
+    stopifnot(n >= 1, d >= 2)
     method <- match.arg(method)
     switch(method,
 	   "SnB" =
@@ -181,8 +182,8 @@ u <- matrix(runif(n*d), ncol=d)
 showProc.time()
 system.time(B. <- gofTstat(u, method="SnB"))
 system.time(C. <- gofTstat(u, method="SnC"))
-stopifnot(all.equal(gofTstatTester(u, method="SnB"), B. <- gofTstat(u, method="SnB")),
-          all.equal(gofTstatTester(u, method="SnC"), C. <- gofTstat(u, method="SnC")))
+stopifnot(all.equal(gofTstatSimple(u, method="SnB"), B. <- gofTstat(u, method="SnB")),
+          all.equal(gofTstatSimple(u, method="SnC"), C. <- gofTstat(u, method="SnC")))
 c(SnB = B., SnC = C.)
 
 

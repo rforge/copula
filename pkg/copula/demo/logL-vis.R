@@ -72,6 +72,10 @@ curveLogL <- function(cop, u, xlim, main, XtrArgs=list(), ...) {
     invisible(r)
 }
 
+## Want to see when "Rmpfr" methods are chosen automatically:
+options("copula:verboseUsingRmpfr" = TRUE)
+
+
 
 ### "Joe", tau = 0.2 ###########################################################
 
@@ -92,8 +96,9 @@ mLt3 <- sapply(th4, function(th) mLogL(th, cop@copula, U1, method="poly"))
 stopifnot(all.equal(mLt1, mL.tr, tol=5e-5),
           all.equal(mLt2, mL.tr, tol=5e-5),
           all.equal(mLt3, mL.tr, tol=5e-5))
-##--> Funktion für Gesamtplot:
+
 system.time(r1l  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="log.poly")))
+mtext("all three polyJ() methods on top of each other")
 system.time(r1J  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="poly"),
                               add=TRUE, col=adjustcolor("red", .4)))
 system.time(r1m  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="log1p"),
@@ -108,11 +113,11 @@ stopifnot(all.equal(enacopula(U2, cop, "mle"), 1.43991422),
           all.equal(mLogL(1.8, cop@copula, U2), -4070.14762))# (was -Inf)
 
 U3 <- rnacopula(n,cop)
-enacopula(U3, cop, "mle") # 1.44957
+enacopula(U3, cop, "mle") # 1.4495
 system.time(r3 <- curveLogL(cop, U3, c(1, 2.5)))
 
 U4 <- rnacopula(n,cop)
-enacopula(U4, cop, "mle") # 1.451929  was 2.351..  "completely wrong"
+enacopula(U4, cop, "mle") # 1.4519  was 2.351..  "completely wrong"
 summary(dnacopula(cop, U4)) # ok (had one Inf)
 system.time(r4 <- curveLogL(cop, U4, c(1, 2.5)))
 
@@ -137,8 +142,9 @@ d <- 150
 tau <- 0.3
 (theta <- copJoe@tauInv(tau))# 1.772
 (cop <- onacopulaL("Joe",list(theta,1:d)))
+set.seed(47)
 U. <- rnacopula(n,cop)
-enacopula(U., cop, "mle") # 1.776743
+enacopula(U., cop, "mle") # 1.784578
 system.time(r. <- curveLogL(cop, U., c(1.1, 3)))
 ## still looks very good
 
@@ -149,7 +155,7 @@ tau <- 0.4
 (theta <- copJoe@tauInv(tau))# 2.219
 (cop <- onacopulaL("Joe",list(theta,1:d)))
 U. <- rnacopula(n,cop)
-enacopula(U., cop, "mle") # 2.22666
+enacopula(U., cop, "mle") # 2.217582
 system.time(r. <- curveLogL(cop, U., c(1.1, 4)))
 ## still looks very good
 
@@ -167,11 +173,12 @@ U1 <- rnacopula(n,cop)
 U2 <- rnacopula(n,cop)
 U3 <- rnacopula(n,cop)
 
-enacopula(U1, cop, "mle") # 1.241927
+enacopula(U1, cop, "mle") # 1.227659 (was 1.241927)
 ##--> Plots with "many" likelihood evaluations
 system.time(r1 <- curveLogL(cop, U1, c(1, 2.1)))
-system.time(r2 <- curveLogL(cop, U2, c(1, 2.1)))
-system.time(r3 <- curveLogL(cop, U3, c(1, 2.1)))
+mtext("and two other generated samples")
+system.time(r2 <- curveLogL(cop, U2, c(1, 2.1), add=TRUE))
+system.time(r3 <- curveLogL(cop, U3, c(1, 2.1), add=TRUE))
 
 ### "Gumbel", harder: d = 150, tau = 0.6 #######################################
 
@@ -185,21 +192,26 @@ U4 <- rnacopula(n,cG.5)
 U5 <- rnacopula(n,cG.5)
 U6 <- rnacopula(n,cG.5)
 
+## Here, "Rmpfr" is used {2012-06-21}: -- therefore about 18 seconds!
 system.time(
  ee.8 <- c(enacopula(U4, cG.5, "mle", tol=1e-8),
            enacopula(U5, cG.5, "mle", tol=1e-8),
            enacopula(U6, cG.5, "mle", tol=1e-8)))
-stopifnot(all.equal(ee.8, c(2.475672593, 2.484244765, 2.504107749)))
+stopifnot(all.equal(ee.8, c(2.475672518, 2.484244763, 2.504107671)))
 
 ##--> Plots with "many" likelihood evaluations
 (th. <- seq(1, 3, by= 1/4))
-## each of these take about 3.3 seconds [nb-mm3] -- take *longer* with Rmpfr
-system.time(r4 <- sapply(th., mLogL, acop=cG.5@copula, u=U4))
-system.time(r5 <- sapply(th., mLogL, acop=cG.5@copula, u=U5))
-system.time(r6 <- sapply(th., mLogL, acop=cG.5@copula, u=U6))
+## "2012"default partly uses Rmpfr here:
+system.time(r4   <- sapply(th., mLogL, acop=cG.5@copula, u=U4))## 25.6 sec
+## whereas this (polyG method) is very fast {and still ok}:
+system.time(r4.p <- sapply(th., mLogL, acop=cG.5@copula, u=U4, method="pois"))
 r4. <- c(0, -18375.33, -21948.033, -24294.995, -25775.502,
          -26562.609, -26772.767, -26490.809, -25781.224)
-stopifnot(all.equal(r4, r4., tol = 8e-8))
+stopifnot(all.equal(r4,   r4., tol = 8e-8),
+          all.equal(r4.p, r4., tol = 8e-8))
+##--> use fast method here as well:
+system.time(r5.p <- sapply(th., mLogL, acop=cG.5@copula, u=U5, method="pois"))
+system.time(r6.p <- sapply(th., mLogL, acop=cG.5@copula, u=U6, method="pois"))
 
 if(FALSE) ## for speed analysis, etc
     debug(copula:::polyG)
