@@ -180,11 +180,24 @@ d <- 3
 set.seed(1)
 u <- matrix(runif(n*d), ncol=d)
 showProc.time()
+
 system.time(B. <- gofTstat(u, method="SnB"))
 system.time(C. <- gofTstat(u, method="SnC"))
 stopifnot(all.equal(gofTstatSimple(u, method="SnB"), B. <- gofTstat(u, method="SnB")),
           all.equal(gofTstatSimple(u, method="SnC"), C. <- gofTstat(u, method="SnC")))
 c(SnB = B., SnC = C.)
+showProc.time()
 
-
+(cop <- onacopula("Clayton", C(2, 1:d)))
+for(met in gofMeth) {
+    cat("\n gof-method:", met, ":\n---------\n")
+    set.seed(7)
+    st <- system.time( ## "SnB" is relatively slow - shorten here:
+	  gn <- gnacopula(u, cop, n.bootstrap = if(met == "SnB") 6 else 32,
+			  method = met, trafo="Rosenblatt", verbose=FALSE))
+    print(gn)
+    print(st)
+    cat("=================================================\n")
+}
+showProc.time()
 

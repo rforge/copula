@@ -193,15 +193,18 @@ U5 <- rnacopula(n,cG.5)
 U6 <- rnacopula(n,cG.5)
 
 ## Here, "Rmpfr" is used {2012-06-21}: -- therefore about 18 seconds!
+tol <- if(interactive()) 1e-12 else 1e-8
 system.time(
- ee.8 <- c(enacopula(U4, cG.5, "mle", tol=1e-8),
-           enacopula(U5, cG.5, "mle", tol=1e-8),
-           enacopula(U6, cG.5, "mle", tol=1e-8)))
-stopifnot(all.equal(ee.8, c(2.475672518, 2.484244763, 2.504107671)))
+ ee. <- c(enacopula(U4, cG.5, "mle", tol=tol),
+          enacopula(U5, cG.5, "mle", tol=tol),
+          enacopula(U6, cG.5, "mle", tol=tol)))
+dput(ee.)# in case the following fails
+stopifnot(all.equal(ee., c(2.475672518, 2.484244763, 2.504107671),
+		    tol= 16*tol))
 
 ##--> Plots with "many" likelihood evaluations
 (th. <- seq(1, 3, by= 1/4))
-## "2012"default partly uses Rmpfr here:
+## "default2012" (polyG default) partly uses Rmpfr here:
 system.time(r4   <- sapply(th., mLogL, acop=cG.5@copula, u=U4))## 25.6 sec
 ## whereas this (polyG method) is very fast {and still ok}:
 system.time(r4.p <- sapply(th., mLogL, acop=cG.5@copula, u=U4, method="pois"))
