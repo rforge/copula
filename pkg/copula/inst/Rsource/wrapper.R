@@ -215,7 +215,9 @@ dellip <- function(u, family, P, log=FALSE, df, ...)
 	       "t" =
 	   {
 	       qtu <- qt(u, df=df)
-	       ## note: for dmvt, log=TRUE is actually the default
+	       ## Note: for dmvt, log=TRUE is actually the default;
+               ##       furthermore, delta=rep(0, length=ncol(u)) is the default
+               ##       when delta is missing (although not mentioned on ?dmvt)
 	       dmvt(qtu, sigma=P, df=df, log=TRUE) - rowSums(dt(qtu, df=df, log=TRUE))
 	   },
 	       stop("family ", family, " not yet supported"))
