@@ -26,57 +26,74 @@
 ##' @param d dimension
 ##' @param n.MC if > 0 a Monte Carlo approach is applied with sample size equal
 ##'	   to n.MC; otherwise the exact formula is used
+##' @param log logical indicating whether the logarithm of the Kendall
+##'        distribution function is returned
 ##' @return Kendall distribution function at u
 ##' @author Marius Hofert
-K <- function(u, cop, d, n.MC=0)
+K <- function(u, cop, d, n.MC=0, log=FALSE)
 {
+    ## checks
     stopifnot(is(cop, "acopula"))
     th <- cop@theta
+    ## limiting cases
     n <- length(u)
-    if(n.MC > 0) {
+    res <- numeric(n)
+    res[is0 <- u == 0] <- if(log) -Inf else 0
+    res[is1 <- u == 1] <- if(log) 0 else 1
+    not01 <- seq_len(n)[!(is0 | is1)]
+    uN01 <- u[not01]
+    ## computations
+    if(n.MC > 0) { # Monte Carlo
 	stopifnot(is.finite(n.MC))
-	V <- cop@V0(n.MC,th)
-	psiI <- cop@psiInv(u, th)
-	unlist(lapply(psiI, function(psInv) mean(ppois(d-1, V* psInv))))
-    } else {
-	K. <- numeric(n)
-	K.[is0 <- u == 0] <- 0
-	K.[is1 <- u == 1] <- 1
-	if(length(not01 <- seq_len(n)[!(is0 | is1)]))
-	    K.[not01] <- if(d == 1) {
-		u[not01]
-	    } else if(d == 2) {
-		u[not01] + cop@psiInv(u[not01], theta=th) / cop@psiInvD1abs(u[not01], th)
-	    } else { ## d >= 3 :
+        if(length(not01)){
+            V <- cop@V0(n.MC, th) # vector of length n.MC
+            psiI <- cop@psiInv(uN01, th) # vector of length n
+            lr <- unlist(lapply(psiI, function(psInv){
+                -log(n.MC) + lsum(as.matrix(ppois(d-1, V*psInv, log.p=TRUE)))
+                ## Former code: mean(ppois(d-1, V*psInv))
+            }))
+            res[not01] <- if(log) lr else exp(lr)
+        }
+    } else { # direct
+	if(length(not01))
+	    res[not01] <- if(d == 1) { # d == 1
+		if(log) log(uN01) else uN01 # K(u) = u
+	    } else if(d == 2) { # d == 2
+		r <- uN01 + exp( cop@psiInv(uN01, theta=th, log=TRUE) -
+                                 cop@psiInvD1abs(uN01, th, log=TRUE) ) # K(u) = u - psi^{-1}(u) / (psi^{-1})'(u)
+                if(log) log(r) else r
+	    } else { # d >= 3
 		j <- seq_len(d-1)
-		lpsiI. <- cop@psiInv(u[not01], theta=th, log=TRUE)
+		lpsiI. <- cop@psiInv(uN01, theta=th, log=TRUE)
 		lpsiDabs <- do.call(rbind,
 				    lapply(j, function(j.)
 					   cop@psiDabs(exp(lpsiI.),
 						       theta=th,
 						       degree=j.,
-						       log=TRUE))) # (d-1,n)-matrix with n = length(not01)
+						       log=TRUE))) # (d-1) x n matrix with n = length(not01) containing log( (-1)^j * psi^{(j)}(psi^{-1}(u)) ) in the j-th row
 		lfac.j <- cumsum(log(j)) ## == lfactorial(j)
-		r <- colSums(exp(lpsiDabs + j %*% t(lpsiI.) - lfac.j))
-		## ensure we are in [0,1] {numerical inaccuracy}
-		pmin(1, u[not01] + r)
+                lx <- lpsiDabs + j %*% t(lpsiI.) - lfac.j # (d-1) x n matrix
+                lx <- rbind(log(uN01), lx) # d x n matrix containing the logarithms of the summands of K
+                ls <- lsum(lx) # log(K(u))
+                if(log) ls else pmin(1, exp(ls)) # ensure we are in [0,1] {numerical inaccuracy}
 		## Former code:
 		## K2 <- function(psInv) {
 		##    lpsiDabs <- unlist(lapply(j, cop@psiDabs,
 		##			      u=psInv, theta=th, log=TRUE))
 		##    sum(exp(lpsiDabs + j*log(psInv) - lfac.j))
 		## }
-		## pmin(1, u[not01] + unlist(lapply(psiI[not01], K2)))
+		## pmin(1, uN01 + unlist(lapply(psiI[not01], K2)))
 		##
 		## NB: AMH, Clayton, Frank are numerically not quite monotone near one;
 		## --  this does not change that {but maybe slightly *more* accurate}:
 		## psiDabs. <- unlist(lapply(j, cop@psiDabs, u = psInv, theta = th,
 		##						 log = FALSE))
 		##		       sum(psiDabs.*psInv^j/factorial(j))
-	    }
-	K.
-    }
+	    } # else (d >= 3)
+    } # if/else method (MC/direct)
+    res
 }
+
 
 ##' Test statistics for various goodness-of-fit tests of (supposedly) U[0,1]^d
 ##' distributed vectors of random variates
@@ -208,33 +225,41 @@ rtrafo <- function(u, cop, m=d, n.MC=0)
 ##' random variates via the transformation of Hering and Hofert (2011)
 ##'
 ##' @title Transformation of Hering and Hofert (2011)
-##' @param u data matrix
+##' @param u data matrix in [0,1]^d
 ##' @param cop an outer_nacopula
 ##' @param include.K boolean indicating whether the last component, K, is also
 ##'        used (include.K = TRUE)
 ##' @param n.MC parameter n.MC for K
+##' @param inverse logical indicating whether the inverse of htrafo is computed,
+##'        that is, the transformation of Wu, Valdez, Sherris (2006).
 ##' @return matrix of supposedly U[0,1]^d realizations
 ##' @author Marius Hofert and Martin Maechler
-htrafo <- function(u, cop, include.K=TRUE, n.MC=0)
+htrafo <- function(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE)
 {
+    ## checks
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
-	stop("currently, only Archimedean copulas are provided")
+        stop("currently, only Archimedean copulas are provided")
     if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     stopifnot((d <- ncol(u)) >= 2,
 	      0 <= u, u <= 1)
-    ## trafo
+    ## trafos
     th <- cop@copula@theta
-    lpsiI <- cop@copula@psiInv(u, th, log=TRUE) # matrix log(psi^{-1}(u))
-    lcumsum <- matrix(unlist(lapply(1:d, function(j) lsum(t(lpsiI[,1:j,
-                                                                  drop=FALSE])))),
-                      ncol=d)
-    u. <- matrix(unlist(lapply(1:(d-1), function(k) exp(k*(lcumsum[,k]-
-                                                           lcumsum[,k+1])) )),
-		 ncol=d-1) # transformed components (uniform under H_0)
-    if(include.K) u. <- cbind(u., K(cop@copula@psi(exp(lcumsum[,d]), th),
-				    cop=cop@copula, d=d, n.MC=n.MC))
-    u.
+    if(inverse){ # "simulation trafo" of Wu, Valdez, Sherris (2006)
+        stop("TODO Marius")
+    } else { # "goodness-of-fit trafo" of Hofert and Hering (2011)
+
+        lpsiI <- cop@copula@psiInv(u, th, log=TRUE) # matrix log(psi^{-1}(u))
+        lcumsum <- matrix(unlist(lapply(1:d, function(j)
+                                        lsum(t(lpsiI[,1:j, drop=FALSE])))),
+                          ncol=d)
+        u. <- matrix(unlist(lapply(1:(d-1), function(k) exp(k*(lcumsum[,k]-
+                                                               lcumsum[,k+1])) )),
+                     ncol=d-1) # transformed components (uniform under H_0)
+        if(include.K) u. <- cbind(u., K(cop@copula@psi(exp(lcumsum[,d]), th),
+                                        cop=cop@copula, d=d, n.MC=n.MC))
+        u.
+    }
 }
 
 

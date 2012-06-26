@@ -15,7 +15,7 @@
  \eqn{d \ge 2}{d >= 2}.
 }
 \usage{
-K(u, cop, d, n.MC=0)
+K(u, cop, d, n.MC=0, log=FALSE)
 }
 \arguments{
   \item{u}{evaluation point(s) (have to be in \eqn{[0,1]}).}
@@ -25,6 +25,8 @@ K(u, cop, d, n.MC=0)
     is applied with sample size equal to \code{n.MC}; otherwise
     (\code{n.MC=0}) the exact formula is used based on the generator
     derivatives as found by Hofert et al. (2011b).}
+  \item{log}{logical indicating if the \code{\link{log}} of \eqn{K}
+    should be returned.}
 }
 \details{
   For a completely monotone Archimedean generator \eqn{\psi}{psi},

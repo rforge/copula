@@ -352,7 +352,7 @@ stopifnot(all.equal(tau.th, tau.F, tol = 0.0001),
           all.equal(myFrank@tauInv(tau.F, tol = 1e-14), thetavec, tol=1e-11))
 
 
-### copGumbel
+### copGumbel ##################################################################
 
 myGumbel <- setTheta(copGumbel, 1.25)
 thetavec <- c(1,2,4,6,10)

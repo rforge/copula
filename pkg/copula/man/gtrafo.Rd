@@ -4,12 +4,12 @@
 \alias{rtrafo}
 \title{Goodness-of-Fit Testing Transformations for (Nested) Archimedean Copulas}
 \description{
-  \code{htrafo()} the transformation described in Hofert and Hering (2011).
+  \code{htrafo()} the transformation described in Hering and Hofert (2011).
 
   \code{rtrafo()} the transformation of Rosenblatt (1952).
 }
 \usage{
-htrafo(u, cop, include.K=TRUE, n.MC=0)
+htrafo(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE)
 rtrafo(u, cop, m=d, n.MC=0)
 }
 \arguments{
@@ -27,6 +27,8 @@ rtrafo(u, cop, m=d, n.MC=0)
     \eqn{m}th given all with index smaller than \eqn{m}).}
   \item{n.MC}{parameter \code{n.MC} for \code{\link{K}} (for \code{htrafo})
     or for approximating the derivatives involved (for \code{rtrafo}).}
+  \item{inverse}{logical indicating whether the inverse of the
+    transformation is returned.}
 }
 \details{
   \describe{
