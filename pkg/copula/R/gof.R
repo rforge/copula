@@ -21,7 +21,7 @@
 ##' Kendall distribution function
 ##'
 ##' @title Kendall distribution function
-##' @param u evaluation point(s)
+##' @param u evaluation point(s) in [0,1]
 ##' @param cop acopula with specified parameter
 ##' @param d dimension
 ##' @param n.MC if > 0 a Monte Carlo approach is applied with sample size equal
@@ -33,8 +33,7 @@
 K <- function(u, cop, d, n.MC=0, log=FALSE)
 {
     ## checks
-    stopifnot(is(cop, "acopula"))
-    th <- cop@theta
+    stopifnot(is(cop, "acopula"), 0 <= u, u <= 1)
     ## limiting cases
     n <- length(u)
     res <- numeric(n)
@@ -43,6 +42,7 @@ K <- function(u, cop, d, n.MC=0, log=FALSE)
     not01 <- seq_len(n)[!(is0 | is1)]
     uN01 <- u[not01]
     ## computations
+    th <- cop@theta
     if(n.MC > 0) { # Monte Carlo
 	stopifnot(is.finite(n.MC))
         if(length(not01)){
@@ -91,6 +91,91 @@ K <- function(u, cop, d, n.MC=0, log=FALSE)
 		##		       sum(psiDabs.*psInv^j/factorial(j))
 	    } # else (d >= 3)
     } # if/else method (MC/direct)
+    res
+}
+
+
+##' Quantile function of the Kendall distribution function
+##'
+##' @title Quantile function of the Kendall distribution function
+##' @param u evaluation point(s) in [0,1]
+##' @param cop acopula with specified parameter
+##' @param d dimension
+##' @param n.MC if > 0 a Monte Carlo approach is applied to evaluate K with
+##'        sample size equal to n.MC; otherwise the exact formula is used
+##' @param method method used for inverting K; currently:
+##'        "sort"    : root finding after sorting the u's
+##'        "simple"  : straightforward root finding
+##'        "discrete": evaluating K on u.grid, then finding approximating
+##'                    quantiles based on these values
+##' @param u.grid default grid on which K is computed for method "discrete"
+##' @param ... additional arguments passed to uniroot() (for methods "sort"
+##'        and "simple") or findInterval() (for method "discrete")
+##' @return Quantile function of the Kendall distribution function at u
+##' @author Marius Hofert
+##' Note: - K(u) >= u => u gives an upper bound for K^{-1}(u)
+##'       - K for smaller dimensions would also give upper bounds for K^{-1}(u),
+##'         but even for d=2, there is no explicit formula for K^{-1}(u) known.
+qK <- function(u, cop, d, n.MC=0, method=c("sort", "simple", "discrete"),
+               u.grid, ...)
+{
+    ## checks
+    stopifnot(is(cop, "acopula"), 0 <= u, u <= 1)
+    ## special case d=1: K = id
+    if(d==1) return(u)
+    ## limiting cases
+    n <- length(u)
+    res <- numeric(n)
+    res[is0 <- u == 0] <- 0
+    res[is1 <- u == 1] <- 1
+    not01 <- seq_len(n)[!(is0 | is1)] # seq of indices
+    lnot01 <- length(not01) # may be < n
+    uN01 <- u[not01] # u's for which we have to determine quantiles
+    if(lnot01 > 0){
+        ## computing the quantile function
+        method <- match.arg(method)
+        res[not01] <- switch(method,
+                             "sort" = # root finding with first sorting u's
+                         {
+                             ## function for root finding
+                             f <- function(t, u) K(t, cop=cop, d=d, n.MC=n.MC,
+                                                   log=FALSE) - u
+                             ## sort u's
+                             ord <- order(uN01, decreasing=TRUE)
+                             uN01o <- uN01[ord] # uN01 ordered in decreasing order
+                             ## deal with the first one (largest u) separately
+                             q <- numeric(lnot01)
+                             q[1] <- uniroot(f, u=uN01o[1], interval=c(0, uN01o[1]),
+                                             ...)$root # last quantile -- used in the following
+                             if(lnot01 > 1){
+                                 for(i in 2:lnot01){
+                                     q[i] <- uniroot(f, u=uN01o[i],
+                                                     interval=c(0, min(uN01o[i],
+                                                     q[i-1])), ...)$root
+                                 }
+                             }
+                             ## "return" unordered result
+                             quo <- numeric(lnot01) # unordered vector of quantiles q
+                             quo[ord] <- q # return unordered result
+                             quo
+                         },
+                             "simple" = # straightforward root finding
+                         {
+                             ## function for root finding
+                             f <- function(t, u) K(t, cop=cop, d=d, n.MC=n.MC,
+                                                   log=FALSE) - u
+                             unlist(lapply(uN01, function(u)
+                                           uniroot(f, u=u, interval=c(0,u),
+                                                   ...)$root))
+                         },
+                             "discrete" = # evaluate K at a grid and compute approximate quantiles based on this grid
+                         {
+                             stopifnot(0 <= u.grid, u.grid <= 1)
+                             K.u.grid <- K(u.grid, cop=cop, d=d, n.MC=n.MC, log=FALSE)
+                             u.grid[findInterval(uN01, vec=K.u.grid, ...)]
+                         },
+                             stop("unsupported method ", method))
+    } # if(lnot01 > 0)
     res
 }
 
@@ -248,7 +333,6 @@ htrafo <- function(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE)
     if(inverse){ # "simulation trafo" of Wu, Valdez, Sherris (2006)
         stop("TODO Marius")
     } else { # "goodness-of-fit trafo" of Hofert and Hering (2011)
-
         lpsiI <- cop@copula@psiInv(u, th, log=TRUE) # matrix log(psi^{-1}(u))
         lcumsum <- matrix(unlist(lapply(1:d, function(j)
                                         lsum(t(lpsiI[,1:j, drop=FALSE])))),

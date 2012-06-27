@@ -1,13 +1,15 @@
 \name{K}
 \alias{K}
-\title{Kendall Distribution Function of an Archimedean Copula}
+\alias{qK}
+\title{Kendall Distribution and Quantile Function of an Archimedean Copula}
 \description{
-  Compute the \emph{Kendall distribution function} of an Archimedean copula,
-  defined as
+  Compute the \emph{Kendall distribution function} of an Archimedean
+  copula, defined as
   \deqn{K(u) = P(C(U_1,U_2,\dots,U_d) \le u),}{K(u) = P(C(U1,U2,\dots,Ud) <= u),}
   where \eqn{u \in [0,1]}{u in [0,1]}, and the \eqn{d}-dimensional
   \eqn{(U_1,U_2,\dots,U_d)}{(U1,U2,\dots,Ud)} is distributed according
-  to the copula \eqn{C}.
+  to the copula \eqn{C}. Also, compute the quantile function \eqn{K^{-1}} of the
+  Kendall distribution function.
 
   Note that the random variable \eqn{C(U_1,U_2,\dots,U_d)}{C(U_1,U_2,...,U_d)}
  is known as \emph{probability integral transform}. Its distribution function
@@ -16,6 +18,7 @@
 }
 \usage{
 K(u, cop, d, n.MC=0, log=FALSE)
+qK(u, cop, d, n.MC=0, method=c("sort", "simple", "discrete"), u.grid, ...)
 }
 \arguments{
   \item{u}{evaluation point(s) (have to be in \eqn{[0,1]}).}
@@ -27,6 +30,18 @@ K(u, cop, d, n.MC=0, log=FALSE)
     derivatives as found by Hofert et al. (2011b).}
   \item{log}{logical indicating if the \code{\link{log}} of \eqn{K}
     should be returned.}
+  \item{method}{method how the quantile function of \eqn{K} is
+    computed. Currently available are:
+    \describe{
+      \item{"sort"}{Root finding based on \code{\link{uniroot}} but
+ first sorting \code{u}.}
+      \item{"simple"}{Straightforward root finding based on \code{\link{uniroot}}.}
+      \item{"discrete"}{First, \eqn{K} is evaluated at the given grid
+ points \code{u.grid}. Based on these probabilities, quantiles are
+ computed with \code{\link{findInterval}}.}
+    }
+  }
+  \item{u.grid}{Grid on which \eqn{K} is evaluated for \code{method="discrete"}.}
 }
 \details{
   For a completely monotone Archimedean generator \eqn{\psi}{psi},
