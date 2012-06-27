@@ -349,7 +349,7 @@ htrafo <- function(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
         n <- nrow(u)
         cslu <- cbind(cslu., rep(0, n)) # bind last column to it => n x d matrix
         ## incredient 3:
-        l1p <- log1p(-u[,1:(d-1)]^(1/rep(1:(d-1), each=n))) # n x (d-1) matrix
+        l1p <- log1p(-u[,1:(d-1), drop=FALSE]^(1/rep(1:(d-1), each=n))) # n x (d-1) matrix
         l1p. <- cbind(rep(0, n), l1p) # n x d matrix with (dummy) 0's in the first col
         ## finally, compute the transformation
         expo <- rep(lpsiIKI, d) + cslu + l1p.
