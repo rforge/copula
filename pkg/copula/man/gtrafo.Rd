@@ -9,7 +9,8 @@
   \code{rtrafo()} the transformation of Rosenblatt (1952).
 }
 \usage{
-htrafo(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE)
+htrafo(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
+       method=formals(qK)$method, u.grid, ...)
 rtrafo(u, cop, m=d, n.MC=0)
 }
 \arguments{
@@ -29,6 +30,9 @@ rtrafo(u, cop, m=d, n.MC=0)
     or for approximating the derivatives involved (for \code{rtrafo}).}
   \item{inverse}{logical indicating whether the inverse of the
     transformation is returned.}
+  \item{method}{method to compute \code{qK}.}
+  \item{u.grid}{argument of \code{qK} (for \code{method="discrete"}).}
+  \item{\dots}{additional arguments passed to \code{qK}.}
 }
 \details{
   \describe{

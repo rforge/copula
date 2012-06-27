@@ -41,7 +41,11 @@ qK(u, cop, d, n.MC=0, method=c("sort", "simple", "discrete"), u.grid, ...)
  computed with \code{\link{findInterval}}.}
     }
   }
-  \item{u.grid}{Grid on which \eqn{K} is evaluated for \code{method="discrete"}.}
+  \item{u.grid}{Grid on which \eqn{K} is evaluated for
+    \code{method="discrete"}.}
+  \item{\dots}{additional arguments passed to \code{\link{uniroot}} (for
+ \code{method="sort"} or \code{method="simple"}) or
+ \code{\link{findInterval}} (for \code{method="discrete"}).}
 }
 \details{
   For a completely monotone Archimedean generator \eqn{\psi}{psi},

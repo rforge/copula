@@ -306,20 +306,26 @@ rtrafo <- function(u, cop, m=d, n.MC=0)
 }
 
 ##' Transforms vectors of random variates following the given (nested) Archimedean
-##' copula (with specified parameters) to U[0,1]^d (or U[0,1]^(d-1)) vectors of
-##' random variates via the transformation of Hering and Hofert (2011)
+##' copula (with specified parameters) to [0,1]^d (or [0,1]^(d-1)) vectors of
+##' random variates via the transformation of Hering and Hofert (2011) or its
+##' inverse
 ##'
-##' @title Transformation of Hering and Hofert (2011)
+##' @title Transformation of Hering and Hofert (2011) or its inverse
 ##' @param u data matrix in [0,1]^d
 ##' @param cop an outer_nacopula
 ##' @param include.K boolean indicating whether the last component, K, is also
-##'        used (include.K = TRUE)
+##'        used (include.K = TRUE); ignored when inverse=TRUE since K is crucial
+##'        there
 ##' @param n.MC parameter n.MC for K
-##' @param inverse logical indicating whether the inverse of htrafo is computed,
-##'        that is, the transformation of Wu, Valdez, Sherris (2006).
-##' @return matrix of supposedly U[0,1]^d realizations
+##' @param inverse logical indicating whether the inverse of htrafo is computed
+##'        (this transformation can also be found in Wu, Valdez, Sherris (2006)).
+##' @param method method to compute qK() (see there)
+##' @param u.grid argument of qK() (for method "discrete")
+##' @param ... additional arguments passed to qK() (see there)
+##' @return matrix of transformed realizations
 ##' @author Marius Hofert and Martin Maechler
-htrafo <- function(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE)
+htrafo <- function(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
+                   method=formals(qK)$method, u.grid, ...)
 {
     ## checks
     stopifnot(is(cop, "outer_nacopula"))
@@ -331,7 +337,23 @@ htrafo <- function(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE)
     ## trafos
     th <- cop@copula@theta
     if(inverse){ # "simulation trafo" of Wu, Valdez, Sherris (2006)
-        stop("TODO Marius")
+        ## incredient 1: log(psi^{-1}(K^{-1}(u_d)))
+        KI <- qK(u[,d], cop=cop@copula, d=d, n.MC=n.MC, method=method,
+                 u.grid=u.grid, ...) # n-vector K^{-1}(u_d)
+        lpsiIKI <- cop@copula@psiInv(KI, th, log=TRUE) # n-vector log(psi^{-1}(K^{-1}(u_d)))
+        ## incredient 2: sum_{k=j}^{d-1} log(u_k)/k) for j=1,..,d
+        lu. <- log(u[,-d, drop=FALSE]) / rep(1:(d-1), each=n)
+        cslu. <- apply(lu.[,(d-1):1, drop=FALSE], 1, cumsum) # note: we apply cumsum to the matrix of interchanged column order, because we need the "upper partial sums"
+        cslu. <- if(d==2) as.matrix(cslu.) else t(cslu.) # get a result of the right dimensions
+        cslu. <- cslu.[,(d-1):1, drop=FALSE] # change the column order back
+        n <- nrow(u)
+        cslu <- cbind(cslu., rep(0, n)) # bind last column to it => n x d matrix
+        ## incredient 3:
+        l1p <- log1p(-u[,1:(d-1)]^(1/rep(1:(d-1), each=n))) # n x (d-1) matrix
+        l1p. <- cbind(rep(0, n), l1p) # n x d matrix with (dummy) 0's in the first col
+        ## finally, compute the transformation
+        expo <- rep(lpsiIKI, d) + cslu + l1p.
+        cop@copula@psi(exp(expo), th)
     } else { # "goodness-of-fit trafo" of Hofert and Hering (2011)
         lpsiI <- cop@copula@psiInv(u, th, log=TRUE) # matrix log(psi^{-1}(u))
         lcumsum <- matrix(unlist(lapply(1:d, function(j)
