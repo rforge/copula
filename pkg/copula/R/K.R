@@ -141,8 +141,8 @@ qK <- function(u, cop, d, n.MC=0, method=c("sort", "simple", "discrete"),
                              "sort" = # root finding with first sorting u's
                          {
                              ## function for root finding
-                             f <- function(t, u) K(t, cop=cop, d=d, n.MC=n.MC,
-                                                   log=FALSE) - u
+                             f <- function(t, u) pK(t, cop=cop, d=d, n.MC=n.MC,
+                                                    log=FALSE) - u
                              ## sort u's
                              ord <- order(uN01, decreasing=TRUE)
                              uN01o <- uN01[ord] # uN01 ordered in decreasing order
@@ -174,8 +174,8 @@ qK <- function(u, cop, d, n.MC=0, method=c("sort", "simple", "discrete"),
                              "simple" = # straightforward root finding
                          {
                              ## function for root finding
-                             f <- function(t, u) K(t, cop=cop, d=d, n.MC=n.MC,
-                                                   log=FALSE) - u
+                             f <- function(t, u) pK(t, cop=cop, d=d, n.MC=n.MC,
+                                                    log=FALSE) - u
                              unlist(lapply(uN01, function(u)
                                            uniroot(f, u=u, interval=c(0,u),
                                                    ...)$root))
@@ -183,7 +183,8 @@ qK <- function(u, cop, d, n.MC=0, method=c("sort", "simple", "discrete"),
                              "discrete" = # evaluate K at a grid and compute approximate quantiles based on this grid
                          {
                              stopifnot(0 <= u.grid, u.grid <= 1)
-                             K.u.grid <- K(u.grid, cop=cop, d=d, n.MC=n.MC, log=FALSE)
+                             K.u.grid <- pK(u.grid, cop=cop, d=d, n.MC=n.MC,
+                                            log=FALSE)
                              u.grid[findInterval(uN01, vec=K.u.grid, ...)]
                          },
                              stop("unsupported method ", method))

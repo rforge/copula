@@ -54,6 +54,7 @@ p.Tau(copJoe, ylim = 0:1, yaxs="i")
 ### testing qK (incl. timings on Marius' MacBook Air 4,1)
 
 u <- 0:63/63
+uexpr <- expression("u="*0:63/63)
 d <- 10
 family <- "Gumbel"
 theta <- 2
@@ -64,7 +65,7 @@ system.time(Ku2 <- qK(u, cop=cop@copula, d=d, method="sort")) # 2.7s
 system.time(Ku3 <- qK(u, cop=cop@copula, d=d, method="discrete", u.grid=0:1e4/1e4)) # 0.5s
 
 plot(u, Ku1, type="l", lty=2,
-     xlab=paste0("u=", "0:63/63"), ylab=expression({K^{-1}}(u)))
+     xlab=uexpr, ylab=expression({K^{-1}}(u)))
 lines(u, Ku2, lty=2, col="blue")
 lines(u, Ku2, lty=2, col="red")
 legend(x=0.05, y=0.95, lty=c(2,2,2), col=c("black", "blue", "red"), bty="n",
