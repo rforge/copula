@@ -60,16 +60,19 @@ family <- "Gumbel"
 theta <- 2
 cop <- onacopulaL(family, list(theta, 1:d))
 
-system.time(Ku1 <- qK(u, cop=cop@copula, d=d, method="simple")) # 3.5s
-system.time(Ku2 <- qK(u, cop=cop@copula, d=d, method="sort")) # 2.7s
-system.time(Ku3 <- qK(u, cop=cop@copula, d=d, method="discrete", u.grid=0:1e4/1e4)) # 0.5s
+system.time(Ku1 <- qK(u, cop=cop@copula, d=d, method="simple")) # 3.9s
+system.time(Ku2 <- qK(u, cop=cop@copula, d=d, method="sort")) # 3s
+system.time(Ku3 <- qK(u, cop=cop@copula, d=d, method="discrete", u.grid=0:1e4/1e4)) # 0.75s
+system.time(Ku4 <- qK(u, cop=cop@copula, d=d, method="monoH.FC", u.grid=0:5e2/5e2)) # 0.2s
 
 plot(u, Ku1, type="l", lty=2,
      xlab=uexpr, ylab=expression({K^{-1}}(u)))
 lines(u, Ku2, lty=2, col="blue")
-lines(u, Ku2, lty=2, col="red")
-legend(x=0.05, y=0.95, lty=c(2,2,2), col=c("black", "blue", "red"), bty="n",
-       legend=paste0("method=", c("'simple'", "'sort'", "'discrete'")))
+lines(u, Ku3, lty=2, col="red")
+lines(u, Ku4, lty=2, col="darkgreen")
+legend(x=0.05, y=0.95, lty=c(2,2,2), col=c("black", "blue", "red", "darkgreen"),
+       bty="n", legend=paste0("method=", c("'simple'", "'sort'", "'discrete'",
+                "'monoH.FC'")))
 
 
 ### test function ##############################################################

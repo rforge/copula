@@ -25,7 +25,7 @@
 \usage{
 K(u, cop, d, n.MC=0, log=FALSE) # Note: this is deprecated; use \code{pK} instead
 pK(u, cop, d, n.MC=0, log=FALSE)
-qK(u, cop, d, n.MC=0, method=c("sort", "simple", "discrete"), u.grid,
+qK(u, cop, d, n.MC=0, method=c("simple", "sort", "discrete", "monoH.FC"), u.grid,
  ...)
 dK(u, cop, d, n.MC=0, log=FALSE)
 rK(n, cop, d)
@@ -44,18 +44,22 @@ rK(n, cop, d)
   \item{method}{method how the quantile function of \eqn{K} is
     computed. Currently available are:
     \describe{
+      \item{"simple"}{Straightforward root finding based on \code{\link{uniroot}}.}
       \item{"sort"}{Root finding based on \code{\link{uniroot}} but
  first sorting \code{u}.}
-      \item{"simple"}{Straightforward root finding based on \code{\link{uniroot}}.}
       \item{"discrete"}{First, \eqn{K} is evaluated at the given grid
  points \code{u.grid}. Based on these probabilities, quantiles are
  computed with \code{\link{findInterval}}.}
+      \item{"monoH.FC"}{First, \eqn{K} is evaluated at the given grid
+	points \code{u.grid}. Monotone splines are then used to approximate K.
+	Based on this approximation, quantiles are computed with
+	\code{\link{uniroot}}.}
     }
   }
   \item{u.grid}{Grid on which \eqn{K} is evaluated for
     \code{method="discrete"}.}
   \item{\dots}{additional arguments passed to \code{\link{uniroot}} (for
- \code{method="sort"} or \code{method="simple"}) or
+ \code{method="simple"}, \code{method="sort"}, and \code{method="monoH.FC"}) or
  \code{\link{findInterval}} (for \code{method="discrete"}).}
   \item{n}{sample size for \code{rK}.}
 }

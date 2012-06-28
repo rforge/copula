@@ -108,20 +108,23 @@ pK <- function(u, cop, d, n.MC=0, log=FALSE)
 ##' @param n.MC if > 0 a Monte Carlo approach is applied to evaluate K with
 ##'        sample size equal to n.MC; otherwise the exact formula is used
 ##' @param method method used for inverting K; currently:
-##'        "sort"    : root finding after sorting the u's
 ##'        "simple"  : straightforward root finding
+##'        "sort"    : root finding after sorting the u's
 ##'        "discrete": evaluating K on u.grid, then finding approximating
 ##'                    quantiles based on these values
-##' @param u.grid default grid on which K is computed for method "discrete"
-##' @param ... additional arguments passed to uniroot() (for methods "sort"
-##'        and "simple") or findInterval() (for method "discrete")
+##'        "monoH.FC": evaluating K on u.grid, then approximating K via monotone
+##'                    splines; finding quantiles via uniroot
+##' @param u.grid default grid on which K is computed for method "discrete" and
+##'        "monoH.FC"
+##' @param ... additional arguments passed to uniroot() (for methods "sort",
+##'        "simple", and "monoH.FC") or findInterval() (for method "discrete")
 ##' @return Quantile function of the Kendall distribution function at u
 ##' @author Marius Hofert
 ##' Note: - K(u) >= u => u gives an upper bound for K^{-1}(u)
 ##'       - K for smaller dimensions would also give upper bounds for K^{-1}(u),
 ##'         but even for d=2, there is no explicit formula for K^{-1}(u) known.
-qK <- function(u, cop, d, n.MC=0, method=c("sort", "simple", "discrete"),
-               u.grid, ...)
+qK <- function(u, cop, d, n.MC=0, method=c("simple", "sort", "discrete",
+                                  "monoH.FC"), u.grid, ...)
 {
     stopifnot(is(cop, "acopula"), 0 <= u, u <= 1)
     ## special case d=1: K = id
@@ -138,6 +141,16 @@ qK <- function(u, cop, d, n.MC=0, method=c("sort", "simple", "discrete"),
         ## computing the quantile function
         method <- match.arg(method)
         res[not01] <- switch(method,
+                             "simple" = # straightforward root finding
+                         {
+                             ## function for root finding
+                             f <- function(t, u) pK(t, cop=cop, d=d, n.MC=n.MC,
+                                                    log=FALSE) - u
+                             ## root finding
+                             unlist(lapply(uN01, function(u)
+                                           uniroot(f, u=u, interval=c(0,u),
+                                                   ...)$root))
+                         },
                              "sort" = # root finding with first sorting u's
                          {
                              ## function for root finding
@@ -171,21 +184,26 @@ qK <- function(u, cop, d, n.MC=0, method=c("sort", "simple", "discrete"),
                              quo[ord] <- q # return unordered result
                              quo
                          },
-                             "simple" = # straightforward root finding
-                         {
-                             ## function for root finding
-                             f <- function(t, u) pK(t, cop=cop, d=d, n.MC=n.MC,
-                                                    log=FALSE) - u
-                             unlist(lapply(uN01, function(u)
-                                           uniroot(f, u=u, interval=c(0,u),
-                                                   ...)$root))
-                         },
                              "discrete" = # evaluate K at a grid and compute approximate quantiles based on this grid
                          {
                              stopifnot(0 <= u.grid, u.grid <= 1)
                              K.u.grid <- pK(u.grid, cop=cop, d=d, n.MC=n.MC,
                                             log=FALSE)
                              u.grid[findInterval(uN01, vec=K.u.grid, ...)]
+                         },
+                             "monoH.FC" = # root finding based on an approximation of K via monotone splines (see ?splinefun)
+                         {
+                             ## evaluate K at a grid
+                             stopifnot(0 <= u.grid, u.grid <= 1)
+                             K.u.grid <- pK(u.grid, cop=cop, d=d, n.MC=n.MC,
+                                            log=FALSE)
+                             ## function for root finding
+                             fspl <- function(x, u) splinefun(u.grid, K.u.grid,
+                                                              method="monoH.FC")(x) - u
+                             ## root finding
+                             unlist(lapply(uN01, function(u)
+                                           uniroot(fspl, u=u, interval=c(0,u),
+                                                   ...)$root))
                          },
                              stop("unsupported method ", method))
     } # if(lnot01 > 0)
