@@ -17,24 +17,26 @@
 ### Kendall distribution
 
 ## deprecated (former) Kendall distribution function K
-## K <- function(u, cop, d, n.MC=0, log=FALSE) pK(u, cop=cop, d=d, n.MC=n.MC, log=log) # call the new function
-## .Deprecated("pK", old="K") # set K to "deprecated" => throws a message
+K <- function(u, cop, d, n.MC=0, log=FALSE){
+    ## .Deprecated("pK", old="K") # set K to "deprecated" => throws a message
+    warning("The function K is deprecated, use pK instead")
+    pK(u, cop=cop, d=d, n.MC=n.MC, log=log) # call the new function
+}
 
-##' Kendall distribution function
+##' Distribution function of the Kendall distribution
 ##'
 ##' @title Kendall distribution function
 ##' @param u evaluation point(s) in [0,1]
 ##' @param cop acopula with specified parameter
 ##' @param d dimension
 ##' @param n.MC if > 0 a Monte Carlo approach is applied with sample size equal
-##'	   to n.MC; otherwise the exact formula is used
-##' @param log logical indicating whether the logarithm of the Kendall
-##'        distribution function is returned
+##'	   to n.MC to evaluate the generator derivatives; otherwise the exact
+##'        formula is used
+##' @param log logical indicating whether the logarithm is returned
 ##' @return Kendall distribution function at u
 ##' @author Marius Hofert
-K <- function(u, cop, d, n.MC=0, log=FALSE)
+pK <- function(u, cop, d, n.MC=0, log=FALSE)
 {
-    ## checks
     stopifnot(is(cop, "acopula"), 0 <= u, u <= 1)
     ## limiting cases
     n <- length(u)
@@ -97,7 +99,7 @@ K <- function(u, cop, d, n.MC=0, log=FALSE)
 }
 
 
-##' Quantile function of the Kendall distribution function
+##' Quantile function of the Kendall distribution
 ##'
 ##' @title Quantile function of the Kendall distribution function
 ##' @param u evaluation point(s) in [0,1]
@@ -121,7 +123,6 @@ K <- function(u, cop, d, n.MC=0, log=FALSE)
 qK <- function(u, cop, d, n.MC=0, method=c("sort", "simple", "discrete"),
                u.grid, ...)
 {
-    ## checks
     stopifnot(is(cop, "acopula"), 0 <= u, u <= 1)
     ## special case d=1: K = id
     if(d==1) return(u)
@@ -188,4 +189,45 @@ qK <- function(u, cop, d, n.MC=0, method=c("sort", "simple", "discrete"),
                              stop("unsupported method ", method))
     } # if(lnot01 > 0)
     res
+}
+
+
+##' Density of the Kendall distribution
+##'
+##' @title Density of the Kendall distribution
+##' @param u evaluation point(s) in (0,1)
+##' @param cop acopula with specified parameter
+##' @param d dimension
+##' @param n.MC if > 0 a Monte Carlo approach is applied with sample size equal
+##'	   to n.MC to evaluate the d-th generator derivative; otherwise the exact
+##'        formula is used
+##' @param log logical indicating whether the logarithm of the density is returned
+##' @return Density of the Kendall distribution at u
+##' @author Marius Hofert
+dK <- function(u, cop, d, n.MC=0, log=FALSE)
+{
+    stopifnot(is(cop, "acopula"), 0 < u, u < 1)
+    th <- cop@theta
+    lpsiI <- cop@psiInv(u, theta=th, log=TRUE) # log(psi^{-1}(u))
+    lpsiIDabs <- cop@psiInvD1abs(u, theta=th, log=TRUE) # (-psi^{-1})'(u)
+    ld <- lfactorial(d-1) # log((d-1)!)
+    psiI <- cop@psiInv(u, theta=th) # psi^{-1}(u)
+    lpsiDabs <- cop@psiDabs(psiI, theta=th, degree=d, n.MC=n.MC, log=TRUE) # log((-1)^d psi^{(d)}(psi^{-1}(u)))
+    res <- lpsiDabs-ld+(d-1)*lpsiI+lpsiIDabs
+    if(log) res else exp(res)
+}
+
+
+##' Random number generation for the Kendall distribution
+##'
+##' @title Random number generation for the Kendall distribution
+##' @param n number of random variates to generate
+##' @param cop acopula with specified parameter
+##' @param d dimension
+##' @return Random numbers from the Kendall distribution
+##' @author Marius Hofert
+rK <- function(n, cop, d){
+    stopifnot(is(cop, "acopula"), d == round(d))
+    cop <- onacopulaL(cop@name, list(cop@theta, 1L:d))
+    pcopula(cop, rcopula(cop, n))
 }
