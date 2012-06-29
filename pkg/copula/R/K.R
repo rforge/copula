@@ -108,6 +108,7 @@ pK <- function(u, cop, d, n.MC=0, log=FALSE)
 ##' @param n.MC if > 0 a Monte Carlo approach is applied to evaluate K with
 ##'        sample size equal to n.MC; otherwise the exact formula is used
 ##' @param method method used for inverting K; currently:
+##'        "default" : chooses a useful default
 ##'        "simple"  : straightforward root finding
 ##'        "sort"    : root finding after sorting the u's
 ##'        "discrete": evaluating K on u.grid, then finding approximating
@@ -124,7 +125,7 @@ pK <- function(u, cop, d, n.MC=0, log=FALSE)
 ##'       - K for smaller dimensions would also give upper bounds for K^{-1}(u),
 ##'         but even for d=2, there is no explicit formula for K^{-1}(u) known.
 qK <- function(u, cop, d, n.MC=0,
-               method=c("simple", "sort", "discrete", "monoH.FC"),
+               method=c("default", "simple", "sort", "discrete", "monoH.FC"),
                u.grid, ...)
 {
     stopifnot(is(cop, "acopula"), 0 <= u, u <= 1)
@@ -144,6 +145,20 @@ qK <- function(u, cop, d, n.MC=0,
     method <- match.arg(method)
     res[not01] <-
         switch(method,
+               "default" =
+           {
+               ## Note: This is the same code as method="monoH.FC" (but with a
+               ##       chosen grid)
+               u.grid <- 0:128/128 # default grid
+               K.u.grid <- pK(u.grid, cop=cop, d=d, n.MC=n.MC, log=FALSE)
+               ## function for root finding
+               fspl <- function(x, u)
+                   splinefun(u.grid, K.u.grid, method = "monoH.FC")(x) - u
+               ## root finding
+               vapply(uN01, function(u)
+                      uniroot(fspl, u=u, interval=c(0,u), ...)$root, 1.0)
+
+           },
                "simple" =               # straightforward root finding
            {
                ## function for root finding

@@ -26,7 +26,7 @@
 % K(u, cop, d, n.MC=0, log=FALSE) # is deprecated
 pK(u, cop, d, n.MC=0, log=FALSE)
 qK(u, cop, d, n.MC=0,
-   method=c("simple", "sort", "discrete", "monoH.FC"),
+   method=c("default", "simple", "sort", "discrete", "monoH.FC"),
    u.grid, \dots)
 dK(u, cop, d, n.MC=0, log=FALSE)
 rK(n, cop, d)
@@ -46,6 +46,8 @@ rK(n, cop, d)
   \item{method}{string for the method to compute the quantile function
     of \eqn{K}.  Currently, one of
     \describe{
+      \item{"default"}{The default method. Currently chooses
+	\code{method="monoH.FC"} with \code{u.grid=0:128/128}.}
       \item{"simple"}{Straightforward root finding based on \code{\link{uniroot}}.}
       \item{"sort"}{Root finding based on \code{\link{uniroot}} but
 	first sorting \code{u}.}
@@ -61,7 +63,7 @@ rK(n, cop, d)
   \item{u.grid}{(for \code{method="discrete"}:) the grid on which
   \eqn{K} is evaluated, a \code{\link{numeric}} vector.}
   \item{\dots}{additional arguments passed to \code{\link{uniroot}} (for
-    \code{method="simple"}, \code{method="sort"}, and
+    \code{method="default"}, \code{method="simple"}, \code{method="sort"}, and
     \code{method="monoH.FC"}) or \code{\link{findInterval}} (for
     \code{method="discrete"}).}
   \item{n}{sample size for \code{rK}.}
