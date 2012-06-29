@@ -163,7 +163,7 @@ rtrafo <- function(u, cop, m=d, n.MC=0)
 ##' @return matrix of transformed realizations
 ##' @author Marius Hofert and Martin Maechler
 htrafo <- function(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
-                   method=formals(qK)$method, u.grid, ...)
+                   method = formals(qK)$method, u.grid, ...)
 {
     ## checks
     stopifnot(is(cop, "outer_nacopula"))
@@ -175,33 +175,34 @@ htrafo <- function(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
     ## trafos
     th <- cop@copula@theta
     if(inverse){ # "simulation trafo" of Wu, Valdez, Sherris (2006)
-        ## incredient 1: log(psi^{-1}(K^{-1}(u_d)))
+        ## ingredient 1: log(psi^{-1}(K^{-1}(u_d)))
         KI <- qK(u[,d], cop=cop@copula, d=d, n.MC=n.MC, method=method,
                  u.grid=u.grid, ...) # n-vector K^{-1}(u_d)
         lpsiIKI <- cop@copula@psiInv(KI, th, log=TRUE) # n-vector log(psi^{-1}(K^{-1}(u_d)))
-        ## incredient 2: sum_{k=j}^{d-1} log(u_k)/k) for j=1,..,d
-        lu. <- log(u[,-d, drop=FALSE]) / rep(1:(d-1), each=n)
-        cslu. <- apply(lu.[,(d-1):1, drop=FALSE], 1, cumsum) # note: we apply cumsum to the matrix of interchanged column order, because we need the "upper partial sums"
-        cslu. <- if(d==2) as.matrix(cslu.) else t(cslu.) # get a result of the right dimensions
-        cslu. <- cslu.[,(d-1):1, drop=FALSE] # change the column order back
         n <- nrow(u)
-        cslu <- cbind(cslu., rep(0, n)) # bind last column to it => n x d matrix
-        ## incredient 3:
-        l1p <- log1p(-u[,1:(d-1), drop=FALSE]^(1/rep(1:(d-1), each=n))) # n x (d-1) matrix
-        l1p. <- cbind(rep(0, n), l1p) # n x d matrix with (dummy) 0's in the first col
+        ## ingredient 2: sum_{k=j}^{d-1} log(u_k)/k) for j=1,..,d
+        lu. <- log(u[,-d, drop=FALSE]) * (ik <- 1/rep(1:(d-1), each=n))
+        cslu. <- apply(lu.[,(d-1):1, drop=FALSE], 1, cumsum) ## note: we apply cumsum to reversed columns,
+        ## because we need the "upper partial sums"
+        cslu. <- if(d==2) as.matrix(cslu.) else t(cslu.) # get a result of the right dimensions
+        cslu <- cbind(cslu.[,(d-1):1, drop=FALSE], 0) # revert the column order, and bind last column to it
+        ## => n x d matrix
+        ## ingredient 3:
+        l1p <- cbind(0, log1p(-u[,1:(d-1), drop=FALSE]^ ik)) # n x (d-1) matrix + dummy 0's in the first col
         ## finally, compute the transformation
-        expo <- rep(lpsiIKI, d) + cslu + l1p.
+        expo <- rep(lpsiIKI, d) + cslu + l1p
         cop@copula@psi(exp(expo), th)
     } else { # "goodness-of-fit trafo" of Hofert and Hering (2011)
         lpsiI <- cop@copula@psiInv(u, th, log=TRUE) # matrix log(psi^{-1}(u))
         lcumsum <- matrix(unlist(lapply(1:d, function(j)
                                         lsum(t(lpsiI[,1:j, drop=FALSE])))),
                           ncol=d)
-        u. <- matrix(unlist(lapply(1:(d-1), function(k) exp(k*(lcumsum[,k]-
-                                                               lcumsum[,k+1])) )),
+        u. <- matrix(unlist(lapply(1:(d-1),
+                                   function(k) exp(k*(lcumsum[,k]-
+                                                      lcumsum[,k+1])) )),
                      ncol=d-1) # transformed components (uniform under H_0)
-        if(include.K) u. <- cbind(u., K(cop@copula@psi(exp(lcumsum[,d]), th),
-                                        cop=cop@copula, d=d, n.MC=n.MC))
+	if(include.K) u. <- cbind(u., pK(cop@copula@psi(exp(lcumsum[,d]), th),
+                                         cop=cop@copula, d=d, n.MC=n.MC))
         u.
     }
 }
