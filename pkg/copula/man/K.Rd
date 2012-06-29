@@ -48,8 +48,8 @@ rK(n, cop, d)
       \item{"sort"}{Root finding based on \code{\link{uniroot}} but
  first sorting \code{u}.}
       \item{"discrete"}{First, \eqn{K} is evaluated at the given grid
- points \code{u.grid}. Based on these probabilities, quantiles are
- computed with \code{\link{findInterval}}.}
+	points \code{u.grid} (which should contain 0 and 1). Based on these
+	probabilities, quantiles are computed with \code{\link{findInterval}}.}
       \item{"monoH.FC"}{First, \eqn{K} is evaluated at the given grid
 	points \code{u.grid}. Monotone splines are then used to approximate K.
 	Based on this approximation, quantiles are computed with

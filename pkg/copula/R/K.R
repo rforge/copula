@@ -189,7 +189,8 @@ qK <- function(u, cop, d, n.MC=0, method=c("simple", "sort", "discrete",
                              stopifnot(0 <= u.grid, u.grid <= 1)
                              K.u.grid <- pK(u.grid, cop=cop, d=d, n.MC=n.MC,
                                             log=FALSE)
-                             u.grid[findInterval(uN01, vec=K.u.grid, ...)]
+                             u.grid[findInterval(uN01, vec=K.u.grid,
+                                                 rightmost.closed=TRUE, ...)+1] # note: this gives quantiles according to the "typical" definition
                          },
                              "monoH.FC" = # root finding based on an approximation of K via monotone splines (see ?splinefun)
                          {
