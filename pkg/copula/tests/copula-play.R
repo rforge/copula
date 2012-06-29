@@ -51,30 +51,6 @@ p.Tau(copGumbel)
 p.Tau(copJoe, ylim = 0:1, yaxs="i")
 
 
-### testing qK (incl. timings on Marius' MacBook Air 4,1)
-
-u <- 0:63/63
-uexpr <- expression("u="*0:63/63)
-d <- 10
-family <- "Gumbel"
-theta <- 2
-cop <- onacopulaL(family, list(theta, 1:d))
-
-system.time(Ku1 <- qK(u, cop=cop@copula, d=d, method="simple")) # 3.9s
-system.time(Ku2 <- qK(u, cop=cop@copula, d=d, method="sort")) # 3s
-system.time(Ku3 <- qK(u, cop=cop@copula, d=d, method="discrete", u.grid=0:1e4/1e4)) # 0.75s
-system.time(Ku4 <- qK(u, cop=cop@copula, d=d, method="monoH.FC", u.grid=0:5e2/5e2)) # 0.2s
-
-plot(u, Ku1, type="l", lty=2,
-     xlab=uexpr, ylab=expression({K^{-1}}(u)))
-lines(u, Ku2, lty=2, col="blue")
-lines(u, Ku3, lty=2, col="red")
-lines(u, Ku4, lty=2, col="darkgreen")
-legend(x=0.05, y=0.95, lty=c(2,2,2), col=c("black", "blue", "red", "darkgreen"),
-       bty="n", legend=paste0("method=", c("'simple'", "'sort'", "'discrete'",
-                "'monoH.FC'")))
-
-
 ### test function ##############################################################
 
 ##' @title stopifnot() plus output
@@ -264,27 +240,27 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
 
     ## K for d = 2
     cat("\n(7) values of K for d = 2 at u01:\n")
-    CT <- c(CT, list(K = system.time(K. <- K(u01, cop, d = 2))))
+    CT <- c(CT, list(K = system.time(K. <- pK(u01, cop, d = 2))))
     check.K.u01( print(K.) )
     cat("check if K(0) = 0 and K(1) = 1: ")
-    stopifnot(K(0, cop, d = 2)==0,
-              K(1, cop, d = 2)==1)
+    stopifnot(pK(0, cop, d = 2)==0,
+              pK(1, cop, d = 2)==1)
     cat0("[Ok]")
     ## K for d = 10
     cat("\nvalues of K for d = 10 at u01:\n")
-    CT <- c(CT, list(K = system.time(K. <- K(u01, cop, d = 10))))
+    CT <- c(CT, list(K = system.time(K. <- pK(u01, cop, d = 10))))
     check.K.u01( print(K.) )
     cat("check if K(0) = 0 and K(1) = 1: ")
-    stopifnot(K(0, cop, d = 10)==0,
-              K(1, cop, d = 10)==1)
+    stopifnot(pK(0, cop, d = 10)==0,
+              pK(1, cop, d = 10)==1)
     cat0("[Ok]")
     ## K for d = 10 and MC
     cat("\nvalues of K for d = 10 and MC at u01:\n")
-    CT <- c(CT, list(K = system.time(K. <- K(u01, cop, d = 10, n.MC = 1000))))
+    CT <- c(CT, list(K = system.time(K. <- pK(u01, cop, d = 10, n.MC = 1000))))
     check.K.u01( print(K.) )
     cat("check if K(0)=0 and K(1)=1: ")
-    stopifnot(K(0, cop, d = 10, n.MC = 1000)==0,
-              K(1, cop, d = 10, n.MC = 1000)==1)
+    stopifnot(pK(0, cop, d = 10, n.MC = 1000)==0,
+              pK(1, cop, d = 10, n.MC = 1000)==1)
     cat0("[Ok]")
 
     ### (8) tau, tauInv

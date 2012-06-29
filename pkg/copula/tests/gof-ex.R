@@ -27,7 +27,7 @@ source(system.file("Rsource", "estim-gof-fn.R", package="copula"))
 ## --> estimation.gof() etc
 (doExtras <- interactive() || nzchar(Sys.getenv("R_copula_check_extra")))
 
-## From source(system.file("test-tools.R", package = "Matrix")) :
+## From source(system.file("test-tools-1.R", package = "Matrix")) :
 showProc.time <- local({
     pct <- proc.time()
     function() { ## CPU elapsed __since last called__
