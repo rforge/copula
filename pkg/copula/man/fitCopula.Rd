@@ -180,7 +180,7 @@ fit.ml <- fitCopula(normal.cop.ar1, x, method="ml")
 fit.ml
 
 ## a t copula with df.fixed=FALSE
-t.cop <- tCopula(c(0.2,0.4,0.6),dim=3,dispstr="un",df=5)
+(t.cop <- tCopula(c(0.2,0.4,0.6),dim=3,dispstr="un",df=5))
 x <- rcopula(t.cop, n)     ## true observations
 u <- apply(x, 2, rank) / (n + 1)  ## pseudo-observations
 ## maximum likelihood
@@ -191,5 +191,5 @@ fit.mpl <- fitCopula(t.cop, u, method="mpl", start=c(0,0,0,10),
                      estimate.variance=FALSE)
 fit.mpl
 }
-\keyword{ models }% at least one, from doc/KEYWORDS
-\keyword{ multivariate }% __ONLY ONE__ keyword per line
+\keyword{ models }
+\keyword{ multivariate }

@@ -95,14 +95,14 @@ fitCopula.mpl <- function(copula, data, start=NULL,
                           estimate.variance = TRUE,
                           hideWarnings = TRUE) {
   q <- length(copula@parameters)
-  if (is.null(start)) {
-    if (hasMethod("calibKendallsTau", class(copula))) {
-      start <- fitCopula.itau(copula, data, FALSE)@estimate
-      if (is.na(loglikCopula(start, data, copula, hideWarnings)))
-        start <- copula@parameters
-    }
-    else start <- copula@parameters
-  }
+  if (is.null(start))
+    start <-
+      if (hasMethod("calibKendallsTau", class(copula))) {
+	start <- fitCopula.itau(copula, data, FALSE)@estimate
+	if(is.na(loglikCopula(start, data, copula, hideWarnings)))
+	  copula@parameters else start
+      }
+      else copula@parameters
 
   fit <- fitCopula.ml(copula, data, start=start, lower=lower, upper=upper,
         	      method=optim.method, optim.control=optim.control,
@@ -132,7 +132,8 @@ fitCopula.itau <- function(copula, data, estimate.variance=TRUE) {
       if (is(copula, "ellipCopula") && copula@dispstr == "ar1") ## special treatment
           exp(coef(lm(log(itau) ~ X - 1))) else coef(lm(itau ~ X - 1))
   attributes(estimate) <- NULL ## strip attributes
-  copula@parameters[1:q] <- estimate
+  ## Note that '@ parameters' may contain "'df' at end" for tCopula(*, df.fixed=FALSE) :
+  copula@parameters[seq_along(estimate)] <- estimate
   var.est <- if (estimate.variance)
       varKendall(copula, data) / nrow(data) else matrix(NA, q, q)
   new("fitCopula",
@@ -157,7 +158,8 @@ fitCopula.irho <- function(copula, data, estimate.variance=TRUE) {
   estimate <- if (is(copula, "ellipCopula") && copula@dispstr == "ar1") ## special treatment
       exp(coef(lm(log(irho) ~ X - 1))) else coef(lm(irho ~ X - 1))
   attributes(estimate) <- NULL ## strip attributes
-  copula@parameters[1:q] <- estimate
+  ## Note that '@ parameters' may contain "'df' at end" for tCopula(*, df.fixed=FALSE) :
+  copula@parameters[seq_along(estimate)] <- estimate
   var.est <- if (estimate.variance) varSpearman(copula, data)/nrow(data) else matrix(NA, q, q)
   new("fitCopula",
       estimate = estimate,
@@ -191,9 +193,9 @@ loglikCopula <- function(param, x, copula, hideWarnings=FALSE) {
     sink(messageOut); sink(messageOut, type="message")
     options(warn = -1) ## ignore warnings; can be undesirable!
   }
-  ## FIXME: as soon as *ALL*  dcopula() methods have a  'log' argument which works {add tests !!}
-  ## loglik <- try(sum(dcopula(copula, x, log=TRUE)))
-  loglik <- try(sum(log(dcopula(copula, x))))
+
+  loglik <- try(sum(dcopula(copula, x, log=TRUE)))
+  ##old: loglik <- try(sum(log(dcopula(copula, x))))
 
   if (hideWarnings) {
     options(warn = 0)
@@ -222,8 +224,10 @@ fitCopula.ml <- function(copula, data, start=NULL,
   if (!is.null(optim.control[[1]])) control <- c(control, optim.control)
   q <- length(copula@parameters)
   eps <- .Machine$double.eps ^ 0.5
-  if (is.null(lower)) lower <- if(method %in% c("Brent","L-BFGS-B")) copula@param.lowbnd + eps else -Inf
-  if (is.null(upper)) upper <- if(method %in% c("Brent","L-BFGS-B")) copula@param.upbnd  - eps else Inf
+  if (is.null(lower))
+    lower <- if(method %in% c("Brent","L-BFGS-B")) copula@param.lowbnd + eps else -Inf
+  if (is.null(upper))
+    upper <- if(method %in% c("Brent","L-BFGS-B")) copula@param.upbnd  - eps else Inf
 ##  if (p >= 2) {
   if (TRUE) {
     fit <- optim(start, loglikCopula,
@@ -234,8 +238,8 @@ fitCopula.ml <- function(copula, data, start=NULL,
     copula@parameters[1:q] <- fit$par
     loglik <- fit$val
     convergence <- fit$convergence
-    if (fit$convergence > 0)
-      warning("possible convergence problem: optim gave code=", fit$convergence)
+    if(convergence > 0)
+      warning("possible convergence problem: optim gave code=", convergence)
   }
 ##   else {
 ##     fit <- optimize(loglikCopula, lower=lower, upper=upper, maximum=TRUE,
