@@ -6,6 +6,7 @@ DRIVERS = nacopula-pkg Frank-Rmpfr
 
 #R_PROG = R-devel
 R_PROG = R
+R_HOME = $(shell ${R_PROG} RHOME)
 
 ## "Writing R Extensions" requires: 1st target must also clean up
 ## NB: This is *BAD* for submitting to JSS (which needs  $(DRIVERS).tex !)

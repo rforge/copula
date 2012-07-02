@@ -3,7 +3,7 @@
 %%%%%%%%%%%%
 %
 \author{Martin M\"achler \\ ETH Zurich%
-\\ May 2011 {\tiny (\LaTeX'ed \today)}%---- for now
+\\ May 2011 -- July 2012 {\tiny (\LaTeX'ed \today)}%---- for now
 }
 \title{Numerically Stable Frank Copula Functions via Multiprecision:
   \proglang{R} Package \pkg{Rmpfr}}
@@ -20,13 +20,22 @@
 %\VignetteDepends{Rmpfr}
 \SweaveOpts{engine=R,eps=FALSE,pdf=TRUE,width=7,height=5,strip.white=true,keep.source=TRUE}
 
-
 %% an abstract and keywords
 \Abstract{
-  The package \pkg{copula} ....
-  ... Archimedean copulas
+  The package \pkg{copula} (formerly \texttt{nacopula}) has provided
+  functionality for Archimedean copulas, one of them the ``Frank copula''.
+  Recently, explicit formulas for the density of those copulas have allowed
+  for maximum likelihood estimation in high (e.g., $d=150)$) dimensions,
+  (\cite{hofertmaechlermcneil2012a}).
 
-  The package \pkg{Rmpfr} ....
+  However for non-small dimensions, the evaluation of these densities is
+  numerically challenging, and in some cases difficult.  Here, we use high
+  precision arithmetic from MPFR, via R package \pkg{Rmpfr} in order to get
+  accurate values for the diagonal density of the Frank copula.
+
+  Subsequently, judiciously analysing and circumventing the numerical
+  infelicities of the ``traditional'' evaluation, we gain accurate values
+  even with traditional (double precision) arithmetic.
 }
 
 \Keywords{Archimedean copulas, Frank Copula, Multiple Precision, R, MPFR, Rmpfr}
@@ -215,7 +224,7 @@ dDiagA <- function(u, th, d, psiInv, psiDabs, psiInvD1abs, log = FALSE) {
     }
 }
 @
-Now, for the Frank copula (see Hofert and M\"achler (2011)),% FIXME \cite{Hofert:Maechler:201....}
+Now, for the Frank copula (\cite{Hofert:Maechler:2010:JSSOBK:v39i09}),
 \begin{eqnarray}
   \psi_\theta(t) &=& - \frac{1}{\theta}\log\left(1 - (1 - e^{-\theta})e^{-t}\right),
   \label{eq:psiFrank}
@@ -558,6 +567,6 @@ options(op.orig)
 
 \section{Conclusion}
 
-%\bibliography{nacopula}% Rmpfr
+\bibliography{nacopula}% Rmpfr
 
 \end{document}
