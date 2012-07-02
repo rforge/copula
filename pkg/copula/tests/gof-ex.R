@@ -94,7 +94,7 @@ set.seed(101)
 x <- rcopula(claytonCopula(3), 200)
 
 for(fitMeth in c("mpl", "ml", "itau", "irho")) {
-    cat("\nfit*( method = '", fitMeth,"')\n----------------------\n\n", sep="")
+    cat("\nfit*( method = '", fitMeth,"')\n----------------------\n", sep="")
     print(gofCopula(gumbelCopula (1), x, N = 10, print. =0, method = fitMeth))
     print(gofCopula(claytonCopula(1), x, N = 10, print. =0, method = fitMeth))
 }
@@ -184,17 +184,22 @@ showProc.time()
 
 system.time(B. <- gofTstat(u, method="SnB"))
 system.time(C. <- gofTstat(u, method="SnC"))
-stopifnot(all.equal(gofTstatSimple(u, method="SnB"), B. <- gofTstat(u, method="SnB")),
-          all.equal(gofTstatSimple(u, method="SnC"), C. <- gofTstat(u, method="SnC")))
+stopifnot(all.equal(B., gofTstatSimple(u, method="SnB")),
+	  all.equal(C., gofTstatSimple(u, method="SnC")))
 c(SnB = B., SnC = C.)
 showProc.time()
 
 (cop <- onacopula("Clayton", C(2, 1:d)))
 for(met in gofMeth) {
     cat("\n gof-method:", met, ":\n---------\n")
+    nBoot <- switch(met,
+		    "SnB" = 4,
+		    "SnC" = 8,
+		    ## the rest:
+		    28)
     set.seed(7)
     st <- system.time( ## "SnB" is relatively slow - shorten here:
-	  gn <- gnacopula(u, cop, n.bootstrap = if(met == "SnB") 6 else 32,
+	  gn <- gnacopula(u, cop, n.bootstrap = nBoot,
 			  method = met, trafo="Rosenblatt", verbose=FALSE))
     print(gn)
     print(st)
