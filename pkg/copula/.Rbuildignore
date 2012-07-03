@@ -1,4 +1,5 @@
 /misc.*
+tests/gof-ex.R
 TODO-merge-.*
 Rplots.pdf
 inst/doc/auto.*
