@@ -91,6 +91,9 @@ graphical GoF test we introduced and which we want to put in the package anyway.
 ** DONE MH: @ Jun, Ivan: file R/E.R  only defines E <- exp(1). Reason(MM): work around silly 'CMD check' warnings.
 But we should move that to another R/*.R
 
+** mvdc() -- fitMvdc() and generate data from fit -- currently wrong on help page
+*** --> e-mail and example: /u/maechler/R/MM/Pkg-ex/copula/mvdc-ex.R
+
 
 * Testing: ./tests/  must grow, notably for "Jun-Ivan functions"
 ** maybe take  ./tests/copula-play.R  as sophisticated role model.
