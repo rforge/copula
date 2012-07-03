@@ -40,7 +40,7 @@ But people have asked for it.
 
 * C code
 ** DONE [src/init.c] enable registration for the old 'copula' part
-** (NO) move  from .C() towards .Call()
+** Move  from .C() towards .Call() -- only very long term
 JY: Agree. Quite a few them. Can it wait?  MM: Definitely; Actually, I
 think it's not worth the effort; particularly now that I've spent all the
 effort writing src/init.c for registration of all of the .C(..) routines.
@@ -60,7 +60,7 @@ Doxygen headers should exactly look like in C code [C-c C-o not working])
 * New Wrapper functions or rather extending one or the other function names
 ** distribution/density/ ... functions
 *** DONE dcopula(), pcopula(), rcopula()  (for "nacopula")
-*** d*():  allow  log=TRUE  [DONE for t and normal]
+*** DONE d*():  allow  log=TRUE and use that in loglikCopula()
 ** random number generation
 MH: MM and I wrote wrappers for the two elliptical copulas (normal, t) and the
 Archimedean ones. Can't we include those 'as is'? They are also needed for the
@@ -77,7 +77,7 @@ graphical GoF test we introduced and which we want to put in the package anyway.
 *** DONE inst/doc/nacopula-pkg.Rnw  -- keep file name, maybe rewrite including
  *Title*  (s/nacopula package/Nested Archimedean Copulas in the copula package/)
 *** \link{} between  old-copula and old-nacopula  functionality
-*** write a small vignette with a table of "the same function names"
+*** small vignette with table of function names providing the same functionality (nacopula / old_copula)
 
 * Miscellaneous functions
 ** MM, MH: indepTest()  takes a while {ok}, *BUT* cannot be interrupted (quickly enough)
