@@ -16,7 +16,6 @@
 
 ### Extreme-value copulas ######################################################
 
-
 evCopula <- function(family, param, dim = 2L, ...) {
   familiesImplemented <- c("galambos", "gumbel", "huslerReiss")
   fam <- pmatch(family, familiesImplemented, -1)
