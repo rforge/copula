@@ -17,8 +17,8 @@ enacopula(u, cop,
 }
 \arguments{
   \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-)observations (each
-    value in \eqn{[0,1]}) from the copula to be estimated, where \eqn{n} denotes
-    the sample size and \eqn{d} the dimension.  Consider applying the
+    value in \eqn{[0,1]}) from the copula to be estimated, where \eqn{n}
+    denotes the sample size and \eqn{d} the dimension.  Consider applying the
     function \code{\link{pobs}} first in order to obtain \code{u}.}
   \item{cop}{\code{\linkS4class{outer_nacopula}} to be estimated
     (currently only Archimedean copulas are provided).}

@@ -97,9 +97,8 @@ But we should move that to another R/*.R
 
 * Former nacopula stuff
 ** major (to fix before next release)
-   - rtrafo() {and probably htrafo()} --- "fail" (are *wrong*!) for n = 1
-   - bug fixes for estimation methods!
-   - bug fixes for estimation methods!  {still relevant ??}
+- rtrafo() {and probably htrafo()} --- "fail" (are *wrong*!) for n = 1
+- bug fixes for estimation methods!  {still relevant ??}
 ** intermediate
    - opower() --> either produce acopula with parameter *vector*, or
      --- maybe in any case ---
@@ -112,11 +111,13 @@ But we should move that to another R/*.R
      method is faster than C. Genest's.)
    - rtrafo() is now "available" for "t" and "normal" thanks to the Master
      thesis of Yongsheng Wang.  (--> ...../function-gof.R )
-     --> enable that, and  write a better wrapper for  gnacopula() / gofCopula()
+     --> implement it, and  write a better wrapper for  gnacopula()/gofCopula()
 
-#### Minor #####################################################################
-
-(*) write nice little function that provides confidence intervals for tau and lambda's
+(*) From time to time (well, whenever Marius has.. ;-)) check the .Rd files
+    for overlong lines, i.e. apply
+      for f in *Rd; do printf '%20s: ' $f ; printf '%4d\n' `maxcol $f` ; done
+(*) write nice little function that provides confidence intervals for tau and
+lambda's
 (*) fix:
     cop <- onacopulaL("Frank", list(200, 1:2)); rnacopula(100, cop)
     maybe use limit copulas also for other families (upper frechet bound)
@@ -125,25 +126,14 @@ But we should move that to another R/*.R
     dendrogram print()ing.
 (*) design a function that gets an outer nacopula and returns a matrix of
     numbers which correspond to the different sectors; this can be used, e.g.,
-    for building a [default] color-matrix for splom2 or for estimation purposes etc.
-(*) it would be good to have tryCatch.W.E in the package [call it tryCatchWE --
-    easier to type]
-    Maybe one can also directly return a list with "value", "error", and "warning"?
-    [So far, "value" can also contain the errors => a bit unhandy, but maybe the
-    only "elegant" general solution]
-
-(*) From time to time (well, whenever Marius has.. ;-)) check the .Rd files
-    for overlong lines, i.e. apply
-      for f in *Rd; do printf '%20s: ' $f ; printf '%4d\n' `maxcol $f` ; done
-
+    for building a [default] color-matrix for splom2 or for estimation purposes
+    etc.
+    Note: look at nacPairthetas
 
 #### Long-term maybe ###########################################################
 
-(*) implement Khoudraji or Liebscher trafo incl. density etc.
-(*) allow families to have outer power parameters (outer power families)
-(*) be compatible with package copula
-(*) include pairwise estimators for nACs
 (*) FIXME in enacopula (in estimation.R): return an object?
+(*) include pairwise estimators for nACs
 (*) can we create a function for the GIG generator similar to opower()?
 
 
