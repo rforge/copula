@@ -16,35 +16,15 @@
 
 ### asymmetric explicit copulas ################################################
 
-setClass("asymExplicitCopula",
+setClass("asymExplicitCopula", contains = "asymCopula",
          representation = representation(
-           "copula",
-           copula1 = "copula",
-           copula2 = "copula",
            exprdist = "expression",
            derExprs1 = "expression",
            derExprs2 = "expression"
-           ),
-         validity = function(object) {
-           stopifnot(object@copula1@dimension == object@copula2@dimension)
-           dim <- object@dimension
-           ## from Classes.R
-           if (dim != as.integer(dim))
-             return("dim must be integer")
-           if (dim < 2)
-             return("dim must be >= 2")
-           param <- object@parameters
-           upper <- object@param.upbnd
-           lower <- object@param.lowbnd
-           if (length(param) != length(upper))
-             return("Parameter and upper bound have non-equal length")
-           if (length(param) != length(lower))
-             return("Parameter and lower bound have non-equal length")
-           if (any(is.na(param) | param > upper | param < lower))
-             return("Parameter value out of bound")
-           else return (TRUE)
-         },
-         contains = list("copula")
+           )
+         ## validity = function(object) {
+         ##     ## TODO: check exprdist, derExprs[12]
+         ## },
          )
 
 ## Liebscher (2008, JMA); the special case is Khoudraji

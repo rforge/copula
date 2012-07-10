@@ -16,25 +16,6 @@
 
 ### basic copula class #########################################################
 
-##' Check validity of "copula"  (not exported for now)
-validCopula <- function(object) {
-    dim <- object@dimension
-    if (dim != as.integer(dim))
-        return("dim must be integer")
-    if (dim < 2)
-        return("dim must be >= 2")
-    param <- object@parameters
-    upper <- object@param.upbnd
-    lower <- object@param.lowbnd
-    lp <- length(param)
-    if (lp != length(upper) && length(upper) != 1)
-        return("Parameter and upper bound have non-equal length")
-    if (lp != length(lower) && length(lower) != 1)
-        return("Parameter and lower bound have non-equal length")
-    if (any(is.na(param) | param > upper | param < lower))
-        return("Parameter value out of bound")
-    else return (TRUE)
-}
 
 setClass("copula",
          representation(dimension = "integer", # as for "nacopula"
@@ -44,7 +25,25 @@ setClass("copula",
                         param.upbnd = "numeric",
                         message = "character",
                         "VIRTUAL"),
-         validity = validCopula)
+         validity = ##' Check validity of "copula"
+         function(object) {
+             dim <- object@dimension
+             if (dim != as.integer(dim))
+                 return("dim must be integer")
+             if (dim < 2)
+                 return("dim must be >= 2")
+             param <- object@parameters
+             upper <- object@param.upbnd
+             lower <- object@param.lowbnd
+             lp <- length(param)
+             if (lp != length(upper) && length(upper) != 1)
+                 return("Parameter and upper bound have non-equal length")
+             if (lp != length(lower) && length(lower) != 1)
+                 return("Parameter and lower bound have non-equal length")
+             if (any(is.na(param) | param > upper | param < lower))
+                 return("Parameter value out of bound")
+             else return (TRUE)
+         })
 
 ## general methods for copula
 setGeneric("dcopula", function(copula, u, log=FALSE, ...) standardGeneric("dcopula"))

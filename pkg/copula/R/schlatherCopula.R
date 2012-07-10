@@ -57,7 +57,7 @@ derAfunWrtParamSchlather <- function(copula, w) {
 
 schlatherCopula <- function(param) {
   dim <- 2L
-  new("huslerReissCopula",
+  new("schlatherCopula",
              dimension = dim,
              ## exprdist = c(cdf = cdf, pdf = pdf),
              parameters = param[1],
@@ -101,11 +101,11 @@ dschlatherCopula <- function(copula, u, log=FALSE, ...) {
 #setMethod("Afun", signature("schlatherCopula"), AfunSchlather)
 #setMethod("AfunDer", signature("schlatherCopula"), AfunDerSchlather)
 
-## setMethod("kendallsTau", signature("schlatherCopula"), kendallsTauHuslerReissCopula)
-## setMethod("spearmansRho", signature("schlatherCopula"), spearmansRhoHuslerReissCopula)
+## setMethod("kendallsTau", signature("schlatherCopula"), kendallsTauSchlatherCopula)
+## setMethod("spearmansRho", signature("schlatherCopula"), spearmansRhoSchlatherCopula)
 
-## setMethod("calibKendallsTau", signature("schlatherCopula"), calibKendallsTauHuslerReissCopula)
-## setMethod("calibSpearmansRho", signature("schlatherCopula"), calibSpearmansRhoHuslerReissCopula)
+## setMethod("calibKendallsTau", signature("schlatherCopula"), calibKendallsTauSchlatherCopula)
+## setMethod("calibSpearmansRho", signature("schlatherCopula"), calibSpearmansRhoSchlatherCopula)
 
-## setMethod("tauDer", signature("schlatherCopula"), tauDerHuslerReissCopula)
-## setMethod("rhoDer", signature("schlatherCopula"), rhoDerHuslerReissCopula)
+## setMethod("tauDer", signature("schlatherCopula"), tauDerSchlatherCopula)
+## setMethod("rhoDer", signature("schlatherCopula"), rhoDerSchlatherCopula)

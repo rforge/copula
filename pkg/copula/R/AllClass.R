@@ -176,8 +176,8 @@ setClass("outer_nacopula", contains = "nacopula",
              d <- dim(object)
              ic <- object@comp
              allC <- allComp(object)
-             if(length(allC) != d)
-                 return("must have d coordinates (from 'comp' and 'childCops')")
+             ## if(length(allC) != d)
+             ##     return("must have d coordinates (from 'comp' and 'childCops')")
              if(!all(sort(allC) == 1:d))
                  return(paste("The implicit coordinates are not identical to 1:d; instead\n  ",
                               paste(allC, collapse=", ")))

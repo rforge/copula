@@ -57,19 +57,18 @@ gofEVCopula(copula, x, N = 1000, method = "mpl",
 }
 
 \references{
-
   C. Genest and J. Segers (2009). Rank-based inference for bivariate
-  extreme-value copulas. \emph{Annals of Statistics}, 37, pages 2990-3022.
+  extreme-value copulas. \emph{Annals of Statistics} \bold{37}, 2990--3022.
 
   C. Genest, I. Kojadinovic, J. Nešlehová and J. Yan (2011). A
   goodness-of-fit test for bivariate extreme-value copulas.
-  \emph{Bernoulli} \bold{17}, 1, pages 253-275.
+  \emph{Bernoulli} \bold{17}(1), 253--275.
 }
 \seealso{ \code{\link{evCopula}}, \code{\link{evTestC}}, \code{\link{evTestA}},
-  \code{\link{evTestK}}, \code{\link{gofCopula}}, \code{\link{Anfun}}. }
-
+  \code{\link{evTestK}}, \code{\link{gofCopula}}, \code{\link{Anfun}}.
+}
 \examples{
-\dontrun{
+\dontrun{%%  because the bootstraps are slow, particularly for the non-Gumbel ones
 x <- rcopula(claytonCopula(3), 100)
 
 ## Does the Gumbel family seem to be a good choice?
@@ -83,9 +82,11 @@ gofEVCopula(gumbelCopula(1), x, method="irho")
 gofEVCopula(galambosCopula(1), x)
 gofEVCopula(galambosCopula(1), x, method="itau")
 gofEVCopula(galambosCopula(1), x, method="irho")
+
 gofEVCopula(huslerReissCopula(1), x)
 gofEVCopula(huslerReissCopula(1), x, method="itau")
 gofEVCopula(huslerReissCopula(1), x, method="irho")
+
 gofEVCopula(tevCopula(0, df.fixed=TRUE), x)
 gofEVCopula(tevCopula(0, df.fixed=TRUE), x, method="itau")
 gofEVCopula(tevCopula(0, df.fixed=TRUE), x, method="irho")

@@ -71,6 +71,10 @@ graphical GoF test we introduced and which we want to put in the package anyway.
    the "J-I" ones.
 *** Write testing code that "proves" this.
 
+** "copula" class:  slot re-definitions
+*** 'message' --> 'name' (or ??)
+*** 'param.lowbnd' / 'param.upbnd' --- use "interval" as in nacopula
+
 * Documentation etc
 *** DONE inst/doc/nacopula-pkg.Rnw  -- keep file name, maybe rewrite including
  *Title*  (s/nacopula package/Nested Archimedean Copulas in the copula package/)
