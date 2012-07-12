@@ -23,6 +23,7 @@
 \alias{kendallsTau,tawnCopula-method}
 \alias{kendallsTau,tevCopula-method}
 \alias{kendallsTau,evCopula-method}
+\alias{kendallsTau,nacopula-method}
 
 \alias{spearmansRho-methods}
 \alias{spearmansRho,ANY-method}
@@ -49,6 +50,7 @@
 \alias{tailIndex,gumbelCopula-method}
 \alias{tailIndex,normalCopula-method}
 \alias{tailIndex,tCopula-method}
+\alias{tailIndex,nacopula-method}
 
 \alias{calibKendallsTau-methods}
 \alias{calibKendallsTau,ANY-method}
@@ -66,6 +68,7 @@
 \alias{calibKendallsTau,huslerReissCopula-method}
 \alias{calibKendallsTau,tawnCopula-method}
 \alias{calibKendallsTau,tevCopula-method}
+\alias{calibKendallsTau,nacopula-method}
 
 \alias{calibSpearmansRho-methods}
 \alias{calibSpearmansRho,ANY-method}
@@ -82,7 +85,7 @@
 \alias{calibSpearmansRho,tevCopula-method}
 \alias{calibSpearmansRho,plackettCopula-method}
 \alias{calibSpearmansRho,fgmCopula-method}
-
+\alias{calibSpearmansRho,nacopula-method}
 
 \title{Dependence measures for copulas}
 \description{

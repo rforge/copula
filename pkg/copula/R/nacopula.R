@@ -426,3 +426,23 @@ setMethod("pcopula", "nacopula", function(copula, u) pnacopula(copula, u))
 setMethod("rcopula", "nacopula",
 	  function(copula, n, ...) ## argument reversal ..
 	  rnacopula(n, copula, ...))
+
+setMethod("tailIndex", "acopula",
+	  function(copula, ...) {
+	      th <- copula@theta
+	      if(any(is.na(th)))
+		  warning("'theta' is NA -- maybe rather apply to setTheta(.)")
+	      c(copula@lambdaL(th), copula@lambdaU(th))
+	  })
+setMethod("tailIndex", "nacopula", function(copula, ...) tailIndex(copula@copula, ...))
+
+setMethod("kendallsTau", "acopula", function(copula) copula@tau(copula@theta))
+setMethod("kendallsTau", "nacopula", function(copula) kendallsTau(copula@copula))
+
+setMethod("spearmansRho", "nacopula", function(copula) spearmansRho(copula@copula))
+setMethod("spearmansRho", "acopula", function(copula)
+    stop(gettextf("%s() method for class \"%s\" not implemented;",
+                                    "spearmansRho", class(copula)),
+         "\nconsider contacting  maintainer(\"copula\")")
+)
+
