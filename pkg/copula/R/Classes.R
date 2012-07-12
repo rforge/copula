@@ -23,15 +23,15 @@ setClass("copula",
                         param.names = "character",
                         param.lowbnd = "numeric",
                         param.upbnd = "numeric",
+                        ## TODO: "a vector" of intervals" paraInterval = "maybeInterval", # [.,.]  (.,.], etc .. parameter interval
                         message = "character",
                         "VIRTUAL"),
+         prototype = prototype(dimension = 2L, parameters = NA_real_),
          validity = ##' Check validity of "copula"
          function(object) {
-             dim <- object@dimension
-             if (dim != as.integer(dim))
-                 return("dim must be integer")
-             if (dim < 2)
-                 return("dim must be >= 2")
+	     dim <- object@dimension # "integer" by definition
+	     if (length(dim) != 1) return("'dim' must be an integer (>= 2)")
+	     if (dim < 2) return("dim must be >= 2")
              param <- object@parameters
              upper <- object@param.upbnd
              lower <- object@param.lowbnd
@@ -40,9 +40,16 @@ setClass("copula",
                  return("Parameter and upper bound have non-equal length")
              if (lp != length(lower) && length(lower) != 1)
                  return("Parameter and lower bound have non-equal length")
-             if (any(is.na(param) | param > upper | param < lower))
-                 return("Parameter value out of bound")
-             else return (TRUE)
+             intervChk <- ## TODO: mkParaConstr(object@paraInterval)
+                 function(par) all(lower <= param && param <= upper)
+             ina.p <- is.na(param)
+             if(!all(ina.p)) {
+                 if(any(ina.p)) return("some (but not all) parameter values are  NA")
+                 if(!intervChk(param)) return("Parameter value(s) out of bound")
+             }
+
+	     ## want to allow (all) NA parameters:
+	     TRUE
          })
 
 ## general methods for copula

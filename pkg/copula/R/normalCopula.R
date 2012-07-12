@@ -14,19 +14,17 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-normalCopula <- function(param, dim = 2L, dispstr = "ex") {
-  pdim <- length(param)
-  dim <- as.integer(dim)
+normalCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex") {
+  stopifnot((pdim <- length(param)) >= 1)
   new("normalCopula",
       dispstr = dispstr,
-      dimension = dim,
+      dimension = as.integer(dim),
       parameters = param,
       param.names = paste("rho", 1:pdim, sep="."),
       param.lowbnd = rep(-1, pdim),
       param.upbnd = rep(1, pdim),
       message = "Normal copula family",
-      getRho = function(obj) {obj@parameters}
-      )
+      getRho = function(obj) obj@parameters)
 }
 
 

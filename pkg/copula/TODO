@@ -64,7 +64,7 @@ MH: MM and I wrote wrappers for the two elliptical copulas (normal, t) and the
 Archimedean ones. Can't we include those 'as is'? They are also needed for the
 graphical GoF test we introduced and which we want to put in the package anyway.
 
-* Deprecation of Old Stuff
+* Deprecation of Old Stuff /  towards more consistency / Cleanup
 - with warning
 - on help pages
 ** Notably the NAC Archimedean families are probably uniformly 'better' than
@@ -74,6 +74,14 @@ graphical GoF test we introduced and which we want to put in the package anyway.
 ** "copula" class:  slot re-definitions
 *** 'message' --> 'name' (or ??)
 *** 'param.lowbnd' / 'param.upbnd' --- use "interval" as in nacopula
+
+** loglikCopula() --- try(), hidemessages should "go" eventually
+** nparam() "wrapper" for  length(.@parameters)
+** varPL(): TODO's there
+** tauDer() = tau'() and rhoDer() = rho'() -- to get S.Err. for  "itau" and "irho"
+*** these are *one* of the things where IJ-archmCopula' are better
+** AfunDerGalambos() and similar: Use  list() instead of data.frame() as return value  (?)
+** derCdfWrtParamsEvCopula() cannot work (as derAfunWrtParam() has no methods) and is used nowhere
 
 * Documentation etc
 *** DONE inst/doc/nacopula-pkg.Rnw  -- keep file name, maybe rewrite including

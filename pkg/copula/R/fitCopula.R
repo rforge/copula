@@ -350,26 +350,27 @@ influ.terms <- function(u, influ, q)
   n <- nrow(u)
 
   o <- ob <- matrix(0,n,p)
-  for (i in 1:p)
-    {
+  for (i in 1:p) {
       o[,i] <- order(u[,i], decreasing=TRUE)
       ob[,i] <- rank(u[,i])
-    }
+  }
 
+  ## integral wrt empirical copula (-> sum):
   out <- matrix(0,n,q)
   for (i in 1:p)
-      out <- out + rbind(rep(0,q),apply(influ[[i]][o[,i],,drop=FALSE],2,cumsum))[n + 1 - ob[,i],,drop=FALSE] / n
-  return(out)
+      out <- out + rbind(rep(0,q),
+                         apply(influ[[i]][o[,i],,drop=FALSE],2,cumsum))[n + 1 - ob[,i],,drop=FALSE]
+  return(out / n)
 }
 
 ## cop is the FITTED copula
 ## u are the available pseudo-observations
 varPL <- function(cop,u)
   {
+    q <- length(cop@parameters)
     ## check if variance can be computed
     if (!hasMethod("dcopwrap", class(cop))) {
       warning("The variance estimate cannot be computed for this copula.")
-      q <- length(cop@parameters)
       return(matrix(NA, q, q))
     }
 
@@ -378,15 +379,18 @@ varPL <- function(cop,u)
 
     ## influence: second part
     ## integrals computed from the original pseudo-obs u by Monte Carlo
-    dcop <- dcopwrap(cop,u) ## wrapper
-    influ0 <- derPdfWrtParams(cop,u)/dcop
-    derArg <- derPdfWrtArgs(cop,u)/dcop
+    dcop <- dcopwrap(cop,u) ## wrapper: either dcopula() or '1' (for ellip.)
+    ## New    dcop <- dcopula(cop,u) ## in some cases
+    ## influ0 <- score (cop,u, dcop)
+    ## derArg <- score2(cop,u, dcop)
+    influ0 <- derPdfWrtParams(cop,u) / dcop # c. / c  = of dim.  n x q  {== cop<foo>@score()}
+    derArg <- derPdfWrtArgs(cop,u)   / dcop #         = of dim.  n x p  { missing in copFoo -- TODO}
 
+    ## TODO: use  array instead of list (and change influ.terms() accordingly)
     influ <- vector("list",p)
     for (i in 1:p)
         influ[[i]] <- influ0 * derArg[,i]
 
-    q <- length(cop@parameters)
     inve <- solve(var(influ0))
 
     return(inve %*% var(influ0 - influ.terms(u,influ,q)) %*% inve)
@@ -471,10 +475,11 @@ varInfluAr1 <- function(cop, v, L, der) {
   v %*% theta
 }
 
+##' See Kojadinovic & Yan (2010) Comparison of three semiparametric ... IME 47, 52--63
 varKendall <- function(cop,u) {
   ## check if variance can be computed
   if (!hasMethod("tauDer", class(cop))) {
-    warning("The variance estimate cannot be computed for this copula.")
+    warning("The variance estimate cannot be computed for a copula of class", class(cop))
     q <- length(cop@parameters)
     return(matrix(NA, q, q))
   }
@@ -506,9 +511,13 @@ varKendall <- function(cop,u) {
 
 
 ## variance of the estimator based on Spearman's rho ###########################
-
-## cop is the FITTED copula
-## u are the available pseudo-observations
+##' See Kojadinovic & Yan (2010) Comparison of three seimparametirc ... IME 47, 52--63
+##'
+##' @title variance of the estimator based on Spearman's rho
+##' @param cop  the FITTED copula
+##' @param u the available pseudo-observations
+##' @return
+##' @author
 varSpearman <- function(cop,u)  {
   ## check if variance can be computed
   if (!hasMethod("rhoDer", class(cop))) {
