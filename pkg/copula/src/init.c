@@ -39,7 +39,7 @@ static R_NativePrimitiveArgType A_Pickands_t[7] = {
 static R_NativePrimitiveArgType validity_fgm_t[3] = { INTSXP, REALSXP, INTSXP };
 static R_NativePrimitiveArgType rfgm_t[4] = { INTSXP, REALSXP, INTSXP, REALSXP };
 
-// ---- ./set.utils.c ---------
+// ---- ./set_utils.c ---------
 static R_NativePrimitiveArgType k_power_set_t[3] = { INTSXP, INTSXP, INTSXP };
 static R_NativePrimitiveArgType k_power_set_char_t[4] = {
     INTSXP, INTSXP, INTSXP, STRSXP };

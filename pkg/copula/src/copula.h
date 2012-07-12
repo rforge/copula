@@ -23,8 +23,8 @@
 
 #include "Anfun.h"
 #include "gof.h"
-#include "set.utils.h"
-#include "empcop.stat.h"
+#include "set_utils.h"
+#include "indepTest_stats.h"
 
 // ./logseries.c : __FIXME__ also have rLog_vec_c()  from nacopula
 void rlogseries_R(int *n, double *alpha, int *val);

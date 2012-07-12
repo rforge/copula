@@ -27,8 +27,8 @@
 
 #include <R.h>
 #include <Rmath.h>
-#include "set.utils.h"
-#include "empcop.stat.h"
+#include "set_utils.h"
+#include "indepTest_stats.h"
 
 /*****************************************************************************
 
