@@ -18,6 +18,7 @@ and smoothed the results with pspline. Some details can be found
 in the appendix of Kojadinovic and Yan (2010, IME). The R scripts
 that generated sysdata.rda were moved out of the package source.
 We can put them back. The best place is under inst?
+=> JY: done on 2012-07-12. The R scripts are under inst/docs/tauRho/.
 - Note taken on [2012-02-21 Tue 18:52]
 **  R code for inspection:
  attach("~/R/Pkgs/copula/R/sysdata.rda")
@@ -35,6 +36,8 @@ MM: the previous file (+directory) names were:
 thought it was unnecessary because it can be obtained with mecdf.
 But people have asked for it.
 ** MM: Also, look at ./man/copula-internal.Rd :  e.g. schlatherCopula ??
+   JY: The implementation of schlatherCopula is not ready for release. 
+   More ev copulas will come from max-stable processes.
 
 * C code
 ** DONE [src/init.c] enable registration for the old 'copula' part
