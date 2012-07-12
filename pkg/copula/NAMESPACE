@@ -13,7 +13,6 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-
 useDynLib(copula, .registration=TRUE)
 
 ### Part I: Former copula ######################################################
@@ -24,7 +23,11 @@ importFrom("mvtnorm",
            dmvnorm, pmvnorm, rmvnorm,
            dmvt, pmvt, rmvt)
 
-## FIXME[instead of "Depends"]: importFrom(pspline)
+## FIXME[instead of "Depends"]:
+# We would want importS3MethodsFrom("pspline", predict)
+import("pspline")
+## S3method(predict, smooth.Pspline)
+
 
 ## importFrom(sn, dmst)
 ## importFrom(sn, qsn, dsn, psn, dmsn, pmsn)
