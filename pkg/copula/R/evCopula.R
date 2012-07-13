@@ -67,7 +67,7 @@ revCopula <- function(copula, n) {
   ders <- AfunDer(copula, z)
   Az <- Afun(copula, z)
   pz <- z * (1 - z) * ders$der2 / hdensity(copula, z) / Az
-  w <- rep(NA, n)
+  w <- numeric(n)
   mix1 <- runif(n) <= pz
   nmix1 <- sum(mix1)
   if (any( mix1)) w[ mix1] <- runif(nmix1)

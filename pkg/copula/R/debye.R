@@ -52,7 +52,7 @@ debye1 <- function(x, give=FALSE, strict=TRUE){
 debye2 <- function(x, give=FALSE, strict=TRUE){
   attr <- attributes(x)
   x.vec <- as.vector(x)
-  jj <- .C(debye_2,
+  jj <- .C(debye_2_C,
            as.double(abs(x.vec)),  ## added abs by JY
            as.integer(length(x.vec)),
            val=as.double(x.vec),

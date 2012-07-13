@@ -109,26 +109,24 @@ setClass("ellipCopula", contains = "copula",
 if(FALSE) # not yet needed -- validEllipCopula() is used anyway
 ##' normal copula
 validNormalCopula <- function(object) {
-  validEllipCopula(object)
   ## can do more if needed here
 }
 setClass("normalCopula", contains = "ellipCopula")
          ## validity = validNormalCopula)
 
+if(FALSE)## not needed
 ## t copula
 validTCopula <- function(object) {
-  df <- getdf(object)
-  if (df <= 0) return ("df should be > 0")
-  validEllipCopula(object)
+  ## df inside boundaries is checked in "copula" validity
 }
 
 setClass("tCopula", representation(df = "numeric", df.fixed = "logical"),
-         contains = "ellipCopula",
-         validity = validTCopula)
+         contains = "ellipCopula"
+         ## , validity = validTCopula
+         )
 
 
 ## methods for ellipCopula??
-
 
 ### Archimedean copulas, contains AMH, Clayton, Frank, Gumbel, ... #############
 

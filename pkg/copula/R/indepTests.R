@@ -14,14 +14,8 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-## Computes the sum of binomial coefficients
-binom.sum <- function(n,k)
-{
-    bs <- 1
-    for (i in 1:k)
-        bs <- bs + choose(n,i)
-    bs
-}
+## ## Computes the sum of binomial coefficients
+binom.sum <- function(n,k) sum(choose(n, 0:k))
 
 ################################################################################
 

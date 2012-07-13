@@ -23,6 +23,7 @@
 \alias{kendallsTau,tawnCopula-method}
 \alias{kendallsTau,tevCopula-method}
 \alias{kendallsTau,evCopula-method}
+\alias{kendallsTau,acopula-method}
 \alias{kendallsTau,nacopula-method}
 
 \alias{spearmansRho-methods}
@@ -40,6 +41,8 @@
 \alias{spearmansRho,tawnCopula-method}
 \alias{spearmansRho,tevCopula-method}
 \alias{spearmansRho,evCopula-method}
+\alias{spearmansRho,acopula-method}
+\alias{spearmansRho,nacopula-method}
 
 \alias{tailIndex-methods}
 \alias{tailIndex,ANY-method}
@@ -50,6 +53,7 @@
 \alias{tailIndex,gumbelCopula-method}
 \alias{tailIndex,normalCopula-method}
 \alias{tailIndex,tCopula-method}
+\alias{tailIndex,acopula-method}
 \alias{tailIndex,nacopula-method}
 
 \alias{calibKendallsTau-methods}

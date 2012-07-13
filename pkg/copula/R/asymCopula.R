@@ -16,6 +16,11 @@
 
 ### asymmetric copulas #########################################################
 
+###  E(u,v) = C(u^{1-a}, v^{1-b}) * D(u^a, v^b)
+###  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+### Liebscher (2008, JMA); the special case is Khoudraji
+
 setClass("asymCopula", contains = "copula",
          representation = representation(
            copula1 = "copula",
@@ -27,7 +32,6 @@ setClass("asymCopula", contains = "copula",
 	     else TRUE
 	 })
 
-## Liebscher (2008, JMA); the special case is Khoudraji
 gfun <- function(u, a) u^a
 igfun <- function(u, a) u^(1 / a)
 gfunDer <- function(u, a) a * u^(a - 1)

@@ -13,6 +13,11 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
+### TODO:  {also for "normalCopula"}
+##  1) allow "param = NA" --
+##  2) ndim(dim, dispstr, df.fixed) |-->  "dimension" (length) of param
+##  3) validity should check  pos.definiteness for "un"structured (maybe "toeplitz"
+##
 tCopula <- function(param, dim = 2L, dispstr = "ex", df = 4, df.fixed = FALSE) {
   dim <- as.integer(dim)
   stopifnot((pdim <- length(param)) >= 1, is.numeric(param))
