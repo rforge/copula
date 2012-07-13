@@ -63,11 +63,15 @@ Doxygen headers should exactly look like in C code [C-c C-o not working])
 * New Wrapper functions or rather extending one or the other function names
 ** distribution/density/ ... functions
 *** DONE dcopula(), pcopula(), rcopula()  (for "nacopula")
+*** TODO dCopula(x, cop), pCopula(x, cop), rCopula(n, cop)  {swapping args for "standard R" usage}
 *** DONE d*():  allow  log=TRUE and use that in loglikCopula()
 ** random number generation
 MH: MM and I wrote wrappers for the two elliptical copulas (normal, t) and the
 Archimedean ones. Can't we include those 'as is'? They are also needed for the
 graphical GoF test we introduced and which we want to put in the package anyway.
+
+* Renaming of current "base" functions see ./feature-table.org
+ e.g.  calibKendallsTau to iTau
 
 * Deprecation of Old Stuff /  towards more consistency / Cleanup
 - with warning
