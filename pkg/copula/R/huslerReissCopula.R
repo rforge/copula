@@ -71,18 +71,21 @@ derAfunWrtParamHuslerReiss <- function(copula, w) {
 
 huslerReissCopula <- function(param) {
   dim <- 2L
-  cdf <- expression( exp(log(u1 * u2) *  ((log(u2) / log(u1 * u2)) * pnorm(1 / alpha + 0.5 * alpha * log((log(u2) / log(u1 * u2)) /(1 - (log(u2) / log(u1 * u2))))) +    (1 - (log(u2) / log(u1 * u2))) * pnorm(1 / alpha - 0.5 * alpha * log((log(u2) / log(u1 * u2)) / (1 - (log(u2) / log(u1 * u2)))))) ) )
+  cdf <- expression( exp(log(u1 * u2) * (
+      log(u2) / log(u1 * u2)       * pnorm(1 / alpha + 0.5*alpha * log(log(u2) / log(u1 * u2) /(1 - log(u2) / log(u1 * u2)))) +
+      (1 - log(u2) / log(u1 * u2)) * pnorm(1 / alpha - 0.5*alpha * log(log(u2) / log(u1 * u2) /(1 - log(u2) / log(u1 * u2))))
+      ) ) )
   derCdfWrtU1 <- D(cdf, "u1")
   pdf <- D(derCdfWrtU1, "u2")
 
   new("huslerReissCopula",
-             dimension = dim,
-             exprdist = c(cdf = cdf, pdf = pdf),
-             parameters = param[1],
-             param.names = "param",
-             param.lowbnd = 0,
-             param.upbnd = Inf,
-             message = "Husler-Reiss copula family; Extreme value copula")
+      dimension = dim,
+      exprdist = c(cdf = cdf, pdf = pdf),
+      parameters = param[1],
+      param.names = "param",
+      param.lowbnd = 0,
+      param.upbnd = Inf,
+      message = "Husler-Reiss copula family; Extreme value copula")
 }
 
 
@@ -143,20 +146,15 @@ huslerReissTauFun <- function(alpha) {
   valFun(theta)
 }
 
-kendallsTauHuslerReissCopula <- function(copula) {
-  alpha <- copula@parameters[1]
-  huslerReissTauFun(alpha)
-}
-
 calibKendallsTauHuslerReissCopula <- function(copula, tau) {
-  if (any(tau < 0)) warning("tau is out of the range [0, 1]")
+  if (any(tau < 0)) warning("some tau < 0")
   huslerReissTauInv <- approxfun(x = .huslerReissTau$assoMeasFun$fm$ysmth,
                                  y = .huslerReissTau$assoMeasFun$fm$x, rule = 2)
-
   ss <- .huslerReissTau$ss
   theta <- huslerReissTauInv(tau)
   ifelse(tau <= 0, 0, .huslerReissTau$trFuns$backwardTransf(theta, ss))
 }
+
 
 huslerReissTauDer <- function(alpha) {
   ss <- .huslerReissTau$ss
@@ -168,10 +166,6 @@ huslerReissTauDer <- function(alpha) {
   valFun(theta, 1) * forwardDer(alpha, ss)
 }
 
-tauDerHuslerReissCopula <- function(copula) {
-  alpha <- copula@parameters[1]
-  huslerReissTauDer(alpha)
-}
 
 ## rho
 
@@ -184,13 +178,8 @@ huslerReissRhoFun <- function(alpha) {
   valFun(theta)
 }
 
-spearmansRhoHuslerReissCopula <- function(copula) {
-  alpha <- copula@parameters[1]
-  huslerReissRhoFun(alpha)
-}
-
 calibSpearmansRhoHuslerReissCopula <- function(copula, rho) {
-  if (any(rho < 0)) warning("rho is out of the range [0, 1]")
+  if (any(rho < 0)) warning("some rho < 0")
   huslerReissRhoInv <- approxfun(x = .huslerReissRho$assoMeasFun$fm$ysmth,
                                  y = .huslerReissRho$assoMeasFun$fm$x, rule = 2)
 
@@ -209,26 +198,28 @@ huslerReissRhoDer <- function(alpha) {
   valFun(theta, 1) * forwardDer(alpha, ss)
 }
 
-rhoDerHuslerReissCopula <- function(copula) {
-  alpha <- copula@parameters[1]
-  huslerReissRhoDer(alpha)
-}
 
 ################################################################################
 
 setMethod("pcopula", signature("huslerReissCopula"), phuslerReissCopula)
 setMethod("dcopula", signature("huslerReissCopula"), dhuslerReissCopula)
-## revCopula is much faster
+## inherits from "evCopula" --> revCopula() in ./evCopula.R :
 ## setMethod("rcopula", signature("huslerReissCopula"), rhuslerReissCopula)
 
 setMethod("Afun", signature("huslerReissCopula"), AfunHuslerReiss)
 setMethod("AfunDer", signature("huslerReissCopula"), AfunDerHuslerReiss)
 
-setMethod("kendallsTau", signature("huslerReissCopula"), kendallsTauHuslerReissCopula)
-setMethod("spearmansRho", signature("huslerReissCopula"), spearmansRhoHuslerReissCopula)
+setMethod("kendallsTau", signature("huslerReissCopula"), function(copula)
+	  huslerReissTauFun(copula@parameters[1]))
+
+setMethod("spearmansRho", signature("huslerReissCopula"), function(copula)
+	  huslerReissRhoFun(copula@parameters[1]))
 
 setMethod("calibKendallsTau", signature("huslerReissCopula"), calibKendallsTauHuslerReissCopula)
 setMethod("calibSpearmansRho", signature("huslerReissCopula"), calibSpearmansRhoHuslerReissCopula)
 
-setMethod("tauDer", signature("huslerReissCopula"), tauDerHuslerReissCopula)
-setMethod("rhoDer", signature("huslerReissCopula"), rhoDerHuslerReissCopula)
+setMethod("tauDer", signature("huslerReissCopula"), function(copula)
+	  huslerReissTauDer(copula@parameters[1]))
+
+setMethod("rhoDer", signature("huslerReissCopula"), function(copula)
+	  huslerReissRhoDer(copula@parameters[1]))
