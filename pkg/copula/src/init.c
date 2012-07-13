@@ -138,7 +138,7 @@ static R_NativePrimitiveArgType empirical_copula_test_t[] = {REALSXP, INTSXP, IN
 
 // ---- ./R_debye.c -----------
 static R_NativePrimitiveArgType debye_1_C_t[5] = { REALSXP, INTSXP, REALSXP,REALSXP, INTSXP };
-static R_NativePrimitiveArgType debye_2_t[5] = { REALSXP, INTSXP, REALSXP,REALSXP, INTSXP };
+static R_NativePrimitiveArgType debye_2_C_t[5] = { REALSXP, INTSXP, REALSXP,REALSXP, INTSXP };
 static R_NativePrimitiveArgType debye_3_t[5] = { REALSXP, INTSXP, REALSXP,REALSXP, INTSXP };
 static R_NativePrimitiveArgType debye_4_t[5] = { REALSXP, INTSXP, REALSXP,REALSXP, INTSXP };
 
@@ -181,7 +181,7 @@ static const R_CMethodDef CEntries[]  = {
     CDEF(empirical_copula_test),
 
     CDEF(debye_1_C),
-    CDEF(debye_2),
+    CDEF(debye_2_C),
     CDEF(debye_3),
     CDEF(debye_4),
 

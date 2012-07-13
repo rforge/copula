@@ -74,7 +74,7 @@ void exchtestCn_stat(double *U, double *V, int *n, double *u, double *v,
 // R_debye.c : -----------------------------------------------------------------
 // "_C": nameclash - already have R level 'debye_1'
 void debye_1_C(double *x, int *len, double *val, double *err, int *status);
-void debye_2(double *x, int *len, double *val, double *err, int *status);
+void debye_2_C(double *x, int *len, double *val, double *err, int *status);
 void debye_3(double *x, int *len, double *val, double *err, int *status);
 void debye_4(double *x, int *len, double *val, double *err, int *status);
 

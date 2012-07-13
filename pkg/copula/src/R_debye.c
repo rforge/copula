@@ -42,7 +42,7 @@ void debye_1_C(double *x, int *len, double *val, double *err, int *status)
 	}
 }
 
-void debye_2(double *x, int *len, double *val, double *err, int *status)
+void debye_2_C(double *x, int *len, double *val, double *err, int *status)
 {
 	int i;
 	gsl_sf_result result;

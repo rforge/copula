@@ -108,7 +108,7 @@ S3method(print, exchTest)
 ##importFrom("stats4", mle)
 importMethodsFrom("stats4", coef,confint, logLik, AIC, BIC, summary, plot, profile)
 
-importFrom("gsl", debye_1)
+importFrom("gsl", debye_1, debye_2)
 
 importFrom("ADGofTest", ad.test)
 
