@@ -33,20 +33,22 @@ MM: the previous file (+directory) names were:
     - src/mygsl_util.c
 * Exporting a bit more of hidden internal functions:
 ** JY: Ivan, I think we should export an empCopula function. I always
-thought it was unnecessary because it can be obtained with mecdf.
+thought it was unnecessary because it can be obtained with R package mecdf.
 But people have asked for it.
-** MM: Also, look at ./man/copula-internal.Rd :  e.g. schlatherCopula ??
-   JY: The implementation of schlatherCopula is not ready for release. 
+** MM: Also, look at ./man/copula-internal.Rd :
+*** e.g. schlatherCopula ??   JY: The implementation of schlatherCopula is not ready for release.
    More ev copulas will come from max-stable processes.
+*** asymCopula (-class) -- document properly (incl some examples) mv from ./man/copula-internal.Rd
 
 * C code
 ** DONE [src/init.c] enable registration for the old 'copula' part
+** use 'static' "everywhere" +  attribute_hidden "otherwise"/sometimes
 ** Move  from .C() towards .Call() -- only very long term
 JY: Agree. Quite a few them. Can it wait?  MM: Definitely; Actually, I
 think it's not worth the effort; particularly now that I've spent all the
 effort writing src/init.c for registration of all of the .C(..) routines.
 
-** gsl - debye ===> Think of  'LinkingTo: gsl' in DESCRIPTION and then *not* carry gsl-source code anymore.
+** gsl - debye ===> Should use them and then *not* carry gsl-source code anymore.
 JY: Agree.
 
 ** in all *.c files from former copula: use Doxygen instead of hand made function header documentation.
@@ -87,10 +89,11 @@ graphical GoF test we introduced and which we want to put in the package anyway.
 ** derCdfWrtParamsEvCopula() cannot work (as derAfunWrtParam() has no methods) and is used nowhere
 
 * Documentation etc
-*** DONE inst/doc/nacopula-pkg.Rnw  -- keep file name, maybe rewrite including
+- DONE inst/doc/nacopula-pkg.Rnw  -- keep file name, maybe rewrite including
  *Title*  (s/nacopula package/Nested Archimedean Copulas in the copula package/)
-*** \link{} between  old-copula and old-nacopula  functionality
-*** small vignette with table of function names providing the same functionality (nacopula / old_copula)
+- \link{} between  old-copula and old-nacopula  functionality
+- small vignette with table of function names providing the same functionality (nacopula / old_copula)
+
 
 * Miscellaneous functions
 ** MM, MH: indepTest()  takes a while {ok}, *BUT* cannot be interrupted (quickly enough)
@@ -105,6 +108,12 @@ graphical GoF test we introduced and which we want to put in the package anyway.
 But we should move that to another R/*.R
 
 ** mvdc() -- fitMvdc() and generate data from fit -- currently wrong on help page
+** makeposdef() -- think of using a version of sfsmisc::posdefify()
+** see TODO in  R/tCopula.R :  ndim() utility function; test pos.def.
+** tCopula() / normalCopula() allow alternative specification of cor.matrix
+   at least for the "un" dispersion structure
+** t / normal : allow  "block" dispersion structure {including  fitCopula() working}
+
 *** --> e-mail and example: /u/maechler/R/MM/Pkg-ex/copula/mvdc-ex.R
 
 * Testing: ./tests/  must grow, notably for "Jun-Ivan functions"
