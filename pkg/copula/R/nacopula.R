@@ -94,7 +94,7 @@ pnacopula <- function(x,u) {
 ##' @author Marius Hofert, Martin Maechler
 setGeneric("prob", function(x, l, u) standardGeneric("prob"))
 
-setMethod("prob", signature(x ="outer_nacopula"),
+setMethod("prob", signature(x ="Copula"),
           function(x, l,u) {
               d <- dim(x)
               stopifnot(is.numeric(l), is.numeric(u),
@@ -115,7 +115,7 @@ setMethod("prob", signature(x ="outer_nacopula"),
               ## Sign: the ("u","u",...,"u") case has +1; = c(2,2,...,2)
               Sign <- c(1,-1)[1L + (- rowSums(II)) %% 2]
               U <- array(cbind(l,u)[cbind(c(col(II)), c(II))], dim = dim(II))
-              sum(Sign * pnacopula(x, U))
+              sum(Sign * pcopula(x, U))
           })
 
 ##' Returns (n x d)-matrix of random variates

@@ -1,8 +1,8 @@
 \name{prob}
 \alias{prob}
 \alias{prob-methods}
-\alias{prob,outer_nacopula-method}
-\title{Computing Probabilities of "nacopula" Objects to Fall in Hypercubes}
+\alias{prob,Copula-method}
+\title{Computing Probabilities of Hypercubes}
 \description{
   Compute probabilities of a \eqn{d-}dimensional random vector \eqn{U}
   distributed according to the nested Archimedean copula \code{x} to
@@ -44,6 +44,9 @@ C3 <- onacopula("J", C(theta0, 1, C(theta1, c(2,3))))
 l <- c(.7,.8,.6)
 u <- c(1,1,1)
 prob(C3, l, u)
+
+## ditto for a bivariate normal copula with rho = 0.8 :
+prob(normalCopula(0.8), c(.2,.4), c(.3,.6))
 }
 \keyword{distribution}
 \keyword{methods}
