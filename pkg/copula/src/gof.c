@@ -37,9 +37,8 @@
   m is the number of lines of V
 
 ***********************************************************************/
-// FIXME: provide  R interface
-double empcop(int n, int p, double *U,
-	      double *V, int m, int k)
+static
+double empcop_ind(int n, int p, double *U, double *V, int m, int k)
 {
     double ec = 0.;
     for (int i=0; i < n; i++) {
@@ -65,7 +64,7 @@ void cramer_vonMises(int *n, int *p, double *U, double *Ctheta,
 {
   double s = 0.;
   for(int k=0; k < *n; k++) {
-      double diff = empcop(*n,*p,U, U,*n,k) - Ctheta[k];
+      double diff = empcop_ind(*n,*p,U, U,*n,k) - Ctheta[k];
       s += diff * diff;
   }
   *stat = s;
@@ -76,7 +75,7 @@ void cramer_vonMises_2(int *p, double *U, int *n, double *V, int *m,
 {
     double s = 0.;
     for (int k=0; k < *m; k++) {
-	double diff = empcop(*n,*p,U,V,*m,k) - Ctheta[k];
+	double diff = empcop_ind(*n,*p,U,V,*m,k) - Ctheta[k];
 	s +=  diff * diff;
     }
     *stat = s * (*n) / (*m);
@@ -92,7 +91,7 @@ double ecopula(double *U, int n, int p, double *u)
 {
   double res = 0.;
   for (int i = 0; i < n; i++) {
-      double ind = 1.;
+      int ind = 1;
       for (int j = 0; j < p; j++)
 	  ind *= (U[i + n * j] <= u[j]);
       res += ind;
@@ -106,6 +105,7 @@ double ecopula(double *U, int n, int p, double *u)
 
 ***********************************************************************/
 
+// ==   (C(u+ 1/sqrt(n), v)  -  C(u - 1/sqrt(n))) / (2 / sqrt(n))
 double derecopula(double *U, int n, int p, double *u, double *v)
 {
   return (ecopula(U, n, p, u) - ecopula(U, n, p, v)) *  sqrt(n) / 2.0;

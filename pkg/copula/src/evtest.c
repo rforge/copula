@@ -34,7 +34,9 @@
 
 ***********************************************************************/
 // FIXME: we have the empirical copula in about every *.c file ... -- use *one* !
-double ec(double *U, int n, int p, double *u, double o)
+// ------ Goal: "export" the one with offset and use as much as possible
+double ec(double *U, int n, int p, double *u,
+	  double o) // offset
 {
   int i,j;
   double ind, res = 0.0;
