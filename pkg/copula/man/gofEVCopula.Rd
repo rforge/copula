@@ -57,10 +57,10 @@ gofEVCopula(copula, x, N = 1000, method = "mpl",
 }
 
 \references{
-  C. Genest and J. Segers (2009). Rank-based inference for bivariate
+  Genest, C. and Segers, J. (2009). Rank-based inference for bivariate
   extreme-value copulas. \emph{Annals of Statistics} \bold{37}, 2990--3022.
 
-  C. Genest, I. Kojadinovic, J. Nešlehová and J. Yan (2011). A
+  Genest, C. Kojadinovic, I., Ne\enc{š}{s}lehov\enc{á}{a}, J., and Yan, J. (2011). A
   goodness-of-fit test for bivariate extreme-value copulas.
   \emph{Bernoulli} \bold{17}(1), 253--275.
 }

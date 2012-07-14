@@ -51,21 +51,21 @@ multSerialIndepTest(x, lag.max, m=lag.max+1, N=1000, alpha=0.05,
 }
 
 \references{
-  P. Deheuvels (1979). La fonction de dépendance empirique et ses
+  Deheuvels, P. (1979). La fonction de dépendance empirique et ses
   propriétés: un test non paramétrique d'indépendance, \emph{Acad. Roy.
     Belg. Bull. Cl. Sci.}, 5th Ser. \bold{65}, 274--292.
 
-  P. Deheuvels (1981), A non parametric test for independence,
+  Deheuvels, P. (1981), A non parametric test for independence,
   \emph{Publ. Inst. Statist. Univ. Paris}. \bold{26}, 29--50.
 
-  C. Genest and B. Rémillard (2004), Tests of independence and
+  Genest, C. and R\enc{é}{e}millard, B. (2004), Tests of independence and
   randomness based on the empirical copula process. \emph{Test} \bold{13}, 335--369.
 
-  K. Ghoudi, R. Kulperger, and B. Rémillard (2001), A nonparametric test
+  Ghoudi, K., Kulperger, R., and R\enc{é}{e}millard, B. (2001), A nonparametric test
   of serial independence for times series and residuals. \emph{Journal
     of Multivariate Analysis} \bold{79}, 191--218.
 
-  I. Kojadinovic and J. Yan (2011), Tests of multivariate serial
+  Kojadinovic, I. and Yan, J. (2011), Tests of multivariate serial
   independence based on a Möbius decomposition of the independence
   empirical copula process, \emph{Annals of the Institute of Statistical
   Mathematics} \bold{63}, 347--373.

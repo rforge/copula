@@ -32,9 +32,7 @@ exchEVTest(x, N = 1000,  estimator = "CFG", derivatives = "Cn", m = 100)
 }
 
 \details{
-
   More details are available in the two first references.
-
 }
 \value{
   Returns a list whose attributes are:
@@ -42,16 +40,16 @@ exchEVTest(x, N = 1000,  estimator = "CFG", derivatives = "Cn", m = 100)
   \item{pvalue}{ corresponding approximate p-value. }
 }
 \references{
-  Christian Genest and Johan Segers (2009)%or Genest, C. and Segers, J. (2009)
+  Genest, C. and Segers, J. (2009)
   Rank-based inference for bivariate extreme-value copulas.
   \emph{Annals of Statistics} \bold{37}, 2990--3022.
 
-  Ivan Kojadinovic and Jun Yan (2012)
+  Kojadinovic, I. and Yan, J. (2012)
   A nonparametric test of exchangeability for extreme-value and left-tail
   decreasing bivariate copulas.
   \emph{The Scandinavian Journal of Statistics}. In press.
 
-  Ivan Kojadinovic and Jun Yan (2010)
+  Kojadinovic, I. and Yan, J. (2010)
   Modeling Multivariate Distributions with Continuous Margins Using the
   copula R Package.
   \emph{Journal of Statistical Software} \bold{34}(9), 1--20.

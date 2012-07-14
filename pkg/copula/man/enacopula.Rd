@@ -1,6 +1,6 @@
 \name{enacopula}
 \alias{enacopula}
-\title{Estimation Procedures for (Nested) Archimedean Copulas}
+\title{Estimation procedures for (nested) Archimedean copulas}
 \description{
   A set of ten different estimators, currently for one-parameter
   Archimedean copulas, of possibly quite high dimensions.
@@ -75,7 +75,7 @@ enacopula(u, cop,
 \references{
   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011a).
   Estimators for Archimedean copulas in high dimensions: A comparison,
-  to be submitted.
+  submitted.
 
   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011b).
   Likelihood inference for Archimedean copulas,

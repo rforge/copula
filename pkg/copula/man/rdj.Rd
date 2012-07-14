@@ -21,9 +21,9 @@ Daily returns of three stocks in the Dow Jones
     \item{\code{GE}}{daily log-return of the General Electric}
   }
 }
-  
+
 \references{
-  A.J. McNeil, R. Frey and P. Embrechts (2005), \emph{Quantitative risk
+  McNeil, A. J., Frey, R. and Embrechts, P. (2005), \emph{Quantitative risk
     management}, Princeton University Press, Princeton Series in
   Finance, New Jersey.}
 \examples{

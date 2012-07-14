@@ -4,8 +4,8 @@
 \title{Bivariate test of extreme-value dependence based on Kendall's process}
 \description{
   Test of extreme-value dependence based on the  bivariate probability integral
-  transformation. The test statistic is defined in
-  Ben Ghorbal, Nešlehová and Genest (2009).
+  transformation. The test statistic is defined in Ben Ghorbal,
+  Nešlehová and Genest (2009).
 }
 \usage{
 evTestK(x, method = c("fsample","asymptotic","jackknife"))
@@ -19,7 +19,7 @@ evTestK(x, method = c("fsample","asymptotic","jackknife"))
 }
 \details{
   The code for this test was generously provided by Johanna Nešlehová.
-  More details are available in Appendix~B of Ben Ghorbal, Nešlehová and
+  More details are available in Appendix B of Ben Ghorbal, Nešlehová and
   Genest (2009).
 }
 \value{
@@ -28,7 +28,7 @@ evTestK(x, method = c("fsample","asymptotic","jackknife"))
   \item{pvalue}{ corresponding p-value. }
 }
 \references{
-  M. Ben Ghorbal, C. Genest, and J. Nešlehová (2009)
+  Ghorbal, M. B., Genest, C., and Nešlehová, J. (2009)
   On the test of Ghoudi, Khoudraji, and Rivest for extreme-value dependence.
   \emph{The Canadian Journal of Statistics} \bold{37}, 1--9.
 }

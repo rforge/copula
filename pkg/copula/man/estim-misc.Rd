@@ -2,7 +2,7 @@
 \alias{ebeta}
 \alias{edmle}
 \alias{etau}
-\title{Various Estimators for (Nested) Archimedean Copulas}
+\title{Various estimators for (nested) Archimedean copulas}
 \description{
   Various Estimators for (Nested) Archimedean Copulas, namely,
   \describe{

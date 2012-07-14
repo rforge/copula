@@ -1,5 +1,5 @@
 \name{emle}
-\title{Maximum Likelihood Estimators for (Nested) Archimedean Copulas}
+\title{Maximum likelihood estimators for (nested) Archimedean copulas}
 \alias{emle}
 \alias{.emle}
 \description{
@@ -54,10 +54,10 @@ emle(u, cop, n.MC=0, optimizer="optimize", method,
    because of their numerical feasibility, might break down in much
    smaller dimensions.
 
-   Note: SMLE for Clayton currently faces serious numerical issues and is 
+   Note: SMLE for Clayton currently faces serious numerical issues and is
    due to further research.  This is only interesting from a theoretical point
    of view, since the exact derivatives are known and numerically non-critical
-   to evaluate. 
+   to evaluate.
 }
 \value{
   \describe{
@@ -74,7 +74,7 @@ emle(u, cop, n.MC=0, optimizer="optimize", method,
 \references{
   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011a).
   Estimators for Archimedean copulas in high dimensions: A comparison;
-  to be submitted.
+  submitted.
 
   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011b).
   Likelihood inference for Archimedean copulas;

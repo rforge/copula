@@ -1,6 +1,6 @@
 \name{cacopula}
 \alias{cacopula}
-\title{Conditional Copula Function}
+\title{Conditional copula function}
 \description{
   Compute the conditional copula function
   \eqn{C(u_d\,|\,u_1,\dots,u_{d-1})}{C(u[d]|u[1],...,u[d-1])}

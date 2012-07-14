@@ -30,7 +30,7 @@ polylog(z, s,
   \item{logarithm}{logical specified to return log(Li.(.)) instead of Li.(.)}
   \item{is.log.z}{logical; if TRUE, the specified \code{z} argument is
     really \eqn{w = \log(z)}{w = log(z)};
-    that is, we compute \eqn{Li_s(\exp(w))}{Li_s(exp(w))}, and we typically have
+    that is, we compute \eqn{\mathrm{Li}_s(\exp(w))}{Li_s(exp(w))}, and we typically have
  	\eqn{w < 0}, or equivalently, \eqn{z < 1}.}
   \item{is.logmlog}{logical; if TRUE, the specified argument \code{z} is
     \eqn{lw = \log(-w) = \log(-\log(z))}{lw = log(-w) = log(-log(z))}
@@ -44,7 +44,7 @@ polylog(z, s,
 
 For integer values of the polylogarithm order, the following
 explicit expressions are obtained by repeated application of
-\eqn{z \frac{\partial}{\partial z}}{z * d/dz} to \eqn{Li_1(z)}:
+\eqn{z \frac{\partial}{\partial z}}{z * d/dz} to \eqn{\mathrm{Li}_1(z)}{Li_1(z)}:
 %---
 \deqn{
   \mathrm{Li}_{1}(z) = -\log(1-z), \ \
@@ -96,12 +96,12 @@ Eulerian numbers; see also \code{\link{Eulerian}}.
   Wikipedia (2011) \emph{Polylogarithm},
   \url{http://en.wikipedia.org/wiki/Polylogarithm}.
 
-  Wood, D.C. (June 1992).
+  Wood, D. C. (June 1992).
   The Computation of Polylogarithms.  Technical Report 15-92.
   Canterbury, UK: University of Kent Computing Laboratory.
   \url{http://www.cs.kent.ac.uk/pubs/1992/110}.% Retrieved 2005-11-01.
 
-  Apostol, T.M. (2010), \emph{"Polylogarithm"}, in the
+  Apostol, T. M. (2010), \emph{"Polylogarithm"}, in the
   NIST Handbook of Mathematical Functions, \url{http://dlmf.nist.gov/25.12}
 
   Lewin, L. (1981).

@@ -76,21 +76,21 @@ serialIndepTest(x, d, alpha=0.05)
 }
 
 \references{
-  P. Deheuvels (1979). La fonction de dépendance empirique et ses
+  Deheuvels, P. (1979). La fonction de dépendance empirique et ses
   propriétés: un test non paramétrique d'indépendance, \emph{Acad. Roy.
     Belg. Bull. Cl. Sci.}, 5th Ser. 65:274--292.
 
-  P. Deheuvels (1981), A non parametric test for independence,
+  Deheuvels, P. (1981), A non parametric test for independence,
   \emph{Publ. Inst. Statist. Univ. Paris}. 26:29--50.
 
-  C. Genest and B. Rémillard (2004), Tests of independence and
+  Genest, C. and R\enc{é}{e}millard, B. (2004), Tests of independence and
   randomness based on the empirical copula process. \emph{Test} \bold{13}, 335--369.
 
-  C. Genest, J.-F. Quessy and B. Rémillard (2006). Local
+  Genest, C., Quessy, J.-F., and R\enc{é}{e}millard, B. (2006). Local
   efficiency of a Cramer-von Mises test of independence,
   \emph{Journal of Multivariate Analysis} \bold{97}, 274--294.
 
-  C. Genest, J.-F. Quessy and B. Rémillard (2007), Asymptotic
+  Genest, C., Quessy, J.-F., and R\enc{é}{e}millard, B. (2007), Asymptotic
   local efficiency of Cramér-von Mises tests for multivariate
   independence. \emph{The Annals of Statistics} \bold{35}, 166--191.
 }

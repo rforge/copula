@@ -1,6 +1,6 @@
 \name{acopula-class}
 \Rdversion{1.1}
-\title{Class "acopula" of Archimedean Copula Families}
+\title{Class "acopula" of Archimedean copula families}
 \docType{class}
 \alias{acopula-class}
 \alias{acopula}
@@ -37,7 +37,7 @@
       parameter \code{theta} and of the given \code{degree} (defaults to 1).
       Note that there is no informational loss by computing the absolute value
       since the derivatives alternate in sign (the generator derivative
-      is simmply (-1)^\code{degree} times \code{psiDabs}).  The
+      is simply (-1)^\code{degree}\eqn{*}\code{psiDabs}).  The
       number \code{n.MC} denotes the sample size for a Monte Carlo evaluation
       approach.  If \code{n.MC} is zero (the default), the
       generator derivatives are evaluated with their exact formulas.  The

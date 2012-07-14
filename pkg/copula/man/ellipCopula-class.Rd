@@ -3,12 +3,11 @@
 \alias{ellipCopula-class}
 \alias{normalCopula-class}
 \alias{tCopula-class}
-\title{Class "ellipCopula" }
-\description{ Copulas generated from elliptical multivariate
-  distributions. }
+\title{Class "ellipCopula"}
+\description{Copulas generated from elliptical multivariate distributions. }
 \section{Objects from the Class}{
-  Objects can be created by calls of the form \code{new("ellipCopula",
-    ...)}, or by function \code{\link{ellipCopula}}.
+  Objects can be created by calls of the form \code{new("ellipCopula", ...)},
+  or by function \code{\link{ellipCopula}}.
 }
 \section{Slots}{
   \describe{

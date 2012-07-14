@@ -27,9 +27,9 @@
 }
 
 \references{
-  C. Genest, K. Ghoudi and L.-P. Rivest (1995). A semiparametric
+  Genest, C., Ghoudi, K., and Rivest, L.-P. (1995). A semiparametric
   estimation procedure of dependence parameters in multivariate
-  families of distributions. \emph{Biometrika} \bold{82}, 543--552. 
+  families of distributions. \emph{Biometrika} \bold{82}, 543--552.
 }
 
 \keyword{classes}

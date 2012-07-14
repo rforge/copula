@@ -50,33 +50,33 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
   \item{copula}{ the fitted copula. }
 }
 \references{
-  C. Genest (1987). Frank's family of bivariate distributions.
+  Genest, C. (1987). Frank's family of bivariate distributions.
   \emph{Biometrika} \bold{74}, 549--555.
 
-  C. Genest and L.-P. Rivest (1993). Statistical inference procedures
+  Genest, C. and Rivest, L.-P. (1993). Statistical inference procedures
   for bivariate Archimedean copulas.
   \emph{Journal of the American Statistical Association} \bold{88}, 1034--1043.
 
-  P. Rousseeuw and G. Molenberghs (1993). Transformation of nonpositive
+  Rousseeuw, P. and Molenberghs, G. (1993). Transformation of nonpositive
   semidefinite correlation matrices.
   \emph{Communications in Statistics: Theory and Methods} \bold{22}, 965--984.
 
-  C. Genest, K. Ghoudi and L.-P. Rivest (1995). A semiparametric
+  Genest, C., Ghoudi, K., and Rivest, L.-P. (1995). A semiparametric
   estimation procedure of dependence parameters in multivariate
   families of distributions. \emph{Biometrika} \bold{82}, 543--552.
 
-  H. Joe (2005). Asymptotic efficiency of the two-stage estimation
+  Joe, H. (2005). Asymptotic efficiency of the two-stage estimation
   method for copula-based models.
   \emph{Journal of Multivariate Analysis} \bold{94}, 401--419.
 
-  S. Demarta and A. McNeil (2005). The t copula and related copulas.
+  Demarta, S. and McNeil, A. J. (2005). The t copula and related copulas.
   \emph{International Statistical Review} \bold{73}, 111--129.
 
-  C. Genest and A.-C. Favre (2007). Everything you always wanted to know about
+  Genest, C. and Favre, A.-C. (2007). Everything you always wanted to know about
   copula modeling but were afraid to ask.
   \emph{Journal of Hydrologic Engineering} \bold{12}, 347--368.
 
-  I. Kojadinovic and J. Yan (2010). Comparison of three semiparametric methods
+  Kojadinovic, I. and Yan, J. (2010). Comparison of three semiparametric methods
   for estimating dependence parameters in copula models.
   \emph{Insurance: Mathematics and Economics} \bold{47}, 52--63.
 }

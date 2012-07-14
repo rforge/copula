@@ -55,7 +55,7 @@
 \alias{rcopula,asymExplicitCopula-method}
 \alias{rcopula,nacopula-method}
 
-\title{Copula distribution functions}
+\title{Copula functions}
 \description{
   Density, distribution function, and random generation for a
   \code{copula} object.
@@ -97,20 +97,21 @@ rcopula(copula, n, \dots)
   distribution function, and \code{"rcopula"} generates random variates.
 }
 \references{
-  E.W. Frees and E.A. Valdez (1998). Understanding relationships using
-  copulas.  \emph{North American Actuarial Journal} \bold{2}, 1--25.
+  Frees, E. W.  and Valdez, E. A. (1998). Understanding relationships using
+  copulas.
+  \emph{North American Actuarial Journal} \bold{2}, 1--25.
 
-  C. Genest and A.-C. Favre (2007).
+  Genest, C. and Favre, A.-C. (2007).
   Everything you always wanted to know about copula modeling but were afraid to ask.
   \emph{Journal of Hydrologic Engineering} \bold{12}, 347--368.
 
-  H. Joe (1997). \emph{Multivariate Models and Dependence Concepts}.
+  Joe, H. (1997). \emph{Multivariate Models and Dependence Concepts}.
   Chapman and Hall, London.
 
-  A.W. Marshal and I. Olkin (1988). Families of multivariate distributions.
+  Marshall, A. W. and Olkin, I. (1988). Families of multivariate distributions.
   \emph{Journal of the American Statistical Association} \bold{83}, 834--841.
 
-  R.B. Nelsen (2006). \emph{An introduction to Copulas}. Springer, New York.
+  Nelsen, R. B. (2006). \emph{An introduction to Copulas}. Springer, New York.
 }
 \seealso{
   the \code{\linkS4class{copula}} and \code{\linkS4class{acopula}} classes,

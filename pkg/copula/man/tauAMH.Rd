@@ -14,8 +14,8 @@
 \details{
   For small \code{th} (\eqn{=\theta}), we use Taylor series
   approximations of up to order 7,
-  \deqn{\tau_A(\theta) = \frac{2}{9}\theta(1 + \theta(\frac 1 4 +
-    \frac{\theta}{10}(1 + \theta(\frac 1 2 + \theta \frac 2 7)))) + O(\theta^6),}{%
+  \deqn{\tau_A(\theta) = \frac{2}{9}\theta\Bigl(1 + \theta\Bigl(\frac 1 4 +
+    \frac{\theta}{10}\Bigl(1 + \theta\Bigl(\frac 1 2 + \theta \frac 2 7\Bigr)\Bigr)\Bigr)\Bigr) + O(\theta^6),}{%
     tau[A](th) = 2*th/9 *(1 + th*(1/4 + th/10* (1 + th*(1/2 + th*2/7)))) + O(th^6),}
   where found that dropping the last two terms (e.g., only using 5 terms
   from the \eqn{k=7} term Taylor polynomial) is actually numerically advantageous.

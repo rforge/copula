@@ -125,7 +125,7 @@ dsumSibuya(x, n, alpha,
 \references{
   Hofert, M. (2010).
   \emph{Sampling Nested Archimedean Copulas with Applications to CDO Pricing}.
-  Suedwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
+  S\enc{ü}{ue}dwestdeutscher Verlag fuer Hochschulschriften AG & Co. KG.
 
   Hofert, M. (2011).
   Efficiently sampling nested Archimedean copulas.

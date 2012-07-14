@@ -23,9 +23,9 @@ rnacopula(n, x, ...)
   by the nested Archimedean structure).  The algorithm is based on a
   mixture representation of the generic distribution functions
   \eqn{F_{0}}{F0} and \eqn{F_{01}}{F01} and is presented in
-  McNeil(2008) and Hofert(2011a).  Details about how to efficiently sample the
+  McNeil (2008) and Hofert (2011a).  Details about how to efficiently sample the
   distribution functions \eqn{F_{0}}{F0} and \eqn{F_{01}}{F01} can be found in
-  Hofert(2010), Hofert(2012), and Hofert and \enc{Mächler}{Maechler} (2011).
+  Hofert (2010), Hofert (2012), and Hofert and \enc{Mächler}{Maechler} (2011).
 }
 \value{
   \code{\link{numeric}} matrix containing the generated vectors of

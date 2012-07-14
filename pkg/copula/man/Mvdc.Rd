@@ -44,7 +44,7 @@ rmvdc(mvdc, n)
 
   Each component list in argument \code{paramMargins} is a list with
   named components which are used to specify the parameters of the
-  marginal distributions. For example,
+  marginal distributions. For example, the list
   \code{paramMargins = list(list(mean = 0, sd = 2), list(rate = 2))}
   can be used to specify that the first margin is normal with mean 0 and
   standard deviation 2, and the second margin is exponential with rate 2.

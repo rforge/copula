@@ -4,7 +4,7 @@
 \alias{contour,indepCopula-method}
 \alias{contour,copula-method}
 \alias{contour,mvdc-method}
-\title{ Methods for function `contour' in package `copula' }
+\title{Methods for function `contour' in package `copula'}
 \description{
  Methods for function \code{contour} in package \pkg{copula}
 }

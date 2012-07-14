@@ -1,6 +1,5 @@
 \name{fgmCopula}
 \alias{fgmCopula}
-
 \title{ Construction of a fgmCopula class object}
 \description{
   Constructs a multivariate multiparameter Farlie-Gumbel-Morgenstern
@@ -27,7 +26,7 @@ fgmCopula(param, dim = 2)
 }
 
 \references{
-  R.B. Nelsen (2006), \emph{An introduction to Copulas}, Springer, New York.
+  Nelsen, R. B. (2006), \emph{An introduction to Copulas}, Springer, New York.
 }
 
 \seealso{

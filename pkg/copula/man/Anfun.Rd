@@ -17,7 +17,7 @@ Anfun(x, w, estimator = c("CFG", "Pickands"), corrected = TRUE)
     Pickands dependence function.}
   \item{estimator}{specifies which nonparametric rank-based estimator
     of the unknown Pickands dependence function to use; can be either
-    \code{"CFG"} (Caperaa-Fougeres-Genest) or \code{"Pickands"}.}
+    \code{"CFG"}(Cap\enc{é}{e}ra\enc{à}{a}-Foug\enc{è}{e}res-Genest) or \code{"Pickands"}.}
   \item{corrected}{ TRUE means that the estimators will be corrected to
     ensure that their value at 0 and 1 is 1.}
 }

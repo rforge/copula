@@ -1,14 +1,14 @@
 \name{Bernoulli}
 \alias{Bernoulli}
 \alias{Bernoulli.all}
-\title{Compute Bernoulli Numbers}
+\title{Compute Bernoulli numbers}
 \description{
   Compute the \eqn{n}th Bernoulli number, or
   generate all Bernoulli numbers up to the \eqn{n}th,
   using diverse \code{method}s, that is, algorithms.
 
   \bold{NOTE} the current default methods will be changed -- to get
-  better accuracy !
+  better accuracy!
 %%--> ../R/special-func.R
 }
 \usage{

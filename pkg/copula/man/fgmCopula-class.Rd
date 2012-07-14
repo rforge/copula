@@ -1,7 +1,6 @@
 \name{fgmCopula-class}
 \docType{class}
 \alias{fgmCopula-class}
-
 \title{Class "fgmCopula" }
 \description{Multivariate multiparameter Farlie-Gumbel-Morgenstern
   copula.}
@@ -40,9 +39,8 @@
 }
 
 \references{
-  R.B. Nelsen (2006), \emph{An introduction to Copulas}, Springer, New York.
+  Nelsen, R. B. (2006), \emph{An introduction to Copulas}, Springer, New York.
 }
-
 \note{
   The verification of the validity of the parameter values is of high
   complexity and may not work for high dimensional copulas.

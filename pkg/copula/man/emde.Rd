@@ -1,6 +1,6 @@
 \name{emde}
 \alias{emde}
-\title{Minimum Distance Estimators for (Nested) Archimedean Copulas}
+\title{Minimum distance estimators for (nested) Archimedean copulas}
 \description{
   Compute minimum distance estimators for (nested) Archimedean copulas.
 }

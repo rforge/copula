@@ -2,7 +2,7 @@
 \alias{ellipCopula}
 \alias{normalCopula}
 \alias{tCopula}
-\title{ Construction of elliptical copula class object }
+\title{Construction of elliptical copula class object}
 \description{
   Constructs an elliptical copula class object with its corresponding
   parameters and dimension.

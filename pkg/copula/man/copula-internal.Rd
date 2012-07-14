@@ -10,9 +10,7 @@
 \alias{schlatherCopula-class}
 
 % Undocumented S4 methods
-
-
-\title{Internal Copula Functions}
+\title{Internal copula functions}
 \description{
   Internal Copula functions
 }

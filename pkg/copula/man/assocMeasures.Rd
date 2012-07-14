@@ -93,9 +93,9 @@
 
 \title{Dependence measures for copulas}
 \description{
-  These functions compute Kendall's Tau, Spearman's Rho, and the tail
+  These functions compute Kendall's tau, Spearman's rho, and the tail
   dependence index for bivariate copulas. Calibration is the inverse function: it
-  calibrates the copula parameter given the value of Kendall's Tau or Spearman's Rho.
+  calibrates the copula parameter given the value of Kendall's tau or Spearman's rho.
 }
 \usage{
 kendallsTau (copula)
@@ -106,8 +106,8 @@ calibSpearmansRho(copula, rho)
 }
 \arguments{
   \item{copula}{an \R object of class \code{"\linkS4class{copula}"}.}
-  \item{tau}{ a numerical value of Kendall's Tau in [-1, 1]. }
-  \item{rho}{ a numerical value of Spearman's Rho in [-1, 1]. }
+  \item{tau}{ a numerical value of Kendall's tau in [-1, 1]. }
+  \item{rho}{ a numerical value of Spearman's rho in [-1, 1]. }
   \item{\dots}{ currently nothing. }
 }
 \details{

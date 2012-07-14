@@ -8,11 +8,11 @@
 \description{
   The distribution function of the \emph{Kendall distribution} of an Archimedean
   copula is defined as
-  \deqn{K(u) = P(C(U_1,U_2,\dots,U_d) \le u),}{K(u) = P(C(U1,U2,\dots,Ud) <= u),}
+  \deqn{K(u) = P(C(U_1,U_2,\dots,U_d) \le u),}{K(u) = P(C(U[1],U[2],\dots,U[d]) <= u),}
   where \eqn{u \in [0,1]}{u in [0,1]}, and the \eqn{d}-dimensional
-  \eqn{(U_1,U_2,\dots,U_d)}{(U1,U2,\dots,Ud)} is distributed according
+  \eqn{(U_1,U_2,\dots,U_d)}{(U[1],U[2],\dots,U[d])} is distributed according
   to the copula \eqn{C}. Note that the random variable
-  \eqn{C(U_1,U_2,\dots,U_d)}{C(U_1,U_2,...,U_d)} is known as
+  \eqn{C(U_1,U_2,\dots,U_d)}{C(U[1],U[2],...,U[d])} is known as
   \emph{probability integral transform}. Its distribution function
   \eqn{K} is equal to the identity if \eqn{d = 1}, but is non-trivial for
   \eqn{d \ge 2}{d >= 2}.
@@ -74,7 +74,7 @@ rK(n, cop, d)
     \frac{\psi^{(k)}(\psi^{-1}(u))}{k!} (-\psi^{-1}(u))^k,\ u\in[0,1];}{%
     K(u)=sum(k=0,...,d-1) psi^{(k)}(psi^{-1}(u))/k! (-psi^{-1}(u))^k, u in [0,1];}
   see Barbe et al. (1996).  The corresponding density is
-  \deqn{\frac{(-1)^d\psi^{(d)}(\psi^{-1}(u))}{(d-1)!}(-(psi^{-1})'(u))(\psi^{-1}(u))^{d-1}}{%
+  \deqn{\frac{(-1)^d\psi^{(d)}(\psi^{-1}(u))}{(d-1)!}(-(\psi^{-1})'(u))(\psi^{-1}(u))^{d-1}}{%
     (-1)^d psi^{(d)}(psi^{-1}(u))(-(psi^{-1})'(u))(psi^{-1}(u))^{d-1}/(d-1)!}
 }
 \value{The distribution function, quantile function, density, and random
