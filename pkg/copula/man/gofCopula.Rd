@@ -17,7 +17,6 @@ gofCopula(copula, x, N = 1000, method = "mpl",
           simulation = c("pb", "mult"), print.every = 100,
           optim.method = "BFGS", optim.control = list(maxit=20))
 }
-
 \arguments{
   \item{copula}{ object of class \code{"\linkS4class{copula}"} representing the
     hypothesized copula family.}
@@ -140,7 +139,6 @@ gofCopula(t.copula,                 x, method="itau")
 gofCopula(gumbelCopula(1, dim = 3), x, simulation="mult")
 gofCopula(t.copula,                 x, simulation="mult")
 }% dontrun
-
 }
 \keyword{htest}
 \keyword{models}

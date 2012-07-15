@@ -14,7 +14,6 @@
     \item{object = "fitMvdc"}{see \code{\link{fitCopula}}.}
 }}
 %\examples{
-
 %}
 \keyword{methods}
 

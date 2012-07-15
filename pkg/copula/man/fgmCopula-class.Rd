@@ -37,7 +37,6 @@
 \section{Extends}{
   Class \code{"fgmCopula"} extends class \code{"\linkS4class{copula}"} directly.
 }
-
 \references{
   Nelsen, R. B. (2006), \emph{An introduction to Copulas}, Springer, New York.
 }

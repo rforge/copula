@@ -3,7 +3,7 @@
 \alias{dcopula}
 \alias{pcopula}
 \alias{rcopula}
-
+% dcopula
 \alias{dcopula,claytonCopula-method}
 \alias{dcopula,frankCopula-method}
 \alias{dcopula,gumbelCopula-method}
@@ -20,7 +20,7 @@
 \alias{dcopula,asymCopula-method}
 \alias{dcopula,asymExplicitCopula-method}
 \alias{dcopula,nacopula-method}
-
+% pcopula
 \alias{pcopula,claytonCopula-method}
 \alias{pcopula,frankCopula-method}
 \alias{pcopula,gumbelCopula-method}
@@ -37,8 +37,7 @@
 \alias{pcopula,asymCopula-method}
 \alias{pcopula,asymExplicitCopula-method}
 \alias{pcopula,nacopula-method}
-
-
+% rcopula
 \alias{rcopula,claytonCopula-method}
 \alias{rcopula,frankCopula-method}
 \alias{rcopula,gumbelCopula-method}
@@ -54,7 +53,7 @@
 \alias{rcopula,asymCopula-method}
 \alias{rcopula,asymExplicitCopula-method}
 \alias{rcopula,nacopula-method}
-
+% main
 \title{Copula functions}
 \description{
   Density, distribution function, and random generation for a

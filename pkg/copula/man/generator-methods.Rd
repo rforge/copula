@@ -1,33 +1,34 @@
 \name{generator}
 % \docType{methods}
+% genFun
 \alias{genFun}
 \alias{genFun-methods}
 \alias{genFun,claytonCopula-method}
 \alias{genFun,frankCopula-method}
 \alias{genFun,gumbelCopula-method}
 \alias{genFun,amhCopula-method}
-
+% genInv
 \alias{genInv}
 \alias{genInv-methods}
 \alias{genInv,claytonCopula-method}
 \alias{genInv,frankCopula-method}
 \alias{genInv,gumbelCopula-method}
 \alias{genInv,amhCopula-method}
-
+% genFunDer1
 \alias{genFunDer1}
 \alias{genFunDer1-methods}
 \alias{genFunDer1,claytonCopula-method}
 \alias{genFunDer1,frankCopula-method}
 \alias{genFunDer1,gumbelCopula-method}
 \alias{genFunDer1,amhCopula-method}
-
+% genFunDer2
 \alias{genFunDer2}
 \alias{genFunDer2-methods}
 \alias{genFunDer2,claytonCopula-method}
 \alias{genFunDer2,frankCopula-method}
 \alias{genFunDer2,gumbelCopula-method}
 \alias{genFunDer2,amhCopula-method}
-
+% Afun
 \alias{Afun}
 \alias{Afun-methods}
 \alias{Afun,galambosCopula-method}
@@ -35,11 +36,9 @@
 \alias{Afun,huslerReissCopula-method}
 \alias{Afun,tawnCopula-method}
 \alias{Afun,tevCopula-method}
-
 \alias{Afun,asymCopula-method}
-
 \alias{Afun,indepCopula-method}
-
+% AfunDer
 \alias{AfunDer}
 \alias{AfunDer-methods}
 \alias{AfunDer,galambosCopula-method}
@@ -47,8 +46,7 @@
 \alias{AfunDer,huslerReissCopula-method}
 \alias{AfunDer,tawnCopula-method}
 \alias{AfunDer,tevCopula-method}
-
-
+% main
 \title{Generator functions for Archimedean and extreme value copulas}
 \description{
  Methods to evaluate the generator function, the inverse generator

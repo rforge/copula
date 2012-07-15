@@ -13,7 +13,6 @@
 \usage{
 evTestA(x, N = 1000, derivatives = "An")
 }
-
 \arguments{
   \item{x}{ a data matrix that will be transformed to pseudo-observations. }
   \item{N}{ number of multiplier iterations to be used to
@@ -24,12 +23,9 @@ evTestA(x, N = 1000, derivatives = "An")
     \code{"An"} or \code{"Cn"}. The former gives better results for
     samples smaller than 400 but is slower.}
 }
-
 \details{
-
   More details are available in the third reference.
   See also Genest and Segers (2009) and Remillard and Scaillet (2009).
-
 }
 \value{
   Returns a list whose attributes are:
@@ -59,7 +55,6 @@ evTestA(x, N = 1000, derivatives = "An")
   approximate p-value. One way of dealing with ties was suggested in the
   last reference.
 }
-
 \seealso{ \code{\link{evTestK}}, \code{\link{evTestC}}, \code{\link{evCopula}},
   \code{\link{gofEVCopula}}, \code{\link{Anfun}}. }
 \examples{
@@ -77,6 +72,5 @@ evTestA(uG[1:10,])
 evTestA(uG[1:10,], derivatives = "Cn")
 }
 }
-
 \keyword{htest}
 \keyword{multivariate}

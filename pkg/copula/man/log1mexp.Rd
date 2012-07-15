@@ -49,6 +49,5 @@ tail(fa)# log1p() works here
 
 matplot(a, -fa, type = "l", log = "xy")# don't see the big difference
 legend("left", fExpr, col=1:4, lty=1:4, bty="n")
-
 }
 \keyword{math}

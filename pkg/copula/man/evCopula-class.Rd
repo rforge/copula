@@ -5,7 +5,6 @@
 \alias{huslerReissCopula-class}
 \alias{tawnCopula-class}
 \alias{tevCopula-class}
-
 \title{Class "evCopula" }
 \description{Class representing extreme-value copulas.}
 \section{Objects from the Class}{

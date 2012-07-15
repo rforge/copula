@@ -3,7 +3,6 @@
 \docType{class}
 \alias{interval-class}
 \alias{maybeInterval-class}
-%
 \alias{format,interval-method}
 \alias{show,interval-method}
 \alias{\%in\%,numeric,interval-method}

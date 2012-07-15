@@ -25,11 +25,9 @@
     \item{\code{mvdc}:}{ Object of class \code{"mvdc"}. }
   }
 }
-
 \references{
   Genest, C., Ghoudi, K., and Rivest, L.-P. (1995). A semiparametric
   estimation procedure of dependence parameters in multivariate
   families of distributions. \emph{Biometrika} \bold{82}, 543--552.
 }
-
 \keyword{classes}

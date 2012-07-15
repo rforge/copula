@@ -1,6 +1,5 @@
 \name{Anfun}
 \alias{Anfun}
-
 \title{Nonparametric rank-based estimators of the Pickands dependence
   function in the bivariate case}
 \description{
@@ -10,7 +9,6 @@
 \usage{
 Anfun(x, w, estimator = c("CFG", "Pickands"), corrected = TRUE)
 }
-
 \arguments{
   \item{x}{a two-column data matrix that will be transformed to pseudo-observations. }
   \item{w}{a vector of points in [0,1] where to evaluate the estimated
@@ -54,6 +52,5 @@ curve(Anfun(rcopula(gumbelCopula(2   ), 1000), x, estimator="Pickands"),
 curve(Anfun(rcopula(gumbelCopula(1.33), 1000), x, estimator="Pickands"),
       lty=3, add=TRUE, col=3)
 }
-
 \keyword{htest}
 \keyword{multivariate}

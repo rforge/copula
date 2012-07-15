@@ -4,7 +4,6 @@
 \alias{huslerReissCopula}
 \alias{tawnCopula}
 \alias{tevCopula}
-
 \title{Construction of extreme-value copula class objects}
 \description{
   Constructs an extreme-value copula class object with its corresponding
@@ -16,7 +15,6 @@ galambosCopula(param)
 huslerReissCopula(param)
 tawnCopula(param)
 tevCopula(param, df = 4, df.fixed = FALSE)
-
 %gumbelCopula(param)
 }
 \arguments{
@@ -41,10 +39,8 @@ tevCopula(param, df = 4, df.fixed = FALSE)
 \note{
   The Gumbel copula is both an Archimedean and an extreme-value copula.
 }
-
 \seealso{ \code{\link{ellipCopula}}, \code{\link{archmCopula}},
   \code{\link{gofEVCopula}}, \code{\link{Anfun}}. }
-
 \examples{
 ## Notice that, for a given degree of dependence,
 ## these copulas are strikingly similar.

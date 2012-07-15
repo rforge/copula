@@ -80,7 +80,6 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
   for estimating dependence parameters in copula models.
   \emph{Insurance: Mathematics and Economics} \bold{47}, 52--63.
 }
-
 \note{
   In the multiparameter elliptical case and when the estimation is based
   on Kendall's tau or Spearman's rho, the
@@ -119,7 +118,6 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
   \emph{including} the margins aka \dQuote{meta copula}s;
   \code{\link{gofCopula}}.
 }
-
 \examples{
 gumbel.cop <- gumbelCopula(3, dim=2)
 

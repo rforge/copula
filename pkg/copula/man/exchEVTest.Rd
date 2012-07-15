@@ -1,9 +1,7 @@
 \name{exchEVTest}
 \alias{exchEVTest}
-
 \title{Test of exchangeability for extreme-value and left-tail
   decreasing bivariate copulas}
-
 \description{
   Test for assessing the exchangeability of the underlying
   bivariate copula when it is either extreme-value or left-tail
@@ -30,7 +28,6 @@ exchEVTest(x, N = 1000,  estimator = "CFG", derivatives = "Cn", m = 100)
     dependence. The latter is faster. See the second reference.}
   \item{m}{ specifies the size of the integration grid for the statistic.}
 }
-
 \details{
   More details are available in the two first references.
 }
@@ -61,7 +58,6 @@ exchEVTest(x, N = 1000,  estimator = "CFG", derivatives = "Cn", m = 100)
   approximate p-value. One way of dealing with ties was suggested in the
   last reference.
 }
-
 \seealso{ \code{\link{exchTest}}, \code{\link{gofCopula}}. }
 \examples{
 ## Do these data come from exchangeable copulas?
@@ -81,6 +77,5 @@ khoudraji <- function(cop,n,a=0.6,b=0.95)
 exchEVTest(khoudraji(gumbelCopula(3),200))
 exchEVTest(khoudraji(claytonCopula(3),200))
 }
-
 \keyword{htest}
 \keyword{multivariate}

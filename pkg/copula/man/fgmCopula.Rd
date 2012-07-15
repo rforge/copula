@@ -8,7 +8,6 @@
 \usage{
 fgmCopula(param, dim = 2)
 }
-
 \arguments{
   \item{param}{a numeric vector specifying the parameter values.}
   \item{dim}{the dimension of the copula.}
@@ -24,11 +23,9 @@ fgmCopula(param, dim = 2)
   The random number generation needs to be properly tested, especially
   for dimensions higher than 2.
 }
-
 \references{
   Nelsen, R. B. (2006), \emph{An introduction to Copulas}, Springer, New York.
 }
-
 \seealso{
   \code{\link{Copula}}, \code{\link{copula-class}},
   \code{\link{fitCopula}}.

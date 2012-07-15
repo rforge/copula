@@ -1,6 +1,5 @@
 \name{evTestC}
 \alias{evTestC}
-
 \title{Large-sample test of multivariate extreme-value dependence}
 \description{
   Test of multivariate extreme-value dependence based on the empirical copula and
@@ -11,7 +10,6 @@
 \usage{
 evTestC(x, N = 1000)
 }
-
 \arguments{
   \item{x}{ a data matrix that will be transformed to pseudo-observations. }
   \item{N}{ number of multiplier iterations to be used to
@@ -19,10 +17,8 @@ evTestC(x, N = 1000)
     hypothesis.}
 }
 \details{
-
   More details are available in the second reference.
   See also Remillard and Scaillet (2009).
-
 }
 \value{
   Returns a list whose attributes are:
@@ -49,7 +45,6 @@ evTestC(x, N = 1000)
   approximate p-value. One way of dealing with ties was suggested in the
   last reference.
 }
-
 \seealso{ \code{\link{evTestK}}, \code{\link{evTestA}}, \code{\link{evCopula}},
   \code{\link{gofEVCopula}}, \code{\link{Anfun}}. }
 \examples{
@@ -61,6 +56,5 @@ evTestC(rcopula(claytonCopula(3), 200))
 evTestC(rcopula(gumbelCopula(3, dim=3), 200))
 evTestC(rcopula(claytonCopula(3, dim=3), 200))
 }
-
 \keyword{htest}
 \keyword{multivariate}

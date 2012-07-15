@@ -90,7 +90,6 @@
 \alias{calibSpearmansRho,plackettCopula-method}
 \alias{calibSpearmansRho,fgmCopula-method}
 \alias{calibSpearmansRho,nacopula-method}
-
 \title{Dependence measures for copulas}
 \description{
   These functions compute Kendall's tau, Spearman's rho, and the tail
@@ -152,7 +151,6 @@ stopifnot(all.equal(kendallsTau(gumbel.cop), copGumbel@tau(3)),
           all.equal(calibKendallsTau (gumbel.cop, 0.681),
                     copGumbel@tauInv(0.681))
 )
-
 
 ## let us compute the sample versions
 x <- rcopula(gumbel.cop, 200)

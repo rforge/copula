@@ -38,7 +38,6 @@ fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS")
   \item{loglik}{ loglikelihood at \code{"est"}. }
   \item{copula}{ the fitted copula. }
 }
-
 \note{
   User-defined marginal distribution can be used as long as the
   \code{"{dpq}"} functions are defined.  See \code{demo(QARClayton)}
@@ -53,7 +52,6 @@ fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS")
   process (see \code{\link{optim}}).
 }
 \seealso{ \code{\link{Copula}}, \code{\link{fitCopula}}, \code{\link{gofCopula}}. }
-
 \examples{
 gumbel.cop <- gumbelCopula(3, dim=2)
 myMvd <- mvdc(gumbel.cop, c("exp","exp"), list(list(rate=2),list(rate=4)))
@@ -66,5 +64,5 @@ fit
 if(FALSE) ## not yet ok %% FIXME !
 demo("QARClayton")
 }
-\keyword{ models }
-\keyword{ multivariate }
+\keyword{models}
+\keyword{multivariate}

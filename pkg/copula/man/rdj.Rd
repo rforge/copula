@@ -19,7 +19,6 @@
     \item{\code{GE}}{daily log-return of the General Electric}
   }
 }
-
 \references{
   McNeil, A. J., Frey, R. and Embrechts, P. (2005), \emph{Quantitative risk
     management}, Princeton University Press, Princeton Series in
