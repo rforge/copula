@@ -1,6 +1,6 @@
 \name{psiDabsMC}
 \alias{psiDabsMC}
-\title{Absolute Value of Generator Derivatives via Monte Carlo}
+\title{Absolute value of generator derivatives via Monte Carlo}
 \description{
   Computes the absolute values of the \eqn{d}th generator derivative
   \eqn{\psi^{(d)}}{psi^{(d)}} via Monte Carlo simulation.

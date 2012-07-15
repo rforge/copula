@@ -36,8 +36,7 @@ MM: the previous file (+directory) names were:
 thought it was unnecessary because it can be obtained with R package mecdf.
 But people have asked for it.
 ** MM: Also, look at ./man/copula-internal.Rd :
-*** e.g. schlatherCopula ??   JY: The implementation of schlatherCopula is not ready for release.
-   More ev copulas will come from max-stable processes.
+*** e.g. schlatherCopula ??   JY: The implementation of schlatherCopula is not ready for release. More ev copulas will come from max-stable processes.
 *** asymCopula (-class) -- document properly (incl some examples) mv from ./man/copula-internal.Rd
 
 * C code
@@ -124,45 +123,38 @@ But we should move that to another R/*.R
 ** maybe take  ./tests/copula-play.R  as sophisticated role model.
 
 * Former nacopula stuff
-** major (to fix before next release)
-- rtrafo() {and probably htrafo()} --- "fail" (are *wrong*!) for n = 1
-- bug fixes for estimation methods!  {still relevant ??}
-** intermediate
-   - opower() --> either produce acopula with parameter *vector*, or
+(MH?) rtrafo() {and probably htrafo()} --- "fail" (are *wrong*!) for n = 1
+(MH) From time to time (well, whenever Marius has.. ;-)) check the .Rd files
+    for overlong lines, i.e. apply
+      for f in *Rd; do printf '%20s: ' $f ; printf '%4d\n' `maxcol $f` ; done
+(MH) cop <- onacopulaL("Frank", list(50, 1:2)); any(rnacopula(100, cop)==Inf)
+    maybe use limit copulas also for other families (upper frechet bound)
+(MH) design a function that gets an outer nacopula and returns a matrix of
+    numbers which correspond to the different sectors; this can be used, e.g.,
+    for building a [default] color-matrix for splom2 or for estimation purposes
+    etc.
+    Note: look at nacPairthetas
+(MH) include pairwise estimators for nACs
+(MH) write nice little function that provides confidence intervals for tau and lambda's
+(MH) Khoudraji d + p + r (see asymCopula.R)
+(MH) make function to compute volumes available to all copulas
+
+(MM+MH) FIXME in enacopula (in estimation.R): return an object?
+(MM+MH) opower() and GIG --> either produce acopula with parameter *vector*, or
      --- maybe in any case ---
      produce an object of class 'opacopula' ("outer power Archimedean copula")
      which is just 'acopula' with a new show method ("thetabase" at least!),
      possibly a new slot ...
      Longer term: want to *estimate* those correctly [MLE at least].
-   - please take a look at gtrafouni() in ./R/gof.R: Can "Remillard" (and "Genest") be
-     made faster? Especially "Remillard" is slow (although B Remillard told me that his
-     method is faster than C. Genest's.)
-   - rtrafo() is now "available" for "t" and "normal" thanks to the Master
+
+(MM) add an ASCII-plot for the hierarchical structure;
+     Actually, define setAs("nacopula", "dendrogram", ....) and then use
+     dendrogram print()ing.
+(MM) rtrafo() is now "available" for "t" and "normal" thanks to the Master
      thesis of Yongsheng Wang.  (--> ...../function-gof.R )
      --> implement it, and  write a better wrapper for  gnacopula()/gofCopula()
+     MH: Maybe we should provide Rosenblatt's transformation in general?
 
-(*) From time to time (well, whenever Marius has.. ;-)) check the .Rd files
-    for overlong lines, i.e. apply
-      for f in *Rd; do printf '%20s: ' $f ; printf '%4d\n' `maxcol $f` ; done
-(*) write nice little function that provides confidence intervals for tau and
-lambda's
-(*) fix:
-    cop <- onacopulaL("Frank", list(200, 1:2)); rnacopula(100, cop)
-    maybe use limit copulas also for other families (upper frechet bound)
-(*) add an ASCII-plot for the hierarchical structure;
-    Actually, define setAs("nacopula", "dendrogram", ....) and then use
-    dendrogram print()ing.
-(*) design a function that gets an outer nacopula and returns a matrix of
-    numbers which correspond to the different sectors; this can be used, e.g.,
-    for building a [default] color-matrix for splom2 or for estimation purposes
-    etc.
-    Note: look at nacPairthetas
-
-#### Long-term maybe ###########################################################
-
-(*) FIXME in enacopula (in estimation.R): return an object?
-(*) include pairwise estimators for nACs
-(*) can we create a function for the GIG generator similar to opower()?
 
 
 

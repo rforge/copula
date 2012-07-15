@@ -8,8 +8,7 @@
 \alias{show,interval-method}
 \alias{\%in\%,numeric,interval-method}
 \alias{Summary,interval-method}
-
-\title{Class "interval" of simple Intervals}
+\title{Class "interval" of simple intervals}
 \description{
   The S4 \code{\link{class}} \code{"interval"} is a simple class for numeric
   intervals.

@@ -1,6 +1,6 @@
 \name{log1mexp}
 \alias{log1mexp}
-\title{Compute  f(a) = log(1 - exp(-a))  Numerically Optimally}
+\title{Compute  \eqn{f(a) = log(1 - exp(-a))}  numerically optimally}
 \description{
   Compute f(a) = log(1 - exp(-a)) stably
 }

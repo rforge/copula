@@ -1,6 +1,6 @@
 \name{pnacopula}
 \alias{pnacopula}
-\title{Evaluation of (Nested) Archimedean Copulas}
+\title{Evaluation of (nested) Archimedean copulas}
 \description{
   \code{pnacopula} evaluates a (nested) Archimedean copula (object of class
   \code{\linkS4class{nacopula}}) at the given vector or matrix \code{u}.

@@ -2,9 +2,7 @@
 \Rdversion{1.1}
 \alias{rdj}
 \docType{data}
-\title{
-Daily returns of three stocks in the Dow Jones
-}
+\title{Daily returns of three stocks in the Dow Jones}
 \description{
   Five years of daily log-returns (from 1996 to 2000) of Intel
   (INTC), Microsoft (MSFT) and General Electric (GE) stocks. These

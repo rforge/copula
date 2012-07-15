@@ -4,7 +4,7 @@
 \alias{dSibuya}
 \alias{rSibuyaR}
 \alias{dsumSibuya}
-\title{Sibuya Distribution - Sampling and Probabilities}
+\title{Sibuya distribution - sampling and probabilities}
 \description{
   The Sibuya distribution \eqn{\mathrm{Sib}(\alpha)}{Sib(alpha)} can be defined by
   its Laplace transform

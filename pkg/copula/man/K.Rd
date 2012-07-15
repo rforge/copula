@@ -4,7 +4,7 @@
 \alias{qK}
 \alias{dK}
 \alias{rK}
-\title{Kendall Distribution Function for Archimedean Copulas}
+\title{Kendall distribution function for Archimedean copulas}
 \description{
   The distribution function of the \emph{Kendall distribution} of an Archimedean
   copula is defined as

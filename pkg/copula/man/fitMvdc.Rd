@@ -1,7 +1,7 @@
 \name{fitMvdc}
 \alias{fitMvdc}
 \alias{loglikMvdc}
-\title{ Estimation of multivariate models defined via copulas }
+\title{Estimation of multivariate models defined via copulas}
 \description{
   Fits a copula-based multivariate distribution to multivariate data.
 }

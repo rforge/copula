@@ -1,10 +1,7 @@
 \name{multSerialIndepTest}
 \alias{multSerialIndepTest}
-
-
 \title{Serial independence test for multivariate continuous time series
   based on the empirical copula process}
-
 \description{
   Analog of the serial independence test based on the empirical
   copula process proposed by Christian Genest and Bruno Rémillard (see
@@ -13,12 +10,10 @@
   and p-values are obtainted through the bootstrap/permutation
   methodology, since, here, test statistics are not distribution-free.
 }
-
 \usage{
 multSerialIndepTest(x, lag.max, m=lag.max+1, N=1000, alpha=0.05,
                     print.every = 100)
 }
-
 \arguments{
   \item{x}{Data frame or data matrix containing realizations the
     multivaraite continuous time series whose serial independence is to be tested.}
@@ -35,7 +30,6 @@ multSerialIndepTest(x, lag.max, m=lag.max+1, N=1000, alpha=0.05,
 \details{See the references below for more details, especially the last
   one.
 }
-
 \value{
   The function \code{"multSerialIndepTest"} returns an object of class
   \code{"indepTest"} whose attributes are: \code{subsets},
@@ -49,7 +43,6 @@ multSerialIndepTest(x, lag.max, m=lag.max+1, N=1000, alpha=0.05,
   the independence empirical copula process - see \code{In} in the last reference) and
   \code{global.statistic.pvalue} (corresponding p-value).
 }
-
 \references{
   Deheuvels, P. (1979). La fonction de dépendance empirique et ses
   propriétés: un test non paramétrique d'indépendance, \emph{Acad. Roy.
@@ -70,7 +63,6 @@ multSerialIndepTest(x, lag.max, m=lag.max+1, N=1000, alpha=0.05,
   empirical copula process, \emph{Annals of the Institute of Statistical
   Mathematics} \bold{63}, 347--373.
 }
-
 \seealso{
   \code{\link{serialIndepTest}},
   \code{\link{indepTest}},
@@ -95,6 +87,4 @@ test
 ## Display the dependogram
 dependogram(test,print=TRUE)
 }
-
-\encoding{UTF-8}
 \keyword{htest}

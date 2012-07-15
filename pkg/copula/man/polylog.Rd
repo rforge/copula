@@ -1,6 +1,6 @@
 \name{polylog}
 \alias{polylog}
-\title{Polylogarithm Li_s(z)}
+\title{Polylogarithm \eqn{Li_s(z)}}
 \description{
   Compute the polylogarithm function \eqn{Li_s(z)},
   initially defined as the power series,

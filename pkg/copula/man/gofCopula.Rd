@@ -1,6 +1,5 @@
 \name{gofCopula}
 \alias{gofCopula}
-
 \title{Goodness-of-fit tests for copulas}
 \description{
   Goodness-of-fit tests for copulas based on the empirical process
@@ -69,12 +68,12 @@ gofCopula(copula, x, N = 1000, method = "mpl",
     copula family. }
 }
 \references{
-  Genest, C. and R\enc{è}{e}millard, B. (2008). Validity of the parametric
+  Genest, C. and R\enc{é}{e}millard, B. (2008). Validity of the parametric
   bootstrap for goodness-of-fit testing in semiparametric models.
   \emph{Annales de l'Institut Henri Poincare: Probabilites et Statistiques}
   \bold{44}, 1096--1127.
 
-  Genest, C., R\enc{è}{e}millard, B., and Beaudoin, D. (2009). Goodness-of-fit tests
+  Genest, C., R\enc{é}{e}millard, B., and Beaudoin, D. (2009). Goodness-of-fit tests
   for copulas: A review and a power study.
   \emph{Insurance: Mathematics and Economics} \bold{44}, 199--214.
 

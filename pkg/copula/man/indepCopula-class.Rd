@@ -1,7 +1,7 @@
 \name{indepCopula-class}
 \docType{class}
 \alias{indepCopula-class}
-\title{Class "indepCopula" }
+\title{Class "indepCopula"}
 \description{Independence copula class.}
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("indepCopula", ...)}

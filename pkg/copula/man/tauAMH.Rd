@@ -1,6 +1,6 @@
 \name{tauAMH}
 \alias{tauAMH}
-\title{Ali-Mikhail-Haq ("AMH")'s  Kendall's Tau}
+\title{Ali-Mikhail-Haq ("AMH")'s Kendall's tau}
 \description{
   Compute Kendall's Tau of an Ali-Mikhail-Haq ("AMH") Archimedean copula
   with parameter \code{theta}.  While that's analytically given

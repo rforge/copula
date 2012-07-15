@@ -1,6 +1,6 @@
 \name{setTheta}
 \alias{setTheta}
-\title{Specify the Parameter of an Archimedean Copula}
+\title{Specify the parameter of an Archimedean copula}
 \description{
   Set or change the parameter \eqn{\theta}{theta} (\code{theta}) of
   an Archimedean copula \code{x} of class \code{"\linkS4class{acopula}"}.  This

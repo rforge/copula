@@ -1,6 +1,6 @@
 \name{splom2}
 \alias{splom2}
-\title{Scatterplot Matrix [SPLOM] With Nice Variable Names}
+\title{Scatterplot matrix (splom) with nice variable names}
 \description{
   A version of \pkg{lattice}'s \code{\link{splom}} function,
   particularly useful for visualizing multivariate data sampled from

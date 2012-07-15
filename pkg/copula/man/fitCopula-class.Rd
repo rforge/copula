@@ -4,7 +4,7 @@
 \alias{fitMvdc-class}
 \alias{summaryFitCopula-class}
 \alias{summaryFitMvdc-class}
-\title{Class "fitCopula" }
+\title{Class "fitCopula"}
 \description{ Classes and summaries related to copula model fitting. }
 \section{Objects from the Class}{
   Objects can be created by calls to \code{\link{fitCopula}}, \code{\link{fitMvdc}}

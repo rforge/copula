@@ -1,9 +1,6 @@
 \name{multIndepTest}
 \alias{multIndepTest}
-
-\title{Independence test among continuous random vectors
-  based on the empirical copula process}
-
+\title{Independence test among continuous random vectors based on the empirical copula process}
 \description{
   Analog of the independence test based on the empirical copula process
   proposed by Christian Genest and Bruno Rémillard (see
@@ -12,11 +9,9 @@
   obtainted through the bootstrap/permutation methodology, since, here,
   test statistics are not distribution-free.
 }
-
 \usage{
 multIndepTest(x, d, m=length(d), N=1000, alpha=0.05, print.every = 100)
 }
-
 \arguments{
   \item{x}{data frame (\code{\link{data.frame}}) or  matrix containing realizations (one per
     line) of the random vectors whose independence is to be tested.}
@@ -34,7 +29,6 @@ multIndepTest(x, d, m=length(d), N=1000, alpha=0.05, print.every = 100)
 \details{
   See the references below for more details, especially the last one.
 }
-
 \value{
   The function \code{"multIndepTest"} returns an object of class
   \code{"indepTest"} whose attributes are: \code{subsets},
@@ -49,7 +43,6 @@ multIndepTest(x, d, m=length(d), N=1000, alpha=0.05, print.every = 100)
   copula process - see \code{In} in the last reference) and
   \code{global.statistic.pvalue} (corresponding p-value).
 }
-
 \references{
   Deheuvels, P. (1979). La fonction de dépendance empirique et ses
   propriétés: un test non paramétrique d'indépendance, \emph{Acad. Roy.
@@ -74,13 +67,12 @@ multIndepTest(x, d, m=length(d), N=1000, alpha=0.05, print.every = 100)
   of the empirical copula process. \emph{Journal of Multivariate
     Analysis} \bold{100}, 1137--1154.
 }
-
 \seealso{
   \code{\link{indepTest}},
   \code{\link{serialIndepTest}},
   \code{\link{multSerialIndepTest}},
-  \code{\link{dependogram}}.}
-
+  \code{\link{dependogram}}.
+}
 \examples{
 ## Consider the following example taken from
 ## Kojadinovic and Holmes (2008):
@@ -112,6 +104,4 @@ test
 ## Display the dependogram
 dependogram(test,print=TRUE)
 }
-
-\encoding{UTF-8}
 \keyword{htest}

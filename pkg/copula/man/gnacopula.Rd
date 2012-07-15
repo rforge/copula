@@ -1,7 +1,7 @@
 \name{gnacopula}
 \alias{gnacopula}
 \alias{gofTstat}
-\title{Goodness-of-Fit Testing for (Nested) Archimedean Copulas}
+\title{Goodness-of-fit testing for (nested) Archimedean copulas}
 \description{
   \code{gnacopula()} conducts a goodness-of-fit test for the given
   (\eqn{H_0}-)copula \code{cop} based on the (copula-)data \code{u}.

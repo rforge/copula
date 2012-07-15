@@ -90,7 +90,7 @@ etau(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...)
 \references{
   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011a),
   Estimators for Archimedean copulas in high dimensions: A comparison,
-  to be submitted.
+  submitted.
 }
 \seealso{
   The more sophisticated estimators \code{\link{emle}} (Maximum Likelihood) and

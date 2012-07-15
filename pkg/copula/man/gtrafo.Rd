@@ -2,7 +2,7 @@
 \alias{gtrafo}
 \alias{htrafo}
 \alias{rtrafo}
-\title{Goodness-of-Fit Testing Transformations for (Nested) Archimedean Copulas}
+\title{Goodness-of-fit testing transformations for (nested) Archimedean copulas}
 \description{
   \code{htrafo()} the transformation described in Hering and Hofert (2011).
 

@@ -1,10 +1,8 @@
 \name{serialIndepTest}
 \alias{serialIndepTest}
 \alias{serialIndepTestSim}
-
 \title{Serial independence test for continuous time series based
   on the empirical copula process}
-
 \description{
   Serial independence test based on the empirical copula process as
   proposed in Ghoudi et al. (2001) and Genest and Rémillard (2004). The
@@ -19,12 +17,10 @@
   serial independence, if any. More details can be found in the articles
   cited in the reference section.
 }
-
 \usage{
-serialIndepTestSim(n, lag.max, m=lag.max+1, N=1000, print.every = 100)
-serialIndepTest(x, d, alpha=0.05)
+  serialIndepTestSim(n, lag.max, m=lag.max+1, N=1000, print.every = 100)
+  serialIndepTest(x, d, alpha=0.05)
 }
-
 \arguments{
   \item{n}{Length of the time series when simulating the distribution of
     the test statistics under serial independence.}
@@ -45,10 +41,8 @@ serialIndepTest(x, d, alpha=0.05)
   \item{alpha}{Significance level used in the computation of the
     critical values for the test statistics.}
 }
-
 \details{See the references below for more details, especially the third
   and fourth ones.}
-
 \value{The function \code{"serialIndepTestSim"} returns an object of class
    \code{"serialIndepTestDist"} whose attributes are: \code{sample.size},
   \code{lag.max}, \code{max.card.subsets}, \code{number.repetitons},
@@ -74,7 +68,6 @@ serialIndepTest(x, d, alpha=0.05)
   empirical copula process --- see last reference p 175) and
   \code{global.statistic.pvalue} (corresponding p-value).
 }
-
 \references{
   Deheuvels, P. (1979). La fonction de dépendance empirique et ses
   propriétés: un test non paramétrique d'indépendance, \emph{Acad. Roy.
@@ -94,14 +87,12 @@ serialIndepTest(x, d, alpha=0.05)
   local efficiency of Cramér-von Mises tests for multivariate
   independence. \emph{The Annals of Statistics} \bold{35}, 166--191.
 }
-
 \seealso{
   \code{\link{indepTest}},
   \code{\link{multIndepTest}},
   \code{\link{multSerialIndepTest}},
   \code{\link{dependogram}}
 }
-
 \examples{
 ## AR 1 process
 
@@ -134,6 +125,4 @@ dependogram(test,print=TRUE)
 
 ## NB: In order to save d for future use, the save function can be used.
 }
-
-\encoding{UTF-8}
 \keyword{htest}

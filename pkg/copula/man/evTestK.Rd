@@ -1,6 +1,5 @@
 \name{evTestK}
 \alias{evTestK}
-
 \title{Bivariate test of extreme-value dependence based on Kendall's process}
 \description{
   Test of extreme-value dependence based on the  bivariate probability integral
@@ -10,7 +9,6 @@
 \usage{
 evTestK(x, method = c("fsample","asymptotic","jackknife"))
 }
-
 \arguments{
   \item{x}{ a data matrix. }
   \item{method}{ specifies the variance estimation method; can be either
@@ -40,7 +38,5 @@ evTestK(x, method = c("fsample","asymptotic","jackknife"))
 evTestK(rcopula(gumbelCopula(3), 200))
 evTestK(rcopula(claytonCopula(3), 200))
 }
-
-\encoding{UTF-8}
 \keyword{htest}
 \keyword{multivariate}

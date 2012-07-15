@@ -50,7 +50,6 @@ exchTest(x, N = 1000, m = 0)
   approximate p-value. One way of dealing with ties was suggested in the
   last reference.
 }
-
 \seealso{ \code{\link{exchEVTest}}, \code{\link{gofCopula}}. }
 \examples{
 ## Do these data come from exchangeable copulas?
@@ -69,7 +68,5 @@ khoudraji <- function(cop,n,a=0.6,b=0.95)
 exchTest(khoudraji(gumbelCopula(3),200))
 exchTest(khoudraji(claytonCopula(3),200))
 }
-
-\encoding{UTF-8}
 \keyword{htest}
 \keyword{multivariate}

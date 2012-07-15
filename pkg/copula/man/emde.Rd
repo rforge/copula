@@ -71,7 +71,7 @@ emde(u, cop,
 \references{
    Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011a),
    Estimators for Archimedean copulas in high dimensions: A comparison,
-   to be submitted.
+   submitted.
 
    Hering, C. and Hofert, M. (2011),
 	Goodness-of-fit tests for Archimedean copulas in large dimensions,

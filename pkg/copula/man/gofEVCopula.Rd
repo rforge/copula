@@ -1,6 +1,5 @@
 \name{gofEVCopula}
 \alias{gofEVCopula}
-
 \title{Goodness-of-fit tests for bivariate extreme-value copulas}
 \description{
   Goodness-of-fit tests for extreme-value copulas based on the
@@ -9,7 +8,7 @@
   Genest and Segers (2009) with a parametric estimate
   of the Pickands dependence function derived under the null hypothesis.
   The test statistic is the Cramer-von Mises functional Sn defined
-  in equation (5) of Genest, Kojadinovic, Nešlehová and Yan (2010).
+  in equation (5) of Genest, Kojadinovic, Nešlehová, and Yan (2010).
   Approximate p-values for the test statistic are obtained using a
   parametric bootstrap.
 
@@ -19,7 +18,6 @@ gofEVCopula(copula, x, N = 1000, method = "mpl",
             estimator = "CFG", m = 1000, print.every = 100,
             optim.method = "Nelder-Mead")
 }
-
 \arguments{
   \item{copula}{ object of class \code{"\linkS4class{evCopula}"} representing the
     hypothesized extreme-value copula family.}
@@ -50,12 +48,10 @@ gofEVCopula(copula, x, N = 1000, method = "mpl",
   \item{parameters}{ estimates of the parameters for the hypothesized
     copula family. }
 }
-
 \note{
   For a given degree of dependence, the most popular extreme-value
   copulas are strikingly similar.
 }
-
 \references{
   Genest, C. and Segers, J. (2009). Rank-based inference for bivariate
   extreme-value copulas. \emph{Annals of Statistics} \bold{37}, 2990--3022.
@@ -92,8 +88,6 @@ gofEVCopula(tevCopula(0, df.fixed=TRUE), x, method="itau")
 gofEVCopula(tevCopula(0, df.fixed=TRUE), x, method="irho")
 }
 }
-
-\encoding{UTF-8}
 \keyword{htest}
 \keyword{models}
 \keyword{multivariate}

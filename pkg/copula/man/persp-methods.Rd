@@ -4,7 +4,7 @@
 \alias{persp,indepCopula-method}
 \alias{persp,copula-method}
 \alias{persp,mvdc-method}
-\title{ Methods for function `persp' in Package `copula' }
+\title{Methods for function `persp' in package `copula'}
 \description{
  Methods for function \code{persp} in package \pkg{copula}
 }

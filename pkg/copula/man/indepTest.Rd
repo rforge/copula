@@ -2,10 +2,8 @@
 \alias{indepTest}
 \alias{indepTestSim}
 \alias{dependogram}
-
 \title{Independence test among continuous random variables based
   on the empirical copula process}
-
 \description{
   Multivariate independence test based on the empirical
   copula process as proposed by Christian Genest and Bruno
@@ -19,13 +17,11 @@
   understand the type of departure from independence, if any. More details can
   be found in the articles cited in the reference section.
 }
-
 \usage{
 indepTestSim(n, p, m = p, N = 1000, print.every = 100)
 indepTest(x, d, alpha=0.05)
 dependogram(test, pvalues = FALSE, print = FALSE)
 }
-
 \arguments{
   \item{n}{Sample size when simulating the distribution of the test
     statistics under independence.}
@@ -52,7 +48,6 @@ dependogram(test, pvalues = FALSE, print = FALSE)
 \details{See the references below for more details, especially the third
   one.
 }
-
 \value{The function \code{"indepTestSim"} returns an object of class
   \code{"indepTestDist"} whose attributes are: \code{sample.size},
   \code{data.dimension}, \code{max.card.subsets},
@@ -79,7 +74,6 @@ dependogram(test, pvalues = FALSE, print = FALSE)
   process - see last reference p. 175) and
   \code{global.statistic.pvalue} (corresponding p-value).
 }
-
 \references{
   Deheuvels, P. (1979). La fonction de dépendance empirique et ses
   propriétés: un test non paramétrique d'indépendance, \emph{Acad. Roy.
@@ -99,7 +93,6 @@ dependogram(test, pvalues = FALSE, print = FALSE)
   local efficiency of Cramér-von Mises tests for multivariate
   independence. \emph{The Annals of Statistics} \bold{35}, 166--191.
 }
-
 \seealso{
   \code{\link{serialIndepTest}},
   \code{\link{multIndepTest}},
@@ -146,6 +139,4 @@ dependogram(test,print=TRUE)
 
 ## NB: In order to save d for future use, the save function can be used.
 }
-
-\encoding{UTF-8}
 \keyword{htest}
