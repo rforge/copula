@@ -1,4 +1,12 @@
-
+/**
+ * Evaluate a Chebyshev series over a given interval
+ *
+ * @param cs Chebyshev series
+ * @param x evaluation point
+ * @param result the result
+ * @return GSL_SUCCESS
+ * @author Martin Maechler
+ */
 static inline int
 cheb_eval_e(const cheb_series * cs,
             const double x,
@@ -20,7 +28,7 @@ cheb_eval_e(const cheb_series * cs,
     dd = temp;
   }
 
-  { 
+  {
     double temp = d;
     d = y*d - dd + 0.5 * cs->c[0];
     e += fabs(y*temp) + fabs(dd) + 0.5 * fabs(cs->c[0]);

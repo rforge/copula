@@ -72,11 +72,8 @@
 
 /* !MACHINE CONSTANTS! */
 
-
 /* a little internal backwards compatibility */
 #define GSL_MACH_EPS  GSL_DBL_EPSILON
-
-
 
 /* Here are the constants related to or derived from
  * machine constants. These are not to be confused with

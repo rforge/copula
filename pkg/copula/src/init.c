@@ -28,23 +28,32 @@
 
 #define CALLDEF(name, n)  {#name, (DL_FUNC) &name, n}
 
-// ---- ./Anfun.c -------------
+
+// ./Anfun.c ///////////////////////////////////////////////////////////////////
+
 static R_NativePrimitiveArgType A_CFG_t[7] = {
     INTSXP, REALSXP, REALSXP, REALSXP, /* m: */ INTSXP, INTSXP, REALSXP
 };
 static R_NativePrimitiveArgType A_Pickands_t[7] = {
     INTSXP, REALSXP, REALSXP, REALSXP, /* m: */ INTSXP, INTSXP, REALSXP
 };
-// ---- ./fgm.c ---------------
+
+
+// ./fgm.c /////////////////////////////////////////////////////////////////////
+
 static R_NativePrimitiveArgType validity_fgm_t[3] = { INTSXP, REALSXP, INTSXP };
 static R_NativePrimitiveArgType rfgm_t[4] = { INTSXP, REALSXP, INTSXP, REALSXP };
 
-// ---- ./set_utils.c ---------
+
+// ./set_utils.c ///////////////////////////////////////////////////////////////
+
 static R_NativePrimitiveArgType k_power_set_t[3] = { INTSXP, INTSXP, INTSXP };
 static R_NativePrimitiveArgType k_power_set_char_t[4] = {
     INTSXP, INTSXP, INTSXP, STRSXP };
 
-// ---- ./gof.c & gof.h -------
+
+// ./gof.c & gof.h /////////////////////////////////////////////////////////////
+
 static R_NativePrimitiveArgType cramer_vonMises_t[5] = {
     INTSXP, INTSXP, REALSXP,  REALSXP, REALSXP };
 static R_NativePrimitiveArgType cramer_vonMises_2_t[7] = {
@@ -59,10 +68,14 @@ static R_NativePrimitiveArgType cramer_vonMises_CFG_t[6] = {
 static R_NativePrimitiveArgType cramer_vonMises_Afun_t[7] = {
     INTSXP, INTSXP, REALSXP, REALSXP, REALSXP, REALSXP, INTSXP };
 
-// ---- ./logseries.c ---------
+
+// ./logseries.c ///////////////////////////////////////////////////////////////
+
 static R_NativePrimitiveArgType rlogseries_R_t[3] = { INTSXP, REALSXP, INTSXP };
 
-// ---- ./evtest.c ------------
+
+// ./evtest.c //////////////////////////////////////////////////////////////////
+
 static R_NativePrimitiveArgType evtest_t[] = {
     REALSXP, INTSXP, INTSXP, REALSXP, INTSXP,
     INTSXP, REALSXP, INTSXP, REALSXP, INTSXP,
@@ -83,7 +96,10 @@ static R_NativePrimitiveArgType evTestAA_derA_t[] = {REALSXP, REALSXP, INTSXP, R
 		   INTSXP, REALSXP};
 static R_NativePrimitiveArgType evTestAA_stat_t[] = {REALSXP, REALSXP, INTSXP, REALSXP, INTSXP,
 		   REALSXP};
-// ---- ./exchtest.c ----------
+
+
+// ./exchtest.c ////////////////////////////////////////////////////////////////
+
 static R_NativePrimitiveArgType evsymtest_t[] = {REALSXP, REALSXP, INTSXP, REALSXP, INTSXP,
 	       INTSXP, INTSXP, REALSXP};
 
@@ -100,7 +116,8 @@ static R_NativePrimitiveArgType exchtestCn_stat_t[] = {REALSXP, REALSXP, INTSXP,
 		     INTSXP, REALSXP};
 
 
-// ---- ./empcopm.test.c ------
+// ./empcopm.test.c ////////////////////////////////////////////////////////////
+
 static R_NativePrimitiveArgType bootstrap_MA_I_t[] = {INTSXP, INTSXP, INTSXP, INTSXP, REALSXP, INTSXP,
 	       REALSXP, REALSXP, INTSXP, STRSXP,
 	       INTSXP};
@@ -108,7 +125,9 @@ static R_NativePrimitiveArgType empirical_copula_test_rv_t[] = {REALSXP, INTSXP,
 			      REALSXP, INTSXP, INTSXP, REALSXP, REALSXP,
 			      REALSXP, REALSXP, REALSXP, REALSXP};
 
-// ---- ./empcops.test.c ------
+
+// ./empcops.test.c ////////////////////////////////////////////////////////////
+
 static R_NativePrimitiveArgType simulate_empirical_copula_serial_t[] = {INTSXP, INTSXP, INTSXP, INTSXP,
 				      REALSXP, REALSXP, INTSXP,
 				      STRSXP, REALSXP,
@@ -118,7 +137,9 @@ static R_NativePrimitiveArgType empirical_copula_test_serial_t[] = {REALSXP, INT
 				  REALSXP, REALSXP, REALSXP,
 				  REALSXP, REALSXP};
 
-// ---- ./empcopsm.test.c -----
+
+// ./empcopsm.test.c ///////////////////////////////////////////////////////////
+
 static R_NativePrimitiveArgType bootstrap_serial_t[] = {INTSXP, INTSXP, INTSXP, INTSXP, REALSXP, INTSXP,
 		      REALSXP, REALSXP, INTSXP, STRSXP,
 		      INTSXP};
@@ -126,7 +147,9 @@ static R_NativePrimitiveArgType empirical_copula_test_rv_serial_t[] = {REALSXP, 
 				     REALSXP, INTSXP, INTSXP, REALSXP, REALSXP,
 				     REALSXP, REALSXP, REALSXP, REALSXP};
 
-// ---- ./empcopu.test.c ------
+
+// ./empcopu.test.c ////////////////////////////////////////////////////////////
+
 static R_NativePrimitiveArgType simulate_empirical_copula_t[] = {INTSXP, INTSXP, INTSXP, INTSXP, REALSXP,
 			       REALSXP, INTSXP, STRSXP,
 			       REALSXP, REALSXP, INTSXP};
@@ -136,7 +159,8 @@ static R_NativePrimitiveArgType empirical_copula_test_t[] = {REALSXP, INTSXP, IN
 			   REALSXP, REALSXP};
 
 
-// ---- ./R_debye.c -----------
+// ./R_debye.c /////////////////////////////////////////////////////////////////
+
 static R_NativePrimitiveArgType debye_1_C_t[5] = { REALSXP, INTSXP, REALSXP,REALSXP, INTSXP };
 static R_NativePrimitiveArgType debye_2_C_t[5] = { REALSXP, INTSXP, REALSXP,REALSXP, INTSXP };
 static R_NativePrimitiveArgType debye_3_t[5] = { REALSXP, INTSXP, REALSXP,REALSXP, INTSXP };

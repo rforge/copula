@@ -127,8 +127,7 @@ But we should move that to another R/*.R
 (MH) From time to time (well, whenever Marius has.. ;-)) check the .Rd files
     for overlong lines, i.e. apply
       for f in *Rd; do printf '%20s: ' $f ; printf '%4d\n' `maxcol $f` ; done
-(MH) cop <- onacopulaL("Frank", list(50, 1:2)); any(rnacopula(100, cop)==Inf)
-    maybe use limit copulas also for other families (upper frechet bound)
+(MH) copFrank@psi(1/1e20, theta=200) == Inf instead of 1
 (MH) design a function that gets an outer nacopula and returns a matrix of
     numbers which correspond to the different sectors; this can be used, e.g.,
     for building a [default] color-matrix for splom2 or for estimation purposes
@@ -137,7 +136,6 @@ But we should move that to another R/*.R
 (MH) include pairwise estimators for nACs
 (MH) write nice little function that provides confidence intervals for tau and lambda's
 (MH) Khoudraji d + p + r (see asymCopula.R)
-(MH) make function to compute volumes available to all copulas
 
 (MM+MH) FIXME in enacopula (in estimation.R): return an object?
 (MM+MH) opower() and GIG --> either produce acopula with parameter *vector*, or
