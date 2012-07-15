@@ -1,5 +1,4 @@
-## test of fitCopula
-######################################
+### test of fitCopula ##########################################################
 
 ## one replicate
 do1 <- function(cop,n) {
@@ -26,7 +25,7 @@ testCop <- function(cop, n, N) {
 ##' Test of the methods in fitCopula for a bivariate one-parameter copula family
 ##'
 ##' @title Test of the methods in fitCopula for a bivariate one-parameter copula family
-##' @param cop is the copula family 
+##' @param cop is the copula family
 ##' @param tau.set is the set of tau values for which the parameters of cop are set
 ##' @param n.set is the set of n values used in the simulation
 ##' @param N is the number of repetitions for computing the bias and dSE
@@ -48,7 +47,7 @@ run1test <- function(cop, tau.set, n.set, N) {
 ##' Reshapes the results for processing by xyplot
 ##' @title Reshapes the results for processing by xyplot
 ##' @param res object returned by run1test
-##' @param taunum logical indicating whether the taus are numeric or character 
+##' @param taunum logical indicating whether the taus are numeric or character
 ##' @return a matrix containing the reshaped results
 ##' @author Martin
 reshape.res <- function(res,taunum=FALSE) {

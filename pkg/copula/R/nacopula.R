@@ -83,10 +83,10 @@ pnacopula <- function(x,u) {
 	  theta=th)
 }
 
-##' Compute the probability P[l < U <= u]  where U ~ copula x.
+##' Compute the probability P[l < U <= u]  where U ~ copula x
 ##'
-##' @title Computing probabilities under nested Archimedean dependence
-##' @param x outer nested archimedean copula
+##' @title Compute the probability P[l < U <= u]  where U ~ copula x
+##' @param x copula object
 ##' @param l d-vector of lower "integration" limits
 ##' @param u d-vector of upper "integration" limits
 ##' @return the probability that a random vector following the given copula

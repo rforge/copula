@@ -1,8 +1,8 @@
 \name{polylog}
 \alias{polylog}
-\title{Polylogarithm \eqn{Li_s(z)}}
+\title{Polylogarithm \eqn{\mathrm{Li_s(z)}}{Li_s(z)}}
 \description{
-  Compute the polylogarithm function \eqn{Li_s(z)},
+  Compute the polylogarithm function \eqn{\mathrm{Li_s(z)}}{Li_s(z)},
   initially defined as the power series,
   \deqn{\mathrm{Li}_s(z) = \sum_{k=1}^\infty {z^k \over k^s},}{%
     Li_s(z) = sum(k=1..Inf; z^k / k^s),}
