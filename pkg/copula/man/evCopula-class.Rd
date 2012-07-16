@@ -5,27 +5,24 @@
 \alias{huslerReissCopula-class}
 \alias{tawnCopula-class}
 \alias{tevCopula-class}
-\title{Class "evCopula" }
-\description{Class representing extreme-value copulas.}
+\title{Classes Representing Extreme-Value Copulas}
+\description{
+  Class \code{evCopula} is the virtual (mother) class of all extreme-value copulas.
+  There currently are five subclasses,
+  \code{"galambosCopula"}, \code{"huslerReissCopula"},
+  \code{"tawnCopula"}, \code{"tevCopula"}, and \code{"gumbelCopula"},
+  the latter of which is also an Archimedean copula, see the page for
+  class \code{"\linkS4class{archmCopula}"}.
+}
 \section{Objects from the Class}{
-  Objects can be created by calls of the form \code{new("evCopula",
-    ...)} or by function \code{\link{evCopula}}.
+  \code{evCopula} is a virtual class: No objects may be created from it.
+  Objects of class \code{"galambosCopula"} etc, can be created by calls
+  of the form \code{new("galambosCopula", ...)}, but typically rather by
+  \code{\link{galambosCopula}()}, etc, see there.
 }
 \section{Slots}{
-  \describe{
-    \item{\code{dimension}:}{Object of class \code{"numeric"}, the
-      dimension of the copula. }
-    \item{\code{parameters}:}{Object of class \code{"numeric"},
-      parameter values. }
-    \item{\code{param.names}:}{Object of class \code{"character"},
-      parameter names. }
-    \item{\code{param.lowbnd}:}{Object of class \code{"numeric"},
-      parameter lower bound. }
-    \item{\code{param.upbnd}:}{Object of class \code{"numeric"},
-      parameter upper bound. }
-    \item{\code{message}:}{Object of class \code{"character"}, family names
-      of the copula. }
-  }
+  All slots are inherited from the mother class
+  \code{"\linkS4class{copula}"}, see there.
 }
 \section{Methods}{
   \describe{

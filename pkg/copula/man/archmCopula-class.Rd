@@ -17,18 +17,8 @@
     \item{\code{exprdist}:}{Object of class \code{"expression"}:
       expressions of the cdf and pdf of the copula. These expressions
       are used in function 'pcopula' and 'dcopula'. }
-    \item{\code{dimension}:}{Object of class \code{"numeric"}, dimension
-    of the copula. }
-    \item{\code{parameters}:}{Object of class \code{"numeric"},
-      parameter values. }
-    \item{\code{param.names}:}{Object of class \code{"character"},
-      parameter names. }
-    \item{\code{param.lowbnd}:}{Object of class \code{"numeric"},
-      parameter lower bounds. }
-    \item{\code{param.upbnd}:}{Object of class \code{"numeric"},
-      parameter upper bounds. }
-    \item{\code{message}:}{Object of class \code{"character"}, family names
-      of the copula. }
+    \item{\code{dimension, parameters}, etc:}{all inherited from the
+      super class \code{\linkS4class{copula}}.}
   }
 }
 \section{Methods}{
@@ -57,7 +47,7 @@
   \code{"gumbelCopula"} is also of class \code{"\linkS4class{evCopula}"}.
 }
 \seealso{
-  \code{\link{archmCopula}},
+  \code{\link{archmCopula}}, for constructing such copula objects;
   \code{\link{copula-class}}.
 }
 \keyword{classes}

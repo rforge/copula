@@ -1,28 +1,36 @@
 \name{copula-class}
-\title{Class "copula"}
+\title{Mother Classes "Copula" and "copula" of all Copulas in the Package}
 \docType{class}
 \alias{copula-class}
 \alias{Copula-class}
-\alias{plackettCopula-class}
+\alias{plackettCopula-class}% the only "actual" class also on this help page
 \alias{dim,copula-method}
-\description{A class representing multivariate distributions with
-  uniform margins.}
+\description{
+  A copula is a multivariate distribution with uniform margins.
+  The virtual class \code{"Copula"} is the mother of all copula classes
+  in the package \pkg{copula} which encompasses classes of the former
+  packages \pkg{nacopula} and \pkg{copula}.
+
+  The virtual class \code{"copula"} is the mother of all copula classes
+  from former package \pkg{copula}.
+}
 \section{Objects from the Class}{
-  Objects could be created by calls of the form \code{new("copula", ...)},
-  but typically are by \code{\link{tCopula}()},
+  Objects are typically created by are by \code{\link{tCopula}()},
   \code{\link{evCopula}()}, etc.
 
-  Note that there's also a virtual class \code{"Copula"}, the union (see
-  \code{\link{setClassUnion}}) of \code{"copula"} and class
+  Note that the virtual class \code{"Copula"}, is simply the union (see
+  \code{\link{setClassUnion}}) of the two classes \code{"copula"} and
   \code{"\linkS4class{nacopula}"}.
 }
 \section{Slots}{
+  Class \code{"copula"} (and all its subclasses) have slots
   \describe{
-    \item{\code{dimension}:}{the dimension of the copula, of class
-      \code{"integer"}.}
-    \item{\code{parameters}:}{numeric parameter vector (class
-      \code{"numeric"}).}
-    \item{\code{param.names}:}{\code{"character"} vector of parameter names.}
+    \item{\code{dimension}:}{an \code{"integer"} (of length 1), the
+      copula dimension \eqn{d}.}
+    \item{\code{parameters}:}{\code{"\link{numeric}"} vector of
+      parameter values, can be NA (i.e., \code{\link{NA_real_}}).}
+    \item{\code{param.names}:}{\code{"character"} vector of parameter
+      names (and hence of the same length as \code{parameters}).}
     \item{\code{param.lowbnd}:}{lower bounds for the parameters, of
       class \code{"numeric"}.}
     \item{\code{param.upbnd}:}{upper bounds for the parameters, of class

@@ -47,7 +47,7 @@ JY: Agree. Quite a few them. Can it wait?  MM: Definitely; Actually, I
 think it's not worth the effort; particularly now that I've spent all the
 effort writing src/init.c for registration of all of the .C(..) routines.
 
-** gsl - debye ===> Should use them and then *not* carry gsl-source code anymore.
+** gsl - Debye ===> Should use them and then *not* carry gsl-source code anymore.
 JY: Agree.
 
 ** in all *.c files from former copula: use Doxygen instead of hand made function header documentation.
@@ -55,8 +55,8 @@ MH: I can also work on that (but I would like to first discuss with MM how
 Doxygen headers should exactly look like in C code [C-c C-o not working])
 
 * New(?) (Super)classes for "merging the class structure"
-** formner nacopula  c_longNames etc  --> rename to .ac_longNames *and* export
-(ac = Archimdean copula)
+** former nacopula  c_longNames etc  --> rename to .ac_longNames *and* export
+(ac = Archimedean copula)
 
 ** DONE new class "Copula" := {copula, nacopula}
 * New Wrapper functions or rather extending one or the other function names

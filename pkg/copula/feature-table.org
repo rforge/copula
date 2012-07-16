@@ -35,7 +35,10 @@ P means "Partially implemented"
 - make composite likelihood work (need only bivariate margins)
 - import rng from SpatialExtremes
 
-* Notes (book as well):
+* Notes / Questions to decide - for book as well:
 - Gumbel-Hougaard or just Gumbel
 - HuslerReiss  or just Huesler
+  + Jürg Hüsler is in Berne, MM knows him well
+  as "Mächler" becomes "Maechler",    (ä -> ae)
+     "Hüsler" should become "Huesler" (ü -> ue)
 
