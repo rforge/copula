@@ -40,12 +40,14 @@
 \section{Extends}{
   Class \code{"evCopula"} extends class \code{"\linkS4class{copula}"}
   directly. Classes \code{"galambosCopula"}, \code{"huslerReissCopula"},
-  \code{"tawnCopula"}, and \code{"tevCopula"} extend class \code{"evCopula"} directly.
+  \code{"tawnCopula"}, and \code{"tevCopula"} extend class
+  \code{"evCopula"} directly.
 }
 \note{
   %The expressions of pdf are obtained by differentiating the cdf
   %expression using function \code{"deriv"}.
-  Objects of class \code{"\linkS4class{gumbelCopula}"} are also of class \code{"\linkS4class{archmCopula}"}.
+  Objects of class \code{"\linkS4class{gumbelCopula}"} are also of class
+  \code{"\linkS4class{archmCopula}"}.
 }
 \seealso{
   \code{\link{evCopula}},

@@ -37,8 +37,9 @@ amhCopula(param, dim = 2)
   is available.
 
 
-  The maximum dimension for which the expression of the pdf is available is 6 for
-  the Clayton, Gumbel and Frank families. The cdf expression is always available.
+  The maximum dimension for which the expression of the pdf is available
+  is 6 for the Clayton, Gumbel and Frank families. The cdf expression is
+  always available.
 
   The maximum dimension for which \code{"dcopula"} can be evaluated is
   10 for the Clayton and Gumbel families, and 6 for the Frank family.

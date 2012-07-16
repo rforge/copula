@@ -74,7 +74,8 @@ rcopula(copula, n, \dots)
   \item{log}{logical indicating if the \eqn{\log(f(\cdot))}{log(f(.))}
     should be returned instead of \eqn{f(\cdot)}{f(.)}.}
   \item{n}{(for \code{rcopula()}:) number of observations to be generated.}
-  \item{\dots}{further optional arguments for some methods, e.g., \code{method}.}
+  \item{\dots}{further optional arguments for some methods, e.g.,
+    \code{method}.}
 }
 \details{
   The density function of an Archimedean copula was obtained by
@@ -101,7 +102,8 @@ rcopula(copula, n, \dots)
   \emph{North American Actuarial Journal} \bold{2}, 1--25.
 
   Genest, C. and Favre, A.-C. (2007).
-  Everything you always wanted to know about copula modeling but were afraid to ask.
+  Everything you always wanted to know about copula modeling but were
+  afraid to ask.
   \emph{Journal of Hydrologic Engineering} \bold{12}, 347--368.
 
   Joe, H. (1997). \emph{Multivariate Models and Dependence Concepts}.

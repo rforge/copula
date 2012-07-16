@@ -10,7 +10,8 @@
       multivariate version of) Blomqvist'sbeta.}
     \item{edmle}{Maximum likelihood estimator based on the diagonal of a
       (nested) Archimedean copula.}
-    \item{etau}{Method-of-moments-like estimators based on (bivariate) Kendall's tau.}
+    \item{etau}{Method-of-moments-like estimators based on (bivariate)
+      Kendall's tau.}
   }
 }
 \usage{
@@ -41,8 +42,8 @@ etau(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...)
       \item{\code{edmle()}}{for the family of \code{"Gumbel"} if the
 	diagonal maximum-likelihood estimator is smaller than 1.}
       \item{\code{etau()}}{for the family of \code{"AMH"} if tau is outside
-	\eqn{[0, 1/3]} and in general if at least one of the computed pairwise sample
-	versions of Kendall's tau is negative.}
+	\eqn{[0, 1/3]} and in general if at least one of the computed
+	pairwise sample	versions of Kendall's tau is negative.}
     }
   }
   \item{\dots}{additional arguments passed to

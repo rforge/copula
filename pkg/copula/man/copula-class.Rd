@@ -5,7 +5,8 @@
 \alias{Copula-class}
 \alias{plackettCopula-class}
 \alias{dim,copula-method}
-\description{A class representing multivariate distributions with uniform margins.}
+\description{A class representing multivariate distributions with
+  uniform margins.}
 \section{Objects from the Class}{
   Objects could be created by calls of the form \code{new("copula", ...)},
   but typically are by \code{\link{tCopula}()},
@@ -17,8 +18,10 @@
 }
 \section{Slots}{
   \describe{
-    \item{\code{dimension}:}{the dimension of the copula, of class \code{"integer"}.}
-    \item{\code{parameters}:}{numeric parameter vector (class \code{"numeric"}).}
+    \item{\code{dimension}:}{the dimension of the copula, of class
+      \code{"integer"}.}
+    \item{\code{parameters}:}{numeric parameter vector (class
+      \code{"numeric"}).}
     \item{\code{param.names}:}{\code{"character"} vector of parameter names.}
     \item{\code{param.lowbnd}:}{lower bounds for the parameters, of
       class \code{"numeric"}.}
@@ -35,8 +38,9 @@
   such copulas can be created via functions \code{\link{evCopula}},
   \code{\link{archmCopula}} and \code{\link{ellipCopula}}.
 
-  \code{"plackettCopula"} and \code{"\linkS4class{fgmCopula}"} are special types of
-  copulas which do not belong to either one of the three classes above.
+  \code{"plackettCopula"} and \code{"\linkS4class{fgmCopula}"} are
+  special types of copulas which do not belong to either one of the
+  three classes above.
 }
 \section{Warning}{
   This implementation is still at the experimental

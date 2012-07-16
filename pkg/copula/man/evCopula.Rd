@@ -28,13 +28,16 @@ tevCopula(param, df = 4, df.fixed = FALSE)
     freedom the t extreme-value copula.}
   \item{df.fixed}{ TRUE means that the degrees of freedom will never be
     considered as a parameter to be estimated; FALSE means that
-    \code{df} will be estimated if the object is passed as argument to \code{fitCopula}.}
+    \code{df} will be estimated if the object is passed as argument to
+    \code{fitCopula}.}
 
   \item{\dots}{ currently nothing. }
 }
 \value{
-  An object of class \code{"\linkS4class{gumbelCopula}"}, \code{"\linkS4class{galambosCopula}"},
-  \code{"\linkS4class{huslerReissCopula}"}, \code{"\linkS4class{tawnCopula}"}, or \code{"\linkS4class{tevCopula}"}.
+  An object of class \code{"\linkS4class{gumbelCopula}"},
+  \code{"\linkS4class{galambosCopula}"},
+  \code{"\linkS4class{huslerReissCopula}"},
+  \code{"\linkS4class{tawnCopula}"}, or \code{"\linkS4class{tevCopula}"}.
 }
 \note{
   The Gumbel copula is both an Archimedean and an extreme-value copula.

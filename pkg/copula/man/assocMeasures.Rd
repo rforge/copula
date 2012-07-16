@@ -93,8 +93,9 @@
 \title{Dependence measures for copulas}
 \description{
   These functions compute Kendall's tau, Spearman's rho, and the tail
-  dependence index for bivariate copulas. Calibration is the inverse function: it
-  calibrates the copula parameter given the value of Kendall's tau or Spearman's rho.
+  dependence index for bivariate copulas. Calibration is the inverse
+  function: it calibrates the copula parameter given the value of
+  Kendall's tau or Spearman's rho.
 }
 \usage{
 kendallsTau (copula)
@@ -125,8 +126,8 @@ calibSpearmansRho(copula, rho)
   Understanding relationships using copulas.
   \emph{North American Actuarial Journal} \bold{2}, 1--25.
 
-  I. Kojadinovic and J. Yan (2010). Comparison of three semiparametric methods
-  for estimating dependence parameters in copula models.
+  I. Kojadinovic and J. Yan (2010). Comparison of three semiparametric
+  methods for estimating dependence parameters in copula models.
   \emph{Insurance: Mathematics and Economics} \bold{47}, 52--63.
 }
 \seealso{

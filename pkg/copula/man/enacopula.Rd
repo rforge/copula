@@ -26,21 +26,28 @@ enacopula(u, cop,
     estimation method to be used, which has to be one (or a unique
     abbreviation) of
     \describe{
-      \item{\code{"mle"}}{maximum likelihood estimator (MLE) computed via \code{\link{.emle}}.}
+      \item{\code{"mle"}}{maximum likelihood estimator (MLE) computed
+	via \code{\link{.emle}}.}
       \item{\code{"smle"}}{simulated maximum likelihood estimator (SMLE)
 	computed with the function \code{\link{.emle}}, where
 	\code{n.MC} gives the Monte Carlo sample size.}
-      \item{\code{"dmle"}}{MLE based on the diagonal (DMLE); see \code{\link{edmle}}.}
+      \item{\code{"dmle"}}{MLE based on the diagonal (DMLE); see
+	\code{\link{edmle}}.}
       \item{\code{"mde.chisq.CvM"}}{minimum distance estimator based
-	on the chisq distribution and Cram\enc{é}{e}r-von Mises distance; see \code{\link{emde}}.}
+	on the chisq distribution and Cram\enc{é}{e}r-von Mises
+	distance; see \code{\link{emde}}.}
       \item{\code{"mde.chisq.KS"}}{minimum distance estimation based on
-	the chisq distribution and Kolmogorov-Smirnov distance; see \code{\link{emde}}.}
+	the chisq distribution and Kolmogorov-Smirnov distance; see
+	\code{\link{emde}}.}
       \item{\code{"mde.gamma.CvM"}}{minimum distance estimation based on
-	the Erlang distribution and Cram\enc{é}{e}r-von Mises distance; see \code{\link{emde}}.}
+	the Erlang distribution and Cram\enc{é}{e}r-von Mises distance;
+	see \code{\link{emde}}.}
       \item{\code{"mde.gamma.KS"}}{minimum distance estimation based on
-	the Erlang distribution and Kolmogorov-Smirnov distance; see \code{\link{emde}}.}
+	the Erlang distribution and Kolmogorov-Smirnov distance; see
+	\code{\link{emde}}.}
       \item{\code{"tau.tau.mean"}}{averaged pairwise Kendall's tau estimator}
-      \item{\code{"tau.theta.mean"}}{average of pairwise Kendall's tau estimators}
+      \item{\code{"tau.theta.mean"}}{average of pairwise Kendall's tau
+	estimators}
       \item{\code{"beta"}}{multivariate Blomqvist's beta estimator}
     }
   }

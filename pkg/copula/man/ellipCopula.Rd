@@ -21,16 +21,17 @@ normalCopula(param, dim = 2, dispstr = "ex")
     positive definite matrix characterizing the elliptical
     copula. Implemented structures are "ex" for exchangeable, "ar1" for
     AR(1), "toep" for Toeplitz, and "un" for unstructured. }
-  \item{df}{ a integer value specifying the number of degrees of freedom of the
-    multivariate t distribution used to construct the t copulas.}
+  \item{df}{ a integer value specifying the number of degrees of freedom
+    of the multivariate t distribution used to construct the t copulas.}
   \item{df.fixed}{ TRUE means that the degrees of freedom will never be
     considered as a parameter to be estimated; FALSE means that
-    \code{df} will be estimated if the object is passed as argument to \code{fitCopula}.}
+    \code{df} will be estimated if the object is passed as argument to
+    \code{fitCopula}.}
   \item{\dots}{ currently nothing. }
 }
 \value{
-  An elliptical copula object of class \code{"\linkS4class{normalCopula}"} or
-  \code{"\linkS4class{tCopula}"}.
+  An elliptical copula object of class \code{"\linkS4class{normalCopula}"}
+  or \code{"\linkS4class{tCopula}"}.
 }
 \note{
   \code{ellipCopula()} is a wrapper for \code{normalCopula()} and

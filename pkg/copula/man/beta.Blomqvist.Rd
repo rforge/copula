@@ -28,7 +28,8 @@ beta.hat(u, scaling=FALSE)
     \item{\code{beta.}:}{a number, being the population version of
       Blomqvist's beta for the corresponding
       \ifelse{latex}{Archi-medean}{Archimedean} copula;}
-    \item{\code{beta.hat}:}{a number, being the sample version of Blomqvist's beta for the given data.}
+    \item{\code{beta.hat}:}{a number, being the sample version of
+      Blomqvist's beta for the given data.}
   }
 }
 \references{

@@ -12,7 +12,8 @@
 \section{Slots}{
   \describe{
     \item{\code{dispstr}:}{Object of class \code{"character"}, indicating
-    how the dispersion matrix is parameterized; can 'ex', 'ar1', 'toep', or 'un'.}
+    how the dispersion matrix is parameterized; can 'ex', 'ar1', 'toep',
+    or 'un'.}
     \item{\code{dimension}:}{Object of class \code{"numeric"}, dimension
       of the copula. }
     \item{\code{parameters}:}{Object of class \code{"numeric"},
@@ -28,8 +29,8 @@
   }
 }
 \section{Extends}{
-  Class \code{"ellipCopula"} extends class \code{"\linkS4class{copula}"} directly.
-  Class \code{"normalCopula"} and \code{"tCopula"} extends class
+  Class \code{"ellipCopula"} extends class \code{"\linkS4class{copula}"}
+  directly.Class \code{"normalCopula"} and \code{"tCopula"} extends class
   \code{"ellipCopula"} directly.
 }
 \section{Methods}{

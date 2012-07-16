@@ -4,10 +4,8 @@
 \docType{class}
 \alias{acopula-class}
 \alias{acopula}
-%
 \alias{initialize,acopula-method}
 \alias{show,acopula-method}
-%
 \description{
   This class \code{"acopula"} of Archimedean Copula Families
   is mainly used for providing objects of known Archimedean families
@@ -56,8 +54,9 @@
       of the Archimedean copula at \code{u} with parameter \code{theta}.  The
       meanings of the parameters \code{n.MC} and \code{log} are as
       described before.}
-    \item{\code{score}:}{a \code{\link{function}} computing the \emph{derivative}
-      of the density with respect to the parameter \eqn{\theta}{theta}.}
+    \item{\code{score}:}{a \code{\link{function}} computing the
+      \emph{derivative} of the density with respect to the parameter
+      \eqn{\theta}{theta}.}
     \item{\code{paraInterval}:}{Either \code{\link{NULL}} or an object of class
       \code{"\linkS4class{interval}"}, which is typically obtained from a call
       such as \code{\link{interval}("[a,b)")}.}
@@ -96,12 +95,13 @@
       corresponding to the distribution function \eqn{F_{01}}{F01}.
 
       Arguments are the evaluation point(s) \code{x}, the value(s) \code{V0},
-      and the parameters \code{theta0} and \code{theta1}.  As for \code{dV0}, the
-      optional argument \code{log} can be specified (defaults to \code{FALSE}).
-      Note that if \code{x} is a vector, \code{V0} must either have
-      length one (in which case \code{V0} is the same for every component of
-      \code{x}) or \code{V0} must be of the same length as \code{x} (in which
-      case the components of \code{V0} correspond to the ones of \code{x}).}
+      and the parameters \code{theta0} and \code{theta1}.  As for
+      \code{dV0}, the optional argument \code{log} can be specified
+      (defaults to \code{FALSE}). Note that if \code{x} is a vector,
+      \code{V0} must either have length one (in which case \code{V0} is
+      the same for every component of \code{x}) or \code{V0} must be of
+      the same length as \code{x} (in which case the components of
+      \code{V0} correspond to the ones of \code{x}).}
     \item{\code{tau}, \code{tauInv}:}{Compute Kendall's tau of the bivariate
       Archimedean copula with generator \eqn{\psi}{psi} as a
       \code{\link{function}} of \code{theta}, respectively, \code{theta} as a
