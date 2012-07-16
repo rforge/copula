@@ -11,11 +11,11 @@
   in equation (5) of Genest, Kojadinovic, Nešlehová, and Yan (2010).
   Approximate p-values for the test statistic are obtained using a
   parametric bootstrap.
-
 }
 \usage{
 gofEVCopula(copula, x, N = 1000, method = "mpl",
             estimator = "CFG", m = 1000, print.every = 100,
+            verbose = print.every > 0,
             optim.method = "Nelder-Mead")
 }
 \arguments{
@@ -34,8 +34,12 @@ gofEVCopula(copula, x, N = 1000, method = "mpl",
     \code{"CFG"} (Caperaa-Fougeres-Genest) or  \code{"Pickands"}.}
   \item{m}{ number of points of the uniform grid on [0,1] used to
     compute the test statistic numerically.}
-  \item{print.every}{ progress is printed every \code{"print.every"}
-    iterations. No progress is printed if it is nonpositive.}
+  \item{print.every}{progress is printed every \code{print.every}
+    iterations.  No progress is printed if it is nonpositive.  Is
+    deprecated in favor of \code{verbose}.}
+  \item{verbose}{a logical specifying if progress of the bootstrap
+    should be displayed via \code{\link[utils]{txtProgressBar}}.
+    Is now recommended as alternative to \code{print.every}.}
   \item{optim.method}{ the method for \code{"\link{optim}"}. }
 }
 \details{

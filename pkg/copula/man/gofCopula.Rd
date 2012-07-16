@@ -15,6 +15,7 @@
 \usage{
 gofCopula(copula, x, N = 1000, method = "mpl",
           simulation = c("pb", "mult"), print.every = 100,
+          verbose = print.every > 0,
           optim.method = "BFGS", optim.control = list(maxit=20))
 }
 \arguments{
@@ -24,15 +25,20 @@ gofCopula(copula, x, N = 1000, method = "mpl",
   \item{N}{ number of bootstrap or multiplier iterations to be used to
     simulate realizations of the test statistic under the null
     hypothesis.}
-  \item{method}{ estimation method to be used to estimate the
-    dependence parameter(s); can be either \code{"mpl"}
+  \item{method}{a character string specifying the estimation method to be used to
+    estimate the dependence parameter(s); can be either \code{"mpl"}
     (maximum pseudo-likelihood), \code{"itau"} (inversion of
-    Kendall's tau) or \code{"irho"} (inversion of Spearman's rho). }
-  \item{simulation}{ simulation method for generating realizations
-    of the test statistic under the null hypothesis; can be either
-    \code{"pb"} (parametric bootstrap) or  \code{"mult"} (multiplier).}
-  \item{print.every}{ progress is printed every \code{"print.every"}
-    iterations. No progress is printed if it is nonpositive.}
+    Kendall's tau) or \code{"irho"} (inversion of Spearman's rho).}
+  \item{simulation}{a string specifying the simulation method for
+    generating realizations of the test statistic under the null
+    hypothesis; can be either \code{"pb"} (parametric bootstrap) or
+    \code{"mult"} (multiplier).}
+  \item{print.every}{progress is printed every \code{print.every}
+    iterations.  No progress is printed if it is nonpositive.  Is
+    deprecated in favor of \code{verbose}.}
+  \item{verbose}{a logical specifying if progress of the bootstrap
+    should be displayed via \code{\link[utils]{txtProgressBar}}.
+    Is now recommended as alternative to \code{print.every}.}
   \item{optim.method, optim.control}{the \code{method} and
     \code{control} arguments for \code{\link{optim}()}, see there.}
 }

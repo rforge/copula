@@ -20,7 +20,9 @@
 ## copula is a copula of the desired family
 
 gofCopula <- function(copula, x, N = 1000, method = "mpl",
-                      simulation = c("pb", "mult"), print.every = 100,
+                      simulation = c("pb", "mult"),
+                      ## FIXME  print.every should become deprecated in favor of 'verbose'
+                      print.every = 100, verbose = print.every > 0,
                       optim.method = "BFGS", optim.control = list(maxit=20))
 {
     M <- -1 ## fixed - for gofMCLT.*()
@@ -39,7 +41,8 @@ gofCopula <- function(copula, x, N = 1000, method = "mpl",
         switch(match.arg(simulation),
                "pb" = { ## parametric bootstrap
                    gofPB(copula, x, N=N, method = method,
-                         print.every=print.every, optim.method=optim.method, optim.control=optim.control)
+			 print.every=print.every, verbose=verbose,
+			 optim.method=optim.method, optim.control=optim.control)
                },
                "mult" = { ## multiplier
                    if (method == "mpl")
@@ -73,8 +76,11 @@ print.gofCopula <- function(x, ...)
 ## copula is a copula of the desired family whose parameters, if necessary,
 ## will be used as starting values in fitCopula
 
-gofPB <- function(copula, x, N, method, print.every, optim.method, optim.control)
-  {
+gofPB <- function(copula, x, N, method,
+                  ## FIXME  print.every should become deprecated in favor of 'verbose'
+                  print.every, verbose = print.every > 0,
+                  optim.method, optim.control)
+{
     n <- nrow(x)
     p <- ncol(x)
 
@@ -95,12 +101,14 @@ gofPB <- function(copula, x, N, method, print.every, optim.method, optim.control
 
     ## simulation of the null distribution
     s0 <- numeric(N)
+    if(verbose) {
+	pb <- txtProgressBar(max = N, style = 3) # setup progress bar
+	on.exit(close(pb)) # and close it on exit
+    }
     if (print.every > 0)
-      cat(paste("Progress will be displayed every", print.every, "iterations.\n"))
-    for (i in 1:N)
-      {
-        if (print.every > 0 && i %% print.every == 0)
-          cat(paste("Iteration",i,"\n"))
+        cat(paste("Progress will be displayed every", print.every, "iterations.\n"))
+    for (i in 1:N) {
+        if(print.every > 0 && i %% print.every == 0) cat(paste("Iteration",i,"\n"))
         u0 <- apply(rcopula(fcop,n),2,rank)/(n+1)
 
         ## fit the copula
@@ -113,11 +121,13 @@ gofPB <- function(copula, x, N, method, print.every, optim.method, optim.control
                     as.double(u0),
                     as.double(pcopula(fcop0,u0)),
                     stat = double(1))$stat
-      }
+        if(verbose) setTxtProgressBar(pb, i) # update progress bar
+    }
 
-    return(list(statistic=s, pvalue=(sum(s0 >= s)+0.5)/(N+1),
-                parameters=fcop@parameters))
-  }
+    list(statistic = s,
+	 pvalue = (sum(s0 >= s)+0.5)/(N+1),
+	 parameters=fcop@parameters)
+}
 
 
 ### Goodness-of-fit test based on the multiplier approach

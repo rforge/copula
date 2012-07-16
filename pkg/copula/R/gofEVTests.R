@@ -20,7 +20,9 @@
 ## will be used as starting values in fitCopula
 
 gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
-                        estimator = "CFG", m = 1000, print.every = 100,
+                        estimator = "CFG", m = 1000,
+                        ## FIXME  print.every should become deprecated in favor of 'verbose'
+                        print.every = 100, verbose = print.every > 0,
                         optim.method = "Nelder-Mead")
 {
     n <- nrow(x)
@@ -47,12 +49,16 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
 
     ## simulation of the null distribution
     s0 <- matrix(NA, N, 2)
+    if(verbose) {
+	pb <- txtProgressBar(max = N, style = 3) # setup progress bar
+	on.exit(close(pb)) # and close it on exit
+    }
     if (print.every > 0)
-      cat(paste("Progress will be displayed every", print.every, "iterations.\n"))
+	cat("Progress will be displayed every", print.every, "iterations.\n")
     for (i in 1:N)
-      {
+    {
         if (print.every > 0 & i %% print.every == 0)
-          cat(paste("Iteration",i,"\n"))
+            cat(paste("Iteration",i,"\n"))
         u0 <- apply(rcopula(fcop,n),2,rank)/(n+1)
 
         ## fit the copula
@@ -67,7 +73,8 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
                      as.double(Afun(fcop0,g)),
                      stat = double(2),
                      as.integer(estimator == "CFG"))$stat
-      }
+        if(verbose) setTxtProgressBar(pb, i) # update progress bar
+    }
 
     ## corrected version only
     gof <- list(statistic=s[1],
@@ -85,7 +92,10 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
 ## not exported
 
 gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
-                    m = 1000, print.every = 100, optim.method = "Nelder-Mead")
+                    m = 1000,
+                    ## FIXME  print.every should become deprecated in favor of 'verbose'
+                    print.every = 100, verbose = print.every > 0,
+                    optim.method = "Nelder-Mead")
 {
     n <- nrow(x)
     p <- ncol(x)
@@ -116,7 +126,7 @@ gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
                as.double(-log(u[,2])),
                as.double(Afun(fcop,g)),
                stat = double(2),
-               as.integer(1)# estimator == "CFG"
+               as.integer(1)            # estimator == "CFG"
                )$stat
     ## compute the Pickands test statistic
     sPck <- .C(cramer_vonMises_Afun,
@@ -126,22 +136,25 @@ gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
                as.double(-log(u[,2])),
                as.double(Afun(fcop,g)),
                stat = double(2),
-               as.integer(0) # estimator == Pickard
+               as.integer(0)            # estimator == Pickard
                )$stat
 
     s <- c(sCn, sCFG, sPck)
 
     ## simulation of the null distribution
     s0 <- matrix(NA, N, 5)
+    if(verbose) {
+	pb <- txtProgressBar(max = N, style = 3) # setup progress bar
+	on.exit(close(pb)) # and close it on exit
+    }
     if (print.every > 0)
-      cat(paste("Progress will be displayed every", print.every, "iterations.\n"))
+        cat(paste("Progress will be displayed every", print.every, "iterations.\n"))
 
     ## set starting values for fitCopula
     copula@parameters <- fcop@parameters
     for (i in 1:N)
-      {
-        if (print.every > 0 & i %% print.every == 0)
-          cat(paste("Iteration",i,"\n"))
+    {
+        if (print.every > 0 & i %% print.every == 0) cat(paste("Iteration",i,"\n"))
         u0 <- apply(rcopula(fcop,n),2,rank)/(n+1)
 
         ## fit the copula
@@ -162,7 +175,7 @@ gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
                      as.double(-log(u0[,2])),
                      as.double(Afun(fcop0,g)),
                      stat = double(2),
-                     as.integer(1) # estimator == "CFG"
+                     as.integer(1)      # estimator == "CFG"
                      )$stat
         sPck0 <-  .C(cramer_vonMises_Afun,
                      as.integer(n),
@@ -171,10 +184,11 @@ gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
                      as.double(-log(u0[,2])),
                      as.double(Afun(fcop0,g)),
                      stat = double(2),
-                     as.integer(0) # estimator == Pickard
+                     as.integer(0)      # estimator == Pickard
                      )$stat
         s0[i,] <- c(sCn0, sCFG0, sPck0)
-      }
+        if(verbose) setTxtProgressBar(pb, i) # update progress bar
+    }
 
     list(statistic = s,
          pvalue = sapply(1:5, function(i) (sum(s0[,i] >= s[i])+0.5)/(N+1)),

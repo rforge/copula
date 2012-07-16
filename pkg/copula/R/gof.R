@@ -298,7 +298,10 @@ apply the transformations yourself,  see ?gnacopula.")
     ## (4) conduct the parametric bootstrap
     theta.hat. <- numeric(n.bootstrap) # vector of estimators
     T. <- vector("list", n.bootstrap) # vector of test.stat() results
-    if(verbose) pb <- txtProgressBar(max=n.bootstrap, style = 3) # setup progress bar
+    if(verbose) {
+	pb <- txtProgressBar(max = N, style = 3) # setup progress bar
+	on.exit(close(pb)) # and close it on exit
+    }
     for(k in 1:n.bootstrap) {
 
 	## (4.1) sample from the copula with estimated parameter and build
@@ -317,7 +320,6 @@ apply the transformations yourself,  see ?gnacopula.")
         T.[[k]] <- gofTstat(u.prime., method=method)
         if(verbose) setTxtProgressBar(pb, k) # update progress bar
     }
-    if(verbose) close(pb) # close progress bar
 
     ## (5) build and return results
     structure(class = "htest",
