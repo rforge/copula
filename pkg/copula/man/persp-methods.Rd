@@ -15,9 +15,11 @@
   \item{x = "mvdc"}{perspective plot for a \code{"mvdc"} object. }
 }}
 \details{
-  When \code{x} is of class \code{"\linkS4class{copula}"}, the following arguments can be supplied:
+  When \code{x} is of class \code{"\linkS4class{copula}"}, the following
+  arguments can be supplied:
   \describe{
-    \item{fun}{the function to be plotted, i.e., \code{"dcopula"} or \code{"pcopula"}.}
+    \item{fun}{the function to be plotted, i.e., \code{"dcopula"} or
+      \code{"pcopula"}.}
     \item{n (= 51)}{the number of points to do the plotting.}
     \item{arguments for \code{"persp"}}{theta = -30, phi = 30, expand = 0.618.}
   }

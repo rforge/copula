@@ -19,8 +19,8 @@
 \section{Slots}{
   \describe{
     \item{\code{copula}:}{an object of class
-      \code{"\linkS4class{acopula}"}, denoting the top-level Archimedean copula of
-      the nested Archimedean copula, that is, the root copula.}
+      \code{"\linkS4class{acopula}"}, denoting the top-level Archimedean
+      copula of the nested Archimedean copula, that is, the root copula.}
     \item{\code{comp}:}{an \code{\link{integer}} vector (possibly of
       length 0) of indices of components in \code{1:d} which are not
       nested Archimedean copulas.  Here, \eqn{d} denotes the
@@ -45,7 +45,8 @@
 \author{Martin Maechler}
 \seealso{
   \code{\link{onacopula}} for building (outer) "nacopula" objects.  For the
-  class definition of the \code{copula} component, see \code{\linkS4class{acopula}}.
+  class definition of the \code{copula} component, see
+  \code{\linkS4class{acopula}}.
 }
 \examples{
 ## nacopula and outer_nacopula class information

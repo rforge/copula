@@ -30,8 +30,8 @@ polylog(z, s,
   \item{logarithm}{logical specified to return log(Li.(.)) instead of Li.(.)}
   \item{is.log.z}{logical; if TRUE, the specified \code{z} argument is
     really \eqn{w = \log(z)}{w = log(z)};
-    that is, we compute \eqn{\mathrm{Li}_s(\exp(w))}{Li_s(exp(w))}, and we typically have
- 	\eqn{w < 0}, or equivalently, \eqn{z < 1}.}
+    that is, we compute \eqn{\mathrm{Li}_s(\exp(w))}{Li_s(exp(w))}, and
+    we typically have \eqn{w < 0}, or equivalently, \eqn{z < 1}.}
   \item{is.logmlog}{logical; if TRUE, the specified argument \code{z} is
     \eqn{lw = \log(-w) = \log(-\log(z))}{lw = log(-w) = log(-log(z))}
     (where as above, \eqn{w = \log(z)}{w = log(z)}).}
@@ -44,7 +44,8 @@ polylog(z, s,
 
 For integer values of the polylogarithm order, the following
 explicit expressions are obtained by repeated application of
-\eqn{z \frac{\partial}{\partial z}}{z * d/dz} to \eqn{\mathrm{Li}_1(z)}{Li_1(z)}:
+\eqn{z \frac{\partial}{\partial z}}{z * d/dz} to
+\eqn{\mathrm{Li}_1(z)}{Li_1(z)}:
 %---
 \deqn{
   \mathrm{Li}_{1}(z) = -\log(1-z), \ \
@@ -77,10 +78,12 @@ Equivalent formulae applicable to negative integer orders are
 (Wood 1992, § 6) ...
 \deqn{\mathrm{Li}_{-n}(z) = {1 \over (1-z)^{n+1}} \sum_{k=0}^{n-1}
   			\left\langle {n \atop k} \right\rangle z^{n-k} =
-      \frac{z \sum_{k=0}^{n-1} \left\langle {n \atop k} \right\rangle z^k}{(1-z)^{n+1}},
+			\frac{z \sum_{k=0}^{n-1} \left\langle {n \atop k} \right
+			  \rangle z^k}{(1-z)^{n+1}},
       \qquad (n=1,2,3,\ldots) ~, }{%
   Li_{-n}(z) = 1/((1-z)^(n+1)) sum(k=0..(n-1);  < n \ k >  z^(n-k)) =
-             = (z \sum_{k=0}^{n-1} < n \ k >  z^k) / ((1-z)^(n+1)),  (n=1,2,3,..),}
+  = (z \sum_{k=0}^{n-1} < n \ k >  z^k) / ((1-z)^(n+1)),
+  (n=1,2,3,..),}
 where \eqn{\left\langle {n \atop k} \right\rangle}{< n \ k >}  are the
 Eulerian numbers; see also \code{\link{Eulerian}}.
 

@@ -27,20 +27,21 @@ dependogram(test, pvalues = FALSE, print = FALSE)
     statistics under independence.}
   \item{p}{Dimension of the data when simulating the distribution of the test
     statistics under independence.}
-  \item{m}{Maximum cardinality of the subsets of variables for which a test statistic
-    is to be computed. It makes sense to consider \code{m << p} especially when
-    \code{p} is large.}
+  \item{m}{Maximum cardinality of the subsets of variables for which a
+    test statistic is to be computed. It makes sense to consider \code{m
+<< p} especially when \code{p} is large.}
   \item{N}{Number of repetitions when simulating under independence.}
   \item{print.every}{Progress is printed every \code{"print.every"}
     iterations. No progress is printed if it is nonpositive.}
   \item{x}{Data frame or data matrix containing realizations (one per
     line) of the random vector whose independence is to be tested.}
   \item{d}{Object of class \code{"indepTestDist"} as returned by
-  the function \code{"indepTestSim"}. It can be regarded as the empirical distribution
-  of the test statistics under independence.}
-  \item{alpha}{Significance level used in the computation of the critical values for
-    the test statistics.}
-  \item{test}{Object of class \code{"indepTest"} as return by the function \code{indepTest}.}
+  the function \code{"indepTestSim"}. It can be regarded as the
+  empirical distribution of the test statistics under independence.}
+  \item{alpha}{Significance level used in the computation of the
+    critical values for the test statistics.}
+  \item{test}{Object of class \code{"indepTest"} as return by the
+    function \code{indepTest}.}
   \item{pvalues}{Logical indicating whether the dependogram should be
     drew from test statistics or the corresponding p-values.}
   \item{print}{Logical indicating whether details should be printed.}
@@ -83,7 +84,8 @@ dependogram(test, pvalues = FALSE, print = FALSE)
   \emph{Publ. Inst. Statist. Univ. Paris}. \bold{26}, 29--50.
 
   Genest, C. and R\enc{é}{e}millard, B. (2004), Tests of independence and
-  randomness based on the empirical copula process. \emph{Test} \bold{13}, 335--369.
+  randomness based on the empirical copula process. \emph{Test}
+  \bold{13}, 335--369.
 
   Genest, C., Quessy, J.-F., and R\enc{é}{e}millard, B. (2006). Local
   efficiency of a Cramer-von Mises test of independence,

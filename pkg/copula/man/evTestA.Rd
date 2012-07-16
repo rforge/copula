@@ -36,8 +36,8 @@ evTestA(x, N = 1000, derivatives = "An")
   Genest, C. and Segers, J. (2009). Rank-based inference for bivariate
   extreme-value copulas. \emph{Annals of Statistics}, 37, pages 2990-3022.
 
-  R\enc{é}{e}millard, B. and Scaillet, O. (2009). Testing for equality between two
-  copulas. \emph{Journal of Multivariate Analysis}, 100(3),
+  R\enc{é}{e}millard, B. and Scaillet, O. (2009). Testing for equality
+  between two copulas. \emph{Journal of Multivariate Analysis}, 100(3),
   pages 377-386.
 
   Kojadinovic, I. and Yan, J. (2010). Nonparametric rank-based tests of

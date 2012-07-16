@@ -14,7 +14,8 @@ fgmCopula(param, dim = 2)
   \item{\dots}{ currently nothing. }
 }
 \value{
-  A Farlie-Gumbel-Morgenstern copula object of class \code{"\linkS4class{fgmCopula}"}.
+  A Farlie-Gumbel-Morgenstern copula object of class
+  \code{"\linkS4class{fgmCopula}"}.
 }
 \note{
   The verification of the validity of the parameter values is of high

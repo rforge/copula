@@ -2,8 +2,8 @@
 \alias{evTestC}
 \title{Large-sample test of multivariate extreme-value dependence}
 \description{
-  Test of multivariate extreme-value dependence based on the empirical copula and
-  max-stability. The test statistics are defined in the second
+  Test of multivariate extreme-value dependence based on the empirical
+  copula and max-stability. The test statistics are defined in the second
   reference. Approximate p-values for the test statistics are obtained
   by means of a \emph{multiplier} technique.
 }
@@ -26,8 +26,8 @@ evTestC(x, N = 1000)
   \item{pvalue}{ corresponding approximate p-value. }
 }
 \references{
-  R\enc{é}{e}millard, B. and Scaillet, O. (2009). Testing for equality between two
-  copulas. \emph{Journal of Multivariate Analysis}, 100(3),
+  R\enc{é}{e}millard, B. and Scaillet, O. (2009). Testing for equality
+  between two copulas. \emph{Journal of Multivariate Analysis}, 100(3),
   pages 377-386.
 
   Kojadinovic, I., Segers, J., and Yan, J. (2011). Large-sample tests of
@@ -45,8 +45,8 @@ evTestC(x, N = 1000)
   approximate p-value. One way of dealing with ties was suggested in the
   last reference.
 }
-\seealso{ \code{\link{evTestK}}, \code{\link{evTestA}}, \code{\link{evCopula}},
-  \code{\link{gofEVCopula}}, \code{\link{Anfun}}. }
+\seealso{\code{\link{evTestK}}, \code{\link{evTestA}}, \code{\link{evCopula}},
+  \code{\link{gofEVCopula}}, \code{\link{Anfun}}.}
 \examples{
 ## Do these data come from an extreme-value copula?
 evTestC(rcopula(gumbelCopula(3), 200))

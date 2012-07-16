@@ -12,7 +12,8 @@ rnacopula(n, x, ...)
 }
 \arguments{
   \item{x}{an \R object of \code{\link{class}}
-    \code{"\linkS4class{outer_nacopula}"}, typically from \code{\link{onacopula}()}.}
+    \code{"\linkS4class{outer_nacopula}"}, typically from
+    \code{\link{onacopula}()}.}
   \item{n}{integer specifying the sample size, that is, the number of
     copula-distributed random vectors \eqn{\mathbf{U}_i}{U_i}, to be generated.}
   \item{\dots}{possibly further arguments for the given copula family.}
@@ -35,19 +36,22 @@ rnacopula(n, x, ...)
 \references{
   McNeil, A. J. (2008).
   Sampling nested Archimedean copulas.
-  \emph{Journal of Statistical Computation and Simulation} \bold{78}, 6, 567--581.
+  \emph{Journal of Statistical Computation and Simulation} \bold{78}, 6,
+  567--581.
 
   Hofert, M. (2010).
   Efficiently sampling nested Archimedean copulas.
   \emph{Computational Statistics & Data Analysis} \bold{55}, 57--70.
 
   Hofert, M. (2011a).
-  A stochastic representation and sampling algorithm for nested Archimedean copulas.
+  A stochastic representation and sampling algorithm for nested
+  Archimedean copulas.
   \emph{Journal of Statistical Computation and Simulation}, in press.
 
   Hofert, M. (2012).
   Sampling exponentially tilted stable distributions.
-  \emph{ACM Transactions on Modeling and Computer Simulation} \bold{22}, 1, nn--mm.% FIXME
+  \emph{ACM Transactions on Modeling and Computer Simulation} \bold{22},
+  1 (3rd article).
 
   Hofert, M. and \enc{Mächler}{Maechler}, M. (2011).
   Nested Archimedean Copulas Meet R: The nacopula Package.
@@ -59,7 +63,8 @@ rnacopula(n, x, ...)
   \code{\link{rnacModel}} creates random nacopula \emph{models}, i.e.,
   the input \code{x} for \code{rnacopula(n, x)}.
 
-  Further, those of the Archimedean families, for example, \code{\link{copGumbel}}.
+  Further, those of the Archimedean families, for example,
+  \code{\link{copGumbel}}.
 }
 \examples{
 ## Construct a three-dimensional nested Clayton copula with parameters

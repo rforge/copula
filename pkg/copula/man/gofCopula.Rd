@@ -78,8 +78,8 @@ gofCopula(copula, x, N = 1000, method = "mpl",
   \emph{Annales de l'Institut Henri Poincare: Probabilites et Statistiques}
   \bold{44}, 1096--1127.
 
-  Genest, C., R\enc{é}{e}millard, B., and Beaudoin, D. (2009). Goodness-of-fit tests
-  for copulas: A review and a power study.
+  Genest, C., R\enc{é}{e}millard, B., and Beaudoin,
+  D. (2009). Goodness-of-fit tests for copulas: A review and a power study.
   \emph{Insurance: Mathematics and Economics} \bold{44}, 199--214.
 
   Kojadinovic, I., Yan, J., and Holmes M. (2011).
@@ -91,7 +91,8 @@ gofCopula(copula, x, N = 1000, method = "mpl",
   theorems. \emph{Statistics and Computing} \bold{21}, 17--30.
 
   Kojadinovic, I. and Yan, J. (2010).
-  Modeling Multivariate Distributions with Continuous Margins Using the copula R Package.
+  Modeling Multivariate Distributions with Continuous Margins Using the
+  copula R Package.
   \emph{Journal of Statistical Software} \bold{34}(9), 1--20.
   \url{http://www.jstatsoft.org/v34/i09/}.
 }

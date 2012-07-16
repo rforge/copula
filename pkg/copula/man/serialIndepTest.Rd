@@ -77,7 +77,8 @@
   \emph{Publ. Inst. Statist. Univ. Paris}. 26:29--50.
 
   Genest, C. and R\enc{é}{e}millard, B. (2004), Tests of independence and
-  randomness based on the empirical copula process. \emph{Test} \bold{13}, 335--369.
+  randomness based on the empirical copula process. \emph{Test}
+  \bold{13}, 335--369.
 
   Genest, C., Quessy, J.-F., and R\enc{é}{e}millard, B. (2006). Local
   efficiency of a Cramer-von Mises test of independence,

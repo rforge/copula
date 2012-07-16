@@ -14,7 +14,8 @@ indepCopula(dim = 2)
 \value{
   An independence copula object of class \code{"\linkS4class{indepCopula}"}.
 }
-\seealso{ \code{\link{archmCopula}}, \code{\link{ellipCopula}}, \code{\link{evCopula}}. }
+\seealso{\code{\link{archmCopula}}, \code{\link{ellipCopula}},
+  \code{\link{evCopula}}.}
 \examples{
 indep.cop <- indepCopula(3)
 x <- rcopula(indep.cop, 10)

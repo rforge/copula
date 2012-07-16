@@ -42,7 +42,8 @@ m1 <- rnacModel("Gumbel", d=15, pr.comp = 1/8, order="seq")
 stopifnot(isSymmetric(PT <- nacPairthetas(m1)))
 m1; PT
 
-%%___ FIXME __: This shows that rnacModel() should  choose  'nkids' less aggressively..
+%%___ FIXME __: This shows that rnacModel() should  choose  'nkids' less
+%% aggressively..
 m100 <- rnacModel("Gumbel", d= 100, pr.comp = 1/16, order="seq")
 system.time(PT <- nacPairthetas(m100))# how slow {non-optimal algorithm}?
 ##-- very fast, still!

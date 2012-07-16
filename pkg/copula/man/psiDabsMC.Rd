@@ -35,11 +35,13 @@ psiDabsMC(t, family, theta, degree = 1, n.MC,
       10^{500}}, where as the former would just return \eqn{psi(Inf, *) = 0}.}
 }
 \details{
-  The absolute value of the \eqn{d}th derivative of the Laplace-Stieltjes transform
+  The absolute value of the \eqn{d}th derivative of the
+  Laplace-Stieltjes transform
   \eqn{\psi=\mathcal{LS}[F]}{psi=LS[F]} can be approximated via
   \deqn{(-1)^d\psi^{(d)}(t)=\int_0^\infty
-    x^d\exp(-tx)\,dF(x)\approx\frac{1}{N}\sum_{k=1}^NV_k^d\exp(-V_kt),\ t > 0,}{%
-    (-1)^d psi^{(d)}(t) = int_0^Inf x^d exp(-tx) dF(x) ~= (1/N) sum(k=1..N)V_k^d exp(-V_k t), t > 0,}
+    x^d\exp(-tx)\,dF(x)\approx\frac{1}{N}\sum_{k=1}^NV_k^d\exp(-V_kt),\
+    t> 0,}{(-1)^d psi^{(d)}(t) = int_0^Inf x^d exp(-tx) dF(x) ~= (1/N)
+    sum(k=1..N)V_k^d exp(-V_k t), t > 0,}
   where \eqn{V_k\sim F,\ k\in\{1,\dots,N\}}{V_k ~ F, k in {1,...,N}}.
   This approximation is used where \eqn{d=}\code{degree} and
   \eqn{N=}\code{n.MC}.  Note that this is comparably fast even if
@@ -67,8 +69,8 @@ set.seed(1)
 ## Note: The absolute value of the derivative at 0 should be Inf for
 ## Gumbel, however, it is always finite for the Monte Carlo approximation
 set.seed(1)
-ps2 <- psiDabsMC(log(t), family="Gumbel", theta=2, degree=10, n.MC=10000, log=TRUE,
-                 is.log.t = TRUE)
+ps2 <- psiDabsMC(log(t), family="Gumbel", theta=2, degree=10,
+                 n.MC=10000, log=TRUE, is.log.t = TRUE)
 stopifnot(all.equal(ps[-1], ps2[-1], tol=1e-14))
 ## Now is there an advantage of using "is.log.t" ?
 sapply(eval(formals(psiDabsMC)$method), function(MM)

@@ -1,6 +1,7 @@
 \name{multIndepTest}
 \alias{multIndepTest}
-\title{Independence test among continuous random vectors based on the empirical copula process}
+\title{Independence test among continuous random vectors based on the
+  empirical copula process}
 \description{
   Analog of the independence test based on the empirical copula process
   proposed by Christian Genest and Bruno Rémillard (see
@@ -13,8 +14,9 @@
 multIndepTest(x, d, m=length(d), N=1000, alpha=0.05, print.every = 100)
 }
 \arguments{
-  \item{x}{data frame (\code{\link{data.frame}}) or  matrix containing realizations (one per
-    line) of the random vectors whose independence is to be tested.}
+  \item{x}{data frame (\code{\link{data.frame}}) or  matrix containing
+    realizations (one per line) of the random vectors whose independence
+    is to be tested.}
   \item{d}{Dimensions of the random vectors whose realizations are given
     in \code{x}.  It is required that \code{sum(d) == ncol(x)}.}
   \item{m}{Maximum cardinality of the subsets of random vectors for
@@ -52,7 +54,8 @@ multIndepTest(x, d, m=length(d), N=1000, alpha=0.05, print.every = 100)
   \emph{Publ. Inst. Statist. Univ. Paris}. \bold{26}, 29--50.
 
   Genest, C. and R\enc{é}{e}millard, B. (2004), Tests of independence and
-  randomness based on the empirical copula process. \emph{Test} \bold{13}, 335--369.
+  randomness based on the empirical copula process. \emph{Test}
+  \bold{13}, 335--369.
 
   Genest, C., Quessy, J.-F., and R\enc{é}{e}millard, B. (2006). Local
   efficiency of a Cramer-von Mises test of independence,

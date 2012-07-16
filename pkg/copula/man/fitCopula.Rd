@@ -21,7 +21,8 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
   \item{copula}{ a \code{"\linkS4class{copula}"} object. }
   \item{hideWarnings}{logical; if TRUE, warning messages from
     evaluating the loglikelihood at invalid parameter values are suppressed.}
-  \item{method}{a \code{\link{character}} string specifying the method; can be either
+  \item{method}{a \code{\link{character}} string specifying the method;
+    can be either
     \code{"ml"} (maximum likelihood),
     \code{"mpl"} (maximum pseudo-likelihood),
     \code{"itau"} (inversion of Kendall's tau), and
@@ -39,12 +40,14 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
     estimated.}
 }
 \value{
-  \code{loglikCopula()} returns the log likelihood evaluated at the given value of \code{"param"}.
+  \code{loglikCopula()} returns the log likelihood evaluated at the
+  given value of \code{"param"}.
 
   The return value of \code{fitCopula()} is an object of class
   \code{"\linkS4class{fitCopula}"} containing slots (among others):
   \item{estimate}{ the estimate of the parameters. }
-  \item{var.est}{ estimate of the asymptotic variance estimate of the parameter estimator. }
+  \item{var.est}{ estimate of the asymptotic variance estimate of the
+    parameter estimator. }
   \item{method}{ the estimation method. }
   \item{loglik}{ loglikelihood at \code{"estimate"}. }
   \item{copula}{ the fitted copula. }
@@ -206,7 +209,8 @@ stopifnot(all.equal(tc.ml , tc.ml., tol= .005),
 stopifnot(all.equal(tcF.ml,tcF.ml., tol= 4e-4))
 
 ## maximum pseudo-likelihood; the asymptotic variance cannot be estimated
-(tcF.mpl <- fitCopula(tC.f, u, method="mpl", estimate.variance=FALSE, start=c(0,0,0)))
+(tcF.mpl <- fitCopula(tC.f, u, method="mpl", estimate.variance=FALSE,
+                      start=c(0,0,0)))
 (tcF.mp. <- fitCopula(tC.f, u, method="mpl", estimate.variance=FALSE))
 stopifnot(all.equal(tcF.mpl,tcF.mp., tol= 1e-5))
 }

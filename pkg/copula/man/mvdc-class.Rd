@@ -10,8 +10,8 @@
 }
 \section{Slots}{
   \describe{
-    \item{\code{copula}:}{Object of class \code{"\linkS4class{copula}"}, specifying
-      the copula. }
+    \item{\code{copula}:}{Object of class \code{"\linkS4class{copula}"},
+      specifying the copula.}
     \item{\code{margins}:}{Object of class \code{"character"},
       specifying the marginal distributions. }
     \item{\code{paramMargins}:}{Object of class \code{"list"}, whose

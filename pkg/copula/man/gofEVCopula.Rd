@@ -19,8 +19,8 @@ gofEVCopula(copula, x, N = 1000, method = "mpl",
             optim.method = "Nelder-Mead")
 }
 \arguments{
-  \item{copula}{ object of class \code{"\linkS4class{evCopula}"} representing the
-    hypothesized extreme-value copula family.}
+  \item{copula}{ object of class \code{"\linkS4class{evCopula}"}
+    representing the hypothesized extreme-value copula family.}
   \item{x}{ a data matrix that will be transformed to pseudo-observations. }
   \item{N}{ number of bootstrap samples to be used to
     simulate realizations of the test statistic under the null
@@ -60,15 +60,15 @@ gofEVCopula(copula, x, N = 1000, method = "mpl",
   Genest, C. and Segers, J. (2009). Rank-based inference for bivariate
   extreme-value copulas. \emph{Annals of Statistics} \bold{37}, 2990--3022.
 
-  Genest, C. Kojadinovic, I., Ne\enc{š}{s}lehov\enc{á}{a}, J., and Yan, J. (2011). A
-  goodness-of-fit test for bivariate extreme-value copulas.
+  Genest, C. Kojadinovic, I., Ne\enc{š}{s}lehov\enc{á}{a}, J., and
+  Yan, J. (2011). A goodness-of-fit test for bivariate extreme-value copulas.
   \emph{Bernoulli} \bold{17}(1), 253--275.
 }
 \seealso{ \code{\link{evCopula}}, \code{\link{evTestC}}, \code{\link{evTestA}},
   \code{\link{evTestK}}, \code{\link{gofCopula}}, \code{\link{Anfun}}.
 }
 \examples{
-\dontrun{%%  because the bootstraps are slow, particularly for the non-Gumbel ones
+\dontrun{% because the bootstraps are slow, particularly for the non-Gumbel ones
 x <- rcopula(claytonCopula(3), 100)
 
 ## Does the Gumbel family seem to be a good choice?

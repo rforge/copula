@@ -16,14 +16,15 @@ multSerialIndepTest(x, lag.max, m=lag.max+1, N=1000, alpha=0.05,
 }
 \arguments{
   \item{x}{Data frame or data matrix containing realizations the
-    multivaraite continuous time series whose serial independence is to be tested.}
+    multivaraite continuous time series whose serial independence is to
+ be tested.}
   \item{lag.max}{Maximum lag.}
   \item{m}{Maximum cardinality of the subsets of 'lags' for
     which a test statistic is to be computed. It makes sense to consider
     \code{m << lag.max+1} especially when \code{lag.max} is large.}
   \item{N}{Number of bootstrap/permutation samples.}
-  \item{alpha}{Significance level used in the computation of the critical values for
-    the test statistics.}
+  \item{alpha}{Significance level used in the computation of the
+    critical values for the test statistics.}
   \item{print.every}{Progress is printed every \code{"print.every"}
     iterations. No progress is printed if it is nonpositive.}
 }
@@ -36,12 +37,13 @@ multSerialIndepTest(x, lag.max, m=lag.max+1, N=1000, alpha=0.05,
   \code{statistics}, \code{critical.values}, \code{pvalues},
   \code{fisher.pvalue} (a p-value resulting from a combination \emph{à la}
     Fisher of the subset statistic p-values), \code{tippett.pvalue} (a p-value
-  resulting from a combination \emph{à la} Tippett of the subset statistic p-values), \code{alpha} (global significance level of the test), \code{beta}
-  (1 - \code{beta} is the significance level per statistic),
+  resulting from a combination \emph{à la} Tippett of the subset
+  statistic p-values), \code{alpha} (global significance level of the
+  test), \code{beta} (1 - \code{beta} is the significance level per statistic),
   \code{global.statistic} (value of the global Cramér-von Mises
   statistic derived directly from
-  the independence empirical copula process - see \code{In} in the last reference) and
-  \code{global.statistic.pvalue} (corresponding p-value).
+  the independence empirical copula process - see \code{In} in the last
+  reference) and \code{global.statistic.pvalue} (corresponding p-value).
 }
 \references{
   Deheuvels, P. (1979). La fonction de dépendance empirique et ses
@@ -52,11 +54,13 @@ multSerialIndepTest(x, lag.max, m=lag.max+1, N=1000, alpha=0.05,
   \emph{Publ. Inst. Statist. Univ. Paris}. \bold{26}, 29--50.
 
   Genest, C. and R\enc{é}{e}millard, B. (2004), Tests of independence and
-  randomness based on the empirical copula process. \emph{Test} \bold{13}, 335--369.
+  randomness based on the empirical copula process. \emph{Test}
+  \bold{13}, 335--369.
 
-  Ghoudi, K., Kulperger, R., and R\enc{é}{e}millard, B. (2001), A nonparametric test
-  of serial independence for times series and residuals. \emph{Journal
-    of Multivariate Analysis} \bold{79}, 191--218.
+  Ghoudi, K., Kulperger, R., and R\enc{é}{e}millard, B. (2001), A
+  nonparametric test of serial independence for times series and
+  residuals.
+  \emph{Journal of Multivariate Analysis} \bold{79}, 191--218.
 
   Kojadinovic, I. and Yan, J. (2011), Tests of multivariate serial
   independence based on a Möbius decomposition of the independence
