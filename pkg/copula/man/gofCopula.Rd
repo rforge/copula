@@ -25,8 +25,8 @@ gofCopula(copula, x, N = 1000, method = "mpl",
   \item{N}{ number of bootstrap or multiplier iterations to be used to
     simulate realizations of the test statistic under the null
     hypothesis.}
-  \item{method}{a character string specifying the estimation method to be used to
-    estimate the dependence parameter(s); can be either \code{"mpl"}
+  \item{method}{a character string specifying the estimation method to
+    be used to estimate the dependence parameter(s); can be either \code{"mpl"}
     (maximum pseudo-likelihood), \code{"itau"} (inversion of
     Kendall's tau) or \code{"irho"} (inversion of Spearman's rho).}
   \item{simulation}{a string specifying the simulation method for

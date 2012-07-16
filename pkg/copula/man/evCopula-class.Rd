@@ -7,8 +7,8 @@
 \alias{tevCopula-class}
 \title{Classes Representing Extreme-Value Copulas}
 \description{
-  Class \code{evCopula} is the virtual (mother) class of all extreme-value copulas.
-  There currently are five subclasses,
+  Class \code{evCopula} is the virtual (mother) class of all
+  extreme-value copulas. There currently are five subclasses,
   \code{"galambosCopula"}, \code{"huslerReissCopula"},
   \code{"tawnCopula"}, \code{"tevCopula"}, and \code{"gumbelCopula"},
   the latter of which is also an Archimedean copula, see the page for
