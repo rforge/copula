@@ -100,7 +100,7 @@ gofTstat <- function(u, method = c("AnChisq", "AnGamma", "SnB", "SnC"))
 ##' @param m # order up to which Rosenblatt's transform is computed, i.e.,
 ##'        C(u_j | u_1,...,u_{j-1}), j=2,..,m
 ##' @param n.MC parameter n.MC for evaluating the derivatives via Monte Carlo
-##' @return matrix of supposedly U[0,1]^d realizations
+##' @return matrix (as u) of supposedly U[0,1]^d realizations
 ##' @author Marius Hofert
 rtrafo <- function(u, cop, m=d, n.MC=0)
 {
@@ -140,7 +140,8 @@ rtrafo <- function(u, cop, m=d, n.MC=0)
             exp(logD[1:n]-logD[(n+1):(2*n)])
         }
     }
-    cbind(u[,1], vapply(2:m, C.j, numeric(n)))
+    u[, -1] <- vapply(2:m, C.j, numeric(n))
+    u
 }
 
 ##' Transforms vectors of random variates following the given (nested) Archimedean

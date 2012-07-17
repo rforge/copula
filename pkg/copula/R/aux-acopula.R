@@ -510,7 +510,7 @@ polyG <- function(lx, alpha, d, method= c("default", "default2012", "default2011
     switch(Meth,
 	   "default" =, "default2012" =
        {
-	   ## "default2012" compiled by Yongcheng Wong (MSc thesis c/o M.Maechler, April 2012)
+	   ## "default2012" compiled by Yongsheng Wang (MSc thesis c/o M.Maechler, April 2012)
 	   ## it switches to "Rmpfr" when the accuracy would be less than 5 digits
 	   meth2012 <- function(d, alpha, lx) {
 	       if (d <= 30) "direct"

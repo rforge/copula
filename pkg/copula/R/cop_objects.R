@@ -320,10 +320,8 @@ copFrank <-
 		  ## generator
 		  psi = function(t, theta) {
                       ## = -log(1-(1-exp(-theta))*exp(-t))/theta
-                      ## former version:
-		      ## -log1p(expm1(-theta)*exp(0-t))/theta
-                      ## => copFrank@psi(1/1e20, theta=1:100) creates Inf from theta >= 38 on
-                      -log1mexp(t-log1mexp(theta))/theta
+		      ## -log1p(expm1(-theta)*exp(0-t))/theta #-- fails small t, theta > 38
+		      -log1mexp(t-log1mexp(theta))/theta
 		  },
 		  psiInv = function(u, theta, log=FALSE) {
 		      ## == -log( (exp(-theta*u)-1) / (exp(-theta)-1) )

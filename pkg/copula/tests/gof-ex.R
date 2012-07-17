@@ -17,6 +17,11 @@
 require(copula)
 sessionInfo() # will change often.. but if we need the info, get it here
 
+## Regression Tests -- n=1 failed till 2012-07-15
+rtrafo(pobs(rbind(1:4)), onacopula("Gumbel", C(2., 1:4)))
+
+
+
 ### A faster, more checking version of demo(estimation.gof)
 ### that is, of ../demo/estimation.gof.R
 ##              ~~~~~~~~~~~~~~~~~~~~~~~~

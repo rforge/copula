@@ -1,31 +1,31 @@
-| Method       | Needed for                   | Current name                  | Suggested name | Ellip(N+t) | EV | archm    | (n)Ac.   |
-|--------------+------------------------------+-------------------------------+----------------+------------+----+----------+----------|
-| tau          | pedagogy                     | kendallsTau, tau              | tau            | I          | I  | I        | P        |
-| rho          | pedagogy                     | spearmansRho                  | rho            | I          | I  | I        | P        |
-| lambdaU,L    | pedagogy                     | tailIndex, lambda{U,L} (th) ? | tdc            | I          |    |          | P        |
-| C(u,u)/u  x2 | pedagogy                     |                               | tdcFun (?)     | I          | I  | I        | P        |
-| itau         | fitting                      | calibKendallsTau              | iTau           | I          | I  |          | P        |
-| irho         | fitting                      | calibSpearmansRho             | iRho           | I          | I  | I ex amh |          |
-| tau'         | itau fitting std err (se)    | tauDer                        | dTau           | I          | I  |          | P        |
-| rho'         | irho fitting std err         | rhoDer                        | dRho           | I          | I  |          |          |
-| C            | gof pb and mult              | pcopula                       | pCopula        | I          | I  | I        | I        |
-| c            | fitting ml mpl               | dcopula                       | dCopula        | I          | I  | I        | P (demo) |
-| C'param      | gof mult                     | derCdfWrtParams               | dCdtheta       | I          |    | I ex amh |          |
-| C'args       | gof mult, cov emp cop proc   | derCdfWrtArgs                 | dCdu           | I          |    | I ex amh | P        |
-| c'param      | not directly needed -> score | derPdfWrtParams               | _rm_           |            |    | I ex amh |          |
-| c'args       | not directly needed -> score | derPdfWrtArgs                 | _rm_           |            |    |          |          |
-| c'param / c  | ml se, mpl se, gof mult      |                               | score          | I          |    |          |          |
-| c'args / c   | ml se, mpl se, gof mult      |                               | uscore         | I          |    |          |          |
-| sampling     | gof pb                       | rcopula                       | rCopula        | I          |    |          | I        |
-| psi          | Archimedean                  | genFun, psi                   | psi            |            |    | I        | P        |
-| psi^{(d)}    | Archimedean                  | genFunDer{1,2}, psiDabs (abs) | dPsi           |            |    | P        | P        |
-| psiInv       | Archimedean                  | genInv, psiInv                | iPsi           |            |    | I        | P        |
-| psiInv^{(d)} | Archimedean                  | psiInvD1abs                   | diPsi          |            |    | P        | P        |
-| A            | EV                           | Afun                          | A              |            | I  |          |          |
-| A'args       | EV                           | AfunDer                       | dAdu           |            | I  |          |          |
-| A''args      | EV                           | AfunDer                       | dAdu           |            | I  |          |          |
-| A'param      | EV mpl se, gof mult          | derAfunWrtParam               | dAdtheta       |            | ?  |          |          |
-| A''param     | EV mpl se, gof mult          | derAfunWrtParam               | dAdtheta       |            | ?  |          |          |
+| Method       | Needed for                   | Current name                  | Suggested name | Ellip | EV | archm    | ac | nAC     |
+|--------------+------------------------------+-------------------------------+----------------+-------+----+----------+----+---------|
+| tau          | pedagogy                     | kendallsTau, tau              | tau            | I     | I  | I        | I  |         |
+| rho          | pedagogy                     | spearmansRho                  | rho            | I     | I  | I        | I  |         |
+| lambdaU,L    | pedagogy                     | tailIndex, lambda{U,L} (th) ? | tdc            | I     |    |          | I  |         |
+| C(u,u)/u  x2 | pedagogy                     |                               | tdcFun (?)     | I     | I  | I        | I  |         |
+| itau         | fitting                      | calibKendallsTau              | iTau           | I     | I  |          | I  |         |
+| irho         | fitting                      | calibSpearmansRho             | iRho           | I     | I  | I ex amh |    |         |
+| tau'         | itau fitting std err (se)    | tauDer                        | dTau           | I     | I  |          |    |         |
+| rho'         | irho fitting std err         | rhoDer                        | dRho           | I     | I  |          |    |         |
+| C            | gof pb and mult              | pcopula                       | pCopula        | I     | I  | I        | I  |         |
+| c            | fitting ml mpl               | dcopula                       | dCopula        | I     | I  | I        | I  | P(demo) |
+| C'param      | gof mult                     | derCdfWrtParams               | dCdtheta       | I     |    | I ex amh |    |         |
+| C'args       | gof mult, cov emp cop proc   | derCdfWrtArgs                 | dCdu           | I     |    | I ex amh | P  |         |
+| c'param      | not directly needed -> score | derPdfWrtParams               | _rm_           |       |    | I ex amh |    |         |
+| c'args       | not directly needed -> score | derPdfWrtArgs                 | _rm_           |       |    | I ex amh |    |         |
+| c'param / c  | ml se, mpl se, gof mult      |                               | score          | I     |    |          | I  |         |
+| c'args / c   | ml se, mpl se, gof mult      |                               | uscore         | I     |    |          |    |         |
+| sampling     | gof pb                       | rcopula                       | rCopula        | I     |    |          | I  |         |
+| psi          | Archimedean                  | genFun, psi                   | psi            |       |    | I        | P  |         |
+| psi^{(d)}    | Archimedean                  | genFunDer{1,2}, psiDabs (abs) | dPsi           |       |    | P        | P  |         |
+| psiInv       | Archimedean                  | genInv, psiInv                | iPsi           |       |    | I        | P  |         |
+| psiInv^{(d)} | Archimedean                  | psiInvD1abs                   | diPsi          |       |    | P        | P  |         |
+| A            | EV                           | Afun                          | A              |       | I  |          |    |         |
+| A'args       | EV                           | AfunDer                       | dAdu           |       | I  |          |    |         |
+| A''args      | EV                           | AfunDer                       | dAdu           |       | I  |          |    |         |
+| A'param      | EV mpl se, gof mult          | derAfunWrtParam               | dAdtheta       |       | ?  |          |    |         |
+| A''param     | EV mpl se, gof mult          | derAfunWrtParam               | dAdtheta       |       | ?  |          |    |         |
 
 I means "Implemented"
 P means "Partially implemented"
