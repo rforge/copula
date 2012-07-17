@@ -140,7 +140,7 @@ rtrafo <- function(u, cop, m=d, n.MC=0)
             exp(logD[1:n]-logD[(n+1):(2*n)])
         }
     }
-    cbind(u[,1], matrix(vapply(2:m, C.j, numeric(n)), ncol=d-1))
+    cbind(u[,1], vapply(2:m, C.j, numeric(n)))
 }
 
 ##' Transforms vectors of random variates following the given (nested) Archimedean
@@ -299,7 +299,7 @@ apply the transformations yourself,  see ?gnacopula.")
     theta.hat. <- numeric(n.bootstrap) # vector of estimators
     T. <- vector("list", n.bootstrap) # vector of test.stat() results
     if(verbose) {
-	pb <- txtProgressBar(max = N, style = 3) # setup progress bar
+	pb <- txtProgressBar(max = n.bootstrap, style = 3) # setup progress bar
 	on.exit(close(pb)) # and close it on exit
     }
     for(k in 1:n.bootstrap) {
