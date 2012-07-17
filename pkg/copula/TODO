@@ -1,5 +1,5 @@
 ##-*- org -*--> use Emacs to view this, and there the [Tab] key + [Org] menu
-* DONE LICENCE etc
+* DONE (MH) LICENCE etc
 MM: Einstein's rule: Keep it as simple as possible (but not simpler)
 All the Copyright headers in R/*.R  src/*.c etc need to be streamlined;
 typically containing all 4 names.
@@ -123,35 +123,27 @@ But we should move that to another R/*.R
 ** maybe take  ./tests/copula-play.R  as sophisticated role model.
 
 * Former nacopula stuff
-(MH?) rtrafo() {and probably htrafo()} --- "fail" (are *wrong*!) for n = 1
-(MH) From time to time (well, whenever Marius has.. ;-)) check the .Rd files
-    for overlong lines, i.e. apply
-      for f in *Rd; do printf '%20s: ' $f ; printf '%4d\n' `maxcol $f` ; done
-(MH) copFrank@psi(1/1e20, theta=200) == Inf instead of 1
-(MH) design a function that gets an outer nacopula and returns a matrix of
-    numbers which correspond to the different sectors; this can be used, e.g.,
-    for building a [default] color-matrix for splom2 or for estimation purposes
-    etc.
-    Note: look at nacPairthetas
-(MH) include pairwise estimators for nACs
-(MH) write nice little function that provides confidence intervals for tau and lambda's
-(MH) Khoudraji d + p + r (see asymCopula.R)
-
-(MM+MH) FIXME in enacopula (in estimation.R): return an object?
-(MM+MH) opower() and GIG --> either produce acopula with parameter *vector*, or
-     --- maybe in any case ---
-     produce an object of class 'opacopula' ("outer power Archimedean copula")
-     which is just 'acopula' with a new show method ("thetabase" at least!),
-     possibly a new slot ...
-     Longer term: want to *estimate* those correctly [MLE at least].
-
-(MM) add an ASCII-plot for the hierarchical structure;
-     Actually, define setAs("nacopula", "dendrogram", ....) and then use
-     dendrogram print()ing.
-(MM) rtrafo() is now "available" for "t" and "normal" thanks to the Master
-     thesis of Yongsheng Wang.  (--> ...../function-gof.R )
-     --> implement it, and  write a better wrapper for  gnacopula()/gofCopula()
-     MH: Maybe we should provide Rosenblatt's transformation in general?
+** DONE (MH) rtrafo() {and probably htrafo()} --- "fail" (are *wrong*!) for n = 1
+** DONE (MH) copFrank@psi(1/1e20, theta=200) == Inf instead of 1
+** DONE (MH) fixed long lines in all .Rd
+** design a function that gets an outer nacopula and returns a matrix of numbers which correspond to the different sectors; this can be used, e.g., for building a [default] color-matrix for splom2 or for estimation purposes etc. Note: look at nacPairthetas
+** include pairwise estimators for nACs
+** write nice little function that provides confidence intervals for tau and lambda's
+** Khoudraji d + p + r (see asymCopula.R)
+** FIXME in enacopula (in estimation.R): return an object?
+** opower() and GIG --> either produce acopula with parameter *vector*, or
+--- maybe in any case ---
+produce an object of class 'opacopula' ("outer power Archimedean copula")
+which is just 'acopula' with a new show method ("thetabase" at least!),
+possibly a new slot ...
+Longer term: want to *estimate* those correctly [MLE at least].
+** add an ASCII-plot for the hierarchical structure;
+Actually, define setAs("nacopula", "dendrogram", ....) and then use
+dendrogram print()ing.
+** rtrafo() is now "available" for "t" and "normal" thanks to the Master
+thesis of Yongsheng Wang.  (--> ...../function-gof.R )
+--> implement it, and  write a better wrapper for  gnacopula()/gofCopula()
+MH: Maybe we should provide Rosenblatt's transformation in general?
 
 
 

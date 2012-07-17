@@ -104,19 +104,19 @@ gofTstat <- function(u, method = c("AnChisq", "AnGamma", "SnB", "SnC"))
 ##' @author Marius Hofert
 rtrafo <- function(u, cop, m=d, n.MC=0)
 {
+    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
+    stopifnot(0 <= u, u <=1)
     d. <- dim(u)
     n <- d.[1]
     d <- d.[2]
     stopifnot(is(cop, "outer_nacopula"), 2 <= m, m <= d)
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
-    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
-    stopifnot(0 <= u, u <=1)
     cop <- cop@copula
     th <- cop@theta
     stopifnot(cop@paraConstr(th))
-    psiI <- cop@psiInv(u, theta=th)
-    psiI. <- t(apply(psiI, 1, cumsum))
+    psiI <- cop@psiInv(u, theta=th) # n x d
+    psiI. <- t(apply(psiI, 1, cumsum)) # n x d
     ## compute all conditional probabilities
     if(n.MC==0){
         ## Note: C(u_j | u_1,...,u_{j-1}) = \psi^{(j-1)}(\sum_{k=1}^j \psi^{-1}(u_k)) / \psi^{(j-1)}(\sum_{k=1}^{j-1} \psi^{-1}(u_k))
@@ -140,7 +140,7 @@ rtrafo <- function(u, cop, m=d, n.MC=0)
             exp(logD[1:n]-logD[(n+1):(2*n)])
         }
     }
-    cbind(u[,1],sapply(2:m, C.j))
+    cbind(u[,1], matrix(vapply(2:m, C.j, numeric(n)), ncol=d-1))
 }
 
 ##' Transforms vectors of random variates following the given (nested) Archimedean
