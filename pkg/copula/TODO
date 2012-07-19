@@ -20,6 +20,8 @@ JY: I agree
 - The NAC Archimedean families are partly 'better' and partly "worse" than
   archmCop: need 'uscore'
 -Write testing code that compares the two classes numerically.
+**** TODO (MM): Make  pcopula(<archm>) and dcopula(<archm>)
+ use the the numerically good formulae rather than the "exprDist".
 *** "copula" class:  slot re-definitions
 **** 'message' --> 'name' (or ??)
 **** 'param.lowbnd' / 'param.upbnd' --- use "interval" as in nacopula
@@ -29,7 +31,7 @@ JY: I agree
 **** these are *one* of the things where IJ-archmCopula' are better
 *** AfunDerGalambos() and similar: Use  list() instead of data.frame() as return value  (?)
 
-** MM: former nacopula  c_longNames etc  --> rename to .ac_longNames *and* export
+** TODO MM: former nacopula  c_longNames etc  --> rename to .ac_longNames *and* export
 (ac = Archimedean copula)
 
 ** Exporting a bit more of hidden internal functions:
@@ -37,8 +39,9 @@ JY: I agree
 thought it was unnecessary because it can be obtained with R package mecdf.
 But people have asked for it.
 *** MM: Also, look at ./man/copula-internal.Rd :
-**** e.g. schlatherCopula ??   JY: The implementation of schlatherCopula is not ready for release. More ev copulas will come from max-stable processes.
-**** asymCopula (-class) -- document properly (incl some examples) mv from ./man/copula-internal.Rd
+**** schlatherCopula:  JY: The implementation of schlatherCopula is not ready for release.
+ More ev copulas will come from max-stable processes.
+**** asymCopula (-class) -- *.Rd document properly (incl some examples)
 ** DONE New(?) (Super)classes for "merging the class structure"
 - new class "Copula" := {copula, nacopula}
 
