@@ -16,18 +16,20 @@
 
 ### Extreme-value copulas ######################################################
 
-evCopula <- function(family, param, dim = 2L, ...) {
-  familiesImplemented <- c("galambos", "gumbel", "huslerReiss")
+evCopula <- function(family, param = NA_real_, dim = 2L, ...) {
+  familiesImplemented <- c("galambos", "gumbel", "huslerReiss", "tawn", "tev")
   fam <- pmatch(family, familiesImplemented, -1)
   if (fam == -1)
     stop("Valid family names are ",
          paste(familiesImplemented, collapse=", "))
 
   switch(fam,
-         galambosCopula   (param),
-         gumbelCopula     (param),
-         huslerReissCopula(param)
-         )
+	 galambosCopula	  (param),
+	 gumbelCopula	  (param),
+	 huslerReissCopula(param),
+	 tawnCopula	  (param),
+	 tevCopula	  (param),
+	 stop("family ", fam, "not yet available, at least via evCopula()"))
 }
 
 tailIndexEvCopula <- function(copula) {

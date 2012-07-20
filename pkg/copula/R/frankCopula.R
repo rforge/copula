@@ -36,7 +36,7 @@ genFunDer2Frank <- function(copula, u) {
 ##   eval(genInvDerFrank.expr[n + 1], list(s=s, alpha=copula@parameters[1]))
 ## }
 
-frankCopula <- function(param, dim = 2L) {
+frankCopula <- function(param = NA_real_, dim = 2L) {
   ## get expressions of cdf and pdf
   cdfExpr <- function(n) {
     expr <-   "- log( (exp(- alpha * u1) - 1) / (exp(- alpha) - 1) )"
@@ -149,6 +149,7 @@ dfrankCopula.pdf <- function(copula, u, log=FALSE) {
   else  c(eval(frankCopula.pdf.algr[dim]))
 }
 
+
 kendallsTauFrankCopula <- function(copula) {
   alpha <- copula@parameters[1]
   if (alpha == 0) return (0)
@@ -167,18 +168,30 @@ tailIndexFrankCopula <- function(copula) {
 
 tauDerFrankCopula <- function(copula) {
   alpha <- copula@parameters
-  return( 4/alpha^2 + 4/(alpha * (exp(alpha) - 1)) - 8/alpha^2 * debye1(alpha) )
+  4/alpha^2 + 4/(alpha * expm1(alpha)) - 8/alpha^2 * debye1(alpha)
 }
 
 rhoDerFrankCopula <- function(copula) {
   alpha <- copula@parameters
-  return( 12 / (alpha * (exp(alpha) - 1)) - 36 / alpha^2 * debye2(alpha) + 24 / alpha^2 * debye1(alpha) )
+  12 / (alpha * expm1(alpha)) + (-36 * debye2(alpha) + 24 * debye1(alpha))/ alpha^2
 }
 
 
 setMethod("rcopula", signature("frankCopula"), rfrankCopula)
-setMethod("pcopula", signature("frankCopula"), pfrankCopula)
-setMethod("dcopula", signature("frankCopula"), dfrankCopula.pdf)
+setMethod("pcopula", signature("frankCopula"),
+	  ## was  pfrankCopula
+	  function (copula, u, ...) pacopula(copFrank, u, theta=copula@parameters))
+setMethod("dcopula", signature("frankCopula"),
+	  ## was  dfrankCopula.pdf
+	  function (copula, u, log = FALSE, ...)
+      {
+	  stopifnot(dimU(u) == (d <- copula@dimension))
+	  th <- copula@parameters
+	  if(d == 2 && th < 0)# for now, copFrank does not yet support negative tau
+	      dfrankCopula.pdf(copula, u=u, log=log)
+	  else
+	      copFrank@dacopula(u, theta=th, log=log, ...)
+      })
 
 setMethod("genFun", signature("frankCopula"), genFunFrank)
 setMethod("genInv", signature("frankCopula"), genInvFrank)

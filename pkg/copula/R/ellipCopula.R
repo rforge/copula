@@ -36,7 +36,7 @@ getSigma <- function(copula) {
   sigma
 }
 
-ellipCopula <- function(family, param, dim = 2L, dispstr = "ex", df = 4, ...) {
+ellipCopula <- function(family, param = NA_real_, dim = 2L, dispstr = "ex", df = 4, ...) {
   familiesImplemented <- c("normal", "t")
   fam <- pmatch(family, familiesImplemented, -1)
   if (fam == -1)

@@ -55,7 +55,7 @@ derAfunWrtParamSchlather <- function(copula, w) {
   stop("to be implemented")
 }
 
-schlatherCopula <- function(param) {
+schlatherCopula <- function(param = NA_real_) {
   dim <- 2L
   new("schlatherCopula",
              dimension = dim,

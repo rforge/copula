@@ -14,7 +14,7 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-plackettCopula <- function(param) {
+plackettCopula <- function(param = NA_real_) {
     ## get expressions of cdf and pdf
   cdfExpr <- parse(text = "0.5 / (alpha - 1) * (1 + (alpha - 1) * (u1 + u2) - ((1 + (alpha - 1) * (u1 + u2))^2 - 4 * alpha * (alpha - 1) * u1 * u2)^0.5)")
 

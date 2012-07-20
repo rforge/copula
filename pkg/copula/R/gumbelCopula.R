@@ -69,7 +69,7 @@ genFunDer2Gumbel <- function(copula, u) {
   eval(gumbelCopula.genfunDer.expr[2], list(u=u, alpha=copula@parameters[1]))
 }
 
-gumbelCopula <- function(param, dim = 2L) {
+gumbelCopula <- function(param = NA_real_, dim = 2L) {
   ## get expressions of cdf and pdf
   cdfExpr <- function(n) {
     expr <- "( - log(u1))^alpha"
@@ -215,8 +215,13 @@ rhoDerGumbelCopula <- function(copula) {
 }
 
 setMethod("rcopula", signature("gumbelCopula"), rgumbelCopula)
-setMethod("pcopula", signature("gumbelCopula"), pgumbelCopula)
-setMethod("dcopula", signature("gumbelCopula"), dgumbelCopula.pdf)
+setMethod("pcopula", signature("gumbelCopula"),
+	  ## was  pgumbelCopula
+	  function (copula, u, ...) pacopula(copGumbel, u, theta=copula@parameters))
+setMethod("dcopula", signature("gumbelCopula"),
+	  ## was  dgumbelCopula.pdf
+	  function (copula, u, log = FALSE, ...)
+	  copGumbel@dacopula(u, theta=copula@parameters, log=log, ...))
 
 setMethod("Afun", signature("gumbelCopula"), AfunGumbel)
 setMethod("AfunDer", signature("gumbelCopula"), AfunDerGumbel)

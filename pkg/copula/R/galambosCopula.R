@@ -95,7 +95,7 @@ derAfunWrtParamGalambos <- function(copula, w) {
 }
 
 
-galambosCopula <- function(param) {
+galambosCopula <- function(param = NA_real_) {
   dim <- 2L
   cdf <- expression( exp(log(u1 * u2) *  (1 - ((log(u2) / log(u1 * u2))^(-alpha) + (1 - (log(u2) / log(u1 * u2)))^(-alpha))^(-1/alpha))) )
   derCdfWrtU1 <- D(cdf, "u1")

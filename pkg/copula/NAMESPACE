@@ -105,7 +105,7 @@ S3method(print, exchTest)
 ### Part II: Former nacopula ###################################################
 
 ## Now  'Depend'  on  stats4 and bbmle :
-##importFrom("stats4", mle)
+importFrom("stats4", mle)
 importMethodsFrom("stats4", coef,confint, logLik, AIC, BIC, summary, plot, profile)
 
 importFrom("gsl", debye_1, debye_2)

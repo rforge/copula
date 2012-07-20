@@ -54,7 +54,7 @@ AfunDerTev <- function(copula, w) {
   data.frame(der1 = der1, der2 = der2)
 }
 
-tevCopula <- function(param, df = 4, df.fixed = FALSE) {
+tevCopula <- function(param = NA_real_, df = 4, df.fixed = FALSE) {
   dim <- 2L
   pdim <- length(param)
   parameters <- param

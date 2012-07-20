@@ -32,7 +32,7 @@ genFunDer2Amh <- function(copula, u) {
 }
 
 
-amhCopula <- function(param, dim = 2L) {
+amhCopula <- function(param = NA_real_, dim = 2L) {
   ## get expressions of cdf and pdf
   cdfExpr <- function(n) {
     expr <-   "log((1 - alpha * (1 - u1)) / u1)"
@@ -133,8 +133,20 @@ kendallsTauAmhCopula <- function(copula) {
 ## }
 
 setMethod("rcopula", signature("amhCopula"), ramhCopula)
-setMethod("pcopula", signature("amhCopula"), pamhCopula)
-setMethod("dcopula", signature("amhCopula"), damhCopula)
+setMethod("pcopula", signature("amhCopula"),
+	  ## was pamhCopula
+	  function (copula, u, ...) pacopula(copAMH, u, theta=copula@parameters))
+setMethod("dcopula", signature("amhCopula"),
+	  ## was  damhCopula
+	  function (copula, u, log = FALSE, ...)
+      {
+	  stopifnot(dimU(u) == (d <- copula@dimension))
+	  th <- copula@parameters
+	  if(d == 2 && !copAMH@paraConstr(th))# for now, .. to support negative tau
+	      damhCopula(copula, u=u, log=log)
+	  else
+              copAMH@dacopula(u, theta=copula@parameters, log=log, ...)
+      })
 
 setMethod("genFun", signature("amhCopula"), genFunAmh)
 setMethod("genInv", signature("amhCopula"), genInvAmh)

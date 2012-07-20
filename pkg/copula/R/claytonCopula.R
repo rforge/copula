@@ -36,7 +36,7 @@ genFunDer2Clayton <- function(copula, u) {
   eval(claytonCopula.genfunDer.expr[2])
 }
 
-claytonCopula <- function(param, dim = 2L) {
+claytonCopula <- function(param = NA_real_, dim = 2L) {
   ## get expressions of cdf and pdf
   cdfExpr <- function(n) {
     expr <- "u1^(-alpha) - 1"
@@ -120,7 +120,6 @@ dclaytonCopula <- function(copula, u, ...) {
   alpha <- copula@parameters[1]
   if (abs(alpha) <= .Machine$double.eps^.9) return (rep(1, nrow(u)))
   for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
-  if(log) stop("'log=TRUE' not yet implemented")
   val <- c(eval(copula@exprdist$pdf))
   val[apply(u, 1, function(v) any(v < 0))] <- 0
   val[apply(u, 1, function(v) any(v > 1))] <- 0
@@ -129,7 +128,7 @@ dclaytonCopula <- function(copula, u, ...) {
 ##     bad <- cdf == 0
 ##     val[bad] <- 0
 ##   }
-  val
+  if(log) log(val) else val
 }
 
 dclaytonCopula.pdf <- function(copula, u, log=FALSE) {
@@ -217,8 +216,20 @@ tauDerClaytonCopula <- function(copula) {
 }
 
 setMethod("rcopula", signature("claytonCopula"), rclaytonCopula)
-setMethod("pcopula", signature("claytonCopula"), pclaytonCopula)
-setMethod("dcopula", signature("claytonCopula"), dclaytonCopula.pdf)
+setMethod("pcopula", signature("claytonCopula"),
+	  ## was  pclaytonCopula
+          function (copula, u, ...) pacopula(copClayton, u, theta=copula@parameters))
+setMethod("dcopula", signature("claytonCopula"),
+	  ## was  dclaytonCopula.pdf
+	  function (copula, u, log = FALSE, ...)
+      {
+	  stopifnot(dimU(u) == (d <- copula@dimension))
+	  th <- copula@parameters
+	  if(d == 2 && !copClayton@paraConstr(th))# for now, .. to support negative tau
+	      dclaytonCopula.pdf(copula, u=u, log=log)
+	  else
+              copClayton@dacopula(u, theta=copula@parameters, log=log, ...)
+      })
 
 setMethod("genFun", signature("claytonCopula"), genFunClayton)
 setMethod("genInv", signature("claytonCopula"), genInvClayton)

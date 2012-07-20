@@ -49,6 +49,13 @@ debye1 <- function(x, give=FALSE, strict=TRUE){
   }
 }
 
+debye1 <- function(x) {
+    d <- debye_1(abs(x))
+    ## ifelse(x >= 0, d, d - x / 2) ## k = 1, Frees & Valdez 1998, p.9
+    d - (x<0) * x / 2
+}
+
+
 debye2 <- function(x, give=FALSE, strict=TRUE){
   attr <- attributes(x)
   x.vec <- as.vector(x)
@@ -75,6 +82,12 @@ debye2 <- function(x, give=FALSE, strict=TRUE){
   } else {
     return(val)
   }
+}
+
+debye2 <- function(x) {
+    d <- debye_2(abs(x))
+    ## ifelse(x >= 0, d, d - x * 2/3) ## k = 2, Frees & Valdez 1998, p.9
+    d - (x<0) * x * 2/3
 }
 
 ## debye3 <- function(x, give=FALSE, strict=TRUE){

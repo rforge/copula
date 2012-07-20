@@ -18,7 +18,7 @@
 ##  2) ndim(dim, dispstr, df.fixed) |-->  "dimension" (length) of param
 ##  3) validity should check  pos.definiteness for "un"structured (maybe "toeplitz"
 ##
-tCopula <- function(param, dim = 2L, dispstr = "ex", df = 4, df.fixed = FALSE) {
+tCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex", df = 4, df.fixed = FALSE) {
   dim <- as.integer(dim)
   stopifnot((pdim <- length(param)) >= 1, is.numeric(param))
   parameters <- param

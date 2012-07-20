@@ -50,26 +50,33 @@ tevCopula(param, df = 4, df.fixed = FALSE)
 
 tau <- 0.33
 
-gumbel.cop <- evCopula("gumbel", param=2)
+gumbel.cop <- evCopula("gumbel")
+stopifnot(identical(gumbel.cop, gumbelCopula()))
 gumbel.cop@parameters <- calibKendallsTau(gumbel.cop, tau)
 
-galambos.cop <- galambosCopula(2)
+galambos.cop <- galambosCopula()
 galambos.cop@parameters <- calibKendallsTau(galambos.cop, tau)
 
-huslerReiss.cop <- huslerReissCopula(2)
+huslerReiss.cop <- huslerReissCopula()
 huslerReiss.cop@parameters <- calibKendallsTau(huslerReiss.cop, tau)
 
-tawn.cop <- tawnCopula(0.3)
+tawn.cop <- tawnCopula()
 tawn.cop@parameters <- calibKendallsTau(tawn.cop, tau)
 
-tev.cop <- tevCopula(0.7)
+tev.cop <- tevCopula()
 tev.cop@parameters[1] <- calibKendallsTau(tev.cop, tau)
 
-curve(Afun(gumbel.cop, x), 0, 1)
+curve(Afun(gumbel.cop, x), 0, 1,
+      main = "A(x) for five Extreme Value cop. w/  tau = 1/3")
 curve(Afun(galambos.cop, x), lty=2, add=TRUE)
 curve(Afun(huslerReiss.cop, x), lty=3, add=TRUE)
 curve(Afun(tawn.cop, x), lty=4, add=TRUE)
 curve(Afun(tev.cop, x), lty=5, add=TRUE)
+
+## the t-EV-copula has always positive tau :
+curve(vapply(x, function(x) kendallsTau(tevCopula(x)), 0.), -1, 1,
+      col=2, n=257, ylim=0:1, ylab=bquote(tau), xlab=bquote(rho),
+      main= expression(tau( tevCopula(rho) )))
 }
-\keyword{ distribution }% at least one, from doc/KEYWORDS
-\keyword{ multivariate }% __ONLY ONE__ keyword per line
+\keyword{ distribution }
+\keyword{ multivariate }

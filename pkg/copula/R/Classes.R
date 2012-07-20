@@ -41,10 +41,10 @@ setClass("copula",
              if (lp != length(lower) && length(lower) != 1)
                  return("Parameter and lower bound have non-equal length")
              intervChk <- ## TODO: mkParaConstr(object@paraInterval)
-                 function(par) all(lower <= param && param <= upper)
+                 function(par) all(is.na(param) | (lower <= param & param <= upper))
              ina.p <- is.na(param)
              if(!all(ina.p)) {
-                 if(any(ina.p)) return("some (but not all) parameter values are  NA")
+		 ##if(any(ina.p)) return("some (but not all) parameter values are  NA")
                  if(!intervChk(param)) return("Parameter value(s) out of bound")
              }
 
@@ -84,16 +84,18 @@ validRho <- function(dispstr, dim, lenRho) {
 	   },
 	   "un" = {
 	       if (lenRho != dim * (dim - 1) / 2)
-		   return("Param should have length dim * (dim - 1) / 2 for dispstr == un")
+		   return(sprintf("'rho' parameter should have length dim * (dim - 1) / 2 for 'dispstr' = \"%s\"",
+				  dispstr))
 	   },
 	   "toep" = {
 	       if (lenRho != dim - 1)
-		   return("Param should have length dim - 1 for dispstr == toep")
+		   return(sprintf("'rho' parameter should have length dim-1 for 'dispstr' = \"%s\"",
+				  dispstr))
 	   },
 	   ## otherwise
 	   return("'dispstr' not supported (yet)"))
 
-    return(TRUE)
+    TRUE
 }
 
 validEllipCopula <- function(object) {
@@ -103,7 +105,7 @@ validEllipCopula <- function(object) {
 }
 
 setClass("ellipCopula", contains = "copula",
-         representation(dispstr = "character", getRho="function"),
+	 representation(dispstr = "character", getRho="function", "VIRTUAL"),
          validity = validEllipCopula)
 
 if(FALSE) # not yet needed -- validEllipCopula() is used anyway

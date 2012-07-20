@@ -69,7 +69,7 @@ derAfunWrtParamHuslerReiss <- function(copula, w) {
   data.frame(der1 = der1, der2 = der2)
 }
 
-huslerReissCopula <- function(param) {
+huslerReissCopula <- function(param = NA_real_) {
   dim <- 2L
   cdf <- expression( exp(log(u1 * u2) * (
       log(u2) / log(u1 * u2)       * pnorm(1 / alpha + 0.5*alpha * log(log(u2) / log(u1 * u2) /(1 - log(u2) / log(u1 * u2)))) +

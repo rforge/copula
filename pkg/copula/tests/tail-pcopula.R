@@ -105,7 +105,7 @@ stopifnot(
 ,
   (tu2 <- numTailIndexUpper(Frank2, 1-1e-6)) < 3e-6
 ,
-  all.equal(tu2, numTailIndexLower(Frank2, 1e-6), tol=1e-10)
+  all.equal(tu2, numTailIndexLower(Frank2, 1e-6), tol= 1e-4)
 )
 
 

@@ -10,19 +10,20 @@
   parameter and dimension.
 }
 \usage{
-archmCopula(family, param, dim = 2, ...)
-claytonCopula(param, dim = 2)
-frankCopula(param, dim = 2)
-gumbelCopula(param, dim = 2)
-amhCopula(param, dim = 2)
+archmCopula(family, param = NA_real_, dim = 2, ...)
+
+claytonCopula(param = NA_real_, dim = 2)
+frankCopula(param = NA_real_, dim = 2)
+gumbelCopula(param = NA_real_, dim = 2)
+amhCopula(param = NA_real_, dim = 2)
 }
 \arguments{
-  \item{family}{ a character string specifying the family of an
-    Archimedean copula. Implemented families are "clayton", "frank", and
-    "gumbel".
+  \item{family}{a character string specifying the family of an
+    Archimedean copula.  Currently supported families are "clayton",
+    "frank", "amh", and "gumbel".
   }
-  \item{param}{ a numeric vector specifying the parameter values. }
-  \item{dim}{ the dimension of the copula. }
+  \item{param}{number (\code{\link{numeric}}) specifying the copula parameter.}
+  \item{dim}{the dimension of the copula.}
   \item{\dots}{ currently nothing. }
 }
 \value{
@@ -35,7 +36,6 @@ amhCopula(param, dim = 2)
 
   Only the bivariate Ali-Mikhail-Haq copula family (\code{"amhCopula"})
   is available.
-
 
   The maximum dimension for which the expression of the pdf is available
   is 6 for the Clayton, Gumbel and Frank families. The cdf expression is
@@ -70,22 +70,19 @@ gumbel.cop <- archmCopula("gumbel", 5)
 contour(gumbel.cop, dcopula)
 
 amh.cop <- amhCopula(0.5)
-
+u. <- as.matrix(expand.grid(u=(0:10)/10, v=(0:10)/10, KEEP.OUT.ATTRS=FALSE))
+du <- dcopula(amh.cop, u.)
+stopifnot(is.finite(du) | apply(u. == 0, 1,any)| apply(u. == 1, 1,any))
 
 ## A 7-dim Frank copula
 frank.cop <- frankCopula(3, dim = 7)
 x <- rcopula(frank.cop, 5)
-## dcopula doesn't work
-\dontrun{
+## dcopula now *does* work:
 dcopula(frank.cop, x)
-}
 
 ## A 7-dim Gumbel copula
 gumbel.cop <- gumbelCopula(2, dim = 7)
-## the expression of the pdf is not available
-gumbel.cop@exprdist
-## but can still be evaluated
 dcopula(gumbel.cop, x)
 }
-\keyword{ distribution }% at least one, from doc/KEYWORDS
-\keyword{ multivariate }% __ONLY ONE__ keyword per line
+\keyword{distribution}
+\keyword{multivariate}

@@ -82,9 +82,9 @@ copAMH <-
 		  dacopula = function(u, theta, n.MC=0, log=FALSE,
 				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
               {
-                  stopifnot(C.@paraConstr(theta))
 		  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		  if(d > 2) stopifnot(C.@paraConstr(theta))
                   ## f() := NaN outside and on the boundary of the unit hypercube
                   res <- rep.int(NaN, n <- nrow(u))
                   ## indices for which density has to be evaluated:
@@ -112,9 +112,9 @@ copAMH <-
               },
 		  ## score function
 		  score = function(u, theta) {
-		      stopifnot(C.@paraConstr(theta))
 		      if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		      if(d > 2) stopifnot(C.@paraConstr(theta))
 		      omu <- 1-u
 		      b <- rowSums(omu/(1-theta*omu))
 		      h <- theta*apply(u/(1-theta*omu), 1, prod)
@@ -228,9 +228,9 @@ copClayton <-
                   },
 		  ## density  Clayton
 		  dacopula = function(u, theta, n.MC=0, log=FALSE) {
-		      stopifnot(C.@paraConstr(theta))
 		      if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		      if(d > 2) stopifnot(C.@paraConstr(theta))
 		      ## f() := NaN outside and on the boundary of the unit hypercube
 		      res <- rep.int(NaN, n <- nrow(u))
 		      n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
@@ -258,9 +258,9 @@ copClayton <-
 		  },
 		  ## score function
 		  score = function(u, theta) {
-		      stopifnot(C.@paraConstr(theta))
 		      if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		      if(d > 2) stopifnot(C.@paraConstr(theta))
 		      lu <- log(u)
 		      t <- rowSums(C.@psiInv(u, theta=theta))
 		      ltp1 <- log(1+t)
@@ -389,9 +389,9 @@ copFrank <-
 		  dacopula = function(u, theta, n.MC=0, log=FALSE,
 				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
 	      {
-		  stopifnot(C.@paraConstr(theta))
 		  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		  if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		  if(d > 2) stopifnot(C.@paraConstr(theta))
 		  ## f() := NaN outside and on the boundary of the unit hypercube
 		  res <- rep.int(NaN, n <- nrow(u))
 		  n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
@@ -422,9 +422,9 @@ copFrank <-
 	      },
 		  ## score function
 		  score = function(u, theta) {
-		      stopifnot(C.@paraConstr(theta))
 		      if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		      if(d > 2) stopifnot(C.@paraConstr(theta))
 		      e <- exp(-theta)
 		      Ie <- -expm1(-theta) # == 1 - e == 1-e^{-theta}
 		      etu <- exp(mtu <- -theta*u) # exp(-theta*u)
@@ -483,7 +483,7 @@ copFrank <-
 		      res[isN <- theta == 0] <- 0 # limiting case
 		      res[na <- is.na(theta)] <- NA
 		      if(any(i <- !(na | isN)))
-			  res[i] <- 1 + 4*(debye_1(theta[i]) - 1)/theta[i]
+			  res[i] <- 1 + 4*(debye1(theta[i]) - 1)/theta[i]
 		      res
 		  },
 		  tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
@@ -576,9 +576,9 @@ copGumbel <-
 		  dacopula = function(u, theta, n.MC=0,
 				      method = eval(formals(polyG)$method), log=FALSE)
               {
-                  stopifnot(C.@paraConstr(theta))
                   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		  if(d > 2) stopifnot(C.@paraConstr(theta))
                   ## f() := NaN outside and on the boundary of the unit hypercube
                   res <- rep.int(NaN, n <- nrow(u))
                   n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
@@ -621,9 +621,9 @@ copGumbel <-
               },
 		  ## score function
 		  score = function(u, theta) {
-		      stopifnot(C.@paraConstr(theta))
 		      if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		      if(d > 2) stopifnot(C.@paraConstr(theta))
 		      stop("The score function is currently not implemented for Gumbel copulas")
 		  },
 		  ## nesting constraint
@@ -759,9 +759,9 @@ copJoe <-
 		  dacopula = function(u, theta, n.MC=0,
 				      method = eval(formals(polyJ)$method), log = FALSE)
               {
-                  stopifnot(C.@paraConstr(theta))
                   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		  if(d > 2) stopifnot(C.@paraConstr(theta))
                   ## f() := NaN outside and on the boundary of the unit hypercube
                   res <- rep.int(NaN, n <- nrow(u))
                   n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
@@ -793,9 +793,9 @@ copJoe <-
               },
 		  ## score function
 		  score = function(u, theta, method=eval(formals(polyJ)$method)) {
-		      stopifnot(C.@paraConstr(theta))
 		      if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+		      if(d > 2) stopifnot(C.@paraConstr(theta))
 		      l1_u <- rowSums(log1p(-u)) # log(1-u)
 		      u.th <- (1-u)^theta # (1-u)^theta
 		      lh <- rowSums(log1p(-u.th)) # rowSums(log(1-(1-u)^theta)) = log(h)

@@ -39,7 +39,7 @@ AfunDerTawn <- function(copula, w) {
   data.frame(der1 = der1, der2 = der2)
 }
 
-tawnCopula <- function(param) {
+tawnCopula <- function(param = NA_real_) {
   dim <- 2L
   ## See Table 1 from Ghoudi, Khoudraji, and Rivest (1998, CJS, in french)
   cdf <- expression( u1 * u2 * exp( - alpha * log(u1) * log(u2) / log(u1 * u2)) )

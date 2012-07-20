@@ -44,13 +44,26 @@ dnacopula <- function(x, u, log=FALSE, ...) {
 ##'        to n.MC; otherwise the exact formula is used
 ##' @param log if TRUE the log-density is evaluated
 ##' @author Marius Hofert
-dnacopulag <- function(x, u, n.MC=0, log = FALSE) {
-    stopifnot(is(x, "outer_nacopula"), 0 <= u, u <= 1)
+dnacopulaG <- function(x, u, n.MC=0, log = FALSE) {
+    stopifnot(is(x, "outer_nacopula"))
     if(length(x@childCops))
         stop("currently, only Archimedean copulas are provided")
+    dacopulaG(x@copula, u=u, n.MC=n.MC, log=log)
+}
+
+##' Returns the copula density at u. Generic algorithm
+##'
+##' @title Density of Archimedean copulas (Generic form)
+##' @param acop acopula
+##' @param u argument of the copula x
+##' @param n.MC if > 0 a Monte Carlo approach is applied with sample size equal
+##'        to n.MC; otherwise the exact formula is used
+##' @param log if TRUE the log-density is evaluated
+##' @author Martin Maechler, based on Marius' code
+dacopulaG <- function(acop, u, n.MC=0, log = FALSE) {
+    stopifnot(is(acop, "acopula"), 0 <= u, u <= 1)
     if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     if((d <- ncol(u)) < 2) stop("u should be at least bivariate")
-    acop <- x@copula
     th <- acop@theta
     res <- rep(NaN,n <- nrow(u)) # density not defined on the margins
     n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
@@ -81,6 +94,19 @@ pnacopula <- function(x,u) {
 			## and recurse down for the children:
 			C@psiInv(unlist(lapply(x@childCops, pnacopula, u=u)), theta=th))),
 	  theta=th)
+}
+
+##' Returns the copula value at u
+##'
+##' @title CDF / Evaluation of Archimedean copula
+##' @param C acopula
+##' @param theta parameter
+##' @param u argument of the copula x (can be a matrix)
+##' @return C_\theta(u)
+##' @author Martin Maechler
+pacopula <- function(C, u, theta = C@theta) {
+    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
+    C@psi(rowSums(C@psiInv(u, theta=theta)), theta=theta)
 }
 
 ##' Compute the probability P[l < U <= u]  where U ~ copula x
@@ -143,6 +169,25 @@ rnacopula <- function(n, x, ...)
     stopifnot(length(j) == ncol(mat))
     mat[, order(j), drop=FALSE] # permute data and return
 }
+
+##' Returns (n x d)-matrix of random variates
+##'
+##' @title Random number generation for Archimedean copulas
+##' @param n number of vectors of random variates to generate
+##' @param Cp acopula
+##' @param theta copula parameter
+##' @param d dimension
+##' @return matrix of random variates
+##' @author Martin Maechler
+racopula <- function(n, Cp, theta = Cp@theta, d)
+{
+    stopifnot(n == as.integer(n), d == as.integer(d),
+	      n >= 0, d >= 2, is.finite(theta))
+    V0 <- Cp@V0(n, theta)	# generate V0's
+    E <- matrix(rexp(n*d), n, d)# .. the exponentials
+    Cp@psi(E/V0, theta=theta)
+}
+
 
 ##' Returns a list with an (n x d)-matrix of random variates and a vector of
 ##' indices.
@@ -421,7 +466,7 @@ setMethod("dcopula", "nacopula",
               C@dacopula(u, th, log=log, ...)
           })
 
-setMethod("pcopula", "nacopula", function(copula, u) pnacopula(copula, u))
+setMethod("pcopula", "nacopula", function(copula, u, ...) pnacopula(copula, u))
 
 setMethod("rcopula", "nacopula",
 	  function(copula, n, ...) ## argument reversal ..

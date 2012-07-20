@@ -16,10 +16,12 @@
 
 ## constructor #################################################################
 
-fgmCopula <- function(param, dim = 2L) {
+fgmCopula <- function(param = NA_real_, dim = 2L) {
     if (!is.numeric(dim) || (dim <- as.integer(dim)) < 2)
         stop("dim should be an integer of at least 2")
-    if (!is.numeric(param) && length(param) != 2^dim - dim - 1)
+    npar <- 2^dim - dim - 1
+    if(is.na(param)) param <- rep(param, length.out = npar)
+    else if (!is.numeric(param) && length(param) != npar)
         stop("wrong parameters")
 
     ## power set of {1,...,dim} in integer notation

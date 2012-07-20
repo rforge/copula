@@ -234,7 +234,7 @@ stopifnot(all.equal(print(  prob(Clayton3d,l,u)),
 
 ### Frank ######################################################################
 
-theta0 <- 1.8609#tau_{12}=tau_{13}=0.2, tau_{23}=0.5
+theta0 <- 1.8609 # tau_{12}=tau_{13}=0.2, tau_{23}=0.5
 theta1 <- 5.7363
 
 ## check 1
@@ -352,7 +352,11 @@ stopifnot(all.equal(v,
                     tol = 1e-14))
 
 ## test rnacopula()
-rt <- system.time(rC2 <- rnacopula(n,c2))
+racopula <- copula:::racopula
+set.seed(17) ; rt  <- system.time(rC2 <- rnacopula(n,c2))
+set.seed(17) ; rt. <- system.time(rc2 <- racopula (n, c2@copula, d=2))
+stopifnot(identical(rC2, rc2))
+
 C2 <- cor(rC2,method = "kendall")
 trCorr <- rbind(c(1,0.2),
                 c(0.2,1)) # tau_{12}=0.2
