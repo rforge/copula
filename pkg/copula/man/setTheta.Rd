@@ -8,7 +8,7 @@
   example, in \code{\link{onacopula}()}.
 }
 \usage{
-setTheta(x, value, na.ok = TRUE)
+setTheta(x, value, na.ok = TRUE, noCheck = FALSE)
 }
 \arguments{
   \item{x}{acopula}
@@ -16,6 +16,8 @@ setTheta(x, value, na.ok = TRUE)
     \code{\link{NA}} (when \code{na.ok} is true.)}
   \item{na.ok}{logical indicating if \code{\link{NA}} values are ok for
     \code{theta}.}
+  \item{noCheck}{logical indicating if parameter contraint checks should
+    be skipped.}
 }
 \value{
   an \code{"\linkS4class{acopula}"} as \code{x}, just with the slot
@@ -25,5 +27,9 @@ setTheta(x, value, na.ok = TRUE)
 \examples{
 myC <- setTheta(copClayton, 0.5)
 myC
+
+# negative theta is ok for dim = 2 :
+myF <- setTheta(copFrank, -2.5, noCheck=TRUE)
+myF@tau(myF@theta) # -0.262
 }
 \keyword{manip}

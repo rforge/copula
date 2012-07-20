@@ -1099,6 +1099,21 @@ circRat <- function(e, d)
 
 ### Misc #######################################################################
 
+## Determine the \dQuote{implied} copula dimension from \code{u}.
+## in the same sense that many copula functions use
+##  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
+
+
+##' @title Implied copula dim()ension
+##' @param u
+##' @return integer
+##' @author Martin Maechler
+dimU <- function(u) {
+    if(!is.null(d <- dim(u))) d[2L] else length(u)
+}
+
+
+
 ##' Conditional copula function C(u[,d]|u[,1],...,u[,d-1])
 ##'
 ##' @title Conditional copula function
@@ -1107,7 +1122,6 @@ circRat <- function(e, d)
 ##' @param n.MC Monte Carlo sample size
 ##' @param log if TRUE the logarithm of the conditional copula is returned
 ##' @author Marius Hofert
-
 cacopula <- function(u, cop, n.MC=0, log=FALSE) {
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
@@ -1209,16 +1223,17 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC,
 ##' @param x acopula
 ##' @param value parameter value
 ##' @param na.ok logical indicating if NA values are ok for theta
+##' @param noCheck logical indicating if parameter constraints should be checked
 ##' @return acopula with theta set to value
 ##' @author Martin Maechler
-setTheta <- function(x, value, na.ok = TRUE) {
+setTheta <- function(x, value, na.ok = TRUE, noCheck = FALSE) {
     stopifnot(is(x, "acopula"),
               is.numeric(value) | (ina <- is.na(value)))
     if(ina) {
         if(!na.ok) stop("NA value, but 'na.ok' is not TRUE")
         value <- NA_real_
     }
-    if(ina || x@paraConstr(value)) ## parameter constraints are fulfilled
+    if(ina || noCheck || x@paraConstr(value)) ## parameter constraints are fulfilled
         x@theta <- value
     else
         stop("theta (=", format(value), ") does not fulfill paraConstr()")
