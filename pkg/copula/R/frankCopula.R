@@ -153,13 +153,13 @@ dfrankCopula.pdf <- function(copula, u, log=FALSE) {
 kendallsTauFrankCopula <- function(copula) {
   alpha <- copula@parameters[1]
   if (alpha == 0) return (0)
-  1 - 4 / alpha * (1 - debye_1(alpha))
+  1 - 4 / alpha * (1 - debye1(alpha))
 }
 
 spearmansRhoFrankCopula <- function(copula) {
   alpha <- copula@parameters[1]
   if (alpha == 0) return (0)
-    1 - 12/alpha * (debye_1(alpha) - debye_2(alpha))
+    1 - 12/alpha * (debye1(alpha) - debye2(alpha))
 }
 
 tailIndexFrankCopula <- function(copula) {
