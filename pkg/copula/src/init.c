@@ -161,10 +161,12 @@ static R_NativePrimitiveArgType empirical_copula_test_t[] = {REALSXP, INTSXP, IN
 
 // ./R_debye.c /////////////////////////////////////////////////////////////////
 
+/* no longer needed; now using debye_1 from package gsl
 static R_NativePrimitiveArgType debye_1_C_t[5] = { REALSXP, INTSXP, REALSXP,REALSXP, INTSXP };
 static R_NativePrimitiveArgType debye_2_C_t[5] = { REALSXP, INTSXP, REALSXP,REALSXP, INTSXP };
 static R_NativePrimitiveArgType debye_3_t[5] = { REALSXP, INTSXP, REALSXP,REALSXP, INTSXP };
 static R_NativePrimitiveArgType debye_4_t[5] = { REALSXP, INTSXP, REALSXP,REALSXP, INTSXP };
+*/
 
 static const R_CMethodDef CEntries[]  = {
     CDEF(A_CFG),
@@ -203,12 +205,12 @@ static const R_CMethodDef CEntries[]  = {
     CDEF(empirical_copula_test_rv_serial),
     CDEF(simulate_empirical_copula),
     CDEF(empirical_copula_test),
-
+    /*
     CDEF(debye_1_C),
     CDEF(debye_2_C),
     CDEF(debye_3),
     CDEF(debye_4),
-
+    */
     {NULL, NULL, 0}
 };
 
