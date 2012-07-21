@@ -15,6 +15,20 @@
   this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file   Anfun.h
+ * @author Ivan Kojadinovic
+ * @date   2009
+ *
+ * @brief Rank-based versions of the Pickands and CFG estimators
+ *        of the Pickands dependence function. Will be replaced
+ *        by d-dimensional versions...
+ *
+ */
+
+
+#ifndef ANFUN_H
+#define ANFUN_H
 
 #define MIN(x,y) ((x)<(y)?(x):(y))
 #define MAX(x,y) ((x)>(y)?(x):(y))
@@ -29,3 +43,4 @@ void A_Pickands(int *n, double *S, double *T, double *t, int *m,
 void A_CFG(int *n, double *S, double *T, double *t, int *m,
 	   int *corrected, double *A);
 
+#endif

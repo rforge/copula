@@ -15,137 +15,147 @@
   this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file   Anfun.c
+ * @author Ivan Kojadinovic
+ * @date   2009
+ *
+ * @brief Rank-based versions of the Pickands and CFG estimators
+ *        of the Pickands dependence function. Will be replaced
+ *        by d-dimensional versions...
+ *
+ */
 
 #include <R.h>
 #include <Rmath.h>
 
 #include "Anfun.h"
 
-/*****************************************************************************
 
-  Rank-based version of Pickands' estimator (inverse)
-
-*****************************************************************************/
-
-double inv_A_Pickands(int n, double *S, double *T, double t)
-{
+/**
+ * Inverse of the rank-based version of the Pickands estimator
+ *
+ * @param n sample size
+ * @param S unit Fréchet pseudo-obs
+ * @param T unit Fréchet pseudo-obs
+ * @param t argument
+ * @return value at t
+ * @author Ivan Kojadinovic
+ */
+double inv_A_Pickands(int n, double *S, double *T, double t) {
   int i;
   double At = 0.0, Eit, Sit, Tit;
 
-  if (t > 0.0 && t < 1.0)
-    {
-      for (i=0;i<n;i++)
-	{
-	  Sit = S[i] / (1.0 - t);
-	  Tit = T[i] / t;
-	  Eit = (Sit < Tit ) ? Sit : Tit ;
-	  At += Eit;
-	}
+  if (t > 0.0 && t < 1.0) {
+    for (i=0;i<n;i++) {
+      Sit = S[i] / (1.0 - t);
+      Tit = T[i] / t;
+      Eit = (Sit < Tit ) ? Sit : Tit ;
+      At += Eit;
     }
-  else if (t <= 0.0) /* t set to 0 */
-    {
-      for (i=0;i<n;i++)
-	At += S[i];
-    }
-  else /* t >= 1.0 */ /* t set to 1 */
-    {
-      for (i=0;i<n;i++)
-	At += T[i];
-    }
+  }
+  else if (t <= 0.0) { /* t set to 0 */
+    for (i=0;i<n;i++)
+      At += S[i];
+  }
+  else { /* t >= 1.0 */ /* t set to 1 */
+    for (i=0;i<n;i++)
+      At += T[i];
+  }
   return At/(double)n;
 }
 
-/*****************************************************************************
-
-  Rank-based version of Pickands' estimator interfaced in R
-  n: sample size
-  t: vector argument
-  A: result
-  m: length of t and A
-
-*****************************************************************************/
-
+/**
+ * Rank-based version of the Pickands estimator interfaced in R
+ *
+ * @param n sample size
+ * @param S unit Fréchet pseudo-obs
+ * @param T unit Fréchet pseudo-obs
+ * @param t vector argument
+ * @param m length of t and A
+ * @param corrected if non zero, return the corrected version
+ * @param A array of values at t
+ * @author Ivan Kojadinovic
+ */
 void A_Pickands(int *n, double *S, double *T, double *t, int *m,
-		int *corrected, double *A)
-{
+		int *corrected, double *A) {
   int i;
   double invA0, invA1;
 
-  if (*corrected)
-    {
-      invA0 = inv_A_Pickands(*n, S, T, 0.0);
-      invA1 = inv_A_Pickands(*n, S, T, 1.0);
-      for (i=0;i<*m;i++)
-	A[i] = 1.0/(inv_A_Pickands(*n, S, T, t[i])
-		    - (1.0 - t[i]) * (invA0  - 1.0)
-		    - t[i] * (invA1 - 1.0));
-    }
+  if (*corrected) {
+    invA0 = inv_A_Pickands(*n, S, T, 0.0);
+    invA1 = inv_A_Pickands(*n, S, T, 1.0); //FIXME: this is not necessary
+    for (i=0;i<*m;i++)
+      A[i] = 1.0/(inv_A_Pickands(*n, S, T, t[i])
+		  - (1.0 - t[i]) * (invA0  - 1.0)
+		  - t[i] * (invA1 - 1.0));
+  }
   else
     for (i=0;i<*m;i++)
       A[i] = 1.0/inv_A_Pickands(*n, S, T, t[i]);
-
 }
-
-/*****************************************************************************
-
-  Rank-based version of the CFG estimator (log)
-
-*****************************************************************************/
 
 /* Euler's constant */
 #define EULER 0.5772156649015328606065120900824
 
-double log_A_CFG(int n, double *S, double *T, double t)
-{
+/**
+ * Log of the rank-based version of the CFG estimator
+ *
+ * @param n sample size
+ * @param S unit Fréchet pseudo-obs
+ * @param T unit Fréchet pseudo-obs
+ * @param t argument
+ * @return value at t
+ * @author Ivan Kojadinovic
+ */
+double log_A_CFG(int n, double *S, double *T, double t) {
   int i;
   double At = 0.0;
 
-  if (0. < t && t < 1.)
-    {
-      for (i=0;i<n;i++) {
-	  double
-	      Sit = S[i] / (1.0 - t),
-	      Tit = T[i] / t,
-	      Eit = (Sit < Tit ) ? Sit : Tit ;
-	  At += log(Eit);
-      }
+  if (0. < t && t < 1.) {
+    for (i=0;i<n;i++) {
+      double
+	Sit = S[i] / (1.0 - t),
+	Tit = T[i] / t,
+	Eit = (Sit < Tit ) ? Sit : Tit ;
+      At += log(Eit);
     }
-  else if (t <= 0.0) /* t set to 0 */
-    {
-      for (i=0;i<n;i++)
-	At += log(S[i]);
-    }
-  else /* t == 1.0 */ /* t set to 1 */
-    {
-      for (i=0;i<n;i++)
-	At += log(T[i]);
-    }
+  }
+  else if (t <= 0.0) { /* t set to 0 */
+    for (i=0;i<n;i++)
+      At += log(S[i]);
+  }
+  else { /* t == 1.0 */ /* t set to 1 */
+    for (i=0;i<n;i++)
+      At += log(T[i]);
+  }
 
   return -EULER - At/(double)n;
 }
 
-/*****************************************************************************
-
-  Rank-based version of the CFG estimator interfaced in R
-  n: sample size
-  t: vector argument
-  A: result
-  m: length of t and A
-
-*****************************************************************************/
-
+/**
+ * Rank-based version of the CFG estimator interfaced in R
+ *
+ * @param n sample size
+ * @param S unit Fréchet pseudo-obs
+ * @param T unit Fréchet pseudo-obs
+ * @param t vector argument
+ * @param m length of t and A
+ * @param corrected if non zero, return the corrected version
+ * @param A array of values at t
+ * @author Ivan Kojadinovic
+ */
 void A_CFG(int *n, double *S, double *T, double *t, int *m,
-	   int *corrected, double *A)
-{
+	   int *corrected, double *A) {
   int i;
   if (*corrected) {
-      double
-	  logA0 = log_A_CFG(*n, S, T, 0.0),
-	  logA1 = log_A_CFG(*n, S, T, 1.0);
+    double
+      logA0 = log_A_CFG(*n, S, T, 0.0),
+      logA1 = log_A_CFG(*n, S, T, 1.0);
 
-      for (i=0;i<*m;i++)
-	  A[i] = exp(log_A_CFG(*n, S, T, t[i])
-		     - (1.0 - t[i]) * logA0 - t[i] * logA1);
+    for (i=0;i<*m;i++)
+      A[i] = exp(log_A_CFG(*n, S, T, t[i])
+		 - (1.0 - t[i]) * logA0 - t[i] * logA1);
   }
   else
     for (i=0;i<*m;i++)

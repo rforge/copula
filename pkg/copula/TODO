@@ -8,6 +8,7 @@ All the Copyright headers in R/*.R  src/*.c etc need to be streamlined;
 typically containing all 4 names.
 MH: I can do that (once Ivan and Jun agree)
 JY: I agree
+IK: Me too
 => MH: done on 2012-03-25 (for simplicity, I used "2012" everywhere)
 ** Renaming of current "base" functions see [[file:feature-table.org][Feature table]]
  e.g.  calibKendallsTau to iTau
@@ -143,6 +144,7 @@ This can be used, e.g., for building a [default] color-matrix for splom2 or
 for estimation purposes etc. Note: look at nacPairthetas
 *** nice little function that provides confidence intervals for tau and lambda's (from \theta_{MLE})
 
+*** IK: d-dimensional versions of rank-based estimators of the Pickands dependence function
 ** Testing: ./tests/  must grow, notably for "Jun-Ivan functions"
 *** maybe take  ./tests/copula-play.R  as sophisticated role model.
 
@@ -175,3 +177,4 @@ effort writing src/init.c for registration of all of the .C(..) routines.
 Actually, define setAs("nacopula", "dendrogram", ....) and then use
 dendrogram print()ing.
 *** Khoudraji d + p + r (see asymCopula.R)
+*** IK: add d-dimensional EV copulas corresponding to max-stable processes and corresponding "composite densities"
