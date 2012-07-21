@@ -27,7 +27,7 @@ exchTest(x, N = 1000, m = 0)
 \value{
   Returns a list whose attributes are:
   \item{statistic}{ value of the test statistic. }
-  \item{pvalue}{ corresponding approximate p-value. }
+  \item{p.value}{ corresponding approximate p-value. }
 }
 \references{
   Genest, C., Nešlehová, J. and Quessy, J.-F. (2012). Tests of symmetry for

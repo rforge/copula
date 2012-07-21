@@ -90,14 +90,6 @@ static R_NativePrimitiveArgType evtestA_derA_t[] = {REALSXP, REALSXP, INTSXP, RE
 static R_NativePrimitiveArgType evtestA_stat_t[] = {REALSXP, REALSXP, INTSXP, REALSXP, REALSXP, INTSXP,
 		  INTSXP, REALSXP, REALSXP};
 
-static R_NativePrimitiveArgType evTestAA_C_t[] = {REALSXP, REALSXP, INTSXP, REALSXP, INTSXP,
-	      INTSXP, REALSXP};
-static R_NativePrimitiveArgType evTestAA_derA_t[] = {REALSXP, REALSXP, INTSXP, REALSXP, INTSXP,
-		   INTSXP, REALSXP};
-static R_NativePrimitiveArgType evTestAA_stat_t[] = {REALSXP, REALSXP, INTSXP, REALSXP, INTSXP,
-		   REALSXP};
-
-
 // ./exchtest.c ////////////////////////////////////////////////////////////////
 
 static R_NativePrimitiveArgType evsymtest_t[] = {REALSXP, REALSXP, INTSXP, REALSXP, INTSXP,
@@ -189,9 +181,6 @@ static const R_CMethodDef CEntries[]  = {
     CDEF(evtestA),
     CDEF(evtestA_derA),
     CDEF(evtestA_stat),
-    CDEF(evTestAA_C),
-    CDEF(evTestAA_derA),
-    CDEF(evTestAA_stat),
     CDEF(evsymtest),
     CDEF(evsymtest_derA),
     CDEF(evsymtest_stat),

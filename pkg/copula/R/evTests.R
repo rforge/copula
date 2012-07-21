@@ -151,51 +151,6 @@ evTestA <- function(x, N = 1000, derivatives = "An")
   evt
 }
 
-
-### EV test based on An CFG - An Pickands ######################################
-
-evTestAA <- function(x, N = 1000,  derivatives = "Cn", m = 100)
-{
-  ## make pseudo-observations
-  n <- nrow(x)
-  u <- apply(x,2,rank)/(n+1)
-
-  ## make grid
-  g <- seq(1/m, 1 - 1/m, len = m)
-
-  ## compute the test statistic
-  s <- .C(evTestAA_stat,
-          as.double(-log(u[,1])),
-          as.double(-log(u[,2])),
-          as.integer(n),
-          as.double(g),
-          as.integer(m),
-          stat = double(1))$stat
-
-  if (derivatives == "Cn")
-    s0 <- .C(evTestAA,
-             as.double(u[,1]),
-             as.double(u[,2]),
-             as.integer(n),
-             as.double(g),
-             as.integer(m),
-             as.integer(N),
-             s0 = double(N))$s0
-  else
-    s0 <- .C(evTestAA_derA,
-             as.double(u[,1]),
-             as.double(u[,2]),
-             as.integer(n),
-             as.double(g),
-             as.integer(m),
-             as.integer(N),
-             s0 = double(N))$s0
-
-  structure(class = "evTest",
-            list(statistic=s, pvalue=(sum(s0 >= s)+0.5)/(N+1),s0=s0))
-}
-
-
 ### EV test based on K - Ben Ghorbal, Neslehova and Genest (2009)
 ### Canadian Journal of Statistics, volume 37
 ### Code provided by Johanna Neslehova

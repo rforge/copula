@@ -15,20 +15,36 @@
   this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include <R.h>
 #include <Rmath.h>
 #include <R_ext/Applic.h>
-
 #include "copula.h"
 
-/***********************************************************************
+/**
+ * @file   exchtest.c
+ * @author Ivan Kojadinovic
+ * @date   2010
+ *
+ * @brief  Nonparametric tests of exchangeability (or symmetry)
+ *         for bivariate copulas
+ *
+ */
 
-  Testing the symmetry of A using the CFG or Pickands estimators
-  Derivatives based on Cn
-
-***********************************************************************/
-
+/**
+ * Tests the symmetry of the Pickands dependence function A
+ * using the CFG or Pickands estimators
+ * Derivatives based on Cn -- see SJS paper
+ *
+ * @param U unit Fréchet pseudo-obs
+ * @param V unit Fréchet pseudo-obs
+ * @param n sample size
+ * @param t grid
+ * @param m grid size
+ * @param CFG if > 0, use CFG estimator
+ * @param N number of multplier replications
+ * @param s0 contains N multplier replications
+ * @author Ivan Kojadinovic
+ */
 void evsymtest(double *U, double *V, int *n, double *t, int *m,
 	       int *CFG, int *N, double *s0)
 {
@@ -182,13 +198,8 @@ void evsymtest(double *U, double *V, int *n, double *t, int *m,
   Free(Tm);
 }
 
-/***********************************************************************
 
-  Testing the symmetry of A using the CFG or Pickands estimators
-  Derivatives based on An
-
-***********************************************************************/
-
+/// Utility function for evsymtest_derA
 static
 double intgrd(double x, double At, double A1t, double termUt, double termVt,
 	      double termU1t, double termV1t, double powUt, double powVt,
@@ -207,6 +218,7 @@ double intgrd(double x, double At, double A1t, double termUt, double termVt,
   return res;
 }
 
+/// Utility function for evsymtest_derA
 static
 void vec_intgrd(double *x, int n, void *ex)
 {
@@ -219,6 +231,21 @@ void vec_intgrd(double *x, int n, void *ex)
   return;
 }
 
+/**
+ * Tests the symmetry of the Pickands dependence function A
+ * using the CFG or Pickands estimators
+ * Derivatives based on An -- see SJS paper
+ *
+ * @param U unit Fréchet pseudo-obs
+ * @param V unit Fréchet pseudo-obs
+ * @param n sample size
+ * @param t grid
+ * @param m grid size
+ * @param CFG if > 0, use CFG estimator
+ * @param N number of multplier replications
+ * @param s0 contains N multplier replications
+ * @author Ivan Kojadinovic
+ */
 void evsymtest_derA(double *U, double *V, int *n, double *t, int *m,
 		    int *CFG, int *N, double *s0)
 {
@@ -447,12 +474,19 @@ void evsymtest_derA(double *U, double *V, int *n, double *t, int *m,
   Free(work);
 }
 
-/***********************************************************************
-
-  Test statistic for testing the symmetry of A
-
-***********************************************************************/
-
+/**
+ * Test statistic for testing the symmetry of A
+ * Based on the CFG or Pickands estimator
+ *
+ * @param S unit Fréchet pseudo-obs
+ * @param T unit Fréchet pseudo-obs
+ * @param n sample size
+ * @param t grid
+ * @param m grid size
+ * @param CFG if > 0, use CFG estimator
+ * @param stat value of the test statistic
+ * @author Ivan Kojadinovic
+ */
 void evsymtest_stat(double *S, double *T, int *n, double *t, int *m,
 		    int *CFG, double *stat)
 {
@@ -495,12 +529,8 @@ void evsymtest_stat(double *S, double *T, int *n, double *t, int *m,
   *stat = s * (double)(*n) / (double)(*m);
 }
 
-/***********************************************************************
 
- Exchangeability test based on Cn
-
-***********************************************************************/
-
+/// Utility function for the exchangeability test based on Cn
 static
 double Cn(double *U, double *V, int n, double u, double v)
 {
@@ -512,6 +542,7 @@ double Cn(double *U, double *V, int n, double u, double v)
     return res/n;
 }
 
+/// Utility function for the exchangeability test based on Cn
 static
 double der1Cn(double *U, double *V, int n, double u, double v)
 {
@@ -524,6 +555,7 @@ double der1Cn(double *U, double *V, int n, double u, double v)
     / (2.0 * invsqrtn);
 }
 
+/// Utility function for the exchangeability test based on Cn
 static
 double der2Cn(double *U, double *V, int n, double u, double v)
 {
@@ -536,6 +568,20 @@ double der2Cn(double *U, double *V, int n, double u, double v)
     / (2.0 * invsqrtn);
 }
 
+/**
+ * Exchangeability test based on the empirical copula
+ * See the SJS paper
+ *
+ * @param U pseudo-obs
+ * @param V pseudo-obs
+ * @param n sample size
+ * @param u grid
+ * @param v grid
+ * @param m grid size
+ * @param N number of multiplier replications
+ * @param s0 contains N simulated values of the test statistic
+ * @author Ivan Kojadinovic
+ */
 void exchtestCn(double *U, double *V, int *n, double *u, double *v,
 		int *m, int *N, double *s0)
 {
@@ -600,12 +646,19 @@ void exchtestCn(double *U, double *V, int *n, double *u, double *v,
   Free(random);
 }
 
-/***********************************************************************
-
-  Statistic for the test of exchangeability based on Cn
-
-***********************************************************************/
-
+/**
+ * Statistic for the exchangeability test based on the empirical copula
+ * See the SJS paper
+ *
+ * @param U pseudo-obs
+ * @param V pseudo-obs
+ * @param n sample size
+ * @param u grid
+ * @param v grid
+ * @param m grid size
+ * @param s value of the test statistic
+ * @author Ivan Kojadinovic
+ */
 void exchtestCn_stat(double *U, double *V, int *n, double *u, double *v,
 		     int *m, double *stat)
 {

@@ -98,9 +98,16 @@ setMethod("kendallsTau", signature("evCopula"), kendallsTauEvCopula)
 setMethod("spearmansRho", signature("evCopula"), spearmansRhoEvCopula)
 
 
-### Nonparametric estimators of the Pickands dependence function ###############
 
-## Rank-based version of the Pickands and CFG estimator
+##' Nonparametric estimators of the Pickands dependence function
+##'
+##' @title Rank-based version of the Pickands and CFG estimator
+##' @param x data
+##' @param w points were to estimate A
+##' @param estimator
+##' @param corrected
+##' @return values of estimated A at w
+##' @author Ivan Kojadinovic
 Anfun <- function(x, w, estimator = c("CFG", "Pickands"), corrected = TRUE)
 {
     n <- nrow(x)
