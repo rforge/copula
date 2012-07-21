@@ -30,7 +30,7 @@ evTestA(x, N = 1000, derivatives = "An")
 \value{
   Returns a list whose attributes are:
   \item{statistic}{ value of the test statistic. }
-  \item{pvalue}{ corresponding approximate p-value. }
+  \item{p.value}{ corresponding approximate p-value. }
 }
 \references{
   Genest, C. and Segers, J. (2009). Rank-based inference for bivariate

@@ -23,7 +23,7 @@ evTestC(x, N = 1000)
 \value{
   Returns a list whose attributes are:
   \item{statistic}{ value of the test statistic. }
-  \item{pvalue}{ corresponding approximate p-value. }
+  \item{p.value}{ corresponding approximate p-value. }
 }
 \references{
   R\enc{é}{e}millard, B. and Scaillet, O. (2009). Testing for equality

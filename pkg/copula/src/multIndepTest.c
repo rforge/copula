@@ -15,16 +15,6 @@
   this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
-
-/*****************************************************************************
-
-  Independence test among random vectors based on the empirical
-  copula process
-
-  Ivan Kojadinovic, December 2007
-
-*****************************************************************************/
-
 /**
  * @file   multIndepTest.c
  * @author Ivan Kojadinovic

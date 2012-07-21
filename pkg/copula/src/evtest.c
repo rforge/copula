@@ -15,59 +15,39 @@
   this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
-
-/***********************************************************************
-
- Testing whether a copula belongs to the Extreme-Value class
-
-***********************************************************************/
+/**
+ * @file   evtest.c
+ * @author Ivan Kojadinovic
+ * @date   2011
+ *
+ * @brief Tests of extreme-value dependence
+ *
+ *
+ */
 
 #include <R.h>
 #include <Rmath.h>
 #include <R_ext/Applic.h>
-
 #include "copula.h"
+#include "empcop.h"
 
-/***********************************************************************
-
- Empirical copula
-
-***********************************************************************/
-// FIXME: we have the empirical copula in about every *.c file ... -- use *one* !
-// ------ Goal: "export" the one with offset and use as much as possible
-double ec(double *U, int n, int p, double *u,
-	  double o) // offset
-{
-  int i,j;
-  double ind, res = 0.0;
-
-  for (i = 0; i < n; i++)
-    {
-      ind = 1.0;
-      for (j = 0; j < p; j++)
-	ind *= (U[i + n * j] <= u[j]);
-      res += ind;
-    }
-  return res/(n + o);
-}
-
-/***********************************************************************
-
- Derivative of the empirical copula
-
-***********************************************************************/
-
-double derec(double *U, int n, int p, double *u, double *v, double denom)
-{
-  return (ec(U, n, p, u, 0.0) - ec(U, n, p, v, 0.0)) / denom;
-}
-
-/***********************************************************************
-
- Extreme-Value Test
-
-***********************************************************************/
-
+/**
+ * Test of extreme-value dependence based on the empirical copula
+ *
+ * @param U pseudo-observation
+ * @param n sample size
+ * @param p dimension
+ * @param g grid
+ * @param m grid size
+ * @param N number of multiplier replications
+ * @param tg array of powers (related to max-stability)
+ * @param nt number of powers
+ * @param s0 N replicates of the test statistic under the null
+ * @param der2n if > 0, bins of size 2/sqrt(n), otherwise smaller near 0/1
+ * @param o offset
+ * @param stat value of the test statistic
+ * @author Ivan Kojadinovic
+ */
 void evtest(double *U, int *n, int *p, double *g, int *m,
 	    int *N, double *tg,  int *nt, double *s0, int *der2n,
 	    double *o, double *stat)
@@ -104,7 +84,7 @@ void evtest(double *U, int *n, int *p, double *g, int *m,
 	      vt[k] =  ut[k];
 	    }
 
-	  ecterm = R_pow(ec(U, *n, *p, ut, 0.0), (1 - t)/t) / t;
+	  ecterm = R_pow(multCn(U, *n, *p, ut, 1, 0, 0.0), (1 - t)/t) / t;
 
 	  /* derivatives */
 	  for (k = 0; k < *p; k++)
@@ -119,20 +99,20 @@ void evtest(double *U, int *n, int *p, double *g, int *m,
 		    {
 		      tmpu = u[k]; tmpv = v[k];
 		      u[k] = 2.0 * invsqrtn; v[k] = 0.0;
-		      der[k] = derec(U, *n, *p, u, v, denom);
+		      der[k] = der_multCn(U, *n, *p, u, v, denom);
 		      u[k] = tmpu; v[k] = tmpv;
 		    }
 		  else if (u[k] > 1.0 - invsqrtn)
 		    {
 		      tmpu = u[k]; tmpv = v[k];
 		      u[k] = 1.0; v[k] = 1.0 - 2.0 * invsqrtn;
-		      der[k] = derec(U, *n, *p, u, v, denom);
+		      der[k] = der_multCn(U, *n, *p, u, v, denom);
 		      u[k] = tmpu; v[k] = tmpv;
 		    }
 		  else
 		    {
 		      u[k] += invsqrtn; v[k] -= invsqrtn;
-		      der[k] = derec(U, *n, *p, u, v, denom);
+		      der[k] = der_multCn(U, *n, *p, u, v, denom);
 		      u[k] -= invsqrtn; v[k] += invsqrtn;
 		    }
 
@@ -141,20 +121,20 @@ void evtest(double *U, int *n, int *p, double *g, int *m,
 		    {
 		      tmpu = ut[k]; tmpv = vt[k];
 		      ut[k] = 2.0 * invsqrtn; vt[k] = 0.0;
-		      dert[k] = derec(U, *n, *p, ut, vt, denom);
+		      dert[k] = der_multCn(U, *n, *p, ut, vt, denom);
 		      ut[k] = tmpu; vt[k] = tmpv;
 		    }
 		  else if (ut[k] > 1.0 - invsqrtn)
 		    {
 		      tmpu = ut[k]; tmpv = vt[k];
 		      ut[k] = 1.0; vt[k] = 1.0 - 2.0 * invsqrtn;
-		      dert[k] = derec(U, *n, *p, ut, vt, denom);
+		      dert[k] = der_multCn(U, *n, *p, ut, vt, denom);
 		      ut[k] = tmpu; vt[k] = tmpv;
 		    }
 		  else
 		    {
 		      ut[k] += invsqrtn; vt[k] -= invsqrtn;
-		      dert[k] = derec(U, *n, *p, ut, vt, denom);
+		      dert[k] = der_multCn(U, *n, *p, ut, vt, denom);
 		      ut[k] -= invsqrtn; vt[k] += invsqrtn;
 		    }
 		}
@@ -162,12 +142,12 @@ void evtest(double *U, int *n, int *p, double *g, int *m,
 		{
 		  u[k] += invsqrtn; v[k] -= invsqrtn;
 		  denom = MIN(u[k], 1.0) - MAX(v[k], 0.0);
-		  der[k] = derec(U, *n, *p, u, v, denom);
+		  der[k] = der_multCn(U, *n, *p, u, v, denom);
 		  u[k] -= invsqrtn; v[k] += invsqrtn;
 
 		  ut[k] += invsqrtn; vt[k] -= invsqrtn;
 		  denom = MIN(ut[k], 1.0) - MAX(vt[k], 0.0);
-		  dert[k] = derec(U, *n, *p, ut, vt, denom);
+		  dert[k] = der_multCn(U, *n, *p, ut, vt, denom);
 		  ut[k] -= invsqrtn; vt[k] += invsqrtn;
 		}
 	    }
@@ -237,8 +217,8 @@ void evtest(double *U, int *n, int *p, double *g, int *m,
 	      u[k] = g[j + k * (*m)];
 	      ut[k] =  R_pow(u[k], t);
 	    }
-	  ecut = ec(U, *n, *p, ut, *o);
-	  ecu = ec(U, *n, *p, u, *o);
+	  ecut = multCn(U, *n, *p, ut, 1, 0, *o);
+	  ecu = multCn(U, *n, *p, u, 1, 0, *o);
 	  //diff = (R_pow(ecut, 1/t) * (*n + 1 - 1/t) -  ecu * (*n)) / (*n + 0.3);
 	  diff = R_pow(ecut, 1/t) - ecu;
 	  stat[c] += diff * diff;
@@ -256,37 +236,21 @@ void evtest(double *U, int *n, int *p, double *g, int *m,
   Free(dert);
 }
 
-/***********************************************************************
-
- Extreme-Value Test based on An
- Derivatives based on Cn
-
-***********************************************************************/
-
-double ecop(double *U, double *V, int n, double u, double v)
-{
-  int i;
-  double res = 0.0;
-
-  for (i = 0; i < n; i++)
-      res += (U[i] <= u) * (V[i] <= v);
-  return res/n;
-}
-
-double der1ec(double *U, double *V, int n, double u, double v)
-{
-  double invsqrtn = 1.0 / sqrt(n);
-  return (ecop(U, V, n, u + invsqrtn, v) - ecop(U, V, n, u - invsqrtn, v))
-    / (2.0 * invsqrtn);
-}
-
-double der2ec(double *U, double *V, int n, double u, double v)
-{
-  double invsqrtn = 1.0 / sqrt(n);
-  return (ecop(U, V, n, u ,v + invsqrtn) - ecop(U, V, n, u ,v - invsqrtn))
-     / (2.0 * invsqrtn);
-}
-
+/**
+ * Test of extreme-value dependence based on An
+ * Derivatives based on Cn - see JMVA paper
+ *
+ * @param U pseudo-observations
+ * @param V pseudo-observations
+ * @param n sample size
+ * @param u grid
+ * @param v grid
+ * @param m grid size
+ * @param CFG if > 0, then An=CFG, otherwise Pickands
+ * @param N number of multiplier replications
+ * @param s0 N replications of the test statistic
+ * @author Ivan Kojadinovic
+ */
 void evtestA(double *U, double *V, int *n, double *u, double *v,
 	     int *m, int *CFG, int *N, double *s0)
 {
@@ -339,8 +303,8 @@ void evtestA(double *U, double *V, int *n, double *u, double *v,
       pu = loguv / log(u[j]);
       pv = loguv / log(v[j]);
 
-      d1 = der1ec(U, V, *n, u[j], v[j]);
-      d2 = der2ec(U, V, *n, u[j], v[j]);
+      d1 = der1bivCn(U, V, *n, u[j], v[j]);
+      d2 = der2bivCn(U, V, *n, u[j], v[j]);
 
       t = 1.0 / pv;
 
@@ -432,13 +396,7 @@ void evtestA(double *U, double *V, int *n, double *u, double *v,
   Free(Tm);
 }
 
-/***********************************************************************
-
- Extreme-Value Test based on An
- Derivatives based on An
-
-***********************************************************************/
-
+/// Utility function for evtestA_derA
 double intgr(double x, double termUt, double termVt, double powUt, double powVt,
 	     double U, double V, double t, double n)
 {
@@ -451,6 +409,7 @@ double intgr(double x, double termUt, double termVt, double powUt, double powVt,
   return res;
 }
 
+/// Utility function for evtestA_derA
 void vec_intgr(double *x, int n, void *ex)
 {
   int i;
@@ -461,6 +420,21 @@ void vec_intgr(double *x, int n, void *ex)
   return;
 }
 
+/**
+ * Test of extreme-value dependence based on An
+ * Derivatives based on An - see JMVA paper
+ *
+ * @param U pseudo-observations
+ * @param V pseudo-observations
+ * @param n sample size
+ * @param u grid
+ * @param v grid
+ * @param m grid size
+ * @param CFG if > 0, then An=CFG, otherwise Pickands
+ * @param N number of multiplier replications
+ * @param s0 N replications of the test statistic
+ * @author Ivan Kojadinovic
+ */
 void evtestA_derA(double *U, double *V, int *n, double *u, double *v,
 	     int *m, int *CFG, int *N, double *s0)
 {
@@ -567,9 +541,8 @@ void evtestA_derA(double *U, double *V, int *n, double *u, double *v,
       /*d1 = (A - t * dAt) * R_pow(uv, A - 1.0 + t);
 	d2 = (A + (1.0 - t) * dAt) * R_pow(uv, A - t);*/
 
-      /* tmp */
-      d1 = der1ec(U, V, *n, u[j], v[j]);
-      d2 = der2ec(U, V, *n, u[j], v[j]);
+      d1 = der1bivCn(U, V, *n, u[j], v[j]);
+      d2 = der2bivCn(U, V, *n, u[j], v[j]);
 
       for (i = 0; i < *n; i++) /* for each pseudo-obs */
 	{
@@ -654,7 +627,21 @@ void evtestA_derA(double *U, double *V, int *n, double *u, double *v,
  Test statistic
 
 ***********************************************************************/
-
+/**
+ * Test statistic for the test of extreme-value
+ * dependence based on An - see JMVA paper
+ *
+ * @param U pseudo-observations
+ * @param V pseudo-observations
+ * @param n sample size
+ * @param u grid
+ * @param v grid
+ * @param m grid size
+ * @param CFG if > 0, then An=CFG, otherwise Pickands
+ * @param stat value of the test statistic
+ * @param offset offset for the test statistic
+ * @author Ivan Kojadinovic
+ */
 void evtestA_stat(double *U, double *V, int *n, double *u, double *v, int *m,
 		  int *CFG, double *stat, double *offset)
 {
@@ -694,9 +681,9 @@ void evtestA_stat(double *U, double *V, int *n, double *u, double *v, int *m,
 		    - (1.0 - t) * (cA0  - 1.0)
 		    - t * (cA1 - 1.0));
       if (*offset < 0.0)
-	diff = ecop(U, V, *n, u[j], v[j]) - exp(loguv * Aj);
+	diff = bivCn(U, V, *n, u[j], v[j]) - exp(loguv * Aj);
       else
-	diff = ecop(U, V, *n, u[j], v[j]) * (*n) / (*n+1)
+	diff = bivCn(U, V, *n, u[j], v[j]) * (*n) / (*n+1)
 	  + (*offset)/(*n+1) - exp(loguv * Aj);
 
 

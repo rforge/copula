@@ -23,7 +23,7 @@ evTestK(x, method = c("fsample","asymptotic","jackknife"))
 \value{
   Returns a list whose attributes are:
   \item{statistic}{ value of the test statistic. }
-  \item{pvalue}{ corresponding p-value. }
+  \item{p.value}{ corresponding p-value. }
 }
 \references{
   Ghorbal, M. B., Genest, C., and Nešlehová, J. (2009)

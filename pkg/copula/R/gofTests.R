@@ -165,7 +165,7 @@ gofMCLT.KS <- function(cop, x, N, method, M)
     pcop <- pcopula(cop, g)
 
     ## compute the test statistic
-    stat <- .C(cramer_vonMises_2,
+    stat <- .C(cramer_vonMises_grid,
                as.integer(p),
                as.double(u),
                as.integer(n),
@@ -280,7 +280,7 @@ gofMCLT.PL <- function(cop, x, N, M, optim.method, optim.control)
     pcop <- pcopula(cop,g)
 
     ## compute the test statistic
-    stat <- .C(cramer_vonMises_2,
+    stat <- .C(cramer_vonMises_grid,
                as.integer(p),
                as.double(u),
                as.integer(n),

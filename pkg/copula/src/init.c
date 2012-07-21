@@ -56,7 +56,7 @@ static R_NativePrimitiveArgType k_power_set_char_t[4] = {
 
 static R_NativePrimitiveArgType cramer_vonMises_t[5] = {
     INTSXP, INTSXP, REALSXP,  REALSXP, REALSXP };
-static R_NativePrimitiveArgType cramer_vonMises_2_t[7] = {
+static R_NativePrimitiveArgType cramer_vonMises_grid_t[7] = {
     INTSXP, REALSXP, INTSXP, REALSXP, INTSXP, REALSXP, REALSXP };
 static R_NativePrimitiveArgType multiplier_t[8] = {
     INTSXP, REALSXP, INTSXP, REALSXP, INTSXP, REALSXP, INTSXP, REALSXP };
@@ -169,7 +169,7 @@ static const R_CMethodDef CEntries[]  = {
     CDEF(k_power_set_char),
 
     CDEF(cramer_vonMises),
-    CDEF(cramer_vonMises_2),
+    CDEF(cramer_vonMises_grid),
     CDEF(multiplier),
     CDEF(cramer_vonMises_Pickands),
     CDEF(cramer_vonMises_CFG),
