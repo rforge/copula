@@ -121,7 +121,7 @@ gofPB <- function(copula, x, N, method,
                     as.double(u0),
                     as.double(pcopula(fcop0,u0)),
                     stat = double(1))$stat
-        if(verbose) setTxtProgressBar(pb, i) # update progress bar
+        if (verbose) setTxtProgressBar(pb, i) # update progress bar
     }
 
     list(statistic = s,
