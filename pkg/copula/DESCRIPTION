@@ -38,7 +38,7 @@ License: GPL (>= 3)
 Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R
 	derCdfPdf.R amhCopula.R amhExpr.R
         archmCopula.R asymCopula.R asymExplicitCopula.R claytonCopula.R
-        claytonExpr.R ellipCopula.R
+        claytonExpr.R debye.R ellipCopula.R
 	estimation.R evCopula.R evTests.R
         exchTests.R fgmCopula.R fitCopula.R fitMvdc.R frankCopula.R
         frankExpr.R galambosCopula.R galambosExpr-math.R galambosExpr.R
