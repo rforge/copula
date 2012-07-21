@@ -116,7 +116,7 @@ static R_NativePrimitiveArgType exchtestCn_stat_t[] = {REALSXP, REALSXP, INTSXP,
 		     INTSXP, REALSXP};
 
 
-// ./empcopm.test.c ////////////////////////////////////////////////////////////
+// ./multIndepTest.c ////////////////////////////////////////////////////////////
 
 static R_NativePrimitiveArgType bootstrap_MA_I_t[] = {INTSXP, INTSXP, INTSXP, INTSXP, REALSXP, INTSXP,
 	       REALSXP, REALSXP, INTSXP, STRSXP,
@@ -126,7 +126,7 @@ static R_NativePrimitiveArgType empirical_copula_test_rv_t[] = {REALSXP, INTSXP,
 			      REALSXP, REALSXP, REALSXP, REALSXP};
 
 
-// ./empcops.test.c ////////////////////////////////////////////////////////////
+// ./serialIndepTest.c ////////////////////////////////////////////////////////////
 
 static R_NativePrimitiveArgType simulate_empirical_copula_serial_t[] = {INTSXP, INTSXP, INTSXP, INTSXP,
 				      REALSXP, REALSXP, INTSXP,
@@ -138,7 +138,7 @@ static R_NativePrimitiveArgType empirical_copula_test_serial_t[] = {REALSXP, INT
 				  REALSXP, REALSXP};
 
 
-// ./empcopsm.test.c ///////////////////////////////////////////////////////////
+// ./multSerialIndepTest.c ///////////////////////////////////////////////////////////
 
 static R_NativePrimitiveArgType bootstrap_serial_t[] = {INTSXP, INTSXP, INTSXP, INTSXP, REALSXP, INTSXP,
 		      REALSXP, REALSXP, INTSXP, STRSXP,
@@ -148,7 +148,7 @@ static R_NativePrimitiveArgType empirical_copula_test_rv_serial_t[] = {REALSXP, 
 				     REALSXP, REALSXP, REALSXP, REALSXP};
 
 
-// ./empcopu.test.c ////////////////////////////////////////////////////////////
+// ./indepTest.c ////////////////////////////////////////////////////////////
 
 static R_NativePrimitiveArgType simulate_empirical_copula_t[] = {INTSXP, INTSXP, INTSXP, INTSXP, REALSXP,
 			       REALSXP, INTSXP, STRSXP,

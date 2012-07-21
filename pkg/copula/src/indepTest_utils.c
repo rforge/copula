@@ -15,24 +15,20 @@
   this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file   indepTest_utils.c
+ * @author Ivan Kojadinovic
+ * @date   December 2007
+ *
+ * @brief  Multivariate and "vectorial" tests of independence and serial
+ *         independence based on the empirical copula process
+ *
+ */
 
-/*****************************************************************************
+#include "indepTest_utils.h"
 
-  Multivariate serial independence test based on the empirical
-  copula process
 
-  Ivan Kojadinovic, December 2007
-
-*****************************************************************************/
-
-#include "indepTest_stats.h"
-
-/*****************************************************************************
-
-  Arrays K, L
-
-************************************************************************/
-
+/// Temporary array K
 void K_array(int n, int p, const double J[], double *K)
 {
   int m=0, n2 = n * n;
@@ -46,8 +42,7 @@ void K_array(int n, int p, const double J[], double *K)
       }
 }
 
-/************************************************************************/
-
+/// Temporary array L
 void L_array(int n, int p, const double K[], double *L)
 {
   for (int j=0; j < p; j++)
@@ -59,13 +54,17 @@ void L_array(int n, int p, const double K[], double *L)
     }
 }
 
-
-/*****************************************************************************
-
-  Computation of the global Cramer-von Mises statistic.
-
-******************************************************************************/
-
+/**
+ * Computation of the global Cramer-von Mises statistic.
+ *
+ * @param n sample size
+ * @param p dimension
+ * @param J temporary array
+ * @param K temporary array
+ * @param L temporary array
+ * @return the global Cramer-von Mises statistic
+ * @author Ivan Kojadinovic
+ */
 double I_n(int n, int p, double *J, double *K, double *L)
 {
   int i, j, l, n2 = n * n;
@@ -104,13 +103,19 @@ double I_n(int n, int p, double *J, double *K, double *L)
   return In;
 }
 
-/*****************************************************************************
-
-  Computation of the subset Cramer-von Mises statistics.
-  One statistic per subset A of {1,...,p}, |A|>1, A \ni 1.
-
-******************************************************************************/
-
+/**
+ * Computes the Cramer-von Mises statistics for
+ * subset A of {1,...,p}, |A|>1 (A \ni 1?)
+ *
+ * @param n sample size
+ * @param p dimension
+ * @param J temporary array
+ * @param K temporary array
+ * @param L temporary array
+ * @param A the subset A
+ * @return the Cramer-von Mises statistic for subset A
+ * @author Ivan Kojadinovic
+ */
 double M_A_n(int n, int p, double *J, double *K, double *L, int A)
 {
   int i, j ,l, n2 = n * n;
@@ -129,5 +134,3 @@ double M_A_n(int n, int p, double *J, double *K, double *L, int A)
 
   return MAn/(double)n;
 }
-
-/*****************************************************************************/
