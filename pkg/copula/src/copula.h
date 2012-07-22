@@ -47,14 +47,6 @@ void evtestA_derA(double *U, double *V, int *n, double *u, double *v,
 void evtestA_stat(double *U, double *V, int *n, double *u, double *v, int *m,
 		  int *CFG, double *stat, double *offset);
 
-// "_C": nameclash ...
-void evTestAA_C(double *U, double *V, int *n, double *t, int *m,
-		int *N, double *s0);
-void evTestAA_derA(double *U, double *V, int *n, double *t, int *m,
-		   int *N, double *s0);
-void evTestAA_stat(double *S, double *T, int *n, double *t, int *m,
-		   double *stat);
-
 // ./exchtest.c:
 void evsymtest(double *U, double *V, int *n, double *t, int *m,
 	       int *CFG, int *N, double *s0);
