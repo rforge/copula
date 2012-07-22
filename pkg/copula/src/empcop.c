@@ -105,9 +105,9 @@ double der2bivCn(double *U, double *V, int n, double u, double v) {
  */
 double multCn(double *U, int n, int p, double *V, int m, int k, double o) {
     double sumind = 0.;
-    for (int i=0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
 	int ind = 1;
-	for (int j=0; j < p; j++)
+	for (int j = 0; j < p; j++)
 	    ind *= (U[i + n * j] <= V[k + m * j]);
 	sumind += (double)ind;
     }

@@ -23,9 +23,9 @@
 ##' @param estimator Pickands or CFG
 ##' @param derivatives based on "An" or "Cn"
 ##' @param m grid size
-##' @return an object of class 'exchTest'
+##' @return an object of class 'htest'
 ##' @author Ivan Kojadinovic
-exchEVTest <- function(x, N = 1000,  estimator = "CFG", derivatives = "Cn", m = 100)
+exchEVTest <- function(x, N = 1000, estimator = "CFG", derivatives = "Cn", m = 100)
 {
   ## make pseudo-observations
   n <- nrow(x)
@@ -66,7 +66,8 @@ exchEVTest <- function(x, N = 1000,  estimator = "CFG", derivatives = "Cn", m = 
              s0 = double(N))$s0
 
   structure(class = "htest",
-	    list(method = "Test of exchangeability for bivariate extreme-value copulas",
+	    list(method = paste("Test of exchangeability for bivariate extreme-value copulas with argument 'estimator' set to '",
+                 estimator,"', argument 'derivatives' set to '",derivatives,"' and argument 'm' set to ", m, sep=""),
                  statistic = c(statistic = s),
                  p.value = (sum(s0 >= s) + 0.5) / (N + 1),
                  data.name = deparse(substitute(x))))
@@ -79,7 +80,7 @@ exchEVTest <- function(x, N = 1000,  estimator = "CFG", derivatives = "Cn", m = 
 ##' @param x the data
 ##' @param N number of multiplier replications
 ##' @param m grid size; if 0, use pseudo-observations
-##' @return an object of class 'exchTest'
+##' @return an object of class 'htest'
 ##' @author Ivan Kojadinovic
 exchTest <- function(x, N = 1000, m = 0)
 {
@@ -92,12 +93,12 @@ exchTest <- function(x, N = 1000, m = 0)
     {
       xis <- yis <- seq(1/m, 1 - 1/m, len = m)
       g <- as.matrix(expand.grid(xis, yis))
-      m <- m^2
+      ng <- m^2
     }
   else
     {
       g <- u
-      m <- n
+      ng <- n
     }
 
   ## compute the test statistic
@@ -107,7 +108,7 @@ exchTest <- function(x, N = 1000, m = 0)
           as.integer(n),
           as.double(g[,1]),
           as.double(g[,2]),
-          as.integer(m),
+          as.integer(ng),
           stat = double(1))$stat
 
   s0 <- .C(exchtestCn,
@@ -116,12 +117,12 @@ exchTest <- function(x, N = 1000, m = 0)
            as.integer(n),
            as.double(g[,1]),
            as.double(g[,2]),
-           as.integer(m),
+           as.integer(ng),
            as.integer(N),
            s0 = double(N))$s0
 
   structure(class = "htest",
-	    list(method = "Test of exchangeability for bivariate copulas",
+	    list(method = paste("Test of exchangeability for bivariate copulas with argument 'm' set to",m),
                  statistic = c(statistic = s),
                  p.value = (sum(s0 >= s) + 0.5) / (N + 1),
                  data.name = deparse(substitute(x))))

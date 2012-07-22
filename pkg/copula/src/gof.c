@@ -20,7 +20,7 @@
  * @author Ivan Kojadinovic
  * @date   2012
  *
- * @brief  Some goodness-of-fit tests for copulas and EV copulas
+ * @brief  Goodness-of-fit tests for copulas and EV copulas
  *         based on the parametric bootstrap and on a multiplier
  *         bootstrap
  *
@@ -45,11 +45,10 @@
  * @author Ivan Kojadinovic
  */
 void cramer_vonMises(int *n, int *p, double *U, double *Ctheta,
-		     double *stat)
-{
+		     double *stat) {
   double s = 0.;
-  for(int k=0; k < *n; k++) {
-    double diff = multCn(U,*n,*p,U,*n,k,0.0) - Ctheta[k];
+  for(int k = 0; k < *n; k++) {
+    double diff = multCn(U, *n, *p, U, *n, k, 0.0) - Ctheta[k];
     s += diff * diff;
   }
   *stat = s;
@@ -57,7 +56,6 @@ void cramer_vonMises(int *n, int *p, double *U, double *Ctheta,
 
 /**
  * Cramer-von Mises test statistic (grid version)
- * Used mainly for testing -- Not really needed anymore
  *
  * @param p dimension
  * @param U pseudo-observations
@@ -69,11 +67,10 @@ void cramer_vonMises(int *n, int *p, double *U, double *Ctheta,
  * @author Ivan Kojadinovic
  */
 void cramer_vonMises_grid(int *p, double *U, int *n, double *V, int *m,
-			  double *Ctheta, double *stat)
-{
+			  double *Ctheta, double *stat) {
   double s = 0.;
-  for (int k=0; k < *m; k++) {
-    double diff = multCn(U,*n,*p,V,*m,k,0.0) - Ctheta[k];
+  for (int k = 0; k < *m; k++) {
+    double diff = multCn(U, *n, *p, V, *m, k, 0.0) - Ctheta[k];
     s +=  diff * diff;
   }
   *stat = s * (*n) / (*m);
@@ -81,59 +78,58 @@ void cramer_vonMises_grid(int *p, double *U, int *n, double *V, int *m,
 
 /**
  * Multiplier bootstrap for the GoF testing
- * TODO: rewrite so that n is the sample size!
  *
  * @param p dimension
- * @param u0 pseudo-observations (m x p)
- * @param m sample size
- * @param u grid (n x p)
- * @param n grid size
- * @param influ influence matrix (n x m)
+ * @param U pseudo-observations (n x p)
+ * @param n sample size
+ * @param G grid (g x p)
+ * @param g grid size
+ * @param influ influence matrix (g x n)
  * @param N number of multiplie replications
  * @param s0 N replications of the test statistic
  * @author Ivan Kojadinovic
  */
-void multiplier(int *p, double *u0, int *m, double *u, int *n,
+void multiplier(int *p, double *U, int *n, double *G, int *g,
 		double *influ, int *N, double *s0)
 {
   int i, j, k, l, ind;
-  double *influ_mat = Calloc((*m) * (*n), double);
-  double *random = Calloc(*m, double);
+  double *influ_mat = Calloc((*n) * (*g), double);
+  double *random = Calloc(*n, double);
   double *v1 = Calloc(*p, double);
   double *v2 = Calloc(*p, double);
   double *der = Calloc(*p, double);
-  double mean, process, invsqrtm = 1.0/sqrt(*m);
+  double mean, process, invsqrtn = 1.0/sqrt(*n);
 
   /* influence matrix */
-  for (j = 0; j < *n; j++) /* loop over the grid points */
+  for (j = 0; j < *g; j++) /* loop over the grid points */
     {
       /* derivatives wrt args */
       for (k = 0; k < *p; k++)
 	{
-	  v1[k] = u[j + k * (*n)];
+	  v1[k] = G[j + k * (*g)];
 	  v2[k] = v1[k];
 	}
       for (k = 0; k < *p; k++)
 	{
-	  v1[k] += invsqrtm;
-	  v2[k] -= invsqrtm;
-	  der[k] = der_multCn(u0, *m, *p, v1, v2, 2 * invsqrtm);
-	  v1[k] -= invsqrtm;
-	  v2[k] += invsqrtm;
+	  v1[k] += invsqrtn;
+	  v2[k] -= invsqrtn;
+	  der[k] = der_multCn(U, *n, *p, v1, v2, 2 * invsqrtn);
+	  v1[k] -= invsqrtn;
+	  v2[k] += invsqrtn;
 	}
 
-      for (i = 0; i < *m; i++) /* loop over the data */
+      for (i = 0; i < *n; i++) /* loop over the data */
 	{
-	  influ_mat[i + j * (*m)] = 0.0;
+	  influ_mat[i + j * (*n)] = 0.0;
 	  ind = 1;
 	  for (k = 0; k < *p; k++)
 	    {
-	      ind *= (u0[i + k * (*m)] <= u[j + k * (*n)]);
-	      influ_mat[i + j * (*m)] -= der[k] * (u0[i + k * (*m)] <= u[j + k * (*n)]);
+	      ind *= (U[i + k * (*n)] <= G[j + k * (*g)]);
+	      influ_mat[i + j * (*n)] -= der[k] * (U[i + k * (*n)] <= G[j + k * (*g)]);
 	    }
-	  influ_mat[i + j * (*m)] += ind; /* - influ[j + i * (*n)];*/
-	  influ[j + i * (*n)] *= invsqrtm;
-	  influ_mat[i + j * (*m)] *= invsqrtm;
+	  influ_mat[i + j * (*n)] += ind; /* - influ[j + i * (*g)];*/
+	  influ[j + i * (*g)] *= invsqrtn;
+	  influ_mat[i + j * (*n)] *= invsqrtn;
 	}
     }
 
@@ -142,26 +138,26 @@ void multiplier(int *p, double *u0, int *m, double *u, int *n,
   /* generate N approximate realizations */
   for (l=0;l<*N;l++)
     {
-      /* generate m variates */
+      /* generate n variates */
       mean = 0.0;
-      for (i=0;i<*m;i++)
+      for (i=0;i<*n;i++)
 	{
 	  random[i] = norm_rand(); /*(unif_rand() < 0.5) ? -1.0 : 1.0 ;*/
 	  mean += random[i];
 	}
-      mean /= *m;
+      mean /= *n;
 
       /* realization number l */
       s0[l] = 0.0;
-      for (j=0;j<*n;j++)
+      for (j=0;j<*g;j++)
 	{
 	  process = 0.0;
-	  for (i=0;i<*m;i++)
-	    process += (random[i] - mean) * influ_mat[i + j * (*m)]
-	      - random[i] * influ[j + i * (*n)];
+	  for (i=0;i<*n;i++)
+	    process += (random[i] - mean) * influ_mat[i + j * (*n)]
+	      - random[i] * influ[j + i * (*g)];
 	  s0[l] += process * process;
 	}
-      s0[l] /= *n;
+      s0[l] /= *g;
     }
 
   PutRNGstate();

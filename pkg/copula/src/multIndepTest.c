@@ -28,7 +28,7 @@
 #include <R.h>
 #include <Rmath.h>
 #include "set_utils.h"
-#include "indepTest_utils.h"
+#include "indepTests.h"
 
 /// Temporary array J
 void J_m(int n, int p, const int b[], const double U[], const int R[],

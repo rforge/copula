@@ -60,16 +60,16 @@ gofCopula(copula, x, N = 1000, method = "mpl",
   Thus far, the multiplier approach is implemented for six copula
   families: the Clayton, Gumbel, Frank, Plackett, normal and t.
 
-  %Although the processes involved in the multiplier and the parametric
-  %bootstrap-based test are asymptotically equivalent, the finite-sample
-  %behavior of the two tests might differ significantly.
+  Although the processes involved in the multiplier and the parametric
+  bootstrap-based test are asymptotically equivalent, the finite-sample
+  behavior of the two tests might differ significantly.
 }
 \value{
-  An object of \code{\link{class}} \code{"gofCopula"} which is a list
-  with components
+  An object of \code{\link{class}} \code{htest} which is a list,
+  some of the components of which are
   \item{statistic}{ value of the test statistic. }
-  \item{pvalue}{ corresponding approximate p-value. }
-  \item{parameters}{ estimates of the parameters for the hypothesized
+  \item{p.value}{ corresponding approximate p-value. }
+  \item{parameter}{ estimates of the parameters for the hypothesized
     copula family. }
 }
 \references{

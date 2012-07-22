@@ -16,7 +16,7 @@
 */
 
 /**
- * @file   indepTest_utils.h
+ * @file   indepTests.h
  * @author Ivan Kojadinovic
  * @date   December 2007
  *
@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef INDEPTEST_UTILS_H
-#define INDEPTEST_UTILS_H
+#ifndef INDEPTEST_FUNCS_H
+#define INDEPTEST_FUNCS_H
 
 // indepTest_utils.c  --- temporary arrays -------------------------------------
 void K_array(int n, int p, const double J[], double *K);

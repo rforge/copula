@@ -151,7 +151,8 @@ evTestA <- function(x, N = 1000, derivatives = "An")
          s0 = double(N))$s0
 
   structure(class = "htest",
-	    list(method = "Test of bivariate extreme-value dependence based on the CFG estimator",
+	    list(method = paste("Test of bivariate extreme-value dependence based on the CFG estimator with argument 'derivatives' set to '",
+                 derivatives, "'", sep=""),
                  statistic = c(statistic = s),
                  p.value = (sum(s0 >= s)+0.5)/(N+1),
                  data.name = deparse(substitute(x))))
@@ -365,7 +366,8 @@ evTestK <- function(x, method = c("fsample","asymptotic","jackknife"))
   p.value <- pnorm(-abs(Tn))+pnorm(abs(Tn),lower.tail=FALSE)
 
   structure(class = "htest",
-	    list(method = "Test of bivariate extreme-value dependence based on Kendall's process",
+	    list(method = paste("Test of bivariate extreme-value dependence based on Kendall's process with argument 'method' set to '",
+                 method, "'", sep = ""),
                  statistic = c(statistic = Tn),
                  p.value = p.value,
                  data.name = deparse(substitute(x))))

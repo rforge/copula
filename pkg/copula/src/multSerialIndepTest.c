@@ -15,16 +15,6 @@
   this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
-
-/*****************************************************************************
-
-  Multivariate serial independence test based on the empirical
-  copula process
-
-  Ivan Kojadinovic, December 2007
-
-*****************************************************************************/
-
 /**
  * @file   multSerialIndepTest.c
  * @author Ivan Kojadinovic
@@ -39,7 +29,7 @@
 #include <R.h>
 #include <Rmath.h>
 #include "set_utils.h"
-#include "indepTest_utils.h"
+#include "indepTests.h"
 
 /// Temporary array J
 void J_sm(int n, int p, int q, const double U[], const int B[], double *J)

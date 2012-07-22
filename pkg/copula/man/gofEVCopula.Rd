@@ -46,10 +46,11 @@ gofEVCopula(copula, x, N = 1000, method = "mpl",
   More details can be found in the second reference.
 }
 \value{
-  Returns a list whose attributes are:
+  An object of \code{\link{class}} \code{htest} which is a list,
+  some of the components of which are
   \item{statistic}{ value of the test statistic. }
-  \item{pvalue}{ corresponding approximate p-value. }
-  \item{parameters}{ estimates of the parameters for the hypothesized
+  \item{p.value}{ corresponding approximate p-value. }
+  \item{parameter}{ estimates of the parameters for the hypothesized
     copula family. }
 }
 \note{

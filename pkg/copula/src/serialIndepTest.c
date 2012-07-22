@@ -30,7 +30,7 @@
 #include <R.h>
 #include <Rmath.h>
 #include "set_utils.h"
-#include "indepTest_utils.h"
+#include "indepTests.h"
 
 
 /// Temporary array J

@@ -13,20 +13,27 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-
-### Goodness-of-fit test for copulas: wrapper function
-### Calls either gofMCLT.PL, gofMCLT.KS or gofPB
-
-## copula is a copula of the desired family
-
+##' Goodness-of-fit test for copulas: wrapper function
+##' Calls either gofMCLT.PL, gofMCLT.KS or gofPB
+##'
+##' @title Goodness-of-fit test for copulas: wrapper function
+##' @param copula is a copula of the desired family
+##' @param x the data
+##' @param N the number of bootstrap or multiplier replications
+##' @param method estimation method for the unknown parameter
+##' @param simulation parametric bootstrap or multiplier
+##' @param print.every deprecated
+##' @param verbose
+##' @param optim.method for fitting
+##' @param optim.control for fitting
+##' @return an object of class 'htest'
+##' @author Ivan Kojadinovic
 gofCopula <- function(copula, x, N = 1000, method = "mpl",
                       simulation = c("pb", "mult"),
                       ## FIXME  print.every should become deprecated in favor of 'verbose'
                       print.every = 100, verbose = print.every > 0,
                       optim.method = "BFGS", optim.control = list(maxit=20))
 {
-    M <- -1 ## fixed - for gofMCLT.*()
-
     x <- as.matrix(x)
     n <- nrow(x)
     p <- ncol(x)
@@ -46,36 +53,36 @@ gofCopula <- function(copula, x, N = 1000, method = "mpl",
                },
                "mult" = { ## multiplier
                    if (method == "mpl")
-                       gofMCLT.PL(copula, x, N=N, M=M,
+                       gofMCLT.PL(copula, x, N=N,
                                   optim.method=optim.method, optim.control=optim.control)
                    else if (method %in% c("irho","itau")) {
                        if (copula@dimension != 2)
                            stop("The simulation method 'mult' can be used in combination with the estimation methods 'irho' and 'itau' only in the bivariate case.")
-                       gofMCLT.KS(copula, x, N=N, method=method, M=M)
+                       gofMCLT.KS(copula, x, N=N, method=method)
                    }
                    else
                        stop(sprintf("Invalid estimation method '%s'", method))
                },
                ## otherwise:
                stop("Invalid simulation method ", match.arg(simulation)))
-    class(gof) <- "gofCopula"
     gof
 }
 
-print.gofCopula <- function(x, ...)
-{
-  cat("\nParameter estimate(s):", x$parameters, "\n")
-  cat("Cramer-von Mises statistic:", x$statistic,
-      "with p-value", x$pvalue, "\n\n")
-}
-
-
-### Goodness-of-fit test based on the parametric bootstrap
-### as proposed by Genest et al. (2008)
-
-## copula is a copula of the desired family whose parameters, if necessary,
-## will be used as starting values in fitCopula
-
+##' Goodness-of-fit test based on the parametric bootstrap
+##' as proposed by Genest et al. (2008)
+##'
+##' @title Goodness-of-fit test based on the parametric bootstrap
+##' @param copula is a copula of the desired family whose parameters,
+##' if necessary, will be used as starting values in fitCopula
+##' @param x the data
+##' @param N the number of bootstrap replications
+##' @param method estimation method for the unknown parameter
+##' @param print.every deprecated
+##' @param verbose
+##' @param optim.method for fitting
+##' @param optim.control for fitting
+##' @return an object of class 'htest'
+##' @author Ivan Kojadinovic
 gofPB <- function(copula, x, N, method,
                   ## FIXME  print.every should become deprecated in favor of 'verbose'
                   print.every, verbose = print.every > 0,
@@ -101,14 +108,14 @@ gofPB <- function(copula, x, N, method,
 
     ## simulation of the null distribution
     s0 <- numeric(N)
-    if(verbose) {
+    if (verbose) {
 	pb <- txtProgressBar(max = N, style = 3) # setup progress bar
 	on.exit(close(pb)) # and close it on exit
     }
-    if (print.every > 0)
-        cat(paste("Progress will be displayed every", print.every, "iterations.\n"))
+    #if (print.every > 0)
+    #    cat(paste("Progress will be displayed every", print.every, "iterations.\n"))
     for (i in 1:N) {
-        if(print.every > 0 && i %% print.every == 0) cat(paste("Iteration",i,"\n"))
+        #if(print.every > 0 && i %% print.every == 0) cat(paste("Iteration",i,"\n"))
         u0 <- apply(rcopula(fcop,n),2,rank)/(n+1)
 
         ## fit the copula
@@ -121,20 +128,21 @@ gofPB <- function(copula, x, N, method,
                     as.double(u0),
                     as.double(pcopula(fcop0,u0)),
                     stat = double(1))$stat
+
         if (verbose) setTxtProgressBar(pb, i) # update progress bar
     }
 
-    list(statistic = s,
-	 pvalue = (sum(s0 >= s)+0.5)/(N+1),
-	 parameters=fcop@parameters)
+    structure(class = "htest",
+              list(method = paste("Parametric bootstrap based GOF test with argument 'method' set to '",
+                   method, "'", sep = ""),
+                   parameter = c(parameter = fcop@parameters),
+                   statistic = c(statistic = s),
+                   p.value = (sum(s0 >= s)+0.5)/(N+1),
+                   data.name = deparse(substitute(x))))
 }
 
 
-### Goodness-of-fit test based on the multiplier approach
-### and rank correlation coefficients
-
-## additional influence terms ##################################################
-
+### Utility function: additional influence terms
 influ.add <- function(x0, y0, influ1, influ2)
 {
   M <- nrow(y0)
@@ -146,10 +154,20 @@ influ.add <- function(x0, y0, influ1, influ2)
          c(0,cumsum(influ2[o2]))[M + 1 - o2b] / M - mean(influ2 * y0[,2]))
 }
 
-gofMCLT.KS <- function(cop, x, N, method, M)
+##' Goodness-of-fit test based on the multiplier approach
+##' and rank correlation coefficients
+##'
+##' @title Multiplier GOF with rank correlation coefficients
+##' @param cop is a copula of the desired family
+##' @param x the data
+##' @param N number of multiplier replications
+##' @param method fitting method
+##' @return an object of class 'htest'
+##' @author Ivan Kojadinovic
+gofMCLT.KS <- function(cop, x, N, method)
   {
     stopifnot(method %in% c("irho","itau"), is.matrix(x))
-    n <- m <- nrow(x)
+    n <- nrow(x)
     p <- 2
 
     ## make pseudo-observations
@@ -158,55 +176,45 @@ gofMCLT.KS <- function(cop, x, N, method, M)
     ## fit the copula {*not* calling optim() ..}
     cop <- fitCopula(cop, u, method=method, estimate.variance=FALSE)@copula
 
-    ## grid points where to evaluate the process
-    g <- u # pseudo-observations
-    G <- n
-
-    pcop <- pcopula(cop, g)
-
     ## compute the test statistic
-    stat <- .C(cramer_vonMises_grid,
-               as.integer(p),
-               as.double(u),
-               as.integer(n),
-               as.double(g),
-               as.integer(G),
-               as.double(pcop),
-               stat = double(1))$stat
-
-    x0 <-  u # rcopula(cop,m)
+    s <- .C(cramer_vonMises_grid,
+            as.integer(p),
+            as.double(u),
+            as.integer(n),
+            as.double(u),
+            as.integer(n),
+            as.double(pcopula(cop, u)),
+            stat = double(1))$stat
 
     ## prepare influence coefficients
     if (method == "itau") ## kendall's tau
-      influ <- 4 * (2 * pcopula(cop,x0) - x0[,1] - x0[,2] + (1 - kendallsTau(cop))/2) / tauDer(cop)
+        influ <- 4 * (2 * pcopula(cop,u) - u[,1] - u[,2]
+                      + (1 - kendallsTau(cop))/2) / tauDer(cop)
     else if (method == "irho") ## Spearman's rho
-      {
-        ## integrals computed from M realizations by Monte Carlo
-        y0 <- if (M > 0) rcopula(cop,M) else u
-        influ <- (12 * (x0[,1] * x0[,2] + influ.add(x0, y0, y0[,2],y0[,1])) -
+        influ <- (12 * (u[,1] * u[,2] + influ.add(u, u, u[,2],u[,1])) -
                   3 - spearmansRho(cop)) / rhoDer(cop)
-      }
 
-    ## Simulate under H0
+    ## simulate under H0
     s0 <- .C(multiplier,
              as.integer(p),
-             as.double(x0),
-             as.integer(m),
-             as.double(g),
-             as.integer(G),
-             as.double(derCdfWrtParams(cop,g) %*% influ),
+             as.double(u),
+             as.integer(n),
+             as.double(u),
+             as.integer(n),
+             as.double(derCdfWrtParams(cop,u) %*% influ),
              as.integer(N),
              s0 = double(N))$s0
 
-    list(statistic=stat, pvalue=(sum(s0 >= stat)+0.5)/(N+1),
-                parameters=cop@parameters)
+    structure(class = "htest",
+              list(method = paste("Multilplier GOF test with argument 'method' set to '",
+                   method, "'", sep = ""),
+                   parameter = c(parameter = cop@parameters),
+                   statistic = c(statistic = s),
+                   p.value = (sum(s0 >= s)+0.5)/(N+1),
+                   data.name = deparse(substitute(x))))
 }
 
-
-## Multivariate multipler gof based on MPL #####################################
-
-## influence coefficients
-
+### Utility function: Influence coefficients for the multipler gof based on MPL
 influCoef <- function(cop,u,v)
 {
     p <- cop@dimension
@@ -227,13 +235,10 @@ influCoef <- function(cop,u,v)
     e <- crossprod(influ0)
     e <- e/M
 
-    ## MM: FIXME --- *after* we have testing code in ./tests/ !!!
-    return(solve(e) %*% t(derPdfWrtParams(cop,u)/dcopwrap(cop,u) - add.influ(u,v,influ,q)))
+    return(solve(e, t(derPdfWrtParams(cop,u)/dcopwrap(cop,u) - add.influ(u,v,influ,q))))
 }
 
-
-## second part of influence coefficients
-
+### Utility function: Second part of influence coefficients
 add.influ <- function(u, v, influ, q)
 {
   M <- nrow(v)
@@ -256,14 +261,19 @@ add.influ <- function(u, v, influ, q)
   return(out)
 }
 
-## goodness-of-fit test
-
-## cop is a copula of the desired family whose parameters, if necessary, will be used
-## as starting values in fitCopula
-
-gofMCLT.PL <- function(cop, x, N, M, optim.method, optim.control)
+##' Multiplier GOF based on MPL
+##'
+##' @title Multiplier GOF based on MPL
+##' @param cop is a copula of the desired family
+##' @param x the data
+##' @param N number of multiplier replications
+##' @param optim.method for MPL fitting
+##' @param optim.control for MPL fitting
+##' @return an object of class 'htest'
+##' @author Ivan Kojadinovic
+gofMCLT.PL <- function(cop, x, N, optim.method, optim.control)
 {
-    n <- m <- nrow(x)
+    n <- nrow(x)
     p <- ncol(x)
 
     ## make pseudo-observations
@@ -273,38 +283,33 @@ gofMCLT.PL <- function(cop, x, N, M, optim.method, optim.control)
     cop <- fitCopula(cop, u, method="mpl", estimate.variance=FALSE,
                      optim.method=optim.method, optim.control=optim.control)@copula
 
-    ## grid points where to evaluate the process
-    g <- u  ## pseudo-observations
-    G <- n
-
-    pcop <- pcopula(cop,g)
-
     ## compute the test statistic
-    stat <- .C(cramer_vonMises_grid,
-               as.integer(p),
-               as.double(u),
-               as.integer(n),
-               as.double(g),
-               as.integer(G),
-               as.double(pcop),
-               stat = double(1))$stat
+    s <- .C(cramer_vonMises_grid,
+            as.integer(p),
+            as.double(u),
+            as.integer(n),
+            as.double(u),
+            as.integer(n),
+            as.double(pcopula(cop,u)),
+            stat = double(1))$stat
 
-    x0 <- u # rcopula(cop,m)
-
-    v <- if (M > 0) rcopula(cop,M) else u
-
+    ## simulate under H0
     s0 <- .C(multiplier,
              as.integer(p),
-             as.double(x0),
-             as.integer(m),
-             as.double(g),
-             as.integer(G),
-             as.double(derCdfWrtParams(cop,g) %*% influCoef(cop,x0,v)),
+             as.double(u),
+             as.integer(n),
+             as.double(u),
+             as.integer(n),
+             as.double(derCdfWrtParams(cop,u) %*% influCoef(cop,u,u)),
              as.integer(N),
              s0 = double(N))$s0
 
-    return(list(statistic=stat, pvalue=(sum(s0 >= stat)+0.5)/(N+1),
-                parameters=cop@parameters))
+    structure(class = "htest",
+              list(method = "Multilplier GOF test with argument 'method' set to 'mpl'",
+                   parameter = c(parameter = cop@parameters),
+                   statistic = c(statistic = s),
+                   p.value = (sum(s0 >= s)+0.5)/(N+1),
+                   data.name = deparse(substitute(x))))
 }
 
 

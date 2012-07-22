@@ -89,7 +89,6 @@ exportClasses(asymExplicitCopula)
 export(asymExplicitCopula)
 
 S3method(print, indepTest)
-S3method(print, gofCopula)
 
 ## testing
 ## export(derCdfWrtParams, derPdfWrtParams, tauDer, rhoDer)
