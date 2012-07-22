@@ -61,8 +61,8 @@ gofCopula(copula, x, N = 1000, method = "mpl",
   families: the Clayton, Gumbel, Frank, Plackett, normal and t.
 
   Although the processes involved in the multiplier and the parametric
-  bootstrap-based test are asymptotically equivalent, the finite-sample
-  behavior of the two tests might differ significantly.
+  bootstrap-based test are asymptotically equivalent under the null,
+  the finite-sample behavior of the two tests might differ significantly.
 }
 \value{
   An object of \code{\link{class}} \code{htest} which is a list,
