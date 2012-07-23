@@ -17,24 +17,24 @@
 
 /**
  * @file   empcop.h
- * @author Ivan Kojadinovic 
+ * @author Ivan Kojadinovic
  * @date   Sat Jul 21 17:25:20 2012
- * 
- * @brief  Bivariate and multivariate versions of the empirical copula 
- *         and related estimators of the partial derivatives 
- * 
+ *
+ * @brief  Bivariate and multivariate versions of the empirical copula
+ *         and related estimators of the partial derivatives
+ *
  */
 
 #ifndef EMPCOP_H
 #define EMPCOP_H
 
 /// Bivariate versions; used by exchTest and evTestA
-double bivCn(double *U, double *V, int n, double u, double v);
-double der1bivCn(double *U, double *V, int n, double u, double v);
-double der2bivCn(double *U, double *V, int n, double u, double v);
+double bivCn(const double U[], const double V[], int n, double u, double v);
+double der1bivCn(const double U[], const double V[], int n, double u, double v);
+double der2bivCn(const double U[], const double V[], int n, double u, double v);
 
 /// Multivariate versions; used by evTestC and by the multiplier gof tests
-double multCn(double *U, int n, int p, double *V, int m, int k, double o);
-double der_multCn(double *U, int n, int p, double *u, double *v, double denom);
+double multCn(const double U[], int n, int p, const double V[], int m, int k, double o);
+double der_multCn(const double U[], int n, int p, const double u[], const double v[], double denom);
 
 #endif

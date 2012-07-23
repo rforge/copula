@@ -39,7 +39,7 @@
  * @return value of the empirical copula at (u,v)
  * @author Ivan Kojadinovic
  */
-double bivCn(double *U, double *V, int n, double u, double v) {
+double bivCn(const double U[], const double V[], int n, double u, double v) {
   double sumind = 0.0;
   for (int i = 0; i < n; i++)
       sumind += (U[i] <= u) * (V[i] <= v);
@@ -58,7 +58,7 @@ double bivCn(double *U, double *V, int n, double u, double v) {
  * @return value of the empirical derivative at (u,v)
  * @author Ivan Kojadinovic
  */
-double der1bivCn(double *U, double *V, int n, double u, double v) {
+double der1bivCn(const double U[], const double V[], int n, double u, double v) {
   double invsqrtn = 1.0 / sqrt(n);
   if (u < invsqrtn)
     u = invsqrtn;
@@ -80,7 +80,7 @@ double der1bivCn(double *U, double *V, int n, double u, double v) {
  * @return value of the empirical derivative at (u,v)
  * @author Ivan Kojadinovic
  */
-double der2bivCn(double *U, double *V, int n, double u, double v) {
+double der2bivCn(const double U[], const double V[], int n, double u, double v) {
   double invsqrtn = 1.0 / sqrt(n);
   if (v < invsqrtn)
     v = invsqrtn;
@@ -103,8 +103,8 @@ double der2bivCn(double *U, double *V, int n, double u, double v) {
  * @return the value of the empirical copula at V[k + m * j], j=1...p
  * @author Ivan Kojadinovic
  */
-double multCn(double *U, int n, int p, double *V, int m, int k, double o) {
-    double sumind = 0.;
+double multCn(const double U[], int n, int p, const double V[], int m, int k, double o) {
+    double sumind = 0.0;
     for (int i = 0; i < n; i++) {
 	int ind = 1;
 	for (int j = 0; j < p; j++)
@@ -127,6 +127,6 @@ double multCn(double *U, int n, int p, double *V, int m, int k, double o) {
  * @return the value of the empirical derivative
  * @author Ivan Kojadinovic
  */
-double der_multCn(double *U, int n, int p, double *u, double *v, double denom) {
+double der_multCn(const double U[], int n, int p, const double u[], const double v[], double denom) {
   return (multCn(U, n, p, u, 1, 0, 0.0) - multCn(U, n, p, v, 1, 0, 0.0)) / denom;
 }
