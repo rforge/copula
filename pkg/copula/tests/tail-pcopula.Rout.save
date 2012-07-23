@@ -1,5 +1,5 @@
 
-R version 2.15.0 Patched (2012-04-09 r58947) -- "Easter Beagle"
+R version 2.15.1 Patched (2012-07-22 r59950) -- "Roasted Marshmallows"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: x86_64-unknown-linux-gnu (64-bit)
@@ -33,7 +33,6 @@ Type 'q()' to quit R.
 > 
 > require(copula)
 Loading required package: copula
-Loading required package: pspline
 > ## fCopulae: don't do on CRAN, and really "can not" suggest fCopulae
 > tryfCop <- TRUE # for interactive convenience
 > ## when run as BATCH:
@@ -146,7 +145,7 @@ lower upper
 + ,
 +   (tu2 <- numTailIndexUpper(Frank2, 1-1e-6)) < 3e-6
 + ,
-+   all.equal(tu2, numTailIndexLower(Frank2, 1e-6), tol=1e-10)
++   all.equal(tu2, numTailIndexLower(Frank2, 1e-6), tol= 1e-4)
 + )
 > 
 > 
@@ -207,8 +206,8 @@ Parameters:
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ''statistical reasons''
-Time elapsed:  0.824 0.02 0.843 0 0 
+Time elapsed:  0.862 0.062 1.062 0.001 0.005 
 > 
 > proc.time()
    user  system elapsed 
-  0.824   0.020   0.843 
+  0.863   0.067   1.062 
