@@ -40,7 +40,7 @@ indepTestSim <- function(n, p, m=p, N=1000, verbose = TRUE, print.every = NULL)
     if (!is.numeric(N) || as.integer(N) < 100)
         stop("N should be an integer greater than 100")
     if (!is.null(print.every)) {
-        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead")
+        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead.")
         verbose <- print.every > 0
     }
 
@@ -178,7 +178,7 @@ serialIndepTestSim <- function(n, lag.max, m=lag.max+1, N=1000, verbose = TRUE, 
     if (!is.numeric(lag.max) || (p <- as.integer(lag.max) + 1) <= 1 || n-p+1 < 2)
       stop("wrong number of lags")
     if (!is.null(print.every)) {
-        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead")
+        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead.")
         verbose <- print.every > 0
     }
 
@@ -319,7 +319,7 @@ multIndepTest <- function(x, d, m=length(d), N=1000, alpha=0.05,
     if (!is.numeric(alpha) || alpha <= 0 || alpha >= 1)
         stop("the significance level alpha is not properly set")
     if (!is.null(print.every)) {
-        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead")
+        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead.")
         verbose <- print.every > 0
     }
 
@@ -413,7 +413,7 @@ multSerialIndepTest <- function(x, lag.max, m=lag.max+1, N=1000, alpha=0.05,
     if (!is.numeric(alpha) || alpha <= 0 || alpha >= 1)
         stop("the significance level alpha is not properly set")
     if (!is.null(print.every)) {
-        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead")
+        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead.")
         verbose <- print.every > 0
     }
 

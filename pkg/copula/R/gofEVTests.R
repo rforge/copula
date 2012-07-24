@@ -43,7 +43,7 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
       stop("The copula and the data should be of dimension two")
 
     if (!is.null(print.every)) {
-        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead")
+        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead.")
         verbose <- print.every > 0
     }
 
