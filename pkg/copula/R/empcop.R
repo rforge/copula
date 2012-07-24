@@ -21,7 +21,12 @@
 ##' @return the evaluations
 ##' @author Ivan Kojadinovic
 Cn <- function(x,w) {
+
     p <- ncol(x)
+    if (p < 2) stop("The data should be at least of dimension 2")
+    if (ncol(w) != p)
+      stop("The matrices 'x' and 'w' should have the same number of columns")
+
     n <- nrow(x)
     m <- nrow(w)
 

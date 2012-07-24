@@ -1,6 +1,6 @@
 \name{Cn}
 \alias{Cn}
-\title{Computes the empirical copula of a multivariate random sample}
+\title{Computes the empirical copula}
 \description{
   Given a random sample from a distribution with continuous margins and
   copula C, the empirical copula is a natural nonparametric estimator of
@@ -12,8 +12,9 @@ Cn(x, w)
 \arguments{
   \item{x}{ a data matrix whose lines represent a multivariate random
     sample that will be transformed to pseudo-observations. }
-  \item{w}{ a matrix whose lines represent the points where the
-    empirical copula of \code{x} will be evaluated.}
+  \item{w}{ a matrix with the same number of columns as \code{x} whose
+    lines represent the points where the empirical copula of \code{x}
+    will be evaluated.}
 }
 \details{
   There are several asymptotically equivalent definitions of the
