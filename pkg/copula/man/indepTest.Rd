@@ -18,33 +18,34 @@
   be found in the articles cited in the reference section.
 }
 \usage{
-indepTestSim(n, p, m = p, N = 1000, print.every = 100)
+indepTestSim(n, p, m = p, N = 1000, verbose = TRUE, print.every = NULL)
 indepTest(x, d, alpha=0.05)
 dependogram(test, pvalues = FALSE, print = FALSE)
 }
 \arguments{
-  \item{n}{Sample size when simulating the distribution of the test
+  \item{n}{ sample size when simulating the distribution of the test
     statistics under independence.}
-  \item{p}{Dimension of the data when simulating the distribution of the test
+  \item{p}{ dimension of the data when simulating the distribution of the test
     statistics under independence.}
-  \item{m}{Maximum cardinality of the subsets of variables for which a
+  \item{m}{ maximum cardinality of the subsets of variables for which a
     test statistic is to be computed. It makes sense to consider \code{m
 << p} especially when \code{p} is large.}
-  \item{N}{Number of repetitions when simulating under independence.}
-  \item{print.every}{Progress is printed every \code{"print.every"}
-    iterations. No progress is printed if it is nonpositive.}
-  \item{x}{Data frame or data matrix containing realizations (one per
+  \item{N}{ number of repetitions when simulating under independence.}
+  \item{print.every}{ is deprecated in favor of \code{verbose}.}
+  \item{verbose}{ a logical specifying if progress
+    should be displayed via \code{\link[utils]{txtProgressBar}}.}
+  \item{x}{ data frame or data matrix containing realizations (one per
     line) of the random vector whose independence is to be tested.}
-  \item{d}{Object of class \code{"indepTestDist"} as returned by
+  \item{d}{ object of class \code{"indepTestDist"} as returned by
   the function \code{"indepTestSim"}. It can be regarded as the
   empirical distribution of the test statistics under independence.}
-  \item{alpha}{Significance level used in the computation of the
+  \item{alpha}{ significance level used in the computation of the
     critical values for the test statistics.}
-  \item{test}{Object of class \code{"indepTest"} as return by the
+  \item{test}{ object of class \code{"indepTest"} as return by the
     function \code{indepTest}.}
-  \item{pvalues}{Logical indicating whether the dependogram should be
+  \item{pvalues}{ logical indicating whether the dependogram should be
     drew from test statistics or the corresponding p-values.}
-  \item{print}{Logical indicating whether details should be printed.}
+  \item{print}{ logical indicating whether details should be printed.}
 }
 \details{See the references below for more details, especially the third
   one.

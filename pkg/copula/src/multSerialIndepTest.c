@@ -63,12 +63,12 @@ void J_sm(int n, int p, int q, const double U[], const int B[], double *J)
  * @param subset subsets of {1,...,p} in binary notation (int) whose card. is
  *               between 2 and m in "natural" order and that contain 1
  * @param subset_char similar, for printing
- * @param pe print every 'pe'
+ * @param verbose display progress bar if > 0
  * @author Ivan Kojadinovic
  */
 void bootstrap_serial(int *n, int *N, int *p, int *q, double *U, int *m,
 		      double *MA0, double *I0, int *subset, char **subset_char,
-		      int *pe)
+		      int *verbose)
 {
   int i, k, np = *n + *p - 1, p1[1], m1[1], sb[1];
   int *B = Calloc(np, int);
@@ -100,9 +100,6 @@ void bootstrap_serial(int *n, int *N, int *p, int *q, double *U, int *m,
   /* N repetitions */
   for (k=0;k<*N;k++) {
 
-    if ((*pe > 0) && ((k+1) % (*pe) == 0))
-      Rprintf("Simulation iteration %d\n",k+1);
-
     /* identity row selection */
     for (i=0;i<np;i++)
       B[i] = i;
@@ -128,6 +125,9 @@ void bootstrap_serial(int *n, int *N, int *p, int *q, double *U, int *m,
 
     /* global statistic */
     I0[k] = I_n(*n, *p, J, K, L);
+
+    if (*verbose)
+      progressBar(k, *N, 70);
   }
   PutRNGstate();
 

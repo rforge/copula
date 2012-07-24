@@ -28,7 +28,7 @@
 #ifndef INDEPTESTS_H
 #define INDEPTESTS_H
 
-// indepTest_stats.c  --- temporary arrays -------------------------------------
+// indepTest_utils.c  --- temporary arrays -------------------------------------
 void K_array(int n, int p, const double J[], double *K);
 void L_array(int n, int p, const double K[], double *L);
 
@@ -42,11 +42,13 @@ void J_s (int n, int p,                const double U[],                double *
 void J_sm(int n, int p, int q, const double U[], const int B[], double *J);
 void J_u (int n, int p,        const double R[],                double *J);
 
+// utility function: text progress bar 
+void progressBar(int k, int N, int w);
 
 // multIndepTest.c  --- Independence test among random vectors ------------------
 void bootstrap_MA_I(int *n, int *N, int *p, int *b, double *U, int *m,
 		    double *MA0, double *I0, int *subset, char **subset_char,
-		    int *pe);
+		    int *verbose);
 void empirical_copula_test_rv(double *U, int *n, int *p, int *b, int *m, double *MA0,
 			      double *I0, int *N, int *subset, double *MA, double *I,
 			      double *pval, double *fisher, double *tippett, double *Ipval);
@@ -55,7 +57,7 @@ void empirical_copula_test_rv(double *U, int *n, int *p, int *b, int *m, double 
 void simulate_empirical_copula_serial(int *n, int *N, int *p, int *m,
 				      double *TA0, double *G0, int *subset,
 				      char **subset_char, double *fisher0,
-				      double *tippett0, int *pe);
+				      double *tippett0, int *verbose);
 void empirical_copula_test_serial(double *U, int *n, int *p, int *m, double *TA0, double *G0,
 				  int *N, int *subset, double *TA, double *G, double *pval,
 				  double *fisher, double *tippett, double *globpval,
@@ -65,7 +67,7 @@ void empirical_copula_test_serial(double *U, int *n, int *p, int *m, double *TA0
 // multSerialIndepTest.c  --- Multivariate serial independence test ------------------------
 void bootstrap_serial(int *n, int *N, int *p, int *q, double *U, int *m,
 		      double *MA0, double *I0, int *subset, char **subset_char,
-		      int *pe);
+		      int *verbose);
 void empirical_copula_test_rv_serial(double *U, int *n, int *p, int *q, int *m, double *MA0,
 				     double *I0, int *N, int *subset, double *MA, double *I,
 				     double *pval, double *fisher, double *tippett, double *Ipval);
@@ -73,7 +75,7 @@ void empirical_copula_test_rv_serial(double *U, int *n, int *p, int *q, int *m, 
 // ecIndepTest.c  --- Multivariate independence test of Genest and Remillard (2004) ------------
 void simulate_empirical_copula(int *n, int *N, int *p, int *m, double *TA0,
 			       double *G0, int *subset, char **subset_char,
-			       double *fisher0, double *tippett0, int *pe);
+			       double *fisher0, double *tippett0, int *verbose);
 void empirical_copula_test(double *R, int *n, int *p, int *m, double *TA0, double *G0,
 			   int *N, int *subset, double *TA, double *G, double *pval,
 			   double *fisher, double *tippett, double *globpval,

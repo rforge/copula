@@ -58,13 +58,13 @@ void J_s(int n, int p, const double U[], double *J)
  * @param subset_char similar, for printing
  * @param fisher0 p-values à la Fisher
  * @param tippett0 p-values à la Tippett
- * @param pe print every
+ * @param verbose display progress bar if > 0
  * @author Ivan Kojadinovic
  */
 void simulate_empirical_copula_serial(int *n, int *N, int *p, int *m,
 				      double *TA0, double *G0, int *subset,
 				      char **subset_char, double *fisher0,
-				      double *tippett0, int *pe)
+				      double *tippett0, int *verbose)
 {
   int i, j, k, np = *n + *p - 1, p1[1], m1[1], sb[1], count, index;
   double *U = Calloc(np, double);
@@ -94,9 +94,6 @@ void simulate_empirical_copula_serial(int *n, int *N, int *p, int *m,
   /* N repetitions */
   for (k=0;k<*N;k++) {
 
-    if ((*pe > 0) && ((k+1) % (*pe) == 0))
-	Rprintf("Simulation iteration %d\n",k+1);
-
     /* generate data */
     for (i=0;i<np;i++)
       U[i] = (i+1)/(double)np;
@@ -122,6 +119,9 @@ void simulate_empirical_copula_serial(int *n, int *N, int *p, int *m,
 
     /* global stat under independence*/
     G0[k] = I_n(*n, *p, J, K, L);
+
+    if (*verbose)
+      progressBar(k, *N, 70);
   }
 
   PutRNGstate();

@@ -12,21 +12,22 @@
 }
 \usage{
 multSerialIndepTest(x, lag.max, m=lag.max+1, N=1000, alpha=0.05,
-                    print.every = 100)
+                    verbose = TRUE, print.every = NULL)
 }
 \arguments{
-  \item{x}{Data frame or data matrix containing realizations the
+  \item{x}{ data frame or data matrix containing realizations the
     multivaraite continuous time series whose serial independence is to
  be tested.}
-  \item{lag.max}{Maximum lag.}
-  \item{m}{Maximum cardinality of the subsets of 'lags' for
+  \item{lag.max}{ maximum lag.}
+  \item{m}{ maximum cardinality of the subsets of 'lags' for
     which a test statistic is to be computed. It makes sense to consider
     \code{m << lag.max+1} especially when \code{lag.max} is large.}
-  \item{N}{Number of bootstrap/permutation samples.}
-  \item{alpha}{Significance level used in the computation of the
+  \item{N}{ number of bootstrap/permutation samples.}
+  \item{alpha}{ significance level used in the computation of the
     critical values for the test statistics.}
-  \item{print.every}{Progress is printed every \code{"print.every"}
-    iterations. No progress is printed if it is nonpositive.}
+  \item{print.every}{ is deprecated in favor of \code{verbose}.}
+  \item{verbose}{ a logical specifying if progress
+    should be displayed via \code{\link[utils]{txtProgressBar}}.}
 }
 \details{See the references below for more details, especially the last
   one.

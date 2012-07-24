@@ -11,22 +11,24 @@
   test statistics are not distribution-free.
 }
 \usage{
-multIndepTest(x, d, m=length(d), N=1000, alpha=0.05, print.every = 100)
+multIndepTest(x, d, m=length(d), N=1000, alpha=0.05, verbose = TRUE,
+              print.every = NULL)
 }
 \arguments{
-  \item{x}{data frame (\code{\link{data.frame}}) or  matrix containing
+  \item{x}{ data frame (\code{\link{data.frame}}) or  matrix containing
     realizations (one per line) of the random vectors whose independence
     is to be tested.}
-  \item{d}{Dimensions of the random vectors whose realizations are given
+  \item{d}{ dimensions of the random vectors whose realizations are given
     in \code{x}.  It is required that \code{sum(d) == ncol(x)}.}
-  \item{m}{Maximum cardinality of the subsets of random vectors for
+  \item{m}{ maximum cardinality of the subsets of random vectors for
     which a test statistic is to be computed. It makes sense to consider
     \code{m << p} especially when \code{p} is large.}
-  \item{N}{number of bootstrap/permutation samples.}
-  \item{alpha}{significance level used in the computation of the
+  \item{N}{ number of bootstrap/permutation samples.}
+  \item{alpha}{ significance level used in the computation of the
     critical values for the test statistics.}
-  \item{print.every}{progress is printed every \code{"print.every"}
-    iterations.  No progress is printed if it is nonpositive.}
+  \item{print.every}{ is deprecated in favor of \code{verbose}.}
+  \item{verbose}{ a logical specifying if progress
+    should be displayed via \code{\link[utils]{txtProgressBar}}.}
 }
 \details{
   See the references below for more details, especially the last one.

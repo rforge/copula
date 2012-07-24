@@ -62,12 +62,12 @@ void J_m(int n, int p, const int b[], const double U[], const int R[],
  * @param subset subsets of {1,...,p} in binary notation (int) whose card. is
  *        between 2 and m in "natural" order
  * @param subset_char similar, for printing
- * @param pe print every 'p.e'
+ * @param verbose display progress bar if > 0
  * @author Ivan Kojadinovic
  */
 void bootstrap_MA_I(int *n, int *N, int *p, int *b, double *U, int *m,
-	       double *MA0, double *I0, int *subset, char **subset_char,
-	       int *pe)
+		    double *MA0, double *I0, int *subset, char **subset_char,
+		    int *verbose)
 {
   int i, j, k, sb[1];
   int *R = Calloc((*n) * (*p), int);
@@ -89,10 +89,6 @@ void bootstrap_MA_I(int *n, int *N, int *p, int *b, double *U, int *m,
 
   /* N repetitions */
   for (k=0; k<*N; k++) {
-
-    if ((*pe > 0) && ((k+1) % (*pe) == 0))
-      Rprintf("Simulation iteration %d\n",k+1);
-
     /* generate row selection within the blocks */
     /* for (j=0;j<*p;j++)
       for (i=0;i<*n;i++)
@@ -124,6 +120,9 @@ void bootstrap_MA_I(int *n, int *N, int *p, int *b, double *U, int *m,
       MA0[k + (*N) * (i - *p - 1)] =  M_A_n(*n, *p, J, K, L, subset[i]);
     /* global statistic */
     I0[k] = I_n(*n, *p, J, K, L);
+    
+    if (*verbose)
+      progressBar(k, *N, 70);
   }
   PutRNGstate();
 

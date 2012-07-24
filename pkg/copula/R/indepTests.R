@@ -13,7 +13,6 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-
 ##' Computes the sum of binomial coefficients
 binom.sum <- function(n,k) sum(choose(n, 0:k))
 
@@ -26,10 +25,11 @@ binom.sum <- function(n,k) sum(choose(n, 0:k))
 ##' @param p dimension
 ##' @param m up to subsets of cardinality m
 ##' @param N number of simulations
-##' @param print.every print a message every 'print.every'
+##' @param verbose display progress bar if TRUE
+##' @param print.every is deprecated
 ##' @return an object of class 'indepTestDist'
 ##' @author Ivan Kojadinovic
-indepTestSim <- function(n,p,m=p,N=1000,print.every=100)
+indepTestSim <- function(n, p, m=p, N=1000, verbose = TRUE, print.every = NULL)
 {
     if (!is.numeric(n) || (n <- as.integer(n)) < 2)
         stop("n should be an integer greater than 2")
@@ -39,6 +39,10 @@ indepTestSim <- function(n,p,m=p,N=1000,print.every=100)
         stop(paste("m should be an integer greater than 2 and smaller than",p))
     if (!is.numeric(N) || as.integer(N) < 100)
         stop("N should be an integer greater than 100")
+    if (!is.null(print.every)) {
+        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead")
+        verbose <- print.every > 0
+    }
 
     sb <- binom.sum(p,m)
 
@@ -53,7 +57,7 @@ indepTestSim <- function(n,p,m=p,N=1000,print.every=100)
              subsets.char = character(sb),
              fisher0 = double(N),
              tippett0 = double(N),
-             as.integer(print.every))
+             as.integer(verbose))
 
     structure(class = "indepTestDist",
               list(sample.size = n,
@@ -152,10 +156,11 @@ indepTest <- function(x, d, alpha=0.05)
 ##' @param lag.max maximum lag
 ##' @param m subsets of cardinality up to m
 ##' @param N number of simulations
-##' @param print.every print every 'print.every'
+##' @param verbose display progress bar if TRUE
+##' @param print.every is deprecated
 ##' @return an object of class 'serialIndepTestDist'
 ##' @author Ivan Kojadinovic
-serialIndepTestSim <- function(n,lag.max,m=lag.max+1,N=1000,print.every=100)
+serialIndepTestSim <- function(n, lag.max, m=lag.max+1, N=1000, verbose = TRUE, print.every = NULL)
 {
     if (!is.numeric(n) || (n <- as.integer(n)) < 2)
         stop("n should be an integer greater than 2")
@@ -166,13 +171,17 @@ serialIndepTestSim <- function(n,lag.max,m=lag.max+1,N=1000,print.every=100)
 
     if (n-p+1 < 2)
       stop("wrong number of lags with respect to the sample size")
-
     if (!is.numeric(m) || (m <- as.integer(m)) < 2 || m > p)
         stop(paste("m should be an integer greater than 2 and smaller than",p))
     if (!is.numeric(N) || (N <- as.integer(N)) < 100)
         stop("N should be an integer greater than 100")
     if (!is.numeric(lag.max) || (p <- as.integer(lag.max) + 1) <= 1 || n-p+1 < 2)
       stop("wrong number of lags")
+    if (!is.null(print.every)) {
+        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead")
+        verbose <- print.every > 0
+    }
+
 
     sb <- binom.sum(p-1,m-1)
 
@@ -187,7 +196,7 @@ serialIndepTestSim <- function(n,lag.max,m=lag.max+1,N=1000,print.every=100)
              subsets.char = character(sb),
              fisher0 = double(N),
              tippett0 = double(N),
-             as.integer(print.every))
+             as.integer(verbose))
 
     structure(class = "serialIndepTestDist",
 	      list(sample.size = n,
@@ -240,7 +249,7 @@ serialIndepTest <- function(x, d, alpha=0.05)
     sb <- binom.sum(p-1,m-1)
 
     ## perform test
-    R <- .C(empirical_copula_test_serial,
+    r. <- .C(empirical_copula_test_serial,
             as.double(x),
             as.integer(n),
             as.integer(p),
@@ -271,9 +280,9 @@ serialIndepTest <- function(x, d, alpha=0.05)
     }
 
     structure(class = "indepTest",
-	      list(subsets=d$subsets,statistics=R $TA, critical.values=critical,
-		   pvalues = R $pval, fisher.pvalue=R $fisher, tippett.pvalue=R $tippett, alpha=alpha,
-		   beta=beta, global.statistic=R $G, global.statistic.pvalue=R $globpval))
+	      list(subsets=d$subsets,statistics=r.$TA, critical.values=critical,
+		   pvalues = r.$pval, fisher.pvalue=r.$fisher, tippett.pvalue=r.$tippett, alpha=alpha,
+		   beta=beta, global.statistic=r.$G, global.statistic.pvalue=r.$globpval))
 }
 
 ##' Independence test among random vectors based on the empirical
@@ -285,11 +294,12 @@ serialIndepTest <- function(x, d, alpha=0.05)
 ##' @param m consider subsets up to cardinality m
 ##' @param N number of bootstrap replicates
 ##' @param alpha asymptotic nominal level
-##' @param print.every print every 'print.every'
+##' @param verbose display progress bar if TRUE
+##' @param print.every is deprecated
 ##' @return an object of class 'indepTest'
 ##' @author Ivan Kojadinovic
 multIndepTest <- function(x, d, m=length(d), N=1000, alpha=0.05,
-                          print.every=100)
+                          verbose = TRUE, print.every = NULL)
 {
     if (!is.numeric(x <- as.matrix(x)))
         stop("data should be numerical")
@@ -308,10 +318,13 @@ multIndepTest <- function(x, d, m=length(d), N=1000, alpha=0.05,
         stop("N should be an integer greater than 100")
     if (!is.numeric(alpha) || alpha <= 0 || alpha >= 1)
         stop("the significance level alpha is not properly set")
+    if (!is.null(print.every)) {
+        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead")
+        verbose <- print.every > 0
+    }
 
     ## transform data to pseudo-observations
     x <- apply(x,2,rank)/n
-
 
     sb <- binom.sum(p,m)
 
@@ -330,14 +343,14 @@ multIndepTest <- function(x, d, m=length(d), N=1000, alpha=0.05,
                     I0 = double(N),
                     subsets = integer(sb),
                     subsets.char = character(sb),
-                    as.integer(print.every))
+                    as.integer(verbose))
 
     subsets <- bootstrap$subsets.char[(p+2):sb]
     subsets.binary <- bootstrap$subsets[(p+2):sb]
     dist.statistics.independence <- matrix(bootstrap$MA0,N,sb-p-1)
 
     ## perform test
-    R <- .C(empirical_copula_test_rv,
+    r. <- .C(empirical_copula_test_rv,
              as.double(x),
              as.integer(n),
              as.integer(p),
@@ -353,7 +366,7 @@ multIndepTest <- function(x, d, m=length(d), N=1000, alpha=0.05,
              fisher = double(1),
              tippett = double(1),
              Ipval = double(1)
-	     )## FIXME: additional argument  as.integer(print.every)
+	     )
 
     ## compute critical values at the alpha level
     beta <- (1 - alpha)^(1 / (sb - p - 1))
@@ -363,10 +376,10 @@ multIndepTest <- function(x, d, m=length(d), N=1000, alpha=0.05,
       critical[k] <- sort(dist.statistics.independence[,k])[round(beta * N)]
 
      structure(class = "indepTest",
-	       list(subsets=subsets,statistics=R $MA, critical.values=critical,
-		    pvalues = R $pval, fisher.pvalue=R $fisher, tippett.pvalue=R $tippett,
+	       list(subsets=subsets,statistics=r.$MA, critical.values=critical,
+		    pvalues = r.$pval, fisher.pvalue=r.$fisher, tippett.pvalue=r.$tippett,
 		    alpha=alpha, beta=beta,
-		    global.statistic=R $I, global.statistic.pvalue=R $Ipval))
+		    global.statistic=r.$I, global.statistic.pvalue=r.$Ipval))
 }
 
 ##' Multivariate serial independence test based on the empirical
@@ -378,11 +391,12 @@ multIndepTest <- function(x, d, m=length(d), N=1000, alpha=0.05,
 ##' @param m consider subsets of cardinality up to m
 ##' @param N number of permutations
 ##' @param alpha asymptotic level of the test
-##' @param print.every print every 'print.every'
+##' @param verbose display progress bar if TRUE
+##' @param print.every is deprecated
 ##' @return an object of class 'indepTest'
 ##' @author Ivan Kojadinovic
 multSerialIndepTest <- function(x, lag.max, m=lag.max+1, N=1000, alpha=0.05,
-                                print.every=100)
+                                verbose = TRUE, print.every = NULL)
 {
     if (!is.numeric(x <- as.matrix(x)))
         stop("data should be numerical")
@@ -398,6 +412,10 @@ multSerialIndepTest <- function(x, lag.max, m=lag.max+1, N=1000, alpha=0.05,
         stop("N should be an integer greater than 100")
     if (!is.numeric(alpha) || alpha <= 0 || alpha >= 1)
         stop("the significance level alpha is not properly set")
+    if (!is.null(print.every)) {
+        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead")
+        verbose <- print.every > 0
+    }
 
     q <- ncol(x)
 
@@ -420,14 +438,14 @@ multSerialIndepTest <- function(x, lag.max, m=lag.max+1, N=1000, alpha=0.05,
                     I0 = double(N),
                     subsets = integer(sb),
                     subsets.char = character(sb),
-                    as.integer(print.every))
+                    as.integer(verbose))
 
     subsets <- bootstrap$subsets.char[2:sb]
     subsets.binary <- bootstrap$subsets[2:sb]
     dist.statistics.independence <- matrix(bootstrap$MA0,N,sb-1)
 
     ## perform test
-    R <- .C(empirical_copula_test_rv_serial,
+    r. <- .C(empirical_copula_test_rv_serial,
              as.double(x),
              as.integer(n),
              as.integer(p),
@@ -457,9 +475,9 @@ multSerialIndepTest <- function(x, lag.max, m=lag.max+1, N=1000, alpha=0.05,
     }
 
     structure(class = "indepTest",
-	      list(subsets=subsets,statistics=R $MA, critical.values=critical,
-		   pvalues = R $pval, fisher.pvalue=R $fisher, tippett.pvalue=R $tippett, alpha=alpha,
-		   beta=beta, global.statistic=R $I, global.statistic.pvalue=R $Ipval))
+	      list(subsets=subsets,statistics=r.$MA, critical.values=critical,
+		   pvalues = r.$pval, fisher.pvalue=r.$fisher, tippett.pvalue=r.$tippett, alpha=alpha,
+		   beta=beta, global.statistic=r.$I, global.statistic.pvalue=r.$Ipval))
 }
 
 ##' Displays a 'dependogram' from an object of class 'indepTest'
