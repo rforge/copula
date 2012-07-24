@@ -125,12 +125,13 @@ kendallsTauAmhCopula <- function(copula) {
   (3 * alpha - 2) / 3 / alpha - 2 / 3 * (1 - 1/alpha)^2 * log(1 - alpha)
 }
 
-## spearmansRhoAmhCopula <- function(copula, ...) {
-##   alpha <- copula@parameters[1]
-##   ## Nelsen (2006, p.172); need dilog function
-##   ## range of rho: 33 - 48 log 2, 4 pi^2 - 39] ~= [-0.2711, 0.4784]
-##   12 * (1 + alpha) / alpha^2 * dilog(1 - alpha) - 24 * (1 - alpha) / alpha^2 * log(1 - alpha) - 3 * (alpha + 12) / alpha
-## }
+spearmansRhoAmhCopula <- function(copula) {
+  alpha <- copula@parameters[1]
+  ## Nelsen (2006, p.172); need dilog function, where his dilog(x) = Li_2(1-x) = polylog(1-x, 2)
+  ## range of rho: 33 - 48 log 2, 4 pi^2 - 39] ~= [-0.2711, 0.4784]
+  12 * (1 + alpha) / alpha^2 * polylog(alpha,2) - 24 * (1 - alpha) / alpha^2 * log1p(- alpha) -
+      3 * (alpha + 12) / alpha
+}
 
 setMethod("rcopula", signature("amhCopula"), ramhCopula)
 setMethod("pcopula", signature("amhCopula"),
@@ -154,8 +155,8 @@ setMethod("genFunDer1", signature("amhCopula"), genFunDer1Amh)
 setMethod("genFunDer2", signature("amhCopula"), genFunDer2Amh)
 
 setMethod("kendallsTau", signature("amhCopula"), kendallsTauAmhCopula)
-## setMethod("spearmansRho", signature("amhCopula"), spearmansRhoAmhCopula)
-## setMethod("tailIndex", signature("amhCopula"), tailIndexAmhCopula)
+setMethod("spearmansRho", signature("amhCopula"), spearmansRhoAmhCopula)
+setMethod("tailIndex", signature("amhCopula"), function(copula) c(lower=0, upper=0))
 
 setMethod("calibKendallsTau", signature("amhCopula"), calibKendallsTauCopula)
 
