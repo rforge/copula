@@ -146,6 +146,9 @@ setClass("frankCopula", contains = "archmCopula")
 ## amh copula
 setClass("amhCopula", contains = "archmCopula")
 
+## Joe copula
+setClass("joeCopula", contains = "archmCopula")
+
 ## methods for archmCopulas
 setGeneric("genFun", function(copula, u) standardGeneric("genFun"))
 setGeneric("genInv", function(copula, s) standardGeneric("genInv"))
