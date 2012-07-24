@@ -1,5 +1,6 @@
 \name{generator}
-% \docType{methods}
+\docType{methods}
+%----------------------Archimedean Copulas------------------
 % genFun
 \alias{genFun}
 \alias{genFun-methods}
@@ -7,6 +8,7 @@
 \alias{genFun,frankCopula-method}
 \alias{genFun,gumbelCopula-method}
 \alias{genFun,amhCopula-method}
+\alias{genFun,joeCopula-method}
 % genInv
 \alias{genInv}
 \alias{genInv-methods}
@@ -14,6 +16,7 @@
 \alias{genInv,frankCopula-method}
 \alias{genInv,gumbelCopula-method}
 \alias{genInv,amhCopula-method}
+\alias{genInv,joeCopula-method}
 % genFunDer1
 \alias{genFunDer1}
 \alias{genFunDer1-methods}
@@ -21,6 +24,7 @@
 \alias{genFunDer1,frankCopula-method}
 \alias{genFunDer1,gumbelCopula-method}
 \alias{genFunDer1,amhCopula-method}
+\alias{genFunDer1,joeCopula-method}
 % genFunDer2
 \alias{genFunDer2}
 \alias{genFunDer2-methods}
@@ -28,6 +32,8 @@
 \alias{genFunDer2,frankCopula-method}
 \alias{genFunDer2,gumbelCopula-method}
 \alias{genFunDer2,amhCopula-method}
+\alias{genFunDer2,joeCopula-method}
+%----------------------Extreme Value Copulas------------------
 % Afun
 \alias{Afun}
 \alias{Afun-methods}
@@ -49,8 +55,8 @@
 % main
 \title{Generator functions for Archimedean and extreme value copulas}
 \description{
- Methods to evaluate the generator function, the inverse generator
- function, and derivatives of the generator function.
+  Methods to evaluate the generator function, the inverse generator
+  function, and derivatives of the generator function.
 }
 \usage{
 genFun(copula, u)
@@ -66,16 +72,20 @@ AfunDer(copula, w)
     evaluated. }
 }
 \details{
-  \code{"genFun"} and \code{"genInv"} are, respectively, the generator
+  \code{genFun()} and \code{genInv()} are, respectively, the generator
   function and its inverse function for an Archimedean copula.
 
-  \code{"genFunDer1"} and \code{"genFunDer2"} are, respectively, the 1st
+  \code{genFunDer1()} and \code{genFunDer2()} are, respectively, the 1st
   and 2nd derivatives of the generator function for an Archimedean copula.
 
-  \code{"Afun"} is the generator function of an extreme value copula.
+  \code{Afun()} is the generator function of an extreme value copula.
 
-  \code{"AfunDer"} returns a data.frame containing the 1st and 2nd
-  derivative of \code{"Afun"}.
+  \code{AfunDer()} returns a data.frame containing the 1st and 2nd
+  derivative of \code{Afun()}.
 }
-\keyword{methods}
+\examples{
+## List the available methods (and their definitions):
+showMethods("Afun")
+showMethods("genFun", incl=TRUE)
+}
 \keyword{multivariate}

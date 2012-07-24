@@ -44,7 +44,6 @@ setMethod("genFunDer2", signature("joeCopula"), function(copula, u)
 
 setMethod("kendallsTau", signature("joeCopula"),
           function(copula) copJoe@tau(theta=copula@parameters))
-## setMethod("spearmansRho", signature("joeCopula"), ... ? ...)
 setMethod("tailIndex", signature("joeCopula"),
 	  function(copula) c(lower=0,
 			     upper=copJoe@lambdaU(theta=copula@parameters)))
@@ -53,6 +52,7 @@ setMethod("calibKendallsTau", signature("joeCopula"),
 	  function(copula, tau) copJoe@tauInv(tau))
 
 ## "TODO"
+## setMethod("spearmansRho", signature("joeCopula"), ... ? ...)
 ## setMethod("calibSpearmansRho", signature("joeCopula"), function(copula, rho) ...)
 
 ## "TODO"

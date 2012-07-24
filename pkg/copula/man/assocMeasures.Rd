@@ -14,6 +14,7 @@
 \alias{kendallsTau,claytonCopula-method}
 \alias{kendallsTau,frankCopula-method}
 \alias{kendallsTau,gumbelCopula-method}
+\alias{kendallsTau,joeCopula-method}
 \alias{kendallsTau,normalCopula-method}
 \alias{kendallsTau,tCopula-method}
 \alias{kendallsTau,fgmCopula-method}
@@ -32,8 +33,9 @@
 \alias{spearmansRho,normalCopula-method}
 \alias{spearmansRho,tCopula-method}
 \alias{spearmansRho,claytonCopula-method}
-\alias{spearmansRho,gumbelCopula-method}
 \alias{spearmansRho,frankCopula-method}
+\alias{spearmansRho,gumbelCopula-method}
+\alias{spearmansRho,amhCopula-method}
 \alias{spearmansRho,fgmCopula-method}
 \alias{spearmansRho,plackettCopula-method}
 \alias{spearmansRho,galambosCopula-method}
@@ -51,6 +53,8 @@
 \alias{tailIndex,claytonCopula-method}
 \alias{tailIndex,frankCopula-method}
 \alias{tailIndex,gumbelCopula-method}
+\alias{tailIndex,amhCopula-method}
+\alias{tailIndex,joeCopula-method}
 \alias{tailIndex,normalCopula-method}
 \alias{tailIndex,tCopula-method}
 \alias{tailIndex,acopula-method}
@@ -66,6 +70,7 @@
 \alias{calibKendallsTau,claytonCopula-method}
 \alias{calibKendallsTau,frankCopula-method}
 \alias{calibKendallsTau,gumbelCopula-method}
+\alias{calibKendallsTau,joeCopula-method}
 \alias{calibKendallsTau,plackettCopula-method}
 \alias{calibKendallsTau,fgmCopula-method}
 \alias{calibKendallsTau,galambosCopula-method}
@@ -126,8 +131,9 @@ calibSpearmansRho(copula, rho)
   Understanding relationships using copulas.
   \emph{North American Actuarial Journal} \bold{2}, 1--25.
 
-  I. Kojadinovic and J. Yan (2010). Comparison of three semiparametric
-  methods for estimating dependence parameters in copula models.
+  Iwan Kojadinovic and Jun Yan (2010)
+  Comparison of three semiparametric methods for estimating dependence
+  parameters in copula models.
   \emph{Insurance: Mathematics and Economics} \bold{47}, 52--63.
 }
 \seealso{
@@ -142,7 +148,8 @@ gumbel.cop <- gumbelCopula(3)
 kendallsTau(gumbel.cop)
 spearmansRho(gumbel.cop)
 tailIndex(gumbel.cop)
-
+calibKendallsTau(joeCopula(), 0.5)
+%%--- more "tests" are in ../tests/moments.R
 stopifnot(all.equal(kendallsTau(gumbel.cop), copGumbel@tau(3)),
 
           all.equal(tailIndex(gumbel.cop),
