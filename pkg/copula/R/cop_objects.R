@@ -578,7 +578,7 @@ copGumbel <-
               {
                   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-		  if(d > 2) stopifnot(C.@paraConstr(theta))
+		  stopifnot(C.@paraConstr(theta))
                   ## f() := NaN outside and on the boundary of the unit hypercube
                   res <- rep.int(NaN, n <- nrow(u))
                   n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
@@ -623,7 +623,7 @@ copGumbel <-
 		  score = function(u, theta) {
 		      if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-		      if(d > 2) stopifnot(C.@paraConstr(theta))
+		      stopifnot(C.@paraConstr(theta))
 		      stop("The score function is currently not implemented for Gumbel copulas")
 		  },
 		  ## nesting constraint
@@ -761,7 +761,7 @@ copJoe <-
               {
                   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-		  if(d > 2) stopifnot(C.@paraConstr(theta))
+		  stopifnot(C.@paraConstr(theta))
                   ## f() := NaN outside and on the boundary of the unit hypercube
                   res <- rep.int(NaN, n <- nrow(u))
                   n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated

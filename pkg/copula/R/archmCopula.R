@@ -15,19 +15,20 @@
 
 
 archmCopula <- function(family, param = NA_real_, dim = 2L, ...) {
-    fams <- sub("Copula$", '', names(getClass("archmCopula")@subclasses))
-    fam <- pmatch(family <- tolower(family), fams)
-    if(is.na(fam))
-        stop("Valid family names are ", paste(dQuote(fams), collapse=", "))
+    family <- tolower(family)
     dim <- as.integer(dim)
     if(family == "amh" && dim != 2L)
 	stop("'amh' is not yet available for dim > 2")
-    switch(fam,
-	   claytonCopula(param, dim = dim),
-	   frankCopula	(param, dim = dim),
-	   amhCopula	(param, dim = dim),
-	   gumbelCopula (param, dim = dim)
-	   )
+    switch(family,
+	   "clayton" = claytonCopula(param, dim = dim),
+	   "frank"   = frankCopula  (param, dim = dim),
+	   "amh"     = amhCopula    (param, dim = dim),
+	   "gumbel"  = gumbelCopula (param, dim = dim),
+	   "joe"     = joeCopula    (param, dim = dim),
+	   ## otherwise:
+	   { fams <- sub("Copula$", '', names(getClass("archmCopula")@subclasses))
+	     stop("Valid family names are ", paste(dQuote(fams), collapse=", "))
+	 })
 }
 
 

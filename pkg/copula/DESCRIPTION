@@ -35,21 +35,21 @@ Description: Classes (S4) of commonly used copulas including elliptical
  The package also contains related univariate distributions and special functions
  such as the Sibuya distribution, the polylogarithm, Stirling and Eulerian numbers.
 License: GPL (>= 3)
-Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R
-	derCdfPdf.R amhCopula.R amhExpr.R
+Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R special-func.R
+	cop_objects.R derCdfPdf.R amhCopula.R amhExpr.R
         archmCopula.R asymCopula.R asymExplicitCopula.R claytonCopula.R
-        claytonExpr.R debye.R ellipCopula.R
+        claytonExpr.R ellipCopula.R
 	estimation.R evCopula.R evTests.R
         exchTests.R fgmCopula.R fitCopula.R fitMvdc.R frankCopula.R
         frankExpr.R galambosCopula.R galambosExpr-math.R galambosExpr.R
 	gof.R
         gofEVTests.R gofTests.R graphics.R gumbelCopula.R gumbelExpr.R
         huslerReissCopula.R huslerReissExpr.R indepCopula.R
-        indepTests.R K.R logseries.R mvdc.R normalCopula.R
+        indepTests.R joeCopula.R K.R logseries.R mvdc.R normalCopula.R
 	nacopula.R
         plackettCopula.R plackettExpr.R
-	rstable1.R safeUroot.R special-func.R
+	rstable1.R safeUroot.R
 	schlatherCopula.R stable.R
 	timing.R trafos.R
-        tCopula.R tawnCopula.R tawnExpr.R tevCopula.R cop_objects.R zzz.R
+        tCopula.R tawnCopula.R tawnExpr.R tevCopula.R zzz.R
 Encoding: UTF-8

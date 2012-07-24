@@ -23,6 +23,7 @@ IK: Me too
 -Write testing code that compares the two classes numerically.
 **** TODO (MM): Make  pcopula(<archm>) and dcopula(<archm>)
  use the the numerically good formulae rather than the "exprDist".
+**** d=2 is special: allows negative tau, MH-code does not yet
 *** "copula" class:  slot re-definitions
 **** 'message' --> 'name' (or ??)
 **** 'param.lowbnd' / 'param.upbnd' --- use "interval" as in nacopula
@@ -48,13 +49,11 @@ But people have asked for it.
 
 ** C code
 *** DONE [src/init.c] enable registration for the old 'copula' part
-*** JY: gsl - Debye ===> Should use them and then *not* carry gsl-source code anymore.
+*** DONE JY: gsl - Debye ===> Should use them and then *not* carry gsl-source code anymore.
 JY: Agree.
 
-*** IK: in all *.c files from former copula: use Doxygen instead of hand made function header documentation.
-MH: I can also work on that (but I would like to first discuss with MM how
-Doxygen headers should exactly look like in C code [C-c C-o not working])
-
+*** IK: in all *.c files from former copula: use Doxygen
+instead of hand made function header documentation.
 ** Miscellaneous Functions (bugs etc)
 *** DONE (MH) rtrafo() {and probably htrafo()} --- "fail" (are *wrong*!) for n = 1
 *** DONE (MH) copFrank@psi(1/1e20, theta=200) == Inf instead of 1
