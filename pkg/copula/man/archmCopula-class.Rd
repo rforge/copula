@@ -5,18 +5,19 @@
 \alias{frankCopula-class}
 \alias{gumbelCopula-class}
 \alias{amhCopula-class}
+\alias{joeCopula-class}
 \title{Class "archmCopula" }
 \description{Archimedean copula class.}
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("archmCopula",
-    ...)} or by function \code{\link{archmCopula}}. Implemented families are
-  Clayton, Gumbel, Frank, and Ali-Mikhail-Haq.
+    ...)} or by function \code{\link{archmCopula}}.  Implemented
+  families are Clayton, Gumbel, Frank, Joe, and Ali-Mikhail-Haq.
 }
 \section{Slots}{
   \describe{
     \item{\code{exprdist}:}{Object of class \code{"expression"}:
       expressions of the cdf and pdf of the copula. These expressions
-      are used in function 'pcopula' and 'dcopula'. }
+      are used in function \code{\link{pcopula}} and \code{\link{dcopula}}. }
     \item{\code{dimension, parameters}, etc:}{all inherited from the
       super class \code{\linkS4class{copula}}.}
   }
@@ -35,13 +36,16 @@
     \item{dcopula}{\code{signature(copula = "amhCopula")}: ... }
     \item{pcopula}{\code{signature(copula = "amhCopula")}: ... }
     \item{rcopula}{\code{signature(copula = "amhCopula")}: ... }
+    \item{dcopula}{\code{signature(copula = "joeCopula")}: ... }
+    \item{pcopula}{\code{signature(copula = "joeCopula")}: ... }
+    \item{rcopula}{\code{signature(copula = "joeCopula")}: ... }
   }
 }
 \section{Extends}{
   Class \code{"archmCopula"} extends class \code{"\linkS4class{copula}"}
-  directly. Class \code{"claytonCopula"}, \code{"frankCopula"},
-  \code{"gumbelCopula"} and \code{"amhCopula"} extends class
-  \code{"archmCopula"} directly.
+  directly.  Class \code{"claytonCopula"}, \code{"frankCopula"},
+  \code{"gumbelCopula"}, \code{"amhCopula"} and \code{"joeCopula"}
+  extends class \code{"archmCopula"} directly.
 }
 \note{
   \code{"gumbelCopula"} is also of class \code{"\linkS4class{evCopula}"}.

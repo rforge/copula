@@ -33,12 +33,13 @@ copObj <- lapply(copF1, function(.) .())
 stopifnot( sapply(copObj, is, class2 = "copula"),
            sapply(copObj, validObject))
 copO. <- copObj[ names(copObj) != "indepCopula" ]
-copO.2 <- copO.[names(copO.) != "amhCopula"] # because that has limited tau-range
+copO.2 <- copO.[ex2 <- !(names(copO.) %in% c("amhCopula","joeCopula"))]
+                                        # because AMH has limited tau-range
 str(copO.,max=1)
 ## The parameter bounds:
 t(copBnds <- sapply(copO., function(C)
                     c(min= C@param.lowbnd[1], max= C@param.upbnd[1])))
-copBnd.2 <- copBnds[,colnames(copBnds) != "amhCopula"]
+copBnd.2 <- copBnds[, ex2]
 
 ###-------- tau & and inverse ---------------------------------------------------
 
@@ -51,6 +52,8 @@ tTau <- sapply(tau.s, function(tau)
                sapply(copO., calibKendallsTau, tau = tau))
 
 tTau
+tTau["joeCopula", "tau=-.1"] <- 1 # ugly hack
+
 stopifnot(rep(copBnds["min",],ncol(tTau)) <= tTau,
           tTau <= rep(copBnds["max",],ncol(tTau)),
           ## theta and tau are comonotone :
@@ -70,8 +73,9 @@ round(10000*errTau)
 errTau["tawnCopula", 1:2] <- 0
 ## the tevCopula cannot get a tau <= 0 (for now) __FIXME?__
 errTau["tevCopula", 1:2] <- 0
-## These three families do not support tau < 0  (currently):
-errTau[c("gumbelCopula", "galambosCopula", "huslerReissCopula"), "tau=-.1"] <- 0
+## These families do not support tau < 0  (currently):
+errTau[c("gumbelCopula", "joeCopula", "galambosCopula", "huslerReissCopula"),
+       "tau=-.1"] <- 0
 ## "fgmCopula" has tau in [-2/9, 2/9] :
 errTau["fgmCopula", "tau=.3"] <- 0
 stopifnot(max(abs(errTau)) <= 0.00052)# ok for IJ-taus

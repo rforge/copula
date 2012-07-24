@@ -61,15 +61,14 @@ frankCopula <- function(param = NA_real_, dim = 2L) {
   cdf <- cdfExpr(dim)
   if (dim <= 6)  pdf <- pdfExpr(cdf, dim)
   else pdf <- NULL
-  val <- new("frankCopula",
-             dimension = dim,
-             parameters = param[1],
-             exprdist = c(cdf = cdf, pdf = pdf),
-             param.names = "param",
-             param.lowbnd = -Inf,
-             param.upbnd = Inf,
-             message = "Frank copula family; Archimedean copula")
-  val
+  new("frankCopula",
+      dimension = dim,
+      parameters = param[1],
+      exprdist = c(cdf = cdf, pdf = pdf),
+      param.names = "param",
+      param.lowbnd = -Inf,
+      param.upbnd = Inf,
+      message = "Frank copula family; Archimedean copula")
 }
 
 rfrankBivCopula <- function(copula, n) {

@@ -14,17 +14,15 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-
 joeCopula <- function(param = NA_real_, dim = 2L) {
   new("joeCopula",
-      dimension = dim,
+      dimension = as.integer(dim),
       parameters = param[1],
       param.names = "param",
       param.lowbnd = 1,
       param.upbnd = Inf,
       message = "Joe copula family; Archimedean copula")
 }
-
 
 setMethod("rcopula", signature("joeCopula"), function(copula, n)
 	  racopula(n, Cp=copula, theta = copula@parameters, d = copula@dimension))
@@ -53,6 +51,7 @@ setMethod("tailIndex", signature("joeCopula"),
 
 setMethod("calibKendallsTau", signature("joeCopula"),
 	  function(copula, tau) copJoe@tauInv(tau))
+
 ## "TODO"
 ## setMethod("calibSpearmansRho", signature("joeCopula"), function(copula, rho) ...)
 

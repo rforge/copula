@@ -4,6 +4,7 @@
 \alias{frankCopula}
 \alias{gumbelCopula}
 \alias{amhCopula}
+\alias{joeCopula}
 \title{Construction of Archimedean copula class object}
 \description{
   Constructs an Archimedean copula class object with its corresponding
@@ -16,11 +17,12 @@ claytonCopula(param = NA_real_, dim = 2)
 frankCopula(param = NA_real_, dim = 2)
 gumbelCopula(param = NA_real_, dim = 2)
 amhCopula(param = NA_real_, dim = 2)
+joeCopula(param = NA_real_, dim = 2)
 }
 \arguments{
   \item{family}{a character string specifying the family of an
     Archimedean copula.  Currently supported families are "clayton",
-    "frank", "amh", and "gumbel".
+    "frank", "amh", "gumbel", and "joe".
   }
   \item{param}{number (\code{\link{numeric}}) specifying the copula parameter.}
   \item{dim}{the dimension of the copula.}
@@ -28,11 +30,12 @@ amhCopula(param = NA_real_, dim = 2)
 }
 \value{
   An Archimedean copula object of class \code{"claytonCopula"},
-  \code{"frankCopula"}, \code{"gumbelCopula"}, or \code{"amhCopula"}.
+  \code{"frankCopula"}, \code{"gumbelCopula"}, \code{"amhCopula"}, or \code{"joeCopula"}.
 }
 \details{
   \code{archmCopula()} is a wrapper for \code{claytonCopula()},
-  \code{frankCopula()}, \code{gumbelCopula()} and \code{amhCopula()}.
+  \code{frankCopula()}, \code{gumbelCopula()}, \code{amhCopula()} and
+  \code{joeCopula}.
 
   Only the bivariate Ali-Mikhail-Haq copula family (\code{"amhCopula"})
   is available.
@@ -83,6 +86,10 @@ dcopula(frank.cop, x)
 ## A 7-dim Gumbel copula
 gumbel.cop <- gumbelCopula(2, dim = 7)
 dcopula(gumbel.cop, x)
+
+## A 12-dim Joe copula
+joe.cop <- joeCopula(calibKendallsTau(joeCopula(), 0.5), dim = 12)
+dcopula(joe.cop, x)
 }
 \keyword{distribution}
 \keyword{multivariate}

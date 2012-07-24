@@ -153,7 +153,7 @@ ebeta <- function(u, cop, interval=initOpt(cop@copula@name), ...) {
 ##' @return checked and (if check failed) modified x
 ##' @author Marius Hofert
 tau.checker <- function(x, family, warn=TRUE){
-    eps <- 1e-8
+    eps <- 1e-8 ## "fixed" currently, see below
     tau.range <- switch(family,
                         ## limiting (attainable) taus that can be dealt with by
                         ## copFamily@tauInv() *and* that can be used to construct

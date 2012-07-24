@@ -30,7 +30,8 @@ rtrafo(pobs(rbind(1:4)), onacopula("Gumbel", C(2., 1:4)))
 
 source(system.file("Rsource", "estim-gof-fn.R", package="copula"))
 ## --> estimation.gof() etc
-(doExtras <- interactive() || nzchar(Sys.getenv("R_copula_check_extra")))
+(doExtras <- interactive() || nzchar(Sys.getenv("R_copula_check_extra")) ||
+ identical("true", unname(Sys.getenv("R_MM_PKG_CHECKING"))))
 
 ## From source(system.file("test-tools-1.R", package = "Matrix")) :
 showProc.time <- local({
@@ -100,16 +101,16 @@ x <- rcopula(claytonCopula(3), 200)
 
 for(fitMeth in c("mpl", "ml", "itau", "irho")) {
     cat("\nfit*( method = '", fitMeth,"')\n----------------------\n", sep="")
-    print(gofCopula(gumbelCopula (1), x, N = 10, print. =0, method = fitMeth))
-    print(gofCopula(claytonCopula(1), x, N = 10, print. =0, method = fitMeth))
+    print(gofCopula(gumbelCopula (1), x, N = 10, verbose=FALSE, method = fitMeth))
+    print(gofCopula(claytonCopula(1), x, N = 10, verbose=FALSE, method = fitMeth))
 }
 showProc.time()
 
 ## The same using the multiplier approach -- "ml" is not allowed:
 for(fitMeth in c("mpl", "itau", "irho")) {
     cat("\nfit*( method = '", fitMeth,"')\n----------------------\n\n", sep="")
-    print(gofCopula(gumbelCopula (1), x, N = 10, print. =0, method = fitMeth, simulation="mult"))
-    print(gofCopula(claytonCopula(1), x, N = 10, print. =0, method = fitMeth, simulation="mult"))
+    print(gofCopula(gumbelCopula (1), x, N = 10, verbose=FALSE, method = fitMeth, simulation="mult"))
+    print(gofCopula(claytonCopula(1), x, N = 10, verbose=FALSE, method = fitMeth, simulation="mult"))
 }
 
 ## A three-dimensional example  ------------------------------------
@@ -123,8 +124,8 @@ showProc.time()
 
 for(fitMeth in c("mpl", "ml", "itau", "irho")) {
     cat("\nfit*( method = '", fitMeth,"')\n----------------------\n\n", sep="")
-    print(gofCopula(gumbC, x, N = 10, print. =0, method = fitMeth))
-    print(gofCopula(t.cop, x, N = 10, print. =0, method = fitMeth))
+    print(gofCopula(gumbC, x, N = 10, verbose=FALSE, method = fitMeth))
+    print(gofCopula(t.cop, x, N = 10, verbose=FALSE, method = fitMeth))
 }
 showProc.time()
 

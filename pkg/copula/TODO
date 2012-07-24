@@ -125,6 +125,7 @@ We can put them back. The best place is under inst?
 *** DONE (MH) fixed long lines in all .Rd
 
 ** Miscellaneous functions
+*** calibKendallsTau(): must use tau.checker() [R/estimation.R]
 *** MM, MH: indepTest()  takes a while {ok}, *BUT* cannot be interrupted (quickly enough)
     - shouldn't it {and all other tests} return a (valid) object of class
     "htest" (maybe "htest" in addition to the specific S3 class)?
