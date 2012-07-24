@@ -38,6 +38,10 @@ static R_NativePrimitiveArgType A_Pickands_t[7] = {
     INTSXP, REALSXP, REALSXP, REALSXP, /* m: */ INTSXP, INTSXP, REALSXP
 };
 
+// ./empcop.c ///////////////////////////////////////////////////////////////////
+static R_NativePrimitiveArgType RmultCn_t[6] = {
+    REALSXP, INTSXP, INTSXP, REALSXP, INTSXP, REALSXP
+};
 
 // ./fgm.c /////////////////////////////////////////////////////////////////////
 
@@ -140,7 +144,7 @@ static R_NativePrimitiveArgType empirical_copula_test_rv_serial_t[] = {REALSXP, 
 				     REALSXP, REALSXP, REALSXP, REALSXP};
 
 
-// ./indepTest.c ////////////////////////////////////////////////////////////
+// ./ecIndepTest.c ////////////////////////////////////////////////////////////
 
 static R_NativePrimitiveArgType simulate_empirical_copula_t[] = {INTSXP, INTSXP, INTSXP, INTSXP, REALSXP,
 			       REALSXP, INTSXP, STRSXP,
@@ -163,6 +167,8 @@ static R_NativePrimitiveArgType debye_4_t[5] = { REALSXP, INTSXP, REALSXP,REALSX
 static const R_CMethodDef CEntries[]  = {
     CDEF(A_CFG),
     CDEF(A_Pickands),
+    CDEF(RmultCn),
+
     CDEF(validity_fgm),
     CDEF(rfgm),
     CDEF(k_power_set),
@@ -186,6 +192,7 @@ static const R_CMethodDef CEntries[]  = {
     CDEF(evsymtest_stat),
     CDEF(exchtestCn),
     CDEF(exchtestCn_stat),
+
     CDEF(bootstrap_MA_I),
     CDEF(empirical_copula_test_rv),
     CDEF(simulate_empirical_copula_serial),

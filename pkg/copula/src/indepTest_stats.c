@@ -16,7 +16,7 @@
 */
 
 /**
- * @file   indepTest_utils.c
+ * @file   indepTest_stats.c
  * @author Ivan Kojadinovic
  * @date   December 2007
  *

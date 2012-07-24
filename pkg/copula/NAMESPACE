@@ -64,6 +64,9 @@ export(fgmCopula)
 exportMethods(show, summary)
 exportMethods(persp, contour)
 
+## empirical copula
+export(Cn)
+
 ## fitting copula
 export(loglikCopula, loglikMvdc)
 export(fitCopula, fitMvdc)

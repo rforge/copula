@@ -17,7 +17,7 @@
 
 
 /**
- * @file   indepTest.c
+ * @file   ecIndepTest.c
  * @author Ivan Kojadinovic
  * @date   December 2007
  *
@@ -45,10 +45,10 @@ void J_u(int n, int p, const double R[], double *J)
 
 }
 
-/** 
+/**
  * Simulate the distribution of TA (up to subsets of cardinality p)
  * and of the global statistic
- * 
+ *
  * @param n sample size
  * @param N number of simulations
  * @param p dimension
@@ -167,11 +167,11 @@ void simulate_empirical_copula(int *n, int *N, int *p, int *m, double *TA0,
 
 ******************************************************************************/
 
-/** 
+/**
  * Computes the statistcs TA (up to subsets of cardinality p)
  * Computes the global statistic In
- * 
- * @param R multivariate ranks 
+ *
+ * @param R multivariate ranks
  * @param n sample size
  * @param p dimension
  * @param m maximum cardinality of subsets of {1,...,p}

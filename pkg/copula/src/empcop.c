@@ -131,3 +131,20 @@ double der_multCn(const double U[], int n, int p,
 		  const double u[], const double v[], double denom) {
     return (multCn(U, n, p, u, 1, 0, 0.0) - multCn(U, n, p, v, 1, 0, 0.0)) / denom;
 }
+
+/** 
+ * Computes the empirical copula at all the lines of V 
+ * Called in R by .C
+ * 
+ * @param U pseudo-observations 
+ * @param n sample size
+ * @param p dimension of the pseudo-observations 
+ * @param V is vector representing a matrix of dimension m x p 
+ * @param m "number of lines" of V
+ * @param ec values of the empirical copula at the lines of V 
+ * @author Ivan Kojadinovic
+ */
+void RmultCn(double *U, int *n, int *p, double *V, int *m, double *ec) {
+   for (int i = 0; i < *m; i++)
+     ec[i] = multCn(U, *n, *p, V, *m, i, 0.0);
+}

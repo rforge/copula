@@ -25,10 +25,10 @@
  *
  */
 
-#ifndef INDEPTEST_FUNCS_H
-#define INDEPTEST_FUNCS_H
+#ifndef INDEPTESTS_H
+#define INDEPTESTS_H
 
-// indepTest_utils.c  --- temporary arrays -------------------------------------
+// indepTest_stats.c  --- temporary arrays -------------------------------------
 void K_array(int n, int p, const double J[], double *K);
 void L_array(int n, int p, const double K[], double *L);
 
@@ -70,7 +70,7 @@ void empirical_copula_test_rv_serial(double *U, int *n, int *p, int *q, int *m, 
 				     double *I0, int *N, int *subset, double *MA, double *I,
 				     double *pval, double *fisher, double *tippett, double *Ipval);
 
-// indepTest.c  --- Multivariate independence test of Genest and Remillard (2004) ------------
+// ecIndepTest.c  --- Multivariate independence test of Genest and Remillard (2004) ------------
 void simulate_empirical_copula(int *n, int *N, int *p, int *m, double *TA0,
 			       double *G0, int *subset, char **subset_char,
 			       double *fisher0, double *tippett0, int *pe);
