@@ -127,6 +127,7 @@ double multCn(const double U[], int n, int p, const double V[], int m, int k, do
  * @return the value of the empirical derivative
  * @author Ivan Kojadinovic
  */
-double der_multCn(const double U[], int n, int p, const double u[], const double v[], double denom) {
-  return (multCn(U, n, p, u, 1, 0, 0.0) - multCn(U, n, p, v, 1, 0, 0.0)) / denom;
+double der_multCn(const double U[], int n, int p,
+		  const double u[], const double v[], double denom) {
+    return (multCn(U, n, p, u, 1, 0, 0.0) - multCn(U, n, p, v, 1, 0, 0.0)) / denom;
 }
