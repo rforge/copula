@@ -158,12 +158,10 @@ kendallsTauFrankCopula <- function(copula) {
 
 spearmansRhoFrankCopula <- function(copula) {
   alpha <- copula@parameters[1]
-  if (alpha == 0) return (0)
-    1 - 12/alpha * (debye1(alpha) - debye2(alpha))
-}
-
-tailIndexFrankCopula <- function(copula) {
-  c(lower=0, upper=0)
+  if (alpha == 0) 0
+  else
+      ## Genest (1987), "Frank's family of bivariate distributions" (Biometrika, 7, 549--555)
+      1 - 12/alpha * (debye1(alpha) - debye2(alpha))
 }
 
 tauDerFrankCopula <- function(copula) {
@@ -202,7 +200,7 @@ setMethod("genFunDer2", signature("frankCopula"), genFunDer2Frank)
 
 setMethod("kendallsTau", signature("frankCopula"), kendallsTauFrankCopula)
 setMethod("spearmansRho", signature("frankCopula"), spearmansRhoFrankCopula)
-setMethod("tailIndex", signature("frankCopula"), tailIndexFrankCopula)
+setMethod("tailIndex", signature("frankCopula"), function(copula) c(lower=0, upper=0))
 
 setMethod("calibKendallsTau", signature("frankCopula"), calibKendallsTauCopula)
 setMethod("calibSpearmansRho", signature("frankCopula"), calibSpearmansRhoCopula)
