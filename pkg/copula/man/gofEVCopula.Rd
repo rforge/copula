@@ -14,9 +14,8 @@
 }
 \usage{
 gofEVCopula(copula, x, N = 1000, method = "mpl",
-            estimator = "CFG", m = 1000, print.every = 100,
-            verbose = print.every > 0,
-            optim.method = "Nelder-Mead")
+            estimator = "CFG", m = 1000, verbose = TRUE,
+            print.every = NULL, optim.method = "Nelder-Mead")
 }
 \arguments{
   \item{copula}{ object of class \code{"\linkS4class{evCopula}"}
@@ -34,12 +33,9 @@ gofEVCopula(copula, x, N = 1000, method = "mpl",
     \code{"CFG"} (Caperaa-Fougeres-Genest) or  \code{"Pickands"}.}
   \item{m}{ number of points of the uniform grid on [0,1] used to
     compute the test statistic numerically.}
-  \item{print.every}{progress is printed every \code{print.every}
-    iterations.  No progress is printed if it is nonpositive.  Is
-    deprecated in favor of \code{verbose}.}
+  \item{print.every}{ is deprecated in favor of \code{verbose}.}
   \item{verbose}{a logical specifying if progress of the bootstrap
-    should be displayed via \code{\link[utils]{txtProgressBar}}.
-    Is now recommended as alternative to \code{print.every}.}
+    should be displayed via \code{\link[utils]{txtProgressBar}}.}
   \item{optim.method}{ the method for \code{"\link{optim}"}. }
 }
 \details{

@@ -23,18 +23,29 @@
 ##' @param method parameter estimation method
 ##' @param estimator nonparametric estimator of the Pickands dependence function
 ##' @param m grid size
-##' @param print.every deprecated
-##' @param verbose
+##' @param verbose display progress bar if TRUE
+##' @param print.every is deprecated
 ##' @param optim.method for fitCopula
 ##' @return an object of class 'htest'
 ##' @author Ivan Kojadinovic
 gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
                         estimator = "CFG", m = 1000,
-                        ## FIXME  print.every should become deprecated in favor of 'verbose'
-                        print.every = 100, verbose = print.every > 0,
+                        verbose = TRUE, print.every = NULL,
                         optim.method = "Nelder-Mead")
 {
+    x <- as.matrix(x)
     n <- nrow(x)
+    p <- ncol(x)
+
+    if (n < 2) stop("There should be at least 2 observations")
+
+    if (copula@dimension != 2 || p != 2)
+      stop("The copula and the data should be of dimension two")
+
+    if (!is.null(print.every)) {
+        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead")
+        verbose <- print.every > 0
+    }
 
     ## make pseudo-observations
     u <- apply(x,2,rank)/(n+1)
@@ -62,12 +73,8 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
 	pb <- txtProgressBar(max = N, style = 3) # setup progress bar
 	on.exit(close(pb)) # and close it on exit
     }
-    #if (print.every > 0)
-    #	cat("Progress will be displayed every", print.every, "iterations.\n")
     for (i in 1:N)
     {
-        #if (print.every > 0 & i %% print.every == 0)
-        #    cat(paste("Iteration",i,"\n"))
         u0 <- apply(rcopula(fcop,n),2,rank)/(n+1)
 
         ## fit the copula
@@ -100,10 +107,7 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
 
 ### Version for simulations; was named gofEVCopula before; not exported
 gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
-                    m = 1000,
-                    ## FIXME  print.every should become deprecated in favor of 'verbose'
-                    print.every = 100, verbose = print.every > 0,
-                    optim.method = "Nelder-Mead")
+                    m = 1000, verbose = TRUE, optim.method = "Nelder-Mead")
 {
     n <- nrow(x)
     p <- ncol(x)
@@ -144,7 +148,7 @@ gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
                as.double(-log(u[,2])),
                as.double(Afun(fcop,g)),
                stat = double(2),
-               as.integer(0)            # estimator == Pickard
+               as.integer(0)            # estimator == Pickands
                )$stat
 
     s <- c(sCn, sCFG, sPck)
@@ -155,14 +159,11 @@ gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
 	pb <- txtProgressBar(max = N, style = 3) # setup progress bar
 	on.exit(close(pb)) # and close it on exit
     }
-    #if (print.every > 0)
-    #    cat(paste("Progress will be displayed every", print.every, "iterations.\n"))
 
     ## set starting values for fitCopula
     copula@parameters <- fcop@parameters
     for (i in 1:N)
     {
-        #if (print.every > 0 & i %% print.every == 0) cat(paste("Iteration",i,"\n"))
         u0 <- apply(rcopula(fcop,n),2,rank)/(n+1)
 
         ## fit the copula

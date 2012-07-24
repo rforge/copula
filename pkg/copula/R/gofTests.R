@@ -22,16 +22,15 @@
 ##' @param N the number of bootstrap or multiplier replications
 ##' @param method estimation method for the unknown parameter
 ##' @param simulation parametric bootstrap or multiplier
-##' @param print.every deprecated
-##' @param verbose
+##' @param verbose display progress bar if TRUE
+##' @param print.every is deprecated
 ##' @param optim.method for fitting
 ##' @param optim.control for fitting
 ##' @return an object of class 'htest'
 ##' @author Ivan Kojadinovic
 gofCopula <- function(copula, x, N = 1000, method = "mpl",
                       simulation = c("pb", "mult"),
-                      ## FIXME  print.every should become deprecated in favor of 'verbose'
-                      print.every = 100, verbose = print.every > 0,
+                      verbose = TRUE, print.every = NULL,
                       optim.method = "BFGS", optim.control = list(maxit=20))
 {
     x <- as.matrix(x)
@@ -44,11 +43,15 @@ gofCopula <- function(copula, x, N = 1000, method = "mpl",
     if (copula@dimension != p)
       stop("The copula and the data should be of the same dimension")
 
+    if (!is.null(print.every)) {
+        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead")
+        verbose <- print.every > 0
+    }
+
     gof <-
         switch(match.arg(simulation),
                "pb" = { ## parametric bootstrap
-                   gofPB(copula, x, N=N, method = method,
-			 print.every=print.every, verbose=verbose,
+                   gofPB(copula, x, N=N, method = method, verbose=verbose,
 			 optim.method=optim.method, optim.control=optim.control)
                },
                "mult" = { ## multiplier
@@ -77,16 +80,12 @@ gofCopula <- function(copula, x, N = 1000, method = "mpl",
 ##' @param x the data
 ##' @param N the number of bootstrap replications
 ##' @param method estimation method for the unknown parameter
-##' @param print.every deprecated
-##' @param verbose
+##' @param verbose display progress bar is TRUE
 ##' @param optim.method for fitting
 ##' @param optim.control for fitting
 ##' @return an object of class 'htest'
 ##' @author Ivan Kojadinovic
-gofPB <- function(copula, x, N, method,
-                  ## FIXME  print.every should become deprecated in favor of 'verbose'
-                  print.every, verbose = print.every > 0,
-                  optim.method, optim.control)
+gofPB <- function(copula, x, N, method, verbose, optim.method, optim.control)
 {
     n <- nrow(x)
     p <- ncol(x)
@@ -112,7 +111,7 @@ gofPB <- function(copula, x, N, method,
 	pb <- txtProgressBar(max = N, style = 3) # setup progress bar
 	on.exit(close(pb)) # and close it on exit
     }
-    #if (print.every > 0)
+    # if (print.every > 0)
     #    cat(paste("Progress will be displayed every", print.every, "iterations.\n"))
     for (i in 1:N) {
         #if(print.every > 0 && i %% print.every == 0) cat(paste("Iteration",i,"\n"))

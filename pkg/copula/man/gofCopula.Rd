@@ -14,8 +14,7 @@
 }
 \usage{
 gofCopula(copula, x, N = 1000, method = "mpl",
-          simulation = c("pb", "mult"), print.every = 100,
-          verbose = print.every > 0,
+          simulation = c("pb", "mult"), verbose = TRUE, print.every = NULL,
           optim.method = "BFGS", optim.control = list(maxit=20))
 }
 \arguments{
@@ -33,12 +32,9 @@ gofCopula(copula, x, N = 1000, method = "mpl",
     generating realizations of the test statistic under the null
     hypothesis; can be either \code{"pb"} (parametric bootstrap) or
     \code{"mult"} (multiplier).}
-  \item{print.every}{progress is printed every \code{print.every}
-    iterations.  No progress is printed if it is nonpositive.  Is
-    deprecated in favor of \code{verbose}.}
+  \item{print.every}{ is deprecated in favor of \code{verbose}.}
   \item{verbose}{a logical specifying if progress of the bootstrap
-    should be displayed via \code{\link[utils]{txtProgressBar}}.
-    Is now recommended as alternative to \code{print.every}.}
+    should be displayed via \code{\link[utils]{txtProgressBar}}.}
   \item{optim.method, optim.control}{the \code{method} and
     \code{control} arguments for \code{\link{optim}()}, see there.}
 }
