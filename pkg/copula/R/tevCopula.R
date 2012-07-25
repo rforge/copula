@@ -116,7 +116,7 @@ dtevCopula <- function(copula, u, log=FALSE, ...) {
   if(log) log(pdf) else pdf
 }
 
-derCdfWrtArgsSymEvCopula <- function(cop, u) {
+dCduSymEvCopula <- function(cop, u) {
   mat <- matrix(NA, nrow(u), 2)
   pcop <- pcopula(cop, u)
   loguv <- log(u[,1]) + log(u[,2])
@@ -128,7 +128,7 @@ derCdfWrtArgsSymEvCopula <- function(cop, u) {
   mat
 }
 
-setMethod("derCdfWrtArgs", signature("tevCopula"), derCdfWrtArgsSymEvCopula)
+setMethod("dCdu", signature("tevCopula"), dCduSymEvCopula)
 
 
 ## This block is copied from ../../copulaUtils/assoc/ ##########################
@@ -169,7 +169,7 @@ tevTauDer <- function(alpha) {
   valFun(theta, 1) * forwardDer(alpha, ss)
 }
 
-tauDerTevCopula <- function(copula) {
+dTauTevCopula <- function(copula) {
   alpha <- copula@parameters[1]
   tevTauDer(alpha)
 }
@@ -210,7 +210,7 @@ tevRhoDer <- function(alpha) {
   valFun(theta, 1) * forwardDer(alpha, ss)
 }
 
-rhoDerTevCopula <- function(copula) {
+dRhoTevCopula <- function(copula) {
   alpha <- copula@parameters[1]
   tevRhoDer(alpha)
 }
@@ -229,5 +229,5 @@ setMethod("spearmansRho", signature("tevCopula"), spearmansRhoTevCopula)
 setMethod("calibKendallsTau", signature("tevCopula"), calibKendallsTauTevCopula)
 setMethod("calibSpearmansRho", signature("tevCopula"), calibSpearmansRhoTevCopula)
 
-setMethod("tauDer", signature("tevCopula"), tauDerTevCopula)
-setMethod("rhoDer", signature("tevCopula"), rhoDerTevCopula)
+setMethod("dTau", signature("tevCopula"), dTauTevCopula)
+setMethod("dRho", signature("tevCopula"), dRhoTevCopula)

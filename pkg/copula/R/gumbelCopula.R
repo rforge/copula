@@ -205,11 +205,11 @@ calibSpearmansRhoGumbelCopula <- function(copula, rho) {
 }
 
 
-tauDerGumbelCopula <- function(copula) {
+dTauGumbelCopula <- function(copula) {
   return( 1 / copula@parameters^2 )
 }
 
-rhoDerGumbelCopula <- function(copula) {
+dRhoGumbelCopula <- function(copula) {
   alpha <- copula@parameters[1]
   gumbelRhoDer(alpha)
 }
@@ -239,5 +239,5 @@ setMethod("tailIndex", signature("gumbelCopula"), tailIndexGumbelCopula)
 setMethod("calibKendallsTau", signature("gumbelCopula"), calibKendallsTauGumbelCopula)
 setMethod("calibSpearmansRho", signature("gumbelCopula"), calibSpearmansRhoGumbelCopula)
 
-setMethod("rhoDer", signature("gumbelCopula"), rhoDerGumbelCopula)
-setMethod("tauDer", signature("gumbelCopula"), tauDerGumbelCopula)
+setMethod("dRho", signature("gumbelCopula"), dRhoGumbelCopula)
+setMethod("dTau", signature("gumbelCopula"), dTauGumbelCopula)

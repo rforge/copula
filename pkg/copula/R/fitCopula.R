@@ -464,7 +464,7 @@ varInfluAr1 <- function(cop, v, L, der) {
   sigma <- getSigma(cop) # assuming cop is the fitted copula
   ## influ for log(r)
   r <- sigma[lower.tri(sigma)]
-  der <- if (der == "tau") tauDerFun(cop)(r) else rhoDerFun(cop)(r)
+  der <- if (der == "tau") dTauFun(cop)(r) else dRhoFun(cop)(r)
   D <- diag(x = 1 / r / der, pp)
   v <- v %*% D
   ## influ for log(theta)
@@ -478,7 +478,7 @@ varInfluAr1 <- function(cop, v, L, der) {
 ##' See Kojadinovic & Yan (2010) Comparison of three semiparametric ... IME 47, 52--63
 varKendall <- function(cop,u) {
   ## check if variance can be computed
-  if (!hasMethod("tauDer", class(cop))) {
+  if (!hasMethod("dTau", class(cop))) {
     warning("The variance estimate cannot be computed for a copula of class", class(cop))
     q <- length(cop@parameters)
     return(matrix(NA, q, q))
@@ -502,7 +502,7 @@ varKendall <- function(cop,u) {
   X <- getXmat(cop)
   L <- t(solve(crossprod(X), t(X)))
   ## Caution: diag(0.5) is not a 1x1 matrix of 0.5!!! check it out.
-  D <- if (length(cop@parameters) == 1) 1 / tauDer(cop) else diag(1 / tauDer(cop))
+  D <- if (length(cop@parameters) == 1) 1 / dTau(cop) else diag(1 / dTau(cop))
   if (is(cop, "ellipCopula") && cop@dispstr == "ar1") { ## special treatment
     v <- varInfluAr1(cop, v, L, "tau")
     return(16 * var(v))
@@ -520,7 +520,7 @@ varKendall <- function(cop,u) {
 ##' @author
 varSpearman <- function(cop,u)  {
   ## check if variance can be computed
-  if (!hasMethod("rhoDer", class(cop))) {
+  if (!hasMethod("dRho", class(cop))) {
     warning("The variance estimate cannot be computed for this copula.")
     q <- length(cop@parameters)
     return(matrix(NA, q, q))
@@ -550,7 +550,7 @@ varSpearman <- function(cop,u)  {
       144 * var(v)
   } else {
       ## Caution: diag(0.5) is not a 1x1 matrix of 0.5!!! check it out.
-      D <- if (length(cop@parameters) == 1) 1 / rhoDer(cop) else diag(1 / rhoDer(cop))
+      D <- if (length(cop@parameters) == 1) 1 / dRho(cop) else diag(1 / dRho(cop))
       144 * var(v %*% L %*% D)
   }
 }

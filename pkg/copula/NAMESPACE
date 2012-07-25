@@ -94,8 +94,8 @@ export(asymExplicitCopula)
 S3method(print, indepTest)
 
 ## testing
-## export(derCdfWrtParams, derPdfWrtParams, tauDer, rhoDer)
-## export(derCdfWrtArgs)
+## export(dCdtheta, derPdfWrtParams, dTau, dRho)
+## export(dCdu)
 ## export(ChiPlot, KPlot)
 ## testing purpose
 ## export(fitCopula.repar)

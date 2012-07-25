@@ -93,8 +93,8 @@ dasymCopula <- function(copula, u, log=FALSE, ...) {
   copula1 <- comps$copula1; copula2 <- comps$copula2
   gu1 <- cbind(gfun(u[,1], 1 - a1), gfun(u[,2], 1 - a2))
   gu2 <- cbind(gfun(u[,1], a1), gfun(u[,2], a2))
-  dC1du <- derCdfWrtArgs(copula1, gu1)
-  dC2du <- derCdfWrtArgs(copula2, gu2)
+  dC1du <- dCdu(copula1, gu1)
+  dC2du <- dCdu(copula2, gu2)
   part1 <- dcopula(copula1, gu1) *
       gfunDer(u[,1], 1 - a1) * gfunDer(u[,2], 1 - a2) *
           pcopula(copula2, gu2)

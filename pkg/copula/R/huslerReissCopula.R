@@ -56,7 +56,7 @@ AfunDerHuslerReiss <- function(copula, w) {
   data.frame(der1 = der1, der2 = der2)
 }
 
-derAfunWrtParamHuslerReiss <- function(copula, w) {
+dAdthetaHuslerReiss <- function(copula, w) {
   alpha <- copula@parameters[1]
   ainv <- 1 / alpha; a2inv <- 1 / alpha^2
   z <- 0.5 * alpha * log(w / (1 - w))
@@ -75,8 +75,8 @@ huslerReissCopula <- function(param = NA_real_) {
       log(u2) / log(u1 * u2)       * pnorm(1 / alpha + 0.5*alpha * log(log(u2) / log(u1 * u2) /(1 - log(u2) / log(u1 * u2)))) +
       (1 - log(u2) / log(u1 * u2)) * pnorm(1 / alpha - 0.5*alpha * log(log(u2) / log(u1 * u2) /(1 - log(u2) / log(u1 * u2))))
       ) ) )
-  derCdfWrtU1 <- D(cdf, "u1")
-  pdf <- D(derCdfWrtU1, "u2")
+  dCdU1 <- D(cdf, "u1")
+  pdf <- D(dCdU1, "u2")
 
   new("huslerReissCopula",
       dimension = dim,
@@ -218,8 +218,8 @@ setMethod("spearmansRho", signature("huslerReissCopula"), function(copula)
 setMethod("calibKendallsTau", signature("huslerReissCopula"), calibKendallsTauHuslerReissCopula)
 setMethod("calibSpearmansRho", signature("huslerReissCopula"), calibSpearmansRhoHuslerReissCopula)
 
-setMethod("tauDer", signature("huslerReissCopula"), function(copula)
+setMethod("dTau", signature("huslerReissCopula"), function(copula)
 	  huslerReissTauDer(copula@parameters[1]))
 
-setMethod("rhoDer", signature("huslerReissCopula"), function(copula)
+setMethod("dRho", signature("huslerReissCopula"), function(copula)
 	  huslerReissRhoDer(copula@parameters[1]))

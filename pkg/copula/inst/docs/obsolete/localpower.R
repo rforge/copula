@@ -28,7 +28,7 @@ localpowerC <- function(copC, copD, N=1000, n=1000, step=5, ndelta=4, alpha = 0.
   p <- 2
   x <- rcopula(copC,n)
   u <- apply(x,2,rank)/(n+1) ## make pseudo-observations
-  
+
   ## set r according to recommendations
   r <- 3:5
   nr <- length(r)
@@ -55,13 +55,13 @@ localpowerC <- function(copC, copD, N=1000, n=1000, step=5, ndelta=4, alpha = 0.
 
   ##s0np <- matrix(s0np, ncol = nr, byrow = TRUE)
   ##s0np <- apply(s0np,1,sum)
-  
+
   ## param
-  der <- derCdfWrtArgs(copC,g)
+  der <- dCdu(copC,g)
   dert <- numeric(0)
   for (i in r)
-    dert <- c(dert,as.double(derCdfWrtArgs(copC,g^(1/i))))
-  
+    dert <- c(dert,as.double(dCdu(copC,g^(1/i))))
+
   pcopC <- pcopula(copC,g)
   pcopD <- pcopula(copD,g)
   pcopCt <- numeric(0)
@@ -74,7 +74,7 @@ localpowerC <- function(copC, copD, N=1000, n=1000, step=5, ndelta=4, alpha = 0.
                       i *  pcopCr^(i - 1) * (pcopula(copD,g^(1/i)) -  pcopCr)
                       - (pcopD - pcopC))
     }
-  
+
   s0 <- .C("evtest_LP",
            as.double(x),
            as.integer(n),
@@ -132,7 +132,7 @@ localpowerA <- function(copC, copD, N=1000, n=1000, step=5, ndelta=4, alpha = 0.
   #           s0 = double(N),
   #           PACKAGE="copula")$s0
 
-  der <- derCdfWrtArgs(copC,u)
+  der <- dCdu(copC,u)
   loguv <- log(u[,1]*u[,2])
   g <- log(u[,2])/loguv #grid (size n)
   AC <- Afun(copC,g)
@@ -140,8 +140,8 @@ localpowerA <- function(copC, copD, N=1000, n=1000, step=5, ndelta=4, alpha = 0.
   for (i in 1:n)
     ADg[i] <- AD(copD,g[i])
   delta.term <- pcopula(copD,u) - pcopula(copC,u) -
-    exp(loguv * AC) * loguv * AC * (log(ADg) - log(AC)) 
-  
+    exp(loguv * AC) * loguv * AC * (log(ADg) - log(AC))
+
   s0 <- .C("evtestA_LP",
            as.double(u[,1]),
            as.double(u[,2]),
@@ -160,13 +160,13 @@ localpowerA <- function(copC, copD, N=1000, n=1000, step=5, ndelta=4, alpha = 0.
            PACKAGE="copula")$s0
 
   s0 <- matrix(s0, ncol = ndelta)
-  
+
   q <- sort(s0[,1])[(1- alpha) * N] #critical value
-  
+
   localpow <- numeric(ndelta - 1)
   for (i in 2:ndelta)
     localpow[i-1] <- mean(s0[,i] >= q)
-  
+
   #return(list(s0np=s0np,s0=s0,lp=c(alpha,localpow)))
   return(c(alpha,localpow))
 }

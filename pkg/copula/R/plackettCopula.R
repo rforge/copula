@@ -119,12 +119,12 @@ calibKendallsTauPlackettCopula <- function(copula, tau) {
   .plackettTau$trFuns$backwardTransf(theta, ss)
 }
 
-tauDerPlackettCopula <- function(copula) {
+dTauPlackettCopula <- function(copula) {
   alpha <- copula@parameters[1]
   plackettTauDer(alpha)
 }
 
-rhoDerPlackettCopula <- function(copula) {
+dRhoPlackettCopula <- function(copula) {
   alpha <- copula@parameters
   return( (2 * (2 - 2 * alpha + (1 + alpha) * log(alpha))) / (alpha - 1)^3 )
 }
@@ -144,5 +144,5 @@ setMethod("spearmansRho", signature("plackettCopula"), spearmansRhoPlackettCopul
 setMethod("calibKendallsTau", signature("plackettCopula"), calibKendallsTauPlackettCopula)
 setMethod("calibSpearmansRho", signature("plackettCopula"), calibSpearmansRhoCopula)
 
-setMethod("tauDer", signature("plackettCopula"), tauDerPlackettCopula)
-setMethod("rhoDer", signature("plackettCopula"), rhoDerPlackettCopula)
+setMethod("dTau", signature("plackettCopula"), dTauPlackettCopula)
+setMethod("dRho", signature("plackettCopula"), dRhoPlackettCopula)

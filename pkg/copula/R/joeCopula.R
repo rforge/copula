@@ -56,5 +56,5 @@ setMethod("calibKendallsTau", signature("joeCopula"),
 ## setMethod("calibSpearmansRho", signature("joeCopula"), function(copula, rho) ...)
 
 ## "TODO"
-## setMethod("rhoDer", signature("joeCopula"), ...)
-## setMethod("tauDer", signature("joeCopula"), ...)
+## setMethod("dRho", signature("joeCopula"), ...)
+## setMethod("dTau", signature("joeCopula"), ...)

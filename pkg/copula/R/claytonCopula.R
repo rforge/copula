@@ -200,7 +200,7 @@ calibSpearmansRhoClaytonCopula <- function(copula, rho) {
   .claytonRhoPos$trFuns$backwardTransf(theta, ss)
 }
 
-rhoDerClaytonCopula <- function(copula) {
+dRhoClaytonCopula <- function(copula) {
   alpha <- copula@parameters[1]
   claytonRhoDer(alpha)
 }
@@ -211,7 +211,7 @@ tailIndexClaytonCopula <- function(copula) {
     upper= 0)
 }
 
-tauDerClaytonCopula <- function(copula) {
+dTauClaytonCopula <- function(copula) {
   return( 2 / (copula@parameters+2)^2 )
 }
 
@@ -243,5 +243,5 @@ setMethod("tailIndex", signature("claytonCopula"), tailIndexClaytonCopula)
 setMethod("calibKendallsTau", signature("claytonCopula"), calibKendallsTauClaytonCopula)
 setMethod("calibSpearmansRho", signature("claytonCopula"), calibSpearmansRhoClaytonCopula)
 
-setMethod("tauDer", signature("claytonCopula"), tauDerClaytonCopula)
-setMethod("rhoDer", signature("claytonCopula"), rhoDerClaytonCopula)
+setMethod("dTau", signature("claytonCopula"), dTauClaytonCopula)
+setMethod("dRho", signature("claytonCopula"), dRhoClaytonCopula)

@@ -15,8 +15,8 @@ set.seed(1234)
 cop <- claytonCopula(2, dim=5)
 u <- rcopula(cop, 10)
 
-derCdfWrtParams(cop, u)
-derCdfWrtArgs(cop, u)
+dCdtheta(cop, u)
+dCdu(cop, u)
 derPdfWrtParams(cop, u)
 derPdfWrtArgs(cop, u)
 
@@ -24,8 +24,8 @@ derPdfWrtArgs(cop, u)
 cop <- gumbelCopula(2, dim=5)
 u <- rcopula(cop, 10)
 
-derCdfWrtParams(cop, u)
-derCdfWrtArgs(cop, u)
+dCdtheta(cop, u)
+dCdu(cop, u)
 derPdfWrtParams(cop, u)
 derPdfWrtArgs(cop, u)
 
@@ -34,8 +34,8 @@ derPdfWrtArgs(cop, u)
 cop <- frankCopula(2, dim=5)
 u <- rcopula(cop, 10)
 
-derCdfWrtParams(cop, u)
-derCdfWrtArgs(cop, u)
+dCdtheta(cop, u)
+dCdu(cop, u)
 derPdfWrtParams(cop, u)
 derPdfWrtArgs(cop, u)
 
@@ -43,7 +43,7 @@ derPdfWrtArgs(cop, u)
 cop <- plackettCopula(2) # dim = 2 only
 u <- rcopula(cop, 10)
 
-derCdfWrtParams(cop, u)
-derCdfWrtArgs(cop, u)
+dCdtheta(cop, u)
+dCdu(cop, u)
 derPdfWrtParams(cop, u)
 derPdfWrtArgs(cop, u)

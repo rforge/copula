@@ -29,7 +29,7 @@ IK: Me too
 **** 'param.lowbnd' / 'param.upbnd' --- use "interval" as in nacopula
 
 *** nparam() "wrapper" for  length(.@parameters)
-*** tauDer() = tau'() and rhoDer() = rho'() -- to get S.Err. for  "itau" and "irho"
+*** dTau() = tau'() and dRho() = rho'() -- to get S.Err. for  "itau" and "irho"
 **** these are *one* of the things where IJ-archmCopula' are better
 *** AfunDerGalambos() and similar: Use  list() instead of data.frame() as return value  (?)
 
@@ -109,9 +109,9 @@ We can put them back. The best place is under inst?
 ** Deprecation of Old Stuff / more consistency / Cleanup
 *** loglikCopula() --- try(), hidemessages should "go" eventually
 *** varPL(): TODO's there
-*** tauDer() = tau'() and rhoDer() = rho'() -- to get S.Err. for  "itau" and "irho"
+*** dTau() = tau'() and dRho() = rho'() -- to get S.Err. for  "itau" and "irho"
 **** these are *one* of the things where IJ-archmCopula' are better
-*** derCdfWrtParamsEvCopula() cannot work (as derAfunWrtParam() has no methods) and is used nowhere
+*** dCdthetaEvCopula() cannot work (as dAdtheta() has no methods) and is used nowhere
 
 ** C code
 *** DONE [src/init.c] enable registration for the old 'copula' part

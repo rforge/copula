@@ -45,7 +45,7 @@ frankRhoDer <- function(alpha) {
 }
 
 ## rhoTrue <- sapply(alphaGrid, function(x) spearmansRho(frankCopula(x)))
-## rhoDerTrue <- sapply(alphaGrid, function(x) rhoDer(frankCopula(x)))
+## dRhoTrue <- sapply(alphaGrid, function(x) dRho(frankCopula(x)))
 
 save(.frankRho, frankRhoFun, frankRhoDer,
      file = "frankRho.rda")
@@ -78,7 +78,7 @@ t4RhoDer <- function(alpha) {
 
 alphaGrid <- tTrFuns$backwardTransf(thetaGrid)
 rhoTrue <- sapply(alphaGrid, function(x) spearmansRho(tCopula(x)))
-rhoDerTrue <-  6 / (pi * sqrt(4 - alphaGrid^2)) ## true for normal
+dRhoTrue <-  6 / (pi * sqrt(4 - alphaGrid^2)) ## true for normal
 
 save(.t4Rho, t4RhoFun, t4RhoDer,
      file = "t4Rho.rda")
@@ -89,9 +89,9 @@ save(.t4Rho, t4RhoFun, t4RhoDer,
 ## curve(t4RhoFun(x), add=TRUE, col="blue")
 
 ## curve(t4RhoDer(x), col="blue", xlab=expression(theta), ylab=bquote(partialdiff~ rho / partialdiff ~ theta))
-## lines(alphaGrid, rhoDerTrue)
+## lines(alphaGrid, dRhoTrue)
 ## dev.off()
-     
+
 ########################################################
 ## try with clayton
 ## deal with positive and negative alpha separately

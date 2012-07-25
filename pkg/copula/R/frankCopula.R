@@ -163,12 +163,12 @@ spearmansRhoFrankCopula <- function(copula) {
       1 - 12/alpha * (debye1(alpha) - debye2(alpha))
 }
 
-tauDerFrankCopula <- function(copula) {
+dTauFrankCopula <- function(copula) {
   alpha <- copula@parameters
   4/alpha^2 + 4/(alpha * expm1(alpha)) - 8/alpha^2 * debye1(alpha)
 }
 
-rhoDerFrankCopula <- function(copula) {
+dRhoFrankCopula <- function(copula) {
   alpha <- copula@parameters
   12 / (alpha * expm1(alpha)) + (-36 * debye2(alpha) + 24 * debye1(alpha))/ alpha^2
 }
@@ -204,5 +204,5 @@ setMethod("tailIndex", signature("frankCopula"), function(copula) c(lower=0, upp
 setMethod("calibKendallsTau", signature("frankCopula"), calibKendallsTauCopula)
 setMethod("calibSpearmansRho", signature("frankCopula"), calibSpearmansRhoCopula)
 
-setMethod("rhoDer", signature("frankCopula"), rhoDerFrankCopula)
-setMethod("tauDer", signature("frankCopula"), tauDerFrankCopula)
+setMethod("dRho", signature("frankCopula"), dRhoFrankCopula)
+setMethod("dTau", signature("frankCopula"), dTauFrankCopula)

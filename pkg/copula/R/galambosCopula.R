@@ -51,7 +51,7 @@ AfunDerGalambos <- function(copula, w) {
   data.frame(der1 = der1, der2 = der2)
 }
 
-derAfunWrtParamGalambos <- function(copula, w) {
+dAdthetaGalambos <- function(copula, w) {
   alpha <- copula@parameters[1]
   ## deriv(expression(1 - (w^(-alpha) + (1 - w)^(-alpha))^(-1/alpha)), "alpha", hessian=TRUE)
   value <- eval(expression({
@@ -98,8 +98,8 @@ derAfunWrtParamGalambos <- function(copula, w) {
 galambosCopula <- function(param = NA_real_) {
   dim <- 2L
   cdf <- expression( exp(log(u1 * u2) *  (1 - ((log(u2) / log(u1 * u2))^(-alpha) + (1 - (log(u2) / log(u1 * u2)))^(-alpha))^(-1/alpha))) )
-  derCdfWrtU1 <- D(cdf, "u1")
-  pdf <- D(derCdfWrtU1, "u2")
+  dCdU1 <- D(cdf, "u1")
+  pdf <- D(dCdU1, "u2")
 
   new("galambosCopula",
              dimension = dim,
@@ -184,7 +184,7 @@ galambosTauDer <- function(alpha) {
   valFun(theta, 1) * forwardDer(alpha, ss)
 }
 
-tauDerGalambosCopula <- function(copula) {
+dTauGalambosCopula <- function(copula) {
   alpha <- copula@parameters[1]
   galambosTauDer(alpha)
 }
@@ -223,7 +223,7 @@ galambosRhoDer <- function(alpha) {
   valFun(theta, 1) * forwardDer(alpha, ss)
 }
 
-rhoDerGalambosCopula <- function(copula) {
+dRhoGalambosCopula <- function(copula) {
   alpha <- copula@parameters[1]
   galambosRhoDer(alpha)
 }
@@ -244,5 +244,5 @@ setMethod("spearmansRho", signature("galambosCopula"), spearmansRhoGalambosCopul
 setMethod("calibKendallsTau", signature("galambosCopula"), calibKendallsTauGalambosCopula)
 setMethod("calibSpearmansRho", signature("galambosCopula"), calibSpearmansRhoGalambosCopula)
 
-setMethod("tauDer", signature("galambosCopula"), tauDerGalambosCopula)
-setMethod("rhoDer", signature("galambosCopula"), rhoDerGalambosCopula)
+setMethod("dTau", signature("galambosCopula"), dTauGalambosCopula)
+setMethod("dRho", signature("galambosCopula"), dRhoGalambosCopula)

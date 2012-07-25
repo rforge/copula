@@ -43,8 +43,8 @@ tawnCopula <- function(param = NA_real_) {
   dim <- 2L
   ## See Table 1 from Ghoudi, Khoudraji, and Rivest (1998, CJS, in french)
   cdf <- expression( u1 * u2 * exp( - alpha * log(u1) * log(u2) / log(u1 * u2)) )
-  derCdfWrtU1 <- D(cdf, "u1")
-  pdf <- D(derCdfWrtU1, "u2")
+  dCdU1 <- D(cdf, "u1")
+  pdf <- D(dCdU1, "u2")
 
   new("tawnCopula",
              dimension = dim,
@@ -90,7 +90,7 @@ calibKendallsTauTawnCopula <- function(copula, tau) {
          ifelse(tau >= taumax, 1, calibKendallsTauCopula(copula, tau)))
 }
 
-tauDerTawnCopula <- function(copula) {
+dTauTawnCopula <- function(copula) {
   alpha <- copula@parameters[1]
   ##  deriv(expression( 8 * atan(sqrt(alpha / (4 - alpha))) / sqrt(alpha * (4 - alpha)) - 2), "alpha")
   value <- eval(expression({
@@ -128,7 +128,7 @@ calibSpearmansRhoTawnCopula <- function(copula, rho) {
          ifelse(rho >= rhomax, 1, calibSpearmansRhoCopula(copula, rho)))
 }
 
-rhoDerTawnCopula <- function(copula) {
+dRhoTawnCopula <- function(copula) {
   alpha <- copula@parameters[1]
   ## deriv(expression(12 * ( (8 - alpha) * alpha + 8 * sqrt( (8 - alpha) * alpha ) * atan(sqrt(alpha) / sqrt(8 - alpha)) ) / ( (8 - alpha)^2 * alpha ) - 3), "alpha")
   value <- eval(expression({
@@ -169,5 +169,5 @@ setMethod("spearmansRho", signature("tawnCopula"), spearmansRhoTawnCopula)
 setMethod("calibKendallsTau", signature("tawnCopula"), calibKendallsTauTawnCopula)
 setMethod("calibSpearmansRho", signature("tawnCopula"), calibSpearmansRhoTawnCopula)
 
-setMethod("tauDer", signature("tawnCopula"), tauDerTawnCopula)
-setMethod("rhoDer", signature("tawnCopula"), rhoDerTawnCopula)
+setMethod("dTau", signature("tawnCopula"), dTauTawnCopula)
+setMethod("dRho", signature("tawnCopula"), dRhoTawnCopula)

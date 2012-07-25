@@ -49,7 +49,7 @@ AfunDerSchlather <- function(copula, w) {
   data.frame(der1 = der1, der2 = der2)
 }
 
-derAfunWrtParamSchlather <- function(copula, w) {
+dAdthetaSchlather <- function(copula, w) {
   alpha <- copula@parameters[1]
   ## to be completed
   stop("to be implemented")
@@ -107,5 +107,5 @@ dschlatherCopula <- function(copula, u, log=FALSE, ...) {
 ## setMethod("calibKendallsTau", signature("schlatherCopula"), calibKendallsTauSchlatherCopula)
 ## setMethod("calibSpearmansRho", signature("schlatherCopula"), calibSpearmansRhoSchlatherCopula)
 
-## setMethod("tauDer", signature("schlatherCopula"), tauDerSchlatherCopula)
-## setMethod("rhoDer", signature("schlatherCopula"), rhoDerSchlatherCopula)
+## setMethod("dTau", signature("schlatherCopula"), dTauSchlatherCopula)
+## setMethod("dRho", signature("schlatherCopula"), dRhoSchlatherCopula)

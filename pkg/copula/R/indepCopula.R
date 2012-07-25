@@ -92,5 +92,5 @@ setMethod("Afun", signature("indepCopula"), AfunIndep)
 # setMethod("calibKendallsTau", signature("indepCopula"), calibKendallsTauIndepCopula)
 # setMethod("calibSpearmansRho", signature("indepCopula"), calibSpearmansRhoIndepCopula)
 
-# setMethod("tauDer", signature("indepCopula"), tauDerIndepCopula)
-# setMethod("rhoDer", signature("indepCopula"), rhoDerIndepCopula)
+# setMethod("dTau", signature("indepCopula"), dTauIndepCopula)
+# setMethod("dRho", signature("indepCopula"), dRhoIndepCopula)

@@ -188,10 +188,10 @@ gofMCLT.KS <- function(cop, x, N, method)
     ## prepare influence coefficients
     if (method == "itau") ## kendall's tau
         influ <- 4 * (2 * pcopula(cop,u) - u[,1] - u[,2]
-                      + (1 - kendallsTau(cop))/2) / tauDer(cop)
+                      + (1 - kendallsTau(cop))/2) / dTau(cop)
     else if (method == "irho") ## Spearman's rho
         influ <- (12 * (u[,1] * u[,2] + influ.add(u, u, u[,2],u[,1])) -
-                  3 - spearmansRho(cop)) / rhoDer(cop)
+                  3 - spearmansRho(cop)) / dRho(cop)
 
     ## simulate under H0
     s0 <- .C(multiplier,
@@ -200,7 +200,7 @@ gofMCLT.KS <- function(cop, x, N, method)
              as.integer(n),
              as.double(u),
              as.integer(n),
-             as.double(derCdfWrtParams(cop,u) %*% influ),
+             as.double(dCdtheta(cop,u) %*% influ),
              as.integer(N),
              s0 = double(N))$s0
 
@@ -299,7 +299,7 @@ gofMCLT.PL <- function(cop, x, N, optim.method, optim.control)
              as.integer(n),
              as.double(u),
              as.integer(n),
-             as.double(derCdfWrtParams(cop,u) %*% influCoef(cop,u,u)),
+             as.double(dCdtheta(cop,u) %*% influCoef(cop,u,u)),
              as.integer(N),
              s0 = double(N))$s0
 

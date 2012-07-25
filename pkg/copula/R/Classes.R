@@ -61,11 +61,11 @@ setGeneric("spearmansRho", function(copula) standardGeneric("spearmansRho"))
 setGeneric("tailIndex", function(copula, ...) standardGeneric("tailIndex"))
 setGeneric("calibKendallsTau", function(copula, tau) standardGeneric("calibKendallsTau"))
 setGeneric("calibSpearmansRho", function(copula, rho) standardGeneric("calibSpearmansRho"))
-setGeneric("tauDer", function(copula, ...) standardGeneric("tauDer"))
-setGeneric("rhoDer", function(copula, ...) standardGeneric("rhoDer"))
+setGeneric("dTau", function(copula, ...) standardGeneric("dTau"))
+setGeneric("dRho", function(copula, ...) standardGeneric("dRho"))
 
-setGeneric("tauDerFun", function(copula) standardGeneric("tauDerFun"))
-setGeneric("rhoDerFun", function(copula) standardGeneric("rhoDerFun"))
+setGeneric("dTauFun", function(copula) standardGeneric("dTauFun"))
+setGeneric("dRhoFun", function(copula) standardGeneric("dRhoFun"))
 
 
 ### independent copula class ###################################################
@@ -181,7 +181,7 @@ setClass("tevCopula", representation(df = "numeric", df.fixed = "logical"),
 
 setGeneric("Afun", function(copula, w) standardGeneric("Afun"))
 setGeneric("AfunDer", function(copula, w) standardGeneric("AfunDer"))
-setGeneric("derAfunWrtParam", function(copula, w) standardGeneric("derAfunWrtParam"))
+setGeneric("dAdtheta", function(copula, w) standardGeneric("dAdtheta"))
 
 
 ### Other copulas ##############################################################
