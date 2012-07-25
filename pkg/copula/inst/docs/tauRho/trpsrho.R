@@ -44,7 +44,7 @@ frankRhoDer <- function(alpha) {
   c(.frankRho$assoMeasFun$valFun(theta, 1)) * forwardDer(alpha, ss)
 }
 
-## rhoTrue <- sapply(alphaGrid, function(x) spearmansRho(frankCopula(x)))
+## rhoTrue <- sapply(alphaGrid, function(x) rho(frankCopula(x)))
 ## dRhoTrue <- sapply(alphaGrid, function(x) dRho(frankCopula(x)))
 
 save(.frankRho, frankRhoFun, frankRhoDer,
@@ -77,7 +77,7 @@ t4RhoDer <- function(alpha) {
 }
 
 alphaGrid <- tTrFuns$backwardTransf(thetaGrid)
-rhoTrue <- sapply(alphaGrid, function(x) spearmansRho(tCopula(x)))
+rhoTrue <- sapply(alphaGrid, function(x) rho(tCopula(x)))
 dRhoTrue <-  6 / (pi * sqrt(4 - alphaGrid^2)) ## true for normal
 
 save(.t4Rho, t4RhoFun, t4RhoDer,

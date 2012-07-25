@@ -34,11 +34,11 @@ import("pspline")
 
 export(dcopula, pcopula, rcopula)
 export(dmvdc, pmvdc, rmvdc)
-export(kendallsTau, spearmansRho, tailIndex)
-export(calibKendallsTau, calibSpearmansRho)
+export(tau, rho, tailIndex)
+export(iTau, iRho)
 
 ## archmCopula methods
-export(genFun, genInv, genFunDer1, genFunDer2)
+export(genFun, iPsi, genFunDer1, genFunDer2)
 
 ## evCopula methods
 export(Afun, AfunDer, Anfun)
@@ -169,6 +169,11 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        )
 ## Deprecated old names [2012-07-25]:
 export(psiDabsMC
+       , calibKendallsTau
+       , calibSpearmansRho
+       , genInv
+       , kendallsTau
+       , spearmansRho
        )
 
 exportMethods(## for both own and "other" generics:

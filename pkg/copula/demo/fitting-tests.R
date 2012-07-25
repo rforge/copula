@@ -41,7 +41,7 @@ testCop <- function(cop, n, N, verbose=TRUE) {
 ##' @return an array bias and dSE in different tau and n scenarios
 ##' @author Martin
 run1test <- function(cop, tau.set, n.set, N, verbose=TRUE) {
-  theta <- structure(calibKendallsTau(cop, tau.set),
+  theta <- structure(iTau(cop, tau.set),
 		     names = paste("tau", format(tau.set), sep="="))
   names(n.set) <- paste("n",format(n.set),sep="=")
   setPar <- function(cop, value) { cop@parameters <- value ; cop }

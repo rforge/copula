@@ -104,13 +104,13 @@ plackettTauDer <- function(alpha) {
   ##         valFun(1/theta, 1) * forwardDer(alpha, ss) / theta^2))
 }
 
-kendallsTauPlackettCopula <- function(copula) {
+tauPlackettCopula <- function(copula) {
   alpha <- copula@parameters[1]
   plackettTauFun(alpha)
 }
 
 
-calibKendallsTauPlackettCopula <- function(copula, tau) {
+iTauPlackettCopula <- function(copula, tau) {
   plackettTauInvLt1 <- approxfun(x = .plackettTau$assoMeasFun$fm$ysmth,
                                  y = .plackettTau$assoMeasFun$fm$x)
 
@@ -129,7 +129,7 @@ dRhoPlackettCopula <- function(copula) {
   return( (2 * (2 - 2 * alpha + (1 + alpha) * log(alpha))) / (alpha - 1)^3 )
 }
 
-spearmansRhoPlackettCopula <- function(copula) {
+rhoPlackettCopula <- function(copula) {
   theta <- copula@parameters[1]
   if (theta == 0) -1 else (theta + 1) / (theta - 1) - 2 * theta * log(theta) / (theta - 1)^2
 }
@@ -138,11 +138,11 @@ setMethod("pcopula", signature("plackettCopula"), pplackettCopula)
 setMethod("dcopula", signature("plackettCopula"), dplackettCopula)
 setMethod("rcopula", signature("plackettCopula"), rplackettCopula)
 
-setMethod("kendallsTau", signature("plackettCopula"), kendallsTauPlackettCopula)
-setMethod("spearmansRho", signature("plackettCopula"), spearmansRhoPlackettCopula)
+setMethod("tau", signature("plackettCopula"), tauPlackettCopula)
+setMethod("rho", signature("plackettCopula"), rhoPlackettCopula)
 
-setMethod("calibKendallsTau", signature("plackettCopula"), calibKendallsTauPlackettCopula)
-setMethod("calibSpearmansRho", signature("plackettCopula"), calibSpearmansRhoCopula)
+setMethod("iTau", signature("plackettCopula"), iTauPlackettCopula)
+setMethod("iRho", signature("plackettCopula"), iRhoCopula)
 
 setMethod("dTau", signature("plackettCopula"), dTauPlackettCopula)
 setMethod("dRho", signature("plackettCopula"), dRhoPlackettCopula)

@@ -82,20 +82,20 @@ revCopula <- function(copula, n) {
 ### These one-dimensional numerical integrations are quite accurate.
 ### They are much better than two-dimensional integration based on function adapt.
 
-kendallsTauEvCopula <- function(copula) {
+tauEvCopula <- function(copula) {
   integrand <- function(x) x * (1 - x) / Afun(copula, x) * AfunDer(copula, x)$der2
   integrate(integrand, 0, 1)$value
 }
 
-spearmansRhoEvCopula <- function(copula) {
+rhoEvCopula <- function(copula) {
   integrand <- function(x) 1 / (Afun(copula, x) + 1)^2
   12 * integrate(integrand, 0, 1)$value - 3
 }
 
 setMethod("tailIndex", signature("evCopula"), tailIndexEvCopula)
 setMethod("rcopula", signature("evCopula"), revCopula)
-setMethod("kendallsTau", signature("evCopula"), kendallsTauEvCopula)
-setMethod("spearmansRho", signature("evCopula"), spearmansRhoEvCopula)
+setMethod("tau", signature("evCopula"), tauEvCopula)
+setMethod("rho", signature("evCopula"), rhoEvCopula)
 
 
 

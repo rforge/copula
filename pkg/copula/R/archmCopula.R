@@ -32,9 +32,9 @@ archmCopula <- function(family, param = NA_real_, dim = 2L, ...) {
 }
 
 
-kendallsTauArchmCopula <- function(copula) {
+tauArchmCopula <- function(copula) {
   integrand <- function(x) genFun(copula, x) / genFunDer1(copula, x)
   1 + 4 * integrate(integrand, 0, 1)$value
 }
 
-setMethod("kendallsTau", signature("archmCopula"), kendallsTauArchmCopula)
+setMethod("tau", signature("archmCopula"), tauArchmCopula)

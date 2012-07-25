@@ -11,7 +11,7 @@ dRhoFrankCopula <- function(copula) {
 
 thetaGrid <- seq(-.999, .999, by = .001)
 alphaGrid <- 40 * atanh(thetaGrid)
-rhoTrue <- sapply(alphaGrid, function(x) spearmansRho(frankCopula(x)))
+rhoTrue <- sapply(alphaGrid, function(x) rho(frankCopula(x)))
 dRhoTrue <- sapply(alphaGrid, function(x) dRhoFrankCopula(frankCopula(x)))
 
 pdf("frank-rho.pdf", height=3, width=6, pointsize=9)
@@ -34,7 +34,7 @@ plot(thetaGrid, frankRhoDer(atanh(thetaGrid) * 40) - dRhoTrue, type="l", xlab=ex
 dev.off()
 
 load("t4Rho.rda")
-rhoTrue <- sapply(thetaGrid, function(x) spearmansRho(tCopula(x)))
+rhoTrue <- sapply(thetaGrid, function(x) rho(tCopula(x)))
 dRhoTrue <-  6 / (pi * sqrt(4 - thetaGrid^2))
 
 pdf("t4-rho.pdf", height=3, width=6, pointsize=9)

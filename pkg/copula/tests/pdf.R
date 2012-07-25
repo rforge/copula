@@ -40,7 +40,7 @@ fCols <- colorRampPalette(c("red", "white", "blue"), space = "Lab")
 
 
 ## frankCopula
-theta.fr <- calibKendallsTau(frankCopula(), tau)
+theta.fr <- iTau(frankCopula(), tau)
 dcop <- matrix(dcopula(frankCopula(param=theta.fr, dim = 2), umat),
                n1, n2)
 filled.contour(u1, u2, dcop, color.palette = fCols,
@@ -49,7 +49,7 @@ round(dcop, 3)
 
 
 ## claytonCopula
-(theta.cl <- calibKendallsTau(claytonCopula(), tau))
+(theta.cl <- iTau(claytonCopula(), tau))
 stopifnot(all.equal(theta.cl, copClayton@tauInv(tau), tol = 1e-13))
 dcop <- matrix(dcopula(claytonCopula(param=theta.cl, dim = 2), umat),
                n1, n2)
@@ -62,7 +62,7 @@ round(dcop, 3)
 
 
 ## gumbelCopula
-theta.gu <- calibKendallsTau(gumbelCopula(), tau)
+theta.gu <- iTau(gumbelCopula(), tau)
 stopifnot(all.equal(theta.gu, copGumbel@tauInv(tau), tol = 1e-13))
 dcop <- matrix(dcopula(gumbelCopula(param=theta.gu, dim = 2), umat),
                n1, n2)
@@ -77,7 +77,7 @@ round(dcop, 3)
 uB <- cbind(c(0:1, .5), (1:9)/10) # values at boundaries
 fC <- dcopula(normalCopula(0.55), uB)
 stopifnot(is.finite(fC), length(fC)==nrow(uB), fC[-3*(1:3)] == 0)
-theta.n <- calibKendallsTau(normalCopula(), tau)
+theta.n <- iTau(normalCopula(), tau)
 dcop <- matrix(dcopula(normalCopula(param=theta.n, dim = 2), umat),
                n1, n2)
 filled.contour(u1, u2, log(dcop), color.palette = fCols,
@@ -90,7 +90,7 @@ round(dcop, 3)
 ## tCopula
 fC <- dcopula(tCopula(0.55), uB)
 stopifnot(is.finite(fC), length(fC)==nrow(uB), fC[-3*(1:3)] == 0)
-(theta.t. <- calibKendallsTau(tCopula(df=10), tau))
+(theta.t. <- iTau(tCopula(df=10), tau))
 dcop <- matrix(dcopula(tCopula(param=theta.t., dim = 2, df=10), umat),
                n1, n2)
 filled.contour(u1, u2, log(dcop), color.palette = fCols,
@@ -99,7 +99,7 @@ filled.contour(u1, u2, dcop, color.palette = fCols,
                main=sprintf("Density( tCopula(%.4g, df = 10) )", theta.t.))
 round(dcop, 3)
 ## tCopula -- df=4
-(theta <- calibKendallsTau(tCopula(df=4), tau))
+(theta <- iTau(tCopula(df=4), tau))
 dcop <- matrix(dcopula(tCopula(param=theta, dim = 2, df=4), umat),
                n1, n2)
 filled.contour(u1, u2, log(dcop), color.palette = fCols,
@@ -110,8 +110,8 @@ round(dcop, 3)
 
 ## galambosCopula
 #
-(theta <- calibKendallsTau(galambosCopula(), tau))
-stopifnot(all.equal(tau, kendallsTau(galambosCopula(theta)), tol = 1e-5))
+(theta <- iTau(galambosCopula(), tau))
+stopifnot(all.equal(tau, tau(galambosCopula(theta)), tol = 1e-5))
 dcop <- matrix(dcopula(galambosCopula(param=theta), umat),
                n1, n2)
 filled.contour(u1, u2, log(dcop), color.palette = fCols,
@@ -123,8 +123,8 @@ round(dcop, 3)
 
 ## amhCopula
 tau <- 0.3 ## -- to be in range for AMH
-(theta <- calibKendallsTau(amhCopula(), tau))
-stopifnot(all.equal(tau, kendallsTau(amhCopula(theta)), tol = 1e-5))
+(theta <- iTau(amhCopula(), tau))
+stopifnot(all.equal(tau, tau(amhCopula(theta)), tol = 1e-5))
 dcop <- matrix(dcopula(amhCopula(param=theta), umat),
                n1, n2)
 filled.contour(u1, u2, dcop, color.palette = fCols,

@@ -55,7 +55,7 @@ genFunGumbel <- function(copula, u) {
   ( - log(u))^alpha
 }
 
-genInvGumbel <- function(copula, s) {
+iPsiGumbel <- function(copula, s) {
   alpha <- copula@parameters[1]
   exp( -s^(1 / alpha) )
 }
@@ -114,7 +114,7 @@ rgumbelCopula <- function(copula, n) {
   fr <- matrix(fr, nrow=n, ncol=dim)
   ## now gumbel copula
   val <- matrix(runif(dim * n), nrow = n)
-  genInv(copula, - log(val) / fr)
+  iPsi(copula, - log(val) / fr)
 }
 
 
@@ -151,7 +151,7 @@ dgumbelCopula.pdf <- function(copula, u, log=FALSE) {
   else  c(eval(gumbelCopula.pdf.algr[dim]))
 }
 
-kendallsTauGumbelCopula <- function(copula) {
+tauGumbelCopula <- function(copula) {
   alpha <- copula@parameters[1]
   1 - 1/alpha
 }
@@ -163,7 +163,7 @@ tailIndexGumbelCopula <- function(copula, ...) {
 }
 
 
-calibKendallsTauGumbelCopula <- function(copula, tau) {
+iTauGumbelCopula <- function(copula, tau) {
   if (any(tau < 0)) warning("tau is out of the range [0, 1]")
   ifelse(tau <= 0, 1, 1/(1 - tau))
 }
@@ -188,13 +188,13 @@ gumbelRhoDer <- function(alpha) {
   c(valFun(theta, 1)) * forwardDer(alpha, ss)
 }
 
-spearmansRhoGumbelCopula <- function(copula) {
+rhoGumbelCopula <- function(copula) {
   alpha <- copula@parameters[1]
   gumbelRhoFun(alpha)
 }
 
 
-calibSpearmansRhoGumbelCopula <- function(copula, rho) {
+iRhoGumbelCopula <- function(copula, rho) {
   if (any(rho < 0)) warning("rho is out of the range [0, 1]")
   gumbelRhoInv <- approxfun(x = .gumbelRho$assoMeasFun$fm$ysmth,
                             y = .gumbelRho$assoMeasFun$fm$x, rule = 2)
@@ -227,17 +227,17 @@ setMethod("Afun", signature("gumbelCopula"), AfunGumbel)
 setMethod("AfunDer", signature("gumbelCopula"), AfunDerGumbel)
 
 setMethod("genFun", signature("gumbelCopula"), genFunGumbel)
-setMethod("genInv", signature("gumbelCopula"), genInvGumbel)
+setMethod("iPsi", signature("gumbelCopula"), iPsiGumbel)
 
 setMethod("genFunDer1", signature("gumbelCopula"), genFunDer1Gumbel)
 setMethod("genFunDer2", signature("gumbelCopula"), genFunDer2Gumbel)
 
-setMethod("kendallsTau", signature("gumbelCopula"), kendallsTauGumbelCopula)
-setMethod("spearmansRho", signature("gumbelCopula"), spearmansRhoGumbelCopula)
+setMethod("tau", signature("gumbelCopula"), tauGumbelCopula)
+setMethod("rho", signature("gumbelCopula"), rhoGumbelCopula)
 setMethod("tailIndex", signature("gumbelCopula"), tailIndexGumbelCopula)
 
-setMethod("calibKendallsTau", signature("gumbelCopula"), calibKendallsTauGumbelCopula)
-setMethod("calibSpearmansRho", signature("gumbelCopula"), calibSpearmansRhoGumbelCopula)
+setMethod("iTau", signature("gumbelCopula"), iTauGumbelCopula)
+setMethod("iRho", signature("gumbelCopula"), iRhoGumbelCopula)
 
 setMethod("dRho", signature("gumbelCopula"), dRhoGumbelCopula)
 setMethod("dTau", signature("gumbelCopula"), dTauGumbelCopula)

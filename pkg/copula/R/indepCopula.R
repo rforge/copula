@@ -63,19 +63,19 @@ dindepCopula <- function(copula, u, log=FALSE, ...) {
   rep.int(if(log) 0 else 1, nrow(u))
 }
 
-## kendallsTauIndepCopula <- function(copula) {
+## tauIndepCopula <- function(copula) {
 ##   0
 ## }
 
-## calibKendallsTauIndepCopula <- function(copula, tau) {
+## iTauIndepCopula <- function(copula, tau) {
 ##   cat("No need to calibrate an independent copula.\n")
 ## }
 
-## spearmansRhoIndepCopula <- function(copula) {
+## rhoIndepCopula <- function(copula) {
 ##   0
 ## }
 
-## calibSpearmansRhoIndepCopula <- function(copula, rho) {
+## iRhoIndepCopula <- function(copula, rho) {
 ##   cat("No need to calibrate an independent copula.\n")
 ## }
 
@@ -85,12 +85,12 @@ setMethod("pcopula", signature("indepCopula"), pindepCopula)
 setMethod("dcopula", signature("indepCopula"), dindepCopula)
 
 setMethod("Afun", signature("indepCopula"), AfunIndep)
-# setMethod("kendallsTau", signature("indepCopula"), kendallsTauIndepCopula)
-# setMethod("spearmansRho", signature("indepCopula"), spearmansRhoIndepCopula)
+# setMethod("tau", signature("indepCopula"), tauIndepCopula)
+# setMethod("rho", signature("indepCopula"), rhoIndepCopula)
 # setMethod("tailIndex", signature("indepCopula"), tailIndexIndepCopula)
 
-# setMethod("calibKendallsTau", signature("indepCopula"), calibKendallsTauIndepCopula)
-# setMethod("calibSpearmansRho", signature("indepCopula"), calibSpearmansRhoIndepCopula)
+# setMethod("iTau", signature("indepCopula"), iTauIndepCopula)
+# setMethod("iRho", signature("indepCopula"), iRhoIndepCopula)
 
 # setMethod("dTau", signature("indepCopula"), dTauIndepCopula)
 # setMethod("dRho", signature("indepCopula"), dRhoIndepCopula)

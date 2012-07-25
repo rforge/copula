@@ -11,7 +11,7 @@ JY: I agree
 IK: Me too
 => MH: done on 2012-03-25 (for simplicity, I used "2012" everywhere)
 ** Renaming of current "base" functions see [[file:feature-table.org][Feature table]]
- e.g.  calibKendallsTau to iTau
+ e.g.  iTau to iTau
 
 ** Rebuild R-forge structure nacopula -> copula
 ** Deprecation of Old Stuff /  towards more consistency / Cleanup
@@ -125,7 +125,7 @@ We can put them back. The best place is under inst?
 *** DONE (MH) fixed long lines in all .Rd
 
 ** Miscellaneous functions
-*** calibKendallsTau(): must use tau.checker() [R/estimation.R]
+*** iTau(): must use tau.checker() [R/estimation.R]
 *** MM, MH: indepTest()  takes a while {ok}, *BUT* cannot be interrupted (quickly enough)
     - shouldn't it {and all other tests} return a (valid) object of class
     "htest" (maybe "htest" in addition to the specific S3 class)?

@@ -75,19 +75,19 @@ dtawnCopula <- function(copula, u, log=FALSE, ...) {
   if(log) log(val) else val
 }
 
-kendallsTauTawnCopula <- function(copula) {
+tauTawnCopula <- function(copula) {
   alpha <- copula@parameters[1]
   ## the range of tau is [0,  0.4183992]
   8 * atan(sqrt(alpha / (4 - alpha))) / sqrt(alpha * (4 - alpha)) - 2
 }
 
-calibKendallsTauTawnCopula <- function(copula, tau) {
+iTauTawnCopula <- function(copula, tau) {
   alpha <- 1
   taumax <- 8 * atan(sqrt(alpha / (4 - alpha))) / sqrt(alpha * (4 - alpha)) - 2
   bad <- (tau < 0 | tau >= taumax)
   if (any(bad)) warning("tau is out of the range [0, 0.4183992]")
   ifelse(tau <= 0, 0,
-         ifelse(tau >= taumax, 1, calibKendallsTauCopula(copula, tau)))
+         ifelse(tau >= taumax, 1, iTauCopula(copula, tau)))
 }
 
 dTauTawnCopula <- function(copula) {
@@ -111,7 +111,7 @@ dTauTawnCopula <- function(copula) {
   attr(value, "gradient")
 }
 
-spearmansRhoTawnCopula <- function(copula) {
+rhoTawnCopula <- function(copula) {
   alpha <- copula@parameters[1]
   ## from Mathematica
   ## the range of rho is [0, 0.58743682]
@@ -119,13 +119,13 @@ spearmansRhoTawnCopula <- function(copula) {
   if(alpha == 0) 0 else 12 * integ - 3
 }
 
-calibSpearmansRhoTawnCopula <- function(copula, rho) {
+iRhoTawnCopula <- function(copula, rho) {
   alpha <- 1
   rhomax <- 12 * ( (8 - alpha) * alpha + 8 * sqrt( (8 - alpha) * alpha ) * atan(sqrt(alpha) / sqrt(8 - alpha)) ) / ( (8 - alpha)^2 * alpha ) - 3
   bad <- (rho < 0 | rho >= rhomax)
   if (any(bad)) warning("rho is out of the range [0, 0.58743682]")
   ifelse(rho <= 0, 0,
-         ifelse(rho >= rhomax, 1, calibSpearmansRhoCopula(copula, rho)))
+         ifelse(rho >= rhomax, 1, iRhoCopula(copula, rho)))
 }
 
 dRhoTawnCopula <- function(copula) {
@@ -163,11 +163,11 @@ setMethod("dcopula", signature("tawnCopula"), dtawnCopula)
 setMethod("Afun", signature("tawnCopula"), AfunTawn)
 setMethod("AfunDer", signature("tawnCopula"), AfunDerTawn)
 
-setMethod("kendallsTau", signature("tawnCopula"), kendallsTauTawnCopula)
-setMethod("spearmansRho", signature("tawnCopula"), spearmansRhoTawnCopula)
+setMethod("tau", signature("tawnCopula"), tauTawnCopula)
+setMethod("rho", signature("tawnCopula"), rhoTawnCopula)
 
-setMethod("calibKendallsTau", signature("tawnCopula"), calibKendallsTauTawnCopula)
-setMethod("calibSpearmansRho", signature("tawnCopula"), calibSpearmansRhoTawnCopula)
+setMethod("iTau", signature("tawnCopula"), iTauTawnCopula)
+setMethod("iRho", signature("tawnCopula"), iRhoTawnCopula)
 
 setMethod("dTau", signature("tawnCopula"), dTauTawnCopula)
 setMethod("dRho", signature("tawnCopula"), dRhoTawnCopula)

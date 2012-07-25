@@ -56,16 +56,23 @@ setClass("copula",
 setGeneric("dcopula", function(copula, u, log=FALSE, ...) standardGeneric("dcopula"))
 setGeneric("pcopula", function(copula, u, ...) standardGeneric("pcopula"))
 setGeneric("rcopula", function(copula, n, ...) standardGeneric("rcopula"))
-setGeneric("kendallsTau", function(copula) standardGeneric("kendallsTau"))
-setGeneric("spearmansRho", function(copula) standardGeneric("spearmansRho"))
+setGeneric("tau", function(copula, ...) standardGeneric("tau"))
+setGeneric("rho", function(copula, ...) standardGeneric("rho"))
 setGeneric("tailIndex", function(copula, ...) standardGeneric("tailIndex"))
-setGeneric("calibKendallsTau", function(copula, tau) standardGeneric("calibKendallsTau"))
-setGeneric("calibSpearmansRho", function(copula, rho) standardGeneric("calibSpearmansRho"))
+setGeneric("iTau", function(copula, tau, ...) standardGeneric("iTau"))
+setGeneric("iRho", function(copula, rho, ...) standardGeneric("iRho"))
 setGeneric("dTau", function(copula, ...) standardGeneric("dTau"))
 setGeneric("dRho", function(copula, ...) standardGeneric("dRho"))
 
 setGeneric("dTauFun", function(copula) standardGeneric("dTauFun"))
 setGeneric("dRhoFun", function(copula) standardGeneric("dRhoFun"))
+
+## Deprecated:
+calibKendallsTau <- function(copula, tau) { .Deprecated("iTau"); iTau(copula,tau) }
+calibSpearmansRho <- function(copula, rho) { .Deprecated("iRho"); iRho(copula,rho) }
+genInv <- function(copula, s) { .Deprecated("iPsi"); iPsi(copula,s) }
+kendallsTau <- function(copula) { .Deprecated("tau"); tau(copula) }
+spearmansRho <- function(copula) { .Deprecated("rho"); rho(copula) }
 
 
 ### independent copula class ###################################################
@@ -151,7 +158,7 @@ setClass("joeCopula", contains = "archmCopula")
 
 ## methods for archmCopulas
 setGeneric("genFun", function(copula, u) standardGeneric("genFun"))
-setGeneric("genInv", function(copula, s) standardGeneric("genInv"))
+setGeneric("iPsi", function(copula, s) standardGeneric("iPsi"))
 setGeneric("genFunDer1", function(copula, u) standardGeneric("genFunDer1"))
 setGeneric("genFunDer2", function(copula, u) standardGeneric("genFunDer2"))
 

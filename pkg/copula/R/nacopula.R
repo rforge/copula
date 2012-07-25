@@ -481,13 +481,13 @@ setMethod("tailIndex", "acopula",
 	  })
 setMethod("tailIndex", "nacopula", function(copula, ...) tailIndex(copula@copula, ...))
 
-setMethod("kendallsTau", "acopula", function(copula) copula@tau(copula@theta))
-setMethod("kendallsTau", "nacopula", function(copula) kendallsTau(copula@copula))
+setMethod("tau", "acopula", function(copula) copula@tau(copula@theta))
+setMethod("tau", "nacopula", function(copula) tau(copula@copula))
 
-setMethod("spearmansRho", "nacopula", function(copula) spearmansRho(copula@copula))
-setMethod("spearmansRho", "acopula", function(copula)
+setMethod("rho", "nacopula", function(copula) rho(copula@copula))
+setMethod("rho", "acopula", function(copula)
     stop(gettextf("%s() method for class \"%s\" not implemented;",
-                                    "spearmansRho", class(copula)),
+                                    "rho", class(copula)),
          "\nconsider contacting  maintainer(\"copula\")")
 )
 

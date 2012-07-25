@@ -49,7 +49,7 @@ tau.s <- c(-.999, -.1, 0, (1:3)/10, .5, .999)
 tau.s <- c(       -.1, 0, (1:2)/9, 0.3)
 names(tau.s) <- paste0("tau=", sub("0[.]", ".", formatC(tau.s)))
 tTau <- sapply(tau.s, function(tau)
-               sapply(copO., calibKendallsTau, tau = tau))
+               sapply(copO., iTau, tau = tau))
 
 tTau
 tTau["joeCopula", "tau=-.1"] <- 1 # ugly hack
@@ -61,7 +61,7 @@ stopifnot(rep(copBnds["min",],ncol(tTau)) <= tTau,
 
 tautau <- t(sapply(names(copO.), function(cNam)
                    sapply(tTau[cNam,],
-                          function(th) kendallsTau(setPar(copO.[[cNam]], th)))))
+                          function(th) tau(setPar(copO.[[cNam]], th)))))
 
 tautau
 xctTau <- matrix(tau.s, nrow = nrow(tautau), ncol=length(tau.s),
@@ -83,13 +83,13 @@ stopifnot(max(abs(errTau)) <= 0.00052)# ok for IJ-taus
 ###-------- rho & and inverse ---------------------------------------------------
 
 ## NB:
-##  calibSpearmansRho() method for class "amhCopula" not yet implemented
+##  iRho() method for class "amhCopula" not yet implemented
 
 ### give different warnings , but "work" [not using AMH !]
 rho.s <- c(-.999, -.1, 0, (1:3)/9, .5, .9, .999)
 names(rho.s) <- paste0("rho=", sub("0[.]", ".", formatC(rho.s)))
 tRho <- sapply(rho.s, function(rho)
-               sapply(copO.2, calibSpearmansRho, rho = rho))
+               sapply(copO.2, iRho, rho = rho))
 warnings()
 
 tRho
@@ -105,7 +105,7 @@ stopifnot(rep(copBnd.2["min",],ncol(tRho)) <= tRho,
 
 rhorho <- t(sapply(names(copO.2), function(cNam)
                    sapply(tRho[cNam,],
-                          function(th) spearmansRho(setPar(copO.2[[cNam]], th)))))
+                          function(th) rho(setPar(copO.2[[cNam]], th)))))
 
 rhorho
 xctRho <- matrix(rho.s, nrow = nrow(rhorho), ncol=length(rho.s),

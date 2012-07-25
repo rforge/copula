@@ -101,11 +101,11 @@ dschlatherCopula <- function(copula, u, log=FALSE, ...) {
 #setMethod("Afun", signature("schlatherCopula"), AfunSchlather)
 #setMethod("AfunDer", signature("schlatherCopula"), AfunDerSchlather)
 
-## setMethod("kendallsTau", signature("schlatherCopula"), kendallsTauSchlatherCopula)
-## setMethod("spearmansRho", signature("schlatherCopula"), spearmansRhoSchlatherCopula)
+## setMethod("tau", signature("schlatherCopula"), tauSchlatherCopula)
+## setMethod("rho", signature("schlatherCopula"), rhoSchlatherCopula)
 
-## setMethod("calibKendallsTau", signature("schlatherCopula"), calibKendallsTauSchlatherCopula)
-## setMethod("calibSpearmansRho", signature("schlatherCopula"), calibSpearmansRhoSchlatherCopula)
+## setMethod("iTau", signature("schlatherCopula"), iTauSchlatherCopula)
+## setMethod("iRho", signature("schlatherCopula"), iRhoSchlatherCopula)
 
 ## setMethod("dTau", signature("schlatherCopula"), dTauSchlatherCopula)
 ## setMethod("dRho", signature("schlatherCopula"), dRhoSchlatherCopula)

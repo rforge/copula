@@ -88,7 +88,7 @@ gumbel.cop <- gumbelCopula(2, dim = 7)
 dcopula(gumbel.cop, x)
 
 ## A 12-dim Joe copula
-joe.cop <- joeCopula(calibKendallsTau(joeCopula(), 0.5), dim = 12)
+joe.cop <- joeCopula(iTau(joeCopula(), 0.5), dim = 12)
 dcopula(joe.cop, x)
 }
 \keyword{distribution}

@@ -112,12 +112,12 @@ tailIndexTCopula <- function(copula) {
   c(upper=upper, lower=lower)
 }
 
-kendallsTauTCopula <- function(copula) {
+tauTCopula <- function(copula) {
   rho <- copula@getRho(copula)
   2 * asin(rho) /pi
 }
 
-spearmansRhoTCopula <- function(copula) {
+rhoTCopula <- function(copula) {
   rho <- copula@getRho(copula)
   asin(rho / 2) * 6 / pi
 }
@@ -128,9 +128,9 @@ setMethod("dcopula", signature("tCopula"), dtCopula)
 
 setMethod("show", signature("tCopula"), showTCopula)
 
-setMethod("kendallsTau", signature("tCopula"), kendallsTauTCopula)
-setMethod("spearmansRho", signature("tCopula"), spearmansRhoTCopula)
+setMethod("tau", signature("tCopula"), tauTCopula)
+setMethod("rho", signature("tCopula"), rhoTCopula)
 setMethod("tailIndex", signature("tCopula"), tailIndexTCopula)
 
-setMethod("calibKendallsTau", signature("tCopula"), calibKendallsTauEllipCopula)
-setMethod("calibSpearmansRho", signature("tCopula"), calibSpearmansRhoEllipCopula)
+setMethod("iTau", signature("tCopula"), iTauEllipCopula)
+setMethod("iRho", signature("tCopula"), iRhoEllipCopula)

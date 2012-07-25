@@ -47,11 +47,11 @@ ellipCopula <- function(family, param = NA_real_, dim = 2L, dispstr = "ex", df =
          )
 }
 
-calibKendallsTauEllipCopula <- function(copula, tau) {
+iTauEllipCopula <- function(copula, tau) {
   sin((tau * pi) / 2)
 }
 
-calibSpearmansRhoEllipCopula <- function(copula, rho) {
+iRhoEllipCopula <- function(copula, rho) {
   sin (pi * rho / 6) * 2
 }
 
@@ -71,8 +71,8 @@ dRhoFunEllipCopula <- function(copula) {
   function(x) return( 6 / (pi * sqrt(4 - x^2)) )
 }
 
-setMethod("calibKendallsTau", signature("ellipCopula"), calibKendallsTauEllipCopula)
-setMethod("calibSpearmansRho", signature("ellipCopula"), calibSpearmansRhoEllipCopula)
+setMethod("iTau", signature("ellipCopula"), iTauEllipCopula)
+setMethod("iRho", signature("ellipCopula"), iRhoEllipCopula)
 
 setMethod("dTau", signature("ellipCopula"), dTauEllipCopula)
 setMethod("dRho", signature("ellipCopula"), dRhoEllipCopula)

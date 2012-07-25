@@ -31,7 +31,7 @@ setMethod("show", signature("copula"), showCopula)
 
 ### numerical computation of association measures
 
-## kendallsTauCopula <- function(copula, eps = NULL, ...) {
+## tauCopula <- function(copula, eps = NULL, ...) {
 ##   integrand <- function(u) pcopula(copula, u) * dcopula(copula, u)
 ##   if (is.null(eps)) .eps <- .Machine$double.eps^0.9
 ##   else .eps <- eps
@@ -41,7 +41,7 @@ setMethod("show", signature("copula"), showCopula)
 ##   4 * integ - 1
 ## }
 
-## spearmansRhoCopula <- function(copula, eps = NULL, ...) {
+## rhoCopula <- function(copula, eps = NULL, ...) {
 ##   integrand <- function(u) pcopula(copula, u)
 ##   if (is.null(eps)) .eps <- .Machine$double.eps^0.9
 ##   else .eps <- eps
@@ -62,17 +62,17 @@ tailIndexCopula <- function(copula, eps = .Machine$double.eps^0.5) {
   c(lower=lower, upper=upper)
 }
 
-# setMethod("kendallsTau", signature("copula"), kendallsTauCopula)
-# setMethod("spearmansRho", signature("copula"), spearmansRhoCopula)
+# setMethod("tau", signature("copula"), tauCopula)
+# setMethod("rho", signature("copula"), rhoCopula)
 setMethod("tailIndex", signature("copula"), tailIndexCopula)
 
 
 ### numerical calibration
 
-calibKendallsTauCopula <- function(copula, tau) {
+iTauCopula <- function(copula, tau) {
   myfun <- function(theta) {
     copula@parameters <- theta
-    kendallsTau(copula) - tau
+    tau(copula) - tau
   }
   .eps <- .Machine$double.eps^.5
   lower <- pmax(-sqrt(.Machine$double.xmax), copula@param.lowbnd + .eps)
@@ -80,18 +80,18 @@ calibKendallsTauCopula <- function(copula, tau) {
   uniroot(myfun, interval=c(lower, upper))$root
 }
 
-calibSpearmansRhoCopula <- function(copula, rho) {
+iRhoCopula <- function(copula, rho) {
   myfun <- function(theta) {
     copula@parameters <- theta
-    spearmansRho(copula) - rho
+    rho(copula) - rho
   }
   lower <- pmax(-sqrt(.Machine$double.xmax), copula@param.lowbnd)
   upper <- pmin( sqrt(.Machine$double.xmax), copula@param.upbnd )
   uniroot(myfun, interval=c(lower, upper))$root
 }
 
-# setMethod("calibKendallsTau", signature("copula"), calibKendallsTauCopula)
-# setMethod("calibSpearmansRho", signature("copula"), calibSpearmansRhoCopula)
+# setMethod("iTau", signature("copula"), iTauCopula)
+# setMethod("iRho", signature("copula"), iRhoCopula)
 
 ###-- "Copula" methods + glue  former "copula" <--> former "nacopula" ---------
 
@@ -100,3 +100,10 @@ setMethod("dim", "copula",
 
 ## Dummy bail-out methods for all generics --> ./zzz.R
 ##  "nacopula" methods                     --> ./nacopula.R
+
+setGeneric("dPsi", function(copula, ...) standardGeneric("dPsi"))
+setMethod("dPsi", "acopula",
+          function(copula, t, theta, degree=1, log=FALSE, ...) {
+	      s <- if(log || degree %% 2 == 0) 1. else -1.
+	      s * copula@absdPsi(t, theta, degree=degree, log=log, ...)
+       })

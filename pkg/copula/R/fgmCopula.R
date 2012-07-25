@@ -133,21 +133,21 @@ dfgmCopula <- function(copula, u, log=FALSE, ...) {
 
 ## Kendall's tau
 
-kendallsTauFgmCopula <- function(copula) {
+tauFgmCopula <- function(copula) {
     alpha <- copula@parameters[1]
     2 * alpha / 9
 }
 
 ## Spearman's rho
 
-spearmansRhoFgmCopula <- function(copula) {
+rhoFgmCopula <- function(copula) {
     alpha <- copula@parameters[1]
     1 * alpha / 3
 }
 
 ## calibration via tau
 
-calibKendallsTauFgmCopula <- function(copula, tau) {
+iTauFgmCopula <- function(copula, tau) {
   if (any(tau < -2/9 | tau > 2/9))
     warning("tau is out of the range [-2/9, 2/9]")
   pmax(-1, pmin(1, 9 * tau / 2))
@@ -155,7 +155,7 @@ calibKendallsTauFgmCopula <- function(copula, tau) {
 
 ## calibration via rho
 
-calibSpearmansRhoFgmCopula <- function(copula, rho) {
+iRhoFgmCopula <- function(copula, rho) {
   if (any(rho < -1/3 | rho > 1/3))
     warning("rho is out of the range [-1/3, 1/3]")
   pmax(-1, pmin(1, 3 * rho))
@@ -167,7 +167,7 @@ calibSpearmansRhoFgmCopula <- function(copula, rho) {
 setMethod("rcopula", signature("fgmCopula"), rfgmCopula)
 setMethod("pcopula", signature("fgmCopula"), pfgmCopula)
 setMethod("dcopula", signature("fgmCopula"), dfgmCopula)
-setMethod("kendallsTau", signature("fgmCopula"), kendallsTauFgmCopula)
-setMethod("spearmansRho", signature("fgmCopula"), spearmansRhoFgmCopula)
-setMethod("calibKendallsTau", signature("fgmCopula"), calibKendallsTauFgmCopula)
-setMethod("calibSpearmansRho", signature("fgmCopula"), calibSpearmansRhoFgmCopula)
+setMethod("tau", signature("fgmCopula"), tauFgmCopula)
+setMethod("rho", signature("fgmCopula"), rhoFgmCopula)
+setMethod("iTau", signature("fgmCopula"), iTauFgmCopula)
+setMethod("iRho", signature("fgmCopula"), iRhoFgmCopula)

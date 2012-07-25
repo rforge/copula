@@ -35,25 +35,25 @@ setMethod("dcopula", signature("joeCopula"),
 
 setMethod("genFun", signature("joeCopula"),
 	  function(copula, u) copJoe@psi(t=u, theta=copula@parameters))
-setMethod("genInv", signature("joeCopula"),
+setMethod("iPsi", signature("joeCopula"),
 	  function(copula, s) copJoe@iPsi(u=s, theta=copula@parameters))
 setMethod("genFunDer1", signature("joeCopula"), function(copula, u)
           - copJoe@absdPsi(u, theta=copula@parameters))
 setMethod("genFunDer2", signature("joeCopula"), function(copula, u)
           copJoe@absdPsi(u, theta=copula@parameters, degree=2))
 
-setMethod("kendallsTau", signature("joeCopula"),
+setMethod("tau", signature("joeCopula"),
           function(copula) copJoe@tau(theta=copula@parameters))
 setMethod("tailIndex", signature("joeCopula"),
 	  function(copula) c(lower=0,
 			     upper=copJoe@lambdaU(theta=copula@parameters)))
 
-setMethod("calibKendallsTau", signature("joeCopula"),
+setMethod("iTau", signature("joeCopula"),
 	  function(copula, tau) copJoe@tauInv(tau))
 
 ## "TODO"
-## setMethod("spearmansRho", signature("joeCopula"), ... ? ...)
-## setMethod("calibSpearmansRho", signature("joeCopula"), function(copula, rho) ...)
+## setMethod("rho", signature("joeCopula"), ... ? ...)
+## setMethod("iRho", signature("joeCopula"), function(copula, rho) ...)
 
 ## "TODO"
 ## setMethod("dRho", signature("joeCopula"), ...)

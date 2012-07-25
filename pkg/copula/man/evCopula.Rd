@@ -52,19 +52,19 @@ tau <- 0.33
 
 gumbel.cop <- evCopula("gumbel")
 stopifnot(identical(gumbel.cop, gumbelCopula()))
-gumbel.cop@parameters <- calibKendallsTau(gumbel.cop, tau)
+gumbel.cop@parameters <- iTau(gumbel.cop, tau)
 
 galambos.cop <- galambosCopula()
-galambos.cop@parameters <- calibKendallsTau(galambos.cop, tau)
+galambos.cop@parameters <- iTau(galambos.cop, tau)
 
 huslerReiss.cop <- huslerReissCopula()
-huslerReiss.cop@parameters <- calibKendallsTau(huslerReiss.cop, tau)
+huslerReiss.cop@parameters <- iTau(huslerReiss.cop, tau)
 
 tawn.cop <- tawnCopula()
-tawn.cop@parameters <- calibKendallsTau(tawn.cop, tau)
+tawn.cop@parameters <- iTau(tawn.cop, tau)
 
 tev.cop <- tevCopula()
-tev.cop@parameters[1] <- calibKendallsTau(tev.cop, tau)
+tev.cop@parameters[1] <- iTau(tev.cop, tau)
 
 curve(Afun(gumbel.cop, x), 0, 1,
       main = "A(x) for five Extreme Value cop. w/  tau = 1/3")
@@ -74,7 +74,7 @@ curve(Afun(tawn.cop, x), lty=4, add=TRUE)
 curve(Afun(tev.cop, x), lty=5, add=TRUE)
 
 ## the t-EV-copula has always positive tau :
-curve(vapply(x, function(x) kendallsTau(tevCopula(x)), 0.), -1, 1,
+curve(vapply(x, function(x) tau(tevCopula(x)), 0.), -1, 1,
       col=2, n=257, ylim=0:1, ylab=bquote(tau), xlab=bquote(rho),
       main= expression(tau( tevCopula(rho) )))
 }

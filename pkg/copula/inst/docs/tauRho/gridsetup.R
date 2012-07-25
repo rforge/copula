@@ -7,20 +7,20 @@ TauRhoSample <- function(copula, nsim = 10000,
 }
 
 ## for evCopula, tau is expressed as a 1-dim integral with A and A''
-kendallsTauEvCopula <- function(copula) {
+tauEvCopula <- function(copula) {
   integrand <- function(x) x * (1 - x) / Afun(copula, x) * AfunDer(copula, x)$der2
   integrate(integrand, 0, 1)$value
 }
 
 ## for evCopula, rho is expressed as a 1-dim integral with A
-spearmansRhoEvCopula <- function(copula) {
+rhoEvCopula <- function(copula) {
   integrand <- function(x) 1 / (Afun(copula, x) + 1)^2
   12 * integrate(integrand, 0, 1)$value - 3
 }
 
 ## This function returns a matching grid between copula param theta and
 ## rho (or tau) that will be fed to genFun for pspline fitting
-getGrid <- function(copula, paramGrid, nsim = 10000, 
+getGrid <- function(copula, paramGrid, nsim = 10000,
                     method = c("spearman", "kendall"),
                     backwardTransf, ss) {
   alphaGrid <- backwardTransf(paramGrid, ss)
@@ -31,8 +31,8 @@ getGrid <- function(copula, paramGrid, nsim = 10000,
     copula@parameters[1] <- alphaGrid[i] ## note: it wouldn't work for tCopula without [1] because df will be removed
     if (nsim == 0) {
       ## for evCopula, do integral instead of sampling
-      if (method == "spearman") rhoGrid[i] <- spearmansRhoEvCopula(copula)
-      else rhoGrid[i] <- kendallsTauEvCopula(copula)
+      if (method == "spearman") rhoGrid[i] <- rhoEvCopula(copula)
+      else rhoGrid[i] <- tauEvCopula(copula)
     }
     else rhoGrid[i] <- TauRhoSample(copula, nsim, method)
   }
@@ -50,13 +50,13 @@ genFun <- function(grid, norder = 3,
   ## give known points weight heavy and other points weight 1
   val <- c(valKnown, grid$val[good])
   weight <- c(rep(heavy, length(valKnown)), rep(1, sum(good)))
-  
+
   ## fit from pspline
   fm <- sm.spline(param, val, weight, norder = norder)# , method=3) # default method is 3 if cv == FALSE and df == NULL and spar == NULL
   ## fit from cobs
   ## con <- cbind(rep(0, length(paramKnown)), paramKnown, valKnown)
   ## fc <- cobs(grid$param, grid$val, "increase", lambda = -1, pointwise = con)
-  rm(good, param, val, weight)  
+  rm(good, param, val, weight)
   valFun <- function(x, nderiv = 0) {
     c(predict(fm, x, nderiv = nderiv )) ## c is added on Jan. 20, 2009
     ## otherwise, it returns a matrix. Why?

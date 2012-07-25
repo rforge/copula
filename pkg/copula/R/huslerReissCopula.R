@@ -146,7 +146,7 @@ huslerReissTauFun <- function(alpha) {
   valFun(theta)
 }
 
-calibKendallsTauHuslerReissCopula <- function(copula, tau) {
+iTauHuslerReissCopula <- function(copula, tau) {
   if (any(tau < 0)) warning("some tau < 0")
   huslerReissTauInv <- approxfun(x = .huslerReissTau$assoMeasFun$fm$ysmth,
                                  y = .huslerReissTau$assoMeasFun$fm$x, rule = 2)
@@ -178,7 +178,7 @@ huslerReissRhoFun <- function(alpha) {
   valFun(theta)
 }
 
-calibSpearmansRhoHuslerReissCopula <- function(copula, rho) {
+iRhoHuslerReissCopula <- function(copula, rho) {
   if (any(rho < 0)) warning("some rho < 0")
   huslerReissRhoInv <- approxfun(x = .huslerReissRho$assoMeasFun$fm$ysmth,
                                  y = .huslerReissRho$assoMeasFun$fm$x, rule = 2)
@@ -209,14 +209,14 @@ setMethod("dcopula", signature("huslerReissCopula"), dhuslerReissCopula)
 setMethod("Afun", signature("huslerReissCopula"), AfunHuslerReiss)
 setMethod("AfunDer", signature("huslerReissCopula"), AfunDerHuslerReiss)
 
-setMethod("kendallsTau", signature("huslerReissCopula"), function(copula)
+setMethod("tau", signature("huslerReissCopula"), function(copula)
 	  huslerReissTauFun(copula@parameters[1]))
 
-setMethod("spearmansRho", signature("huslerReissCopula"), function(copula)
+setMethod("rho", signature("huslerReissCopula"), function(copula)
 	  huslerReissRhoFun(copula@parameters[1]))
 
-setMethod("calibKendallsTau", signature("huslerReissCopula"), calibKendallsTauHuslerReissCopula)
-setMethod("calibSpearmansRho", signature("huslerReissCopula"), calibSpearmansRhoHuslerReissCopula)
+setMethod("iTau", signature("huslerReissCopula"), iTauHuslerReissCopula)
+setMethod("iRho", signature("huslerReissCopula"), iRhoHuslerReissCopula)
 
 setMethod("dTau", signature("huslerReissCopula"), function(copula)
 	  huslerReissTauDer(copula@parameters[1]))

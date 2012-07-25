@@ -19,7 +19,7 @@ genFunAmh <- function(copula, u) {
   log((1 - alpha * (1 - u)) / u)
 }
 
-genInvAmh <- function(copula, s) {
+iPsiAmh <- function(copula, s) {
   alpha <- copula@parameters[1]
   (1 - alpha) / (exp(s) - alpha)
 }
@@ -118,14 +118,14 @@ ramhCopula <- function(copula, n) {
   cbind(u, v)
 }
 
-kendallsTauAmhCopula <- function(copula) {
+tauAmhCopula <- function(copula) {
   alpha <- copula@parameters[1]
   ## Nelsen (2006, p.172)
   ## range of tau: [(5 - 8 log 2) / 3, 1/3] ~= [-0.1817, 0.3333]
   (3 * alpha - 2) / 3 / alpha - 2 / 3 * (1 - 1/alpha)^2 * log(1 - alpha)
 }
 
-spearmansRhoAmhCopula <- function(copula) {
+rhoAmhCopula <- function(copula) {
   alpha <- copula@parameters[1]
   ## Nelsen (2006, p.172); need dilog function, where his dilog(x) = Li_2(1-x) = polylog(1-x, 2)
   ## range of rho: 33 - 48 log 2, 4 pi^2 - 39] ~= [-0.2711, 0.4784]
@@ -150,13 +150,13 @@ setMethod("dcopula", signature("amhCopula"),
       })
 
 setMethod("genFun", signature("amhCopula"), genFunAmh)
-setMethod("genInv", signature("amhCopula"), genInvAmh)
+setMethod("iPsi", signature("amhCopula"), iPsiAmh)
 setMethod("genFunDer1", signature("amhCopula"), genFunDer1Amh)
 setMethod("genFunDer2", signature("amhCopula"), genFunDer2Amh)
 
-setMethod("kendallsTau", signature("amhCopula"), kendallsTauAmhCopula)
-setMethod("spearmansRho", signature("amhCopula"), spearmansRhoAmhCopula)
+setMethod("tau", signature("amhCopula"), tauAmhCopula)
+setMethod("rho", signature("amhCopula"), rhoAmhCopula)
 setMethod("tailIndex", signature("amhCopula"), function(copula) c(lower=0, upper=0))
 
-setMethod("calibKendallsTau", signature("amhCopula"), calibKendallsTauCopula)
+setMethod("iTau", signature("amhCopula"), iTauCopula)
 

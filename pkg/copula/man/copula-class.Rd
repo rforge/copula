@@ -71,8 +71,8 @@ hc <- evCopula("husler", 1.25)
 dim(hc)
 smoothScatter(u <- rcopula(hc, 2^11))
 tailIndex   (hc)
-kendallsTau (hc)
-spearmansRho(hc)
+tau (hc)
+rho(hc)
 str(hc)
 }
 \keyword{classes}

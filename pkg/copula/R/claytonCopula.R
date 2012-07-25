@@ -20,7 +20,7 @@ genFunClayton <- function(copula, u) {
   u^(-alpha) - 1
 }
 
-genInvClayton <- function(copula, s) {
+iPsiClayton <- function(copula, s) {
   alpha <- copula@parameters[1]
   ## (1 + alpha * s)^(-1/alpha) ## corresponding to the comment above
   (1 + s)^(-1/alpha)
@@ -98,7 +98,7 @@ rclaytonCopula <- function(copula, n) {
   ## gam <- rgamma(n, shape = 1/alpha, rate = 1/alpha) ## fixed from rate = 1
   gam <- rgamma(n, shape = 1/alpha, rate = 1) ## fixed from rate = 1
   gam <- matrix(gam, nrow = n, ncol = dim)
-  genInv(copula, - log(val) / gam)
+  iPsi(copula, - log(val) / gam)
 }
 
 
@@ -152,12 +152,12 @@ dclaytonCopula.pdf <- function(copula, u, log=FALSE) {
 }
 
 
-kendallsTauClaytonCopula <- function(copula) {
+tauClaytonCopula <- function(copula) {
   alpha <- copula@parameters[1]
   alpha / (alpha + 2)
 }
 
-calibKendallsTauClaytonCopula <- function(copula, tau) {
+iTauClaytonCopula <- function(copula, tau) {
   2 * tau / (1 - tau)
 }
 
@@ -182,13 +182,13 @@ claytonRhoDer <- function(alpha) {
   as.vector(if(alpha <= 0) valFunNeg(theta, 1) else valFunPos(theta, 1)) * forwardDer(alpha, ss)
 }
 
-spearmansRhoClaytonCopula <- function(copula) {
+rhoClaytonCopula <- function(copula) {
   alpha <- copula@parameters[1]
   claytonRhoFun(alpha)
 }
 
 
-calibSpearmansRhoClaytonCopula <- function(copula, rho) {
+iRhoClaytonCopula <- function(copula, rho) {
   claytonRhoInvNeg <- approxfun(x = .claytonRhoNeg$assoMeasFun$fm$ysmth,
                                 y = .claytonRhoNeg$assoMeasFun$fm$x)
 
@@ -232,16 +232,16 @@ setMethod("dcopula", signature("claytonCopula"),
       })
 
 setMethod("genFun", signature("claytonCopula"), genFunClayton)
-setMethod("genInv", signature("claytonCopula"), genInvClayton)
+setMethod("iPsi", signature("claytonCopula"), iPsiClayton)
 setMethod("genFunDer1", signature("claytonCopula"), genFunDer1Clayton)
 setMethod("genFunDer2", signature("claytonCopula"), genFunDer2Clayton)
 
-setMethod("kendallsTau", signature("claytonCopula"), kendallsTauClaytonCopula)
-setMethod("spearmansRho", signature("claytonCopula"), spearmansRhoClaytonCopula)
+setMethod("tau", signature("claytonCopula"), tauClaytonCopula)
+setMethod("rho", signature("claytonCopula"), rhoClaytonCopula)
 setMethod("tailIndex", signature("claytonCopula"), tailIndexClaytonCopula)
 
-setMethod("calibKendallsTau", signature("claytonCopula"), calibKendallsTauClaytonCopula)
-setMethod("calibSpearmansRho", signature("claytonCopula"), calibSpearmansRhoClaytonCopula)
+setMethod("iTau", signature("claytonCopula"), iTauClaytonCopula)
+setMethod("iRho", signature("claytonCopula"), iRhoClaytonCopula)
 
 setMethod("dTau", signature("claytonCopula"), dTauClaytonCopula)
 setMethod("dRho", signature("claytonCopula"), dRhoClaytonCopula)

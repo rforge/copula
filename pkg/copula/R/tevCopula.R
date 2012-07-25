@@ -144,12 +144,12 @@ tevTauFun <- function(alpha) {
   valFun(theta)
 }
 
-kendallsTauTevCopula <- function(copula) {
+tauTevCopula <- function(copula) {
   alpha <- copula@parameters[1]
   tevTauFun(alpha)
 }
 
-calibKendallsTauTevCopula <- function(copula, tau) {
+iTauTevCopula <- function(copula, tau) {
   if (any(tau < 0)) warning("tau is out of the range [0, 1]")
   tevTauInv <- approxfun(x = .tevTau$assoMeasFun$fm$ysmth,
                          y = .tevTau$assoMeasFun$fm$x, rule=2)
@@ -185,12 +185,12 @@ tevRhoFun <- function(alpha) {
   valFun(theta)
 }
 
-spearmansRhoTevCopula <- function(copula) {
+rhoTevCopula <- function(copula) {
   alpha <- copula@parameters[1]
   tevRhoFun(alpha)
 }
 
-calibSpearmansRhoTevCopula <- function(copula, rho) {
+iRhoTevCopula <- function(copula, rho) {
   if (any(rho < 0)) warning("rho is out of the range [0, 1]")
   tevRhoInv <- approxfun(x = .tevRho$assoMeasFun$fm$ysmth,
                          y = .tevRho$assoMeasFun$fm$x, rule = 2)
@@ -223,11 +223,11 @@ setMethod("dcopula", signature("tevCopula"), dtevCopula)
 setMethod("Afun", signature("tevCopula"), AfunTev)
 setMethod("AfunDer", signature("tevCopula"), AfunDerTev)
 
-setMethod("kendallsTau", signature("tevCopula"), kendallsTauTevCopula)
-setMethod("spearmansRho", signature("tevCopula"), spearmansRhoTevCopula)
+setMethod("tau", signature("tevCopula"), tauTevCopula)
+setMethod("rho", signature("tevCopula"), rhoTevCopula)
 
-setMethod("calibKendallsTau", signature("tevCopula"), calibKendallsTauTevCopula)
-setMethod("calibSpearmansRho", signature("tevCopula"), calibSpearmansRhoTevCopula)
+setMethod("iTau", signature("tevCopula"), iTauTevCopula)
+setMethod("iRho", signature("tevCopula"), iRhoTevCopula)
 
 setMethod("dTau", signature("tevCopula"), dTauTevCopula)
 setMethod("dRho", signature("tevCopula"), dRhoTevCopula)

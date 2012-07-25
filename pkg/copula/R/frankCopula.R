@@ -19,7 +19,7 @@ genFunFrank <- function(copula, u) {
   - log( (exp(- alpha * u) - 1) / (exp(- alpha) - 1))
 }
 
-genInvFrank <- function(copula, s) {
+iPsiFrank <- function(copula, s) {
   alpha <- copula@parameters[1]
   -1/alpha * log(1 + exp(-s) * (exp(-alpha) - 1))
 }
@@ -32,8 +32,8 @@ genFunDer2Frank <- function(copula, u) {
   eval(frankCopula.genfunDer.expr[2], list(u=u, alpha=copula@parameters[1]))
 }
 
-## genInvDerFrank <- function(copula, s, n) {
-##   eval(genInvDerFrank.expr[n + 1], list(s=s, alpha=copula@parameters[1]))
+## iPsiDerFrank <- function(copula, s, n) {
+##   eval(iPsiDerFrank.expr[n + 1], list(s=s, alpha=copula@parameters[1]))
 ## }
 
 frankCopula <- function(param = NA_real_, dim = 2L) {
@@ -99,7 +99,7 @@ rfrankCopula <- function(copula, n) {
   fr <- rlogseries(n, 1 - exp(-alpha))
   fr <- matrix(fr, nrow = n, ncol = dim)
   val <- matrix(runif(dim * n), nrow = n)
-  genInv(copula, - log(val) / fr)
+  iPsi(copula, - log(val) / fr)
 }
 
 
@@ -131,7 +131,7 @@ dfrankCopula <- function(copula, u, log=FALSE, ...) {
 ## dfrankCopula.expr <- function(copula, u) {
 ##   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 ##   s <- apply(genFunFrank(copula, u), 1, sum)
-##   pdf <- genInvDerFrank(copula, s, copula@dimension) *
+##   pdf <- iPsiDerFrank(copula, s, copula@dimension) *
 ##     apply(genFunDerFrank(copula, u, 1), 1, prod)
 ##   pdf
 ## }
@@ -149,13 +149,13 @@ dfrankCopula.pdf <- function(copula, u, log=FALSE) {
 }
 
 
-kendallsTauFrankCopula <- function(copula) {
+tauFrankCopula <- function(copula) {
   alpha <- copula@parameters[1]
   if (alpha == 0) return (0)
   1 - 4 / alpha * (1 - debye1(alpha))
 }
 
-spearmansRhoFrankCopula <- function(copula) {
+rhoFrankCopula <- function(copula) {
   alpha <- copula@parameters[1]
   if (alpha == 0) 0
   else
@@ -191,18 +191,18 @@ setMethod("dcopula", signature("frankCopula"),
       })
 
 setMethod("genFun", signature("frankCopula"), genFunFrank)
-setMethod("genInv", signature("frankCopula"), genInvFrank)
+setMethod("iPsi", signature("frankCopula"), iPsiFrank)
 setMethod("genFunDer1", signature("frankCopula"), genFunDer1Frank)
 setMethod("genFunDer2", signature("frankCopula"), genFunDer2Frank)
-## setMethod("genInvDer", signature("frankCopula"), genInvDerFrank)
+## setMethod("iPsiDer", signature("frankCopula"), iPsiDerFrank)
 
 
-setMethod("kendallsTau", signature("frankCopula"), kendallsTauFrankCopula)
-setMethod("spearmansRho", signature("frankCopula"), spearmansRhoFrankCopula)
+setMethod("tau", signature("frankCopula"), tauFrankCopula)
+setMethod("rho", signature("frankCopula"), rhoFrankCopula)
 setMethod("tailIndex", signature("frankCopula"), function(copula) c(lower=0, upper=0))
 
-setMethod("calibKendallsTau", signature("frankCopula"), calibKendallsTauCopula)
-setMethod("calibSpearmansRho", signature("frankCopula"), calibSpearmansRhoCopula)
+setMethod("iTau", signature("frankCopula"), iTauCopula)
+setMethod("iRho", signature("frankCopula"), iRhoCopula)
 
 setMethod("dRho", signature("frankCopula"), dRhoFrankCopula)
 setMethod("dTau", signature("frankCopula"), dTauFrankCopula)

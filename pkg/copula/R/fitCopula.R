@@ -89,7 +89,7 @@ fitCopula <- function(copula, data, method = c("mpl","ml","itau","irho"),
 
 fitCopStart <- function(copula, data, hideWarnings, default = copula@parameters)
 {
-  if (hasMethod("calibKendallsTau", clc <- class(copula))) {
+  if (hasMethod("iTau", clc <- class(copula))) {
     start <- fitCopula.itau(copula, data, FALSE)@estimate
     if(extends(clc, "tCopula") && !copula@df.fixed)
       ## add starting value for 'df'
@@ -312,7 +312,7 @@ fitSpearman <- function(cop,rho)  {
   for (j in 1:(p-1))
     for (i in (j+1):p)
       {
-        sigma[i,j] <- calibSpearmansRho(cop,rho[i,j])
+        sigma[i,j] <- iRho(cop,rho[i,j])
         sigma[j,i] <- sigma[i,j]
       }
 
@@ -330,7 +330,7 @@ fitKendall <- function(cop,tau) {
   for (j in 1:(p-1))
     for (i in (j+1):p)
       {
-        sigma[i,j] <- calibKendallsTau(cop,tau[i,j])
+        sigma[i,j] <- iTau(cop,tau[i,j])
         sigma[j,i] <- sigma[i,j]
       }
 

@@ -281,7 +281,7 @@ derivatives <- function(cop)
 
 fitCopulaKendallsTau <- function(cop,u)
 {
-    cop@parameters <- calibKendallsTau(cop,cor(u[,1],u[,2],method="kendall"))
+    cop@parameters <- iTau(cop,cor(u[,1],u[,2],method="kendall"))
     return(cop)
 }
 
@@ -289,7 +289,7 @@ fitCopulaKendallsTau <- function(cop,u)
 
 fitCopulaSpearmansRho <- function(cop,u)
 {
-    cop@parameters <- calibSpearmansRho(cop,cor(u[,1],u[,2],method="spearman"))
+    cop@parameters <- iRho(cop,cor(u[,1],u[,2],method="spearman"))
     return(cop)
 }
 
@@ -349,7 +349,7 @@ gofMultCLT <- function(cop,x,N=1000,method="kendall",m=nrow(x),
 
     ## fit the copula
     if (method==1)
-      cop <- fitCopula(u,cop,calibKendallsTau(cop,cor(u[,1],u[,2],
+      cop <- fitCopula(u,cop,iTau(cop,cor(u[,1],u[,2],
                                                       method="kendall")))@copula
     else if (method==2)
       cop <- fitCopulaKendallsTau(cop,u)
@@ -549,7 +549,7 @@ gofMultCLT <- function(cop,x,N=1000,method="kendall",m=nrow(x),
 
     if (method==2) ## kendall's tau
       {
-        tauCtheta <- kendallsTau(cop)
+        tauCtheta <- tau(cop)
         influ <- 4 * (2 * pcopula(cop,x0) - x0[,1] - x0[,2] + (1 - tauCtheta)/2)
 
         if (class(cop) == "claytonCopula")
@@ -574,7 +574,7 @@ gofMultCLT <- function(cop,x,N=1000,method="kendall",m=nrow(x),
 
     if (method==3) ## Spearman's rho
       {
-        rhoCtheta <- spearmansRho(cop)
+        rhoCtheta <- rho(cop)
 
         ## integrals computed from M realizations by Monte Carlo
         y0 <- rcopula(cop,M)

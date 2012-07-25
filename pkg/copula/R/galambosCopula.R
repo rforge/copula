@@ -158,12 +158,12 @@ galambosTauFun <- function(alpha) {
   valFun(theta)
 }
 
-kendallsTauGalambosCopula <- function(copula) {
+tauGalambosCopula <- function(copula) {
   alpha <- copula@parameters[1]
   galambosTauFun(alpha)
 }
 
-calibKendallsTauGalambosCopula <- function(copula, tau) {
+iTauGalambosCopula <- function(copula, tau) {
   if (any(tau < 0)) warning("tau is out of the range [0, 1]")
   galambosTauInv <- approxfun(x = .galambosTau$assoMeasFun$fm$ysmth,
                               y = .galambosTau$assoMeasFun$fm$x, rule = 2)
@@ -198,12 +198,12 @@ galambosRhoFun <- function(alpha) {
   valFun(theta)
 }
 
-spearmansRhoGalambosCopula <- function(copula) {
+rhoGalambosCopula <- function(copula) {
   alpha <- copula@parameters[1]
   galambosRhoFun(alpha)
 }
 
-calibSpearmansRhoGalambosCopula <- function(copula, rho) {
+iRhoGalambosCopula <- function(copula, rho) {
   if (any(rho < 0)) warning("rho is out of the range [0, 1]")
   galambosRhoInv <- approxfun(x = .galambosRho$assoMeasFun$fm$ysmth,
                               y = .galambosRho$assoMeasFun$fm$x, rule = 2)
@@ -238,11 +238,11 @@ setMethod("dcopula", signature("galambosCopula"), dgalambosCopula)
 setMethod("Afun", signature("galambosCopula"), AfunGalambos)
 setMethod("AfunDer", signature("galambosCopula"), AfunDerGalambos)
 
-setMethod("kendallsTau", signature("galambosCopula"), kendallsTauGalambosCopula)
-setMethod("spearmansRho", signature("galambosCopula"), spearmansRhoGalambosCopula)
+setMethod("tau", signature("galambosCopula"), tauGalambosCopula)
+setMethod("rho", signature("galambosCopula"), rhoGalambosCopula)
 
-setMethod("calibKendallsTau", signature("galambosCopula"), calibKendallsTauGalambosCopula)
-setMethod("calibSpearmansRho", signature("galambosCopula"), calibSpearmansRhoGalambosCopula)
+setMethod("iTau", signature("galambosCopula"), iTauGalambosCopula)
+setMethod("iRho", signature("galambosCopula"), iRhoGalambosCopula)
 
 setMethod("dTau", signature("galambosCopula"), dTauGalambosCopula)
 setMethod("dRho", signature("galambosCopula"), dRhoGalambosCopula)
