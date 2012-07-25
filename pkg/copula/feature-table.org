@@ -18,9 +18,10 @@
 | c'args / c   | ml se, mpl se, gof mult      |                               | uscore         | I     |    |          |    |         |
 | sampling     | gof pb                       | rcopula                       | rCopula        | I     |    |          | I  |         |
 | psi          | Archimedean                  | genFun, psi                   | psi            |       |    | I        | P  |         |
-| psi^{(d)}    | Archimedean                  | genFunDer{1,2}, psiDabs (abs) | dPsi           |       |    | P        | P  |         |
+| psi^{(d)}    | Archimedean                  | genFunDer{1,2}, [psiDabs]     | dPsi           |       |    | P        | P  |         |
+| "            | Archimedean                  | psiDabs *slot* to stay        | dPsi           |       |    | P        | P  |         |
 | psiInv       | Archimedean                  | genInv, psiInv                | iPsi           |       |    | I        | P  |         |
-| psiInv^{(d)} | Archimedean                  | psiInvD1abs                   | diPsi          |       |    | P        | P  |         |
+| psiInv'      | Archimedean                  | -psiInvD1abs                  | diPsi          |       |    | P        | P  |         |
 | A            | EV                           | Afun                          | A              |       | I  |          |    |         |
 | A'args       | EV                           | AfunDer                       | dAdu           |       | I  |          |    |         |
 | A''args      | EV                           | AfunDer                       | dAdu           |       | I  |          |    |         |

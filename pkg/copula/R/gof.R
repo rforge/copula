@@ -115,13 +115,13 @@ rtrafo <- function(u, cop, m=d, n.MC=0)
     cop <- cop@copula
     th <- cop@theta
     stopifnot(cop@paraConstr(th))
-    psiI <- cop@psiInv(u, theta=th) # n x d
+    psiI <- cop@iPsi(u, theta=th) # n x d
     psiI. <- t(apply(psiI, 1, cumsum)) # n x d
     ## compute all conditional probabilities
     if(n.MC==0){
         ## Note: C(u_j | u_1,...,u_{j-1}) = \psi^{(j-1)}(\sum_{k=1}^j \psi^{-1}(u_k)) / \psi^{(j-1)}(\sum_{k=1}^{j-1} \psi^{-1}(u_k))
 	C.j <- function(j){ # computes C(u_j | u_1,...,u_{j-1}) with the same idea as for cacopula
-	    logD <- cop@psiDabs(as.vector(psiI.[,c(j,j-1)]), theta=th,
+	    logD <- cop@absdPsi(as.vector(psiI.[,c(j,j-1)]), theta=th,
                                 degree=j-1, n.MC=0, log=TRUE)
             exp(logD[1:n]-logD[(n+1):(2*n)])
         }
@@ -129,7 +129,7 @@ rtrafo <- function(u, cop, m=d, n.MC=0)
 	## draw random variates
 	V <- cop@V0(n.MC, th)
         C.j <- function(j){ # computes C(u_j | u_1,...,u_{j-1}) with the same idea as for cacopula
-            ## use same idea as default method of psiDabsMC
+            ## use same idea as default method of absdPsiMC
             ## only difference: only draw V's once
             arg <- c(psiI.[,j], psiI.[,j-1])
             iInf <- is.infinite(arg)
@@ -179,7 +179,7 @@ htrafo <- function(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
         ## ingredient 1: log(psi^{-1}(K^{-1}(u_d)))
         KI <- qK(u[,d], cop=cop@copula, d=d, n.MC=n.MC, method=method,
                  u.grid=u.grid, ...) # n-vector K^{-1}(u_d)
-        lpsiIKI <- cop@copula@psiInv(KI, th, log=TRUE) # n-vector log(psi^{-1}(K^{-1}(u_d)))
+        lpsiIKI <- cop@copula@iPsi(KI, th, log=TRUE) # n-vector log(psi^{-1}(K^{-1}(u_d)))
         n <- nrow(u)
         ## ingredient 2: sum_{k=j}^{d-1} log(u_k)/k) for j=1,..,d
         lu. <- log(u[,-d, drop=FALSE]) * (ik <- 1/rep(1:(d-1), each=n))
@@ -194,7 +194,7 @@ htrafo <- function(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
         expo <- rep(lpsiIKI, d) + cslu + l1p
         cop@copula@psi(exp(expo), th)
     } else { # "goodness-of-fit trafo" of Hofert and Hering (2011)
-        lpsiI <- cop@copula@psiInv(u, th, log=TRUE) # matrix log(psi^{-1}(u))
+        lpsiI <- cop@copula@iPsi(u, th, log=TRUE) # matrix log(psi^{-1}(u))
         lcumsum <- matrix(unlist(lapply(1:d, function(j)
                                         lsum(t(lpsiI[,1:j, drop=FALSE])))),
                           ncol=d)

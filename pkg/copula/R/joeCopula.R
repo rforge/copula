@@ -36,11 +36,11 @@ setMethod("dcopula", signature("joeCopula"),
 setMethod("genFun", signature("joeCopula"),
 	  function(copula, u) copJoe@psi(t=u, theta=copula@parameters))
 setMethod("genInv", signature("joeCopula"),
-	  function(copula, s) copJoe@psiInv(u=s, theta=copula@parameters))
+	  function(copula, s) copJoe@iPsi(u=s, theta=copula@parameters))
 setMethod("genFunDer1", signature("joeCopula"), function(copula, u)
-          - copJoe@psiDabs(u, theta=copula@parameters))
+          - copJoe@absdPsi(u, theta=copula@parameters))
 setMethod("genFunDer2", signature("joeCopula"), function(copula, u)
-          copJoe@psiDabs(u, theta=copula@parameters, degree=2))
+          copJoe@absdPsi(u, theta=copula@parameters, degree=2))
 
 setMethod("kendallsTau", signature("joeCopula"),
           function(copula) copJoe@tau(theta=copula@parameters))

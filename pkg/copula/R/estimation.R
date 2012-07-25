@@ -108,7 +108,7 @@ beta.hat <- function(u, scaling = FALSE) {
 ##' @author Marius Hofert & Martin Maechler
 beta. <- function(cop, theta, d, scaling=FALSE) {
     j <- seq_len(d)
-    diags <- cop@psi(j*cop@psiInv(0.5, theta), theta) # compute diagonals
+    diags <- cop@psi(j*cop@iPsi(0.5, theta), theta) # compute diagonals
     b <- 1 + diags[d] + if(d < 30) sum((-1)^j * choose(d, j) * diags)
     else sum((-1)^j * exp(lchoose(d, j) + log(diags)))
     if(scaling) b else { T <- 2^(d-1); (T*b - 1)/(T - 1)}
@@ -378,10 +378,10 @@ dDiagA <- function(u, d, cop, log=FALSE) {
 	return(u)
     }
     if(log) {
-        log(d) + cop@psiDabs(d*cop@psiInv(u, th), th, log=TRUE) +
-            cop@psiInvD1abs(u, th, log=TRUE)
+        log(d) + cop@absdPsi(d*cop@iPsi(u, th), th, log=TRUE) +
+            cop@absdiPsi(u, th, log=TRUE)
     } else {
-        d * cop@psiDabs(d*cop@psiInv(u, th), th) * cop@psiInvD1abs(u, th)
+        d * cop@absdPsi(d*cop@iPsi(u, th), th) * cop@absdiPsi(u, th)
     }
 }
 

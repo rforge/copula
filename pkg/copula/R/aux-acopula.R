@@ -475,7 +475,7 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"
 ##'
 ##' @title Polynomial involved in the generator derivatives and density for Gumbel
 ##' @param lx = log(x); where x: evaluation point (vector);
-##'        e.g., for copGumbel@dacopula, lx = alpha*log(rowSums(psiInv(u)))
+##'        e.g., for copGumbel@dacopula, lx = alpha*log(rowSums(iPsi(u)))
 ##'        where u = (u_1,..,u_d) is the evaluation point of the density of Joe's copula)
 ##' @param alpha parameter in (0,1]   alpha := 1/theta = 1 - tau
 ##' @param d number of summands, >= 1
@@ -1135,16 +1135,16 @@ cacopula <- function(u, cop, n.MC=0, log=FALSE) {
     dim. <- dim(u)
     n <- dim.[1]
     d <- dim.[2]
-    psiI <- cop@copula@psiInv(u, theta=th)
+    psiI <- cop@copula@iPsi(u, theta=th)
     arg.denom <- rowSums(psiI[,1:(d-1), drop=FALSE])
     arg.num <- arg.denom + psiI[,d]
-    logD <- cop@copula@psiDabs(c(arg.num, arg.denom), theta=th, degree=d-1,
+    logD <- cop@copula@absdPsi(c(arg.num, arg.denom), theta=th, degree=d-1,
                                n.MC=n.MC, log=TRUE)
     res <- logD[1:n]-logD[(n+1):(2*n)]
     if(log) res else exp(res)
 }
 
-##' Function which computes psiDabs via Monte Carlo
+##' Function which computes absdPsi via Monte Carlo
 ##'
 ##' @title Computing the absolute value of the generator derivatives via Monte Carlo
 ##' @param t evaluation points
@@ -1157,12 +1157,12 @@ cacopula <- function(u, cop, n.MC=0, log=FALSE) {
 ##'        direct:      direct evaluation of the sum
 ##'        pois.direct: directly uses the Poisson density
 ##'        pois:        intelligently uses the Poisson density with lsum
-##' @param log if TRUE the log of psiDabs is returned
+##' @param log if TRUE the log of absdPsi is returned
 ##' @param is.log.t if TRUE, the argument t contains log(<mathematical t>)
 ##' @author Marius Hofert, Martin Maechler
-##' Note: psiDabsMC(0) is always finite, although, theoretically, psiDabs(0) may
+##' Note: absdPsiMC(0) is always finite, although, theoretically, absdPsi(0) may
 ##'       be Inf (e.g., for Gumbel and Joe)
-psiDabsMC <- function(t, family, theta, degree=1, n.MC,
+absdPsiMC <- function(t, family, theta, degree=1, n.MC,
                       method=c("log", "direct", "pois.direct", "pois"),
                       log = FALSE, is.log.t = FALSE)
 {
@@ -1213,9 +1213,17 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC,
                }
                if(log) res else exp(res)
            },
-	   stop(sprintf("unsupported method '%s' in psiDabsMC", method)))
+	   stop(sprintf("unsupported method '%s' in absdPsiMC", method)))
 }
 
+psiDabsMC <- function(t, family, theta, degree=1, n.MC,
+                      method=c("log", "direct", "pois.direct", "pois"),
+                      log = FALSE, is.log.t = FALSE)
+{
+    .Deprecated("absdPsiMC")
+    absdPsiMC(t, family=family, theta=theta, degree=degree, n.MC=n.MC,
+                      method=method, log=log, is.log.t)
+}
 
 ### Non-numerics ###############################################################
 

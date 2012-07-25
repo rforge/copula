@@ -1,4 +1,5 @@
-\name{psiDabsMC}
+\name{absdPsiMC}
+\alias{absdPsiMC}
 \alias{psiDabsMC}
 \title{Absolute value of generator derivatives via Monte Carlo}
 \description{
@@ -6,7 +7,7 @@
   \eqn{\psi^{(d)}}{psi^{(d)}} via Monte Carlo simulation.
 }
 \usage{
-psiDabsMC(t, family, theta, degree = 1, n.MC,
+absdPsiMC(t, family, theta, degree = 1, n.MC,
           method = c("log", "direct", "pois.direct", "pois"),
           log = FALSE, is.log.t = FALSE)
 }
@@ -27,7 +28,7 @@ psiDabsMC(t, family, theta, degree = 1, n.MC,
 	the logarithm of the Poisson density in a numerically stable way.}
     }
   }
-  \item{log}{if TRUE the logarithm of psiDabs is returned.}
+  \item{log}{if TRUE the logarithm of absdPsi is returned.}
   \item{is.log.t}{if TRUE the argument \code{t} contains the logarithm of the
     \dQuote{mathematical} \eqn{t}, i.e., conceptually,
     \code{psi(t, *) == psi(log(t), *, is.log.t=TRUE)}, where the latter
@@ -65,16 +66,16 @@ psiDabsMC(t, family, theta, degree = 1, n.MC,
 \examples{
 t <- c(0:100,Inf)
 set.seed(1)
-(ps <- psiDabsMC(t, family="Gumbel", theta=2, degree=10, n.MC=10000, log=TRUE))
+(ps <- absdPsiMC(t, family="Gumbel", theta=2, degree=10, n.MC=10000, log=TRUE))
 ## Note: The absolute value of the derivative at 0 should be Inf for
 ## Gumbel, however, it is always finite for the Monte Carlo approximation
 set.seed(1)
-ps2 <- psiDabsMC(log(t), family="Gumbel", theta=2, degree=10,
+ps2 <- absdPsiMC(log(t), family="Gumbel", theta=2, degree=10,
                  n.MC=10000, log=TRUE, is.log.t = TRUE)
 stopifnot(all.equal(ps[-1], ps2[-1], tol=1e-14))
 ## Now is there an advantage of using "is.log.t" ?
-sapply(eval(formals(psiDabsMC)$method), function(MM)
-       psiDabsMC(780, family="Gumbel", method = MM,
+sapply(eval(formals(absdPsiMC)$method), function(MM)
+       absdPsiMC(780, family="Gumbel", method = MM,
                  theta=2, degree=10, n.MC=10000, log=TRUE, is.log.t = TRUE))
 ## not really better, yet...
 }

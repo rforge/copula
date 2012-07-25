@@ -42,8 +42,8 @@ corCheck <- function(n, th0,th1, cop) {
     V0time <- system.time(V0 <- cop@V0(n,th0))
     V01time <- system.time(V01 <- cop@V01(V0,th0,th1))
     mat <- cbind(runif(n),
-                 exp(-V0*cop@psiInv(cop@psi(rexp(n)/V01,th1),th0)),
-                 exp(-V0*cop@psiInv(cop@psi(rexp(n)/V01,th1),th0)))
+                 exp(-V0*cop@iPsi(cop@psi(rexp(n)/V01,th1),th0)),
+                 exp(-V0*cop@iPsi(cop@psi(rexp(n)/V01,th1),th0)))
     mat[,] <- cop@psi(-log(mat[,])/V0,th0)
     list(V0time,V01time, name = cop@name, cor = cor(mat, method = "kendall"))
 }
@@ -313,11 +313,11 @@ u <- c(.3, .4, .5)
 v <- pnacopula(c3, u)
 ## by hand
 psi <- function(t,theta) { (1-theta)/(exp(t)-theta) }
-psiInv <- function(t,theta) { log((1-theta*(1-t))/t) }
+iPsi <- function(t,theta) { log((1-theta*(1-t))/t) }
 th0 <- 0.7135
 th1 <- 0.9430
-level1 <- psi(psiInv(u[2],th1) + psiInv(u[3],th1), th1)
-level0 <- psi(psiInv(u[1],th0) + psiInv(level1, th0), th0)
+level1 <- psi(iPsi(u[2],th1) + iPsi(u[3],th1), th1)
+level0 <- psi(iPsi(u[1],th0) + iPsi(level1, th0), th0)
 stopifnot(all.equal(v, level0, tol = 1e-14))
 
 ## test rnacopula()
@@ -420,20 +420,20 @@ u <- seq(0.1,0.9,by = 0.1)
 v <- pnacopula(c9, u)
 ## by hand
 psi <- function(t,theta) { (1+t)^(-1/theta) }
-psiInv <- function(t,theta) { t^(-theta) - 1 }
+iPsi <- function(t,theta) { t^(-theta) - 1 }
 th0 <- 0.5
 th1 <- 2
 th2 <- 3
-level2 <- psi(psiInv(u[8],th2) + psiInv(u[4],th2), th2)
-level1 <- psi(psiInv(u[9],th1)+
-              psiInv(u[2],th1)+
-              psiInv(u[7],th1)+
-              psiInv(u[5],th1) +
-              psiInv(level2, th1), th1)
-level0 <- psi(psiInv(u[3],th0)+
-              psiInv(u[6],th0)+
-              psiInv(u[1],th0)+
-              psiInv(level1, th0), th0)
+level2 <- psi(iPsi(u[8],th2) + iPsi(u[4],th2), th2)
+level1 <- psi(iPsi(u[9],th1)+
+              iPsi(u[2],th1)+
+              iPsi(u[7],th1)+
+              iPsi(u[5],th1) +
+              iPsi(level2, th1), th1)
+level0 <- psi(iPsi(u[3],th0)+
+              iPsi(u[6],th0)+
+              iPsi(u[1],th0)+
+              iPsi(level1, th0), th0)
 stopifnot(all.equal(v, level0, tol = 1e-14))
 
 ## test rnacopula()

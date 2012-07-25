@@ -69,9 +69,9 @@ dacopulaG <- function(acop, u, n.MC=0, log = FALSE) {
     n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
     if(any(n01)) {
         u. <- u[n01,, drop=FALSE]
-	psiI <- acop@psiInv(u.,th)
-	psiID <- acop@psiInvD1abs(u.,th)
-        res[n01] <- acop@psiDabs(rowSums(psiI),theta = th,degree = d, n.MC = n.MC, log = log)
+	psiI <- acop@iPsi(u.,th)
+	psiID <- acop@absdiPsi(u.,th)
+        res[n01] <- acop@absdPsi(rowSums(psiI),theta = th,degree = d, n.MC = n.MC, log = log)
         res[n01] <- if(log) res[n01] + rowSums(log(psiID)) else res[n01] * apply(psiID,1,prod)
     }
     res
@@ -90,9 +90,9 @@ pnacopula <- function(x,u) {
     C <- x@copula
     th <- C@theta
     C@psi(rowSums(## use u[,j, drop=FALSE] for the direct components 'comp':
-		  cbind(C@psiInv(u[,x@comp, drop=FALSE], theta=th),
+		  cbind(C@iPsi(u[,x@comp, drop=FALSE], theta=th),
 			## and recurse down for the children:
-			C@psiInv(unlist(lapply(x@childCops, pnacopula, u=u)), theta=th))),
+			C@iPsi(unlist(lapply(x@childCops, pnacopula, u=u)), theta=th))),
 	  theta=th)
 }
 
@@ -106,7 +106,7 @@ pnacopula <- function(x,u) {
 ##' @author Martin Maechler
 pacopula <- function(C, u, theta = C@theta) {
     if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
-    C@psi(rowSums(C@psiInv(u, theta=theta)), theta=theta)
+    C@psi(rowSums(C@iPsi(u, theta=theta)), theta=theta)
 }
 
 ##' Compute the probability P[l < U <= u]  where U ~ copula x

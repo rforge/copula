@@ -47,7 +47,7 @@ dnacopula(x, u, log=FALSE, \dots)
 }
 \seealso{
   For more details about the derivatives of an Archimedean generator,
-  see, for example, \code{psiDabs} in class \code{\linkS4class{acopula}}.
+  see, for example, \code{absdPsi} in class \code{\linkS4class{acopula}}.
 }
 \examples{
 ## Construct a twenty-dimensional Gumbel copula with parameter chosen

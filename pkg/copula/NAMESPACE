@@ -160,12 +160,15 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"polylog", "Bernoulli", "Bernoulli.all"
        ,"Eulerian", "Stirling1", "Stirling2"
        ,"Eulerian.all", "Stirling1.all", "Stirling2.all"
-       ,"psiDabsMC"
+       ,"absdPsiMC"
        ,"setTheta"
        ,"tauAMH"
        ,"allComp" # <- maybe keep private ?
        ,"safeUroot"
        ,"splom2"
+       )
+## Deprecated old names [2012-07-25]:
+export(psiDabsMC
        )
 
 exportMethods(## for both own and "other" generics:

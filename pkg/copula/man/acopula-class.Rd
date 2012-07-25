@@ -24,29 +24,29 @@
       "Frank" ("F"), "Gumbel" ("G"), or "Joe" ("J").}
     \item{\code{theta}:}{Parameter value, a \code{\link{numeric}}, where
       \code{NA} means \dQuote{unspecified}.}
-    \item{\code{psi}, \code{psiInv}:}{The (Archimedean) generator
+    \item{\code{psi}, \code{iPsi}:}{The (Archimedean) generator
       \eqn{\psi}{psi} (with \eqn{\psi}{psi}(t)=\eqn{\exp}{exp}(-t) being the
       generator of the independence copula) and its inverse
-      (\code{\link{function}}). \code{psiInv} has an optional argument
+      (\code{\link{function}}). \code{iPsi} has an optional argument
       \code{log} which, if \code{TRUE} returns the logarithm of inverse of the
       generator.}
-    \item{\code{psiDabs}:}{A \code{\link{function}} which computes the absolute
+    \item{\code{absdPsi}:}{A \code{\link{function}} which computes the absolute
       value of the derivative of the generator \eqn{\psi}{psi} for the given
       parameter \code{theta} and of the given \code{degree} (defaults to 1).
       Note that there is no informational loss by computing the absolute value
       since the derivatives alternate in sign (the generator derivative
-      is simply (-1)^\code{degree}\eqn{*}\code{psiDabs}).  The
+      is simply (-1)^\code{degree}\eqn{*}\code{absdPsi}).  The
       number \code{n.MC} denotes the sample size for a Monte Carlo evaluation
       approach.  If \code{n.MC} is zero (the default), the
       generator derivatives are evaluated with their exact formulas.  The
       optional parameter \code{log} (defaults to \code{FALSE}) indicates whether
       or not the logarithmic value is returned.}
-    \item{\code{psiInvD1abs}:}{a \code{\link{function}} computing the
+    \item{\code{absdiPsi}:}{a \code{\link{function}} computing the
       absolute value of the derivative of the generator inverse
-      (\code{psiInv()}) for the given parameter \code{theta}.  The optional
+      (\code{iPsi()}) for the given parameter \code{theta}.  The optional
       parameter \code{log} (defaults to \code{FALSE}) indicates whether
       the logarithm of the absolute value of the first derivative of
-      \code{psiInv()} is returned.}
+      \code{iPsi()} is returned.}
     \item{\code{dDiag}:}{a \code{\link{function}} computing the density of the
       diagonal of the Archimedean copula at \code{u} with parameter
       \code{theta}.  The parameter \code{log} is as described before.}
