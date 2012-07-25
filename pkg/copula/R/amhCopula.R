@@ -136,7 +136,15 @@ rhoAmhCopula <- function(copula) {
 setMethod("rcopula", signature("amhCopula"), ramhCopula)
 setMethod("pcopula", signature("amhCopula"),
 	  ## was pamhCopula
-	  function (copula, u, ...) pacopula(copAMH, u, theta=copula@parameters))
+	  function (copula, u, ...)
+      {
+	  stopifnot(dimU(u) == (d <- copula@dimension))
+	  th <- copula@parameters
+	  if(d == 2 && !copAMH@paraConstr(th))# for now, .. to support negative tau
+	      pamhCopula(copula, u)
+	  else
+	      pacopula(copAMH, u, theta=copula@parameters, ...)
+      })
 setMethod("dcopula", signature("amhCopula"),
 	  ## was  damhCopula
 	  function (copula, u, log = FALSE, ...)
@@ -146,7 +154,7 @@ setMethod("dcopula", signature("amhCopula"),
 	  if(d == 2 && !copAMH@paraConstr(th))# for now, .. to support negative tau
 	      damhCopula(copula, u=u, log=log)
 	  else
-              copAMH@dacopula(u, theta=copula@parameters, log=log, ...)
+	      copAMH@dacopula(u, theta=copula@parameters, log=log, ...)
       })
 
 setMethod("genFun", signature("amhCopula"), genFunAmh)

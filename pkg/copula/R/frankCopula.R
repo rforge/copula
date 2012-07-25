@@ -177,7 +177,15 @@ dRhoFrankCopula <- function(copula) {
 setMethod("rcopula", signature("frankCopula"), rfrankCopula)
 setMethod("pcopula", signature("frankCopula"),
 	  ## was  pfrankCopula
-	  function (copula, u, ...) pacopula(copFrank, u, theta=copula@parameters))
+	  function (copula, u, ...)
+      {
+          stopifnot(dimU(u) == (d <- copula@dimension))
+          th <- copula@parameters
+          if(d == 2 && !copFrank@paraConstr(th)) # for now, .. to support negative tau
+              pfrankCopula(copula, u=u)
+          else
+              pacopula(copFrank, u, theta=copula@parameters, ...)
+      })
 setMethod("dcopula", signature("frankCopula"),
 	  ## was  dfrankCopula.pdf
 	  function (copula, u, log = FALSE, ...)

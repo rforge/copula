@@ -40,7 +40,7 @@ setMethod("iPsi", signature("joeCopula"),
 setMethod("genFunDer1", signature("joeCopula"), function(copula, u)
           - copJoe@absdPsi(u, theta=copula@parameters))
 setMethod("genFunDer2", signature("joeCopula"), function(copula, u)
-          copJoe@absdPsi(u, theta=copula@parameters, degree=2))
+          copJoe@absdPsi(u, theta = copula@parameters, degree = 2))
 
 setMethod("tau", signature("joeCopula"),
           function(copula) copJoe@tau(theta=copula@parameters))

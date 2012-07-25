@@ -218,7 +218,15 @@ dTauClaytonCopula <- function(copula) {
 setMethod("rcopula", signature("claytonCopula"), rclaytonCopula)
 setMethod("pcopula", signature("claytonCopula"),
 	  ## was  pclaytonCopula
-          function (copula, u, ...) pacopula(copClayton, u, theta=copula@parameters))
+	  function (copula, u, ...)
+      {
+	  stopifnot(dimU(u) == (d <- copula@dimension))
+	  th <- copula@parameters
+	  if(d == 2 && !copClayton@paraConstr(th)) # for now, .. to support negative tau
+	      pclaytonCopula(copula, u=u)
+	  else
+	      pacopula(copClayton, u, theta=copula@parameters, ...)
+      })
 setMethod("dcopula", signature("claytonCopula"),
 	  ## was  dclaytonCopula.pdf
 	  function (copula, u, log = FALSE, ...)
@@ -228,7 +236,7 @@ setMethod("dcopula", signature("claytonCopula"),
 	  if(d == 2 && !copClayton@paraConstr(th))# for now, .. to support negative tau
 	      dclaytonCopula.pdf(copula, u=u, log=log)
 	  else
-              copClayton@dacopula(u, theta=copula@parameters, log=log, ...)
+	      copClayton@dacopula(u, theta=copula@parameters, log=log, ...)
       })
 
 setMethod("genFun", signature("claytonCopula"), genFunClayton)

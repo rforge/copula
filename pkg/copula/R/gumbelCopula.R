@@ -122,7 +122,6 @@ pgumbelCopula <- function(copula, u) {
   dim <- copula@dimension
   if(!is.matrix(u)) u <- matrix(u, ncol = dim)
   cdf <- copula@exprdist$cdf
-  dim <- copula@dimension
   for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   alpha <- copula@parameters[1]
   val <- eval(cdf)

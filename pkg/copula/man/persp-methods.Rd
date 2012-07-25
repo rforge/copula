@@ -34,6 +34,11 @@
 \examples{
 persp(frankCopula(-0.8), dcopula)
 persp(claytonCopula(2), pcopula)
+## example with negative tau :
+(th1 <- iTau(amhCopula(), -0.1))
+persp(amhCopula(th1), dcopula)
+persp(amhCopula(th1), pcopula)
+
 x <- mvdc(gumbelCopula(3), c("norm", "norm"),
           list(list(mean = 0, sd =1), list(mean = 1)))
 persp(x, dmvdc, xlim=c(-2, 2), ylim=c(-1, 3))

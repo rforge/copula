@@ -13,7 +13,7 @@
   \item{x = "copula"}{ Contour plot for a \code{"\linkS4class{copula}"} or
     \code{"\linkS4class{indepCopula}"} object. }
 
-\item{x = "mvdc"}{ Contour plot for a \code{"mvdc"} object. }
+  \item{x = "mvdc"}{ Contour plot for a \code{"mvdc"} object. }
 }}
 \details{
   When \code{x} is of class \code{"\linkS4class{copula}"}, the following
@@ -33,8 +33,13 @@
     \item{ny}{the number of points for y to expand.}
   }
 }
+\seealso{
+  The \code{\link{persp-methods}} for \dQuote{perspective} aka
+  \dQuote{3D} plots.
+}
 \examples{
 contour(frankCopula(-0.8), dcopula)
+contour(frankCopula(-1.2), pcopula)
 contour(claytonCopula(2), pcopula)
 x <- mvdc(gumbelCopula(3), c("norm", "norm"),
           list(list(mean = 0, sd =1), list(mean = 1)))
