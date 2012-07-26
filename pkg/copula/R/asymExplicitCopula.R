@@ -118,11 +118,11 @@ getAsymExplicitCopulaComps <- function(object) {
 ##   den1 * A(copula1, t1) + den2 * A(copula2, t2)
 ## }
 
-pasymExplicitCopula <- function(copula, u) {
+pasymExplicitCopula <- function(u, copula) {
   u <- as.matrix(u)
   comps <- getAsymExplicitCopulaComps(copula)
-  p1 <- pcopula(comps$copula1, t(t(u)^(1 - comps$shapes)))
-  p2 <- pcopula(comps$copula2, t(t(u)^comps$shapes))
+  p1 <- pCopula(t(t(u)^(1 - comps$shapes)), comps$copula1)
+  p2 <- pCopula(t(t(u)^comps$shapes), comps$copula2)
   p1 * p2
 }
 
@@ -184,6 +184,9 @@ rasymExplicitCopula <- function(copula, n) {
 ## setMethod("A", signature("asymCopula"), AAsymCopula)
 
 setMethod("rcopula", signature("asymExplicitCopula"), rasymExplicitCopula)
-setMethod("pcopula", signature("asymExplicitCopula"), pasymExplicitCopula)
+
+setMethod("pCopula", signature("numeric", "asymExplicitCopula"),pasymExplicitCopula)
+setMethod("pCopula", signature("matrix", "asymExplicitCopula"), pasymExplicitCopula)
+
 setMethod("dcopula", signature("asymExplicitCopula"), dasymExplicitCopula)
 

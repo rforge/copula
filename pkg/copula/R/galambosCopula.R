@@ -111,7 +111,7 @@ galambosCopula <- function(param = NA_real_) {
              fullname = "Galambos copula family; Extreme value copula")
 }
 
-pgalambosCopula <- function(copula, u) {
+pgalambosCopula <- function(u, copula) {
   dim <- copula@dimension
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
@@ -230,7 +230,9 @@ dRhoGalambosCopula <- function(copula) {
 
 ################################################################################
 
-setMethod("pcopula", signature("galambosCopula"), pgalambosCopula)
+setMethod("pCopula", signature("numeric", "galambosCopula"),pgalambosCopula)
+setMethod("pCopula", signature("matrix", "galambosCopula"), pgalambosCopula)
+
 setMethod("dcopula", signature("galambosCopula"), dgalambosCopula)
 ## revCopula is much faster
 ## setMethod("rcopula", signature("galambosCopula"), rgalambosCopula)

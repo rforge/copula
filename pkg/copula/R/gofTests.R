@@ -102,7 +102,7 @@ gofPB <- function(copula, x, N, method, verbose, optim.method, optim.control)
             as.integer(n),
             as.integer(p),
             as.double(u),
-            as.double(pcopula(fcop,u)),
+            as.double(pCopula(u, fcop)),
             stat = double(1))$stat
 
     ## simulation of the null distribution
@@ -125,7 +125,7 @@ gofPB <- function(copula, x, N, method, verbose, optim.method, optim.control)
                     as.integer(n),
                     as.integer(p),
                     as.double(u0),
-                    as.double(pcopula(fcop0,u0)),
+                    as.double(pCopula(u0, fcop0)),
                     stat = double(1))$stat
 
         if (verbose) setTxtProgressBar(pb, i) # update progress bar
@@ -182,12 +182,12 @@ gofMCLT.KS <- function(cop, x, N, method)
             as.integer(n),
             as.double(u),
             as.integer(n),
-            as.double(pcopula(cop, u)),
+            as.double(pCopula(u, cop)),
             stat = double(1))$stat
 
     ## prepare influence coefficients
     if (method == "itau") ## kendall's tau
-        influ <- 4 * (2 * pcopula(cop,u) - u[,1] - u[,2]
+        influ <- 4 * (2 * pCopula(u, cop) - u[,1] - u[,2]
                       + (1 - tau(cop))/2) / dTau(cop)
     else if (method == "irho") ## Spearman's rho
         influ <- (12 * (u[,1] * u[,2] + influ.add(u, u, u[,2],u[,1])) -
@@ -289,7 +289,7 @@ gofMCLT.PL <- function(cop, x, N, optim.method, optim.control)
             as.integer(n),
             as.double(u),
             as.integer(n),
-            as.double(pcopula(cop,u)),
+            as.double(pCopula(u, cop)),
             stat = double(1))$stat
 
     ## simulate under H0

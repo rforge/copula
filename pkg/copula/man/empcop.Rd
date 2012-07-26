@@ -39,7 +39,7 @@ Cn(x, w)
   Deheuvels, P. (1981), A non parametric test for independence,
   \emph{Publ. Inst. Statist. Univ. Paris}. \bold{26}, 29--50.
 }
-\seealso{\code{\link{pcopula}}.}
+\seealso{\code{\link{pCopula}}.}
 \examples{
 n <- 20
 gumbel.cop <- gumbelCopula(4)
@@ -48,12 +48,12 @@ u <- rcopula(gumbel.cop, n)
 w <- matrix(runif(2 * n), n, 2)
 ec <- Cn(u, w)
 ## compare with true c.d.f.
-mean(abs(pcopula(gumbel.cop, w) - ec))
+mean(abs(pCopula(w, gumbel.cop) - ec))
 ## increase n to decrease the mean absolute error
 
 ## compare the empirical copula and the true copula c.d.f.
 ## on the diagonal of the unit square
 curve(Cn(u, cbind(x, x)), 0, 1)
-curve(pcopula(gumbel.cop, cbind(x, x)), lty = 2, add = TRUE)
+curve(pCopula(cbind(x, x), gumbel.cop), lty = 2, add = TRUE)
 }
 \keyword{multivariate}

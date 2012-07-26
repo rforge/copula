@@ -205,9 +205,14 @@ dRhoGumbelCopula <- function(copula) {
 }
 
 setMethod("rcopula", signature("gumbelCopula"), rgumbelCopula)
-setMethod("pcopula", signature("gumbelCopula"),
+
+setMethod("pCopula", signature("numeric", "gumbelCopula"),
 	  ## was  pgumbelCopula
-	  function (copula, u, ...) pacopula(copGumbel, u, theta=copula@parameters))
+	  function(u, copula, ...) pacopula(u, copGumbel, theta=copula@parameters))
+setMethod("pCopula", signature("matrix", "gumbelCopula"),
+	  ## was  pgumbelCopula
+	  function(u, copula, ...) .pacopula(u, copGumbel, theta=copula@parameters))
+
 setMethod("dcopula", signature("gumbelCopula"),
 	  ## was  dgumbelCopula.pdf
 	  function (copula, u, log = FALSE, ...)

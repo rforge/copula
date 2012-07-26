@@ -62,16 +62,16 @@ localpowerC <- function(copC, copD, N=1000, n=1000, step=5, ndelta=4, alpha = 0.
   for (i in r)
     dert <- c(dert,as.double(dCdu(copC,g^(1/i))))
 
-  pcopC <- pcopula(copC,g)
-  pcopD <- pcopula(copD,g)
+  pcopC <- pCopula(copC,g)
+  pcopD <- pCopula(g, copD)
   pcopCt <- numeric(0)
   delta.term <- numeric(0)
   for (i in r)
     {
-      pcopCr <- pcopula(copC,g^(1/i))
+      pcopCr <- pCopula(g^(1/i), copC)
       pcopCt <- c(pcopCt,pcopCr)
       delta.term <- c(delta.term,
-                      i *  pcopCr^(i - 1) * (pcopula(copD,g^(1/i)) -  pcopCr)
+                      i *  pcopCr^(i - 1) * (pCopula(g^(1/i), copD) -  pcopCr)
                       - (pcopD - pcopC))
     }
 
@@ -111,7 +111,7 @@ localpowerC <- function(copC, copD, N=1000, n=1000, step=5, ndelta=4, alpha = 0.
 
 AD <- function(copD,y)
   {
-    integrand <- function(x) {(pcopula(copD,cbind(x^(1-y),x^y)) - (x > exp(-1)))/ (x * log(x))}
+    integrand <- function(x) {(pCopula(cbind(x^(1-y),x^y), copD) - (x > exp(-1)))/ (x * log(x))}
     exp(-0.57721566 + integrate(integrand, 0,1)$value)
   }
 
@@ -139,7 +139,7 @@ localpowerA <- function(copC, copD, N=1000, n=1000, step=5, ndelta=4, alpha = 0.
   ADg <- numeric(n)
   for (i in 1:n)
     ADg[i] <- AD(copD,g[i])
-  delta.term <- pcopula(copD,u) - pcopula(copC,u) -
+  delta.term <- pCopula(u, copD) - pCopula(u, copC) -
     exp(loguv * AC) * loguv * AC * (log(ADg) - log(AC))
 
   s0 <- .C("evtestA_LP",

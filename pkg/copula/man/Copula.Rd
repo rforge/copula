@@ -1,8 +1,9 @@
 \name{Copula}
 \alias{Copula}
 \alias{dcopula}
-\alias{pcopula}
+\alias{pCopula}
 \alias{rcopula}
+\alias{pcopula}%deprecated
 % dcopula
 \alias{dcopula,claytonCopula-method}
 \alias{dcopula,frankCopula-method}
@@ -21,24 +22,42 @@
 \alias{dcopula,asymCopula-method}
 \alias{dcopula,asymExplicitCopula-method}
 \alias{dcopula,nacopula-method}
-% pcopula
-\alias{pcopula,claytonCopula-method}
-\alias{pcopula,frankCopula-method}
-\alias{pcopula,gumbelCopula-method}
-\alias{pcopula,normalCopula-method}
-\alias{pcopula,tCopula-method}
-\alias{pcopula,galambosCopula-method}
-\alias{pcopula,amhCopula-method}
-\alias{pcopula,joeCopula-method}
-\alias{pcopula,huslerReissCopula-method}
-\alias{pcopula,tawnCopula-method}
-\alias{pcopula,tevCopula-method}
-\alias{pcopula,plackettCopula-method}
-\alias{pcopula,fgmCopula-method}
-\alias{pcopula,indepCopula-method}
-\alias{pcopula,asymCopula-method}
-\alias{pcopula,asymExplicitCopula-method}
-\alias{pcopula,nacopula-method}
+% pCopula
+\alias{pCopula,matrix,claytonCopula-method}
+\alias{pCopula,matrix,frankCopula-method}
+\alias{pCopula,matrix,gumbelCopula-method}
+\alias{pCopula,matrix,normalCopula-method}
+\alias{pCopula,matrix,tCopula-method}
+\alias{pCopula,matrix,galambosCopula-method}
+\alias{pCopula,matrix,amhCopula-method}
+\alias{pCopula,matrix,joeCopula-method}
+\alias{pCopula,matrix,huslerReissCopula-method}
+\alias{pCopula,matrix,tawnCopula-method}
+\alias{pCopula,matrix,tevCopula-method}
+\alias{pCopula,matrix,plackettCopula-method}
+\alias{pCopula,matrix,fgmCopula-method}
+\alias{pCopula,matrix,indepCopula-method}
+\alias{pCopula,matrix,asymCopula-method}
+\alias{pCopula,matrix,asymExplicitCopula-method}
+\alias{pCopula,matrix,nacopula-method}
+%
+\alias{pCopula,numeric,claytonCopula-method}
+\alias{pCopula,numeric,frankCopula-method}
+\alias{pCopula,numeric,gumbelCopula-method}
+\alias{pCopula,numeric,normalCopula-method}
+\alias{pCopula,numeric,tCopula-method}
+\alias{pCopula,numeric,galambosCopula-method}
+\alias{pCopula,numeric,amhCopula-method}
+\alias{pCopula,numeric,joeCopula-method}
+\alias{pCopula,numeric,huslerReissCopula-method}
+\alias{pCopula,numeric,tawnCopula-method}
+\alias{pCopula,numeric,tevCopula-method}
+\alias{pCopula,numeric,plackettCopula-method}
+\alias{pCopula,numeric,fgmCopula-method}
+\alias{pCopula,numeric,indepCopula-method}
+\alias{pCopula,numeric,asymCopula-method}
+\alias{pCopula,numeric,asymExplicitCopula-method}
+\alias{pCopula,numeric,nacopula-method}
 % rcopula
 \alias{rcopula,claytonCopula-method}
 \alias{rcopula,frankCopula-method}
@@ -64,7 +83,7 @@
 }
 \usage{
 dcopula(copula, u, log=FALSE, \dots)
-pcopula(copula, u, \dots)
+pCopula(u, copula, \dots)
 rcopula(copula, n, \dots)
 }
 \arguments{
@@ -82,7 +101,7 @@ rcopula(copula, n, \dots)
 }
 \details{
   The density (\code{dcopula}) and distribution function
-  (\code{pcopula}) methods for Archimedean copulas now use the
+  (\code{pCopula}) methods for Archimedean copulas now use the
   corresponding function slots of the Archimedean copula objects, such
   as \code{\link{copClayton}}, \code{\link{copGumbel}}, etc.
 
@@ -97,8 +116,8 @@ rcopula(copula, n, \dots)
   approach for dimension greater than 2.
 }
 \value{
-  \code{"dcopula"} gives the density, \code{"pcopula"} gives the
-  distribution function, and \code{"rcopula"} generates random variates.
+  \code{dcopula()} gives the density, \code{pCopula()} gives the
+  distribution function, and \code{rcopula()} generates random variates.
 }
 \references{
   Frees, E. W.  and Valdez, E. A. (1998). Understanding relationships using
@@ -133,7 +152,7 @@ norm.cop
 x <- rcopula(norm.cop, 100)
 plot(x)
 dcopula(norm.cop, x)
-pcopula(norm.cop, x)
+pCopula(x, norm.cop)
 persp(norm.cop, dcopula)
 contour(norm.cop, pcopula)
 
@@ -152,7 +171,7 @@ if(require("scatterplot3d"))
 ## Compare with the "nacopula" version :
 fu1 <- dcopula(cl3, v)
 fu2 <- copClayton@dacopula(v, theta = 2)
-Fu1 <- pcopula(cl3, v)
+Fu1 <- pCopula(v, cl3)
 Fu2 <- pnacopula(onacopula("Clayton", C(2.0, 1:3)), v)
 ## The density and cumulative values are the same:
 stopifnot(all.equal(fu1, fu2, tol= 1e-14),

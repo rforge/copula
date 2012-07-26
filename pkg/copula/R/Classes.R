@@ -54,7 +54,7 @@ setClass("copula",
 
 ## general methods for copula
 setGeneric("dcopula", function(copula, u, log=FALSE, ...) standardGeneric("dcopula"))
-setGeneric("pcopula", function(copula, u, ...) standardGeneric("pcopula"))
+setGeneric("pCopula", function(u, copula, ...) standardGeneric("pCopula"))
 setGeneric("rcopula", function(copula, n, ...) standardGeneric("rcopula"))
 setGeneric("tau", function(copula, ...) standardGeneric("tau"))
 setGeneric("rho", function(copula, ...) standardGeneric("rho"))
@@ -79,6 +79,8 @@ genFunDer2 <- function(copula, u){ .Deprecated("diPsi(*, degree=2)"); diPsi(copu
 
 AfunDer <- function(copula, w) { .Deprecated("dAdu"); dAdu(copula, w) }
 Afun    <- function(copula, w) { .Deprecated("A"); A(copula, w) }
+
+pcopula <- function(copula, u, ...) { .Deprecated("pCopula"); pCopula(u, copula) }
 
 
 ### elliptical copulas, contains normalCopula and tCopula ######################
@@ -163,7 +165,7 @@ setGeneric("psi", function(copula, s) standardGeneric("psi"))
 ##setGeneric("iPsi", function(copula, u, log, ...) standardGeneric("iPsi"))
 setGeneric("iPsi", function(copula, u, ...) standardGeneric("iPsi"))
 setGeneric("dPsi", function(copula, s, ...) standardGeneric("dPsi"))
-setGeneric("diPsi", function(copula, u, degree=1, ...) standardGeneric("diPsi"))
+setGeneric("diPsi", function(copula, u, degree=1, log=FALSE, ...) standardGeneric("diPsi"))
 
 
 ### Extreme value copulas, contains galambos, husler-reiss, gumbel, ... ########

@@ -68,7 +68,7 @@ schlatherCopula <- function(param = NA_real_) {
 }
 
 
-pschlatherCopula <- function(copula, u) {
+pschlatherCopula <- function(u, copula) {
   dim <- copula@dimension
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
@@ -80,7 +80,7 @@ pschlatherCopula <- function(copula, u) {
   u1 * u2 * exp(ASchlather(copula, w))
 }
 
-dschlatherCopula <- function(copula, u, log=FALSE, ...) {
+dschlatherCopula <- function(u, copula, log=FALSE, ...) {
   dim <- copula@dimension
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
@@ -93,10 +93,8 @@ dschlatherCopula <- function(copula, u, log=FALSE, ...) {
 
 ## This block is copied from ../../copulaUtils/assoc/ ##########################
 
-#setMethod("pcopula", signature("schlatherCopula"), pschlatherCopula)
-#setMethod("dcopula", signature("schlatherCopula"), dschlatherCopula)
-## revCopula is much faster
-## setMethod("rcopula", signature("schlatherCopula"), rschlatherCopula)
+#setMethod("pCopula", signature("schlatherCopula"), pschlatherCopula)
+#setMethod("dCopula", signature("schlatherCopula"), dschlatherCopula)
 
 #setMethod("A", signature("schlatherCopula"), ASchlather)
 #setMethod("dAdu", signature("schlatherCopula"), dAduSchlather)

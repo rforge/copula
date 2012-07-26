@@ -25,7 +25,7 @@ prob(x, l, u)
 }
 \author{Marius Hofert, Martin Maechler}
 \seealso{
-  \code{\link{pcopula}(.)}.
+  \code{\link{pCopula}(.)}.
 }
 \examples{
 ## Construct a three-dimensional nested Joe copula with parameters

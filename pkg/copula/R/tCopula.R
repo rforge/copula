@@ -64,12 +64,12 @@ rtCopula <- function(copula, n) {
 }
 
 
-ptCopula <- function(copula, u) {
+ptCopula <- function(u, copula) {
   dim <- copula@dimension
   sigma <- getSigma(copula)
   df <- getdf(copula)
   if(df != as.integer(df))
-    stop("'df' is not integer; therefore, pcopula() cannot be computed yet")
+    stop("'df' is not integer; therefore, pCopula() cannot be computed yet")
   if(!is.matrix(u)) u <- matrix(u, ncol = dim)
   u[u < 0] <- 0
   u[u > 1] <- 1
@@ -123,7 +123,9 @@ rhoTCopula <- function(copula) {
 }
 
 setMethod("rcopula", signature("tCopula"), rtCopula)
-setMethod("pcopula", signature("tCopula"), ptCopula)
+setMethod("pCopula", signature("numeric", "tCopula"),ptCopula)
+setMethod("pCopula", signature("matrix", "tCopula"), ptCopula)
+
 setMethod("dcopula", signature("tCopula"), dtCopula)
 
 setMethod("show", signature("tCopula"), showTCopula)

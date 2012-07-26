@@ -27,8 +27,12 @@ joeCopula <- function(param = NA_real_, dim = 2L) {
 setMethod("rcopula", signature("joeCopula"), function(copula, n)
 	  racopula(n, Cp=copula, theta = copula@parameters, d = copula@dimension))
 
-setMethod("pcopula", signature("joeCopula"),
-	  function (copula, u, ...) pacopula(copJoe, u, theta=copula@parameters))
+setMethod("pCopula", signature("numeric", "joeCopula"),
+	  function(u, copula, ...) pacopula(u, copJoe, theta=copula@parameters))
+setMethod("pCopula", signature("matrix", "joeCopula"),
+	  function(u, copula, ...) .pacopula(u, copJoe, theta=copula@parameters))
+
+
 setMethod("dcopula", signature("joeCopula"),
 	  function (copula, u, log = FALSE, ...)
 	  copJoe@dacopula(u, theta=copula@parameters, log=log, ...))

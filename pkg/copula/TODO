@@ -22,7 +22,7 @@ IK: Me too
 - The NAC Archimedean families are partly 'better' and partly "worse" than
   archmCop: need 'uscore'
 -Write testing code that compares the two classes numerically.
-**** TODO (MM): Make  pcopula(<archm>) and dcopula(<archm>)
+**** TODO (MM): Make  pcopular(<archm>) and dcopula(<archm>)
  use the the numerically good formulae rather than the "exprDist".
 **** d=2 is special: allows negative tau, MH-code does not yet
 *** "copula" class:  slot re-definitions

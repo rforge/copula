@@ -80,33 +80,41 @@ dacopulaG <- function(acop, u, n.MC=0, log = FALSE) {
 ##' Returns the copula value at u
 ##'
 ##' @title Evaluation of nested Archimedean copula
-##' @param x nacopula
 ##' @param u argument of the copula x (can be a matrix)
+##' @param copula nacopula
 ##' @return f_x(u)
 ##' @author Marius Hofert, Martin Maechler
-pnacopula <- function(x,u) {
-    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
-    stopifnot(ncol(u) >= dim(x)) # will be larger for children
-    C <- x@copula
+.pnacopula <- function(u,copula) {
+    stopifnot(ncol(u) >= dim(copula)) # will be larger for children
+    C <- copula@copula
     th <- C@theta
     C@psi(rowSums(## use u[,j, drop=FALSE] for the direct components 'comp':
-		  cbind(C@iPsi(u[,x@comp, drop=FALSE], theta=th),
+		  cbind(C@iPsi(u[,copula@comp, drop=FALSE], theta=th),
 			## and recurse down for the children:
-			C@iPsi(unlist(lapply(x@childCops, pnacopula, u=u)), theta=th))),
+			C@iPsi(unlist(lapply(copula@childCops, pnacopula, u=u)), theta=th))),
 	  theta=th)
 }
+pnacopula <- function(x,u) {
+    ## FIXME:
+    ## .Deprecated("pCopula")
+    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
+    .pnacopula(u,x)
+}
+
 
 ##' Returns the copula value at u
 ##'
 ##' @title CDF / Evaluation of Archimedean copula
+##' @param u argument of the copula x (can be a matrix)
 ##' @param C acopula
 ##' @param theta parameter
-##' @param u argument of the copula x (can be a matrix)
 ##' @return C_\theta(u)
 ##' @author Martin Maechler
-pacopula <- function(C, u, theta = C@theta) {
-    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
+.pacopula <- function(u, C, theta = C@theta)
     C@psi(rowSums(C@iPsi(u, theta=theta)), theta=theta)
+pacopula <- function(u, C, theta = C@theta) {
+    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
+    .pacopula(u,C,theta)
 }
 
 ##' Compute the probability P[l < U <= u]  where U ~ copula x
@@ -141,7 +149,7 @@ setMethod("prob", signature(x ="Copula"),
               ## Sign: the ("u","u",...,"u") case has +1; = c(2,2,...,2)
               Sign <- c(1,-1)[1L + (- rowSums(II)) %% 2]
               U <- array(cbind(l,u)[cbind(c(col(II)), c(II))], dim = dim(II))
-              sum(Sign * pcopula(x, U))
+              sum(Sign * pCopula(U, x))
           })
 
 ##' Returns (n x d)-matrix of random variates
@@ -466,7 +474,9 @@ setMethod("dcopula", "nacopula",
               C@dacopula(u, th, log=log, ...)
           })
 
-setMethod("pcopula", "nacopula", function(copula, u, ...) pnacopula(copula, u))
+setMethod("pCopula", signature("numeric", "nacopula"),
+	  function(u, copula, ...) pnacopula(copula, u))
+setMethod("pCopula", signature("matrix", "nacopula"), .pnacopula)
 
 setMethod("rcopula", "nacopula",
 	  function(copula, n, ...) ## argument reversal ..

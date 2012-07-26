@@ -31,7 +31,7 @@ plackettCopula <- function(param = NA_real_) {
              fullname = "Plackett copula family")
 }
 
-pplackettCopula <- function(copula, u) {
+pplackettCopula <- function(u, copula) {
   dim <- copula@dimension
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
@@ -134,7 +134,10 @@ rhoPlackettCopula <- function(copula) {
   if (theta == 0) -1 else (theta + 1) / (theta - 1) - 2 * theta * log(theta) / (theta - 1)^2
 }
 
-setMethod("pcopula", signature("plackettCopula"), pplackettCopula)
+
+setMethod("pCopula", signature("numeric", "plackettCopula"),pplackettCopula)
+setMethod("pCopula", signature("matrix", "plackettCopula"), pplackettCopula)
+
 setMethod("dcopula", signature("plackettCopula"), dplackettCopula)
 setMethod("rcopula", signature("plackettCopula"), rplackettCopula)
 

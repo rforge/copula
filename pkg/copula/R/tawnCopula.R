@@ -56,7 +56,7 @@ tawnCopula <- function(param = NA_real_) {
              fullname = "Tawn copula family; Extreme value copula")
 }
 
-ptawnCopula <- function(copula, u) {
+ptawnCopula <- function(u, copula) {
   dim <- copula@dimension
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
@@ -157,7 +157,9 @@ dRhoTawnCopula <- function(copula) {
 
 ################################################################################
 
-setMethod("pcopula", signature("tawnCopula"), ptawnCopula)
+setMethod("pCopula", signature("numeric", "tawnCopula"),ptawnCopula)
+setMethod("pCopula", signature("matrix", "tawnCopula"), ptawnCopula)
+
 setMethod("dcopula", signature("tawnCopula"), dtawnCopula)
 
 setMethod("A", signature("tawnCopula"), ATawn)

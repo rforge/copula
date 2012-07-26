@@ -112,7 +112,7 @@ dclaytonCopula <- function(copula, u, ...) {
   val[apply(u, 1, function(v) any(v < 0))] <- 0
   val[apply(u, 1, function(v) any(v > 1))] <- 0
 ##   if (alpha < 0) {
-##     cdf <- pcopula(copula, u)
+##     cdf <- pCopula(u, copula)
 ##     bad <- cdf == 0
 ##     val[bad] <- 0
 ##   }
@@ -203,18 +203,23 @@ dTauClaytonCopula <- function(copula) {
   return( 2 / (copula@parameters+2)^2 )
 }
 
+pMatClayton <- function (u, copula, ...) {
+    stopifnot(ncol(u) == (d <- copula@dimension))
+    th <- copula@parameters
+    if(d == 2 && !copClayton@paraConstr(th)) # for now, .. to support negative tau
+        pclaytonCopula(copula, u=u)
+    else
+        pacopula(u, copClayton, theta=copula@parameters, ...)
+}
+
 setMethod("rcopula", signature("claytonCopula"), rclaytonCopula)
-setMethod("pcopula", signature("claytonCopula"),
+
+setMethod("pCopula", signature("numeric", "claytonCopula"),
+	  function (u, copula, ...)
 	  ## was  pclaytonCopula
-	  function (copula, u, ...)
-      {
-	  stopifnot(dimU(u) == (d <- copula@dimension))
-	  th <- copula@parameters
-	  if(d == 2 && !copClayton@paraConstr(th)) # for now, .. to support negative tau
-	      pclaytonCopula(copula, u=u)
-	  else
-	      pacopula(copClayton, u, theta=copula@parameters, ...)
-      })
+          pMatClayton(matrix(u, ncol = dim(copula)), copula, ...))
+setMethod("pCopula", signature("matrix", "claytonCopula"), pMatClayton)
+
 setMethod("dcopula", signature("claytonCopula"),
 	  ## was  dclaytonCopula.pdf
 	  function (copula, u, log = FALSE, ...)

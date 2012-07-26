@@ -79,7 +79,7 @@ tevCopula <- function(param = NA_real_, df = 4, df.fixed = FALSE) {
                if(df.fixed) paste("df fixed at", df)))
 }
 
-ptevCopula <- function(copula, u) {
+ptevCopula <- function(u, copula) {
   dim <- copula@dimension
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
@@ -94,7 +94,7 @@ dtevCopula <- function(copula, u, log=FALSE, ...) {
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   u1 <- u[,1]; u2 <- u[,2]
 
-  C <- ptevCopula(copula, u)
+  C <- ptevCopula(u, copula)
   logu <- log(u1 * u2)
   w <- log(u2) / logu
   wexpr <- ~ log(u2) / log(u1 * u2)
@@ -118,7 +118,7 @@ dtevCopula <- function(copula, u, log=FALSE, ...) {
 
 dCduSymEvCopula <- function(cop, u) {
   mat <- matrix(NA, nrow(u), 2)
-  pcop <- pcopula(cop, u)
+  pcop <- pCopula(u, cop)
   loguv <- log(u[,1]) + log(u[,2])
   w <- log(u[,2]) / loguv
   a <- A(cop, w)
@@ -217,7 +217,9 @@ dRhoTevCopula <- function(copula) {
 
 ################################################################################
 
-setMethod("pcopula", signature("tevCopula"), ptevCopula)
+setMethod("pCopula", signature("numeric", "tevCopula"),ptevCopula)
+setMethod("pCopula", signature("matrix", "tevCopula"), ptevCopula)
+
 setMethod("dcopula", signature("tevCopula"), dtevCopula)
 
 setMethod("A", signature("tevCopula"), ATev)

@@ -71,7 +71,7 @@ pmvdc <- function(mvdc, x) {
     cdf.expr <- asCall(P0("p", mvdc@margins[i]), mvdc@paramMargins[[i]])
     u[,i] <- eval(cdf.expr, list(x = x[,i]))
   }
-  pcopula(mvdc@copula, u)
+  pCopula(u, mvdc@copula)
 }
 
 

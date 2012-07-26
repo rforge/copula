@@ -124,7 +124,7 @@ gofA <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
               as.integer(n),
               as.integer(p),
               as.double(u),
-              as.double(pcopula(fcop,u)),
+              as.double(pCopula(u,fcop)),
               stat = double(1))$stat
 
     ## where to compute A
@@ -174,7 +174,7 @@ gofA <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
                    as.integer(n),
                    as.integer(p),
                    as.double(u0),
-                   as.double(pcopula(fcop0,u0)),
+                   as.double(pCopula(u0, fcop0)),
                    stat = double(1))$stat
 
         sCFG0 <-  .C(cramer_vonMises_Afun,

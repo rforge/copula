@@ -32,7 +32,7 @@
   \describe{
     \item{A}{\code{signature(copula = "indepCopula")}: ... }
     \item{dcopula}{\code{signature(copula = "indepCopula")}: ... }
-    \item{pcopula}{\code{signature(copula = "indepCopula")}: ... }
+    \item{pCopula}{\code{signature(copula = "indepCopula")}: ... }
     \item{rcopula}{\code{signature(copula = "indepCopula")}: ... }
   }
 }

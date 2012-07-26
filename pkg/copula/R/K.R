@@ -262,5 +262,5 @@ rK <- function(n, cop, d) {
     } else if(!is(cop, c2 <- "outer_nacopula"))
 	stop(sprintf("'cop' must be \"%s\" or \"%s\"", c1,c2))
 
-    pcopula(cop, rcopula(cop, n))
+    pCopula(rcopula(cop, n), cop)
 }

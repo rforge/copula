@@ -78,7 +78,7 @@ varPL <- function(cop,u)
 
 varKendall <- function(cop,u)
 {
-  return(var(4 * (2 * pcopula(cop,u) - u[,1] - u[,2]) / dTau(cop)))
+  return(var(4 * (2 * pCopula(u, cop) - u[,1] - u[,2]) / dTau(cop)))
 }
 
 varKendallNP <- function(cop,u)

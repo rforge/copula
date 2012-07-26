@@ -104,7 +104,7 @@ rfgmCopula <- function(copula, n) {
 
 ### cdf of the copula ##########################################################
 
-pfgmCopula <- function(copula, u) {
+pfgmCopula <- function(u, copula) {
     if (any(u < 0) || any(u > 1))
         stop("u values should lie between 0 and 1")
     dim <- copula@dimension
@@ -165,7 +165,8 @@ iRhoFgmCopula <- function(copula, rho) {
 ################################################################################
 
 setMethod("rcopula", signature("fgmCopula"), rfgmCopula)
-setMethod("pcopula", signature("fgmCopula"), pfgmCopula)
+setMethod("pCopula", signature("numeric", "fgmCopula"),pfgmCopula)
+setMethod("pCopula", signature("matrix", "fgmCopula"), pfgmCopula)
 setMethod("dcopula", signature("fgmCopula"), dfgmCopula)
 setMethod("tau", signature("fgmCopula"), tauFgmCopula)
 setMethod("rho", signature("fgmCopula"), rhoFgmCopula)

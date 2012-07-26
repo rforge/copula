@@ -65,7 +65,7 @@ amhCopula <- function(param = NA_real_, dim = 2L) {
 
 pamhCopula <- function(copula, u) {
   dim <- copula@dimension
-  if(!is.matrix(u)) u <- matrix(u, ncol = dim)
+  ## if(!is.matrix(u)) u <- matrix(u, ncol = dim)
   alpha <- copula@parameters[1]
   if (abs(alpha) <= .Machine$double.eps^.9) return (apply(u, 1, prod))
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
@@ -125,22 +125,26 @@ rhoAmhCopula <- function(copula) {
       3 * (alpha + 12) / alpha
 }
 
+pMatAmh <- function (u, copula, ...) {
+    ## was pamhCopula
+    stopifnot(ncol(u) == (d <- copula@dimension))
+    th <- copula@parameters
+    if(d == 2 && !copAMH@paraConstr(th)) # for now, .. to support negative tau
+        pamhCopula(copula, u)
+    else
+        pacopula(u, copAMH, theta=copula@parameters, ...)
+}
 setMethod("rcopula", signature("amhCopula"), ramhCopula)
-setMethod("pcopula", signature("amhCopula"),
-	  ## was pamhCopula
-	  function (copula, u, ...)
-      {
-	  stopifnot(dimU(u) == (d <- copula@dimension))
-	  th <- copula@parameters
-	  if(d == 2 && !copAMH@paraConstr(th))# for now, .. to support negative tau
-	      pamhCopula(copula, u)
-	  else
-	      pacopula(copAMH, u, theta=copula@parameters, ...)
-      })
+setMethod("pCopula", signature("numeric", "amhCopula"),
+	  function (u, copula, ...)
+          pMatAmh(matrix(u, ncol = dim(copula)), copula, ...))
+setMethod("pCopula", signature("matrix", "amhCopula"), pMatAmh)
+
+
 setMethod("dcopula", signature("amhCopula"),
-	  ## was  damhCopula
 	  function (copula, u, log = FALSE, ...)
       {
+	  ## was  damhCopula
 	  stopifnot(dimU(u) == (d <- copula@dimension))
 	  th <- copula@parameters
 	  if(d == 2 && !copAMH@paraConstr(th))# for now, .. to support negative tau

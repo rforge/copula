@@ -73,14 +73,14 @@ AAsymCopula <- function(copula, w) {
   den1 * A(copula1, t1) + den2 * A(copula2, t2)
 }
 
-pasymCopula <- function(copula, u) {
+pasymCopula <- function(u, copula) {
   if(!is.matrix(u)) u <- matrix(u, ncol = 2)
   comps <- getCopulaComps(copula)
   a1 <- comps$shape[1];  a2 <- comps$shape[2]
   copula1 <- comps$copula1; copula2 <- comps$copula2
   gu1 <- cbind(gfun(u[,1], 1 - a1), gfun(u[,2], 1 - a2))
   gu2 <- cbind(gfun(u[,1], a1), gfun(u[,2], a2))
-  pcopula(copula1, gu1) * pcopula(copula2, gu2)
+  pCopula(gu1, copula1) * pCopula(gu2, copula2)
 }
 
 dasymCopula <- function(copula, u, log=FALSE, ...) {
@@ -97,10 +97,10 @@ dasymCopula <- function(copula, u, log=FALSE, ...) {
   dC2du <- dCdu(copula2, gu2)
   part1 <- dcopula(copula1, gu1) *
       gfunDer(u[,1], 1 - a1) * gfunDer(u[,2], 1 - a2) *
-          pcopula(copula2, gu2)
+          pCopula(gu2, copula2)
   part2 <- dC1du[,1] * gfunDer(u[,1], 1 - a1) * gfunDer(u[,2], a2) * dC2du[,2]
   part3 <- dC1du[,2] * gfunDer(u[,2], 1 - a2) * gfunDer(u[,1], a1) * dC2du[,1]
-  part4 <- pcopula(copula1, gu1) * dcopula(copula2, gu2) *
+  part4 <- pCopula(gu1, copula1) * dcopula(copula2, gu2) *
       gfunDer(u[,2], a2) * gfunDer(u[,1], a1)
   ## FIXME: use lsum() and similar to get much better numerical accuracy for log - case
   if(log)
@@ -124,6 +124,9 @@ rasymCopula <- function(copula, n) {
 setMethod("A", signature("asymCopula"), AAsymCopula)
 
 setMethod("rcopula", signature("asymCopula"), rasymCopula)
-setMethod("pcopula", signature("asymCopula"), pasymCopula)
+
+setMethod("pCopula", signature("numeric", "asymCopula"),pasymCopula)
+setMethod("pCopula", signature("matrix", "asymCopula"), pasymCopula)
+
 setMethod("dcopula", signature("asymCopula"), dasymCopula)
 

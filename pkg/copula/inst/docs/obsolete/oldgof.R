@@ -69,7 +69,7 @@ gof <- function(cop, x, N=1000, method="kendall")
             as.integer(n),
             as.integer(p),
             as.double(u),
-            as.double(pcopula(fcop,u)),
+            as.double(pCopula(u, fcop)),
             stat = double(1),
             PACKAGE="copula")$stat
 
@@ -93,7 +93,7 @@ gof <- function(cop, x, N=1000, method="kendall")
                     as.integer(n),
                     as.integer(p),
                     as.double(u0),
-                    as.double(pcopula(fcop0,u0)),
+                    as.double(pCopula(u0, fcop0)),
                     stat = double(1),
                     PACKAGE="copula")$stat
       }
@@ -176,7 +176,7 @@ gofMobius <- function(cop, x, maxcard=ncol(x), use.empcop=TRUE, m=2000, N=100)
             marg[[j]] <- eval(parse(text=sub('\\}', ')', marg[[j]])))
             ones <- matrix(1,n,p)
             ones[,marg[[j]]] <- u[,marg[[j]]]
-            pcop[,j] <- pcopula(fcop,ones)
+            pcop[,j] <- pCopula(ones, fcop)
           }
 
         s <- .C("Mobius_cramer_vonMises",
@@ -220,7 +220,7 @@ gofMobius <- function(cop, x, maxcard=ncol(x), use.empcop=TRUE, m=2000, N=100)
               {
                 ones <- matrix(1,n,p)
                 ones[,marg[[j]]] <- u0[,marg[[j]]]
-                pcop0[,j] <- pcopula(fcop0,ones)
+                pcop0[,j] <- pCopula(ones, fcop0)
               }
 
             s0[i,] <- .C("Mobius_cramer_vonMises",
@@ -366,7 +366,7 @@ gofMultCLT <- function(cop,x,N=1000,method="kendall",m=nrow(x),
       g <- matrix(runif(n*p),n,p)
     else if (grid >= 3)
       g <- u
-    pcop <- pcopula(cop,g)
+    pcop <- pCopula(g, cop)
 
     ## compute the test statistic
     s <- .C("cramer_vonMises_2",
@@ -388,7 +388,7 @@ gofMultCLT <- function(cop,x,N=1000,method="kendall",m=nrow(x),
     if (grid==4) ## a la Genest et al.
       {
         g <- apply(x0,2,rank)/(m+1) #pseudo-obs
-        pcop <- pcopula(cop,g)
+        pcop <- pCopula(g, cop)
       }
 
     ## matrix of partial derivatives at g
@@ -550,7 +550,7 @@ gofMultCLT <- function(cop,x,N=1000,method="kendall",m=nrow(x),
     if (method==2) ## kendall's tau
       {
         tauCtheta <- tau(cop)
-        influ <- 4 * (2 * pcopula(cop,x0) - x0[,1] - x0[,2] + (1 - tauCtheta)/2)
+        influ <- 4 * (2 * pCopula(x0, cop) - x0[,1] - x0[,2] + (1 - tauCtheta)/2)
 
         if (class(cop) == "claytonCopula")
           influ <- influ * (alpha+2)^2 / 2

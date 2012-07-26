@@ -182,7 +182,7 @@ dCdthetaEvCopula <- function(cop, u) {
   alpha <- cop@parameters
   loguv <- log(u[,1], u[,2])
   w <- log(u[,2]) / loguv
-  der.cdf.alpha <- pcopula(cop, u) * loguv * dAdtheta(cop, w)
+  der.cdf.alpha <- pCopula(u, cop) * loguv * dAdtheta(cop, w)
   return(as.matrix(der.cdf.alpha))
 }
 

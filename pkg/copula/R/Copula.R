@@ -32,7 +32,7 @@ setMethod("show", signature("copula"), showCopula)
 ### numerical computation of association measures
 
 ## tauCopula <- function(copula, eps = NULL, ...) {
-##   integrand <- function(u) pcopula(copula, u) * dcopula(copula, u)
+##   integrand <- function(u) pCopula(u, copula) * dcopula(copula, u)
 ##   if (is.null(eps)) .eps <- .Machine$double.eps^0.9
 ##   else .eps <- eps
 ##   lower <- c(.eps, .eps)
@@ -42,7 +42,7 @@ setMethod("show", signature("copula"), showCopula)
 ## }
 
 ## rhoCopula <- function(copula, eps = NULL, ...) {
-##   integrand <- function(u) pcopula(copula, u)
+##   integrand <- function(u) pCopula(u, copula)
 ##   if (is.null(eps)) .eps <- .Machine$double.eps^0.9
 ##   else .eps <- eps
 ##   lower <- c(.eps, .eps)
@@ -57,8 +57,8 @@ setMethod("show", signature("copula"), showCopula)
 tailIndexCopula <- function(copula, eps = .Machine$double.eps^0.5) {
   u <- eps
   v <- 1 - u
-  lower <- pcopula(copula, c(u, u))/u
-  upper <- (1 - 2 * v + pcopula(copula, c(v, v)))/ u
+  lower <- pCopula(c(u, u), copula)/u
+  upper <- (1 - 2 * v + pCopula(c(v, v), copula))/ u
   c(lower=lower, upper=upper)
 }
 

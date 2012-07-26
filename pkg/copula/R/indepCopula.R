@@ -51,7 +51,7 @@ rindepCopula <- function(copula, n) {
   matrix(runif(n * dim), nrow = n)
 }
 
-pindepCopula <- function(copula, u, log.p=FALSE) {
+pindepCopula <- function(u, copula, log.p=FALSE) {
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   stopifnot (ncol(u) == copula@dimension)
   if(log.p) rowSums(log(u)) else apply(u, 1, prod)
@@ -81,7 +81,10 @@ dindepCopula <- function(copula, u, log=FALSE, ...) {
 
 
 setMethod("rcopula", signature("indepCopula"), rindepCopula)
-setMethod("pcopula", signature("indepCopula"), pindepCopula)
+
+setMethod("pCopula", signature("numeric", "indepCopula"),pindepCopula)
+setMethod("pCopula", signature("matrix", "indepCopula"), pindepCopula)
+
 setMethod("dcopula", signature("indepCopula"), dindepCopula)
 
 setMethod("A", signature("indepCopula"), AIndep)

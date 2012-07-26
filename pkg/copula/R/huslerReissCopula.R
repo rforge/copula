@@ -89,7 +89,7 @@ huslerReissCopula <- function(param = NA_real_) {
 }
 
 
-phuslerReissCopula <- function(copula, u) {
+phuslerReissCopula <- function(u, copula) {
   dim <- copula@dimension
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
@@ -111,7 +111,7 @@ dhuslerReissCopula <- function(copula, u, log=FALSE, ...) {
   alpha <- copula@parameters[1]
   ## Joe (1997, p.142)
   u1p <- -log(u1); u2p <- -log(u2); z <- u1p / u2p
-  val <- 1/ (u1 * u2) * pcopula(copula, u) *
+  val <- 1/ (u1 * u2) * pCopula(u, copula) *
     (pnorm(1/alpha - 0.5 * alpha * log(z)) *
      pnorm(1/alpha + 0.5 * alpha * log(z)) +
      0.5 * alpha / u2p * dnorm(1/alpha + 0.5 * alpha * log(z)))
@@ -127,7 +127,8 @@ rhuslerReissCopula <- function(copula, n) {
   eps <- .Machine$double.eps ^ 0.8  ## don't know a better way
   myfun <- function(u2, u1, v) {
     ## Joe (1997, p.147)
-    phuslerReissCopula(copula, cbind(u1, u2)) / u1 * pnorm(1/alpha + 0.5 * alpha * log(log(u1) / log(u2))) - v
+    phuslerReissCopula(cbind(u1, u2), copula) / u1 *
+        pnorm(1/alpha + 0.5 * alpha * log(log(u1) / log(u2))) - v
   }
   u2 <- sapply(1:n, function(x) uniroot(myfun, c(eps, 1 - eps), v=v[x], u1=u1[x])$root)
   cbind(u1, u2)
@@ -201,7 +202,9 @@ huslerReissRhoDer <- function(alpha) {
 
 ################################################################################
 
-setMethod("pcopula", signature("huslerReissCopula"), phuslerReissCopula)
+setMethod("pCopula", signature("numeric", "huslerReissCopula"),phuslerReissCopula)
+setMethod("pCopula", signature("matrix", "huslerReissCopula"), phuslerReissCopula)
+
 setMethod("dcopula", signature("huslerReissCopula"), dhuslerReissCopula)
 ## inherits from "evCopula" --> revCopula() in ./evCopula.R :
 ## setMethod("rcopula", signature("huslerReissCopula"), rhuslerReissCopula)
