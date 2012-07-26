@@ -17,11 +17,12 @@
 | c'param / c  | ml se, mpl se, gof mult      |                               | score          | I     |    |          | I  |         |
 | c'args / c   | ml se, mpl se, gof mult      |                               | uscore         | I     |    |          |    |         |
 | sampling     | gof pb                       | rcopula                       | rCopula        | I     |    |          | I  |         |
-| psi          | Archimedean                  | genFun, psi                   | psi            |       |    | I        | P  |         |
-| psi^{(d)}    | Archimedean                  | genFunDer{1,2}, [psiDabs]     | dPsi           |       |    | P        | P  |         |
+| psi          | Archimedean                  | genInv, psi                   | psi            |       |    | I        | P  |         |
+| psi^{(d)}    | Archimedean                  | (-1)^d*psiDabs                | dPsi           |       |    | P        | P  |         |
 | "            | Archimedean                  | psiDabs *slot* to stay        | dPsi           |       |    | P        | P  |         |
-| psiInv       | Archimedean                  | genInv, psiInv                | iPsi           |       |    | I        | P  |         |
-| psiInv'      | Archimedean                  | -psiInvD1abs                  | diPsi          |       |    | P        | P  |         |
+| psiInv^{(d)} | Archimedean                  | genFunDer{1,2}                | diPsi          |       |    | P        | P  |         |
+| psiInv       | Archimedean                  | genFun, psiInv                | iPsi           |       |    | I        | P  |         |
+| psiInv'      | Archimedean                  | -psiInvD1abs, genFunDer1      | diPsi          |       |    | P        | P  |         |
 | A            | EV                           | Afun                          | A              |       | I  |          |    |         |
 | A'args       | EV                           | AfunDer                       | dAdu           |       | I  |          |    |         |
 | A''args      | EV                           | AfunDer                       | dAdu           |       | I  |          |    |         |

@@ -1,6 +1,7 @@
 ##-*- org -*-->  Emacs .. [Tab] key + [Org] menu; C-c C-o to follow links
 * Short Term
 
+** getAcop(class(gumbelCopula())) should work => we could then write general methods for all Archimedean objects... possible problem (for now): negative concordance case for AMH, Clayton, and Frank
 ** DONE (MH) LICENCE etc
 CLOSED: [2012-07-17 Tue 11:25]
 MM: Einstein's rule: Keep it as simple as possible (but not simpler)
