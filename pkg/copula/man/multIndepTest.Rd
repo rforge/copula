@@ -91,7 +91,7 @@ y[,3] <- y[,4]/2 + sqrt(3)/2*y[,3]
 y[,5] <- y[,6]/2 + sqrt(3)/2*y[,5]
 
 nc <- normalCopula(0.3,dim=3)
-x <- cbind(y,rcopula(nc,n),rcopula(nc,n))
+x <- cbind(y,rCopula(n, nc),rCopula(n, nc))
 
 x[,1] <- abs(x[,1]) * sign(x[,3] * x[,5])
 x[,2] <- abs(x[,2]) * sign(x[,3] * x[,5])

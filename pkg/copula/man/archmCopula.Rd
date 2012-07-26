@@ -65,7 +65,7 @@ joeCopula(param = NA_real_, dim = 2)
 }
 \examples{
 clayton.cop <- claytonCopula(2, dim = 3)
-## scatterplot3d(rcopula(clayton.cop, 1000))
+## scatterplot3d(rCopula(1000, clayton.cop))
 
 frank.cop <- frankCopula(3)
 persp(frank.cop, dcopula)
@@ -75,22 +75,22 @@ contour(gumbel.cop, dcopula)
 
 amh.cop <- amhCopula(0.5)
 u. <- as.matrix(expand.grid(u=(0:10)/10, v=(0:10)/10, KEEP.OUT.ATTRS=FALSE))
-du <- dCopula( u., amh.cop)
+du <- dCopula(u., amh.cop)
 stopifnot(is.finite(du) | apply(u. == 0, 1,any)| apply(u. == 1, 1,any))
 
 ## A 7-dim Frank copula
 frank.cop <- frankCopula(3, dim = 7)
-x <- rcopula(frank.cop, 5)
+x <- rCopula(5, frank.cop)
 ## dCopula now *does* work:
-dCopula( x, frank.cop)
+dCopula(x, frank.cop)
 
 ## A 7-dim Gumbel copula
 gumbel.cop <- gumbelCopula(2, dim = 7)
-dCopula( x, gumbel.cop)
+dCopula(x, gumbel.cop)
 
 ## A 12-dim Joe copula
 joe.cop <- joeCopula(iTau(joeCopula(), 0.5), dim = 12)
-dCopula( x, joe.cop)
+dCopula(x, joe.cop)
 }
 \keyword{distribution}
 \keyword{multivariate}

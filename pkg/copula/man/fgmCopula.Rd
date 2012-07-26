@@ -34,7 +34,7 @@ fgmCopula(param, dim = 2)
 \examples{
 ## a bivariate example
 fgm.cop <- fgmCopula(1)
-x <- rcopula(fgm.cop, 1000)
+x <- rCopula(1000, fgm.cop)
 cor(x, method = "kendall")
 tau(fgm.cop)
 cor(x, method = "spearman")

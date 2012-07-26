@@ -48,8 +48,8 @@ norm.cop <- ellipCopula("normal", param = c(0.5, 0.6, 0.7),
                         dim = 3, dispstr = "un")
 if(require("scatterplot3d")) {
   ## 3d scatter plot of 1000 random observations
-  scatterplot3d(rcopula(norm.cop, 1000))
-  scatterplot3d(rcopula(t.cop, 1000))
+  scatterplot3d(rCopula(1000, norm.cop))
+  scatterplot3d(rCopula(1000, t.cop))
 }
 }
 \keyword{distribution}

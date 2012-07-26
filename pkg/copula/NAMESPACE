@@ -32,7 +32,7 @@ import("pspline")
 ## importFrom(sn, dmst)
 ## importFrom(sn, qsn, dsn, psn, dmsn, pmsn)
 
-export(dCopula, pCopula, rcopula)
+export(dCopula, pCopula, rCopula)
 export(dmvdc, pmvdc, rmvdc)
 export(tau, rho, tailIndex)
 export(iTau, iRho)
@@ -180,6 +180,7 @@ export(psiDabsMC
        ## , Anfun
        , pcopula
        , dcopula
+       , rcopula
        )
 
 exportMethods(## for both own and "other" generics:

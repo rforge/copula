@@ -33,7 +33,7 @@
     \item{A}{\code{signature(copula = "indepCopula")}: ... }
     \item{dCopula}{\code{signature(copula = "indepCopula")}: ... }
     \item{pCopula}{\code{signature(copula = "indepCopula")}: ... }
-    \item{rcopula}{\code{signature(copula = "indepCopula")}: ... }
+    \item{rCopula}{\code{signature(copula = "indepCopula")}: ... }
   }
 }
 % \section{Extends}{

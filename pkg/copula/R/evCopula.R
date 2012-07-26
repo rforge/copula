@@ -45,7 +45,7 @@ hdensity <- function(copula, z) {
   1 + (1 - 2 * z) * ders$der1 / A + z * (1 - z) * (ders$der2 * A - ders$der1^2) / A^2
 }
 
-revCopula <- function(copula, n) {
+revCopula <- function(n, copula) {
   ## Caperaa, Fougeres, and Genest (2000, Journal of Multivariate Analysis)
   ## This algorithm has low efficiency for high dependence, in which case,
   ## hdensity is pretty much centered around 0.5.
@@ -93,7 +93,7 @@ rhoEvCopula <- function(copula) {
 }
 
 setMethod("tailIndex", signature("evCopula"), tailIndexEvCopula)
-setMethod("rcopula", signature("evCopula"), revCopula)
+setMethod("rCopula", signature("numeric", "evCopula"), revCopula)
 setMethod("tau", signature("evCopula"), tauEvCopula)
 setMethod("rho", signature("evCopula"), rhoEvCopula)
 

@@ -74,7 +74,8 @@ curveLogL <- function(cop, u, xlim, main, XtrArgs=list(), ...) {
     invisible(r)
 }
 
-(doExtras <- interactive() || nzchar(Sys.getenv("R_copula_check_extra")))
+if(!exists("doExtras") || !is.logical(doExtras))
+    print(doExtras <- interactive() || nzchar(Sys.getenv("R_copula_check_extra")))
 ## Want to see when "Rmpfr" methods are chosen automatically:
 options("copula:verboseUsingRmpfr" = TRUE)
 

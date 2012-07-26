@@ -120,7 +120,7 @@ dhuslerReissCopula <- function(u, copula, log=FALSE, ...) {
 }
 
 
-rhuslerReissCopula <- function(copula, n) {
+rhuslerReissCopula <- function(n, copula) {
   u1 <- runif(n)
    v <- runif(n)
   alpha <- copula@parameters[1]
@@ -209,7 +209,7 @@ setMethod("dCopula", signature("numeric", "huslerReissCopula"),dhuslerReissCopul
 setMethod("dCopula", signature("matrix", "huslerReissCopula"), dhuslerReissCopula)
 
 ## inherits from "evCopula" --> revCopula() in ./evCopula.R :
-## setMethod("rcopula", signature("huslerReissCopula"), rhuslerReissCopula)
+## setMethod("rCopula", signature("numeric", "huslerReissCopula"), rhuslerReissCopula)
 
 setMethod("A", signature("huslerReissCopula"), AHuslerReiss)
 setMethod("dAdu", signature("huslerReissCopula"), dAduHuslerReiss)

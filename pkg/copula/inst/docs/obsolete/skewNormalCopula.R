@@ -167,7 +167,7 @@ showSkewNormalCopula <- function(object) {
   cat("shape:", object@shape, "\n")
 }
 
-#setMethod("rcopula", signature("skewNormalCopula"), rskewNormalCopula)
+##setMethod("rCopula", signature("numeric", "skewNormalCopula"), rskewNormalCopula)
 ## setMethod("pCopula", signature("skewNormalCopula"), pskewNormalCopula)
 ## setMethod("dCopula", signature("skewNormalCopula"), dskewNormalCopula2)
 

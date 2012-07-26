@@ -85,7 +85,7 @@ pmvdc <- function(mvdc, x) {
 
 rmvdc <- function(mvdc, n) {
   dim <- mvdc@copula@dimension
-  u <- rcopula(mvdc@copula, n)
+  u <- rCopula(n, mvdc@copula)
   x <- u
   for (i in 1:dim) {
     qdf.expr <- asCall(P0("q", mvdc@margins[i]), mvdc@paramMargins[[i]])

@@ -60,7 +60,7 @@ claytonCopula <- function(param = NA_real_, dim = 2L) {
       fullname = "Clayton copula family; Archimedean copula")
 }
 
-rclaytonBivCopula <- function(copula, n) {
+rclaytonBivCopula <- function(n, copula) {
   val <- cbind(runif(n), runif(n))
   alpha <- copula@parameters[1]
   ## This implementation is confirmed by Splus module finmetrics
@@ -73,12 +73,12 @@ rclaytonBivCopula <- function(copula, n) {
 }
 
 
-rclaytonCopula <- function(copula, n) {
+rclaytonCopula <- function(n, copula) {
   dim <- copula@dimension
   alpha <- copula@parameters[1]
   if (abs(alpha - 0) < .Machine$double.eps ^ (1/3))
-    return(rcopula(indepCopula(dim), n))
-  if (dim == 2) return (rclaytonBivCopula(copula, n))
+    return(rCopula(n, indepCopula(dim)))
+  if (dim == 2) return (rclaytonBivCopula(n, copula))
   ## gamma frailty
   val <- matrix(runif(n * dim), nrow = n)
   if (abs(alpha) <= 100 * .Machine$double.eps)
@@ -221,7 +221,7 @@ dMatClayton <- function (u, copula, log = FALSE, ...) {
         copClayton@dacopula(u, theta=copula@parameters, log=log, ...)
 }
 
-setMethod("rcopula", signature("claytonCopula"), rclaytonCopula)
+setMethod("rCopula", signature("numeric", "claytonCopula"), rclaytonCopula)
 
 setMethod("pCopula", signature("numeric", "claytonCopula"),
 	  function (u, copula, ...)

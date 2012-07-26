@@ -24,8 +24,9 @@ joeCopula <- function(param = NA_real_, dim = 2L) {
       fullname = "Joe copula family; Archimedean copula")
 }
 
-setMethod("rcopula", signature("joeCopula"), function(copula, n)
-	  racopula(n, Cp=copula, theta = copula@parameters, d = copula@dimension))
+setMethod("rCopula", signature("numeric", "joeCopula"),
+	  function (n, copula, ...)
+	  racopula(n, copJoe, theta=copula@parameters, d = copula@dimension))
 
 setMethod("pCopula", signature("numeric", "joeCopula"),
 	  function(u, copula, ...) pacopula(u, copJoe, theta=copula@parameters))

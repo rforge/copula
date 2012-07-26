@@ -42,14 +42,9 @@ indepCopula <- function(dim = 2L) {
              fullname = "Independence copula")
 }
 
-AIndep <- function(copula, w) {
-  rep(1, length(w))
-}
+AIndep <- function(copula, w) rep.int(1, length(w))
 
-rindepCopula <- function(copula, n) {
-  dim <- copula@dimension
-  matrix(runif(n * dim), nrow = n)
-}
+rindepCopula <- function(n, copula) matrix(runif(n * copula@dimension), nrow = n)
 
 pindepCopula <- function(u, copula, log.p=FALSE) {
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
@@ -80,7 +75,7 @@ dindepCopula <- function(u, copula, log=FALSE, ...) {
 ## }
 
 
-setMethod("rcopula", signature("indepCopula"), rindepCopula)
+setMethod("rCopula", signature("numeric", "indepCopula"), rindepCopula)
 
 setMethod("pCopula", signature("numeric", "indepCopula"),pindepCopula)
 setMethod("pCopula", signature("matrix", "indepCopula"), pindepCopula)

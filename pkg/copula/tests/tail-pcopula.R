@@ -122,8 +122,8 @@ t.frac <- tCopula(0.9, df=2.5, dim = 2)
 assertError(pCopula(cbind(u.0,u.1), t.frac))
 
 stopifnot( {
-    ft <- dCopula( u2, t.frac)
-    all.equal(ft, dCopula( u2[,2:1], t.frac), tol=1e-15)
+    ft <- dCopula(u2, t.frac)
+    all.equal(ft, dCopula(u2[,2:1], t.frac), tol=1e-15)
  },
  !is.unsorted(ft)
  ,

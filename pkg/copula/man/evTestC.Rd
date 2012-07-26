@@ -49,12 +49,12 @@ evTestC(x, N = 1000)
   \code{\link{gofEVCopula}}, \code{\link{Anfun}}.}
 \examples{
 ## Do these data come from an extreme-value copula?
-evTestC(rcopula(gumbelCopula(3), 200))
-evTestC(rcopula(claytonCopula(3), 200))
+evTestC(rCopula(200, gumbelCopula(3)))
+evTestC(rCopula(200, claytonCopula(3)))
 
 ## Three-dimensional examples
-evTestC(rcopula(gumbelCopula(3, dim=3), 200))
-evTestC(rcopula(claytonCopula(3, dim=3), 200))
+evTestC(rCopula(200, gumbelCopula(3, dim=3)))
+evTestC(rCopula(200, claytonCopula(3, dim=3)))
 }
 \keyword{htest}
 \keyword{multivariate}

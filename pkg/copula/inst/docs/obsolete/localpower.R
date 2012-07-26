@@ -26,7 +26,7 @@
 localpowerC <- function(copC, copD, N=1000, n=1000, step=5, ndelta=4, alpha = 0.05)
 {
   p <- 2
-  x <- rcopula(copC,n)
+  x <- rCopula(n, copC)
   u <- apply(x,2,rank)/(n+1) ## make pseudo-observations
 
   ## set r according to recommendations
@@ -117,7 +117,7 @@ AD <- function(copD,y)
 
 localpowerA <- function(copC, copD, N=1000, n=1000, step=5, ndelta=4, alpha = 0.05)
 {
-  x <- rcopula(copC,n)
+  x <- rCopula(n, copC)
   u <- apply(x,2,rank)/(n+1) ## make pseudo-observations
 
   #s0np <- .C("evtestA",

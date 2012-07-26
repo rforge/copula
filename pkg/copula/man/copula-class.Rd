@@ -69,7 +69,7 @@
 \examples{
 hc <- evCopula("husler", 1.25)
 dim(hc)
-smoothScatter(u <- rcopula(hc, 2^11))
+smoothScatter(u <- rCopula(2^11, hc))
 tailIndex   (hc)
 tau (hc)
 rho(hc)

@@ -97,7 +97,7 @@ showProc.time()
 set.seed(101)
 
 ## A two-dimensional data example -------
-x <- rcopula(claytonCopula(3), 200)
+x <- rCopula(200, claytonCopula(3))
 
 for(fitMeth in c("mpl", "ml", "itau", "irho")) {
     cat("\nfit*( method = '", fitMeth,"')\n----------------------\n", sep="")
@@ -114,8 +114,7 @@ for(fitMeth in c("mpl", "itau", "irho")) {
 }
 
 ## A three-dimensional example  ------------------------------------
-x <- rcopula(tCopula(c(0.5, 0.6, 0.7), dim = 3, dispstr = "un"),
-             200)
+x <- rCopula(200, tCopula(c(0.5, 0.6, 0.7), dim = 3, dispstr = "un"))
 
 gumbC <- gumbelCopula(1, dim = 3)
 t.cop <- tCopula(rep(0, 3), dim = 3, dispstr = "un", df.fixed=TRUE)

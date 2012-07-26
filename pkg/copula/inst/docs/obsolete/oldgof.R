@@ -78,7 +78,7 @@ gof <- function(cop, x, N=1000, method="kendall")
     for (i in 1:N)
       {
         cat(paste("Iteration",i,"\n"))
-        x0 <- rcopula(fcop,n)
+        x0 <- rCopula(n, fcop)
         u0 <- apply(x0,2,rank)/(n+1)
 
          ## fit the copula
@@ -162,7 +162,7 @@ gofMobius <- function(cop, x, maxcard=ncol(x), use.empcop=TRUE, m=2000, N=100)
               as.integer(nsubsets),
               as.integer(subsets),
               as.double(u),
-              as.double(rcopula(fcop,m)),
+              as.double(rCopula(m, fcop)),
               as.integer(m),
               stat = double(nsubsets+1),
               PACKAGE="copula")$stat
@@ -195,7 +195,7 @@ gofMobius <- function(cop, x, maxcard=ncol(x), use.empcop=TRUE, m=2000, N=100)
     for (i in 1:N)
       {
         cat(paste("Iteration",i,"\n"))
-        x0 <- rcopula(fcop,n)
+        x0 <- rCopula(n, fcop)
         u0 <- apply(x0,2,rank)/(n+1)
 
         ## fit the copula
@@ -209,7 +209,7 @@ gofMobius <- function(cop, x, maxcard=ncol(x), use.empcop=TRUE, m=2000, N=100)
                        as.integer(nsubsets),
                        as.integer(subsets),
                        as.double(u0),
-                       as.double(rcopula(fcop0,m)),
+                       as.double(rCopula(m, fcop0)),
                        as.integer(m),
                        stat = double(nsubsets+1),
                        PACKAGE="copula")$stat
@@ -361,7 +361,7 @@ gofMultCLT <- function(cop,x,N=1000,method="kendall",m=nrow(x),
 
     ## grid points where to evaluate the process
     if (grid == 0 || grid == 1)
-      g <- rcopula(cop,n) ## default
+      g <- rCopula(n, cop) ## default
     else if (grid==2)
       g <- matrix(runif(n*p),n,p)
     else if (grid >= 3)
@@ -383,7 +383,7 @@ gofMultCLT <- function(cop,x,N=1000,method="kendall",m=nrow(x),
     if (grid==1)
       x0 <- g
     else
-      x0 <- rcopula(cop,m) ## default
+      x0 <- rCopula(m, cop) ## default
 
     if (grid==4) ## a la Genest et al.
       {
@@ -427,12 +427,12 @@ gofMultCLT <- function(cop,x,N=1000,method="kendall",m=nrow(x),
               assign(v[j], x0[,j])
 
             ## influence: first part
-            influ <- eval(der$pdf.alpha, list(u1 = u1, u2 = u2)) / dCopula( x0, cop)
+            influ <- eval(der$pdf.alpha, list(u1 = u1, u2 = u2)) / dCopula(x0, cop)
 
             ## influence: second part
             ## integrals computed from M realizations by Monte Carlo
-            y0 <- rcopula(cop,M)
-            dcopy0 <- dCopula( y0, cop)
+            y0 <- rCopula(M, cop)
+            dcopy0 <- dCopula(y0, cop)
             for (j in 1:p)
               assign(v[j], y0[,j])
             influ0 <- eval(der$pdf.alpha, list(u1 = u1, u2 = u2)) / dcopy0
@@ -473,7 +473,7 @@ gofMultCLT <- function(cop,x,N=1000,method="kendall",m=nrow(x),
 
             ## influence: second part
             ## integrals computed from M realizations by Monte Carlo
-            y0 <- rcopula(cop,M)
+            y0 <- rCopula(M, cop)
             v1 <- qnorm(y0[,1])
             v2 <- qnorm(y0[,2])
             influ0 <- (alpha * (1 - alpha^2) - alpha * (v1^2 + v2^2) +
@@ -515,7 +515,7 @@ gofMultCLT <- function(cop,x,N=1000,method="kendall",m=nrow(x),
 
             ## influence: second part
             ## integrals computed from M realizations by Monte Carlo
-            y0 <- rcopula(cop,M)
+            y0 <- rCopula(M, cop)
             v1 <- qt(y0[,1], df=df)
             v2 <- qt(y0[,2], df=df)
 
@@ -577,7 +577,7 @@ gofMultCLT <- function(cop,x,N=1000,method="kendall",m=nrow(x),
         rhoCtheta <- rho(cop)
 
         ## integrals computed from M realizations by Monte Carlo
-        y0 <- rcopula(cop,M)
+        y0 <- rCopula(M, cop)
         influ <- 12 * (x0[,1] * x0[,2] + influ.add(x0, y0, y0[,2],y0[,1])) -
           3 - rhoCtheta
 

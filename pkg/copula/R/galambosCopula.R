@@ -131,7 +131,7 @@ dgalambosCopula <- function(u, copula, log=FALSE, ...) {
   else  c(eval(galambosCopula.algr$pdf))
 }
 
-rgalambosCopula <- function(copula, n) {
+rgalambosCopula <- function(n, copula) {
   u1 <- runif(n)
   v <- runif(n)
   alpha <- copula@parameters[1]
@@ -236,7 +236,7 @@ setMethod("dCopula", signature("numeric", "galambosCopula"),dgalambosCopula)
 setMethod("dCopula", signature("matrix", "galambosCopula"), dgalambosCopula)
 
 ## revCopula is much faster
-## setMethod("rcopula", signature("galambosCopula"), rgalambosCopula)
+## setMethod("rCopula", signature("galambosCopula"), rgalambosCopula)
 
 setMethod("A", signature("galambosCopula"), AGalambos)
 setMethod("dAdu", signature("galambosCopula"), dAduGalambos)

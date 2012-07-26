@@ -61,14 +61,14 @@ exchEVTest(x, N = 1000,  estimator = "CFG", derivatives = "Cn", m = 100)
 \seealso{ \code{\link{exchTest}}, \code{\link{gofCopula}}. }
 \examples{
 ## Do these data come from exchangeable copulas?
-exchEVTest(rcopula(gumbelCopula(3), 200))
-exchEVTest(rcopula(claytonCopula(3), 200))
+exchEVTest(rCopula(200, gumbelCopula(3)))
+exchEVTest(rCopula(200, claytonCopula(3)))
 
 %% FIXME: Use  asymCopula() + indepCopula() --> Khoudraji
 ## Creating asymmetric data
 khoudraji <- function(cop,n,a=0.6,b=0.95)
   {
-    u <- rcopula(cop,n)
+    u <- rCopula(n, cop)
     v <- matrix(runif(2*n),n,2)
     x <- cbind(pmax(u[,1]^(1/a),v[,1]^(1/(1-a))),
                pmax(u[,2]^(1/b),v[,2]^(1/(1-b))))

@@ -93,12 +93,12 @@ gumbelCopula <- function(param = NA_real_, dim = 2L) {
 }
 
 
-rgumbelCopula <- function(copula, n) {
+rgumbelCopula <- function(n, copula) {
   ## frailty is stable(1,0,0) with 1/alpha
   dim <- copula@dimension
   alpha <- copula@parameters[1]
   ## reduce to indepCopula
-  if (alpha - 1 < .Machine$double.eps ^(1/3) ) return(rcopula(indepCopula(dim=dim), n))
+  if (alpha - 1 < .Machine$double.eps ^(1/3) ) return(rCopula(n, indepCopula(dim=dim)))
   b <- 1/alpha
   ## stable (b, 1), 0 < b < 1, Chambers, Mallows, and Stuck 1976, JASA, p.341
   fr <- rPosStable(n, b)
@@ -204,7 +204,7 @@ dRhoGumbelCopula <- function(copula) {
   gumbelRhoDer(alpha)
 }
 
-setMethod("rcopula", signature("gumbelCopula"), rgumbelCopula)
+setMethod("rCopula", signature("numeric", "gumbelCopula"), rgumbelCopula)
 
 setMethod("pCopula", signature("matrix", "gumbelCopula"),
 	  ## was  pgumbelCopula

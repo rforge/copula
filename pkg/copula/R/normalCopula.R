@@ -28,11 +28,8 @@ normalCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex") {
 }
 
 
-rnormalCopula <- function(copula, n) {
-  dim <- copula@dimension
-  sigma <- getSigma(copula)
-  pnorm(rmvnorm(n, sigma = sigma))
-}
+rnormalCopula <- function(n, copula)
+    pnorm(rmvnorm(n, sigma = getSigma(copula)))
 
 
 pnormalCopula <- function(u, copula) {
@@ -81,7 +78,7 @@ rhoNormalCopula <- function(copula) {
   asin(rho / 2) * 6 / pi
 }
 
-setMethod("rcopula", signature("normalCopula"), rnormalCopula)
+setMethod("rCopula", signature("numeric", "normalCopula"), rnormalCopula)
 
 setMethod("pCopula", signature("matrix", "normalCopula"), pnormalCopula)
 setMethod("pCopula", signature("numeric", "normalCopula"),pnormalCopula)

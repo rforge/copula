@@ -166,13 +166,13 @@ dasymExplicitCopula <- function(u, copula, log=FALSE, ...) {
 }
 
 
-rasymExplicitCopula <- function(copula, n) {
+rasymExplicitCopula <- function(n, copula) {
   comps <- getAsymExplicitCopulaComps(copula)
   copula1 <- comps$copula1; copula2 <- comps$copula2
   shapes <- comps$shapes
   ## Theorem 2.1, Lemma 2.1, Liebscher (2008, JMA)
-  u <- rcopula(copula1, n)
-  v <- rcopula(copula2, n)
+  u <- rCopula(n, copula1)
+  v <- rCopula(n, copula2)
   d <- copula@dimension
   x <- matrix(NA, n, d)
   for (i in 1:d) {
@@ -183,7 +183,7 @@ rasymExplicitCopula <- function(copula, n) {
 
 ## setMethod("A", signature("asymCopula"), AAsymCopula)
 
-setMethod("rcopula", signature("asymExplicitCopula"), rasymExplicitCopula)
+setMethod("rCopula", signature("numeric", "asymExplicitCopula"), rasymExplicitCopula)
 
 setMethod("pCopula", signature("numeric", "asymExplicitCopula"),pasymExplicitCopula)
 setMethod("pCopula", signature("matrix", "asymExplicitCopula"), pasymExplicitCopula)

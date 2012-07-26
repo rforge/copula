@@ -108,13 +108,13 @@ dasymCopula <- function(u, copula, log=FALSE, ...) {
   else    part1 + part2 + part3 + part4
 }
 
-rasymCopula <- function(copula, n) {
+rasymCopula <- function(n, copula) {
   comps <- getCopulaComps(copula)
   a1 <- comps$shape[1];  a2 <- comps$shape[2]
   copula1 <- comps$copula1; copula2 <- comps$copula2
   ## Theorem 2.1, Lemma 2.1, Liebscher (2008, JMA)
-  u <- rcopula(copula1, n)
-  v <- rcopula(copula2, n)
+  u <- rCopula(n, copula1)
+  v <- rCopula(n, copula2)
   x <- matrix(NA, n, 2)
   x[,1] <- pmax(igfun(u[,1], 1 - a1), igfun(v[,1], a1))
   x[,2] <- pmax(igfun(u[,2], 1 - a2), igfun(v[,2], a2))
@@ -123,7 +123,7 @@ rasymCopula <- function(copula, n) {
 
 setMethod("A", signature("asymCopula"), AAsymCopula)
 
-setMethod("rcopula", signature("asymCopula"), rasymCopula)
+setMethod("rCopula", signature("numeric", "asymCopula"), rasymCopula)
 
 setMethod("pCopula", signature("numeric", "asymCopula"),pasymCopula)
 setMethod("pCopula", signature("matrix", "asymCopula"), pasymCopula)

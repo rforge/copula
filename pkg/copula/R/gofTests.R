@@ -115,7 +115,7 @@ gofPB <- function(copula, x, N, method, verbose, optim.method, optim.control)
     #    cat(paste("Progress will be displayed every", print.every, "iterations.\n"))
     for (i in 1:N) {
         #if(print.every > 0 && i %% print.every == 0) cat(paste("Iteration",i,"\n"))
-        u0 <- apply(rcopula(fcop,n),2,rank)/(n+1)
+        u0 <- apply(rCopula(n, fcop),2,rank)/(n+1)
 
         ## fit the copula
         fcop0 <-  fitCopula(copula, u0, method, estimate.variance=FALSE,

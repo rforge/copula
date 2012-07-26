@@ -31,7 +31,7 @@
   \describe{
     \item{dCopula}{\code{signature(copula = "fgmCopula")}: ... }
     \item{pCopula}{\code{signature(copula = "fgmCopula")}: ... }
-    \item{rcopula}{\code{signature(copula = "fgmCopula")}: ... }
+    \item{rCopula}{\code{signature(copula = "fgmCopula")}: ... }
   }
 }
 \section{Extends}{

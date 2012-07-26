@@ -1,7 +1,7 @@
 ## sample from a given copula and compute sample tau or rho
 TauRhoSample <- function(copula, nsim = 10000,
                          method = c("spearman", "kendall")) {
-  u <- rcopula(copula, nsim)
+  u <- rCopula(nsim, copula)
   u <- na.omit(u)
   cor(u, method = method)[1,2]
 }

@@ -59,7 +59,7 @@ dplackettCopula <- function(u, copula, log = FALSE, ...) {
 }
 
 
-rplackettCopula <- function(copula, n) {
+rplackettCopula <- function(n, copula) {
   u1 <- runif(n)
   u2 <- runif(n)
   psi <- copula@parameters[1]
@@ -141,7 +141,7 @@ setMethod("pCopula", signature("numeric", "plackettCopula"),pplackettCopula)
 setMethod("dCopula", signature("matrix", "plackettCopula"), dplackettCopula)
 setMethod("dCopula", signature("numeric", "plackettCopula"),dplackettCopula)
 
-setMethod("rcopula", signature("plackettCopula"), rplackettCopula)
+setMethod("rCopula", signature("numeric", "plackettCopula"), rplackettCopula)
 
 setMethod("tau", signature("plackettCopula"), tauPlackettCopula)
 setMethod("rho", signature("plackettCopula"), rhoPlackettCopula)

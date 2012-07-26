@@ -75,7 +75,7 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
     }
     for (i in 1:N)
     {
-        u0 <- apply(rcopula(fcop,n),2,rank)/(n+1)
+        u0 <- apply(rCopula(n, fcop),2,rank)/(n+1)
 
         ## fit the copula
         fcop0 <-  fitCopula(copula, u0, method, estimate.variance=FALSE,
@@ -164,7 +164,7 @@ gofA <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
     copula@parameters <- fcop@parameters
     for (i in 1:N)
     {
-        u0 <- apply(rcopula(fcop,n),2,rank)/(n+1)
+        u0 <- apply(rCopula(n, fcop),2,rank)/(n+1)
 
         ## fit the copula
         fcop0 <-  fitCopula(copula, u0, method, estimate.variance=FALSE,

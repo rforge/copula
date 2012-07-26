@@ -90,7 +90,7 @@ damhCopula <- function(u, copula, log = FALSE, ...) {
 }
 
 
-ramhCopula <- function(copula, n) {
+ramhCopula <- function(n, copula) {
   dim <- copula@dimension
   alpha <- copula@parameters[1]
   val <- matrix(runif(n * dim), nrow = n)
@@ -145,7 +145,8 @@ dMatAmh <- function (u, copula, log = FALSE, ...) {
         copAMH@dacopula(u, theta=copula@parameters, log=log, ...)
 }
 
-setMethod("rcopula", signature("amhCopula"), ramhCopula)
+setMethod("rCopula", signature("numeric", "amhCopula"), ramhCopula)
+
 setMethod("pCopula", signature("numeric", "amhCopula"),
 	  function (u, copula, ...)
           pMatAmh(matrix(u, ncol = dim(copula)), copula, ...))

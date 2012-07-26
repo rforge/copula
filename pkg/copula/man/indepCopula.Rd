@@ -18,8 +18,8 @@ indepCopula(dim = 2)
   \code{\link{evCopula}}.}
 \examples{
 indep.cop <- indepCopula(3)
-x <- rcopula(indep.cop, 10)
-dCopula( x, indep.cop)
+x <- rCopula(10, indep.cop)
+dCopula(x, indep.cop)
 persp(indepCopula(), pcopula)
 }
 \keyword{ distribution }% at least one, from doc/KEYWORDS

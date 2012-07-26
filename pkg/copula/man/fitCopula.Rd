@@ -125,7 +125,7 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
 gumbel.cop <- gumbelCopula(3, dim=2)
 
 n <- 200
-x <- rcopula(gumbel.cop, n)## "true" observations
+x <- rCopula(n, gumbel.cop)## "true" observations
 u <- pobs(x)               ## pseudo-observations
 ## inverting Kendall's tau
 fit.tau <- fitCopula(gumbel.cop, u, method="itau")
@@ -142,7 +142,7 @@ fit.ml
 
 ## a multiparameter example
 normal.cop <- normalCopula(c(0.6,0.36, 0.6),dim=3,dispstr="un")
-x <- rcopula(normal.cop, n) ## "true" observations
+x <- rCopula(n, normal.cop) ## "true" observations
 u <- pobs(x)                ## pseudo-observations
 ## inverting Kendall's tau
 fit.tau <- fitCopula(normal.cop, u, method="itau")
@@ -188,7 +188,7 @@ fit.ml
 ## a t copula with variable df  (df.fixed=FALSE):
 (tCop <- tCopula(c(0.2,0.4,0.6), dim=3, dispstr="un", df=5))
 set.seed(101)
-x <- rcopula(tCop, n) ## "true" observations
+x <- rCopula(n, tCop) ## "true" observations
 u <- pobs(x)          ## pseudo-observations
 ## maximum likelihood;   start := (rho[1:3], df)
 (tc.ml  <- fitCopula(tCop, x, method="ml", start=c(0,0,0, 10)))

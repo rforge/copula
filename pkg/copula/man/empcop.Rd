@@ -43,7 +43,7 @@ Cn(x, w)
 \examples{
 n <- 20
 gumbel.cop <- gumbelCopula(4)
-u <- rcopula(gumbel.cop, n)
+u <- rCopula(n, gumbel.cop)
 ## points were to evaluate the empirical copula
 w <- matrix(runif(2 * n), n, 2)
 ec <- Cn(u, w)

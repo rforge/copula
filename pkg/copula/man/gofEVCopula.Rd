@@ -66,7 +66,7 @@ gofEVCopula(copula, x, N = 1000, method = "mpl",
 }
 \examples{
 \dontrun{% because the bootstraps are slow, particularly for the non-Gumbel ones
-x <- rcopula(claytonCopula(3), 100)
+x <- rCopula(100, claytonCopula(3))
 
 ## Does the Gumbel family seem to be a good choice?
 gofEVCopula(gumbelCopula(1), x)

@@ -160,23 +160,32 @@ setMethod("prob", signature(x ="Copula"),
 ##'
 ##' @title Random number generation for nested Archimedean copulas
 ##' @param n number of vectors of random variates to generate
-##' @param x outer_nacopula
+##' @param copula outer_nacopula
+##' @param x  (for back compatibility)
+##' @param ...
 ##' @return matrix of random variates
 ##' @author Marius Hofert, Martin Maechler
-rnacopula <- function(n, x, ...)
+rnacopula <- function(n, copula, x, ...)
 {
-    Cp <- x@copula			# outer copula
+    if(!missing(x)) {
+	if(missing(copula)) {
+	    warnings("the argument 'x' has been renamed to 'copula' and is deprecated")
+	    copula <- x
+	}
+	stop("cannot specify both 'copula' and 'x'")
+    }
+    Cp <- copula@copula			# outer copula
     theta <- Cp@theta			# theta for outer copula
     V0 <- Cp@V0(n,theta)		# generate V0's
-    childL <- lapply(x@childCops, rnchild, # <-- start recursion
+    childL <- lapply(copula@childCops, rnchild, # <-- start recursion
 		     theta0=theta,V0=V0,...)
-    dns <- length(x@comp)	 # dimension of the non-sectorial part
+    dns <- length(copula@comp)	 # dimension of the non-sectorial part
     r <- matrix(rexp(n*dns), n, dns) # generate the non-sectorial part
     ## put pieces together
     mat <- Cp@psi(r/V0, theta=theta)	# transform
     mat <- cbind(mat, do.call(cbind,lapply(childL, `[[`, "U")))
     ## get correct sorting order:
-    j <- c(x@comp, unlist(lapply(childL, `[[`, "indCol")))
+    j <- c(copula@comp, unlist(lapply(childL, `[[`, "indCol")))
     ## extra check
     stopifnot(length(j) == ncol(mat))
     mat[, order(j), drop=FALSE] # permute data and return
@@ -479,9 +488,7 @@ setMethod("dCopula", signature("numeric", "nacopula"),
 	  function(u, copula, log=FALSE, ...)
 	  .dnacopula(matrix(u, ncol=dim(copula)), copula, log=log))
 
-setMethod("rcopula", "nacopula",
-	  function(copula, n, ...) ## argument reversal ..
-	  rnacopula(n, copula, ...))
+setMethod("rCopula", signature("numeric", "nacopula"), rnacopula)
 
 setMethod("tailIndex", "acopula",
 	  function(copula, ...) {

@@ -177,7 +177,7 @@ rcop <- function(n, cop)
 {
     switch(copClass(cop),
            "elliptical"={
-               rcopula(cop, n)
+               rCopula(n, cop)
            },
            "nArchimedean"={
                rnacopula(n, cop)

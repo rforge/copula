@@ -35,8 +35,8 @@ evTestK(x, method = c("fsample","asymptotic","jackknife"))
 }
 \examples{
 ## Do the data come from an extreme-value copula?
-evTestK(rcopula(gumbelCopula(3), 200))
-evTestK(rcopula(claytonCopula(3), 200))
+evTestK(rCopula(200, gumbelCopula(3)))
+evTestK(rCopula(200, claytonCopula(3)))
 }
 \keyword{htest}
 \keyword{multivariate}

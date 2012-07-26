@@ -28,10 +28,10 @@
   \describe{
     \item{dCopula}{\code{signature(copula = "galambosCopula")}: ... }
     \item{pCopula}{\code{signature(copula = "galambosCopula")}: ... }
-    \item{rcopula}{\code{signature(copula = "galambosCopula")}: ... }
+    \item{rCopula}{\code{signature(copula = "galambosCopula")}: ... }
     \item{dCopula}{\code{signature(copula = "huslerReissCopula")}: ... }
     \item{pCopula}{\code{signature(copula = "huslerReissCopula")}: ... }
-    \item{rcopula}{\code{signature(copula = "huslerReissCopula")}: ... }
+    \item{rCopula}{\code{signature(copula = "huslerReissCopula")}: ... }
   }
 }
 \section{Extends}{

@@ -165,7 +165,7 @@ stopifnot(all.equal(tau(gumbel.cop), copGumbel@tau(3)),
 )
 
 ## let us compute the sample versions
-x <- rcopula(gumbel.cop, 200)
+x <- rCopula(200, gumbel.cop)
 cor(x, method = "kendall")
 cor(x, method = "spearman")
 ## compare with the true parameter value 3

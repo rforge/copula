@@ -5,7 +5,7 @@ require(copula)
 
 ## one replicate
 do1 <- function(cop,n) {
-  x <- rcopula(cop,n)
+  x <- rCopula(n, cop)
   u <- pobs(x)
   f.itau <- fitCopula(cop, u, method="itau")
   f.irho <- fitCopula(cop, u, method="irho")

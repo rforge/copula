@@ -8,14 +8,15 @@
   random vectors of dimension \eqn{d} (= \code{dim(x)}).
 }
 \usage{
-rnacopula(n, x, ...)
+rnacopula(n, copula, x, ...)
 }
 \arguments{
-  \item{x}{an \R object of \code{\link{class}}
-    \code{"\linkS4class{outer_nacopula}"}, typically from
-    \code{\link{onacopula}()}.}
   \item{n}{integer specifying the sample size, that is, the number of
     copula-distributed random vectors \eqn{\mathbf{U}_i}{U_i}, to be generated.}
+  \item{copula}{an \R object of \code{\link{class}}
+    \code{"\linkS4class{outer_nacopula}"}, typically from
+    \code{\link{onacopula}()}.}
+  \item{x}{only for back compatibility: former name of \code{copula} argument.}
   \item{\dots}{possibly further arguments for the given copula family.}
 }
 \details{
@@ -30,7 +31,7 @@ rnacopula(n, x, ...)
 }
 \value{
   \code{\link{numeric}} matrix containing the generated vectors of
-  random variates from the nested Archimedean copula object \code{x}.
+  random variates from the nested Archimedean copula object \code{copula}.
 }
 \author{Marius Hofert, Martin Maechler}
 \references{
@@ -61,7 +62,7 @@ rnacopula(n, x, ...)
   \code{\link{rnchild}}; classes \code{"\linkS4class{nacopula}"} and
   \code{"\linkS4class{outer_nacopula}"}; see also \code{\link{onacopula}()}.
   \code{\link{rnacModel}} creates random nacopula \emph{models}, i.e.,
-  the input \code{x} for \code{rnacopula(n, x)}.
+  the input \code{copula} for \code{rnacopula(n, copula)}.
 
   Further, those of the Archimedean families, for example,
   \code{\link{copGumbel}}.

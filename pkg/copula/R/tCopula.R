@@ -56,11 +56,9 @@ getdf <- function(object) {
       object@parameters[length(object@parameters)]
 }
 
-rtCopula <- function(copula, n) {
-  dim <- copula@dimension
+rtCopula <- function(n, copula) {
   df <- getdf(copula)
-  sigma <- getSigma(copula)
-  pt(rmvt(n, sigma = sigma, df = df), df = df)
+  pt(rmvt(n, sigma = getSigma(copula), df = df), df = df)
 }
 
 
@@ -122,7 +120,7 @@ rhoTCopula <- function(copula) {
   asin(rho / 2) * 6 / pi
 }
 
-setMethod("rcopula", signature("tCopula"), rtCopula)
+setMethod("rCopula", signature("numeric", "tCopula"), rtCopula)
 
 setMethod("pCopula", signature("matrix", "tCopula"), ptCopula)
 setMethod("pCopula", signature("numeric", "tCopula"),ptCopula)

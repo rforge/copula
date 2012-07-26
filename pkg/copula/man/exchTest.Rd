@@ -53,13 +53,13 @@ exchTest(x, N = 1000, m = 0)
 \seealso{ \code{\link{exchEVTest}}, \code{\link{gofCopula}}. }
 \examples{
 ## Do these data come from exchangeable copulas?
-exchTest(rcopula(gumbelCopula(3), 200))
-exchTest(rcopula(claytonCopula(3), 200))
+exchTest(rCopula(200, gumbelCopula(3)))
+exchTest(rCopula(200, claytonCopula(3)))
 
 ## Creating asymmetric data
 khoudraji <- function(cop,n,a=0.6,b=0.95)
   {
-    u <- rcopula(cop,n)
+    u <- rCopula(n, cop)
     v <- matrix(runif(2*n),n,2)
     x <- cbind(pmax(u[,1]^(1/a),v[,1]^(1/(1-a))),
                pmax(u[,2]^(1/b),v[,2]^(1/(1-b))))

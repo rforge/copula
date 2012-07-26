@@ -1,6 +1,6 @@
 ##-*- org -*-->  Emacs .. [Tab] key + [Org] menu; C-c C-o to follow links
 * Short Term
-
+** persp(), contour() should work with pCopula / dCopula
 ** getAcop(class(gumbelCopula())) should work => we could then write general methods for all Archimedean objects... possible problem (for now): negative concordance case for AMH, Clayton, and Frank
 ** DONE (MH) LICENCE etc
 CLOSED: [2012-07-17 Tue 11:25]
@@ -77,7 +77,7 @@ MH: Maybe we should provide Rosenblatt's transformation in general?
 ** New Wrapper functions or rather extending one or the other function names
 *** distribution/density/ ... functions
 **** DONE dcopula(), pcopula(), rcopula()  (for "nacopula")
-**** TODO dCopula(x, cop), pCopula(x, cop), rCopula(n, cop)  {swapping args for "standard R" usage}
+**** DONE dCopula(x, cop), pCopula(x, cop), rCopula(n, cop)  {swapping args for "standard R" usage}
 **** DONE d*():  allow  log=TRUE and use that in loglikCopula()
 **** fitCopula() should encompass all methods of enacopula()
 
@@ -113,6 +113,10 @@ We can put them back. The best place is under inst?
 *** dTau() = tau'() and dRho() = rho'() -- to get S.Err. for  "itau" and "irho"
 **** these are *one* of the things where IJ-archmCopula' are better
 *** dCdthetaEvCopula() cannot work (as dAdtheta() has no methods) and is used nowhere
+
+** rCopula() for archmCopula's should allow to use MH's racopula()
+*but* for back compatibility allow *global* options(....) to still get old
+random numbers.
 
 ** C code
 *** DONE [src/init.c] enable registration for the old 'copula' part

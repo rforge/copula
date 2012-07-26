@@ -59,8 +59,8 @@ evTestA(x, N = 1000, derivatives = "An")
   \code{\link{gofEVCopula}}, \code{\link{Anfun}}. }
 \examples{
 ## Do these data come from an extreme-value copula?
-uG <- rcopula(gumbelCopula(3), 100)
-uC <- rcopula(claytonCopula(3), 100)
+uG <- rCopula(100, gumbelCopula(3))
+uC <- rCopula(100, claytonCopula(3))
 \donttest{% 48 seconds on MM's lynne (2012-06)
 evTestA(uG)
 evTestA(uG, derivatives = "Cn")

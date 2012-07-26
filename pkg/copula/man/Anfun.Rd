@@ -42,16 +42,16 @@ curve(A(gumbelCopula(2   ), x), add=TRUE, col=2)
 curve(A(gumbelCopula(1.33), x), add=TRUE, col=3)
 
 ## CFG estimator
-curve(Anfun(rcopula(gumbelCopula(4   ), 1000), x), lty=2, add=TRUE)
-curve(Anfun(rcopula(gumbelCopula(2   ), 1000), x), lty=2, add=TRUE, col=2)
-curve(Anfun(rcopula(gumbelCopula(1.33), 1000), x), lty=2, add=TRUE, col=3)
+curve(Anfun(rCopula(1000, gumbelCopula(4   )), x), lty=2, add=TRUE)
+curve(Anfun(rCopula(1000, gumbelCopula(2   )), x), lty=2, add=TRUE, col=2)
+curve(Anfun(rCopula(1000, gumbelCopula(1.33)), x), lty=2, add=TRUE, col=3)
 
 ## Pickands estimator
-curve(Anfun(rcopula(gumbelCopula(4   ), 1000), x, estimator="Pickands"),
+curve(Anfun(rCopula(1000, gumbelCopula(4   )), x, estimator="Pickands"),
       lty=3, add=TRUE)
-curve(Anfun(rcopula(gumbelCopula(2   ), 1000), x, estimator="Pickands"),
+curve(Anfun(rCopula(1000, gumbelCopula(2   )), x, estimator="Pickands"),
       lty=3, add=TRUE, col=2)
-curve(Anfun(rcopula(gumbelCopula(1.33), 1000), x, estimator="Pickands"),
+curve(Anfun(rCopula(1000, gumbelCopula(1.33)), x, estimator="Pickands"),
       lty=3, add=TRUE, col=3)
 }
 \keyword{htest}

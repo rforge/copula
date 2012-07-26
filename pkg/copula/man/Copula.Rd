@@ -2,9 +2,10 @@
 \alias{Copula}
 \alias{dCopula}
 \alias{pCopula}
-\alias{rcopula}
+\alias{rCopula}
 \alias{dcopula}%deprecated
 \alias{pcopula}%deprecated
+\alias{rcopula}%deprecated
 % dCopula
 \alias{dCopula,matrix,claytonCopula-method}
 \alias{dCopula,matrix,frankCopula-method}
@@ -77,23 +78,23 @@
 \alias{pCopula,numeric,asymCopula-method}
 \alias{pCopula,numeric,asymExplicitCopula-method}
 \alias{pCopula,numeric,nacopula-method}
-% rcopula
-\alias{rcopula,claytonCopula-method}
-\alias{rcopula,frankCopula-method}
-\alias{rcopula,gumbelCopula-method}
-\alias{rcopula,normalCopula-method}
-\alias{rcopula,tCopula-method}
-\alias{rcopula,galambosCopula-method}
-\alias{rcopula,amhCopula-method}
-\alias{rcopula,joeCopula-method}
-\alias{rcopula,huslerReissCopula-method}
-\alias{rcopula,plackettCopula-method}
-\alias{rcopula,fgmCopula-method}
-\alias{rcopula,evCopula-method}
-\alias{rcopula,indepCopula-method}
-\alias{rcopula,asymCopula-method}
-\alias{rcopula,asymExplicitCopula-method}
-\alias{rcopula,nacopula-method}
+% rCopula
+\alias{rCopula,numeric,claytonCopula-method}
+\alias{rCopula,numeric,frankCopula-method}
+\alias{rCopula,numeric,gumbelCopula-method}
+\alias{rCopula,numeric,normalCopula-method}
+\alias{rCopula,numeric,tCopula-method}
+\alias{rCopula,numeric,galambosCopula-method}
+\alias{rCopula,numeric,amhCopula-method}
+\alias{rCopula,numeric,joeCopula-method}
+\alias{rCopula,numeric,huslerReissCopula-method}
+\alias{rCopula,numeric,plackettCopula-method}
+\alias{rCopula,numeric,fgmCopula-method}
+\alias{rCopula,numeric,evCopula-method}
+\alias{rCopula,numeric,indepCopula-method}
+\alias{rCopula,numeric,asymCopula-method}
+\alias{rCopula,numeric,asymExplicitCopula-method}
+\alias{rCopula,numeric,nacopula-method}
 % main
 \title{Copula functions}
 \description{
@@ -103,7 +104,7 @@
 \usage{
 dCopula(u, copula, log=FALSE, \dots)
 pCopula(u, copula, \dots)
-rcopula(copula, n, \dots)
+rCopula(n, copula, \dots)
 }
 \arguments{
   \item{copula}{an \R object of class \code{"\linkS4class{Copula}"},
@@ -114,7 +115,7 @@ rcopula(copula, n, \dots)
   }
   \item{log}{logical indicating if the \eqn{\log(f(\cdot))}{log(f(.))}
     should be returned instead of \eqn{f(\cdot)}{f(.)}.}
-  \item{n}{(for \code{rcopula()}:) number of observations to be generated.}
+  \item{n}{(for \code{rCopula()}:) number of observations to be generated.}
   \item{\dots}{further optional arguments for some methods, e.g.,
     \code{method}.}
 }
@@ -136,7 +137,7 @@ rcopula(copula, n, \dots)
 }
 \value{
   \code{dCopula()} gives the density, \code{pCopula()} gives the
-  distribution function, and \code{rcopula()} generates random variates.
+  distribution function, and \code{rCopula()} generates random variates.
 }
 \references{
   Frees, E. W.  and Valdez, E. A. (1998). Understanding relationships using
@@ -168,27 +169,27 @@ rcopula(copula, n, \dots)
 \examples{
 norm.cop <- normalCopula(0.5)
 norm.cop
-x <- rcopula(norm.cop, 100)
+x <- rCopula(100, norm.cop)
 plot(x)
-dCopula( x, norm.cop)
+dCopula(x, norm.cop)
 pCopula(x, norm.cop)
 persp(norm.cop, dcopula)
 contour(norm.cop, pcopula)
 
 ## a 3-dimensional normal copula
-u <- rcopula(normalCopula(0.5, dim = 3), 1000)
+u <- rCopula(1000, normalCopula(0.5, dim = 3))
 if(require("scatterplot3d"))
   scatterplot3d(u)
 
 ## a 3-dimensional clayton copula
 cl3 <- claytonCopula(2, dim = 3)
-v <- rcopula(cl3, 1000)
+v <- rCopula(1000, cl3)
 pairs(v)
 if(require("scatterplot3d"))
   scatterplot3d(v)
 
 ## Compare with the "nacopula" version :
-fu1 <- dCopula( v, cl3)
+fu1 <- dCopula(v, cl3)
 fu2 <- copClayton@dacopula(v, theta = 2)
 Fu1 <- pCopula(v, cl3)
 Fu2 <- pnacopula(onacopula("Clayton", C(2.0, 1:3)), v)

@@ -88,14 +88,14 @@ fgmCopula <- function(param = NA_real_, dim = 2L) {
 
 ### random number generation ###################################################
 
-rfgmCopula <- function(copula, n) {
+rfgmCopula <- function(n, copula) {
     dim <- copula@dimension
     alpha <- copula@parameters
     if (dim > 2)
         warning("random generation needs to be properly tested")
     val <- .C(rfgm,
               as.integer(dim),
-              as.double(c(rep(0,dim+1),alpha)),
+	      c(rep.int(0., dim+1), alpha),
               as.integer(n),
               out = double(n * dim))$out
     matrix(val, n, dim, byrow=TRUE)
@@ -164,7 +164,7 @@ iRhoFgmCopula <- function(copula, rho) {
 
 ################################################################################
 
-setMethod("rcopula", signature("fgmCopula"), rfgmCopula)
+setMethod("rCopula", signature("numeric", "fgmCopula"), rfgmCopula)
 
 setMethod("pCopula", signature("numeric", "fgmCopula"),pfgmCopula)
 setMethod("pCopula", signature("matrix", "fgmCopula"), pfgmCopula)

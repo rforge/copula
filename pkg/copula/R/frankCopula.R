@@ -63,7 +63,7 @@ frankCopula <- function(param = NA_real_, dim = 2L) {
       fullname = "Frank copula family; Archimedean copula")
 }
 
-rfrankBivCopula <- function(copula, n) {
+rfrankBivCopula <- function(n, copula) {
   val <- cbind(runif(n), runif(n))
   ## to fix numerical rounding problems for alpha >35 but not for alpha < -35
   alpha <- - abs(copula@parameters[1])
@@ -72,21 +72,21 @@ rfrankBivCopula <- function(copula, n) {
   val
 }
 
-## rfrankBivCopula <- function(copula, n) {
+## rfrankBivCopula <- function(n, copula) {
 ##   delta <- copula@parameters[1]
 ##   q <- runif(n); u <- runif(n)
 ##   v <- - 1/ delta * log( 1 - (1 - exp(-delta)) / ((1 / q - 1) * exp(- delta * u) + 1))
 ##   cbind(u, v)
 ## }
 
-rfrankCopula <- function(copula, n) {
+rfrankCopula <- function(n, copula) {
   dim <- copula@dimension
   alpha <- copula@parameters[1]
   if (abs(alpha - 0) < .Machine$double.eps ^ (1/3))
-    return(rcopula(indepCopula(dim), n))
+    return(rCopula(n, indepCopula(dim)))
 ##   if (abs(alpha) <= .Machine$double.eps^.9)
 ##     return (matrix(runif(n * dim), nrow = n))
-  if (dim == 2) return (rfrankBivCopula(copula, n))
+  if (dim == 2) return (rfrankBivCopula(n, copula))
   ## the frailty is a log series distribution with a = 1 - exp(-alpha)
   fr <- rlogseries(n, 1 - exp(-alpha))
   fr <- matrix(fr, nrow = n, ncol = dim)
@@ -185,7 +185,7 @@ dMatFrank <- function (u, copula, log = FALSE, ...) {
     else
         copFrank@dacopula(u, theta=th, log=log, ...)
 }
-setMethod("rcopula", signature("frankCopula"), rfrankCopula)
+setMethod("rCopula", signature("numeric", "frankCopula"), rfrankCopula)
 
 setMethod("pCopula", signature("numeric", "frankCopula"),
 	  function (u, copula, ...)

@@ -26,19 +26,19 @@
   \describe{
     \item{dCopula}{\code{signature(copula = "claytonCopula")}: ... }
     \item{pCopula}{\code{signature(copula = "claytonCopula")}: ... }
-    \item{rcopula}{\code{signature(copula = "claytonCopula")}: ... }
+    \item{rCopula}{\code{signature(copula = "claytonCopula")}: ... }
     \item{dCopula}{\code{signature(copula = "frankCopula")}: ... }
     \item{pCopula}{\code{signature(copula = "frankCopula")}: ... }
-    \item{rcopula}{\code{signature(copula = "frankCopula")}: ... }
+    \item{rCopula}{\code{signature(copula = "frankCopula")}: ... }
     \item{dCopula}{\code{signature(copula = "gumbelCopula")}: ... }
     \item{pCopula}{\code{signature(copula = "gumbelCopula")}: ... }
-    \item{rcopula}{\code{signature(copula = "gumbelCopula")}: ... }
+    \item{rCopula}{\code{signature(copula = "gumbelCopula")}: ... }
     \item{dCopula}{\code{signature(copula = "amhCopula")}: ... }
     \item{pCopula}{\code{signature(copula = "amhCopula")}: ... }
-    \item{rcopula}{\code{signature(copula = "amhCopula")}: ... }
+    \item{rCopula}{\code{signature(copula = "amhCopula")}: ... }
     \item{dCopula}{\code{signature(copula = "joeCopula")}: ... }
     \item{pCopula}{\code{signature(copula = "joeCopula")}: ... }
-    \item{rcopula}{\code{signature(copula = "joeCopula")}: ... }
+    \item{rCopula}{\code{signature(copula = "joeCopula")}: ... }
   }
 }
 \section{Extends}{
