@@ -54,7 +54,7 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
     fcop <- fitCopula(copula, u, method, estimate.variance=FALSE,
                       optim.method=optim.method)@copula
 
-    ## where to compute Afun
+    ## where to compute A
     g <- seq(0,1-1/m,by=1/m)
 
     ## compute the test statistic
@@ -63,7 +63,7 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
             as.integer(m),
             as.double(-log(u[,1])),
             as.double(-log(u[,2])),
-            as.double(Afun(fcop,g)),
+            as.double(A(fcop,g)),
             stat = double(2),
             as.integer(estimator == "CFG"))$stat
 
@@ -86,7 +86,7 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
                      as.integer(m),
                      as.double(-log(u0[,1])),
                      as.double(-log(u0[,2])),
-                     as.double(Afun(fcop0,g)),
+                     as.double(A(fcop0,g)),
                      stat = double(2),
                      as.integer(estimator == "CFG"))$stat
 
@@ -106,7 +106,7 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
 
 
 ### Version for simulations; was named gofEVCopula before; not exported
-gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
+gofA <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
                     m = 1000, verbose = TRUE, optim.method = "Nelder-Mead")
 {
     n <- nrow(x)
@@ -127,7 +127,7 @@ gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
               as.double(pcopula(fcop,u)),
               stat = double(1))$stat
 
-    ## where to compute Afun
+    ## where to compute A
     g <- seq(0,1-1/m,by=1/m)
 
     ## compute the CFG test statistic
@@ -136,7 +136,7 @@ gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
                as.integer(m),
                as.double(-log(u[,1])),
                as.double(-log(u[,2])),
-               as.double(Afun(fcop,g)),
+               as.double(A(fcop,g)),
                stat = double(2),
                as.integer(1)            # estimator == "CFG"
                )$stat
@@ -146,7 +146,7 @@ gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
                as.integer(m),
                as.double(-log(u[,1])),
                as.double(-log(u[,2])),
-               as.double(Afun(fcop,g)),
+               as.double(A(fcop,g)),
                stat = double(2),
                as.integer(0)            # estimator == Pickands
                )$stat
@@ -182,7 +182,7 @@ gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
                      as.integer(m),
                      as.double(-log(u0[,1])),
                      as.double(-log(u0[,2])),
-                     as.double(Afun(fcop0,g)),
+                     as.double(A(fcop0,g)),
                      stat = double(2),
                      as.integer(1)      # estimator == "CFG"
                      )$stat
@@ -191,7 +191,7 @@ gofAfun <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
                      as.integer(m),
                      as.double(-log(u0[,1])),
                      as.double(-log(u0[,2])),
-                     as.double(Afun(fcop0,g)),
+                     as.double(A(fcop0,g)),
                      stat = double(2),
                      as.integer(0)      # estimator == Pickands
                      )$stat

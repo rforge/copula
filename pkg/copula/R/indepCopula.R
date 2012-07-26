@@ -42,7 +42,7 @@ indepCopula <- function(dim = 2L) {
              fullname = "Independence copula")
 }
 
-AfunIndep <- function(copula, w) {
+AIndep <- function(copula, w) {
   rep(1, length(w))
 }
 
@@ -84,7 +84,7 @@ setMethod("rcopula", signature("indepCopula"), rindepCopula)
 setMethod("pcopula", signature("indepCopula"), pindepCopula)
 setMethod("dcopula", signature("indepCopula"), dindepCopula)
 
-setMethod("Afun", signature("indepCopula"), AfunIndep)
+setMethod("A", signature("indepCopula"), AIndep)
 # setMethod("tau", signature("indepCopula"), tauIndepCopula)
 # setMethod("rho", signature("indepCopula"), rhoIndepCopula)
 # setMethod("tailIndex", signature("indepCopula"), tailIndexIndepCopula)

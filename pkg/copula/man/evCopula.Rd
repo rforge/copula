@@ -66,12 +66,12 @@ tawn.cop@parameters <- iTau(tawn.cop, tau)
 tev.cop <- tevCopula()
 tev.cop@parameters[1] <- iTau(tev.cop, tau)
 
-curve(Afun(gumbel.cop, x), 0, 1,
+curve(A(gumbel.cop, x), 0, 1,
       main = "A(x) for five Extreme Value cop. w/  tau = 1/3")
-curve(Afun(galambos.cop, x), lty=2, add=TRUE)
-curve(Afun(huslerReiss.cop, x), lty=3, add=TRUE)
-curve(Afun(tawn.cop, x), lty=4, add=TRUE)
-curve(Afun(tev.cop, x), lty=5, add=TRUE)
+curve(A(galambos.cop, x), lty=2, add=TRUE)
+curve(A(huslerReiss.cop, x), lty=3, add=TRUE)
+curve(A(tawn.cop, x), lty=4, add=TRUE)
+curve(A(tev.cop, x), lty=5, add=TRUE)
 
 ## the t-EV-copula has always positive tau :
 curve(vapply(x, function(x) tau(tevCopula(x)), 0.), -1, 1,

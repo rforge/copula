@@ -60,7 +60,7 @@ getCopulaComps <- function(object) {
   list(shape = shape, copula1 = copula1, copula2 = copula2)
 }
 
-AfunAsymCopula <- function(copula, w) {
+AAsymCopula <- function(copula, w) {
   comps <- getCopulaComps(copula)
   copula1 <- comps$copula1; copula2 <- comps$copula2
   ## assuming copula1 and copula2 are both evCopula
@@ -70,7 +70,7 @@ AfunAsymCopula <- function(copula, w) {
   den2 <- a1 * (1 - w) + a2 * w
   t1 <- (1 - a2) * w / den1; t1 <- ifelse(is.na(t1), 1, t1)
   t2 <- a2 * w / den2; t2 <- ifelse(is.na(t2), 1, t2)
-  den1 * Afun(copula1, t1) + den2 * Afun(copula2, t2)
+  den1 * A(copula1, t1) + den2 * A(copula2, t2)
 }
 
 pasymCopula <- function(copula, u) {
@@ -121,7 +121,7 @@ rasymCopula <- function(copula, n) {
   x
 }
 
-setMethod("Afun", signature("asymCopula"), AfunAsymCopula)
+setMethod("A", signature("asymCopula"), AAsymCopula)
 
 setMethod("rcopula", signature("asymCopula"), rasymCopula)
 setMethod("pcopula", signature("asymCopula"), pasymCopula)

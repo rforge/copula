@@ -14,14 +14,14 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-AfunHuslerReiss <- function(copula, w) {
+AHuslerReiss <- function(copula, w) {
   alpha <- copula@parameters[1]
   A <- w * pnorm(1 / alpha + 0.5 * alpha * log(w /(1 - w))) +
     (1 - w) * pnorm(1 / alpha - 0.5 * alpha * log(w / (1 - w)))
   ifelse(w == 0 | w == 1, 1, A)
 }
 
-AfunDerHuslerReiss <- function(copula, w) {
+dAduHuslerReiss <- function(copula, w) {
   alpha <- copula@parameters[1]
   ainv <- 1 / alpha
   z <- 0.5 * alpha * log(w / (1 - w))
@@ -206,8 +206,8 @@ setMethod("dcopula", signature("huslerReissCopula"), dhuslerReissCopula)
 ## inherits from "evCopula" --> revCopula() in ./evCopula.R :
 ## setMethod("rcopula", signature("huslerReissCopula"), rhuslerReissCopula)
 
-setMethod("Afun", signature("huslerReissCopula"), AfunHuslerReiss)
-setMethod("AfunDer", signature("huslerReissCopula"), AfunDerHuslerReiss)
+setMethod("A", signature("huslerReissCopula"), AHuslerReiss)
+setMethod("dAdu", signature("huslerReissCopula"), dAduHuslerReiss)
 
 setMethod("tau", signature("huslerReissCopula"), function(copula)
 	  huslerReissTauFun(copula@parameters[1]))

@@ -14,7 +14,7 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-genFunFrank <- function(copula, u) {
+iPsiFrank <- function(copula, u) {
   alpha <- copula@parameters[1]
   - log( (exp(- alpha * u) - 1) / (exp(- alpha) - 1))
 }
@@ -122,9 +122,9 @@ dfrankCopula <- function(copula, u, log=FALSE, ...) {
 
 ## dfrankCopula.expr <- function(copula, u) {
 ##   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
-##   s <- apply(genFunFrank(copula, u), 1, sum)
+##   s <- apply(iPsiFrank(copula, u), 1, sum)
 ##   pdf <- psiDerFrank(copula, s, copula@dimension) *
-##     apply(genFunDerFrank(copula, u, 1), 1, prod)
+##     apply(iPsiDerFrank(copula, u, 1), 1, prod)
 ##   pdf
 ## }
 
@@ -190,7 +190,7 @@ setMethod("dcopula", signature("frankCopula"),
 	      copFrank@dacopula(u, theta=th, log=log, ...)
       })
 
-setMethod("genFun", signature("frankCopula"), genFunFrank)
+setMethod("iPsi", signature("frankCopula"), iPsiFrank)
 ## FIXME {negative tau}
 ## setMethod("iPsi", signature("frankCopula"),
 ## 	  function(copula, u) copFrank@iPsi(u, theta=copula@parameters))

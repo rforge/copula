@@ -37,9 +37,9 @@ Anfun(x, w, estimator = c("CFG", "Pickands"), corrected = TRUE)
   \code{\link{evCopula}}, \code{\link{gofEVCopula}}. }
 \examples{
 ## True Pickands dependence functions
-curve(Afun(gumbelCopula(4   ), x), 0, 1)
-curve(Afun(gumbelCopula(2   ), x), add=TRUE, col=2)
-curve(Afun(gumbelCopula(1.33), x), add=TRUE, col=3)
+curve(A(gumbelCopula(4   ), x), 0, 1)
+curve(A(gumbelCopula(2   ), x), add=TRUE, col=2)
+curve(A(gumbelCopula(1.33), x), add=TRUE, col=3)
 
 ## CFG estimator
 curve(Anfun(rcopula(gumbelCopula(4   ), 1000), x), lty=2, add=TRUE)

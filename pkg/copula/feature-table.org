@@ -27,6 +27,7 @@
 | A''args      | EV                           | AfunDer                       | dAdu           |       | I  |          |    |         |
 | A'param      | EV mpl se, gof mult          | derAfunWrtParam               | dAdtheta       |       | ?  |          |    |         |
 | A''param     | EV mpl se, gof mult          | derAfunWrtParam               | dAdtheta       |       | ?  |          |    |         |
+| A_n or A^    | EV                           | Anfun                         | An or better ? |       | I  |          |    |         |
 
 I means "Implemented"
 P means "Partially implemented"

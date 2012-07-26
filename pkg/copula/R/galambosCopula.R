@@ -14,13 +14,13 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-AfunGalambos <- function(copula, w) {
+AGalambos <- function(copula, w) {
   alpha <- copula@parameters[1]
   A <- 1 - (w^(-alpha) + (1 - w)^(-alpha))^(-1/alpha)
   ifelse(w == 0 | w == 1, 1, A)
 }
 
-AfunDerGalambos <- function(copula, w) {
+dAduGalambos <- function(copula, w) {
   alpha <- copula@parameters[1]
   ## deriv(expression(1 - (w^(-alpha) + (1 - w)^(-alpha))^(-1/alpha)), "w", hessian=TRUE)
   value <- eval(expression({
@@ -235,8 +235,8 @@ setMethod("dcopula", signature("galambosCopula"), dgalambosCopula)
 ## revCopula is much faster
 ## setMethod("rcopula", signature("galambosCopula"), rgalambosCopula)
 
-setMethod("Afun", signature("galambosCopula"), AfunGalambos)
-setMethod("AfunDer", signature("galambosCopula"), AfunDerGalambos)
+setMethod("A", signature("galambosCopula"), AGalambos)
+setMethod("dAdu", signature("galambosCopula"), dAduGalambos)
 
 setMethod("tau", signature("galambosCopula"), tauGalambosCopula)
 setMethod("rho", signature("galambosCopula"), rhoGalambosCopula)

@@ -41,7 +41,7 @@ export(iTau, iRho)
 export(psi, iPsi, diPsi)
 
 ## evCopula methods
-export(Afun, AfunDer, Anfun)
+export(A, dAdu, Anfun)
 
 exportClasses(mvdc)
 exportClasses(Copula, copula, ellipCopula, archmCopula, evCopula)
@@ -175,6 +175,9 @@ export(psiDabsMC
        , spearmansRho
        , genInv
        , genFun, genFunDer1, genFunDer2
+       , Afun
+       , AfunDer
+       ## , Anfun
        )
 
 exportMethods(## for both own and "other" generics:

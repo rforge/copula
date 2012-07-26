@@ -14,7 +14,7 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-genFunAmh <- function(copula, u) {
+iPsiAmh <- function(copula, u) {
   alpha <- copula@parameters[1]
   log((1 - alpha * (1 - u)) / u)
 }
@@ -149,7 +149,7 @@ setMethod("dcopula", signature("amhCopula"),
 	      copAMH@dacopula(u, theta=copula@parameters, log=log, ...)
       })
 
-setMethod("genFun", signature("amhCopula"), genFunAmh)
+setMethod("iPsi", signature("amhCopula"), iPsiAmh)
 ## setMethod("iPsi", signature("amhCopula"),
 ## 	  function(copula, u) copAMH@iPsi(u, theta=copula@parameters))
 setMethod("psi", signature("amhCopula"), psiAmh)

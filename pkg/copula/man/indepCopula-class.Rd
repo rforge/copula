@@ -30,7 +30,7 @@
 }
 \section{Methods}{
   \describe{
-    \item{Afun}{\code{signature(copula = "indepCopula")}: ... }
+    \item{A}{\code{signature(copula = "indepCopula")}: ... }
     \item{dcopula}{\code{signature(copula = "indepCopula")}: ... }
     \item{pcopula}{\code{signature(copula = "indepCopula")}: ... }
     \item{rcopula}{\code{signature(copula = "indepCopula")}: ... }

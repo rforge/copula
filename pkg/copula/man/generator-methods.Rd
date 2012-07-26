@@ -1,14 +1,14 @@
 \name{generator}
 \docType{methods}
 %----------------------Archimedean Copulas------------------
-% genFun
-\alias{genFun}
-\alias{genFun-methods}
-\alias{genFun,claytonCopula-method}
-\alias{genFun,frankCopula-method}
-\alias{genFun,gumbelCopula-method}
-\alias{genFun,amhCopula-method}
-\alias{genFun,joeCopula-method}
+% iPsi
+\alias{iPsi}
+\alias{iPsi-methods}
+\alias{iPsi,claytonCopula-method}
+\alias{iPsi,frankCopula-method}
+\alias{iPsi,gumbelCopula-method}
+\alias{iPsi,amhCopula-method}
+\alias{iPsi,joeCopula-method}
 % psi
 \alias{genInv}%deprecated
 \alias{psi}
@@ -18,41 +18,46 @@
 \alias{psi,gumbelCopula-method}
 \alias{psi,amhCopula-method}
 \alias{psi,joeCopula-method}
-% genFunDer1
-\alias{genFunDer1}
-\alias{genFunDer1-methods}
-\alias{genFunDer1,claytonCopula-method}
-\alias{genFunDer1,frankCopula-method}
-\alias{genFunDer1,gumbelCopula-method}
-\alias{genFunDer1,amhCopula-method}
-\alias{genFunDer1,joeCopula-method}
-% genFunDer2
-\alias{genFunDer2}
-\alias{genFunDer2-methods}
-\alias{genFunDer2,claytonCopula-method}
-\alias{genFunDer2,frankCopula-method}
-\alias{genFunDer2,gumbelCopula-method}
-\alias{genFunDer2,amhCopula-method}
-\alias{genFunDer2,joeCopula-method}
+% iPsi
+\alias{genFun}%deprecated
+\alias{iPsi}
+\alias{iPsi-methods}
+\alias{iPsi,claytonCopula-method}
+\alias{iPsi,frankCopula-method}
+\alias{iPsi,gumbelCopula-method}
+\alias{iPsi,amhCopula-method}
+\alias{iPsi,joeCopula-method}
+% diPsi
+\alias{genFunDer1}%deprecated
+\alias{genFunDer2}%deprecated
+\alias{diPsi}
+\alias{diPsi-methods}
+\alias{diPsi,claytonCopula-method}
+\alias{diPsi,frankCopula-method}
+\alias{diPsi,gumbelCopula-method}
+\alias{diPsi,amhCopula-method}
+\alias{diPsi,joeCopula-method}
 %----------------------Extreme Value Copulas------------------
-% Afun
-\alias{Afun}
-\alias{Afun-methods}
-\alias{Afun,galambosCopula-method}
-\alias{Afun,gumbelCopula-method}
-\alias{Afun,huslerReissCopula-method}
-\alias{Afun,tawnCopula-method}
-\alias{Afun,tevCopula-method}
-\alias{Afun,asymCopula-method}
-\alias{Afun,indepCopula-method}
-% AfunDer
-\alias{AfunDer}
-\alias{AfunDer-methods}
-\alias{AfunDer,galambosCopula-method}
-\alias{AfunDer,gumbelCopula-method}
-\alias{AfunDer,huslerReissCopula-method}
-\alias{AfunDer,tawnCopula-method}
-\alias{AfunDer,tevCopula-method}
+% A
+\alias{Afun}%deprecated
+\alias{A}
+\alias{A-methods}
+\alias{A,galambosCopula-method}
+\alias{A,gumbelCopula-method}
+\alias{A,huslerReissCopula-method}
+\alias{A,tawnCopula-method}
+\alias{A,tevCopula-method}
+\alias{A,asymCopula-method}
+\alias{A,indepCopula-method}
+% dAdu
+\alias{AfunDer}%deprecated
+\alias{dAdu}
+\alias{dAdu-methods}
+\alias{dAdu,galambosCopula-method}
+\alias{dAdu,gumbelCopula-method}
+\alias{dAdu,huslerReissCopula-method}
+\alias{dAdu,tawnCopula-method}
+\alias{dAdu,tevCopula-method}
 % main
 \title{Generator functions for Archimedean and extreme value copulas}
 \description{
@@ -60,35 +65,39 @@
   function, and derivatives of the generator function.
 }
 \usage{
-genFun(copula, u)
 psi(copula, s)
-iPsi(copula, u, ...)
-genFunDer1(copula, u)
-genFunDer2(copula, u)
-diPsi(copula, u, degree=1, ...)
-Afun(copula, w)
-AfunDer(copula, w)
+%% TODO?  dPsi(copula, s)
+iPsi(copula, u, \dots)
+diPsi(copula, u, degree=1, log=FALSE, \dots)
+
+A(copula, w)
+dAdu(copula, w)
 }
 \arguments{
   \item{copula}{an object of class \code{"\linkS4class{copula}"}. }
   \item{u, s, w}{numerical vector at which these functions are to be
     evaluated. }
+  \item{\dots}{further arguments for specific families.}
+  \item{degree}{the degree of the derivative (defaults to 1).}
+  \item{log}{logical indicating if the \code{\link{log}} of the
+    \emph{absolute} derivative is desired.  Note that the derivatives
+    alternate in sign.}
 }
 \details{
-  \code{psi()} and \code{genFun()} are, respectively, the generator
-  function and its inverse function for an Archimedean copula.
+  \code{psi()} and \code{iPsi()} are, respectively, the generator
+  function and its inverse for an Archimedean copula.
 
-  \code{genFunDer1()} and \code{genFunDer2()} are, respectively, the 1st
-  and 2nd derivatives of the generator function for an Archimedean copula.
+  \code{diPsi()} computes (currently only the first two) derivatives of
+  the generator function for an Archimedean copula.
 
-  \code{Afun()} is the generator function of an extreme value copula.
+  \code{A()} is the generator function of an extreme value copula.
 
-  \code{AfunDer()} returns a data.frame containing the 1st and 2nd
-  derivative of \code{Afun()}.
+  \code{dAdu()} returns a data.frame containing the 1st and 2nd
+  derivative of \code{A()}.
 }
 \examples{
 ## List the available methods (and their definitions):
-showMethods("Afun")
-showMethods("genFun", incl=TRUE)
+showMethods("A")
+showMethods("iPsi", incl=TRUE)
 }
 \keyword{multivariate}

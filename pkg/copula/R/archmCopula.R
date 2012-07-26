@@ -33,7 +33,7 @@ archmCopula <- function(family, param = NA_real_, dim = 2L, ...) {
 
 
 tauArchmCopula <- function(copula) {
-  integrand <- function(x) genFun(copula, x) / genFunDer1(copula, x)
+  integrand <- function(x) iPsi(copula, x) / diPsi(copula, x)
   1 + 4 * integrate(integrand, 0, 1)$value
 }
 

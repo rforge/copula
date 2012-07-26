@@ -14,13 +14,13 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-AfunTawn <- function(copula, w) {
+ATawn <- function(copula, w) {
   alpha <- copula@parameters[1]
   A <- alpha * w^2 - alpha * w + 1
   ifelse(w == 0 | w == 1, 1, A)
 }
 
-AfunDerTawn <- function(copula, w) {
+dAduTawn <- function(copula, w) {
   alpha <- copula@parameters[1]
   ## deriv(expression(alpha * w^2 - alpha * w + 1), "w", hessian=TRUE)
   value <- eval(expression({
@@ -160,8 +160,8 @@ dRhoTawnCopula <- function(copula) {
 setMethod("pcopula", signature("tawnCopula"), ptawnCopula)
 setMethod("dcopula", signature("tawnCopula"), dtawnCopula)
 
-setMethod("Afun", signature("tawnCopula"), AfunTawn)
-setMethod("AfunDer", signature("tawnCopula"), AfunDerTawn)
+setMethod("A", signature("tawnCopula"), ATawn)
+setMethod("dAdu", signature("tawnCopula"), dAduTawn)
 
 setMethod("tau", signature("tawnCopula"), tauTawnCopula)
 setMethod("rho", signature("tawnCopula"), rhoTawnCopula)

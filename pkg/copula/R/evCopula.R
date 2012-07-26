@@ -34,14 +34,14 @@ evCopula <- function(family, param = NA_real_, dim = 2L, ...) {
 
 tailIndexEvCopula <- function(copula) {
   lower <- 0
-  upper <- 2 - 2 * Afun(copula, 0.5)
+  upper <- 2 - 2 * A(copula, 0.5)
   c(lower=lower, upper=upper)
 }
 
 
 hdensity <- function(copula, z) {
-  A <- Afun(copula, z)
-  ders <- AfunDer(copula, z)
+  A <- A(copula, z)
+  ders <- dAdu(copula, z)
   1 + (1 - 2 * z) * ders$der1 / A + z * (1 - z) * (ders$der2 * A - ders$der1^2) / A^2
 }
 
@@ -66,8 +66,8 @@ revCopula <- function(copula, n) {
     ndone <- ndone + ngood
     if (ndone == n) break
   }
-  ders <- AfunDer(copula, z)
-  Az <- Afun(copula, z)
+  ders <- dAdu(copula, z)
+  Az <- A(copula, z)
   pz <- z * (1 - z) * ders$der2 / hdensity(copula, z) / Az
   w <- numeric(n)
   mix1 <- runif(n) <= pz
@@ -83,12 +83,12 @@ revCopula <- function(copula, n) {
 ### They are much better than two-dimensional integration based on function adapt.
 
 tauEvCopula <- function(copula) {
-  integrand <- function(x) x * (1 - x) / Afun(copula, x) * AfunDer(copula, x)$der2
+  integrand <- function(x) x * (1 - x) / A(copula, x) * dAdu(copula, x)$der2
   integrate(integrand, 0, 1)$value
 }
 
 rhoEvCopula <- function(copula) {
-  integrand <- function(x) 1 / (Afun(copula, x) + 1)^2
+  integrand <- function(x) 1 / (A(copula, x) + 1)^2
   12 * integrate(integrand, 0, 1)$value - 3
 }
 

@@ -19,13 +19,13 @@ setClass("schlatherCopula", contains = "evCopula"
            # , exprdist = "expression")
          )
 
-AfunSchlather <- function(copula, w) { ## one-parameter for now
+ASchlather <- function(copula, w) { ## one-parameter for now
   alpha <- copula@parameters[1]
   A <- 0.5 * (1 + sqrt(1 - 2 * (alpha + 1) * w * (1 - w)))
   ifelse(w == 0 | w == 1, 1, A)
 }
 
-AfunDerSchlather <- function(copula, w) {
+dAduSchlather <- function(copula, w) {
   alpha <- copula@parameters[1]
   ainv <- 1 / alpha
   z <- 0.5 * alpha * log(w / (1 - w))
@@ -77,7 +77,7 @@ pschlatherCopula <- function(copula, u) {
   alpha <- copula@parameters[1]
   ## Beirlant, Goegebeur, Segers, and Teugels (2004, p.295)
   w <- log(u2) / log(u1 * u2)
-  u1 * u2 * exp(AfunSchlather(copula, w))
+  u1 * u2 * exp(ASchlather(copula, w))
 }
 
 dschlatherCopula <- function(copula, u, log=FALSE, ...) {
@@ -98,8 +98,8 @@ dschlatherCopula <- function(copula, u, log=FALSE, ...) {
 ## revCopula is much faster
 ## setMethod("rcopula", signature("schlatherCopula"), rschlatherCopula)
 
-#setMethod("Afun", signature("schlatherCopula"), AfunSchlather)
-#setMethod("AfunDer", signature("schlatherCopula"), AfunDerSchlather)
+#setMethod("A", signature("schlatherCopula"), ASchlather)
+#setMethod("dAdu", signature("schlatherCopula"), dAduSchlather)
 
 ## setMethod("tau", signature("schlatherCopula"), tauSchlatherCopula)
 ## setMethod("rho", signature("schlatherCopula"), rhoSchlatherCopula)

@@ -70,12 +70,15 @@ setGeneric("dRhoFun", function(copula) standardGeneric("dRhoFun"))
 ## Deprecated:
 calibKendallsTau <- function(copula, tau) { .Deprecated("iTau"); iTau(copula,tau) }
 calibSpearmansRho <- function(copula, rho) { .Deprecated("iRho"); iRho(copula,rho) }
-genInv <- function(copula, s) { .Deprecated("psi"); psi(copula,s) }
 kendallsTau <- function(copula) { .Deprecated("tau"); tau(copula) }
 spearmansRho <- function(copula) { .Deprecated("rho"); rho(copula) }
+genInv <- function(copula, s) { .Deprecated("psi"); psi(copula,s) }
+genFun <- function(copula, u) { .Deprecated("iPsi"); iPsi(copula, u) }
 genFunDer1 <- function(copula, u){ .Deprecated("diPsi"); diPsi(copula, u) }
 genFunDer2 <- function(copula, u){ .Deprecated("diPsi(*, degree=2)"); diPsi(copula, u, degree=2) }
 
+AfunDer <- function(copula, w) { .Deprecated("dAdu"); dAdu(copula, w) }
+Afun    <- function(copula, w) { .Deprecated("A"); A(copula, w) }
 
 
 ### elliptical copulas, contains normalCopula and tCopula ######################
@@ -155,7 +158,6 @@ setClass("amhCopula", contains = "archmCopula")
 setClass("joeCopula", contains = "archmCopula")
 
 ## methods for archmCopulas
-setGeneric("genFun", function(copula, u) standardGeneric("genFun"))
 setGeneric("psi", function(copula, s) standardGeneric("psi"))
 ##FIXME 'log' compulsory:
 ##setGeneric("iPsi", function(copula, u, log, ...) standardGeneric("iPsi"))
@@ -187,8 +189,8 @@ setClass("tawnCopula", representation(exprdist = "expression"),
 setClass("tevCopula", representation(df = "numeric", df.fixed = "logical"),
          contains = "evCopula")
 
-setGeneric("Afun", function(copula, w) standardGeneric("Afun"))
-setGeneric("AfunDer", function(copula, w) standardGeneric("AfunDer"))
+setGeneric("A", function(copula, w) standardGeneric("A"))
+setGeneric("dAdu", function(copula, w) standardGeneric("dAdu"))
 setGeneric("dAdtheta", function(copula, w) standardGeneric("dAdtheta"))
 
 ### independent copula class ###################################################

@@ -8,18 +8,18 @@ TauRhoSample <- function(copula, nsim = 10000,
 
 ## for evCopula, tau is expressed as a 1-dim integral with A and A''
 tauEvCopula <- function(copula) {
-  integrand <- function(x) x * (1 - x) / Afun(copula, x) * AfunDer(copula, x)$der2
+  integrand <- function(x) x * (1 - x) / A(copula, x) * dAdu(copula, x)$der2
   integrate(integrand, 0, 1)$value
 }
 
 ## for evCopula, rho is expressed as a 1-dim integral with A
 rhoEvCopula <- function(copula) {
-  integrand <- function(x) 1 / (Afun(copula, x) + 1)^2
+  integrand <- function(x) 1 / (A(copula, x) + 1)^2
   12 * integrate(integrand, 0, 1)$value - 3
 }
 
 ## This function returns a matching grid between copula param theta and
-## rho (or tau) that will be fed to genFun for pspline fitting
+## rho (or tau) that will be fed to iPsi for pspline fitting
 getGrid <- function(copula, paramGrid, nsim = 10000,
                     method = c("spearman", "kendall"),
                     backwardTransf, ss) {
@@ -43,7 +43,7 @@ getGrid <- function(copula, paramGrid, nsim = 10000,
 ## returns a function that can give rho (or tau) and its derivative
 ## heavy: the weight given to known points (cannot be too big, it
 ##        breaks sm.spline
-genFun <- function(grid, norder = 3,
+iPsi <- function(grid, norder = 3,
                    paramKnown, valKnown, heavy=999,...) {
   good <- !(grid$param %in% paramKnown)
   param <- c(paramKnown, grid$param[good])
@@ -74,7 +74,7 @@ genFun <- function(grid, norder = 3,
 ## symmetrize: if TRUE, make the function symmetric about zero.
 ############################################################################
 ## the function returns a list of
-##   assocmeasure:  from genFun, a list containing the fitted object
+##   assocmeasure:  from iPsi, a list containing the fitted object
 ##                  from sm.spline and a function using prediction to
 ##                  approximate rhoFun or tauFun and its derivative
 ##   trFuns and ss
@@ -97,7 +97,7 @@ getAssoMeasFun <- function(copula,
   mygrid$param <- thetaGrid
   if (symmetrize) mygrid$val <- sign(mygrid$param) * (abs(mygrid$val) + abs(mygrid$val[rev(1:length(alphaGrid))])) / 2
 
-  assoMeasFun <- genFun(mygrid, norder = 3, paramKnown = paramKnown, valKnown = valKnown)
+  assoMeasFun <- iPsi(mygrid, norder = 3, paramKnown = paramKnown, valKnown = valKnown)
 
   list(assoMeasFun = assoMeasFun, trFuns = trFuns, ss = ss)
 }

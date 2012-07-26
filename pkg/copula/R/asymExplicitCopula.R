@@ -106,7 +106,7 @@ getAsymExplicitCopulaComps <- function(object) {
   list(shapes = shapes, copula1 = copula1, copula2 = copula2)
 }
 
-## AfunAsymCopula <- function(copula, w) {
+## AAsymCopula <- function(copula, w) {
 ##   ## assuming copula@copula1 and copula@copula2 are both evCopula
 ##   comps <- getCopulaComps(copula)
 ##   a1 <- comps$shape[1];  a2 <- comps$shape[2]
@@ -115,7 +115,7 @@ getAsymExplicitCopulaComps <- function(object) {
 ##   den2 <- a1 * (1 - w) + a2 * w
 ##   t1 <- (1 - a2) * w / den1; t1 <- ifelse(is.na(t1), 1, t1)
 ##   t2 <- a2 * w / den2; t2 <- ifelse(is.na(t2), 1, t2)
-##   den1 * Afun(copula1, t1) + den2 * Afun(copula2, t2)
+##   den1 * A(copula1, t1) + den2 * A(copula2, t2)
 ## }
 
 pasymExplicitCopula <- function(copula, u) {
@@ -181,7 +181,7 @@ rasymExplicitCopula <- function(copula, n) {
   x
 }
 
-## setMethod("Afun", signature("asymCopula"), AfunAsymCopula)
+## setMethod("A", signature("asymCopula"), AAsymCopula)
 
 setMethod("rcopula", signature("asymExplicitCopula"), rasymExplicitCopula)
 setMethod("pcopula", signature("asymExplicitCopula"), pasymExplicitCopula)

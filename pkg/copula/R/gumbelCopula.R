@@ -14,13 +14,13 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-AfunGumbel <- function(copula, w) {
+AGumbel <- function(copula, w) {
   alpha <- copula@parameters[1]
   A <- (w^alpha + (1 - w)^alpha)^(1/alpha)
   ifelse(w == 0 | w == 1, 1, A)
 }
 
-AfunDerGumbel <- function(copula, w) {
+dAduGumbel <- function(copula, w) {
   alpha <- copula@parameters[1]
   ## deriv(expression((w^alpha + (1 - w)^alpha)^(1/alpha)), "w", hessian=TRUE)
   value <- eval(expression({
@@ -50,7 +50,7 @@ AfunDerGumbel <- function(copula, w) {
   data.frame(der1=der1, der2=der2)
 }
 
-genFunGumbel <- function(copula, u) {
+iPsiGumbel <- function(copula, u) {
   alpha <- copula@parameters[1]
   ( - log(u))^alpha
 }
@@ -213,10 +213,10 @@ setMethod("dcopula", signature("gumbelCopula"),
 	  function (copula, u, log = FALSE, ...)
 	  copGumbel@dacopula(u, theta=copula@parameters, log=log, ...))
 
-setMethod("Afun", signature("gumbelCopula"), AfunGumbel)
-setMethod("AfunDer", signature("gumbelCopula"), AfunDerGumbel)
+setMethod("A", signature("gumbelCopula"), AGumbel)
+setMethod("dAdu", signature("gumbelCopula"), dAduGumbel)
 
-setMethod("genFun", signature("gumbelCopula"), genFunGumbel)
+setMethod("iPsi", signature("gumbelCopula"), iPsiGumbel)
 ## FIXME {negative tau}
 ## setMethod("iPsi", signature("gumbelCopula"),
 ## 	  function(copula, u) copGumbel@iPsi(u, theta=copula@parameters))

@@ -31,7 +31,7 @@ IK: Me too
 *** nparam() "wrapper" for  length(.@parameters)
 *** dTau() = tau'() and dRho() = rho'() -- to get S.Err. for  "itau" and "irho"
 **** these are *one* of the things where IJ-archmCopula' are better
-*** AfunDerGalambos() and similar: Use  list() instead of data.frame() as return value  (?)
+*** dAduGalambos() and similar: Use  list() instead of data.frame() as return value  (?)
 
 ** TODO MM: former nacopula  c_longNames etc  --> rename to .ac_longNames *and* export
 (ac = Archimedean copula)

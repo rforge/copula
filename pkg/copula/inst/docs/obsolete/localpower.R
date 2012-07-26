@@ -135,7 +135,7 @@ localpowerA <- function(copC, copD, N=1000, n=1000, step=5, ndelta=4, alpha = 0.
   der <- dCdu(copC,u)
   loguv <- log(u[,1]*u[,2])
   g <- log(u[,2])/loguv #grid (size n)
-  AC <- Afun(copC,g)
+  AC <- A(copC,g)
   ADg <- numeric(n)
   for (i in 1:n)
     ADg[i] <- AD(copD,g[i])

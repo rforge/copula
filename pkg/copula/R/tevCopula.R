@@ -14,7 +14,7 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-AfunTev <- function(copula, w) {
+ATev <- function(copula, w) {
   rho <- copula@parameters[1]
   ## nu <- getdf(copula) ## defined in tCopula.R
   nu <- copula@df
@@ -25,7 +25,7 @@ AfunTev <- function(copula, w) {
   ifelse(w == 0 | w == 1, 1, A)
 }
 
-AfunDerTev <- function(copula, w) {
+dAduTev <- function(copula, w) {
   rho <- copula@parameters[1]
   ## nu <- getdf(copula) ## defined in tCopula.R
   nu <- copula@df
@@ -85,7 +85,7 @@ ptevCopula <- function(copula, u) {
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   u1 <- u[,1]; u2 <- u[,2]
   logu <- log(u1 * u2)
-  exp(logu * AfunTev(copula, log(u2) / logu))
+  exp(logu * ATev(copula, log(u2) / logu))
 }
 
 dtevCopula <- function(copula, u, log=FALSE, ...) {
@@ -102,8 +102,8 @@ dtevCopula <- function(copula, u, log=FALSE, ...) {
   dwdu1 <- c(attr(dw, "gradient")[,"u1"])
   dwdu2 <- c(attr(dw, "gradient")[,"u2"])
   d2wdu1du2 <- c(attr(dw, "hessian")[,"u1","u2"])
-  A <- AfunTev(copula, w)
-  Ader <- AfunDerTev(copula, w)
+  A <- ATev(copula, w)
+  Ader <- dAduTev(copula, w)
   Ader1 <- Ader$der1; Ader2 <- Ader$der2
   dCdu1 <- C * (1 / u1 * A + logu * Ader1 * dwdu1)
   dCdu2 <- C * (1 / u2 * A + logu * Ader1 * dwdu2)
@@ -121,8 +121,8 @@ dCduSymEvCopula <- function(cop, u) {
   pcop <- pcopula(cop, u)
   loguv <- log(u[,1]) + log(u[,2])
   w <- log(u[,2]) / loguv
-  a <- Afun(cop, w)
-  aDer <- AfunDer(cop, w)$der1
+  a <- A(cop, w)
+  aDer <- dAdu(cop, w)$der1
   mat[,1] <- pcop * (a / u[,1] - loguv * aDer * log(u[,2]) / (loguv)^2 / u[,1])
   mat[,2] <- pcop * (a / u[,2] + loguv * aDer * log(u[,1]) / (loguv)^2 / u[,2])
   mat
@@ -220,8 +220,8 @@ dRhoTevCopula <- function(copula) {
 setMethod("pcopula", signature("tevCopula"), ptevCopula)
 setMethod("dcopula", signature("tevCopula"), dtevCopula)
 
-setMethod("Afun", signature("tevCopula"), AfunTev)
-setMethod("AfunDer", signature("tevCopula"), AfunDerTev)
+setMethod("A", signature("tevCopula"), ATev)
+setMethod("dAdu", signature("tevCopula"), dAduTev)
 
 setMethod("tau", signature("tevCopula"), tauTevCopula)
 setMethod("rho", signature("tevCopula"), rhoTevCopula)

@@ -14,7 +14,7 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-genFunClayton <- function(copula, u) {
+iPsiClayton <- function(copula, u) {
   alpha <- copula@parameters[1]
   ## (u^(-alpha) - 1) / alpha ## This is in Nelson Table 4.1; alpha in denom redundant
   u^(-alpha) - 1
@@ -227,7 +227,7 @@ setMethod("dcopula", signature("claytonCopula"),
 	      copClayton@dacopula(u, theta=copula@parameters, log=log, ...)
       })
 
-setMethod("genFun", signature("claytonCopula"), genFunClayton)
+setMethod("iPsi", signature("claytonCopula"), iPsiClayton)
 ## FIXME {negative tau}
 ## setMethod("iPsi", signature("claytonCopula"),
 ## 	  function(copula, u) copClayton@iPsi(u, theta=copula@parameters))
