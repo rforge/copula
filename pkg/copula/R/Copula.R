@@ -16,7 +16,7 @@
 
 ##' show method
 showCopula <- function(object) {
-  cat(object@message, "\n")
+  cat(object@fullname, "\n")
   cat("Dimension: ", object@dimension, "\n")
   if (length(object@parameters) > 0) {
     cat("Parameters:\n")

@@ -19,18 +19,10 @@ genFunAmh <- function(copula, u) {
   log((1 - alpha * (1 - u)) / u)
 }
 
-iPsiAmh <- function(copula, s) {
+psiAmh <- function(copula, s) {
   alpha <- copula@parameters[1]
   (1 - alpha) / (exp(s) - alpha)
 }
-
-genFunDer1Amh <- function(copula, u) {
-  eval(amhCopula.genfunDer.expr[1], list(u=u, alpha=copula@parameters[1]))
-}
-genFunDer2Amh <- function(copula, u) {
-  eval(amhCopula.genfunDer.expr[2], list(u=u, alpha=copula@parameters[1]))
-}
-
 
 amhCopula <- function(param = NA_real_, dim = 2L) {
   ## get expressions of cdf and pdf
@@ -67,7 +59,7 @@ amhCopula <- function(param = NA_real_, dim = 2L) {
       param.names = "param",
       param.lowbnd = -1,
       param.upbnd = 1,
-      message = "Amh copula family; Archimedean copula")
+      fullname = "Amh copula family; Archimedean copula")
 }
 
 
@@ -158,9 +150,18 @@ setMethod("dcopula", signature("amhCopula"),
       })
 
 setMethod("genFun", signature("amhCopula"), genFunAmh)
-setMethod("iPsi", signature("amhCopula"), iPsiAmh)
-setMethod("genFunDer1", signature("amhCopula"), genFunDer1Amh)
-setMethod("genFunDer2", signature("amhCopula"), genFunDer2Amh)
+## setMethod("iPsi", signature("amhCopula"),
+## 	  function(copula, u) copAMH@iPsi(u, theta=copula@parameters))
+setMethod("psi", signature("amhCopula"), psiAmh)
+## FIXME
+## setMethod("psi", signature("amhCopula"),
+## 	  function(copula, s) copAMH@psi(t=s, theta=copula@parameters))
+setMethod("diPsi", signature("amhCopula"),
+	  function(copula, u, degree=1, log=FALSE, ...) {
+              s <- if(log || degree %% 2 == 0) 1. else -1.
+              s* copAMH@absdiPsi(u, theta=copula@parameters, degree=degree, log=log, ...)
+      })
+
 
 setMethod("tau", signature("amhCopula"), tauAmhCopula)
 setMethod("rho", signature("amhCopula"), rhoAmhCopula)

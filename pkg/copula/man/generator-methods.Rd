@@ -9,15 +9,15 @@
 \alias{genFun,gumbelCopula-method}
 \alias{genFun,amhCopula-method}
 \alias{genFun,joeCopula-method}
-% iPsi
+% psi
 \alias{genInv}%deprecated
-\alias{iPsi}
-\alias{iPsi-methods}
-\alias{iPsi,claytonCopula-method}
-\alias{iPsi,frankCopula-method}
-\alias{iPsi,gumbelCopula-method}
-\alias{iPsi,amhCopula-method}
-\alias{iPsi,joeCopula-method}
+\alias{psi}
+\alias{psi-methods}
+\alias{psi,claytonCopula-method}
+\alias{psi,frankCopula-method}
+\alias{psi,gumbelCopula-method}
+\alias{psi,amhCopula-method}
+\alias{psi,joeCopula-method}
 % genFunDer1
 \alias{genFunDer1}
 \alias{genFunDer1-methods}
@@ -61,9 +61,11 @@
 }
 \usage{
 genFun(copula, u)
-iPsi(copula, s)
+psi(copula, s)
+iPsi(copula, u, ...)
 genFunDer1(copula, u)
 genFunDer2(copula, u)
+diPsi(copula, u, degree=1, ...)
 Afun(copula, w)
 AfunDer(copula, w)
 }
@@ -73,7 +75,7 @@ AfunDer(copula, w)
     evaluated. }
 }
 \details{
-  \code{genFun()} and \code{iPsi()} are, respectively, the generator
+  \code{psi()} and \code{genFun()} are, respectively, the generator
   function and its inverse function for an Archimedean copula.
 
   \code{genFunDer1()} and \code{genFunDer2()} are, respectively, the 1st

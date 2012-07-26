@@ -35,7 +35,7 @@ skewNormalCopula <- function(param, shape, dim = 2, dispstr = "ex") {
              param.names = paste("rho", 1:pdim, sep="."),
              param.lowbnd = rep(-1, pdim),
              param.upbnd = rep(1, pdim),
-             message = "Skew-Normal copula family")
+             fullname = "Skew-Normal copula family")
   val
 }
 
@@ -49,7 +49,7 @@ skewNormalCopula2 <- function(param, alpha, dim = 2, dispstr = "ex") {
              param.names = paste("rho", 1:pdim, sep="."),
              param.lowbnd = rep(-1, pdim),
              param.upbnd = rep(1, pdim),
-             message = "Skew-Normal copula family")
+             fullname = "Skew-Normal copula family")
   val
 }
 

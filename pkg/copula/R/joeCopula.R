@@ -21,7 +21,7 @@ joeCopula <- function(param = NA_real_, dim = 2L) {
       param.names = "param",
       param.lowbnd = 1,
       param.upbnd = Inf,
-      message = "Joe copula family; Archimedean copula")
+      fullname = "Joe copula family; Archimedean copula")
 }
 
 setMethod("rcopula", signature("joeCopula"), function(copula, n)
@@ -33,14 +33,16 @@ setMethod("dcopula", signature("joeCopula"),
 	  function (copula, u, log = FALSE, ...)
 	  copJoe@dacopula(u, theta=copula@parameters, log=log, ...))
 
-setMethod("genFun", signature("joeCopula"),
-	  function(copula, u) copJoe@psi(t=u, theta=copula@parameters))
+setMethod("psi", signature("joeCopula"),
+	  function(copula, s) copJoe@psi(t=s, theta=copula@parameters))
 setMethod("iPsi", signature("joeCopula"),
-	  function(copula, s) copJoe@iPsi(u=s, theta=copula@parameters))
-setMethod("genFunDer1", signature("joeCopula"), function(copula, u)
-          - copJoe@absdPsi(u, theta=copula@parameters))
-setMethod("genFunDer2", signature("joeCopula"), function(copula, u)
-          copJoe@absdPsi(u, theta = copula@parameters, degree = 2))
+	  function(copula, u) copJoe@iPsi(u, theta=copula@parameters))
+setMethod("diPsi", signature("joeCopula"),
+	  function(copula, u, degree=1, log=FALSE, ...)
+      {
+	  s <- if(log || degree %% 2 == 0) 1. else -1.
+	  s* copJoe@absdiPsi(u, theta=copula@parameters, degree=degree, log=log, ...)
+      })
 
 setMethod("tau", signature("joeCopula"),
           function(copula) copJoe@tau(theta=copula@parameters))

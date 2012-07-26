@@ -82,7 +82,7 @@ fgmCopula <- function(param = NA_real_, dim = 2L) {
                param.names = paste("param",subsets.char[(dim+2):2^dim],sep=""),
                param.lowbnd = rep(-1, 2^dim - dim - 1),
                param.upbnd = rep(1, 2^dim - dim - 1),
-               message = "Farlie-Gumbel-Morgenstern copula family")
+               fullname = "Farlie-Gumbel-Morgenstern copula family")
 }
 
 

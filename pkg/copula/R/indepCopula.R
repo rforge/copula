@@ -39,7 +39,7 @@ indepCopula <- function(dim = 2L) {
              param.names = character(0),
              param.lowbnd = double(0),
              param.upbnd = double(0),
-             message = "Independence copula")
+             fullname = "Independence copula")
 }
 
 AfunIndep <- function(copula, w) {

@@ -108,7 +108,7 @@ galambosCopula <- function(param = NA_real_) {
              param.names = "param",
              param.lowbnd = 0,
              param.upbnd = Inf,
-             message = "Galambos copula family; Extreme value copula")
+             fullname = "Galambos copula family; Extreme value copula")
 }
 
 pgalambosCopula <- function(copula, u) {

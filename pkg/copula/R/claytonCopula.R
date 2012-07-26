@@ -20,20 +20,10 @@ genFunClayton <- function(copula, u) {
   u^(-alpha) - 1
 }
 
-iPsiClayton <- function(copula, s) {
+psiClayton <- function(copula, s) {
   alpha <- copula@parameters[1]
   ## (1 + alpha * s)^(-1/alpha) ## corresponding to the comment above
   (1 + s)^(-1/alpha)
-}
-
-genFunDer1Clayton <- function(copula, u) {
-  alpha <- copula@parameters[1]
-  eval(claytonCopula.genfunDer.expr[1])
-}
-
-genFunDer2Clayton <- function(copula, u) {
-  alpha <- copula@parameters[1]
-  eval(claytonCopula.genfunDer.expr[2])
 }
 
 claytonCopula <- function(param = NA_real_, dim = 2L) {
@@ -59,17 +49,15 @@ claytonCopula <- function(param = NA_real_, dim = 2L) {
   if ((dim <- as.integer(dim)) > 2 && param[1] < 0)
     stop("param can be negative only for dim = 2")
   cdf <- cdfExpr(dim)
-  if (dim <= 6)  pdf <- pdfExpr(cdf, dim)
-  else pdf <- NULL
-  val <- new("claytonCopula",
-             dimension = dim,
-             parameters = param[1],
-             exprdist = c(cdf = cdf, pdf = pdf),
-             param.names = "param",
-             param.lowbnd = if(dim == 2) -1 else 0,
-             param.upbnd = Inf,
-             message = "Clayton copula family; Archimedean copula")
-  val
+  pdf <- if (dim <= 6) pdfExpr(cdf, dim) # else NULL
+  new("claytonCopula",
+      dimension = dim,
+      parameters = param[1],
+      exprdist = c(cdf = cdf, pdf = pdf),
+      param.names = "param",
+      param.lowbnd = if(dim == 2) -1 else 0,
+      param.upbnd = Inf,
+      fullname = "Clayton copula family; Archimedean copula")
 }
 
 rclaytonBivCopula <- function(copula, n) {
@@ -98,7 +86,7 @@ rclaytonCopula <- function(copula, n) {
   ## gam <- rgamma(n, shape = 1/alpha, rate = 1/alpha) ## fixed from rate = 1
   gam <- rgamma(n, shape = 1/alpha, rate = 1) ## fixed from rate = 1
   gam <- matrix(gam, nrow = n, ncol = dim)
-  iPsi(copula, - log(val) / gam)
+  psi(copula, - log(val) / gam)
 }
 
 
@@ -240,9 +228,22 @@ setMethod("dcopula", signature("claytonCopula"),
       })
 
 setMethod("genFun", signature("claytonCopula"), genFunClayton)
-setMethod("iPsi", signature("claytonCopula"), iPsiClayton)
-setMethod("genFunDer1", signature("claytonCopula"), genFunDer1Clayton)
-setMethod("genFunDer2", signature("claytonCopula"), genFunDer2Clayton)
+## FIXME {negative tau}
+## setMethod("iPsi", signature("claytonCopula"),
+## 	  function(copula, u) copClayton@iPsi(u, theta=copula@parameters))
+setMethod("psi", signature("claytonCopula"), psiClayton)
+## FIXME {negative tau}
+## setMethod("psi", signature("claytonCopula"),
+## 	  function(copula, s) copClayton@psi(t=s, theta=copula@parameters))
+
+setMethod("diPsi", signature("claytonCopula"),
+	  function(copula, u, degree=1, log=FALSE, ...)
+      {
+	  s <- if(log || degree %% 2 == 0) 1. else -1.
+	  s* copClayton@absdiPsi(u, theta=copula@parameters, degree=degree, log=log, ...)
+      })
+
+
 
 setMethod("tau", signature("claytonCopula"), tauClaytonCopula)
 setMethod("rho", signature("claytonCopula"), rhoClaytonCopula)

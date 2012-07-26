@@ -23,7 +23,7 @@ normalCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex") {
       param.names = paste("rho", 1:pdim, sep="."),
       param.lowbnd = rep(-1, pdim),
       param.upbnd = rep(1, pdim),
-      message = "Normal copula family",
+      fullname = "Normal copula family",
       getRho = function(obj) obj@parameters)
 }
 

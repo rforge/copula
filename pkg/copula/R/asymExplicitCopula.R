@@ -90,7 +90,7 @@ asymExplicitCopula <- function(shapes, copula1, copula2) {
              copula2 = copula2,
              exprdist = c(cdf=cdf, pdf=pdf),
              derExprs1 = derExprs1, derExprs2 = derExprs2,
-             message = "Asymmetric Explicit Copula")
+             fullname = "Asymmetric Explicit Copula")
 }
 
 

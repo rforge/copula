@@ -24,7 +24,7 @@ setClass("copula",
                         param.lowbnd = "numeric",
                         param.upbnd = "numeric",
                         ## TODO: "a vector" of intervals" paraInterval = "maybeInterval", # [.,.]  (.,.], etc .. parameter interval
-                        message = "character",
+                        fullname = "character",
                         "VIRTUAL"),
          prototype = prototype(dimension = 2L, parameters = NA_real_),
          validity = ##' Check validity of "copula"
@@ -70,15 +70,13 @@ setGeneric("dRhoFun", function(copula) standardGeneric("dRhoFun"))
 ## Deprecated:
 calibKendallsTau <- function(copula, tau) { .Deprecated("iTau"); iTau(copula,tau) }
 calibSpearmansRho <- function(copula, rho) { .Deprecated("iRho"); iRho(copula,rho) }
-genInv <- function(copula, s) { .Deprecated("iPsi"); iPsi(copula,s) }
+genInv <- function(copula, s) { .Deprecated("psi"); psi(copula,s) }
 kendallsTau <- function(copula) { .Deprecated("tau"); tau(copula) }
 spearmansRho <- function(copula) { .Deprecated("rho"); rho(copula) }
+genFunDer1 <- function(copula, u){ .Deprecated("diPsi"); diPsi(copula, u) }
+genFunDer2 <- function(copula, u){ .Deprecated("diPsi(*, degree=2)"); diPsi(copula, u, degree=2) }
 
 
-### independent copula class ###################################################
-
-setClass("indepCopula", contains = "copula",
-         representation(exprdist = "expression"))
 
 ### elliptical copulas, contains normalCopula and tCopula ######################
 
@@ -158,9 +156,12 @@ setClass("joeCopula", contains = "archmCopula")
 
 ## methods for archmCopulas
 setGeneric("genFun", function(copula, u) standardGeneric("genFun"))
-setGeneric("iPsi", function(copula, s) standardGeneric("iPsi"))
-setGeneric("genFunDer1", function(copula, u) standardGeneric("genFunDer1"))
-setGeneric("genFunDer2", function(copula, u) standardGeneric("genFunDer2"))
+setGeneric("psi", function(copula, s) standardGeneric("psi"))
+##FIXME 'log' compulsory:
+##setGeneric("iPsi", function(copula, u, log, ...) standardGeneric("iPsi"))
+setGeneric("iPsi", function(copula, u, ...) standardGeneric("iPsi"))
+setGeneric("dPsi", function(copula, s, ...) standardGeneric("dPsi"))
+setGeneric("diPsi", function(copula, u, degree=1, ...) standardGeneric("diPsi"))
 
 
 ### Extreme value copulas, contains galambos, husler-reiss, gumbel, ... ########
@@ -189,6 +190,12 @@ setClass("tevCopula", representation(df = "numeric", df.fixed = "logical"),
 setGeneric("Afun", function(copula, w) standardGeneric("Afun"))
 setGeneric("AfunDer", function(copula, w) standardGeneric("AfunDer"))
 setGeneric("dAdtheta", function(copula, w) standardGeneric("dAdtheta"))
+
+### independent copula class ###################################################
+
+## it should contain all three *virtual* superclasses,
+## but we don't want it to inherit "funny slots"
+setClass("indepCopula", contains = c("evCopula", "archmCopula"))
 
 
 ### Other copulas ##############################################################

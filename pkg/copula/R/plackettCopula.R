@@ -28,7 +28,7 @@ plackettCopula <- function(param = NA_real_) {
              param.names = "param",
              param.lowbnd = 0,
              param.upbnd = Inf,
-             message = "Plackett copula family")
+             fullname = "Plackett copula family")
 }
 
 pplackettCopula <- function(copula, u) {

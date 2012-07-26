@@ -41,7 +41,7 @@ tCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex", df = 4, df.fixed
              param.names = param.names,
              param.lowbnd = param.lowbnd,
              param.upbnd = param.upbnd,
-             message = paste("t copula family",
+             fullname = paste("t copula family",
                if(df.fixed) paste("df fixed at", df) else NULL),
              getRho = function(obj) {
                if (df.fixed) obj@parameters

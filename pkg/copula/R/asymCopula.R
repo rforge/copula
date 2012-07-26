@@ -45,7 +45,7 @@ asymCopula <- function(shapes, copula1, copula2) {
              param.upbnd = c(copula1@param.upbnd, copula2@param.upbnd, 1, 1),
              copula1 = copula1,
              copula2 = copula2,
-             message = "Asymmetric Copula")
+             fullname = "Asymmetric Copula")
 }
 
 

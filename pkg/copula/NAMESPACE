@@ -38,7 +38,7 @@ export(tau, rho, tailIndex)
 export(iTau, iRho)
 
 ## archmCopula methods
-export(genFun, iPsi, genFunDer1, genFunDer2)
+export(psi, iPsi, diPsi)
 
 ## evCopula methods
 export(Afun, AfunDer, Anfun)
@@ -171,9 +171,10 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
 export(psiDabsMC
        , calibKendallsTau
        , calibSpearmansRho
-       , genInv
        , kendallsTau
        , spearmansRho
+       , genInv
+       , genFun, genFunDer1, genFunDer2
        )
 
 exportMethods(## for both own and "other" generics:

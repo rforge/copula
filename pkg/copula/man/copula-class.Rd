@@ -35,7 +35,7 @@
       class \code{"numeric"}.}
     \item{\code{param.upbnd}:}{upper bounds for the parameters, of class
       \code{"numeric"}.}
-    \item{\code{message}:}{Object of class \code{"character"}, family names
+    \item{\code{fullname}:}{Object of class \code{"character"}, family names
       of the copula.}
   }
 }

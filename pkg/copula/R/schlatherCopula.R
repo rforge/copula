@@ -64,7 +64,7 @@ schlatherCopula <- function(param = NA_real_) {
              param.names = "param",
              param.lowbnd = -1,
              param.upbnd = 1,
-             message = "Schlather copula family; Extreme value copula")
+             fullname = "Schlather copula family; Extreme value copula")
 }
 
 

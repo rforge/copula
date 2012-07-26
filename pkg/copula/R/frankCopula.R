@@ -19,21 +19,13 @@ genFunFrank <- function(copula, u) {
   - log( (exp(- alpha * u) - 1) / (exp(- alpha) - 1))
 }
 
-iPsiFrank <- function(copula, s) {
+psiFrank <- function(copula, s) {
   alpha <- copula@parameters[1]
   -1/alpha * log(1 + exp(-s) * (exp(-alpha) - 1))
 }
 
-genFunDer1Frank <- function(copula, u) {
-  eval(frankCopula.genfunDer.expr[1], list(u=u, alpha=copula@parameters[1]))
-}
-
-genFunDer2Frank <- function(copula, u) {
-  eval(frankCopula.genfunDer.expr[2], list(u=u, alpha=copula@parameters[1]))
-}
-
-## iPsiDerFrank <- function(copula, s, n) {
-##   eval(iPsiDerFrank.expr[n + 1], list(s=s, alpha=copula@parameters[1]))
+## psiDerFrank <- function(copula, s, n) {
+##   eval(psiDerFrank.expr[n + 1], list(s=s, alpha=copula@parameters[1]))
 ## }
 
 frankCopula <- function(param = NA_real_, dim = 2L) {
@@ -68,7 +60,7 @@ frankCopula <- function(param = NA_real_, dim = 2L) {
       param.names = "param",
       param.lowbnd = -Inf,
       param.upbnd = Inf,
-      message = "Frank copula family; Archimedean copula")
+      fullname = "Frank copula family; Archimedean copula")
 }
 
 rfrankBivCopula <- function(copula, n) {
@@ -99,7 +91,7 @@ rfrankCopula <- function(copula, n) {
   fr <- rlogseries(n, 1 - exp(-alpha))
   fr <- matrix(fr, nrow = n, ncol = dim)
   val <- matrix(runif(dim * n), nrow = n)
-  iPsi(copula, - log(val) / fr)
+  psi(copula, - log(val) / fr)
 }
 
 
@@ -131,7 +123,7 @@ dfrankCopula <- function(copula, u, log=FALSE, ...) {
 ## dfrankCopula.expr <- function(copula, u) {
 ##   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 ##   s <- apply(genFunFrank(copula, u), 1, sum)
-##   pdf <- iPsiDerFrank(copula, s, copula@dimension) *
+##   pdf <- psiDerFrank(copula, s, copula@dimension) *
 ##     apply(genFunDerFrank(copula, u, 1), 1, prod)
 ##   pdf
 ## }
@@ -199,10 +191,22 @@ setMethod("dcopula", signature("frankCopula"),
       })
 
 setMethod("genFun", signature("frankCopula"), genFunFrank)
-setMethod("iPsi", signature("frankCopula"), iPsiFrank)
-setMethod("genFunDer1", signature("frankCopula"), genFunDer1Frank)
-setMethod("genFunDer2", signature("frankCopula"), genFunDer2Frank)
-## setMethod("iPsiDer", signature("frankCopula"), iPsiDerFrank)
+## FIXME {negative tau}
+## setMethod("iPsi", signature("frankCopula"),
+## 	  function(copula, u) copFrank@iPsi(u, theta=copula@parameters))
+setMethod("psi", signature("frankCopula"), psiFrank)
+## FIXME {negative tau}
+## setMethod("psi", signature("frankCopula"),
+## 	  function(copula, s) copFrank@psi(t=s, theta=copula@parameters))
+
+## setMethod("psiDer", signature("frankCopula"), psiDerFrank)
+setMethod("diPsi", signature("frankCopula"),
+	  function(copula, u, degree=1, log=FALSE, ...)
+      {
+	  s <- if(log || degree %% 2 == 0) 1. else -1.
+	  s* copFrank@absdiPsi(u, theta=copula@parameters, degree=degree, log=log, ...)
+      })
+
 
 
 setMethod("tau", signature("frankCopula"), tauFrankCopula)

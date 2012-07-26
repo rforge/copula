@@ -55,18 +55,9 @@ genFunGumbel <- function(copula, u) {
   ( - log(u))^alpha
 }
 
-iPsiGumbel <- function(copula, s) {
+psiGumbel <- function(copula, s) {
   alpha <- copula@parameters[1]
   exp( -s^(1 / alpha) )
-}
-
-genFunDer1Gumbel <- function(copula, u) {
-  eval(gumbelCopula.genfunDer.expr[1], list(u=u, alpha=copula@parameters[1]))
-}
-
-
-genFunDer2Gumbel <- function(copula, u) {
-  eval(gumbelCopula.genfunDer.expr[2], list(u=u, alpha=copula@parameters[1]))
 }
 
 gumbelCopula <- function(param = NA_real_, dim = 2L) {
@@ -98,7 +89,7 @@ gumbelCopula <- function(param = NA_real_, dim = 2L) {
              param.names = "param",
              param.lowbnd = 1,
              param.upbnd = Inf,
-             message = "Gumbel copula family; Archimedean copula; Extreme value copula")
+             fullname = "Gumbel copula family; Archimedean copula; Extreme value copula")
 }
 
 
@@ -114,7 +105,7 @@ rgumbelCopula <- function(copula, n) {
   fr <- matrix(fr, nrow=n, ncol=dim)
   ## now gumbel copula
   val <- matrix(runif(dim * n), nrow = n)
-  iPsi(copula, - log(val) / fr)
+  psi(copula, - log(val) / fr)
 }
 
 
@@ -226,10 +217,23 @@ setMethod("Afun", signature("gumbelCopula"), AfunGumbel)
 setMethod("AfunDer", signature("gumbelCopula"), AfunDerGumbel)
 
 setMethod("genFun", signature("gumbelCopula"), genFunGumbel)
-setMethod("iPsi", signature("gumbelCopula"), iPsiGumbel)
+## FIXME {negative tau}
+## setMethod("iPsi", signature("gumbelCopula"),
+## 	  function(copula, u) copGumbel@iPsi(u, theta=copula@parameters))
+setMethod("psi", signature("gumbelCopula"), psiGumbel)
+## FIXME {negative tau}
+## setMethod("psi", signature("gumbelCopula"),
+## 	  function(copula, s) copGumbel@psi(t=s, theta=copula@parameters))
 
-setMethod("genFunDer1", signature("gumbelCopula"), genFunDer1Gumbel)
-setMethod("genFunDer2", signature("gumbelCopula"), genFunDer2Gumbel)
+setMethod("diPsi", signature("gumbelCopula"),
+	  function(copula, u, degree=1, log=FALSE, ...)
+      {
+	  s <- if(log || degree %% 2 == 0) 1. else -1.
+	  s* copGumbel@absdiPsi(u, theta=copula@parameters, degree=degree, log=log, ...)
+      })
+
+
+
 
 setMethod("tau", signature("gumbelCopula"), tauGumbelCopula)
 setMethod("rho", signature("gumbelCopula"), rhoGumbelCopula)

@@ -23,7 +23,7 @@
       parameter lower bound. }
     \item{\code{param.upbnd}:}{Object of class \code{"numeric"},
       parameter upper bound. }
-    \item{\code{message}:}{Object of class \code{"character"}, family names
+    \item{\code{fullname}:}{Object of class \code{"character"}, family names
       of the copula. }
   }
 }

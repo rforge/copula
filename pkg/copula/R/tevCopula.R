@@ -75,7 +75,7 @@ tevCopula <- function(param = NA_real_, df = 4, df.fixed = FALSE) {
              param.names = param.names,
              param.lowbnd = param.lowbnd,
              param.upbnd = param.upbnd,
-             message = paste("t-EV copula family",
+             fullname = paste("t-EV copula family",
                if(df.fixed) paste("df fixed at", df)))
 }
 

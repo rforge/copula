@@ -59,12 +59,16 @@ copAMH <-
 		  }
 	      },
 		  ## derivatives of the generator inverse
-		  absdiPsi = function(u, theta, log=FALSE) {
-		      if(log) {
-			  log1p(-theta)-log(u)-log1p(-theta*(1-u))
-		      } else {
-			  (1-theta)/(u*(1-theta*(1-u)))
-		      }
+		  absdiPsi = function(u, theta, degree=1, log=FALSE) {
+		      switch(degree,
+			     ## 1 :
+			     if(log) log1p(-theta)-log(u)-log1p(theta*(u-1))
+			     else (1-theta)/(u*(1-theta*(1-u))),
+			     ## 2 :
+			     if(log) log1p(-theta)+ log1p(1 + theta * (2*u - 1)) -2*(log(u)+log1p(theta*(u-1)))
+			     else (1-theta) * (1 + theta * (2*u - 1)) / (u*(1 + theta * (u-1)))^2,
+			     ## >= 3:
+			     stop("not yet implemented for degree > 2"))
 		  },
 		  ## density of the diagonal
 		  dDiag = function(u, theta, d, log=FALSE) {
@@ -218,8 +222,15 @@ copClayton <-
                       }
                   },
                   ## derivatives of the generator inverse
-		  absdiPsi = function(u, theta, log = FALSE) {
-		      if(log) log(theta)-(1+theta)*log(u) else theta*u^(-(1+theta))
+		  absdiPsi = function(u, theta, degree=1, log=FALSE) {
+		      switch(degree,
+			     ## 1 :
+			     if(log) log(theta)-(1+theta)*log(u) else theta*u^(-(1+theta)),
+			     ## 2 :
+			     if(log) log(theta)+log1p(theta)-(theta+2)*log(u)
+			     else theta * (1 + theta) * u^-(theta + 2),
+			     ## >= 3:
+			     stop("not yet implemented for degree > 2"))
 		  },
 		  ## density of the diagonal
 		  dDiag = function(u, theta, d, log=FALSE){
@@ -363,9 +374,17 @@ copFrank <-
 		  }
 	      },
 		  ## derivatives of the generator inverse
-		  absdiPsi = function(u, theta, log = FALSE) {
-		      if(log) log(theta)- {y <- u*theta; y + log1mexp(y)}
-		      else theta/expm1(u*theta)
+		  absdiPsi = function(u, theta, degree=1, log=FALSE) {
+		      ut <- u*theta
+		      switch(degree,
+			     ## 1 :
+			     if(log) log(theta) - (ut + log1mexp(ut))
+			     else theta/expm1(ut),
+			     ## 2 :
+			     if(log) 2*log(theta) + ut - 2*log1mexp(-ut)
+			     else (theta^2 * exp(ut))/expm1(ut)^2,
+			     ## >= 3:
+			     stop("not yet implemented for degree > 2"))
 		  },
 		  ## density of the diagonal
 		  dDiag = function(u, theta, d, log=FALSE) {
@@ -557,14 +576,18 @@ copGumbel <-
                       }
                       if(log) res else exp(res)
                   },
-                  ## derivatives of the generator inverse
-		  absdiPsi = function(u, theta, log = FALSE) {
+		  ## derivatives of the generator inverse
+		  absdiPsi = function(u, theta, degree=1, log=FALSE) {
 		      lu <- log(u)
-		      if(log) {
-			  log(theta)+(theta-1)*log(-lu)-lu
-		      } else {
-			  theta*(-lu)^(theta-1)/u
-		      }
+		      switch(degree,
+			     ## 1 :
+			     if(log) log(theta)+(theta-1)*log(-lu)-lu
+			     else theta*(-lu)^(theta-1)/u,
+			     ## 2 :
+			     if(log) log(theta)+ log(theta-1 - lu) + (theta-2)*log(-lu) - 2*lu
+			     else theta * (theta-1 - lu) * (-lu)^(theta-2) / u^2,
+			     ## >= 3:
+			     stop("not yet implemented for degree > 2"))
 		  },
 		  ## density of the diagonal
 		  dDiag = function(u, theta, d, log=FALSE) {
@@ -737,13 +760,19 @@ copJoe <-
                   }
                   if(log) res else exp(res)
               },
-                  ## derivatives of the generator inverse
-		  absdiPsi = function(u, theta, log = FALSE) {
-		      if(log) {
-			  log(theta)+(theta-1)*log1p(-u)-log1p(-(1-u)^theta)
-		      } else {
-			  theta/((1-u)^(1-theta)-(1-u))
-		      }
+		  ## derivatives of the generator inverse
+		  absdiPsi = function(u, theta, degree=1, log=FALSE) {
+		      Iu <- 1-u
+		      Iuth <- Iu^theta
+		      switch(degree,
+			     ## 1 :
+			     if(log) log(theta) + (theta-1)*log1p(-u) - log1p(-Iuth)
+			     else theta / (Iu/Iuth - Iu),
+			     ## 2 :
+			     if(log) log(theta) + (theta-2)*log1p(-u) + log(theta-1+Iuth) - 2*log1p(-Iuth)
+			     else theta * Iu^(theta-2) * (theta-1+Iuth) / (1-Iuth)^2,
+			     ## >= 3:
+			     stop("not yet implemented for degree > 2"))
 		  },
 		  ## density of the diagonal
 		  dDiag = function(u, theta, d, log=FALSE) {
