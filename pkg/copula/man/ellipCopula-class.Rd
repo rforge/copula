@@ -35,10 +35,10 @@
 }
 \section{Methods}{
   \describe{
-    \item{dcopula}{\code{signature(copula = "normalCopula")}: ... }
+    \item{dCopula}{\code{signature(copula = "normalCopula")}: ... }
     \item{pCopula}{\code{signature(copula = "normalCopula")}: ... }
     \item{rcopula}{\code{signature(copula = "normalCopula")}: ... }
-    \item{dcopula}{\code{signature(copula = "tCopula")}: ... }
+    \item{dCopula}{\code{signature(copula = "tCopula")}: ... }
     \item{pCopula}{\code{signature(copula = "tCopula")}: ... }
     \item{rcopula}{\code{signature(copula = "tCopula")}: ... }
   }

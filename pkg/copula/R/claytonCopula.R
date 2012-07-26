@@ -119,7 +119,7 @@ dclaytonCopula <- function(copula, u, ...) {
   if(log) log(val) else val
 }
 
-dclaytonCopula.pdf <- function(copula, u, log=FALSE) {
+dclaytonCopula.pdf <- function(u, copula, log=FALSE) {
   dim <- copula@dimension
   if (dim > 10) stop("Clayton copula PDF not implemented for dimension > 10.")
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
@@ -212,6 +212,15 @@ pMatClayton <- function (u, copula, ...) {
         pacopula(u, copClayton, theta=copula@parameters, ...)
 }
 
+dMatClayton <- function (u, copula, log = FALSE, ...) {
+    stopifnot(ncol(u) == (d <- copula@dimension))
+    th <- copula@parameters
+    if(d == 2 && !copClayton@paraConstr(th)) # for now, .. to support negative tau
+        dclaytonCopula.pdf(u, copula, log=log)
+    else
+        copClayton@dacopula(u, theta=copula@parameters, log=log, ...)
+}
+
 setMethod("rcopula", signature("claytonCopula"), rclaytonCopula)
 
 setMethod("pCopula", signature("numeric", "claytonCopula"),
@@ -220,17 +229,12 @@ setMethod("pCopula", signature("numeric", "claytonCopula"),
           pMatClayton(matrix(u, ncol = dim(copula)), copula, ...))
 setMethod("pCopula", signature("matrix", "claytonCopula"), pMatClayton)
 
-setMethod("dcopula", signature("claytonCopula"),
+setMethod("dCopula", signature("numeric", "claytonCopula"),
+	  function (u, copula, ...)
 	  ## was  dclaytonCopula.pdf
-	  function (copula, u, log = FALSE, ...)
-      {
-	  stopifnot(dimU(u) == (d <- copula@dimension))
-	  th <- copula@parameters
-	  if(d == 2 && !copClayton@paraConstr(th))# for now, .. to support negative tau
-	      dclaytonCopula.pdf(copula, u=u, log=log)
-	  else
-	      copClayton@dacopula(u, theta=copula@parameters, log=log, ...)
-      })
+          dMatClayton(matrix(u, ncol = dim(copula)), copula, ...))
+setMethod("dCopula", signature("matrix", "claytonCopula"), dMatClayton)
+
 
 setMethod("iPsi", signature("claytonCopula"), iPsiClayton)
 ## FIXME {negative tau}

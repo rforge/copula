@@ -1227,26 +1227,42 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC,
 
 ### Non-numerics ###############################################################
 
-##' @title Setting the parameter in an acopula
+
+setGeneric("setTheta", function(x, value, ...) standardGeneric("setTheta"))
+
+##' @title Setting the parameter in a copula
 ##' @param x acopula
 ##' @param value parameter value
 ##' @param na.ok logical indicating if NA values are ok for theta
 ##' @param noCheck logical indicating if parameter constraints should be checked
 ##' @return acopula with theta set to value
 ##' @author Martin Maechler
-setTheta <- function(x, value, na.ok = TRUE, noCheck = FALSE) {
-    stopifnot(is(x, "acopula"),
-              is.numeric(value) | (ina <- is.na(value)))
-    if(ina) {
-        if(!na.ok) stop("NA value, but 'na.ok' is not TRUE")
-        value <- NA_real_
-    }
-    if(ina || noCheck || x@paraConstr(value)) ## parameter constraints are fulfilled
-        x@theta <- value
-    else
-        stop("theta (=", format(value), ") does not fulfill paraConstr()")
-    x
-}
+setMethod("setTheta", "acopula",
+	  function(x, value, na.ok = TRUE, noCheck = FALSE)
+      {
+	  stopifnot(is.numeric(value) | (ina <- is.na(value)))
+	  if(ina) {
+	      if(!na.ok) stop("NA value, but 'na.ok' is not TRUE")
+	      value <- NA_real_
+	  }
+	  if(ina || noCheck || x@paraConstr(value)) ## parameter constraints are fulfilled
+	      x@theta <- value
+	  else
+	      stop("theta (=", format(value), ") does not fulfill paraConstr()")
+	  x
+      })
+setMethod("setTheta", signature(x="outer_nacopula", value="numeric"),
+	  function(x, value, na.ok = TRUE, noCheck = FALSE) {
+	      x@copula <- setTheta(x@copula, value, na.ok=na.ok, noCheck=noCheck)
+	      x
+	  })
+
+## TODO: setTheta - using a list of thetas
+## setMethod("setTheta", signature(x="outer_nacopula", value="list"),
+## 	  function(x, value, na.ok = TRUE, noCheck = FALSE) {
+##               ... x@copula <- setTheta(x@copula, value, na.ok=na.ok, noCheck=noCheck)
+##           })
+
 
 
 ##' Construct "paraConstr" function from an "interval"

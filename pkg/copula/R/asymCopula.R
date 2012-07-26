@@ -83,7 +83,7 @@ pasymCopula <- function(u, copula) {
   pCopula(gu1, copula1) * pCopula(gu2, copula2)
 }
 
-dasymCopula <- function(copula, u, log=FALSE, ...) {
+dasymCopula <- function(u, copula, log=FALSE, ...) {
   ## WARNING:
   ## The following derivation assumes that both components are symmetric!
   ## See dC1du and dC2du; they don't distinguish u1 or u2.
@@ -95,12 +95,12 @@ dasymCopula <- function(copula, u, log=FALSE, ...) {
   gu2 <- cbind(gfun(u[,1], a1), gfun(u[,2], a2))
   dC1du <- dCdu(copula1, gu1)
   dC2du <- dCdu(copula2, gu2)
-  part1 <- dcopula(copula1, gu1) *
+  part1 <- dCopula(gu1, copula1) *
       gfunDer(u[,1], 1 - a1) * gfunDer(u[,2], 1 - a2) *
           pCopula(gu2, copula2)
   part2 <- dC1du[,1] * gfunDer(u[,1], 1 - a1) * gfunDer(u[,2], a2) * dC2du[,2]
   part3 <- dC1du[,2] * gfunDer(u[,2], 1 - a2) * gfunDer(u[,1], a1) * dC2du[,1]
-  part4 <- pCopula(gu1, copula1) * dcopula(copula2, gu2) *
+  part4 <- pCopula(gu1, copula1) * dCopula(gu2, copula2) *
       gfunDer(u[,2], a2) * gfunDer(u[,1], a1)
   ## FIXME: use lsum() and similar to get much better numerical accuracy for log - case
   if(log)
@@ -128,5 +128,6 @@ setMethod("rcopula", signature("asymCopula"), rasymCopula)
 setMethod("pCopula", signature("numeric", "asymCopula"),pasymCopula)
 setMethod("pCopula", signature("matrix", "asymCopula"), pasymCopula)
 
-setMethod("dcopula", signature("asymCopula"), dasymCopula)
+setMethod("dCopula", signature("numeric", "asymCopula"), dasymCopula)
+setMethod("dCopula", signature("matrix", "asymCopula"), dasymCopula)
 

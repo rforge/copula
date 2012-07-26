@@ -88,7 +88,7 @@ alp2lam <- function(alpha, Omega) {
   list(lambda = lambda, sigma = sigma)
 }
 
-pskewNormalCopula <- function(copula, u) {
+pskewNormalCopula <- function(u, copula) {
   mycdf.vector <- function(x) {
     pmsn(x, Omega = msnpar$Omega, alpha = msnpar$alpha)
   }
@@ -108,7 +108,7 @@ pskewNormalCopula <- function(copula, u) {
   val
 }
 
-pskewNormalCopula2 <- function(copula, u) {
+pskewNormalCopula2 <- function(u, copula) {
   mycdf.vector <- function(x) {
     pmsn(x, Omega = msnpar$Omega, alpha = msnpar$alpha)
   }
@@ -127,7 +127,7 @@ pskewNormalCopula2 <- function(copula, u) {
   val
 }
 
-dskewNormalCopula <- function(copula, u) {
+dskewNormalCopula <- function(u, copula) {
   dim <- copula@dimension
   sigma <- getSigma(copula)
   lambda <- copula@shape
@@ -145,7 +145,7 @@ dskewNormalCopula <- function(copula, u) {
   ret
 }
 
-dskewNormalCopula2 <- function(copula, u) {
+dskewNormalCopula2 <- function(u, copula) {
   dim <- copula@dimension
   msnpar <- list(Omega = getSigma(copula), alpha = copula@shape)
   lamsig <- alp2lam(msnpar$alpha, msnpar$Omega)
@@ -169,7 +169,7 @@ showSkewNormalCopula <- function(object) {
 
 #setMethod("rcopula", signature("skewNormalCopula"), rskewNormalCopula)
 ## setMethod("pCopula", signature("skewNormalCopula"), pskewNormalCopula)
-## setMethod("dcopula", signature("skewNormalCopula"), dskewNormalCopula2)
+## setMethod("dCopula", signature("skewNormalCopula"), dskewNormalCopula2)
 
 ## setMethod("show", signature("skewNormalCopula"), showSkewNormalCopula)
 

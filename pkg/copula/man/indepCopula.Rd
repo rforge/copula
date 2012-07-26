@@ -19,7 +19,7 @@ indepCopula(dim = 2)
 \examples{
 indep.cop <- indepCopula(3)
 x <- rcopula(indep.cop, 10)
-dcopula(indep.cop, x)
+dCopula( x, indep.cop)
 persp(indepCopula(), pcopula)
 }
 \keyword{ distribution }% at least one, from doc/KEYWORDS

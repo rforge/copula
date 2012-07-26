@@ -86,7 +86,7 @@ copAMH <-
 		  dacopula = function(u, theta, n.MC=0, log=FALSE,
 				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
               {
-		  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
+		  ## if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
 		  if(d > 2) stopifnot(C.@paraConstr(theta))
                   ## f() := NaN outside and on the boundary of the unit hypercube
@@ -239,7 +239,7 @@ copClayton <-
                   },
 		  ## density  Clayton
 		  dacopula = function(u, theta, n.MC=0, log=FALSE) {
-		      if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
+		      ## if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
 		      if(d > 2) stopifnot(C.@paraConstr(theta))
 		      ## f() := NaN outside and on the boundary of the unit hypercube
@@ -408,7 +408,7 @@ copFrank <-
 		  dacopula = function(u, theta, n.MC=0, log=FALSE,
 				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
 	      {
-		  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
+		  ## if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		  if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
 		  if(d > 2) stopifnot(C.@paraConstr(theta))
 		  ## f() := NaN outside and on the boundary of the unit hypercube
@@ -599,7 +599,7 @@ copGumbel <-
 		  dacopula = function(u, theta, n.MC=0,
 				      method = eval(formals(polyG)$method), log=FALSE)
               {
-                  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
+                  ## if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
 		  stopifnot(C.@paraConstr(theta))
                   ## f() := NaN outside and on the boundary of the unit hypercube
@@ -788,7 +788,7 @@ copJoe <-
 		  dacopula = function(u, theta, n.MC=0,
 				      method = eval(formals(polyJ)$method), log = FALSE)
               {
-                  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
+                  ## if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
 		  stopifnot(C.@paraConstr(theta))
                   ## f() := NaN outside and on the boundary of the unit hypercube

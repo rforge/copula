@@ -83,7 +83,7 @@ ptCopula <- function(u, copula) {
 
 }
 
-dtCopula <- function(copula, u, log = FALSE, ...) {
+dtCopula <- function(u, copula, log = FALSE, ...) {
   dim <- copula@dimension
   sigma <- getSigma(copula)
   df <- getdf(copula)
@@ -123,10 +123,13 @@ rhoTCopula <- function(copula) {
 }
 
 setMethod("rcopula", signature("tCopula"), rtCopula)
-setMethod("pCopula", signature("numeric", "tCopula"),ptCopula)
-setMethod("pCopula", signature("matrix", "tCopula"), ptCopula)
 
-setMethod("dcopula", signature("tCopula"), dtCopula)
+setMethod("pCopula", signature("matrix", "tCopula"), ptCopula)
+setMethod("pCopula", signature("numeric", "tCopula"),ptCopula)
+setMethod("dCopula", signature("matrix", "tCopula"), dtCopula)
+setMethod("dCopula", signature("numeric", "tCopula"),dtCopula)
+
+
 
 setMethod("show", signature("tCopula"), showTCopula)
 

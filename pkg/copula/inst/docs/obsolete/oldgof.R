@@ -427,12 +427,12 @@ gofMultCLT <- function(cop,x,N=1000,method="kendall",m=nrow(x),
               assign(v[j], x0[,j])
 
             ## influence: first part
-            influ <- eval(der$pdf.alpha, list(u1 = u1, u2 = u2)) / dcopula(cop, x0)
+            influ <- eval(der$pdf.alpha, list(u1 = u1, u2 = u2)) / dCopula( x0, cop)
 
             ## influence: second part
             ## integrals computed from M realizations by Monte Carlo
             y0 <- rcopula(cop,M)
-            dcopy0 <- dcopula(cop, y0)
+            dcopy0 <- dCopula( y0, cop)
             for (j in 1:p)
               assign(v[j], y0[,j])
             influ0 <- eval(der$pdf.alpha, list(u1 = u1, u2 = u2)) / dcopy0

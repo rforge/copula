@@ -43,7 +43,7 @@ pplackettCopula <- function(u, copula) {
   0.5 / eta * (1 + eta * (u1 + u2) - ((1 + eta * (u1 + u2))^2 - 4 * alpha * eta * u1 * u2)^0.5)
 }
 
-dplackettCopula <- function(copula, u, log = FALSE, ...) {
+dplackettCopula <- function(u, copula, log = FALSE, ...) {
   dim <- copula@dimension
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
@@ -135,10 +135,12 @@ rhoPlackettCopula <- function(copula) {
 }
 
 
-setMethod("pCopula", signature("numeric", "plackettCopula"),pplackettCopula)
 setMethod("pCopula", signature("matrix", "plackettCopula"), pplackettCopula)
+setMethod("pCopula", signature("numeric", "plackettCopula"),pplackettCopula)
 
-setMethod("dcopula", signature("plackettCopula"), dplackettCopula)
+setMethod("dCopula", signature("matrix", "plackettCopula"), dplackettCopula)
+setMethod("dCopula", signature("numeric", "plackettCopula"),dplackettCopula)
+
 setMethod("rcopula", signature("plackettCopula"), rplackettCopula)
 
 setMethod("tau", signature("plackettCopula"), tauPlackettCopula)

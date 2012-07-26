@@ -37,6 +37,7 @@ joeCopula(param = NA_real_, dim = 2)
   \code{frankCopula()}, \code{gumbelCopula()}, \code{amhCopula()} and
   \code{joeCopula}.
 
+%% FIXME
   Only the bivariate Ali-Mikhail-Haq copula family (\code{"amhCopula"})
   is available.
 
@@ -44,10 +45,10 @@ joeCopula(param = NA_real_, dim = 2)
   is 6 for the Clayton, Gumbel and Frank families. The cdf expression is
   always available.
 
-  The maximum dimension for which \code{"dcopula"} can be evaluated is
-  10 for the Clayton and Gumbel families, and 6 for the Frank family.
-  They are also the maximum dimensions for which maximum likelihood
-  estimation can be done.
+  % The maximum dimension for which \code{"dCopula"} can be evaluated is
+  % 10 for the Clayton and Gumbel families, and 6 for the Frank family.
+  % They are also the maximum dimensions for which maximum likelihood
+  % estimation can be done.
 
   It is now recommended to work with the
   \code{\linkS4class{acopula}}-classed Archimedean copulas, as there is
@@ -74,22 +75,22 @@ contour(gumbel.cop, dcopula)
 
 amh.cop <- amhCopula(0.5)
 u. <- as.matrix(expand.grid(u=(0:10)/10, v=(0:10)/10, KEEP.OUT.ATTRS=FALSE))
-du <- dcopula(amh.cop, u.)
+du <- dCopula( u., amh.cop)
 stopifnot(is.finite(du) | apply(u. == 0, 1,any)| apply(u. == 1, 1,any))
 
 ## A 7-dim Frank copula
 frank.cop <- frankCopula(3, dim = 7)
 x <- rcopula(frank.cop, 5)
-## dcopula now *does* work:
-dcopula(frank.cop, x)
+## dCopula now *does* work:
+dCopula( x, frank.cop)
 
 ## A 7-dim Gumbel copula
 gumbel.cop <- gumbelCopula(2, dim = 7)
-dcopula(gumbel.cop, x)
+dCopula( x, gumbel.cop)
 
 ## A 12-dim Joe copula
 joe.cop <- joeCopula(iTau(joeCopula(), 0.5), dim = 12)
-dcopula(joe.cop, x)
+dCopula( x, joe.cop)
 }
 \keyword{distribution}
 \keyword{multivariate}

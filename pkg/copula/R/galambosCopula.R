@@ -119,7 +119,7 @@ pgalambosCopula <- function(u, copula) {
   c(eval(galambosCopula.algr$cdf))
 }
 
-dgalambosCopula <- function(copula, u, log=FALSE, ...) {
+dgalambosCopula <- function(u, copula, log=FALSE, ...) {
   dim <- copula@dimension
   alpha <- copula@parameters[1]
   if (abs(alpha) <= .Machine$double.eps^.9) return (rep(1, nrow(u)))
@@ -232,8 +232,9 @@ dRhoGalambosCopula <- function(copula) {
 
 setMethod("pCopula", signature("numeric", "galambosCopula"),pgalambosCopula)
 setMethod("pCopula", signature("matrix", "galambosCopula"), pgalambosCopula)
+setMethod("dCopula", signature("numeric", "galambosCopula"),dgalambosCopula)
+setMethod("dCopula", signature("matrix", "galambosCopula"), dgalambosCopula)
 
-setMethod("dcopula", signature("galambosCopula"), dgalambosCopula)
 ## revCopula is much faster
 ## setMethod("rcopula", signature("galambosCopula"), rgalambosCopula)
 

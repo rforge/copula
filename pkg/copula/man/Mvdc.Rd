@@ -11,7 +11,7 @@
 }
 \usage{
 mvdc(copula, margins, paramMargins, marginsIdentical = FALSE)
-dmvdc(mvdc, x)
+dmvdc(mvdc, x, log=FALSE)
 pmvdc(mvdc, x)
 rmvdc(mvdc, n)
 }
@@ -29,6 +29,8 @@ rmvdc(mvdc, n)
     columns being the copula dimension, giving the coordinates of the
     points where the density or distribution function needs to be
     evaluated.}
+  \item{log}{logical indicating if the \code{\link{log}} density should
+    be returned.}
   \item{n}{ number of observations to be generated. }
 }
 \details{

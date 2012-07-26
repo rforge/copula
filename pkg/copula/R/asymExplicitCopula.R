@@ -143,7 +143,7 @@ densDers <- function(idx, u, dg, copula, derExprs) {
   c(eval(derExprs[dorder + 1])) * dgu
 }
 
-dasymExplicitCopula <- function(copula, u, log=FALSE, ...) {
+dasymExplicitCopula <- function(u, copula, log=FALSE, ...) {
   u <- as.matrix(u)
   comps <- getAsymExplicitCopulaComps(copula)
   a <- comps$shapes
@@ -188,5 +188,6 @@ setMethod("rcopula", signature("asymExplicitCopula"), rasymExplicitCopula)
 setMethod("pCopula", signature("numeric", "asymExplicitCopula"),pasymExplicitCopula)
 setMethod("pCopula", signature("matrix", "asymExplicitCopula"), pasymExplicitCopula)
 
-setMethod("dcopula", signature("asymExplicitCopula"), dasymExplicitCopula)
+setMethod("dCopula", signature("numeric", "asymExplicitCopula"), dasymExplicitCopula)
+setMethod("dCopula", signature("matrix", "asymExplicitCopula"), dasymExplicitCopula)
 

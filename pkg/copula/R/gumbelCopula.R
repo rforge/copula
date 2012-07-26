@@ -119,7 +119,7 @@ pgumbelCopula <- function(copula, u) {
   pmax(val, 0)
 }
 
-dgumbelCopula <- function(copula, u, log=FALSE, ...) {
+dgumbelCopula <- function(u, copula, log=FALSE, ...) {
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   pdf <- copula@exprdist$pdf
   dim <- copula@dimension
@@ -129,7 +129,7 @@ dgumbelCopula <- function(copula, u, log=FALSE, ...) {
   eval(pdf)
 }
 
-dgumbelCopula.pdf <- function(copula, u, log=FALSE) {
+dgumbelCopula.pdf <- function(u, copula, log=FALSE) {
   dim <- copula@dimension
   if (dim > 10) stop("Gumbel copula PDF not implemented for dimension > 10.")
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
@@ -206,17 +206,21 @@ dRhoGumbelCopula <- function(copula) {
 
 setMethod("rcopula", signature("gumbelCopula"), rgumbelCopula)
 
-setMethod("pCopula", signature("numeric", "gumbelCopula"),
-	  ## was  pgumbelCopula
-	  function(u, copula, ...) pacopula(u, copGumbel, theta=copula@parameters))
 setMethod("pCopula", signature("matrix", "gumbelCopula"),
 	  ## was  pgumbelCopula
 	  function(u, copula, ...) .pacopula(u, copGumbel, theta=copula@parameters))
+setMethod("pCopula", signature("numeric", "gumbelCopula"),
+	  ## was  pgumbelCopula
+	  function(u, copula, ...) pacopula(u, copGumbel, theta=copula@parameters))
 
-setMethod("dcopula", signature("gumbelCopula"),
+setMethod("dCopula", signature("matrix", "gumbelCopula"),
 	  ## was  dgumbelCopula.pdf
-	  function (copula, u, log = FALSE, ...)
+	  function (u, copula, log = FALSE, ...)
 	  copGumbel@dacopula(u, theta=copula@parameters, log=log, ...))
+setMethod("dCopula", signature("numeric", "gumbelCopula"),
+	  function (u, copula, log = FALSE, ...)
+	  copGumbel@dacopula(matrix(u, ncol=dim(copula)), theta=copula@parameters, log=log, ...))
+
 
 setMethod("A", signature("gumbelCopula"), AGumbel)
 setMethod("dAdu", signature("gumbelCopula"), dAduGumbel)

@@ -26,13 +26,17 @@
 ##' @param ... further arguments passed to the copula specific 'dacopula' function;
 ##'   typically  'n.MC' (Monte Carlo size), but potentially more
 ##' @author Marius Hofert and Martin Maechler
+.dnacopula <- function(u, copula, log=FALSE, ...) {
+    if(length(copula@childCops))
+	stop("currently, only Archimedean copulas are provided")
+    stopifnot(ncol(u) >= dim(copula)) # will be larger for children
+    C <- copula@copula
+    C@dacopula(u, C@theta, log=log, ...)
+}
 dnacopula <- function(x, u, log=FALSE, ...) {
     stopifnot(is(x, "outer_nacopula"))
-    if(length(x@childCops))
-	stop("currently, only Archimedean copulas are provided")
     if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
-    if((d <- ncol(u)) < 2) stop("u should be at least bivariate")
-    x@copula@dacopula(u, x@copula@theta, log=log, ...)
+    .dnacopula(u, x, log=log, ...)
 }
 
 ##' Returns the copula density at u. Generic algorithm
@@ -465,18 +469,15 @@ nacPairthetas <- function(x) {
 
 ###-- methods - glue  former "copula" <--> former "nacopula" ---------
 
-setMethod("dcopula", "nacopula",
-          function(copula, u, log = FALSE, ...) {
-              C <- copula@copula
-              th <- C@theta
-              if(any(is.na(th)))
-                  warning("'theta' is NA -- maybe rather apply to setTheta(.)")
-              C@dacopula(u, th, log=log, ...)
-          })
-
-setMethod("pCopula", signature("numeric", "nacopula"),
-	  function(u, copula, ...) pnacopula(copula, u))
 setMethod("pCopula", signature("matrix", "nacopula"), .pnacopula)
+setMethod("pCopula", signature("numeric", "nacopula"),
+	  function(u, copula, ...)
+	  .pnacopula(matrix(u, ncol=dim(copula)), copula))
+
+setMethod("dCopula", signature("matrix", "nacopula"), .dnacopula)
+setMethod("dCopula", signature("numeric", "nacopula"),
+	  function(u, copula, log=FALSE, ...)
+	  .dnacopula(matrix(u, ncol=dim(copula)), copula, log=log))
 
 setMethod("rcopula", "nacopula",
 	  function(copula, n, ...) ## argument reversal ..

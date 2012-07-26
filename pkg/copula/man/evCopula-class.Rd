@@ -26,10 +26,10 @@
 }
 \section{Methods}{
   \describe{
-    \item{dcopula}{\code{signature(copula = "galambosCopula")}: ... }
+    \item{dCopula}{\code{signature(copula = "galambosCopula")}: ... }
     \item{pCopula}{\code{signature(copula = "galambosCopula")}: ... }
     \item{rcopula}{\code{signature(copula = "galambosCopula")}: ... }
-    \item{dcopula}{\code{signature(copula = "huslerReissCopula")}: ... }
+    \item{dCopula}{\code{signature(copula = "huslerReissCopula")}: ... }
     \item{pCopula}{\code{signature(copula = "huslerReissCopula")}: ... }
     \item{rcopula}{\code{signature(copula = "huslerReissCopula")}: ... }
   }

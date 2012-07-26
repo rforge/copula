@@ -12,7 +12,7 @@
   \describe{
     \item{\code{exprdist}:}{Object of class \code{"expression"},
       expressions for the cdf and pdf of the copula. These expressions
-      are used in function \code{"pCopula"} and \code{"dcopula"}. }
+      are used in function \code{pCopula()} and \code{dCopula()}.}
      \item{\code{dimension}:}{Object of class \code{"numeric"}, the
       dimension of the copula. }
     \item{\code{parameters}:}{Object of class \code{"numeric"},
@@ -29,7 +29,7 @@
 }
 \section{Methods}{
   \describe{
-    \item{dcopula}{\code{signature(copula = "fgmCopula")}: ... }
+    \item{dCopula}{\code{signature(copula = "fgmCopula")}: ... }
     \item{pCopula}{\code{signature(copula = "fgmCopula")}: ... }
     \item{rcopula}{\code{signature(copula = "fgmCopula")}: ... }
   }

@@ -106,7 +106,7 @@ pfrankCopula <- function(copula, u) {
   eval(cdf)
 }
 
-dfrankCopula <- function(copula, u, log=FALSE, ...) {
+dfrankCopula <- function(u, copula, log=FALSE, ...) {
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   pdf <- copula@exprdist$pdf
   dim <- copula@dimension
@@ -128,7 +128,7 @@ dfrankCopula <- function(copula, u, log=FALSE, ...) {
 ##   pdf
 ## }
 
-dfrankCopula.pdf <- function(copula, u, log=FALSE) {
+dfrankCopula.pdf <- function(u, copula, log=FALSE) {
   dim <- copula@dimension
   if (dim > 6) stop("Frank copula PDF not implemented for dimension > 6.")
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
@@ -176,24 +176,26 @@ pMatFrank <- function (u, copula, ...) {
         pacopula(u, copFrank, theta=copula@parameters, ...)
 }
 
+dMatFrank <- function (u, copula, log = FALSE, ...) {
+    ## was  dfrankCopula.pdf
+    stopifnot(ncol(u) == (d <- copula@dimension))
+    th <- copula@parameters
+    if(d == 2 && th < 0) # for now, copFrank does not yet support negative tau
+        dfrankCopula.pdf(u, copula, log=log)
+    else
+        copFrank@dacopula(u, theta=th, log=log, ...)
+}
 setMethod("rcopula", signature("frankCopula"), rfrankCopula)
 
 setMethod("pCopula", signature("numeric", "frankCopula"),
 	  function (u, copula, ...)
-          pMatFrank(matrix(u, ncol = dim(copula)), copula, ...))
+	  pMatFrank(matrix(u, ncol = dim(copula)), copula, ...))
 setMethod("pCopula", signature("matrix", "frankCopula"), pMatFrank)
 
-setMethod("dcopula", signature("frankCopula"),
-	  ## was  dfrankCopula.pdf
-	  function (copula, u, log = FALSE, ...)
-      {
-	  stopifnot(dimU(u) == (d <- copula@dimension))
-	  th <- copula@parameters
-	  if(d == 2 && th < 0)# for now, copFrank does not yet support negative tau
-	      dfrankCopula.pdf(copula, u=u, log=log)
-	  else
-	      copFrank@dacopula(u, theta=th, log=log, ...)
-      })
+setMethod("dCopula", signature("numeric", "frankCopula"),
+	  function (u, copula, ...)
+	  dMatFrank(matrix(u, ncol = dim(copula)), copula, ...))
+setMethod("dCopula", signature("matrix", "frankCopula"), dMatFrank)
 
 setMethod("iPsi", signature("frankCopula"), iPsiFrank)
 ## FIXME {negative tau}

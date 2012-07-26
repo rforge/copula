@@ -32,10 +32,12 @@ setMethod("pCopula", signature("numeric", "joeCopula"),
 setMethod("pCopula", signature("matrix", "joeCopula"),
 	  function(u, copula, ...) .pacopula(u, copJoe, theta=copula@parameters))
 
-
-setMethod("dcopula", signature("joeCopula"),
-	  function (copula, u, log = FALSE, ...)
+setMethod("dCopula" , signature("matrix", "joeCopula"),
+	  function (u, copula, log = FALSE, ...)
 	  copJoe@dacopula(u, theta=copula@parameters, log=log, ...))
+setMethod("dCopula", signature("numeric", "joeCopula"),
+	  function (u, copula, log = FALSE, ...)
+	  copJoe@dacopula(matrix(u, ncol=dim(copula)), theta=copula@parameters, log=log, ...))
 
 setMethod("psi", signature("joeCopula"),
 	  function(copula, s) copJoe@psi(t=s, theta=copula@parameters))

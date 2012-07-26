@@ -44,7 +44,7 @@ pnormalCopula <- function(u, copula) {
         pmvnorm(lower = i.lower, upper = qu, sigma = sigma))
 }
 
-dnormalCopula <- function(copula, u, log=FALSE, ...) {
+dnormalCopula <- function(u, copula, log=FALSE, ...) {
   dim <- copula@dimension
   sigma <- getSigma(copula)
   if(!is.matrix(u)) u <- matrix(u, ncol = dim)
@@ -82,9 +82,11 @@ rhoNormalCopula <- function(copula) {
 }
 
 setMethod("rcopula", signature("normalCopula"), rnormalCopula)
-setMethod("pCopula", signature("numeric", "normalCopula"),pnormalCopula)
+
 setMethod("pCopula", signature("matrix", "normalCopula"), pnormalCopula)
-setMethod("dcopula", signature("normalCopula"), dnormalCopula)
+setMethod("pCopula", signature("numeric", "normalCopula"),pnormalCopula)
+setMethod("dCopula", signature("matrix", "normalCopula"), dnormalCopula)
+setMethod("dCopula", signature("numeric", "normalCopula"),dnormalCopula)
 
 setMethod("show", signature("normalCopula"), showNormalCopula)
 

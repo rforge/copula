@@ -41,7 +41,7 @@ fCols <- colorRampPalette(c("red", "white", "blue"), space = "Lab")
 
 ## frankCopula
 theta.fr <- iTau(frankCopula(), tau)
-dcop <- matrix(dcopula(frankCopula(param=theta.fr, dim = 2), umat),
+dcop <- matrix(dCopula(umat, frankCopula(param=theta.fr, dim = 2)),
                n1, n2)
 filled.contour(u1, u2, dcop, color.palette = fCols,
                main=sprintf("Density( frankCopula(%.4g) )", theta.fr))
@@ -51,7 +51,7 @@ round(dcop, 3)
 ## claytonCopula
 (theta.cl <- iTau(claytonCopula(), tau))
 stopifnot(all.equal(theta.cl, copClayton@tauInv(tau), tol = 1e-13))
-dcop <- matrix(dcopula(claytonCopula(param=theta.cl, dim = 2), umat),
+dcop <- matrix(dCopula(umat, claytonCopula(param=theta.cl, dim = 2)),
                n1, n2)
 filled.contour(u1, u2, dcop, color.palette = fCols,
                main=sprintf(" Density( claytonCopula(%.4g) )", theta.cl))
@@ -64,7 +64,7 @@ round(dcop, 3)
 ## gumbelCopula
 theta.gu <- iTau(gumbelCopula(), tau)
 stopifnot(all.equal(theta.gu, copGumbel@tauInv(tau), tol = 1e-13))
-dcop <- matrix(dcopula(gumbelCopula(param=theta.gu, dim = 2), umat),
+dcop <- matrix(dCopula(umat, gumbelCopula(param=theta.gu, dim = 2)),
                n1, n2)
 filled.contour(u1, u2, dcop, color.palette = fCols,
                main=sprintf("Density( gumbelCopula(%.4g) )", theta.gu))
@@ -75,10 +75,10 @@ round(dcop, 3)
 
 ## normalCopula
 uB <- cbind(c(0:1, .5), (1:9)/10) # values at boundaries
-fC <- dcopula(normalCopula(0.55), uB)
+fC <- dCopula(uB, normalCopula(0.55))
 stopifnot(is.finite(fC), length(fC)==nrow(uB), fC[-3*(1:3)] == 0)
 theta.n <- iTau(normalCopula(), tau)
-dcop <- matrix(dcopula(normalCopula(param=theta.n, dim = 2), umat),
+dcop <- matrix(dCopula(umat, normalCopula(param=theta.n, dim = 2)),
                n1, n2)
 filled.contour(u1, u2, log(dcop), color.palette = fCols,
                main=sprintf("log Density( normalCopula(%.4g) )", theta.n))
@@ -88,10 +88,10 @@ round(dcop, 3)
 
 
 ## tCopula
-fC <- dcopula(tCopula(0.55), uB)
+fC <- dCopula(uB, tCopula(0.55))
 stopifnot(is.finite(fC), length(fC)==nrow(uB), fC[-3*(1:3)] == 0)
 (theta.t. <- iTau(tCopula(df=10), tau))
-dcop <- matrix(dcopula(tCopula(param=theta.t., dim = 2, df=10), umat),
+dcop <- matrix(dCopula(umat, tCopula(param=theta.t., dim = 2, df=10)),
                n1, n2)
 filled.contour(u1, u2, log(dcop), color.palette = fCols,
                main=sprintf("log Density( tCopula(%.4g, df = 10) )", theta.t.))
@@ -112,7 +112,7 @@ round(dcop, 3)
 #
 (theta <- iTau(galambosCopula(), tau))
 stopifnot(all.equal(tau, tau(galambosCopula(theta)), tol = 1e-5))
-dcop <- matrix(dcopula(galambosCopula(param=theta), umat),
+dcop <- matrix(dCopula(umat, galambosCopula(param=theta)),
                n1, n2)
 filled.contour(u1, u2, log(dcop), color.palette = fCols,
                main=sprintf("log Density( galambosCopula(%.4g) )", theta))
@@ -125,7 +125,7 @@ round(dcop, 3)
 tau <- 0.3 ## -- to be in range for AMH
 (theta <- iTau(amhCopula(), tau))
 stopifnot(all.equal(tau, tau(amhCopula(theta)), tol = 1e-5))
-dcop <- matrix(dcopula(amhCopula(param=theta), umat),
+dcop <- matrix(dCopula(umat, amhCopula(param=theta)),
                n1, n2)
 filled.contour(u1, u2, dcop, color.palette = fCols,
                main=sprintf("Density( amhCopula(%.4g) )", theta))

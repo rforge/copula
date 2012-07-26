@@ -53,7 +53,7 @@ setClass("copula",
          })
 
 ## general methods for copula
-setGeneric("dcopula", function(copula, u, log=FALSE, ...) standardGeneric("dcopula"))
+setGeneric("dCopula", function(u, copula, log=FALSE, ...) standardGeneric("dCopula"))
 setGeneric("pCopula", function(u, copula, ...) standardGeneric("pCopula"))
 setGeneric("rcopula", function(copula, n, ...) standardGeneric("rcopula"))
 setGeneric("tau", function(copula, ...) standardGeneric("tau"))
@@ -81,6 +81,7 @@ AfunDer <- function(copula, w) { .Deprecated("dAdu"); dAdu(copula, w) }
 Afun    <- function(copula, w) { .Deprecated("A"); A(copula, w) }
 
 pcopula <- function(copula, u, ...) { .Deprecated("pCopula"); pCopula(u, copula) }
+dcopula <- function(copula, u, ...) { .Deprecated("dCopula"); dCopula(u, copula, ...) }
 
 
 ### elliptical copulas, contains normalCopula and tCopula ######################

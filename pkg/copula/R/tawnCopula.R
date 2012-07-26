@@ -64,7 +64,7 @@ ptawnCopula <- function(u, copula) {
   c(eval(tawnCopula.cdf.algr[dim]))
 }
 
-dtawnCopula <- function(copula, u, log=FALSE, ...) {
+dtawnCopula <- function(u, copula, log=FALSE, ...) {
   dim <- copula@dimension
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
@@ -157,10 +157,11 @@ dRhoTawnCopula <- function(copula) {
 
 ################################################################################
 
-setMethod("pCopula", signature("numeric", "tawnCopula"),ptawnCopula)
 setMethod("pCopula", signature("matrix", "tawnCopula"), ptawnCopula)
+setMethod("pCopula", signature("numeric", "tawnCopula"),ptawnCopula)
+setMethod("dCopula", signature("matrix", "tawnCopula"), dtawnCopula)
+setMethod("dCopula", signature("numeric", "tawnCopula"),dtawnCopula)
 
-setMethod("dcopula", signature("tawnCopula"), dtawnCopula)
 
 setMethod("A", signature("tawnCopula"), ATawn)
 setMethod("dAdu", signature("tawnCopula"), dAduTawn)

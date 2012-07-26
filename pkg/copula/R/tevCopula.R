@@ -88,7 +88,7 @@ ptevCopula <- function(u, copula) {
   exp(logu * ATev(copula, log(u2) / logu))
 }
 
-dtevCopula <- function(copula, u, log=FALSE, ...) {
+dtevCopula <- function(u, copula, log=FALSE, ...) {
   dim <- copula@dimension
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
@@ -219,8 +219,9 @@ dRhoTevCopula <- function(copula) {
 
 setMethod("pCopula", signature("numeric", "tevCopula"),ptevCopula)
 setMethod("pCopula", signature("matrix", "tevCopula"), ptevCopula)
+setMethod("dCopula", signature("numeric", "tevCopula"),dtevCopula)
+setMethod("dCopula", signature("matrix", "tevCopula"), dtevCopula)
 
-setMethod("dcopula", signature("tevCopula"), dtevCopula)
 
 setMethod("A", signature("tevCopula"), ATev)
 setMethod("dAdu", signature("tevCopula"), dAduTev)

@@ -423,23 +423,16 @@ derPdfWrtParamsEllipCopula <- function(cop, u)
 setMethod("derPdfWrtParams", signature("ellipCopula"), derPdfWrtParamsEllipCopula)
 
 
-### dcopula wrapper for influence coefficients #################################
+### dCopula wrapper for influence coefficients #################################
 
 setGeneric("dcopwrap",  function(cop, u, ...) standardGeneric("dcopwrap"))
 
-dcopwrapExplicitCopula <- function(cop, u)
-  {
-    return(dcopula(cop,u))
-  }
+dcopwrapExplicitCopula <- function(cop, u) dCopula(u,cop)
 
-setMethod("dcopwrap", signature("archmCopula"), dcopwrapExplicitCopula)
+setMethod("dcopwrap", signature("archmCopula"),	   dcopwrapExplicitCopula)
+setMethod("dcopwrap", signature("evCopula"),	   dcopwrapExplicitCopula)
 setMethod("dcopwrap", signature("plackettCopula"), dcopwrapExplicitCopula)
-setMethod("dcopwrap", signature("evCopula"), dcopwrapExplicitCopula)
-setMethod("dcopwrap", signature("gumbelCopula"), dcopwrapExplicitCopula)
 
-dcopwrapEllipCopula <- function(cop, u)
-  {
-    return(1)
-  }
+dcopwrapEllipCopula <- function(cop, u) rep.int(1, NROW(u))
 
 setMethod("dcopwrap", signature("ellipCopula"), dcopwrapEllipCopula)

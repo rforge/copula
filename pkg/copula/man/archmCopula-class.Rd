@@ -17,26 +17,26 @@
   \describe{
     \item{\code{exprdist}:}{Object of class \code{"expression"}:
       expressions of the cdf and pdf of the copula. These expressions
-      are used in function \code{\link{pCopula}} and \code{\link{dcopula}}. }
+      are used in function \code{\link{pCopula}} and \code{\link{dCopula}}. }
     \item{\code{dimension, parameters}, etc:}{all inherited from the
       super class \code{\linkS4class{copula}}.}
   }
 }
 \section{Methods}{
   \describe{
-    \item{dcopula}{\code{signature(copula = "claytonCopula")}: ... }
+    \item{dCopula}{\code{signature(copula = "claytonCopula")}: ... }
     \item{pCopula}{\code{signature(copula = "claytonCopula")}: ... }
     \item{rcopula}{\code{signature(copula = "claytonCopula")}: ... }
-    \item{dcopula}{\code{signature(copula = "frankCopula")}: ... }
+    \item{dCopula}{\code{signature(copula = "frankCopula")}: ... }
     \item{pCopula}{\code{signature(copula = "frankCopula")}: ... }
     \item{rcopula}{\code{signature(copula = "frankCopula")}: ... }
-    \item{dcopula}{\code{signature(copula = "gumbelCopula")}: ... }
+    \item{dCopula}{\code{signature(copula = "gumbelCopula")}: ... }
     \item{pCopula}{\code{signature(copula = "gumbelCopula")}: ... }
     \item{rcopula}{\code{signature(copula = "gumbelCopula")}: ... }
-    \item{dcopula}{\code{signature(copula = "amhCopula")}: ... }
+    \item{dCopula}{\code{signature(copula = "amhCopula")}: ... }
     \item{pCopula}{\code{signature(copula = "amhCopula")}: ... }
     \item{rcopula}{\code{signature(copula = "amhCopula")}: ... }
-    \item{dcopula}{\code{signature(copula = "joeCopula")}: ... }
+    \item{dCopula}{\code{signature(copula = "joeCopula")}: ... }
     \item{pCopula}{\code{signature(copula = "joeCopula")}: ... }
     \item{rcopula}{\code{signature(copula = "joeCopula")}: ... }
   }

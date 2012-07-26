@@ -206,8 +206,8 @@ loglikCopula <- function(param, x, copula, hideWarnings=FALSE) {
     options(warn = -1) ## ignore warnings; can be undesirable!
   }
 
-  loglik <- try(sum(dcopula(copula, x, log=TRUE)))
-  ##old: loglik <- try(sum(log(dcopula(copula, x))))
+  loglik <- try(sum(dCopula(x, copula, log=TRUE)))
+  ##old: loglik <- try(sum(log(dCopula(x, copula))))
 
   if (hideWarnings) {
     options(warn = 0)
@@ -379,8 +379,8 @@ varPL <- function(cop,u)
 
     ## influence: second part
     ## integrals computed from the original pseudo-obs u by Monte Carlo
-    dcop <- dcopwrap(cop,u) ## wrapper: either dcopula() or '1' (for ellip.)
-    ## New    dcop <- dcopula(cop,u) ## in some cases
+    dcop <- dcopwrap(cop,u) ## wrapper: either dCopula() or '1' (for ellip.)
+    ## New    dcop <- dCopula(u,cop) ## in some cases
     ## influ0 <- score (cop,u, dcop)
     ## derArg <- score2(cop,u, dcop)
     influ0 <- derPdfWrtParams(cop,u) / dcop # c. / c  = of dim.  n x q  {== cop<foo>@score()}

@@ -32,7 +32,7 @@ setMethod("show", signature("copula"), showCopula)
 ### numerical computation of association measures
 
 ## tauCopula <- function(copula, eps = NULL, ...) {
-##   integrand <- function(u) pCopula(u, copula) * dcopula(copula, u)
+##   integrand <- function(u) pCopula(u, copula) * dCopula(u, copula)
 ##   if (is.null(eps)) .eps <- .Machine$double.eps^0.9
 ##   else .eps <- eps
 ##   lower <- c(.eps, .eps)

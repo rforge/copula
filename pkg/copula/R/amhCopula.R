@@ -75,7 +75,7 @@ pamhCopula <- function(copula, u) {
 }
 
 
-damhCopula <- function(copula, u, log = FALSE, ...) {
+damhCopula <- function(u, copula, log = FALSE, ...) {
   dim <- copula@dimension
   if(!is.matrix(u)) u <- matrix(u, ncol = dim)
   alpha <- copula@parameters[1]
@@ -134,24 +134,27 @@ pMatAmh <- function (u, copula, ...) {
     else
         pacopula(u, copAMH, theta=copula@parameters, ...)
 }
+
+dMatAmh <- function (u, copula, log = FALSE, ...) {
+    ## was  damhCopula
+    stopifnot(ncol(u) == (d <- copula@dimension))
+    th <- copula@parameters
+    if(d == 2 && !copAMH@paraConstr(th)) # for now, .. to support negative tau
+        damhCopula(u, copula, log=log)
+    else
+        copAMH@dacopula(u, theta=copula@parameters, log=log, ...)
+}
+
 setMethod("rcopula", signature("amhCopula"), ramhCopula)
 setMethod("pCopula", signature("numeric", "amhCopula"),
 	  function (u, copula, ...)
           pMatAmh(matrix(u, ncol = dim(copula)), copula, ...))
 setMethod("pCopula", signature("matrix", "amhCopula"), pMatAmh)
 
-
-setMethod("dcopula", signature("amhCopula"),
-	  function (copula, u, log = FALSE, ...)
-      {
-	  ## was  damhCopula
-	  stopifnot(dimU(u) == (d <- copula@dimension))
-	  th <- copula@parameters
-	  if(d == 2 && !copAMH@paraConstr(th))# for now, .. to support negative tau
-	      damhCopula(copula, u=u, log=log)
-	  else
-	      copAMH@dacopula(u, theta=copula@parameters, log=log, ...)
-      })
+setMethod("dCopula", signature("numeric", "amhCopula"),
+	  function (u, copula, ...)
+          dMatAmh(matrix(u, ncol = dim(copula)), copula, ...))
+setMethod("dCopula", signature("matrix", "amhCopula"), dMatAmh)
 
 setMethod("iPsi", signature("amhCopula"), iPsiAmh)
 ## setMethod("iPsi", signature("amhCopula"),

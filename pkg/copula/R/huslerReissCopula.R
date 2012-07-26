@@ -102,7 +102,7 @@ phuslerReissCopula <- function(u, copula) {
       - u2p * pnorm(1/alpha + 0.5 * alpha * log(u2p / u1p)))
 }
 
-dhuslerReissCopula <- function(copula, u, log=FALSE, ...) {
+dhuslerReissCopula <- function(u, copula, log=FALSE, ...) {
   dim <- copula@dimension
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
@@ -205,7 +205,9 @@ huslerReissRhoDer <- function(alpha) {
 setMethod("pCopula", signature("numeric", "huslerReissCopula"),phuslerReissCopula)
 setMethod("pCopula", signature("matrix", "huslerReissCopula"), phuslerReissCopula)
 
-setMethod("dcopula", signature("huslerReissCopula"), dhuslerReissCopula)
+setMethod("dCopula", signature("numeric", "huslerReissCopula"),dhuslerReissCopula)
+setMethod("dCopula", signature("matrix", "huslerReissCopula"), dhuslerReissCopula)
+
 ## inherits from "evCopula" --> revCopula() in ./evCopula.R :
 ## setMethod("rcopula", signature("huslerReissCopula"), rhuslerReissCopula)
 

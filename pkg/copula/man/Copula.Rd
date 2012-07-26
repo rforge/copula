@@ -1,27 +1,46 @@
 \name{Copula}
 \alias{Copula}
-\alias{dcopula}
+\alias{dCopula}
 \alias{pCopula}
 \alias{rcopula}
+\alias{dcopula}%deprecated
 \alias{pcopula}%deprecated
-% dcopula
-\alias{dcopula,claytonCopula-method}
-\alias{dcopula,frankCopula-method}
-\alias{dcopula,gumbelCopula-method}
-\alias{dcopula,normalCopula-method}
-\alias{dcopula,tCopula-method}
-\alias{dcopula,galambosCopula-method}
-\alias{dcopula,amhCopula-method}
-\alias{dcopula,joeCopula-method}
-\alias{dcopula,huslerReissCopula-method}
-\alias{dcopula,tawnCopula-method}
-\alias{dcopula,tevCopula-method}
-\alias{dcopula,plackettCopula-method}
-\alias{dcopula,fgmCopula-method}
-\alias{dcopula,indepCopula-method}
-\alias{dcopula,asymCopula-method}
-\alias{dcopula,asymExplicitCopula-method}
-\alias{dcopula,nacopula-method}
+% dCopula
+\alias{dCopula,matrix,claytonCopula-method}
+\alias{dCopula,matrix,frankCopula-method}
+\alias{dCopula,matrix,gumbelCopula-method}
+\alias{dCopula,matrix,normalCopula-method}
+\alias{dCopula,matrix,tCopula-method}
+\alias{dCopula,matrix,galambosCopula-method}
+\alias{dCopula,matrix,amhCopula-method}
+\alias{dCopula,matrix,joeCopula-method}
+\alias{dCopula,matrix,huslerReissCopula-method}
+\alias{dCopula,matrix,tawnCopula-method}
+\alias{dCopula,matrix,tevCopula-method}
+\alias{dCopula,matrix,plackettCopula-method}
+\alias{dCopula,matrix,fgmCopula-method}
+\alias{dCopula,matrix,indepCopula-method}
+\alias{dCopula,matrix,asymCopula-method}
+\alias{dCopula,matrix,asymExplicitCopula-method}
+\alias{dCopula,matrix,nacopula-method}
+%
+\alias{dCopula,numeric,claytonCopula-method}
+\alias{dCopula,numeric,frankCopula-method}
+\alias{dCopula,numeric,gumbelCopula-method}
+\alias{dCopula,numeric,normalCopula-method}
+\alias{dCopula,numeric,tCopula-method}
+\alias{dCopula,numeric,galambosCopula-method}
+\alias{dCopula,numeric,amhCopula-method}
+\alias{dCopula,numeric,joeCopula-method}
+\alias{dCopula,numeric,huslerReissCopula-method}
+\alias{dCopula,numeric,tawnCopula-method}
+\alias{dCopula,numeric,tevCopula-method}
+\alias{dCopula,numeric,plackettCopula-method}
+\alias{dCopula,numeric,fgmCopula-method}
+\alias{dCopula,numeric,indepCopula-method}
+\alias{dCopula,numeric,asymCopula-method}
+\alias{dCopula,numeric,asymExplicitCopula-method}
+\alias{dCopula,numeric,nacopula-method}
 % pCopula
 \alias{pCopula,matrix,claytonCopula-method}
 \alias{pCopula,matrix,frankCopula-method}
@@ -82,7 +101,7 @@
   \code{copula} object.
 }
 \usage{
-dcopula(copula, u, log=FALSE, \dots)
+dCopula(u, copula, log=FALSE, \dots)
 pCopula(u, copula, \dots)
 rcopula(copula, n, \dots)
 }
@@ -100,13 +119,13 @@ rcopula(copula, n, \dots)
     \code{method}.}
 }
 \details{
-  The density (\code{dcopula}) and distribution function
+  The density (\code{dCopula}) and distribution function
   (\code{pCopula}) methods for Archimedean copulas now use the
   corresponding function slots of the Archimedean copula objects, such
   as \code{\link{copClayton}}, \code{\link{copGumbel}}, etc.
 
   The distribution function of a \code{t} copula uses \code{pmvt} from
-  package \pkg{mvtnorm}; similarly, the density (\code{dcopula}) calls
+  package \pkg{mvtnorm}; similarly, the density (\code{dCopula}) calls
   \code{\link[mvtnorm]{dmvt}} from \pkg{mvtnorm}.
   The \code{normalCopula} methods use \code{dmvnorm} and \code{pmvnorm}
   from the same package.
@@ -116,7 +135,7 @@ rcopula(copula, n, \dots)
   approach for dimension greater than 2.
 }
 \value{
-  \code{dcopula()} gives the density, \code{pCopula()} gives the
+  \code{dCopula()} gives the density, \code{pCopula()} gives the
   distribution function, and \code{rcopula()} generates random variates.
 }
 \references{
@@ -151,7 +170,7 @@ norm.cop <- normalCopula(0.5)
 norm.cop
 x <- rcopula(norm.cop, 100)
 plot(x)
-dcopula(norm.cop, x)
+dCopula( x, norm.cop)
 pCopula(x, norm.cop)
 persp(norm.cop, dcopula)
 contour(norm.cop, pcopula)
@@ -169,7 +188,7 @@ if(require("scatterplot3d"))
   scatterplot3d(v)
 
 ## Compare with the "nacopula" version :
-fu1 <- dcopula(cl3, v)
+fu1 <- dCopula( v, cl3)
 fu2 <- copClayton@dacopula(v, theta = 2)
 Fu1 <- pCopula(v, cl3)
 Fu2 <- pnacopula(onacopula("Clayton", C(2.0, 1:3)), v)
