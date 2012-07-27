@@ -29,13 +29,17 @@
 #define CALLDEF(name, n)  {#name, (DL_FUNC) &name, n}
 
 
-// ./Anfun.c ///////////////////////////////////////////////////////////////////
+// ./An.c ///////////////////////////////////////////////////////////////////
 
-static R_NativePrimitiveArgType A_CFG_t[7] = {
+static R_NativePrimitiveArgType biv_ACFG_t[7] = {
     INTSXP, REALSXP, REALSXP, REALSXP, /* m: */ INTSXP, INTSXP, REALSXP
 };
-static R_NativePrimitiveArgType A_Pickands_t[7] = {
+static R_NativePrimitiveArgType biv_AP_t[7] = {
     INTSXP, REALSXP, REALSXP, REALSXP, /* m: */ INTSXP, INTSXP, REALSXP
+};
+
+static R_NativePrimitiveArgType mult_A_t[8] = {
+  REALSXP, INTSXP, INTSXP, REALSXP, INTSXP, REALSXP, REALSXP, REALSXP
 };
 
 // ./empcop.c ///////////////////////////////////////////////////////////////////
@@ -165,8 +169,9 @@ static R_NativePrimitiveArgType debye_4_t[5] = { REALSXP, INTSXP, REALSXP,REALSX
 */
 
 static const R_CMethodDef CEntries[]  = {
-    CDEF(A_CFG),
-    CDEF(A_Pickands),
+    CDEF(biv_ACFG),
+    CDEF(biv_AP), 
+    CDEF(mult_A),
     CDEF(RmultCn),
 
     CDEF(validity_fgm),

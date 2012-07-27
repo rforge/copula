@@ -41,7 +41,7 @@ export(iTau, iRho)
 export(psi, iPsi, diPsi)
 
 ## evCopula methods
-export(A, dAdu, Anfun)
+export(A, dAdu, An.biv, An)
 
 exportClasses(mvdc)
 exportClasses(Copula, copula, ellipCopula, archmCopula, evCopula)

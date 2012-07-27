@@ -31,7 +31,7 @@ evTestK(x, method = c("fsample","asymptotic","jackknife"))
   \emph{The Canadian Journal of Statistics} \bold{37}, 1--9.
 }
 \seealso{ \code{\link{evTestC}}, \code{\link{evTestA}}, \code{\link{evCopula}},
-  \code{\link{gofEVCopula}}, \code{\link{Anfun}}.
+  \code{\link{gofEVCopula}}, \code{\link{An}}.
 }
 \examples{
 ## Do the data come from an extreme-value copula?

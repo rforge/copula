@@ -18,7 +18,7 @@
 /**
  * @file   gof.c
  * @author Ivan Kojadinovic
- * @date   2012
+ * @date   2008
  *
  * @brief  Goodness-of-fit tests for copulas and EV copulas
  *         based on the parametric bootstrap and on a multiplier
@@ -30,7 +30,7 @@
 #include <R.h>
 #include <Rmath.h>
 
-#include "Anfun.h"
+#include "An.h"
 #include "gof.h"
 #include "empcop.h"
 
@@ -186,28 +186,22 @@ void multiplier(int *p, double *U, int *n, double *G, int *g,
  */
 void cramer_vonMises_Pickands(int *n, int *m, double *S,
 			      double *T, double *Atheta,
-			      double *stat)
-{
-  int i;
+			      double *stat) {
   double t, Ac, Au, dc, du,
-    invA0 = inv_A_Pickands(*n, S, T, 0.0),
-    invA1 = inv_A_Pickands(*n, S, T, 1.0);
+    invA0 = biv_invAP(*n, S, T, 0.0);
 
   stat[0] = 0.0; stat[1] = 0.0;
-  for (i=0;i<*m;i++)
-    {
+  for (int i = 0; i < *m; i++) {
       t = (double)i/(double)(*m);
-      Au = inv_A_Pickands(*n, S, T, t);
-      Ac = Au - (1.0 - t) * (invA0 - 1.0) - t * (invA1 - 1.0); // correction
+      Au = biv_invAP(*n, S, T, t);
+      Ac = Au - invA0 + 1.0; // correction
       du = 1 / Au - Atheta[i];
-      // dAinv =  Ac - 1 / Atheta[i];
       dc = 1 / Ac - Atheta[i];
       stat[0] += dc * dc;
       stat[1] += du * du;
-      // stat[1] += dAinv * dAinv;
     }
-  stat[0] = stat[0] * (double)(*n)/(double)(*m);
-  stat[1] = stat[1] * (double)(*n)/(double)(*m);
+  stat[0] = stat[0] * (double)(*n) / (double)(*m);
+  stat[1] = stat[1] * (double)(*n) / (double)(*m);
 }
 
 /**
@@ -225,25 +219,19 @@ void cramer_vonMises_Pickands(int *n, int *m, double *S,
  */
 void cramer_vonMises_CFG(int *n, int *m, double *S,
 			 double *T, double *Atheta,
-			 double *stat)
-{
-  int i;
+			 double *stat) {
   double t, Au, Ac, dc, du,
-    logA0 = log_A_CFG(*n, S, T, 0.0),
-    logA1 = log_A_CFG(*n, S, T, 1.0);
+    logA0 = biv_logACFG(*n, S, T, 0.0);
 
   stat[0] = 0.0; stat[1] = 0.0;
-  for (i=0;i<*m;i++)
-    {
+  for (int i = 0; i < *m; i++) {
       t = (double) i / (double) (*m);
-      Au = log_A_CFG(*n, S, T, t);
-      Ac = Au - (1.0 - t) * logA0 - t * logA1; // endpoint corrected
+      Au = biv_logACFG(*n, S, T, t);
+      Ac = Au - logA0; // correction
       dc = exp(Ac) - Atheta[i];
       du = exp(Au) - Atheta[i];
-      // dlogA = Ac - log(Atheta[i]);
       stat[0] += dc * dc;
       stat[1] += du * du;
-      // stat[1] += dlogA * dlogA;
     }
   stat[0] = stat[0] * (double)(*n)/(double)(*m);
   stat[1] = stat[1] * (double)(*n)/(double)(*m);

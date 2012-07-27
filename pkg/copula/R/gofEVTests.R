@@ -33,7 +33,6 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
                         verbose = TRUE, print.every = NULL,
                         optim.method = "Nelder-Mead")
 {
-    x <- as.matrix(x)
     n <- nrow(x)
     p <- ncol(x)
 

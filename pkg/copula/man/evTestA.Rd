@@ -56,7 +56,7 @@ evTestA(x, N = 1000, derivatives = "An")
   last reference.
 }
 \seealso{ \code{\link{evTestK}}, \code{\link{evTestC}}, \code{\link{evCopula}},
-  \code{\link{gofEVCopula}}, \code{\link{Anfun}}. }
+  \code{\link{gofEVCopula}}, \code{\link{An}}. }
 \examples{
 ## Do these data come from an extreme-value copula?
 uG <- rCopula(100, gumbelCopula(3))

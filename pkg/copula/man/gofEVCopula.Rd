@@ -62,7 +62,7 @@ gofEVCopula(copula, x, N = 1000, method = "mpl",
   \emph{Bernoulli} \bold{17}(1), 253--275.
 }
 \seealso{ \code{\link{evCopula}}, \code{\link{evTestC}}, \code{\link{evTestA}},
-  \code{\link{evTestK}}, \code{\link{gofCopula}}, \code{\link{Anfun}}.
+  \code{\link{evTestK}}, \code{\link{gofCopula}}, \code{\link{An}}.
 }
 \examples{
 \dontrun{% because the bootstraps are slow, particularly for the non-Gumbel ones

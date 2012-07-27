@@ -15,14 +15,15 @@
   this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
+
 /**
- * @file   Anfun.h
+ * @file   An.h
  * @author Ivan Kojadinovic
- * @date   2009
+ * @date   2009-2012
  *
  * @brief Rank-based versions of the Pickands and CFG estimators
- *        of the Pickands dependence function. Will be replaced
- *        by d-dimensional versions...
+ *        of the Pickands dependence function. Bivariate and
+ *        multivariate versions.
  *
  */
 
@@ -33,14 +34,17 @@
 #define MIN(x,y) ((x)<(y)?(x):(y))
 #define MAX(x,y) ((x)>(y)?(x):(y))
 
-double inv_A_Pickands(int n, double *S, double *T, double t);
-double log_A_CFG(int n, double *S, double *T, double t);
+double biv_invAP(int n, double *S, double *T, double t);
+double biv_logACFG(int n, double *S, double *T, double t);
 
 // called from R:
-void A_Pickands(int *n, double *S, double *T, double *t, int *m,
+void biv_AP(int *n, double *S, double *T, double *t, int *m,
 		int *corrected, double *A);
 
-void A_CFG(int *n, double *S, double *T, double *t, int *m,
+void biv_ACFG(int *n, double *S, double *T, double *t, int *m,
 	   int *corrected, double *A);
+
+void mult_A(double *U, int *n, int *d, double *w, int *m,
+	    double *AP, double *ACFG, double *AHT);
 
 #endif

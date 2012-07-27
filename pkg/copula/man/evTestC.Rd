@@ -46,7 +46,7 @@ evTestC(x, N = 1000)
   last reference.
 }
 \seealso{\code{\link{evTestK}}, \code{\link{evTestA}}, \code{\link{evCopula}},
-  \code{\link{gofEVCopula}}, \code{\link{Anfun}}.}
+  \code{\link{gofEVCopula}}, \code{\link{An}}.}
 \examples{
 ## Do these data come from an extreme-value copula?
 evTestC(rCopula(200, gumbelCopula(3)))

@@ -21,7 +21,7 @@
 
 #include <R.h>
 
-#include "Anfun.h"
+#include "An.h"
 #include "empcop.h"
 #include "gof.h"
 #include "set_utils.h"

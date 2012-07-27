@@ -78,13 +78,13 @@ void evsymtest(double *U, double *V, int *n, double *t, int *m,
   /* correction terms */
   if (*CFG)
     {
-      cA0 = log_A_CFG(*n, S, T, 0.0);
-      cA1 = log_A_CFG(*n, S, T, 1.0);
+      cA0 = biv_logACFG(*n, S, T, 0.0);
+      cA1 = biv_logACFG(*n, S, T, 1.0);
     }
   else
     {
-      cA0 = inv_A_Pickands(*n, S, T, 0.0);
-      cA1 = inv_A_Pickands(*n, S, T, 1.0);
+      cA0 = biv_invAP(*n, S, T, 0.0);
+      cA1 = biv_invAP(*n, S, T, 1.0);
     }
 
   /* for each point of the grid */
@@ -92,17 +92,17 @@ void evsymtest(double *U, double *V, int *n, double *t, int *m,
     {
       if (*CFG)
 	{
-	  At = exp(log_A_CFG(*n, S, T, t[j])
+	  At = exp(biv_logACFG(*n, S, T, t[j])
 		   - (1.0 - t[j]) * cA0 - t[j] * cA1);
-	  A1t = exp(log_A_CFG(*n, S, T, 1.0 - t[j])
+	  A1t = exp(biv_logACFG(*n, S, T, 1.0 - t[j])
 		   - t[j] * cA0 - (1.0 - t[j]) * cA1);
 	}
       else
 	{
-	  At = 1.0 / (inv_A_Pickands(*n, S, T, t[j])
+	  At = 1.0 / (biv_invAP(*n, S, T, t[j])
 		      - (1.0 - t[j]) * (cA0  - 1.0)
 		      - t[j] * (cA1 - 1.0));
-	  A1t = 1.0 / (inv_A_Pickands(*n, S, T, 1.0 - t[j])
+	  A1t = 1.0 / (biv_invAP(*n, S, T, 1.0 - t[j])
 		       - t[j] * (cA0  - 1.0)
 		       - (1.0 - t[j]) * (cA1 - 1.0));
 	}
@@ -286,13 +286,13 @@ void evsymtest_derA(double *U, double *V, int *n, double *t, int *m,
   /* correction terms */
   if (*CFG)
     {
-      cA0 = log_A_CFG(*n, S, T, 0.0);
-      cA1 = log_A_CFG(*n, S, T, 1.0);
+      cA0 = biv_logACFG(*n, S, T, 0.0);
+      cA1 = biv_logACFG(*n, S, T, 1.0);
     }
   else
     {
-      cA0 = inv_A_Pickands(*n, S, T, 0.0);
-      cA1 = inv_A_Pickands(*n, S, T, 1.0);
+      cA0 = biv_invAP(*n, S, T, 0.0);
+      cA1 = biv_invAP(*n, S, T, 1.0);
     }
 
   /* for each point of the grid */
@@ -308,11 +308,11 @@ void evsymtest_derA(double *U, double *V, int *n, double *t, int *m,
 	    tj = 1.0 - invsqrtn;
 	  tjp = tj + invsqrtn;
 	  tjm = tj - invsqrtn;
-	  At = exp(log_A_CFG(*n, S, T, tj)
+	  At = exp(biv_logACFG(*n, S, T, tj)
 		   - (1.0 - tj) * cA0 - tj * cA1);
-	  Atp = exp(log_A_CFG(*n, S, T, tjp)
+	  Atp = exp(biv_logACFG(*n, S, T, tjp)
 		   - (1.0 - tjp) * cA0 - tjp * cA1);
-	  Atm = exp(log_A_CFG(*n, S, T, tjm)
+	  Atm = exp(biv_logACFG(*n, S, T, tjm)
 		   - (1.0 - tjm) * cA0 - tjm * cA1);
 	  dAt = (Atp - Atm) / (2.0 * invsqrtn);
 	  termUt = At - tj * dAt;
@@ -328,11 +328,11 @@ void evsymtest_derA(double *U, double *V, int *n, double *t, int *m,
 	    tj = 1.0 - invsqrtn;
 	  tjp = tj + invsqrtn;
 	  tjm = tj - invsqrtn;
-	  A1t = exp(log_A_CFG(*n, S, T, tj)
+	  A1t = exp(biv_logACFG(*n, S, T, tj)
 		   - (1.0 - tj) * cA0 - tj * cA1);
-	  A1tp = exp(log_A_CFG(*n, S, T, tjp)
+	  A1tp = exp(biv_logACFG(*n, S, T, tjp)
 		   - (1.0 - tjp) * cA0 - tjp * cA1);
-	  A1tm = exp(log_A_CFG(*n, S, T, tjm)
+	  A1tm = exp(biv_logACFG(*n, S, T, tjm)
 		   - (1.0 - tjm) * cA0 - tjm * cA1);
 	  dA1t = (A1tp - A1tm) / (2.0 * invsqrtn);
 	  termU1t = A1t - tj * dA1t;
@@ -351,13 +351,13 @@ void evsymtest_derA(double *U, double *V, int *n, double *t, int *m,
 	  tjp = tj + invsqrtn;
 	  tjm = tj - invsqrtn;
 
-	  At = 1.0 / (inv_A_Pickands(*n, S, T, tj)
+	  At = 1.0 / (biv_invAP(*n, S, T, tj)
 		      - (1.0 - tj) * (cA0  - 1.0)
 		      - t[j] * (cA1 - 1.0));
-	  Atp = 1.0 / (inv_A_Pickands(*n, S, T, tjp)
+	  Atp = 1.0 / (biv_invAP(*n, S, T, tjp)
 		       - (1.0 - tjp) * (cA0  - 1.0)
 		       - tjp * (cA1 - 1.0));
-	  Atm = 1.0 / (inv_A_Pickands(*n, S, T, tjm)
+	  Atm = 1.0 / (biv_invAP(*n, S, T, tjm)
 		       - (1.0 - tjm) * (cA0  - 1.0)
 		       - tjm * (cA1 - 1.0));
 	  dAt = (Atp - Atm) / (2.0 * invsqrtn);
@@ -374,13 +374,13 @@ void evsymtest_derA(double *U, double *V, int *n, double *t, int *m,
 	    tj = 1.0 - invsqrtn;
 	  tjp = tj + invsqrtn;
 	  tjm = tj - invsqrtn;
-	  A1t = 1.0 / (inv_A_Pickands(*n, S, T, tj)
+	  A1t = 1.0 / (biv_invAP(*n, S, T, tj)
 		      - (1.0 - tj) * (cA0  - 1.0)
 		      - t[j] * (cA1 - 1.0));
-	  A1tp = 1.0 / (inv_A_Pickands(*n, S, T, tjp)
+	  A1tp = 1.0 / (biv_invAP(*n, S, T, tjp)
 		       - (1.0 - tjp) * (cA0  - 1.0)
 		       - tjp * (cA1 - 1.0));
-	  A1tm = 1.0 / (inv_A_Pickands(*n, S, T, tjm)
+	  A1tm = 1.0 / (biv_invAP(*n, S, T, tjm)
 		       - (1.0 - tjm) * (cA0  - 1.0)
 		       - tjm * (cA1 - 1.0));
 	  dA1t = (A1tp - A1tm) / (2.0 * invsqrtn);
@@ -496,14 +496,14 @@ void evsymtest_stat(double *S, double *T, int *n, double *t, int *m,
   if (*CFG)
     {
       /* correction terms */
-      cA0 = log_A_CFG(*n, S, T, 0.0);
-      cA1 = log_A_CFG(*n, S, T, 1.0);
+      cA0 = biv_logACFG(*n, S, T, 0.0);
+      cA1 = biv_logACFG(*n, S, T, 1.0);
 
       for (j = 0; j < *m; j++)
 	{
-	  diff = exp(log_A_CFG(*n, S, T, t[j])
+	  diff = exp(biv_logACFG(*n, S, T, t[j])
 		     - (1.0 - t[j]) * cA0 - t[j] * cA1)
-	    - exp(log_A_CFG(*n, S, T, 1.0 - t[j])
+	    - exp(biv_logACFG(*n, S, T, 1.0 - t[j])
 		  - t[j] * cA0 - (1.0 - t[j]) * cA1);
 	  s += diff * diff;
 	}
@@ -511,15 +511,15 @@ void evsymtest_stat(double *S, double *T, int *n, double *t, int *m,
   else
     {
       /* correction terms */
-      cA0 = inv_A_Pickands(*n, S, T, 0.0);
-      cA1 = inv_A_Pickands(*n, S, T, 1.0);
+      cA0 = biv_invAP(*n, S, T, 0.0);
+      cA1 = biv_invAP(*n, S, T, 1.0);
 
       for (j = 0; j < *m; j++)
 	{
-	  diff = 1.0/(inv_A_Pickands(*n, S, T, t[j])
+	  diff = 1.0/(biv_invAP(*n, S, T, t[j])
 		      - (1.0 - t[j]) * (cA0  - 1.0)
 		      - t[j] * (cA1 - 1.0))
-	    - 1.0/(inv_A_Pickands(*n, S, T, 1.0 - t[j])
+	    - 1.0/(biv_invAP(*n, S, T, 1.0 - t[j])
 		   - t[j] * (cA0  - 1.0)
 		   - (1.0 - t[j]) * (cA1 - 1.0));
 	  s += diff * diff;

@@ -43,7 +43,7 @@ tevCopula(param, df = 4, df.fixed = FALSE)
   The Gumbel copula is both an Archimedean and an extreme-value copula.
 }
 \seealso{ \code{\link{ellipCopula}}, \code{\link{archmCopula}},
-  \code{\link{gofEVCopula}}, \code{\link{Anfun}}. }
+  \code{\link{gofEVCopula}}, \code{\link{An}}. }
 \examples{
 ## Notice that, for a given degree of dependence,
 ## these copulas are strikingly similar.
