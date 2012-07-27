@@ -1,6 +1,10 @@
 ##-*- org -*-->  Emacs .. [Tab] key + [Org] menu; C-c C-o to follow links
+* Very Short Term
+** mvdc() -- fitMvdc() and generate data from fit -- currently wrong on help page
+ - see FIXMEs in R/fitMvdc.R  man/fitMvdc.Rd and man/fitCopula-class.Rd -- think of
+   class slots etc
 * Short Term
-** persp(), contour() should work with pCopula / dCopula
+** DONE persp(), contour() should work with pCopula / dCopula
 ** getAcop(class(gumbelCopula())) should work => we could then write general methods for all Archimedean objects... possible problem (for now): negative concordance case for AMH, Clayton, and Frank
 ** DONE (MH) LICENCE etc
 CLOSED: [2012-07-17 Tue 11:25]
@@ -59,7 +63,6 @@ instead of hand made function header documentation.
 *** DONE (MH) rtrafo() {and probably htrafo()} --- "fail" (are *wrong*!) for n = 1
 *** DONE (MH) copFrank@psi(1/1e20, theta=200) == Inf instead of 1
 
-*** mvdc() -- fitMvdc() and generate data from fit -- currently wrong on help page
 *** see TODO in  R/tCopula.R :  ndim() utility function; test pos.def.
 *** tCopula() / normalCopula() allow alternative specification of cor.matrix
    at least for the "un" dispersion structure
@@ -161,7 +164,7 @@ for estimation purposes etc. Note: look at nacPairthetas
 
 
 * Long Term
-
+** ChiPlot(), KPlot() [in R/graphics.R]: Export and document ?
 ** copula code which is not used --- moved to ./misc/
 MM: the previous file (+directory) names were:
     - R/mult.R

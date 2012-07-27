@@ -38,13 +38,13 @@
   \dQuote{3D} plots.
 }
 \examples{
-contour(frankCopula(-0.8), dcopula)
-contour(frankCopula(-1.2), pcopula)
-contour(claytonCopula(2), pcopula)
+contour(frankCopula(-0.8), dCopula)
+contour(frankCopula(-1.2), pCopula)
+contour(claytonCopula(2), pCopula)
 x <- mvdc(gumbelCopula(3), c("norm", "norm"),
           list(list(mean = 0, sd =1), list(mean = 1)))
-contour(x, dmvdc, xlim=c(-2, 2), ylim=c(-1, 3))
-contour(x, pmvdc, xlim=c(-2, 2), ylim=c(-1, 3))
+contour(x, dMvdc, xlim=c(-2, 2), ylim=c(-1, 3))
+contour(x, pMvdc, xlim=c(-2, 2), ylim=c(-1, 3))
 }
 \keyword{methods}
 \keyword{hplot}

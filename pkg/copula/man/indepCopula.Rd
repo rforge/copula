@@ -20,7 +20,7 @@ indepCopula(dim = 2)
 indep.cop <- indepCopula(3)
 x <- rCopula(10, indep.cop)
 dCopula(x, indep.cop)
-persp(indepCopula(), pcopula)
+persp(indepCopula(), pCopula)
 }
 \keyword{ distribution }% at least one, from doc/KEYWORDS
 \keyword{ multivariate }% __ONLY ONE__ keyword per line

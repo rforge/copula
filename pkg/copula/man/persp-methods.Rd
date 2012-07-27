@@ -32,17 +32,17 @@
   }
 }
 \examples{
-persp(frankCopula(-0.8), dcopula)
-persp(claytonCopula(2), pcopula)
+persp(frankCopula(-0.8), dCopula)
+persp(claytonCopula(2), pCopula)
 ## example with negative tau :
 (th1 <- iTau(amhCopula(), -0.1))
-persp(amhCopula(th1), dcopula)
-persp(amhCopula(th1), pcopula)
+persp(amhCopula(th1), dCopula)
+persp(amhCopula(th1), pCopula)
 
-x <- mvdc(gumbelCopula(3), c("norm", "norm"),
+mvNN <- mvdc(gumbelCopula(3), c("norm", "norm"),
           list(list(mean = 0, sd =1), list(mean = 1)))
-persp(x, dmvdc, xlim=c(-2, 2), ylim=c(-1, 3))
-persp(x, pmvdc, xlim=c(-2, 2), ylim=c(-1, 3))
+persp(mvNN, dMvdc, xlim=c(-2, 2), ylim=c(-1, 3))
+persp(mvNN, pMvdc, xlim=c(-2, 2), ylim=c(-1, 3))
 }
 \keyword{methods}
 \keyword{hplot}

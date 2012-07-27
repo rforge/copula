@@ -17,16 +17,10 @@
 ### Class fitCopula ############################################################
 
 setClass("fitCopula",
-         representation(estimate = "numeric",
-                        var.est = "matrix",
-                        method = "character",
-                        loglik = "numeric",
-                        convergence = "integer",
-                        optimOpts = "list",
-                        nsample = "integer",
-                        copula = "copula")
-         ## FIXME validity = function(object) TRUE
-         )
+	 representation(copula = "copula"),
+	 contains="fittedMV" #-> ./Classes.R
+	 ## FIXME , validity = function(object) TRUE
+	 )
 
 setClass("summaryFitCopula",
          representation(method = "character",

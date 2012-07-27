@@ -30,6 +30,9 @@
 | A'param      | EV mpl se, gof mult          | derAfunWrtParam               | dAdtheta       |       | ?  |          |    |         |
 | A''param     | EV mpl se, gof mult          | derAfunWrtParam               | dAdtheta       |       | ?  |          |    |         |
 | A_n or A^    | EV                           | Anfun                         | An             |       | I  |          |    |         |
+| C            | pb and mult                  | pmvdc                         | pMvdc          | I     | I  | I        | I  |         |
+| c            | fitting ml mpl               | dmvdc                         | dMvdc          | I     | I  | I        | I  |         |
+| sampling     | pb                           | rmvdc                         | rMvdc          | I     |    |          | I  |         |
 
 I means "Implemented"
 P means "Partially implemented"

@@ -36,6 +36,9 @@
 | X    | C              | gof pb and mult            | pcopula                     | pCopula        | I     | I  | I        | I  |         |
 | X    | c              | fitting ml mpl             | dcopula                     | dCopula        | I     | I  | I        | I  | P(demo) |
 | X    | sampling       | gof pb                     | rcopula                     | rCopula        | I     |    |          | I  |         |
+| X    | C              | pb and mult                | pmvdc                       | pMvdc          | I     | I  | I        | I  |         |
+| X    | c              | fitting ml mpl             | dmvdc                       | dMvdc          | I     | I  | I        | I  |         |
+| X    | sampling       | pb                         | rmvdc                       | rMvdc          | I     |    |          | I  |         |
 |------+----------------+----------------------------+-----------------------------+----------------+-------+----+----------+----+---------|
 |      | Later          |                            |                             |                |       |    |          |    |         |
 |------+----------------+----------------------------+-----------------------------+----------------+-------+----+----------+----+---------|

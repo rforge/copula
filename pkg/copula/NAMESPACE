@@ -33,7 +33,7 @@ import("pspline")
 ## importFrom(sn, qsn, dsn, psn, dmsn, pmsn)
 
 export(dCopula, pCopula, rCopula)
-export(dmvdc, pmvdc, rmvdc)
+export(dMvdc, pMvdc, rMvdc)
 export(tau, rho, tailIndex)
 export(iTau, iRho)
 
@@ -70,7 +70,7 @@ export(Cn)
 ## fitting copula
 export(loglikCopula, loglikMvdc)
 export(fitCopula, fitMvdc)
-exportClasses(fitCopula, fitMvdc)
+exportClasses(fittedMV, fitCopula, fitMvdc)
 exportClasses(summaryFitCopula, summaryFitMvdc)
 
 ## independence tests
@@ -178,9 +178,8 @@ export(psiDabsMC
        , Afun
        , AfunDer
        ## , Anfun
-       , pcopula
-       , dcopula
-       , rcopula
+       , pcopula, dcopula, rcopula
+       , dmvdc, pmvdc, rmvdc
        )
 
 exportMethods(## for both own and "other" generics:

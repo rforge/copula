@@ -39,8 +39,8 @@ cor(x, method = "kendall")
 tau(fgm.cop)
 cor(x, method = "spearman")
 rho(fgm.cop)
-persp(fgm.cop, dcopula)
-contour(fgm.cop, dcopula)
+persp  (fgm.cop, dCopula)
+contour(fgm.cop, dCopula)
 
 ## a trivariate example with wrong parameter values
 ## fgm2.cop <- fgmCopula(c(1,1,1,1), dim = 3)

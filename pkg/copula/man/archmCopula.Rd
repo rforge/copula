@@ -68,10 +68,10 @@ clayton.cop <- claytonCopula(2, dim = 3)
 ## scatterplot3d(rCopula(1000, clayton.cop))
 
 frank.cop <- frankCopula(3)
-persp(frank.cop, dcopula)
+persp(frank.cop, dCopula)
 
 gumbel.cop <- archmCopula("gumbel", 5)
-contour(gumbel.cop, dcopula)
+contour(gumbel.cop, dCopula)
 
 amh.cop <- amhCopula(0.5)
 u. <- as.matrix(expand.grid(u=(0:10)/10, v=(0:10)/10, KEEP.OUT.ATTRS=FALSE))

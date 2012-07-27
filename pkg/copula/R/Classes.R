@@ -257,6 +257,20 @@ setClass("mvdc",
 
 ## methods like {dpr}mvdc are defined in mvdc.R
 
+## A fitted multivariate distribution -- "generic mother class",
+## "fitCopula" and "fitMvdc" will inherit from it:
+setClass("fittedMV",
+	 representation(estimate = "numeric",
+			var.est = "matrix", ## FIXME 'vcov'
+			loglik = "numeric",
+			nsample = "integer",
+			method = "character",
+			convergence = "integer",
+			optimOpts = "list"))
+
+
+
+
 ###-------------------------- Glue   "copula" <-> "nacopula"
 
 ##' The mother of all copula classes:

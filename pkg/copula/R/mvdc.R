@@ -48,7 +48,7 @@ asCall <- function(fun, param)
 
 P0 <- function(...) paste(..., sep="")
 
-dmvdc <- function(mvdc, x, log=FALSE) {
+dMvdc <- function(x, mvdc, log=FALSE) {
   dim <- mvdc@copula@dimension
   densmarg <- if(log) 0 else 1
   if (is.vector(x)) x <- matrix(x, nrow = 1)
@@ -70,8 +70,7 @@ dmvdc <- function(mvdc, x, log=FALSE) {
       dCopula(u, mvdc@copula) * densmarg
 }
 
-
-pmvdc <- function(mvdc, x) {
+pMvdc <- function(x, mvdc) {
   dim <- mvdc@copula@dimension
   if (is.vector(x)) x <- matrix(x, nrow = 1)
   u <- x
@@ -82,8 +81,7 @@ pmvdc <- function(mvdc, x) {
   pCopula(u, mvdc@copula)
 }
 
-
-rmvdc <- function(mvdc, n) {
+rMvdc <- function(n, mvdc) {
   dim <- mvdc@copula@dimension
   u <- rCopula(n, mvdc@copula)
   x <- u
@@ -93,3 +91,8 @@ rmvdc <- function(mvdc, n) {
   }
   x
 }
+
+dmvdc <- function(mvdc, x, log=FALSE) { .Deprecated("dMvdc"); dMvdc(x, mvdc, log) }
+pmvdc <- function(mvdc, x) { .Deprecated("pMvdc"); pMvdc(x, mvdc) }
+rmvdc <- function(mvdc, n) { .Deprecated("rMvdc"); rMvdc(n, mvdc) }
+
