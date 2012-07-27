@@ -81,19 +81,42 @@ dAdu(copula, w)
   \item{degree}{the degree of the derivative (defaults to 1).}
   \item{log}{logical indicating if the \code{\link{log}} of the
     \emph{absolute} derivative is desired.  Note that the derivatives
-    alternate in sign.}
+    of \eqn{psi} alternate in sign.}
 }
 \details{
   \code{psi()} and \code{iPsi()} are, respectively, the generator
-  function and its inverse for an Archimedean copula.
+  function \eqn{\psi()} and its inverse \eqn{\psi^{(-1)}}{\psi^(-1)} for
+  an Archimedean copula, see \code{\link{pnacopula}} for definition and
+  more details.
 
   \code{diPsi()} computes (currently only the first two) derivatives of
-  the generator function for an Archimedean copula.
+  \code{iPsi()} (\eqn{= \psi^{(-1)}}{= \psi^(-1)}).
 
-  \code{A()} is the generator function of an extreme value copula.
+  \code{A()}, \dQuote{Pickands functions} is generator function of an
+  extreme value copula, in the bivariater case via the following theorem
+  (see, e.g., Gudendorf and Segers (2009)):
+
+  A bivariate copula \eqn{C} is an extreme-value copula if and only if
+  \deqn{C(u,v) = (uv)^{A(\log(v) / \log(uv))}, \qquad (u,v) \in (0,1]^2 \setminus \{(1,1)\},}{
+    C(u, v) = (uv)^A(log(v) / log(uv)),   (u,v) in (0,1]^2 w/o {(1,1)},}
+  where \eqn{A: [0, 1] \to [1/2, 1]}{A: [0,1] -> [1/2, 1]} is convex and
+  satisfies \eqn{\max(t, 1-t) \le A(t) \le 1}{max(t,1-t) <= A(t) <= 1}
+  for all \eqn{t \in [0, 1]}{t in [0,1]}.
+  \cr
+  In the \eqn{d}-variate case, there is a similar characterization with
+  an \eqn{A(w_1,w_2,\dots,w_d)}.
 
   \code{dAdu()} returns a data.frame containing the 1st and 2nd
   derivative of \code{A()}.
+}
+\references{
+  Gudendorf, G. and Segers, J. (2009)
+  {Nonparametric estimation of an extreme-value copula in arbitrary dimensions},
+  {ArXiv}, \url{http://arxiv.org/abs/0911.1015}.
+}
+\seealso{
+  Nonparametric estimators for \eqn{A()} are available, see
+  \code{\link{An}}.
 }
 \examples{
 ## List the available methods (and their definitions):

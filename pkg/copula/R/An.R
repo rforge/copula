@@ -54,6 +54,12 @@ An.biv <- function(x, w, estimator = c("CFG", "Pickands"), corrected = TRUE) {
            stop("invalid 'estimator' : ", estimator))
 }
 
+Anfun <- function(x, w, estimator = c("CFG", "Pickands"), corrected = TRUE) {
+    .Deprecated("An.biv")
+    An.biv(x, w, estimator, corrected=corrected)
+}
+
+
 ##' Nonparametric estimators of the Pickands dependence function
 ##' Mulivariate P, CFG, HT corrected versions
 ##'

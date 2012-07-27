@@ -177,7 +177,7 @@ export(psiDabsMC
        , genFun, genFunDer1, genFunDer2
        , Afun
        , AfunDer
-       ## , Anfun
+       , Anfun
        , pcopula, dcopula, rcopula
        , dmvdc, pmvdc, rmvdc
        )

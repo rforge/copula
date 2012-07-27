@@ -1,12 +1,12 @@
 \name{An}
 \alias{An.biv}
 \alias{An}
-\title{Nonparametric rank-based estimators of the Pickands dependence
-  function}
+\alias{Anfun}%deprecated
+\title{Nonparametric rank-based estimators of Pickands dependence function}
 \description{
   Bivariate and multivariate versions of the nonparametric rank-based
-  estimators of the Pickands dependence function studied in Genest and
-  Segers (2009) and Gudendorf and Segers (2011).
+  estimators of the Pickands dependence function \eqn{A}, studied in
+  Genest and Segers (2009) and Gudendorf and Segers (2011).
 }
 \usage{
 An.biv(x, w, estimator = c("CFG", "Pickands"), corrected = TRUE)
@@ -28,14 +28,15 @@ An(x, w)
     \code{"CFG"}(Cap\enc{é}{e}ra\enc{à}{a}-Foug\enc{è}{e}res-Genest) or
     \code{"Pickands"}.}
   \item{corrected}{ TRUE means that the bivariate estimators will be
-    corrected to ensure that their value at 0 and 1 is 1.} 
+    corrected to ensure that their value at 0 and 1 is 1.}
 }
 \details{
   More details can be found in the references.
 }
 \value{
-  The function \code{An.biv} returns a vector containing the values of
-  the estimated Pickands dependence function at the points in \code{w}.
+  \code{An.biv()} returns a vector containing the values of the
+  estimated Pickands dependence function at the points in \code{w} (and
+  is the same as former \code{Anfun()}).
 
   The function \code{An} computes simultaneously the three corrected
   multivariate estimators studied in Gudendorf and Segers (2011) at the
@@ -52,9 +53,9 @@ An(x, w)
   G. Gudendorf and J. Segers (2011). Nonparametric estimation of
   multivariate extreme-value copulas. \emph{arXiv:1107.2410v1}.
 }
-\seealso{ \code{\link{evCopula}}, \code{\link{evTestA}},
-  \code{\link{evTestC}}, \code{\link{evTestK}}, 
-  \code{\link{exchEVTest}}, \code{\link{gofEVCopula}}. }
+\seealso{\code{\link{evCopula}}, \code{\link{A}}, and \code{\link{evTestA}}.
+  Further, \code{\link{evTestC}}, \code{\link{evTestK}},
+  \code{\link{exchEVTest}}, and \code{\link{gofEVCopula}}. }
 \examples{
 ## True Pickands dependence functions
 curve(A(gumbelCopula(4   ), x), 0, 1)
@@ -85,12 +86,12 @@ all.equal(r$P, An.biv(x, u, estimator="Pickands"))
 x <- rCopula(1000, gumbelCopula(4, dim = 3))
 u <- matrix(runif(300), 100, 3)
 w <- u / apply(u, 1, sum)
-r <- An(x, w) 
+r <- An(x, w)
 
 ## Endpoint corrections are applied
-An(x, cbind(1, 0, 0)) 
+An(x, cbind(1, 0, 0))
 An(x, cbind(0, 1, 0))
-An(x, cbind(0, 0, 1)) 
+An(x, cbind(0, 0, 1))
 
 }
 \keyword{htest}
