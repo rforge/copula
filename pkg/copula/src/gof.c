@@ -237,8 +237,6 @@ void cramer_vonMises_CFG(int *n, int *m, double *S,
   stat[1] = stat[1] * (double)(*n)/(double)(*m);
 }
 
-
-/* wrapper */
 /**
  * Wrapper for the Cramer-von Mises test statistics
  * used in the GOF for EV copulas
