@@ -39,7 +39,7 @@ static R_NativePrimitiveArgType biv_AP_t[7] = {
 };
 
 static R_NativePrimitiveArgType mult_A_t[8] = {
-  REALSXP, INTSXP, INTSXP, REALSXP, INTSXP, REALSXP, REALSXP, REALSXP
+    REALSXP, INTSXP, INTSXP, REALSXP, INTSXP, REALSXP, REALSXP, REALSXP
 };
 
 // ./empcop.c ///////////////////////////////////////////////////////////////////

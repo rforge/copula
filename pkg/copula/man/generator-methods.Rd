@@ -59,10 +59,12 @@
 \alias{dAdu,tawnCopula-method}
 \alias{dAdu,tevCopula-method}
 % main
-\title{Generator functions for Archimedean and extreme value copulas}
+\title{Generator functions for Archimedean and extreme-value copulas}
 \description{
   Methods to evaluate the generator function, the inverse generator
-  function, and derivatives of the generator function.
+  function, and derivatives of the inverse of the generator function for
+  Archimedean copulas. For extreme-value copulas, the \dQuote{Pickands
+    dependence function} plays the role of a generator function. 
 }
 \usage{
 psi(copula, s)
@@ -92,19 +94,21 @@ dAdu(copula, w)
   \code{diPsi()} computes (currently only the first two) derivatives of
   \code{iPsi()} (\eqn{= \psi^{(-1)}}{= \psi^(-1)}).
 
-  \code{A()}, \dQuote{Pickands functions} is generator function of an
-  extreme value copula, in the bivariater case via the following theorem
-  (see, e.g., Gudendorf and Segers (2009)):
+  \code{A()}, the \dQuote{Pickands dependence function}, can be seen as the
+  generator function of an extreme-value copula. For instance, in the
+  bivariate case, we have the following result (see, e.g., Gudendorf and
+  Segers 2009):
 
   A bivariate copula \eqn{C} is an extreme-value copula if and only if
-  \deqn{C(u,v) = (uv)^{A(\log(v) / \log(uv))}, \qquad (u,v) \in (0,1]^2 \setminus \{(1,1)\},}{
-    C(u, v) = (uv)^A(log(v) / log(uv)),   (u,v) in (0,1]^2 w/o {(1,1)},}
-  where \eqn{A: [0, 1] \to [1/2, 1]}{A: [0,1] -> [1/2, 1]} is convex and
-  satisfies \eqn{\max(t, 1-t) \le A(t) \le 1}{max(t,1-t) <= A(t) <= 1}
-  for all \eqn{t \in [0, 1]}{t in [0,1]}.
+  \deqn{C(u,v) = (uv)^{A(\log(v) / \log(uv))}, \qquad (u,v) \in (0,1]^2
+  \setminus \{(1,1)\},}{ C(u, v) = (uv)^A(log(v) / log(uv)),   (u,v) in
+  (0,1]^2 w/o {(1,1)},} where \eqn{A: [0, 1] \to [1/2, 1]}{A: [0,1] ->
+  [1/2, 1]} is convex and satisfies \eqn{\max(t, 1-t) \le A(t) \le
+  1}{max(t,1-t) <= A(t) <= 1} for all \eqn{t \in [0, 1]}{t in [0,1]}.
   \cr
-  In the \eqn{d}-variate case, there is a similar characterization with
-  an \eqn{A(w_1,w_2,\dots,w_d)}.
+  In the \eqn{d}-variate case, there is a similar characterization,
+  except that this time, the Pickands dependence function \eqn{A} is
+  defined on the \eqn{d}-dimensional unit simplex.
 
   \code{dAdu()} returns a data.frame containing the 1st and 2nd
   derivative of \code{A()}.
