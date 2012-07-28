@@ -136,7 +136,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ## estimation
        ## ,"coeffG", "polyG", "polyJ", "signFF"
        ,"initOpt"
-       ,"beta.", "beta.hat", "pobs"
+       ,"beta.", "betan", "pobs"
        ,"ebeta", "etau", "emde", "dDiag", "edmle", "emle", "enacopula"
        ## goodness-of-fit
        ,"gofTstat", "rtrafo", "htrafo", "gnacopula"
@@ -178,6 +178,7 @@ export(psiDabsMC
        , Afun
        , AfunDer
        , Anfun
+       , beta.hat
        , pcopula, dcopula, rcopula
        , dmvdc, pmvdc, rmvdc
        )

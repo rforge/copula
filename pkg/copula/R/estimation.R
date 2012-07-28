@@ -88,13 +88,16 @@ initOpt <- function(family, tau.range=NULL, interval=TRUE, u,
 ##'                2^(1-d) in Blomqvist's beta are omitted
 ##' @return sample version of multivariate Blomqvist beta
 ##' @author Marius Hofert
-beta.hat <- function(u, scaling = FALSE) {
+betan <- function(u, scaling = FALSE) {
     less.u <- u <= 0.5
     prod1 <- apply( less.u, 1, all)
     prod2 <- apply(!less.u, 1, all)
     b <- mean(prod1 + prod2)
     if(scaling) b else {T <- 2^(ncol(u)-1); (T*b - 1)/(T - 1)}
 }
+
+beta.hat <- function(u, scaling = FALSE) { .Deprecated("betan") ; betan(u, scaling) }
+
 
 ##' Compute the population version of Blomqvist's beta for Archimedean copulas
 ##'
@@ -135,7 +138,7 @@ ebeta <- function(u, cop, interval=initOpt(cop@copula@name), ...) {
     ## Note: We do not need the constants 2^(d-1)/(2^(d-1)-1) and 2^(1-d) here,
     ##	     since we equate the population and sample versions of Blomqvist's
     ##       beta anyway.
-    b.hat <- beta.hat(u, scaling = TRUE)
+    b.hat <- betan(u, scaling = TRUE)
     d <- ncol(u)
     safeUroot(function(theta) {beta.(cop@copula, theta, d, scaling=TRUE) - b.hat},
               interval=interval, Sig=+1, check.conv=TRUE, ...)
