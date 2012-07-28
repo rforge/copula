@@ -15,10 +15,10 @@
 
 require(copula)
 
-setPar <- function(cop, par) {
-    cop@parameters[seq_along(par)] <- par
-    cop
-}
+if(getRversion() < "2.15")
+paste0 <- function(...) paste(..., sep="")
+
+setPar <- function(cop, par) setTheta(cop, par, noCheck=TRUE)
 
 ## Look at all non-virtual classes:
 copcl <- unique(names(getClass("copula")@subclasses))

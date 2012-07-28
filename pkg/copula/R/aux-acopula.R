@@ -1238,7 +1238,7 @@ setGeneric("setTheta", function(x, value, ...) standardGeneric("setTheta"))
 ##' @return acopula with theta set to value
 ##' @author Martin Maechler
 setMethod("setTheta", "acopula",
-	  function(x, value, na.ok = TRUE, noCheck = FALSE)
+	  function(x, value, na.ok = TRUE, noCheck = FALSE, ...)
       {
 	  stopifnot(is.numeric(value) | (ina <- is.na(value)))
 	  if(ina) {
@@ -1252,7 +1252,7 @@ setMethod("setTheta", "acopula",
 	  x
       })
 setMethod("setTheta", signature(x="outer_nacopula", value="numeric"),
-	  function(x, value, na.ok = TRUE, noCheck = FALSE) {
+	  function(x, value, na.ok = TRUE, noCheck = FALSE, ...) {
 	      x@copula <- setTheta(x@copula, value, na.ok=na.ok, noCheck=noCheck)
 	      x
 	  })
@@ -1262,6 +1262,26 @@ setMethod("setTheta", signature(x="outer_nacopula", value="numeric"),
 ## 	  function(x, value, na.ok = TRUE, noCheck = FALSE) {
 ##               ... x@copula <- setTheta(x@copula, value, na.ok=na.ok, noCheck=noCheck)
 ##           })
+
+## FIXME: This is "wrong" for  tCopula(df.fixed = FALSE) :  value should encompass (rho,df)
+setMethod("setTheta", "copula",
+	  function(x, value, na.ok = TRUE, noCheck = FALSE, ...)
+      {
+	  stopifnot(is.numeric(value) | (ina <- is.na(value)))
+	  if(any(ina)) {
+	      if(!na.ok) stop("NA value, but 'na.ok' is not TRUE")
+	      ## vectorized (and partial)  value <- NA_real_
+	      if(!is.double(value)) storage.mode(value) <- "double"
+	  }
+	  ##if(ina || noCheck || x@paraConstr(value)) ## parameter constraints are fulfilled
+	  if(all(ina) || noCheck || {
+	      all(is.na(value) | (x@param.lowbnd <= value & value <= x@param.upbnd))
+	  }) ## parameter constraints are fulfilled
+	      x@parameters[seq_along(value)] <- value
+	  else
+	      stop("theta (=", format(value), ") is not inside parameter bounds")
+	  x
+      })
 
 
 
