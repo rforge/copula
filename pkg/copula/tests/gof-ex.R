@@ -88,7 +88,7 @@ showProc.time()
 
 ### Make sure the log-Likelihood demos run: ####################################
 
-demo("logL-vis", package="copula")
+demo("logL-vis", package="copula")# will use 'doExtras' from above!
 
 showProc.time()
 
@@ -121,12 +121,14 @@ t.cop <- tCopula(rep(0, 3), dim = 3, dispstr = "un", df.fixed=TRUE)
 
 showProc.time()
 
+if(doExtras) {
 for(fitMeth in c("mpl", "ml", "itau", "irho")) {
     cat("\nfit*( method = '", fitMeth,"')\n----------------------\n\n", sep="")
     print(gofCopula(gumbC, x, N = 10, verbose=FALSE, method = fitMeth))
     print(gofCopula(t.cop, x, N = 10, verbose=FALSE, method = fitMeth))
 }
 showProc.time()
+}
 
 ## The same using the multiplier approach -- "ml" is not allowed in general;
 ##  "itau" and "irho"  only  for  d = 2  (for now !)
@@ -198,10 +200,11 @@ showProc.time()
 for(met in gofMeth) {
     cat("\n gof-method:", met, ":\n---------\n")
     nBoot <- switch(met,
-		    "SnB" = 4,
-		    "SnC" = 8,
+		    "SnB" = 1,
+		    "SnC" = 2,
 		    ## the rest:
-		    28)
+		    7)
+    if(doExtras) nBoot <- 8 * nBoot
     set.seed(7)
     st <- system.time( ## "SnB" is relatively slow - shorten here:
 	  gn <- gnacopula(u, cop, n.bootstrap = nBoot,

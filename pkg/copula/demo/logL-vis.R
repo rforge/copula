@@ -75,7 +75,8 @@ curveLogL <- function(cop, u, xlim, main, XtrArgs=list(), ...) {
 }
 
 if(!exists("doExtras") || !is.logical(doExtras))
-    print(doExtras <- interactive() || nzchar(Sys.getenv("R_copula_check_extra")))
+    doExtras <- interactive() || nzchar(Sys.getenv("R_copula_check_extra"))
+doExtras
 ## Want to see when "Rmpfr" methods are chosen automatically:
 options("copula:verboseUsingRmpfr" = TRUE)
 
@@ -190,15 +191,19 @@ tau <- 0.2
 
 set.seed(1)
 U1 <- rnacopula(n,cop)
+if(doExtras) {
 U2 <- rnacopula(n,cop)
 U3 <- rnacopula(n,cop)
+}
 
 enacopula(U1, cop, "mle") # 1.227659 (was 1.241927)
 ##--> Plots with "many" likelihood evaluations
 system.time(r1 <- curveLogL(cop, U1, c(1, 2.1)))
+if(doExtras) {
 mtext("and two other generated samples")
 system.time(r2 <- curveLogL(cop, U2, c(1, 2.1), add=TRUE))
 system.time(r3 <- curveLogL(cop, U3, c(1, 2.1), add=TRUE))
+}
 
 ### "Gumbel", harder: d = 150, tau = 0.6 #######################################
 
@@ -241,10 +246,11 @@ stopifnot(!doExtras ||
 system.time(r5.p <- sapply(th., mLogL, acop=cG.5@copula, u=U5, method="pois"))
 system.time(r6.p <- sapply(th., mLogL, acop=cG.5@copula, u=U6, method="pois"))
 
+if(doExtras) {##---------------------------------------------------------------
 if(FALSE) ## for speed analysis, etc
     debug(copula:::polyG)
 mLogL(1.65, cG.5@copula, U4)# -23472.96
-
+}
 dd <- dCopula(U4, setTheta(cG.5, 1.64), log = TRUE,
               method = if(doExtras)"default" else "pois")
 summary(dd)

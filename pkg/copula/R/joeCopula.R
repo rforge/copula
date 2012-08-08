@@ -59,6 +59,7 @@ setMethod("tailIndex", signature("joeCopula"),
 
 setMethod("iTau", signature("joeCopula"),
 	  function(copula, tau) copJoe@tauInv(tau))
+                                        # high tol ~= 1.2e-4  as @tau() is not very accurate either
 
 ## "TODO"
 ## setMethod("rho", signature("joeCopula"), ... ? ...)
