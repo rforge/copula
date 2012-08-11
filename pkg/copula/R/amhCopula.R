@@ -57,7 +57,7 @@ amhCopula <- function(param = NA_real_, dim = 2L) {
       parameters = param[1],
       exprdist = c(cdf = cdf, pdf = pdf),
       param.names = "param",
-      param.lowbnd = -1,
+      param.lowbnd = -1,# 0 for tau >= 0
       param.upbnd = 1,
       fullname = "Amh copula family; Archimedean copula")
 }
@@ -108,13 +108,6 @@ ramhCopula <- function(n, copula) {
   ## v <- cbind(v, (- B - sqrt(B^2 - 4 * A * C)) / 2 / A) ## this root is not good
   v <- 1 - v
   cbind(u, v)
-}
-
-tauAmhCopula <- function(copula) {
-  alpha <- copula@parameters[1]
-  ## Nelsen (2006, p.172)
-  ## range of tau: [(5 - 8 log 2) / 3, 1/3] ~= [-0.1817, 0.3333]
-  (3 * alpha - 2) / 3 / alpha - 2 / 3 * (1 - 1/alpha)^2 * log(1 - alpha)
 }
 
 iTauAmhCopula <- function(copula, tau) {
@@ -186,7 +179,8 @@ setMethod("diPsi", signature("amhCopula"),
       })
 
 
-setMethod("tau", signature("amhCopula"), tauAmhCopula)
+setMethod("tau", signature("amhCopula"), function(copula) tauAMH(copula@parameters[1]))
+
 setMethod("rho", signature("amhCopula"), rhoAmhCopula)
 setMethod("tailIndex", signature("amhCopula"), function(copula) c(lower=0, upper=0))
 

@@ -116,8 +116,8 @@ summary(dnacopula(cop, U2))
 ## hmm:  max = 5.5e177
 if(doExtras)
 system.time(r2 <- curveLogL(cop, U2, c(1, 2.5)))
-stopifnot(all.equal(enacopula(U2, cop, "mle"), 1.43991422),
-          all.equal(mLogL(1.8, cop@copula, U2), -4070.14762))# (was -Inf)
+stopifnot(all.equal(enacopula(U2, cop, "mle"), 1.43992755, tol=1e-5),
+          all.equal(mLogL(1.8, cop@copula, U2), -4070.1953,tol=1e-5))# (was -Inf)
 
 U3 <- rnacopula(n,cop)
 enacopula(U3, cop, "mle") # 1.4495
@@ -144,9 +144,9 @@ if(doExtras) # each curve takes almost 2 sec
 
 ##--> theta 1.164 is about the boundary:
 stopifnot(identical(setTheta(cop, 1.164), onacopula(cop@copula, C(1.164, 1:100))),
-	  all.equal(600.59261959,
+	  all.equal(600.59577,
 		    cop@copula@dacopula(U4[118,,drop=FALSE],
-					theta=1.164, log = TRUE)))## was "Inf"
+					theta=1.164, log = TRUE), tol=1e-5))## was "Inf"
 ## FIXME find a way to use dCopula(U4[118,], ......)
 ## this is *not* it :
 ## stopifnot(all.equal(600.59261959,

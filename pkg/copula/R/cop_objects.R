@@ -733,7 +733,7 @@ copJoe <-
                       if(log) log(res) else res
 		  },
 		  ## parameter interval
-		  paraInterval = interval("[1,Inf)"),
+		  paraInterval = interval("[1,Inf)"),## [0.24, Inf) for neg.tau
 		  ## absolute value of generator derivatives
 		  absdPsi = function(t, theta, degree = 1, n.MC = 0,
 				     method= eval(formals(polyJ)$method), log = FALSE)
@@ -873,15 +873,7 @@ copJoe <-
 		  ## noTerms: even for theta==0, the approximation error is < 10^(-5)
                   ## MM: "FIXME" , using  http://dlmf.nist.gov/2.10#E1  (or better?)
                   ## + maxima   integrate(1/(x*(t*x+2)*(t*x+2-t)), x)
-		  tau = function(theta, noTerms=446) {
-		      k <- noTerms:1
-		      sapply(theta,
-			     function(th) {
-				 tk2 <- th*k + 2
-				 1 - 4*sum(1/(k*tk2*(tk2 - th)))
-				 ## ==... (1/(k*(th*k+2)*(th*(k-1)+2)))
-			     })
-		  },
+		  tau = tauJoe,
 		  tauInv = function(tau, tol = .Machine$double.eps^0.25, ...) {
 		      sapply(tau,function(tau) {
 			  r <- safeUroot(function(th) C.@tau(th) - tau,

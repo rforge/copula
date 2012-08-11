@@ -70,6 +70,7 @@ setMethod("tailIndex", signature("copula"), tailIndexCopula)
 
 ### numerical calibration
 
+## NB:  uniroot()'s  precision is tol = .Machine$double.eps^.25 = 0.000122 ~= 1e-4
 iTauCopula <- function(copula, tau, bound.eps = .Machine$double.eps^.5, ...) {
   myfun <- function(theta) {
     copula@parameters <- theta
