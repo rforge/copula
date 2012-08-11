@@ -67,6 +67,9 @@ fitCopula <- function(copula, data, method = c("mpl","ml","itau","irho"),
                       optim.method = "BFGS", optim.control = list(maxit=1000),
                       estimate.variance = TRUE, hideWarnings = TRUE)
 {
+  if(!is.matrix(data)) {
+    data <- as.matrix(data); stopifnot(is.matrix(data))
+  }
   switch(match.arg(method),
 	 "ml" =
 	 fitCopula.ml(copula, data, start=start, lower=lower, upper=upper,
