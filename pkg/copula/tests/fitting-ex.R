@@ -37,7 +37,11 @@ u3 <- cbind(uu, round(runif(10),2))
 
 ### t-copula instead of normal -- minimal set for testing here:
 ## d = 2
-(f1 <- fit1(tCopula(0.7, df.fixed=TRUE), x = uu))
+(f1 <- fit1(tCopula(df.fixed=TRUE), x = uu))
+stopifnot(identical(f1, fit1(tCopula(df.fixed=TRUE),
+			     x = data.frame(uu))))
+## did not work with data.frame before 2012-08-12
+
 ## for df.fixed=FALSE, have 2 parameters ==> cannot use "fit1":
 	 (f2.t <- fitCopula(tCopula(), uu, method="itau"))#
 	 (f2.r <- fitCopula(tCopula(), uu, method="irho"))#
