@@ -24,7 +24,7 @@ mvdc <- function(copula, margins, paramMargins, marginsIdentical = FALSE) {
 }
 
 
-## Functions asCall and P0 were kindly supplied by
+## Function asCall was kindly supplied by
 ## Martin Maechler <maechler@stat.math.ethz.ch>,
 ## motivated by an application of nor1mix and copula
 ## from Lei Liu <liulei@virginia.edu>.
@@ -46,16 +46,14 @@ asCall <- function(fun, param)
     cc
 }
 
-P0 <- function(...) paste(..., sep="")
-
 dMvdc <- function(x, mvdc, log=FALSE) {
   dim <- mvdc@copula@dimension
   densmarg <- if(log) 0 else 1
   if (is.vector(x)) x <- matrix(x, nrow = 1)
   u <- x
   for (i in 1:dim) {
-    cdf.expr <- asCall(P0("p", mvdc@margins[i]), mvdc@paramMargins[[i]])
-    pdf.expr <- asCall(P0("d", mvdc@margins[i]), mvdc@paramMargins[[i]])
+    cdf.expr <- asCall(paste0("p", mvdc@margins[i]), mvdc@paramMargins[[i]])
+    pdf.expr <- asCall(paste0("d", mvdc@margins[i]), mvdc@paramMargins[[i]])
     u[,i] <- eval(cdf.expr, list(x = x[,i]))
     densmarg <-
 	if(log)
@@ -75,7 +73,7 @@ pMvdc <- function(x, mvdc) {
   if (is.vector(x)) x <- matrix(x, nrow = 1)
   u <- x
   for (i in 1:dim) {
-    cdf.expr <- asCall(P0("p", mvdc@margins[i]), mvdc@paramMargins[[i]])
+    cdf.expr <- asCall(paste0("p", mvdc@margins[i]), mvdc@paramMargins[[i]])
     u[,i] <- eval(cdf.expr, list(x = x[,i]))
   }
   pCopula(u, mvdc@copula)
@@ -86,7 +84,7 @@ rMvdc <- function(n, mvdc) {
   u <- rCopula(n, mvdc@copula)
   x <- u
   for (i in 1:dim) {
-    qdf.expr <- asCall(P0("q", mvdc@margins[i]), mvdc@paramMargins[[i]])
+    qdf.expr <- asCall(paste0("q", mvdc@margins[i]), mvdc@paramMargins[[i]])
     x[,i] <- eval(qdf.expr, list(x = u[,i]))
   }
   x
