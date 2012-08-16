@@ -66,7 +66,7 @@ nac2list(x)
 \examples{
 ## Construct a ten-dimensional Joe copula with parameter such that
 ## Kendall's tau equals 0.5
-theta <- copJoe@tauInv(0.5)
+theta <- copJoe@iTau(0.5)
 C10 <- onacopula("J",C(theta,1:10))
 
 ## Equivalent construction with onacopulaL():
@@ -77,8 +77,8 @@ stopifnot(identical(C10, C10.),
 ## Construct a three-dimensional nested Gumbel copula with parameters
 ## such that Kendall's tau of the respective bivariate margins are 0.2
 ## and 0.5.
-theta0 <- copGumbel@tauInv(.2)
-theta1 <- copGumbel@tauInv(.5)
+theta0 <- copGumbel@iTau(.2)
+theta1 <- copGumbel@iTau(.5)
 C3 <- onacopula("G", C(theta0, 1, C(theta1, c(2,3))))
 
 ## Equivalent construction with onacopulaL():

@@ -33,7 +33,7 @@ cacopula(u, cop, n.MC=0, log=FALSE)
 }
 \examples{
 tau <- 0.5
-(theta <- copGumbel@tauInv(tau)) # 2
+(theta <- copGumbel@iTau(tau)) # 2
 d <- 2
 (cop <- onacopulaL("Gumbel", list(theta,1:d)))
 

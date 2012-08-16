@@ -100,7 +100,7 @@ rK(n, cop, d)
 }
 \examples{
 tau <- 0.5
-(theta <- copGumbel@tauInv(tau)) # 2
+(theta <- copGumbel@iTau(tau)) # 2
 d <- 20
 (cop <- onacopulaL("Gumbel", list(theta,1:d)))
 

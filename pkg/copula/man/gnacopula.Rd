@@ -164,7 +164,7 @@ gofTstat(u, method = c("AnChisq", "AnGamma", "SnB", "SnC"))
 }
 \examples{
 tau <- 0.5
-(theta <- copGumbel@tauInv(tau)) # 2
+(theta <- copGumbel@iTau(tau)) # 2
 d <- 5
 (copG <- onacopulaL("Gumbel", list(theta,1:d)))
 

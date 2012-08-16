@@ -110,7 +110,7 @@ rtrafo(u, cop, m=d, n.MC=0)
 }
 \examples{
 tau <- 0.5
-(theta <- copGumbel@tauInv(tau)) # 2
+(theta <- copGumbel@iTau(tau)) # 2
 (copG <- onacopulaL("Gumbel", list(theta, 1:5))) # d = 5
 
 set.seed(1)
@@ -130,7 +130,7 @@ pairs(u.r, cex=0.2) # looks good
 
 ## what about a meta-Clayton model?
 ## the parameter is chosen such that Kendall's tau equals (the same) tau
-copC <- onacopulaL("Clayton", list(copClayton@tauInv(tau), 1:5))
+copC <- onacopulaL("Clayton", list(copClayton@iTau(tau), 1:5))
 
 ## plot of the transformed data (Hering and Hofert (2011)) to see the
 ## deviations from uniformity

@@ -88,7 +88,7 @@ emde(u, cop,
 }
 \examples{
 tau <- 0.25
-(theta <- copGumbel@tauInv(tau)) # 4/3
+(theta <- copGumbel@iTau(tau)) # 4/3
 d <- 20
 (cop <- onacopulaL("Gumbel", list(theta,1:d)))
 

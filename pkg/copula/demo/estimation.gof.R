@@ -39,7 +39,7 @@ tau <- 0.25 # Kendall's tau
 
 simFamily <- "AMH"
 cop <- getAcop(simFamily)
-theta <- cop@tauInv(tau) # true parameter
+theta <- cop@iTau(tau) # true parameter
 
 ## start the loop
 cat("\n### data from ",simFamily," (n = ",n,", d = ",d,", theta = ",
@@ -81,7 +81,7 @@ options(digits=5)
 
 ## generate the data
 simFamily <- getAcop("AMH") # choose your desired family
-cop <- onacopulaL(simFamily, list(theta <- simFamily@tauInv(tau),1:d))
+cop <- onacopulaL(simFamily, list(theta <- simFamily@iTau(tau),1:d))
 u <- rnacopula(n,cop)
 
 ## estimate the copula

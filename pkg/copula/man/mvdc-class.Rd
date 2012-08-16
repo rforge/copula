@@ -5,8 +5,8 @@
 \description{ Class representing multivariate distributions constructed
   using Sklar's theorem. }
 \section{Objects from the Class}{
-  Objects can be created by calls of the form \code{new("mvdc", ...)}
-  or by function \code{mvdc}.
+  Objects are typically created by  \code{\link{mvdc}()}, or
+  can be created by calls of the form \code{new("mvdc", ...)}.
 }
 \section{Slots}{
   \describe{

@@ -53,7 +53,7 @@ estimation.gof <- function(n, d, simFamily, tau,
 {
     ## generate data
     copFamily <- getAcop(simFamily)
-    theta <- copFamily@tauInv(tau)
+    theta <- copFamily@iTau(tau)
     cop <- onacopulaL(simFamily, list(theta,1:d))
     if(verbose){
         r <- function(x) round(x,4) # for output

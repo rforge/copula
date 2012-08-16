@@ -86,7 +86,7 @@ options("copula:verboseUsingRmpfr" = TRUE)
 n <- 200
 d <- 100
 tau <- 0.2
-(theta <- copJoe@tauInv(tau))# 1.44381
+(theta <- copJoe@iTau(tau))# 1.44381
 (cop <- onacopulaL("Joe",list(theta,1:d)))
 
 set.seed(1)
@@ -160,7 +160,7 @@ stopifnot(identical(setTheta(cop, 1.164), onacopula(cop@copula, C(1.164, 1:100))
 n <- 200
 d <- 150
 tau <- 0.3
-(theta <- copJoe@tauInv(tau))# 1.772
+(theta <- copJoe@iTau(tau))# 1.772
 (cop <- onacopulaL("Joe",list(theta,1:d)))
 set.seed(47)
 U. <- rnacopula(n,cop)
@@ -172,7 +172,7 @@ system.time(r. <- curveLogL(cop, U., c(1.1, 3)))
 
 d <- 180
 tau <- 0.4
-(theta <- copJoe@tauInv(tau))# 2.219
+(theta <- copJoe@iTau(tau))# 2.219
 (cop <- onacopulaL("Joe",list(theta,1:d)))
 U. <- rnacopula(n,cop)
 enacopula(U., cop, "mle") # 2.217582
@@ -186,7 +186,7 @@ system.time(r. <- curveLogL(cop, U., c(1.1, 4)))
 n <- 200
 d <- 50 # smaller 'd' -- so as to not need 'Rmpfr' here
 tau <- 0.2
-(theta <- copGumbel@tauInv(tau))# 1.25
+(theta <- copGumbel@iTau(tau))# 1.25
 (cop <- onacopulaL("Gumbel",list(theta,1:d)))
 
 set.seed(1)
@@ -209,7 +209,7 @@ system.time(r3 <- curveLogL(cop, U3, c(1, 2.1), add=TRUE))
 
 d <- 150
 tau <- 0.6
-(theta <- copGumbel@tauInv(tau))# 2.5
+(theta <- copGumbel@iTau(tau))# 2.5
 cG.5 <- onacopulaL("Gumbel",list(theta,1:d))
 
 set.seed(17)
@@ -263,7 +263,7 @@ stopifnot(!is.na(dd), ## no NaN's anymore
 n <- 64
 d <- 5
 tau <- 0.8
-(theta <- copFrank@tauInv(tau))# 18.192
+(theta <- copFrank@iTau(tau))# 18.192
 (cop <- onacopulaL("Frank",list(theta,1:d)))
 set.seed(11) ## these seeds give no problem: 101, 41, 21
 U. <- rnacopula(n,cop)

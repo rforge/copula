@@ -54,7 +54,7 @@ tau <- 0.25 # Kendall's tau
 
 simFamily <- "AMH"
 cop <- getAcop(simFamily)
-theta <- cop@tauInv(tau) # true parameter
+theta <- cop@iTau(tau) # true parameter
 
 ## start the loop
 cat("\n### data from ",simFamily," (n = ",n,", d = ",d,", theta = ",

@@ -19,7 +19,7 @@ joeCopula <- function(param = NA_real_, dim = 2L) {
       dimension = as.integer(dim),
       parameters = param[1],
       param.names = "param",
-      param.lowbnd = 0.238733989880086,# 1 for tau >= 0
+      param.lowbnd = 1, # 0.238733989880086 for tau >= -1 -- is NOT valid
       param.upbnd = Inf,
       fullname = "Joe copula family; Archimedean copula")
 }
@@ -58,7 +58,7 @@ setMethod("tailIndex", signature("joeCopula"),
 			     upper=copJoe@lambdaU(theta=copula@parameters)))
 
 setMethod("iTau", signature("joeCopula"),
-	  function(copula, tau) copJoe@tauInv(tau, tol=1e-7))
+	  function(copula, tau) copJoe@iTau(tau, tol=1e-7))
 					# now that tauJoe() is accurate
 
 ## "TODO"

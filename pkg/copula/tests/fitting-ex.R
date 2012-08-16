@@ -39,7 +39,7 @@ u3 <- cbind(uu, round(runif(10),2))
 ## d = 2
 (f1 <- fit1(tCopula(df.fixed=TRUE), x = uu))
 stopifnot(identical(f1, fit1(tCopula(df.fixed=TRUE),
-			     x = data.frame(uu))))
+			     x = data.frame(uu))))# *WITH* a warning
 ## did not work with data.frame before 2012-08-12
 
 ## for df.fixed=FALSE, have 2 parameters ==> cannot use "fit1":
