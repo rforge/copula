@@ -23,6 +23,20 @@ mvdc <- function(copula, margins, paramMargins, marginsIdentical = FALSE) {
        marginsIdentical = marginsIdentical)
 }
 
+##' @title Parameter names of the margins of an "mvdc" object
+##' @param mv 
+##' @return character vector of "the correct" length
+##' @author Martin Maechler
+margpnames <- function(mv) {
+    nMar <- vapply(mv@paramMargins, length, 1L)
+    p <- mv@copula@dimension
+    pnms <- unlist(lapply(mv@paramMargins, names)) # maybe NULL
+    if (sum(nMar) == 0) character()
+    else if(mv@marginsIdentical)
+	paste(paste("m", pnms[1], sep="."))
+    else
+	paste(paste0("m", rep.int(1:p, nMar)), pnms, sep=".")
+}
 
 ## Function asCall was kindly supplied by
 ## Martin Maechler <maechler@stat.math.ethz.ch>,

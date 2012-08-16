@@ -22,42 +22,46 @@ setClass("fitCopula",
 	 ## FIXME , validity = function(object) TRUE
 	 )
 
-setClass("summaryFitCopula",
-         representation(method = "character",
-                        loglik = "numeric",
-                        convergence = "integer",
-                        parameters = "data.frame")
-         ## FIXME validity = function(object) TRUE
-         )
+setMethod("paramNames", "fitCopula", function(x) x@copula@param.names)
 
-showFitCopula <- function(object) {
-  foo <- summaryFitCopula(object)
-  cat("The estimation is based on the ", object@method, "\nand a sample of size ", object@nsample, ".\n", sep="")
-  print(foo@parameters)
-  if (!is.na(foo@loglik)) cat("The maximized loglikelihood is ", foo@loglik, "\n")
-  if (!is.na(foo@convergence)) cat("The convergence code is ", foo@convergence, "\n")
-  invisible(object)
+print.fitCopula <- function(x, digits = max(3, getOption("digits") - 3),
+    signif.stars = getOption("show.signif.stars"), ...)
+{
+    foo <- summary.fitCopula(x)
+    cat("The estimation is based on the ", x@method, "\nand a sample of size ",
+	x@nsample, ".\n", sep="")
+    printCoefmat(foo$coefficients, digits = digits, signif.stars = signif.stars,
+		 na.print = "NA", ...)
+    if (!is.na(foo$loglik))
+	cat("The maximized loglikelihood is ", foo$loglik, "\n")
+    if (!is.na(foo$convergence)) {
+	if(foo$convergence)
+            cat("Convergence problems: code is", foo$convergence, "see ?optim.\n")
+	else cat("Optimization converged\n")
+    }
+    if(!is.null(cnts <- x@fitting.stats$counts) && !all(is.na(cnts))) {
+	cat("Number of loglikelihood evaluations:\n"); print(cnts, ...)
+    }
+    invisible(x)
 }
 
-summaryFitCopula <- function(object) {
+summary.fitCopula <- function(object, ...) {
   estimate <- object@estimate
   se <- sqrt(diag(object@var.est))
   zvalue <- estimate / se
-  pvalue <- (1 - pnorm(abs(zvalue))) * 2
-  parameters <- data.frame(estimate, se, zvalue, pvalue)
-  dimnames(parameters) <-
-    list(object@copula@param.names,
-         c("Estimate", "Std. Error", "z value", "Pr(>|z|)"))
-  ## MM{FIXME}: S4 class is overkill here
-  new("summaryFitCopula",
-      method = object@method,
-      loglik = object@loglik,
-      convergence = object@convergence,
-      parameters = parameters)
+  pvalue <- 2* pnorm(abs(zvalue), lower.tail=FALSE)
+  coef <- cbind(Estimate = estimate, "Std. Error" = se,
+                "z value" = zvalue, "Pr(>|z|)" = pvalue)
+  rownames(coef) <- paramNames(object)
+  structure(class = "summary.fitCopula",
+            list(method = object@method,
+                 loglik = object@loglik,
+		 convergence = object@fitting.stats[["convergence"]],
+                 coefficients = coef))
 }
 
-setMethod("show", signature("fitCopula"), showFitCopula)
-setMethod("summary", signature("fitCopula"), summaryFitCopula)
+setMethod("show", signature("fitCopula"),
+	  function(object) print.fitCopula(object))
 
 
 ## Wrapper function ############################################################
@@ -68,6 +72,7 @@ fitCopula <- function(copula, data, method = c("mpl","ml","itau","irho"),
                       estimate.variance = TRUE, hideWarnings = TRUE)
 {
   if(!is.matrix(data)) {
+    warning("coercing 'data' to a matrix.")
     data <- as.matrix(data); stopifnot(is.matrix(data))
   }
   switch(match.arg(method),
@@ -120,8 +125,7 @@ fitCopula.mpl <- function(copula, data, start=NULL,
       var.est = var.est,
       method = "maximum pseudo-likelihood",
       loglik = fit@loglik,
-      convergence = fit@convergence,
-      optimOpts = fit@optimOpts,
+      fitting.stats = fit@fitting.stats,
       nsample = nrow(data),
       copula = fit@copula)
 }
@@ -154,7 +158,7 @@ fitCopula.itau <- function(copula, data, estimate.variance=TRUE, warn.df=TRUE) {
       var.est = var.est,
       method = "inversion of Kendall's tau",
       loglik = NA_real_,
-      convergence = NA_integer_,
+      fitting.stats = list(convergence = NA_integer_),
       nsample = nrow(data),
       copula = copula)
 }
@@ -187,7 +191,7 @@ fitCopula.irho <- function(copula, data, estimate.variance=TRUE, warn.df=TRUE) {
       var.est = var.est,
       method = "inversion of Spearman's rho",
       loglik = NA_real_,
-      convergence = NA_integer_,
+      fitting.stats = list(convergence = NA_integer_),
       nsample = nrow(data),
       copula = copula)
 }
@@ -210,7 +214,7 @@ loglikCopula <- function(param, x, copula, hideWarnings=FALSE) {
   copula@parameters <- param
   if (!chkParamBounds(copula)) return(NaN)
 
-## FIXME:  use suppressMessages() {and live without  "fitMessages"
+## FIXME:  use suppressMessages() {and live without  "fitMessages"}
   ## messageOut may be used for debugging
   if (hideWarnings) {
     messageOut <- textConnection("fitMessages", open="w", local=TRUE)
@@ -263,9 +267,9 @@ fitCopula.ml <- function(copula, data, start=NULL,
                  control = control)
     copula@parameters[1:q] <- fit$par
     loglik <- fit$val
-    convergence <- fit$convergence
-    if(convergence > 0)
-      warning("possible convergence problem: optim gave code=", convergence)
+    if(fit$convergence > 0)
+      warning("possible convergence problem: optim() gave code=",
+              fit$convergence)
   }
 ##   else {
 ##     fit <- optimize(loglikCopula, lower=lower, upper=upper, maximum=TRUE,
@@ -295,8 +299,9 @@ fitCopula.ml <- function(copula, data, start=NULL,
       var.est = var.est,
       method = "maximum likelihood",
       loglik = loglik,
-      convergence = as.integer(convergence),
-      optimOpts = list(method = method, control = control),
+      ## convergence = as.integer(convergence),
+      fitting.stats = c(list(method=method),
+                     fit[c("convergence", "counts", "message")], control),
       nsample = nrow(data),
       copula = copula)
 }

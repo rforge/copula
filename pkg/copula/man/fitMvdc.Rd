@@ -3,11 +3,15 @@
 \alias{loglikMvdc}
 \title{Estimation of multivariate models defined via copulas}
 \description{
-  Fits a copula-based multivariate distribution to multivariate data.
+  Fitting copula-based multivariate distributions
+  (\code{"\linkS4class{mvdc}"}) to multivariate data,
+  estimating both the marginal and the copula parameters.
 }
 \usage{
-loglikMvdc(param, x, mvdc, suppressMessages=FALSE)
-fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS")
+loglikMvdc(param, x, mvdc, hideWarnings = FALSE)
+fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS",
+        estimate.variance = TRUE, hideWarnings = TRUE)
+%% FIXME mention S3 methods  vcov(), coef(), logLik(), nobs()
 }
 \arguments{
   \item{param}{a vector of parameter values.  When specifying parameters for
@@ -17,7 +21,7 @@ fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS")
     parameters of one marginal should be specified.}
   \item{x}{a data matrix.}
   \item{mvdc}{a \code{"\linkS4class{mvdc}"} object. }
-  \item{suppressMessages}{ logical, if TRUE, warnings messages from
+  \item{hideWarnings}{logical; if TRUE, warnings messages from
     evaluating loglikelihood at invalid parameter values are
     suppressed.}
   \item{data}{a data matrix.}
@@ -25,18 +29,35 @@ fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS")
     \code{"param"} above for ordering of this vector.}
   \item{optim.control}{a list of controls to be passed to \code{\link{optim}}.}
   \item{method}{the method for \code{\link{optim}}.}
+  \item{estimate.variance}{logical; if TRUE, the asymptotic variance is
+    estimated.}
 }
 \value{
   The return value \code{loglikMvdc()} is the log likelihood evaluated
   for the given value of \code{param}.
 
   The return value of \code{fitMvdc()} is an object of class
-  \code{"\linkS4class{fitMvdc}"}, % -> ./fitCopula-class.Rd
-  containing slots:
+  \code{"\linkS4class{fitMvdc}"} % -> ./fitCopula-class.Rd
+  (see there), containing slots (among others!):
   \item{estimate}{ the estimate of the parameters. }
-  \item{var.est}{ large-sample variance estimate of the parameter estimator. }
-  \item{loglik}{ loglikelihood at \code{estimate}. }
- %% FIXME !! \item{copula}{ the fitted copula. }
+  \item{var.est}{large-sample (i.e., asymptotic) variance estimate of the parameter
+    estimator (filled with \code{NA} if \code{estimate.variance = FALSE}).}
+  %%
+  \item{mvdc}{ the fitted multivariate distribution, see
+    \code{\linkS4class{mvdc}}.}
+
+%% FIXME -- formatting -- because of the special way \item is handled
+%% inside \value{...}, there is no empty line put here, even though we
+%% want it.
+
+  The \code{\link{summary}()} method for \code{"fitMvdc"} objects
+  returns a S3 \dQuote{class} \code{"summary.fitMvdc"}, simply a list
+  with components \code{method}, \code{loglik}, and \code{convergence},
+  all three from corresponding slots of the
+  \code{"\linkS4class{fitMvdc}"} objects, and 
+  \item{coefficients}{a matrix of estimated coefficients, standard
+  errors, t values and p-values.}
+  
 }
 \note{
   User-defined marginal distribution can be used as long as the
@@ -51,20 +72,39 @@ fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS")
   because invalid parameter values are tried during the optimization
   process (see \code{\link{optim}}).
 }
-\seealso{\code{\link{Copula}}, \code{\link{fitCopula}},
+\seealso{
+  \code{\link{mvdc}} and \code{\linkS4class{mvdc}};
+  further, \code{\link{Copula}}, \code{\link{fitCopula}},
   \code{\link{gofCopula}}.}
 \examples{
 gumbel.cop <- gumbelCopula(3, dim=2)
-myMvd <- mvdc(gumbel.cop, c("exp","exp"),
+gMvd2 <- mvdc(gumbel.cop, c("exp","exp"),
               list(list(rate=2), list(rate=4)))
-x <- rMvdc(10000, myMvd)
+x <- rMvdc(10000, gMvd2)
+## with identical margins:
+gMvd.I <- mvdc(gumbel.cop, "exp", param = list(rate=3), marginsIdentical=TRUE)
 ## the example is typically not run with CRAN checking:
 (doExtras <- interactive() || nzchar(Sys.getenv("R_copula_check_extra")) ||
  identical("true", unname(Sys.getenv("R_MM_PKG_CHECKING"))))
 if(doExtras) {
  ## Takes about  25 sec. [2012-07]:
- fit <- fitMvdc(x, myMvd, start = c(1,1,2))
- print(fit)
+ fit2 <- fitMvdc(x, gMvd2, start = c(1,1, 2))
+ print(fit2)
+ ## The (estimated, asymptotic) var-cov matrix:
+ print( vcov(fit2) )
+}
+if(doExtras) {
+ fitI <- fitMvdc(x, gMvd.I, start = c(3, 2),
+                 optim.control=list(trace= TRUE, REPORT= 2))
+ print(coef(summary(fitI)))
+ print(fitI)
+%% FIXME:   start = c(1, 1)  gives "nasty" (not easy to understand)
+%% optim() error
+
+ ## The (estimated, asymptotic) var-cov matrix:
+ print( vcov(fit2) )
+ str(sfI <- summary(fitI))
+ stopifnot(is.matrix(coef(sfI)))
 }
 
 ## Roger Koenker prepared a demo illustrating MLE for a Clayton AR(1)
