@@ -2,7 +2,7 @@
 \docType{class}
 \alias{mvdc-class}
 \title{Class "mvdc"}
-\description{ Class representing multivariate distributions constructed
+\description{Class representing multivariate distributions constructed
   using Sklar's theorem. }
 \section{Objects from the Class}{
   Objects are typically created by  \code{\link{mvdc}()}, or

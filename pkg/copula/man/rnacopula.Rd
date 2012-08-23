@@ -1,6 +1,6 @@
 \name{rnacopula}
 \alias{rnacopula}
-\title{Sampling nested Archimedean copulas}
+\title{Sampling Nested Archimedean Copulas}
 \description{
   Random number generation for nested Archimedean copulas (of class
   \code{\linkS4class{outer_nacopula}}, specifically), aka

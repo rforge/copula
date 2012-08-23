@@ -1,7 +1,7 @@
 \name{rF01FrankJoe}
 \alias{rF01Frank}
 \alias{rF01Joe}
-\title{Sample univariate distributions involved in nested Frank and Joe copulas}
+\title{Sample Univariate Distributions Involved in Nested Frank and Joe Copulas}
 \description{
   \code{rF01Frank}:
   Generate a vector of random variates \eqn{V_{01}\sim F_{01}}{V01 ~ F01}

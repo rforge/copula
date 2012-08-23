@@ -1,6 +1,6 @@
 \name{enacopula}
 \alias{enacopula}
-\title{Estimation procedures for (nested) Archimedean copulas}
+\title{Estimation Procedures for (Nested) Archimedean Copulas}
 \description{
   A set of ten different estimators, currently for one-parameter
   Archimedean copulas, of possibly quite high dimensions.

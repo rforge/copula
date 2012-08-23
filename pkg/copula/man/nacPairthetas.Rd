@@ -1,6 +1,6 @@
 \name{nacPairthetas}
 \alias{nacPairthetas}
-\title{Pairwise thetas of nested Archimedean copula}
+\title{Pairwise Thetas of Nested Archimedean Copulas}
 \description{
   Return a \eqn{d * d} matrix of pairwise thetas for a nested Archimedean
   copula (\code{\linkS4class{nacopula}}) of dimension \eqn{d}.

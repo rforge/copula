@@ -1,5 +1,5 @@
 \name{emle}
-\title{Maximum likelihood estimators for (nested) Archimedean copulas}
+\title{Maximum Likelihood Estimators for (Nested) Archimedean Copulas}
 \alias{emle}
 \alias{.emle}
 \description{

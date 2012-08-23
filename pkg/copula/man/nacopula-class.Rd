@@ -4,7 +4,7 @@
 \alias{outer_nacopula-class}
 \alias{nacopula-class}
 \alias{dim,nacopula-method}
-\title{Class "nacopula" of nested Archimedean copulas}
+\title{Class "nacopula" of Nested Archimedean Copulas}
 \description{
   Class of nested Archimedean Copulas, \code{"nacopula"},
   and its \emph{specification} \code{"outer_nacopula"}

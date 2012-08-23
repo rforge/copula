@@ -1,6 +1,6 @@
 \name{exchTest}
 \alias{exchTest}
-\title{Test of exchangeability for a bivariate copula}
+\title{Test of Exchangeability for a Bivariate Copula}
 \description{
   Test for assessing the exchangeability of the underlying
   bivariate copula based on the empirical copula.

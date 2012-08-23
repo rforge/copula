@@ -1,6 +1,6 @@
 \name{dnacopula}
 \alias{dnacopula}
-\title{Copula density evaluation}
+\title{Density Evaluation for (Nested) Archimedean Copulas}
 \description{
   Evaluates the density of an Archimedean copula.
 }

@@ -1,7 +1,7 @@
 \name{initOpt}
 \alias{initOpt}
-\title{Initial interval or value for parameter estimation of Archimedean
-  copulas}
+\title{Initial Interval or Value for Parameter Estimation of Archimedean
+  Copulas}
 \description{
   Compute an initial interval or initial value for optimization/estimation
   routines (only a heuristic; if this fails, choose your own interval or value).

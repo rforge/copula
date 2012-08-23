@@ -1,5 +1,5 @@
 \name{copFamilies}
-\title{Specific Archimedean copula families ("acopula" objects)}
+\title{Specific Archimedean Copula Families ("acopula" Objects)}
 \concept{Copula Family}
 \alias{acopula-families}
 \alias{copAMH}

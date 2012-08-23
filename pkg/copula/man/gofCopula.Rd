@@ -1,6 +1,6 @@
 \name{gofCopula}
 \alias{gofCopula}
-\title{Goodness-of-fit tests for copulas}
+\title{Goodness-of-fit Tests for Copulas}
 \description{
   Goodness-of-fit tests for copulas based on the empirical process
   comparing the empirical copula with a

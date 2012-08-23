@@ -1,6 +1,6 @@
 \name{evTestK}
 \alias{evTestK}
-\title{Bivariate test of extreme-value dependence based on Kendall's process}
+\title{Bivariate Test of Extreme-Value Dependence Based on Kendall's Process}
 \description{
   Test of extreme-value dependence based on the  bivariate probability integral
   transformation. The test statistic is defined in Ben Ghorbal,

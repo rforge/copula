@@ -1,6 +1,6 @@
 \name{gofEVCopula}
 \alias{gofEVCopula}
-\title{Goodness-of-fit tests for bivariate extreme-value copulas}
+\title{Goodness-of-fit Tests for Bivariate Extreme-Value Copulas}
 \description{
   Goodness-of-fit tests for extreme-value copulas based on the
   empirical process comparing one of the two nonparameteric

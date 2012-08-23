@@ -99,7 +99,7 @@
 \alias{iRho,plackettCopula-method}
 \alias{iRho,fgmCopula-method}
 \alias{iRho,nacopula-method}
-\title{Dependence measures for copulas}
+\title{Dependence Measures for Copulas}
 \description{
   These functions compute Kendall's tau, Spearman's rho, and the tail
   dependence index for bivariate copulas. Calibration is the inverse

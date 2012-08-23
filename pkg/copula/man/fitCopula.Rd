@@ -1,7 +1,7 @@
 \name{fitCopula}
 \alias{fitCopula}
 \alias{loglikCopula}
-\title{Estimation of the parameters in copula models}
+\title{Estimation of the Parameters in Copula Models}
 \description{
   Fits a copula model to multivariate data belonging to the unit
   hypercube. The data can be pseudo-observations constructed from

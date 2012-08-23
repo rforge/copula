@@ -1,6 +1,6 @@
 \name{acopula-class}
 \Rdversion{1.1}
-\title{Class "acopula" of Archimedean copula families}
+\title{Class "acopula" of Archimedean Copula Families}
 \docType{class}
 \alias{acopula-class}
 \alias{acopula}

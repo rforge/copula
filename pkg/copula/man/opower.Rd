@@ -1,6 +1,6 @@
 \name{opower}
 \alias{opower}
-\title{Outer power transformation of Archimedean copulas}
+\title{Outer Power Transformation of Archimedean Copulas}
 \usage{
 opower(copbase, thetabase)
 }

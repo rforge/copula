@@ -6,7 +6,7 @@
 \alias{show,copula-method}
 \alias{show,fitCopula-method}
 \alias{show,fitMvdc-method}
-\title{Methods for 'show'() in package 'copula'}
+\title{Methods for `show' in Package `copula'}
 \description{
   Methods for function \code{\link{show}} in package \pkg{copula}.
 }

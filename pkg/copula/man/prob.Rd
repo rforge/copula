@@ -2,7 +2,7 @@
 \alias{prob}
 \alias{prob-methods}
 \alias{prob,Copula-method}
-\title{Computing probabilities of hypercubes}
+\title{Computing Probabilities of Hypercubes}
 \description{
   Compute probabilities of a \eqn{d-}dimensional random vector \eqn{U}
   distributed according to a given copula \code{x} to

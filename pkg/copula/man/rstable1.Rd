@@ -1,5 +1,5 @@
 \name{rstable1}
-\title{Random numbers from (skew) stable distributions}
+\title{Random numbers from (Skew) Stable Distributions}
 \alias{rstable1}
 \alias{rstable}
 \description{
