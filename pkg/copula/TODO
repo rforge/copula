@@ -160,6 +160,7 @@ maybe take  ./tests/copula-play.R  as sophisticated role model.
   arguments except the first one).
 
 ** TODO Use  paste0()  where possible in IJ-code
+** TODO Replace ccop in ggraph by cCopula
 
 * Long Term
 ** TODO ChiPlot(), KPlot() [in R/graphics.R]: Export and document ?
