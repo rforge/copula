@@ -94,6 +94,13 @@ iRhoCopula <- function(copula, rho, ...) {
 setMethod("iTau", signature("copula"), iTauCopula)
 setMethod("iRho", signature("copula"), iRhoCopula)
 
+cCopula <-  function(u, copula, log=FALSE, n.MC=0) {
+    stopifnot(is(copula, "Copula"))
+    d <- ncol(u)
+    drop(rtrafo(u, cop=copula, j.ind = d, n.MC=n.MC, log=log, trafo.only=TRUE))
+}##      ------ -> ./gof.R
+
+
 ###-- "Copula" methods + glue  former "copula" <--> former "nacopula" ---------
 
 setMethod("dim", "copula",

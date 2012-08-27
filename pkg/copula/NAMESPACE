@@ -32,6 +32,7 @@ import("pspline")
 ## importFrom(sn, qsn, dsn, psn, dmsn, pmsn)
 
 export(dCopula, pCopula, rCopula)
+export(cCopula)
 export(dMvdc, pMvdc, rMvdc)
 export(tau, rho, tailIndex)
 export(iTau, iRho)

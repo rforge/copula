@@ -83,17 +83,13 @@ gMvd2 <- mvdc(gumbel.cop, c("exp","exp"),
 x <- rMvdc(10000, gMvd2)
 ## with identical margins:
 gMvd.I <- mvdc(gumbel.cop, "exp", param = list(rate=3), marginsIdentical=TRUE)
-## the example is typically not run with CRAN checking:
-(doExtras <- interactive() || nzchar(Sys.getenv("R_copula_check_extra")) ||
- identical("true", unname(Sys.getenv("R_MM_PKG_CHECKING"))))
-if(doExtras) {
+if(copula:::doExtras()) { ## these are is typically not run with CRAN checking:
  ## Takes about  25 sec. [2012-07]:
  fit2 <- fitMvdc(x, gMvd2, start = c(1,1, 2))
  print(fit2)
  ## The (estimated, asymptotic) var-cov matrix:
  print( vcov(fit2) )
-}
-if(doExtras) {
+
  fitI <- fitMvdc(x, gMvd.I, start = c(3, 2),
                  optim.control=list(trace= TRUE, REPORT= 2))
  print(coef(summary(fitI)))

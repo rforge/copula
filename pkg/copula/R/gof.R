@@ -97,51 +97,167 @@ gofTstat <- function(u, method = c("AnChisq", "AnGamma", "SnB", "SnC"))
 ##' @title Rosenblatt transformation for a (nested) Archimedean copula
 ##' @param u matrix of (pseudo-/copula-)observations
 ##' @param cop an outer_nacopula
-##' @param m # order up to which Rosenblatt's transform is computed, i.e.,
-##'        C(u_j | u_1,...,u_{j-1}), j=2,..,m
+##' @param j.ind indices j >= 2 for which Rosenblatt's transform is computed, i.e.,
+##'        C(u_j | u_1,...,u_{j-1})
+##' @param m (deprecated)
 ##' @param n.MC parameter n.MC for evaluating the derivatives via Monte Carlo
-##' @return matrix (as u) of supposedly U[0,1]^d realizations
-##' @author Marius Hofert
-rtrafo <- function(u, cop, m=d, n.MC=0)
+##' @param log 
+##' @param trafo.only 
+##' @return matrix U (n x k) of supposedly U[0,1]^k realizations, where k=1+length(j.ind);
+##'         where U[,1] == u[,1] in any case.
+##' @author Marius Hofert and Martin Maechler
+rtrafo <- function(u, cop, j.ind = 2:d, m, n.MC=0, log=FALSE, trafo.only=log)
 {
     if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
-    stopifnot(0 <= u, u <=1)
+    if(!missing(m)) {
+	warning("'m' is deprecated; rather specify 'j.ind = 2:m'")
+	stopifnot(m >= 2)
+	j.ind <- 2:m
+    }
     d. <- dim(u)
     n <- d.[1]
     d <- d.[2]
-    stopifnot(is(cop, "outer_nacopula"), 2 <= m, m <= d)
-    if(length(cop@childCops))
-        stop("currently, only Archimedean copulas are provided")
-    cop <- cop@copula
-    th <- cop@theta
-    stopifnot(cop@paraConstr(th))
-    psiI <- cop@iPsi(u, theta=th) # n x d
-    psiI. <- t(apply(psiI, 1, cumsum)) # n x d
-    ## compute all conditional probabilities
-    if(n.MC==0){
-        ## Note: C(u_j | u_1,...,u_{j-1}) = \psi^{(j-1)}(\sum_{k=1}^j \psi^{-1}(u_k)) / \psi^{(j-1)}(\sum_{k=1}^{j-1} \psi^{-1}(u_k))
-	C.j <- function(j){ # computes C(u_j | u_1,...,u_{j-1}) with the same idea as for cacopula
-	    logD <- cop@absdPsi(as.vector(psiI.[,c(j,j-1)]), theta=th,
-                                degree=j-1, n.MC=0, log=TRUE)
-            exp(logD[1:n]-logD[(n+1):(2*n)])
-        }
-    }else{ # n.MC > 0
-	## draw random variates
-	V <- cop@V0(n.MC, th)
-        C.j <- function(j){ # computes C(u_j | u_1,...,u_{j-1}) with the same idea as for cacopula
-            ## use same idea as default method of absdPsiMC
-            ## only difference: only draw V's once
-            arg <- c(psiI.[,j], psiI.[,j-1])
-            iInf <- is.infinite(arg)
-            logD <- numeric(2*n)
-            logD[iInf] <- -Inf
-            if(any(!iInf)) logD[!iInf] <- lsum(-V %*% t(arg[!iInf]) +
-                                               (j-1) * log(V) - log(n.MC))
-            exp(logD[1:n]-logD[(n+1):(2*n)])
-        }
+    stopifnot(0 <= u, u <= 1,
+	      2 <= j.ind, j.ind <= d)
+
+    if((nac <- is(cop, "outer_nacopula")) ||
+       is(cop, "archmCopula")) {
+	if(nac) {
+	    if(length(cop@childCops))
+		stop("currently, only Archimedean copulas are provided")
+	    cop <- cop@copula
+	    th <- cop@theta
+	} else { # "archmCopula"
+	    ## "claytonCopula", "frankCopula", "gumbelCopula", ...
+	    th <- cop@parameters
+	    ## ccop <- cop
+	    cop <- getAcop(cop)
+	}
+	stopifnot(cop@paraConstr(th))
+	psiI <- cop@iPsi(u, theta=th)	   # n x d
+	psiI. <- t(apply(psiI, 1, cumsum)) # n x d
+	## compute all conditional probabilities
+	if(n.MC==0){
+	    ## Note: C(u_j | u_1,...,u_{j-1}) = \psi^{(j-1)}(\sum_{k=1}^j \psi^{-1}(u_k)) / \psi^{(j-1)}(\sum_{k=1}^{j-1} \psi^{-1}(u_k))
+	    C.j <- function(j) { # computes C(u_j | u_1,...,u_{j-1}) with the
+					# same idea but faster than for cacopula()  
+		logD <- cop@absdPsi(as.vector(psiI.[,c(j,j-1)]), theta=th,
+				    degree=j-1, n.MC=0, log=TRUE)
+		res <- logD[1:n]-logD[(n+1):(2*n)]
+		if(log) res else exp(res)
+	    }
+	} else {			  # n.MC > 0
+	    ## draw random variates
+	    V <- cop@V0(n.MC, th)
+	    C.j <- function(j){ # computes C(u_j | u_1,...,u_{j-1}) ... see above
+		## use same idea as default method of absdPsiMC
+		## only difference: only draw V's once
+		arg <- c(psiI.[,j], psiI.[,j-1])
+		iInf <- is.infinite(arg)
+		logD <- numeric(2*n)
+		logD[iInf] <- -Inf
+		if(any(!iInf)) logD[!iInf] <- lsum(-V %*% t(arg[!iInf]) +
+						   (j-1) * log(V) - log(n.MC))
+		res <- logD[1:n]-logD[(n+1):(2*n)]
+		if(log) res else exp(res)
+	    }
+	}
+    } else if(is(cop, "normalCopula")) {
+	sigma <- getSigma(cop)
+	n <- nrow(X <- qnorm(u))
+	C.j <- function(j) { ## j is the dimension -- really a function of (j, X := F(u))
+	    ## log(Determinant) :
+	    stopifnot(j >= 2, (dd <- determinant(Sd <- sigma[1:j,1:j]))$sign >= 0)
+	    logDet <- dd$modulus
+	    ## invsigma is the inverse matrix of sigma[1:j,1:j]
+	    invsigma <- solve(Sd)
+
+	    x <- X[,1:j, drop=FALSE]
+	    x. <- x[,1:(j-1), drop=FALSE]
+	    IS. <- invsigma[-j,-j]
+	    sid <- sqrt(invsigma[j,j])
+
+	    ## sum1 = \sum_{i=1}^{j-1}(a_{id}+a_{di})x_i
+	    sum1 <- colSums( (invsigma[j,1:(j-1)]+invsigma[1:(j-1),j]) * t(x.) )
+	    H <- sid*x[,j] + sum1/(2*sid)
+
+	    ## calculate A
+	    ## sum2 = \sum_{j=1}^{j-1}\sum_{i=1}^{j-1}a_{ij} x_i x_j
+	    sum2 <- if (j==2) invsigma[1,1]*x.^2 else sapply(1:n,
+			function(i) crossprod(x.[i,], IS. %*% x.[i,]))
+
+	    A <- sum2 - sum1^2/(4*invsigma[j,j])
+
+	    ## term= (2\pi)^{(j-1)/2} |\Sigma_j|^{1/2} \sqrt{a_{dd}}
+	    term <-  if(log) (j-1)/2*log(2*pi) + logDet/2 + log(sid)
+	    else (2*pi)^((j-1)/2)*exp(logDet/2)*sid
+	    Id <- if(log) -0.5*A + pnorm(H, log.p=TRUE) - term
+	    else exp(-0.5*A)*pnorm(H)/term
+
+	    ## density of Gaussian copula with dimension j-1
+	    two <- if (j==2) dnorm(x., log=log) else {
+		dmvnorm(x., sigma=sigma[1:(j-1),1:(j-1)], log=log)
+	    }
+	    if(log) Id - two else (Id/two)
+
+	} ## C.j
+
+    } else if(is(cop, "tCopula")) {
+	sigma <- getSigma(cop)
+	df <- getdf(cop)
+	n <- nrow(X <- qt(u, df=df))
+	C.j <- function(j) { ## j is the dimension -- really a function of (j, df, X := F(u))
+	    ## log(Determinant) :
+	    stopifnot(j >= 2, (dd <- determinant(Sd <- sigma[1:j,1:j]))$sign >= 0)
+	    logDet <- dd$modulus
+	    ## invsigma is the inverse matrix of sigma[1:j,1:j]
+	    invsigma <- solve(Sd)
+
+	    x <- X[,1:j, drop=FALSE]
+	    x. <- x[,1:(j-1), drop=FALSE]
+	    IS. <- invsigma[-j,-j]
+	    sid <- sqrt(invsigma[j,j])
+
+	    ## sum1 = \sum_{i=1}^{j-1}(a_{id}+a_{di}) x_i
+	    sum1 <-  colSums( (invsigma[j,1:(j-1)]+invsigma[1:(j-1),j]) * t(x.)	)
+
+	    ## calculate A
+	    ## sum2 = \sum_{j=1}^{j-1}\sum_{i=1}^{j-1}a_{ij} x_i x_j
+	    sum2 <- if (j==2) invsigma[1,1]*x.^2 else sapply(1:n,
+			function(n) crossprod(x.[n,], IS. %*% x.[n,]))
+
+	    A <- sum2-sum1^2/(4*invsigma[j,j])
+
+	    f <- function(z,i) {
+		(1 + ((sid*z+sum1[i]/(2*sid))^2 + A[i])/df)^((-df-j)/2)
+	    }
+
+	    ## term=\frac{\Gamma{[(\nu+j)/2]}}{\Gamma{(\nu/2)}(\nu\pi)^{j/2}|\Sigma_j|^{1/2}}
+	    lterm <- lgamma((df+j)/2)-(lgamma(df/2)+log(pi*df)*(j/2)+0.5*logDet)
+	    Id <- sapply(1:n, function(i)
+			 integrate(f, lower= -Inf, upper= x[i,j], i=i)$value)
+            Id <- if(log) lterm + log(Id) else exp(lterm) * Id
+
+	    ## density of Student-t copula with dimension j-1and degrees of freedom df
+	    two <- if(j==2) dt(x.,df=df, log=log) else {
+		## require(mnormt)
+		## dmt(x. ,df=df, mean = rep(0, (d-1)),S=sigma[1:(d-1),1:(d-1)])
+		dmvt(x., df=df, sigma=sigma[1:(j-1),1:(j-1)], log=log)
+	    }
+	    if(log) pmin(0, Id - two) else pmin(1, Id/two)
+
+	} ## C.j
+
+    } else {
+	stop("not yet implemented for copula class ", class(cop))
     }
-    u[, -1] <- vapply(2:m, C.j, numeric(n))
-    u
+    
+    if(trafo.only)
+	vapply(j.ind, C.j, numeric(n))
+    else {
+	u[, -1] <- vapply(j.ind, C.j, numeric(n))
+	u
+    }
 }
 
 ##' Transforms vectors of random variates following the given (nested) Archimedean

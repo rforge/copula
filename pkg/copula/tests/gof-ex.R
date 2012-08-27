@@ -18,9 +18,10 @@ require(copula)
 sessionInfo() # will change often.. but if we need the info, get it here
 
 ## Regression Tests -- n=1 failed till 2012-07-15
-rtrafo(pobs(rbind(1:4)), onacopula("Gumbel", C(2., 1:4)))
-
-
+u1 <- pobs(rbind(1:4))
+(rtG <- rtrafo(u1, onacopula("Gumbel", C(2., 1:4))))
+stopifnot(all.equal(rtG, rtrafo(u1, gumbelCopula(2, d=4)),
+		    tol = 1e-15))
 
 ### A faster, more checking version of demo(estimation.gof)
 ### that is, of ../demo/estimation.gof.R
@@ -28,10 +29,9 @@ rtrafo(pobs(rbind(1:4)), onacopula("Gumbel", C(2., 1:4)))
 ## Note: This is only for proof of concept, the numbers chosen are not reasonable
 ##       for proper (estimation and) goodness-of-fit testing
 
+(doExtras <- copula:::doExtras())
 source(system.file("Rsource", "estim-gof-fn.R", package="copula"))
 ## --> estimation.gof() etc
-(doExtras <- interactive() || nzchar(Sys.getenv("R_copula_check_extra")) ||
- identical("true", unname(Sys.getenv("R_MM_PKG_CHECKING"))))
 
 ## From source(system.file("test-tools-1.R", package = "Matrix")) :
 showProc.time <- local({

@@ -74,11 +74,10 @@ curveLogL <- function(cop, u, xlim, main, XtrArgs=list(), ...) {
     invisible(r)
 }
 
-if(!exists("doExtras") || !is.logical(doExtras))
-    doExtras <- interactive() || nzchar(Sys.getenv("R_copula_check_extra"))
+if(!exists("doExtras") || !is.logical(doExtras)) doExtras <- copula:::doExtras()
 doExtras
 ## Want to see when "Rmpfr" methods are chosen automatically:
-options("copula:verboseUsingRmpfr" = TRUE)
+op <- options("copula:verboseUsingRmpfr" = TRUE)
 
 
 ### "Joe", tau = 0.2 ###########################################################
@@ -103,11 +102,13 @@ stopifnot(all.equal(mLt1, mL.tr, tol=5e-5),
 
 system.time(r1l  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="log.poly")))
 if(doExtras) {
-mtext("all three polyJ() methods on top of each other")
-system.time(r1J  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="poly"),
-                              add=TRUE, col=adjustcolor("red", .4)))
-system.time(r1m  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="log1p"),
-                              add=TRUE, col=adjustcolor("blue",.5)))
+ mtext("all three polyJ() methods on top of each other")
+ system.time({
+     r1J <- curveLogL(cop, U1, c(1, 2.5), X=list(method="poly"),
+		      add=TRUE, col=adjustcolor("red", .4))
+     r1m  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="log1p"),
+		       add=TRUE, col=adjustcolor("blue",.5))
+ })
 }
 
 U2 <- rnacopula(n,cop)
@@ -199,11 +200,11 @@ U3 <- rnacopula(n,cop)
 enacopula(U1, cop, "mle") # 1.227659 (was 1.241927)
 ##--> Plots with "many" likelihood evaluations
 system.time(r1 <- curveLogL(cop, U1, c(1, 2.1)))
-if(doExtras) {
-mtext("and two other generated samples")
-system.time(r2 <- curveLogL(cop, U2, c(1, 2.1), add=TRUE))
-system.time(r3 <- curveLogL(cop, U3, c(1, 2.1), add=TRUE))
-}
+if(doExtras) system.time({
+ mtext("and two other generated samples")
+ r2 <- curveLogL(cop, U2, c(1, 2.1), add=TRUE)
+ r3 <- curveLogL(cop, U3, c(1, 2.1), add=TRUE)
+})
 
 ### "Gumbel", harder: d = 150, tau = 0.6 #######################################
 
@@ -218,11 +219,11 @@ U5 <- rnacopula(n,cG.5)
 U6 <- rnacopula(n,cG.5)
 
 if(doExtras) { ## "Rmpfr" is used {2012-06-21}: -- therefore about 18 seconds!
-tol <- if(interactive()) 1e-12 else 1e-8
-system.time(
+ tol <- if(interactive()) 1e-12 else 1e-8
+ print(system.time(
  ee. <- c(enacopula(U4, cG.5, "mle", tol=tol),
           enacopula(U5, cG.5, "mle", tol=tol),
-          enacopula(U6, cG.5, "mle", tol=tol)))
+          enacopula(U6, cG.5, "mle", tol=tol))))
 dput(ee.)# in case the following fails
 ## tol=1e-12 Linux nb-mm3 3.2.0-25-generic x86_64 (2012-06-23):
 ##   c(2.47567251789004, 2.48424484287686, 2.50410767129408)
@@ -291,3 +292,5 @@ tail(as.data.frame(r.), 15)
 stopifnot( is.finite( r.$y ),
 	  ## and is convex (everywhere):
 	  diff(r.$y, d=2) > 0)
+
+options(op)# revert to previous state
