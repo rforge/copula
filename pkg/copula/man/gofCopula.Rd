@@ -5,15 +5,16 @@
   Goodness-of-fit tests for copulas based on the empirical process
   comparing the empirical copula with a
   parametric estimate of the copula derived under the null hypothesis.
-  The test statistic is the Cramer-von Mises functional Sn defined
-  in equation (2) of Genest, Remillard and Beaudoin (2009).
+  The test statistic is the Cramer-von Mises functional
+  \eqn{\mathrm{S_n}}{S[n]} defined
+  in Equation (2) of Genest, Remillard and Beaudoin (2009).
   Approximate p-values for the test statistic can be obtained either
   using the \emph{parametric bootstrap} (see the two first
-  references) or by means of a fast \emph{multiplier} approach (see the two
-  last references).
+  references) or by means of a fast \emph{multiplier} approach (see the
+  last two references).
 }
 \usage{
-gofCopula(copula, x, N = 1000, 
+gofCopula(copula, x, N = 1000,
           method = c("Sn", "AnChisq", "AnGamma", "SnB", "SnC"),
           estim.method = c("mpl", "ml", "irho", "itau"),
           simulation = c("pb", "mult"), verbose = TRUE, print.every = NULL,
@@ -30,9 +31,9 @@ gofCopula(copula, x, N = 1000,
     goodness-of-fit test statistic to be used, which has to be one (or a unique
     abbreviation) of \code{"AnChisq"}, \code{"AnGamma"}, \code{"SnB"},
     \code{"SnC"}, or \code{"Sn"}.
-    
-    \code{"Sn"} is \eqn{\mathrm{S_n}}{S[n]} from Genest,
-    R\enc{é}{e}millard, Beaudoin (2009), and for the others see
+
+    \code{"Sn"} is \eqn{\mathrm{S_n}}{S[n]} from Equation (2) in Genest,
+    R\enc{é}{e}millard, Beaudoin (2009). For the others see
     \code{method} in \code{\link{gofTstat}}.
   }
   \item{estim.method}{a character string specifying the estimation method to
@@ -52,14 +53,14 @@ gofCopula(copula, x, N = 1000,
 \details{
   If the parametric bootstrap is used, the dependence parameters of
   the hypothesized copula family can be estimated either by maximizing
-  the pseudo-likelihood or by inverting Kendall's tau or Spearman's rho.
-  If the multiplier is used, any estimation method can be used in the
-  bivariate case, but only maximum pseudo-likelihood
+  the pseudo-likelihood, by inverting Kendall's tau, or by inverting
+  Spearman's rho.  If the multiplier is used, any estimation method
+  can be used in the bivariate case, but only maximum pseudo-likelihood
   estimation can be used in the multivariate (multiparameter) case.
 
   For the normal and t copulas, several dependence structures can be
   hypothesized: \code{"ex"} for exchangeable, \code{"ar1"} for AR(1),
-  \code{"toep"} for  Toeplitz, and \code{"un"} for unstructured (see
+  \code{"toep"} for Toeplitz, and \code{"un"} for unstructured (see
   \code{\link{ellipCopula}}). For the t copula, \code{"df.fixed"} has to
   be set to \code{TRUE}, which implies that the degrees of freedom are
   not considered as a parameter to be estimated.
@@ -69,7 +70,13 @@ gofCopula(copula, x, N = 1000,
 
   Although the processes involved in the multiplier and the parametric
   bootstrap-based test are asymptotically equivalent under the null,
-  the finite-sample behavior of the two tests might differ significantly.
+  note that the finite-sample behavior of the two tests might differ
+  significantly.
+
+  Also note that in case of the parametric bootstrap, a finite-sample
+  correction of type \eqn{(sum(T0 >= T)+0.5)/(N+1)} is made, where
+  \eqn{T} and \eqn{T0} are the test statistic and bootstrapped test
+  statistc, respectively.
 }
 \value{
   An object of \code{\link{class}} \code{htest} which is a list,

@@ -83,7 +83,7 @@ gofTstat(u, method = c("AnChisq", "AnGamma", "SnB", "SnC"))
   \item{\dots}{additional arguments to \code{\link{enacopula}}.}
 }
 \details{
-  The function \code{gnacopula} performs a bootstrap for the
+  The function \code{gnacopula} performs a parametric bootstrap for the
   goodness-of-fit test specified by \code{trafo} and \code{method}.  The
   transformation given by \code{trafo} specifies the multivariate
   transformation which is first applied to the (copula-) data \code{u}
@@ -98,16 +98,21 @@ gofTstat(u, method = c("AnChisq", "AnGamma", "SnB", "SnC"))
   setup.  As estimation method, the method provided by
   \code{estim.method} is used.
 
+  Note that a finite-sample correction of type
+  \eqn{(sum(T0 >= T)+0.5)/(N+1)} is made, where
+  \eqn{T} and \eqn{T0} are the test statistic and bootstrapped test
+  statistc, respectively.
+
   A word of warning: Do work carefully with the variety of different
   goodness-of-fit tests that can be performed with \code{gnacopula()}.
   For example, among the possible estimation methods at hand, only
   MLE is known to be consistent (under conditions to be verified).
   Furthermore, for the tests based on the Anderson-Darling test
-  statistic, it is theoretically not clear whether the bootstrap
+  statistic, it is theoretically not clear whether the parametric bootstrap
   converges.  Consequently, the results obtained should be treated with
   care.  Moreover, several estimation methods are known to be prone to
   numerical errors (see Hofert et al. (2011a)) and are thus not
-  recommended to be used in the bootstrap. A warning is given if
+  recommended to be used in the parametric bootstrap. A warning is given if
   \code{gnacopula()} is called with a method not being MLE.
 
   Since \R is widely used by practitioners, a word of warning concerning
