@@ -122,12 +122,15 @@ t.cop <- tCopula(rep(0, 3), dim = 3, dispstr = "un", df.fixed=TRUE)
 showProc.time()
 
 if(doExtras) {
-for(fitMeth in c("mpl", "ml", "itau", "irho")) {
-    cat("\nfit*( estim.method = '", fitMeth,"')\n----------------------\n\n", sep="")
-    print(gofCopula(gumbC, x, N = 10, verbose=FALSE, estim.method = fitMeth))
-    print(gofCopula(t.cop, x, N = 10, verbose=FALSE, estim.method = fitMeth))
+for(meth in eval(formals(gofCopula)$method)) {
+  cat("\ngof method: ", meth,"\n==========================\n")
+  for(fitMeth in c("mpl", "ml", "itau", "irho")) {
+    cat("fit*( estim.method = '", fitMeth,"')\n------------------------\n", sep="")
+    print(gofCopula(gumbC, x, method=meth, N = 10, verbose=FALSE, estim.method = fitMeth))
+    print(gofCopula(t.cop, x, method=meth, N = 10, verbose=FALSE, estim.method = fitMeth))
+  }
+  showProc.time()
 }
-showProc.time()
 }
 
 ## The same using the multiplier approach -- "ml" is not allowed in general;
@@ -150,7 +153,7 @@ showProc.time()
 ##' @param method one of "SnB" or "SnC"; see Genest, Remillard, Beaudoin (2009)
 ##' @return values of the chosen test statistic
 ##' @author Marius Hofert
-gofTstatSimple <- function(u, method=c("SnB", "SnC")){
+gofTstatSimple <- function(u, method=c("SnB", "SnC")) {
     if(!is.matrix(u)) u <- rbind(u, deparse.level=0L)
     d <- ncol(u)
     n <- nrow(u)
@@ -184,17 +187,19 @@ gofTstatSimple <- function(u, method=c("SnB", "SnC")){
 
 ## Test
 n <- 200
-d <- 3
 set.seed(1)
+
+for(d in if(doExtras) 2:4 else 3) {
 u <- matrix(runif(n*d), ncol=d)
 showProc.time()
-
+##
 system.time(B. <- gofTstat(u, method="SnB"))
 system.time(C. <- gofTstat(u, method="SnC"))
 stopifnot(all.equal(B., gofTstatSimple(u, method="SnB")),
 	  all.equal(C., gofTstatSimple(u, method="SnC")))
-c(SnB = B., SnC = C.)
+print(c(SnB = B., SnC = C.))
 showProc.time()
+}
 
 (cop <- onacopula("Clayton", C(2, 1:d)))
 for(met in gofMeth) {

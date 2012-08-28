@@ -413,7 +413,7 @@ apply the transformations yourself,  see ?gnacopula.")
 
     ## (4) conduct the parametric bootstrap
     theta.hat. <- numeric(n.bootstrap) # vector of estimators
-    T. <- vector("list", n.bootstrap)  # vector of test.stat() results
+    T. <- numeric(n.bootstrap)# vector of gofTstat() results
     if(verbose) {	     # setup progress bar and close it on exit
 	pb <- txtProgressBar(max = n.bootstrap, style = if(isatty(stdout())) 3 else 1)
 	on.exit(close(pb))
@@ -433,13 +433,13 @@ apply the transformations yourself,  see ?gnacopula.")
 	u.prime. <- gtrafomulti(u., cop=cop.hat.)
 
 	## (4.4) compute the test statistic
-        T.[[k]] <- gofTstat(u.prime., method=method)
+        T.[k] <- gofTstat(u.prime., method=method)
         if(verbose) setTxtProgressBar(pb, k) # update progress bar
     }
 
     ## (5) build and return results
     structure(class = "htest",
-	      list(p.value= mean(unlist(T.) > T),
+	      list(p.value= (sum(T. > T) + 0.5)/(n.bootstrap+1),
                    statistic = T, data.name = u.name,
 		   method=meth, estimator=theta.hat,
 		   bootStats = list(estimator=theta.hat., statistic=T.)))
