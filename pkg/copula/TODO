@@ -73,10 +73,11 @@ produce an object of class 'opacopula' ("outer power Archimedean copula")
 which is just 'acopula' with a new show method ("thetabase" at least!),
 possibly a new slot ...
 Longer term: want to *estimate* those correctly [MLE at least].
-*** DONE rtrafo() is now "available" for "t" and "normal"
+*** TODO rtrafo() is now "available" for "t" and "normal"
 thanks to the Master thesis of Yongsheng Wang.  (--> ...../function-gof.R )
---> implement it, and  write a better wrapper for  gnacopula()/gofCopula()
-MH: Maybe we should provide Rosenblatt's transformation in general?
+**** DONE implement it,
+**** TODO write a better wrapper for  gnacopula()/gofCopula()
+**** TODO Extend  rtrafo() to other (d > 2)-copula families
 
 ** TODO New Wrapper functions or rather extending one or the other function names
 *** TODO distribution/density/ ... functions

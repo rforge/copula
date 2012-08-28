@@ -13,7 +13,9 @@
   last references).
 }
 \usage{
-gofCopula(copula, x, N = 1000, method = "mpl",
+gofCopula(copula, x, N = 1000, 
+          method = c("Sn", "AnChisq", "AnGamma", "SnB", "SnC"),
+          estim.method = c("mpl", "ml", "irho", "itau"),
           simulation = c("pb", "mult"), verbose = TRUE, print.every = NULL,
           optim.method = "BFGS", optim.control = list(maxit=20))
 }
@@ -24,7 +26,16 @@ gofCopula(copula, x, N = 1000, method = "mpl",
   \item{N}{ number of bootstrap or multiplier iterations to be used to
     simulate realizations of the test statistic under the null
     hypothesis.}
-  \item{method}{a character string specifying the estimation method to
+  \item{method}{a \code{\link{character}} string specifying the
+    goodness-of-fit test statistic to be used, which has to be one (or a unique
+    abbreviation) of \code{"AnChisq"}, \code{"AnGamma"}, \code{"SnB"},
+    \code{"SnC"}, or \code{"Sn"}.
+    
+    \code{"Sn"} is \eqn{\mathrm{S_n}}{S[n]} from Genest,
+    R\enc{é}{e}millard, Beaudoin (2009), and for the others see
+    \code{method} in \code{\link{gofTstat}}.
+  }
+  \item{estim.method}{a character string specifying the estimation method to
     be used to estimate the dependence parameter(s); can be either \code{"mpl"}
     (maximum pseudo-likelihood), \code{"itau"} (inversion of
     Kendall's tau) or \code{"irho"} (inversion of Spearman's rho).}
@@ -113,19 +124,25 @@ gofCopula(copula, x, N = 1000, method = "mpl",
 ## A two-dimensional data example ----------------------------------
 x <- rCopula(200, claytonCopula(3))
 
+tau. <- cor(x, method="kendall")
 ## Does the Gumbel family seem to be a good choice?
-gofCopula(gumbelCopula(1), x)
+thG <- iTau(gumbelCopula(), tau.)
+gofCopula(gumbelCopula(thG), x)
+# SnC: really s..l..o..w.. --- SnB is *EVEN* slower
+gofCopula(gumbelCopula(thG), x, method = "SnC")
 ## What about the Clayton family?
-gofCopula(claytonCopula(1), x)
+thC <- iTau(claytonCopula(), tau.)
+gofCopula(claytonCopula(thC), x)
+gofCopula(claytonCopula(thC), x, method = "AnChisq")
 
 ## The same with a different estimation method
-gofCopula(gumbelCopula (1), x, method="itau")
-gofCopula(claytonCopula(1), x, method="itau")
+gofCopula(gumbelCopula (thG), x, estim.method="itau")
+gofCopula(claytonCopula(thC), x, estim.method="itau")
+
 
 
 ## A three-dimensional example  ------------------------------------
-x <- rCopula(
-             200, tCopula(c(0.5, 0.6, 0.7), dim = 3, dispstr = "un"))
+x <- rCopula(200, tCopula(c(0.5, 0.6, 0.7), dim = 3, dispstr = "un"))
 
 ## Does the Clayton family seem to be a good choice?
 gofCopula(gumbelCopula(1, dim = 3), x)
@@ -135,8 +152,8 @@ t.copula <- tCopula(rep(0, 3), dim = 3, dispstr = "un", df.fixed=TRUE)
 gofCopula(t.copula, x)
 
 ## The same with a different estimation method
-gofCopula(gumbelCopula(1, dim = 3), x, method="itau")
-gofCopula(t.copula,                 x, method="itau")
+gofCopula(gumbelCopula(1, dim = 3), x, estim.method="itau")
+gofCopula(t.copula,                 x, estim.method="itau")
 
 ## The same using the multiplier approach
 gofCopula(gumbelCopula(1, dim = 3), x, simulation="mult")

@@ -334,7 +334,7 @@ htrafo <- function(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
 ##' @param u (copula-)data matrix
 ##' @param cop outer_nacopula with specified H0 parameters
 ##' @param n.bootstrap number of bootstrap replications
-##' @param estimation.method estimation method, see enacopula
+##' @param estim.method estimation method, see enacopula
 ##' @param include.K boolean whether K is included in the transformation
 ##' @param n.MC parameter n.MC for K
 ##' @param trafo multivariate goodness-of-fit transformation; available are:
@@ -346,7 +346,7 @@ htrafo <- function(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
 ##' @return htest object
 ##' @author Marius Hofert and Martin Maechler
 gnacopula <- function(u, cop, n.bootstrap,
-		      estimation.method= eval(formals(enacopula)$method),
+		      estim.method= eval(formals(enacopula)$method),
 		      include.K= TRUE, n.MC= 0,
 		      trafo= c("Hering.Hofert", "Rosenblatt"),
 		      method= eval(formals(gofTstat)$method),
@@ -364,10 +364,10 @@ apply the transformations yourself,  see ?gnacopula.")
     u.name <- deparse(substitute(u))
 
     ## additional warnings for now
-    estimation.method <- match.arg(estimation.method)
-    if(estimation.method != "mle"){
-	if(estimation.method == "smle") warning("'estimation.method = \"smle\"' may be time-consuming!") else
-	warning("Consistency for the chosen estimation.method is not clear. Additionally, numerical problems might appear.")
+    estim.method <- match.arg(estim.method)
+    if(estim.method != "mle"){
+	if(estim.method == "smle") warning("'estim.method = \"smle\"' may be time-consuming!") else
+	warning("Consistency for the chosen estim.method is not clear. Additionally, numerical problems might appear.")
     }
 
     ## build multivariate transformation
@@ -385,7 +385,7 @@ apply the transformations yourself,  see ?gnacopula.")
 
     ## build test statistic function and 'meth' string describing the method
     meth <- paste0("Bootstrapped (B =", n.bootstrap,") test of ")
-    meth2 <- paste0(method,", est.method = ", estimation.method)
+    meth2 <- paste0(method,", est.method = ", estim.method)
     meth <-
 	switch(method,
 	       "AnChisq" =,  ## A_n
@@ -403,14 +403,13 @@ apply the transformations yourself,  see ?gnacopula.")
 
     ## (1) estimate the parameter by the provided estimation method and
     ##	   define the estimated copula
-    theta.hat <- enacopula(u, cop, method=estimation.method, ...)
+    theta.hat <- enacopula(u, cop, method=estim.method, ...)
     cop.hat <- onacopulaL(cop@copula@name, list(theta.hat, 1:d)) # copula with theta.hat
 
     ## (2) transform the data with the copula with estimated parameter
     u.prime <- gtrafomulti(u, cop=cop.hat) # transformed data in the unit hypercube
-    T <- gofTstat(u.prime, method=method)  # transformed data
-
     ## (3) conduct the Anderson-Darling test or compute the test statistic (depends on method)
+    T <- gofTstat(u.prime, method=method)  # transformed data
 
     ## (4) conduct the parametric bootstrap
     theta.hat. <- numeric(n.bootstrap) # vector of estimators
@@ -427,7 +426,7 @@ apply the transformations yourself,  see ?gnacopula.")
 
 	## (4.2) estimate the parameter by the provided method and define
 	##	     the estimated copula
-	theta.hat.[k] <- enacopula(u., cop, method=estimation.method, ...)
+	theta.hat.[k] <- enacopula(u., cop, method=estim.method, ...)
 	cop.hat. <- onacopulaL(cop@copula@name, list(theta.hat.[k], 1:d))
 
 	## (4.3) transform the data with the copula with estimated parameter

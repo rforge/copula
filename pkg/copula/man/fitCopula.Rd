@@ -18,8 +18,12 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
 }
 \arguments{
   \item{param}{ a vector of parameter values. }
-  \item{x, data}{numeric data matrix.}
-  \item{copula}{ a \code{"\linkS4class{copula}"} object. }
+  \item{x, data}{\eqn{n\times d}{n x d}-matrix of (pseudo-)observations
+    (for \code{"mpl"} and \code{"ml"} with values necessarily in
+    \eqn{[0,1]}) from the copula to be estimated, where \eqn{n} denotes
+    the sample size and \eqn{d} the dimension.  Consider applying the function
+    \code{\link{pobs}} first in order to obtain values in \eqn{[0,1]}.} 
+  \item{copula}{a \code{"\linkS4class{copula}"} object.}
   \item{hideWarnings}{logical; if TRUE, warning messages from
     evaluating the loglikelihood at invalid parameter values are suppressed.}
   \item{method}{a \code{\link{character}} string specifying the method;

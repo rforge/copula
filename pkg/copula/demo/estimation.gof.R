@@ -57,7 +57,7 @@ RR <-
 			      n.bootstrap= 16, # <-- as some methods are time consuming,
 			      ## please choose a larger number here, e.g., 1000,
 			      ## for particular methods.
-			      include.K = TRUE, esti.method = e,
+			      include.K = TRUE, estim.method = e,
 			      gof.trafo = gt, gof.method = gm))
     })
 ## })

@@ -70,7 +70,7 @@ RR <- sapply(gofTraf, simplify="array", function(gt)
                     estimation.gof(n, d=d, simFamily=simFamily, tau=tau,
 				   n.bootstrap= 3, # << "nonsense" for speed reasons;..
 ### for a particular method under consideration, please choose a larger number here, for example 1000
-                                   include.K=TRUE, esti.method = "mle",
+                                   include.K=TRUE, estim.method = "mle",
                                    gof.trafo=gt, gof.method=gm, verbose=FALSE))
          })
 showProc.time()
@@ -100,17 +100,17 @@ set.seed(101)
 x <- rCopula(200, claytonCopula(3))
 
 for(fitMeth in c("mpl", "ml", "itau", "irho")) {
-    cat("\nfit*( method = '", fitMeth,"')\n----------------------\n", sep="")
-    print(gofCopula(gumbelCopula (1), x, N = 10, verbose=FALSE, method = fitMeth))
-    print(gofCopula(claytonCopula(1), x, N = 10, verbose=FALSE, method = fitMeth))
+    cat("\nfit*( estim.method = '", fitMeth,"')\n----------------------\n", sep="")
+    print(gofCopula(gumbelCopula (1), x, N = 10, verbose=FALSE, estim.method = fitMeth))
+    print(gofCopula(claytonCopula(1), x, N = 10, verbose=FALSE, estim.method = fitMeth))
 }
 showProc.time()
 
 ## The same using the multiplier approach -- "ml" is not allowed:
 for(fitMeth in c("mpl", "itau", "irho")) {
-    cat("\nfit*( method = '", fitMeth,"')\n----------------------\n\n", sep="")
-    print(gofCopula(gumbelCopula (1), x, N = 10, verbose=FALSE, method = fitMeth, simulation="mult"))
-    print(gofCopula(claytonCopula(1), x, N = 10, verbose=FALSE, method = fitMeth, simulation="mult"))
+    cat("\nfit*( estim.method = '", fitMeth,"')\n----------------------\n\n", sep="")
+    print(gofCopula(gumbelCopula (1), x, N = 10, verbose=FALSE, estim.method = fitMeth, simulation="mult"))
+    print(gofCopula(claytonCopula(1), x, N = 10, verbose=FALSE, estim.method = fitMeth, simulation="mult"))
 }
 
 ## A three-dimensional example  ------------------------------------
@@ -123,9 +123,9 @@ showProc.time()
 
 if(doExtras) {
 for(fitMeth in c("mpl", "ml", "itau", "irho")) {
-    cat("\nfit*( method = '", fitMeth,"')\n----------------------\n\n", sep="")
-    print(gofCopula(gumbC, x, N = 10, verbose=FALSE, method = fitMeth))
-    print(gofCopula(t.cop, x, N = 10, verbose=FALSE, method = fitMeth))
+    cat("\nfit*( estim.method = '", fitMeth,"')\n----------------------\n\n", sep="")
+    print(gofCopula(gumbC, x, N = 10, verbose=FALSE, estim.method = fitMeth))
+    print(gofCopula(t.cop, x, N = 10, verbose=FALSE, estim.method = fitMeth))
 }
 showProc.time()
 }
@@ -133,9 +133,9 @@ showProc.time()
 ## The same using the multiplier approach -- "ml" is not allowed in general;
 ##  "itau" and "irho"  only  for  d = 2  (for now !)
 for(fitMeth in c("mpl")) {
-    cat("\nfit*( method = '", fitMeth,"')\n----------------------\n\n", sep="")
-    print(gofCopula(gumbC, x, N = 10, method = fitMeth, simulation="mult"))
-    print(gofCopula(t.cop, x, N = 10, method = fitMeth, simulation="mult"))
+    cat("\nfit*( estim.method = '", fitMeth,"')\n----------------------\n\n", sep="")
+    print(gofCopula(gumbC, x, N = 10, estim.method = fitMeth, simulation="mult"))
+    print(gofCopula(t.cop, x, N = 10, estim.method = fitMeth, simulation="mult"))
 }
 showProc.time()
 

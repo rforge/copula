@@ -9,7 +9,7 @@
 }
 \usage{
 gnacopula(u, cop, n.bootstrap,
-          estimation.method = eval(formals(enacopula)$method),
+          estim.method = eval(formals(enacopula)$method),
           include.K=TRUE, n.MC=0, trafo= c("Hering.Hofert", "Rosenblatt"),
           method=eval(formals(gofTstat)$method), verbose=TRUE, \dots)
 gofTstat(u, method = c("AnChisq", "AnGamma", "SnB", "SnC"))
@@ -23,7 +23,7 @@ gofTstat(u, method = c("AnChisq", "AnGamma", "SnB", "SnC"))
     provided).}
   \item{n.bootstrap}{positive integer specifying the number of bootstrap
     replicates.}
-  \item{estimation.method}{\code{\link{character}}
+  \item{estim.method}{\code{\link{character}}
     string determining the estimation method; see
     \code{\link{enacopula}}.  We currently only recommend the default
   \code{"mle"} (or maybe \code{"smle"}).}
@@ -76,7 +76,7 @@ gofTstat(u, method = c("AnChisq", "AnGamma", "SnB", "SnC"))
 	\eqn{\mathrm{S_n^{(B)}}}{S[n]^(B)} from Genest,
 	R\enc{é}{e}millard, Beaudoin (2009).}
       \item{\code{"SnC"}}{for computing the test statistic
-	\eqn{\mathrm{S_n^{(C)}}}{S[n]^(C)} from Genest et al.(2009).}
+	\eqn{\mathrm{S_n^{(C)}}}{S[n]^(C)} from Genest et al. (2009).}
   }}
   \item{verbose}{if \code{TRUE}, the progress of the bootstrap is
     displayed via \code{\link[utils]{txtProgressBar}}.}
@@ -93,10 +93,10 @@ gofTstat(u, method = c("AnChisq", "AnGamma", "SnB", "SnC"))
   carried out, which is either the Anderson-Darling test for the
   univariate standard uniform distribution (for \code{method="AnChisq"} or
   \code{method="AnGamma"}) in a one-dimensional setup or the tests
-  described in Genest, R\enc{é}{e}millard, Beaudoin (2009) for the
+  described in Genest et al. (2009) for the
   multivariate standard uniform distribution directly in a multivariate
   setup.  As estimation method, the method provided by
-  \code{estimation.method} is used.
+  \code{estim.method} is used.
 
   A word of warning: Do work carefully with the variety of different
   goodness-of-fit tests that can be performed with \code{gnacopula()}.
@@ -217,7 +217,7 @@ qq1dtrafo(uH, uR)
 ##       it will be estimated anyway
 copC <- onacopulaL("Clayton", list(1, 1:d))
 res.H0.C <- gnacopula(u, cop=copC, n.bootstrap=10,
-	              estimation.method="mle")
+	              estim.method="mle")
 res.H0.C$p.value # rejection according to 5\% level
 
 ## plot of the transformed data (Hering and Hofert (2011)) to see the deviations
