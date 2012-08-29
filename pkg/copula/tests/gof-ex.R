@@ -94,26 +94,31 @@ showProc.time()
 
 
 ### *Some* minimal  gofCopula() examples {the help page has \dontrun{} !}
+catn <- function(...) cat(..., "\n", sep="")
 set.seed(101)
 
 ## A two-dimensional data example -------
 x <- rCopula(200, claytonCopula(3))
 
 for(fitMeth in c("mpl", "ml", "itau", "irho")) {
-    cat("\nfit*( estim.method = '", fitMeth,"')\n----------------------\n", sep="")
-    print(gofCopula(gumbelCopula (1), x, N = 10, verbose=FALSE, estim.method = fitMeth))
-    print(gofCopula(claytonCopula(1), x, N = 10, verbose=FALSE, estim.method = fitMeth))
+    catn("\nfit*( estim.method = '", fitMeth,"')\n----------------------")
+    print(gofCopula(gumbelCopula (1), x, N = 10, verbose=FALSE,
+		    estim.method = fitMeth))
+    print(gofCopula(claytonCopula(1), x, N = 10, verbose=FALSE,
+		    estim.method = fitMeth))
 }
 showProc.time()
 
 ## The same using the multiplier approach -- "ml" is not allowed:
 for(fitMeth in c("mpl", "itau", "irho")) {
-    cat("\nfit*( estim.method = '", fitMeth,"')\n----------------------\n\n", sep="")
-    print(gofCopula(gumbelCopula (1), x, N = 10, verbose=FALSE, estim.method = fitMeth, simulation="mult"))
-    print(gofCopula(claytonCopula(1), x, N = 10, verbose=FALSE, estim.method = fitMeth, simulation="mult"))
+    catn("\nfit*( estim.method = '", fitMeth,"')\n----------------------\n")
+    print(gofCopula(gumbelCopula (1), x, N = 10, verbose=FALSE,
+		    estim.method = fitMeth, simulation="mult"))
+    print(gofCopula(claytonCopula(1), x, N = 10, verbose=FALSE,
+		    estim.method = fitMeth, simulation="mult"))
 }
 
-## A three-dimensional example  ------------------------------------
+## A three-dimensional example	------------------------------------
 x <- rCopula(200, tCopula(c(0.5, 0.6, 0.7), dim = 3, dispstr = "un"))
 
 gumbC <- gumbelCopula(1, dim = 3)
@@ -121,22 +126,24 @@ t.cop <- tCopula(rep(0, 3), dim = 3, dispstr = "un", df.fixed=TRUE)
 
 showProc.time()
 
-if(doExtras) {
+if(doExtras)
 for(meth in eval(formals(gofCopula)$method)) {
-  cat("\ngof method: ", meth,"\n==========================\n")
+  catn("\ngof method: ", meth,"\n==========================")
   for(fitMeth in c("mpl", "ml", "itau", "irho")) {
-    cat("fit*( estim.method = '", fitMeth,"')\n------------------------\n", sep="")
-    print(gofCopula(gumbC, x, method=meth, N = 10, verbose=FALSE, estim.method = fitMeth))
-    print(gofCopula(t.cop, x, method=meth, N = 10, verbose=FALSE, estim.method = fitMeth))
+    catn("fit*( estim.method = '", fitMeth,"')\n------------------------")
+    print(gofCopula(gumbC, x, method=meth, N = 10, verbose=FALSE,
+		    estim.method = fitMeth))
+    print(gofCopula(t.cop, x, method=meth, N = 10, verbose=FALSE,
+		    estim.method = fitMeth))
   }
   showProc.time()
 }
-}
+
 
 ## The same using the multiplier approach -- "ml" is not allowed in general;
-##  "itau" and "irho"  only  for  d = 2  (for now !)
+##  "itau" and "irho"  only  for  d = 2	 (for now !)
 for(fitMeth in c("mpl")) {
-    cat("\nfit*( estim.method = '", fitMeth,"')\n----------------------\n\n", sep="")
+    catn("\nfit*( estim.method = '", fitMeth,"')\n----------------------\n")
     print(gofCopula(gumbC, x, N = 10, estim.method = fitMeth, simulation="mult"))
     print(gofCopula(t.cop, x, N = 10, estim.method = fitMeth, simulation="mult"))
 }
@@ -148,7 +155,7 @@ showProc.time()
 ##' Simple versions of the test statistics of Genest, Remillard, Beaudoin (2009)
 ##'
 ##' @title Simple versions of the test statistics of Genest, Remillard, Beaudoin (2009)
-##'        for testing U[0,1]^d
+##'	   for testing U[0,1]^d
 ##' @param u n x d matrix of (pseudo-/copula-)observations
 ##' @param method one of "SnB" or "SnC"; see Genest, Remillard, Beaudoin (2009)
 ##' @return values of the chosen test statistic
@@ -174,11 +181,11 @@ gofTstatSimple <- function(u, method=c("SnB", "SnC")) {
 	   "SnC" =
        { ## S_n(C)
 	   Dn <- numeric(n)
-           for(i in 1:n){
-               for(k in 1:n){
-                   Dn[i] <- Dn[i] + all(u[k,] <= u[i,])/n
-               }
-           }
+	   for(i in 1:n){
+	       for(k in 1:n){
+		   Dn[i] <- Dn[i] + all(u[k,] <= u[i,])/n
+	       }
+	   }
 	   Cperp <- apply(u, 1, prod) # independence copula Pi
 	   sum((Dn-Cperp)^2)
        },
@@ -203,7 +210,7 @@ showProc.time()
 
 (cop <- onacopula("Clayton", C(2, 1:d)))
 for(met in gofMeth) {
-    cat("\n gof-method:", met, ":\n---------\n")
+    catn("\n gof-method: ", met, ":\n---------")
     nBoot <- switch(met,
 		    "SnB" = 1,
 		    "SnC" = 2,
@@ -216,7 +223,6 @@ for(met in gofMeth) {
 			  method = met, trafo="Rosenblatt", verbose=FALSE))
     print(gn)
     print(st)
-    cat("=================================================\n")
+    catn("=================================================")
 }
 showProc.time()
-
