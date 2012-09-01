@@ -35,11 +35,11 @@ stopifnot(require(copula))
 ### Simulation  a la  Genest et al (2009) -- of only one case 
 ### -------------------------------------
 gofC <- function(copula, H0copula, n, N, method, seed=NULL,
-                 verbose=FALSE, ...) {
+                 verbose=interactive(), ...) {
     if(!is.null(seed)) set.seed(seed)
     T <- system.time(
         pV <- gofCopula(copula, x = rCopula(n, H0copula), N=N,
-                        method=method, verbose=verbose, ...)$pvalue)
+                        method=method, verbose=verbose, ...)$p.value)
     c(pvalue = pV, T)# or rather list?
 }
 
@@ -60,6 +60,8 @@ H0copF <- claytonCopula
 
 
 if(interactive()) {## Testing:
+    N <- 16
+    n <- 12
     nRep <- 3
 } else {
     nRep <- 10000
@@ -71,7 +73,7 @@ if(interactive()) {## Testing:
  cop <- copF(dim=dim)
 Hcop <- H0copF(thet.0, dim=dim)
 
-require("parallel")
+stopifnot(require("parallel"))
 
 sFile <- paste0("gof-sim_", nmCop(cop), ":", nmCop(Hcop),
                 "_n=", n,
