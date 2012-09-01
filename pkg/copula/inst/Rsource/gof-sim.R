@@ -17,7 +17,7 @@ user <- Sys.getenv("USER")
 switch(user,
        "mhofert"={ # account Marius Hofert (local)
            rm(list=objects()) # remove previously loaded objects
-           setwd("~/R/MMMH/parallel/")
+           setwd("~/R/MMMH/parallel/") ## ?????
        },
        "maechler"={
            setwd("~/R/MM/Pkg-ex/copula")
@@ -43,27 +43,49 @@ gofC <- function(copula, H0copula, n, N, method, seed=NULL,
     c(pvalue = pV, T)# or rather list?
 }
 
+nmCop <- function(copula, n = 4)
+    substr(sub("Copula$", "", as.vector(class(copula))), 1,n)
 
-require("parallel")
-(nC <- detectCores())
 
 ## As Genest et al.
 n <- 150
 dim <- 2
 N <- 1000
+tau <- 0.5
 
 method <- "SnC"
 
-nRep <- 1000
-## Testing:
-nRep <- 20
+H0copF <- claytonCopula
+  copF <- normalCopula
+
+
+if(interactive()) {## Testing:
+    nRep <- 3
+} else {
+    nRep <- 10000
+}##         ===== {MM: guess: ~ 30 hours, on 24 cores, ada-7 }
 
 ## we set seed *INSIDE* set.seed(17)
-(thCl <- iTau(claytonCopula(), 0.5)) # 2
+
+(thet.0 <- iTau(H0copF(), tau)) # 2
+ cop <- copF(dim=dim)
+Hcop <- H0copF(thet.0, dim=dim)
+
+require("parallel")
+
+sFile <- paste0("gof-sim_", nmCop(cop), ":", nmCop(Hcop),
+                "_n=", n,
+                "_d=", dim,
+                "_tau=",formatC(tau),
+                "_nrep=",nRep, ".rda")
+sFile
+
 rr <- mclapply(1:nRep, function(i)
-	       gofC(normalCopula(dim=dim), n = n, N = N,
-		    H0copula = claytonCopula(thCl, dim=dim),
+	       gofC(cop, H0copula = Hcop, n = n, N = N,
 		    seed = i, method = method),
                mc.set.seed=FALSE,
                mc.cores = detectCores())
-save(rr, n,dim,N,method,  file = "gof-sim_rr.rda")
+
+save(rr, n,dim,N,method, cop, Hcop,
+     file = sFile)
+
