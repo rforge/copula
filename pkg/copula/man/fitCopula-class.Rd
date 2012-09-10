@@ -6,7 +6,7 @@
 \alias{fitMvdc-class}
 \alias{summaryFitCopula-class}
 \alias{summaryFitMvdc-class}
-% methods --- see also ./show-methods.Rd ---
+% methods --- see also ./show-methods.Rd, and ./fitMvdc.Rd
 \alias{summary,fitCopula-method}
 \alias{summary,fitMvdc-method}
 \description{

@@ -14,7 +14,6 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
           start = NULL, lower = NULL, upper = NULL,
           optim.method = "BFGS", optim.control = list(maxit=1000),
           estimate.variance = TRUE, hideWarnings = TRUE)
-%% FIXME mention S3 methods  vcov(), coef(), logLik(), nobs()
 }
 \arguments{
   \item{param}{ a vector of parameter values. }
@@ -43,6 +42,10 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
   \item{optim.method}{the \code{method} for \code{\link{optim}}.}
   \item{estimate.variance}{logical; if TRUE, the asymptotic variance is
     estimated.}
+}
+\details{
+  There are methods for \code{\link{vcov}()}, \code{\link{coef}()},
+  \code{\link{logLik}()}, and \code{\link{nobs}()}.
 }
 \value{
   \code{loglikCopula()} returns the log likelihood evaluated at the

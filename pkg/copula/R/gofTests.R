@@ -140,8 +140,8 @@ gofPB <- function(copula, x, N, method, estim.method, verbose, optim.method, opt
         u0 <- pobs(rCopula(n, fcop))
 
         ## fit copula and compute S_n
-        fcop0 <-  fitCopula(copula, u0, method=estim.method, estimate.variance=FALSE,
-                            optim.method=optim.method, optim.control=optim.control)@copula
+	fcop0 <- fitCopula(copula, u0, method=estim.method, estimate.variance=FALSE,
+			   optim.method=optim.method, optim.control=optim.control)@copula
 
         T0[i] <- if(method == "Sn") {
             SnCvM(u0, fcop0)
@@ -159,7 +159,7 @@ gofPB <- function(copula, x, N, method, estim.method, verbose, optim.method, opt
 		   method, estim.method),
                    parameter = c(parameter = fcop@parameters),
                    statistic = c(statistic = T),
-                   p.value = (sum(T0 >= T)+0.5)/(N+1),
+                   p.value = (sum(T0 >= T) +0.5)/(N +1),
                    data.name = deparse(substitute(x))))
 }
 

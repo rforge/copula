@@ -212,7 +212,7 @@ chkParamBounds <- function(copula) {
 loglikCopula <- function(param, x, copula, hideWarnings=FALSE) {
   stopifnot(length(copula@parameters) == length(param))
   copula@parameters <- param
-  if (!chkParamBounds(copula)) return(NaN)
+  if (!chkParamBounds(copula)) return(-Inf)# was NaN
 
 ## FIXME:  use suppressMessages() {and live without  "fitMessages"}
   ## messageOut may be used for debugging
@@ -229,7 +229,7 @@ loglikCopula <- function(param, x, copula, hideWarnings=FALSE) {
     options(warn = 0)
     sink(type="message"); sink(); close(messageOut)
   }
-  if (inherits(loglik, "try-error")) return(NaN)
+  if (inherits(loglik, "try-error")) return(-Inf)# was NaN
   loglik
 }
 

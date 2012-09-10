@@ -33,6 +33,8 @@ stopifnot(require(copula))
 stime <- function() paste(vapply(unclass(as.POSIXlt(Sys.time()))[3:1],
                                  round, 0.12, digits=2), collapse=":")
 stime()
+## TODO: improve, the above gives e.g.
+## [1] "9:19:31.1"
 
 ### Simulation  a la  Genest et al (2009) -- of only one case
 ### -------------------------------------

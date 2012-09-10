@@ -93,10 +93,10 @@ setMethod("show", signature("fitMvdc"), function(object) print.fitMvdc(object))
 
 loglikMvdc <- function(param, x, mvdc, hideWarnings=FALSE) {
   p <- mvdc@copula@dimension
-  margid <- mvdc@marginsIdentical
   marNpar <- vapply(mvdc@paramMargins, length, 1L)
   idx2 <- cumsum(marNpar)
   idx1 <- idx2 - marNpar + 1
+  margid <- mvdc@marginsIdentical
 
   for (i in 1:p) {
     if (marNpar[i] > 0) {
@@ -130,7 +130,7 @@ loglikMvdc <- function(param, x, mvdc, hideWarnings=FALSE) {
   if(is(loglik, "error")) {
       if (!hideWarnings)
 	  warning("error in loglik computation: ", loglik$message)
-      NaN
+      (-Inf)# was NaN
   }
   else loglik
 }
@@ -147,6 +147,7 @@ fitMvdc <- function(data, mvdc, start,
     if(q != length(copula@parameters) +
        (if(mvdc@marginsIdentical) marNpar[1] else sum(marNpar)))
 	stop("The lengths of 'start' and mvdc parameters do not match.")
+    mvdCheckM(mvdc@margins, "p")
     control <- c(optim.control, fnscale=-1)
     control <- control[ !vapply(control, is.null, NA)]
     fit <- optim(start, loglikMvdc,

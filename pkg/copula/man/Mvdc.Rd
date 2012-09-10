@@ -13,7 +13,7 @@
   multivariate distribution via copula.
 }
 \usage{
-mvdc(copula, margins, paramMargins, marginsIdentical = FALSE)
+mvdc(copula, margins, paramMargins, marginsIdentical = FALSE, check = TRUE)
 dMvdc(x, mvdc, log=FALSE)
 pMvdc(x, mvdc)
 rMvdc(n, mvdc)
@@ -27,6 +27,8 @@ rMvdc(n, mvdc)
     distributions. See details below.}
   \item{marginsIdentical}{ logical variable restricting the marginal
     distributions to be identical. }
+  \item{check}{logical indicating to apply quick checks about existence of
+    \code{margins} \dQuote{p*} and \dQuote{d*} functions.}
   \item{mvdc}{a \code{"\linkS4class{mvdc}"} object. }
   \item{x}{ a vector of the copula dimension or a matrix with number of
     columns being the copula dimension, giving the coordinates of the

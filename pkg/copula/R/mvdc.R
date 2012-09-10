@@ -14,17 +14,34 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-mvdc <- function(copula, margins, paramMargins, marginsIdentical = FALSE) {
-  if (marginsIdentical) {
-    if (length(margins) == 1) margins <- rep(margins, copula@dimension)
-    if (length(paramMargins) == 1) paramMargins <- rep(paramMargins, copula@dimension)
-  }
-  new("mvdc", copula = copula, margins = margins, paramMargins = paramMargins,
-       marginsIdentical = marginsIdentical)
+mvdCheckM <- function(margins, prefix = "p") {
+    ex <- vapply(margins, function(M)
+		 existsFunction(paste0(prefix, M)), NA)
+    if(any(!ex))
+	warning("margins correct? Currently, have no function(s) named: ",
+		paste(vapply(unique(margins[!ex]), function(M)
+			     paste0(prefix, M), ""), collapse=", "))
+}
+
+mvdc <- function(copula, margins, paramMargins, marginsIdentical = FALSE,
+                 check = TRUE)
+{
+    if (marginsIdentical) {
+	if(length(margins) == 1)
+	    margins <- rep(margins, copula@dimension)
+	if(length(paramMargins) == 1)
+	    paramMargins <- rep(paramMargins, copula@dimension)
+    }
+    if(check) {
+	mvdCheckM(margins, "p")
+	mvdCheckM(margins, "d")
+    }
+    new("mvdc", copula = copula, margins = margins, paramMargins = paramMargins,
+	marginsIdentical = marginsIdentical)
 }
 
 ##' @title Parameter names of the margins of an "mvdc" object
-##' @param mv 
+##' @param mv
 ##' @return character vector of "the correct" length
 ##' @author Martin Maechler
 margpnames <- function(mv) {

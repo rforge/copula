@@ -168,7 +168,7 @@ gumbelRhoFun <- function(alpha) {
   c(valFun(theta))
 }
 
-gumbelRhoDer <- function(alpha) {
+gumbeldRho <- function(alpha) {
   ss <- .gumbelRho$ss
   forwardTransf <- .gumbelRho$trFuns$forwardTransf
   forwardDer <- .gumbelRho$trFuns$forwardDer
@@ -201,7 +201,7 @@ dTauGumbelCopula <- function(copula) {
 
 dRhoGumbelCopula <- function(copula) {
   alpha <- copula@parameters[1]
-  gumbelRhoDer(alpha)
+  gumbeldRho(alpha)
 }
 
 setMethod("rCopula", signature("numeric", "gumbelCopula"), rgumbelCopula)
