@@ -90,6 +90,8 @@ export(asymCopula)
 exportClasses(asymExplicitCopula)
 export(asymExplicitCopula)
 
+S3method(print, copula)
+S3method(print, mvdc)
 S3method(print, indepTest)
 S3method(print, fitCopula)
 S3method(summary, fitCopula)

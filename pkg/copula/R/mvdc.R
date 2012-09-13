@@ -40,6 +40,9 @@ mvdc <- function(copula, margins, paramMargins, marginsIdentical = FALSE,
 	marginsIdentical = marginsIdentical)
 }
 
+setMethod("dim", "mvdc", function(x) x@copula@dimension)
+
+
 ##' @title Parameter names of the margins of an "mvdc" object
 ##' @param mv
 ##' @return character vector of "the correct" length
@@ -125,3 +128,24 @@ dmvdc <- function(mvdc, x, log=FALSE) { .Deprecated("dMvdc"); dMvdc(x, mvdc, log
 pmvdc <- function(mvdc, x) { .Deprecated("pMvdc"); pMvdc(x, mvdc) }
 rmvdc <- function(mvdc, n) { .Deprecated("rMvdc"); rMvdc(n, mvdc) }
 
+print.mvdc <- function(x, digits = getOption("digits"), ...)
+{
+    cat("Multivariate Distribution Copula based (\"mvdc\")\n @ copula:\n")
+    print(x@copula, digits=digits, ...)
+    cat(" @ margins:\n")
+    print(x@margins, ...)
+    margid <- x@marginsIdentical
+    p <- dim(x)
+    cat("   with", p, if(margid) "identical" else "(not identical)",
+        " margins;")
+    if(margid) {
+        cat(" each with parameters\n")
+        print(x@paramMargins[[1]], ...)
+    } else {
+        cat(" with parameters (@ paramMargins) \n")
+        str(x@paramMargins, digits.d = digits)
+    }
+    invisible(x)
+}
+
+setMethod("show", signature("mvdc"), function(object) print.mvdc(object))

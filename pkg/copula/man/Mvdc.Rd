@@ -76,7 +76,12 @@ rMvdc(n, mvdc)
 ## together via a normal copula
 mv.NE <- mvdc(normalCopula(0.75), c("norm", "exp"),
               list(list(mean = 0, sd =2), list(rate = 2)))
+dim(mv.NE)
+mv.NE  # using its print() / show() method
+
+# Generate (bivariate) random numbers from that, and visualize
 x.samp <- rMvdc(100, mv.NE)
+plot(x.samp)
 dMvdc(x.samp, mv.NE)
 pMvdc(x.samp, mv.NE)
 persp  (mv.NE, dMvdc, xlim = c(-4, 4), ylim=c(0, 1), main = "dMvdc(mv.NE)")

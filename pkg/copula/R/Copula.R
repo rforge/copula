@@ -15,19 +15,19 @@
 
 
 ##' show method
-showCopula <- function(object) {
-  validObject(object)
-  cat(object@fullname, "\n")
-  cat("Dimension: ", object@dimension, "\n")
-  if (length(par <- object@parameters) > 0) {
+print.copula <- function(x, digits = getOption("digits"), ...) {
+  validObject(x)
+  cat(x@fullname, "\n")
+  cat("Dimension: ", x@dimension, "\n")
+  if (length(par <- x@parameters) > 0) {
     cat("Parameters:\n")
     for (i in seq_along(par))
-      cat("  ", object@param.names[i], " = ", par[i], "\n")
+      cat("  ", x@param.names[i], " = ", format(par[i], digits=digits), "\n")
   }
-  invisible(object)
+  invisible(x)
 }
 
-setMethod("show", signature("copula"), showCopula)
+setMethod("show", "copula", function(object) print.copula(object))
 
 
 ### numerical computation of association measures
