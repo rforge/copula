@@ -14,9 +14,13 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
+##' do the margin functions "p<nam>", "d<nam>" exist?
+mvd.has.marF <- function(margins, prefix = "p")
+    vapply(margins, function(M)
+	   existsFunction(paste0(prefix, M)), NA)
+
 mvdCheckM <- function(margins, prefix = "p") {
-    ex <- vapply(margins, function(M)
-		 existsFunction(paste0(prefix, M)), NA)
+    ex <- mvd.has.marF(margins, prefix)
     if(any(!ex))
 	warning("margins correct? Currently, have no function(s) named: ",
 		paste(vapply(unique(margins[!ex]), function(M)
@@ -24,7 +28,7 @@ mvdCheckM <- function(margins, prefix = "p") {
 }
 
 mvdc <- function(copula, margins, paramMargins, marginsIdentical = FALSE,
-                 check = TRUE)
+		 check = TRUE, fixupNames = TRUE)
 {
     if (marginsIdentical) {
 	if(length(margins) == 1)
@@ -35,6 +39,17 @@ mvdc <- function(copula, margins, paramMargins, marginsIdentical = FALSE,
     if(check) {
 	mvdCheckM(margins, "p")
 	mvdCheckM(margins, "d")
+    }
+    if(fixupNames && all(mvd.has.marF(margins, "p"))) {
+	for(i in seq_along(margins)) {
+	    n.i <- names(p.i <- paramMargins[[i]])
+	    if(is.null(n.i) || any(!nzchar(n.i))) {
+		nnms <- names(formals(get(paste0("p",margins[[i]])))[-1])
+		if(length(nnms) > length(p.i)) length(nnms) <- length(p.i)
+		if(is.null(n.i) || length(nnms) == length(n.i))# careful ..
+		   names(paramMargins[[i]]) <- nnms
+	    }
+	}
     }
     new("mvdc", copula = copula, margins = margins, paramMargins = paramMargins,
 	marginsIdentical = marginsIdentical)

@@ -106,5 +106,23 @@ rtevx <- tstFit1cop(tevCopula(, df.fixed=TRUE),
 
 showProc.time()
 
+
+set.seed(121)
+
+### Fitting  multivariate incl margins --- mvdc
+gumbelC <- gumbelCopula(3, dim=2)
+gMvGam <- mvdc(gumbelC, c("gamma","gamma"), param = list(list(2,3), list(4,1)))
+gMvGam # now nicely show()s -- the *AUTO*-constructed parameter names
+X <- rMvdc(16000, gMvGam)
+plot(X, cex = 1/4)
+
+persp  (gMvGam, dMvdc, xlim = c(0,4), ylim=c(0,8)) ## almost discrete ????
+contour(gMvGam, dMvdc, xlim = c(0,2), ylim=c(0,8))
+points(X, cex = 1/16, col=adjustcolor("blue", 0.5))
 
 
+if(FALSE)# unfinished
+fMv <- fitMvdc(X, gMvGam)
+
+
+showProc.time()

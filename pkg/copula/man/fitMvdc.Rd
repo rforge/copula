@@ -84,7 +84,10 @@ fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS",
 \seealso{
   \code{\link{mvdc}} and \code{\linkS4class{mvdc}};
   further, \code{\link{Copula}}, \code{\link{fitCopula}},
-  \code{\link{gofCopula}}.}
+  \code{\link{gofCopula}}.
+
+  For fitting univariate marginals, \code{\link[MASS]{fitdistr}()}.
+}
 \examples{
 gumbel.cop <- gumbelCopula(3, dim=2)
 gMvd2 <- mvdc(gumbel.cop, c("exp","exp"),
