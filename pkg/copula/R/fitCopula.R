@@ -28,12 +28,12 @@ print.fitCopula <- function(x, digits = max(3, getOption("digits") - 3),
     signif.stars = getOption("show.signif.stars"), ...)
 {
     foo <- summary.fitCopula(x)
-    cat("The estimation is based on the ", x@method, "\nand a sample of size ",
+    cat("fitCopula() estimation based on '", x@method, "'\nand a sample of size ",
 	x@nsample, ".\n", sep="")
     printCoefmat(foo$coefficients, digits = digits, signif.stars = signif.stars,
 		 na.print = "NA", ...)
     if (!is.na(foo$loglik))
-	cat("The maximized loglikelihood is ", foo$loglik, "\n")
+	cat("The maximized loglikelihood is ", format(foo$loglik, digits=digits), "\n")
     if (!is.na(foo$convergence)) {
 	if(foo$convergence)
             cat("Convergence problems: code is", foo$convergence, "see ?optim.\n")
@@ -89,7 +89,7 @@ fitCopula <- function(copula, data, method = c("mpl","ml","itau","irho"),
 }
 
 
-fitCopStart <- function(copula, data, hideWarnings, default = copula@parameters)
+fitCopStart <- function(copula, data, default = copula@parameters)
 {
     if (hasMethod("iTau", clc <- class(copula))) {
 	ccl <- getClass(clc)
@@ -98,7 +98,7 @@ fitCopStart <- function(copula, data, hideWarnings, default = copula@parameters)
 				data, FALSE, FALSE)@estimate
 	if(.par.df) ## add starting value for 'df'
 	    start <- c(start, copula@df)
-	if(is.na(loglikCopula(start, data, copula, hideWarnings)))
+	if(!is.finite(loglikCopula(start, data, copula)))
 	    default else start
     }
     else default
@@ -209,28 +209,11 @@ chkParamBounds <- function(copula) {
   !(any(is.na(param) | param > upper | param < lower))
 }
 
-loglikCopula <- function(param, x, copula, hideWarnings=FALSE) {
+loglikCopula <- function(param, x, copula) {
   stopifnot(length(copula@parameters) == length(param))
   copula@parameters <- param
-  if (!chkParamBounds(copula)) return(-Inf)# was NaN
-
-## FIXME:  use suppressMessages() {and live without  "fitMessages"}
-  ## messageOut may be used for debugging
-  if (hideWarnings) {
-    messageOut <- textConnection("fitMessages", open="w", local=TRUE)
-    sink(messageOut); sink(messageOut, type="message")
-    options(warn = -1) ## ignore warnings; can be undesirable!
-  }
-
-  loglik <- try(sum(dCopula(x, copula, log=TRUE)))
-  ##old: loglik <- try(sum(log(dCopula(x, copula))))
-
-  if (hideWarnings) {
-    options(warn = 0)
-    sink(type="message"); sink(); close(messageOut)
-  }
-  if (inherits(loglik, "try-error")) return(-Inf)# was NaN
-  loglik
+  if (chkParamBounds(copula))
+      sum(dCopula(x, copula, log=TRUE)) else -Inf # was NaN
 }
 
 fitCopula.ml <- function(copula, u, start=NULL,
@@ -246,7 +229,7 @@ fitCopula.ml <- function(copula, u, start=NULL,
   if (copula@dimension != d)
     stop("The dimension of the data and copula do not match")
   if(is.null(start))
-    start <- fitCopStart(copula, u, hideWarnings)
+    start <- fitCopStart(copula, u)
   if(any(is.na(start))) stop("'start' contains NA values")
   q <- length(copula@parameters)
   if (q != length(start))
@@ -262,33 +245,23 @@ fitCopula.ml <- function(copula, u, start=NULL,
     lower <- if(meth.has.bounds) copula@param.lowbnd + bound.eps else -Inf
   if (is.null(upper))
     upper <- if(meth.has.bounds) copula@param.upbnd  - bound.eps else Inf
-##  if (p >= 2) {
-  if (TRUE) {
-    fit <- optim(start, loglikCopula,
-                 lower=lower, upper=upper,
-                 method=method,
-                 copula = copula, x = u, hideWarnings = hideWarnings,
-                 control = control)
-    copula@parameters[1:q] <- fit$par
-    loglik <- fit$val
-    if(fit$convergence > 0)
+  fit <- optim(start, loglikCopula,
+               lower=lower, upper=upper,
+               method=method,
+               copula = copula, x = u,
+               control = control)
+  copula@parameters[1:q] <- fit$par
+  loglik <- fit$val
+  if(fit$convergence > 0)
       warning("possible convergence problem: optim() gave code=",
               fit$convergence)
-  }
-##   else {
-##     fit <- optimize(loglikCopula, lower=lower, upper=upper, maximum=TRUE,
-##                     x=u, copula=copula)
-##     copula@parameters <- fit$maximum
-##     loglik <- fit$objective
-##     convergence <- 0
-##   }
-
+  
   varNA <- matrix(NA_real_, q, q)
-  var.est <- if (estimate.variance) {
+  var.est <- if(estimate.variance && fit$convergence == 0) {
     fit.last <- optim(copula@parameters, loglikCopula,
                       lower=lower, upper=upper,
                       method=method,
-                      copula=copula, x=u, hideWarnings=hideWarnings,
+                      copula=copula, x=u,
                       control=c(control, maxit=0), hessian=TRUE)
 
     vcov <- tryCatch(solve(-fit.last$hessian), error = function(e) e)

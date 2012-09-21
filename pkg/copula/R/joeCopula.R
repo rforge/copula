@@ -58,8 +58,8 @@ setMethod("tailIndex", signature("joeCopula"),
 			     upper=copJoe@lambdaU(theta=copula@parameters)))
 
 setMethod("iTau", signature("joeCopula"),
-	  function(copula, tau) copJoe@iTau(tau, tol=1e-7))
-					# now that tauJoe() is accurate
+	  function(copula, tau, tol = 1e-7) copJoe@iTau(tau, tol=tol))
+                                        # now that tauJoe() is accurate
 
 ## "TODO"
 ## setMethod("rho", signature("joeCopula"), ... ? ...)

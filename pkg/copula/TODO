@@ -8,7 +8,8 @@
 
 ** TODO try() in loglikCopula() / loglikMvdc()
 MM+MH: We want to take "error catching" *out* of loglikCopula(), [copula: *our* errors]
-and may be differently *report* reports in loglikMvdc() [margins: *their* errors]
+and may be differently *report* reports in loglikMvdc() [margins: *their* errors].
+MM: "hideWarnings" seems "wrong by design", notably for loglikCopula()
 
 * Short Term
 ** DONE persp(), contour() should work with pCopula / dCopula
