@@ -24,6 +24,7 @@ sinc <- function(x) .Call(sinc_c, x)
 ##' @param alpha parameter in (0,1]
 ##' @return sin(alpha*x)^alpha * sin((1-alpha)*x)^(1-alpha) / sin(x)
 ##' @author Martin Maechler
+## NB: Is exported, documented, demo'ed, but not used by our own code!
 A..Z <- function(x, alpha, I.alpha = 1 - alpha)
     .Call(copula:::A__c, x, alpha, I.alpha)
 

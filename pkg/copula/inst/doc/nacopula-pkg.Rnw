@@ -1,4 +1,3 @@
-
 \documentclass[article,nojss]{jss}
 %% NOTA BENE: More definitions --> further down
 %%%%%%%%%%%%

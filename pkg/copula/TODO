@@ -5,11 +5,11 @@
 ** TODO mvdc() -- fitMvdc() and generate data from fit -- currently wrong on help page;
  - see FIXMEs in R/fitMvdc.R  man/fitMvdc.Rd and man/fitCopula-class.Rd -- think of
    class slots etc.
-
+** DONE rPosStable() is wrong --> use rstable1() [unless options(..) for back compatibility]
 ** DONE no longer try() in loglikCopula()
-MM: "hideWarnings" seems "wrong by design", notably there.
+   MM: "hideWarnings" seems "wrong by design", notably there.
 ** TODO try() in loglikMvdc()
-MM+MH: may be differently *report* reports in loglikMvdc() [margins: *their* errors].
+   MM+MH: may be differently *report* reports in loglikMvdc() [margins: *their* errors].
 
 * Short Term
 ** DONE persp(), contour() should work with pCopula / dCopula

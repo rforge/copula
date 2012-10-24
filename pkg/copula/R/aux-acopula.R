@@ -718,7 +718,7 @@ dSibuya <- function(x, alpha, log=FALSE)
 ##' @title Distribution function of a Sibuya(alpha) distribution
 ##' @param x evaluation point [integer]
 ##' @param alpha parameter alpha
-##' @param lower.tail if TRUE, probabilities are P[X ≤ x], otherwise, P[X > x]
+##' @param lower.tail if TRUE, probabilities are P[X <= x], otherwise, P[X > x]
 ##' @param log.p boolean which determines if the logarithm is returned
 ##' @return F(x) = 1 - (-1)^x * choose(alpha-1, x)
 ##' @author Marius Hofert and Martin Maechler
