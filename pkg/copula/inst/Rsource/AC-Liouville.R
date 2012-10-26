@@ -43,14 +43,13 @@ rSimplex <- function(n, d) {
 ##' @title Generating vectors of random variates from a d-dimensional simplex
 ##'        distribution
 ##' @param n sample size
-##' @param d dimension
+##' @param alpha  numeric positive vector of length d
 ##' @return (n, d) matrix
 ##' @author Marius Hofert
 rDirichlet <- function(n, alpha) {
     stopifnot(n==as.integer(n), n>=0,
-              alpha>0)
-    d <- length(alpha)
-    Z <- matrix(unlist(lapply(alpha, function(a) rgamma(n, a))), nrow=n, ncol=d)
+              alpha > 0)
+    Z <- vapply(alpha, function(a) rgamma(n, a), numeric(n))
     Z/rowSums(Z)
 }
 
@@ -283,5 +282,3 @@ rACLiouville <- function(n, alpha, theta, family=c("Clayton")){
     sapply(1:d, function(j) HbarL(X[,j], j=j, alpha=alpha, theta=theta,
                                   Rdist="Clayton"))
 }
-
-
