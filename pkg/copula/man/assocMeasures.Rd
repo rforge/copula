@@ -148,7 +148,7 @@ iRho (copula, rho, \dots)
   The \code{\linkS4class{acopula}} class objects have slots,
   \code{tau}, \code{lambdaL}, and \code{lambdaU} providing functions for
   \code{tau()}, and the two tail indices \code{tailIndex()},
-  and slot \code{tauInv} for \code{iTau()}, see the
+  and slot \code{iTau} for \code{iTau()}, see the
   examples and \code{\link{copGumbel}}, etc.
 }
 \examples{

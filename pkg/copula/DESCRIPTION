@@ -12,7 +12,7 @@ Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Depends: R (>= 2.14.2), methods
 Imports: stats4, stats, graphics, gsl, ADGofTest, stabledist (>= 0.6-4), mvtnorm, pspline
 Suggests: lattice, MASS, Matrix, KernSmooth, sfsmisc, bbmle, scatterplot3d, Rmpfr,
-	  mvnormtest, tseries, zoo
+	  mvnormtest, tseries, zoo 
 SuggestsComments: packages mvnormtest, tseries, zoo  are only used in demos
 Enhances: nor1mix
 Description: Classes (S4) of commonly used elliptical, Archimedean, extreme
