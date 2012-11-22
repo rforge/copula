@@ -415,6 +415,8 @@ varPL <- function(cop,u)
 ## variance of the estimator based on Kendall's tau ############################
 
 ## copula is the FITTED copula
+
+## Currently "unfinished";  instead  L <- .....(X)   where X <- getXmat() below
 getL <- function(copula) {
   ## for ellipCopula only
   p <- copula@dimension

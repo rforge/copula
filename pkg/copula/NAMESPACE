@@ -80,6 +80,10 @@ export(indepTestSim, indepTest, multIndepTest,
 ## gof tests
 export(gofCopula, gofEVCopula)
 
+## ggraph utils
+export(pairwiseCcop, pairwiseIndepTest, pviTest)## R/ggraph-tools.R
+export(pairsColList, pairsRosenblatt) ## R/ggraph-graphics.R
+
 ## other nonparametric tests
 export(evTestC, evTestA, evTestK)
 export(exchEVTest, exchTest)

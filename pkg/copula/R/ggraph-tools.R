@@ -16,6 +16,8 @@
 
 ### Conditional copula functions ###############################################
 
+### FIXME  replace by cCopula()  [?]
+
 ##' Conditional copula function C(u2|u1) of u2 given u1
 ##'
 ##' @title Bivariate ("2") Conditional Copula function
@@ -117,8 +119,6 @@ pairwiseCcop <- function(u, cop, ...)
 ##' @author Marius Hofert
 pairwiseIndepTest <- function(cu.u, N.sim=256, verbose=TRUE, ...)
 {
-    require(copula)
-
     ## (1) simulate test statistic under independence
     stopifnot(length(dim. <- dim(cu.u)) == 3)
     stopifnot(dim.[2]==dim.[3])

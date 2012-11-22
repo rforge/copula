@@ -1,5 +1,5 @@
 Package: copula
-Version: 0.999-4
+Version: 0.999-5
 Date: $Date$
 SVNrev: $Revision$
 Title: Multivariate Dependence with Copulas
@@ -12,7 +12,7 @@ Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Depends: R (>= 2.14.2), methods
 Imports: stats4, stats, graphics, gsl, ADGofTest, stabledist (>= 0.6-4), mvtnorm, pspline
 Suggests: lattice, MASS, Matrix, KernSmooth, sfsmisc, bbmle, scatterplot3d, Rmpfr,
-	  mvnormtest, tseries, zoo 
+	  mvnormtest, tseries, zoo
 SuggestsComments: packages mvnormtest, tseries, zoo  are only used in demos
 Enhances: nor1mix
 Description: Classes (S4) of commonly used elliptical, Archimedean, extreme
@@ -35,7 +35,7 @@ Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R special-func.
 	estimation.R evCopula.R evTests.R
         exchTests.R fgmCopula.R fitCopula.R fitMvdc.R frankCopula.R
         frankExpr.R galambosCopula.R galambosExpr-math.R galambosExpr.R
-	gof.R
+        ggraph-graphics.R ggraph-tools.R gof.R
         gofEVTests.R gofTests.R graphics.R gumbelCopula.R gumbelExpr.R
         huslerReissCopula.R huslerReissExpr.R indepCopula.R
         indepTests.R joeCopula.R K.R logseries.R mvdc.R normalCopula.R
@@ -43,5 +43,5 @@ Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R special-func.
 	rstable1.R safeUroot.R
 	schlatherCopula.R stable.R
 	timing.R trafos.R
-        tCopula.R tawnCopula.R tawnExpr.R tevCopula.R zzz.R
+        tCopula.R tawnCopula.R tawnExpr.R tevCopula.R wrapper.R zzz.R
 Encoding: UTF-8
