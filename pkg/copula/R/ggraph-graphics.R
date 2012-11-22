@@ -22,8 +22,7 @@
 ##' @param gcu.u (n,d,d)-array of pairwise Rosenblatt-transformed u's
 ##'	   as returned by \code{pairwiseCcop()}
 ##' @param panel pairs() argument
-##' @param bgColList list of pairwise background colors and information as returned
-##'	   by pairsColList()
+##' @param colList list of colors and information as returned by pairsColList()
 ##' @param labels pairs() argument; can be missing (in which case a suitable
 ##'	   default is chosen or can be "none" [or something else])
 ##' @param ... pairs() argument (can contain font.main, cex.main, line.main,
@@ -58,7 +57,7 @@
 ##' @author Marius Hofert
 ##' Note: based on pairs.default() and filled.contour() from R-2.14.1
 pairs2 <- function(gcu.u,
-		   panel=points, bgColList,
+		   panel=points, colList,
 		   labels, ..., text.panel=textPanel,
 		   label.pos=0.5, cex.labels=NULL, font.labels=1, gap=0,
 		   axes=TRUE, panel.border=TRUE,
@@ -69,7 +68,7 @@ pairs2 <- function(gcu.u,
 {
     ## checking
     stopifnot(is.array(gcu.u), is.numeric(gcu.u), length(dc <- dim(gcu.u)) == 3,
-	      dc == c((n <- dc[1]),(d <- dc[2]), d), d>=2)
+	      dc == c((n <- dc[1]), (d <- dc[2]), d), d>=2)
 
     panel <- match.fun(panel)
     if(d * d > 500 - 3 && getRversion() < "2.16.0")
@@ -79,9 +78,8 @@ pairs2 <- function(gcu.u,
     ## preliminaries ###########################################################
 
     ## for plotting text on the diagonal panels
-    textPanel <-
-	function(x = 0.5, y = 0.5, txt, cex, font)
-	    text(x, y, txt, cex = cex, font = font)
+    textPanel <- function(x=0.5, y=0.5, txt, cex, font, col)
+	    text(x, y, txt, cex=cex, font=font, col=col)
 
     ## function for drawing the (local) axes
     localAxis <- function(side, x, y, xpd, bg, col=NULL, main, sub, oma, ...) {
@@ -174,7 +172,7 @@ pairs2 <- function(gcu.u,
 	    ## determine whether we are on the diagonal
 	    mfg <- par("mfg") # for checking afterwards
 	    ok <- TRUE
-	    if(i == j) {
+	    if(i == j) { # i == j
 		if(has.labs) {
 		    ## The following line is commented out since it changes par("usr")
 		    ## on the diagonal. I don't see why this is useful. Indeed, it
@@ -182,7 +180,7 @@ pairs2 <- function(gcu.u,
 		    ## panel.border==TRUE.
 		    ## par(usr=c(0, 1, 0, 1))
 
-		    plot.window(xlim= 0:1, ylim= 0:1)
+		    plot.window(xlim=0:1, ylim=0:1)
 		    ## determine the label sizes
 		    if(is.null(cex.labels)){ # default
 			l.wid <- strwidth(labels, "user")
@@ -191,7 +189,7 @@ pairs2 <- function(gcu.u,
 
 		    ## draw the labels
 		    text.panel(0.5, label.pos, labels[i], cex=cex.labels,
-			       font=font.labels)
+			       font=font.labels, col=colList$fgColMat[i,i])
 		}
 	    } else { # i != j
 		if(any(is.na(xls[,j]), is.na(yls[,i])))
@@ -206,7 +204,7 @@ pairs2 <- function(gcu.u,
 		rect(ll[1], ll[3], ll[2], ll[4], col=bg, if(!panel.border) border=NA) # set background color; xleft, ybottom, xright, ytop
 
 		if(ok)## actual (panel) plot
-		    panel(x, y, ...)
+		    panel(x, y, col=colList$bgColMat[i,j], ...)
 		##  =====
 	    }
 	    if(any(par("mfg")!=mfg)) stop("the 'panel' function made a new plot")
@@ -215,10 +213,10 @@ pairs2 <- function(gcu.u,
 	    ## (as pairs()) above: since we have colored backgrounds, the colors would
 	    ## overwrite parts of the axes if panel.border=TRUE
 	    if(axes && ok) {
-		if(i==1 && !(j %% 2)) localAxis(1 + 2, x, y, ...)
-		if(i==d &&   j %% 2)  localAxis(3 - 2, x, y, ...)
-		if(j==1 && !(i %% 2)) localAxis(2,     x, y, ...)
-		if(j==d &&   i %% 2)  localAxis(4,     x, y, ...)
+		if(i==1 && !(j %% 2)) localAxis(1 + 2, x=x, y=y, ...)
+		if(i==d &&   j %% 2)  localAxis(3 - 2, x=x, y=y, ...)
+		if(j==1 && !(i %% 2)) localAxis(2,     x=x, y=y, ...)
+		if(j==d &&   i %% 2)  localAxis(4,     x=x, y=y, ...)
 	    }
 
 	    ## determine whether we draw boxes around the panels (also leading to a
@@ -336,6 +334,8 @@ pairs2 <- function(gcu.u,
 ##' @param pmin0 a numeric indicating the lower endpoint of pvalueBuckets if pmin=0.
 ##'	   If set to 0, the lowest pvalueBucket will also be 0 (as pmin). If you want
 ##'	   to use pairsColList() for pairs2(), pmin0 should be in (0, min(pdiv))
+##' @param fgColMat matrix of dimensions as P; foreground colors (the default
+##'        will be black if the background color is bright and white if it is dark)
 ##' @param colsBelow vector of (dark) colors for the coloring below signif.P.
 ##'	   Needs to contain at least two different colors as long as there are at least
 ##'	   two buckets below signif.P
@@ -346,21 +346,26 @@ pairs2 <- function(gcu.u,
 ##' @param space see ?colorRampPalette
 ##' @param ... additional arguments passed to colorRampPalette()
 ##' @return a list containing
-##'	    1) a matrix colMat (colors corresponding to P)
-##'	    2) bucketCols (a vector containing the colors corresponding to
+##'         1) a matrix fgColMat of foreground colors (determined by bgColMat)
+##'	    2) a matrix bgColMat of background colors (colors corresponding to P)
+##'	    3) bucketCols (a vector containing the colors corresponding to
 ##'	       pvalueBuckets)
-##'	    3) a vector pvalueBuckets (containing the endpoints of the p-value buckets
+##'	    4) a vector pvalueBuckets (containing the endpoints of the p-value buckets
 ##'	       determining the colors)
 ##' @author Marius Hofert
 pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5), signif.P=0.05,
-			 pmin0=0,
-			 colsBelow=c("blue", "red"), colsAbove=c("orange", "white"),
-			 colDiag="transparent", space="Lab", ...)
+			 pmin0=0, fgColMat=NULL, bgHCL=cbind(below.start=c(-100, 40, 80),
+                                                 below.end=c(-50, 70, 60),
+                                                 above.start=below.end,
+                                                 above.end=c(0, 100, 40)),
+			 colDiag="transparent", ...)
 {
     stopifnot(is.na(P) | (0 <= P & P <= 1), is.matrix(P), (d <- ncol(P))==nrow(P),
 	      (lp <- length(pdiv)) >= 1, 0 < pdiv, pdiv < 1, diff(pdiv) > 0,
 	      length(signif.P)==1, any(is.Pv <- (signif.P == pdiv)),
 	      length(pmin0)==1, 0 <= pmin0, pmin0 <= 1,
+              is.matrix(fgColMat), dim(fgColMat)==dim(P),
+              is.matrix(bgHCL), dim(bgHCL)==c(3,4),
 	      length(colDiag)==1, (ncolsBelow <- length(colsBelow)) >= 1,
 	      (ncolsAbove <- length(colsAbove)) >= 1)
 
@@ -420,38 +425,10 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5), signif.P=0
     ##	  Note: As for the default, the larger the index, the brighter the color
     ##		vector should be so that the plot makes small p-values visible by
     ##		dark colors.
-
-    ## colsBelow.
-    colsBelow. <- if(ncolsBelow.==0){ # there is no bucket below signif.P
-	character()
-    } else if(ncolsBelow.==1){ # there is precisely one bucket below signif.P
-	## in this case, we only need one color of colsBelow; if there are more given,
-	## let's pick out the first one (typically the darkest)
-	colsBelow[1]
-    } else { # there are at least two buckets below signif.P
-	## The problem is that colorRampPalette() fails if there is only one color
-	## => we have to check that
-	if(ncolsBelow==1) stop("colorRampPalette() needs at least two colors specified by 'colsBelow' to interpolate between in this case")
-	colorRampPalette(colsBelow, space=space, ...)(ncolsBelow.)
-    }
-
-    ## colsAbove.
-    colsAbove. <- if(ncolsAbove.==0){ # there is no bucket above signif.P
-	character()
-    } else if(ncolsAbove.==1){ # there is precisely one bucket above signif.P
-	## in this case, we only need one color of colsAbove; if there are more given,
-	## let's pick out the first one (more consistent than picking out the last
-	## one which is typically the brightest)
-	colsAbove[1]
-    } else { # there are at least two buckets above signif.P
-	## The problem is that colorRampPalette() fails if there is only one color
-	## => we have to check that
-	if(ncolsAbove==1) stop("colorRampPalette() needs at least two colors specified by 'colsAbove' to interpolate between in this case")
-	colorRampPalette(colsAbove, space=space, ...)(ncolsAbove.)
-    }
-
-    ## colors for all buckets
-    bucketCols <- c(colsBelow., colsAbove.)
+    colf <- function(n, bgHCL) heat_hcl(n, h=bgHCL[1,], c=bgHCL[2,], l=bgHCL[3,], power=1)
+    colsBelow. <- colf(ncolsBelow., bgHCL[,c("below.start", "below.end")])
+    colsBelow. <- colf(ncolsAbove., bgHCL[,c("above.start", "above.end")])
+    bucketCols <- c(colsBelow., colsAbove.) # colors for all buckets
 
     ## 5) find colors according to p-values
     ind <- findInterval(P, pvalueBuckets, all.inside=TRUE)
@@ -468,11 +445,21 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5), signif.P=0
     cols <- rep(colDiag, d*d) # vector of colors (filled with colDiag)
     nNA <- !is.na(ind)
     cols[nNA] <- bucketCols[ind[nNA]]
-    colMat <- matrix(cols, nrow=nrow(P), ncol=ncol(P))
+    bgColMat <- matrix(cols, nrow=nrow(P), ncol=ncol(P))
 
-    ## 6) return a list containing the matrix of colors, the p-value "buckets"
+    ## 6) determine default foreground color
+    fgColMat <- if(is.null(fgColMat)){
+        z <- col2rgb(bgColMat) # vector of rgb colors
+        bgBright <- colMeans(z) > 127.5 # = (0+255)/2; indicator for a bright background
+        colVec <- rep("white", ncol(z)) # sensation white :-)
+        colVec[bgBright] <- "black" # use black on a bright background
+        matrix(colVec, nrow=d, ncol=d) # create a matrix again
+    }
+
+    ## 7) return a list containing the matrix of colors, the p-value "buckets"
     ##	  and corresponding colors
-    list(colMat=colMat, bucketCols=bucketCols, pvalueBuckets=pvalueBuckets)
+    list(fgColMat=fgColMat, bgColMat=bgColMat,
+         bucketCols=bucketCols, pvalueBuckets=pvalueBuckets)
 }
 
 
@@ -488,8 +475,7 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5), signif.P=0
 ##' @param g1 function [0,1]^n -> [0,1]^n (n = length(u)); "x" for plotting
 ##'	   in one panel
 ##' @param g2 function [0,1]^{n x 2} -> [0,1]^n; "y" for plotting in one panel
-##' @param bgColList list of pairwise background colors and information as returned
-##'	   by pairsColList()
+##' @param colList list of colors and information as returned by pairsColList()
 ##' @param main title
 ##' @param sub sub title with a smart default
 ##' @param ... additional arguments passed to pairs2()
@@ -498,8 +484,8 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5), signif.P=0
 pairsRosenblatt <- function(cu.u, pvalueMat=pviTest(pairwiseIndepTest(cu.u)),
 			    method = c("scatter", "QQchisq", "QQgamma",
 			    "PPchisq", "PPgamma", "none"),
-			    g1, g2, bgColList=pairsColList(pvalueMat, pmin0=1e-5),
-			    main=NULL, sub = gpviString(pvalueMat),
+			    g1, g2, colList=pairsColList(pvalueMat, pmin0=1e-5),
+                            main=NULL, sub = gpviString(pvalueMat),
 			    key.title="p-value", key.rug=TRUE, ...)
 {
     stopifnot(is.array(cu.u), length(dc <- dim(cu.u)) == 3,
@@ -550,7 +536,6 @@ pairsRosenblatt <- function(cu.u, pvalueMat=pviTest(pairwiseIndepTest(cu.u)),
     ##	       and u[,j] for i=j
     ## gcu.u: (n,d,d)-array gcu with gcu[,i,j] containing g2(u[,j], C(u[,i]|u[,j])) for i!=j
     ##	       and g1(u[,j]) for i=j
-
     gcu.u <- array(NA_real_, dim=c(n,d,d))
     if(is.function(g1)) {
 	for(j in 1:d) {			# column
@@ -561,9 +546,11 @@ pairsRosenblatt <- function(cu.u, pvalueMat=pviTest(pairwiseIndepTest(cu.u)),
 		gcu.u[,i,j] <- g2(uj, cuj[,i])
 	}
     }
+
     ## plot
-    pairs2(gcu.u, bgColList=bgColList, main=main, sub=sub,
-	   key.title=key.title, key.rug.at = if(key.rug) pvalueMat, ...)
+    pairs2(gcu.u, colList=colList, main=main, sub=sub,
+	   key.title=key.title, key.rug.at=if(key.rug) pvalueMat, ...)
 }
+
 
 

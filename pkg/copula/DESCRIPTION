@@ -28,20 +28,20 @@ Description: Classes (S4) of commonly used elliptical, Archimedean, extreme
  tools and special functions.
 License: GPL (>= 3)
 Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R special-func.R
-	cop_objects.R nacopula.R
-	derCdfPdf.R amhCopula.R amhExpr.R An.R
-        archmCopula.R asymCopula.R asymExplicitCopula.R claytonCopula.R
-        claytonExpr.R ellipCopula.R empcop.R
-	estimation.R evCopula.R evTests.R
-        exchTests.R fgmCopula.R fitCopula.R fitMvdc.R frankCopula.R
-        frankExpr.R galambosCopula.R galambosExpr-math.R galambosExpr.R
-        ggraph-graphics.R ggraph-tools.R gof.R
-        gofEVTests.R gofTests.R graphics.R gumbelCopula.R gumbelExpr.R
-        huslerReissCopula.R huslerReissExpr.R indepCopula.R
-        indepTests.R joeCopula.R K.R logseries.R mvdc.R normalCopula.R
-        plackettCopula.R plackettExpr.R
-	rstable1.R safeUroot.R
-	schlatherCopula.R stable.R
-	timing.R trafos.R
-        tCopula.R tawnCopula.R tawnExpr.R tevCopula.R wrapper.R zzz.R
+	 cop_objects.R nacopula.R
+	 derCdfPdf.R amhCopula.R amhExpr.R An.R
+         archmCopula.R asymCopula.R asymExplicitCopula.R claytonCopula.R
+         claytonExpr.R ellipCopula.R empcop.R
+	 estimation.R evCopula.R evTests.R
+         exchTests.R fgmCopula.R fitCopula.R fitMvdc.R frankCopula.R
+         frankExpr.R galambosCopula.R galambosExpr-math.R galambosExpr.R
+         ggraph-graphics.R ggraph-tools.R gof.R
+         gofEVTests.R gofTests.R graphics.R gumbelCopula.R gumbelExpr.R
+         huslerReissCopula.R huslerReissExpr.R indepCopula.R
+         indepTests.R joeCopula.R K.R logseries.R mvdc.R normalCopula.R
+         plackettCopula.R plackettExpr.R
+	 rstable1.R safeUroot.R
+	 schlatherCopula.R stable.R
+	 timing.R trafos.R
+         tCopula.R tawnCopula.R tawnExpr.R tevCopula.R wrapper.R zzz.R
 Encoding: UTF-8

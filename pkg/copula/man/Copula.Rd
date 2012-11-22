@@ -132,7 +132,7 @@ rCopula(n, copula, \dots)
   from the same package.
 
   The random number generator for an Archimedean copula uses the
-  conditional approach for the bivariate case and the Marshal-Olkin (1988)
+  conditional approach for the bivariate case and the Marshall-Olkin (1988)
   approach for dimension greater than 2.
 }
 \value{
