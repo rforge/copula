@@ -58,7 +58,7 @@ frankCopula <- function(param = NA_real_, dim = 2L) {
       parameters = param,
       exprdist = c(cdf = cdf, pdf = pdf),
       param.names = "param",
-      param.lowbnd = -Inf,
+      param.lowbnd = if(dim == 2) -Inf else 0,
       param.upbnd = Inf,
       fullname = "Frank copula family; Archimedean copula")
 }

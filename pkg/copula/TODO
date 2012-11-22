@@ -92,6 +92,7 @@ thanks to the Master thesis of Yongsheng Wang.  (--> ...../function-gof.R )
 **** fitCopula() should encompass all methods of enacopula()
 
 *** TODO MMMH: Use new rCopula() in ggraph *instead* of wrappers
+** TODO MM: data(rdj) should have a "Date" in column 1, not a factor !
 
 
 
