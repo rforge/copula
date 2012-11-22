@@ -18,10 +18,10 @@
 
 require(copula)
 
-copFile <- function(f) system.file("Rsource", f, package="copula", mustWork=TRUE)
-source(copFile("wrapper.R"))
-source(copFile("ggraph-tools.R"))
-source(copFile("ggraph-graphics.R"))
+## copFile <- function(f) system.file("Rsource", f, package="copula", mustWork=TRUE)
+## source(copFile("wrapper.R"))
+## source(copFile("ggraph-tools.R"))
+## source(copFile("ggraph-graphics.R"))
 
 setSeeds <- TRUE
 
