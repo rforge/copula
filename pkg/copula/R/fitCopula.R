@@ -69,7 +69,7 @@ setMethod("show", signature("fitCopula"),
 fitCopula <- function(copula, data, method = c("mpl","ml","itau","irho"),
                       start = NULL, lower = NULL, upper = NULL,
                       optim.method = "BFGS", optim.control = list(maxit=1000),
-                      estimate.variance = TRUE, hideWarnings = TRUE)
+                      estimate.variance = TRUE, hideWarnings = FALSE)
 {
   if(!is.matrix(data)) {
     warning("coercing 'data' to a matrix.")
