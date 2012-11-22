@@ -18,11 +18,6 @@
 
 require(copula)
 
-## copFile <- function(f) system.file("Rsource", f, package="copula", mustWork=TRUE)
-## source(copFile("wrapper.R"))
-## source(copFile("ggraph-tools.R"))
-## source(copFile("ggraph-graphics.R"))
-
 ## For now -- "wrappers" that we don't want in the long run
 ## --- --- ../R/wrapper.R
 copCreate <- copula:::copCreate
@@ -43,7 +38,6 @@ if(setSeeds) set.seed(1)
 cop <- getAcop(family)
 th <- cop@iTau(tau) # correct parameter value
 copH0 <- onacopulaL(family, list(th, 1:d)) # define H0 copula
-## FIXME: 'rCopula(' below was 'rcop(' {see ../R/wrapper.R }
 U. <- pobs(rCopula(n, cop=copH0))
 
 ## create array of pairwise copH0-transformed data columns
