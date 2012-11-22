@@ -17,14 +17,7 @@
 #### Wrappers and auxiliary functions for dealing with elliptical (Gauss, t_nu)
 #### and Archimedean copulas
 
-if(getRversion() < 2.15)
-    paste0 <- function (...) paste(..., sep = "")
-
 ### copula objects #############################################################
-
-ac.lnames <- if(packageVersion("copula") >= 0.99)
-    copula:::c_longNames else nacopula:::c_longNames
-
 
 ##' Determine the copula class for a given copula object
 ##'
@@ -67,8 +60,8 @@ copFamily <- function(cop)
 copFamilyClass <- function(family)
 {
     if(family=="normal" || family=="t") "elliptical"
-    else if(family %in% ac.lnames ||
-            family %in% paste0("opower:", ac.lnames)) "nArchimedean"
+    else if(family %in% c_longNames ||
+            family %in% paste0("opower:", c_longNames)) "nArchimedean"
     else stop("family ", family, " not yet supported")
 }
 
@@ -114,54 +107,6 @@ copCreate <- function(family, theta, d, ...)
 }
 
 
-### Kendall's tau ##############################################################
-
-if(FALSE) { ## MM__FIXME__  "old copula" already has tau() and iTau()
-showMethods("iTau", incl=TRUE)
-showMethods("tau", incl=TRUE)
-}## Rather use these by providing "nacopula" methods !!
-
-## ##' Determine tau from given theta (matricized)
-## ##'
-## ##' @title Determine tau from given theta
-## ##' @param theta parameter or matrix of pairwise parameters
-## ##' @param family copula family
-## ##' @param ... additional args passed to tau-slots
-## ##' @return Kendall's tau (possibly a matrix)
-## ##' @author Marius Hofert
-## tau <- function(theta, family, ...)
-## {
-##     switch(copFamilyClass(family),
-##            "elliptical"={
-##                2*asin(theta)/pi
-##            },
-##            "nArchimedean"={
-##                getAcop(family)@tau(theta, ...)
-##            },
-##            stop("family ", family, " not yet supported"))
-## }
-
-## ##' Determine theta from given tau (matricized)
-## ##'
-## ##' @title Determine theta from given tau
-## ##' @param tau Kendalls tau  or matrix of pairwise Kendall's tau
-## ##' @param family copula family
-## ##' @param ... additional args passed to tau-slots
-## ##' @return parameter theta (possibly a matrix)
-## ##' @author Marius Hofert
-## iTau <- function(tau, family, ...)
-## {
-##     switch(copFamilyClass(family),
-##            "elliptical"={
-##                sin(pi/2*tau)
-##            },
-##            "nArchimedean"={
-##                getAcop(family)@iTau(tau, ...)
-##            },
-##            stop("family ", family, " not yet supported"))
-## }
-
-
 ### Sampling ###################################################################
 
 ## MM: should call rCopula()
@@ -202,9 +147,6 @@ rcop <- function(n, cop)
 ##' @author Marius Hofert (and MMa)
 dellip <- function(u, family, P, log=FALSE, df, ...)
 {
-    ## We assume that this will be part of 'copula' which has dmvt() etc in its NAMESPACE
-    ## if(FALSE)## _OR_ that the caller of this function has executed
-    ##     require("mvtnorm")# typically faster than using mvtnorm::* all the time
     val <-
 	switch(family,
 	       "normal" =
