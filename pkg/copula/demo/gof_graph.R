@@ -23,6 +23,11 @@ require(copula)
 ## source(copFile("ggraph-tools.R"))
 ## source(copFile("ggraph-graphics.R"))
 
+## For now -- "wrappers" that we don't want in the long run
+## --- --- ../R/wrapper.R
+copCreate <- copula:::copCreate
+
+
 setSeeds <- TRUE
 
 ### Example 1: 5d Gumbel copula ################################################
@@ -38,7 +43,8 @@ if(setSeeds) set.seed(1)
 cop <- getAcop(family)
 th <- cop@iTau(tau) # correct parameter value
 copH0 <- onacopulaL(family, list(th, 1:d)) # define H0 copula
-U. <- pobs(rcop(n, cop=copH0))
+## FIXME: 'rCopula(' below was 'rcop(' {see ../R/wrapper.R }
+U. <- pobs(rCopula(n, cop=copH0))
 
 ## create array of pairwise copH0-transformed data columns
 cu.u <- pairwiseCcop(U., copH0)
@@ -179,7 +185,7 @@ cop <- getAcop(family)
 th <- cop@iTau(tau <- c(0.2, 0.4, 0.6))
 nacList <- list(th[1], NULL, list(list(th[2], 1:2), list(th[3], 3:d)))
 copG <- copCreate(family, nacList=nacList)
-U <- rcop(n, cop=copG)
+U <- rCopula(n, cop=copG)
 U. <- pobs(U)
 
 ## define the H0 copula
@@ -228,7 +234,7 @@ P <- c(r[2], r[1], r[1], r[1], # upper triangle (without diagonal) of correlatio
                    r[3], r[3],
                          r[3])
 copt4 <- copCreate(family, theta=P, d=d, dispstr="un", df=df, df.fixed=TRUE)
-U <- rcop(n, cop=copt4)
+U <- rCopula(n, cop=copt4)
 U. <- pobs(U)
 
 ## define the H0 copula

@@ -109,9 +109,9 @@ rCopula(n, copula, \dots)
 \arguments{
   \item{copula}{an \R object of class \code{"\linkS4class{Copula}"},
     (i.e., \code{"\linkS4class{copula}"} or  \code{"\linkS4class{nacopula}"}).}
-  \item{u}{a vector of the copula dimension or a matrix with number of
-    columns being equal to the copula dimension, giving the points where
-    the density or distribution function needs to be evaluated.
+  \item{u}{a vector of the copula dimension \eqn{d} or a matrix with \eqn{d}
+    columns, giving the points where the density or distribution
+    function needs to be evaluated.
   }
   \item{log}{logical indicating if the \eqn{\log(f(\cdot))}{log(f(.))}
     should be returned instead of \eqn{f(\cdot)}{f(.)}.}
