@@ -115,7 +115,7 @@ x[,5] <- x[,4]/2 + sqrt(3) * x[,5]/2
 ## {1,...,5} whose cardinality is between 2 and 5, we set p=m=5.
 ## This may take a while...
 
-if(copula:::doExtras()) { ##  run with CRAN checking:%--------------------------------------
+if(copula:::doExtras()) { ## not run, typically:%--------------------------------------
 print(system.time(
 d <- indepTestSim(100,5)
 ))
