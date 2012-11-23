@@ -295,15 +295,15 @@ endSMI <- "2012-03-28"
 stopifnot(require(zoo))# -> to access all the zoo methods
 if(file.exists(SMI.dfil <- "SMI_yh.rda")) load(SMI.dfil) else {
     stopifnot(require(tseries))
-    symSMI <- c("ABBN.VX","ATLN.VX","ADEN.VX","CSGN.VX","GIVN.VX","HOLN.VX",
-    	    "BAER.VX","NESN.VX","NOVN.VX","CFR.VX", "ROG.VX", "SGSN.VX",
-    	    "UHR.VX", "SREN.VX","SCMN.VX","SYNN.VX","SYST.VX","RIGN.VX",
-    	    "UBSN.VX","ZURN.VX")
+    symSMI <- c("ABBN.VX", "ATLN.VX", "ADEN.VX", "CSGN.VX", "GIVN.VX", "HOLN.VX",
+    	        "BAER.VX", "NESN.VX", "NOVN.VX",  "CFR.VX",  "ROG.VX", "SGSN.VX",
+    	         "UHR.VX", "SREN.VX", "SCMN.VX", "SYNN.VX", "SYST.VX", "RIGN.VX",
+    	        "UBSN.VX", "ZURN.VX")
     lSMI <- sapply(symSMI, function(sym)
-    	       get.hist.quote(instrument = sym, start= begSMI, end= endSMI,
-    			      quote = "Close", provider = "yahoo",
-    			      ## fails: retclass= "its", #-> POSIXct
-    			      drop=TRUE))
+                   get.hist.quote(instrument=sym, start=begSMI, end=endSMI,
+                                  quote = "Close", provider = "yahoo",
+                                  ## fails: retclass= "its", #-> POSIXct
+                                  drop=TRUE))
     ## check if stock data have the same length for each company.
     sapply(lSMI, length)
 
