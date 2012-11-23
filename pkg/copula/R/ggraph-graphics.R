@@ -65,8 +65,10 @@ pairs2 <- function(gcu.u,
 		   label.pos=0.5, cex.labels=NULL, font.labels=1, gap=0,
 		   axes=TRUE, panel.border=TRUE,
 		   key=TRUE, key.space=2.5, key.width=1.5, key.axis=TRUE,
-		   key.rug.at = numeric(), key.title=NULL, key.line=5, main=NULL,
-		   main.centered=FALSE, main.line=2, sub=NULL, sub.centered=FALSE,
+		   key.rug.at = numeric(), key.title=NULL, key.line=5,
+                   main=NULL, main.centered=FALSE,
+                   main.line= if(is.list(main)) 5/4*par("cex.main")*rev(seq_along(main)) else 2,
+                   sub=NULL, sub.centered=FALSE,
 		   sub.line=4)
 {
     ## checking
@@ -252,11 +254,10 @@ pairs2 <- function(gcu.u,
 
     ## color key ###############################################################
 
-    ## Note: font.main, cex.main are also needed below (if key == TRUE)
+    ## Note: font.main, cex.main are also needed below (if key is true)
     font.main <- if("font.main" %in% nmdots) dots$font.main else par("font.main")
-    cex.main <- if("cex.main" %in% nmdots) dots$cex.main else par("cex.main")
+    cex.main  <- if("cex.main"  %in% nmdots) dots$cex.main  else par("cex.main")
     if(key) {
-
 	## pick out color info
 	cols <- colList$bucketCols # colors of the colorkey
 	levels <- colList$pvalueBuckets # levels of the color key
