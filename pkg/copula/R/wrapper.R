@@ -165,3 +165,17 @@ dellip <- function(u, family, P, log=FALSE, df, ...)
 	       stop("family ", family, " not yet supported"))
     if(log) val else exp(val)
 }
+
+##' -log-likelihood for t copulas in the degree of freedom parameter
+##'
+##' @title -log-likelihood for t copulas in the degree of freedom parameter
+##' @param nu d.o.f. parameter
+##' @param P correlation matrix
+##' @param u data matrix (in [0,1]^d)
+##' @return -log-likelihood in nu for given P (and u)
+##' @author Marius Hofert
+nLLt <- function(nu, P, u)
+{
+    stopifnot((d <- ncol(u))==ncol(P), ncol(P)==nrow(P))
+    -sum(dellip(u, family="t", P=P, log=TRUE, df=nu))
+}

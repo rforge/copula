@@ -168,7 +168,10 @@ pairs2 <- function(gcu.u,
     ## Pairs plot ##############################################################
 
     ## go over all panels (from top to bottom, left to right)
-    has.colList <- !missing(colList)
+    if(!(has.colList <- !missing(colList))) {
+        fg <- col
+        ## and use the 'bg' argument which defaults to par("bg")
+    }
     for(j in 1:d) { # column
 	x <- gcu.u[,j,j]
 	for(i in 1:d) { # row
@@ -188,10 +191,14 @@ pairs2 <- function(gcu.u,
                 }
             }
             ## draw the colored background (rectangle)
-            fg <- if(has.colList) colList$fgColMat[i,j] else "black"
-            bg <- if(has.colList) colList$bgColMat[i,j] else "transparent"
+            if(has.colList) {
+                fg <- colList$fgColMat[i,j]
+                bg <- colList$bgColMat[i,j]
+            }
+            ## set background color; xleft, ybottom, xright, ytop
             ll <- par("usr")
-            rect(ll[1], ll[3], ll[2], ll[4], col=bg, if(!panel.border) border=NA) # set background color; xleft, ybottom, xright, ytop
+            rect(ll[1], ll[3], ll[2], ll[4], col=bg,
+                 border = if(!panel.border) NA)
             ## draw labels
             if(i==j) {
                 if(has.labs) {
@@ -338,6 +345,7 @@ pairs2 <- function(gcu.u,
 ##'        will be black if the background color is bright and white if it is dark)
 ##' @param bgColMat (d,d) matrix of background colors (kids, don't try this at home!)
 ##' @param col
+##' @param BWcutoff number in (0, 255) for bright/dark background *when* col = "B&W.contrast"
 ##' @param bgHCL (3,4) matrix containing the hcl value ranges of the colors
 ##'        above and below signif.P
 ##' @param below.top
@@ -356,7 +364,8 @@ pairs2 <- function(gcu.u,
 ##'       (adjusted from ?colorspace::heat_hcl)
 pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
                          signif.P = 0.05, pmin0 = 0,##<- FIXME: *no* default, *or* = 1e-5 ??
-                         bucketCols=NULL, fgColMat=NULL, bgColMat=NULL, col = NULL,
+                         bucketCols=NULL, fgColMat=NULL, bgColMat=NULL,
+			 col = "B&W.contrast", BWcutoff = 150,## 127.5 = (0+255)/2
                          bgHCL=cbind(below.bottom= c(-100, 80,  40),
                                      below.top   = c(-65,  66,  61),
                                      above.bottom= c(-35,  54,  79),
@@ -456,12 +465,16 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
     }
 
     ## 4) determine default foreground color
-    if(is.null(fgColMat)){
-        z <- col2rgb(bgColMat) # vector of rgb colors
-        bgBright <- colMeans(z) > 127.5 # = (0+255)/2; indicator for a bright background
-        colVec <- rep("#FFFFFF", ncol(z)) # sensation white :-)
-        colVec[bgBright] <- "#000000" # use black on a bright background
-        fgColMat <- matrix(colVec, nrow=d, ncol=d) # create a matrix again
+    if(is.null(fgColMat)) {
+	cols <-
+	    if(is.null(col) || col == "B&W.contrast") {
+		z <- col2rgb(bgColMat) # vector of rgb colors
+		bgBright <- colMeans(z) > BWcutoff # indicator for a bright background
+		cc <- rep("#FFFFFF", ncol(z)) # sensation white :-)
+		cc[bgBright] <- "#000000" # use black on a bright background
+		cc
+	    } else col
+	fgColMat <- matrix(cols, nrow=d, ncol=d) # create a matrix again
     }
 
     ## 5) return a list containing the matrix of colors, the p-value "buckets"
@@ -495,7 +508,8 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
 pairsRosenblatt <- function(cu.u, pvalueMat=pviTest(pairwiseIndepTest(cu.u)),
 			    method = c("scatter", "QQchisq", "QQgamma",
 			    "PPchisq", "PPgamma", "none"),
-			    g1, g2, colList=pairsColList(pvalueMat, pmin0=1e-5),
+			    g1, g2, col = "B&W.contrast",
+                            colList = pairsColList(pvalueMat, pmin0=1e-5, col=col),
                             main=NULL, sub = gpviString(pvalueMat),
 			    key.title="p-value", key.rug=TRUE, ...)
 {
