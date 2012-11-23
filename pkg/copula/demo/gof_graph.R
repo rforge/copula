@@ -19,7 +19,7 @@
 require(copula)
 
 ## For now -- "wrappers" that we don't want in the long run
-## --- --- ../R/wrapper.R
+## --- --- ../R/wrapper.Rg
 copCreate <- copula:::copCreate
 
 
@@ -70,7 +70,7 @@ pwRoto <- "Pairwise Rosenblatt transformed observations"
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=pwRoto, sub=NULL)
 
 ## 3) with title and manual subtitle
-gp <- format(gpviTest(pmat), digits=1, nsmall=1)
+gp <- format(copula:::gpviTest(pmat), digits=1, nsmall=1)
 sub <- paste(names(gp), gp, sep=": ")
 sub. <- paste(paste(sub[1:3], collapse=", "), "\n",
               paste(sub[4:7], collapse=", "), sep="")
@@ -93,31 +93,57 @@ pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", axes=FALSE)
 ## 7) without axes and borders
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", axes=FALSE, panel.border=FALSE)
 
-## 8) make black colors of the dots less dominant
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", col=adjustcolor("black", 0.5))
+## 8) adjust colors
+if(FALSE) pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", col=adjustcolor("black", 0.5)) # caution: leads to an error due to confusion with argument colList => define your own colList in this case!
 
-## 9) plot just colors (axis labels are automagically removed)
-pairsRosenblatt(cu.u, pvalueMat=pmat, method="none")
+## 9) use your own colors
 
-## 10) also remove labels on the diagonal
-pairsRosenblatt(cu.u, pvalueMat=pmat, method="none", labels="n")
+## construct auxiliary matrix for background colors (similar to the default)
+## alternatively, freely provide bgColMat (but then adjust bucketCols as well!)
+frac <- 0.3 # percentage of how large the "gap" between colors below and above signif.P should be
+a <- (1-frac)/2 # above bottom color boundary (0, a)
+hcl.at <- c(90, 30, 90) # above top color (p = 1)
+hcl.bb <- c(0, 100, 50) # below bottom color (p = pmin0)
+hcl.ab <- hcl.at + a * (hcl.bb-hcl.at) # above bottom color
+hcl.bt <- hcl.at + (1-a) * (hcl.bb-hcl.at) # below top color
+bgHCL <- cbind(below.bottom=hcl.bb, below.top=hcl.bt,
+               above.bottom=hcl.ab, above.top=hcl.at) # build matrix required for pairsColList
 
-## 11) Q-Q plots -- can, in general, better detect outliers
+## compute colList
+colList <- pairsColList(pmat, bgHCL=bgHCL)
+
+## adjust colors
+colDiag <- c("firebrick", "chocolate3", "darkorange2", "royalblue3", "deepskyblue3") # alternatively use hex-codes
+stopifnot(length(colDiag)==ncol(pmat))
+diag(colList$bgColMat) <- "gray94" # adjust background color on the diagonal
+diag(colList$fgColMat) <- colDiag # adjust foreground color on the diagonal
+colList$fgColMat[colList$fgColMat=="#000000"] <- adjustcolor("black", 0.5) # adjust off-diagonal foreground colors
+
+## call pairsRosenblatt with the new colors
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", colList=colList)
+
+## 10) plot just colors (axis labels are automagically removed)
+pairsRosenblatt(cu.u, pvalueMat=pmat, method="none") # TODO: bug!!!
+
+## 11) also remove labels on the diagonal
+pairsRosenblatt(cu.u, pvalueMat=pmat, method="none", labels="n") # TODO: bug!!!
+
+## 12) Q-Q plots -- can, in general, better detect outliers
 pairsRosenblatt(cu.u, pvalueMat=pmat, method="QQchisq", cex=0.2)
 ## pairsRosenblatt(cu.u, pvalueMat=pmat, method="QQchisq", cex=0.2,
 ##                 panel=function(x, y, ...){
 ##                     points(x, y, ...)
 ##                     qqline(y) ## only makes sense for the normal distribution
 ##                 })
-## => TODO: maybe in the future with a more general function for qqline (supporting
-##          other distributions)
+## => maybe in the future with a more general function for qqline (supporting
+##    other distributions)
 
-## 12) P-P plots -- actually, MM sees *more* (though outliers are invisible)
+## 13) P-P plots -- actually, MM sees *more* (though outliers are invisible)
 pairsRosenblatt(cu.u, pvalueMat=pmat, method="PPchisq")
 pairsRosenblatt(cu.u, pvalueMat=pmat, method="PPchisq",
                 panel=function(x, y, ...){
                     points(x, y, ...)
-                    abline(0, 1, col="green") # add straight line
+                    abline(0, 1, col="cyan") # add straight line
                 })
 
 
@@ -127,42 +153,39 @@ pairsRosenblatt(cu.u, pvalueMat=pmat, method="PPchisq",
 ##       sense given the data.
 
 ## 1) one pdiv, within range(pmat)
-pmat <- matrix(c(
-               NA, 0.1, 0.2, 0.3, 0.4,
-               0.2, NA, 0.3, 0.4, 0.5,
-               0.3, 0.4, NA, 0.5, 0.6,
-               0.4, 0.5, 0.6, NA, 0.7,
-               0.5, 0.6, 0.7, 0.8, NA
-               ), nrow=5, ncol=5)
-bgColList <- pairsColList(pmat, pdiv=0.2, signif.P=0.2,
-                          colsBelow="green", colsAbove="orange")
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", bgColList=bgColList)
+pmat <- matrix(c(NA, 0.1, 0.2, 0.3, 0.4,
+                 0.2, NA, 0.3, 0.4, 0.5,
+                 0.3, 0.4, NA, 0.5, 0.6,
+                 0.4, 0.5, 0.6, NA, 0.7,
+                 0.5, 0.6, 0.7, 0.8, NA),
+               nrow=5, ncol=5)
+colList <- pairsColList(pmat, pdiv=0.2, signif.P=0.2)
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", colList=colList)
 
 ## 2) one pdiv, pdiv < min(pmat)
-bgColList <- pairsColList(pmat, pdiv=0.05, signif.P=0.05,
-                          colsBelow="green", colsAbove="orange") # note: we don't even need colsBelow here
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", bgColList=bgColList)
+colList <- pairsColList(pmat, pdiv=0.05, signif.P=0.05)
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", colList=colList)
 
 ## 3) one pdiv, pdiv > max(pmat)
-bgColList <- pairsColList(pmat, pdiv=0.9, signif.P=0.9, colsBelow="green", colsAbove="orange") # note: we don't even need colsAbove here
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", bgColList=bgColList)
+colList <- pairsColList(pmat, pdiv=0.9, signif.P=0.9)
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", colList=colList)
 
 ## 4) one pdiv, equal to all values of pmat
 pmat <- matrix(0.05, nrow=5, ncol=5)
 diag(pmat) <- NA
-bgColList <- pairsColList(pmat, pdiv=0.05, signif.P=0.05, colsBelow="green", colsAbove="orange") # note: we don't even need colsBelow here
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", bgColList=bgColList)
+colList <- pairsColList(pmat, pdiv=0.05, signif.P=0.05)
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", colList=colList)
 ## => plot color key up to 1 (see pairsColList())
 
 ## 5) one p-value equal to 0; in this case we need pmin0 > 0
 pmat[1,2] <- 0
-bgColList <- pairsColList(pmat, signif.P=0.05, pmin0=1e-5)
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", bgColList=bgColList)
+colList <- pairsColList(pmat, signif.P=0.05, pmin0=1e-5)
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", colList=colList)
 
 ## 6) specifically call pairsColList but forget to set pmin0 to check the error message
 if(FALSE){
-    bgColList <- pairsColList(pmat, signif.P=0.05)
-    pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", bgColList=bgColList)
+    colList <- pairsColList(pmat, signif.P=0.05)
+    pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", colList=colList)
 }
 
 
@@ -222,7 +245,7 @@ if(setSeeds) set.seed(4)
 
 ## define and sample the copula, build pseudo-observations
 tau <- c(0.2, 0.4, 0.6)
-r <- iTau(tau, family=family)
+r <- iTau(tCopula(), tau)
 P <- c(r[2], r[1], r[1], r[1], # upper triangle (without diagonal) of correlation "matrix"
              r[1], r[1], r[1],
                    r[3], r[3],
@@ -234,9 +257,10 @@ U. <- pobs(U)
 ## define the H0 copula
 ## Note: that's the same result when using pseudo-observations since estimation via
 ##       tau is invariant strictly increasing transformations
-P. <- nearPD(iTau(cor(U., method="kendall"), family=family))$mat # estimate P
+stopifnot(require(Matrix))
+P. <- nearPD(iTau(tCopula(), cor(U., method="kendall")))$mat # estimate P
 P. <- P.[lower.tri(P.)] # note: upper.tri() would lead to the wrong result due to the required ordering
-plot(P, P., asp=1); abline(0,1, col=adjustcolor("gray",0.5)) # P. should be close to P
+plot(P, P., asp=1); abline(0,1, col=adjustcolor("gray", 0.9)) # P. should be close to P
 copH0 <- copCreate(family, theta=P., d=d, dispstr="un", df=df, df.fixed=TRUE)
 
 ## create array of pairwise copH0-transformed data columns
@@ -262,15 +286,15 @@ pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, main.line=main.line,
                 method = "QQchisq", main.centered=TRUE)
 
 
-
 ### Example 4: SMI constituents ################################################
 
+## TODO: problem with ROG.VX
 begSMI <- "2011-09-09"
 endSMI <- "2012-03-28"
 ##-- read *public* data ------------------------------
-require(zoo)# -> to access all the zoo methods
+stopifnot(require(zoo))# -> to access all the zoo methods
 if(file.exists(SMI.dfil <- "SMI_yh.rda")) load(SMI.dfil) else {
-    require(tseries)
+    stopifnot(require(tseries))
     symSMI <- c("ABBN.VX","ATLN.VX","ADEN.VX","CSGN.VX","GIVN.VX","HOLN.VX",
     	    "BAER.VX","NESN.VX","NOVN.VX","CFR.VX", "ROG.VX", "SGSN.VX",
     	    "UHR.VX", "SREN.VX","SCMN.VX","SYNN.VX","SYST.VX","RIGN.VX",
@@ -303,7 +327,7 @@ pairs(u, gap=0, pch=".", xaxt="n", yaxt="n", main="Pseudo-observations of the lo
       labels=as.expression( sapply(1:d, function(j) bquote(italic(hat(U)[.(j)]))) ))
 
 tau <- cor(u, method="kendall") # estimate pairwise tau
-P <- iTau(tau, family="normal") # compute corresponding matrix of pairwise correlations (equal to family="t")
+P <- iTau(normalCopula(), tau) # compute corresponding matrix of pairwise correlations (equal to family="t")
 
 ### Estimate (a) t-copula(s) with the approach of Demarta, McNeil (2005)
 
@@ -312,14 +336,14 @@ P. <- nearPD(P, corr=TRUE)$mat
 ## image(P.) # nice (because 'P.' is a Matrix-pkg Matrix)
 
 ## estimate nu via MLE for given P
-## nus <- seq(.5, 128, by=.5)
-## nLLt.nu <- sapply(nus, nLLt, P=as.matrix(P.), u=u)
-## for optimization, use s.th. like:
-## optimize(nLLt, interval=c(.5, 128), P=as.matrix(P.), u=u)$minimum
-## plot(nus, nLLt.nu, type="l", xlab=bquote(nu),
-##      ylab=expression(-logL(nu)))
-## plot(nus, nLLt.nu, type="l", xlab=bquote(nu),
-##      ylab=expression(-logL(nu)), log = "xy")
+nus <- seq(.5, 128, by=.5)
+nLLt.nu <- sapply(nus, nLLt, P=as.matrix(P.), u=u)
+for optimization, use s.th. like:
+optimize(nLLt, interval=c(.5, 128), P=as.matrix(P.), u=u)$minimum
+plot(nus, nLLt.nu, type="l", xlab=bquote(nu),
+     ylab=expression(-logL(nu)))
+plot(nus, nLLt.nu, type="l", xlab=bquote(nu),
+     ylab=expression(-logL(nu)), log = "xy")
 ## okay, ... points to a Gaussian copula
 
 ## define the H0 copula
@@ -344,7 +368,7 @@ cc <- pairsColList(pmat) # compute corresponding colors
 ## (ind <- which(pmat < 0.05, arr.ind=TRUE)) # => none!
 
 {## testing *multivariate normality*
-    require(mvnormtest)
+    stopifnot(require(mvnormtest))
 
     print( mshapiro.test(t(x)) )
     ## => p-value < 2.2e-16
@@ -356,5 +380,4 @@ cc <- pairsColList(pmat) # compute corresponding colors
 title <- list("Pairwise Rosenblatt transformed pseudo-observations",
               expression(bold("to test")~~italic(H[0]:C~~bold("is Gaussian"))))
 pairsRosenblatt(cu.u, pvalueMat=pmat, method="none", cex.labels=0.75,
-                key.space=1.5,
-                main.centered=TRUE, main=title, main.line=c(3, 0.4))
+                key.space=1.5, main.centered=TRUE, main=title, main.line=c(3, 0.4))
