@@ -23,6 +23,8 @@
 ##'	   as returned by \code{pairwiseCcop()}
 ##' @param panel pairs() argument
 ##' @param colList list of colors and information as returned by pairsColList()
+##' @param col \emph{instead} of \code{colList}, specifying the points' color
+##' @param bg \emph{instead} of \code{colList}, specifying the constant background color
 ##' @param labels pairs() argument; can be missing (in which case a suitable
 ##'	   default is chosen or can be "none" [or something else])
 ##' @param ... pairs() argument (can contain font.main, cex.main, line.main,
@@ -41,6 +43,7 @@
 ##' @param key.width key width in height of characters in inch
 ##' @param key.axis logical indicating whether an axis for the color key is
 ##'	   drawn
+##' @param key.rug.at
 ##' @param key.title key title
 ##' @param key.line key placement (horizontal distance from color key in lines)
 ##' @param main title
@@ -57,7 +60,7 @@
 ##' @author Marius Hofert
 ##' Note: based on pairs.default() and filled.contour() from R-2.14.1
 pairs2 <- function(gcu.u,
-		   panel=points, colList,
+		   panel=points, colList, col = par("col"), bg = par("bg"),
 		   labels, ..., text.panel=textPanel,
 		   label.pos=0.5, cex.labels=NULL, font.labels=1, gap=0,
 		   axes=TRUE, panel.border=TRUE,
@@ -92,7 +95,7 @@ pairs2 <- function(gcu.u,
 
     ## determine the labels on the diagonal
     has.labs <- TRUE
-    if(missing(labels)){ ## if no labels are giving, choose a reasonable default:
+    if(missing(labels)) { ## if no labels are giving, choose a reasonable default:
 	## the jth column in the pairs plot corresponds to the plot of (u_j, C(u_i|u_j)) => choose  .|u_j
 	labels <- as.expression( lapply(1:d, function(j)
 	    substitute(phantom()%.%"|"* italic(u)[ind], list(ind=j))) )
@@ -102,35 +105,36 @@ pairs2 <- function(gcu.u,
 	stopifnot(length(labels) == d || !(has.labs <- !(labels=="none")))
     }
 
-    xls <- vapply(1:d, function(j)range(gcu.u[,j, j]), numeric(2))# those in the diag.
-    yls <- vapply(1:d, function(i)range(gcu.u[,i,-i]), numeric(2))# those not in diag
+    xls <- vapply(1:d, function(j) range(gcu.u[,j, j]), numeric(2))# those in the diag.
+    yls <- vapply(1:d, function(i) range(gcu.u[,i,-i]), numeric(2))# those not in diag
 
     ## get ... and setup plot options
     op <- par(no.readonly = TRUE) # the whole list of settable par's.
     on.exit(par(op)) # on exit of this function, restore previous settings
     dots <- list(...) # list of ... arguments
     nmdots <- names(dots)
-    oma <- if("oma" %in% nmdots) dots$oma else c(if(!is.null(sub)) 6 else 4, # below
-						 4, # left
-						 if(!is.null(main)) 6 else 4, # top
-						 if(key) 6 else 4) # right
-    par. <- par(mar=rep.int(gap/2,4), oma=oma, las=1) # set mar, oma, las and return previous settings of these parameters
+    oma <- if("oma" %in% nmdots) dots$oma else
+	c(if(!is.null(sub)) 6 else 4, # below
+	  4, # left
+	  if(!is.null(main)) 6 else 4, # top
+	  if(key) 6 else 4) # right
+    par(mar=rep.int(gap/2,4), oma=oma, las=1)
     dev.hold()
-    ## on.exit(dev.flush(), add=TRUE)
-    ## care about *order* of exit calls:
+    ##.. on.exit(dev.flush(), add=TRUE)
+    ##.. not sufficient, as we care about *order* of exit calls:
     on.exit({dev.flush(); par(op)})
-    ## cat("op:\n"); str(op)
-    ## cat("on.exit():\n"); ex <- sys.on.exit(); str(ex)
 
     ## determine layout
     pc <- d*d # plot counter
     layout.mat <- matrix(1:pc, ncol=d) # first d^2 many plots for the pairs plot
-    if(key){
+    if(key) {
 	pc <- pc+1
-	layout.mat <- cbind(layout.mat, rep(0, d), rep(pc, d)) # d^2 + 1 plot for color key; bind column of white space and the plot region for the color key to the layout
+        ## d^2 + 1 plot for color key;
+        ## bind column of white space and the plot region for the color key to the layout:
+	layout.mat <- cbind(layout.mat, rep(0, d), rep(pc, d))
     }
     nLineAdded <- 0 # for substraction later on (in heights.)
-    if(!is.null(main)){ # we have a title
+    if(!is.null(main)) { # we have a title
 	## Idea: If main.centered, create a full-width bar at the top of the plotting
 	##	 region. If !main.centered, create such a bar only on top of the pairs
 	##	 plot. Note that the height + distance do not play a role since we
@@ -140,7 +144,7 @@ pairs2 <- function(gcu.u,
 					      pc else 0, 2)), layout.mat) # d^2 + 2 plot
 	nLineAdded <- nLineAdded+1
     }
-    if(!is.null(sub)){ # as for main
+    if(!is.null(sub)) { # as for main
 	pc <- pc+1
 	layout.mat <- rbind(layout.mat, c(rep(pc, d), rep(if(sub.centered)
 							  pc else 0, 2))) # d^2 + 3 plot
@@ -171,11 +175,10 @@ pairs2 <- function(gcu.u,
 	    plot.new()
 	    mfg <- par("mfg") # for checking afterwards
 
-            ## check if everything is fine for plotting (especially if method="none"
-            ## in pairsRosenblatt()) and set up coordinate system
-            ok <- if(any(is.na(xls[,j]), is.na(yls[,i]))) FALSE else TRUE
-            if(ok){
-                if(i!=j){
+	    ## everything ok for plotting (especially if method="none" in pairsRosenblatt())?
+	    ok <- !any(is.na(xls[,j]), is.na(yls[,i]))
+	    if(ok) { ## set up coordinate system
+                if(i!=j) {
                     plot.window(xlim=xls[,j], ylim=yls[,i])
                     y <- gcu.u[,i,j]
                 } else {
@@ -189,9 +192,9 @@ pairs2 <- function(gcu.u,
             rect(ll[1], ll[3], ll[2], ll[4], col=bg, if(!panel.border) border=NA) # set background color; xleft, ybottom, xright, ytop
             ## draw labels
             if(i==j) {
-                if(has.labs){
+                if(has.labs) {
                     ## determine the label sizes
-                    if(is.null(cex.labels)){ # default
+                    if(is.null(cex.labels)) { # default
                         l.wid <- strwidth(labels, "user")
                         cex.labels <- max(0.8, min(2, .9/max(l.wid)))
                     }
@@ -220,7 +223,7 @@ pairs2 <- function(gcu.u,
 
 	    ## determine whether we draw boxes around the panels (also leading to a
 	    ## global box) or just one global box
-	    if(panel.border){ # a border is drawn (easy case)
+	    if(panel.border) { # a border is drawn (easy case)
 		box() # draw it by simply drawing boxes around each panel
 	    } else { # no border is drawn around the panels, but we still want to have a "global" box
 		ll <- par("usr") # note: this changes if par(usr=c(0, 1, 0, 1)) is used above
@@ -252,7 +255,7 @@ pairs2 <- function(gcu.u,
     ## Note: font.main, cex.main are also needed below (if key == TRUE)
     font.main <- if("font.main" %in% nmdots) dots$font.main else par("font.main")
     cex.main <- if("cex.main" %in% nmdots) dots$cex.main else par("cex.main")
-    if(key){
+    if(key) {
 
 	## pick out color info
 	cols <- colList$bucketCols # colors of the colorkey
@@ -287,32 +290,28 @@ pairs2 <- function(gcu.u,
     ## title ###################################################################
 
     adj <- if("adj" %in% nmdots) dots$adj else par("adj") # also for sub
-    if(!is.null(main)){
+    if(!is.null(main)) {
 	plot.new()
 	plot.window(xlim=c(0,1), ylim=c(0,1))
-	## turn clipping off so that the title is visible if broader than the plot region
-	par(xpd=NA)
-	if(!is.list(main)){
-	    mtext(main, side=3, line=main.line, adj=adj, cex=cex.main, font=font.main) # title
+	## xpd: turn clipping off so that title is visible if broader than plot region
+	if(!is.list(main)) { # title
+	    mtext(main, side=3, line=main.line, adj=adj, cex=cex.main, font=font.main, xpd=NA)
 	} else { # for multi-line titles we accept a list
 	    stopifnot(length(main) == length(main.line))
 	    for(i in seq_along(main))
 		mtext(main[[i]], side=3, line=main.line[i], adj=adj,
-		      cex=cex.main, font=font.main)
+		      cex=cex.main, font=font.main, xpd = NA)
 	}
-	par(xpd=FALSE) # restore default
     }
 
     ## sub-title ###############################################################
 
-    if(!is.null(sub)){
+    if(!is.null(sub)) {
 	plot.new()
 	plot.window(xlim=c(0,1), ylim=c(0,1))
-	## turn clipping off so that the sub-title is visible if broader than the plot region
-	par(xpd=NA)
-	mtext(sub, side=3, line=-sub.line, adj=adj, cex=0.75*cex.main,
-	      font=0.75*font.main) # title
-	par(xpd=FALSE) # restore default
+	## xpd: turn clipping off so that the sub title is visible if broader than plot region
+	mtext(sub, side=3, line=-sub.line, adj=adj, xpd = NA,
+              cex=0.75*cex.main, font=0.75*font.main) # title
     }
 
     ## return invisibly
@@ -337,33 +336,36 @@ pairs2 <- function(gcu.u,
 ##' @param fgColMat (d,d) matrix with foreground colors (the default
 ##'        will be black if the background color is bright and white if it is dark)
 ##' @param bgColMat (d,d) matrix of background colors (kids, don't try this at home!)
+##' @param col
 ##' @param bgHCL (3,4) matrix containing the hcl value ranges of the colors
 ##'        above and below signif.P
-##' @param ... currently not used
-##' @return a list containing
-##'         1) a matrix fgColMat of foreground colors (determined by bgColMat)
-##'	    2) a matrix bgColMat of background colors (colors corresponding to P)
-##'	    3) bucketCols (a vector containing the colors corresponding to
-##'	       pvalueBuckets)
-##'	    4) a vector pvalueBuckets (containing the endpoints of the p-value buckets
-##'	       determining the colors)
+##' @param below.top
+##' @param above.bottom
+##' @param above.top
+##' @return a named list with components
+##'	    $ fgColMat: a matrix of foreground colors (determined by bgColMat)
+##'	    $ bgColMat: a matrix of background colors (colors corresponding to P)
+##'	    $ bucketCols: a vector containing the colors corresponding to pvalueBuckets
+##'	    $ pvalueBuckets: a vector containing the endpoints of the p-value buckets
+##'	       determining the colors
 ##' @author Marius Hofert
 ##' Note: default colors are created as in the demo, with
 ##'       hcl.at <- c(0, 40, 100) # above top color (p = 1)
 ##'       hcl.bb <- c(-100, 80, 40) # below bottom color (p = pmin0)
 ##'       (adjusted from ?colorspace::heat_hcl)
-pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5), signif.P=0.05,
-			 pmin0=0, bucketCols=NULL, fgColMat=NULL, bgColMat=NULL,
-                         bgHCL=cbind(below.bottom=c(-100, 80, 40),
-                                     below.top=c(-65, 66, 61),
-                                     above.bottom=c(-35, 54, 79),
-                                     above.top=c(0, 40, 100)), ...)
+pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
+                         signif.P = 0.05, pmin0 = 0,##<- FIXME: *no* default, *or* = 1e-5 ??
+                         bucketCols=NULL, fgColMat=NULL, bgColMat=NULL, col = NULL,
+                         bgHCL=cbind(below.bottom= c(-100, 80,  40),
+                                     below.top   = c(-65,  66,  61),
+                                     above.bottom= c(-35,  54,  79),
+                                     above.top   = c( 0,   40, 100)))
 {
     stopifnot(is.na(P) | (0 <= P & P <= 1), is.matrix(P), (d <- ncol(P))==nrow(P),
 	      (lp <- length(pdiv)) >= 1, 0 < pdiv, pdiv < 1, diff(pdiv) > 0,
 	      length(signif.P)==1, any(is.Pv <- (signif.P == pdiv)),
 	      length(pmin0)==1, 0 <= pmin0, pmin0 <= 1,
-              is.matrix(bgHCL), dim(bgHCL)==c(3,4))
+              is.matrix(bgHCL), dim(bgHCL) == c(3,4))
     if(!is.null(bucketCols)) stopifnot(is.vector(bucketCols), length(bucketCols)==lp)
     if(!is.null(fgColMat)) stopifnot(is.matrix(fgColMat), dim(fgColMat)==dim(P))
     if(!is.null(bgColMat)) stopifnot(is.matrix(bgColMat), dim(bgColMat)==dim(P))
@@ -480,12 +482,15 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5), signif.P=0
 ##' @param g1 function [0,1]^n -> [0,1]^n (n = length(u)); "x" for plotting
 ##'	   in one panel
 ##' @param g2 function [0,1]^{n x 2} -> [0,1]^n; "y" for plotting in one panel
+##' @param col if colList is not specified: used to construct default colList
 ##' @param colList list of colors and information as returned by pairsColList()
 ##' @param main title
 ##' @param sub sub title with a smart default
+##' @param key.title
+##' @param key.rug
 ##' @param ... additional arguments passed to pairs2()
 ##' @return invisible
-##' @author Marius Hofert
+##' @author Marius Hofert and Martin Maechler
 pairsRosenblatt <- function(cu.u, pvalueMat=pviTest(pairwiseIndepTest(cu.u)),
 			    method = c("scatter", "QQchisq", "QQgamma",
 			    "PPchisq", "PPgamma", "none"),
