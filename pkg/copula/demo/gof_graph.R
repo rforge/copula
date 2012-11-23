@@ -123,10 +123,10 @@ colList$fgColMat[colList$fgColMat=="#000000"] <- adjustcolor("black", 0.5) # adj
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", colList=colList)
 
 ## 10) plot just colors (axis labels are automagically removed)
-pairsRosenblatt(cu.u, pvalueMat=pmat, method="none") # TODO: bug!!!
+pairsRosenblatt(cu.u, pvalueMat=pmat, method="none")
 
 ## 11) also remove labels on the diagonal
-pairsRosenblatt(cu.u, pvalueMat=pmat, method="none", labels="n") # TODO: bug!!!
+pairsRosenblatt(cu.u, pvalueMat=pmat, method="none", labels="n")
 
 ## 12) Q-Q plots -- can, in general, better detect outliers
 pairsRosenblatt(cu.u, pvalueMat=pmat, method="QQchisq", cex=0.2)

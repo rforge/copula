@@ -83,9 +83,9 @@ pairs2 <- function(gcu.u,
 
     ## function for drawing the (local) axes
     localAxis <- function(side, x, y, xpd, bg, col=NULL, main, sub, oma, ...) {
-      ## Explicitly ignore any color argument passed in as
-      ## it was most likely meant for the data points and
-      ## not for the axis.
+        ## Explicitly ignore any color argument passed in as
+        ## it was most likely meant for the data points and
+        ## not for the axis.
 	if(side %%2 == 1) Axis(x, side=side, xpd=NA, ...)
 	else Axis(y, side=side, xpd=NA, ...)
     }
@@ -171,16 +171,16 @@ pairs2 <- function(gcu.u,
 	    plot.new()
 	    mfg <- par("mfg") # for checking afterwards
 
-            ## check if everything is fine for plotting and set up coordinate system
-	    ok <- TRUE
-            if(i!=j){
-                if(any(is.na(xls[,j]), is.na(yls[,i]))) ok <- FALSE
-		if(ok) {
-		    plot.window(xlim=xls[,j], ylim=yls[,i])
-		    y <- gcu.u[,i,j]
-		}
-            } else {
-                plot.window(xlim=0:1, ylim=0:1)
+            ## check if everything is fine for plotting (especially if method="none"
+            ## in pairsRosenblatt()) and set up coordinate system
+            ok <- if(any(is.na(xls[,j]), is.na(yls[,i]))) FALSE else TRUE
+            if(ok){
+                if(i!=j){
+                    plot.window(xlim=xls[,j], ylim=yls[,i])
+                    y <- gcu.u[,i,j]
+                } else {
+                    plot.window(xlim=0:1, ylim=0:1)
+                }
             }
             ## draw the colored background (rectangle)
             fg <- if(has.colList) colList$fgColMat[i,j] else "black"
