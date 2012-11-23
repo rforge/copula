@@ -77,12 +77,14 @@ pairwiseCcop <- function(u, cop, ...)
 
     ## (1) determine copula class and compute auxiliary results
     cls <- copClass(cop)
+    family <- copFamily(cop) # determine copula family
     switch(cls,
            "elliptical"={
                ## build correlation matrix from vector of copula parameters
                P <- matrix(0, nrow=d, ncol=d)
 	       rho <- cop@parameters
-	       P[lower.tri(P)] <- if(cop@df.fixed) rho else rho[-length(rho)]
+	       P[lower.tri(P)] <- if(family == "normal" || cop@df.fixed)
+		   rho else rho[-length(rho)]
                P <- P + t(P)
                diag(P) <- rep.int(1, d)
            },
@@ -93,14 +95,13 @@ pairwiseCcop <- function(u, cop, ...)
            stop("not yet supported copula object"))
 
     ## (2) compute pairwise C(u_i|u_j)
-    family <- copFamily(cop) # determine copula family
     n <- nrow(u)
     cu.u <- array(NA_real_, dim=c(n,d,d), dimnames=list(C.ui.uj=1:n, ui=1:d, uj=1:d))
     ## cu.u[,i,j] contains C(u[,i]|u[,j]) for i!=j and u[,i] for i=j
     for(i in 1:d) { # first index C(u[,i]|..)
         for(j in 1:d) { # conditioning index C(..|u[,j])
-            cu.u[,i,j] <- if(i==j) u[,i] else
-            ccop2(u[,i], u[,j], family, theta=P[i,j], ...)
+	    cu.u[,i,j] <- if(i==j) u[,i] else
+		ccop2(u[,i], u[,j], family, theta=P[i,j], ...)
         }
     }
     cu.u
