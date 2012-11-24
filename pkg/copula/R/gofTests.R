@@ -54,7 +54,8 @@ gofCopula <- function(copula, x, N = 1000,
     }
     ## back-compatibility:
     if(missing(estim.method) && !missing(method)) {
-	if(!is.na(i <- pmatch(method, (eMeth <- formals()$estim.method)))) {
+        eMeth <- eval(formals()$estim.method)
+	if(!is.na(i <- pmatch(method, eMeth))) {
 	    warning("old (pre 0.999-*) argument 'method' is now called 'estim.method'")
 	    estim.method <- eMeth[i]
 	    method <- "Sn"
