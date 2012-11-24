@@ -16,7 +16,7 @@
 
 ### Conditional copula functions ###############################################
 
-### FIXME  replace by cCopula()  [?]
+### FIXME  replace by cCopula() in the long run
 
 ##' Conditional copula function C(u2|u1) of u2 given u1
 ##'
@@ -175,16 +175,17 @@ gpviTest <- function(pvalues, method=p.adjust.methods, globalFun=min){
     sapply(method, function(meth) globalFun(p.adjust(pvalues, method=meth)))
 }
 
+## build global pairwise independent test result string
 gpviTest0 <- function(pvalues) {
     pvalues <- pvalues[!is.na(pvalues)] # vector
     c("minimum" = min(pvalues),
       "global (Bonferroni/Holm)" = min(p.adjust(pvalues, method="holm")))
 }
 
-gpviString <- function(pvalues, sep = "   ", digits = 2) {
+## string formatter of gviTest0()
+gpviString <- function(pvalues, sep="   ", digits=2) {
     pv <- gpviTest0(pvalues)
     paste0("p-values:", sep,
-	  paste(paste(names(pv), sapply(pv, format.pval, digits=digits),
-		      sep=": "),
-		collapse=paste0(";",sep)))
+           paste(paste(names(pv), sapply(pv, format.pval, digits=digits),
+                       sep=": "), collapse=paste0(";",sep)))
 }

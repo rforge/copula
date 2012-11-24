@@ -43,7 +43,7 @@
 ##' @param key.width key width in height of characters in inch
 ##' @param key.axis logical indicating whether an axis for the color key is
 ##'	   drawn
-##' @param key.rug.at
+##' @param key.rug.at values where rugs are plotted at the key
 ##' @param key.title key title
 ##' @param key.line key placement (horizontal distance from color key in lines)
 ##' @param main title
@@ -329,6 +329,31 @@ pairs2 <- function(gcu.u,
 
 ### colors #####################################################################
 
+##' @title Compute HCL heat colors with a gap
+##' @param beg HCL color at the beginning of the path
+##' @param end HCL color at the end of the path
+##' @param nBeg number of colors in the beginning of the path
+##' @param nEnd number of colors in the end of the path
+##' @param ngap number of colors left out as "gap" between beg and end; ignored
+##'        if nBeg==0 or nEnd==0
+##' @param ... additional arguments passed to heat_hcl()
+##' @return vector of colors in hex code
+##' @author Marius Hofert
+heatHCLgap <- function(beg, end, nBeg, nEnd, ngap, ...){
+    stopifnot(require(colorspace), length(beg)==3, length(end)==3)
+    stopifnot(nBeg >=0, nEnd >=0, nBeg+nEnd >= 1, ngap >=0)
+    n <- if(nBeg==0) nEnd else if(nEnd==0) nBeg else nBeg + nEnd + ngap # number of colors to generate on the path (ignore gap if nBeg==0 || nEnd==0
+    heatHCL <- if(n==1){ # only one color: pick the right one of beg and end
+        if(nBeg==0) hex(polarLUV(H=end[1], C=end[2], L=end[3]))
+        else if(nEnd==0) hex(polarLUV(H=beg[1], C=beg[2], L=beg[3])) else stop("impossible case")
+    } else { # more than one color: interpolate in HCL space
+        heat_hcl(n, h=c(beg[1], end[1]), c.=c(beg[2], end[2]),
+                 l=c(beg[3], end[3]), ...) # all colors on the path
+    }
+    if(nBeg==0 || nEnd==0) heatHCL # colors without gap
+    else c(heatHCL[seq_len(nBeg)], heatHCL[n-nEnd+seq_len(nEnd)]) # build in gap
+}
+
 ##' Create a list containing information about colors for a given matrix of p-values
 ##'
 ##' @title Create a list containing information about colors for a given matrix of
@@ -340,45 +365,50 @@ pairs2 <- function(gcu.u,
 ##' @param pmin0 a numeric indicating the lower endpoint of pvalueBuckets if pmin=0.
 ##'	   If set to 0, the lowest pvalueBucket will also be 0 (as pmin). If you want
 ##'	   to use pairsColList() for pairs2(), pmin0 should be in (0, min(pdiv))
-##' @param bucketCols vector of length as pdiv containing the colors for the buckets
+##' @param bucketCols vector of length as pdiv containing the colors for the buckets.
+##'        If not specified, either bg.col.bottom and bg.col.top are used (if provided)
+##'        or bg.col (if provided)
 ##' @param fgColMat (d,d) matrix with foreground colors (the default
 ##'        will be black if the background color is bright and white if it is dark)
 ##' @param bgColMat (d,d) matrix of background colors (kids, don't try this at home!)
-##' @param col
-##' @param BWcutoff number in (0, 255) for bright/dark background *when* col = "B&W.contrast"
-##' @param bgHCL (3,4) matrix containing the hcl value ranges of the colors
-##'        above and below signif.P
-##' @param below.top
-##' @param above.bottom
-##' @param above.top
+##' @param col foreground color (defaults to "B&W.contrast" which switches black/white
+##'        according to BWcutoff
+##' @param BWcutoff number in (0, 255) for switching black/white foreground color
+##'        *if* col="B&W.contrast"
+##' @param bg.col background color scheme
+##' @param bg.ncol.gap number of colors left out as "gap" for color buckets
+##'        below/above signif.P
+##' @param bg.col.bottom if provided and bucketCols is not, it is used as the color
+##'        for the bucket of smallest p-values
+##' @param bg.col.top if provided and bucketCols is not, it is used as the color
+##'        for the bucket of largest p-values
+##' @param ... additional arguments passed to heat_hcl()
 ##' @return a named list with components
 ##'	    $ fgColMat: a matrix of foreground colors (determined by bgColMat)
 ##'	    $ bgColMat: a matrix of background colors (colors corresponding to P)
 ##'	    $ bucketCols: a vector containing the colors corresponding to pvalueBuckets
 ##'	    $ pvalueBuckets: a vector containing the endpoints of the p-value buckets
-##'	       determining the colors
 ##' @author Marius Hofert
-##' Note: default colors are created as in the demo, with
-##'       hcl.at <- c(0, 40, 100) # above top color (p = 1)
-##'       hcl.bb <- c(-100, 80, 40) # below bottom color (p = pmin0)
-##'       (adjusted from ?colorspace::heat_hcl)
 pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
-                         signif.P = 0.05, pmin0 = 0,##<- FIXME: *no* default, *or* = 1e-5 ??
-                         bucketCols=NULL, fgColMat=NULL, bgColMat=NULL,
-			 col = "B&W.contrast", BWcutoff = 150,## 127.5 = (0+255)/2
-                         bgHCL=cbind(below.bottom= c(-100, 80,  40),
-                                     below.top   = c(-65,  66,  61),
-                                     above.bottom= c(-35,  54,  79),
-                                     above.top   = c( 0,   40, 100)))
+                         signif.P=0.05, pmin0=1e-5, bucketCols=NULL, fgColMat=NULL,
+                         bgColMat=NULL, col="B&W.contrast", BWcutoff=150,## 127.5 = (0+255)/2
+                         bg.col=c("ETHCL", "zurich", "zurich.by.fog", "baby",
+                         "heat", "greenish"), bg.ncol.gap=floor(length(pdiv)/3),
+                         bg.col.bottom=NULL, bg.col.top=NULL, ...)
 {
+    ## 0) Checks
     stopifnot(is.na(P) | (0 <= P & P <= 1), is.matrix(P), (d <- ncol(P))==nrow(P),
 	      (lp <- length(pdiv)) >= 1, 0 < pdiv, pdiv < 1, diff(pdiv) > 0,
 	      length(signif.P)==1, any(is.Pv <- (signif.P == pdiv)),
 	      length(pmin0)==1, 0 <= pmin0, pmin0 <= 1,
-              is.matrix(bgHCL), dim(bgHCL) == c(3,4))
-    if(!is.null(bucketCols)) stopifnot(is.vector(bucketCols), length(bucketCols)==lp)
-    if(!is.null(fgColMat)) stopifnot(is.matrix(fgColMat), dim(fgColMat)==dim(P))
-    if(!is.null(bgColMat)) stopifnot(is.matrix(bgColMat), dim(bgColMat)==dim(P))
+              0 <= bg.ncol.gap, bg.ncol.gap < lp)
+    if(!(is0bucketCols <- is.null(bucketCols))) stopifnot(is.vector(bucketCols), length(bucketCols)==lp)
+    if(!(is0fgColMat <- is.null(fgColMat))) stopifnot(is.matrix(fgColMat), dim(fgColMat)==dim(P))
+    if(!(is0bgColMat <- is.null(bgColMat))) stopifnot(is.matrix(bgColMat), dim(bgColMat)==dim(P))
+    if(!(is0bg.col.bottom <- is.null(bg.col.bottom))) stopifnot(length(bg.col.bottom)==3)
+    if(!(is0bg.col.top <- is.null(bg.col.top))) stopifnot(length(bg.col.top)==3)
+    ## Note: We allow bucketCols to overwrite bg.col.bottom -- bg.col.top on color key
+    ##       and bgColMat to overwrite bg.col
 
     ## 1) Determine the p-value buckets
     rP <- range(P, na.rm=TRUE) # range of p-values
@@ -420,32 +450,71 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
     ## endpoints of a bucket.
 
     ## 2) Determine colors for buckets
-    if(is.null(bucketCols)){
+    if(is0bucketCols){ # no bucketCols available
         ## 2.1) Determine which of the values of pvalueBuckets is signif.P
         is.Pv <- (signif.P == pvalueBuckets)
         if(!any(is.Pv)) stop("signif.P is not in pvalueBuckets (= extended pdiv)")
         num.signif.P <- which(is.Pv) # => num.signif.P can be all of {1,..,lp}
 
         ## 2.2) Determine number of different colors
-        nColsBelow <- num.signif.P - 1 # number of different colors below signif.P
+        nColsBel <- num.signif.P - 1 # number of different colors below signif.P
         nb <- lp-1 # number of buckets; lp = length(pvalueBuckets)
-        nColsAbove <- nb - nColsBelow  # number of different colors above signif.P
+        nColsAbo <- nb - nColsBel  # number of different colors above signif.P
         ## => Can both be 0, but not simultaneously:
         ##	  Example: if pdiv <- 0.05 = signif.P and all p-values (entries of P)
         ##		   are > 0.05 => no colors below signif.P.
 
         ## 2.3) Determine colors
         ##	Note: As for the default, the larger the index, the brighter the color
-        ##	      vector should be so that the plot makes small p-values visible by
+        ##	      vector should be, so that the plot makes small p-values visible by
         ##	      dark colors.
-        colf <- function(n, x) colorspace::heat_hcl(n, h=x[1,], c=x[2,], l=x[3,], power=1)
-        colsBelow <- colf(nColsBelow, bgHCL[,c("below.bottom", "below.top")])
-        colsAbove <- colf(nColsAbove, bgHCL[,c("above.bottom", "above.top")])
-        bucketCols <- c(colsBelow, colsAbove) # colors for all buckets (for increasing p-values)
+        if(is0bg.col.bottom && is0bg.col.top) { # use default color schemes
+            bg.col <- match.arg(bg.col)
+            switch(bg.col,
+                   "ETHCL"={ # blue to yellow/white
+                       stopifnot(require(colorspace))
+                       bel <- as(hex2RGB("#0066CC"), "polarLUV")@coords[3:1] # (Zurich coat of arms) blue
+                       bel[1] <- bel[1]-360 # map correctly to not run over green
+                       abo <- c(80, 30, 94) # yellow/white
+                   },
+                   "zurich"={ # sequential blue
+                       stopifnot(require(colorspace))
+                       bel <- as(hex2RGB("#0066CC"), "polarLUV")@coords[3:1] # (Zurich coat of arms) blue
+                       bel[1] <- bel[1]-360 # map correctly to not run over green
+                       abo <- c(-100, 0, 94) # blue/white
+                   },
+                   "zurich.by.fog"={ # grayscale
+                       bel <- c(0, 0, 40) # gray
+                       abo <- c(0, 0, 94) # gray/white
+                   },
+                   "baby"={
+                       stopifnot(require(colorspace))
+                       bel <- as(hex2RGB("#0066CC"), "polarLUV")@coords[3:1] # (Zurich coat of arms) blue
+                       bel[1] <- bel[1]-360 # map correctly to not run over green
+                       abo <- c(0, 40, 100) # pink/white
+                   },
+                   "heat"={ # default HCL heat
+                       bel <- c(0, 100, 50) # red
+                       abo <- c(90, 30, 90) # yellow
+                   },
+                   "greenish"={ # self-constructed greenish color scheme
+                       stopifnot(require(colorspace))
+                       bel <- as(hex2RGB("#283B4B"), "polarLUV")@coords[3:1] # "rgb2hcl"
+                       abo <- as(hex2RGB("#EFEE69"), "polarLUV")@coords[3:1]
+                   },
+                   stop("wrong color scheme"))
+        } else { # use the provided HCL color vectors
+            if(is0bg.col.bottom && nColsBel > 0) stop("specify 'bg.col.bottom' or none of 'bg.col.bottom' and 'bg.col.top'")
+            if(is0bg.col.top && nColsAbo > 0) stop("specify 'bg.col.top' or none of 'bg.col.bottom' and 'bg.col.top'")
+            bel <- bg.col.bottom # color *bel*ow signif.P
+            abo <- bg.col.top # color *abo*ve signif.P
+        }
+        bucketCols <- heatHCLgap(beg=bel, end=abo, nBeg=nColsBel,
+                                 nEnd=nColsAbo, ngap=bg.ncol.gap, ...) # colors for all buckets (for increasing p-values)
     }
 
     ## 3) find colors according to p-values
-    if(is.null(bgColMat)){
+    if(is0bgColMat){
         ind <- findInterval(P, pvalueBuckets, all.inside=TRUE)
         ## Note:
         ## - findInterval can only return 0 if there is an entry in P which is smaller
@@ -465,9 +534,8 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
     }
 
     ## 4) determine default foreground color
-    if(is.null(fgColMat)) {
-	cols <-
-	    if(is.null(col) || col == "B&W.contrast") {
+    if(is0fgColMat) {
+	cols <- if(is.null(col) || col == "B&W.contrast") {
 		z <- col2rgb(bgColMat) # vector of rgb colors
 		bgBright <- colMeans(z) > BWcutoff # indicator for a bright background
 		cc <- rep("#FFFFFF", ncol(z)) # sensation white :-)
@@ -509,7 +577,7 @@ pairsRosenblatt <- function(cu.u, pvalueMat=pviTest(pairwiseIndepTest(cu.u)),
 			    method = c("scatter", "QQchisq", "QQgamma",
 			    "PPchisq", "PPgamma", "none"),
 			    g1, g2, col = "B&W.contrast",
-                            colList = pairsColList(pvalueMat, pmin0=1e-5, col=col),
+                            colList = pairsColList(pvalueMat, col=col),
                             main=NULL, sub = gpviString(pvalueMat),
 			    key.title="p-value", key.rug=TRUE, ...)
 {

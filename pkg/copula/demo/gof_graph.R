@@ -47,10 +47,10 @@ stopifnot(is.array(cu.u), dim(cu.u) == c(n,d,d)) # check
 ## compute pairwise matrix of p-values and corresponding colors
 pwIT <- pairwiseIndepTest(cu.u, verbose=TRUE) # (d,d)-matrix of test results
 round(pmat <- pviTest(pwIT), 3) # pick out p-values
-## Here (seed 1):  no significant ones, smallest = 0.0603
+## Here (with seed=1):  no significant ones, smallest = 0.0603
 str(cc <- pairsColList(pmat)) # compute corresponding colors
 
-## which pairs violate H0?  [none, here]
+## which pairs violate H0? [none, here]
 which(pmat < 0.05, arr.ind=TRUE)
 
 ## check whether p-values are uniform -- only if we have "many" (~ d^2)
@@ -62,18 +62,17 @@ if(d > 10){
 
 ## Artificially more extreme P-values: {to see more}
 pm.0 <- pmat
-pm.0[5,2] <- 0.9e-3
 pm.0[1,2] <- 5.0e-3
 pm.0[3,2] <- 0.03
+pm.0[5,2] <- 0.9e-3
 
 
-### Example 1 b): Plots ###########################################################
+### Example 1 b): Plots ########################################################
 
-## 1) plain [ugly here:
+## 1a) plain (too large plot symbols here)
 pairsRosenblatt(cu.u, pvalueMat=pmat)
 ## 1b) More reasonably plotting char {and more extreme P-values}
 pairsRosenblatt(cu.u, pvalueMat=pm.0, pch=".")
-
 
 ## 2) with title, no subtitle
 pwRoto <- "Pairwise Rosenblatt transformed observations"
@@ -110,50 +109,34 @@ pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", col=adjustcolor("black", 0.5))
 pairsRosenblatt(cu.u, pvalueMat=pm.0, pch=".", col=adjustcolor("black", 0.5))
 
 ## 9) use your own colors
-##
-## alternatively, freely provide bgColMat (but then adjust bucketCols as well!)
 
-##' Construct auxiliary matrix for background colors (similar to the default).
+##' Adjust color list as returned by pairsColList()
 ##'
-##' @param frac percentage of how large the "gap" between colors
-##'             below and above signif.P should be
-##' @param topHCL above top color (p = 1)
-##' @param botHCL below bottom color (p = pmin0)
-##' @return a matrix as required for pairsColList()
-mkHCLbg <- function(frac,
-                    topHCL = c(90, 30, 90),
-                    botHCL = c(0, 100, 50))
-{
-    stopifnot(0 < frac, frac < 1, length(topHCL) == 3, length(botHCL) == 3)
-    a <- (1-frac)/2                     # above bottom color boundary (0, a)
-    hcl.ab <- topHCL +   a   * (botHCL-topHCL) # above bottom color
-    hcl.bt <- topHCL + (1-a) * (botHCL-topHCL) # below top color
-    cbind(below.bottom=botHCL, below.top=hcl.bt,
-          above.bottom=hcl.ab, above.top=topHCL)
-}
-
-##' adjust colors
-##' @param collis
-##' @param diag  (alternatively use hex-codes)
-##' @param bgDiag
-##' @param adj.f
-##' @return
-colAdj <- function(collis, diag = c("firebrick", "chocolate3", "darkorange2",
+##' @param colList color list as returned by pairsColList()
+##' @param diag foreground color on the diagonal
+##' @param bgDiag background color on the diagonal
+##' @param adj.f # alpha-factor for off-diagonal colors
+##' @return adjusted colList object
+colAdj <- function(colList, diag = c("firebrick", "chocolate3", "darkorange2",
                            "royalblue3", "deepskyblue3"),
                    bgDiag = "gray94", adj.f = 0.5) {
-    ## diag should recycle (?) stopifnot(length(diag) == ncol(collis$bgColMat))
-    diag(collis$bgColMat) <- bgDiag # adjust background color on the diagonal
-    diag(collis$fgColMat) <- diag # adjust foreground color on the diagonal
-    collis$fgColMat[collis$fgColMat == "#000000"] <-
+    ## diag should recycle (?) stopifnot(length(diag) == ncol(colList$bgColMat))
+    diag(colList$bgColMat) <- bgDiag # adjust background color on the diagonal
+    diag(colList$fgColMat) <- diag # adjust foreground color on the diagonal
+    colList$fgColMat[colList$fgColMat == "#000000"] <-
     adjustcolor("black", adj.f) # adjust off-diagonal foreground colors
-    collis
+    colList
 }
 
-## compute colList and adjust
-colList <- colAdj(pairsColList(pmat, bgHCL= mkHCLbg(0.3)))
-colLi.0 <- colAdj(pairsColList(pm.0, bgHCL= mkHCLbg(0.3)))
-
-
+## compute colList and adjust (more complicated examples are possible by
+## providing bgColMat etc. to pairsColList)
+colList <- colAdj(pairsColList(pmat, bg.col="greenish")) # use different color scheme
+## define your own colors
+require(colorspace)
+bg.col.bottom <- as(hex2RGB("#16493C"), "polarLUV")@coords[3:1]
+bg.col.top <- as(hex2RGB("#69BADA"), "polarLUV")@coords[3:1]
+colLi.0 <- colAdj(pairsColList(pm.0, bg.col.bottom=bg.col.bottom,
+                               bg.col.top=bg.col.top))
 
 ## call pairsRosenblatt with the new colors
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", colList=colList)
@@ -213,20 +196,6 @@ diag(pmat) <- NA
 colList <- pairsColList(pmat, pdiv=0.05, signif.P=0.05)
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", colList=colList)
 ## => plot color key up to 1 (see pairsColList())
-
-## 5) one p-value equal to 0;
-## == here we need pmin0 > 0 (otherwise error in pairs2())
-pmat[1,2] <- 0
-pmat[3,4:5] <- 4*10^c(-4,-3) # 2nd and 3rd "color category"
-colList <- pairsColList(pmat, signif.P=0.05, pmin0=1e-5)
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", colList=colList)
-
-
-## 6) specifically call pairsColList but forget to set pmin0 to check the error message
-if(FALSE){
-    colList <- pairsColList(pmat, signif.P=0.05)
-    pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", colList=colList)
-}
 
 
 ### Example 2: (2,3)-nested Gumbel copula ######################################
@@ -334,7 +303,7 @@ data(SMI.12)
 n <- nrow(SMI.12)
 d <- ncol(SMI.12)
 
-x <- diff(log(SMI.12))[-1,] # build log-returns
+x <- diff(log(SMI.12))# build log-returns
 u <- pobs(x) # build pseudo-observations
 
 ## --- JCGS, Fig.3 ---
@@ -362,44 +331,50 @@ plot(nus, nLLt.nu + 1200, type="l", xlab=bquote(nu),
 ## now we got the picture, find the minimum:
 (nuOpt <- optimize(nLLt, interval=c(.5, 128), P=mP, u=u, tol = 1e-7)$minimum)
 
-
 ## define the H0 copula
 ## Note: that's the same result when using pseudo-observations since estimation via
 ##       tau is invariant under strictly increasing transformations
 P.. <- P.[lower.tri(P.)] # note: upper.tri() would lead to the wrong result due to the required ordering!
 copH0 <- copCreate("normal", theta=P.., d=ncol(P.), dispstr="un")
+copH0. <- copCreate("t", df=nuOpt, theta=P.., d=ncol(P.), dispstr="un") # that's the correct H0 copula
 
 ## create array of pairwise copH0-transformed data columns
 cu.u <- pairwiseCcop(u, copH0)
+cu.u. <- pairwiseCcop(u, copH0., df=nuOpt)
 
 if(setSeeds) set.seed(8)
 ## compute pairwise matrix of p-values and corresponding colors
 pwIT <- pairwiseIndepTest(cu.u, verbose=TRUE) # (d,d)-matrix of test results
+pwIT. <- pairwiseIndepTest(cu.u., verbose=TRUE) # (d,d)-matrix of test results
 pmat <- pviTest(pwIT) # pick out p-values
+pmat. <- pviTest(pwIT.) # pick out p-values
 cc <- pairsColList(pmat) # compute corresponding colors
+cc. <- pairsColList(pmat.) # compute corresponding colors
 
 ## which pairs violate H0?
 ## (ind <- which(pmat < 0.05, arr.ind=TRUE)) # => none!
 
-{## testing *multivariate normality*
-    stopifnot(require(mvnormtest))
+## testing *multivariate normality*
+stopifnot(require(mvnormtest))
+mshapiro.test(t(x)) ## => p-value < 2.2e-16, *not* a multivariate normal distribution
+mshapiro.test(t(qnorm(u))) ## => also not a Gaussian after removing marginal non-Gaussianity
 
-    print( mshapiro.test(t(x)) )
-    ## => p-value < 2.2e-16
-    ## => It is *not* a multivariate normal distribution
+## Well, look at the 1D margins :
+print(Pm <- apply(x, 2, function(u) shapiro.test(u)$p.value))
+## not at all uniform:
+qqplot(Pm, ppoints(length(Pm)),
+       main = "QQ plot of p-values of Shapiro( X[,j] ), j=1..20")
+abline(0,1, lty=2, col="gray")
 
-    ## Well, look at the 1D margins :
-    print(Pm <- apply(x, 2, function(u) shapiro.test(u)$p.value))
-    ## not at all uniform:
-    qqplot(Pm, ppoints(length(Pm)),
-           main = "QQ plot of p-values of Shapiro( X[,j] ), j=1..20")
-    abline(0,1, lty=2, col="gray")
-}
-
-##
+## test for Gaussian copula
 title <- list("Pairwise Rosenblatt transformed pseudo-observations",
               expression(bold("to test")~~italic(H[0]:C~~bold("is Gaussian"))))
-pairsRosenblatt(cu.u, pvalueMat=pmat, method="none", cex.labels=0.75,
+pairsRosenblatt(cu.u, pvalueMat=pmat, method="none", cex.labels=0.7,
                 key.space=1.5, main.centered=TRUE, main=title, main.line=c(3, 0.4))
 
-## pairwise Rosenblatt plot --- JCGS, Fig.4 ---
+## pairwise Rosenblatt plot --- JCGS, Fig.4 --
+nuOpt. <- round(nuOpt, 2)
+title <- list("Pairwise Rosenblatt transformed pseudo-observations",
+              bquote(bold("to test")~~italic(H[0]:C)~~"is"~~t[.(nuOpt.)]))
+pairsRosenblatt(cu.u., pvalueMat=pmat., method="none", cex.labels=0.7,
+                key.space=1.5, main.centered=TRUE, main=title, main.line=c(3, 0.4))
