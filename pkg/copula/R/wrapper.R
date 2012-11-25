@@ -17,8 +17,6 @@
 ### Wrappers and auxiliary functions for dealing with elliptical (Gauss, t_nu)
 ### and Archimedean copulas
 
-### copula objects #############################################################
-
 ##' Determine the copula class for a given copula object
 ##'
 ##' @title Copula class for the given copula object
@@ -72,8 +70,8 @@ copFamilyClass <- function(family)
 ##' @param theta parameter (a number or vector)
 ##' @param d dimension (can be omitted if nacList is given)
 ##' @param ... additional arguments:
-##'     either 'dispstr', 'df', 'df.fixed' for the elliptical copulas
-##'        or  'nacList' for the nested Archimedean {use 'theta' above for Archimedean}
+##'        either 'dispstr', 'df', 'df.fixed' for the elliptical copulas
+##'           or  'nacList' for the nested Archimedean {use 'theta' above for Archimedean}
 ##' @return a copula object
 ##' @author Marius Hofert and Martin Maechler
 copCreate <- function(family, theta, d, ...)
@@ -105,3 +103,30 @@ copCreate <- function(family, theta, d, ...)
            },
            stop("family ", family, " not yet supported"))
 }
+
+##' @title Construct a symmetric matrix with 1s on the diagonal from the given
+##'        parameter vector
+##' @param param parameter vector
+##' @param d number of columns (or rows) of the output matrix
+##' @return a symmetric matrix with 1s on the diagonal and the values of param
+##'         filled column-wise below the diagonal (= row-wise above the diagonal)
+##' @author Marius Hofert
+p2P <- function(param, d){
+    P <- diag(1, nrow=d)
+    P[lower.tri(P)] <- param
+    P <- P+t(P)
+    diag(P) <- rep.int(1, d)
+    P
+}
+
+##' @title Extract the vector of column-wise below-diagonal entries from a matrix
+##' @param P matrix (typically a symmetric matrix as used for elliptical copulas)
+##' @return the vector of column-wise below-diagonal entries of P (they are equal
+##'         to the row-wise above-diagonal entries in case of a symmetric matrix)
+##' @author Marius Hofert
+##' Note: - This is used "by foot" at several points in the package.
+##'       - A nice check is
+##'         param <- c(0.2, 0.3, 0.4, 0.5, 0.6, 0.7)
+##'         stopifnot(P2p(p2P(param, 4))==param)
+P2p <- function(P) P[lower.tri(P)]
+

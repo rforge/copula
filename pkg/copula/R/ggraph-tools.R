@@ -81,7 +81,7 @@ pairwiseCcop <- function(u, cop, ...)
     switch(cls,
            "elliptical"={
                ## build correlation matrix from vector of copula parameters
-               P <- matrix(0, nrow=d, ncol=d)
+               P <- diag(1, nrow=d)
 	       rho <- cop@parameters
 	       P[lower.tri(P)] <- if(family == "normal" || cop@df.fixed)
 		   rho else rho[-length(rho)]
