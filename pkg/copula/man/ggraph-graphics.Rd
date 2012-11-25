@@ -55,9 +55,6 @@ pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
   \item{g2}{\code{\link{function}} from
     \eqn{[0,1]^{n\times 2}\to[0,1]^n}{[0,1]^(n x 2) -> [0,1]^n}
     applied to "y" for plotting in one panel.}
-  \item{col}{color passed to the internal function \code{pairs2()}; if
-    \code{colList} is not specified, this color is used to
-    construct the points' color.}
   \item{colList}{\code{\link{list}} of colors and information as
     returned by \code{pairsColList()}.}
   \item{main}{title.}
@@ -68,8 +65,8 @@ pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
     rugs are printed (small ticks on the left side of the color
     key which show the realized p-values).}
   \item{\dots}{additional arguments passed to the internal function
-    \code{pairs2()}}.
-
+    \code{pairs2()} (for \code{pairsRosenblatt()}) and \code{heat_hcl()}
+    (for \code{pairsColList}; used to generate the color palette)}.
   \item{P}{\eqn{(d,d)}-\code{\link{matrix}} of p-values.}
   \item{pdiv}{\code{\link{vector}} of strictly increasing p-values in
     (0,1) that determine the "buckets" for the background
@@ -92,7 +89,10 @@ pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
   \item{bgColMat}{\eqn{(d,d)}-\code{\link{matrix}} of background colors;
     do not change this unless you know what you are doing.}
   \item{col}{foreground color (defaults to "B&W.contrast"
-    which switches black/white according to \code{BWcutoff}).}
+    which switches black/white according to \code{BWcutoff}). \code{col}
+    is passed to the internal function \code{pairs2()}. If
+    \code{colList} is not specified, this color is used to
+    construct the points' color.}
   \item{BWcutoff}{number in (0, 255) for switching
     foreground color if \code{col="B&W.contrast"}.}
   \item{bg.col}{color scheme for the background colors.}
@@ -107,8 +107,6 @@ pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
     color specification. If \code{bg.col.top} is provided and
     \code{bucketCols} is not, \code{bg.col.top} is used as the color for
     the bucket of largest p-values.}
-  \item{\dots}{additional arguments passed to \code{heat_hcl()} which is
-    used to generated the colors.}
 }
 \value{
 \describe{

@@ -13,7 +13,7 @@
   Conseqently, \code{cCopula()} simply calls \code{\link{rtrafo}()}.
 }
 \usage{
-cCopula(u, copula, j.ind=ncol(u) n.MC=0, log=FALSE)
+cCopula(u, copula, j.ind=ncol(u), n.MC=0, log=FALSE)
 
 ## Deprecated, for Archimedean copulas only:
 cacopula(u, cop, n.MC=0, log=FALSE)

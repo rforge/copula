@@ -28,8 +28,10 @@ gpviTest(pvalues, method=p.adjust.methods, globalFun=min)
   \item{cop}{copula object used for the Rosenblatt transform
     (\eqn{H_0}{H[0]} copula).}
   \item{\dots}{additional arguments passed to the internal function
-    which computes the conditional copulas. Can be used to pass, for
-    example, the degrees of freedom parameter \code{df} for t-copulas.}
+    which computes the conditional copulas (for \code{pairwiseCcop()}).
+    Can be used to pass, for example, the degrees of freedom
+    parameter \code{df} for t-copulas. For \code{pairwiseIndepTest()},
+    \dots is passed to \code{\link{indepTestSim()}}.}
 
   \item{cu.u}{\eqn{(n,d,d)}-\code{\link{array}} as returned by
     \code{pairwiseCcop()}.}
@@ -37,7 +39,6 @@ gpviTest(pvalues, method=p.adjust.methods, globalFun=min)
   \item{verbose}{\code{\link{integer}} (or \code{\link{logical}})
     indicating if and how much progress should be printed during the
     computation of the tests for independence.}
-  \item{\dots}{additional arguments passed to \code{\link{indepTestSim()}}.}
 
   \item{piTest}{\eqn{(d,d)}-\code{\link{matrix}} of \code{indepTest}
   objects as returned by \code{pairwiseIndepTest()}.}

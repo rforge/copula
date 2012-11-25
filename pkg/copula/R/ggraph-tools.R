@@ -31,7 +31,7 @@
 ccop2 <- function(u2, u1, family, theta, ...) {
     stopifnot(length(u1)==length(u2))
     switch(copFamilyClass(family),
-           "elliptical"={
+           "ellipCopula"={
                switch(family,
                       "normal"={
                           pnorm((qnorm(u2)-theta*qnorm(u1))/sqrt(1-theta^2))
@@ -46,7 +46,7 @@ ccop2 <- function(u2, u1, family, theta, ...) {
                       },
                       stop("not yet supported family"))
            },
-           "nArchimedean"={
+           "outer_nacopula"={
                ## cacopula(u, cop=onacopulaL(family, list(theta, 1:2)))
                cop <- getAcop(family)
                u <- cbind(u1, u2)
@@ -64,7 +64,7 @@ ccop2 <- function(u2, u1, family, theta, ...) {
 ##' @param u (n, d)-matrix (typically pseudo-observations, but also perfectly
 ##'        simulated data)
 ##' @param cop copula object used for the Rosenblatt transform (H_0;
-##'        either nArchimedean or elliptical)
+##'        either outer_nacopula or ellipCopula)
 ##' @param ... additional arguments passed to ccop2
 ##' @return (n,d,d)-array cu.u with cu.u[,i,j] containing C(u[,i]|u[,j]) for i!=j
 ##'         and u[,i] for i=j
@@ -79,7 +79,7 @@ pairwiseCcop <- function(u, cop, ...)
     cls <- copClass(cop)
     family <- copFamily(cop) # determine copula family
     switch(cls,
-           "elliptical"={
+           "ellipCopula"={
                ## build correlation matrix from vector of copula parameters
                P <- diag(1, nrow=d)
 	       rho <- cop@parameters
@@ -88,7 +88,7 @@ pairwiseCcop <- function(u, cop, ...)
                P <- P + t(P)
                diag(P) <- rep.int(1, d)
            },
-           "nArchimedean"={
+           "outer_nacopula"={
                ## build "matrix" of dependence parameters
                P <- nacPairthetas(cop)
            },

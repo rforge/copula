@@ -21,13 +21,13 @@
 ##'
 ##' @title Copula class for the given copula object
 ##' @param cop copula object
-##' @return "elliptical" or "nArchimedean" depending on the given copula object
+##' @return "ellipCopula" or "outer_nacopula" depending on the given copula object
 ##' @author Marius Hofert
 copClass <- function(cop)
 {
     cls <- class(cop)
-    if(is(cop, "copula") && (cls=="normalCopula" || cls=="tCopula")) "elliptical" # note: there could be other "copula" objects which are not elliptical
-    else if(cls=="outer_nacopula") "nArchimedean" # can be Archimedean or nested Archimedean
+    if(is(cop, "copula") && (cls=="normalCopula" || cls=="tCopula")) "ellipCopula" # note: there could be other "copula" objects which are not elliptical
+    else if(cls=="outer_nacopula") "outer_nacopula" # can be Archimedean or nested Archimedean
     else stop("not yet supported copula object")
 }
 
@@ -57,9 +57,9 @@ copFamily <- function(cop)
 ##' @author Marius Hofert
 copFamilyClass <- function(family)
 {
-    if(family=="normal" || family=="t") "elliptical"
+    if(family=="normal" || family=="t") "ellipCopula"
     else if(family %in% c_longNames ||
-            family %in% paste0("opower:", c_longNames)) "nArchimedean"
+            family %in% paste0("opower:", c_longNames)) "outer_nacopula" # note: opower not really supported yet
     else stop("family ", family, " not yet supported")
 }
 
@@ -77,7 +77,7 @@ copFamilyClass <- function(family)
 copCreate <- function(family, theta, d, ...)
 {
     switch(copFamilyClass(family),
-           "elliptical"={
+           "ellipCopula"={
                stopifnot(is.numeric(theta))
                ellipCopula(family, param=theta, dim=d, ...)
                ## Note: ... args are:
@@ -87,7 +87,7 @@ copCreate <- function(family, theta, d, ...)
                ## df.fixed=FALSE (TRUE means that d.o.f. will be considered as fixed
                ##          and won't be estimated)
            },
-           "nArchimedean"={
+           "outer_nacopula"={
                L <- if(hasArg(nacList)){ # nested Archimedean case => we don't need theta
                    list(...)$nacList
                } else {
