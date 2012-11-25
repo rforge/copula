@@ -66,7 +66,7 @@ ccop2 <- function(u2, u1, family, theta, ...) {
 ##' @param cop copula object used for the Rosenblatt transform (H_0;
 ##'        either nArchimedean or elliptical)
 ##' @param ... additional arguments passed to ccop2
-##' @return (n,d,d)-array cu with cu[,i,j] containing C(u[,i]|u[,j]) for i!=j
+##' @return (n,d,d)-array cu.u with cu.u[,i,j] containing C(u[,i]|u[,j]) for i!=j
 ##'         and u[,i] for i=j
 ##' @author Marius Hofert
 pairwiseCcop <- function(u, cop, ...)
@@ -112,27 +112,27 @@ pairwiseCcop <- function(u, cop, ...)
 ##'
 ##' @title Compute matrix of pairwise tests for independence
 ##' @param cu.u (n,d,d)-array as returned by \code{pairwiseCcop()}
-##' @param N.sim number of simulation \code{N} for \code{\link{indepTestSim}()}
+##' @param N number of simulation \code{N} for \code{\link{indepTestSim}()}
 ##' @param verbose logical indicating if and how much progress info should be printed.
 ##' @param ... additional arguments passed to indepTestSim()
 ##' @return (d,d)-matrix of lists with test results (as returned by indepTest())
 ##'         for the pairwise tests of independence
 ##' @author Marius Hofert
-pairwiseIndepTest <- function(cu.u, N.sim=256, verbose=TRUE, ...)
+pairwiseIndepTest <- function(cu.u, N=256, verbose=TRUE, ...)
 {
-    ## (1) simulate test statistic under independence
+    ## 1) simulate test statistic under independence
     stopifnot(length(dim. <- dim(cu.u)) == 3)
     stopifnot(dim.[2]==dim.[3])
     n <- dim.[1]
     d <- dim.[2]
     if(verbose) cat(sprintf("pairwiseIndepTest( (n=%d, d=%d)): indepTestSim(*, N=%d) .. ",
-                            n,d, N.sim))
-    indepTestDistObj <- indepTestSim(n, p=2, m=2, N=N.sim, ...)
+                            n,d, N))
+    indepTestDistObj <- indepTestSim(n, p=2, m=2, N=N, ...)
     if(verbose) cat(" *Sim  done\n")
 
-    ## (2) compute matrix of pairwise p-values for test of independence
+    ## 2) compute matrix of pairwise p-values for test of independence
     p <- matrix(list(), nrow=d, ncol=d)
-    for(j in 1:d) { # colum
+    for(j in 1:d) { # column
         if(verbose) if(verbose >= 2) cat("j = ", j, ";  i =", sep="") else cat(j, "")
         uj <- cu.u[,,j] # (n x d)
         for(i in 1:d) { # row
@@ -162,7 +162,7 @@ pviTest <- function(piTest){
 ##'
 ##' @title Computing a global p-value
 ##' @param pvalues (matrix of pairwise) p-values
-##' @param method vector of methods for pvalues (how the p-values are adjusted)
+##' @param method vector of methods for p-value adjustments (see ?p.adjust.methods)
 ##' @param globalFun function determining how to compute a global p-value from a
 ##'        matrix of pairwise adjusted p-values
 ##' @return global p-values for each of the specified methods (of how to adjust the

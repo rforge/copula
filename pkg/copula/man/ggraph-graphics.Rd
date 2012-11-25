@@ -35,16 +35,16 @@ pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
   \item{method}{\code{\link{character}} indicating the plot method
     to be used. Currently possible are:
     \describe{
-      \item{"scatter"}{a simple scatter plot.}
-      \item{"QQchisq"}{a Q-Q plot after a map to the
+      \item{\code{"scatter"}}{a simple scatter plot.}
+      \item{\code{"QQchisq"}}{a Q-Q plot after a map to the
         \eqn{\chi^2}{chi-square} distribution.}
-      \item{"QQgamma"}{a Q-Q plot after a map to the
+      \item{\code{"QQgamma"}}{a Q-Q plot after a map to the
         gamma distribution.}
-      \item{"PPchisq"}{a P-P plot after a map to the
+      \item{\code{"PPchisq"}}{a P-P plot after a map to the
         \eqn{\chi^2}{chi-square} distribution.}
-      \item{"PPgamma"}{a P-P plot after a map to the
+      \item{\code{"PPgamma"}}{a P-P plot after a map to the
         gamma distribution.}
-      \item{"none"}{no points are plotted.}
+      \item{\code{"none"}}{no points are plotted.}
     }
     Note: These methods merely just set \code{g1} and \code{g2}
     correctly; see the code for more details.
@@ -126,7 +126,7 @@ pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
   }
 }
 }
-\description{
+\details{
   \code{pairsColList()} is basically an auxiliary function to specify
   the colors used in the graphical goodness-of-fit test as
   conducted by \code{pairsRosenblatt()}. The latter is described in
@@ -141,6 +141,7 @@ pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
   submitted.
 }
 \seealso{
+  \code{\link{ggraph-tools}} for the tools behind the scenes.
   \code{\link{demo}(gof_graph)} for examples.
 }
 \examples{
