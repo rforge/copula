@@ -14,8 +14,8 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-#### Wrappers and auxiliary functions for dealing with elliptical (Gauss, t_nu)
-#### and Archimedean copulas
+### Wrappers and auxiliary functions for dealing with elliptical (Gauss, t_nu)
+### and Archimedean copulas
 
 ### copula objects #############################################################
 
@@ -104,78 +104,4 @@ copCreate <- function(family, theta, d, ...)
                ## a nested Archimedean copula
            },
            stop("family ", family, " not yet supported"))
-}
-
-
-### Sampling ###################################################################
-
-## MM: should call rCopula()
-
-##' Sampling elliptical and (nested) Archimedean copulas
-##'
-##' @title Sampling elliptical and (nested) Archimedean copulas
-##' @param n sample size
-##' @param cop copula to sample
-##' @return an (n x d)-matrix of random variates following the specified copula cop
-##' @author Marius Hofert
-rcop <- function(n, cop)
-{
-    switch(copClass(cop),
-           "elliptical"={
-               rCopula(n, cop)
-           },
-           "nArchimedean"={
-               rnacopula(n, cop)
-           },
-           stop("not yet supported copula object"))
-}
-
-
-### Densities for elliptical copulas ###########################################
-
-##' Density for elliptical copulas
-##'
-##' @title Density for elliptical copulas
-##' @param u data matrix (in \eqn{[0,1]^d})
-##' @param family elliptical family
-##' @param P correlation matrix P
-##' @param log logical determining if log(density(.)) should be returned
-##' @param df degree of freedom parameter (\eqn{\nu}) for t-copulas
-##' @param ... additional arguments passed to \code{\link[mvtnorm]{dmvnorm}}
-##' or \code{\link[mvtnorm]{dmvt}}.
-##' @return density of the specified copula evaluated at \code{u}.
-##' @author Marius Hofert (and MMa)
-dellip <- function(u, family, P, log=FALSE, df, ...)
-{
-    val <-
-	switch(family,
-	       "normal" =
-	   {
-	       qnu <- qnorm(u)
-	       dmvnorm(qnu, sigma=P, log=TRUE) - rowSums(dnorm(qnu, log=TRUE))
-	   },
-	       "t" =
-	   {
-	       qtu <- qt(u, df=df)
-	       ## Note: for dmvt, log=TRUE is actually the default;
-               ##       furthermore, delta=rep(0, length=ncol(u)) is the default
-               ##       when delta is missing (although not mentioned on ?dmvt)
-	       dmvt(qtu, sigma=P, df=df, log=TRUE) - rowSums(dt(qtu, df=df, log=TRUE))
-	   },
-	       stop("family ", family, " not yet supported"))
-    if(log) val else exp(val)
-}
-
-##' -log-likelihood for t copulas in the degree of freedom parameter
-##'
-##' @title -log-likelihood for t copulas in the degree of freedom parameter
-##' @param nu d.o.f. parameter
-##' @param P correlation matrix
-##' @param u data matrix (in [0,1]^d)
-##' @return -log-likelihood in nu for given P (and u)
-##' @author Marius Hofert
-nLLt <- function(nu, P, u)
-{
-    stopifnot((d <- ncol(u))==ncol(P), ncol(P)==nrow(P))
-    -sum(dellip(u, family="t", P=P, log=TRUE, df=nu))
 }

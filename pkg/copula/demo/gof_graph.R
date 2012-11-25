@@ -111,12 +111,12 @@ pairsRosenblatt(cu.u, pvalueMat=pm.0, pch=".", col=adjustcolor("black", 0.5))
 ## 9) use your own colors
 
 ##' Adjust color list as returned by pairsColList()
-##'
 ##' @param colList color list as returned by pairsColList()
 ##' @param diag foreground color on the diagonal
 ##' @param bgDiag background color on the diagonal
 ##' @param adj.f # alpha-factor for off-diagonal colors
 ##' @return adjusted colList object
+##' @author Martin Maechler
 colAdj <- function(colList, diag = c("firebrick", "chocolate3", "darkorange2",
                            "royalblue3", "deepskyblue3"),
                    bgDiag = "gray94", adj.f = 0.5) {
@@ -319,8 +319,22 @@ P <- iTau(normalCopula(), tau) # compute corresponding matrix of pairwise correl
 P. <- nearPD(P, corr=TRUE)$mat
 ## image(P.) # nice (because 'P.' is a Matrix-pkg Matrix)
 
+##' @title -log-likelihood for t copulas
+##' @param nu d.o.f. parameter
+##' @param P correlation matrix
+##' @param u data matrix (in [0,1]^d)
+##' @return -log-likelihood for a t copula
+##' @author Marius Hofert
+nLLt <- function(nu, P, u){
+    stopifnot(require(mvtnorm))
+    stopifnot((d <- ncol(u))==ncol(P), ncol(P)==nrow(P))
+    qtu <- qt(u, df=nu)
+    ldtnu <- function(u, P, nu) dmvt(qtu, sigma=P, df=nu, log=TRUE) -
+        rowSums(dt(qtu, df=nu, log=TRUE)) # t copula log-density
+    -sum(ldtnu(u, P=P, nu=nu))
+}
+
 ## estimate nu via MLE for given P
-nLLt <- copula:::nLLt # Marius FIXME
 nus <- seq(.5, 128, by=.5)
 mP <- as.matrix(P.)
 nLLt.nu <- sapply(nus, nLLt, P=mP, u=u)
