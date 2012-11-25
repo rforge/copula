@@ -4,7 +4,8 @@
 \alias{lSMI}
 \docType{data}
 \description{
-FIXME %%  ~~ A concise (1-5 lines) description of the dataset. ~~
+  \code{SMI.12} contains the close prices of all 20 constituents of
+  the Swiss Market Index (SMI) from 2011-09-09 to 2012-03-28.
 }
 \usage{
 data(SMI.12)
@@ -26,15 +27,9 @@ data(SMI.12)
   \code{lSMI} is the list of the original data (\emph{before} \code{NA}
   \dQuote{imputation}).
 }
-\details{
-%%  ~~ If necessary, more details than the __description__ above ~~
-}
 \source{
-  Yahoo finance ...
+  The data was drawn from Yahoo! Finance.
 }
-%% \references{
-%% %%  ~~ possibly secondary sources and usages ~~
-%% }
 \examples{
 data(SMI.12)
 ## maybe

@@ -79,7 +79,7 @@ pwRoto <- "Pairwise Rosenblatt transformed observations"
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=pwRoto, sub=NULL)
 
 ## 3) with title and manual subtitle
-(gp <- format(copula:::gpviTest(pmat), digits=1, nsmall=1))
+(gp <- format(gpviTest(pmat), digits=1, nsmall=1))
 sub <- paste(names(gp), gp, sep=": ")
 sub. <- paste(paste(sub[1:3], collapse=", "), "\n",
               paste(sub[4:7], collapse=", "), sep="")

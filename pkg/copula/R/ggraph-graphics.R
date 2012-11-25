@@ -378,16 +378,18 @@ heatHCLgap <- function(beg, end, nBeg, nEnd, ngap, ...){
 ##' @param bg.col background color scheme
 ##' @param bg.ncol.gap number of colors left out as "gap" for color buckets
 ##'        below/above signif.P
-##' @param bg.col.bottom if provided and bucketCols is not, it is used as the color
-##'        for the bucket of smallest p-values
-##' @param bg.col.top if provided and bucketCols is not, it is used as the color
-##'        for the bucket of largest p-values
+##' @param bg.col.bottom vector of length 3 containing a HCL color specification. If
+##'        provided and bucketCols is not, it is used as the color for the bucket of
+##'        smallest p-values
+##' @param bg.col.top vector of length 3 containing a HCL color specification. If
+##'        provided and bucketCols is not, it is used as the color for the bucket of
+##'        largest p-values
 ##' @param ... additional arguments passed to heat_hcl()
 ##' @return a named list with components
-##'	    $ fgColMat: a matrix of foreground colors (determined by bgColMat)
-##'	    $ bgColMat: a matrix of background colors (colors corresponding to P)
-##'	    $ bucketCols: a vector containing the colors corresponding to pvalueBuckets
-##'	    $ pvalueBuckets: a vector containing the endpoints of the p-value buckets
+##'	    $fgColMat: matrix of foreground colors
+##'	    $bgColMat: matrix of background colors (colors corresponding to P)
+##'	    $bucketCols: vector containing the colors corresponding to pvalueBuckets
+##'	    $pvalueBuckets: vector containing the endpoints of the p-value buckets
 ##' @author Marius Hofert
 pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
                          signif.P=0.05, pmin0=1e-5, bucketCols=NULL, fgColMat=NULL,
@@ -564,12 +566,13 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
 ##' @param g1 function [0,1]^n -> [0,1]^n (n = length(u)); "x" for plotting
 ##'	   in one panel
 ##' @param g2 function [0,1]^{n x 2} -> [0,1]^n; "y" for plotting in one panel
-##' @param col if colList is not specified: used to construct default colList
+##' @param col passed on to pairs2(); if colList is not specified, this color is
+##'        used to construct the points' color.
 ##' @param colList list of colors and information as returned by pairsColList()
 ##' @param main title
-##' @param sub sub title with a smart default
-##' @param key.title
-##' @param key.rug
+##' @param sub sub-title with a smart default
+##' @param key.title title of the color key
+##' @param key.rug logical indicating whether the key rugs are printed.
 ##' @param ... additional arguments passed to pairs2()
 ##' @return invisible
 ##' @author Marius Hofert and Martin Maechler
