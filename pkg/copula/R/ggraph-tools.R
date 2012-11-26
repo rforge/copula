@@ -75,7 +75,7 @@ pairwiseCcop <- function(u, cop, ...)
     stopifnot((d <- ncol(u)) >= 2, 0 <= u, u <= 1,
 	      d == dim(cop))
 
-    ## (1) determine copula class and compute auxiliary results
+    ## 1) determine copula class and compute auxiliary results
     cls <- copClass(cop)
     family <- copFamily(cop) # determine copula family
     switch(cls,
@@ -94,7 +94,7 @@ pairwiseCcop <- function(u, cop, ...)
            },
            stop("not yet supported copula object"))
 
-    ## (2) compute pairwise C(u_i|u_j)
+    ## 2) compute pairwise C(u_i|u_j)
     n <- nrow(u)
     cu.u <- array(NA_real_, dim=c(n,d,d), dimnames=list(C.ui.uj=1:n, ui=1:d, uj=1:d))
     ## cu.u[,i,j] contains C(u[,i]|u[,j]) for i!=j and u[,i] for i=j
