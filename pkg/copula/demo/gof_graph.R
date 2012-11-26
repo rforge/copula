@@ -18,12 +18,16 @@
 
 require(copula)
 
+if(!(exists("setSeeds") && is.logical(as.logical(setSeeds))))
+setSeeds <- TRUE # for reproducibility; maybe set to FALSE
+if(!(exists("doX") && is.logical(as.logical(doX))))
+    print(doX <- copula:::doExtras())
+(N <- if(doX) 256 else 32)# be fast when run as "check"
+
 ## For now -- "wrappers" that we don't want in the long run
 ## --- --- ../R/wrapper.Rg
 copCreate <- copula:::copCreate
 
-
-setSeeds <- TRUE
 
 ### Example 1: 5d Gumbel copula ################################################
 
@@ -45,7 +49,7 @@ cu.u <- pairwiseCcop(U., copH0)
 stopifnot(is.array(cu.u), dim(cu.u) == c(n,d,d)) # check
 
 ## compute pairwise matrix of p-values and corresponding colors
-pwIT <- pairwiseIndepTest(cu.u, verbose=TRUE) # (d,d)-matrix of test results
+pwIT <- pairwiseIndepTest(cu.u, N=N, verbose=interactive()) # (d,d)-matrix of test results
 round(pmat <- pviTest(pwIT), 3) # pick out p-values
 ## Here (with seed=1):  no significant ones, smallest = 0.0603
 str(cc <- pairsColList(pmat)) # compute corresponding colors
@@ -223,7 +227,7 @@ copH0 <- onacopulaL(family, nacList)
 cu.u <- pairwiseCcop(U., copH0)
 
 ## compute pairwise matrix of p-values and corresponding colors
-pwIT <- pairwiseIndepTest(cu.u, verbose=TRUE) # (d,d)-matrix of test results
+pwIT <- pairwiseIndepTest(cu.u, N=N, verbose=interactive()) # (d,d)-matrix of test results
 round(pmat <- pviTest(pwIT), 3) # pick out p-values
 cc <- pairsColList(pmat) # compute corresponding colors
 
@@ -279,7 +283,7 @@ copH0 <- copCreate(family, theta=P., d=d, dispstr="un", df=df, df.fixed=TRUE)
 cu.u <- pairwiseCcop(U., copH0, df=df)
 
 ## compute pairwise matrix of p-values and corresponding colors
-pwIT <- pairwiseIndepTest(cu.u, verbose=TRUE) # (d,d)-matrix of test results
+pwIT <- pairwiseIndepTest(cu.u, N=N, verbose=interactive()) # (d,d)-matrix of test results
 round(pmat <- pviTest(pwIT), 3) # pick out p-values
 cc <- pairsColList(pmat) # compute corresponding colors
 
@@ -348,30 +352,31 @@ plot(nus, nLLt.nu + 1200, type="l", xlab=bquote(nu),
 ## define the H0 copula
 ## Note: that's the same result when using pseudo-observations since estimation via
 ##       tau is invariant under strictly increasing transformations
-P.. <- P.[lower.tri(P.)] # note: upper.tri() would lead to the wrong result due to the required ordering!
-copH0 <- copCreate("normal", theta=P.., d=ncol(P.), dispstr="un")
-copH0. <- copCreate("t", df=nuOpt, theta=P.., d=ncol(P.), dispstr="un") # that's the correct H0 copula
+P.. <- P.[lower.tri(P.)] # note: upper.tri() would be wrong
+cop.N <- copCreate("normal", theta=P.., d=ncol(P.), dispstr="un")
+## The correct H0 copula:
+cop.t <- copCreate("t", df=nuOpt, theta=P.., d=ncol(P.), dispstr="un")
 
 ## create array of pairwise copH0-transformed data columns
-cu.u <- pairwiseCcop(u, copH0)
-cu.u. <- pairwiseCcop(u, copH0., df=nuOpt)
+cu.uN <- pairwiseCcop(u, cop.N)
+cu.ut <- pairwiseCcop(u, cop.t, df=nuOpt)
 
 if(setSeeds) set.seed(8)
-## compute pairwise matrix of p-values and corresponding colors
-pwIT <- pairwiseIndepTest(cu.u, verbose=TRUE) # (d,d)-matrix of test results
-pwIT. <- pairwiseIndepTest(cu.u., verbose=TRUE) # (d,d)-matrix of test results
-pmat <- pviTest(pwIT) # pick out p-values
-pmat. <- pviTest(pwIT.) # pick out p-values
-cc <- pairsColList(pmat) # compute corresponding colors
-cc. <- pairsColList(pmat.) # compute corresponding colors
+## compute pairwise matrix (d x d) of p-values and corresponding colors
+pwITN <- pairwiseIndepTest(cu.uN, N=N, verbose=interactive())
+pwITt <- pairwiseIndepTest(cu.ut, N=N, verbose=interactive())
+pmatN <- pviTest(pwITN) # pick out p-values
+pmatt <- pviTest(pwITt)
 
 ## which pairs violate H0?
-## (ind <- which(pmat < 0.05, arr.ind=TRUE)) # => none!
+which(pmatN < 0.05, arr.ind=TRUE) # => none!
+which(pmatt < 0.05, arr.ind=TRUE) # => a couple
 
 ## testing *multivariate normality*
 stopifnot(require(mvnormtest))
-mshapiro.test(t(x)) ## => p-value < 2.2e-16, *not* a multivariate normal distribution
-mshapiro.test(t(qnorm(u))) ## => also not a Gaussian after removing marginal non-Gaussianity
+mshapiro.test(t(x)) ## => *not* a multivariate normal distribution
+mshapiro.test(t(qnorm(u)))
+## => also not a Gaussian after removing marginal non-Gaussianity
 
 ## Well, look at the 1D margins :
 print(Pm <- apply(x, 2, function(u) shapiro.test(u)$p.value))
@@ -383,12 +388,12 @@ abline(0,1, lty=2, col="gray")
 ## test for Gaussian copula
 title <- list("Pairwise Rosenblatt transformed pseudo-observations",
               expression(bold("to test")~~italic(H[0]:C~~bold("is Gaussian"))))
-pairsRosenblatt(cu.u, pvalueMat=pmat, method="none", cex.labels=0.7,
+pairsRosenblatt(cu.uN, pvalueMat=pmatN, method="none", cex.labels=0.7,
                 key.space=1.5, main.centered=TRUE, main=title, main.line=c(3, 0.4))
 
 ## pairwise Rosenblatt plot --- JCGS, Fig.4 --
 nuOpt. <- round(nuOpt, 2)
 title <- list("Pairwise Rosenblatt transformed pseudo-observations",
               bquote(bold("to test")~~italic(H[0]:C)~~"is"~~t[.(nuOpt.)]))
-pairsRosenblatt(cu.u., pvalueMat=pmat., method="none", cex.labels=0.7,
+pairsRosenblatt(cu.ut, pvalueMat=pmatt, method="none", cex.labels=0.7,
                 key.space=1.5, main.centered=TRUE, main=title, main.line=c(3, 0.4))
