@@ -11,7 +11,9 @@
 N <- 1000 # == original simulation for paper; we use smaller N below !
 doExtras <- FALSE # (for ease of manual evaluation)
 (doExtras <- copula:::doExtras())
-N <- if(doExtras) 100 else 12
+N  <- if(doExtras) 100 else 12
+N. <- if(doExtras) N else 5 # for really expensive parts
+options(warn = 1)# [print as they happen]
 ## [plus  one other (doExtras) clause below]
 ##---------------------------------------------------------------------------
 
@@ -76,7 +78,7 @@ myAnalysis <- function(u, verbose=TRUE) {
   u.pseudo <- sapply(u, rank, ties.method="random") / (nrow(u) + 1)
   indTest <- indepTest(u.pseudo, empsamp)$global.statistic.pvalue
   pv.gof <- function(COP) { if(verbose) cat("gofC..(",class(COP),", ...) ")
-      gofCopula(COP, u.pseudo, method="itau", simulation="mult")$pvalue
+      gofCopula(COP, u.pseudo, method="itau", simulation="mult", N = N)$pvalue
                             if(verbose) cat("[done]\n") }
   gof.g <- pv.gof(gumbelCopula(1))
   gof.c <- pv.gof(claytonCopula(1))
@@ -138,15 +140,14 @@ dependogram(srMultIndepTest)
 ###################################################
 ### srGof
 ###################################################
-system.time(srGof.t.pboo <- gofCopula(tCopula(c(0,0,0), dim=3, dispstr="un", df=5, df.fixed=TRUE),
-                                      pseudoSR, method="mpl", print.every = 0))
+tC3 <- tCopula(c(0,0,0), dim=3, dispstr="un", df=5, df.fixed=TRUE)
+system.time(srGof.t.pboo <- gofCopula(tC3, pseudoSR, N = N., method="mpl"))
 srGof.t.pboo
-system.time(srGof.t.mult <- gofCopula(tCopula(c(0,0,0), dim=3, dispstr="un", df=5, df.fixed=TRUE),
-                                      pseudoSR, method="mpl", simulation="mult"))
+system.time(srGof.t.mult <- gofCopula(tC3, pseudoSR, N = N, method="mpl", simulation="mult"))
 srGof.t.mult
 
 
 ###################################################
 ### srFit
 ###################################################
-fitCopula(tCopula(c(0,0,0), dim=3, dispstr="un", df=10, df.fixed=TRUE), pseudoSR, method="mpl")
+(fm.tC3 <- fitCopula(tC3, pseudoSR, method="mpl"))
