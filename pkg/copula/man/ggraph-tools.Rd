@@ -3,23 +3,27 @@
 \alias{pairwiseIndepTest}
 \alias{pviTest}
 \alias{gpviTest}
-\title{Tools for Computing A Graphical Goodness-of-Fit Test Based on Pairwise
-  Rosenblatt Transformed Data}
+\title{Computations for Graphical GOF Test via Pairwise Rosenblatt Transforms}
 \description{
-  \code{pairwiseCcop()} computes a \eqn{(n,d,d)}-\code{\link{array}}
-  which contains pairwise Rosenblatt-transformed data.
-  \code{pairwiseIndepTest()} takes such an
-  array as input and computes a \eqn{(d,d)}-\code{\link{matrix}} of test
-  results from pairwise tests of independence (as conducted by
-  \code{\link{indepTest()}}). \code{pviTest()} can be used to extract
-  the matrix of p-values from the return matrix of
-  \code{pairwiseIndepTest()}. \code{gpviTest()} takes such a matrix of
-  p-values and computes a global p-value with the method provided.
+  Tools for computing a graphical goodness-of-fit (GOF) test based on pairwise
+  Rosenblatt transformed data.
+  \describe{
+    \item{\code{pairwiseCcop()} }{computes a \eqn{(n,d,d)}-\code{\link{array}}
+      which contains pairwise Rosenblatt-transformed data.}
+    \item{\code{pairwiseIndepTest()} }{takes such an array as input and
+      computes a \eqn{(d,d)}-\code{\link{matrix}} of test results from
+      pairwise tests of independence (as by \code{\link{indepTest}()}).}
+    \item{\code{pviTest()} }{can be used to extract the matrix of p-values from
+      the return matrix of \code{pairwiseIndepTest()}.}
+    \item{\code{gpviTest()} }{takes such a matrix of p-values and computes a
+      global p-value with the method provided.}
+  }
 }
 \usage{
 pairwiseCcop(u, cop, ...)
 pairwiseIndepTest(cu.u, N=256, verbose=TRUE, ...)
-pviTest(piTest)
+
+ pviTest(piTest)
 gpviTest(pvalues, method=p.adjust.methods, globalFun=min)
 }
 \arguments{
@@ -30,24 +34,24 @@ gpviTest(pvalues, method=p.adjust.methods, globalFun=min)
   \item{\dots}{additional arguments passed to the internal function
     which computes the conditional copulas (for \code{pairwiseCcop()}).
     Can be used to pass, for example, the degrees of freedom
-    parameter \code{df} for t-copulas. For \code{pairwiseIndepTest()},
-    \dots is passed to \code{\link{indepTestSim()}}.}
+    parameter \code{df} for t-copulas.  For \code{pairwiseIndepTest()},
+    \dots are passed to \code{\link{indepTestSim}()}.}
 
   \item{cu.u}{\eqn{(n,d,d)}-\code{\link{array}} as returned by
     \code{pairwiseCcop()}.}
-  \item{N}{argument of \code{\link{indepTestSim()}}.}
+  \item{N}{argument of \code{\link{indepTestSim}()}.}
   \item{verbose}{\code{\link{integer}} (or \code{\link{logical}})
     indicating if and how much progress should be printed during the
     computation of the tests for independence.}
 
   \item{piTest}{\eqn{(d,d)}-\code{\link{matrix}} of \code{indepTest}
-  objects as returned by \code{pairwiseIndepTest()}.}
+    objects as returned by \code{pairwiseIndepTest()}.}
 
   \item{pvalues}{\eqn{(d,d)}-\code{\link{matrix}} of p-values.}
   \item{method}{\code{\link{character}} vector of adjustment methods for
-  p-values; see \code{\link{p.adjust.methods}} for more details.}
+    p-values; see \code{\link{p.adjust.methods}} for more details.}
   \item{globalFun}{\code{\link{function}} determining how to compute a
-  global p-value from a matrix of pairwise adjusted p-values.}
+    global p-value from a matrix of pairwise adjusted p-values.}
 }
 \value{
   \describe{
@@ -55,27 +59,25 @@ gpviTest(pvalues, method=p.adjust.methods, globalFun=min)
       with \code{cu.u[i,j]} containing \eqn{C(u_i\,|\,u_j)}{C(u[,i]|u[,j])}
       for \eqn{i\neq j}{i!=j} and \eqn{u_i}{u[,i]} for \eqn{i=j}.}
     \item{pairwiseIndepTest}{\eqn{(d,d)}-\code{\link{matrix}} of lists
-      with test results as returned by \code{\link{indepTest()}}. The test
-      results correspond to pairwise tests of independence as conducted
-      by \code{\link{indepTest()}}.}
+      with test results as returned by \code{\link{indepTest}()}.  The
+      test results correspond to pairwise tests of independence as
+      conducted by \code{\link{indepTest}()}.}
     \item{pviTest}{\eqn{(d,d)}-\code{\link{matrix}} of p-values.}
     \item{gpviTest}{global p-values for the specified methods.}
   }
 }
 \author{Marius Hofert, Martin \enc{Mächler}{Maechler}.}
 \references{
-  Hofert, M. and \enc{Mächler}{Maechler}, M. (2012).
-  A graphical goodness-of-fit test for dependence models in higher
-  dimensions;
-  submitted.
+  Hofert and \enc{Mächler}{Maechler} (2012),
+  see \code{\link{pairsRosenblatt}}.% -> ./ggraph-graphics.Rd
 }
 \seealso{
-  \code{\link{ggraph-graphics}} for where these tools are used.
+  \code{\link{pairsRosenblatt}} % -> ./ggraph-graphics.Rd
+  for where these tools are used, including
   \code{\link{demo}(gof_graph)} for examples.
 }
 \examples{
-demo(gof_graph)
+## demo(gof_graph)%% FIXME add some using these *tools* ?
 }
-\keyword{graphics}
-\keyword{goodness-of-fit}
-\keyword{p-value}
+\keyword{multivariate}
+\keyword{htest}

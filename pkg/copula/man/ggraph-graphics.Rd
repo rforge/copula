@@ -1,13 +1,12 @@
 \name{ggraph-graphics}
 \alias{pairsRosenblatt}
 \alias{pairsColList}
-\title{Computing Graphical Goodness-of-Fit Test Based on Pairwise
-  Rosenblatt Transformed Data}
+\title{Plots for Graphical GOF Test via Pairwise Rosenblatt Transforms}
 \description{
-  \code{pairsColList()} create a list containing information about
-  colors for a given matrix of p-values. Such a list is used in
-  \code{pairsRosenblatt()} to compute a graphical goodness-of-fit test
-  based on pairwise Rosenblatt transformed data.
+  \code{pairsColList()} creates a \code{\link{list}} containing
+  information about colors for a given matrix of p-values.  These colors
+  are used in \code{pairsRosenblatt()} for visualizing a graphical
+  goodness-of-fit test based on pairwise Rosenblatt transformed data.
 }
 \usage{
 pairsRosenblatt(cu.u, pvalueMat=pviTest(pairwiseIndepTest(cu.u)),
@@ -30,7 +29,7 @@ pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
 \arguments{
   \item{cu.u}{\eqn{(n,d,d)}-\code{\link{array}} of pairwise
     Rosenblatt-transformed observations as returned by
-    \code{\link{pairwiseCcop()}}.}
+    \code{\link{pairwiseCcop}()}.}
   \item{pvalueMat}{\eqn{(d,d)}-\code{\link{matrix}} of p-values.}
   \item{method}{\code{\link{character}} indicating the plot method
     to be used. Currently possible are:
@@ -66,9 +65,9 @@ pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
     key which show the realized p-values).}
   \item{\dots}{additional arguments passed to the internal function
     \code{pairs2()} (for \code{pairsRosenblatt()}) and \code{heat_hcl()}
-    (for \code{pairsColList}; used to generate the color palette)}.
-  \item{P}{\eqn{(d,d)}-\code{\link{matrix}} of p-values.}
-  \item{pdiv}{\code{\link{vector}} of strictly increasing p-values in
+    (for \code{pairsColList}; used to generate the color palette).}
+  \item{P}{\eqn{d \times d}{d * d} \code{\link{matrix}} of p-values.}
+  \item{pdiv}{numeric vector of strictly increasing p-values in
     (0,1) that determine the "buckets" for the background
     colors of the internal function \code{pairs2()} which creates the
     pairs-like goodness-of-fit plot.}
@@ -110,8 +109,9 @@ pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
 }
 \value{
 \describe{
-  \item{pairsRosenblatt}{invisible.}
-  \item{pairsColList}{a named list with components
+  \item{\code{pairsRosenblatt}: }{invisibly, the result of the internal
+    \code{pairs2()} plot function.}
+  \item{\code{pairsColList}: }{a named \code{\link{list}} with components
     \describe{
       \item{\code{fgColMat}}{\code{\link{matrix}} of foreground colors.}
       \item{\code{bgColMat}}{\code{\link{matrix}} of background colors
@@ -133,17 +133,16 @@ pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
 }
 \author{Marius Hofert, Martin \enc{Mächler}{Maechler}.}
 \references{
-  Hofert, M. and \enc{Mächler}{Maechler}, M. (2012).
-  A graphical goodness-of-fit test for dependence models in higher
-  dimensions;
+  Hofert, M. and \enc{Mächler}{Maechler}, M. (2012)
+  A graphical goodness-of-fit test for dependence models in higher dimensions;
   submitted.
 }
 \seealso{
-  \code{\link{ggraph-tools}} for the tools behind the scenes.
+  \code{\link{pairwiseCcop}} for the tools behind the scenes.
   \code{\link{demo}(gof_graph)} for examples.
 }
 \examples{
 demo(gof_graph)
 }
-\keyword{graphics}
-\keyword{goodness-of-fit}
+\keyword{hplot}
+\keyword{multivariate}
