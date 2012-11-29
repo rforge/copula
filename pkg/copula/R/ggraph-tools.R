@@ -154,7 +154,7 @@ pairwiseIndepTest <- function(cu.u, N=256, verbose=TRUE, ...)
 ##' Note: Kojadinovic, Yan (2010) mention that "fisher.pvalue" performs best;
 ##'       In d=2 (as we use in pairwiseIndepTest) all three methods are equal.
 pviTest <- function(piTest){
-    matrix(unlist(lapply(piTest, function(x) x$fisher.pvalue)),
+    matrix(vapply(piTest, function(x) x$fisher.pvalue, numeric(1)),
            ncol=ncol(piTest))
 }
 

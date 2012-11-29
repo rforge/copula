@@ -7,4 +7,8 @@ inst/doc/auto.*
 inst/doc/Makefile
 inst/doc/.*-splom.*\.(pdf|png)
 inst/doc/.*\.(log|blg|aux|out|tex|bbl|jpg)
-
+...just.for.now...
+R/wrapper.R
+R/ggraph-*
+man/ggraph-*
+demo/gof_graph.R

@@ -9,7 +9,8 @@
 ** DONE no longer try() in loglikCopula()
    MM: "hideWarnings" seems "wrong by design", notably there.
 ** TODO try() in loglikMvdc()
-   MM+MH: may be differently *report* reports in loglikMvdc() [margins: *their* errors].
+MM+MH: may be differently *report* reports in loglikMvdc() [margins: *their* errors].
+** DONE timings() function name -- changed to nacFrail.time()
 * Short Term
 ** DONE persp(), contour() should work with pCopula / dCopula
 ** DONE getAcop(gumbelCopula()) should work
