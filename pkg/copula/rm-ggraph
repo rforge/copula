@@ -1,3 +1,4 @@
+
 #!/bin/sh
 # remove the ggraph parts -- for CRAN release "for now"
 if [ ! -f DESCRIPTION ]
@@ -14,3 +15,24 @@ mkdir -p gg
 mv R/wrapper.R R/ggraph-* man/ggraph* gg
 mkdir -p gg/demo
 mv demo/gof_graph.R gg/demo
+##
+echo 'Now, you must do (something like) the following:
+ mkdir TMP
+ cd TMP
+ rm -rf copula
+ svn co ssh://svn.r-forge.r-project.org/svnroot/nacopula/pkg/copula
+ cd copula
+ ./rm-ggraph
+ ###########
+ ## Martin only:
+ \cp -p /tmp/copula.Rcheck/vign_test/copula/inst/doc/nacopula-pkg.pdf inst/doc/
+
+(cd ..; R CMD build copula)
+
+
+## to check:
+
+(cd ..; tar tfvz copula_0.999-5.tar.gz )
+
+(cd ..; R-devel CMD check copula_0.999-5.tar.gz )
+'
