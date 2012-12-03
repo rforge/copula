@@ -22,7 +22,7 @@ inst/doc/.*JSS.*
 inst/doc/.*jss.*
 inst/doc/.*_ver.*.pdf
 inst/doc/v[0-9].*
-inst/doc/(nacopula|Frank-Rmpfr)-.*\.(pdf|png)
+inst/doc/(nacopula-pkg|Frank-Rmpfr)-.*\.(pdf|png)
 inst/doc/.*\.(log|blg|aux|out|tex|bbl|jpg|zip)
 ...just.for.now...
 gg

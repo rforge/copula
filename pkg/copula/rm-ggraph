@@ -20,18 +20,20 @@ echo 'Now, you must do (something like) the following:
  mkdir TMP
  cd TMP
  rm -rf copula
- svn co ssh://svn.r-forge.r-project.org/svnroot/nacopula/pkg/copula
+ svn co svn://svn.r-forge.r-project.org/svnroot/nacopula/pkg/copula
  cd copula
  ./rm-ggraph
  ###########
  ## Martin only:
- \cp -p /tmp/copula.Rcheck/vign_test/copula/inst/doc/nacopula-pkg.pdf inst/doc/
+ for f in nacopula-pkg.pdf Frank-Rmpfr.pdf
+ do \cp -p /tmp/copula.Rcheck/vign_test/copula/inst/doc/$f inst/doc/ ; done
 
-(cd ..; R CMD build copula)
+ (cd ..; R CMD build copula)
 
 
 ## to check:
 
+## look for the  inst/doc/*.pdf :
 (cd ..; tar tfvz copula_0.999-5.tar.gz )
 
 (cd ..; R-devel CMD check copula_0.999-5.tar.gz )
