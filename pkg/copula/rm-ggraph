@@ -1,0 +1,16 @@
+#!/bin/sh
+# remove the ggraph parts -- for CRAN release "for now"
+if [ ! -f DESCRIPTION ]
+then echo '** not inside "copula" directory -- exit' ; fi
+mv DESCRIPTION DESCRIPTION+gg
+sed '/ggraph/d; /wrapper/d' DESCRIPTION+gg > DESCRIPTION
+mv NAMESPACE NAMESPACE+gg
+sed '/ggraph/d' NAMESPACE+gg > NAMESPACE
+##
+mv demo/00Index demo/00Index+gg
+sed '/gof_graph/d' demo/00Index+gg > demo/00Index
+##
+mkdir -p gg
+mv R/wrapper.R R/ggraph-* man/ggraph* gg
+mkdir -p gg/demo
+mv demo/gof_graph.R gg/demo
