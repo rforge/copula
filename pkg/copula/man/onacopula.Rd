@@ -95,5 +95,16 @@ pnacopula(C3, rep(.01,3))
 
 ## Compute the probability of falling in the cube [.99,1]^3
 prob(C3, rep(.99, 3), rep(1, 3))
+
+## Construct a 6-dimensional, partially nested Gumbel copula of the form
+## C_0(C_1(u_1, u_2), C_2(u_3, u_4), C_3(u_5, u_6))
+theta <- 2:5
+copG <- onacopulaL("Gumbel", list(theta[1], NULL, list(list(theta[2], c(1,2)),
+                                                       list(theta[3], c(3,4)),
+                                                       list(theta[4], c(5,6)))))
+set.seed(1)
+U <- rCopula(5000, copG)
+pairs(U, pch=".", gap=0, labels=as.expression( sapply(1:dim(copG),
+    function(j) bquote(italic(U[.(j)]))) ))
 }
 \keyword{multivariate}

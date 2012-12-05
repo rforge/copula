@@ -220,7 +220,7 @@ gofMCLT.KS <- function(cop, x, N, estim.method)
     ## prepare influence coefficients
     if (estim.method == "itau") ## kendall's tau
         influ <- 4 * (2 * pCopula(u, cop) - u[,1] - u[,2]
-                      + (1 - tau(cop))/2) / dTau(cop)
+                      + (1 - tau(cop))/2) / dTau(cop) # J
     else if (estim.method == "irho") ## Spearman's rho
         influ <- (12 * (u[,1] * u[,2] + influ.add(u, u, u[,2],u[,1])) -
                   3 - rho(cop)) / dRho(cop)
