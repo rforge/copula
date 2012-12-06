@@ -393,7 +393,7 @@ heatHCLgap <- function(beg, end, nBeg, nEnd, ngap, ...){
 ##' @author Marius Hofert
 pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
                          signif.P=0.05, pmin0=1e-5, bucketCols=NULL, fgColMat=NULL,
-                         bgColMat=NULL, col="B&W.contrast", BWcutoff=150,## 127.5 = (0+255)/2
+                         bgColMat=NULL, col="B&W.contrast", BWcutoff=170,## 127.5 = (0+255)/2
                          bg.col=c("ETHCL", "zurich", "zurich.by.fog", "baby",
                          "heat", "greenish"), bg.ncol.gap=floor(length(pdiv)/3),
                          bg.col.bottom=NULL, bg.col.top=NULL, ...)
