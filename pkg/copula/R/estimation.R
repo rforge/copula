@@ -47,7 +47,7 @@ initOpt <- function(family, tau.range=NULL, interval=TRUE, u,
                             stop("unsupported family for initOpt"))
     }
     if(interval) return(cop@iTau(tau.range)) # u is not required
-    stopifnot(length(dim(u)) == 2)
+    stopifnot(length(dim(u)) == 2L)
     method <- match.arg(method)
     ## estimate Kendall's tau
     tau.hat <- switch(method,

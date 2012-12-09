@@ -30,7 +30,7 @@ setClass("copula",
          validity = ##' Check validity of "copula"
          function(object) {
 	     dim <- object@dimension # "integer" by definition
-	     if (length(dim) != 1) return("'dim' must be an integer (>= 2)")
+	     if (length(dim) != 1L) return("'dim' must be an integer (>= 2)")
 	     if (dim < 2) return("dim must be >= 2")
              param <- object@parameters
              upper <- object@param.upbnd

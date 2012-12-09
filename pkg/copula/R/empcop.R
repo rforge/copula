@@ -13,32 +13,48 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-##' Empirical copula of x at w
+
+##' Empirical copula of U at u
 ##'
-##' @title Empirical copula of x at w
-##' @param x the data
-##' @param w points where to evalute the empirical copula
-##' @return the evaluations
-##' @author Ivan Kojadinovic
-Cn <- function(x,w) {
+##' @title Empirical copula of U at u
+##' @param u (m, d) matrix of evaluation points
+##' @param U (n, d) matrix of pseudo-data based on which the empirical copula
+##'        is computed (if not pseudo-data already, use do.pobs=TRUE)
+##' @param do.pobs logical indicating whether pobs is applied to U
+##' @param offset scaling factor sum()/(n+offset) when computing the empirical
+##'        copula
+##' @param method method string
+##' @return empirical copula of U at u
+##' @author Ivan Kojadinovic and Marius Hofert
+##' Note: See the .Rd for a nice graphical check with the Kendall function
+Cn <- function(u, U, do.pobs=TRUE, offset=0, method=c("C", "R"))
+{
+    if(!is.matrix(u)) u <- cbind(u, deparse.level=0L)
+    if(!is.matrix(U)) U <- cbind(U, deparse.level=0L)
+    stopifnot((d <- ncol(U))==ncol(u),
+              0 <= u, u <= 1, 0 <= U, U <= 1)
+    if(do.pobs) U <- pobs(U)
+    n <- nrow(U)
 
-    p <- ncol(x)
-    if (p < 2) stop("The data should be at least of dimension 2")
-    if (ncol(w) != p)
-      stop("The matrices 'x' and 'w' should have the same number of columns")
+    ## d = 1
+    if(d==1) return( vapply(u, function(u.) sum(U<=u.)/(n+offset), numeric(1)) )
 
-    n <- nrow(x)
-    m <- nrow(w)
-
-    ## make pseudo-observations
-    u <- pobs(x)
-
-    ## compute empirical copula at w
-    .C(RmultCn,
-       as.double(u),
-       as.integer(n),
-       as.integer(p),
-       as.double(w),
-       as.integer(m),
-       ec = double(m))$ec
+    ## d > 1
+    method <- match.arg(method)
+    switch(method,
+           "C"={ # Ivan's code
+               m <- nrow(u)
+               .C(RmultCn, # see empcop.c
+                  as.double(U),
+                  as.integer(n),
+                  as.integer(d),
+                  as.double(u),
+                  as.integer(m),
+                  ec=double(m),
+                  as.double(offset))$ec
+           },
+           "R"={ # Marius' code
+               apply(u, 1, function(u.) sum(colSums(t(U)<=u.)==d)/(n+offset) )
+           },
+           stop("wrong method"))
 }

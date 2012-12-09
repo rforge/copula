@@ -25,7 +25,7 @@ nac2list(x)
     "Clayton" or simply "C"); see the \code{\link{acopula-families}}
     documentation, or an \code{\linkS4class{acopula}} family object.}
   \item{nacStructure}{a \dQuote{formula} of the form
-    \deqn{C(\theta, c(i_1,\dots,i_c), list(C(..), ..., C(..))).}{%
+    \deqn{C(\theta, c(i_1,\dots,i_c),\mathrm{list}(C(..), ..., C(..))).}{%
       C(th, c(i1,..ic), list(C(..), ..., C(..))).}
     Note that \eqn{C()} has (maximally) three arguments: the first is
     the copula parameter (vector) \eqn{\theta}{theta}, the second a

@@ -67,10 +67,10 @@ integer orders.  The general case may be expressed as a finite sum:
 %---
 
 \deqn{\mathrm{Li}_{-n}(z) =
-  \left(z \,{\partial \over \partial z} \right)^n \frac{z}{1-z} =
+  \left(z \,{\partial \over \partial z} \right)^n \frac{z}{1-z}
   = \sum_{k=0}^n k! \,S(n+1,k+1) \left({z \over {1-z}} \right)^{k+1}
   \ \ (n=0,1,2,\ldots),}{%
-  Li_{-n}(z) = ( z d/dz )^n  z/(1-z) =
+  Li_{-n}(z) = ( z d/dz )^n  z/(1-z)
              = sum(k=0..n ; k! S(n+1,k+1) (z /(1-z))^(k+1)),   (n=0,1,2,...),}
 where \eqn{S(n,k)} are the Stirling numbers of the second kind.
 

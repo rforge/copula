@@ -43,8 +43,8 @@ static R_NativePrimitiveArgType mult_A_t[8] = {
 };
 
 // ./empcop.c ///////////////////////////////////////////////////////////////////
-static R_NativePrimitiveArgType RmultCn_t[6] = {
-    REALSXP, INTSXP, INTSXP, REALSXP, INTSXP, REALSXP
+static R_NativePrimitiveArgType RmultCn_t[7] = {
+	REALSXP, INTSXP, INTSXP, REALSXP, INTSXP, REALSXP, REALSXP
 };
 
 // ./fgm.c /////////////////////////////////////////////////////////////////////
@@ -170,7 +170,7 @@ static R_NativePrimitiveArgType debye_4_t[5] = { REALSXP, INTSXP, REALSXP,REALSX
 
 static const R_CMethodDef CEntries[]  = {
     CDEF(biv_ACFG),
-    CDEF(biv_AP), 
+    CDEF(biv_AP),
     CDEF(mult_A),
     CDEF(RmultCn),
 
