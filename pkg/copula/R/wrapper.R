@@ -63,47 +63,6 @@ copFamilyClass <- function(family)
     else stop("family ", family, " not yet supported")
 }
 
-##' Creating elliptical and Archimedean copula objects
-##'
-##' @title Creating elliptical and Archimedean copula objects
-##' @param family specified family (for the elliptical cops, it's "normal" or "t")
-##' @param theta parameter (a number or vector)
-##' @param d dimension (can be omitted if nacList is given)
-##' @param ... additional arguments:
-##'        either 'dispstr', 'df', 'df.fixed' for the elliptical copulas
-##'           or  'nacList' for the nested Archimedean {use 'theta' above for Archimedean}
-##' @return a copula object
-##' @author Marius Hofert and Martin Maechler
-copCreate <- function(family, theta, d, ...)
-{
-    switch(copFamilyClass(family),
-           "ellipCopula"={
-               stopifnot(is.numeric(theta))
-               ellipCopula(family, param=theta, dim=d, ...)
-               ## Note: ... args are:
-               ## dispstr="ex" (exchangeable), "ar1" (AR1), "toep" (Toeplitz), "un"
-               ##         (unstructured)
-               ## df (degrees of freedom)
-               ## df.fixed=FALSE (TRUE means that d.o.f. will be considered as fixed
-               ##          and won't be estimated)
-           },
-           "outer_nacopula"={
-               L <- if(hasArg(nacList)){ # nested Archimedean case => we don't need theta
-                   list(...)$nacList
-               } else {
-                   ## Archimedean case => one parameter
-                   if(!is.numeric(theta) || length(theta)!=1)
-                       stop("must specify 'nacList' (list)  or 'theta' (numeric)")
-                   list(theta, 1:d)
-               }
-               stopifnot(is.list(L))
-               onacopulaL(family, L)
-               ## Note: ... with an argument "nacList" can be used to construct
-               ## a nested Archimedean copula
-           },
-           stop("family ", family, " not yet supported"))
-}
-
 ##' @title Construct a symmetric matrix with 1s on the diagonal from the given
 ##'        parameter vector
 ##' @param param parameter vector
@@ -111,7 +70,8 @@ copCreate <- function(family, theta, d, ...)
 ##' @return a symmetric matrix with 1s on the diagonal and the values of param
 ##'         filled column-wise below the diagonal (= row-wise above the diagonal)
 ##' @author Marius Hofert
-p2P <- function(param, d){
+p2P <- function(param, d)
+{
     P <- diag(1, nrow=d)
     P[lower.tri(P)] <- param
     P <- P+t(P)
@@ -124,9 +84,37 @@ p2P <- function(param, d){
 ##' @return the vector of column-wise below-diagonal entries of P (they are equal
 ##'         to the row-wise above-diagonal entries in case of a symmetric matrix)
 ##' @author Marius Hofert
-##' Note: - This is used "by foot" at several points in the package.
-##'       - A nice check is
-##'         param <- c(0.2, 0.3, 0.4, 0.5, 0.6, 0.7)
-##'         stopifnot(P2p(p2P(param, 4))==param)
+##' Note: This is used "by foot" at several points in the package.
 P2p <- function(P) P[lower.tri(P)]
 
+##' Construct matrix Sigma from a given copula
+##'
+##' @title Construct matrix Sigma from a given copula
+##' @param cop copula
+##' @return (d, d) matrix Sigma containing the parameter vector rho
+##' @author Marius Hofert
+getSigma <- function(cop)
+{
+    stopifnot(is(cop, "ellipCopula"))
+    d <- cop@dimension
+    rho <- cop@getRho(cop)
+    switch(cop@dispstr,
+           "ex"={
+               Sigma <- matrix(rho[1], nrow=d, ncol=d)
+               diag(Sigma) <- rep(1, d)
+           },
+           "ar1"={
+               Sigma <- rho^abs(outer(1:d, 1:d, FUN="-"))
+           },
+           "un"={
+               Sigma <- p2P(rho, d)
+           },
+           "toep"={
+               rho. <- c(rho, 1)
+               ind <- outer(1:d, 1:d, FUN=function(i, j) abs(i-j))
+               diag(ind) <- length(rho.)
+               Sigma <- matrix(rho.[ind], nrow=d, ncol=d)
+           },
+           stop("wrong 'dispstr'"))
+    Sigma
+}

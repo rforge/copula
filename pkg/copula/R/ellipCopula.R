@@ -14,30 +14,6 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-getSigma <- function(copula) {
-  dim <- copula@dimension
-  rho <- copula@getRho(copula)
-  sigma <- diag(dim)
-  if (copula@dispstr == "ex") {
-    sigma[lower.tri(sigma)] <- rho[1]
-    sigma[upper.tri(sigma)] <- rho[1]
-  }
-  else if (copula@dispstr == "ar1") {
-      ## FIXME  outer()
-    for (i in 1:dim)  for (j in 1:dim)  sigma[i,j] <- rho ^ abs(i - j)
-  }
-  else if (copula@dispstr == "un") {
-    sigma[lower.tri(sigma)] <- rho
-    sigma[upper.tri(sigma)] <- t(sigma)[upper.tri(sigma)]
-  }
-  else if (copula@dispstr == "toep") {
-      ## FIXME outer()
-    for (i in 1:dim) for (j in 1:dim)
-      if (i != j) sigma[i,j] <- rho[abs(i - j)]
-  }
-  sigma
-}
-
 ellipCopula <- function(family, param = NA_real_, dim = 2L, dispstr = "ex", df = 4, ...) {
   familiesImplemented <- c("normal", "t")
   fam <- pmatch(family, familiesImplemented, -1)

@@ -15,7 +15,7 @@
 
 useDynLib(copula, .registration=TRUE)
 
-### Part I: Former copula ######################################################
+### Part I: Mainly former copula ###############################################
 
 importFrom("graphics", persp, contour)
 importFrom("stats", coef, nobs, vcov)# logLik? - already import from "stats4" for mle2
@@ -53,6 +53,7 @@ exportClasses(plackettCopula)
 exportClasses(fgmCopula)
 
 export(mvdc)
+export(p2P, P2p) # auxiliary functions mainly used for working with elliptical copulas
 export(ellipCopula, archmCopula, evCopula)
 export(normalCopula, tCopula)
 export(indepCopula)
@@ -117,7 +118,7 @@ S3method(logLik, fittedMV)
 ## export(multcomp) ---> R/mult.R
 
 
-### Part II: Former nacopula ###################################################
+### Part II: Mainly former nacopula ############################################
 
 ## Now  'Depend'  on  stats4 and bbmle :
 importFrom("stats4", mle)

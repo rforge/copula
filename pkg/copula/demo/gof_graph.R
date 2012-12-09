@@ -24,10 +24,6 @@ if(!(exists("doX") && is.logical(as.logical(doX))))
     print(doX <- copula:::doExtras())
 (N <- if(doX) 256 else 32)# be fast when run as "check"
 
-## For now -- "wrappers" that we don't want in the long run
-## --- --- ../R/wrapper.Rg
-copCreate <- copula:::copCreate
-
 
 ### Example 1: 5d Gumbel copula ################################################
 
@@ -214,7 +210,7 @@ if(setSeeds) set.seed(2)
 cop <- getAcop(family)
 th <- cop@iTau(tau <- c(0.2, 0.4, 0.6))
 nacList <- list(th[1], NULL, list(list(th[2], 1:2), list(th[3], 3:d)))
-copG <- copCreate(family, nacList=nacList)
+copG <- onacopulaL(family, nacList=nacList)
 U <- rCopula(n, cop=copG)
 U. <- pobs(U)
 
@@ -266,7 +262,7 @@ P <- c(r[2], r[1], r[1], r[1], # upper triangle (without diagonal) of correlatio
              r[1], r[1], r[1],
                    r[3], r[3],
                          r[3])
-copt4 <- copCreate(family, theta=P, d=d, dispstr="un", df=df, df.fixed=TRUE)
+copt4 <- ellipCopula(family, param=P, dim=d, dispstr="un", df=df, df.fixed=TRUE)
 U <- rCopula(n, cop=copt4)
 U. <- pobs(U)
 
@@ -275,9 +271,9 @@ U. <- pobs(U)
 ##       tau is invariant strictly increasing transformations
 stopifnot(require(Matrix))
 P. <- nearPD(iTau(tCopula(), cor(U., method="kendall")))$mat # estimate P
-P. <- P.[lower.tri(P.)] # note: upper.tri() would lead to the wrong result due to the required ordering
-plot(P, P., asp=1); abline(0,1, col=adjustcolor("gray", 0.9)) # P. should be close to P
-copH0 <- copCreate(family, theta=P., d=d, dispstr="un", df=df, df.fixed=TRUE)
+P.. <- P2p(P.)
+plot(P, P.., asp=1); abline(0,1, col=adjustcolor("gray", 0.9)) # P. should be close to P
+copH0 <- ellipCopula(family, param=P.., dim=d, dispstr="un", df=df, df.fixed=TRUE)
 
 ## create array of pairwise copH0-transformed data columns
 cu.u <- pairwiseCcop(U., copH0, df=df)
@@ -352,10 +348,10 @@ plot(nus, nLLt.nu + 1200, type="l", xlab=bquote(nu),
 ## define the H0 copula
 ## Note: that's the same result when using pseudo-observations since estimation via
 ##       tau is invariant under strictly increasing transformations
-P.. <- P.[lower.tri(P.)] # note: upper.tri() would be wrong
-cop.N <- copCreate("normal", theta=P.., d=ncol(P.), dispstr="un")
+P.. <- P2p(P.)
+cop.N <- ellipCopula("normal", param=P.., dim=ncol(P.), dispstr="un")
 ## The correct H0 copula:
-cop.t <- copCreate("t", df=nuOpt, theta=P.., d=ncol(P.), dispstr="un")
+cop.t <- ellipCopula("t", df=nuOpt, param=P.., dim=ncol(P.), dispstr="un")
 
 ## create array of pairwise copH0-transformed data columns
 cu.uN <- pairwiseCcop(u, cop.N)

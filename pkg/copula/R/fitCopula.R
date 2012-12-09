@@ -145,7 +145,7 @@ fitCopula.itau <- function(copula, x, estimate.variance=TRUE, warn.df=TRUE) {
   q <- length(copula@parameters)
   tau <- cor(x, method="kendall")
   itau <- fitKendall(copula, tau)
-  itau <- itau[lower.tri(itau)]
+  itau <- P2p(itau)
 
   X <- getXmat(copula)
   estimate <-
@@ -179,7 +179,7 @@ fitCopula.irho <- function(copula, x, estimate.variance=TRUE, warn.df=TRUE) {
   q <- length(copula@parameters)
   rho <- cor(x, method="spearman")
   irho <- fitSpearman(copula, rho)
-  irho <- irho[lower.tri(irho)]
+  irho <- P2p(irho)
   X <- getXmat(copula)
   estimate <-
       as.vector(# stripping attributes
@@ -423,7 +423,7 @@ getL <- function(copula) {
   pp <- p * (p - 1) / 2
 
   dgidx <- outer(1:p, 1:p, "-")
-  dgidx <- dgidx[lower.tri(dgidx)]
+  dgidx <- P2p(dgidx)
 
   if (!is(copula, "ellipCopula")) {
     matrix(1/pp, nrow=pp, ncol=1)
@@ -456,7 +456,7 @@ getXmat <- function(copula) {
 	       "toep" =,
 	       "ar1" = {
 		   dgidx <- outer(1:p, 1:p, "-")
-		   dgidx <- dgidx[lower.tri(dgidx)]
+		   dgidx <- P2p(dgidx)
 		   if(copula@dispstr == "toep")
 		       model.matrix(~ factor(dgidx) - 1)
 		   else { ## __"ar1"__
@@ -481,7 +481,7 @@ varInfluAr1 <- function(cop, v, L, der) {
   ## r is the lower.tri of sigma
   sigma <- getSigma(cop) # assuming cop is the fitted copula
   ## influ for log(r)
-  r <- sigma[lower.tri(sigma)]
+  r <- P2p(sigma)
   der <- if (der == "tau") dTauFun(cop)(r) else dRhoFun(cop)(r)
   D <- diag(x = 1 / r / der, pp)
   v <- v %*% D
