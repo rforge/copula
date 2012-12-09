@@ -15,15 +15,6 @@
   this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * @file   empcop.h
- * @author Ivan Kojadinovic
- * @date   Sat Jul 21 17:25:20 2012
- *
- * @brief  Bivariate and multivariate versions of the empirical copula
- *         and related estimators of the partial derivatives
- *
- */
 
 #ifndef EMPCOP_H
 #define EMPCOP_H

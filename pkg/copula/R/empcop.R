@@ -42,7 +42,7 @@ Cn <- function(u, U, do.pobs=TRUE, offset=0, method=c("C", "R"))
     ## d > 1
     method <- match.arg(method)
     switch(method,
-           "C"={ # Ivan's code
+           "C"={
                m <- nrow(u)
                .C(RmultCn, # see empcop.c
                   as.double(U),
@@ -53,7 +53,7 @@ Cn <- function(u, U, do.pobs=TRUE, offset=0, method=c("C", "R"))
                   ec=double(m),
                   as.double(offset))$ec
            },
-           "R"={ # Marius' code
+           "R"={
                apply(u, 1, function(u.) sum(colSums(t(U)<=u.)==d)/(n+offset) )
            },
            stop("wrong method"))
