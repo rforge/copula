@@ -135,7 +135,7 @@ double der_multCn(const double U[], int n, int p,
  * @param offset offset to be used for scaling
  * @author Ivan Kojadinovic
  */
-void RmultCn(double *U, int *n, int *p, double *V, int *m, double *ec, double *offset) {
+void Cn_C(double *U, int *n, int *p, double *V, int *m, double *ec, double *offset) {
    for (int i = 0; i < *m; i++)
      ec[i] = multCn(U, *n, *p, V, *m, i, *offset);
 }

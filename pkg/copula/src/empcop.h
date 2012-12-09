@@ -29,6 +29,6 @@ double multCn(const double U[], int n, int p, const double V[], int m, int k, do
 double der_multCn(const double U[], int n, int p, const double u[], const double v[], double denom);
 
 // called .C
-void RmultCn(double *U, int *n, int *p, double *V, int *m, double *ec, double *offset);
+void Cn_C(double *U, int *n, int *p, double *V, int *m, double *ec, double *offset);
 
 #endif

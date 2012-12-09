@@ -44,7 +44,7 @@ Cn <- function(u, U, do.pobs=TRUE, offset=0, method=c("C", "R"))
     switch(method,
            "C"={
                m <- nrow(u)
-               .C(RmultCn, # see empcop.c
+               .C(Cn_C, # see empcop.c
                   as.double(U),
                   as.integer(n),
                   as.integer(d),
