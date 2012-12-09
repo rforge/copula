@@ -121,7 +121,7 @@ rtrafo <- function(u, cop, j.ind=2:d, m, n.MC=0, log=FALSE, trafo.only=log)
     stopifnot(0 <= u, u <= 1,
 	      2 <= j.ind, j.ind <= d)
 
-    if((nac <- is(cop, "outer_nacopula")) ||
+    if((nac <- is(cop, "outer_nacopula")) || ## outer_nacopula #################
        is(cop, "archmCopula")) {
 	if(nac) {
 	    if(length(cop@childCops))
@@ -163,7 +163,7 @@ rtrafo <- function(u, cop, j.ind=2:d, m, n.MC=0, log=FALSE, trafo.only=log)
 		if(log) res else exp(res)
 	    }
 	}
-    } else if(is(cop, "normalCopula")) {
+    } else if(is(cop, "normalCopula")) { ## normalCopula #######################
 	sigma <- getSigma(cop)
 	n <- nrow(X <- qnorm(u))
 	C.j <- function(j) { ## j is the dimension -- really a function of (j, X := F(u))
@@ -203,7 +203,7 @@ rtrafo <- function(u, cop, j.ind=2:d, m, n.MC=0, log=FALSE, trafo.only=log)
 
 	} ## C.j
 
-    } else if(is(cop, "tCopula")) {
+    } else if(is(cop, "tCopula")) { ## tCopula #################################
 	sigma <- getSigma(cop)
 	df <- getdf(cop)
 	n <- nrow(X <- qt(u, df=df))
