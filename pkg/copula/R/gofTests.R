@@ -98,6 +98,7 @@ add.influ <- function(u, v, influ, q)
 ##'        if necessary, will be used as starting values in fitCopula
 ##' @param x the data
 ##' @param N the number of bootstrap replications
+##' @param method
 ##' @param estim.method estimation method for the unknown parameter
 ##' @param verbose display progress bar is TRUE
 ##' @param optim.method for fitting
@@ -108,6 +109,7 @@ gofPB <- function(copula, x, N, method, estim.method, verbose, optim.method,
                   optim.control)
 {
     ## checks: TODO!!
+    stopifnot(is(copula, "copula"), N>=1, )
 
     ## 1) compute the pseudo-observations
     uhat <- pobs(x)
@@ -267,15 +269,16 @@ gofMCLT.PL <- function(cop, x, N, optim.method, optim.control)
 ##' Goodness-of-fit test wrapper function
 ##'
 ##' @title Goodness-of-fit test wrapper function
-##' @param copula is a copula of the desired family
+##' @param copula object of type 'copula' representing the H_0 copula
 ##' @param x the data
-##' @param N the number of bootstrap or multiplier replications
-##' @param estim.method estimation method for the unknown parameter
-##' @param simulation parametric bootstrap or multiplier
-##' @param verbose display progress bar if TRUE
-##' @param print.every is deprecated
-##' @param optim.method for fitting
-##' @param optim.control for fitting
+##' @param N the number of bootstrap (parametric or multiplier) replications
+##' @param method goodness-of-fit test statistic to be used
+##' @param estim.method estimation method for the unknown parameter vector
+##' @param simulation parametric bootstrap ('pb') or multiplier method ('mult')
+##' @param verbose logical indicating whether a progress bar is shown
+##' @param print.every deprecated
+##' @param optim.method optim() used for fitting
+##' @param optim.control see ?optim
 ##' @param ... additional arguments passed to the main auxiliary functions
 ##'        gofPB(), gofMCLT.KS(), and gofMCLT.PL()
 ##' @return an object of class 'htest'
