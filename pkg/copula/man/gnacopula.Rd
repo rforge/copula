@@ -5,14 +5,13 @@
 \description{
   \code{gnacopula()} conducts a goodness-of-fit test for the given
   (\eqn{H_0}-)copula \code{cop} based on the (copula-)data \code{u}.
-
 }
 \usage{
 gnacopula(u, cop, n.bootstrap,
           estim.method = eval(formals(enacopula)$method),
-          include.K=TRUE, n.MC=0, trafo= c("Hering.Hofert", "Rosenblatt"),
+          include.K=TRUE, n.MC=0, trafo=c("Hering.Hofert", "Rosenblatt"),
           method=eval(formals(gofTstat)$method), verbose=TRUE, \dots)
-gofTstat(u, method = c("AnChisq", "AnGamma", "SnB", "SnC"))
+gofTstat(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"), \dots)
 }
 \arguments{
   \item{u}{\eqn{n\times d}{n x d}-matrix, each value in \eqn{[0,1]}.
@@ -55,6 +54,14 @@ gofTstat(u, method = c("AnChisq", "AnGamma", "SnB", "SnC"))
     goodness-of-fit test statistic to be used, which has to be one (or a unique
     abbreviation) of
     \describe{
+      \item{\code{"Sn"}}{for computing the test statistic
+	\eqn{S_n}{S[n]} from Genest,
+	R\enc{é}{e}millard, Beaudoin (2009).}
+      \item{\code{"SnB"}}{for computing the test statistic
+	\eqn{S_n^{(B)}}{S[n]^(B)} from Genest,
+	R\enc{é}{e}millard, Beaudoin (2009).}
+      \item{\code{"SnC"}}{for computing the test statistic
+	\eqn{S_n^{(C)}}{S[n]^(C)} from Genest et al. (2009).}
       \item{\code{"AnChisq"}}{Anderson-Darling test statistic for
 	computing (supposedly) \eqn{\mathrm{U}[0,1]}{U[0,1]}-distributed
 	(under \eqn{H_0}) random variates via the distribution function
@@ -70,7 +77,6 @@ gofTstat(u, method = c("AnChisq", "AnGamma", "SnB", "SnC"))
 	of the chi-square distribution with \eqn{d} degrees of freedom,
 	and \eqn{u_{ij}} is the \eqn{j}th component in the \eqn{i}th row
 	of \code{u}.}
-
       \item{\code{"AnGamma"}}{similar to \code{method="AnChisq"} but
 	based on the variates
 	\deqn{\Gamma_d\Bigl(\sum_{j=1}^d(-\log u_{ij})\Bigr),}{%
@@ -79,15 +85,12 @@ gofTstat(u, method = c("AnChisq", "AnGamma", "SnB", "SnC"))
 	function of the gamma distribution with shape parameter \eqn{d}
 	and shape parameter one	(being equal to an
 	Erlang(\eqn{d}) distribution function).}
-      \item{\code{"SnB"}}{for computing the test statistic
-	\eqn{\mathrm{S_n^{(B)}}}{S[n]^(B)} from Genest,
-	R\enc{é}{e}millard, Beaudoin (2009).}
-      \item{\code{"SnC"}}{for computing the test statistic
-	\eqn{\mathrm{S_n^{(C)}}}{S[n]^(C)} from Genest et al. (2009).}
   }}
   \item{verbose}{if \code{TRUE}, the progress of the bootstrap is
     displayed via \code{\link[utils]{txtProgressBar}}.}
-  \item{\dots}{additional arguments to \code{\link{enacopula}}.}
+  \item{\dots}{additional arguments passed to \code{\link{enacopula}}
+    (for \code{gnacopula()}) or to the different test statistics
+    (for \code{gofTstat()}).}
 }
 \details{
   The function \code{gnacopula} performs a parametric bootstrap for the

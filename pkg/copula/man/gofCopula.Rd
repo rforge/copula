@@ -15,9 +15,10 @@
 }
 \usage{
 gofCopula(copula, x, N=1000,
-          method=c("Sn", "AnChisq", "AnGamma", "SnB", "SnC"),
-          estim.method=c("mpl", "ml", "irho", "itau"),
-          simulation=c("pb", "mult"), verbose=TRUE, print.every=NULL,
+          method=eval(formals(gofTstat)$method),
+          estim.method=eval(formals(fitCopula)$method),
+          simulation=c("pb", "mult"),
+	  verbose=TRUE, print.every=NULL,
           optim.method="BFGS", optim.control=list(maxit=20), ...)
 }
 \arguments{
@@ -28,18 +29,9 @@ gofCopula(copula, x, N=1000,
     simulate realizations of the test statistic under the null
     hypothesis.}
   \item{method}{a \code{\link{character}} string specifying the
-    goodness-of-fit test statistic to be used, which has to be one (or a unique
-    abbreviation) of \code{"AnChisq"}, \code{"AnGamma"}, \code{"SnB"},
-    \code{"SnC"}, or \code{"Sn"}.
-
-    \code{"Sn"} is \eqn{\mathrm{S_n}}{S[n]} from Equation (2) in Genest,
-    R\enc{é}{e}millard, Beaudoin (2009). For the others see
-    \code{method} in \code{\link{gofTstat}}.
-  }
+    goodness-of-fit test statistic to be used; see \code{\link{gofTstat}()}.}
   \item{estim.method}{a character string specifying the estimation method to
-    be used to estimate the dependence parameter(s); can be either \code{"mpl"}
-    (maximum pseudo-likelihood), \code{"itau"} (inversion of
-    Kendall's tau) or \code{"irho"} (inversion of Spearman's rho).}
+    be used to estimate the dependence parameter(s); see \code{\link{fitCopula}()}.}
   \item{simulation}{a string specifying the simulation method for
     generating realizations of the test statistic under the null
     hypothesis; can be either \code{"pb"} (parametric bootstrap) or

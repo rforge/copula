@@ -57,10 +57,10 @@ indepTest(pseudoLoss, empsamp)
 ###################################################
 ### lossGof
 ###################################################
-system.time(gofGumb.pb <- gofCopula(gumbelCopula(1), pseudoLoss, method="itau",
+system.time(gofGumb.pb <- gofCopula(gumbelCopula(1), pseudoLoss, estim.method="itau",
                                     simulation="pb", N = N, print.every = 0))
 gofGumb.pb
-system.time(gofGumb.mult <- gofCopula(gumbelCopula(1), pseudoLoss, method="itau",
+system.time(gofGumb.mult <- gofCopula(gumbelCopula(1), pseudoLoss, estim.method="itau",
                                       simulation="mult", N = N))
 gofGumb.mult
 
@@ -78,7 +78,7 @@ myAnalysis <- function(u, verbose=TRUE) {
   u.pseudo <- sapply(u, rank, ties.method="random") / (nrow(u) + 1)
   indTest <- indepTest(u.pseudo, empsamp)$global.statistic.pvalue
   pv.gof <- function(COP) { if(verbose) cat("gofC..(",class(COP),", ...) ")
-      gofCopula(COP, u.pseudo, method="itau", simulation="mult", N = N)$pvalue
+      gofCopula(COP, u.pseudo, estim.method="itau", simulation="mult", N = N)$pvalue
                             if(verbose) cat("[done]\n") }
   gof.g <- pv.gof(gumbelCopula(1))
   gof.c <- pv.gof(claytonCopula(1))
@@ -101,7 +101,7 @@ round(apply(myReps, 2, summary),3)
 ###################################################
 ### lossGof3
 ###################################################
-gofCopula(gumbelCopula(1), pseudoLoss.ave, method="itau", simulation="mult", N = N)
+gofCopula(gumbelCopula(1), pseudoLoss.ave, estim.method="itau", simulation="mult", N = N)
 
 
 ###################################################
@@ -141,9 +141,9 @@ dependogram(srMultIndepTest)
 ### srGof
 ###################################################
 tC3 <- tCopula(c(0,0,0), dim=3, dispstr="un", df=5, df.fixed=TRUE)
-system.time(srGof.t.pboo <- gofCopula(tC3, pseudoSR, N = N., method="mpl"))
+system.time(srGof.t.pboo <- gofCopula(tC3, pseudoSR, N = N., estim.method="mpl"))
 srGof.t.pboo
-system.time(srGof.t.mult <- gofCopula(tC3, pseudoSR, N = N, method="mpl", simulation="mult"))
+system.time(srGof.t.mult <- gofCopula(tC3, pseudoSR, N = N, estim.method="mpl", simulation="mult"))
 srGof.t.mult
 
 

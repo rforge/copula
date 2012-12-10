@@ -17,21 +17,91 @@
 ### Various goodness-of-fit tests ##############################################
 
 
-### Auxiliary functions ########################################################
+### Test statistics ############################################################
 
-##' @title Compute Sn (Cramer-von Mises) statistic; = (2) in Genest et al. (2009)
-##' @param u (n x d) matrix of copula observations
-##' @param copula
-##' @return Sn
-##' @author Martin Maechler
-SnCvM <- function(u, copula) {
-    .C(cramer_vonMises,
-       as.integer(nrow(u)),
-       as.integer(ncol(u)),
-       as.double(u),
-       as.double(pCopula(u, copula)),
-       stat = double(1))$stat
+##' Test statistics for various goodness-of-fit tests of (supposedly) U[0,1]^d
+##' distributed vectors of random variates
+##'
+##' @title Test statistics for U[0,1]^d
+##' @param u matrix of supposedly  U[0,1]^d observations
+##' @param method various test statistics. Available are:
+##'        "Sn"     : the test statistic S_n (Cramer-von Mises) in Genest, Remillard, Beaudoin (2009)
+##'        "SnB"    : the test statistic S_n^{(B)} in Genest, Remillard, Beaudoin (2009)
+##'        "SnC"    : the test statistic S_n^{(C)} in Genest, Remillard, Beaudoin (2009)
+##'        "AnChisq": Anderson-Darling test statistic after map to a chi-square
+##'                   distribution using the standard normal quantile function
+##'        "AnGamma": Anderson-Darling test statistic after map to an Erlang/Gamma
+##'                   distribution using the logarithm
+##' @param ... additional arguments for the different methods
+##' @return values of the chosen test statistic
+##' @author Marius Hofert and Martin Maechler
+gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"), ...)
+{
+    if(!is.matrix(u)) u <- rbind(u, deparse.level=0L)
+    d <- ncol(u)
+    n <- nrow(u)
+    method <- match.arg(method)
+    switch(method,
+           "Sn" =
+       { ## S_n
+           if(!hasArg(copula)) stop("object 'copula' required for pCopula() call")
+           .C(cramer_vonMises,
+              as.integer(n),
+              as.integer(d),
+              as.double(u),
+              as.double(pCopula(u, ...)),
+              stat=double(1))$stat
+       },
+	   "AnChisq" = ad.test( pchisq(rowSums(qnorm(u)^2), d) )$statistic,
+	   "AnGamma" = ad.test( pgamma(rowSums(-log(u)), shape=d) )$statistic,
+	   "SnB" =
+       { ## S_n(B)
+           lu2 <- log1p(-u^2) # n x d matrix of log(1-u_{ij}^2)
+           ## Note (modulo rowSums/colSums):
+           ## Idea: sum1 = sum(prod(1-u^2)) = sum(exp(sum(lu2)))
+           ## = exp(log( sum(exp(rowSums(lu2))) )) = exp(lsum(rowSums(lu2)))
+           slu2 <- rowSums(lu2) # vector of length n
+	   sum1 <- exp(lsum(matrix(slu2, ncol=1))) # lsum() needs a matrix; result: 1 value
+           ## 2) The notation here is similar to Genest, Remillard,
+           ## Beaudoin (2009) but we interchange k and j (since j always runs
+           ## in 1:d). That being said...
+	   lu <- t(log1p(-u)) # t(n x d matrix of log(1-u_{ij})) --> accessing columns
+           ln <- log(n)
+           ## Idea:
+           ##   1/n sum_i sum_k prod_j (1-max(u_{ij},u_{kj}))
+           ## = 1/n sum_i sum_k exp( sum_j log(1-max{.,.}) )
+           ## = 1/n sum_i sum_k exp( sum_j log(min{1-u_{ij},1-u_{kj}}) )
+           ## = 1/n sum_i sum_k exp( sum_j min{ log(1-u_{ij}), log(1-u_{kj}) })
+           ## = 1/n sum_i sum_k exp( sum(pmin{ lu[i,], lu[k,]}) )
+           ## = 1/n sum_i exp( log(sum_k exp( sum(pmin{ lu[i,], lu[k,]}) )) )
+           ## = 1/n sum_i exp( lsum( sum(pmin{ lu[i,], lu[k,]}) ) )
+           ## = sum_i exp(-log(n) + lsum( sum(pmin{ lu[i,], lu[k,]}) ))
+           ## = sum_i exp(-log(n) + lsum_{over k in 1:n}( sum(pmin{ lu[i,], lu[k,]}) ))
+           ## => for each fixed i, (l)apply lsum()
+	   sum2mands <- unlist(lapply(1:n, function(i){
+	       lu.i <- lu[,i] ## now i is fixed
+	       sum.k <- vapply(1:n, function(k)# sum over k (n-dim. vector)
+			       sum(pmin(lu.i, lu[,k])), 0.)
+	       ls.i <- lsum(matrix(sum.k, ncol=1)) # lsum( sum(pmin(...)) ) for fixed i; 1 value
+	       exp(-ln + ls.i)
+	   }))
+	   n/3^d - sum1/2^(d-1) + sum(sum2mands)
+       },
+	   "SnC" =
+       { ## S_n(C)
+	   Dn <- apply(u, 1, function(u.){ # Dn is a vector of length n
+	       ## u. is one row. We want to know the number of rows of u
+	       ## that are (all) componentwise <= u.
+	       mean(apply(t(u) <= u., 2, all)) # TRUE <=> the whole row in u is <= u.
+	   })
+           Cperp <- apply(u, 1, prod)
+	   sum((Dn-Cperp)^2)
+       },
+	   stop("unsupported method ", method))
 }
+
+
+### Auxiliary functions ########################################################
 
 ### Utility function: additional influence terms
 influ.add <- function(x0, y0, influ1, influ2)
@@ -91,25 +161,32 @@ add.influ <- function(u, v, influ, q)
 ### Computing different goodness-of-fit tests ##################################
 
 ##' Goodness-of-fit test based on the parametric bootstrap
-##' as proposed by Genest et al. (2008)
 ##'
 ##' @title Goodness-of-fit test based on the parametric bootstrap
-##' @param copula is a copula of the desired family whose parameters,
-##'        if necessary, will be used as starting values in fitCopula
-##' @param x the data
-##' @param N the number of bootstrap replications
-##' @param method
-##' @param estim.method estimation method for the unknown parameter
-##' @param verbose display progress bar is TRUE
-##' @param optim.method for fitting
-##' @param optim.control for fitting
+##' @param copula object of type 'copula' representing the H_0 copula
+##'        (if necessary, parameters will be used as starting values for fitCopula())
+##' @param x (n, d) matrix containing the data
+##' @param N number of bootstrap replications
+##' @param method goodness-of-fit test statistic to be used; see ?gofTstat
+##' @param estim.method estimation method for the unknown parameter vector; see ?fitCopula
+##' @param optim.method optim() used for fitting
+##' @param optim.control see ?optim
+##' @param verbose logical indicating whether a progress bar is shown
+##' @param ... additional arguments
 ##' @return an object of class 'htest'
 ##' @author Ivan Kojadinovic, Marius Hofert
-gofPB <- function(copula, x, N, method, estim.method, verbose, optim.method,
-                  optim.control)
+gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
+                  estim.method=eval(formals(fitCopula)$method),
+                  optim.method=eval(formals(optim)$method), optim.control,
+                  verbose=TRUE, ...)
 {
-    ## checks: TODO!!
-    stopifnot(is(copula, "copula"), N>=1, )
+    ## checks
+    stopifnot(is(copula, "copula"), N>=1)
+    if(!is.matrix(x)) x <- rbind(x, deparse.level=0L)
+    stopifnot((d <- ncol(x))>1, (n <- nrow(x))>0, dim(copula)==d)
+    method <- match.arg(method)
+    estim.method <- match.arg(estim.method)
+    optim.method <- match.arg(optim.method)
 
     ## 1) compute the pseudo-observations
     uhat <- pobs(x)
@@ -119,7 +196,9 @@ gofPB <- function(copula, x, N, method, estim.method, verbose, optim.method,
                       optim.method=optim.method, optim.control=optim.control)@copula
 
     ## 3) compute the test statistic
-    T <- if(method=="Sn") SnCvM(uhat, cop.) else gofTstat(rtrafo(uhat, cop.), method=method)
+    u <- if(method=="Sn") rtrafo(uhat, cop.) else uhat
+    T <- if(method=="Sn") gofTstat(u, method=method, copula=cop.)
+         else gofTstat(u, method=method)
 
     ## 4) simulation of the test statistic under the null hypothesis
     if(verbose){
@@ -128,20 +207,22 @@ gofPB <- function(copula, x, N, method, estim.method, verbose, optim.method,
     }
     T0 <- vapply(1:N, function(k){
         ## 4.1) sample the fitted copula
-        Uhat <- pobs( rCopula(nrow(uhat), cop.) )
+        Uhat <- pobs( rCopula(n, cop.) )
 
         ## 4.2) fit the copula
         cop.. <- fitCopula(copula, Uhat, method=estim.method, estimate.variance=FALSE,
 			   optim.method=optim.method, optim.control=optim.control)@copula
 
         ## 4.3) compute the test statistic
-        T0. <- if(method=="Sn") SnCvM(Uhat, cop..) else gofTstat(rtrafo(Uhat, cop..), method=method)
+        u. <- if(method=="Sn") rtrafo(Uhat, cop..) else Uhat
+        T0. <- if(method=="Sn") gofTstat(u., method=method, copula=cop..)
+               else gofTstat(u., method=method)
 
         if(verbose) setTxtProgressBar(pb, k) # update progress bar
         T0. # return
     }, NA_real_)
 
-    ## 5) return result object
+    ## return result object
     structure(class = "htest",
 	      list(method = sprintf(
 		   "Parametric bootstrap based GOF test with 'method'=\"%s\", 'estim.method'=\"%s\"",
@@ -270,7 +351,7 @@ gofMCLT.PL <- function(cop, x, N, optim.method, optim.control)
 ##'
 ##' @title Goodness-of-fit test wrapper function
 ##' @param copula object of type 'copula' representing the H_0 copula
-##' @param x the data
+##' @param x (n, d) matrix containing the data
 ##' @param N the number of bootstrap (parametric or multiplier) replications
 ##' @param method goodness-of-fit test statistic to be used
 ##' @param estim.method estimation method for the unknown parameter vector
@@ -284,24 +365,20 @@ gofMCLT.PL <- function(cop, x, N, optim.method, optim.control)
 ##' @return an object of class 'htest'
 ##' @author Ivan Kojadinovic, Marius Hofert
 gofCopula <- function(copula, x, N=1000,
-                      method=c("Sn", "AnChisq", "AnGamma", "SnB", "SnC"),
-                      estim.method=c("mpl", "ml", "irho", "itau"),
+                      method=eval(formals(gofTstat)$method),
+                      estim.method=eval(formals(fitCopula)$method),
                       simulation=c("pb", "mult"),
 		      verbose=TRUE, print.every=NULL,
                       optim.method="BFGS", optim.control=list(maxit=20), ...)
 {
     ## checks
     stopifnot(is(copula, "copula"), N>=1)
+    if(!is.matrix(x)) x <- rbind(x, deparse.level=0L)
+    stopifnot((d <- ncol(x))>1, (n <- nrow(x))>0, dim(copula)==d)
+    method <- match.arg(method)
+    estim.method <- match.arg(estim.method)
     optim.method <- match.arg(optim.method)
     stopifnot(optim.method %in% eval(formals(optim)$method))
-    if(!is.matrix(x)) {
-        warning("coercing 'x' to a matrix")
-        x <- as.matrix(x); stopifnot(is.matrix(x))
-    }
-    ## FIXME should not be required! (should work with d=1 or n=1)
-    if ((d <- ncol(x)) < 2) stop("The data should be at least of dimension 2")
-    if ((n <- nrow(x)) < 2) stop("There should be at least 2 observations")
-    if (dim(copula)!=d) stop("The copula and the data should be of the same dimension")
     ## deprecation
     if (!is.null(print.every)) {
         warning("Argument 'print.every' is deprecated. Please use 'verbose' instead.")
@@ -327,7 +404,7 @@ gofCopula <- function(copula, x, N=1000,
                      verbose=verbose, optim.method=optim.method,
                      optim.control=optim.control, ...)
            },
-           "mult" = { ## multiplier
+           "mult" = { ## multiplier bootstrap
                if(method!="Sn") stop("Multiplier method for ", method, " not yet implemented")
                switch(estim.method,
                       "mpl"={ ## mpl
