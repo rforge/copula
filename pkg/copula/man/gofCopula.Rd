@@ -111,6 +111,12 @@ gofCopula(copula, x, N=1000,
   presence of ties in the data might substantially affect the
   approximate p-values. One way of dealing with ties was suggested in the
   last reference.
+
+  Since \R is widely used by practitioners, a word of warning concerning
+  goodness-of-fit tests \emph{in general} is also advisable.
+  Goodness-of-fit tests are often (ab)used in practice to
+  \dQuote{justify} an assumption under which one then continues to work
+  (carelessly).  From a mathematical point of view, this is not correct.
 }
 \seealso{
   \code{\link{fitCopula}()}, \code{\link{ellipCopula}}.
