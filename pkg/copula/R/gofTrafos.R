@@ -14,7 +14,7 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-### Goodness-of-fit testing transformations
+### Goodness-of-fit test transformations #######################################
 
 
 ### multivariate transformations ###############################################
@@ -275,7 +275,6 @@ htrafo <- function(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
 ##' @param ... additional arguments to enacopula
 ##' @return htest object
 ##' @author Marius Hofert and Martin Maechler
-##' TODO: incorporate in gofCopula() in the long run!
 gnacopula <- function(u, cop, n.bootstrap,
 		      estim.method=eval(formals(enacopula)$method),
 		      include.K=TRUE, n.MC=0,

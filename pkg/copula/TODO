@@ -81,7 +81,7 @@ possibly a new slot ...
 Longer term: want to *estimate* those correctly [MLE at least].
 *** TODO rtrafo() is now "available" for "t" and "normal" thanks to the Master thesis of Yongsheng Wang.  (--> ...../function-gof.R )
 **** DONE implement it,
-**** TODO incorporate gnacopula() in gofCopula()
+**** TODO incorporate gnacopula() in gofCopula() and deprecate gnacopula()
 **** TODO Extend  rtrafo() to other (d > 2)-copula families
 ** TODO New Wrapper functions or rather extending one or the other function names
 *** TODO distribution/density/ ... functions
