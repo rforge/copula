@@ -12,6 +12,7 @@
 MM+MH: may be differently *report* reports in loglikMvdc() [margins: *their* errors].
 ** DONE timings() function name -- changed to nacFrail.time()
 * Short Term
+** TODO largely improve on gofTests.R: should be made more modular, so that users can provide functions for the parametric bootstrap (gofPB) and the multiplier boostrap (gofMB). Furthermore, checking and documentation have to be improved (see already partly improved gofPB)
 ** DONE persp(), contour() should work with pCopula / dCopula
 ** DONE getAcop(gumbelCopula()) should work
  => we could then write general methods for all Archimedean objects.
@@ -80,7 +81,7 @@ possibly a new slot ...
 Longer term: want to *estimate* those correctly [MLE at least].
 *** TODO rtrafo() is now "available" for "t" and "normal" thanks to the Master thesis of Yongsheng Wang.  (--> ...../function-gof.R )
 **** DONE implement it,
-**** TODO write a better wrapper for  gnacopula()/gofCopula()
+**** TODO incorporate gnacopula() in gofCopula()
 **** TODO Extend  rtrafo() to other (d > 2)-copula families
 ** TODO New Wrapper functions or rather extending one or the other function names
 *** TODO distribution/density/ ... functions

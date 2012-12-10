@@ -14,17 +14,17 @@
   last two references).
 }
 \usage{
-gofCopula(copula, x, N = 1000,
-          method = c("Sn", "AnChisq", "AnGamma", "SnB", "SnC"),
-          estim.method = c("mpl", "ml", "irho", "itau"),
-          simulation = c("pb", "mult"), verbose = TRUE, print.every = NULL,
-          optim.method = "BFGS", optim.control = list(maxit=20))
+gofCopula(copula, x, N=1000,
+          method=c("Sn", "AnChisq", "AnGamma", "SnB", "SnC"),
+          estim.method=c("mpl", "ml", "irho", "itau"),
+          simulation=c("pb", "mult"), verbose=TRUE, print.every=NULL,
+          optim.method="BFGS", optim.control=list(maxit=20), ...)
 }
 \arguments{
-  \item{copula}{ object of class \code{"\linkS4class{copula}"} representing the
+  \item{copula}{object of class \code{"\linkS4class{copula}"} representing the
     hypothesized copula family.}
-  \item{x}{ a data matrix that will be transformed to pseudo-observations. }
-  \item{N}{ number of bootstrap or multiplier iterations to be used to
+  \item{x}{a data matrix that will be transformed to pseudo-observations. }
+  \item{N}{number of bootstrap or multiplier replications to be used to
     simulate realizations of the test statistic under the null
     hypothesis.}
   \item{method}{a \code{\link{character}} string specifying the
@@ -44,11 +44,13 @@ gofCopula(copula, x, N = 1000,
     generating realizations of the test statistic under the null
     hypothesis; can be either \code{"pb"} (parametric bootstrap) or
     \code{"mult"} (multiplier).}
-  \item{print.every}{ is deprecated in favor of \code{verbose}.}
+  \item{print.every}{is deprecated in favor of \code{verbose}.}
   \item{verbose}{a logical specifying if progress of the bootstrap
     should be displayed via \code{\link[utils]{txtProgressBar}}.}
   \item{optim.method, optim.control}{the \code{method} and
     \code{control} arguments for \code{\link{optim}()}, see there.}
+  \item{\dots}{additional arguments passed to the underlying main
+    auxiliary functions (see the code for details).}
 }
 \details{
   If the parametric bootstrap is used, the dependence parameters of
@@ -74,9 +76,10 @@ gofCopula(copula, x, N = 1000,
   significantly.
 
   Also note that in case of the parametric bootstrap, a finite-sample
-  correction of type \eqn{(sum(T0 >= T)+0.5)/(N+1)} is made, where
-  \eqn{T} and \eqn{T0} are the test statistic and bootstrapped test
-  statistc, respectively.
+  correction of type \eqn{(0.5+\sum_{b=1}^N\mathbf{1}_{\{T_b\ge
+      T\}})/(N+1)}{(0.5 + sum(T[b] >= T, b=1, .., N)) / (N+1)} is made,
+  where \eqn{T} and \eqn{T_b}{T[b]} denote the the test statistic and
+  bootstrapped test statistc, respectively.
 }
 \value{
   An object of \code{\link{class}} \code{htest} which is a list,
