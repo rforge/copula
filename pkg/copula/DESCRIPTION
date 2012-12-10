@@ -37,7 +37,7 @@ Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R special-func.
          exchTests.R fgmCopula.R fitCopula.R fitMvdc.R frankCopula.R
          frankExpr.R galambosCopula.R galambosExpr-math.R galambosExpr.R
 	 ggraph-graphics.R ggraph-tools.R
-	 gof.R gofEVTests.R gofTests.R
+	 gofTrafos.R gofEVTests.R gofTests.R
 	 graphics.R gumbelCopula.R gumbelExpr.R
          huslerReissCopula.R huslerReissExpr.R indepCopula.R
          indepTests.R joeCopula.R K.R logseries.R mvdc.R normalCopula.R
