@@ -119,9 +119,9 @@ gofCopula(copula, x, N=1000,
   (carelessly).  From a mathematical point of view, this is not correct.
 }
 \seealso{
-  \code{\link{fitCopula}()}, \code{\link{ellipCopula}}.
-
-  \code{\link{gnacopula}} for other goodness-of-fit tests for (nested)
+  \code{\link{fitCopula}()} for the underlying estimation procedure,
+  \code{\link{}(gofTstat)()} for the available test statistics,
+  \code{\link{gnacopula}()} for other goodness-of-fit tests for (nested)
   Archimedean copulas.
 }
 \examples{
@@ -170,4 +170,5 @@ gofCopula(t.copula,                 x, simulation="mult")
 }
 \keyword{htest}
 \keyword{models}
+\keyword{goodness-of-fit}
 \keyword{multivariate}

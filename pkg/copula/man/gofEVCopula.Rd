@@ -8,7 +8,7 @@
   Genest and Segers (2009) with a parametric estimate
   of the Pickands dependence function derived under the null hypothesis.
   The test statistic is the Cramer-von Mises functional Sn defined
-  in equation (5) of Genest, Kojadinovic, \enc{Nešlehová}{Neslehova}, and Yan (2010).
+  in Equation (5) of Genest, Kojadinovic, \enc{Nešlehová}{Neslehova}, and Yan (2010).
   Approximate p-values for the test statistic are obtained using a
   parametric bootstrap.
 }
