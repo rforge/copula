@@ -55,7 +55,7 @@ gofCopula(copula, x, N=1000,
   For the normal and t copulas, several dependence structures can be
   hypothesized: \code{"ex"} for exchangeable, \code{"ar1"} for AR(1),
   \code{"toep"} for Toeplitz, and \code{"un"} for unstructured (see
-  \code{\link{ellipCopula}}). For the t copula, \code{"df.fixed"} has to
+  \code{\link{ellipCopula}()}). For the t copula, \code{"df.fixed"} has to
   be set to \code{TRUE}, which implies that the degrees of freedom are
   not considered as a parameter to be estimated.
 
@@ -120,7 +120,7 @@ gofCopula(copula, x, N=1000,
 }
 \seealso{
   \code{\link{fitCopula}()} for the underlying estimation procedure,
-  \code{\link{}(gofTstat)()} for the available test statistics,
+  \code{\link{gofTstat}()} for the available test statistics,
   \code{\link{gnacopula}()} for other goodness-of-fit tests for (nested)
   Archimedean copulas.
 }

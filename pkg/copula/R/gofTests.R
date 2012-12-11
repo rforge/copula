@@ -103,42 +103,8 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"), ...)
 
 ### Auxiliary functions ########################################################
 
-### Utility function: additional influence terms
-influ.add <- function(x0, y0, influ1, influ2)
-{
-  M <- nrow(y0)
-  ## FIXME: probably inefficient
-  o1 <- order(y0[,1], decreasing=TRUE)
-  o1b <- ecdf(y0[,1])(x0[,1]) * M
-  o2 <- order(y0[,2], decreasing=TRUE)
-  o2b <- ecdf(y0[,2])(x0[,2]) * M
-  ## return
-  c(0,cumsum(influ1[o1]))[M + 1 - o1b] / M - mean(influ1 * y0[,1]) +
-      c(0,cumsum(influ2[o2]))[M + 1 - o2b] / M - mean(influ2 * y0[,2])
-}
-
-### Utility function: Influence coefficients for the multipler gof based on MPL
-influCoef <- function(cop,u,v)
-{
-    d <- cop@dimension
-
-    ## influence: second part
-    ## integrals computed from M realizations by Monte Carlo
-    M <- nrow(v)
-    dcop <- dcopwrap(cop,v) ## wrapper
-    influ0 <- derPdfWrtParams(cop,v)/dcop
-    derArg <- derPdfWrtArgs  (cop,v)/dcop
-
-    influ <- vector("list",d)
-    for (i in 1:d)
-        influ[[i]] <- influ0 * derArg[,i]
-
-    ## expectation  e := crossprod(influ0)/M
-    solve(crossprod(influ0)/M, t(derPdfWrtParams(cop,u)/dcopwrap(cop,u) -
-                                 add.influ(u,v, influ=influ, q = length(cop@parameters))))
-}
-
-### Utility function: Second part of influence coefficients
+## Utility function: Second part of influence coefficients
+## FIXME: make part of influ
 add.influ <- function(u, v, influ, q)
 {
   M <- nrow(v)
@@ -152,24 +118,65 @@ add.influ <- function(u, v, influ, q)
       S <- S + rbind(rep.int(0,q),
                      apply(influ[[i]][o.i,,drop=FALSE],2,cumsum))[M + 1 - obi,,drop=FALSE] / M -
                          matrix(colMeans(influ[[i]] * vi), n,q, byrow=TRUE)
-	#matrix(apply(influ[[i]] * vi,2,mean),n,q,byrow=TRUE)
+	# matrix(apply(influ[[i]] * vi,2,mean),n,q,byrow=TRUE)
   }
   S
+}
+
+## Utility function: additional influence terms
+## FIXME: make part of influ
+influ.add <- function(x0, y0, influ1, influ2)
+{
+  M <- nrow(y0)
+  o1 <- order(y0[,1], decreasing=TRUE)
+  o1b <- ecdf(y0[,1])(x0[,1]) * M
+  o2 <- order(y0[,2], decreasing=TRUE)
+  o2b <- ecdf(y0[,2])(x0[,2]) * M
+  ## return
+  c(0, cumsum(influ1[o1]))[M+1-o1b] / M - mean(influ1 * y0[,1]) +
+      c(0, cumsum(influ2[o2]))[M+1-o2b] / M - mean(influ2 * y0[,2])
+}
+
+## Influence functions for the multipler bootstrap
+## FIXME: rename to J?
+influ <- function(cop, u, estim.method)
+{
+    switch(estim.method,
+           "mpl"={
+               ## integrals computed from M realizations by Monte Carlo
+               dcop <- dcopwrap(cop, u)
+               influ0 <- derPdfWrtParams(cop, u) / dcop
+               derArg <- derPdfWrtArgs  (cop, u) / dcop
+               influ <- lapply(1:cop@dimension, function(i) influ0*derArg[,i])
+               ## expectation  e = crossprod(influ0)/M
+               solve(crossprod(influ0)/nrow(u), t(derPdfWrtParams(cop, u)/dcopwrap(cop, u) -
+                                                  add.influ(u, u, influ=influ, q=length(cop@parameters))))
+           },
+           "ml"={
+               stop("estim.method='ml' not available")
+           },
+           "itau"={
+               4*(2*pCopula(u, cop)-rowSums(u)+(1-tau(cop))/2) / dTau(cop)
+           },
+           "irho"={
+               (12*(apply(u, 1, prod)+influ.add(u, u, u[,2], u[,1]))-3-rho(cop)) / dRho(cop)
+           },
+           stop("wrong method"))
 }
 
 
 ### Computing different goodness-of-fit tests ##################################
 
-##' Goodness-of-fit test based on the parametric bootstrap
+##' Goodness-of-fit tests based on the parametric bootstrap
 ##'
-##' @title Goodness-of-fit test based on the parametric bootstrap
+##' @title Goodness-of-fit tests based on the parametric bootstrap
 ##' @param copula object of type 'copula' representing the H_0 copula
 ##'        (if necessary, parameters will be used as starting values for fitCopula())
-##' @param x (n, d) matrix containing the data
+##' @param x (n, d)-matrix containing the data
 ##' @param N number of bootstrap replications
 ##' @param method goodness-of-fit test statistic to be used; see ?gofTstat
 ##' @param estim.method estimation method for the unknown parameter vector; see ?fitCopula
-##' @param optim.method optim() used for fitting
+##' @param optim.method optim() method used for fitting
 ##' @param optim.control see ?optim
 ##' @param verbose logical indicating whether a progress bar is shown
 ##' @param ... additional arguments
@@ -177,7 +184,7 @@ add.influ <- function(u, v, influ, q)
 ##' @author Ivan Kojadinovic, Marius Hofert
 gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
                   estim.method=eval(formals(fitCopula)$method),
-                  optim.method=eval(formals(optim)$method), optim.control,
+                  optim.method="BFGS", optim.control,
                   verbose=TRUE, ...)
 {
     ## checks
@@ -186,7 +193,6 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
     stopifnot((d <- ncol(x))>1, (n <- nrow(x))>0, dim(copula)==d)
     method <- match.arg(method)
     estim.method <- match.arg(estim.method)
-    optim.method <- match.arg(optim.method)
 
     ## 1) compute the pseudo-observations
     uhat <- pobs(x)
@@ -225,7 +231,7 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
     ## return result object
     structure(class = "htest",
 	      list(method = sprintf(
-		   "Parametric bootstrap based GOF test with 'method'=\"%s\", 'estim.method'=\"%s\"",
+                   "Parametric bootstrap goodness-of-fit test with 'method'=\"%s\", 'estim.method'=\"%s\"",
 		   method, estim.method),
                    parameter = c(parameter = cop.@parameters),
                    statistic = c(statistic = T),
@@ -233,114 +239,74 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
                    data.name = deparse(substitute(x))))
 }
 
-##' Goodness-of-fit test based on the multiplier approach
-##' and rank correlation coefficients
+##' Goodness-of-fit tests based on the multiplier bootstrap
 ##'
-##' @title Multiplier GOF with rank correlation coefficients
-##' @param cop is a copula of the desired family
-##' @param x the data
-##' @param N number of multiplier replications
-##' @param estim.method fitting method
+##' @title Goodness-of-fit tests based on the multiplier bootstrap
+##' @param copula object of type 'copula' representing the H_0 copula
+##' @param x (n, d)-matrix containing the data
+##' @param N number of bootstrap replications
+##' @param method goodness-of-fit test statistic to be used; see ?gofTstat
+##' @param estim.method estimation method for the unknown parameter vector; see ?fitCopula
+##' @param optim.method optim() method used for fitting
+##' @param optim.control see ?optim
+##' @param ... additional arguments
 ##' @return an object of class 'htest'
-##' @author Ivan Kojadinovic
-gofMCLT.KS <- function(cop, x, N, estim.method)
+##' @author Ivan Kojadinovic, Marius Hofert
+##' Note: - Since we use C here (necessary?), we can't use verbose=TRUE
+##'       - Also, since we use C, we can't easily pass different methods
+##'         to gofTstat() => FIXME
+##'       - Apart from that, gofMP() is quite similar to gofPB()... (one could
+##'         think about putting both in gofCopula()
+gofMB <- function(copula, x, N, method=c("Sn"),
+                  estim.method=eval(formals(fitCopula)$method),
+                  optim.method="BFGS", optim.control, ...)
 {
-    stopifnot(is.matrix(x), estim.method %in% c("irho", "itau"))
-    n <- nrow(x)
-    d <- 2
+    ## checks
+    stopifnot(is(copula, "copula"), N>=1)
+    if(!is.matrix(x)) x <- rbind(x, deparse.level=0L)
+    stopifnot((d <- ncol(x))>1, (n <- nrow(x))>0, dim(copula)==d)
+    method <- match.arg(method)
+    estim.method <- match.arg(estim.method)
+    if(method!="Sn") stop("Multiplier method for '", method,"' not yet implemented")
+    if(estim.method == "ml") stop("estim.method='ml' not available")
+    if(estim.method %in% c("irho", "itau") && d > 2) stop("only bivariate case possible for estim.method='irho' or ='itau'")
 
-    ## make pseudo-observations
-    u <- pobs(x)
+    ## 1) compute the pseudo-observations
+    uhat <- pobs(x)
 
-    ## fit the copula {*not* calling optim() ..}
-    cop <- fitCopula(cop, u, method=estim.method, estimate.variance=FALSE)@copula
+    ## 2) fit the copula
+    cop. <- fitCopula(copula, uhat, method=estim.method, estimate.variance=FALSE,
+                      optim.method=optim.method, optim.control=optim.control)@copula
 
-    ## compute the test statistic
-    s <- .C(cramer_vonMises_grid,
+    ## 3) compute the test statistic
+    T <- .C(cramer_vonMises_grid,
             as.integer(d),
-            as.double(u),
+            as.double(uhat),
             as.integer(n),
-            as.double(u),
+            as.double(uhat),
             as.integer(n),
-            as.double(pCopula(u, cop)),
+            as.double(pCopula(uhat, cop.)),
             stat = double(1))$stat
 
-    ## prepare influence coefficients
-    if (estim.method == "itau") ## kendall's tau
-        influ <- 4 * (2 * pCopula(u, cop) - u[,1] - u[,2]
-                      + (1 - tau(cop))/2) / dTau(cop) # J
-    else if (estim.method == "irho") ## Spearman's rho
-        influ <- (12 * (u[,1] * u[,2] + influ.add(u, u, u[,2],u[,1])) -
-                  3 - rho(cop)) / dRho(cop)
-
-    ## simulate under H0
-    s0 <- .C(multiplier,
+    ## 4) simulation of the test statistic under H_0
+    T0 <- .C(multiplier,
              as.integer(d),
-             as.double(u),
+             as.double(uhat),
              as.integer(n),
-             as.double(u),
+             as.double(uhat),
              as.integer(n),
-             as.double(dCdtheta(cop,u) %*% influ),
+             as.double(dCdtheta(cop., uhat) %*% influ(cop., u=uhat, estim.method=estim.method)),
              as.integer(N),
              s0 = double(N))$s0
 
+    ## return result object
     structure(class = "htest",
-              list(method = sprintf("Multiplier GOF test with 'estim.method'=\"%s\"",
-                   estim.method),
-                   parameter = c(parameter = cop@parameters),
-                   statistic = c(statistic = s),
-                   p.value = (sum(s0 >= s)+0.5)/(N+1),
-                   data.name = deparse(substitute(x))))
-}
-
-##' Multiplier GOF based on MPL
-##'
-##' @title Multiplier GOF based on MPL
-##' @param cop is a copula of the desired family
-##' @param x the data
-##' @param N number of multiplier replications
-##' @param optim.method for MPL fitting
-##' @param optim.control for MPL fitting
-##' @return an object of class 'htest'
-##' @author Ivan Kojadinovic
-gofMCLT.PL <- function(cop, x, N, optim.method, optim.control)
-{
-    n <- nrow(x)
-    d <- ncol(x)
-
-    ## make pseudo-observations
-    u <- pobs(x)
-
-    ## fit the copula
-    cop <- fitCopula(cop, u, method="mpl", estimate.variance=FALSE,
-                     optim.method=optim.method, optim.control=optim.control)@copula
-
-    ## compute the test statistic
-    s <- .C(cramer_vonMises_grid,
-            as.integer(d),
-            as.double(u),
-            as.integer(n),
-            as.double(u),
-            as.integer(n),
-            as.double(pCopula(u, cop)),
-            stat = double(1))$stat
-
-    ## simulate under H0
-    s0 <- .C(multiplier,
-             as.integer(d),
-             as.double(u),
-             as.integer(n),
-             as.double(u),
-             as.integer(n),
-             as.double(dCdtheta(cop,u) %*% influCoef(cop,u,u)),
-             as.integer(N),
-             s0 = double(N))$s0
-
-    structure(class = "htest",
-              list(method = "Multiplier GOF test with 'method'=\"mpl\"",
-                   parameter = c(parameter = cop@parameters),
-                   statistic = c(statistic = s),
-                   p.value = (sum(s0 >= s)+0.5)/(N+1),
+	      list(method = sprintf(
+		   "Multiplier bootstrap goodness-of-fit test with 'method'=\"%s\", 'estim.method'=\"%s\"",
+		   method, estim.method),
+                   parameter = c(parameter = cop.@parameters),
+                   statistic = c(statistic = T),
+                   p.value = (sum(T0 >= T) + 0.5) / (N + 1),
                    data.name = deparse(substitute(x))))
 }
 
@@ -351,17 +317,17 @@ gofMCLT.PL <- function(cop, x, N, optim.method, optim.control)
 ##'
 ##' @title Goodness-of-fit test wrapper function
 ##' @param copula object of type 'copula' representing the H_0 copula
-##' @param x (n, d) matrix containing the data
+##' @param x (n, d)-matrix containing the data
 ##' @param N the number of bootstrap (parametric or multiplier) replications
 ##' @param method goodness-of-fit test statistic to be used
 ##' @param estim.method estimation method for the unknown parameter vector
 ##' @param simulation parametric bootstrap ('pb') or multiplier method ('mult')
 ##' @param verbose logical indicating whether a progress bar is shown
 ##' @param print.every deprecated
-##' @param optim.method optim() used for fitting
+##' @param optim.method optim() method used for fitting
 ##' @param optim.control see ?optim
 ##' @param ... additional arguments passed to the main auxiliary functions
-##'        gofPB(), gofMCLT.KS(), and gofMCLT.PL()
+##'        gofPB() and gofMB()
 ##' @return an object of class 'htest'
 ##' @author Ivan Kojadinovic, Marius Hofert
 gofCopula <- function(copula, x, N=1000,
@@ -405,20 +371,8 @@ gofCopula <- function(copula, x, N=1000,
                      optim.control=optim.control, ...)
            },
            "mult" = { ## multiplier bootstrap
-               if(method!="Sn") stop("Multiplier method for ", method, " not yet implemented")
-               switch(estim.method,
-                      "mpl"={ ## mpl
-                          gofMCLT.PL(copula, x, N=N, optim.method=optim.method,
-                                     optim.control=optim.control, ...)
-                      },
-                      "ml"={ ## ml
-                          stop(sprintf("Invalid estimation method '%s'", estim.method))
-                      },
-                      "irho"=, "itau"={
-                          if(d!=2) stop("'simulation' = 'mult' with 'estim.method' = 'irho' or 'itau' only possible in the bivariate case.")
-                          gofMCLT.KS(copula, x, N=N, estim.method=estim.method, ...)
-                      },
-                      stop("wrong estimation method"))
+               gofMB(copula, x=x, N=N, method=method, estim.method=estim.method,
+                     optim.method=optim.method, optim.control=optim.control, ...)
            },
            stop("Invalid simulation method ", match.arg(simulation)))
 }
