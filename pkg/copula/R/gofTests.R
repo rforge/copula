@@ -101,70 +101,6 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"), ...)
 }
 
 
-### Auxiliary functions ########################################################
-
-## Utility function: Second part of influence coefficients
-## FIXME: make part of influ
-add.influ <- function(u, v, influ, q)
-{
-  M <- nrow(v)
-  d <- ncol(v)
-  n <- nrow(u)
-  S <- matrix(0,n,q)
-  for (i in 1:d) {
-      vi <- v[,i]
-      o.i <- order(vi, decreasing=TRUE)
-      obi <- ecdf(vi)(u[,i]) * M # "FIXME": use findInterval(); keep obi integer throughout
-      S <- S + rbind(rep.int(0,q),
-                     apply(influ[[i]][o.i,,drop=FALSE],2,cumsum))[M + 1 - obi,,drop=FALSE] / M -
-                         matrix(colMeans(influ[[i]] * vi), n,q, byrow=TRUE)
-	# matrix(apply(influ[[i]] * vi,2,mean),n,q,byrow=TRUE)
-  }
-  S
-}
-
-## Utility function: additional influence terms
-## FIXME: make part of influ
-influ.add <- function(x0, y0, influ1, influ2)
-{
-  M <- nrow(y0)
-  o1 <- order(y0[,1], decreasing=TRUE)
-  o1b <- ecdf(y0[,1])(x0[,1]) * M
-  o2 <- order(y0[,2], decreasing=TRUE)
-  o2b <- ecdf(y0[,2])(x0[,2]) * M
-  ## return
-  c(0, cumsum(influ1[o1]))[M+1-o1b] / M - mean(influ1 * y0[,1]) +
-      c(0, cumsum(influ2[o2]))[M+1-o2b] / M - mean(influ2 * y0[,2])
-}
-
-## Influence functions for the multipler bootstrap
-## FIXME: rename to J?
-influ <- function(cop, u, estim.method)
-{
-    switch(estim.method,
-           "mpl"={
-               ## integrals computed from M realizations by Monte Carlo
-               dcop <- dcopwrap(cop, u)
-               influ0 <- derPdfWrtParams(cop, u) / dcop
-               derArg <- derPdfWrtArgs  (cop, u) / dcop
-               influ <- lapply(1:cop@dimension, function(i) influ0*derArg[,i])
-               ## expectation  e = crossprod(influ0)/M
-               solve(crossprod(influ0)/nrow(u), t(derPdfWrtParams(cop, u)/dcopwrap(cop, u) -
-                                                  add.influ(u, u, influ=influ, q=length(cop@parameters))))
-           },
-           "ml"={
-               stop("estim.method='ml' not available")
-           },
-           "itau"={
-               4*(2*pCopula(u, cop)-rowSums(u)+(1-tau(cop))/2) / dTau(cop)
-           },
-           "irho"={
-               (12*(apply(u, 1, prod)+influ.add(u, u, u[,2], u[,1]))-3-rho(cop)) / dRho(cop)
-           },
-           stop("wrong method"))
-}
-
-
 ### Computing different goodness-of-fit tests ##################################
 
 ##' Goodness-of-fit tests based on the parametric bootstrap
@@ -178,13 +114,16 @@ influ <- function(cop, u, estim.method)
 ##' @param estim.method estimation method for the unknown parameter vector; see ?fitCopula
 ##' @param optim.method optim() method used for fitting
 ##' @param optim.control see ?optim
+##' @param trafo.method transformation to U[0,1]^d
 ##' @param verbose logical indicating whether a progress bar is shown
-##' @param ... additional arguments
+##' @param ... additional arguments passed to the transformation method
 ##' @return an object of class 'htest'
 ##' @author Ivan Kojadinovic, Marius Hofert
+##' Note: - different '...' should be passed to different *.method
 gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
                   estim.method=eval(formals(fitCopula)$method),
                   optim.method="BFGS", optim.control,
+                  trafo.method=c("rtrafo", "htrafo"),
                   verbose=TRUE, ...)
 {
     ## checks
@@ -193,6 +132,11 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
     stopifnot((d <- ncol(x))>1, (n <- nrow(x))>0, dim(copula)==d)
     method <- match.arg(method)
     estim.method <- match.arg(estim.method)
+    trafo.method <- match.arg(trafo.method)
+    if(trafo.method=="htrafo"){
+        if(!is(copula, "outer_nacopula")) stop("trafo.method='htrafo' only implemented for copula objects of type 'outer_nacopula'")
+        if(length(copula@childCops)) stop("currently, only Archimedean copulas are provided")
+    }
 
     ## 1) compute the pseudo-observations
     uhat <- pobs(x)
@@ -202,7 +146,16 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
                       optim.method=optim.method, optim.control=optim.control)@copula
 
     ## 3) compute the test statistic
-    u <- if(method=="Sn") rtrafo(uhat, cop.) else uhat
+    u <- if(method=="Sn"){
+        switch(trafo.method,
+               "rtrafo"={
+                   rtrafo(uhat, cop., ...)
+               },
+               "htrafo"={
+                   htrafo(uhat, cop., ...)
+               },
+               stop("wrong transformation method"))
+    } else uhat
     T <- if(method=="Sn") gofTstat(u, method=method, copula=cop.)
          else gofTstat(u, method=method)
 
@@ -220,7 +173,16 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
 			   optim.method=optim.method, optim.control=optim.control)@copula
 
         ## 4.3) compute the test statistic
-        u. <- if(method=="Sn") rtrafo(Uhat, cop..) else Uhat
+        u. <- if(method=="Sn"){
+            switch(trafo.method,
+                   "rtrafo"={
+                       rtrafo(Uhat, cop.., ...)
+                   },
+                   "htrafo"={
+                       htrafo(Uhat, cop.., ...)
+                   },
+                   stop("wrong transformation method"))
+        } else Uhat
         T0. <- if(method=="Sn") gofTstat(u., method=method, copula=cop..)
                else gofTstat(u., method=method)
 
@@ -235,8 +197,63 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
 		   method, estim.method),
                    parameter = c(parameter = cop.@parameters),
                    statistic = c(statistic = T),
-                   p.value = (sum(T0 >= T) + 0.5) / (N + 1), ## FIXME should make scaling an option / or change to (sum(T0 >= T) - 0.5) / N as ppoints()
+                   p.value = (sum(T0 >= T) + 0.5) / (N + 1), # typical correction =>  p-values in (0, 1)
                    data.name = deparse(substitute(x))))
+}
+
+## Influence functions for the multiplier bootstrap
+## TODO rename to J? (see reference)
+## TODO improve!
+## for mpl:
+## I. Kojadinovic and J. Yan (2011), A goodness-of-fit test for multivariate
+## multiparameter copulas based on multiplier central limit theorems, Statistics
+## and Computing 21:1, pages 17-30
+
+## - for mpl, kenall, spearman (dimension 2):
+
+## I. Kojadinovic, J. Yan and M. Holmes (2011), Fast large-sample goodness-of-fit
+## tests for copulas, Statistica Sinica 21:2, pages 841-871
+
+influ <- function(cop, u, estim.method)
+{
+    switch(estim.method,
+           "mpl"={
+               ## integrals computed from n realizations by Monte Carlo
+               dcop <- dcopwrap(cop, u)
+               influ0 <- derPdfWrtParams(cop, u) / dcop
+               derArg <- derPdfWrtArgs  (cop, u) / dcop
+               influ <- lapply(1:cop@dimension, function(i) influ0*derArg[,i]) # TODO: improve
+               n <- nrow(u)
+               d <- ncol(u)
+               p <- length(cop@parameters)
+               S <- matrix(0, n, p)
+               for(j in 1:d){ # TODO: remove for() and apply()
+                   ij <- order(u[,j], decreasing=TRUE)
+                   ijb <- vapply(1:n, function(i) sum(t(u[,j]) <= u[i,j]), NA_real_)
+                   S <- S + rbind(rep.int(0, p),
+                                  apply(influ[[j]][ij,,drop=FALSE], 2, cumsum))[n+1-ijb,,drop=FALSE] / n -
+                                      matrix(colMeans(influ[[j]]*u[,j]), n, p, byrow=TRUE)
+               }
+               solve(crossprod(influ0)/n, t(derPdfWrtParams(cop, u)/dcopwrap(cop, u)-S))
+           },
+           "ml"={
+               stop("estim.method='ml' not available")
+           },
+           "itau"={
+               4*(2*pCopula(u, cop)-rowSums(u)+(1-tau(cop))/2) / dTau(cop)
+           },
+           "irho"={
+                 i1 <- order(u[,1], decreasing=TRUE)
+                 i2 <- order(u[,2], decreasing=TRUE)
+                 n <- nrow(u)
+                 i1b <- vapply(1:n, function(k) sum(t(u[,1]) <= u[k,1]), NA_real_)
+                 i2b <- vapply(1:n, function(k) sum(t(u[,2]) <= u[k,2]), NA_real_)
+                 rmu <- rowMeans(u)
+                 term <- c(0, cumsum(u[,2][i1]))[n+1-i1b] / n - rmu +
+                     c(0, cumsum(u[,1][i2]))[n+1-i2b] / n - rmu
+                 ( 12*(apply(u, 1, prod)+term)-3-rho(cop) ) / dRho(cop)
+           },
+           stop("wrong method"))
 }
 
 ##' Goodness-of-fit tests based on the multiplier bootstrap
@@ -254,7 +271,7 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
 ##' @author Ivan Kojadinovic, Marius Hofert
 ##' Note: - Since we use C here (necessary?), we can't use verbose=TRUE
 ##'       - Also, since we use C, we can't easily pass different methods
-##'         to gofTstat() => FIXME
+##'         to gofTstat() => TODO
 ##'       - Apart from that, gofMP() is quite similar to gofPB()... (one could
 ##'         think about putting both in gofCopula()
 gofMB <- function(copula, x, N, method=c("Sn"),
@@ -306,7 +323,7 @@ gofMB <- function(copula, x, N, method=c("Sn"),
 		   method, estim.method),
                    parameter = c(parameter = cop.@parameters),
                    statistic = c(statistic = T),
-                   p.value = (sum(T0 >= T) + 0.5) / (N + 1),
+                   p.value = (sum(T0 >= T) + 0.5) / (N + 1), # typical correction =>  p-values in (0, 1)
                    data.name = deparse(substitute(x))))
 }
 
@@ -326,7 +343,7 @@ gofMB <- function(copula, x, N, method=c("Sn"),
 ##' @param print.every deprecated
 ##' @param optim.method optim() method used for fitting
 ##' @param optim.control see ?optim
-##' @param ... additional arguments passed to the main auxiliary functions
+##' @param ... additional arguments passed to the internal auxiliary functions
 ##'        gofPB() and gofMB()
 ##' @return an object of class 'htest'
 ##' @author Ivan Kojadinovic, Marius Hofert

@@ -30,9 +30,11 @@
 ##'        C(u_j | u_1,...,u_{j-1})
 ##' @param m (deprecated)
 ##' @param n.MC parameter n.MC for evaluating the derivatives via Monte Carlo
-##' @param log
-##' @param trafo.only
-##' @return matrix U (n x k) of supposedly U[0,1]^k realizations, where k=1+length(j.ind);
+##' @param log logical indicating whether the log-transform is computed
+##' @param trafo.only logical indicating whether the transformed data (only) is
+##'        returned, that is, the transformed components with index j.ind
+##' @return matrix U (n x k) of supposedly U[0,1]^k realizations, where
+##'         k=1+length(j.ind) or length(j.ind) if trafo.only=TRUE, and
 ##'         where U[,1] == u[,1] in any case.
 ##' @author Marius Hofert and Martin Maechler
 rtrafo <- function(u, cop, j.ind=2:d, m, n.MC=0, log=FALSE, trafo.only=log)
@@ -210,7 +212,7 @@ rtrafo <- function(u, cop, j.ind=2:d, m, n.MC=0, log=FALSE, trafo.only=log)
 ##' @return matrix of transformed realizations
 ##' @author Marius Hofert and Martin Maechler
 htrafo <- function(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
-                   method = formals(qK)$method, u.grid, ...)
+                   method=formals(qK)$method, u.grid, ...)
 {
     ## checks
     stopifnot(is(cop, "outer_nacopula"))
@@ -275,6 +277,14 @@ htrafo <- function(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
 ##' @param ... additional arguments to enacopula
 ##' @return htest object
 ##' @author Marius Hofert and Martin Maechler
+##' TODO: - deprecate it!
+##'       - call the following instead:
+##'              gofCopula(cop, x=u, N=n.bootstrap, method=method,
+##'              estim.method=<one of fitCopula() instead of enacopula()>,
+##'              simulation="pb", verbose=verbose,
+##'              trafo.method=<trafo, but rename "Hering.Hofert" to "htrafo" and "Rosenblatt" to "rtrafo">)
+##'        - note: gnacopula() shouldn't be used with other methods than MPLE
+##'               anyways => use fitCopula() as engine, not enacopula().
 gnacopula <- function(u, cop, n.bootstrap,
 		      estim.method=eval(formals(enacopula)$method),
 		      include.K=TRUE, n.MC=0,

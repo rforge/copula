@@ -71,15 +71,15 @@ gofCopula(copula, x, N=1000,
   correction of type \eqn{(0.5+\sum_{b=1}^N\mathbf{1}_{\{T_b\ge
       T\}})/(N+1)}{(0.5 + sum(T[b] >= T, b=1, .., N)) / (N+1)} is made,
   where \eqn{T} and \eqn{T_b}{T[b]} denote the the test statistic and
-  bootstrapped test statistc, respectively.
+  bootstrapped test statistc, respectively. See Pesarin (2001) for details.
 }
 \value{
   An object of \code{\link{class}} \code{htest} which is a list,
   some of the components of which are
-  \item{statistic}{ value of the test statistic. }
-  \item{p.value}{ corresponding approximate p-value. }
-  \item{parameter}{ estimates of the parameters for the hypothesized
-    copula family. }
+  \item{statistic}{value of the test statistic.}
+  \item{p.value}{corresponding approximate p-value.}
+  \item{parameter}{estimates of the parameters for the hypothesized
+    copula family.}
 }
 \references{
   Genest, C. and R\enc{é}{e}millard, B. (2008). Validity of the parametric
@@ -104,6 +104,10 @@ gofCopula(copula, x, N=1000,
   copula R Package.
   \emph{Journal of Statistical Software} \bold{34}(9), 1--20.
   \url{http://www.jstatsoft.org/v34/i09/}.
+
+  Pesarin, F. (2001).
+  \emph{Multivariate Permutation Tests: With Applications in Biostatistics}.
+  Wiley.
 }
 \note{
   These tests were derived under the assumption of continuous margins,
