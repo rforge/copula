@@ -348,6 +348,7 @@ fitKendall <- function(cop,tau) {
 
 ## variance/covariance of the pseudo-likelihood estimator ######################
 
+## TODO this should *not* be used anymore (use Jscore() in gofCopula.R)
 influ.terms <- function(u, influ, q)
 {
   p <- ncol(u)

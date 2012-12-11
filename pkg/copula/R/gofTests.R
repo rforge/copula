@@ -201,23 +201,32 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
                    data.name = deparse(substitute(x))))
 }
 
-## Influence functions for the multiplier bootstrap
-## TODO rename to J? (see reference)
-## TODO improve!
-## for mpl:
-## I. Kojadinovic and J. Yan (2011), A goodness-of-fit test for multivariate
-## multiparameter copulas based on multiplier central limit theorems, Statistics
-## and Computing 21:1, pages 17-30
-
-## - for mpl, kenall, spearman (dimension 2):
-
-## I. Kojadinovic, J. Yan and M. Holmes (2011), Fast large-sample goodness-of-fit
-## tests for copulas, Statistica Sinica 21:2, pages 841-871
-
-influ <- function(cop, u, estim.method)
+##' Influence functions for the multiplier bootstrap
+##'
+##' @title Influence functions for the multiplier bootstrap
+##' @param cop object of type 'copula'
+##' @param u (n, d)-matrix of (pseudo-)observations
+##' @param method "mpl" or one of "itau", "irho"
+##' @return TODO: + rename
+##' @author Marius Hofert (based on ideas of Ivan Kojadinovic)
+##' Note: - References:
+##'         * For estim.method="mpl":
+##'           I. Kojadinovic and J. Yan (2011), A goodness-of-fit test for multivariate
+##'           multiparameter copulas based on multiplier central limit theorems, Statistics
+##'           and Computing 21:1, pages 17-30
+##'         * For estim.method="itau" or ="irho" (d=2):
+##'           I. Kojadinovic, J. Yan and M. Holmes (2011), Fast large-sample goodness-of-fit
+##'           tests for copulas, Statistica Sinica 21:2, pages 841-871
+Jscore <- function(cop, u, method)
 {
-    switch(estim.method,
-           "mpl"={
+    ## checks
+    stopifnot(is(copula, "copula"))
+    if(!is.matrix(u)) u <- rbind(u, deparse.level=0L)
+    stopifnot((d <- ncol(x))>1, (n <- nrow(x))>0, dim(copula)==d)
+
+    ## deal with different methods
+    switch(method,
+           "mpl"={ ## see page 22 in Kojadinovic and Yan (2011)
                ## integrals computed from n realizations by Monte Carlo
                dcop <- dcopwrap(cop, u)
                influ0 <- derPdfWrtParams(cop, u) / dcop
@@ -237,21 +246,23 @@ influ <- function(cop, u, estim.method)
                solve(crossprod(influ0)/n, t(derPdfWrtParams(cop, u)/dcopwrap(cop, u)-S))
            },
            "ml"={
-               stop("estim.method='ml' not available")
+               stop("method='ml' not available")
            },
-           "itau"={
-               4*(2*pCopula(u, cop)-rowSums(u)+(1-tau(cop))/2) / dTau(cop)
+           "itau"={ ## see page 849 in Kojadinovic, Yan, and Holmes (2011)
+               stopifnot(dim(cop)==2)
+               (4/dTau(cop)) * ( 2*pCopula(u, cop) - rowSums(u) + (1-tau(cop))/2 )
            },
-           "irho"={
-                 i1 <- order(u[,1], decreasing=TRUE)
-                 i2 <- order(u[,2], decreasing=TRUE)
-                 n <- nrow(u)
-                 i1b <- vapply(1:n, function(k) sum(t(u[,1]) <= u[k,1]), NA_real_)
-                 i2b <- vapply(1:n, function(k) sum(t(u[,2]) <= u[k,2]), NA_real_)
-                 rmu <- rowMeans(u)
-                 term <- c(0, cumsum(u[,2][i1]))[n+1-i1b] / n - rmu +
-                     c(0, cumsum(u[,1][i2]))[n+1-i2b] / n - rmu
-                 ( 12*(apply(u, 1, prod)+term)-3-rho(cop) ) / dRho(cop)
+           "irho"={ ## see page 847 in Kojadinovic, Yan, and Holmes (2011)
+               stopifnot(dim(cop)==2)
+               i1 <- order(u[,1], decreasing=TRUE)
+               i2 <- order(u[,2], decreasing=TRUE)
+               n <- nrow(u)
+               i1b <- vapply(1:n, function(k) sum(t(u[,1]) <= u[k,1]), NA_real_)
+               i2b <- vapply(1:n, function(k) sum(t(u[,2]) <= u[k,2]), NA_real_)
+               rmu <- rowMeans(u)
+               term <- c(0, cumsum(u[,2][i1]))[n+1-i1b] / n - rmu +
+                   c(0, cumsum(u[,1][i2]))[n+1-i2b] / n - rmu
+               (1/dRho(cop)) * ( 12*(apply(u, 1, prod) + term) - 3 - rho(cop) )
            },
            stop("wrong method"))
 }
@@ -312,7 +323,7 @@ gofMB <- function(copula, x, N, method=c("Sn"),
              as.integer(n),
              as.double(uhat),
              as.integer(n),
-             as.double(dCdtheta(cop., uhat) %*% influ(cop., u=uhat, estim.method=estim.method)),
+             as.double(dCdtheta(cop., uhat) %*% Jscore(cop., u=uhat, method=estim.method)),
              as.integer(N),
              s0 = double(N))$s0
 
