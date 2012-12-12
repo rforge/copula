@@ -46,9 +46,10 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"), useR
            "Sn" =
        { ## S_n
            if(!hasArg(copula)) stop("object 'copula' required for pCopula() call")
+           copula <- list(...)$copula
            ## compute \sum_{i=1}^n (\hat{C}_n(\bm{u}_i) - C_{\theta_n}(\bm{u}_i))^2
            ## typically \bm{u}_i ~> pobs \hat{\bm{U}}_i
-           C. <- pCopula(u, ...) # C_{\theta_n}(\bm{u}_i), i=1,..,n
+           C. <- pCopula(u, copula=copula) # C_{\theta_n}(\bm{u}_i), i=1,..,n
            if(useR) {
                C.n <- Cn(u, U=u, ...) # \hat{C}_n(\bm{u}_i), i=1,..,n
                sum((C.n - C.)^2)
@@ -358,26 +359,24 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
        {
            ## checks
            if(estim.method!="itau") stop("Currently only estim.method='itau' available for method='Rn'")
-           if(verbose){
-               if(!hasArg(m)){
-                   warning("power 'm' required; m=1/2 is used instead")
-                   m <- 1/2
-               }
-               if(!hasArg(zeta.m)){
-                   warning("adjustment parameter 'zeta.m' required for the denominator of the test statistic; zeta.m=0 is used instead")
-                   zeta.m <- 0
-               }
-               if(!hasArg(b)){
-                   warning("bandwidth 'b' required for the estimation of the first-order partial derivatives based on the empirical copula; b=0.05 is used instead")
-                   b <- 0.05
-               }
-           }
+           if(!hasArg(m)){
+               if(verbose) warning("power 'm' required; m=1/2 is used instead")
+               m <- 1/2
+           } else m <- list(...)$m
+           if(!hasArg(zeta.m)){
+               if(verbose) warning("adjustment parameter 'zeta.m' required for the denominator of the test statistic; zeta.m=0 is used instead")
+               zeta.m <- 0
+           } else zeta.m <- list(...)$zeta.m
+           if(!hasArg(b)){
+               if(verbose) warning("bandwidth 'b' required for the estimation of the first-order partial derivatives based on the empirical copula; b=0.05 is used instead")
+               b <- 0.05
+           } else b <- list(...)$b
 
            ## 3) Compute the realized test statistic
            C.th.n. <- pCopula(u., C.th.n) # n-vector
            denom <- (C.th.n.*(1-C.th.n.) + zeta.m)^m # n-vector
            Cn. <- Cn(u., U=u.) # n-vector
-           T <- sum( ((Cn. - C.th.n.)/denom)^2 ) # n-vector; test statistic R_n
+           T <- sum( ((Cn. - C.th.n.)/denom)^2 ) # test statistic R_n
 
            ## 4) Simulate the test statistic under H_0
 
@@ -386,14 +385,21 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
            Zbar <- rowMeans(Z) # N-vector
 
            ## 4.2) Compute \hat{C}_n^{(h)}, h=1,..,N
-           factor <- (Z-Zbar)/sqrt(n)
-           hCnh. <- factor %*% Cn(u., U=u., do.pobs=FALSE) # (N, n)-matrix
+           factor <- (Z-Zbar)/sqrt(n) # (N, n)-matrix
+           ## now use a trick similar to Cn()
+           ## note: - u. is an (n, d)-matrix
+           ##       - t(u.)<=u.[i,] is an (d, n)-matrix
+           ##       - colSums(t(u.)<=u.[i,])==d is an n-vector of logicals with kth entry
+           ##         I_{\{\hat{\bm{U}}_k <= \bm{u}_i\}}
+           ind <- vapply(1:n, function(i) colSums(t(u.)<=u.[i,])==d, numeric(n)) # (n, n)-matrix
+           hCnh. <- factor %*% ind # (N, n)-matrix * (n, n)-matrix = (N, n)-matrix
            for(j in 1:d){ # bivariate only here
                ## build a matrix with 1s only, except for the jth column, which contains u.[,j]
                u.j <- matrix(1, nrow=n, ncol=d)
                u.j[,j] <- u.[,j]
                ## evaluate the empirical copula there
-               Cnh <- factor %*% Cn(u.j, U=u.) # (N, n)-matrix
+               ind.u.j <- vapply(1:n, function(i) colSums(t(u.)<=u.j[i,])==d, numeric(n)) # (n, n)-matrix
+               Cnh <- factor %*% ind.u.j # (N, n)-matrix * (n, n)-matrix = (N, n)-matrix
                ## compute the "derivative" of the empirical copula at u.
                Cjn. <- dCn(u., U=u., j.ind=j, b=b) # n vector
                ## compute the sum
@@ -402,7 +408,7 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
            }
 
            ## 4.3) compute score function J and Theta
-           J.th.n <- Jscore(C.th.n, u=u.) # n-vector
+           J.th.n <- Jscore(C.th.n, u=u., method=estim.method) # n-vector
            Theta <- rowSums(Z * rep(J.th.n, each=N) / sqrt(n)) # rowSums((N, n)-matrix) = N-vector
 
            ## 4.4) Compute the multiplier replicates of the test statistic

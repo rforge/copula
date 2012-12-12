@@ -59,7 +59,7 @@ Cn <- function(u, U, do.pobs=TRUE, offset=0, method=c("C", "R"))
            "R"={
                ## alternatively, use apply(u, 1, function(u.) sum(colSums(t(U)<=u.)==d)/(n+offset) )
                ## but vapply is slightly faster
-               vapply(1:nrow(u), function(k) sum(colSums(t(U)<=u[k,])==d)/(n+offset), NA_real_)
+               vapply(1:nrow(u), function(k) sum( colSums(t(U)<=u[k,])==d ) / (n+offset), NA_real_)
            },
            stop("wrong method"))
 }
