@@ -23,7 +23,7 @@
 ##' distributed vectors of random variates
 ##'
 ##' @title Test statistics for U[0,1]^d
-##' @param u matrix of supposedly  U[0,1]^d observations
+##' @param u (n, d)-matrix of supposedly U[0,1]^d observations
 ##' @param method various test statistics. Available are:
 ##'        "Sn"     : the test statistic S_n (Cramer-von Mises) in Genest, Remillard, Beaudoin (2009)
 ##'        "SnB"    : the test statistic S_n^{(B)} in Genest, Remillard, Beaudoin (2009)
@@ -32,10 +32,11 @@
 ##'                   distribution using the standard normal quantile function
 ##'        "AnGamma": Anderson-Darling test statistic after map to an Erlang/Gamma
 ##'                   distribution using the logarithm
+##' @param useR logical indicating whether R or C implementations are used
 ##' @param ... additional arguments for the different methods
-##' @return values of the chosen test statistic
+##' @return n-vector of values of the chosen test statistic
 ##' @author Marius Hofert and Martin Maechler
-gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"), ...)
+gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"), useR=FALSE, ...)
 {
     if(!is.matrix(u)) u <- rbind(u, deparse.level=0L)
     d <- ncol(u)
@@ -45,15 +46,21 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"), ...)
            "Sn" =
        { ## S_n
            if(!hasArg(copula)) stop("object 'copula' required for pCopula() call")
-           .C(cramer_vonMises,
-              as.integer(n),
-              as.integer(d),
-              as.double(u),
-              as.double(pCopula(u, ...)),
-              stat=double(1))$stat
+           ## compute \sum_{i=1}^n (\hat{C}_n(\bm{u}_i) - C_{\theta_n}(\bm{u}_i))^2
+           ## typically \bm{u}_i ~> pobs \hat{\bm{U}}_i
+           C. <- pCopula(u, ...) # C_{\theta_n}(\bm{u}_i), i=1,..,n
+           if(useR) {
+               C.n <- Cn(u, U=u, ...) # \hat{C}_n(\bm{u}_i), i=1,..,n
+               sum((C.n - C.)^2)
+           } else {
+               .C(cramer_vonMises,
+                  as.integer(n),
+                  as.integer(d),
+                  as.double(u),
+                  as.double(C.),
+                  stat=double(1))$stat
+           }
        },
-	   "AnChisq" = ad.test( pchisq(rowSums(qnorm(u)^2), d) )$statistic,
-	   "AnGamma" = ad.test( pgamma(rowSums(-log(u)), shape=d) )$statistic,
 	   "SnB" =
        { ## S_n(B)
            lu2 <- log1p(-u^2) # n x d matrix of log(1-u_{ij}^2)
@@ -97,6 +104,8 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"), ...)
            Cperp <- apply(u, 1, prod)
 	   sum((Dn-Cperp)^2)
        },
+           "AnChisq" = ad.test( pchisq(rowSums(qnorm(u)^2), d) )$statistic,
+	   "AnGamma" = ad.test( pgamma(rowSums(-log(u)), shape=d) )$statistic,
 	   stop("unsupported method ", method))
 }
 
@@ -138,52 +147,52 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
         if(length(copula@childCops)) stop("currently, only Archimedean copulas are provided")
     }
 
-    ## 1) compute the pseudo-observations
+    ## 1) Compute the pseudo-observations
     uhat <- pobs(x)
 
-    ## 2) fit the copula
-    cop. <- fitCopula(copula, uhat, method=estim.method, estimate.variance=FALSE,
-                      optim.method=optim.method, optim.control=optim.control)@copula
+    ## 2) Fit the copula
+    C.th.n <- fitCopula(copula, uhat, method=estim.method, estimate.variance=FALSE,
+                        optim.method=optim.method, optim.control=optim.control)@copula
 
-    ## 3) compute the test statistic
+    ## 3) Compute the realized test statistic
     u <- if(method=="Sn"){
         switch(trafo.method,
                "rtrafo"={
-                   rtrafo(uhat, cop., ...)
+                   rtrafo(uhat, C.th.n, ...)
                },
                "htrafo"={
-                   htrafo(uhat, cop., ...)
+                   htrafo(uhat, C.th.n, ...)
                },
                stop("wrong transformation method"))
     } else uhat
-    T <- if(method=="Sn") gofTstat(u, method=method, copula=cop.)
+    T <- if(method=="Sn") gofTstat(u, method=method, copula=C.th.n)
          else gofTstat(u, method=method)
 
-    ## 4) simulation of the test statistic under the null hypothesis
+    ## 4) Simulate the test statistic under H_0
     if(verbose){
 	pb <- txtProgressBar(max=N, style=if(isatty(stdout())) 3 else 1) # setup progress bar
 	on.exit(close(pb)) # on exit, close progress bar
     }
     T0 <- vapply(1:N, function(k){
-        ## 4.1) sample the fitted copula
-        Uhat <- pobs( rCopula(n, cop.) )
+        ## 4.1) Sample the fitted copula
+        Uhat <- pobs( rCopula(n, C.th.n) )
 
-        ## 4.2) fit the copula
-        cop.. <- fitCopula(copula, Uhat, method=estim.method, estimate.variance=FALSE,
+        ## 4.2) Fit the copula
+        C.th.n. <- fitCopula(copula, Uhat, method=estim.method, estimate.variance=FALSE,
 			   optim.method=optim.method, optim.control=optim.control)@copula
 
-        ## 4.3) compute the test statistic
+        ## 4.3) Compute the test statistic
         u. <- if(method=="Sn"){
             switch(trafo.method,
                    "rtrafo"={
-                       rtrafo(Uhat, cop.., ...)
+                       rtrafo(Uhat, C.th.n., ...)
                    },
                    "htrafo"={
-                       htrafo(Uhat, cop.., ...)
+                       htrafo(Uhat, C.th.n., ...)
                    },
                    stop("wrong transformation method"))
         } else Uhat
-        T0. <- if(method=="Sn") gofTstat(u., method=method, copula=cop..)
+        T0. <- if(method=="Sn") gofTstat(u., method=method, copula=C.th.n.)
                else gofTstat(u., method=method)
 
         if(verbose) setTxtProgressBar(pb, k) # update progress bar
@@ -195,7 +204,7 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
 	      list(method = sprintf(
                    "Parametric bootstrap goodness-of-fit test with 'method'=\"%s\", 'estim.method'=\"%s\"",
 		   method, estim.method),
-                   parameter = c(parameter = cop.@parameters),
+                   parameter = c(parameter = C.th.n@parameters),
                    statistic = c(statistic = T),
                    p.value = (sum(T0 >= T) + 0.5) / (N + 1), # typical correction =>  p-values in (0, 1)
                    data.name = deparse(substitute(x))))
@@ -204,10 +213,10 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
 ##' Influence functions for the multiplier bootstrap
 ##'
 ##' @title Influence functions for the multiplier bootstrap
-##' @param cop object of type 'copula'
+##' @param copula object of type 'copula'
 ##' @param u (n, d)-matrix of (pseudo-)observations
 ##' @param method "mpl" or one of "itau", "irho"
-##' @return TODO: + rename
+##' @return n-vector TODO: + rename
 ##' @author Marius Hofert (based on ideas of Ivan Kojadinovic)
 ##' Note: - References:
 ##'         * For estim.method="mpl":
@@ -217,53 +226,57 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
 ##'         * For estim.method="itau" or ="irho" (d=2):
 ##'           I. Kojadinovic, J. Yan and M. Holmes (2011), Fast large-sample goodness-of-fit
 ##'           tests for copulas, Statistica Sinica 21:2, pages 841-871
-Jscore <- function(cop, u, method)
+Jscore <- function(copula, u, method)
 {
     ## checks
     stopifnot(is(copula, "copula"))
     if(!is.matrix(u)) u <- rbind(u, deparse.level=0L)
-    stopifnot((d <- ncol(x))>1, (n <- nrow(x))>0, dim(copula)==d)
+    stopifnot((d <- ncol(u))>1, (n <- nrow(u))>0, dim(copula)==d)
 
     ## deal with different methods
     switch(method,
-           "mpl"={ ## see page 22 in Kojadinovic and Yan (2011)
-               ## integrals computed from n realizations by Monte Carlo
-               dcop <- dcopwrap(cop, u)
-               influ0 <- derPdfWrtParams(cop, u) / dcop
-               derArg <- derPdfWrtArgs  (cop, u) / dcop
-               influ <- lapply(1:cop@dimension, function(i) influ0*derArg[,i]) # TODO: improve
-               n <- nrow(u)
-               d <- ncol(u)
-               p <- length(cop@parameters)
-               S <- matrix(0, n, p)
-               for(j in 1:d){ # TODO: remove for() and apply()
-                   ij <- order(u[,j], decreasing=TRUE)
-                   ijb <- vapply(1:n, function(i) sum(t(u[,j]) <= u[i,j]), NA_real_)
-                   S <- S + rbind(rep.int(0, p),
-                                  apply(influ[[j]][ij,,drop=FALSE], 2, cumsum))[n+1-ijb,,drop=FALSE] / n -
-                                      matrix(colMeans(influ[[j]]*u[,j]), n, p, byrow=TRUE)
-               }
-               solve(crossprod(influ0)/n, t(derPdfWrtParams(cop, u)/dcopwrap(cop, u)-S))
-           },
-           "ml"={
-               stop("method='ml' not available")
-           },
-           "itau"={ ## see page 849 in Kojadinovic, Yan, and Holmes (2011)
-               stopifnot(dim(cop)==2)
-               (4/dTau(cop)) * ( 2*pCopula(u, cop) - rowSums(u) + (1-tau(cop))/2 )
-           },
-           "irho"={ ## see page 847 in Kojadinovic, Yan, and Holmes (2011)
-               stopifnot(dim(cop)==2)
-               i1 <- order(u[,1], decreasing=TRUE)
-               i2 <- order(u[,2], decreasing=TRUE)
-               n <- nrow(u)
-               i1b <- vapply(1:n, function(k) sum(t(u[,1]) <= u[k,1]), NA_real_)
-               i2b <- vapply(1:n, function(k) sum(t(u[,2]) <= u[k,2]), NA_real_)
-               rmu <- rowMeans(u)
-               term <- c(0, cumsum(u[,2][i1]))[n+1-i1b] / n - rmu +
-                   c(0, cumsum(u[,1][i2]))[n+1-i2b] / n - rmu
-               (1/dRho(cop)) * ( 12*(apply(u, 1, prod) + term) - 3 - rho(cop) )
-           },
+           "mpl"=
+       { ## see page 22 in Kojadinovic and Yan (2011)
+           ## integrals computed from n realizations by Monte Carlo
+           dcop <- dcopwrap(copula, u)
+           influ0 <- derPdfWrtParams(copula, u) / dcop
+           derArg <- derPdfWrtArgs  (copula, u) / dcop
+           influ <- lapply(1:copula@dimension, function(i) influ0*derArg[,i]) # FIXME improve
+           n <- nrow(u)
+           d <- ncol(u)
+           p <- length(copula@parameters)
+           S <- matrix(0, n, p)
+           for(j in 1:d){ # FIXME remove for() and apply()
+               ij <- order(u[,j], decreasing=TRUE)
+               ijb <- vapply(1:n, function(i) sum(t(u[,j]) <= u[i,j]), NA_real_)
+               S <- S + rbind(rep.int(0, p),
+                              apply(influ[[j]][ij,,drop=FALSE], 2, cumsum))[n+1-ijb,,drop=FALSE] / n -
+                                  matrix(colMeans(influ[[j]]*u[,j]), n, p, byrow=TRUE)
+           }
+           solve(crossprod(influ0)/n, t(derPdfWrtParams(copula, u)/dcopwrap(copula, u)-S))
+       },
+           "ml"=
+       {
+           stop("method='ml' not available")
+       },
+           "itau"=
+       { ## see page 849 in Kojadinovic, Yan, and Holmes (2011)
+           stopifnot(dim(copula)==2)
+           (4/dTau(copula)) * ( 2*pCopula(u, copula) - rowSums(u) + (1-tau(copula))/2 )
+       },
+           "irho"=
+       { ## see page 847 in Kojadinovic, Yan, and Holmes (2011)
+           stopifnot(dim(copula)==2)
+           i1 <- order(u[,1], decreasing=TRUE)
+           i2 <- order(u[,2], decreasing=TRUE)
+           n <- nrow(u)
+           i1b <- vapply(1:n, function(k) sum(t(u[,1]) <= u[k,1]), NA_real_)
+           i2b <- vapply(1:n, function(k) sum(t(u[,2]) <= u[k,2]), NA_real_)
+           rmu <- rowMeans(u)
+           term <- c(0, cumsum(u[,2][i1]))[n+1-i1b] / n - rmu +
+               c(0, cumsum(u[,1][i2]))[n+1-i2b] / n - rmu
+           (1/dRho(copula)) * ( 12*(apply(u, 1, prod) + term) - 3 - rho(copula) )
+       },
            stop("wrong method"))
 }
 
@@ -273,21 +286,24 @@ Jscore <- function(cop, u, method)
 ##' @param copula object of type 'copula' representing the H_0 copula
 ##' @param x (n, d)-matrix containing the data
 ##' @param N number of bootstrap replications
-##' @param method goodness-of-fit test statistic to be used; see ?gofTstat
-##' @param estim.method estimation method for the unknown parameter vector; see ?fitCopula
+##' @param method test statistics. Available are:
+##'        "Sn"     : see gofTstat()
+##'        "Rn"     : test statistic R_n in Genest, Huang, Dufour (2013)
+##' @param estim.method estimation method for the unknown parameter vector; see
+##'        ?fitCopula
 ##' @param optim.method optim() method used for fitting
 ##' @param optim.control see ?optim
-##' @param ... additional arguments
+##' @param verbose indicating whether verbose output is shown
+##' @param useR logical indicating whether an R or the C implementation is used
+##' @param ... additional arguments passed to the different methods
 ##' @return an object of class 'htest'
 ##' @author Ivan Kojadinovic, Marius Hofert
-##' Note: - Since we use C here (necessary?), we can't use verbose=TRUE
-##'       - Also, since we use C, we can't easily pass different methods
-##'         to gofTstat() => TODO
-##'       - Apart from that, gofMP() is quite similar to gofPB()... (one could
-##'         think about putting both in gofCopula()
-gofMB <- function(copula, x, N, method=c("Sn"),
+##' Note: - Ugly C code switch
+##'       - Using gofTstat() for the multiplier bootstrap seems difficult, since
+##'         the realized test statistic and the bootstrapped one are computationally different
+gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
                   estim.method=eval(formals(fitCopula)$method),
-                  optim.method="BFGS", optim.control, ...)
+                  optim.method="BFGS", optim.control, verbose=TRUE, useR=FALSE, ...)
 {
     ## checks
     stopifnot(is(copula, "copula"), N>=1)
@@ -295,44 +311,113 @@ gofMB <- function(copula, x, N, method=c("Sn"),
     stopifnot((d <- ncol(x))>1, (n <- nrow(x))>0, dim(copula)==d)
     method <- match.arg(method)
     estim.method <- match.arg(estim.method)
-    if(method!="Sn") stop("Multiplier method for '", method,"' not yet implemented")
     if(estim.method == "ml") stop("estim.method='ml' not available")
     if(estim.method %in% c("irho", "itau") && d > 2) stop("only bivariate case possible for estim.method='irho' or ='itau'")
 
-    ## 1) compute the pseudo-observations
-    uhat <- pobs(x)
+    ## 1) Compute the pseudo-observations
+    u. <- pobs(x)
 
-    ## 2) fit the copula
-    cop. <- fitCopula(copula, uhat, method=estim.method, estimate.variance=FALSE,
-                      optim.method=optim.method, optim.control=optim.control)@copula
+    ## 2) Fit the copula (copula is the H_0 copula; C.th.n = C_{\theta_n}(.))
+    C.th.n <- fitCopula(copula, u., method=estim.method, estimate.variance=FALSE,
+                        optim.method=optim.method, optim.control=optim.control)@copula
 
-    ## 3) compute the test statistic
-    T <- .C(cramer_vonMises_grid,
-            as.integer(d),
-            as.double(uhat),
-            as.integer(n),
-            as.double(uhat),
-            as.integer(n),
-            as.double(pCopula(uhat, cop.)),
-            stat = double(1))$stat
+    ## big, ugly switch due to C code version (although most likely not required)
+    switch(method,
+           "Sn"=
+       {
+           ## 3) Compute the realized test statistic
+           T <- if(useR) { # R version
+               ## compute \sum_{i=1}^n (\hat{C}_n(\hat{\bm{U}}_i) - C_{\theta_n}(\hat{\bm{U}}_i))^2
+               gofTstat(u., method="Sn", useR=TRUE, copula=C.th.n, do.pobs=FALSE) # do.pobs is passed to Cn() (but only for the more intelligent R version)
+           } else { # C version
+               ## former code (MH: I don't see any reason why we should not use
+               ## cramer_vonMises (via gofTstat()) here)
+               ## .C(cramer_vonMises_grid,
+               ##    as.integer(d),
+               ##    as.double(u.),
+               ##    as.integer(n),
+               ##    as.double(u.),
+               ##    as.integer(n),
+               ##    as.double(pCopula(u., C.th.n)), # C_{\theta_n}(\hat{\bm{U}}_i), i=1,..,n
+               ##    stat=double(1))$stat
+               gofTstat(u., method="Sn", copula=C.th.n)
+           }
 
-    ## 4) simulation of the test statistic under H_0
-    T0 <- .C(multiplier,
-             as.integer(d),
-             as.double(uhat),
-             as.integer(n),
-             as.double(uhat),
-             as.integer(n),
-             as.double(dCdtheta(cop., uhat) %*% Jscore(cop., u=uhat, method=estim.method)),
-             as.integer(N),
-             s0 = double(N))$s0
+           ## 4) Simulate the test statistic under H_0
+           T0 <- .C(multiplier,
+                    as.integer(d),
+                    as.double(u.),
+                    as.integer(n),
+                    as.double(u.),
+                    as.integer(n),
+                    as.double(dCdtheta(C.th.n, u.) %*% Jscore(C.th.n, u=u., method=estim.method)),
+                    as.integer(N),
+                    s0 = double(N))$s0
+       },
+           "Rn"=
+       {
+           ## checks
+           if(estim.method!="itau") stop("Currently only estim.method='itau' available for method='Rn'")
+           if(verbose){
+               if(!hasArg(m)){
+                   warning("power 'm' required; m=1/2 is used instead")
+                   m <- 1/2
+               }
+               if(!hasArg(zeta.m)){
+                   warning("adjustment parameter 'zeta.m' required for the denominator of the test statistic; zeta.m=0 is used instead")
+                   zeta.m <- 0
+               }
+               if(!hasArg(b)){
+                   warning("bandwidth 'b' required for the estimation of the first-order partial derivatives based on the empirical copula; b=0.05 is used instead")
+                   b <- 0.05
+               }
+           }
+
+           ## 3) Compute the realized test statistic
+           C.th.n. <- pCopula(u., C.th.n) # n-vector
+           denom <- (C.th.n.*(1-C.th.n.) + zeta.m)^m # n-vector
+           Cn. <- Cn(u., U=u.) # n-vector
+           T <- sum( ((Cn. - C.th.n.)/denom)^2 ) # n-vector; test statistic R_n
+
+           ## 4) Simulate the test statistic under H_0
+
+           ## 4.1) Draw Z's with mean 0 and variance 1
+           Z <- matrix(rnorm(N*n), nrow=N, ncol=n) # (N, n)-matrix
+           Zbar <- rowMeans(Z) # N-vector
+
+           ## 4.2) Compute \hat{C}_n^{(h)}, h=1,..,N
+           factor <- (Z-Zbar)/sqrt(n)
+           hCnh. <- factor %*% Cn(u., U=u., do.pobs=FALSE) # (N, n)-matrix
+           for(j in 1:d){ # bivariate only here
+               ## build a matrix with 1s only, except for the jth column, which contains u.[,j]
+               u.j <- matrix(1, nrow=n, ncol=d)
+               u.j[,j] <- u.[,j]
+               ## evaluate the empirical copula there
+               Cnh <- factor %*% Cn(u.j, U=u.) # (N, n)-matrix
+               ## compute the "derivative" of the empirical copula at u.
+               Cjn. <- dCn(u., U=u., j.ind=j, b=b) # n vector
+               ## compute the sum
+               Cjn.. <- matrix(rep(Cjn., each=N), nrow=N, ncol=n) # auxiliary (N, n)-matrix
+               hCnh. <- hCnh. - Cjn.. * Cnh # (N, n)-matrix
+           }
+
+           ## 4.3) compute score function J and Theta
+           J.th.n <- Jscore(C.th.n, u=u.) # n-vector
+           Theta <- rowSums(Z * rep(J.th.n, each=N) / sqrt(n)) # rowSums((N, n)-matrix) = N-vector
+
+           ## 4.4) Compute the multiplier replicates of the test statistic
+           d.dth.C.th.n <- as.vector(dCdtheta(C.th.n, u=u.)) # n-vector; Note: we need to have pseudo-observations here, since for a Gumbel (H_0) copula, for example, d.dth.C=NaN for those u which have at least one component equal to 1!!!
+           num <- t(hCnh. - outer(Theta, d.dth.C.th.n)) # (n, N)-matrix
+           T0 <- colSums( (num/denom)^2 )/n # (n, N)-matrix => N vector; test statistic R_n^{(h)}
+       },
+           stop("wrong method"))
 
     ## return result object
     structure(class = "htest",
 	      list(method = sprintf(
 		   "Multiplier bootstrap goodness-of-fit test with 'method'=\"%s\", 'estim.method'=\"%s\"",
 		   method, estim.method),
-                   parameter = c(parameter = cop.@parameters),
+                   parameter = c(parameter = C.th.n@parameters),
                    statistic = c(statistic = T),
                    p.value = (sum(T0 >= T) + 0.5) / (N + 1), # typical correction =>  p-values in (0, 1)
                    data.name = deparse(substitute(x))))

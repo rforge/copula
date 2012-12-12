@@ -23,7 +23,7 @@
 ##' @param u (m, d) matrix of evaluation points
 ##' @param U (n, d) matrix of pseudo-data based on which the empirical copula
 ##'        is computed (if not pseudo-data already, use do.pobs=TRUE)
-##' @param do.pobs logical indicating whether pobs is applied to U
+##' @param do.pobs logical indicating whether pobs() is applied to U
 ##' @param offset scaling factor sum()/(n+offset) when computing the empirical
 ##'        copula
 ##' @param method method string

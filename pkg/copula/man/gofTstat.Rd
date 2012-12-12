@@ -5,7 +5,8 @@
   \code{gofTstat()} computes various goodness-of-fit test statistics.
 }
 \usage{
-gofTstat(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"), \dots)
+gofTstat(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
+useR=FALSE, \dots)
 }
 \arguments{
   \item{u}{\eqn{n\times d}{n x d}-matrix of values in \eqn{[0,1]},
@@ -48,6 +49,7 @@ gofTstat(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"), \dots)
 	and shape parameter one	(being equal to an
 	Erlang(\eqn{d}) distribution function).}
   }}
+  \item{useR}{logical indicating whether an \R or C implementation is used.}
   \item{\dots}{additional arguments passed for computing the different
     test statistics.}
 }
