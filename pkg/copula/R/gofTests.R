@@ -211,22 +211,22 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
                    data.name = deparse(substitute(x))))
 }
 
-##' Influence functions for the multiplier bootstrap
+##' Influence functions \hat{J}_{\theta_n} for the multiplier bootstrap
 ##'
-##' @title Influence functions for the multiplier bootstrap
+##' @title Influence functions \hat{J}_{\theta_n} for the multiplier bootstrap
 ##' @param copula object of type 'copula'
 ##' @param u (n, d)-matrix of (pseudo-)observations
 ##' @param method "mpl" or one of "itau", "irho"
-##' @return n-vector TODO: + rename
+##' @return n-vector containing \hat{J}_{\theta_n}
 ##' @author Marius Hofert (based on ideas of Ivan Kojadinovic)
-##' Note: - References:
-##'         * For estim.method="mpl":
-##'           I. Kojadinovic and J. Yan (2011), A goodness-of-fit test for multivariate
-##'           multiparameter copulas based on multiplier central limit theorems, Statistics
-##'           and Computing 21:1, pages 17-30
-##'         * For estim.method="itau" or ="irho" (d=2):
-##'           I. Kojadinovic, J. Yan and M. Holmes (2011), Fast large-sample goodness-of-fit
-##'           tests for copulas, Statistica Sinica 21:2, pages 841-871
+##' Note: References:
+##'       * For estim.method="mpl":
+##'         I. Kojadinovic and J. Yan (2011), A goodness-of-fit test for multivariate
+##'         multiparameter copulas based on multiplier central limit theorems, Statistics
+##'         and Computing 21:1, pages 17-30
+##'       * For estim.method="itau" or ="irho" (d=2):
+##'         I. Kojadinovic, J. Yan and M. Holmes (2011), Fast large-sample goodness-of-fit
+##'         tests for copulas, Statistica Sinica 21:2, pages 841-871
 Jscore <- function(copula, u, method)
 {
     ## checks
@@ -237,7 +237,7 @@ Jscore <- function(copula, u, method)
     ## deal with different methods
     switch(method,
            "mpl"=
-       { ## see page 22 in Kojadinovic and Yan (2011)
+       { ## see page 7 in Kojadinovic and Yan (2011)
            ## integrals computed from n realizations by Monte Carlo
            dcop <- dcopwrap(copula, u)
            influ0 <- derPdfWrtParams(copula, u) / dcop
@@ -266,7 +266,7 @@ Jscore <- function(copula, u, method)
            (4/dTau(copula)) * ( 2*pCopula(u, copula) - rowSums(u) + (1-tau(copula))/2 )
        },
            "irho"=
-       { ## see page 847 in Kojadinovic, Yan, and Holmes (2011)
+       { ## see Equation (3.5) on page 847 in Kojadinovic, Yan, and Holmes (2011)
            stopifnot(dim(copula)==2)
            i1 <- order(u[,1], decreasing=TRUE)
            i2 <- order(u[,2], decreasing=TRUE)
