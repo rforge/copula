@@ -5,6 +5,7 @@ then
  cp -p DESCRIPTION+gg DESCRIPTION
  cp -p NAMESPACE+gg NAMESPACE
  cp -p demo/00Index+gg demo/00Index
+ mv .Rbuildignore .Rb ; sed '/^gg/,$d' .Rb > .Rbuildignore ; mv .Rb .Rbuildignore-gg
  if [ -d gg ]
  then
    mv gg/*.Rd     man/

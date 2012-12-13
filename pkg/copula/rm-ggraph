@@ -13,6 +13,8 @@ sed '/gof_graph/d' demo/00Index+gg > demo/00Index
 ##
 mkdir -p gg
 mv R/wrapper.R R/ggraph-* man/ggraph* gg
+mv .Rbuildignore gg
+cp -p .Rbuildignore-gg .Rbuildignore
 mkdir -p gg/demo
 mv demo/gof_graph.R gg/demo
 ##
