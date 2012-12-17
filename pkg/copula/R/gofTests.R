@@ -89,7 +89,7 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"), useR
 	   sum2mands <- unlist(lapply(1:n, function(i){
 	       lu.i <- lu[,i] ## now i is fixed
 	       sum.k <- vapply(1:n, function(k)# sum over k (n-dim. vector)
-			       sum(pmin(lu.i, lu[,k])), 0.)
+			       sum(pmin(lu.i, lu[,k])), NA_real_)
 	       ls.i <- lsum(matrix(sum.k, ncol=1)) # lsum( sum(pmin(...)) ) for fixed i; 1 value
 	       exp(-ln + ls.i)
 	   }))
@@ -211,9 +211,9 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
                    data.name = deparse(substitute(x))))
 }
 
-##' Influence functions \hat{J}_{\theta_n} for the multiplier bootstrap
+##' J-score \hat{J}_{\theta_n} for the multiplier bootstrap
 ##'
-##' @title Influence functions \hat{J}_{\theta_n} for the multiplier bootstrap
+##' @title J-score \hat{J}_{\theta_n} for the multiplier bootstrap
 ##' @param copula object of type 'copula'
 ##' @param u (n, d)-matrix of (pseudo-)observations
 ##' @param method "mpl" or one of "itau", "irho"
@@ -227,6 +227,7 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
 ##'       * For estim.method="itau" or ="irho" (d=2):
 ##'         I. Kojadinovic, J. Yan and M. Holmes (2011), Fast large-sample goodness-of-fit
 ##'         tests for copulas, Statistica Sinica 21:2, pages 841-871
+##'       * for the function in general: van der Vaart "Asymptotic Statistics" (2000, p. 179 top)
 Jscore <- function(copula, u, method)
 {
     ## checks
@@ -391,14 +392,14 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
            ##       - t(u.)<=u.[i,] is an (d, n)-matrix
            ##       - colSums(t(u.)<=u.[i,])==d is an n-vector of logicals with kth entry
            ##         I_{\{\hat{\bm{U}}_k <= \bm{u}_i\}}
-           ind <- vapply(1:n, function(i) colSums(t(u.)<=u.[i,])==d, numeric(n)) # (n, n)-matrix
+           ind <- vapply(1:n, function(i) colSums(t(u.) <= u.[i,]) == d, logical(n)) # (n, n)-matrix
            hCnh. <- factor %*% ind # (N, n)-matrix * (n, n)-matrix = (N, n)-matrix
            for(j in 1:d){ # bivariate only here
                ## build a matrix with 1s only, except for the jth column, which contains u.[,j]
                u.j <- matrix(1, nrow=n, ncol=d)
                u.j[,j] <- u.[,j]
                ## evaluate the empirical copula there
-               ind.u.j <- vapply(1:n, function(i) colSums(t(u.)<=u.j[i,])==d, numeric(n)) # (n, n)-matrix
+               ind.u.j <- vapply(1:n, function(i) colSums(t(u.) <= u.j[i,]) == d, logical(n)) # (n, n)-matrix
                Cnh <- factor %*% ind.u.j # (N, n)-matrix * (n, n)-matrix = (N, n)-matrix
                ## compute the "derivative" of the empirical copula at u.
                Cjn. <- dCn(u., U=u., j.ind=j, b=b) # n vector

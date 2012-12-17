@@ -156,7 +156,7 @@ qK <- function(u, cop, d, n.MC=0,
                    splinefun(u.grid, K.u.grid, method = "monoH.FC")(x) - u
                ## root finding
                vapply(uN01, function(u)
-                      uniroot(fspl, u=u, interval=c(0,u), ...)$root, 1.0)
+                      uniroot(fspl, u=u, interval=c(0,u), ...)$root, NA_real_)
 
            },
                "simple" =               # straightforward root finding
@@ -165,7 +165,7 @@ qK <- function(u, cop, d, n.MC=0,
                f <- function(t, u) pK(t, cop=cop, d=d, n.MC=n.MC, log=FALSE) - u
                ## root finding
                vapply(uN01, function(u)
-                      uniroot(f, u=u, interval=c(0,u), ...)$root, 1.)
+                      uniroot(f, u=u, interval=c(0,u), ...)$root, NA_real_)
            },
                "sort" =                 # root finding with first sorting u's
            {
@@ -214,7 +214,7 @@ qK <- function(u, cop, d, n.MC=0,
                    splinefun(u.grid, K.u.grid, method = "monoH.FC")(x) - u
                ## root finding
                vapply(uN01, function(u)
-                      uniroot(fspl, u=u, interval=c(0,u), ...)$root, 1.0)
+                      uniroot(fspl, u=u, interval=c(0,u), ...)$root, NA_real_)
            },
                stop("unsupported method ", method))
     res

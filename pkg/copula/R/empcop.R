@@ -40,7 +40,7 @@ Cn <- function(u, U, do.pobs=TRUE, offset=0, method=c("C", "R"))
     n <- nrow(U)
 
     ## d = 1
-    if(d==1) return( vapply(u, function(u.) sum(U<=u.)/(n+offset), numeric(1)) )
+    if(d==1) return( vapply(u, function(u.) sum(U<=u.)/(n+offset), NA_real_) )
 
     ## d > 1
     method <- match.arg(method)
