@@ -155,7 +155,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"beta.", "betan", "pobs"
        ,"ebeta", "etau", "emde", "dDiag", "edmle", "emle", "enacopula"
        ## goodness-of-fit
-       ,"gofTstat", "rtrafo", "htrafo", "gnacopula"
+       ,"gofTstat", "gofBTstat", "rtrafo", "htrafo", "gnacopula"
        ## Kendall distribution
        ,"K", "pK", "qK", "dK", "rK"
        ## misc

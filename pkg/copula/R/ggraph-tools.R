@@ -311,9 +311,9 @@ RUpobs <- function(x, do.pobs=TRUE, method=c("ellip", "archm"), ...)
 ##' @author Marius Hofert
 ##' Note: - see Li, Fang, Zhu (1997); suggestion: take k~=d/2
 ##'       - used in Genest, Hofert, Neslehova (2013)
-BTstat <- function(u){
-    if(!is.matrix(u)) u <- rbind(u)
+gofBTstat <- function(u){
+    if (!is.matrix(u)) u <- rbind(u)
     u2 <- u^2
-    apply(u2, 1, cumsum)[,-ncol(u)] / rowSums(u2)
+    t(apply(u2, 1, cumsum))[, -ncol(u)]/rowSums(u2)
 }
 

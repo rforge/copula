@@ -218,7 +218,7 @@ qqplot2 <- function(x, qF, qqline.args=list(distribution=qF),
                                   "% confidence intervals"), side=4,
                                   cex=0.6*par("cex.main"), adj=0, col="gray50"),
                     main.args=list(text=expression(bold(italic(F)~~"Q-Q plot")),
-                                   side=3, cex=par("cex.main"), font=par("font.main"),
+                                   side=3, line=1.1, cex=par("cex.main"), font=par("font.main"),
                                    adj=par("adj"), xpd=NA),
                     xlab="Theoretical quantiles", ylab="Sample quantiles", ...)
 {
