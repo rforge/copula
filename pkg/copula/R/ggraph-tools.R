@@ -14,7 +14,7 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-### Conditional copula functions ###############################################
+### Tools for graphical gof tests based on pairwise Rosenblatt trafo ###########
 
 ### FIXME  replace by cCopula() in the long run
 
@@ -28,6 +28,7 @@
 ##' @param ... additional args (e.g., df for t copulas)
 ##' @return C(u2|u1)
 ##' @author Marius Hofert and Martin Maechler
+##' Note: used in Hofert and Maechler (2013)
 ccop2 <- function(u2, u1, family, theta, ...) {
     stopifnot(length(u1)==length(u2))
     switch(copFamilyClass(family),
@@ -69,6 +70,7 @@ ccop2 <- function(u2, u1, family, theta, ...) {
 ##' @return (n,d,d)-array cu.u with cu.u[,i,j] containing C(u[,i]|u[,j]) for i!=j
 ##'         and u[,i] for i=j
 ##' @author Marius Hofert
+##' Note: used in Hofert and Maechler (2013)
 pairwiseCcop <- function(u, cop, ...)
 {
     if(!is.matrix(u)) u <- rbind(u)
@@ -118,6 +120,7 @@ pairwiseCcop <- function(u, cop, ...)
 ##' @return (d,d)-matrix of lists with test results (as returned by indepTest())
 ##'         for the pairwise tests of independence
 ##' @author Marius Hofert
+##' Note: used in Hofert and Maechler (2013)
 pairwiseIndepTest <- function(cu.u, N=256, verbose=TRUE, ...)
 {
     ## 1) simulate test statistic under independence
@@ -151,8 +154,9 @@ pairwiseIndepTest <- function(cu.u, N=256, verbose=TRUE, ...)
 ##' @param piTest matrix of indepTest objects
 ##' @return matrix of p-values
 ##' @author Marius Hofert, Martin Maechler
-##' Note: Kojadinovic, Yan (2010) mention that "fisher.pvalue" performs best;
-##'       In d=2 (as we use in pairwiseIndepTest) all three methods are equal.
+##' Note: - Kojadinovic, Yan (2010) mention that "fisher.pvalue" performs best;
+##'         In d=2 (as we use in pairwiseIndepTest) all three methods are equal.
+##'       - used in Hofert and Maechler (2013)
 pviTest <- function(piTest){
     matrix(vapply(piTest, function(x) x$fisher.pvalue, numeric(1)),
            ncol=ncol(piTest))
@@ -168,6 +172,7 @@ pviTest <- function(piTest){
 ##' @return global p-values for each of the specified methods (of how to adjust the
 ##'         pairwise p-values)
 ##' @author Marius Hofert
+##' Note: used in Hofert and Maechler (2013)
 gpviTest <- function(pvalues, method=p.adjust.methods, globalFun=min){
     pvalues <- pvalues[!is.na(pvalues)] # vector
     if(all(c("fdr","BH") %in% method))## p.adjust():  "fdr" is alias for "BH"
@@ -189,3 +194,126 @@ gpviString <- function(pvalues, sep="   ", digits=2) {
            paste(paste(names(pv), sapply(pv, format.pval, digits=digits),
                        sep=": "), collapse=paste0(";",sep)))
 }
+
+
+### Tools for graphical gof tests for copulas with radial parts ################
+
+##' Compute pseudo-observations of the radial part and the uniform distribution
+##' on the unit sphere (for elliptical copulas) or on the unit simplex (for
+##' Archimedean copulas)
+##'
+##' @title Compute pseudo-observations of the radial part and uniform distribution
+##' @param x (n, d)-matrix of data
+##' @param do.pobs logical indicating whether pseudo-observations should be computed
+##' @param method method slot for different copula classes
+##' @param ... additional arguments
+##' @return list of two components:
+##'         R: n-vector of pseudo-observations of the radial part
+##'         U: (n, d)-matrix of pseudo-observations of the uniform distribution on
+##'            the unit sphere (for method="ellip") or unit simplex (for method="archm")
+##' @author Marius Hofert
+##' Note: - the following correct (but unknown!) functions can be provided via '...':
+##'         "ellip": qGg, the quantile function of the function G_g in Genest, Hofert, Neslehova (2013)
+##'         "archm": iPsi, the inverse of the (assumed) generator
+##'       - used in Genest, Hofert, Neslehova (2013)
+RUpobs <- function(x, do.pobs=TRUE, method=c("ellip", "archm"), ...)
+{
+    ## check
+    if(!is.matrix(x)) x <- rbind(x, deparse.level=0L)
+    method <- match.arg(method)
+
+    u <- if(do.pobs) pobs(x) else x
+    switch(method,
+           "ellip"={
+               ## estimate the standardized dispersion matrix with entries
+               ## P_{jk} = \Sigma_{jk}/sqrt{\Sigma_{jj}\Sigma_{kk}}
+               ## and compute the inverse of the corresponding Cholesky factor
+               P <- nearPD(sin(cor(x, method="kendall")*pi/2), corr=TRUE)$mat
+               A. <- chol(P) # upper triangular R such that R^TR = P; note: L = t(A.) s.t. LL^T = P
+               A.inv <- solve(A.) # A.^{-1} = (A^{-1})^T
+
+               ## compute Ys
+               y <- if(hasArg(qGg)) { # if qGg() has been provided
+                   qGg <- list(...)$qGg
+                   apply(u, 2, qGg)
+               } else { # estimate via empirical quantiles
+                   n <- nrow(x)
+                   mu <- matrix(rep(colMeans(x), each=n), nrow=n)
+                   sd <- matrix(rep(apply(x, 2, sd), each=n), nrow=n)
+                   x. <- (x-mu)/sd # standardized data
+                   sapply(1:ncol(u), function(j) quantile(x.[,j], probs=u[,j]))
+               }
+
+               ## compute Zs and Rs (pseudo-observations of the radial part)
+               z <- y %*% A.inv # efficient computation of A^{-1}Y which works with upper triangular matrix A.
+               r <- sqrt(rowSums(z^2))
+
+               ## return Rs and Us (pseudo-observations of the uniform distribution on the unit sphere)
+               list(R=r, U=z/r)
+           },
+           "archm"={
+               if(hasArg(iPsi)) { # if iPsi() has been provided
+                   iPsi <- list(...)$iPsi
+                   iPsiu <- iPsi(u)
+                   r <- rowSums(iPsiu)
+                   list(R=r, U=iPsiu/r)
+               } else { # estimate iPsi via inverting the estimator of psi of Genest, Neslehova, Ziegel (2011; Algorithm 1; Section 4.3)
+                   ## compute w (slightly adjusted pseudo-observations)
+                   n <- nrow(u)
+                   W <- vapply(1:n, function(k) sum( colSums(t(U) < u[k,])==d ) / (n+1), NA_real_)
+                   ## W's, p's
+                   Wtab <- table(W)
+                   m <- length(w <- as.numeric(dimnames(Wtab)$x)) # contains w's (= sort(unique(W)))
+                   Wtab. <- as.numeric(Wtab)
+                   p <- Wtab./n # relative frequency
+                   ## solve the system of equations (18) in Genest, Neslehova, Ziegel (2011) to find s
+                   if(m < 2) stop("quantity 'm' must be >= 2")
+                   s <- numeric(m-1)
+                   d <- ncol(u)
+                   s[m-1] <- 1-(w[2]/p[m])^(1/(d-1))
+                   if(m >= 3){ # note: could be solved explicitly for d==2
+                       for(k in (m-2):1){
+                           f <- function(x){
+                               s. <- c(s[(m-1):(k+1)], x) # at least two elements; the last one is the running variable
+                               s.d1 <- (1-cumprod(s.))^(d-1)
+                               sum(s.d1*p[(k+1):m])-w[m-k+1]
+                           }
+                           s[k] <- uniroot(f, interval=c(0,1))$root
+                       }
+                   }
+                   ## construct r's from s's
+                   r <- rep(1, m)
+                   if(m >= 2) for(k in (m-1):1) r[k] <- r[k+1]*s[k]
+                   ## repeat accordingly
+                   r <- vapply(1:m, FUN=function(k) rep(r[k], Wtab.[k]), FUN.VALUE=numeric(Wtab.[k]))
+
+                   ## compute
+                   iPsihu <- matrix(NA, nrow=n, ncol=d)
+                   U <- iPsihu/r # hat{psi}^{-1}(u)/r
+                   warning("pseudo-observations 'U' of the uniform distribution on the unit simplex not yet implemented") # TODO (requires inverting the estimator of Genest, Neslehova, Ziegel (2011)) + test this code
+
+                   ## return
+                   list(R=r, U=U)
+               }
+           },
+           stop("wrong method"))
+}
+
+##' Compute supposedly Beta distributed observations from supposedly uniformly
+##' distributed observations on the unit sphere
+##'
+##' @title Compute supposedly Beta distributed observations from supposedly
+##'        uniformly distributed observations on the unit sphere
+##' @param u (n, d)-matrix of supposedly uniformly distributed (row) vectors
+##'        on the unit sphere in IR^d
+##' @return (n, d-1)-matrix where the kth column contains supposedly
+##'         Beta(k/2, (d-k)/2)-distributed values
+##' @author Marius Hofert
+##' Note: - see Li, Fang, Zhu (1997); suggestion: take k~=d/2
+##'       - used in Genest, Hofert, Neslehova (2013)
+BTstat <- function(u){
+    if(!is.matrix(u)) u <- rbind(u)
+    u2 <- u^2
+    apply(u2, 1, cumsum)[,-ncol(u)] / rowSums(u2)
+}
+

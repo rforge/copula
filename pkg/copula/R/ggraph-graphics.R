@@ -56,9 +56,10 @@
 ##'	   the default (FALSE) centers it according to the pairs plot, not the whole
 ##'	   plotting region
 ##' @param sub.line sub-title placement (vertical distance from pairs plot in lines)
-##' @return invisible
+##' @return invisible()
 ##' @author Marius Hofert
-##' Note: based on pairs.default() and filled.contour() from R-2.14.1
+##' Note: - based on pairs.default() and filled.contour() from R-2.14.1
+##'       - used in Hofert and Maechler (2013)
 pairs2 <- function(gcu.u,
 		   panel=points, colList, col = par("col"), bg = par("bg"),
 		   labels, ..., text.panel=textPanel,
@@ -111,7 +112,7 @@ pairs2 <- function(gcu.u,
     yls <- vapply(1:d, function(i) range(gcu.u[,i,-i]), numeric(2))# those not in diag
 
     ## get ... and setup plot options
-    op <- par(no.readonly = TRUE) # the whole list of settable par's.
+    op <- par(no.readonly = TRUE) # get the whole list of settable par's.
     on.exit(par(op)) # on exit of this function, restore previous settings
     dots <- list(...) # list of ... arguments
     nmdots <- names(dots)
@@ -391,6 +392,7 @@ heatHCLgap <- function(beg, end, nBeg, nEnd, ngap, ...){
 ##'	    $bucketCols: vector containing the colors corresponding to pvalueBuckets
 ##'	    $pvalueBuckets: vector containing the endpoints of the p-value buckets
 ##' @author Marius Hofert
+##' Note: used in Hofert and Maechler (2013)
 pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
                          signif.P=0.05, pmin0=1e-5, bucketCols=NULL, fgColMat=NULL,
                          bgColMat=NULL, col="B&W.contrast", BWcutoff=170,## 127.5 = (0+255)/2
@@ -554,7 +556,7 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
 }
 
 
-### Pairwise Rosenblatt / copula QQ-plot #######################################
+### Pairwise Rosenblatt / copula Q-Q plot ######################################
 
 ##' Compute pairs plot based on pairwise Rosenblatt-transformed data
 ##'
@@ -576,6 +578,7 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
 ##' @param ... additional arguments passed to pairs2()
 ##' @return invisible
 ##' @author Marius Hofert and Martin Maechler
+##' Note: used in Hofert and Maechler (2013)
 pairsRosenblatt <- function(cu.u, pvalueMat=pviTest(pairwiseIndepTest(cu.u)),
 			    method = c("scatter", "QQchisq", "QQgamma",
 			    "PPchisq", "PPgamma", "none"),
@@ -647,3 +650,5 @@ pairsRosenblatt <- function(cu.u, pvalueMat=pviTest(pairwiseIndepTest(cu.u)),
     pairs2(gcu.u, colList=colList, main=main, sub=sub,
 	   key.title=key.title, key.rug.at=if(key.rug) pvalueMat, ...)
 }
+
+

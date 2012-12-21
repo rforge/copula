@@ -181,7 +181,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"tauAMH", "tauJoe"
        ,"allComp" # <- maybe keep private ?
        ,"safeUroot"
-       ,"splom2"
+       ,"splom2", "qqplot2"
        )
 ## Deprecated old names [2012-07-25]:
 export(psiDabsMC
