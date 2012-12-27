@@ -11,6 +11,34 @@
 ** TODO try() in loglikMvdc()
 MM+MH: may be differently *report* reports in loglikMvdc() [margins: *their* errors].
 ** DONE timings() function name -- changed to nacFrail.time()
+** TODO fix setTheta() bug:
+require(copula)
+## setup
+n <- 1000 # sample size
+d <- 5 # dimension
+family <- "t" # copula family
+nu <- 4 # degrees of freedom
+set.seed(4)
+
+## define and sample the copula, build pseudo-observations
+copt4 <- ellipCopula(family, dim=d, df=nu) # define copula with param NA
+r <- iTau(copt4, tau <- c(0.2, 0.4, 0.6))
+P <- c(r[2], r[1], r[1], r[1], # upper triangle (without diagonal) of correlation "matrix"
+             r[1], r[1], r[1],
+                   r[3], r[3],
+                         r[3])
+copt4 <- setTheta(copt4, value=P)
+U. <- pobs(rCopula(n, copula=copt4))
+pairs(U., gap=0) # => wrong dependency
+cor(U., method="kendall") # => wrong dependency
+
+copt4 # produces error although the above does not
+## Error in validObject(x) :
+##   invalid class “tCopula” object: Parameter and upper bound have non-equal length
+
+## more importantly, ellipCopula has dispstr="ex"! and dispstr="un" produces an error!
+## => how to define a copula object with NA parameter vector and dispstr="un"????
+## => setTheta still should warn if param is too long...
 * Short Term
 ** DONE largely improve on gofTests.R: should be made more modular, so that users can provide functions for the parametric bootstrap (gofPB) and the multiplier boostrap (gofMB). Furthermore, checking and documentation have to be improved (see already improved gofPB());
 ** TODO deprecate gnacopula() [see 'Note' there!!! MH: already 'prepared' a lot; only difficulty: many calls of gnacopula() => ideally, the checks should be done with gofCopula() instead of gnacopula()!!!!]

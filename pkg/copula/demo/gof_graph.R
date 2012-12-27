@@ -303,7 +303,7 @@ data(SMI.12)
 n <- nrow(SMI.12)
 d <- ncol(SMI.12)
 
-x <- diff(log(SMI.12))# build log-returns
+x <- diff(log(SMI.12)) # build log-returns
 u <- pobs(x) # build pseudo-observations
 
 ## --- JCGS, Fig.3 ---

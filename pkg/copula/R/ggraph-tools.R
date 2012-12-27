@@ -228,8 +228,7 @@ RUpobs <- function(x, do.pobs=TRUE, method=c("ellip", "archm"), ...)
                ## estimate the standardized dispersion matrix with entries
                ## P_{jk} = \Sigma_{jk}/sqrt{\Sigma_{jj}\Sigma_{kk}}
                ## and compute the inverse of the corresponding Cholesky factor
-               P <- nearPD(sin(cor(x, method="kendall")*pi/2), corr=TRUE)$mat
-               P <- as.matrix(P) # otherwise, chol() fails
+               P <- as.matrix(nearPD(sin(cor(x, method="kendall")*pi/2), corr=TRUE)$mat) # as.matrix() since, otherwise, chol() fails
                A. <- chol(P) # upper triangular R such that R^TR = P; note: L = t(A.) s.t. LL^T = P
                A.inv <- solve(A.) # A.^{-1} = (A^{-1})^T
 
