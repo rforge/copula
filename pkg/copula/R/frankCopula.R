@@ -193,8 +193,8 @@ setMethod("pCopula", signature("numeric", "frankCopula"),
 setMethod("pCopula", signature("matrix", "frankCopula"), pMatFrank)
 
 setMethod("dCopula", signature("numeric", "frankCopula"),
-	  function (u, copula, ...)
-	  dMatFrank(matrix(u, ncol = dim(copula)), copula, ...))
+	  function (u, copula, log=FALSE, ...)
+	  dMatFrank(matrix(u, ncol = dim(copula)), copula, log=log, ...))
 setMethod("dCopula", signature("matrix", "frankCopula"), dMatFrank)
 
 setMethod("iPsi", signature("frankCopula"), iPsiFrank)

@@ -162,8 +162,8 @@ setMethod("pCopula", signature("numeric", "amhCopula"),
 setMethod("pCopula", signature("matrix", "amhCopula"), pMatAmh)
 
 setMethod("dCopula", signature("numeric", "amhCopula"),
-	  function (u, copula, ...)
-          dMatAmh(matrix(u, ncol = dim(copula)), copula, ...))
+	  function (u, copula, log=FALSE, ...)
+	  dMatAmh(matrix(u, ncol = dim(copula)), copula, log=log, ...))
 setMethod("dCopula", signature("matrix", "amhCopula"), dMatAmh)
 
 setMethod("iPsi", signature("amhCopula"), iPsiAmh)

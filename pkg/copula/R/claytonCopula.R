@@ -230,9 +230,8 @@ setMethod("pCopula", signature("numeric", "claytonCopula"),
 setMethod("pCopula", signature("matrix", "claytonCopula"), pMatClayton)
 
 setMethod("dCopula", signature("numeric", "claytonCopula"),
-	  function (u, copula, ...)
-	  ## was  dclaytonCopula.pdf
-          dMatClayton(matrix(u, ncol = dim(copula)), copula, ...))
+	  function (u, copula, log=FALSE, ...)
+	  dMatClayton(matrix(u, ncol = dim(copula)), copula, log=log, ...))
 setMethod("dCopula", signature("matrix", "claytonCopula"), dMatClayton)
 
 
