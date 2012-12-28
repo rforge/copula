@@ -466,7 +466,7 @@ coeffG <- function(d, alpha, method = c("sort", "horner", "direct", "dsumSibuya"
 		   if(log) log(abs(sm)) else (-1)^(d-k.)*sm
 	       }, NA_real_)
 	   },
-	   stop(sprintf("unsupported method '%s' in coeffG", method))
+	   stop(gettextf("unsupported method '%s' in coeffG", method), domain=NA)
 	   ) ## switch()
 } ## coeffG()
 
@@ -644,9 +644,9 @@ polyG <- function(lx, alpha, d, method= c("default", "default2012", "default2011
                ## compute log(colSums(exp(B))) stably (no overflow) with the idea of
                ## pulling out the maxima
                lsum(logx)
-           }else colSums(exp(logx))
+           } else colSums(exp(logx))
        },
-	   stop(sprintf("unsupported method '%s' in polyG", method))
+	   stop(gettextf("unsupported method '%s' in polyG", method), domain=NA)
 	   ) # end{switch}
 }## {polyG}
 
@@ -953,7 +953,7 @@ dsumSibuya <- function(x, n, alpha,
 	   if(log) log(S) else S
        },
 	   ## otherwise
-	   stop(sprintf("unsupported method '%s' in dsumSibuya", method)))
+	   stop(gettextf("unsupported method '%s' in dsumSibuya", method)), domain=NA)
 }
 
 ..dsSib.mpfr.prec <- function(d,k,alpha)
@@ -1056,7 +1056,7 @@ polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE) 
                res <- colSums(exp(B))
                if(log) log(res) else res
            },
-       stop(sprintf("unsupported method '%s' in polyJ", method)))
+       stop(gettextf("unsupported method '%s' in polyJ", method)), domain=NA)
 }
 
 ##' Circular/Rational function	(1 - x^d)/(1 - x) for x ~~ 1, i.e.,
@@ -1252,7 +1252,7 @@ absdPsiMC <- function(t, family, theta, degree=1, n.MC,
                }
                if(log) res else exp(res)
            },
-	   stop(sprintf("unsupported method '%s' in absdPsiMC", method)))
+	   stop(gettextf("unsupported method '%s' in absdPsiMC", method)), domain=NA)
 }
 
 psiDabsMC <- function(t, family, theta, degree=1, n.MC,

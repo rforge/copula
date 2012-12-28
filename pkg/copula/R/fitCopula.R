@@ -239,8 +239,8 @@ fitCopula.ml <- function(copula, u, start=NULL,
   if(any(is.na(start))) stop("'start' contains NA values")
   q <- length(copula@parameters)
   if (q != length(start))
-    stop(sprintf("The lengths of 'start' (= %d) and copula@parameters (=%d) differ",
-		 length(start), q))
+    stop(gettextf("The lengths of 'start' (= %d) and copula@parameters (=%d) differ",
+		 length(start), q), domain=NA)
 
   control <- c(optim.control, fnscale = -1)
   control <- control[!vapply(control, is.null, NA)]

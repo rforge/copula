@@ -533,7 +533,7 @@ Bernoulli.all <-
            ii <- seq_len((n-1L) %/% 2)
            B[ii*2L] <- get("Bern.tab", .nacopEnv)[[method]][ii]
        },
-           stop(sprintf("method '%s' not yet implemented", method))
+           stop(gettextf("method '%s' not yet implemented", method), domain=NA)
            )## end{switch}
     B
 }
@@ -589,7 +589,7 @@ Bernoulli <- function(n, method = c("sumBin", "sumRamanujan", "asymptotic"),
 		   Btab[[method]][n2] <- B
 		   assign("Bern.tab", Btab, envir = .nacopEnv)
 	       },
-		   stop(sprintf("method '%s' not yet implemented", method))
+		   stop(gettextf("method '%s' not yet implemented", method), domain=NA)
 		   )## end{switch}
 	}
 	B

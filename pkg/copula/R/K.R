@@ -260,7 +260,7 @@ rK <- function(n, cop, d) {
 	stopifnot(d == round(d))
 	cop <- onacopulaL(cop@name, list(cop@theta, 1L:d))
     } else if(!is(cop, c2 <- "outer_nacopula"))
-	stop(sprintf("'cop' must be \"%s\" or \"%s\"", c1,c2))
+	stop(gettextf("'cop' must be \"%s\" or \"%s\"", c1,c2), domain=NA)
 
     pCopula(rCopula(n, cop), cop)
 }
