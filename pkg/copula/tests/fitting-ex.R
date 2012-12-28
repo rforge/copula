@@ -16,6 +16,8 @@
 
 require(copula)
 source(system.file("Rsource", "tstFit-fn.R", package="copula", mustWork=TRUE))
+source(system.file("Rsource", "utils.R",     package="copula", mustWork=TRUE))
+##-> assertError()
 
 (doExtras <- copula:::doExtras())
 
@@ -62,6 +64,45 @@ if(doExtras) {
     print(f3.m <- fitCopula(tC3, u3, method=  "ml"))
     print(f3.M <- fitCopula(tC3, u3, method= "mpl"))
 }
+
+showProc.time()
+
+
+### Fitting  multivariate incl margins --- mvdc --------------------------------------
+### ===========================================
+
+set.seed(121)
+gumbelC <- gumbelCopula(3, dim=2)
+gMvGam <- mvdc(gumbelC, c("gamma","gamma"), param = list(list(2,3), list(4,1)))
+gMvGam # now nicely show()s -- the *AUTO*-constructed parameter names
+stopifnot(identical(gMvGam@paramMargins,
+                    list(list(shape = 2, rate = 3),
+                         list(shape = 4, rate = 1))))
+X <- rMvdc(16000, gMvGam)
+plot(X, cex = 1/4)
+
+persp  (gMvGam, dMvdc, xlim = c(0,4), ylim=c(0,8)) ## almost discrete ????
+contour(gMvGam, dMvdc, xlim = c(0,2), ylim=c(0,8))
+points(X, cex = 1/16, col=adjustcolor("blue", 0.5))
+
+if(FALSE)# unfinished --- TODO maybe move below ('doExtras')!
+fMv <- fitMvdc(X, gMvGam)
+
+pFoo <- function(x, lower.tail=TRUE, log.p=FALSE)
+     pnorm((x - 5)/20, lower.tail=lower.tail, log.p=log.p)
+dFoo <- function(x, lower.tail=TRUE, log.p=FALSE)
+     1/20* dnorm((x - 5)/20, lower.tail=lower.tail, log.p=log.p)
+qFoo <- qunif
+
+## 'Foo' distribution has *no* parameters:
+mv1 <- mvdc(gumbelC, c("gamma","Foo"), param= list(list(3,1), list()))
+validObject(mv1)
+stopifnot(nrow(R <- rMvdc(3, mv1)) == 3, ncol(R) = 2)
+## a wrong way:
+assertError(
+  mvW <- mvdc(gumbelC, c("gamma","Foo"), param= list(list(3,1), list(NULL)))
+)
+## must not valid: stopifnot(!isTRUE(validObject(mvW, test=TRUE)))
 
 showProc.time()
 
@@ -117,23 +158,3 @@ stopifnot(all.equal(unname(coef(ffc)),
 
 showProc.time()
 
-
-set.seed(121)
-
-### Fitting  multivariate incl margins --- mvdc
-gumbelC <- gumbelCopula(3, dim=2)
-gMvGam <- mvdc(gumbelC, c("gamma","gamma"), param = list(list(2,3), list(4,1)))
-gMvGam # now nicely show()s -- the *AUTO*-constructed parameter names
-X <- rMvdc(16000, gMvGam)
-plot(X, cex = 1/4)
-
-persp  (gMvGam, dMvdc, xlim = c(0,4), ylim=c(0,8)) ## almost discrete ????
-contour(gMvGam, dMvdc, xlim = c(0,2), ylim=c(0,8))
-points(X, cex = 1/16, col=adjustcolor("blue", 0.5))
-
-
-if(FALSE)# unfinished
-fMv <- fitMvdc(X, gMvGam)
-
-
-showProc.time()
