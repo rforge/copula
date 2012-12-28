@@ -14,6 +14,8 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
+### (Nested) Archimedean Copulas -----------------------------------------------
+
 require(copula)
 
 if(!dev.interactive(orNone=TRUE)) pdf("copula-play.pdf")
@@ -69,7 +71,7 @@ checkifnot <- function(expr, prefix = "check if", true = "[Ok]")
 }
 
 
-##' @title Perform a set of checks on a copula object (with theta set)
+##' @title Perform a set of checks on a Archimedean copula object (with theta set)
 ##' @param cop acopula
 ##' @param theta1 parameter theta1
 ##' @param thetavec vector of parameters

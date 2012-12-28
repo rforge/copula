@@ -1302,7 +1302,6 @@ setMethod("setTheta", signature(x="outer_nacopula", value="numeric"),
 ##               ... x@copula <- setTheta(x@copula, value, na.ok=na.ok, noCheck=noCheck)
 ##           })
 
-## FIXME: This is "wrong" for  tCopula(df.fixed = FALSE) :  value should encompass (rho,df)
 setMethod("setTheta", "copula",
 	  function(x, value, na.ok = TRUE, noCheck = FALSE, ...)
       {
@@ -1312,16 +1311,48 @@ setMethod("setTheta", "copula",
 	      ## vectorized (and partial)  value <- NA_real_
 	      if(!is.double(value)) storage.mode(value) <- "double"
 	  }
+	  if(is(x, "tevCopula")) {
+	      p <- (!x@df.fixed) + 1
+	      if(length(value) != p)
+		  stop(gettextf("'length(value)' must be %d for tevCopula(dim=%d)",
+				p, x@dimension), domain=NA)
+	  }
 	  ##if(ina || noCheck || x@paraConstr(value)) ## parameter constraints are fulfilled
 	  if(all(ina) || noCheck || {
 	      all(is.na(value) | (x@param.lowbnd <= value & value <= x@param.upbnd))
 	  }) ## parameter constraints are fulfilled
 	      x@parameters[seq_along(value)] <- value
 	  else
-	      stop("theta (=", format(value), ") is not inside parameter bounds")
+	      stop(gettextf("theta (=%s) is not inside parameter bounds",
+			    format(value)), domain=NA)
 	  x
       })
 
+
+## NB:  for tCopula(df.fixed = FALSE), value now is (rho,df)
+setMethod("setTheta", "ellipCopula",
+	  function(x, value, na.ok = TRUE, noCheck = FALSE, ...)
+      {
+	  stopifnot(is.numeric(value) | (ina <- is.na(value)))
+	  if(any(ina)) {
+	      if(!na.ok) stop("NA value, but 'na.ok' is not TRUE")
+	      ## vectorized (and partial)  value <- NA_real_
+	      if(!is.double(value)) storage.mode(value) <- "double"
+	  }
+          df.f <- if(is(x, "tCopula")) x@df.fixed else TRUE
+          p <- npar.ellip(x@dimension, dispstr = x@dispstr, df.fixed = df.f)
+          if(length(value) != p)
+              stop(gettextf("'length(value)' must be %d for this elliptical copula (dim=%d, dispstr=\"%s\")",
+                            p, x@dimension, x@dispstr), domain=NA)
+	  if(all(ina) || noCheck || {
+	      all(is.na(value) | (x@param.lowbnd <= value & value <= x@param.upbnd))
+	  }) ## parameter constraints are fulfilled
+	      x@parameters[seq_along(value)] <- value
+	  else
+	      stop(gettextf("theta (=%s) is not inside parameter bounds",
+			    format(value)), domain=NA)
+	  x
+      })
 
 
 ##' Construct "paraConstr" function from an "interval"

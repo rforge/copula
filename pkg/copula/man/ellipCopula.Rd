@@ -23,10 +23,10 @@ normalCopula(param, dim = 2, dispstr = "ex")
     AR(1), "toep" for Toeplitz, and "un" for unstructured. }
   \item{df}{ a integer value specifying the number of degrees of freedom
     of the multivariate t distribution used to construct the t copulas.}
-  \item{df.fixed}{ TRUE means that the degrees of freedom will never be
-    considered as a parameter to be estimated; FALSE means that
-    \code{df} will be estimated if the object is passed as argument to
-    \code{fitCopula}.}
+  \item{df.fixed}{logical specifying if the degrees of freedom \code{df} will be
+    considered as a parameter (to be estimated) or not.  The default,
+    \code{FALSE}, means that \code{df} is to be estimated if the object is
+    passed as argument to \code{fitCopula}.}
   \item{\dots}{ currently nothing. }
 }
 \value{
@@ -51,6 +51,16 @@ if(require("scatterplot3d")) {
   scatterplot3d(rCopula(1000, norm.cop))
   scatterplot3d(rCopula(1000, t.cop))
 }
+
+## Versions with unspecified parameters:
+tCopula()
+allEQ <- function(u,v) all.equal(u, v, tol=0)
+stopifnot(allEQ(ellipCopula("norm"), normalCopula()),
+          allEQ(ellipCopula("t"), tCopula()))
+tCopula(dim=3)
+tCopula(dim=4, df.fixed=TRUE)
+tCopula(dim=5, disp = "toep", df.fixed=TRUE)
+normalCopula(dim=4, disp = "un")
 }
 \keyword{distribution}
 \keyword{multivariate}

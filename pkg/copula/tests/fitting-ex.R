@@ -67,6 +67,26 @@ if(doExtras) {
 
 showProc.time()
 
+set.seed(17)
+d <- 5 # dimension
+nu <- 4 # degrees of freedom
+## define and sample the copula, build pseudo-observations
+ec4 <- ellipCopula("t", dim=d, df=nu, df.fixed=TRUE) # <- copula with param NA
+(r <- iTau(ec4, tau <- c(0.2, 0.4, 0.6)))
+P <- c(r[2], r[1], r[1], r[1], # upper triangle (w/o diagonal) of corr.matrix
+             r[1], r[1], r[1],
+                   r[3], r[3],
+                         r[3])
+assertError( setTheta(ec4, value = P) )
+## rather need "un" dispersion: Now with smarter tCopula():
+(uc4 <- tCopula(dim=d, df=nu, disp = "un", df.fixed=TRUE))
+validObject(copt4 <- setTheta(uc4, value = P))
+U. <- pobs(rCopula(n=1000, copula=copt4))
+pairs(U., gap=0) # => now correct dependency
+(cU <- cor(U., method="kendall")) # => correct:
+stopifnot(cor(P, cU[lower.tri(cU)]) > 0.99)
+
+
 
 ### Fitting  multivariate incl margins --- mvdc --------------------------------------
 ### ===========================================
@@ -97,7 +117,7 @@ qFoo <- qunif
 ## 'Foo' distribution has *no* parameters:
 mv1 <- mvdc(gumbelC, c("gamma","Foo"), param= list(list(3,1), list()))
 validObject(mv1)
-stopifnot(nrow(R <- rMvdc(3, mv1)) == 3, ncol(R) = 2)
+stopifnot(nrow(R <- rMvdc(3, mv1)) == 3, ncol(R) == 2)
 ## a wrong way:
 assertError(
   mvW <- mvdc(gumbelC, c("gamma","Foo"), param= list(list(3,1), list(NULL)))

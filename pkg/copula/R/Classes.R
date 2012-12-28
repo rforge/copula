@@ -87,6 +87,7 @@ rcopula <- function(copula, n, ...) { .Deprecated("rCopula"); rCopula(n, copula,
 
 ### elliptical copulas, contains normalCopula and tCopula ######################
 
+## NOTE: This is related to  npar.ellip() in ./ellipCopula.R
 validRho <- function(dispstr, dim, lenRho) {
     switch(dispstr, ## checking for correct 'dispstr'
 	   "ar1" =, "ex" = {
@@ -95,14 +96,14 @@ validRho <- function(dispstr, dim, lenRho) {
 				   dispstr))
 	   },
 	   "un" = {
-	       if (lenRho != dim * (dim - 1) / 2)
-		   return(gettextf("'rho' parameter should have length dim * (dim - 1) / 2 for 'dispstr' = \"%s\"",
-				   dispstr))
+	       if (lenRho != (L <- dim * (dim - 1) / 2))
+		   return(gettextf("'rho' parameter should have length dim * (dim - 1) / 2 (= %d) for 'dispstr' = \"%s\"",
+				   L, dispstr))
 	   },
 	   "toep" = {
 	       if (lenRho != dim - 1)
-		   return(gettextf("'rho' parameter should have length dim-1 for 'dispstr' = \"%s\"",
-				   dispstr))
+		   return(gettextf("'rho' parameter should have length dim-1 (= %d) for 'dispstr' = \"%s\"",
+				   dim-1, dispstr))
 	   },
 	   ## otherwise
 	   return("'dispstr' not supported (yet)"))
@@ -232,43 +233,44 @@ setClass("plackettCopula",representation(exprdist = "expression"),
 
 ### Multivariate distibution via copula ########################################
 
+validMvdc <- function(object) {
+    dim <- object@copula@dimension
+    if(!is.finite(dim) || dim < 2)
+	return("'dimension' must be integer >= 2")
+    if(dim != length(object@margins))
+	return("'dimension' does not match margins' length")
+    if(dim != length(pm <- object@paramMargins))
+	return("'dimension' does not match paraMargins' length")
+    if(!all(vapply(pm, function(e) is.list(e) || is.numeric(e), NA)))
+	return("'paramMargins' elements must all be list()s or numeric vectors")
+    okNms <- function(nms) !is.null(nms) && all(nzchar(nms))
+    if(object@marginsIdentical) {
+	if(!all(object@margins[1] == object@margins[-1]))
+	    return("margins are not identical")
+	pm1 <- pm[[1]]
+	for(i in 2:dim) {
+	    if(!identical(pm1, pm[[i]]))
+		return("margins are not identical")
+	}
+	if(length(pm1) > 0 && !okNms(names(pm1)))
+	    return("'paramMargins' must be named properly")
+    }
+    else ## not identical margins: check each
+	for(i in seq_len(dim)) {
+	    pmi <- pm[[i]]
+	    if(length(pmi) > 0 && !okNms(names(pmi)))
+		return(gettextf("'paramMargins[[%d]]' must be named properly", i))
+	    ## TODO(?): check more similar to (/ instead of) those in mvdc() --> ./mvdc.R
+	}
+    TRUE
+}## validMvdc()
+
 setClass("mvdc",
-         representation(copula = "copula",
-                        margins = "character",
-                        paramMargins = "list",
-         		marginsIdentical = "logical"),
-	 validity = function(object)
-     {
-	 dim <- object@copula@dimension
-	 if(!is.finite(dim) || dim < 2)
-	     return("'dimension' must be integer >= 2")
-	 if(dim != length(object@margins))
-	     return("'dimension' does not match margins' length")
-	 if(dim != length(pm <- object@paramMargins))
-	     return("'dimension' does not match paraMargins' length")
-	 if(!all(vapply(pm, is.list, NA)))
-	     return("'paramMargins' elements must all be list()s")
-	 okNms <- function(nms) !is.null(nms) && all(nzchar(nms))
-	 if(object@marginsIdentical) {
-	     if(!all(object@margins[1] == object@margins[-1]))
-		 return("margins are not identical")
-	     pm1 <- pm[[1]]
-	     for(i in 2:dim) {
-		 if(!identical(pm1, pm[[i]]))
-		     return("margins are not identical")
-	     }
-	     if(length(pm1) > 0 && !okNms(names(pm1)))
-		 return("'paramMargins' must be named properly")
-	 }
-	 else ## not identical margins: check each
-	     for(i in seq_len(dim)) {
-		 pmi <- pm[[i]]
-		 if(length(pmi) > 0 && !okNms(names(pmi)))
-		     return(gettextf("'paramMargins[[%d]]' must be named properly", i))
-		 ## TODO(?): check more similar to (/ instead of) those in mvdc() --> ./mvdc.R
-	     }
-	 TRUE
-     })
+	 representation(copula = "copula",
+			margins = "character",
+			paramMargins = "list",
+			marginsIdentical = "logical"),
+	 validity = validMvdc)
 
 ## methods like {dpr}mvdc are defined in mvdc.R
 
