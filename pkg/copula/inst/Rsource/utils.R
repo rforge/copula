@@ -87,3 +87,13 @@ nCorrDigits <- function(target, current, zeroDigs = 16) {
     r[is.na(RE) | r < 0] <- 0 # no correct digit, when relErr is NA
     r
 }
+
+## From system.file("test-tools-1.R", package="Matrix"):
+## Make sure errors are signaled
+assertError <- function(expr) {
+    d.expr <- deparse(substitute(expr))
+    t.res <- tryCatch(expr, error = function(e) e)
+    if(!inherits(t.res, "error"))
+	stop(d.expr, "\n\t did not give an error", call. = FALSE)
+    invisible(t.res)
+}
