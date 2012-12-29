@@ -112,19 +112,23 @@ loglikMvdc <- function(param, x, mvdc, hideWarnings=FALSE) {
       if (idx2[p] == 0) # no marginal parameters
           param else param[- (if(margid) 1:idx2[1] else 1:rev(idx2)[1])]
 
-## FIXME:  use suppressMessages() {and live without  "fitMessages"}
+### FIXME: move 'hideWarnings' to  fitMvdc() !
+###       use suppressMessages() otherwise {and live without  "fitMessages"}
+
   ## messageOut may be used for debugging
   if (hideWarnings) {
     messageOut <- textConnection("fitMessages", open="w", local=TRUE)
     sink(messageOut); sink(messageOut, type="message")
-    options(warn = -1) ## ignore warnings; can be undesirable!
+    oop <- options(warn = -1) ## ignore warnings; can be undesirable!
+    on.exit(oop)
   }
 
   loglik <- tryCatch(sum(log(dMvdc(x, mvdc))),
 		     error = function(e) e)
 
   if (hideWarnings) {
-    options(warn = 0)
+    options(oop)
+    on.exit()
     sink(type="message"); sink(); close(messageOut)
   }
   if(is(loglik, "error")) {
