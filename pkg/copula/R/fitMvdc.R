@@ -91,49 +91,40 @@ setMethod("show", signature("fitMvdc"), function(object) print.fitMvdc(object))
 
 ################################################################################
 
-loglikMvdc <- function(param, x, mvdc, hideWarnings=FALSE) {
-  p <- mvdc@copula@dimension
-  marNpar <- vapply(mvdc@paramMargins, length, 1L)
-  idx2 <- cumsum(marNpar)
-  idx1 <- idx2 - marNpar + 1
-  margid <- mvdc@marginsIdentical
+setMvdcPar <- function(mvdc, param) {
+    marNpar <- vapply(mvdc@paramMargins, length, 1L)
+    idx2 <- cumsum(marNpar)
+    idx1 <- idx2 - marNpar + 1
+    margid <- mvdc@marginsIdentical
+    p <- mvdc@copula@dimension
 
-  for (i in 1:p) {
-    if (marNpar[i] > 0) {
-      ## parnames <- mvdc@paramMargins[[i]]
-      k <- if(margid) 1 else i
-      par <- param[idx1[k]: idx2[k]]
-      ## names(par) <- parnames
-      ## mvdc@paramMargins[i] <- as.list(par)
-      for (j in 1:marNpar[i]) mvdc@paramMargins[[i]][j] <- par[j]
+    for (i in 1:p) {
+        if (marNpar[i] > 0) {
+            ## parnames <- mvdc@paramMargins[[i]]
+            k <- if(margid) 1 else i
+            par <- param[idx1[k]: idx2[k]]
+            ## names(par) <- parnames
+            ## mvdc@paramMargins[i] <- as.list(par)
+            for (j in 1:marNpar[i]) mvdc@paramMargins[[i]][j] <- par[j]
+        }
     }
-  }
-  mvdc@copula@parameters <-
-      if (idx2[p] == 0) # no marginal parameters
-          param else param[- (if(margid) 1:idx2[1] else 1:rev(idx2)[1])]
+    mvdc@copula@parameters <-
+        if (idx2[p] == 0)               # no marginal parameters
+            param else param[- (if(margid) 1:idx2[1] else 1:rev(idx2)[1])]
+    mvdc
+}
 
-### FIXME: move 'hideWarnings' to  fitMvdc() !
-###       use suppressMessages() otherwise {and live without  "fitMessages"}
+loglikMvdc <- function(param, x, mvdc, hideWarnings) {
+  if(!missing(hideWarnings))
+      warning("'hideWarnings' is deprecated and has no effect here anymore")
+  ##       use suppressMessages() otherwise {and live without  "fitMessages"}
 
-  ## messageOut may be used for debugging
-  if (hideWarnings) {
-    messageOut <- textConnection("fitMessages", open="w", local=TRUE)
-    sink(messageOut); sink(messageOut, type="message")
-    oop <- options(warn = -1) ## ignore warnings; can be undesirable!
-    on.exit(oop)
-  }
+  mvdc <- setMvdcPar(mvdc, param)
 
-  loglik <- tryCatch(sum(log(dMvdc(x, mvdc))),
-		     error = function(e) e)
+  loglik <- tryCatch(sum(log(dMvdc(x, mvdc))), error = function(e) e)
 
-  if (hideWarnings) {
-    options(oop)
-    on.exit()
-    sink(type="message"); sink(); close(messageOut)
-  }
   if(is(loglik, "error")) {
-      if (!hideWarnings)
-	  warning("error in loglik computation: ", loglik$message)
+      warning("error in loglik computation: ", loglik$message)
       (-Inf)# was NaN
   }
   else loglik
@@ -147,28 +138,44 @@ fitMvdc <- function(data, mvdc, start,
     if (copula@dimension != ncol(data))
         stop("The dimensions of the data and copula do not match.")
     marNpar <- vapply(mvdc@paramMargins, length, 1L)
+    margid <- mvdc@marginsIdentical
     q <- length(start)
-    if(q != length(copula@parameters) +
-       (if(mvdc@marginsIdentical) marNpar[1] else sum(marNpar)))
+    if(q != length(copula@parameters) + (if(margid) marNpar[1] else sum(marNpar)))
 	stop("The lengths of 'start' and mvdc parameters do not match.")
     mvdCheckM(mvdc@margins, "p")
     control <- c(optim.control, fnscale=-1)
     control <- control[ !vapply(control, is.null, NA)]
+
+    ## messageOut may be used for debugging
+    if (hideWarnings) {
+	messageOut <- textConnection("fitMessages", open="w", local=TRUE)
+	sink(messageOut); sink(messageOut, type="message")
+	oop <- options(warn = -1) ## ignore warnings; can be undesirable!
+	on.exit({ options(oop); sink(type="message"); sink(); close(messageOut)})
+    }
+
     fit <- optim(start, loglikMvdc,
 		 ## loglikMvdc args :
-		 mvdc=mvdc, x=data, hideWarnings=hideWarnings,
+		 mvdc=mvdc, x=data,
 		 ## optim args:
 		 method = method, control= control)
+
+    if (hideWarnings) {
+	options(oop); sink(type="message"); sink()
+	on.exit()
+        close(messageOut)
+    }
 
     if (fit$convergence > 0)
 	warning("possible convergence problem: optim gave code=", fit$convergence)
     loglik <- fit$val
+    param <- fit$par
 
     varNA <- matrix(NA_real_, q, q)
     var.est <- if (estimate.variance) {
-	fit.last <- optim(fit$par, loglikMvdc,
+	fit.last <- optim(param, loglikMvdc,
 			  ## loglikMvdc args :
-			  mvdc=mvdc, x=data, hideWarnings=hideWarnings,
+			  mvdc=mvdc, x=data,
 			  ## optim args:
 			  method = method, ## one final step, computing Hessian :
 			  control=c(control, maxit = 1), hessian=TRUE)
@@ -181,12 +188,12 @@ fitMvdc <- function(data, mvdc, start,
     } else varNA
 
     new("fitMvdc",
-	estimate = fit$par,
+	estimate = param,
 	var.est = var.est,
 	loglik = loglik,
 	method = method,
 	fitting.stats = c(fit[c("convergence", "counts", "message")], control),
 	nsample = nrow(data),
 	## this contains 'copula':
-	mvdc = mvdc)
+	mvdc = setMvdcPar(mvdc, param))
 }

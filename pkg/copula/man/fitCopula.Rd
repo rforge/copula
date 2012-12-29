@@ -13,7 +13,7 @@ loglikCopula(param, x, copula, hideWarnings)
 fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
           start = NULL, lower = NULL, upper = NULL,
           optim.method = "BFGS", optim.control = list(maxit=1000),
-          estimate.variance = TRUE, hideWarnings = FALSE)
+          estimate.variance = TRUE, hideWarnings = TRUE)
 }
 \arguments{
   \item{param}{ a vector of parameter values. }
@@ -22,9 +22,9 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
     \eqn{[0,1]}) from the copula to be estimated, where \eqn{n} denotes
     the sample size and \eqn{d} the dimension.  Consider applying the function
     \code{\link{pobs}} first in order to obtain values in \eqn{[0,1]}.}
-  \item{copula}{a \code{"\linkS4class{copula}"} object.}
-  \item{hideWarnings}{deprecated and no longer used; if desired, warning messages
-    must be suppressed by \code{\link{suppressWarnings}(.)} now.}
+  \item{hideWarnings}{\emph{deprecated} and unused for \code{loglikCopula};
+    logical; if TRUE, warning messages from likelihood maximization
+    (mostly evaluating at invalid parameter values) are suppressed.}
   \item{method}{a \code{\link{character}} string specifying the method;
     can be either
     \code{"ml"} (maximum likelihood),

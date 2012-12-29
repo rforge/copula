@@ -69,14 +69,12 @@ setMethod("show", signature("fitCopula"),
 fitCopula <- function(copula, data, method = c("mpl","ml","itau","irho"),
                       start = NULL, lower = NULL, upper = NULL,
                       optim.method = "BFGS", optim.control = list(maxit=1000),
-                      estimate.variance = TRUE, hideWarnings = FALSE)
+                      estimate.variance = TRUE, hideWarnings = TRUE)
 {
   if(!is.matrix(data)) {
     warning("coercing 'data' to a matrix.")
     data <- as.matrix(data); stopifnot(is.matrix(data))
   }
-  if(!missing(hideWarnings))
-      warning("'hideWarnings' is deprecated and has no effect anymore")
   switch(match.arg(method),
 	 "ml" =
 	 fitCopula.ml(copula, data, start=start, lower=lower, upper=upper,
@@ -224,11 +222,9 @@ fitCopula.ml <- function(copula, u, start=NULL,
                          lower=NULL, upper=NULL,
                          method=NULL, optim.control=list(),
                          estimate.variance=TRUE,
-                         hideWarnings=FALSE,
+                         hideWarnings=TRUE,
                          bound.eps = .Machine$double.eps ^ 0.5)
 {
-  if(hideWarnings)
-      warning("'hideWarnings' is deprecated and has no effect anymore")
   if(any(u < 0) || any(u > 1))
      stop("'u' must be in [0,1] -- probably rather use pobs(.)")
   stopifnot((d <- ncol(u)) >= 2)
@@ -251,11 +247,27 @@ fitCopula.ml <- function(copula, u, start=NULL,
     lower <- if(meth.has.bounds) copula@param.lowbnd + bound.eps else -Inf
   if (is.null(upper))
     upper <- if(meth.has.bounds) copula@param.upbnd  - bound.eps else Inf
+
+  ## messageOut may be used for debugging
+  if (hideWarnings) {
+    messageOut <- textConnection("fitMessages", open="w", local=TRUE)
+    sink(messageOut); sink(messageOut, type="message")
+    oop <- options(warn = -1) ## ignore warnings; can be undesirable!
+    on.exit({ options(oop); sink(type="message"); sink(); close(messageOut)})
+  }
+
   fit <- optim(start, loglikCopula,
                lower=lower, upper=upper,
                method=method,
                copula = copula, x = u,
                control = control)
+
+  if (hideWarnings) {
+    options(oop); sink(type="message"); sink()
+    on.exit()
+    close(messageOut)
+  }
+
   copula@parameters[1:q] <- fit$par
   loglik <- fit$val
   if(fit$convergence > 0)

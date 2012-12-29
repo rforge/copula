@@ -1,15 +1,18 @@
 ##-*- org -*-->  Emacs .. [Tab] key + [Org] menu; C-c C-o to follow links
 * Very Short Term
-** DONE fitCopula() for 2-dim tCopula() *AND* 2-dim  tevCopula();  latter clearly fails
-
-** TODO mvdc() -- fitMvdc() and generate data from fit, currently wrong on *.Rd
- - see FIXMEs in R/fitMvdc.R  man/fitMvdc.Rd and man/fitCopula-class.Rd -- think of
-   class slots etc.
-** DONE rPosStable() is wrong --> use rstable1() [unless options(..) for back compatibility]
+** DONE fitCopula() for 2-dim tCopula() *AND* 2-dim tevCopula(); latter clearly fails
+** DONE mvdc() -- fitMvdc() and generate data from fit:
+ - fitMvdc()@mvdc  must contain the *fitted* parameters, the same as
+   fitCopula()@copula does already.
+** DONE rPosStable() is "wrong", actually just rstable1() *scaled* unusually
+   --> use rstable1() [unless options(..) for back compatibility]
 ** DONE no longer try() in loglikCopula()
-   MM: "hideWarnings" seems "wrong by design", notably there.
-** TODO try() in loglikMvdc()
-MM+MH: may be differently *report* reports in loglikMvdc() [margins: *their* errors].
+  - "hideWarnings" seems "wrong by design", there.
+  - *However* fitCopula() now uses 'hideWarnings' (again): should *not*
+    report warnings by default: They are too disturbing for 'Joe Average'
+    fitCopula() user.
+** DONE tryCatch() in loglikMvdc(), but not longer hideWarnings there.
+   OTOH, hideWarnins now in fitMvdc().
 ** DONE timings() function name -- changed to nacFrail.time()
 ** DONE setTheta() bug: see tests/fitting-ex.R ..seed(17)
 * Short Term

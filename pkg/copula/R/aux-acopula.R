@@ -1311,6 +1311,7 @@ setMethod("setTheta", "copula",
 	      ## vectorized (and partial)  value <- NA_real_
 	      if(!is.double(value)) storage.mode(value) <- "double"
 	  }
+	  ## not using has.par.df(), as have "ellipCopula" method below
 	  if(is(x, "tevCopula")) {
 	      p <- (!x@df.fixed) + 1
 	      if(length(value) != p)
