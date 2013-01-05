@@ -1020,6 +1020,7 @@ dsumSibuya <- function(x, n, alpha,
 ##' @author Marius Hofert and Martin Maechler
 polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE) {
     stopifnot(length(alpha)==1, 0 < alpha, alpha <= 1)
+    if(!length(lx)) return(numeric())
     ## compute the log of the coefficients a_{dk}(theta)
     if(d > 220) stop("d > 220 not yet supported")# would need Stirling2.all(d, log=TRUE)
     k <- 1:d

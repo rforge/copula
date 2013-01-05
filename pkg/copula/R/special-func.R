@@ -90,7 +90,7 @@ signFF <- function(alpha, j, d) {
 lsum <- function(lx, l.off = apply(lx, 2, max)) {
     ## do not use cbind or rbind here, since it is not clear if the user specified
     ## only one vector log(x) or several vectors of dimension 1 !!!
-    stopifnot(length(dim(lx)) == 2L) # is.matrix(.) generalized
+    ## stopifnot(length(dim(lx)) == 2L) # is.matrix(.) generalized
     l.off + log(colSums(exp(lx - rep(l.off, each=nrow(lx)))))
 }
 

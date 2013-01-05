@@ -138,8 +138,12 @@ random numbers.
 *** TODO \link{} between  old-copula and old-nacopula  functionality
 *** TODO small vignette with table of function names providing the same functionality (nacopula / old_copula)
 *** DONE (MH) fixed long lines in all .Rd
-** TODO pCopula() should also accept a  'log.p = FALSE' argument and provide more accurate log.p=TRUE.
-
+** TODO pCopula(u,..) and dCopula(u,..) should work for u outside [0,1]^d
+*** TODO for pCopula(): using  u[] <- pmax(0, pmin(1, u))  {subtlety!}
+*** TODO dCopula() = 0 {log = -Inf} for u "outside"
+*** TODO both should keep NA & NaN *and* keep them different, as  pnorm(c(2,NA,NaN))
+** TODO pCopula() should also accept a  'log.p = FALSE' argument
+ and provide more accurate results in the lower tail for log.p=TRUE.
 ** TODO Miscellaneous functions
 *** TODO iTau(): must use tau.checker() [R/estimation.R]
 *** TODO MM, MH: indepTest()  takes a while {ok}, *BUT* cannot be interrupted (quickly enough)
