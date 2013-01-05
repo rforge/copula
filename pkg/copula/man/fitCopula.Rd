@@ -22,6 +22,7 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
     \eqn{[0,1]}) from the copula to be estimated, where \eqn{n} denotes
     the sample size and \eqn{d} the dimension.  Consider applying the function
     \code{\link{pobs}} first in order to obtain values in \eqn{[0,1]}.}
+  \item{copula}{a \code{"\linkS4class{copula}"} object.}
   \item{hideWarnings}{\emph{deprecated} and unused for \code{loglikCopula};
     logical; if TRUE, warning messages from likelihood maximization
     (mostly evaluating at invalid parameter values) are suppressed.}
