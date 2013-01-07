@@ -53,8 +53,19 @@ setClass("copula",
          })
 
 ## general methods for copula
-setGeneric("dCopula", function(u, copula, log=FALSE, ...) standardGeneric("dCopula"))
-setGeneric("pCopula", function(u, copula, ...) standardGeneric("pCopula"))
+setGeneric("dCopula", function(u, copula, log=FALSE, ...) {
+    u.is.out <- u.outside.01(u)
+    if(any.out <- any(u.is.out, na.rm=TRUE))
+	u[] <- pmax(0, pmin(1, u)) # <- "needed", as some methods give error
+    r <- standardGeneric("dCopula")
+    if(any.out) ## on boundary == outside cube <==> zero mass :
+	r[u.is.out & !is.na(u.is.out)] <- if(log) -Inf else 0.
+    r
+})
+setGeneric("pCopula", function(u, copula, ...) {
+    u[] <- pmax(0, pmin(1, u))
+    standardGeneric("pCopula")
+})
 setGeneric("rCopula", function(n, copula, ...) standardGeneric("rCopula"))
 setGeneric("tau", function(copula, ...) standardGeneric("tau"))
 setGeneric("rho", function(copula, ...) standardGeneric("rho"))

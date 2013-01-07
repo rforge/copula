@@ -60,8 +60,11 @@ ptawnCopula <- function(u, copula) {
   dim <- copula@dimension
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
+  has0 <- apply(u, 1, function(x) any(x <= 0)) # an ui = 0 would give NaN
   alpha <- copula@parameters[1]
-  c(eval(tawnCopula.cdf.algr[dim]))
+  r <- c(eval(tawnCopula.cdf.algr[dim]))
+  r[has0 & !is.na(has0)] <- 0
+  r
 }
 
 dtawnCopula <- function(u, copula, log=FALSE, ...) {

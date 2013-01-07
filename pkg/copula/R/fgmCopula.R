@@ -105,8 +105,9 @@ rfgmCopula <- function(n, copula) {
 ### cdf of the copula ##########################################################
 
 pfgmCopula <- function(u, copula) {
-    if (any(u < 0) || any(u > 1))
-        stop("u values should lie between 0 and 1")
+    ## if(..) fails when u has NAs ; treatment now via generic pCopula()
+    ## if (any(u < 0) || any(u > 1))
+    ##     stop("u values should lie between 0 and 1")
     dim <- copula@dimension
     if(!is.matrix(u)) u <- matrix(u, ncol = dim)
     param <- copula@parameters
@@ -119,8 +120,9 @@ pfgmCopula <- function(u, copula) {
 ## pdf of the copula ###########################################################
 
 dfgmCopula <- function(u, copula, log=FALSE, ...) {
-    if (any(u < 0) || any(u > 1))
-        stop("u values should lie between 0 and 1")
+    ## if(..) fails when u has NAs ; treatment now via generic dCopula()
+    ## if (any(u < 0) || any(u > 1))
+    ##     stop("u values should lie between 0 and 1")
     dim <- copula@dimension
     if(!is.matrix(u)) u <- matrix(u, ncol = dim)
     param <- copula@parameters

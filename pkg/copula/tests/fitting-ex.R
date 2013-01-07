@@ -130,9 +130,10 @@ if(!doExtras && !interactive()) q(save="no") ## so the following auto prints
 ##--------------------------------------------------------------------------
 
 ## d = 2 :
-try( ## fails for tau = 0.8 in optim(), "non-finite finite-difference" ... FIXME
-rtx <- tstFit1cop(tCopula(df.fixed=TRUE), tau.set=c(.4, .8), n.set=c(10, 25), N=64)
-)
+## ----- catching fitCopula() error: 'Lapack routine dgesv: system is exactly singular: U[2,2] = 0'
+rtx <- tstFit1cop(tCopula(df.fixed=TRUE), tau.set=c(.4, .8),
+                  n.set= c(10, 25), N=64)
+
 ## for df.fixed=FALSE, have 2 parameters ==> cannot use "fit1":
 ## ....
 ## .... TODO

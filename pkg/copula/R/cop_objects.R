@@ -91,8 +91,7 @@ copAMH <-
 		  if(d > 2) stopifnot(C.@paraConstr(theta))
                   ## f() := NaN outside and on the boundary of the unit hypercube
                   res <- rep.int(NaN, n <- nrow(u))
-                  ## indices for which density has to be evaluated:
-                  n01 <- apply(u,1,function(x) all(0 < x, x < 1))
+		  n01 <- u.in.01(u)## indices for which density has to be evaluated
                   ## if(!any(n01)) return(res)
                   if(theta == 0) { res[n01] <- if(log) 0 else 1; return(res) } # independence
                   ## auxiliary results
@@ -244,7 +243,7 @@ copClayton <-
 		      if(d > 2) stopifnot(C.@paraConstr(theta))
 		      ## f() := NaN outside and on the boundary of the unit hypercube
 		      res <- rep.int(NaN, n <- nrow(u))
-		      n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
+		      n01 <- u.in.01(u)## indices for which density has to be evaluated
 		      ## if(!any(n01)) return(res)
 		      ## auxiliary results
 		      u. <- u[n01,, drop=FALSE]
@@ -413,7 +412,7 @@ copFrank <-
 		  if(d > 2) stopifnot(C.@paraConstr(theta))
 		  ## f() := NaN outside and on the boundary of the unit hypercube
 		  res <- rep.int(NaN, n <- nrow(u))
-		  n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
+		  n01 <- u.in.01(u)## indices for which density has to be evaluated
 		  ## if(!any(n01)) return(res)
 		  ## auxiliary results
 		  u. <- u[n01,, drop=FALSE]
@@ -606,7 +605,7 @@ copGumbel <-
 		  stopifnot(C.@paraConstr(theta))
                   ## f() := NaN outside and on the boundary of the unit hypercube
                   res <- rep.int(NaN, n <- nrow(u))
-                  n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
+		  n01 <- u.in.01(u)## indices for which density has to be evaluated
                   ## if(!any(n01)) return(res)
                   if(theta == 1) { res[n01] <- if(log) 0 else 1; return(res) } # independence
                   ## auxiliary results
@@ -795,7 +794,7 @@ copJoe <-
 		  stopifnot(C.@paraConstr(theta))
                   ## f() := NaN outside and on the boundary of the unit hypercube
                   res <- rep.int(NaN, n <- nrow(u))
-                  n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
+		  n01 <- u.in.01(u)## indices for which density has to be evaluated
                   ## if(!any(n01)) return(res)
                   if(theta == 1) { res[n01] <- if(log) 0 else 1; return(res) } # independence
                   ## auxiliary results

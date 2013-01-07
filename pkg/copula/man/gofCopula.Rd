@@ -136,7 +136,7 @@ gofCopula(copula, x, N=1000,
 ## A two-dimensional data example ----------------------------------
 x <- rCopula(200, claytonCopula(3))
 
-tau. <- cor(x, method="kendall")
+(tau. <- cor(x, method="kendall")[1,2]) # around 0.5 -- 0.6
 ## Does the Gumbel family seem to be a good choice?
 thG <- iTau(gumbelCopula(), tau.)
 gofCopula(gumbelCopula(thG), x)

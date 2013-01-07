@@ -207,3 +207,29 @@ allComp <- function(x) {
 }
 ##' no check version:
 .allComp <- function(x) c(x@comp, unlist(lapply(x@childCops, .allComp)))
+
+##' Which values u are "inside (0,1)^d", for which dCopula(u) *can* be non-zero
+##'
+##' In ./cop_objects.R (for M+H's Archimedean's we have had for years
+##'   ## indices for which density has to be evaluated:
+##'   n01 <- apply(u,1,function(x) all(0 < x, x < 1))
+##'
+##' @title Those values u for which dCopula(u) *can* be non-zero
+##' @param u  n x d numeric matrix
+##' @return logical vector of length nrow(u) - with*out* any NAs
+##' @author Martin Maechler
+u.in.01 <- function(u) apply(u, 1, function(x)
+			     !any(is.na(x)) && all(0 < x, x < 1))
+## TODO? rather use		                   0 < x, x <= 1  ??
+
+
+##' Which values u are "outside (0,1)^d" ?
+##'
+##' @title Those values u for which dCopula(u) should be zero
+##' @param u  n x d numeric matrix
+##' @return logical vector of length nrow(u), possibly with NA
+##'         wherever a row u[i,] contains NA or NaN and all other values in (0,1)
+##' !@author Martin Maechler
+u.outside.01 <- function(u) apply(u, 1, function(x) any(x <= 0, 1 <= x))
+## TODO? rather use		                        x <= 0, 1 <  x
+## ----  or even    		                        x <  0, 1 <  x

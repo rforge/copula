@@ -13,11 +13,18 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
+### pdf = dCopula()  ---  but then also pCopula()
+### ===   ~~~~~~~~~                     ~~~~~~~~~
 
 require(copula)
 ## library(fCopulae)
 
-#### preparation for a grid
+source(system.file("Rsource", "utils.R", package="copula", mustWork=TRUE))
+## All non-virtual copula classes:
+source(system.file("Rsource", "cops.R", package="copula", mustWork=TRUE))
+## --> copcl, copObs, copBnds,  excl.2 , copO.2, copBnd.2
+
+### preparation for a grid
 n1 <- 17
 n2 <- 21
 eps <- .001 ## <- not going to very extremes
@@ -131,6 +138,7 @@ filled.contour(u1, u2, dcop, color.palette = fCols,
                main=sprintf("Density( amhCopula(%.4g) )", theta))
 round(dcop, 3)
 
+showProc.time()
 dev.off()
 
 ### d > 2 ######################################################################
@@ -154,5 +162,52 @@ stopifnot(dcop >= 0,# no NA here
 	  all.equal(dcop, copFrank@dacopula(um4, theta = theta.fr)))
 ## round(array(dcop, c(n1,n2,n1,n2)), 3)
 
+showProc.time()
+
 
-cat('Time elapsed: ', proc.time(),'\n') # for ''statistical reasons''
+### --- now look at dCopula() and pCopula() for *all* copulas:
+
+##' u "mostly" in [0,1] .. with exceptions that are even NA, NaN
+mku <- function(n, fr = 1/20, sd = 1/10) {
+    r <- runif(n) + rnorm(n, sd=sd)
+    r[sample(n, ceiling(fr*n))] <- c(NA,NaN)
+    r
+}
+
+## This is from ./moments.R --- keep in sync! ---
+tau.s <- c(       -.1, 0, 0.05805, (1:2)/9, 0.3)
+names(tau.s) <- paste0("tau=", sub("0[.]", ".", formatC(tau.s)))
+tTau <- suppressWarnings(
+    sapply(tau.s, function(tau)
+               sapply(copObs, iTau, tau = tau)) )
+tTau["joeCopula", "tau=-.1"] <- 1 # ugly hack
+
+set.seed(12)
+
+u <- matrix(mku(1000), ncol= 2)# d = 2 required in the copula objects
+
+
+u.outside.01 <- function(u) apply(u, 1, function(x) any(x <= 0, 1 <= x))
+u.out <- u.outside.01(u) # has NAs
+u.ina <- apply(u, 1, function(x) any(is.na(x)))
+u.OUT <- u.out & !u.ina  # no  NAs
+
+for(cNam in names(copObs)) {
+    cat(cNam, paste0(":\n", paste(rep("-",nchar(cNam)), collapse=""), "\n\n"))
+    for(th in tTau[cNam,]) {
+        cat(sprintf(" -- theta: %8.5g\n", th))
+        cop <- setPar(copObs[[cNam]], th)
+try({### FIXME!
+        fu <- dCopula(u, cop); fu.na <- fu[u.ina]
+        Fu <- pCopula(u, cop); Fu.na <- Fu[u.ina]
+        stopifnot(fu[u.OUT] == 0,
+                  0 <= Fu[!u.ina], Fu[!u.ina] <= 1,
+                  is.na(fu.na) | (0 <= fu.na),
+                  is.na(Fu.na) | (0 <= Fu.na & Fu.na <= 1))
+})### FIXME
+    }
+}
+
+
+
+showProc.time()

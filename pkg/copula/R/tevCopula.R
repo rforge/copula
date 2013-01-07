@@ -83,9 +83,13 @@ ptevCopula <- function(u, copula) {
   dim <- copula@dimension
   if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
-  u1 <- u[,1]; u2 <- u[,2]
-  logu <- log(u1 * u2)
-  exp(logu * ATev(copula, log(u2) / logu))
+   u1 <- u[,1]; u2 <- u[,2]
+  p <- (r <- uu <- u1 * u2) > 0
+  p <- p & (nna <- !is.na(p)) # p: positive uu
+  logu <- log(uu[p])
+  r[p ] <- exp(logu * ATev(copula, log(u2[p]) / logu))
+  r[!p & nna] <- 0 # when one u is zero
+  r
 }
 
 dtevCopula <- function(u, copula, log=FALSE, ...) {
