@@ -69,3 +69,9 @@ nCorrDigits <- function(target, current, zeroDigs = 16) {
     r[is.na(RE) | r < 0] <- 0 # no correct digit, when relErr is NA
     r
 }
+
+setPar <- function(cop, par) {
+    if((is(cop, "tCopula") || is(cop, "tevCopula")) && !cop@df.fixed)
+	par <- c(par, df = cop@df)
+    setTheta(cop, par, noCheck=TRUE)
+}
