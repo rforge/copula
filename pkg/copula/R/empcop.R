@@ -33,7 +33,7 @@ C.n <- function(u, U, offset=0, method=c("C", "R"))
     if(!is.matrix(u)) u <- rbind(u, deparse.level=0L)
     if(!is.matrix(U)) U <- rbind(U, deparse.level=0L)
     stopifnot((d <- ncol(U))==ncol(u), 0 <= u, u <= 1)
-    if(any(0 <= U, U <= 1))
+    if(any(U < 0, 1 < U))
         stop("'U' must be in [0,1].. possibly use 'U=pobs(x)'...")
     n <- nrow(U)
 
