@@ -16,38 +16,36 @@
 
 ### Quantities related to the empirical copula #################################
 
-
 ##' Empirical copula of U at u
 ##'
 ##' @title Empirical copula of U at u
 ##' @param u (m, d) matrix of evaluation points
 ##' @param U (n, d) matrix of pseudo-data based on which the empirical copula
 ##'        is computed (if not pseudo-data already, use do.pobs=TRUE)
-##' @param do.pobs logical indicating whether pobs() is applied to U
 ##' @param offset scaling factor sum()/(n+offset) when computing the empirical
 ##'        copula
 ##' @param method method string
 ##' @return empirical copula of U at u
 ##' @author Ivan Kojadinovic and Marius Hofert
 ##' Note: See the .Rd for a nice graphical check with the Kendall function
-Cn <- function(u, U, do.pobs=TRUE, offset=0, method=c("C", "R"))
+C.n <- function(u, U, offset=0, method=c("C", "R"))
 {
     if(!is.matrix(u)) u <- rbind(u, deparse.level=0L)
     if(!is.matrix(U)) U <- rbind(U, deparse.level=0L)
-    stopifnot((d <- ncol(U))==ncol(u),
-              0 <= u, u <= 1, 0 <= U, U <= 1)
-    if(do.pobs) U <- pobs(U)
+    stopifnot((d <- ncol(U))==ncol(u), 0 <= u, u <= 1)
+    if(any(0 <= U, U <= 1))
+        stop("'U' must be in [0,1].. possibly use 'U=pobs(x)'...")
     n <- nrow(U)
 
     ## d = 1
-    if(d==1) return( vapply(u, function(u.) sum(U<=u.)/(n+offset), NA_real_) )
+    if(d==1) return( vapply(u, function(u.) sum(U <= u.)/(n+offset), NA_real_) )
 
     ## d > 1
     method <- match.arg(method)
     switch(method,
            "C"={
                m <- nrow(u)
-               .C(Cn_C, # see empcop.c
+               .C(Cn_C, # see ../src/empcop.c
                   as.double(U),
                   as.integer(n),
                   as.integer(d),
@@ -64,12 +62,18 @@ Cn <- function(u, U, do.pobs=TRUE, offset=0, method=c("C", "R"))
            stop("wrong method"))
 }
 
+Cn <- function(x,w) {
+    .Deprecated("C.n")
+    C.n(w, pobs(x))
+}
+
+
 ##' Estimated partial derivatives of a copula given the empirical copula
 ##'
 ##' @title Estimated partial derivatives of a copula given the empirical copula
 ##' @param u (m, d) matrix of evaluation points
 ##' @param U (n, d) matrix of pseudo-data based on which the empirical copula
-##'        is computed (if not pseudo-data already, pass do.pobs=TRUE)
+##'        is computed.
 ##' @param j.ind dimensions for which the partial derivatives should be estimated
 ##' @param b bandwidth in (0, 1/2) for the approximation
 ##' @param ... additional arguments passed to Cn()
@@ -107,14 +111,14 @@ dCn <- function(u, U, j.ind=1:d, b=0.05, ...)
         ## Build the two evaluation matrices for Cn (matrix similar to u with
         ## column j replaced). Note, this is slightly inefficient for those u < b
         ## but at least we can "matricize" the problem.
-        ## 1) compute Cn(u.up)
+        ## 1) compute C.n(u.up)
         u.up <- u
         u.up[,j] <- adj.u.up(u.up[,j])
-        Cn.up <- Cn(u.up, U=U, ...)
-        ## 2) compute Cn(u.low)
+        Cn.up <- C.n(u.up, U=U, ...)
+        ## 2) compute C.n(u.low)
         u.low <- u
         u.low[,j] <- adj.u.low(u.low[,j])
-        Cn.low <- Cn(u.low, U=U, ...)
+        Cn.low <- C.n(u.low, U=U, ...)
         ## 3) compute difference quotient
         (Cn.up - Cn.low) / b2
     }, numeric(m))
@@ -137,7 +141,7 @@ dCn <- function(u, U, j.ind=1:d, b=0.05, ...)
 ##'         evaluation points u
 ##'       - required for efficient multiplier bootstrap,
 ##'         where we don't just compare U with u multiple times
-##'       - well, actually, we only need this twice (and have to call Cn with
+##'       - well, actually, we only need this twice (and have to call C.n with
 ##'         adjusted arguments u d times anyways...)
 pobsInd <- function(u, U)
 {

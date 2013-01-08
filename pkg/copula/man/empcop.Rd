@@ -1,17 +1,19 @@
 \name{Cn}
 \alias{Cn}
+\alias{C.n}
 \alias{dCn}
 \title{The Empirical Copula}
 \description{
   Given a random sample from a distribution with continuous margins and
   copula C, the empirical copula is a natural nonparametric estimator of
-  C. The function \code{Cn()} computes the empirical copula.
+  C.  The function \code{C.n()} computes the empirical copula.
 
   The function \code{dCn()} approximates first-order partial derivatives
   of the limiting copula.
 }
 \usage{
-Cn(u, U, do.pobs=TRUE, offset=0, method=c("C", "R"))
+ Cn(x, w)
+C.n(u, U, offset=0, method=c("C", "R"))
 dCn(u, U, j.ind=1:d, b=0.05, ...)
 }
 \arguments{
@@ -19,33 +21,35 @@ dCn(u, U, j.ind=1:d, b=0.05, ...)
     \eqn{[0,1]} whose lines contain the evaluation points of the
     empirical copula.}
   \item{U}{an \eqn{(n, d)}-\code{\link{matrix}} with elements in
-    \eqn{[0,1]} and with the same number \eqn{d} of colums as
-    \code{u}. The lines of \code{U} contain (pseudo-)data based on which
-    the empirical copula is built. A multivariate random sample can be
-    transformed to an appropriate \code{U} via
-    \code{\link{pobs}()}. This can also be achieved by \code{do.pobs=TRUE}.}
+    \eqn{[0,1]} and with the same number \eqn{d} of columns as
+    \code{u}.  The rows of \code{U} contain the (pseudo-)data on which
+    the empirical copula is built.  A multivariate random sample can be
+    transformed to an appropriate \code{U} via \code{\link{pobs}()}.}
   \item{j.ind}{\code{\link{integer}} vector of indices \eqn{j} between 1
     and \eqn{d} indicating the dimensions with respect to which
     first-order partial derivatives are approximated.}
   \item{b}{\code{\link{numeric}} giving the bandwidth for approximating
     first-order partial derivatives.}
-  \item{do.pobs}{\code{\link{logical}} indicating whether
-    \code{\link{pobs}()} is applied to \code{U} before the empirical
-    copula is computed (defaults to \code{TRUE}).}
   \item{offset}{scaling factor (defaults to 0) of the form
     \code{sum(..)/(n+offset)}.}
   \item{method}{method string, indicating which method is applied to
     compute the empirical copula.}
-  \item{\dots}{additional argumets passed to \code{Cn()}.}
+  \item{\dots}{additional argumets passed to \code{C.n()}.}
 }
 \value{
-  \code{Cn()} returns a vector of length \code{m} containing the values
+  \code{C.n()} returns a vector of length \code{m} containing the values
   of the empirical copula of \code{U} at \code{u}.
 
   \code{dCn()} returns a \eqn{(m, l)}-matrix or an \eqn{m}-vector (for
   \eqn{l=1}; here, \eqn{l} is the length of \code{j.ind}), containing
   the approximated first-order partial derivatives of the limiting
   copula at \code{u}.
+}
+\note{
+  The first version of our empirical copula implementation, \code{Cn()},
+  had its two argument \emph{inverse} compared to \code{C.n()}, and is
+  deprecated now.
+  You \bold{must} swap the arguments, \code{C.n(u,U)} instead of \code{Cn(U,u)}!
 }
 \details{
   There are several asymptotically equivalent definitions of the
@@ -60,13 +64,15 @@ dCn(u, U, j.ind=1:d, b=0.05, ...)
   The approximation for the \eqn{j}th partial derivative of the limiting
   copula \eqn{C} is implemented as in Genest et al. (2012), and given, for
   \eqn{u_j\in[0,b)}{u[j] in [0, b)}, by
-  \deqn{\hat{\dot{C}}_{jn}(\bm{u})=\frac{C_n(u_1,\dots,u_{j-1},2b,u_{j+1},\dots,u_d)}{2b},}{hat(d/du[j])C(u) = C[n](u[1], .., u[j-1], 2b, u[j+1], .., u[d]) / (2b),}
+%% FIXME ?? text version of formulas, below have twice  "hat(C.)[jn](u)"  
+  \deqn{\hat{\dot{C}}_{jn}(\bm{u}) =\frac{C_n(u_1,\dots,u_{j-1},2b,u_{j+1},\dots,u_d)}{2b},}{%
+              hat(C.)[jn](u)  =  C[n](u[1], .., u[j-1], 2b, u[j+1], .., u[d]) / (2b),}
   for \eqn{u_j\in[b,1-b]}{u[j] in [b, 1-b]} by
-  \deqn{\hat{\dot{C}}_{jn}(\bm{u})=\frac{C_n(u_1,\dots,u_{j-1},u_j+b,u_{j+1},\dots,u_d)-C_n(u_1,\dots,u_{j-1},u_j-b,u_{j+1},\dots,u_d)}{2b},}{(C[n](u[1], .., u[j-1], u[j]+b, u[j+1], .., u[d]) - C[n](u[1], ..,
-  u[j-1], u[j]-b, u[j+1], .., u[d])) / (2b),}
+  \deqn{\hat{\dot{C}}_{jn}(\bm{u})=\frac{C_n(u_1,\dots,u_{j-1},u_j+b,u_{j+1},\dots,u_d)-C_n(u_1,\dots,u_{j-1},u_j-b,u_{j+1},\dots,u_d)}{2b},}{%
+    hat(C.)[jn](u) = (C[n](u[1], .., u[j-1], u[j]+b, u[j+1], .., u[d]) - C[n](u[1], .., u[j-1], u[j]-b, u[j+1], .., u[d])) / (2b),}
   and for \eqn{u_j\in(1-b,1]}{u[j] in (1-b, 1]} by
-  \deqn{\hat{\dot{C}}_{jn}(\bm{u})=\frac{C_n(u_1,\dots,u_{j-1},1,u_{j+1},\dots,u_d)-C_n(u_1,\dots,u_{j-1},1-2b,u_{j+1},\dots,u_d)}{2b},}{(C[n](u[1], .., u[j-1], 1, u[j+1], ..,
-  u[d]) - C[n](u[1], .., u[j-1], 1-2b, u[j+1], .., u[d])) / (2b),}
+  \deqn{\hat{\dot{C}}_{jn}(\bm{u})=\frac{C_n(u_1,\dots,u_{j-1},1,u_{j+1},\dots,u_d)-C_n(u_1,\dots,u_{j-1},1-2b,u_{j+1},\dots,u_d)}{2b},}{%
+    hat(C.)[jn](u) = (C[n](u[1], .., u[j-1], 1, u[j+1], .., u[d]) - C[n](u[1], .., u[j-1], 1-2b, u[j+1], .., u[d])) / (2b),}
   where \eqn{b} denotes the bandwidth and \eqn{C_n}{C[n]} the empirical copula.
 }
 \author{Ivan Kojadinovic, Marius Hofert}
@@ -98,14 +104,14 @@ U <- rCopula(n, cop)
 
 ## random points were to evaluate the empirical copula
 u <- matrix(runif(n*d), n, d)
-ec <- Cn(u, U=U)
+ec <- C.n(u, U=U)
 
 ## compare with true distribution function
 mean(abs(pCopula(u, copula=cop)-ec)) # increase n to decrease this error
 
 ## compare the empirical copula and the true copula
 ## on the diagonal of the unit square
-Cn. <- function(x) Cn(do.call(cbind, rep(list(x), d)), U=U)
+Cn. <- function(x) C.n(do.call(cbind, rep(list(x), d)), U=U)
 curve(Cn., 0, 1, main=paste("Diagonal of a", family, "copula"),
       xlab="u", ylab=expression(italic(C)[n](italic(u),..,italic(u))))
 pC <- function(x) pCopula(do.call(cbind, rep(list(x), d)), cop)
@@ -114,12 +120,17 @@ legend("topleft", lty=1:2, bty="n",inset=0.02,
        legend=c(expression(italic(C)[n]), expression(italic(C))))
 
 ## check the empirical copula with its Kendall distribution function
-plot( pK(Cn(U, U=U), cop=cop@copula, d=d) ) # must be uniform
+plot( pK(C.n(U, U=U), cop=cop@copula, d=d) ) # must be uniform
 
 ## approximate partial derivatives w.r.t. the 2nd and 3rd component
 j.ind <- 2:3
-der23 <- dCn(u, U=pobs(U), j.ind=j.ind, do.pobs=FALSE)
+der23 <- dCn(u, U=pobs(U), j.ind=j.ind)
 der23. <- copula:::dCdu(archmCopula(family, param=theta, dim=d), u=u)[,j.ind]
 summary(as.vector(abs(der23-der23.))) # approximation error summary
+\dontshow{% check backward compatibility
+  U <- U[1:64 ,]# such that m != n
+  stopifnot(identical(C.n(u, U), Cn(U, u)))
+  ## with a deprecation warning ..
+}
 }
 \keyword{empirical copula}
