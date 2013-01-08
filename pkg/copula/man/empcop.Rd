@@ -119,7 +119,7 @@ curve(Cn., 0, 1, main=paste("Diagonal of a", family, "copula"),
       xlab="u", ylab=expression(italic(C)[n](italic(u),..,italic(u))))
 pC <- function(x) pCopula(do.call(cbind, rep(list(x), d)), cop)
 curve(pC, lty=2, add=TRUE)
-legend("topleft", lty=1:2, bty="n",inset=0.02,
+legend("topleft", lty=1:2, bty="n", inset=0.02,
        legend=c(expression(italic(C)[n]), expression(italic(C))))
 
 ## check the empirical copula with its Kendall distribution function
@@ -132,7 +132,7 @@ der23. <- copula:::dCdu(archmCopula(family, param=theta, dim=d), u=u)[,j.ind]
 summary(as.vector(abs(der23-der23.))) # approximation error summary
 \dontshow{% check backward compatibility
   U <- U[1:64 ,]# such that m != n
-  stopifnot(identical(C.n(u, U), Cn(U, u)))
+  stopifnot(identical(C.n(u, pobs(U)), Cn(U, u)))
   ## with a deprecation warning ..
 }
 }
