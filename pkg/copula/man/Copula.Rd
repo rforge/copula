@@ -169,6 +169,10 @@ rCopula(n, copula, \dots)
 \examples{
 norm.cop <- normalCopula(0.5)
 norm.cop
+## one d-vector =^= 1-row matrix, works too :
+dCopula(c(0.5, 0.5), norm.cop)
+pCopula(c(0.5, 0.5), norm.cop)
+
 u <- rCopula(100, norm.cop)
 plot(u)
 dCopula(u, norm.cop)

@@ -81,9 +81,8 @@ tevCopula <- function(param = NA_real_, df = 4, df.fixed = FALSE) {
 
 ptevCopula <- function(u, copula) {
   dim <- copula@dimension
-  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
-   u1 <- u[,1]; u2 <- u[,2]
+  u1 <- u[,1]; u2 <- u[,2]
   p <- (r <- uu <- u1 * u2) > 0
   p <- p & (nna <- !is.na(p)) # p: positive uu
   logu <- log(uu[p])
@@ -94,10 +93,8 @@ ptevCopula <- function(u, copula) {
 
 dtevCopula <- function(u, copula, log=FALSE, ...) {
   dim <- copula@dimension
-  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
   u1 <- u[,1]; u2 <- u[,2]
-
   C <- ptevCopula(u, copula)
   logu <- log(u1 * u2)
   w <- log(u2) / logu

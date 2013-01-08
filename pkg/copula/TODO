@@ -15,9 +15,14 @@
    OTOH, hideWarnins now in fitMvdc().
 ** DONE timings() function name -- changed to nacFrail.time()
 ** DONE setTheta() bug: see tests/fitting-ex.R ..seed(17)
+** TODO stopifnot(ncol(u) == (d <- copula@dimension))  *not* ok:
+stopifnot(NULL == 1) is not stopping
+** TODO matrix(x, ncol=.) is really slower than rbind(x, deparse.level=0L)
 * Short Term
 ** DONE largely improve on gofTests.R: should be made more modular, so that users can provide functions for the parametric bootstrap (gofPB) and the multiplier boostrap (gofMB). Furthermore, checking and documentation have to be improved (see already improved gofPB());
-** TODO deprecate gnacopula() [see 'Note' there!!! MH: already 'prepared' a lot; only difficulty: many calls of gnacopula() => ideally, the checks should be done with gofCopula() instead of gnacopula()!!!!]
+** TODO deprecate gnacopula() [see 'Note' there!!!]
+ MH: already 'prepared' a lot; only difficulty: many calls of gnacopula()
+ => ideally, the checks should be done with gofCopula() instead of gnacopula()!!!!
 ** DONE persp(), contour() should work with pCopula / dCopula
 ** DONE getAcop(gumbelCopula()) should work
  => we could then write general methods for all Archimedean objects.
@@ -63,7 +68,7 @@ But people have asked for it.
 **** schlatherCopula:  JY: The implementation of schlatherCopula is not ready for release.
  More ev copulas will come from max-stable processes.
 **** asymCopula (-class) -- *.Rd document properly (incl some examples)
-** DONE New(?) (Super)classes for "merging the class structure"
+** DONE New (Super)classes for "merging the class structure"
 - new class "Copula" := {copula, nacopula}
 ** DONE C code
 *** DONE [src/init.c] enable registration for the old 'copula' part
@@ -97,7 +102,7 @@ Longer term: want to *estimate* those correctly [MLE at least].
 ** TODO MM: data(rdj) should have a "Date" in column 1, not a factor !
 
 ** TODO tests/pdf.R should use "all" copulas, similar to tests/moments.R.
-  Then, test that  exp(dCopula(*, log=TRUE)) "==" dCopula(*)
+*** TODO Then, test that  exp(dCopula(*, log=TRUE)) "==" dCopula(*)
   {to test the bug, fixed in r954, reported by Benedikt}
 * Mid Term
 ** DONE R/sysdata.rda:
@@ -139,9 +144,10 @@ random numbers.
 *** TODO small vignette with table of function names providing the same functionality (nacopula / old_copula)
 *** DONE (MH) fixed long lines in all .Rd
 ** TODO pCopula(u,..) and dCopula(u,..) should work for u outside [0,1]^d
-*** TODO for pCopula(): using  u[] <- pmax(0, pmin(1, u))  {subtlety!}
-*** TODO dCopula() = 0 {log = -Inf} for u "outside"
-*** TODO both should keep NA & NaN *and* keep them different, as  pnorm(c(2,NA,NaN))
+*** DONE for pCopula(): using  u[] <- pmax(0, pmin(1, u))  {subtlety!}
+*** DONE dCopula() = 0 {log = -Inf} for u "outside"
+*** TODO both should keep NA & NaN. Maybe keep them different, as  pnorm(c(2,NA,NaN));
+ however relax, as  NA+NaN or NaN+NA  differ, too.
 ** TODO pCopula() should also accept a  'log.p = FALSE' argument
  and provide more accurate results in the lower tail for log.p=TRUE.
 ** TODO Miscellaneous functions
@@ -174,7 +180,7 @@ maybe take  ./tests/copula-play.R  as sophisticated role model.
   arguments except the first one).
 
 ** TODO Use  paste0()  where possible in IJ-code
-** TODO Replace ccop in ggraph by cCopula
+** DONE Replace ccop in ggraph by cCopula
 
 ** DONE cacopula(): generalize to elliptical ("and more") -> cCopula(), (<==> rtrafo())
 

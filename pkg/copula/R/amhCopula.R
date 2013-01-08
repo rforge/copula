@@ -66,7 +66,6 @@ amhCopula <- function(param = NA_real_, dim = 2L) {
 
 pamhCopula <- function(copula, u) {
   dim <- copula@dimension
-  ## if(!is.matrix(u)) u <- matrix(u, ncol = dim)
   alpha <- copula@parameters[1]
   if (abs(alpha) <= .Machine$double.eps^.9) return (apply(u, 1, prod))
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
@@ -78,7 +77,6 @@ pamhCopula <- function(copula, u) {
 
 damhCopula <- function(u, copula, log = FALSE, ...) {
   dim <- copula@dimension
-  if(!is.matrix(u)) u <- matrix(u, ncol = dim)
   alpha <- copula@parameters[1]
   if (abs(alpha) <= .Machine$double.eps^.9) return (rep.int(if(log) 0 else 1, nrow(u)))
   ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])

@@ -88,8 +88,8 @@ ptCopula <- function(u, copula) {
   df <- getdf(copula)
   if(df != as.integer(df))
     stop("'df' is not integer; therefore, pCopula() cannot be computed yet")
-  if(!is.matrix(u)) u <- matrix(u, ncol = dim)
   ## happens in pCopula() generic, now:
+  ## if(!is.matrix(u)) u <- matrix(u, ncol = dim)
   ## u[u < 0] <- 0
   ## u[u > 1] <- 1
   ## FIXME: this should work, but does not --  checkmvArgs() gives
@@ -105,14 +105,15 @@ dtCopula <- function(u, copula, log = FALSE, ...) {
   dim <- copula@dimension
   sigma <- getSigma(copula)
   df <- getdf(copula)
-  if(!is.matrix(u)) u <- matrix(u, ncol = dim)
+  ## happens in dCopula() generic, now:
+  ## if(!is.matrix(u)) u <- matrix(u, ncol = dim)
   r <- numeric(nrow(u)) # i.e. 0  by default (i.e. "outside")
   ok <- u.in.01(u)
   x <- qt(u[ok, , drop=FALSE], df)
   ## work in log-scale [less over-/under-flow, then (maybe) transform]:
   r[ok] <- dmvt(x, delta = rep.int(0, dim), sigma = sigma, df = df, log = TRUE) -
       rowSums(dt(x, df = df, log=TRUE))
-  ## now happens in dCopula(): -- dtCopula() not called directly by user
+  ## now happens in dCopula(): -- dtCopula() is not called directly by user
   ## if(any(out <- !is.na(u) & (u <= 0 | u >= 1)))
   ##   val[apply(out, 1, any)] <- -Inf
   if(log) r else exp(r)

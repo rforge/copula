@@ -183,7 +183,6 @@ tTau <- suppressWarnings(
 tTau["joeCopula", "tau=-.1"] <- 1 # ugly hack
 
 set.seed(12)
-
 u <- matrix(mku(1000), ncol= 2)# d = 2 required in the copula objects
 
 
@@ -194,13 +193,14 @@ u.OUT <- u.out & !u.ina  # no  NAs
 
 for(cNam in names(copObs)) {
     cat(cNam, paste0(":\n", paste(rep("-",nchar(cNam)), collapse=""), "\n\n"))
-    for(th in tTau[cNam,]) {
+    for(th in unique(tTau[cNam,])) {
         cat(sprintf(" -- theta: %8.5g\n", th))
         cop <- setPar(copObs[[cNam]], th)
 try({### FIXME!
         fu <- dCopula(u, cop); fu.na <- fu[u.ina]
         Fu <- pCopula(u, cop); Fu.na <- Fu[u.ina]
         stopifnot(fu[u.OUT] == 0,
+		  all.equal(fu, exp(dCopula(u, cop, log=TRUE)), tol = 1e-15),
                   0 <= Fu[!u.ina], Fu[!u.ina] <= 1,
                   is.na(fu.na) | (0 <= fu.na),
                   is.na(Fu.na) | (0 <= Fu.na & Fu.na <= 1))

@@ -54,6 +54,7 @@ setClass("copula",
 
 ## general methods for copula
 setGeneric("dCopula", function(u, copula, log=FALSE, ...) {
+    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     u.is.out <- u.outside.01(u)
     if(any.out <- any(u.is.out, na.rm=TRUE))
 	u[] <- pmax(0, pmin(1, u)) # <- "needed", as some methods give error
@@ -63,6 +64,7 @@ setGeneric("dCopula", function(u, copula, log=FALSE, ...) {
     r
 })
 setGeneric("pCopula", function(u, copula, ...) {
+    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     u[] <- pmax(0, pmin(1, u))
     standardGeneric("pCopula")
 })

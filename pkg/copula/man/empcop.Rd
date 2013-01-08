@@ -132,8 +132,9 @@ der23. <- copula:::dCdu(archmCopula(family, param=theta, dim=d), u=u)[,j.ind]
 summary(as.vector(abs(der23-der23.))) # approximation error summary
 \dontshow{% check backward compatibility
   U <- U[1:64 ,]# such that m != n
-  stopifnot(identical(C.n(u, pobs(U)), Cn(U, u)))
-  ## with a deprecation warning ..
+  stopifnot(suppressWarnings( ## deprecation warning ..
+    identical(C.n(u, pobs(U)),
+              Cn (U, u))))
 }
 }
 \keyword{empirical copula}

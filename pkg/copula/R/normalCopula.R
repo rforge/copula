@@ -38,7 +38,7 @@ pnormalCopula <- function(u, copula) {
   dim <- copula@dimension
   i.lower <- rep.int(-Inf, dim)
   sigma <- getSigma(copula)
-  u <- matrix(pmax(0, pmin(1, u)), ncol = dim)
+  ## now happens in pCopula(): u <- matrix(pmax(0, pmin(1, u)), ncol = dim)
   apply(qnorm(u), 1, function(x) if(any(is.na(x))) NA_real_ else
         pmvnorm(lower = i.lower, upper = x, sigma = sigma))
 }
