@@ -43,6 +43,7 @@ setClass("acopula",
 			dacopula = "function",	  # of (u, theta, n.MC=0, log=FALSE) -- computes the (log-)density of the Archimedean
 					# copula with parameter theta at the vector/matrix u (n.MC > 0: apply Monte Carlo with sample size n.MC)
 			score = "function",	  # of (u, theta) -- computes the score function
+                        uscore = "function",      # of (u, theta, d) -- computed (dC/du)(u) / C(u) for each u_j => for all components simultaneously
 			V0 = "function",	  # of (n,theta) -- RNGenerator
 			dV0 = "function",	  # of (x,theta,log=FALSE) -- density of F=LS^{-1}[psi]
 			tau = "function",	  # of (theta)
