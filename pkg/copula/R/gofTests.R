@@ -51,7 +51,7 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"), useR
            ## typically \bm{u}_i ~> pobs \hat{\bm{U}}_i
            C. <- pCopula(u, copula=copula) # C_{\theta_n}(\bm{u}_i), i=1,..,n
            if(useR) {
-               C.n <- Cn(u, U=u, ...) # \hat{C}_n(\bm{u}_i), i=1,..,n
+               C.n <- C.n(u, U=u, ...) # \hat{C}_n(\bm{u}_i), i=1,..,n
                sum((C.n - C.)^2)
            } else {
                .C(cramer_vonMises,
@@ -330,7 +330,7 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
            ## 3) Compute the realized test statistic
            T <- if(useR) { # R version
                ## compute \sum_{i=1}^n (\hat{C}_n(\hat{\bm{U}}_i) - C_{\theta_n}(\hat{\bm{U}}_i))^2
-               gofTstat(u., method="Sn", useR=TRUE, copula=C.th.n, do.pobs=FALSE) # do.pobs is passed to Cn() (but only for the more intelligent R version)
+               gofTstat(u., method="Sn", useR=TRUE, copula=C.th.n)
            } else { # C version
                ## former code (MH: I don't see any reason why we should not use
                ## cramer_vonMises (via gofTstat()) here)
@@ -376,7 +376,7 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
            ## 3) Compute the realized test statistic
            C.th.n. <- pCopula(u., C.th.n) # n-vector
            denom <- (C.th.n.*(1-C.th.n.) + zeta.m)^m # n-vector
-           Cn. <- Cn(u., U=u.) # n-vector
+           Cn. <- C.n(u., U=u.) # n-vector
            T <- sum( ((Cn. - C.th.n.)/denom)^2 ) # test statistic R_n
 
            ## 4) Simulate the test statistic under H_0
@@ -387,7 +387,7 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
 
            ## 4.2) Compute \hat{C}_n^{(h)}, h=1,..,N
            factor <- (Z-Zbar)/sqrt(n) # (N, n)-matrix
-           ## now use a trick similar to Cn()
+           ## now use a trick similar to C.n()
            ## note: - u. is an (n, d)-matrix
            ##       - t(u.)<=u.[i,] is an (d, n)-matrix
            ##       - colSums(t(u.)<=u.[i,])==d is an n-vector of logicals with kth entry
