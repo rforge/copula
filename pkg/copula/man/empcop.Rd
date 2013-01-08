@@ -12,15 +12,15 @@
   of the limiting copula.
 }
 \usage{
- Cn(x, w)
+ Cn(x, w) ## <-- deprecated!  use  C.n(w, U=pobs(x)) instead!
 C.n(u, U, offset=0, method=c("C", "R"))
 dCn(u, U, j.ind=1:d, b=0.05, ...)
 }
 \arguments{
-  \item{u}{an \eqn{(m, d)}-\code{\link{matrix}} with elements in
+  \item{u,w}{an \eqn{(m, d)}-\code{\link{matrix}} with elements in
     \eqn{[0,1]} whose lines contain the evaluation points of the
     empirical copula.}
-  \item{U}{an \eqn{(n, d)}-\code{\link{matrix}} with elements in
+  \item{U,x}{an \eqn{(n, d)}-\code{\link{matrix}} with elements in
     \eqn{[0,1]} and with the same number \eqn{d} of columns as
     \code{u}.  The rows of \code{U} contain the (pseudo-)data on which
     the empirical copula is built.  A multivariate random sample can be
@@ -47,9 +47,12 @@ dCn(u, U, j.ind=1:d, b=0.05, ...)
 }
 \note{
   The first version of our empirical copula implementation, \code{Cn()},
-  had its two argument \emph{inverse} compared to \code{C.n()}, and is
+  had its two arguments \emph{inverse} compared to \code{C.n()}, and is
   deprecated now.
-  You \bold{must} swap the arguments, \code{C.n(u,U)} instead of \code{Cn(U,u)}!
+  You \bold{must} swap the arguments, and possibly use
+  \code{\link{pobs}}, i.e,
+
+  \bold{ instead of \code{Cn(x, u)}, use \code{C.n(u, U=pobs(x))} !}
 }
 \details{
   There are several asymptotically equivalent definitions of the
@@ -64,7 +67,7 @@ dCn(u, U, j.ind=1:d, b=0.05, ...)
   The approximation for the \eqn{j}th partial derivative of the limiting
   copula \eqn{C} is implemented as in Genest et al. (2012), and given, for
   \eqn{u_j\in[0,b)}{u[j] in [0, b)}, by
-%% FIXME ?? text version of formulas, below have twice  "hat(C.)[jn](u)"  
+%% FIXME ?? text version of formulas, below have twice  "hat(C.)[jn](u)"
   \deqn{\hat{\dot{C}}_{jn}(\bm{u}) =\frac{C_n(u_1,\dots,u_{j-1},2b,u_{j+1},\dots,u_d)}{2b},}{%
               hat(C.)[jn](u)  =  C[n](u[1], .., u[j-1], 2b, u[j+1], .., u[d]) / (2b),}
   for \eqn{u_j\in[b,1-b]}{u[j] in [b, 1-b]} by
