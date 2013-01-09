@@ -680,9 +680,62 @@ copGumbel <-
 		      stop("The score function is currently not implemented for Gumbel copulas")
 		  },
                   ## uscore function
-                  uscore = function(u, theta, d) {
+                  uscore = function(u, theta, d, Pmethod=eval(formals(polyG)$method),
+                                    P.method=eval(formals(coeffG)$method)) {
                       if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-                      stop("The u-score function is currently not implemented for Gumbel copulas")
+                      t <- rowSums(C.@iPsi(u, theta))
+                      alpha <- 1/theta
+                      lx <- alpha*log(t)
+                      lP <- polyG(lx, alpha, d, method=Pmethod, log=TRUE)
+                      ## compute P' at lx; for now, only implemented all coeffG() methods (see polyG())
+                      ## as they already cover a wide range of "stable" values
+                      ## Note: this code is copied and adjusted from aux-acopula.R
+                      if(missing(P.method)) P.method <- function(d, alpha) { # adjusted meth2012 in polyG()
+                          if (d <= 30) "direct"
+                          else if (d <= 50) {
+                              if (alpha <= 0.8) "direct" else "dsSib.log"
+                          }
+                          else if (d <= 70) {
+                              if (alpha <= 0.7) "direct" else "dsSib.log"
+                          }
+                          else if (d <= 90) {
+                              if (alpha <= 0.5) "direct"
+                              else if (alpha >= 0.8) "dsSib.log"
+                              ## else if (lx <= 4.08) "pois"
+                              else if (lx >= 5.4) "direct"
+                              else "dsSib.Rmpfr"
+                          }
+                          else if (d <= 120) {
+                              if (alpha < 0.003) "sort"
+                              else if (alpha <= 0.4) "direct"
+                              else if (alpha >= 0.8) "dsSib.log"
+                              ## else if (lx <= 3.55) "pois"
+                              else if (lx >= 5.92) "direct"
+                              else "dsSib.Rmpfr"
+                          }
+                          else if (d <= 170) {
+                              if (alpha < 0.01) "sort"
+                              else if (alpha <= 0.3) "direct"
+                              else if (alpha >= 0.9) "dsSib.log"
+                              ## else if (lx <= 3.55) "pois"
+                              else "dsSib.Rmpfr"
+                          }
+                          else if (d <= 200) {
+                              if (lx <= 2.56) "pois"
+                              else if (alpha >= 0.9) "dsSib.log"
+                              else "dsSib.Rmpfr"
+                          }
+                          else "dsSib.Rmpfr"
+                      }
+                      ## compute the coefficients (adjusted for P')
+                      k <- 1:d
+                      l.a.dk. <- log(k) + coeffG(d, alpha, method=P.method, log = TRUE) # new: log(k)
+                      logx. <- l.a.dk. + (k-1) %*% t(lx) # new: new l.a.dk. and k-1 instead of k
+                      lP. <- lsum(logx.) # P'(lx)
+                      ## put the pieces together
+                      t.a <- t^alpha
+                      mlu <- -log(u)
+                      (mlu^(theta-1)*(t.a*(1-exp(lP.-lP))+d/alpha)/t - (theta-1)/mlu + 1) / u
                   },
 		  ## nesting constraint
 		  nestConstr = function(theta0,theta1) {
@@ -877,9 +930,42 @@ copJoe <-
 			  lh_l1_h*b + exp(lQ-lP)
 		  },
                   ## uscore function
-                  uscore = function(u, theta, d) {
+                  uscore = function(u, theta, d, method=eval(formals(polyJ)$method)) {
                       if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-                      stop("The u-score function is currently not implemented for Joe copulas")
+                      alpha <- 1/theta
+                      ## compute the log of the argument of P and P'
+                      omu <- 1-u # 1-u
+                      u.th <- omu^theta # (1-u)^theta
+		      lh <- rowSums (log1p(-u.th)) # rowSums(log(1-(1-u)^theta)) = log(h)
+		      l1_h <- log1mexp(-lh) # log(1-h)
+		      lh_l1_h <- lh - l1_h # log(h/(1-h))
+                      ## compute log(P(log(h/(1-h))))
+                      lP <- polyJ(lh_l1_h, alpha, d, method=method, log=TRUE)
+                      ## compute log(P'(log(h/(1-h))))
+                      ## Note: this is similar to polyJ() (see there for the comments!)
+                      k <- 2:d # 2:d instead of 1:d
+                      l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha) # log(a_{dk}(theta)*(k+1)), k = 1,..,d; note: these are not the a's of Hofert, Maechler, McNeil (2012); see polyJ()
+                      l.a.k. <- log(k-1) + l.a.k
+                      B <- l.a.k. + (k-2) %*% t(lh_l1_h) # new: new l.a.k. and k-2 instead of k-1
+                      ## the following part is taken from polyJ() (but only the log cases)
+                      lP. <- switch(method,
+                                 "log.poly" = {
+                                     lsum(B)
+                                 },
+                                 "log1p" = {
+                                     im <- apply(B, 2, which.max) # indices (vector) of maxima
+                                     n <- length(lh_l1_h) ; d1 <- d-1L
+                                     max.B <- B[cbind(im, seq_len(n))] # get max(B[,i])_{i=1,..,n} == apply(B, 2, max)
+                                     B.wo.max <- matrix(B[unlist(lapply(im, function(j) k[-j])) +
+                                                          d*rep(0:(n-1), each = d1)], d1, n) # matrix B without maxima
+                                     max.B + log1p(colSums(exp(B.wo.max - rep(max.B, each = d1))))
+                                 },
+                                 "poly" = {
+                                     log(colSums(exp(B)))
+                                 },
+                                 stop(gettextf("unsupported method '%s' in polyJ", method)), domain=NA)
+                      ## put the pieces together
+                      theta*omu^(theta-1)/(1-u.th) * (1-alpha+exp(-l1_h)*exp(lP.-lP)) - (theta-1)/omu
                   },
 		  ## nesting constraint
 		  nestConstr = function(theta0,theta1) {

@@ -539,7 +539,7 @@ polyG <- function(lx, alpha, d, method= c("default", "default2012", "default2011
 	       }
 	       else if (d <= 170) {
 		   if (alpha < 0.01) "sort"
-		   else	 if (alpha <= 0.3) "direct"
+		   else	if (alpha <= 0.3) "direct"
 		   else if (alpha >= 0.9) "dsSib.log"
 		   else if (lx <= 3.55) "pois"
 		   else "dsSib.Rmpfr"
@@ -1017,6 +1017,8 @@ dsumSibuya <- function(x, n, alpha,
 ##' @param log boolean which determines if the logarithm is returned
 ##' @return \sum_{k=1}^d a_{d,k}(theta) exp((k-1)*lx) = \sum_{k=0}^{d-1} a_{d,k+1}(theta) x^k
 ##'         where a_{d,k}(theta) = S(d,k)*(k-1-alpha)_{k-1} = S(d,k)*Gamma((1:d)-alpha)/Gamma(1-alpha)
+##'         Note: these a_{d,k}(theta) here are not those of Hofert, Maechler, McNeil (2012)
+##'               (they are the a_{d,k-1}(theta))
 ##' @author Marius Hofert and Martin Maechler
 polyJ <- function(lx, alpha, d, method=c("log.poly","log1p","poly"), log=FALSE) {
     stopifnot(length(alpha)==1, 0 < alpha, alpha <= 1)
