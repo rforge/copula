@@ -18,7 +18,9 @@
 ** DONE stopifnot(ncol(u) == (d <- copula@dimension))  *not* ok:
 stopifnot(NULL == 1) is not stopping
 ** TODO matrix(x, ncol=.) is really slower than rbind(x, deparse.level=0L)
+** DONE implement uscore for MMMH's A, C, F, G, J (note MH: haven't done any testing)
 * Short Term
+** TODO write a polynomial-evaluater with the methods of polyJ() and polyneval() as further method; this can be called from polyJ() and uscore of Joe.
 ** DONE largely improve on gofTests.R: should be made more modular, so that users can provide functions for the parametric bootstrap (gofPB) and the multiplier boostrap (gofMB). Furthermore, checking and documentation have to be improved (see already improved gofPB());
 ** TODO deprecate gnacopula() [see 'Note' there!!!]
  MH: already 'prepared' a lot; only difficulty: many calls of gnacopula()
