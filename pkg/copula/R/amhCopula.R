@@ -134,7 +134,7 @@ rhoAmhCopula <- function(copula) {
 
 pMatAmh <- function (u, copula, ...) {
     ## was pamhCopula
-    stopifnot(ncol(u) == (d <- copula@dimension))
+    stopifnot(!is.null(d <- ncol(u)), d == copula@dimension)
     th <- copula@parameters
     if(d == 2 && !copAMH@paraConstr(th)) # for now, .. to support negative tau
         pamhCopula(copula, u)
@@ -144,7 +144,7 @@ pMatAmh <- function (u, copula, ...) {
 
 dMatAmh <- function (u, copula, log = FALSE, ...) {
     ## was  damhCopula
-    stopifnot(ncol(u) == (d <- copula@dimension))
+    stopifnot(!is.null(d <- ncol(u)), d == copula@dimension)
     th <- copula@parameters
     if(d == 2 && !copAMH@paraConstr(th)) # for now, .. to support negative tau
         damhCopula(u, copula, log=log)

@@ -219,8 +219,7 @@ htrafo <- function(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are provided")
     if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
-    stopifnot((d <- ncol(u)) >= 2,
-	      0 <= u, u <= 1)
+    stopifnot((d <- ncol(u)) >= 2, 0 <= u, u <= 1)
     ## trafos
     th <- cop@copula@theta
     if(inverse){ # "simulation trafo" of Wu, Valdez, Sherris (2006)

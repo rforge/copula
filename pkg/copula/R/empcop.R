@@ -32,7 +32,7 @@ C.n <- function(u, U, offset=0, method=c("C", "R"))
 {
     if(!is.matrix(u)) u <- rbind(u, deparse.level=0L)
     if(!is.matrix(U)) U <- rbind(U, deparse.level=0L)
-    stopifnot((d <- ncol(U))==ncol(u), 0 <= u, u <= 1)
+    stopifnot((d <- ncol(U)) == ncol(u), 0 <= u, u <= 1)
     if(any(U < 0, 1 < U))
         stop("'U' must be in [0,1].. possibly use 'U=pobs(x)'...")
     n <- nrow(U)
@@ -86,9 +86,9 @@ dCn <- function(u, U, j.ind=1:d, b=0.05, ...)
     ## check
     if(!is.matrix(u)) u <- rbind(u, deparse.level=0L)
     if(!is.matrix(U)) U <- rbind(U, deparse.level=0L)
-    stopifnot((d <- ncol(U))==ncol(u),
+    stopifnot((d <- ncol(U)) == ncol(u),
               0 <= u, u <= 1, 0 <= U, U <= 1,
-              1 <= j.ind, j.ind <=d, 0 < b, b < 0.5)
+              1 <= j.ind, j.ind <= d, 0 < b, b < 0.5)
 
     ## functions to change the entry in the jth column of u
     b2 <- 2*b

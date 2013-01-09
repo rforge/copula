@@ -137,9 +137,9 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
                   verbose=TRUE, ...)
 {
     ## checks
-    stopifnot(is(copula, "copula"), N>=1)
+    stopifnot(is(copula, "copula"), N >= 1)
     if(!is.matrix(x)) x <- rbind(x, deparse.level=0L)
-    stopifnot((d <- ncol(x))>1, (n <- nrow(x))>0, dim(copula)==d)
+    stopifnot((d <- ncol(x)) > 1, (n <- nrow(x)) > 0, dim(copula) == d)
     method <- match.arg(method)
     estim.method <- match.arg(estim.method)
     trafo.method <- match.arg(trafo.method)
@@ -233,7 +233,7 @@ Jscore <- function(copula, u, method)
     ## checks
     stopifnot(is(copula, "copula"))
     if(!is.matrix(u)) u <- rbind(u, deparse.level=0L)
-    stopifnot((d <- ncol(u))>1, (n <- nrow(u))>0, dim(copula)==d)
+    stopifnot((d <- ncol(u)) > 1, (n <- nrow(u)) > 0, dim(copula) == d)
 
     ## deal with different methods
     switch(method,
@@ -310,7 +310,7 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
     ## checks
     stopifnot(is(copula, "copula"), N>=1)
     if(!is.matrix(x)) x <- rbind(x, deparse.level=0L)
-    stopifnot((d <- ncol(x))>1, (n <- nrow(x))>0, dim(copula)==d)
+    stopifnot((d <- ncol(x)) > 1, (n <- nrow(x)) > 0, dim(copula) == d)
     method <- match.arg(method)
     estim.method <- match.arg(estim.method)
     if(estim.method == "ml") stop("estim.method='ml' not available")
@@ -460,7 +460,7 @@ gofCopula <- function(copula, x, N=1000,
     ## checks
     stopifnot(is(copula, "copula"), N>=1)
     if(!is.matrix(x)) x <- rbind(x, deparse.level=0L)
-    stopifnot((d <- ncol(x))>1, (n <- nrow(x))>0, dim(copula)==d)
+    stopifnot((d <- ncol(x)) > 1, (n <- nrow(x)) > 0, dim(copula) == d)
     method <- match.arg(method)
     estim.method <- match.arg(estim.method)
     optim.method <- match.arg(optim.method)

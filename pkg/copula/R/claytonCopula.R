@@ -205,7 +205,7 @@ dTauClaytonCopula <- function(copula) {
 }
 
 pMatClayton <- function (u, copula, ...) {
-    stopifnot(ncol(u) == (d <- copula@dimension))
+    stopifnot(!is.null(d <- ncol(u)), d == copula@dimension)
     th <- copula@parameters
     if(d == 2 && !copClayton@paraConstr(th)) # for now, .. to support negative tau
         pclaytonCopula(copula, u=u)
@@ -214,7 +214,7 @@ pMatClayton <- function (u, copula, ...) {
 }
 
 dMatClayton <- function (u, copula, log = FALSE, ...) {
-    stopifnot(ncol(u) == (d <- copula@dimension))
+    stopifnot(!is.null(d <- ncol(u)), d == copula@dimension)
     th <- copula@parameters
     if(d == 2 && !copClayton@paraConstr(th)) # for now, .. to support negative tau
         dclaytonCopula.pdf(u, copula, log=log)

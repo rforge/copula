@@ -15,7 +15,7 @@
    OTOH, hideWarnins now in fitMvdc().
 ** DONE timings() function name -- changed to nacFrail.time()
 ** DONE setTheta() bug: see tests/fitting-ex.R ..seed(17)
-** TODO stopifnot(ncol(u) == (d <- copula@dimension))  *not* ok:
+** DONE stopifnot(ncol(u) == (d <- copula@dimension))  *not* ok:
 stopifnot(NULL == 1) is not stopping
 ** TODO matrix(x, ncol=.) is really slower than rbind(x, deparse.level=0L)
 * Short Term

@@ -73,9 +73,8 @@ ccop2 <- function(u2, u1, family, theta, ...) {
 ##' Note: used in Hofert and Maechler (2013)
 pairwiseCcop <- function(u, cop, ...)
 {
-    if(!is.matrix(u)) u <- rbind(u)
-    stopifnot((d <- ncol(u)) >= 2, 0 <= u, u <= 1,
-	      d == dim(cop))
+    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
+    stopifnot((d <- ncol(u)) >= 2, 0 <= u, u <= 1, d == dim(cop))
 
     ## 1) determine copula class and compute auxiliary results
     cls <- copClass(cop)

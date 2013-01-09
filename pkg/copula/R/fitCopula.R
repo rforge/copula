@@ -227,7 +227,7 @@ fitCopula.ml <- function(copula, u, start=NULL,
 {
   if(any(u < 0) || any(u > 1))
      stop("'u' must be in [0,1] -- probably rather use pobs(.)")
-  stopifnot((d <- ncol(u)) >= 2)
+  stopifnot(is.numeric(d <- ncol(u)), d >= 2)
   if (copula@dimension != d)
     stop("The dimension of the data and copula do not match")
   if(is.null(start))
