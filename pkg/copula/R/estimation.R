@@ -438,10 +438,11 @@ edmle <- function(u, cop, interval=initOpt(cop@copula@name), warn=TRUE, ...)
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
 	stop("currently, only Archimedean copulas are provided")
+    if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     ## optimize
     mLogL <- function(theta) { # -log-likelihood
         cop@copula@theta <- theta
-        -sum(dnacopula(cop, u, n.MC=n.MC, log=TRUE))
+	-sum(.dnacopula(u, cop, n.MC=n.MC, log=TRUE))
     }
     optimize(mLogL, interval=interval, ...)
 }
@@ -475,7 +476,7 @@ emle <- function(u, cop, n.MC=0, optimizer="optimize", method,
               max(cop@comp) == d)
     ## nLL <- function(theta) { # -log-likelihood
     ##	   cop@copula@theta <- theta
-    ##	   -sum(dnacopula(cop, u, n.MC=n.MC, log=TRUE))
+    ##	   -sum(.dnacopula(u, cop, n.MC=n.MC, log=TRUE))
     ## }
     if(length(cop@childCops))
 	stop("currently, only Archimedean copulas are provided")

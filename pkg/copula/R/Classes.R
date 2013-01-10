@@ -55,16 +55,17 @@ setClass("copula",
 ## general methods for copula
 setGeneric("dCopula", function(u, copula, log=FALSE, ...) {
     if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
-    u.is.out <- u.outside.01(u)
+    u.is.out <- outside.01(u, strictly=FALSE)## on.boundary _or_ outside
     if(any.out <- any(u.is.out, na.rm=TRUE))
 	u[] <- pmax(0, pmin(1, u)) # <- "needed", as some methods give error
     r <- standardGeneric("dCopula")
-    if(any.out) ## on boundary == outside cube <==> zero mass :
+    if(any.out) ## on boundary _or_ outside cube  ==> zero mass :
 	r[u.is.out & !is.na(u.is.out)] <- if(log) -Inf else 0.
     r
 })
 setGeneric("pCopula", function(u, copula, ...) {
     if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
+    ## here as well, 'outside' and 'on-boundary' are equivalent:
     u[] <- pmax(0, pmin(1, u))
     standardGeneric("pCopula")
 })

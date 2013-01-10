@@ -191,7 +191,7 @@ setClass("outer_nacopula", contains = "nacopula",
 
 ## The dim() method is nicely defined  *recursive*ly :
 setMethod("dim", signature(x = "nacopula"),
-	  function(x) length(x@comp) + sum(unlist(lapply(x@childCops, dim))))
+	  function(x) length(x@comp) + sum(vapply(x@childCops, dim, 1L)))
 
 
 ##' @title nesting depth of a NAcopula
@@ -231,6 +231,11 @@ u.in.01 <- function(u) apply(u, 1, function(x)
 ##' @return logical vector of length nrow(u), possibly with NA
 ##'         wherever a row u[i,] contains NA or NaN and all other values in (0,1)
 ##' !@author Martin Maechler
-u.outside.01 <- function(u) apply(u, 1, function(x) any(x <= 0, 1 <= x))
+outside.01 <- function(u, strictly=TRUE) {
+    if(strictly)
+	apply(u, 1, function(x) any(x <	 0, 1 <	 x))
+    else
+	apply(u, 1, function(x) any(x <= 0, 1 <= x))
+}
 ## TODO? rather use		                        x <= 0, 1 <  x
 ## ----  or even    		                        x <  0, 1 <  x

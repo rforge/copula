@@ -91,7 +91,7 @@ stopifnot(identical(C3, C3.))
 err <- try(onacopula("G", C(theta0, 2, C(theta1, c(3,2)))))
 
 ## Compute the probability of falling in [0,.01]^3 for this copula
-pnacopula(C3, rep(.01,3))
+pCopula(rep(.01,3), C3)
 
 ## Compute the probability of falling in the cube [.99,1]^3
 prob(C3, rep(.99, 3), rep(1, 3))
