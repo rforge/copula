@@ -26,7 +26,7 @@ print.fitMvdc <- function(x, digits = max(3, getOption("digits") - 3),
                           signif.stars = getOption("show.signif.stars"), ...)
 {
     foo <- summary.fitMvdc(x)
-    cat("The Maximum Likelihood estimation is based on ", x@nsample, " observations.\n")
+    cat("The Maximum Likelihood estimation is based on", x@nsample, "observations.\n")
     p <- x@mvdc@copula@dimension
     marNpar <- vapply(x@mvdc@paramMargins, length, 1L)
     idx2 <- cumsum(marNpar)
@@ -42,7 +42,7 @@ print.fitMvdc <- function(x, digits = max(3, getOption("digits") - 3),
 	}
 	else {
 	    for (i in 1:p) {
-		cat("Margin ", i, ":\n")
+		cat("Margin", i, ":\n")
 		printCoefmat(foo$coefficients[idx1[i]:idx2[i], 1:2, drop=FALSE],
 			     digits = digits, signif.stars = signif.stars,
 			     signif.legend=FALSE, ## in any case
@@ -57,7 +57,7 @@ print.fitMvdc <- function(x, digits = max(3, getOption("digits") - 3),
 				  if(margid) marNpar[1] else sum(marNpar),
 				  if(margid) 1:4 else 1:2, drop=FALSE],
 		 digits = digits, signif.stars = signif.stars, na.print = "NA", ...)
-    cat("The maximized loglikelihood is ", foo$loglik, "\n")
+    cat("The maximized loglikelihood is", foo$loglik, "\n")
     if (!is.na(foo$convergence)) {
 	if(foo$convergence)
 	    cat("Convergence problems: code is", foo$convergence, "see ?optim.\n")
