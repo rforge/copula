@@ -95,8 +95,8 @@ set.seed(11)
 x <- rMvdc(10000, gMvd2)
 ## with identical margins:
 gMvd.I <- mvdc(gumbel.cop, "exp", param = list(rate=3), marginsIdentical=TRUE)
-if(copula:::doExtras()) { ## these are is typically not run with CRAN checking:
- ## Takes about  25 sec. [2012-07]:
+if(copula:::doExtras()) { ## these are typically not run with CRAN checking:
+ ## Takes about 25 sec. [2012-07]:
  fit2 <- fitMvdc(x, gMvd2, start = c(1,1, 2),
                  hideWarnings=FALSE) ## <- show warnings here
  print(fit2)
@@ -108,7 +108,7 @@ if(copula:::doExtras()) { ## these are is typically not run with CRAN checking:
  print(coef(summary(fitI)))
  print(fitI)
 
-  ## a wrong starting value  can already be *the* problem:
+  ## a wrong starting value can already be *the* problem:
   f2 <- try(fitMvdc(x, gMvd.I, start = c(1, 1),
 	            optim.control=list(trace= TRUE, REPORT= 2)))
   ##--> Error in optim( ... : non-finite finite-difference value [2]
