@@ -5,8 +5,8 @@
 \description{
   Fits a copula model to multivariate data belonging to the unit
   hypercube. The data can be pseudo-observations constructed from
-  empirical or parametric marginal c.d.f.s, or true observations
-  from the copula.
+  empirical or parametric marginal distribution functions, or
+  true observations from the copula.
 }
 \usage{
 loglikCopula(param, x, copula, hideWarnings)
@@ -21,9 +21,9 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
     (for \code{"mpl"} and \code{"ml"} with values necessarily in
     \eqn{[0,1]}) from the copula to be estimated, where \eqn{n} denotes
     the sample size and \eqn{d} the dimension.  Consider applying the function
-    \code{\link{pobs}} first in order to obtain values in \eqn{[0,1]}.}
+    \code{\link{pobs}()} first in order to obtain values in \eqn{[0,1]}.}
   \item{copula}{a \code{"\linkS4class{copula}"} object.}
-  \item{hideWarnings}{\emph{deprecated} and unused for \code{loglikCopula};
+  \item{hideWarnings}{\emph{deprecated} and unused for \code{loglikCopula()};
     logical; if TRUE, warning messages from likelihood maximization
     (mostly evaluating at invalid parameter values) are suppressed.}
   \item{method}{a \code{\link{character}} string specifying the method;
@@ -40,7 +40,7 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
     or \code{"L-BFGS-B"} method.}
   \item{optim.control}{a \code{\link{list}} of control parameters to be
     passed to \code{\link{optim}(*, control=optim.control)}.}
-  \item{optim.method}{the \code{method} for \code{\link{optim}}.}
+  \item{optim.method}{the \code{method} for \code{\link{optim}()}.}
   \item{estimate.variance}{logical; if TRUE, the asymptotic variance is
     estimated.}
 }
@@ -116,7 +116,13 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
   from method \code{"itau"} are used as initial values in
   the optimization.
 
-  For the t copula with \code{df.fixed=FALSE} (see \code{\link{ellipCopula}}),
+  If methods \code{"itau"} or \code{"itau"} are used in
+  \code{fitCopula()}, an estimate of the asymptotic variance (if
+  available for the copula under consideration) will be correctly
+  computed only if the argument \code{data} consists of pseudo-observations
+  (see \code{\link{pobs}()}).
+
+  For the t copula with \code{df.fixed=FALSE} (see \code{\link{ellipCopula}()}),
   the methods \code{"itau"} and \code{"irho"} cannot be used in
   \code{fitCopula()}.  For the methods \code{"ml"} and \code{"mpl"},
   when \code{start} is not specified, the starting value for \code{df} is
@@ -124,14 +130,14 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
   cannot (yet) be estimated for method \code{"mpl"}.
 
   To implement the \dQuote{\emph{inference functions for margins}}
-  method (see e.g., Joe 2005), the \code{data} need to be pseudo-observations
-  obtained from fitted parametric marginal c.d.f.s and \code{method}
-  needs to be set to \code{"ml"}.  The returned large-sample variance
-  will then underestimate the true variance.
+  method (see, e.g., Joe 2005), the \code{data} need to be pseudo-observations
+  obtained from fitted parametric marginal distribution functions and
+  \code{method} needs to be set to \code{"ml"}.  The returned
+  large-sample variance will then underestimate the true variance.
 
   Finally, note that the fitting functions generate error messages
   because invalid parameter values are tried during the optimization
-  process (see \code{\link{optim}}).  When the number of parameters is
+  process (see \code{\link{optim}()}).  When the number of parameters is
   one and the parameter space is bounded, using
   \code{optim.method="Brent"} is likely to give less warnings.
   Furthermore, from experience, \code{optim.method="Nelder-Mead"} is
