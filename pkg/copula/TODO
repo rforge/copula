@@ -25,7 +25,7 @@ stopifnot(NULL == 1) is not stopping
 ** TODO deprecate gnacopula() [see 'Note' there!!!]
  MH: already 'prepared' a lot; only difficulty: many calls of gnacopula()
  => ideally, the checks should be done with gofCopula() instead of gnacopula()!!!!
-** DONE persp(), contour() should work with pCopula / dCopula
+** DONE persp(), contour() should work with pCopula / dCopula; MH: can't we use something more sophisticated than persp()? lattice's wireframe() is the best I know w.r.t to many things
 ** DONE getAcop(gumbelCopula()) should work
  => we could then write general methods for all Archimedean objects.
 Possible problem (for now): negative concordance case for AMH, Clayton, and Frank
