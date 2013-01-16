@@ -34,9 +34,35 @@ evTestK(x, method = c("fsample","asymptotic","jackknife"))
   \code{\link{gofEVCopula}}, \code{\link{An}}.
 }
 \examples{
+set.seed(321)
 ## Do the data come from an extreme-value copula?
-evTestK(rCopula(200, gumbelCopula(3)))
-evTestK(rCopula(200, claytonCopula(3)))
+evTestK(Ug <- rCopula(200, gumbelCopula(3))) # not significant => yes, EV
+    dim(Uc <- rCopula(200, claytonCopula(3)))
+## Clayton:                       tests are highly significant => no, not EV
+(K1 <- evTestK(Uc))
+(K2 <- evTestK(Uc, method = "asymptotic"))
+\dontrun{
+(K3 <- evTestK(Uc, method = "jackknife"))# slow !
+}
+\dontshow{
+Xtra <- copula:::doExtras()
+stopifnot(all.equal(K1$p.value, 3.9471315e-9, tol = .001),
+          all.equal(K2$p.value, 2.1277296e-9, tol = .001),
+          if(Xtra) { set.seed(1)
+            print(system.time(K3 <- evTestK(Uc, method = "jackknife")))
+            all.equal(K3$p.value, 0.0 , tol = .001) # ??
+          } else TRUE
+         )
+system.time(T1 <- evTestK(Ug))
+system.time(T2 <- evTestK(Ug, method = "asymptotic"))
+stopifnot(all.equal(T1$p.value, 0.1363025, tol = .001),
+          all.equal(T2$p.value, 0.1217252, tol = .001),
+          if(Xtra) { set.seed(2)
+            print(system.time(T3 <- evTestK(Ug, method = "jackknife")))# 3.6 sec
+            all.equal(T3$p.value, 0.0 , tol = .001) #?
+          } else TRUE
+         )
+}%\dont show
 }
 \keyword{htest}
 \keyword{multivariate}
