@@ -109,11 +109,11 @@ S3method(vcov, fittedMV)
 S3method(logLik, fittedMV)
 
 
-## testing
+##_TESTING_
 ## export(dCdtheta, derPdfWrtParams, dTau, dRho)
 ## export(dCdu)
 ## export(ChiPlot, KPlot)
-## testing purpose
+##
 ## export(fitCopula.repar)
 ## export(multcomp) ---> R/mult.R
 

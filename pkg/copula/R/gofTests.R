@@ -69,7 +69,7 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"), useR
            ## Idea: sum1 = sum(prod(1-u^2)) = sum(exp(sum(lu2)))
            ## = exp(log( sum(exp(rowSums(lu2))) )) = exp(lsum(rowSums(lu2)))
            slu2 <- rowSums(lu2) # vector of length n
-	   sum1 <- exp(lsum(matrix(slu2, ncol=1))) # lsum() needs a matrix; result: 1 value
+	   sum1 <- exp(lsum(cbind(slu2, deparse.level=0L))) # lsum() needs a matrix; result: 1 value
            ## 2) The notation here is similar to Genest, Remillard,
            ## Beaudoin (2009) but we interchange k and j (since j always runs
            ## in 1:d). That being said...
@@ -90,7 +90,7 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"), useR
 	       lu.i <- lu[,i] ## now i is fixed
 	       sum.k <- vapply(1:n, function(k)# sum over k (n-dim. vector)
 			       sum(pmin(lu.i, lu[,k])), NA_real_)
-	       ls.i <- lsum(matrix(sum.k, ncol=1)) # lsum( sum(pmin(...)) ) for fixed i; 1 value
+	       ls.i <- lsum(cbind(sum.k, deparse.level=0L)) # lsum( sum(pmin(...)) ) for fixed i; 1 value
 	       exp(-ln + ls.i)
 	   }))
 	   n/3^d - sum1/2^(d-1) + sum(sum2mands)

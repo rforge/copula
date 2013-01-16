@@ -68,8 +68,8 @@ setClass("acopula",
 	     checkFun <- function(sName, nArgs, chkVectorizing=TRUE) {
 		 f <- slot(object, sName)
 		 if (length(formals(f)) < nArgs)
-		     paste("slot '",sName,"' must be a function of at least ",nArgs,
-			   " arguments", sep="")
+		     paste0("slot '",sName,"' must be a function of at least ",nArgs,
+                            " arguments")
 		 else if(chkVectorizing && nArgs <= 2) {
 		     ## test that the function can be called with NULL
 		     r0 <- tryCatch(if(nArgs == 2) f(NULL, theta = th) else f(NULL),

@@ -222,7 +222,7 @@ setMethod("dCopula", signature("matrix", "gumbelCopula"),
 	  copGumbel@dacopula(u, theta=copula@parameters, log=log, ...))
 setMethod("dCopula", signature("numeric", "gumbelCopula"),
 	  function (u, copula, log = FALSE, ...)
-	  copGumbel@dacopula(matrix(u, ncol=dim(copula)), theta=copula@parameters,
+	  copGumbel@dacopula(rbind(u, deparse.level=0L), theta=copula@parameters,
 			     log=log, ...))
 
 

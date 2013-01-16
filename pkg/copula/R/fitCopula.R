@@ -438,10 +438,8 @@ getL <- function(copula) {
   dgidx <- outer(1:p, 1:p, "-")
   dgidx <- P2p(dgidx)
 
-  if (!is(copula, "ellipCopula")) {
-    matrix(1/pp, nrow=pp, ncol=1)
-  } else if (copula@dispstr == "ex") {
-    matrix(1/pp, nrow=pp, ncol=1)
+  if (!is(copula, "ellipCopula") || copula@dispstr == "ex") {
+    cbind(rep.int(1/pp, pp), deparse.level=0L)
   } else if(copula@dispstr == "un") {
     diag(pp)
   } else if(copula@dispstr == "toep") {
@@ -476,7 +474,7 @@ getXmat <- function(copula) {
 		       ## estimate log(rho) first and then exponetiate back
 		       ## mat <- model.matrix(~ factor(dgidx) - 1)
 		       ## mat %*% diag(1:(p - 1))
-		       matrix(dgidx, ncol=1)
+		       cbind(dgidx, deparse.level=0L)
 		   }
 	       },
 	       stop("Not implemented yet for this copula/dispersion structure."))
