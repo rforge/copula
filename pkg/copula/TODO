@@ -22,6 +22,11 @@ stopifnot(NULL == 1) is not stopping
 * Short Term: Before 1.0.0
 ** TODO Extend polynEval() with the methods of polyJ();
  this can be called from polyJ() and uscore of Joe.
+** TODO pCopula(u,..) and dCopula(u,..) should work for u outside [0,1]^d  & NA/NaN
+*** DONE for pCopula(): using  u[] <- pmax(0, pmin(1, u))  {subtlety!}
+*** DONE dCopula() = 0 {log = -Inf} for u "outside"
+*** TODO both should keep NA & NaN. Maybe keep them different, as  pnorm(c(2,NA,NaN));
+however relax, as  NA+NaN or NaN+NA  differ, too.
 ** DONE largely improve on gofTests.R: should be made more modular, so that users can provide functions for the parametric bootstrap (gofPB) and the multiplier boostrap (gofMB). Furthermore, checking and documentation have to be improved (see already improved gofPB());
 ** TODO deprecate gnacopula() [see 'Note' there!!!]
  MH: already 'prepared' a lot; only difficulty: many calls of gnacopula()
@@ -153,11 +158,6 @@ Longer term: want to *estimate* those correctly [MLE at least].
 *** TODO \link{} between  old-copula and old-nacopula  functionality
 *** TODO small vignette with table of function names providing the same functionality (nacopula / old_copula)
 *** DONE (MH) fixed long lines in all .Rd
-** TODO pCopula(u,..) and dCopula(u,..) should work for u outside [0,1]^d  & NA/NaN
-*** DONE for pCopula(): using  u[] <- pmax(0, pmin(1, u))  {subtlety!}
-*** DONE dCopula() = 0 {log = -Inf} for u "outside"
-*** TODO both should keep NA & NaN. Maybe keep them different, as  pnorm(c(2,NA,NaN));
-however relax, as  NA+NaN or NaN+NA  differ, too.
 ** TODO pCopula() should also accept a  'log.p = FALSE' argument
  and provide more accurate results in the lower tail for log.p=TRUE.
 ** TODO Miscellaneous functions
