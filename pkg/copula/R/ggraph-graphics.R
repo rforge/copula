@@ -477,13 +477,13 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
             switch(bg.col,
                    "ETHCL"={ # blue to yellow/white
                        stopifnot(require(colorspace))
-                       bel <- as(hex2RGB("#0066CC"), "polarLUV")@coords[3:1] # default
+                       bel <- rev(as(hex2RGB("#0066CC"), "polarLUV")@coords) # default
                        bel[1] <- bel[1]-360 # map correctly to not run over green
                        abo <- c(80, 30, 94) # yellow/white
                    },
                    "zurich"={ # sequential blue
                        stopifnot(require(colorspace))
-                       bel <- as(hex2RGB("#0066CC"), "polarLUV")@coords[3:1] # (Zurich coat of arms) blue
+                       bel <- rev(as(hex2RGB("#0066CC"), "polarLUV")@coords) # (Zurich coat of arms) blue
                        bel[1] <- bel[1]-360 # map correctly to not run over green
                        abo <- c(-100, 0, 94) # blue/white
                    },
@@ -493,7 +493,7 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
                    },
                    "baby"={
                        stopifnot(require(colorspace))
-                       bel <- as(hex2RGB("#0066CC"), "polarLUV")@coords[3:1]
+                       bel <- rev(as(hex2RGB("#0066CC"), "polarLUV")@coords)
                        bel[1] <- bel[1]-360 # map correctly to not run over green
                        abo <- c(0, 40, 100) # pink/white
                    },
@@ -503,8 +503,8 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
                    },
                    "greenish"={ # self-constructed greenish color scheme
                        stopifnot(require(colorspace))
-                       bel <- as(hex2RGB("#283B4B"), "polarLUV")@coords[3:1] # "rgb2hcl"
-                       abo <- as(hex2RGB("#EFEE69"), "polarLUV")@coords[3:1]
+                       bel <- rev(as(hex2RGB("#283B4B"), "polarLUV")@coords) # "rgb2hcl"
+                       abo <- rev(as(hex2RGB("#EFEE69"), "polarLUV")@coords)
                    },
                    stop("wrong color scheme"))
         } else { # use the provided HCL color vectors
