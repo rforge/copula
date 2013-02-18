@@ -42,7 +42,7 @@ pobs
 ## Draw from a multivariate normal distribution
 d <- 10
 set.seed(1)
-P <- Matrix::nearPD(matrix(pmin(pmax(runif(d*d) 0.3), 0.99), ncol=d))$mat
+P <- Matrix::nearPD(matrix(pmin(pmax(runif(d*d), 0.3), 0.99), ncol=d))$mat
 diag(P) <- rep(1, d)
 n <- 500
 x <- MASS::mvrnorm(n, mu = rep(0, d), Sigma = P)
