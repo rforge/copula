@@ -89,32 +89,32 @@ P2p <- function(P) P[lower.tri(P)]
 
 ##' Construct matrix Sigma from a given copula
 ##'
-##' @title Construct matrix Sigma from a given copula
-##' @param cop copula
+##' @title Construct matrix Sigma from a given elliptical copula
+##' @param copula copula
 ##' @return (d, d) matrix Sigma containing the parameter vector rho
 ##' @author Marius Hofert
-getSigma <- function(cop)
+getSigma <- function(copula)
 {
-    stopifnot(is(cop, "ellipCopula"))
-    d <- cop@dimension
-    rho <- cop@getRho(cop)
-    switch(cop@dispstr,
-           "ex"={
-               Sigma <- matrix(rho[1], nrow=d, ncol=d)
-               diag(Sigma) <- rep(1, d)
-           },
-           "ar1"={
-               Sigma <- rho^abs(outer(1:d, 1:d, FUN="-"))
-           },
-           "un"={
-               Sigma <- p2P(rho, d)
-           },
-           "toep"={
-               rho. <- c(rho, 1)
-               ind <- outer(1:d, 1:d, FUN=function(i, j) abs(i-j))
-               diag(ind) <- length(rho.)
-               Sigma <- matrix(rho.[ind], nrow=d, ncol=d)
-           },
-           stop("wrong 'dispstr'"))
+    stopifnot(is(copula, "ellipCopula"))
+    d <- copula@dimension
+    rho <- copula@getRho(copula)
+    switch(copula@dispstr,
+	   "ex" = {
+	       Sigma <- matrix(rho[1], nrow=d, ncol=d)
+	       diag(Sigma) <- rep(1, d)
+	   },
+	   "ar1" = {
+	       Sigma <- rho^abs(outer(1:d, 1:d, FUN="-"))
+	   },
+	   "un" = {
+	       Sigma <- p2P(rho, d)
+	   },
+	   "toep" = {
+	       rho <- c(rho, 1)
+	       ind <- outer(1:d, 1:d, FUN=function(i, j) abs(i-j))
+	       diag(ind) <- length(rho)
+	       Sigma <- matrix(rho[ind], nrow=d, ncol=d)
+	   },
+	   stop("invalid 'dispstr'"))
     Sigma
 }

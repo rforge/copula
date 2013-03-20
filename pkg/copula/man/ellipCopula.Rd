@@ -15,7 +15,10 @@ normalCopula(param, dim = 2, dispstr = "ex")
 \arguments{
   \item{family}{ a character string specifying the family of an
     elliptical copula. Implemented families are "normal" and "t".  }
-  \item{param}{ a numeric vector specifying the parameter values. }
+  \item{param}{a numeric vector specifying the parameter values.  The
+    \code{getRho()} method accesses this vector, whereas
+    \code{\link{p2P}()} and \code{\link{getSigma}()} provide
+    the corresponding \dQuote{Rho} matrix, see below.}
   \item{dim}{ the dimension of the copula. }
   \item{dispstr}{ a character string specifying the type of the symmetric
     positive definite matrix characterizing the elliptical
@@ -37,7 +40,13 @@ normalCopula(param, dim = 2, dispstr = "ex")
   \code{ellipCopula()} is a wrapper for \code{normalCopula()} and
   \code{tCopula()}.
 }
-\seealso{ \code{\link{archmCopula}}, \code{\link{fitCopula}}.
+\seealso{
+  \code{\link{p2P}()}, and \code{\link{getSigma}()} for construction and
+  extraction of the \dQuote{Rho} (\eqn{P}) or \eqn{Sigma} matrix of
+  (generalized)% for t
+  correlations.
+
+  \code{\link{archmCopula}}, \code{\link{fitCopula}}.
 }
 \examples{
 norm.cop <- normalCopula(c(0.5, 0.6, 0.7), dim = 3, dispstr = "un")

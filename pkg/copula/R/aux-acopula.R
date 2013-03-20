@@ -893,7 +893,7 @@ dsumSibuya <- function(x, n, alpha,
 		   trms <- c.n * ca.j
 		   S <- sum(trms) # <-- sum of *huge* (partly alternating) terms getting almost 0
 		   ## } else {	      # "new", typically faster
-		   ##	  ## FIXME: extend  sumBinMpfr() so it accepts a *vector* f.x
+### FIXME: Use *faster*
 		   ##	  ## sumBinomMpfr(n, FUN, n0, alternating=TRUE, precBits) is not yet available
 		   ##	  S <- sum(chooseZ(n,j) * (-1)^(x-j) * chooseMpfr(alpha * j, x))
 		   ## }

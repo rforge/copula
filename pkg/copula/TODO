@@ -20,8 +20,6 @@ stopifnot(NULL == 1) is not stopping
 ** DONE matrix(x, ncol=.) is really slower than rbind(x, deparse.level=0L)
 ** DONE implement uscore for MMMH's A, C, F, G, J (note MH: haven't done any testing)
 * Short Term: Before 1.0.0
-** TODO Extend polynEval() with the methods of polyJ();
- this can be called from polyJ() and uscore of Joe.
 ** TODO pCopula(u,..) and dCopula(u,..) should work for u outside [0,1]^d  & NA/NaN
 *** DONE for pCopula(): using  u[] <- pmax(0, pmin(1, u))  {subtlety!}
 *** DONE dCopula() = 0 {log = -Inf} for u "outside"
@@ -32,7 +30,6 @@ however relax, as  NA+NaN or NaN+NA  differ, too.
  MH: already 'prepared' a lot; only difficulty: many calls of gnacopula()
  => ideally, the checks should be done with gofCopula() instead of gnacopula()!!!!
 ** DONE persp(), contour() should work with pCopula / dCopula.
-** TODO MH: something more sophisticated than persp(): lattice's wireframe() is the best I know w.r.t to many things
 ** DONE getAcop(gumbelCopula()) should work
  => we could then write general methods for all Archimedean objects.
 Possible problem (for now): negative concordance case for AMH, Clayton, and Frank
@@ -120,6 +117,9 @@ We can put them back. The best place is under inst?
  ## or even
  print(ls.str(pos=2, all=TRUE), max.level = 3)
 
+** TODO Extend polynEval() with the methods of polyJ();
+ this can be called from polyJ() and uscore of Joe.
+** TODO MH: something more sophisticated than persp(): lattice's wireframe() is the best I know w.r.t to many things
 ** TODO Deprecation of Old Stuff / more consistency / Cleanup
 *** TODO loglikCopula() --- try(), hidemessages should "go" eventually
 *** TODO varPL(): TODO's there

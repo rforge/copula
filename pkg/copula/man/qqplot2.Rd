@@ -1,21 +1,21 @@
 \name{qqplot2}
 \alias{qqplot2}
-\title{Q-Q plot with rugs and pointwise asymptotic confidence intervals}
+\title{Q-Q Plot with Rugs and Pointwise Asymptotic Confidence Intervals}
 \description{
   A Q-Q plot (possibly) with rugs and pointwise approximate (via the
   Central Limit Theorem) two-sided 1-\eqn{\alpha}{alpha} confidence intervals.
 }
 \usage{
-qqplot2(x, qF, qqline.args=list(distribution=qF),
-                    rug.args=list(tcl=-0.6*par("tcl")),
-                    alpha=0.05, CI.args=list(col="gray50"),
-                    CI.mtext=list(text=paste0("Pointwise asymptotic ", 100*(1-alpha),
-                                  "\% confidence intervals"), side=4,
-                                  cex=0.6*par("cex.main"), adj=0, col="gray50"),
-                    main.args=list(text=expression(bold(italic(F)~~"Q-Q plot")),
-                                   side=3, line=1.1, cex=par("cex.main"),
-                                   font=par("font.main"), adj=par("adj"), xpd=NA),
-                    xlab="Theoretical quantiles", ylab="Sample quantiles", \dots)
+qqplot2(x, qF, qqline.args = list(distribution=qF),
+        rug.args = list(tcl=-0.6*par("tcl")),
+        alpha = 0.05, CI.args = list(col="gray50"),
+        CI.mtext = list(text=paste0("Pointwise asymptotic ", 100*(1-alpha),
+                        "\% confidence intervals"), side=4,
+                        cex=0.6*par("cex.main"), adj=0, col="gray50"),
+        main.args = list(text=expression(bold(italic(F)~~"Q-Q plot")),
+                         side=3, line=1.1, cex=par("cex.main"),
+                         font=par("font.main"), adj=par("adj"), xpd=NA),
+        xlab = "Theoretical quantiles", ylab = "Sample quantiles", \dots)
 }
 \arguments{
   \item{x}{\code{\link{numeric}}.}
