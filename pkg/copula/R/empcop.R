@@ -91,17 +91,15 @@ dCn <- function(u, U, j.ind=1:d, b=0.05, ...)
               1 <= j.ind, j.ind <= d, 0 < b, b < 0.5)
 
     ## functions to change the entry in the jth column of u
-    b2 <- 2*b
+    ## see Remillard, Scaillet (2009) "Testing for equality between two copulas"
     adj.u.up <- function(x){
         x. <- x + b
-        x.[x < b] <- b2
         x.[x > 1-b] <- 1
         x.
     }
     adj.u.low <- function(x){
         x. <- x - b
         x.[x < b] <- 0
-        x.[x > 1-b] <- 1-b2
         x.
     }
 
@@ -120,7 +118,7 @@ dCn <- function(u, U, j.ind=1:d, b=0.05, ...)
         u.low[,j] <- adj.u.low(u.low[,j])
         Cn.low <- C.n(u.low, U=U, ...)
         ## 3) compute difference quotient
-        (Cn.up - Cn.low) / b2
+        (Cn.up - Cn.low) / (2*b)
     }, numeric(m))
     res <- pmin(pmax(res, 0), 1) # adjust (only required for small sample sizes)
     if(length(j.ind)==1) as.vector(res) else res

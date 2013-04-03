@@ -13,6 +13,7 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
+
 useDynLib(copula, .registration=TRUE)
 
 ### Part I: Mainly former copula ###############################################
@@ -21,8 +22,8 @@ importFrom("graphics", persp, contour)
 importFrom("stats", coef, nobs, vcov)# logLik? - already import from "stats4" for mle2
 
 importFrom("mvtnorm",
-           dmvnorm, pmvnorm, rmvnorm,
-           dmvt, pmvt, rmvt)
+            dmvnorm, pmvnorm, rmvnorm,
+            dmvt, pmvt, rmvt)
 
 ## FIXME: we would only want importS3MethodsFrom("pspline", predict)
 import("pspline")

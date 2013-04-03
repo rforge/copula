@@ -222,7 +222,7 @@ qqplot2 <- function(x, qF, qqline.args=list(distribution=qF),
                                    adj=par("adj"), xpd=NA),
                     xlab="Theoretical quantiles", ylab="Sample quantiles", ...)
 {
-    x. <- sort(x) # leaves out NA
+    x. <- sort(x) # drops NA
     n <- length(x.)
     p <- ppoints(n)
     q <- qF(p)
