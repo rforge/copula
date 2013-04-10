@@ -14,12 +14,27 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-### Kendall distribution
+### Kendall distribution #######################################################
 
 ## deprecated (former) Kendall distribution function K
 K <- function(u, cop, d, n.MC=0, log=FALSE){
     .Deprecated("pK") # set K to "deprecated" => throws a message
     pK(u, cop=cop, d=d, n.MC=n.MC, log=log) # call the new function
+}
+
+##' Empirical Kendall distribution function K_{n,d} as in Lemma 1 of
+##' Genest, Neslehova, Ziegel (2011)
+##'
+##' @title Empirical Kendall distribution function
+##' @param u evaluation points u in [0,1]
+##' @param x data (in IR^d) based on which K is estimated
+##' @return K_{n,d}(u)
+##' @author Marius Hofert
+Kn <- function(u, x)
+{
+    stopifnot(0 <= u, u <= 1, (n <- nrow(x)) >= 1, (d <- ncol(x)) >= 1)
+    W <- vapply(seq_len(n), function(i) sum( colSums(t(x)<x[i,])==d ) / (n+1), NA_real_)
+    ecdf(W)(u)
 }
 
 ##' Distribution function of the Kendall distribution
