@@ -197,42 +197,44 @@ gpviString <- function(pvalues, sep="   ", digits=2) {
 
 ### Tools for graphical gof tests for copulas with radial parts ################
 
-##' Compute pseudo-observations of the radial part and the uniform distribution
-##' on the unit sphere (for elliptical copulas) or on the unit simplex (for
+##' Compute pseudo-observations of the radial part R and the uniform distribution
+##' either on the unit sphere (for elliptical copulas) or on the unit simplex (for
 ##' Archimedean copulas)
 ##'
-##' @title Compute pseudo-observations of the radial part and uniform distribution
+##' @title Compute Pseudo-observations of the Radial Part and Uniform Distribution
 ##' @param x (n, d)-matrix of data
 ##' @param do.pobs logical indicating whether pseudo-observations should be computed
 ##' @param method method slot for different copula classes
-##' @param ... additional arguments
+##' @param ... additional arguments passed to the various methods
 ##' @return list of two components:
 ##'         R: n-vector of pseudo-observations of the radial part
 ##'         U: (n, d)-matrix of pseudo-observations of the uniform distribution on
 ##'            the unit sphere (for method="ellip") or unit simplex (for method="archm")
 ##' @author Marius Hofert
-##' Note: - the following correct (but unknown!) functions can be provided via '...':
+##' Note: - the following (true, but unknown) functions can be provided via '...':
 ##'         "ellip": qGg, the quantile function of the function G_g in Genest, Hofert, Neslehova (2013)
 ##'         "archm": iPsi, the inverse of the (assumed) generator
 ##'       - used in Genest, Hofert, Neslehova (2013)
-RUpobs <- function(x, do.pobs=TRUE, method=c("ellip", "archm"), ...)
+RUpobs <- function(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
 {
     ## check
     if(!is.matrix(x)) x <- rbind(x, deparse.level=0L)
     method <- match.arg(method)
 
     u <- if(do.pobs) pobs(x) else x
+    if(!do.pobs && !all(0 <= u, u <= 1)) stop("'x' must be in the unit hypercube; consider using 'do.pobs=TRUE'")
     switch(method,
            "ellip"={
+
                ## estimate the standardized dispersion matrix with entries
                ## P_{jk} = \Sigma_{jk}/sqrt{\Sigma_{jj}\Sigma_{kk}}
                ## and compute the inverse of the corresponding Cholesky factor
-               P <- as.matrix(nearPD(sin(cor(x, method="kendall")*pi/2), corr=TRUE)$mat) # as.matrix() since, otherwise, chol() fails
+               P <- as.matrix(Matrix::nearPD(sin(cor(x, method="kendall")*pi/2), corr=TRUE)$mat)
                A. <- chol(P) # upper triangular R such that R^TR = P; note: L = t(A.) s.t. LL^T = P
                A.inv <- solve(A.) # A.^{-1} = (A^{-1})^T
 
                ## compute Ys
-               y <- if(hasArg(qGg)) { # if qGg() has been provided
+               Y <- if(hasArg(qGg)) { # if qGg() has been provided
                    qGg <- list(...)$qGg
                    apply(u, 2, qGg)
                } else { # estimate via empirical quantiles
@@ -244,63 +246,41 @@ RUpobs <- function(x, do.pobs=TRUE, method=c("ellip", "archm"), ...)
                }
 
                ## compute Zs and Rs (pseudo-observations of the radial part)
-               z <- y %*% A.inv # efficient computation of A^{-1}Y which works with upper triangular matrix A.
-               r <- sqrt(rowSums(z^2))
+               Z <- Y %*% A.inv # efficient computation of A^{-1}Y which works with upper triangular matrix A.
+               R <- sqrt(rowSums(Z^2))
 
                ## return Rs and Us (pseudo-observations of the uniform distribution on the unit sphere)
-               list(R=r, U=z/r)
+               list(R=R, U=Z/R)
+
            },
            "archm"={
+
                if(hasArg(iPsi)) { # if iPsi() has been provided
                    iPsi <- list(...)$iPsi
                    iPsiu <- iPsi(u)
-                   r <- rowSums(iPsiu)
-                   list(R=r, U=iPsiu/r)
-               } else { # estimate iPsi via inverting the estimator of psi of Genest, Neslehova, Ziegel (2011; Algorithm 1; Section 4.3)
-                   ## compute w (slightly adjusted pseudo-observations)
-                   n <- nrow(u)
-                   W <- vapply(1:n, function(k) sum( colSums(t(U) < u[k,])==d ) / (n+1), NA_real_)
-                   ## W's, p's
-                   Wtab <- table(W)
-                   m <- length(w <- as.numeric(dimnames(Wtab)$x)) # contains w's (= sort(unique(W)))
-                   Wtab. <- as.numeric(Wtab)
-                   p <- Wtab./n # relative frequency
-                   ## solve the system of equations (18) in Genest, Neslehova, Ziegel (2011) to find s
-                   if(m < 2) stop("quantity 'm' must be >= 2")
-                   s <- numeric(m-1)
-                   d <- ncol(u)
-                   s[m-1] <- 1-(w[2]/p[m])^(1/(d-1))
-                   if(m >= 3){ # note: could be solved explicitly for d==2
-                       for(k in (m-2):1){
-                           f <- function(x){
-                               s. <- c(s[(m-1):(k+1)], x) # at least two elements; the last one is the running variable
-                               s.d1 <- (1-cumprod(s.))^(d-1)
-                               sum(s.d1*p[(k+1):m])-w[m-k+1]
-                           }
-                           s[k] <- uniroot(f, interval=c(0,1))$root
-                       }
-                   }
-                   ## construct r's from s's
-                   r <- rep(1, m)
-                   if(m >= 2) for(k in (m-1):1) r[k] <- r[k+1]*s[k]
-                   ## repeat accordingly
-                   r <- vapply(1:m, FUN=function(k) rep(r[k], Wtab.[k]), FUN.VALUE=numeric(Wtab.[k]))
-
-                   ## compute
-                   iPsihu <- matrix(NA, nrow=n, ncol=d)
-                   U <- iPsihu/r # hat{psi}^{-1}(u)/r
-                   warning("pseudo-observations 'U' of the uniform distribution on the unit simplex not yet implemented") # TODO (requires inverting the estimator of Genest, Neslehova, Ziegel (2011)) + test this code
-
-                   ## return
-                   list(R=r, U=U)
+                   R <- rowSums(iPsiu)
+                   return(list(R=R, U=iPsiu/R))
                }
+
+               ## estimate psi^{-1} via inverting the estimator of psi of Genest, Neslehova, Ziegel
+               ## (2011; Algorithm 1; Section 4.3)
+
+               ## compute r_1,..,r_m and p_1,..,p_m
+               wp <- w.p(u) # = w.p(x); p = wp[,"p"]
+               d <- ncol(u) # dimension d
+               r <- r.solve(wp, d) # compute r_1,..,r_m
+
+               ## compute R_1,..,R_n
+               n <- nrow(u)
+               R <- R.pobs(r, p=wp[,"p"], n=n) # without shuffling
+
+               ## compute iPsi.n(u) and return
+               list(R=R, U=iPsi.n(u, r=r, p=wp[,"p"], d=d)/R) # U = psi_n^{-1}(u)/R; maybe divide by the sum of the psi_n^{-1}(u)?
+
            },
            stop("wrong method"))
 }
 
-##' Compute supposedly Beta distributed observations from supposedly uniformly
-##' distributed observations on the unit sphere
-##'
 ##' @title Compute supposedly Beta distributed observations from supposedly
 ##'        uniformly distributed observations on the unit sphere
 ##' @param u (n, d)-matrix of supposedly uniformly distributed (row) vectors

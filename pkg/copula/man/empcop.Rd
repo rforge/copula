@@ -32,8 +32,8 @@ dCn(u, U, j.ind=1:d, b=0.05, ...)
     first-order partial derivatives.}
   \item{offset}{scaling factor (defaults to 0) of the form
     \code{sum(..)/(n+offset)}.}
-  \item{method}{method string, indicating which method is applied to
-    compute the empirical copula.}
+  \item{method}{\code{\link{character}} string indicating which method
+    is applied to compute the empirical copula.}
   \item{\dots}{additional argumets passed to \code{C.n()}.}
 }
 \value{
@@ -91,7 +91,7 @@ dCn(u, U, j.ind=1:d, b=0.05, ...)
   Deheuvels, P. (1981).  A non parametric test for independence,
   \emph{Publ. Inst. Statist. Univ. Paris}. \bold{26}, 29--50.
 
-  Genest, C., \enc{Nešlehová}{Neslehova}, J., and Quessy, J.-F. (2012). Tests of symmetry
+  Genest, C., G. \enc{Nešlehová}{Neslehova}, J., and Quessy, J.-F. (2012). Tests of symmetry
   for bivariate copulas, \emph{Ann. Inst. Stat. Math.}. \bold{64}, 811--834.
 }
 \seealso{\code{\link{pobs}()} for computing pseudo-observations,

@@ -184,14 +184,14 @@ contour(norm.cop, pCopula)
 
 ## a 3-dimensional normal copula
 u <- rCopula(1000, normalCopula(0.5, dim = 3))
-if(require("scatterplot3d"))
+if(require(scatterplot3d))
   scatterplot3d(u)
 
 ## a 3-dimensional clayton copula
 cl3 <- claytonCopula(2, dim = 3)
 v <- rCopula(1000, cl3)
 pairs(v)
-if(require("scatterplot3d"))
+if(require(scatterplot3d))
   scatterplot3d(v)
 
 ## Compare with the "nacopula" version :

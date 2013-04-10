@@ -84,8 +84,8 @@ export(indepTestSim, indepTest, multIndepTest,
 export(gofCopula, gofEVCopula)
 
 ## ggraph utils
-export(pairwiseCcop, pairwiseIndepTest, pviTest, gpviTest) ## R/ggraph-tools.R
-export(pairsColList, pairsRosenblatt) ## R/ggraph-graphics.R
+export(pairwiseCcop, pairwiseIndepTest, pviTest, gpviTest, RUpobs, gofBTstat) # R/ggraph-tools.R
+export(pairsColList, pairsRosenblatt) # R/ggraph-graphics.R
 
 ## other nonparametric tests
 export(evTestC, evTestA, evTestK)
@@ -157,7 +157,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"beta.", "betan", "pobs"
        ,"ebeta", "etau", "emde", "dDiag", "edmle", "emle", "enacopula"
        ## goodness-of-fit
-       ,"gofTstat", "gofBTstat", "rtrafo", "htrafo", "gnacopula"
+       ,"gofTstat", "rtrafo", "htrafo", "gnacopula"
        ## Kendall distribution
        ,"K", "Kn", "pK", "qK", "dK", "rK"
        ## misc

@@ -30,6 +30,9 @@ K <- function(u, cop, d, n.MC=0, log=FALSE){
 ##' @param x data (in IR^d) based on which K is estimated
 ##' @return K_{n,d}(u)
 ##' @author Marius Hofert
+##' Note: This is the empirical distribution function of a discrete radial part
+##'       and thus K_{n,d}(0) > 0. The mass at the largest value of the support
+##'       of R determines K_{n,d}(0)
 Kn <- function(u, x)
 {
     stopifnot(0 <= u, u <= 1, (n <- nrow(x)) >= 1, (d <- ncol(x)) >= 1)

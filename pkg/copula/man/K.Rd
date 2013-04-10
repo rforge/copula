@@ -1,5 +1,6 @@
 \name{K}
 \alias{K}
+\alias{Kn}
 \alias{pK}
 \alias{qK}
 \alias{dK}
@@ -88,7 +89,7 @@ rK(n, cop, d)
     psi^{(d)}(psi^{-1}(u))(-(psi^{-1})'(u))(psi^{-1}(u))^{d-1}/(d-1)!}
 
   The empirical Kendall distribution function is computed as in Genest,
-  \enc{Nešlehová}{Neslehova}, Ziegel (2011).
+  G. \enc{Nešlehová}{Neslehova}, Ziegel (2011).
 }
 \value{The empirical Kendall distribution function, the Kendall
   distribution function, its quantile function, density, and random
@@ -104,7 +105,7 @@ rK(n, cop, d)
   under known margins. \emph{Journal of Multivariate Analysis}
   \bold{110}, 133--150.
 
-  Genest, C., \enc{Nešlehová}{Neslehova}, J., and Ziegel, J. (2011).
+  Genest, C., G. \enc{Nešlehová}{Neslehova}, J., and Ziegel, J. (2011).
   Inference in multivariate Archimedean copula models. \emph{TEST}
   \bold{20}, 223--256.
 }
@@ -132,9 +133,10 @@ K.n <- Kn(u, x=X)
 lines(u, K.n, col="royalblue3") # Kn
 ## difference at 0
 edfK(0) # edf of K at 0
-K.n[1] # K_n(0)
+K.n[1] # K_n(0); this is > 0 since K.n is the edf of a discrete distribution
 ## => therefore, Kn(K.sample, x=X) is not uniform
 plot(Kn(K.sample, x=X), ylim=c(0,1))
+## Note: Kn(0) -> 0 for n -> Inf
 
 ## compute Kendall distribution function
 u <- seq(0,1, length.out = 255)
