@@ -27,7 +27,7 @@ Description: Classes (S4) of commonly used elliptical, Archimedean, extreme
  Merged former package 'nacopula' for nested Archimedean copulas: Efficient
  sampling algorithms, various estimators, goodness-of-fit tests and related
  tools and special functions.
-License: GPL (>= 3)
+License: GPL (>= 3) | file LICENCE
 Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R special-func.R
 	 cop_objects.R nacopula.R
 	 derCdfPdf.R amhCopula.R amhExpr.R An.R
