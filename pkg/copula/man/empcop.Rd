@@ -34,6 +34,7 @@ dCn(u, U, j.ind=1:d, b=0.05, ...)
     \code{sum(..)/(n+offset)}.}
   \item{method}{\code{\link{character}} string indicating which method
     is applied to compute the empirical copula.}
+%% FIXME,  "C" and "R"  must be documented
   \item{\dots}{additional argumets passed to \code{C.n()}.}
 }
 \value{
@@ -56,7 +57,7 @@ dCn(u, U, j.ind=1:d, b=0.05, ...)
 }
 \details{
   There are several asymptotically equivalent definitions of the
-  empirical copula. Here, the empirical copula is simply defined as
+  empirical copula.  Here, the empirical copula is simply defined as
   the empirical distribution function computed from the
   pseudo-observations, that is,
   \deqn{C_n(\bm{u})=\frac{1}{n}\sum_{i=1}^n\mathbf{1}_{\{\hat{\bm{U}}_i\le\bm{u}\}},}{(1/(n+1))
@@ -67,32 +68,34 @@ dCn(u, U, j.ind=1:d, b=0.05, ...)
   The approximation for the \eqn{j}th partial derivative of the limiting
   copula \eqn{C} is implemented as in Genest et al. (2012), and given, for
   \eqn{u_j\in[0,b)}{u[j] in [0, b)}, by
-%% FIXME ?? text version of formulas, below have twice  "hat(C.)[jn](u)"
   \deqn{\hat{\dot{C}}_{jn}(\bm{u}) =\frac{C_n(u_1,\dots,u_{j-1},2b,u_{j+1},\dots,u_d)}{2b},}{%
               hat(C.)[jn](u)  =  C[n](u[1], .., u[j-1], 2b, u[j+1], .., u[d]) / (2b),}
   for \eqn{u_j\in[b,1-b]}{u[j] in [b, 1-b]} by
   \deqn{\hat{\dot{C}}_{jn}(\bm{u})=\frac{C_n(u_1,\dots,u_{j-1},u_j+b,u_{j+1},\dots,u_d)-C_n(u_1,\dots,u_{j-1},u_j-b,u_{j+1},\dots,u_d)}{2b},}{%
-    hat(C.)[jn](u) = (C[n](u[1], .., u[j-1], u[j]+b, u[j+1], .., u[d]) - C[n](u[1], .., u[j-1], u[j]-b, u[j+1], .., u[d])) / (2b),}
+    hat(C.)[jn](u) = (C[n](u[1], .., u[j-1], u[j]+b, u[j+1], .., u[d]) -
+                      C[n](u[1], .., u[j-1], u[j]-b, u[j+1], .., u[d])) / (2b),}
   and for \eqn{u_j\in(1-b,1]}{u[j] in (1-b, 1]} by
   \deqn{\hat{\dot{C}}_{jn}(\bm{u})=\frac{C_n(u_1,\dots,u_{j-1},1,u_{j+1},\dots,u_d)-C_n(u_1,\dots,u_{j-1},1-2b,u_{j+1},\dots,u_d)}{2b},}{%
-    hat(C.)[jn](u) = (C[n](u[1], .., u[j-1], 1, u[j+1], .., u[d]) - C[n](u[1], .., u[j-1], 1-2b, u[j+1], .., u[d])) / (2b),}
+    hat(C.)[jn](u) = (C[n](u[1], .., u[j-1], 1, u[j+1], .., u[d]) -
+                      C[n](u[1], .., u[j-1], 1-2b, u[j+1], .., u[d])) / (2b),}
   where \eqn{b} denotes the bandwidth and \eqn{C_n}{C[n]} the empirical copula.
 }
 \author{Ivan Kojadinovic, Marius Hofert}
 \references{
   R\enc{ü}{u}schendorf, L. (1976).  Asymptotic distributions of
-  multivariate rank order statistics, \emph{Annals of
-    Statistics}. \bold{4}, 912--923.
+  multivariate rank order statistics,
+  \emph{Annals of Statistics} \bold{4}, 912--923.
 
-  Deheuvels, P. (1979).  La fonction de dépendance empirique et ses
-  propriétés: un test non paramétrique d'indépendance, \emph{Acad. Roy.
-    Belg. Bull. Cl. Sci.}, 5th Ser. \bold{65}, 274--292.
+  Deheuvels, P. (1979).  La fonction de d\enc{é}{e'}pendance empirique et ses
+  propri\enc{été}{e'te'}s: un test non param\enc{é}{e'}trique d'ind\enc{é}{e'}pendance,
+  \emph{Acad. Roy. Belg. Bull. Cl. Sci.}, 5th Ser. \bold{65}, 274--292.
 
   Deheuvels, P. (1981).  A non parametric test for independence,
-  \emph{Publ. Inst. Statist. Univ. Paris}. \bold{26}, 29--50.
+  \emph{Publ. Inst. Statist. Univ. Paris} \bold{26}, 29--50.
 
-  Genest, C., G. \enc{Nešlehová}{Neslehova}, J., and Quessy, J.-F. (2012). Tests of symmetry
-  for bivariate copulas, \emph{Ann. Inst. Stat. Math.}. \bold{64}, 811--834.
+  Genest, C., G. \enc{Nešlehová}{Neslehova}, J., and Quessy, J.-F. (2012).
+  Tests of symmetry for bivariate copulas,
+  \emph{Ann. Inst. Stat. Math.} \bold{64}, 811--834.
 }
 \seealso{\code{\link{pobs}()} for computing pseudo-observations,
   \code{\link{pCopula}()} for evaluating a copula.}
@@ -137,4 +140,5 @@ summary(as.vector(abs(der23-der23.))) # approximation error summary
               Cn (U, u))))
 }
 }
-\keyword{empirical copula}
+\keyword{multivariate}
+

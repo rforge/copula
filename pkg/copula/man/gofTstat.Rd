@@ -97,7 +97,6 @@ u <- rtrafo(Uhat, cop) # Rosenblatt transformed data (with correct copula)
 gofTstat(u, method="Sn", copula=cop) # compute test statistic Sn; requires copula argument
 }
 \keyword{htest}
-\keyword{statistic}
 \keyword{goodness-of-fit}
 \keyword{distribution}
 \keyword{multivariate}

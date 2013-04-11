@@ -42,7 +42,6 @@ qqp(1, Bmat=Bmat) # k=1
 qqp(3, Bmat=Bmat) # k=3
 }
 \keyword{htest}
-\keyword{statistic}
 \keyword{goodness-of-fit}
 \keyword{distribution}
 \keyword{multivariate}

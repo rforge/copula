@@ -158,4 +158,4 @@ p.Li(-1:-20, from=0, to=.99, colors=ccol, ylim = c(.01, 1e7),
      log = "y", yaxt = "n")
 if(require(sfsmisc)) eaxis(2) else axis(2)
 }
-\keyword{arithmetic}
+\keyword{arith}

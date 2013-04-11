@@ -67,6 +67,6 @@ stopifnot(identical(param, P2p(P)),
 stopifnot(identical(getSigma (tCt),
 		    toeplitz (c(1, rhoP))))
 }
-\keyword{parameter}
-\keyword{vector}
-\keyword{matrix}
+\keyword{array}
+\keyword{manip}
+

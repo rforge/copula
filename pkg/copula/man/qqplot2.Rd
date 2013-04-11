@@ -72,4 +72,4 @@ qqplot2(x, qF=qexp,
         main.args=list(text=expression(bold(Exp(1)~~"Q-Q Plot")),
                        side=3, cex=1.3, line=1.1, xpd=NA))
 }
-\keyword{qqplot}
+\keyword{hplot}% from doc/KEYWORDS
