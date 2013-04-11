@@ -215,7 +215,7 @@ gpviString <- function(pvalues, sep="   ", digits=2) {
 ##'         "ellip": qGg, the quantile function of the function G_g in Genest, Hofert, Neslehova (2013)
 ##'         "archm": iPsi, the inverse of the (assumed) generator
 ##'       - used in Genest, Hofert, Neslehova (2013)
-RUpobs <- function(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
+RSpobs <- function(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
 {
     ## check
     if(!is.matrix(x)) x <- rbind(x, deparse.level=0L)
@@ -229,7 +229,7 @@ RUpobs <- function(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
                ## estimate the standardized dispersion matrix with entries
                ## P_{jk} = \Sigma_{jk}/sqrt{\Sigma_{jj}\Sigma_{kk}}
                ## and compute the inverse of the corresponding Cholesky factor
-               P <- as.matrix(Matrix::nearPD(sin(cor(x, method="kendall")*pi/2), corr=TRUE)$mat)
+               P <- as.matrix(nearPD(sin(cor(x, method="kendall")*pi/2), corr=TRUE)$mat)
                A. <- chol(P) # upper triangular R such that R^TR = P; note: L = t(A.) s.t. LL^T = P
                A.inv <- solve(A.) # A.^{-1} = (A^{-1})^T
 

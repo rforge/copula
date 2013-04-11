@@ -25,6 +25,8 @@ importFrom("mvtnorm",
             dmvnorm, pmvnorm, rmvnorm,
             dmvt, pmvt, rmvt)
 
+importFrom("Matrix", nearPD)
+
 ## FIXME: we would only want importS3MethodsFrom("pspline", predict)
 import("pspline")
 ## S3method(predict, smooth.Pspline)
@@ -84,7 +86,7 @@ export(indepTestSim, indepTest, multIndepTest,
 export(gofCopula, gofEVCopula)
 
 ## ggraph utils
-export(pairwiseCcop, pairwiseIndepTest, pviTest, gpviTest, RUpobs, gofBTstat) # R/ggraph-tools.R
+export(pairwiseCcop, pairwiseIndepTest, pviTest, gpviTest, RSpobs, gofBTstat) # R/ggraph-tools.R
 export(pairsColList, pairsRosenblatt) # R/ggraph-graphics.R
 
 ## other nonparametric tests

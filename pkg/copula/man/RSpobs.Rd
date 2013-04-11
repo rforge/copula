@@ -1,17 +1,17 @@
-\name{RUpobs}
-\alias{RUpobs}
+\name{RSpobs}
+\alias{RSpobs}
 \title{Compute Pseudo-Obervations of the Radial Part and Uniform
   Distribution of Elliptical and Archimedean Copulas}
 \description{
   Given a matrix of iid multivariate data from a meta-elliptical or
-  meta-Archimedean model, \code{RUpobs()} computes pseudo-observations
+  meta-Archimedean model, \code{RSpobs()} computes pseudo-observations
   of the radial part \eqn{R} and the vector \eqn{\bm{U}}{U} which
   follows a uniform distribution on the unit sphere (for elliptical
   copulas) or the unit simplex (for Archimedean copulas). These
   quantities can be used for (graphical) goodness-of-fit tests, for example.
 }
 \usage{
-RUpobs(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
+RSpobs(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
 }
 \arguments{
   \item{x}{an \eqn{(n, d)}-\code{\link{matrix}} of data; if
@@ -77,7 +77,7 @@ Sigma <- L \%*\% t(L) # pos.-def. dispersion matrix (*a* covariance matrix; not 
 X <- mvtnorm::rmvt(n, mean=mu, sigma=Sigma, df=nu) # multivariate t_nu data
 
 ## compute pseudo-observations of the radial part and uniform distribution
-RU <- RUpobs(X, method="ellip")
+RU <- RSpobs(X, method="ellip")
 R <- RU$R
 U <- RU$U
 

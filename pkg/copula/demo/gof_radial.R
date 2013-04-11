@@ -70,7 +70,7 @@ Sigma <- L %*% t(L) # positive definite
 X <- rmvnorm(n, mean=mu, sigma=Sigma) # multivariate normal data
 
 ## compute pseudo-observations of the radial part and uniform distribution
-RUnorm <- copula:::RUpobs(X, method="ellip")
+RUnorm <- RSpobs(X, method="ellip")
 Rnorm <- RUnorm$R
 Unorm <- RUnorm$U
 
@@ -92,7 +92,7 @@ X <- rmvt(n, mean=mu, sigma=Sigma, df=nu) # multivariate t4 data
 ## note: cor(X) ~= cov2cor(Sigma), so Sigma is the *covariance* matrix of the t distribution
 
 ## compute pseudo-observations of the radial part and uniform distribution
-RUe <- copula:::RUpobs(X, method="ellip")
+RUe <- RSpobs(X, method="ellip")
 Re <- RUe$R
 Ue <- RUe$U
 
@@ -125,10 +125,10 @@ U.C <- rCopula(n, archmCopula("Clayton", param=getAcop("Clayton")@iTau(tau), dim
 U.G <- rCopula(n, archmCopula("Gumbel", param=getAcop("Gumbel")@iTau(tau), dim=d))
 
 ## compute pseudo-observations of the radial part
-RUC <- copula:::RUpobs(U.C, method="ellip")
+RUC <- RSpobs(U.C, method="ellip")
 RC <- RUC$R
 UC <- RUC$U
-RUG <- copula:::RUpobs(U.G, method="ellip")
+RUG <- RSpobs(U.G, method="ellip")
 RG <- RUG$R
 UG <- RUG$U
 
@@ -185,7 +185,7 @@ plot(nu, nLL+1200, type="l", log="xy",
 nu. <- optimize(nLLt, interval=c(.5, 64), P=P, u=u, tol=1e-7)$minimum # 11.96
 
 ## 4.2) checking if the data indeed comes from a meta-t_{nu.}-model
-RUe <- copula:::RUpobs(x, method="ellip")
+RUe <- RSpobs(x, method="ellip")
 Re <- RUe$R
 Ue <- RUe$U
 
