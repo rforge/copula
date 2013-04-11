@@ -33,8 +33,8 @@ dCn(u, U, j.ind=1:d, b=0.05, ...)
   \item{offset}{scaling factor (defaults to 0) of the form
     \code{sum(..)/(n+offset)}.}
   \item{method}{\code{\link{character}} string indicating which method
-    is applied to compute the empirical copula.}
-%% FIXME,  "C" and "R"  must be documented
+    is applied to compute the empirical copula. \code{method="C"} uses a
+    an implmentation in C, \code{method="R"} uses an \R implementation.}
   \item{\dots}{additional argumets passed to \code{C.n()}.}
 }
 \value{

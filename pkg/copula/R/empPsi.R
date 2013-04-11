@@ -102,6 +102,11 @@ psi.n <- function(x, r, p, d) {
 ##' @param ... additional arguments passed to uniroot()
 ##' @return psi_{n,d}^{-1}(u)
 ##' @author Marius Hofert
+##' Note: 1) psi.n(r_{m-i}) = w_{i+1}, i = 1, .., m-1
+##'          x-axis: r_1, r_2, .., r_m [psi.n(r_m)=0]
+##'          y-axis: w_1=0, ..., w_{m-2}, w_{m-1}, w_m < 1; psi.n(0)=1, w_m
+##'       2) \hat{U}_i are also j/(n+1) as w_k's => if iPsi.n(\hat{U}_i) = w_k for some k
+##'          one could return the corresponding r
 iPsi.n <- function(u, r, p, d, interval=c(0, max.r), ...) {
     stopifnot((m <- length(r)) == length(p), d > 1, 0 <= u, u <= 1, (n <- length(u)) >= 1)
     max.r <- max(r)

@@ -24,7 +24,7 @@
 ##'        is computed (if not pseudo-data already, use do.pobs=TRUE)
 ##' @param offset scaling factor sum()/(n+offset) when computing the empirical
 ##'        copula
-##' @param method method string
+##' @param method method string ("C" for C code; "R" for R code)
 ##' @return empirical copula of U at u
 ##' @author Ivan Kojadinovic and Marius Hofert
 ##' Note: See the .Rd for a nice graphical check with the Kendall function
