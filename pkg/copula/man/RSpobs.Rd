@@ -30,10 +30,10 @@ RSpobs(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
   \item{\dots}{additional arguments passed to the implemented
     methods. These can be
     \describe{
-      \item{\code{method="ellip"}}{\code{qGg()}
+      \item{\code{method="ellip"}}{\code{qQg()}
 	(the quantile \code{\link{function}} of the (assumed) distribution function
 	\eqn{G_g}{G[g]} as given in Genest, Hofert, G. \enc{Nešlehová}{Neslehova}
-	(2014)); if provided, \code{qGg()} is used in the transformation for
+	(2014)); if provided, \code{qQg()} is used in the transformation for
 	obtaining pseudo-observations of \eqn{R} and \eqn{\bm{U}}{U}
 	(see the code for more details).}
       \item{\code{method="archm"}}{\code{iPsi()} (the assumed underlying

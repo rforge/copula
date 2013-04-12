@@ -212,7 +212,7 @@ gpviString <- function(pvalues, sep="   ", digits=2) {
 ##'            the unit sphere (for method="ellip") or unit simplex (for method="archm")
 ##' @author Marius Hofert
 ##' Note: - the following (true, but unknown) functions can be provided via '...':
-##'         "ellip": qGg, the quantile function of the function G_g in Genest, Hofert, Neslehova (2013)
+##'         "ellip": qQg, the quantile function of the function Q_g in Genest, Hofert, Neslehova (2013)
 ##'         "archm": iPsi, the inverse of the (assumed) generator
 ##'       - used in Genest, Hofert, Neslehova (2013)
 RSpobs <- function(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
@@ -234,9 +234,9 @@ RSpobs <- function(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
                A.inv <- solve(A.) # A.^{-1} = (A^{-1})^T
 
                ## compute Ys
-               Y <- if(hasArg(qGg)) { # if qGg() has been provided
-                   qGg <- list(...)$qGg
-                   apply(u, 2, qGg)
+               Y <- if(hasArg(qQg)) { # if qQg() has been provided
+                   qQg <- list(...)$qQg
+                   apply(u, 2, qQg)
                } else { # estimate via empirical quantiles
                    n <- nrow(x)
                    mu <- matrix(rep(colMeans(x), each=n), nrow=n)
