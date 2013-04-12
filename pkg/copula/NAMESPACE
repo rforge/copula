@@ -160,6 +160,8 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"ebeta", "etau", "emde", "dDiag", "edmle", "emle", "enacopula"
        ## goodness-of-fit
        ,"gofTstat", "rtrafo", "htrafo", "gnacopula"
+       ## distribution of the radial part for Archimedean copulas
+       ,"F.R"
        ## Kendall distribution
        ,"K", "Kn", "pK", "qK", "dK", "rK"
        ## misc

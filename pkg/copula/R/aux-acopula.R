@@ -1497,3 +1497,53 @@ getAcop <- function(family, check=TRUE) {
 
 coeffG.methods <- eval(formals(coeffG)$method)# - namespace hidden
 ## --> accesses formals(dsumSibuya) .. hence at end
+
+
+### McNeil, Neslehova (2009): Distribution function of the radial part #########
+
+##' \bar{F}_R(x) = \sum_{k=0}^{d-1} (x^k * (-1)^k * psi^{(k)}(x)) / k!
+##'
+##' @title Distribution Function of the Radial Part for Archimedean Copulas
+##' @param x evaluation points
+##' @param family Archimedean family
+##' @param theta parameter
+##' @param d dimension
+##' @param survival logical indicating whether the survival function of F_R is
+##'        returned
+##' @param log logical indicating whether the logarithm is returned
+##' @param ... additional arguments passed to absdPsi()
+##' @return F_R at x
+##' @author Marius Hofert
+F.R <- function(x, family, theta, d, survival = FALSE, log = FALSE, ...)
+{
+    ## basic checks
+    stopifnot(family %in% c_longNames, d >= 1, (n <- length(x)) >= 1)
+    family <- match.arg(family, choices=c_longNames)
+
+    ## d == 1
+    cop <- onacopulaL(family, list(theta, 1:d))
+    psi.x <- cop@copula@psi(x, theta=theta)
+    if(d == 1) {
+        return( if(survival) if(log) log(psi.x) else psi.x
+                else if(log) log1p(-psi.x) else 1-psi.x )
+    }
+
+    ## d >= 2; compute \log\bar{F}_R(x)
+    lpsi <- log(psi.x) # n-vector; k==0
+    k <- 1:(d-1)
+    lx <- log(x)
+    lkf <- lfactorial(k)
+    lsummands <- cbind(lpsi, # k == 0
+                       vapply(k, function(k.) # k > 0
+                                 cop@copula@absdPsi(x, theta=theta, degree=k., log=TRUE, ...) +
+                                 k.*lx - lkf[k.], rep(NA_real_, n))) # (n, d) matrix
+
+    ## compute log(\bar{F}_R(x))
+    lFb <- lsum(t(lsummands)) # length n
+    is0 <- x == 0
+    if(any(is0)) lFb[is0] <- 0
+
+    ## return
+    if(log) if(survival) lFb else log1mexp(-lFb)
+    else if(survival) exp(lFb) else -expm1(lFb)
+}
