@@ -1514,7 +1514,7 @@ coeffG.methods <- eval(formals(coeffG)$method)# - namespace hidden
 ##' @param ... additional arguments passed to absdPsi()
 ##' @return F_R at x
 ##' @author Marius Hofert
-F.R <- function(x, family, theta, d, survival = FALSE, log = FALSE, ...)
+pR <- function(x, family, theta, d, survival = FALSE, log = FALSE, ...)
 {
     ## basic checks
     stopifnot(family %in% c_longNames, d >= 1, (n <- length(x)) >= 1)
