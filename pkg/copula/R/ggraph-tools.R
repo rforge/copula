@@ -275,7 +275,7 @@ RSpobs <- function(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
                R <- R.pobs(r, p=wp[,"p"], n=n) # without shuffling
 
                ## compute iPsi.n(u) and return
-               list(R=R, U=iPsi.n(u, r=r, p=wp[,"p"], d=d)/R) # U = psi_n^{-1}(u)/R; maybe divide by the sum of the psi_n^{-1}(u)?
+               list(R=R, U=iPsi.n(u, r=r, p=wp[,"p"], d=d)/R)
 
            },
            stop("wrong method"))
