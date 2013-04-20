@@ -5,7 +5,7 @@
 \description{
   Given a matrix of iid multivariate data from a meta-elliptical or
   meta-Archimedean model, \code{RSpobs()} computes pseudo-observations
-  of the radial part \eqn{R} and the vector \eqn{\bm{U}}{U} which
+  of the radial part \eqn{R} and the vector \eqn{\bm{S}}{S} which
   follows a uniform distribution on the unit sphere (for elliptical
   copulas) or the unit simplex (for Archimedean copulas). These
   quantities can be used for (graphical) goodness-of-fit tests, for example.
@@ -23,9 +23,9 @@ RSpobs(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
     data to the \eqn{d}-dimensional unit hypercube.}
   \item{method}{\code{\link{character}} string indicating the assumed
     underlying model, being meta-elliptical if \code{method="ellip"} (in
-    which case \code{U} should be approximately uniform on the
+    which case \code{S} should be approximately uniform on the
     \eqn{d}-dimensional unit sphere) or
-    meta-Archimedean if \code{method="archm"} (in which case \code{U}
+    meta-Archimedean if \code{method="archm"} (in which case \code{S}
     should be approximately uniform on the \eqn{d}-dimensional unit simplex).}
   \item{\dots}{additional arguments passed to the implemented
     methods. These can be
@@ -34,19 +34,19 @@ RSpobs(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
 	(the quantile \code{\link{function}} of the (assumed) distribution function
 	\eqn{G_g}{G[g]} as given in Genest, Hofert, G. \enc{Nešlehová}{Neslehova}
 	(2014)); if provided, \code{qQg()} is used in the transformation for
-	obtaining pseudo-observations of \eqn{R} and \eqn{\bm{U}}{U}
+	obtaining pseudo-observations of \eqn{R} and \eqn{\bm{S}}{S}
 	(see the code for more details).}
       \item{\code{method="archm"}}{\code{iPsi()} (the assumed underlying
 	generator inverse); if provided, \code{iPsi()} is used in the
 	transformation for obtaining pseudo-observations of \eqn{R} and
-	\eqn{\bm{U}}{U} (see the code for more details).}
+	\eqn{\bm{S}}{S} (see the code for more details).}
     }
   }
 }
 \value{
   A \code{\link{list}} with components \code{R} (an
   \eqn{n}-\code{\link{vector}} containing the pseudo-observations
-  of the radial part) and \code{U} (an \eqn{(n,
+  of the radial part) and \code{S} (an \eqn{(n,
     d)}-\code{\link{matrix}} containing the pseudo-observations of the
   uniform distribution (on the unit sphere/simplex)).
 }
@@ -77,9 +77,9 @@ Sigma <- L \%*\% t(L) # pos.-def. dispersion matrix (*a* covariance matrix; not 
 X <- mvtnorm::rmvt(n, mean=mu, sigma=Sigma, df=nu) # multivariate t_nu data
 
 ## compute pseudo-observations of the radial part and uniform distribution
-RU <- RSpobs(X, method="ellip")
-R <- RU$R
-U <- RU$U
+RS <- RSpobs(X, method="ellip")
+R <- RS$R
+S <- RS$S
 
 ## 1a) Q-Q plot of R against the correct quantiles
 qqplot2(R, qF=function(p) sqrt(d*qf(p, df1=d, df2=nu)),
@@ -101,7 +101,7 @@ qqp <- function(k, Bmat)
             main.args=list(text=as.expression(substitute(plain("Beta")(s1,s2)~~
             bold("Q-Q Plot"), list(s1=k/2, s2=(ncol(Bmat)+1-k)/2))),
             side=3, cex=1.3, line=1.1, xpd=NA))
-Bmat <- gofBTstat(U)
+Bmat <- gofBTstat(S)
 qqp(1, Bmat=Bmat) # k=1
 qqp(3, Bmat=Bmat) # k=3
 

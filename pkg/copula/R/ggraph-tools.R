@@ -208,7 +208,7 @@ gpviString <- function(pvalues, sep="   ", digits=2) {
 ##' @param ... additional arguments passed to the various methods
 ##' @return list of two components:
 ##'         R: n-vector of pseudo-observations of the radial part
-##'         U: (n, d)-matrix of pseudo-observations of the uniform distribution on
+##'         S: (n, d)-matrix of pseudo-observations of the uniform distribution on
 ##'            the unit sphere (for method="ellip") or unit simplex (for method="archm")
 ##' @author Marius Hofert
 ##' Note: - the following (true, but unknown) functions can be provided via '...':
@@ -249,8 +249,8 @@ RSpobs <- function(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
                Z <- Y %*% A.inv # efficient computation of A^{-1}Y which works with upper triangular matrix A.
                R <- sqrt(rowSums(Z^2))
 
-               ## return Rs and Us (pseudo-observations of the uniform distribution on the unit sphere)
-               list(R=R, U=Z/R)
+               ## return Rs and Ss (pseudo-observations of the uniform distribution on the unit sphere)
+               list(R=R, S=Z/R)
 
            },
            "archm"={
@@ -259,7 +259,7 @@ RSpobs <- function(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
                    iPsi <- list(...)$iPsi
                    iPsiu <- iPsi(u)
                    R <- rowSums(iPsiu)
-                   return(list(R=R, U=iPsiu/R))
+                   return(list(R=R, S=iPsiu/R))
                }
 
                ## estimate psi^{-1} via inverting the estimator of psi of Genest, Neslehova, Ziegel
@@ -275,7 +275,7 @@ RSpobs <- function(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
                R <- R.pobs(r, p=wp[,"p"], n=n) # without shuffling
 
                ## compute iPsi.n(u) and return
-               list(R=R, U=iPsi.n(u, r=r, p=wp[,"p"], d=d)/R)
+               list(R=R, S=iPsi.n(u, r=r, p=wp[,"p"], d=d)/R)
 
            },
            stop("wrong method"))

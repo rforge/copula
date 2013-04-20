@@ -54,7 +54,7 @@ nLLt <- function(nu, P, u){
 }
 
 
-### 2) Ellipticality ###########################################################
+### 2) Meta-elliptical models ##################################################
 
 ### 2.1) Generate data from a multivariate normal distribution #################
 
@@ -157,9 +157,24 @@ plot(pobs(cbind(RG, BmatG[,1])), xlab=expression(italic(R)), ylab=expression(ita
      main=expression(bold("Rank plot between"~~italic(R)~~"and"~~italic(B)[1])))
 
 
-### 3) Archimedeanity ##########################################################
+### 3) Meta-Archimedean ########################################################
 
-## TODO
+set.seed(100)
+n <- 250
+d <- 5
+
+## generate data from a meta-Gumbel model with N(0,1) margins
+family <- "Gumbel"
+tau <- 0.5
+th <- iTau(archmCopula(family), tau)
+copG <- archmCopula(family, param=th, dim=d)
+U.G <- rCopula(n, copula=copG)
+X <- qnorm(U.G)
+
+
+RS <- RSpobs(X, method="archm")
+R <- RS$R
+S <- RS$S
 
 
 ### 4) Application #############################################################
@@ -167,6 +182,9 @@ plot(pobs(cbind(RG, BmatG[,1])), xlab=expression(italic(R)), ylab=expression(ita
 data(SMI.12)
 d <- ncol(x <- diff(log(SMI.12))) # log-returns
 u <- pobs(x) # pseudo-observations
+tau <- cor(u, method="kendall") # = cor(x, method="kendall")
+
+plot TODO: visualize matrix of pairwise tau! => not Archimedean
 
 ## 4.1) estimate a multivariate t copula (with the approach of
 ##      Demarta, McNeil (2005)) assuming [and later checking] if
