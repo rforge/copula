@@ -32,7 +32,7 @@ Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R special-func.
 	 cop_objects.R nacopula.R
 	 derCdfPdf.R amhCopula.R amhExpr.R An.R
          archmCopula.R asymCopula.R asymExplicitCopula.R claytonCopula.R
-         claytonExpr.R ellipCopula.R empcop.R empPsi.R
+         claytonExpr.R ellipCopula.R empcop.R empPsi.R R.R
 	 estimation.R evCopula.R evTests.R
          exchTests.R fgmCopula.R fitCopula.R fitMvdc.R frankCopula.R
          frankExpr.R galambosCopula.R galambosExpr-math.R galambosExpr.R

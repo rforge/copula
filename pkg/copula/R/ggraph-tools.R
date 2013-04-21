@@ -229,7 +229,8 @@ RSpobs <- function(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
                ## estimate the standardized dispersion matrix with entries
                ## P_{jk} = \Sigma_{jk}/sqrt{\Sigma_{jj}\Sigma_{kk}}
                ## and compute the inverse of the corresponding Cholesky factor
-               P <- as.matrix(nearPD(sin(cor(x, method="kendall")*pi/2), corr=TRUE)$mat)
+               ## Note: this is *critical* (=> completely wrong R's) if d > n/2 (roughly)
+               P <-  as.matrix(nearPD(sin(cor(x, method="kendall")*pi/2), corr=TRUE)$mat)
                A. <- chol(P) # upper triangular R such that R^TR = P; note: L = t(A.) s.t. LL^T = P
                A.inv <- solve(A.) # A.^{-1} = (A^{-1})^T
 
@@ -245,7 +246,7 @@ RSpobs <- function(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
                    sapply(1:ncol(u), function(j) quantile(x.[,j], probs=u[,j]))
                }
 
-               ## compute Zs and Rs (pseudo-observations of the radial part)
+               ## compute Zs and Rs (pseudo-observations of the radial part); numerically non-critical
                Z <- Y %*% A.inv # efficient computation of A^{-1}Y which works with upper triangular matrix A.
                R <- sqrt(rowSums(Z^2))
 

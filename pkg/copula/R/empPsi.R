@@ -112,7 +112,7 @@ iPsi.n <- function(u, r, p, d, interval=c(0, max.r), ...) {
     max.r <- max(r)
     res <- rep(max.r, n) # => psi_{n,d}^{-1}(u) = max.r for all u <= psi_{n,d}(max.r)
     f <- function(x, u) psi.n(x, r=r, p=p, d=d) - u
-    ii <- u > psi.n(max.r)
+    ii <- u > psi.n(max.r, r=r, p=p, d=d)
     if(any(ii)) {
         res[ii] <- vapply(u[ii], function(u.)
                           uniroot(f, interval=interval, u=u., ...)$root, NA_real_)

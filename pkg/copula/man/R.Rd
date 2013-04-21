@@ -1,21 +1,29 @@
-\name{pR}
+\name{R}
 \alias{pR}
-\title{Distribution Function of the Radial Part for Archimedean Copulas}
+\alias{qR}
+\title{Distribution and Quantile Function of the Radial Part for Archimedean Copulas}
 \description{
-  The distribution function \eqn{F_R} of the radial part of an Archimedean
-  copula. The formula is from McNeil and G. \enc{Nešlehová}{Neslehova} (2009)
+  \code{pR()} computes the distribution function \eqn{F_R} of the radial
+  part of an Archimedean copula. The formula is from McNeil and G.
+  \enc{Nešlehová}{Neslehova} (2009).
+
+  \code{qR()} computes the quantile function of \eqn{F_R}. The formula
+  is from McNeil and G. \enc{Nešlehová}{Neslehova}
 }
 \usage{
 pR(x, family, theta, d, survival = FALSE, log = FALSE, \dots)
+qR(p, family, theta, d, interval, \dots)
 }
 \arguments{
   \item{x}{evaluation point(s) (have to be \eqn{[0,\infty)}{[0, inf)}.}
+  \item{p}{evaluation point(s) of the quantile function.}
   \item{family}{Archimedean family.}
   \item{theta}{parameter \eqn{theta}.}
   \item{d}{dimension \eqn{d}.}
   \item{survival, log}{\code{\link{logical}} indicating whether the
     \emph{logarithm} of the \emph{survival} function of \eqn{R} is
     computed.}
+  \item{interval}{root-search interval.}
   \item{\dots}{additional arguments passed to the procedure for
     computing derivatives.}
 }

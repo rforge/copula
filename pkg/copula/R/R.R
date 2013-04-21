@@ -1,0 +1,79 @@
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
+##
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
+##
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
+
+
+### McNeil, Neslehova (2009): Distribution function of the radial part #########
+
+##' \bar{F}_R(x) = \sum_{k=0}^{d-1} (x^k * (-1)^k * psi^{(k)}(x)) / k!
+##'
+##' @title Distribution Function of the Radial Part for Archimedean Copulas
+##' @param x evaluation points
+##' @param family Archimedean family
+##' @param theta parameter
+##' @param d dimension
+##' @param survival logical indicating whether the survival function of F_R is
+##'        returned
+##' @param log logical indicating whether the logarithm is returned
+##' @param ... additional arguments passed to absdPsi()
+##' @return F_R at x
+##' @author Marius Hofert
+pR <- function(x, family, theta, d, survival = FALSE, log = FALSE, ...)
+{
+    ## basic checks
+    stopifnot(family %in% c_longNames, d >= 1, (n <- length(x)) >= 1)
+    family <- match.arg(family, choices=c_longNames)
+
+    ## d == 1
+    cop <- onacopulaL(family, list(theta, 1:d))
+    psi.x <- cop@copula@psi(x, theta=theta)
+    if(d == 1)
+        return( if(survival) if(log) log(psi.x) else psi.x
+                else if(log) log1p(-psi.x) else 1-psi.x )
+
+    ## d >= 2; compute \log\bar{F}_R(x)
+    lpsi <- log(psi.x) # n-vector; k==0
+    k <- 1:(d-1)
+    lx <- log(x)
+    lkf <- lfactorial(k) # length d-1
+    mat1d1 <- vapply(k, function(k.) # (n, d-1) matrix; k = 1,..,d-1
+                     cop@copula@absdPsi(x, theta=theta, degree=k., log=TRUE, ...) +
+                     k.*lx - lkf[k.], rep(NA_real_, n))
+    lsummands <- matrix(c(lpsi, mat1d1), nrow=n, ncol=d) # (n, d) matrix; also works for n=1 (!)
+
+    ## compute log(\bar{F}_R(x))
+    lFb <- lsum(t(lsummands)) # length n
+    is0 <- x == 0
+    if(any(is0)) lFb[is0] <- 0
+
+    ## return
+    if(log) if(survival) lFb else log1mexp(-lFb)
+    else if(survival) exp(lFb) else -expm1(lFb)
+}
+
+##' @title Computing the Quantile Function of pR()
+##' @param p probability in (0,1) where to evaluate qR()
+##' @param family Archimedean family
+##' @param theta parameter
+##' @param d dimension
+##' @param ... additional arguments passed to pR()
+##' @return the quantile function of F_R at x
+##' @author Marius Hofert
+qR <- function(p, family, theta, d, interval, ...)
+{
+    stopifnot(family %in% c_longNames, d >= 1, (n <- length(p)) >= 1)
+    y <- log1p(-p) # to be able to work with highest precision with pR()
+    f <- function(x, y) pR(x, family=family, theta=theta, d=d, survival=TRUE, log=TRUE, ...) - y
+    vapply(y, function(y.) uniroot(f, interval=interval, y=y.)$root, NA_real_)
+}
