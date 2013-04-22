@@ -324,31 +324,25 @@ for(d. in d) {
 
 ### 3) Meta-Archimedean ########################################################
 
-require(copula)
-set.seed(271)
-n <- 250
-d <- 5
-
-## debugging
-th <- 2
-family <- "Gumbel"
-if(FALSE)
-    debug(qacR)
-
-p <- ppoints(n)
-
-qacR(p[1], family=family, theta=th, d=d, interval=c(0, 1e12))
-
-qacR(p, family=family, theta=th, d=d, interval=c(0, 1e12))
-
-undebug(qacR)
-
+if(FALSE) {
+    ## checking qacR()
+    set.seed(271)
+    n <- 250
+    d <- 5
+    th <- 2
+    family <- "Gumbel"
+    p <- ppoints(n)
+    qR <- qacR(p, family=family, theta=th, d=d, interval=c(0, 200)) # ~ 20s
+    p. <- pacR(qR, family=family, theta=th, d=d) # check
+    summary(p-p.) # => fine
+}
 
 ## generate data from a meta-Gumbel model with N(0,1) margins
 family <- "Gumbel"
 tau <- 0.5
 th <- iTau(archmCopula(family), tau)
 copG <- archmCopula(family, param=th, dim=d)
+set.seed(271)
 U.G <- rCopula(n, copula=copG)
 X <- qnorm(U.G)
 
