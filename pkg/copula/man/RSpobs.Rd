@@ -1,7 +1,7 @@
 \name{RSpobs}
 \alias{RSpobs}
-\title{Compute Pseudo-Obervations of the Radial Part and Uniform
-  Distribution of Elliptical and Archimedean Copulas}
+%% still too long: ..
+\title{Pseudo-Observations of Radial and Uniform Part of Elliptical and Archimedean Copulas}
 \description{
   Given a matrix of iid multivariate data from a meta-elliptical or
   meta-Archimedean model, \code{RSpobs()} computes pseudo-observations
@@ -69,17 +69,19 @@ n <- 250 # sample size
 d <- 5 # dimension
 nu <- 3 # degrees of freedom
 
-## build a mean vector and a dispersion matrix, and generate multivariate t_nu data
+## Build a mean vector and a dispersion matrix,
+## and generate multivariate t_nu data:
 mu <- rev(seq_len(d)) # d, d-1, .., 1
 L <- diag(d) # identity in dim d
 L[lower.tri(L)] <- 1:(d*(d-1)/2)/d # Cholesky factor (diagonal > 0)
-Sigma <- L \%*\% t(L) # pos.-def. dispersion matrix (*a* covariance matrix; not of X)
+Sigma <- L \%*\% t(L) # pos.-def. dispersion matrix (*not* covariance of X)
 X <- mvtnorm::rmvt(n, mean=mu, sigma=Sigma, df=nu) # multivariate t_nu data
 
 ## compute pseudo-observations of the radial part and uniform distribution
 RS <- RSpobs(X, method="ellip")
 R <- RS$R
 S <- RS$S
+stopifnot(length(R) == n, dim(S) == c(n,d))
 
 ## 1a) Q-Q plot of R against the correct quantiles
 qqplot2(R, qF=function(p) sqrt(d*qf(p, df1=d, df2=nu)),
@@ -90,27 +92,30 @@ qqplot2(R, qF=function(p) sqrt(d*qf(p, df1=d, df2=nu)),
 
 ## 1b) Q-Q plot of R against the quantiles of F_R for a multivariate normal
 ##     distribution
+tit <- as.expression(substitute(bold(italic(chi[d.]) ~~ "Q-Q Plot"), list(d.=d)))
 qqplot2(R, qF=function(p) sqrt(qchisq(p, df=d)),
-        main.args=list(text=as.expression(substitute(bold(italic(chi[d.])~~
-                       "Q-Q Plot"), list(d.=d))), side=3, cex=1.3, line=1.1, xpd=NA))
+        main.args=list(text=tit, side=3, cex=1.3, line=1.1, xpd=NA))
 
 ## 2) Q-Q plot of the angular distribution
 ##    (Bmat[,k] should follow a Beta(k/2, (d-k)/2) distribution)
-qqp <- function(k, Bmat)
-    qqplot2(Bmat[,k], qF=function(p) qbeta(p, shape1=k/2, shape2=(ncol(Bmat)+1-k)/2),
-            main.args=list(text=as.expression(substitute(plain("Beta")(s1,s2)~~
-            bold("Q-Q Plot"), list(s1=k/2, s2=(ncol(Bmat)+1-k)/2))),
-            side=3, cex=1.3, line=1.1, xpd=NA))
 Bmat <- gofBTstat(S)
+
+qqp <- function(k, Bmat) {
+    tit <- as.expression(substitute(plain("Beta")(s1,s2) ~~ bold("Q-Q Plot"),
+                                    list(s1 = k/2, s2 = (ncol(Bmat)+1-k)/2)))
+    qqplot2(Bmat[,k],
+            qF=function(p) qbeta(p, shape1=k/2, shape2=(ncol(Bmat)+1-k)/2),
+            main.args=list(text=tit, side=3, cex=1.3, line=1.1, xpd=NA))
+}
 qqp(1, Bmat=Bmat) # k=1
 qqp(3, Bmat=Bmat) # k=3
 
 ## 3) Check independence between radial part and B_1 and B_3
 plot(pobs(cbind(R, Bmat[,1])),
-          xlab=expression(italic(R)), ylab=expression(italic(B)[1]),
-          main=expression(bold("Rank plot between"~~italic(R)~~"and"~~italic(B)[1])))
+          xlab=quote(italic(R)), ylab=quote(italic(B)[1]),
+          main=quote(bold("Rank plot between"~~italic(R)~~"and"~~italic(B)[1])))
 plot(pobs(cbind(R, Bmat[,3])),
-	  xlab=expression(italic(R)), ylab=expression(italic(B)[3]),
-          main=expression(bold("Rank plot between"~~italic(R)~~"and"~~italic(B)[3])))
+	  xlab=quote(italic(R)), ylab=quote(italic(B)[3]),
+          main=quote(bold("Rank plot between"~~italic(R)~~"and"~~italic(B)[3])))
 }
 \keyword{utilities}

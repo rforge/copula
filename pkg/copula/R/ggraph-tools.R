@@ -222,36 +222,39 @@ RSpobs <- function(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
     method <- match.arg(method)
 
     u <- if(do.pobs) pobs(x) else x
-    if(!do.pobs && !all(0 <= u, u <= 1)) stop("'x' must be in the unit hypercube; consider using 'do.pobs=TRUE'")
+    if(!do.pobs && !all(0 <= u, u <= 1))
+        stop("'x' must be in the unit hypercube; consider using 'do.pobs=TRUE'")
     switch(method,
            "ellip"={
 
                ## estimate the standardized dispersion matrix with entries
                ## P_{jk} = \Sigma_{jk}/sqrt{\Sigma_{jj}\Sigma_{kk}}
                ## and compute the inverse of the corresponding Cholesky factor
-               ## Note: this is *critical* (=> completely wrong R's) if d > n/2 (roughly)
-               P <-  as.matrix(nearPD(sin(cor(x, method="kendall")*pi/2), corr=TRUE)$mat)
-               A. <- chol(P) # upper triangular R such that R^TR = P; note: L = t(A.) s.t. LL^T = P
-               A.inv <- solve(A.) # A.^{-1} = (A^{-1})^T
+               ## Note: this is *critical* !!
+               ## ----  (=> completely wrong R's) if d > n/2 (roughly)
+               P <- as.matrix(nearPD(sin(cor(x, method="kendall")*pi/2),
+                                      corr=TRUE)$mat)
+	       L <- t(chol(P)) # lower triangular L such that LL' = P;
+	       ## TODO: stay with Matrix, use LDL'
 
-               ## compute Ys
-               Y <- if(hasArg(qQg)) { # if qQg() has been provided
-                   qQg <- list(...)$qQg
-                   apply(u, 2, qQg)
-               } else { # estimate via empirical quantiles
-                   n <- nrow(x)
-                   mu <- matrix(rep(colMeans(x), each=n), nrow=n)
-                   sd <- matrix(rep(apply(x, 2, sd), each=n), nrow=n)
-                   x. <- (x-mu)/sd # standardized data
-                   sapply(1:ncol(u), function(j) quantile(x.[,j], probs=u[,j]))
-               }
+	       ## compute Ys
+	       Y <- if(hasArg(qQg)) { # if qQg() has been provided
+		   qQg <- list(...)$qQg
+		   apply(u, 2, qQg)
+	       } else { # estimate via empirical quantiles
+### FIXME: "not existing" yet
+		   x <- scale(x) # standardized data
+		   sapply(1:ncol(u), function(j)
+			  quantile(x[,j], probs=u[,j], names=FALSE))
+	       }
 
-               ## compute Zs and Rs (pseudo-observations of the radial part); numerically non-critical
-               Z <- Y %*% A.inv # efficient computation of A^{-1}Y which works with upper triangular matrix A.
-               R <- sqrt(rowSums(Z^2))
+	       ## compute Zs and Rs (pseudo-observations of the radial part)
+	       ## efficient computation of L^{-1} Y'
+	       Z <- solve(L, t(Y))
+	       R <- sqrt(colSums(Z^2))
 
-               ## return Rs and Ss (pseudo-observations of the uniform distribution on the unit sphere)
-               list(R=R, S=Z/R)
+	       ## return R and S (pseudo-obs of uniform distribution on S^d)
+	       list(R=R, S=t(Z)/R)
 
            },
            "archm"={
@@ -263,8 +266,8 @@ RSpobs <- function(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
                    return(list(R=R, S=iPsiu/R))
                }
 
-               ## estimate psi^{-1} via inverting the estimator of psi of Genest, Neslehova, Ziegel
-               ## (2011; Algorithm 1; Section 4.3)
+               ## estimate psi^{-1} via inverting  estimator of psi
+               ## of Genest, Neslehova, Ziegel(2011; Algorithm 1; Section 4.3)
 
                ## compute r_1,..,r_m and p_1,..,p_m
                wp <- w.p(u) # = w.p(x); p = wp[,"p"]

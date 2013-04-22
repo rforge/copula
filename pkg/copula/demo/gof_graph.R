@@ -85,7 +85,7 @@ sub. <- paste(paste(sub[1:3], collapse=", "), "\n",
               paste(sub[4:7], collapse=", "), sep="")
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=pwRoto, sub=sub., sub.line=5.4)
 
-## 4) two-line title including expressions, and centered  --- JCGS, Fig.1(left) ---
+## 4) two-line title including expressions, and centered  --- JCGS, Fig.3(left) ---
 title <- list(paste(pwRoto, "to test"),
               substitute(italic(H[0]:C~~bold("is Gumbel with"~~tau==tau.)),
                          list(tau.=tau)))
@@ -240,7 +240,7 @@ title <- list(paste(pwRoto, "to test"),
                          list(tau0=tau0[1], tau1=tau0[2], tau2=tau0[3])))
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title)
 
-## --- JCGS, Fig.1(right) ---
+## --- JCGS, Fig.3(right) ---
 main.line <- c(4, 1.4)
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, main.line=main.line,
                 main.centered=TRUE)
@@ -290,10 +290,10 @@ which(pmat < 0.05, arr.ind=TRUE) # [none]
 title <- list("Pairwise Rosenblatt transformed pseudo-observations",
               expression(bold("to test")~~italic(H[0]:C~~bold("is t")[4])))
 main.line <- c(4, 1.4)
-## --- JCGS, Fig.2(left) ---
+## --- JCGS, Fig.4(left) ---
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, main.line=main.line,
                 main.centered=TRUE)
-## --- JCGS, Fig.2(right) ---
+## --- JCGS, Fig.4(right) ---
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, main.line=main.line,
                 method = "QQchisq", main.centered=TRUE)
 
@@ -306,7 +306,7 @@ d <- ncol(SMI.12)
 x <- diff(log(SMI.12)) # build log-returns
 u <- pobs(x) # build pseudo-observations
 
-## --- JCGS, Fig.3 ---
+## --- JCGS, Fig.5 ---
 pairs(u, gap=0, pch=".", xaxt="n", yaxt="n", main="Pseudo-observations of the log-returns of the SMI",
       labels=as.expression( sapply(1:d, function(j) bquote(italic(hat(U)[.(j)]))) ))
 
@@ -387,7 +387,7 @@ title <- list("Pairwise Rosenblatt transformed pseudo-observations",
 pairsRosenblatt(cu.uN, pvalueMat=pmatN, method="none", cex.labels=0.7,
                 key.space=1.5, main.centered=TRUE, main=title, main.line=c(3, 0.4))
 
-## pairwise Rosenblatt plot (test for t_nuOpt) --- JCGS, Fig.4 --
+## pairwise Rosenblatt plot (test for t_nuOpt) --- JCGS, Fig.6 --
 nuOpt. <- round(nuOpt, 2)
 title <- list("Pairwise Rosenblatt transformed pseudo-observations",
               bquote(bold("to test")~~italic(H[0]:C)~~"is"~~italic(t)[.(nuOpt.)]))

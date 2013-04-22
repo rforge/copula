@@ -522,19 +522,15 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
         ind <- findInterval(P, pvalueBuckets, all.inside=TRUE)
         ## Note:
         ## - findInterval can only return 0 if there is an entry in P which is smaller
-        ##	 than the smalles value of pvalueBuckets. Due to the way pvalueBuckets is
+        ##	 than the smallest value of pvalueBuckets. Due to the way pvalueBuckets is
         ##	 created, this can only happen if pmin=0 and pmin0>0. But in this case,
         ##	 all.inside=TRUE forces findInterval to return 1 instead of 0 which is what
         ##	 we need for an index
-        ## - ind should now all be in {1,..,nb}
+        ## - ind should now all be in {1,..,nb} or NA (diag(P))
         ## - if P[i,j] == pvalueBuckets[k] for some k, then the bucket with
         ##	 upper endpoint pvalueBuckets[k] is returned
-        ## - still contains NA (for the diagonal elements (order preserved))
-        colDiag <- rep("transparent", d)
-        cols <- diag(colDiag)
-        nNA <- !is.na(ind)
-        cols[nNA] <- bucketCols[ind[nNA]]
-        bgColMat <- matrix(cols, nrow=nrow(P), ncol=ncol(P))
+        bgColMat <- matrix(bucketCols[ind], d,d)
+        diag(bgColMat) <- "transparent"
     }
 
     ## 4) determine default foreground color
