@@ -19,7 +19,7 @@
 ## deprecated (former) Kendall distribution function K
 K <- function(u, cop, d, n.MC=0, log=FALSE){
     .Deprecated("pK") # set K to "deprecated" => throws a message
-    pK(u, cop=cop, d=d, n.MC=n.MC, log=log) # call the new function
+    pK(u, cop=cop, d=d, n.MC=n.MC, log.p=log) # call the new function
 }
 
 ##' Empirical Kendall distribution function K_{n,d} as in Lemma 1 of
@@ -49,17 +49,17 @@ Kn <- function(u, x)
 ##' @param n.MC if > 0 a Monte Carlo approach is applied with sample size equal
 ##'	   to n.MC to evaluate the generator derivatives; otherwise the exact
 ##'        formula is used
-##' @param log logical indicating whether the logarithm is returned
+##' @param log.p logical indicating whether the logarithm is returned
 ##' @return Kendall distribution function at u
 ##' @author Marius Hofert
-pK <- function(u, cop, d, n.MC=0, log=FALSE)
+pK <- function(u, cop, d, n.MC=0, log.p=FALSE)
 {
     stopifnot(is(cop, "acopula"), 0 <= u, u <= 1)
     ## limiting cases
     n <- length(u)
     res <- numeric(n)
-    res[is0 <- u == 0] <- if(log) -Inf else 0
-    res[is1 <- u == 1] <- if(log) 0 else 1
+    res[is0 <- u == 0] <- if(log.p) -Inf else 0
+    res[is1 <- u == 1] <- if(log.p) 0 else 1
     not01 <- seq_len(n)[!(is0 | is1)]
     uN01 <- u[not01]
     ## computations
@@ -73,16 +73,16 @@ pK <- function(u, cop, d, n.MC=0, log=FALSE)
                 -log(n.MC) + lsum(as.matrix(ppois(d-1, V*psInv, log.p=TRUE)))
                 ## Former code: mean(ppois(d-1, V*psInv))
             }))
-            res[not01] <- if(log) lr else exp(lr)
+            res[not01] <- if(log.p) lr else exp(lr)
         }
     } else { # direct
 	if(length(not01))
 	    res[not01] <- if(d == 1) { # d == 1
-		if(log) log(uN01) else uN01 # K(u) = u
+		if(log.p) log(uN01) else uN01 # K(u) = u
 	    } else if(d == 2) { # d == 2
 		r <- uN01 + exp( cop@iPsi(uN01, theta=th, log=TRUE) -
                                  cop@absdiPsi(uN01, th, log=TRUE) ) # K(u) = u - psi^{-1}(u) / (psi^{-1})'(u)
-                if(log) log(r) else r
+                if(log.p) log(r) else r
 	    } else { # d >= 3
 		j <- seq_len(d-1)
 		lpsiI. <- cop@iPsi(uN01, theta=th, log=TRUE)
@@ -97,7 +97,7 @@ pK <- function(u, cop, d, n.MC=0, log=FALSE)
                 lx <- labsdPsi + j %*% t(lpsiI.) - lfac.j # (d-1) x n matrix
                 lx <- rbind(log(uN01), lx) # d x n matrix containing the logarithms of the summands of K
                 ls <- lsum(lx) # log(K(u))
-                if(log) ls else pmin(1, exp(ls)) # ensure we are in [0,1] {numerical inaccuracy}
+                if(log.p) ls else pmin(1, exp(ls)) # ensure we are in [0,1] {numerical inaccuracy}
 		## Former code:
 		## K2 <- function(psInv) {
 		##    labsdPsi <- unlist(lapply(j, cop@absdPsi,
@@ -168,7 +168,7 @@ qK <- function(u, cop, d, n.MC=0,
                ## Note: This is the same code as method="monoH.FC" (but with a
                ##       chosen grid)
                u.grid <- 0:128/128 # default grid
-               K.u.grid <- pK(u.grid, cop=cop, d=d, n.MC=n.MC, log=FALSE)
+               K.u.grid <- pK(u.grid, cop=cop, d=d, n.MC=n.MC, log.p=FALSE)
                ## function for root finding
                fspl <- function(x, u)
                    splinefun(u.grid, K.u.grid, method = "monoH.FC")(x) - u
@@ -180,7 +180,7 @@ qK <- function(u, cop, d, n.MC=0,
                "simple" =               # straightforward root finding
            {
                ## function for root finding
-               f <- function(t, u) pK(t, cop=cop, d=d, n.MC=n.MC, log=FALSE) - u
+               f <- function(t, u) pK(t, cop=cop, d=d, n.MC=n.MC, log.p=FALSE) - u
                ## root finding
                vapply(uN01, function(u)
                       uniroot(f, u=u, interval=c(0,u), ...)$root, NA_real_)
@@ -188,7 +188,7 @@ qK <- function(u, cop, d, n.MC=0,
                "sort" =                 # root finding with first sorting u's
            {
                ## function for root finding
-               f <- function(t, u) pK(t, cop=cop, d=d, n.MC=n.MC, log=FALSE) - u
+               f <- function(t, u) pK(t, cop=cop, d=d, n.MC=n.MC, log.p=FALSE) - u
                ## sort u's
                ord <- order(uN01, decreasing=TRUE)
                uN01o <- uN01[ord]       # uN01 ordered in decreasing order
@@ -217,7 +217,7 @@ qK <- function(u, cop, d, n.MC=0,
                "discrete" = # evaluate K at a grid and compute approximate quantiles based on this grid
            {
                stopifnot(0 <= u.grid, u.grid <= 1)
-               K.u.grid <- pK(u.grid, cop=cop, d=d, n.MC=n.MC, log=FALSE)
+               K.u.grid <- pK(u.grid, cop=cop, d=d, n.MC=n.MC, log.p=FALSE)
                u.grid[findInterval(uN01, vec=K.u.grid,
                                    rightmost.closed=TRUE, ...)+1] # note: this gives quantiles according to the "typical" definition
            },
@@ -226,7 +226,7 @@ qK <- function(u, cop, d, n.MC=0,
                ## evaluate K at a grid
                stopifnot(0 <= u.grid, u.grid <= 1)
                K.u.grid <- pK(u.grid, cop=cop, d=d, n.MC=n.MC,
-                              log=FALSE)
+                              log.p=FALSE)
                ## function for root finding
                fspl <- function(x, u)
                    splinefun(u.grid, K.u.grid, method = "monoH.FC")(x) - u
@@ -248,10 +248,10 @@ qK <- function(u, cop, d, n.MC=0,
 ##' @param n.MC if > 0 a Monte Carlo approach is applied with sample size equal
 ##'	   to n.MC to evaluate the d-th generator derivative; otherwise the exact
 ##'        formula is used
-##' @param log logical indicating whether the logarithm of the density is returned
+##' @param log.p logical indicating whether the logarithm of the density is returned
 ##' @return Density of the Kendall distribution at u
 ##' @author Marius Hofert
-dK <- function(u, cop, d, n.MC=0, log=FALSE)
+dK <- function(u, cop, d, n.MC=0, log.p=FALSE)
 {
     stopifnot(is(cop, "acopula"), 0 < u, u < 1)
     th <- cop@theta
@@ -261,7 +261,7 @@ dK <- function(u, cop, d, n.MC=0, log=FALSE)
     psiI <- cop@iPsi(u, theta=th) # psi^{-1}(u)
     labsdPsi <- cop@absdPsi(psiI, theta=th, degree=d, n.MC=n.MC, log=TRUE) # log((-1)^d psi^{(d)}(psi^{-1}(u)))
     res <- labsdPsi-ld+(d-1)*lpsiI+lpsiIDabs
-    if(log) res else exp(res)
+    if(log.p) res else exp(res)
 }
 
 

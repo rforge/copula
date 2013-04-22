@@ -26,13 +26,13 @@
   Archimedean copula.
 }
 \usage{
-% K(u, cop, d, n.MC=0, log=FALSE) # is deprecated
+% K(u, cop, d, n.MC=0, log.p=FALSE) # is deprecated
 Kn(u, x)
-pK(u, cop, d, n.MC=0, log=FALSE)
+pK(u, cop, d, n.MC=0, log.p=FALSE)
 qK(u, cop, d, n.MC=0,
    method=c("default", "simple", "sort", "discrete", "monoH.FC"),
    u.grid, \dots)
-dK(u, cop, d, n.MC=0, log=FALSE)
+dK(u, cop, d, n.MC=0, log.p=FALSE)
 rK(n, cop, d)
 }
 \arguments{
@@ -48,8 +48,8 @@ rK(n, cop, d)
     generator derivatives involved; otherwise
     (\code{n.MC=0}) the exact formula is used based on the generator
     derivatives as found by Hofert et al. (2011b).}
-  \item{log}{logical indicating if the \code{\link{log}} of \eqn{K}
-    should be returned.}
+  \item{log.p}{\code{\link{logical}}; if \code{TRUE}, probabilities
+    \eqn{p} are given as \eqn{\log p}{log(p)}.}
   \item{method}{string for the method to compute the quantile function
     of \eqn{K}.  Currently, one of
     \describe{

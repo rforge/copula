@@ -29,7 +29,7 @@
 ##' @param ... additional arguments passed to absdPsi()
 ##' @return F_R at x
 ##' @author Marius Hofert
-pR <- function(x, family, theta, d, survival = FALSE, log = FALSE, ...)
+pacR <- function(x, family, theta, d, survival = FALSE, log.p = FALSE, ...)
 {
     ## basic checks
     stopifnot(family %in% c_longNames, d >= 1, (n <- length(x)) >= 1)
@@ -39,8 +39,8 @@ pR <- function(x, family, theta, d, survival = FALSE, log = FALSE, ...)
     cop <- onacopulaL(family, list(theta, 1:d))
     psi.x <- cop@copula@psi(x, theta=theta)
     if(d == 1)
-        return( if(survival) if(log) log(psi.x) else psi.x
-                else if(log) log1p(-psi.x) else 1-psi.x )
+        return( if(survival) if(log.p) log(psi.x) else psi.x
+                else if(lop.p) log1p(-psi.x) else 1-psi.x )
 
     ## d >= 2; compute \log\bar{F}_R(x)
     lpsi <- log(psi.x) # n-vector; k==0
@@ -58,22 +58,22 @@ pR <- function(x, family, theta, d, survival = FALSE, log = FALSE, ...)
     if(any(is0)) lFb[is0] <- 0
 
     ## return
-    if(log) if(survival) lFb else log1mexp(-lFb)
+    if(lop.p) if(survival) lFb else log1mexp(-lFb)
     else if(survival) exp(lFb) else -expm1(lFb)
 }
 
-##' @title Computing the Quantile Function of pR()
-##' @param p probability in (0,1) where to evaluate qR()
+##' @title Computing the Quantile Function of pacR()
+##' @param p probability in (0,1) where to evaluate qacR()
 ##' @param family Archimedean family
 ##' @param theta parameter
 ##' @param d dimension
-##' @param ... additional arguments passed to pR()
+##' @param ... additional arguments passed to pacR()
 ##' @return the quantile function of F_R at x
 ##' @author Marius Hofert
-qR <- function(p, family, theta, d, interval, ...)
+qacR <- function(p, family, theta, d, interval, ...)
 {
     stopifnot(family %in% c_longNames, d >= 1, (n <- length(p)) >= 1)
-    y <- log1p(-p) # to be able to work with highest precision with pR()
-    f <- function(x, y) pR(x, family=family, theta=theta, d=d, survival=TRUE, log=TRUE, ...) - y
+    y <- log1p(-p) # to be able to work with highest precision with pacR()
+    f <- function(x, y) pacR(x, family=family, theta=theta, d=d, survival=TRUE, lop.p=TRUE, ...) - y
     vapply(y, function(y.) uniroot(f, interval=interval, y=y.)$root, NA_real_)
 }
