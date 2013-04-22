@@ -234,7 +234,7 @@ RSpobs <- function(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
                ## ----  (=> completely wrong R's) if d > n/2 (roughly)
                P <- as.matrix(nearPD(sin(cor(x, method="kendall")*pi/2),
                                       corr=TRUE)$mat)
-	       L <- t(chol(P)) # lower triangular L such that LL' = P;
+	       L <- t(chol(P)) # lower triangular L such that LL' = P
 	       ## TODO: stay with Matrix, use LDL'
 
 	       ## compute Ys

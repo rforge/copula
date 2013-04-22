@@ -333,15 +333,15 @@ d <- 5
 th <- 2
 family <- "Gumbel"
 if(FALSE)
-    debug(qR)
+    debug(qacR)
 
 p <- ppoints(n)
 
-qR(p[1], family=family, theta=th, d=d, interval=c(0, 1e12))
+qacR(p[1], family=family, theta=th, d=d, interval=c(0, 1e12))
 
-qR(p, family=family, theta=th, d=d, interval=c(0, 1e12))
+qacR(p, family=family, theta=th, d=d, interval=c(0, 1e12))
 
-undebug(qR)
+undebug(qacR)
 
 
 ## generate data from a meta-Gumbel model with N(0,1) margins
@@ -359,7 +359,7 @@ RS.G <- RSpobs(X, method="archm")
 file <- paste0("ggof_radial_true=G_2_H0=.pdf")
 start.pdf(file=file, doPDF=doPDF)
 par(pty="s") # use a square plotting region
-qqplot2(RS.G$R, qF=function(p) qR(p, family=family, theta=th, d=d, interval=c(0, 1e12)),
+qqplot2(RS.G$R, qF=function(p) qacR(p, family=family, theta=th, d=d, interval=c(0, 1e12)),
         main.args=list(text=as.expression(substitute(bold(italic(F[list(d..,nu.)](r^2/d..))~~"Q-Q Plot"),
             list(d..=d., nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA))
 dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
