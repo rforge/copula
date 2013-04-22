@@ -242,10 +242,13 @@ RSpobs <- function(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
 		   qQg <- list(...)$qQg
 		   apply(u, 2, qQg)
 	       } else { # estimate via empirical quantiles
-### FIXME: "not existing" yet
-		   x <- scale(x) # standardized data
-		   sapply(1:ncol(u), function(j)
-			  quantile(x[,j], probs=u[,j], names=FALSE))
+                   stop("There is no non-parametric estimator of 'qQg' known yet; provide 'qQg' instead")
+                   ## U=(F_1(X_1),..,F_d(X_d)) = (Qg(Y_1),..,Qg(Y_d))
+                   ## Our goal is to find the Y's (by applying qQg() to the U's)
+                   ## => This is *not* correct:
+		   ## x <- scale(x) # standardized data
+		   ## sapply(1:ncol(u), function(j)
+		   ##        quantile(x[,j], probs=u[,j], names=FALSE))
 	       }
 
 	       ## compute Zs and Rs (pseudo-observations of the radial part)
