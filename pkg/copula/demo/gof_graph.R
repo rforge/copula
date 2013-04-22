@@ -19,7 +19,9 @@
 require(copula)
 
 if(!(exists("setSeeds") && is.logical(as.logical(setSeeds))))
-setSeeds <- TRUE # for reproducibility; maybe set to FALSE
+setSeeds <- TRUE # for reproducibility
+##  maybe set to FALSE *before* running this demo
+
 if(!(exists("doX") && is.logical(as.logical(doX))))
     print(doX <- copula:::doExtras())
 (N <- if(doX) 256 else 32)# be fast when run as "check"

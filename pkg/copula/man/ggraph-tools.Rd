@@ -21,7 +21,7 @@
 }
 \usage{
 pairwiseCcop(u, cop, ...)
-pairwiseIndepTest(cu.u, N=256, verbose=TRUE, ...)
+pairwiseIndepTest(cu.u, N=256, verbose=TRUE, idT.verbose = verbose, ...)
 
  pviTest(piTest)
 gpviTest(pvalues, method=p.adjust.methods, globalFun=min)
@@ -34,7 +34,9 @@ gpviTest(pvalues, method=p.adjust.methods, globalFun=min)
   \item{\dots}{additional arguments passed to the internal function
     which computes the conditional copulas (for \code{pairwiseCcop()}).
     Can be used to pass, for example, the degrees of freedom
-    parameter \code{df} for t-copulas.  For \code{pairwiseIndepTest()},
+    parameter \code{df} for t-copulas.
+
+    For \code{pairwiseIndepTest()},
     \dots are passed to \code{\link{indepTestSim}()}.}
 
   \item{cu.u}{\eqn{(n,d,d)}-\code{\link{array}} as returned by
@@ -43,7 +45,8 @@ gpviTest(pvalues, method=p.adjust.methods, globalFun=min)
   \item{verbose}{\code{\link{integer}} (or \code{\link{logical}})
     indicating if and how much progress should be printed during the
     computation of the tests for independence.}
-
+  \item{idT.verbose}{logical, passed as \code{verbose} argument to
+    \code{\link{indepTestSim}()}.}
   \item{piTest}{\eqn{(d,d)}-\code{\link{matrix}} of \code{indepTest}
     objects as returned by \code{pairwiseIndepTest()}.}
 

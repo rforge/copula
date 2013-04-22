@@ -37,9 +37,10 @@ indepTestSim <- function(n, p, m=p, N=1000, verbose = TRUE, print.every = NULL)
         stop("p should be an integer greater than 2")
     if (!is.numeric(m) || (m <- as.integer(m)) < 2 || m > p)
         stop(paste("m should be an integer greater than 2 and smaller than",p))
-    if (!is.numeric(N) || (N != as.integer(N)) || N <= 10)
-	stop("N should be an integer greater than 10")
-    if(N < 100) warning("N should be at least 100")
+    if (!is.numeric(N) || (N != as.integer(N)) || N <= 5)
+	stop("N should be an integer greater than 5")
+    if(N < 100 && getOption("copula:warn.idTS", TRUE))
+	warning("N should be at least 100")
     if (!is.null(print.every)) {
         warning("Argument 'print.every' is deprecated. Please use 'verbose' instead.")
         verbose <- print.every > 0

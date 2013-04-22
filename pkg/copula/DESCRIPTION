@@ -10,7 +10,8 @@ Author: Marius Hofert <marius.hofert@math.ethz.ch>,
 Maintainer: Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Depends: R (>= 2.14.2), methods
-Imports: stats4, stats, graphics, gsl, ADGofTest, stabledist (>= 0.6-4), mvtnorm, pspline, Matrix
+Imports: stats4, stats, graphics, Matrix, gsl, ADGofTest,
+	 stabledist (>= 0.6-4), mvtnorm, pspline
 Suggests: lattice, MASS, KernSmooth, sfsmisc, bbmle, scatterplot3d, Rmpfr,
 	  colorspace, mvnormtest, tseries, zoo
 SuggestComments: packages colorspace, mvnormtest, tseries, zoo
