@@ -21,7 +21,9 @@
 }
 \usage{
 pairwiseCcop(u, cop, ...)
-pairwiseIndepTest(cu.u, N=256, verbose=TRUE, idT.verbose = verbose, ...)
+pairwiseIndepTest(cu.u, N=256,
+        iTest = indepTestSim(n, p=2, m=2, N=N, verbose = idT.verbose, ...),
+        verbose=TRUE, idT.verbose = verbose, ...)
 
  pviTest(piTest)
 gpviTest(pvalues, method=p.adjust.methods, globalFun=min)
@@ -42,6 +44,9 @@ gpviTest(pvalues, method=p.adjust.methods, globalFun=min)
   \item{cu.u}{\eqn{(n,d,d)}-\code{\link{array}} as returned by
     \code{pairwiseCcop()}.}
   \item{N}{argument of \code{\link{indepTestSim}()}.}
+  \item{iTest}{the result \code{\link{indepTestSim}()}; as it does
+    \emph{not} depend on the data, and is costly to compute, it can be
+    computed separately and passed here.}
   \item{verbose}{\code{\link{integer}} (or \code{\link{logical}})
     indicating if and how much progress should be printed during the
     computation of the tests for independence.}

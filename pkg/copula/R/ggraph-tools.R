@@ -120,7 +120,10 @@ pairwiseCcop <- function(u, cop, ...)
 ##'         for the pairwise tests of independence
 ##' @author Marius Hofert
 ##' Note: used in Hofert and Maechler (2013)
-pairwiseIndepTest <- function(cu.u, N=256, verbose=TRUE, idT.verbose=verbose, ...)
+pairwiseIndepTest <-
+    function(cu.u, N=256,
+	     iTest = indepTestSim(n, p=2, m=2, N=N, verbose = idT.verbose, ...),
+	     verbose=TRUE, idT.verbose=verbose, ...)
 {
     ## 1) simulate test statistic under independence
     stopifnot(length(dim. <- dim(cu.u)) == 3L)
@@ -129,7 +132,6 @@ pairwiseIndepTest <- function(cu.u, N=256, verbose=TRUE, idT.verbose=verbose, ..
     d <- dim.[2]
     if(verbose) cat(sprintf("pairwiseIndepTest( (n=%d, d=%d)): indepTestSim(*, N=%d) .. ",
                             n,d, N))
-    indepTestDistObj <- indepTestSim(n, p=2, m=2, N=N, verbose = idT.verbose, ...)
     if(verbose) cat(" *Sim  done\n")
 
     ## 2) compute matrix of pairwise p-values for test of independence
@@ -140,7 +142,7 @@ pairwiseIndepTest <- function(cu.u, N=256, verbose=TRUE, idT.verbose=verbose, ..
         for(i in 1:d) { # row
             if(verbose >= 2) cat(i,"")
             p[i,j][[1]] <- if(j==i) list(fisher.pvalue = NA)
-            else indepTest(cbind(uj[,j], uj[,i]), d=indepTestDistObj)
+	    else indepTest(cbind(uj[,j], uj[,i]), d = iTest)
         }
         if(verbose >= 2) cat("\n")
     }

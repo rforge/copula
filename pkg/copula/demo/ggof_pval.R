@@ -60,6 +60,8 @@ mkH0cop <- function(u, df) {
 
 copH0 <- mkH0cop(U., df=df)
 
+iTest <- indepTestSim(n, p=2, m=2, N=N, verbose = TRUE)
+
 ##' Array of pairwise  copH0-transformed "data", and P-values
 mkcP <- function(u, df, copH0 = mkH0cop(u, df=df), N, verbose=interactive(),
                  P.only=FALSE)
