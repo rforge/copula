@@ -166,7 +166,8 @@ n <- 1000
 Sigma <- outer(1:d, 1:d, FUN=function(i,j) rho^abs(i-j))
 set.seed(271)
 X.norm <- rmvnorm(n, mean=mu, sigma=Sigma) # multivariate normal data
-X <- rep(mu, each=n) + rmvt(n, sigma=Sigma, df=10) # multivariate t data
+X.t <- rep(mu, each=n) + rmvt(n, sigma=Sigma, df=4) # multivariate t data
+X <- X.t
 
 RS.norm <- RSpobs(X, method="ellip", qQg=qnorm)
 RS.t2  <- RSpobs(X, method="ellip", qQg=function(p) qt(p, df=2))
