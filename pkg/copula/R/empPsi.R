@@ -34,11 +34,12 @@ w.p <- function(x)
 ##' @param wp (m, 2)-matrix as returned by w.p()
 ##' @param d dimension
 ##' @param interval uniroot() initial interval
+##' @param r.max (arbitrary) scaling for r_m
 ##' @param ... additional arguments passed to uniroot()
 ##' @return m-vector containing r_1,..,r_m=1
 ##' @author Marius Hofert
 ##' @note Apart from r_m=1, the r's can be quite small
-r.solve <- function(wp, d, interval=c(0,1), ...)
+r.solve <- function(wp, d, interval=c(0,1), r.max=1, ...)
 {
     stopifnot(ncol(wp)==2, (m <- nrow(wp)) >= 1, diff(wp[1,]) > 0, d > 1)
     w <- wp[,1]
@@ -66,7 +67,7 @@ r.solve <- function(wp, d, interval=c(0,1), ...)
     }
 
     ## compute r_1,.., r_m
-    rev(c(1, cumprod(rev(s)))) # r_m = 1, r_i = s_i * r_{i+1}, i in {m-1,..,1}
+    rev(r.max*c(1, cumprod(rev(s)))) # r_m = r.max, r_i = s_i * r_{i+1}, i in {m-1,..,1}; TODO
 }
 
 ##' @title Compute Pseudo-observations R_1, .., R_n from r_1,..,r_m and p_1,..,p_m

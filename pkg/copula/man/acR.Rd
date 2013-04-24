@@ -15,7 +15,7 @@
 }
 \usage{
 pacR(x, family, theta, d, lower.tail = TRUE, log.p = FALSE, \dots)
-qacR(p, family, theta, d, interval, \dots)
+qacR(p, family, theta, d, log.p = FALSE, interval, \dots)
 }
 \arguments{
   \item{x}{numeric vector of nonnegative evaluation points for \eqn{F_R}.}

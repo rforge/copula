@@ -339,25 +339,156 @@ if(FALSE) {
 }
 
 ## generate data from a meta-Gumbel model with N(0,1) margins
-family <- "Gumbel"
+require(copula)
+
+## Johanna Ziegel...
+set.seed(1)
+n <- 250 # sample size
+d <- 2 # dimension
+tau <- 0.5 # Kendall's tau
+family <- "Gumbel" # family
+cop <- getAcop(family) # define copula
+R <- cop@V0(n, cop@iTau(tau)) # radial parts
+E <- matrix(rexp(n*d), ncol=d) # exponentials
+U <- t(E/rowSums(E))# (d,n) matrix; uniform distribution on the unit simplex
+A <- matrix(c(1,-1/10,
+              0.5,1), ncol=2, byrow=TRUE) # (d,d) matrix A
+stopifnot(A[1,1]==1, A[2,2]==1)
+X. <- A %*% U # (d,d)*(d,n)=(d,n)
+X <- t(rep(R, each=d) * X.)
+## pairs(pobs(X))
+
+## Liouville
+n <- 250
+theta <- 0.6
+alpha <- c(1, 5, 20)
+source(system.file("Rsource", "AC-Liouville.R", package="copula"))
+U <- rLiouville(n, alpha=alpha, theta=theta, Rdist="Gamma")
+pairs(U)
+
+familyTrue <- "normal" # Gumbel, Clayton, t4 vs. Gumbel/Frank + work in log-log-space
 tau <- 0.5
-th <- iTau(archmCopula(family), tau)
-copG <- archmCopula(family, param=th, dim=d)
+n <- 250
+d <- 5
+df <- 4
+##th <- iTau(archmCopula(familyTrue), tau)
+th <- iTau(ellipCopula(familyTrue, df=df), tau)
+##cop <- archmCopula(familyTrue, param=th, dim=d)
+cop <- ellipCopula(familyTrue, param=th, dim=d, df=df)
+
+tau <- c(0.2, 0.6, 0.8)
+r <- iTau(ellipCopula(familyTrue, df=df), tau)
+P <- c(r[2], r[1], r[1], r[1], # upper triangle (without diagonal) of correlation "matrix"
+             r[1], r[1], r[1],
+                   r[3], r[3],
+                         r[3])
+cop <- ellipCopula(familyTrue, param=P, dim=d, dispstr="un", df=df)
+
+
 set.seed(271)
-U.G <- rCopula(n, copula=copG)
-X <- qnorm(U.G)
+## U <- rCopula(n, copula=cop)
+## X <- qnorm(U)
 
 ## (R, S) decomposition
+## debug(RSpobs)
+##n <- 50
+U <- rCopula(n, copula=cop)
+X <- qnorm(U)
+
+#debug(RSpobs)
 RS.G <- RSpobs(X, method="archm")
+plot(RS.G$Rpn)
 
 ## Q-Q plot: R Gumbel against the correct quantiles
-file <- paste0("ggof_radial_true=G_2_H0=.pdf")
-start.pdf(file=file, doPDF=doPDF)
-par(pty="s") # use a square plotting region
-qqplot2(RS.G$R, qF=function(p) qacR(p, family=family, theta=th, d=d, interval=c(0, 1e12)),
-        main.args=list(text=as.expression(substitute(bold(italic(F[list(d..,nu.)](r^2/d..))~~"Q-Q Plot"),
-            list(d..=d., nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA))
-dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
+## file <- paste0("ggof_radial_true=G_2_H0=.pdf")
+## start.pdf(file=file, doPDF=doPDF)
+## par(pty="s") # use a square plotting region
+familyTest <- "Gumbel"
+## qqplot2(RS.G$R,   qF=function(p) qacR(p, family=familyTest, theta=th, d=d, interval=c(0, 1e12)))
+## TODO: theta has to be estimated
+tau.emp <- cor(U, method="kendall")
+th.hat <- iTau(archmCopula(familyTest), mean(tau.emp[upper.tri(tau.emp)]))
+th.hat <- iTau(archmCopula(familyTest), 0.5)
+
+## qqplot2(RS.G$Rpn, qF=function(p) qacR(p, family=familyTest, theta=th.hat, d=d, interval=c(0, 1e12)))
+
+qqplot2(log(RS.G$Rpn), qF=function(p) log(qacR(p, family=familyTest, theta=th.hat, d=d, interval=c(0, 1e12)))) # TODO: use upper interval limit = max(RS.G$Rpn)+1... or s.th. data-constructed
+
+qqplot2(log(RS.G$Rpn), qF=function(p) log(qgamma(p, shape=d))) # under independence
+
+
+
+## S
+## qqplot2(RS.G$S[,1], qF=function(p) qbeta(p, shape=1, shape2=d-1))
+
+qqplot2(RS.G$Spn[,1], qF=function(p) qbeta(p, shape=1, shape2=d-1))
+qqplot2(RS.G$Spn[,2], qF=function(p) qbeta(p, shape=1, shape2=d-1))
+qqplot2(RS.G$Spn[,3], qF=function(p) qbeta(p, shape=1, shape2=d-1))
+qqplot2(RS.G$Spn[,4], qF=function(p) qbeta(p, shape=1, shape2=d-1))
+qqplot2(RS.G$Spn[,5], qF=function(p) qbeta(p, shape=1, shape2=d-1))
+
+## a different graphical test
+R <- RS.G$Rpn
+S <- RS.G$Spn
+qR <- qgamma(rank(R)/(n+1), shape=d) # make it Gamma(d) (=> corresponding to independence)
+pairs(pobs(qR*S)) # should be independent!
+
+## independence
+plot(pobs(cbind(RS.G$Rpn, RS.G$Spn[,1])))
+plot(pobs(cbind(RS.G$Rpn, RS.G$Spn[,2])))
+plot(pobs(cbind(RS.G$Rpn, RS.G$Spn[,3])))
+plot(pobs(cbind(RS.G$Rpn, RS.G$Spn[,4])))
+plot(pobs(cbind(RS.G$Rpn, RS.G$Spn[,5])))
+
+pairs(pobs(cbind(RS.G$Rpn, RS.G$Spn)), gap=0, cex=0.1) #
+
+pairs(X, gap=0, cex=0.1)
+pairs(U, gap=0, cex=0.1)
+## Bmat.C <- gofBTstat(S.C)
+## Bmat.G <- gofBTstat(S.G)
+## qqp(1, Bmat=Bmat.C) # k=1
+## qqp(3, Bmat=Bmat.C) # k=3
+## qqp(1, Bmat=Bmat.G) # k=1
+## qqp(3, Bmat=Bmat.G) # k=3
+
+
+## playing with htrafo()
+lpsiI <- log(RS.G$Spn)
+lcumsum <- matrix(unlist(lapply(1:d, function(j)
+                                copula:::lsum(t(lpsiI[,1:j, drop=FALSE])))),
+                  ncol=d)
+u. <- matrix(unlist(lapply(1:(d-1),
+                           function(k) exp(k*(lcumsum[,k]-
+                                              lcumsum[,k+1])) )),
+             ncol=d-1) # transformed components (uniform under H_0)
+U. <- cbind(u., rank(RS.G$Rpn)/(n+1))
+pairs(U., gap=0, cex=0.1)
+
+## numerical check of F_R for Clayton (!)
+
+## setup
+family <- "Clayton"
+tau <- 0.5
+m <- 256
+dmax <- 20
+x <- seq(0, 20, length.out=m)
+
+## compute and plot pacR() for various d's
+y <- vapply(1:dmax, function(d)
+            pacR(x, family=family, theta=iTau(archmCopula(family), tau), d=d),
+            rep(NA_real_, m))
+plot(x, y[,1], type="l", ylim=c(0,1),
+     xlab = expression(italic(x)),
+     ylab = substitute(italic(F[R](x))~~"for d=1:"*dm, list(dm=dmax)))
+for(k in 2:dmax) lines(x, y[,k])
+
+
+
+
+        ## main.args=list(text=as.expression(substitute(bold(italic(F[list(d..,nu.)](r^2/d..))~~"Q-Q Plot"),
+        ##     list(d..=d, nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA))
+
+## dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
 
 
 ### 4) Application #############################################################

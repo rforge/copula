@@ -284,7 +284,12 @@ RSpobs <- function(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
                R <- R.pobs(r, p=wp[,"p"], n=n) # without shuffling
 
                ## compute iPsi.n(u) and return
-               list(R=R, S=iPsi.n(u, r=r, p=wp[,"p"], d=d)/R)
+               iPsin <- matrix(iPsi.n(u, r=r/median(R), # scale the skewed R's (to solve numerical issues!),
+                                      p=wp[,"p"], d=d), ncol=d)
+               iPsin.sum <- rowSums(iPsin)
+               list(# R=R/med.R, => strange discrete shape of Q-Q plots
+                    # S=iPsin/(R/med.R), => strange discrete shape of Q-Q plots
+                    R=iPsin.sum, S=iPsin/iPsin.sum)
 
            },
            stop("wrong method"))
