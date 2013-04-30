@@ -1,4 +1,4 @@
-## Copyright (C) 2012 Marius Hofert and Martin Maechler
+## Copyright (C) 2012-2013 Marius Hofert and Martin Maechler
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -581,7 +581,7 @@ pairsRosenblatt <- function(cu.u, pvalueMat=pviTest(pairwiseIndepTest(cu.u)),
 			    g1, g2, col = "B&W.contrast",
                             colList = pairsColList(pvalueMat, col=col),
                             main=NULL, sub = gpviString(pvalueMat),
-			    key.title="p-value", key.rug=TRUE, ...)
+			    key.title="pp-value", key.rug=TRUE, ...)
 {
     stopifnot(is.array(cu.u), length(dc <- dim(cu.u)) == 3,
 	      dc == c((n <- dc[1]),(d <- dc[2]), d),
