@@ -91,9 +91,8 @@ pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=pwRoto, sub=sub., sub.line=5
 title <- list(paste(pwRoto, "to test"),
               substitute(italic(H[0]:C~~bold("is Gumbel with"~~tau==tau.)),
                          list(tau.=tau)))
-main.line <- c(4, 1.4)
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".",
-                main=title, main.line=main.line, main.centered=TRUE)
+                main=title, line.main=c(4, 1.4), main.centered=TRUE)
 
 ## 5) omit panel borders
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", panel.border=FALSE)
@@ -243,8 +242,7 @@ title <- list(paste(pwRoto, "to test"),
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title)
 
 ## --- JCGS, Fig.3(right) ---
-main.line <- c(4, 1.4)
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, main.line=main.line,
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, line.main=c(4, 1.4),
                 main.centered=TRUE)
 
 
@@ -291,12 +289,11 @@ which(pmat < 0.05, arr.ind=TRUE) # [none]
 ## pairwise Rosenblatt plot
 title <- list("Pairwise Rosenblatt transformed pseudo-observations",
               expression(bold("to test")~~italic(H[0]:C~~bold("is t")[4])))
-main.line <- c(4, 1.4)
 ## --- JCGS, Fig.4(left) ---
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, main.line=main.line,
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, line.main=c(4, 1.4),
                 main.centered=TRUE)
 ## --- JCGS, Fig.4(right) ---
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, main.line=main.line,
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, line.main=c(4, 1.4),
                 method = "QQchisq", main.centered=TRUE)
 
 ### Example 4: SMI constituents ################################################
@@ -387,7 +384,7 @@ abline(0,1, lty=2, col="gray")
 title <- list("Pairwise Rosenblatt transformed pseudo-observations",
               expression(bold("to test")~~italic(H[0]:C~~bold("is Gaussian"))))
 pairsRosenblatt(cu.uN, pvalueMat=pmatN, method="none", cex.labels=0.7,
-                key.space=1.5, main.centered=TRUE, main=title, main.line=c(3, 0.4))
+                key.space=1.5, main.centered=TRUE, main=title, line.main=c(3, 0.4))
 
 ## pairwise Rosenblatt plot (test for t_nuOpt) --- JCGS, Fig.6 --
 nuOpt. <- round(nuOpt, 2)
@@ -399,7 +396,7 @@ if(PDF){ # for plotting to pdf
     pdf(file=file)
 }
 pairsRosenblatt(cu.ut, pvalueMat=pmatt, method="none", cex.labels=0.7,
-                key.space=1.5, main.centered=TRUE, main=title, main.line=c(3, 0.4))
+                key.space=1.5, main.centered=TRUE, main=title, line.main=c(3, 0.4))
 if(PDF){
     dev.off()
     f <- file.path(getwd(), file)

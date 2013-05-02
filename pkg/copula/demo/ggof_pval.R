@@ -88,12 +88,12 @@ which(pmat < 0.05, arr.ind=TRUE) # [none]
 ## pairwise Rosenblatt plot
 title <- list("Pairwise Rosenblatt transformed pseudo-observations",
               expression(bold("to test")~~italic(H[0]:C~~bold("is t")[4])))
-main.line <- c(4, 1.4)
+line.main <- c(4, 1.4)
 ## --- JCGS, Fig.4(left) ---
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, main.line=main.line,
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, line.main=line.main,
                 main.centered=TRUE)
 ## --- JCGS, Fig.4(right) ---
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, main.line=main.line,
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, line.main=line.main,
                 method = "QQchisq", main.centered=TRUE)
 
 

@@ -50,7 +50,7 @@
 ##' @param main.centered logical indicating if the title should be centered or not;
 ##'	   the default (FALSE) centers it according to the pairs plot, not the whole
 ##'	   plotting region
-##' @param main.line title placement (vertical distance from pairs plot in lines)
+##' @param line.main title placement (vertical distance from pairs plot in lines)
 ##' @param sub sub-title
 ##' @param sub.centered logical indicating if the sub-title should be centered or not;
 ##'	   the default (FALSE) centers it according to the pairs plot, not the whole
@@ -68,7 +68,7 @@ pairs2 <- function(gcu.u,
 		   key=TRUE, key.space=2.5, key.width=1.5, key.axis=TRUE,
 		   key.rug.at = numeric(), key.title=NULL, key.line=5,
                    main=NULL, main.centered=FALSE,
-                   main.line= if(is.list(main)) 5/4*par("cex.main")*rev(seq_along(main)) else 2,
+                   line.main= if(is.list(main)) 5/4*par("cex.main")*rev(seq_along(main)) else 2,
                    sub=NULL, sub.centered=FALSE,
 		   sub.line=4)
 {
@@ -304,11 +304,11 @@ pairs2 <- function(gcu.u,
 	plot.window(xlim=c(0,1), ylim=c(0,1))
 	## xpd: turn clipping off so that title is visible if broader than plot region
 	if(!is.list(main)) { # title
-	    mtext(main, side=3, line=main.line, adj=adj, cex=cex.main, font=font.main, xpd=NA)
+	    mtext(main, side=3, line=line.main, adj=adj, cex=cex.main, font=font.main, xpd=NA)
 	} else { # for multi-line titles we accept a list
-	    stopifnot(length(main) == length(main.line))
+	    stopifnot(length(main) == length(line.main))
 	    for(i in seq_along(main))
-		mtext(main[[i]], side=3, line=main.line[i], adj=adj,
+		mtext(main[[i]], side=3, line=line.main[i], adj=adj,
 		      cex=cex.main, font=font.main, xpd = NA)
 	}
     }
