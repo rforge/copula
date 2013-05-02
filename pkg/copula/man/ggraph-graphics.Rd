@@ -15,6 +15,7 @@ pairsRosenblatt(cu.u, pvalueMat=pviTest(pairwiseIndepTest(cu.u)),
                 g1, g2, col = "B&W.contrast",
                 colList = pairsColList(pvalueMat, col=col),
                 main=NULL, sub = gpviString(pvalueMat),
+                panel=NULL, do.qqline = TRUE,
                 key.title="pp-value", key.rug=TRUE, ...)
 
 pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
@@ -59,6 +60,12 @@ pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
   \item{main}{title.}
   \item{sub}{sub-title with a smart default (displaying
     information about the realized p-values).}
+  \item{panel}{a \code{panel} function as for \code{\link{pairs}}, or,
+    by default, \code{NULL}, where the panel is set as \code{\link{points}}
+    or \dQuote{\code{points} \eqn{+} \code{qqline}} if the method is
+    "QQ.." and \code{do.qqline} is true.}
+  \item{do.qqline}{if \code{method = "QQ....."}, specify if the plot
+    panels should also draw a \code{\link{qqline}()}.}
   \item{key.title}{title of the color key.}
   \item{key.rug}{\code{\link{logical}} indicationg whether key
     rugs are printed (small ticks on the left side of the color

@@ -579,8 +579,9 @@ pairsRosenblatt <- function(cu.u, pvalueMat=pviTest(pairwiseIndepTest(cu.u)),
 			    method = c("scatter", "QQchisq", "QQgamma",
 			    "PPchisq", "PPgamma", "none"),
 			    g1, g2, col = "B&W.contrast",
-                            colList = pairsColList(pvalueMat, col=col),
-                            main=NULL, sub = gpviString(pvalueMat),
+			    colList = pairsColList(pvalueMat, col=col),
+			    main=NULL, sub = gpviString(pvalueMat),
+			    panel = NULL, do.qqline = TRUE,
 			    key.title="pp-value", key.rug=TRUE, ...)
 {
     stopifnot(is.array(cu.u), length(dc <- dim(cu.u)) == 3,
@@ -626,7 +627,6 @@ pairsRosenblatt <- function(cu.u, pvalueMat=pviTest(pairwiseIndepTest(cu.u)),
 	    g2 <- function(u, v) v
 	}
     }
-
     ## cu.u : (n,d,d)-array cu with cu[,i,j] containing C(u[,i]|u[,j]) for i!=j
     ##	       and u[,j] for i=j
     ## gcu.u: (n,d,d)-array gcu with gcu[,i,j] containing g2(u[,j], C(u[,i]|u[,j])) for i!=j
@@ -642,9 +642,25 @@ pairsRosenblatt <- function(cu.u, pvalueMat=pviTest(pairwiseIndepTest(cu.u)),
 	}
     }
 
+    if(is.null(panel))
+        panel <- if(do.qqline && substr(method, 1,2) == "QQ") {
+	    qFUN <- if(method == "QQchisq")
+		function(p) qchisq(p, df=2)
+	    else ## "QQgamma"
+		function(p) qgamma(p, shape=2)
+	    F <- eval(substitute(
+		function(x, y, ...) {
+		    points(x, y, ...)
+		    qqline(y, distribution = Q.FUNCTION)
+		}, list(Q.FUNCTION = qFUN)))
+	    attr(F, "srcref") <- NULL
+	    F
+	}
+	else points
+
     ## plot
-    pairs2(gcu.u, colList=colList, main=main, sub=sub,
-	   key.title=key.title, key.rug.at=if(key.rug) pvalueMat, ...)
+    pairs2(gcu.u, colList=colList, main=main, sub=sub, panel=panel,
+	   key.title=key.title, key.rug.at = if(key.rug) pvalueMat, ...)
 }
 
 
