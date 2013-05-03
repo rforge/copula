@@ -55,7 +55,7 @@
 ##' @param sub.centered logical indicating if the sub-title should be centered or not;
 ##'	   the default (FALSE) centers it according to the pairs plot, not the whole
 ##'	   plotting region
-##' @param sub.line sub-title placement (vertical distance from pairs plot in lines)
+##' @param line.sub sub-title placement (vertical distance from pairs plot in lines)
 ##' @return invisible()
 ##' @author Marius Hofert
 ##' Note: - based on pairs.default() and filled.contour() from R-2.14.1
@@ -65,21 +65,21 @@ pairs2 <- function(gcu.u,
 		   labels, ..., text.panel=textPanel,
 		   label.pos=0.5, cex.labels=NULL, font.labels=1, gap=0,
 		   axes=TRUE, panel.border=TRUE,
-		   key=TRUE, key.space=2.5, key.width=1.5, key.axis=TRUE,
-		   key.rug.at = numeric(), key.title=NULL, key.line=5,
-                   main=NULL, main.centered=FALSE,
-                   line.main= if(is.list(main)) 5/4*par("cex.main")*rev(seq_along(main)) else 2,
-                   sub=NULL, sub.centered=FALSE,
-		   sub.line=4)
+		   key=TRUE, keyOpt=list(space=2.5, width=1.5, axis=TRUE,
+			     rug.at = numeric(), title=NULL, line=5),
+		   main=NULL, main.centered=FALSE,
+		   line.main= if(is.list(main)) 5/4*par("cex.main")*rev(seq_along(main)) else 2,
+		   sub=NULL, sub.centered=FALSE,
+		   line.sub=4)
 {
     ## checking
     stopifnot(is.array(gcu.u), is.numeric(gcu.u), length(dc <- dim(gcu.u)) == 3,
 	      dc == c((n <- dc[1]), (d <- dc[2]), d), d>=2)
 
     panel <- match.fun(panel)
-    if(d * d > 500 - 3 && getRversion() < "2.16.0")
-        stop("Currently, layout() only allows 500 different plot areas. This limit\n  ",
-             "is reached for d=",d,".  It will be extended for R 2.16.0 (and later).")
+    if(d * d > 500 - 3 && getRversion() < "3.0.0")
+	stop("Currently, layout() only allows 500 different plot areas. This limit\n  ",
+	     "is reached for d=",d,".  It will be extended for R 3.0.0 (and later).")
 
     ## preliminaries ###########################################################
 
@@ -89,9 +89,9 @@ pairs2 <- function(gcu.u,
 
     ## function for drawing the (local) axes
     localAxis <- function(side, x, y, xpd, bg, col=NULL, main, sub, oma, ...) {
-        ## Explicitly ignore any color argument passed in as
-        ## it was most likely meant for the data points and
-        ## not for the axis.
+	## Explicitly ignore any color argument passed in as
+	## it was most likely meant for the data points and
+	## not for the axis.
 	if(side %%2 == 1) Axis(x, side=side, xpd=NA, ...)
 	else Axis(y, side=side, xpd=NA, ...)
     }
@@ -107,7 +107,11 @@ pairs2 <- function(gcu.u,
 	labels <- match.arg(labels, "none")
 	stopifnot(length(labels) == d || !(has.labs <- !(labels=="none")))
     }
-
+    if(key) { ## fix up  keyOpt, if user has not specified full list
+	keyL <- eval(formals()$keyOpt)# list of default options
+	nm <- names(keyOpt) # replace those that are specified
+	keyL[nm] <- keyOpt[nm] ## and use keyL below
+    }
     xls <- vapply(1:d, function(j) range(gcu.u[,j, j]), numeric(2))# those in the diag.
     yls <- vapply(1:d, function(i) range(gcu.u[,i,-i]), numeric(2))# those not in diag
 
@@ -132,46 +136,46 @@ pairs2 <- function(gcu.u,
     layout.mat <- matrix(1:pc, ncol=d) # first d^2 many plots for the pairs plot
     if(key) {
 	pc <- pc+1
-        ## d^2 + 1 plot for color key;
-        ## bind column of white space and the plot region for the color key to the layout:
+	## d^2 + 1 plot for color key;
+	## bind column of white space and the plot region for the color key to the layout:
 	layout.mat <- cbind(layout.mat, rep(0, d), rep(pc, d))
     }
-    nLineAdded <- 0 # for substraction later on (in heights.)
+    nLineAdded <- 0 # for subtraction later on (in heights.)
     if(!is.null(main)) { # we have a title
 	## Idea: If main.centered, create a full-width bar at the top of the plotting
 	##	 region. If !main.centered, create such a bar only on top of the pairs
 	##	 plot. Note that the height + distance do not play a role since we
 	##	 turn off the clipping later anyway.
 	pc <- pc+1
-	layout.mat <- rbind(c(rep(pc, d), rep(if(main.centered)
-					      pc else 0, 2)), layout.mat) # d^2 + 2 plot
+	layout.mat <- rbind(c(rep(pc, d), rep(if(main.centered) pc else 0, 2)),
+			    layout.mat) # d^2 + 2 plot
 	nLineAdded <- nLineAdded+1
     }
     if(!is.null(sub)) { # as for main
-	pc <- pc+1
-	layout.mat <- rbind(layout.mat, c(rep(pc, d), rep(if(sub.centered)
-							  pc else 0, 2))) # d^2 + 3 plot
+	pc <- pc+1 # d^2 + 3 plot
+	layout.mat <- rbind(layout.mat,
+			    c(rep(pc, d), rep(if(sub.centered) pc else 0, 2)))
 	nLineAdded <- nLineAdded+1
     }
 
     ## set the layout
     unit <- par("csi")*2.54
-    widths. <- c(rep(1,d), if(key) lcm(c(key.space, key.width)*unit))
+    widths. <- c(rep(1,d), if(key) lcm(c(keyL$space, keyL$width)*unit))
     heights. <- rep(1, nrow(layout.mat)-nLineAdded)
     ## add space for main (size does not matter since we will turn off clipping anyway)
     if(!is.null(main)) heights. <- c(lcm(1*unit), heights.)
     if(!is.null(sub)) heights. <- c(heights., lcm(1*unit)) # similarly for sub
     layout(layout.mat, respect=TRUE, widths=widths., heights=heights.)
-    ## for debugging purposes:
-    ## layout.show(pc)
-    ## stop("stopped after showing layout")
+    if(getOption("copula:debug.pairs2", FALSE)) {## for debugging:
+	layout.show(pc) ; browser()
+    }
 
     ## Pairs plot ##############################################################
 
     ## go over all panels (from top to bottom, left to right)
     if(!(has.colList <- !missing(colList))) {
-        fg <- col
-        ## and use the 'bg' argument which defaults to par("bg")
+	fg <- col
+	## and use the 'bg' argument which defaults to par("bg")
     }
     for(j in 1:d) { # column
 	x <- gcu.u[,j,j]
@@ -184,41 +188,41 @@ pairs2 <- function(gcu.u,
 	    ## everything ok for plotting (especially if method="none" in pairsRosenblatt())?
 	    ok <- !any(is.na(xls[,j]), is.na(yls[,i]))
 	    if(ok) { ## set up coordinate system
-                if(i!=j) {
-                    plot.window(xlim=xls[,j], ylim=yls[,i])
-                    y <- gcu.u[,i,j]
-                } else {
-                    plot.window(xlim=0:1, ylim=0:1)
-                }
-            }
-            ## draw the colored background (rectangle)
-            if(has.colList) {
-                fg <- colList$fgColMat[i,j]
-                bg <- colList$bgColMat[i,j]
-            }
-            ## set background color; xleft, ybottom, xright, ytop
-            ll <- par("usr")
-            rect(ll[1], ll[3], ll[2], ll[4], col=bg,
-                 border = if(!panel.border) NA)
-            ## draw labels
-            if(i==j) {
-                if(has.labs) {
-                    ## determine the label sizes
-                    if(is.null(cex.labels)) { # default
-                        l.wid <- strwidth(labels, "user")
-                        cex.labels <- max(0.8, min(2, .9/max(l.wid)))
-                    }
-                    ## draw the labels
-                    text.panel(0.5, label.pos, labels[i], cex=cex.labels,
-                               font=font.labels, col=fg)
-                }
-            } else { # i!=j
-                ## actual panel plot
+		if(i!=j) {
+		    plot.window(xlim=xls[,j], ylim=yls[,i])
+		    y <- gcu.u[,i,j]
+		} else {
+		    plot.window(xlim=0:1, ylim=0:1)
+		}
+	    }
+	    ## draw the colored background (rectangle)
+	    if(has.colList) {
+		fg <- colList$fgColMat[i,j]
+		bg <- colList$bgColMat[i,j]
+	    }
+	    ## set background color; xleft, ybottom, xright, ytop
+	    ll <- par("usr")
+	    rect(ll[1], ll[3], ll[2], ll[4], col=bg,
+		 border = if(!panel.border) NA)
+	    ## draw labels
+	    if(i==j) {
+		if(has.labs) {
+		    ## determine the label sizes
+		    if(is.null(cex.labels)) { # default
+			l.wid <- strwidth(labels, "user")
+			cex.labels <- max(0.8, min(2, .9/max(l.wid)))
+		    }
+		    ## draw the labels
+		    text.panel(0.5, label.pos, labels[i], cex=cex.labels,
+			       font=font.labels, col=fg)
+		}
+	    } else { # i!=j
+		## actual panel plot
 		if(ok) panel(x, y, col=fg, ...)
 		##     =====
 	    }
 
-            ## check
+	    ## check
 	    if(any(par("mfg")!=mfg)) stop("the 'panel' function made a new plot")
 
 	    ## Now draw the axes (if required); reason for doing it here instead of
@@ -282,16 +286,16 @@ pairs2 <- function(gcu.u,
 	rect(0, levels[-nl], 1, levels[-1L], col=cols)
 
 	## plot color key axis
-	if(key.axis) sfsmisc::eaxis(4)
+	if(keyL$axis) sfsmisc::eaxis(4)
 
 	## draw "data" ticks at left side of key
-	if(length(key.rug.at) > 0)
-	    axis(2, at=key.rug.at, labels=FALSE, tcl = -0.25)
+	if(length(keyL$rug.at) > 0)
+	    axis(2, at=keyL$rug.at, labels=FALSE, tcl = -0.25)
 
 	## plot color key title
-	if(!is.null(key.title)) {
+	if(!is.null(keyL$title)) {
 	    par(las=0) # label axis parallel to the axis
-	    mtext(key.title, side=4, line=key.line, outer=FALSE, cex=cex.main,
+	    mtext(keyL$title, side=4, line=keyL$line, outer=FALSE, cex=cex.main,
 		  font=font.main)
 	}
     }
@@ -319,8 +323,8 @@ pairs2 <- function(gcu.u,
 	plot.new()
 	plot.window(xlim=c(0,1), ylim=c(0,1))
 	## xpd: turn clipping off so that the sub title is visible if broader than plot region
-	mtext(sub, side=3, line=-sub.line, adj=adj, xpd = NA,
-              cex=0.75*cex.main, font=0.75*font.main) # title
+	mtext(sub, side=3, line=-line.sub, adj=adj, xpd = NA,
+	      cex=0.75*cex.main, font=0.75*font.main) # title
     }
 
     ## return invisibly
@@ -345,11 +349,11 @@ heatHCLgap <- function(beg, end, nBeg, nEnd, ngap, ...){
     stopifnot(nBeg >=0, nEnd >=0, nBeg+nEnd >= 1, ngap >=0)
     n <- if(nBeg==0) nEnd else if(nEnd==0) nBeg else nBeg + nEnd + ngap # number of colors to generate on the path (ignore gap if nBeg==0 || nEnd==0
     heatHCL <- if(n==1){ # only one color: pick the right one of beg and end
-        if(nBeg==0) hex(polarLUV(H=end[1], C=end[2], L=end[3]))
-        else if(nEnd==0) hex(polarLUV(H=beg[1], C=beg[2], L=beg[3])) else stop("impossible case")
+	if(nBeg==0) hex(polarLUV(H=end[1], C=end[2], L=end[3]))
+	else if(nEnd==0) hex(polarLUV(H=beg[1], C=beg[2], L=beg[3])) else stop("impossible case")
     } else { # more than one color: interpolate in HCL space
-        heat_hcl(n, h=c(beg[1], end[1]), c.=c(beg[2], end[2]),
-                 l=c(beg[3], end[3]), ...) # all colors on the path
+	heat_hcl(n, h=c(beg[1], end[1]), c.=c(beg[2], end[2]),
+		 l=c(beg[3], end[3]), ...) # all colors on the path
     }
     if(nBeg==0 || nEnd==0) heatHCL # colors without gap
     else c(heatHCL[seq_len(nBeg)], heatHCL[n-nEnd+seq_len(nEnd)]) # build in gap
@@ -394,18 +398,18 @@ heatHCLgap <- function(beg, end, nBeg, nEnd, ngap, ...){
 ##' @author Marius Hofert
 ##' Note: used in Hofert and Maechler (2013)
 pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
-                         signif.P=0.05, pmin0=1e-5, bucketCols=NULL, fgColMat=NULL,
-                         bgColMat=NULL, col="B&W.contrast", BWcutoff=170,## 127.5 = (0+255)/2
-                         bg.col=c("ETHCL", "zurich", "zurich.by.fog", "baby",
-                         "heat", "greenish"), bg.ncol.gap=floor(length(pdiv)/3),
-                         bg.col.bottom=NULL, bg.col.top=NULL, ...)
+			 signif.P=0.05, pmin0=1e-5, bucketCols=NULL, fgColMat=NULL,
+			 bgColMat=NULL, col="B&W.contrast", BWcutoff=170,## 127.5 = (0+255)/2
+			 bg.col=c("ETHCL", "zurich", "zurich.by.fog", "baby",
+			 "heat", "greenish"), bg.ncol.gap=floor(length(pdiv)/3),
+			 bg.col.bottom=NULL, bg.col.top=NULL, ...)
 {
     ## 0) Checks
     stopifnot(is.na(P) | (0 <= P & P <= 1), is.matrix(P), (d <- ncol(P))==nrow(P),
 	      (lp <- length(pdiv)) >= 1, 0 < pdiv, pdiv < 1, diff(pdiv) > 0,
 	      length(signif.P)==1, any(is.Pv <- (signif.P == pdiv)),
 	      length(pmin0)==1, 0 <= pmin0, pmin0 <= 1,
-              0 <= bg.ncol.gap, bg.ncol.gap < lp)
+	      0 <= bg.ncol.gap, bg.ncol.gap < lp)
     if(!(is0bucketCols <- is.null(bucketCols))) stopifnot(is.vector(bucketCols), length(bucketCols)==lp)
     if(!(is0fgColMat <- is.null(fgColMat))) stopifnot(is.matrix(fgColMat), dim(fgColMat)==dim(P))
     if(!(is0bgColMat <- is.null(bgColMat))) stopifnot(is.matrix(bgColMat), dim(bgColMat)==dim(P))
@@ -455,82 +459,82 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
 
     ## 2) Determine colors for buckets
     if(is0bucketCols){ # no bucketCols available
-        ## 2.1) Determine which of the values of pvalueBuckets is signif.P
-        is.Pv <- (signif.P == pvalueBuckets)
-        if(!any(is.Pv)) stop("signif.P is not in pvalueBuckets (= extended pdiv)")
-        num.signif.P <- which(is.Pv) # => num.signif.P can be all of {1,..,lp}
+	## 2.1) Determine which of the values of pvalueBuckets is signif.P
+	is.Pv <- (signif.P == pvalueBuckets)
+	if(!any(is.Pv)) stop("signif.P is not in pvalueBuckets (= extended pdiv)")
+	num.signif.P <- which(is.Pv) # => num.signif.P can be all of {1,..,lp}
 
-        ## 2.2) Determine number of different colors
-        nColsBel <- num.signif.P - 1 # number of different colors below signif.P
-        nb <- lp-1 # number of buckets; lp = length(pvalueBuckets)
-        nColsAbo <- nb - nColsBel  # number of different colors above signif.P
-        ## => Can both be 0, but not simultaneously:
-        ##	  Example: if pdiv <- 0.05 = signif.P and all p-values (entries of P)
-        ##		   are > 0.05 => no colors below signif.P.
+	## 2.2) Determine number of different colors
+	nColsBel <- num.signif.P - 1 # number of different colors below signif.P
+	nb <- lp-1 # number of buckets; lp = length(pvalueBuckets)
+	nColsAbo <- nb - nColsBel  # number of different colors above signif.P
+	## => Can both be 0, but not simultaneously:
+	##	  Example: if pdiv <- 0.05 = signif.P and all p-values (entries of P)
+	##		   are > 0.05 => no colors below signif.P.
 
-        ## 2.3) Determine colors
-        ##	Note: As for the default, the larger the index, the brighter the color
-        ##	      vector should be, so that the plot makes small p-values visible by
-        ##	      dark colors.
-        if(is0bg.col.bottom && is0bg.col.top) { # use default color schemes
-            bg.col <- match.arg(bg.col)
-            switch(bg.col,
-                   "ETHCL"={ # blue to yellow/white
-                       stopifnot(require(colorspace))
-                       bel <- rev(as(hex2RGB("#0066CC"), "polarLUV")@coords) # default
-                       bel[1] <- bel[1]-360 # map correctly to not run over green
-                       abo <- c(80, 30, 94) # yellow/white
-                   },
-                   "zurich"={ # sequential blue
-                       stopifnot(require(colorspace))
-                       bel <- rev(as(hex2RGB("#0066CC"), "polarLUV")@coords) # (Zurich coat of arms) blue
-                       bel[1] <- bel[1]-360 # map correctly to not run over green
-                       abo <- c(-100, 0, 94) # blue/white
-                   },
-                   "zurich.by.fog"={ # grayscale
-                       bel <- c(0, 0, 40) # gray
-                       abo <- c(0, 0, 94) # gray/white
-                   },
-                   "baby"={
-                       stopifnot(require(colorspace))
-                       bel <- rev(as(hex2RGB("#0066CC"), "polarLUV")@coords)
-                       bel[1] <- bel[1]-360 # map correctly to not run over green
-                       abo <- c(0, 40, 100) # pink/white
-                   },
-                   "heat"={ # default HCL heat
-                       bel <- c(0, 100, 50) # red
-                       abo <- c(90, 30, 90) # yellow
-                   },
-                   "greenish"={ # self-constructed greenish color scheme
-                       stopifnot(require(colorspace))
-                       bel <- rev(as(hex2RGB("#283B4B"), "polarLUV")@coords) # "rgb2hcl"
-                       abo <- rev(as(hex2RGB("#EFEE69"), "polarLUV")@coords)
-                   },
-                   stop("wrong color scheme"))
-        } else { # use the provided HCL color vectors
-            if(is0bg.col.bottom && nColsBel > 0) stop("specify 'bg.col.bottom' or none of 'bg.col.bottom' and 'bg.col.top'")
-            if(is0bg.col.top && nColsAbo > 0) stop("specify 'bg.col.top' or none of 'bg.col.bottom' and 'bg.col.top'")
-            bel <- bg.col.bottom # color *bel*ow signif.P
-            abo <- bg.col.top # color *abo*ve signif.P
-        }
-        bucketCols <- heatHCLgap(beg=bel, end=abo, nBeg=nColsBel,
-                                 nEnd=nColsAbo, ngap=bg.ncol.gap, ...) # colors for all buckets (for increasing p-values)
+	## 2.3) Determine colors
+	##	Note: As for the default, the larger the index, the brighter the color
+	##	      vector should be, so that the plot makes small p-values visible by
+	##	      dark colors.
+	if(is0bg.col.bottom && is0bg.col.top) { # use default color schemes
+	    bg.col <- match.arg(bg.col)
+	    switch(bg.col,
+		   "ETHCL"={ # blue to yellow/white
+		       stopifnot(require(colorspace))
+		       bel <- rev(as(hex2RGB("#0066CC"), "polarLUV")@coords) # default
+		       bel[1] <- bel[1]-360 # map correctly to not run over green
+		       abo <- c(80, 30, 94) # yellow/white
+		   },
+		   "zurich"={ # sequential blue
+		       stopifnot(require(colorspace))
+		       bel <- rev(as(hex2RGB("#0066CC"), "polarLUV")@coords) # (Zurich coat of arms) blue
+		       bel[1] <- bel[1]-360 # map correctly to not run over green
+		       abo <- c(-100, 0, 94) # blue/white
+		   },
+		   "zurich.by.fog"={ # grayscale
+		       bel <- c(0, 0, 40) # gray
+		       abo <- c(0, 0, 94) # gray/white
+		   },
+		   "baby"={
+		       stopifnot(require(colorspace))
+		       bel <- rev(as(hex2RGB("#0066CC"), "polarLUV")@coords)
+		       bel[1] <- bel[1]-360 # map correctly to not run over green
+		       abo <- c(0, 40, 100) # pink/white
+		   },
+		   "heat"={ # default HCL heat
+		       bel <- c(0, 100, 50) # red
+		       abo <- c(90, 30, 90) # yellow
+		   },
+		   "greenish"={ # self-constructed greenish color scheme
+		       stopifnot(require(colorspace))
+		       bel <- rev(as(hex2RGB("#283B4B"), "polarLUV")@coords) # "rgb2hcl"
+		       abo <- rev(as(hex2RGB("#EFEE69"), "polarLUV")@coords)
+		   },
+		   stop("wrong color scheme"))
+	} else { # use the provided HCL color vectors
+	    if(is0bg.col.bottom && nColsBel > 0) stop("specify 'bg.col.bottom' or none of 'bg.col.bottom' and 'bg.col.top'")
+	    if(is0bg.col.top && nColsAbo > 0) stop("specify 'bg.col.top' or none of 'bg.col.bottom' and 'bg.col.top'")
+	    bel <- bg.col.bottom # color *bel*ow signif.P
+	    abo <- bg.col.top # color *abo*ve signif.P
+	}
+	bucketCols <- heatHCLgap(beg=bel, end=abo, nBeg=nColsBel,
+				 nEnd=nColsAbo, ngap=bg.ncol.gap, ...) # colors for all buckets (for increasing p-values)
     }
 
     ## 3) find colors according to p-values
     if(is0bgColMat){
-        ind <- findInterval(P, pvalueBuckets, all.inside=TRUE)
-        ## Note:
-        ## - findInterval can only return 0 if there is an entry in P which is smaller
-        ##	 than the smallest value of pvalueBuckets. Due to the way pvalueBuckets is
-        ##	 created, this can only happen if pmin=0 and pmin0>0. But in this case,
-        ##	 all.inside=TRUE forces findInterval to return 1 instead of 0 which is what
-        ##	 we need for an index
-        ## - ind should now all be in {1,..,nb} or NA (diag(P))
-        ## - if P[i,j] == pvalueBuckets[k] for some k, then the bucket with
-        ##	 upper endpoint pvalueBuckets[k] is returned
-        bgColMat <- matrix(bucketCols[ind], d,d)
-        diag(bgColMat) <- "transparent"
+	ind <- findInterval(P, pvalueBuckets, all.inside=TRUE)
+	## Note:
+	## - findInterval can only return 0 if there is an entry in P which is smaller
+	##	 than the smallest value of pvalueBuckets. Due to the way pvalueBuckets is
+	##	 created, this can only happen if pmin=0 and pmin0>0. But in this case,
+	##	 all.inside=TRUE forces findInterval to return 1 instead of 0 which is what
+	##	 we need for an index
+	## - ind should now all be in {1,..,nb} or NA (diag(P))
+	## - if P[i,j] == pvalueBuckets[k] for some k, then the bucket with
+	##	 upper endpoint pvalueBuckets[k] is returned
+	bgColMat <- matrix(bucketCols[ind], d,d)
+	diag(bgColMat) <- "transparent"
     }
 
     ## 4) determine default foreground color
@@ -548,7 +552,7 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
     ## 5) return a list containing the matrix of colors, the p-value "buckets"
     ##    and corresponding colors
     list(fgColMat=fgColMat, bgColMat=bgColMat,
-         bucketCols=bucketCols, pvalueBuckets=pvalueBuckets)
+	 bucketCols=bucketCols, pvalueBuckets=pvalueBuckets)
 }
 
 
@@ -643,15 +647,16 @@ pairsRosenblatt <- function(cu.u, pvalueMat=pviTest(pairwiseIndepTest(cu.u)),
     }
 
     if(is.null(panel))
-        panel <- if(do.qqline && substr(method, 1,2) == "QQ") {
-	    qFUN <- if(method == "QQchisq")
-		function(p) qchisq(p, df=2)
-	    else ## "QQgamma"
-		function(p) qgamma(p, shape=2)
+	panel <- if(do.qqline && substr(method, 1,2) == "QQ") {
+	    qFUN <- switch(method,
+			   "QQchisq" = function(p) qchisq(p, df=2),
+			   "QQgamma" = function(p) qgamma(p, shape=2),
+			   stop("unsupported QQ.. method: ", method))
 	    F <- eval(substitute(
-		function(x, y, ...) {
-		    points(x, y, ...)
-		    qqline(y, distribution = Q.FUNCTION)
+		function(x, y, col=par("col"), lwd=par("lwd"), ...) {
+		    points(x, y, col=col, lwd=lwd, ...)
+		    qqline(y, distribution = Q.FUNCTION,
+			   col=adjustcolor(col, 0.6), lwd=lwd/2, ...)
 		}, list(Q.FUNCTION = qFUN)))
 	    attr(F, "srcref") <- NULL
 	    F
@@ -660,7 +665,7 @@ pairsRosenblatt <- function(cu.u, pvalueMat=pviTest(pairwiseIndepTest(cu.u)),
 
     ## plot
     pairs2(gcu.u, colList=colList, main=main, sub=sub, panel=panel,
-	   key.title=key.title, key.rug.at = if(key.rug) pvalueMat, ...)
+	   keyOpt=list(title=key.title, rug.at = if(key.rug) pvalueMat), ...)
 }
 
 
