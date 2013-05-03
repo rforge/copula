@@ -174,14 +174,15 @@ pairsRosenblatt(cu.u, pvalueMat= pmat)
 
 
 
-## A shortened version of   demo(gof_graph) :
+### A shortened version of   demo(gof_graph) -------------------------------
 
 N <- 32 ## too small, for "testing"; realistically, use a larger one:
 if(FALSE)
-N <- 200
+N <- 100
 
-### 5d Gumbel copula ##########
-n <- 1000 # sample size
+## 5d Gumbel copula ##########
+
+n <- 250 # sample size
 d <- 5 # dimension
 family <- "Gumbel" # copula family
 tau <- 0.5
@@ -200,7 +201,7 @@ pwIT <- pairwiseIndepTest(cu.u, N=N, verbose=interactive()) # (d,d)-matrix of te
 round(pmat <- pviTest(pwIT), 3) # pick out p-values
 ## Here (with seed=1):  no significant ones, smallest = 0.0603
 
-### Plots ######################
+## Plots ---------------------
 
 ## plain (too large plot symbols here)
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".")
