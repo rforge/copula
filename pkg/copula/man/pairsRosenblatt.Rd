@@ -4,8 +4,9 @@
 \title{Plots for Graphical GOF Test via Pairwise Rosenblatt Transforms}
 \description{
   \code{pairsColList()} creates a \code{\link{list}} containing
-  information about colors for a given matrix of p-values.  These colors
-  are used in \code{pairsRosenblatt()} for visualizing a graphical
+  information about colors for a given matrix of (approximate aka
+  \dQuote{pseudo}) p-values.  These colors are used in
+  \code{pairsRosenblatt()} for visualizing a graphical
   goodness-of-fit test based on pairwise Rosenblatt transformed data.
 }
 \usage{
@@ -14,9 +15,9 @@ pairsRosenblatt(cu.u, pvalueMat=pviTest(pairwiseIndepTest(cu.u)),
                 "PPchisq", "PPgamma", "none"),
                 g1, g2, col = "B&W.contrast",
                 colList = pairsColList(pvalueMat, col=col),
-                main=NULL, sub = gpviString(pvalueMat),
-                panel=NULL, do.qqline = TRUE,
-                key.title="pp-value", key.rug=TRUE, ...)
+                main=NULL, key.title = "pp-value",
+                sub = gpviString(pvalueMat, name = paste0(key.title,"s")),
+		panel = NULL, do.qqline = TRUE, key.rug = TRUE, ...)
 
 pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
              signif.P = 0.05, pmin0 = 1e-05, bucketCols = NULL,
@@ -31,7 +32,7 @@ pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
   \item{cu.u}{\eqn{(n,d,d)}-\code{\link{array}} of pairwise
     Rosenblatt-transformed observations as returned by
     \code{\link{pairwiseCcop}()}.}
-  \item{pvalueMat}{\eqn{(d,d)}-\code{\link{matrix}} of p-values.}
+  \item{pvalueMat}{\eqn{(d,d)}-\code{\link{matrix}} of p-values (or pp-values).}
   \item{method}{\code{\link{character}} indicating the plot method
     to be used. Currently possible are:
     \describe{
@@ -58,33 +59,32 @@ pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
   \item{colList}{\code{\link{list}} of colors and information as
     returned by \code{pairsColList()}.}
   \item{main}{title.}
-  \item{sub}{sub-title with a smart default (displaying
-    information about the realized p-values).}
+  \item{sub}{sub-title with a smart default containing a global (p)p-value.}
   \item{panel}{a \code{panel} function as for \code{\link{pairs}}, or,
     by default, \code{NULL}, where the panel is set as \code{\link{points}}
     or \dQuote{\code{points} \eqn{+} \code{qqline}} if the method is
-    "QQ.." and \code{do.qqline} is true.}
-  \item{do.qqline}{if \code{method = "QQ....."}, specify if the plot
+    "QQ...." and \code{do.qqline} is true.}
+  \item{do.qqline}{if \code{method = "QQ...."}, specify if the plot
     panels should also draw a \code{\link{qqline}()}.}
   \item{key.title}{title of the color key.}
   \item{key.rug}{\code{\link{logical}} indicationg whether key
-    rugs are printed (small ticks on the left side of the color
-    key which show the realized p-values).}
-  \item{\dots}{additional arguments passed to the internal function
-    \code{pairs2()} (for \code{pairsRosenblatt()}) and \code{heat_hcl()}
-    (for \code{pairsColList}; used to generate the color palette).}
+    rugs are printed (small ticks on the left side of the color key).}
+  \item{\dots}{additional arguments passed to \code{\link{.pairsCond}()}
+    (for \code{pairsRosenblatt()})
+    and to \code{heat_hcl()} (for \code{pairsColList};
+    used to generate the color palette), see Details.}
   \item{P}{\eqn{d \times d}{d * d} \code{\link{matrix}} of p-values.}
   \item{pdiv}{numeric vector of strictly increasing p-values in
-    (0,1) that determine the "buckets" for the background
-    colors of the internal function \code{pairs2()} which creates the
+    (0,1) that determine the \dQuote{buckets} for the background
+    colors of \code{\link{.pairsCond}()} which creates the
     pairs-like goodness-of-fit plot.}
-  \item{signif.P}{significance level (must be an element of
-    \code{pdiv}).}
+  \item{signif.P}{significance level (must be an element of \code{pdiv}).}
   \item{pmin0}{a \code{\link{numeric}} indicating the lower endpoint of
     the p-value buckets if \code{pmin} is zero.  If set to 0, the lowest
-    value of the p-value buckets will also be 0. Note that for using
-    \code{pairsColList()} for the internal function \code{pairs2()},
-    \code{pmin0} should be in (0, \code{min(pdiv)}).}
+    value of the p-value buckets will also be 0.
+
+    Note that \code{pmin0} should be in (0, \code{min(pdiv)}) when using
+    \code{pairsColList()} for \code{\link{.pairsCond}()}.}
   \item{bucketCols}{\code{\link{vector}} of length as \code{pdiv} containing the
     colors for the buckets.  If not specified, either
     \code{bg.col.bottom} and \code{bg.col.top} are used (if provided) or
@@ -94,11 +94,10 @@ pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
     and white if it is dark; see also \code{BWcutoff}).}
   \item{bgColMat}{\eqn{(d,d)}-\code{\link{matrix}} of background colors;
     do not change this unless you know what you are doing.}
-  \item{col}{foreground color (defaults to "B&W.contrast"
-    which switches black/white according to \code{BWcutoff}). \code{col}
-    is passed to the internal function \code{pairs2()}. If
-    \code{colList} is not specified, this color is used to
-    construct the points' color.}
+  \item{col}{foreground color (defaults to "B&W.contrast" which switches
+    black/white according to \code{BWcutoff}), passed to
+    \code{\link{.pairsCond}()}.  If \code{colList} is not specified,
+    this color is used to construct the points' color.}
   \item{BWcutoff}{number in (0, 255) for switching
     foreground color if \code{col="B&W.contrast"}.}
   \item{bg.col}{color scheme for the background colors.}
@@ -116,8 +115,7 @@ pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
 }
 \value{
 \describe{
-  \item{\code{pairsRosenblatt}: }{invisibly, the result of the internal
-    \code{pairs2()} plot function.}
+  \item{\code{pairsRosenblatt}: }{invisibly, the result of \code{\link{.pairsCond}()}.}
   \item{\code{pairsColList}: }{a named \code{\link{list}} with components
     \describe{
       \item{\code{fgColMat}}{\code{\link{matrix}} of foreground colors.}
@@ -132,15 +130,20 @@ pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
 }
 }
 \details{
+  Extra arguments of \code{pairsRosenblatt()} are passed to
+  \code{\link{.pairsCond}()}, these notably may include \code{key}, true
+  by default, which draws a color key for the colors used as panel
+  background encoding (pseudo) p-values.
+
   \code{pairsColList()} is basically an auxiliary function to specify
   the colors used in the graphical goodness-of-fit test as
   conducted by \code{pairsRosenblatt()}. The latter is described in
-  detail in Hofert and \enc{Mächler}{Maechler} (2012).
+  detail in Hofert and \enc{Mächler}{Maechler} (2013).
   See also \code{\link{demo}(gof_graph)}.
 }
 \author{Marius Hofert, Martin \enc{Mächler}{Maechler}.}
 \references{
-  Hofert, M. and \enc{Mächler}{Maechler}, M. (2012)
+  Hofert, M. and \enc{Mächler}{Maechler}, M. (2013)
   A graphical goodness-of-fit test for dependence models in higher dimensions;
   submitted.
 }

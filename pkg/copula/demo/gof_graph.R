@@ -30,7 +30,7 @@ if(!(exists("doX") && is.logical(as.logical(doX))))
 ### Example 1: 5d Gumbel copula ################################################
 
 ## setup
-n <- 1000 # sample size
+n <- if(doX) 1000 else 250 # sample size
 d <- 5 # dimension
 family <- "Gumbel" # copula family
 tau <- 0.5
@@ -202,7 +202,7 @@ pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", colList=colList)
 ### Example 2: (2,3)-nested Gumbel copula ######################################
 
 ## setup
-n <- 1000 # sample size
+n <- if(doX) 1000 else 250 # sample size
 d <- 5 # dimension
 family <- "Gumbel" # copula family
 if(setSeeds) set.seed(2)
@@ -249,7 +249,7 @@ pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, line.main=c(4, 1.4),
 ### Example 3: 5d t_4 copula (fixed/known d.o.f., estimated P) #################
 
 ## setup
-n <- 1000 # sample size
+n <- if(doX) 1000 else 250 # sample size
 d <- 5 # dimension
 family <- "t" # copula family
 df <- 4 # degrees of freedom

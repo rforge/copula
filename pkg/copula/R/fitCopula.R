@@ -1,3 +1,4 @@
+
 ## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
 ## This program is free software; you can redistribute it and/or modify it under
@@ -42,9 +43,11 @@ print.fitCopula <- function(x, digits = max(3, getOption("digits") - 3),
     if(!is.null(cnts <- x@fitting.stats$counts) && !all(is.na(cnts))) {
 	cat("Number of loglikelihood evaluations:\n"); print(cnts, ...)
     }
+### FIXME:  Show parts of the @copula  slot !!!!!!
     invisible(x)
 }
 
+### FIXME:  print( summary( fitC ) )  gives *less*  than print ( fitC ) !!
 summary.fitCopula <- function(object, ...) {
   estimate <- object@estimate
   se <- sqrt(diag(object@var.est))
@@ -89,6 +92,7 @@ fitCopula <- function(copula, data, method = c("mpl","ml","itau","irho"),
 }
 
 
+##' Starting value for Maximum Likelihood ("ml")
 fitCopStart <- function(copula, data, default = copula@parameters)
 {
     if (hasMethod("iTau", clc <- class(copula))) {
@@ -136,6 +140,7 @@ fitCopula.itau <- function(copula, x, estimate.variance=TRUE, warn.df=TRUE) {
   ccl <- getClass(class(copula))
   isEll <- extends(ccl, "ellipCopula")
   if(has.par.df(copula, ccl, isEll)) { ## must treat it as "df.fixed=TRUE"
+      ## currently: tCopula  or tevCopula
       if(warn.df)
           warning("\"itau\" fitting ==> copula coerced to 'df.fixed=TRUE'")
       copula <- as.df.fixed(copula, classDef = ccl)

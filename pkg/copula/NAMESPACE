@@ -87,7 +87,7 @@ export(gofCopula, gofEVCopula)
 
 ## ggraph utils
 export(pairwiseCcop, pairwiseIndepTest, pviTest, gpviTest, RSpobs, gofBTstat) # R/ggraph-tools.R
-export(pairsColList, pairsRosenblatt) # R/ggraph-graphics.R
+export(pairsColList, pairsRosenblatt, .pairsCond) # R/ggraph-graphics.R
 
 ## other nonparametric tests
 export(evTestC, evTestA, evTestK)

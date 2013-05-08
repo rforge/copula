@@ -29,8 +29,7 @@ pairwiseIndepTest(cu.u, N=256,
 gpviTest(pvalues, method=p.adjust.methods, globalFun=min)
 }
 \arguments{
-  \item{u}{\eqn{(n,d)}-\code{\link{matrix}} of (typically)
-    pseudo-observations or perfectly simulated copula data.}
+  \item{u}{\eqn{(n,d)}-\code{\link{matrix}} of copula data.}
   \item{cop}{copula object used for the Rosenblatt transform
     (\eqn{H_0}{H[0]} copula).}
   \item{\dots}{additional arguments passed to the internal function
@@ -44,9 +43,9 @@ gpviTest(pvalues, method=p.adjust.methods, globalFun=min)
   \item{cu.u}{\eqn{(n,d,d)}-\code{\link{array}} as returned by
     \code{pairwiseCcop()}.}
   \item{N}{argument of \code{\link{indepTestSim}()}.}
-  \item{iTest}{the result \code{\link{indepTestSim}()}; as it does
-    \emph{not} depend on the data, and is costly to compute, it can be
-    computed separately and passed here.}
+  \item{iTest}{the result of (a version of) \code{\link{indepTestSim}()};
+    as it does \emph{not} depend on the data, and is costly to compute,
+    it can be computed separately and passed here.}
   \item{verbose}{\code{\link{integer}} (or \code{\link{logical}})
     indicating if and how much progress should be printed during the
     computation of the tests for independence.}
@@ -60,6 +59,12 @@ gpviTest(pvalues, method=p.adjust.methods, globalFun=min)
     p-values; see \code{\link{p.adjust.methods}} for more details.}
   \item{globalFun}{\code{\link{function}} determining how to compute a
     global p-value from a matrix of pairwise adjusted p-values.}
+}
+\note{
+  If \code{u} are distributed according to or \dQuote{perfectly} sampled
+  from a copula, )Note that
+  (typically)
+    pseudo-observations or perfectly simulated 
 }
 \value{
   \describe{
@@ -76,7 +81,7 @@ gpviTest(pvalues, method=p.adjust.methods, globalFun=min)
 }
 \author{Marius Hofert, Martin \enc{Mächler}{Maechler}.}
 \references{
-  Hofert and \enc{Mächler}{Maechler} (2012),
+  Hofert and \enc{Mächler}{Maechler} (2013),
   see \code{\link{pairsRosenblatt}}.% -> ./ggraph-graphics.Rd
 }
 \seealso{

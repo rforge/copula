@@ -151,7 +151,7 @@ fitCopula(tevCopula(df.fixed=TRUE), x, estimate.variance=FALSE)
 fitCopula(tevCopula(df.fixed=TRUE), x, method="ml")
 fitCopula(tevCopula(),		    x)
 fitCopula(tevCopula(), 		    x, estimate.variance=FALSE)
-try(
+try( ## 'df' is not estimated, but it should
 fitCopula(tevCopula(), 		    x, method="ml")
 )
 

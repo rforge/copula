@@ -45,6 +45,8 @@ IK: Me too
 => MH: done on 2012-03-25 (for simplicity, I used "2012" everywhere)
 ** TODO Renaming of current "base" functions see [[file:feature-table.org][Feature table]] and [[file:do-now.org][do-now table]]
     remaining: lambdaL/U and inverse ("iLambda").
+** TODO fitCopula("itau") for "tCopula(df.fixed=FALSE)": (and tevCopula?):
+use itau for P matrix, then ML for df. {see also ggraph.Rnw}
 ** DONE show(<mvdc>) method needed; otherwise printing mvdc(.) looks ugly.
 ** TODO Deprecation of Old Stuff / towards more consistency / Cleanup
 - with warning
@@ -162,7 +164,6 @@ Longer term: want to *estimate* those correctly [MLE at least].
 ** TODO pCopula() should also accept a  'log.p = FALSE' argument
  and provide more accurate results in the lower tail for log.p=TRUE.
 ** TODO Miscellaneous functions
-*** TODO iTau(): must use tau.checker() [R/estimation.R]
 *** TODO MM, MH: indepTest()  takes a while {ok}, *BUT* cannot be interrupted (quickly enough)
     - shouldn't it {and all other tests} return a (valid) object of class
     "htest" (maybe "htest" in addition to the specific S3 class)?
@@ -170,7 +171,11 @@ Longer term: want to *estimate* those correctly [MLE at least].
 *** DONE MH: @ Jun, Ivan: file R/E.R  only defines E <- exp(1). Reason(MM): work around silly 'CMD check' warnings.
 But we should move that to another R/*.R
 
-*** TODO makePosDef() -- think of using a version of sfsmisc::posdefify()
+*** TODO iTau(): must use tau.checker() [R/estimation.R]
+*** TODO makePosDef() -- think of using a version of sfsmisc::posdefify() or nearPD()
+*** TODO R/fitCopula.R : method="itau" & "irho": parallelize double for-loop in
+ fitKendall() & fitSpearman() :  tests/moments.R must
+ check that vectorized iTau() and iRho() work for all families
 *** TODO t / normal : allow  "block" dispersion structure {including  fitCopula() working}
 
 **** --> e-mail and example: /u/maechler/R/MM/Pkg-ex/copula/mvdc-ex.R

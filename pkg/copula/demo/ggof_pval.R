@@ -33,7 +33,7 @@ if(!(exists("doX") && is.logical(as.logical(doX))))
 n <- 1000 # sample size
 d <- 5 # dimension
 family <- "t" # copula family
-df <- 4 # degrees of freedom
+df.true <- 2.2 # degrees of freedom
 
 ## define and sample the copula, build pseudo-observations
 tau <- c(0.2, 0.4, 0.6)
@@ -42,12 +42,15 @@ P <- c(r[2], r[1], r[1], r[1], # upper triangle (without diagonal) of correlatio
              r[1], r[1], r[1],
                    r[3], r[3],
                          r[3])
-copt4 <- ellipCopula(family, param=P, dim=d, dispstr="un", df=df, df.fixed=TRUE)
+copt4 <- ellipCopula(family, param=P, dim=d, dispstr="un", df=df.true, df.fixed=TRUE)
 if(setSeeds) set.seed(4)
 U <- rCopula(n, cop=copt4)
 U. <- pobs(U)
 
 stopifnot(require(Matrix))
+
+### Plan: 1) single    H_0:  --> What bootstrap is needed ?
+### ----  2) composite H_0:  Bootstrap the single H_0 bootstrap ==> double bootstrap ??
 
 ## define the H0 copula
 ## Note: that's the same result when using pseudo-observations since estimation via
@@ -58,7 +61,7 @@ mkH0cop <- function(u, df) {
     ellipCopula("t", param= P2p(P.), dim = d, dispstr="un", df=df, df.fixed=TRUE)
 }
 
-copH0 <- mkH0cop(U., df=df)
+copH0 <- mkH0cop(U., df= 10)
 
 iTest <- indepTestSim(n, p=2, m=2, N=N, verbose = TRUE)
 

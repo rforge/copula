@@ -130,9 +130,9 @@ pairwiseIndepTest <-
     stopifnot(dim.[2]==dim.[3])
     n <- dim.[1]
     d <- dim.[2]
-    if(verbose) cat(sprintf("pairwiseIndepTest( (n=%d, d=%d)): indepTestSim(*, N=%d) .. ",
-                            n,d, N))
-    if(verbose) cat(" *Sim  done\n")
+    if(verbose)
+        cat(sprintf("pairwiseIndepTest( (n=%d, d=%d)): indepTestSim(*, N=%d) .. ",
+                    n,d, N))
 
     ## 2) compute matrix of pairwise p-values for test of independence
     p <- matrix(list(), nrow=d, ncol=d)
@@ -146,6 +146,7 @@ pairwiseIndepTest <-
         }
         if(verbose >= 2) cat("\n")
     }
+    if(verbose) cat(" *Sim  done\n")
     p
 }
 
@@ -189,9 +190,9 @@ gpviTest0 <- function(pvalues) {
 }
 
 ## string formatter of gviTest0()
-gpviString <- function(pvalues, sep="   ", digits=2) {
+gpviString <- function(pvalues, name = "pp-values", sep="   ", digits=2) {
     pv <- gpviTest0(pvalues)
-    paste0("p-values:", sep,
+    paste0(name, ":", sep,
            paste(paste(names(pv), sapply(pv, format.pval, digits=digits),
                        sep=": "), collapse=paste0(";",sep)))
 }

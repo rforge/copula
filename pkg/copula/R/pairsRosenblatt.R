@@ -38,14 +38,15 @@
 ##' @param panel.border logical indicating whether a border is drawn around the
 ##'	   pairs (to mimic the behavior of image())
 ##' @param key logical indicating whether a color key is drawn
-##' @param key.space white space in height of characters in inch to specify the
+##' @param keyOpt a list of options for the color key,
+##'  \item\code{space} white space in height of characters in inch to specify the
 ##'	   the distance of the key to the pairs plot
-##' @param key.width key width in height of characters in inch
-##' @param key.axis logical indicating whether an axis for the color key is
+##'  \item\code{width} key width in height of characters in inch
+##'  \item\code{axis} logical indicating whether an axis for the color key is
 ##'	   drawn
-##' @param key.rug.at values where rugs are plotted at the key
-##' @param key.title key title
-##' @param key.line key placement (horizontal distance from color key in lines)
+##'  \item\code{rug.at} values where rugs are plotted at the key
+##'  \item\code{title} key title
+##'  \item\code{line} key placement (horizontal distance from color key in lines)
 ##' @param main title
 ##' @param main.centered logical indicating if the title should be centered or not;
 ##'	   the default (FALSE) centers it according to the pairs plot, not the whole
@@ -57,10 +58,9 @@
 ##'	   plotting region
 ##' @param line.sub sub-title placement (vertical distance from pairs plot in lines)
 ##' @return invisible()
-##' @author Marius Hofert
 ##' Note: - based on pairs.default() and filled.contour() from R-2.14.1
 ##'       - used in Hofert and Maechler (2013)
-pairs2 <- function(gcu.u,
+.pairsCond <- function(gcu.u,
 		   panel=points, colList, col = par("col"), bg = par("bg"),
 		   labels, ..., text.panel=textPanel,
 		   label.pos=0.5, cex.labels=NULL, font.labels=1, gap=0,
@@ -109,8 +109,8 @@ pairs2 <- function(gcu.u,
     }
     if(key) { ## fix up  keyOpt, if user has not specified full list
 	keyL <- eval(formals()$keyOpt)# list of default options
-	nm <- names(keyOpt) # replace those that are specified
-	keyL[nm] <- keyOpt[nm] ## and use keyL below
+	## replace those that are specified:
+	keyL[names(keyOpt)] <- keyOpt ## and use keyL below
     }
     xls <- vapply(1:d, function(j) range(gcu.u[,j, j]), numeric(2))# those in the diag.
     yls <- vapply(1:d, function(i) range(gcu.u[,i,-i]), numeric(2))# those not in diag
@@ -166,7 +166,7 @@ pairs2 <- function(gcu.u,
     if(!is.null(main)) heights. <- c(lcm(1*unit), heights.)
     if(!is.null(sub)) heights. <- c(heights., lcm(1*unit)) # similarly for sub
     layout(layout.mat, respect=TRUE, widths=widths., heights=heights.)
-    if(getOption("copula:debug.pairs2", FALSE)) {## for debugging:
+    if(getOption("copula:debug.pairsCond", FALSE)) {## for debugging:
 	layout.show(pc) ; browser()
     }
 
@@ -329,7 +329,7 @@ pairs2 <- function(gcu.u,
 
     ## return invisibly
     invisible()
-} # end{pairs2}
+} # end{.pairsCond}
 
 
 ### colors #####################################################################
@@ -365,11 +365,11 @@ heatHCLgap <- function(beg, end, nBeg, nEnd, ngap, ...){
 ##'	   p-values
 ##' @param P (d,d) matrix of p-values
 ##' @param pdiv vector of strictly increasing p-values in (0,1) that determine the
-##'	   "buckets" for the background colors of pairs2()
+##'	   "buckets" for the background colors of .pairsCond()
 ##' @param signif.P significance level (must be an element of pdiv)
 ##' @param pmin0 a numeric indicating the lower endpoint of pvalueBuckets if pmin=0.
 ##'	   If set to 0, the lowest pvalueBucket will also be 0 (as pmin). If you want
-##'	   to use pairsColList() for pairs2(), pmin0 should be in (0, min(pdiv))
+##'	   to use pairsColList() for .pairsCond(), pmin0 should be in (0, min(pdiv))
 ##' @param bucketCols vector of length as pdiv containing the colors for the buckets.
 ##'        If not specified, either bg.col.bottom and bg.col.top are used (if provided)
 ##'        or bg.col (if provided)
@@ -427,7 +427,7 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
 	## Note: pmin could be 0 (due to simulation-based p-values, for example).
 	##	 In this case, if pmin.adjust = TRUE, we adjust pmin to
 	##	 (min(P, na.rm=TRUE) + min(pdiv))/2. This is useful when using
-	##	 pairsColList for pairs2() and plotting the color key in log-scale;
+	##	 pairsColList for .pairsCond() and plotting the color key in log-scale;
 	##	 there we have to avoid 0
 	pvalueBuckets <- if(pmin > 0){
 	    c(pmin, pvalueBuckets)
@@ -568,14 +568,16 @@ pairsColList <- function(P, pdiv=c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 0.5),
 ##' @param g1 function [0,1]^n -> [0,1]^n (n = length(u)); "x" for plotting
 ##'	   in one panel
 ##' @param g2 function [0,1]^{n x 2} -> [0,1]^n; "y" for plotting in one panel
-##' @param col passed on to pairs2(); if colList is not specified, this color is
+##' @param col passed on to .pairsCond(); if colList is not specified, this color is
 ##'        used to construct the points' color.
 ##' @param colList list of colors and information as returned by pairsColList()
 ##' @param main title
-##' @param sub sub-title with a smart default
 ##' @param key.title title of the color key
+##' @param sub sub-title with a smart default
+##' @param panel
+##' @param do.qqline
 ##' @param key.rug logical indicating whether the key rugs are printed.
-##' @param ... additional arguments passed to pairs2()
+##' @param ... additional arguments passed to .pairsCond()
 ##' @return invisible
 ##' @author Marius Hofert and Martin Maechler
 ##' Note: used in Hofert and Maechler (2013)
@@ -584,9 +586,9 @@ pairsRosenblatt <- function(cu.u, pvalueMat=pviTest(pairwiseIndepTest(cu.u)),
 			    "PPchisq", "PPgamma", "none"),
 			    g1, g2, col = "B&W.contrast",
 			    colList = pairsColList(pvalueMat, col=col),
-			    main=NULL, sub = gpviString(pvalueMat),
-			    panel = NULL, do.qqline = TRUE,
-			    key.title="pp-value", key.rug=TRUE, ...)
+			    main=NULL, key.title = "pp-value",
+                            sub = gpviString(pvalueMat, name=paste0(key.title,"s")),
+			    panel = NULL, do.qqline = TRUE, key.rug = TRUE, ...)
 {
     stopifnot(is.array(cu.u), length(dc <- dim(cu.u)) == 3,
 	      dc == c((n <- dc[1]),(d <- dc[2]), d),
@@ -664,7 +666,7 @@ pairsRosenblatt <- function(cu.u, pvalueMat=pviTest(pairwiseIndepTest(cu.u)),
 	else points
 
     ## plot
-    pairs2(gcu.u, colList=colList, main=main, sub=sub, panel=panel,
+    .pairsCond(gcu.u, colList=colList, main=main, sub=sub, panel=panel,
 	   keyOpt=list(title=key.title, rug.at = if(key.rug) pvalueMat), ...)
 }
 
