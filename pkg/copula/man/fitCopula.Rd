@@ -167,6 +167,12 @@ fit.mpl
 ## maximum likelihood
 fit.ml <- fitCopula(gumbel.cop, x, method="ml")
 fit.ml # print()ing works via summary() ...
+## and of that, what's the log likelihood (in two different ways):
+(ll. <- logLik(fit.ml))
+stopifnot(all.equal(as.numeric(ll.),
+    loglikCopula(coef(fit.tau), x=x, copula=gumbel.cop),
+    tol = 6e-5))
+
 
 ## a multiparameter example
 normal.cop <- normalCopula(c(0.6,0.36, 0.6),dim=3,dispstr="un")
