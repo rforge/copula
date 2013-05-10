@@ -151,7 +151,9 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
 \examples{
 gumbel.cop <- gumbelCopula(3, dim=2)
 
-n <- 200
+(Xtras <- copula:::doExtras())
+n <- if(Xtras) 200 else 64
+
 x <- rCopula(n, gumbel.cop)## "true" observations
 u <- pobs(x)               ## pseudo-observations
 ## inverting Kendall's tau
@@ -232,6 +234,9 @@ u <- pobs(x)          ## pseudo-observations
 ## maximum pseudo-likelihood; the asymptotic variance cannot be estimated
 (tc.mpl <- fitCopula(tCop, u, method="mpl", estimate.variance=FALSE,
                      start= c(0,0,0,10)))
+
+if(Xtras) { ##---- typically not run with CRAN checking: ---
+
 ## without start:
 (tc.mp. <- fitCopula(tCop, u, method="mpl", estimate.variance=FALSE))
 all.eqCop <- function(x,y, ...) {
@@ -254,6 +259,9 @@ vcov(tcF.ml)
                       start=c(0,0,0)))
 (tcF.mp. <- fitCopula(tC.f, u, method="mpl", estimate.variance=FALSE))
 stopifnot(all.eqCop(tcF.mpl,tcF.mp., tol= 1e-5))
+
+}## end{typically not run ...}
+
 }
 \keyword{ models }
 \keyword{ multivariate }
