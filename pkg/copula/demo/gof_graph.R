@@ -22,8 +22,14 @@ if(!(exists("setSeeds") && is.logical(as.logical(setSeeds))))
 setSeeds <- TRUE # for reproducibility
 ##  maybe set to FALSE *before* running this demo
 
+if(interactive()) readline(
+    "NOTE: Set   doX <- TRUE   before running this demo 'realistically' ok? ")
+
 if(!(exists("doX") && is.logical(as.logical(doX))))
     print(doX <- copula:::doExtras())
+if(!doX)
+    cat("** doX is FALSE ==> unrealistically small N, but speed for testing.\n")
+
 (N <- if(doX) 256 else 32)# be fast when run as "check"
 
 
@@ -85,7 +91,7 @@ pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=pwRoto, sub=NULL)
 sub <- paste(names(gp), gp, sep=": ")
 sub. <- paste(paste(sub[1:3], collapse=", "), "\n",
               paste(sub[4:7], collapse=", "), sep="")
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=pwRoto, sub=sub., sub.line=5.4)
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=pwRoto, sub=sub., line.sub=5.4)
 
 ## 4) two-line title including expressions, and centered  --- JCGS, Fig.3(left) ---
 title <- list(paste(pwRoto, "to test"),
@@ -316,11 +322,13 @@ P <- iTau(normalCopula(), tau) # compute corresponding matrix of pairwise correl
 
 ## compute a positive-definite estimator of P
 P. <- nearPD(P, corr=TRUE)$mat
-## image(P.) # nice (because 'P.' is a Matrix-pkg Matrix)
+image(P.) # nice (because 'P.' is a Matrix-pkg Matrix)
+mP <- as.matrix(P)
+p <- P2p(mP)
 
 ##' @title -log-likelihood for t copulas
 ##' @param nu d.o.f. parameter
-##' @param P correlation matrix
+##' @param P standardized dispersion matrix
 ##' @param u data matrix (in [0,1]^d)
 ##' @return -log-likelihood for a t copula
 ##' @author Marius Hofert
@@ -333,8 +341,21 @@ nLLt <- function(nu, P, u){
     -sum(ldtnu(u, P=P, nu=nu))
 }
 
+## Note:  nLLt() is ~ 30% faster than these  {where  p := P2p(P) } :
+t.20 <- tCopula(dim=d, dispstr="un")
+nLLt2 <- function(nu, p, u) -loglikCopula(c(p, df=nu), x=u, copula=t.20)
+nLLt3 <- function(nu, p, u) -sum(dCopula(u, setTheta(t.20, c(p, nu)), log=TRUE))
+
+## confirm the "equivalence" of nLLt(), nLLt2() and nLLt3()
+nu. <- if(doX) seq(.5, 128, by=.5) else 1:15
+system.time(nL1 <- vapply(nu., nLLt , .0, P=mP, u=u))
+system.time(nL2 <- vapply(nu., nLLt2, .0, p= p, u=u))
+system.time(nL3 <- vapply(nu., nLLt3, .0, p= p, u=u))
+stopifnot(all.equal(nL1, nL2, tol = 1e-14))
+stopifnot(all.equal(nL2, nL3, tol = 1e-14))
+
 ## estimate nu via MLE for given P
-nus <- seq(.5, 128, by=.5)
+nus <- if(doX) seq(.5, 128, by=.5) else 2^seq(-1,7, by=.5)
 mP <- as.matrix(P.)
 nLLt.nu <- sapply(nus, nLLt, P=mP, u=u)
 plot(nus, nLLt.nu, type="l", xlab=bquote(nu),

@@ -14,8 +14,8 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-### Pairwise bootstrapped  P-values  [expensively]:
-### =================================================
+### Pairwise bootstrapped  P-values  [expensive!]:  Tools and unfinished experiments
+### =============================================   ================================
 
 require(copula)
 
@@ -27,6 +27,7 @@ setSeeds <- TRUE # for reproducibility
 
 if(!(exists("doX") && is.logical(as.logical(doX))))
     print(doX <- copula:::doExtras())
+N.iT <- if(doX) 256 else 128
 (N <- if(doX) 256 else 32)# be fast when run as "check"
 
 ## setup
@@ -49,37 +50,48 @@ U. <- pobs(U)
 
 stopifnot(require(Matrix))
 
-### Plan: 1) single    H_0:  --> What bootstrap is needed ?
-### ----  2) composite H_0:  Bootstrap the single H_0 bootstrap ==> double bootstrap ??
+## Plan: 1) single    H_0:  --> Is bootstrap needed ?
+## ----  2) composite H_0: Bootstrap the single H_0 bootstrap ==> double bootstrap ??
+##       2b)   "           Simple parametric bootstrap (using the one theta_n) - ok or not??
 
-## define the H0 copula
+## H_(c): t-copula:  ==> Estimate theta_n, i.e.,  (P, nu) from the data
 ## Note: that's the same result when using pseudo-observations since estimation via
 ##       tau is invariant strictly increasing transformations
-mkH0cop <- function(u, df) {
-    stopifnot((d <- ncol(u)) >= 2)
-    P. <- nearPD(iTau(tCopula(), cor(u, method="kendall")))$mat # estimate P
-    ellipCopula("t", param= P2p(P.), dim = d, dispstr="un", df=df, df.fixed=TRUE)
+
+mkH0cop <- function(u) {
+    stopifnot((d <- ncol(u)) >= 2, require("mvtnorm"))
+    P <- as.matrix(nearPD(iTau(tCopula(), cor(u, method="kendall")))$mat)
+    ## negative log-likelihood for t-copula, param = (P, nu)
+    nLLt <- function(nu) {
+        qu <- qt(u, df=nu)
+        ## t copula log-density
+        ldtnu <- dmvt(qu, sigma=P, df=nu, log=TRUE) -
+            rowSums(dt(qu, df=nu, log=TRUE))
+        -sum(ldtnu)
+    }
+    nu <- optimize(nLLt, interval=c(.5, 64), tol = .0001)$minimum
+    ellipCopula("t", df = nu, param= P2p(P), dim = d, dispstr="un")
 }
 
-copH0 <- mkH0cop(U., df= 10)
+copH0 <- mkH0cop(U.)
 
-iTest <- indepTestSim(n, p=2, m=2, N=N, verbose = TRUE)
+iTest <- indepTestSim(n, p=2, N=N.iT, verbose = TRUE)
 
 ##' Array of pairwise  copH0-transformed "data", and P-values
-mkcP <- function(u, df, copH0 = mkH0cop(u, df=df), N, verbose=interactive(),
+mkcP <- function(u, copH0 = mkH0cop(u), iTest, N, verbose=interactive(),
                  P.only=FALSE)
 {
     ## create array of pairwise copH0-transformed data columns
-    cu.u <- pairwiseCcop(u, copH0, df=df)
+    cu.u <- pairwiseCcop(u, copH0, df = copH0 @ df)
     ## compute pairwise matrix of p-values and corresponding colors
-    pwIT <- pairwiseIndepTest(cu.u, N=N, verbose=verbose) # (d,d)-matrix of test results
+    pwIT <- pairwiseIndepTest(cu.u, N=N, iTest=iTest, verbose=verbose) # (d,d)-matrix of test results
     ## pick out p-values:
     pwIT <- pviTest(pwIT)
     if(P.only) pwIT else list(cu.u=cu.u, P = pwIT)
 }
 
 ## compute pairwise matrix of p-values and corresponding colors
-cP <- mkcP(U., df=df, copH0=copH0, N=N) # pick out p-values
+cP <- mkcP(U., copH0=copH0, iTest=iTest, N=N) # pick out p-values
 
 round(pmat <- cP$P, 3)
 cc <- pairsColList(pmat) # compute corresponding colors
@@ -102,6 +114,9 @@ pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, line.main=line.main,
 
 ##- Now compute the  P-values  very expensively, but
 ## "correctly" (well, if bootstrap is valid) :
+##
+## FIXME --- This is unfinished: Missing a thorough concept
+## =====     ===================
 
 (N <- if(doX) 128 else 16)# of "internal" bootstrap
 B1 <- 500
@@ -110,8 +125,8 @@ B2 <- 256
 ## For testing, just during developement, take very small numbers:  [FIXME]
 N <-  8; op <- options("copula:warn.idTS" = FALSE)
 N <- 32; op <- options("copula:warn.idTS" = FALSE)
-B1 <- 3
-B2 <- 5
+B1 <- 17
+B2 <- 16
 
 trace.lev <- 2
 
@@ -119,13 +134,14 @@ PP <- array(NA_real_, dim= c(d,d, B1, B2))
 if(setSeeds)
 set.seed(17)
 if(trace.lev >= 1) cat(sprintf("OUTER bootstrap (b in 1:%d): \n", B1))
+
 for(b in 1:B1) {
     ii <- sample.int(n, replace=TRUE)
     Us <- U.[ii, ] ## U*(b) {pseudo obs}
     ## estimate theta_n  and  H0_{s, theta_n}  (via iTau):
-    copH0 <- mkH0cop(Us, df=df)
+    copH0 <- mkH0cop(Us)
     if(trace.lev >= 1) cat(sprintf("b=%d, Det(\\hat{P})= %g\n", b,
-       det(p2P(copH0@parameters, d = copH0@dimension))))
+       det(p2P(copH0@getRho(copH0), d = copH0@dimension))))
     ##
     ##
     ## Now for this  simple null hypothesis, need to boostrap *again*:
@@ -136,24 +152,34 @@ for(b in 1:B1) {
         i2 <- sample.int(n, replace=TRUE)
         U2 <- Us[i2, ]
         ##
-        ##
         ## ....
         ## ....
         ##
         ## and get P-values for it:
-	PP[ , , b, jj] <- mkcP(U2, df=df, copH0=copH0, N=N, P.only=TRUE,
-                               verbose = (trace.lev >= 3))
+	PP[ , , b, jj] <- mkcP(U2, copH0=copH0, iTest=iTest,
+                               N=N, P.only=TRUE, verbose = (trace.lev >= 3))
         ##
     }## for(jj in 1:B2)  inner bootstrap
+
     if(trace.lev >= 2) cat("\n")
+    ##
+    ##
+    ## FIXME?  only store *means* of P values;
+    ## FIXME?  or   store even the parameter vectors in addition?
     ##
     ## ...
     ## ...
     ##
 }## for(b in 1:B1) --- *outer* bootstrap
 
-str(PP)
-## FIXME?  only store *means* of P values;
-## FIXME?  or   store even the parameter vectors in addition?
-
 options(op)# revert
+
+
+str(PP)##  d x d  x  B1 x B2
+save(PP, file="ggof_pv_PP.rda")
+
+P14 <- PP[1,4 ,,]
+summary(a14 <- aov(c(P14) ~ c(col(P14)) + c(row(P14)))) # row effect, no col.
+P32 <- PP[3,2 ,,]
+summary(a32 <- aov(c(P32) ~ c(col(P32)) + c(row(P32)))) # row effect, no col.
+
