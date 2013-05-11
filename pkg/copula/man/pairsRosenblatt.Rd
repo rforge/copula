@@ -1,4 +1,4 @@
-\name{ggraph-graphics}
+\name{pairsRosenblatt}
 \alias{pairsRosenblatt}
 \alias{pairsColList}
 \title{Plots for Graphical GOF Test via Pairwise Rosenblatt Transforms}

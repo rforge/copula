@@ -64,7 +64,7 @@ gpviTest(pvalues, method=p.adjust.methods, globalFun=min)
   If \code{u} are distributed according to or \dQuote{perfectly} sampled
   from a copula, )Note that
   (typically)
-    pseudo-observations or perfectly simulated 
+    pseudo-observations or perfectly simulated
 }
 \value{
   \describe{
@@ -82,15 +82,16 @@ gpviTest(pvalues, method=p.adjust.methods, globalFun=min)
 \author{Marius Hofert, Martin \enc{Mächler}{Maechler}.}
 \references{
   Hofert and \enc{Mächler}{Maechler} (2013),
-  see \code{\link{pairsRosenblatt}}.% -> ./ggraph-graphics.Rd
+  see \code{\link{pairsRosenblatt}}.% -> ./pairsRosenblatt.Rd
 }
 \seealso{
-  \code{\link{pairsRosenblatt}} % -> ./ggraph-graphics.Rd
+  \code{\link{pairsRosenblatt}} % -> ./pairsRosenblatt.Rd
   for where these tools are used, including
   \code{\link{demo}(gof_graph)} for examples.
 }
 \examples{
-## demo(gof_graph)%% FIXME add some using these *tools* ?
+## demo(gof_graph)
+% FIXME add some examples using these *tools* ?
 }
 \keyword{multivariate}
 \keyword{htest}
