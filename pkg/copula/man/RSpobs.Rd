@@ -31,8 +31,9 @@ RSpobs(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
     methods. These can be
     \describe{
       \item{\code{method="ellip"}}{\code{qQg()}
-	(the quantile \code{\link{function}} of the (assumed) distribution function
-	\eqn{G_g}{G[g]} as given in Genest, Hofert, G. \enc{Nešlehová}{Neslehova}
+	(the quantile \code{\link{function}} of the (assumed)
+	distribution function \eqn{G_g}{G[g]} as given in Genest,
+	Hofert, G. \enc{Nešlehová}{Neslehova}
 	(2014)); if provided, \code{qQg()} is used in the transformation for
 	obtaining pseudo-observations of \eqn{R} and \eqn{\bm{S}}{S}
 	(see the code for more details).}
@@ -75,12 +76,12 @@ mu <- rev(seq_len(d)) # d, d-1, .., 1
 L <- diag(d) # identity in dim d
 L[lower.tri(L)] <- 1:(d*(d-1)/2)/d # Cholesky factor (diagonal > 0)
 Sigma <- crossprod(L) # pos.-def. dispersion matrix (*not* covariance of X)
-X <- rep(mu, each=n) + mvtnorm::rmvt(n, sigma=Sigma, df=nu) # multivariate t_nu data
+X <- rep(mu, each=n) + mvtnorm::rmvt(n, sigma=Sigma, df=nu) # multiv. t_nu data
 ## note: this is *wrong*: mvtnorm::rmvt(n, mean=mu, sigma=Sigma, df=nu)
 
 ## compute pseudo-observations of the radial part and uniform distribution
 ## once for 1a), once for 1b) below
-RS.t    <- RSpobs(X, method="ellip", qQg=function(p) qt(p, df=nu)) # for testing 'correct' distribution
+RS.t    <- RSpobs(X, method="ellip", qQg=function(p) qt(p, df=nu)) # 'correct'
 RS.norm <- RSpobs(X, method="ellip", qQg=qnorm) # for testing 'wrong' distribution
 stopifnot(length(RS.norm$R) == n, length(RS.t$R) == n,
           dim(RS.norm$S) == c(n,d), dim(RS.t$S) == c(n,d))
