@@ -9,12 +9,12 @@
   C.  The function \code{C.n()} computes the empirical copula.
 
   The function \code{dCn()} approximates first-order partial derivatives
-  of the limiting copula.
+  of the unknown copula.
 }
 \usage{
  Cn(x, w) ## <-- deprecated!  use  C.n(w, U=pobs(x)) instead!
 C.n(u, U, offset=0, method=c("C", "R"))
-dCn(u, U, j.ind=1:d, b=0.05, ...)
+dCn(u, U, j.ind=1:d, b=1/sqrt(nrow(U)), ...)
 }
 \arguments{
   \item{u,w}{an \eqn{(m, d)}-\code{\link{matrix}} with elements in
@@ -43,7 +43,7 @@ dCn(u, U, j.ind=1:d, b=0.05, ...)
 
   \code{dCn()} returns a \eqn{(m, l)}-matrix or an \eqn{m}-vector (for
   \eqn{l=1}; here, \eqn{l} is the length of \code{j.ind}), containing
-  the approximated first-order partial derivatives of the limiting
+  the approximated first-order partial derivatives of the unknown
   copula at \code{u}.
 }
 \note{
@@ -65,7 +65,7 @@ dCn(u, U, j.ind=1:d, b=0.05, ...)
   where \eqn{\hat{\bm{U}}_i}{U_i}, \eqn{i\in\{1,\dots,n\}}{i=1,..,n},
   denote the pseudo-observations (rows in \code{U}) and \eqn{n} the sample size.
 
-  The approximation for the \eqn{j}th partial derivative of the limiting
+  The approximation for the \eqn{j}th partial derivative of the unknown
   copula \eqn{C} is implemented as in Genest et al. (2012), and given, for
   \eqn{u_j\in[0,b)}{u[j] in [0, b)}, by
   \deqn{\hat{\dot{C}}_{jn}(\bm{u}) =\frac{C_n(u_1,\dots,u_{j-1},2b,u_{j+1},\dots,u_d)}{2b},}{%
