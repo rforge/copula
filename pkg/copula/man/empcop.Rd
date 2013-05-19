@@ -68,16 +68,17 @@ dCn(u, U, j.ind=1:d, b=1/sqrt(nrow(U)), ...)
   The approximation for the \eqn{j}th partial derivative of the unknown
   copula \eqn{C} is implemented as in Genest et al. (2012), and given, for
   \eqn{u_j\in[0,b)}{u[j] in [0, b)}, by
-  \deqn{\hat{\dot{C}}_{jn}(\bm{u}) =\frac{C_n(u_1,\dots,u_{j-1},2b,u_{j+1},\dots,u_d)}{2b},}{%
-              hat(C.)[jn](u)  =  C[n](u[1], .., u[j-1], 2b, u[j+1], .., u[d]) / (2b),}
+  \deqn{\hat{\dot{C}}_{jn}(\bm{u}) =\frac{C_n(u_1,\dots,u_{j-1},u_j+b,u_{j+1},\dots,u_d)-C_n(u_1,\dots,u_{j-1},0,u_{j+1},\dots,u_d)}{2b},}{%
+    hat(C.)[jn](u) = (C[n](u[1], .., u[j-1], u[j]+b, u[j+1], .., u[d]) -
+                      C[n](u[1], .., u[j-1], 0, u[j+1], .., u[d])) / (2b),}
   for \eqn{u_j\in[b,1-b]}{u[j] in [b, 1-b]} by
   \deqn{\hat{\dot{C}}_{jn}(\bm{u})=\frac{C_n(u_1,\dots,u_{j-1},u_j+b,u_{j+1},\dots,u_d)-C_n(u_1,\dots,u_{j-1},u_j-b,u_{j+1},\dots,u_d)}{2b},}{%
     hat(C.)[jn](u) = (C[n](u[1], .., u[j-1], u[j]+b, u[j+1], .., u[d]) -
                       C[n](u[1], .., u[j-1], u[j]-b, u[j+1], .., u[d])) / (2b),}
   and for \eqn{u_j\in(1-b,1]}{u[j] in (1-b, 1]} by
-  \deqn{\hat{\dot{C}}_{jn}(\bm{u})=\frac{C_n(u_1,\dots,u_{j-1},1,u_{j+1},\dots,u_d)-C_n(u_1,\dots,u_{j-1},1-2b,u_{j+1},\dots,u_d)}{2b},}{%
+  \deqn{\hat{\dot{C}}_{jn}(\bm{u})=\frac{C_n(u_1,\dots,u_{j-1},1,u_{j+1},\dots,u_d)-C_n(u_1,\dots,u_{j-1},u_j-b,u_{j+1},\dots,u_d)}{2b},}{%
     hat(C.)[jn](u) = (C[n](u[1], .., u[j-1], 1, u[j+1], .., u[d]) -
-                      C[n](u[1], .., u[j-1], 1-2b, u[j+1], .., u[d])) / (2b),}
+                      C[n](u[1], .., u[j-1], u[j]-b, u[j+1], .., u[d])) / (2b),}
   where \eqn{b} denotes the bandwidth and \eqn{C_n}{C[n]} the empirical copula.
 }
 \author{Ivan Kojadinovic, Marius Hofert}
