@@ -60,7 +60,7 @@ dCn(u, U, j.ind=1:d, b=1/sqrt(nrow(U)), ...)
   empirical copula.  Here, the empirical copula is simply defined as
   the empirical distribution function computed from the
   pseudo-observations, that is,
-  \deqn{C_n(\bm{u})=\frac{1}{n}\sum_{i=1}^n\mathbf{1}_{\{\hat{\bm{U}}_i\le\bm{u}\}},}{(1/(n+1))
+  \deqn{C_n(\bm{u})=\frac{1}{n}\sum_{i=1}^n\mathbf{1}_{\{\hat{\bm{U}}_i\le\bm{u}\}},}{(1/n)
   sum(I_{U_i<=u}, i=1, .., n),}
   where \eqn{\hat{\bm{U}}_i}{U_i}, \eqn{i\in\{1,\dots,n\}}{i=1,..,n},
   denote the pseudo-observations (rows in \code{U}) and \eqn{n} the sample size.
