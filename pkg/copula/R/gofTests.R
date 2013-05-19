@@ -133,7 +133,7 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"), useR
 gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
                   estim.method=eval(formals(fitCopula)$method),
                   optim.method="BFGS", optim.control,
-                  trafo.method=c("rtrafo", "htrafo"),
+                  trafo.method=c("none", "rtrafo", "htrafo"),
                   verbose=TRUE, ...)
 {
     ## checks
@@ -158,6 +158,7 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
     ## 3) Compute the realized test statistic
     u <- if(method=="Sn"){
         switch(trafo.method,
+               "none"={ uhat },
                "rtrafo"={
                    rtrafo(uhat, C.th.n, ...)
                },
@@ -185,6 +186,7 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
         ## 4.3) Compute the test statistic
         u. <- if(method=="Sn"){
             switch(trafo.method,
+                   "none"={ Uhat },
                    "rtrafo"={
                        rtrafo(Uhat, C.th.n., ...)
                    },
