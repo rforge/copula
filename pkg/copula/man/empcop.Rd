@@ -49,11 +49,9 @@ dCn(u, U, j.ind=1:d, b=1/sqrt(nrow(U)), ...)
 \note{
   The first version of our empirical copula implementation, \code{Cn()},
   had its two arguments \emph{inverse} compared to \code{C.n()}, and is
-  deprecated now.
-  You \bold{must} swap the arguments, and possibly use
-  \code{\link{pobs}}, i.e,
-
-  \bold{ instead of \code{Cn(x, u)}, use \code{C.n(u, U=pobs(x))} !}
+  deprecated now. You \bold{must} swap the arguments, and possibly use
+  \code{\link{pobs}}, i.e, \bold{ instead of \code{Cn(x, u)}, use
+    \code{C.n(u, U=pobs(x))} !}
 }
 \details{
   There are several asymptotically equivalent definitions of the
@@ -66,19 +64,12 @@ dCn(u, U, j.ind=1:d, b=1/sqrt(nrow(U)), ...)
   denote the pseudo-observations (rows in \code{U}) and \eqn{n} the sample size.
 
   The approximation for the \eqn{j}th partial derivative of the unknown
-  copula \eqn{C} is implemented as in Genest et al. (2012), and given, for
-  \eqn{u_j\in[0,b)}{u[j] in [0, b)}, by
-  \deqn{\hat{\dot{C}}_{jn}(\bm{u}) =\frac{C_n(u_1,\dots,u_{j-1},u_j+b,u_{j+1},\dots,u_d)-C_n(u_1,\dots,u_{j-1},0,u_{j+1},\dots,u_d)}{2b},}{%
-    hat(C.)[jn](u) = (C[n](u[1], .., u[j-1], u[j]+b, u[j+1], .., u[d]) -
-                      C[n](u[1], .., u[j-1], 0, u[j+1], .., u[d])) / (2b),}
-  for \eqn{u_j\in[b,1-b]}{u[j] in [b, 1-b]} by
-  \deqn{\hat{\dot{C}}_{jn}(\bm{u})=\frac{C_n(u_1,\dots,u_{j-1},u_j+b,u_{j+1},\dots,u_d)-C_n(u_1,\dots,u_{j-1},u_j-b,u_{j+1},\dots,u_d)}{2b},}{%
-    hat(C.)[jn](u) = (C[n](u[1], .., u[j-1], u[j]+b, u[j+1], .., u[d]) -
-                      C[n](u[1], .., u[j-1], u[j]-b, u[j+1], .., u[d])) / (2b),}
-  and for \eqn{u_j\in(1-b,1]}{u[j] in (1-b, 1]} by
-  \deqn{\hat{\dot{C}}_{jn}(\bm{u})=\frac{C_n(u_1,\dots,u_{j-1},1,u_{j+1},\dots,u_d)-C_n(u_1,\dots,u_{j-1},u_j-b,u_{j+1},\dots,u_d)}{2b},}{%
-    hat(C.)[jn](u) = (C[n](u[1], .., u[j-1], 1, u[j+1], .., u[d]) -
-                      C[n](u[1], .., u[j-1], u[j]-b, u[j+1], .., u[d])) / (2b),}
+  copula \eqn{C} is implemented as, for example, in Genest et
+  al. (2012), % see also Remillard, Scaillet (2009)
+  and given by
+  \deqn{\hat{\dot{C}}_{jn}(\bm{u})=\frac{C_n(u_1,..,u_{j-1},min(u_j+b,1),u_{j+1},..,u_d)-C_n(u_1,..,u_{j-1},max(u_j-b,0),u_{j+1},..,u_d)}{2b},}{%
+    hat(C.)[jn](u) = (C[n](u[1], .., u[j-1], min(u[j]+b, 1), u[j+1], .., u[d]) -
+                      C[n](u[1], .., u[j-1], max(u[j]-b, 0), u[j+1], .., u[d])) / (2b),}
   where \eqn{b} denotes the bandwidth and \eqn{C_n}{C[n]} the empirical copula.
 }
 \author{Ivan Kojadinovic, Marius Hofert}
