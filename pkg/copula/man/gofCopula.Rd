@@ -10,8 +10,8 @@
   in Equation (2) of Genest, Remillard and Beaudoin (2009).
   Approximate p-values for the test statistic can be obtained either
   using the \emph{parametric bootstrap} (see the two first
-  references) or by means of a fast \emph{multiplier} approach (see the
-  last two references).
+  references) or by means of a fast \emph{multiplier} approach
+  (see references three and four).
 }
 \usage{
 gofCopula(copula, x, N=1000,
@@ -70,9 +70,12 @@ gofCopula(copula, x, N=1000,
   Also note that in the case of the parametric and multiplier bootstraps,
   the approximate p-value is computed as
   \eqn{(0.5+\sum_{b=1}^N\mathbf{1}_{\{T_b\ge
-      T\}})/(N+1)}{(0.5 + sum(T[b] >= T, b=1, .., N)) / (N+1)} is made,
-  where \eqn{T} and \eqn{T_b}{T[b]} denote the the test statistic and
-  bootstrapped test statistc, respectively. See Pesarin (2001) for details.
+      T\}})/(N+1)}{(0.5 + sum(T[b] >= T, b=1, .., N)) / (N+1)},
+  where \eqn{T} and \eqn{T_b}{T[b]} denote the test statistic and
+  the bootstrapped test statistc, respectively. This ensures that the
+  approximate p-value is a number strictly between 0 and 1, which is
+  sometimes necessary for further treatments. See Pesarin (2001) for
+  more details.
 }
 \value{
   An object of \code{\link{class}} \code{htest} which is a list,
@@ -115,7 +118,7 @@ gofCopula(copula, x, N=1000,
   which implies that ties occur with probability zero. The
   presence of ties in the data might substantially affect the
   approximate p-values. One way of dealing with ties was suggested in the
-  last reference.
+  Journal of Statistical Software reference.
 
   Since \R is widely used by practitioners, a word of warning concerning
   goodness-of-fit tests \emph{in general} is also advisable.
