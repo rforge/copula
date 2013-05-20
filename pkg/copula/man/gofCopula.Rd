@@ -67,8 +67,9 @@ gofCopula(copula, x, N=1000,
   note that the finite-sample behavior of the two tests might differ
   significantly.
 
-  Also note that in case of the parametric bootstrap, a finite-sample
-  correction of type \eqn{(0.5+\sum_{b=1}^N\mathbf{1}_{\{T_b\ge
+  Also note that in the case of the parametric and multiplier bootstraps,
+  the approximate p-value is computed as
+  \eqn{(0.5+\sum_{b=1}^N\mathbf{1}_{\{T_b\ge
       T\}})/(N+1)}{(0.5 + sum(T[b] >= T, b=1, .., N)) / (N+1)} is made,
   where \eqn{T} and \eqn{T_b}{T[b]} denote the the test statistic and
   bootstrapped test statistc, respectively. See Pesarin (2001) for details.
