@@ -64,8 +64,8 @@ dCn(u, U, j.ind=1:d, b=1/sqrt(nrow(U)), ...)
   denote the pseudo-observations (rows in \code{U}) and \eqn{n} the sample size.
 
   The approximation for the \eqn{j}th partial derivative of the unknown
-  copula \eqn{C} is implemented as, for example, in Genest et
-  al. (2012), % see also Remillard, Scaillet (2009)
+  copula \eqn{C} is implemented as, for example, in Rémillard and Scaillet
+  (2009), % see also Genest et al. (2012)
   and given by
   \deqn{\hat{\dot{C}}_{jn}(\bm{u})=\frac{C_n(u_1,..,u_{j-1},min(u_j+b,1),u_{j+1},..,u_d)-C_n(u_1,..,u_{j-1},max(u_j-b,0),u_{j+1},..,u_d)}{2b},}{%
     hat(C.)[jn](u) = (C[n](u[1], .., u[j-1], min(u[j]+b, 1), u[j+1], .., u[d]) -
@@ -85,9 +85,13 @@ dCn(u, U, j.ind=1:d, b=1/sqrt(nrow(U)), ...)
   Deheuvels, P. (1981).  A non parametric test for independence,
   \emph{Publ. Inst. Statist. Univ. Paris} \bold{26}, 29--50.
 
-  Genest, C., G. \enc{Nešlehová}{Neslehova}, J., and Quessy, J.-F. (2012).
-  Tests of symmetry for bivariate copulas,
-  \emph{Ann. Inst. Stat. Math.} \bold{64}, 811--834.
+  R\enc{é}{e}millard, B. and Scaillet, O. (2009). Testing for equality
+  between two copulas. \emph{Journal of Multivariate Analysis}, 100(3),
+  pages 377-386.
+
+  %% Genest, C., G. \enc{Nešlehová}{Neslehova}, J., and Quessy, J.-F. (2012).
+  %% Tests of symmetry for bivariate copulas,
+  %% \emph{Ann. Inst. Stat. Math.} \bold{64}, 811--834.
 }
 \seealso{\code{\link{pobs}()} for computing pseudo-observations,
   \code{\link{pCopula}()} for evaluating a copula.}
