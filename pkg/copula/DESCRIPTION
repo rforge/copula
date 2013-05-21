@@ -1,5 +1,5 @@
 Package: copula
-Version: 0.999-6
+Version: 0.999-7
 Date: $Date$
 SVNrev: $Revision$
 Title: Multivariate Dependence with Copulas
@@ -15,7 +15,7 @@ Imports: stats4, stats, graphics, Matrix, gsl, ADGofTest,
 Suggests: lattice, MASS, KernSmooth, sfsmisc, bbmle, scatterplot3d, Rmpfr,
 	  colorspace, mvnormtest, tseries, zoo
 SuggestComments: packages colorspace, mvnormtest, tseries, zoo
-		 are only used in demos 
+		 are only used in demos
 Enhances: nor1mix
 Description: Classes (S4) of commonly used elliptical, Archimedean, extreme
  value and some more copula families.  Methods for density, distribution,
@@ -30,7 +30,7 @@ Description: Classes (S4) of commonly used elliptical, Archimedean, extreme
  tools and special functions.
 License: GPL (>= 3) | file LICENCE
 Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R special-func.R
-	 cop_objects.R nacopula.R 
+	 cop_objects.R nacopula.R
 	 derCdfPdf.R amhCopula.R amhExpr.R An.R
          archmCopula.R asymCopula.R asymExplicitCopula.R claytonCopula.R
          claytonExpr.R ellipCopula.R empcop.R empPsi.R acR.R

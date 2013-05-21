@@ -100,14 +100,22 @@ set.seed(101)
 ## A two-dimensional data example -------
 x <- rCopula(200, claytonCopula(3))
 
-for(fitMeth in c("mpl", "ml", "itau", "irho")) {
+fMeth <- c("mpl", "ml", "itau", "irho")
+gofL <- sapply(fMeth, function(fitMeth) {
     catn("\nfit*( estim.method = '", fitMeth,"')\n----------------------")
     print(gofCopula(gumbelCopula (1), x, N = 10, verbose=FALSE,
 		    estim.method = fitMeth))
     print(gofCopula(claytonCopula(1), x, N = 10, verbose=FALSE,
 		    estim.method = fitMeth))
-}
+}, simplify=FALSE)
 showProc.time()
+stopifnot(all.equal(vapply(gofL, `[[`, 0., "statistic"),
+		    setNames(c(0.01355167, 0.01355167, 0.01201136, 0.01257382),
+			     fMeth), tol = 1e-6),
+	  all.equal(vapply(gofL, `[[`, 0., "p.value"),
+		    setNames(c(0.4090909, 0.3181818, 0.4090909, 0.8636364),
+			     fMeth), tol = 1e-6))
+
 
 ## The same using the multiplier approach -- "ml" is not allowed:
 for(fitMeth in c("mpl", "itau", "irho")) {
