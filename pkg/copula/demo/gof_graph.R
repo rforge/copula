@@ -349,8 +349,8 @@ nLLt3 <- function(nu, P, u) -sum(dCopula(u, setTheta(t.20, c(P, nu)), log=TRUE))
 ## confirm the "equivalence" of nLLt(), nLLt2() and nLLt3()
 nu. <- if(doX) seq(.5, 128, by=.5) else 1:15
 system.time(nL1 <- vapply(nu., nLLt , .0, P=mP, u=u))
-system.time(nL2 <- vapply(nu., nLLt2, .0, p= p, u=u))
-system.time(nL3 <- vapply(nu., nLLt3, .0, p= p, u=u))
+system.time(nL2 <- vapply(nu., nLLt2, .0, P= p, u=u))
+system.time(nL3 <- vapply(nu., nLLt3, .0, P= p, u=u))
 stopifnot(all.equal(nL1, nL2, tol = 1e-14))
 stopifnot(all.equal(nL2, nL3, tol = 1e-14))
 
@@ -385,8 +385,8 @@ pmatN <- pviTest(pwITN) # pick out p-values
 pmatt <- pviTest(pwITt)
 
 ## which pairs violate H0?
-which(pmatN < 0.05, arr.ind=TRUE) # => none!
-which(pmatt < 0.05, arr.ind=TRUE) # => a couple
+which(pmatN < 0.05, arr.ind=TRUE) # => none (so the margins cause non-normality (see below))
+which(pmatt < 0.05, arr.ind=TRUE) # => none (fine)
 
 ## testing *multivariate normality*
 stopifnot(require(mvnormtest))
