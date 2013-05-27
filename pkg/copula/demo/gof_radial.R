@@ -32,13 +32,14 @@ doCrop <- TRUE
 
 ### 1) Functions ###############################################################
 
-## start pdf() with nice defaults
+## open pdf device with nice defaults
 start.pdf <- function(file="Rplots.pdf", doPDF=TRUE, width=6, height=6, ...)
 {
     if(doPDF) pdf(file=file, width=width, height=height, ...)
     invisible()
 }
 
+## close pdf device
 ## see the R package 'simsalapar' for a (much) more sophisticated version
 dev.off.pdf <- function(file="Rplots.pdf", doPDF=TRUE, doCrop=TRUE, ...)
 {
