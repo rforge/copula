@@ -100,6 +100,8 @@ random numbers.
 *** DONE Then, test that  exp(dCopula(*, log=TRUE)) "==" dCopula(*)
 {to test the bug, fixed in r954, reported by Benedikt}
 * Mid Term
+** TODO add *transformations* (for each copula): survival copula, convex combis (see Martin's nor1mix), Liebscher
+** TODO implement Joe's BB copulas!
 ** DONE R/sysdata.rda:
 CLOSED: [2012-07-17 Tue 11:10]
 MM, MH: Please tell us more about this,
