@@ -56,9 +56,10 @@ absdPsiMC(t, family, theta, degree = 1, n.MC,
 }
 \author{Marius Hofert (and Martin M.)}
 \references{
-  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2011a),
-  Estimators for Archimedean copulas in high dimensions: A comparison,
-  submitted.
+  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2013).
+  Archimedean Copulas in High Dimensions: Estimators and Numerical
+  Challenges Motivated by Financial Applications.
+  \emph{Journal de la Soci\enc{é}{e}t\enc{é}{e} Fran\enc{ç}{c}aise de Statistique}.
 }
 \seealso{
   \code{\link{acopula-families}}.

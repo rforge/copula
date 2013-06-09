@@ -944,7 +944,7 @@ copJoe <-
                       ## compute log(P'(log(h/(1-h))))
                       ## Note: this is similar to polyJ() (see there for the comments!)
                       k <- 2:d # 2:d instead of 1:d
-                      l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha) # log(a_{dk}(theta)*(k+1)), k = 1,..,d; note: these are not the a's of Hofert, Maechler, McNeil (2012); see polyJ()
+                      l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha) # log(a_{dk}(theta)*(k+1)), k = 1,..,d; note: these are not the a's of Hofert, Maechler, McNeil (2013); see polyJ()
                       l.a.k. <- log(k-1) + l.a.k
                       B <- l.a.k. + (k-2) %*% t(lh_l1_h) # new: new l.a.k. and k-2 instead of k-1
                       ## the following part is taken from polyJ() (but only the log cases)

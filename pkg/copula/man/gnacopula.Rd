@@ -75,7 +75,7 @@ gnacopula(u, cop, n.bootstrap,
   statistic, it is theoretically not clear whether the parametric bootstrap
   converges.  Consequently, the results obtained should be treated with
   care.  Moreover, several estimation methods are known to be prone to
-  numerical errors (see Hofert et al. (2011a)) and are thus not
+  numerical errors (see Hofert et al. (2013)) and are thus not
   recommended to be used in the parametric bootstrap. A warning is given if
   \code{gnacopula()} is called with a method not being MLE.
 }
@@ -111,7 +111,7 @@ gnacopula(u, cop, n.bootstrap,
   Goodness-of-fit tests for Archimedean copulas in large dimensions,
   submitted.
 
-  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2012).
+  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2013).
   Likelihood inference for Archimedean copulas in high dimensions
   under known margins. \emph{Journal of Multivariate Analysis}
   \bold{110}, 133--150.
