@@ -207,6 +207,14 @@ splom2 <- function(data, varnames=NULL, Vname="U", xlab="",
 ##'        to omit title
 ##' @param xlab x axis label
 ##' @param ylab y axis label
+##' @param doPDF logical indicating whether plotting is to pdf
+##' @param file file name (with extension .pdf)
+##' @param width width parameter of pdf()
+##' @param height height parameter of pdf()
+##' @param crop crop command
+##'        - NULL: crop with a (Unix-)suitable default commands;
+##'        - "...": own crop command;
+##'        - "": no cropping
 ##' @param ... additional arguments passed to plot()
 ##' @return Q-Q plot
 ##' @author Marius Hofert
@@ -220,12 +228,15 @@ qqplot2 <- function(x, qF, qqline.args=list(distribution=qF),
                     main.args=list(text=expression(bold(italic(F)~~"Q-Q plot")),
                                    side=3, line=1.1, cex=par("cex.main"), font=par("font.main"),
                                    adj=par("adj"), xpd=NA),
-                    xlab="Theoretical quantiles", ylab="Sample quantiles", ...)
+                    xlab="Theoretical quantiles", ylab="Sample quantiles",
+                    doPDF=FALSE, file="Rplots.pdf", width=6, height=6, crop=NULL, ...)
 {
     x. <- sort(x) # drops NA
     n <- length(x.)
     p <- ppoints(n)
     q <- qF(p)
+    ## pdf device
+    if(doPDF) pdf(file=file, width=width, height=height)
     ## plot points
     plot(q, x., xlab=xlab, ylab=ylab, ...) # empirical vs. theoretical quantiles
     do.call(mtext, main.args)
@@ -266,6 +277,22 @@ qqplot2 <- function(x, qF, qqline.args=list(distribution=qF),
         do.call(lines, c(list(up.x, up.y), CI.args))
         ## info
         if(!is.null(CI.mtext)) do.call(mtext, CI.mtext)
+    }
+    ## pdf device
+    if(doPDF) {
+        r <- dev.off(...)
+        ## check
+        if(.Platform$OS.type != "unix" && is.null(crop) ) {
+            warning("'crop = NULL' are only suitable for Unix")
+        } else { # cropping possible
+            f <- file.path(getwd(), file)
+            if(is.null(crop)) { # crop with default command
+                system(paste("pdfcrop --pdftexcmd pdftex", f, f, "1>/dev/null 2>&1"))
+            } else if(nzchar(crop)) { # crop != "" crop with provided command
+                system(crop)
+            }
+        }
+        return(invisible(r))
     }
     ## return
     invisible()

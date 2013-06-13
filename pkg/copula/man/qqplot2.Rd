@@ -15,7 +15,8 @@ qqplot2(x, qF, qqline.args = list(distribution=qF),
         main.args = list(text=expression(bold(italic(F)~~"Q-Q plot")),
                          side=3, line=1.1, cex=par("cex.main"),
                          font=par("font.main"), adj=par("adj"), xpd=NA),
-        xlab = "Theoretical quantiles", ylab = "Sample quantiles", \dots)
+        xlab = "Theoretical quantiles", ylab = "Sample quantiles",
+        doPDF=FALSE, file="Rplots.pdf", width=6, height=6, crop=NULL, \dots)
 }
 \arguments{
   \item{x}{\code{\link{numeric}}.}
@@ -38,6 +39,19 @@ qqplot2(x, qF, qqline.args = list(distribution=qF),
     \code{main.args=NULL} to omit the title.}
   \item{xlab}{x axis label.}
   \item{ylab}{y axis label.}
+  \item{doPDF}{\code{\link{logical}} indicating whether plotting is done
+    to pdf.}
+  \item{file}{file name including the extension \dQuote{.pdf}.}
+  \item{width}{width parameter of \code{\link{pdf}()}.}
+  \item{height}{height parameter of \code{\link{pdf}()}.}
+    \item{crop}{crop command, can be one of:
+    \describe{
+      \item{\code{\link{NULL}}}{crop with a default command (suitable
+	for Unix).}
+      \item{\code{\link{character}}}{a string containing a crop
+	command.}
+      \item{""}{do not crop.}
+  }}
   \item{\dots}{additional arguments passed to \code{\link{plot}()} based
     for plotting the points.}
 }
@@ -55,6 +69,7 @@ qqplot2(x, qF, qqline.args = list(distribution=qF),
   \code{\link{lines}()} for how the confidence intervals are drawn, and
   \code{\link{mtext}()} for how the title and information about the
   confidence intervals is printed.
+  \code{\link{pdf}()} for plotting to pdf.
 }
 \examples{
 n <- 250

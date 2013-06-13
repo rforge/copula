@@ -26,30 +26,13 @@ require(mvtnorm)
 require(copula)
 
 ## basic settings
-doPDF <- FALSE
+doPDF <- TRUE # TODO FALSE
 doCrop <- TRUE
 
 
 ### 1) Functions ###############################################################
 
-## open pdf device with nice defaults
-start.pdf <- function(file="Rplots.pdf", doPDF=TRUE, width=6, height=6, ...)
-{
-    if(doPDF) pdf(file=file, width=width, height=height, ...)
-    invisible()
-}
-
-## close pdf device
-## see the R package 'simsalapar' for a (much) more sophisticated version
-dev.off.pdf <- function(file="Rplots.pdf", doPDF=TRUE, doCrop=TRUE, ...)
-{
-    dev.off(...)
-    if(doCrop) {
-        f <- file.path(getwd(), file)
-        system(paste("pdfcrop --pdftexcmd pdftex", f, f, "1>/dev/null 2>&1"))
-    }
-    invisible()
-}
+TODO: qqp -> qqBeta + mit pdf!
 
 ##' @title Q-Q plots of angular distributions against Beta distributions
 ##' @param k k for which B_k is computed
@@ -63,12 +46,12 @@ qqp <- function(k, Bmat)
 
 ##' @title -log-likelihood for t copulas
 ##' @param nu d.o.f. parameter
-##' @param P correlation matrix
+##' @param P standardized dispersion matrix
 ##' @param u data matrix (in [0,1]^d)
 ##' @return -log-likelihood for a t copula
 ##' @author Marius Hofert
-##' Note: requires 'mvtnorm'
 nLLt <- function(nu, P, u){
+    stopifnot(require(mvtnorm))
     stopifnot((d <- ncol(u))==ncol(P), ncol(P)==nrow(P))
     qtu <- qt(u, df=nu)
     ldtnu <- function(u, P, nu) dmvt(qtu, sigma=P, df=nu, log=TRUE) -
