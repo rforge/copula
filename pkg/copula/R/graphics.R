@@ -281,19 +281,17 @@ qqplot2 <- function(x, qF, qqline.args=list(distribution=qF),
     ## pdf device
     if(doPDF) {
         r <- dev.off(...)
-        ## check
-        if(.Platform$OS.type != "unix" && is.null(crop) ) {
-            warning("'crop = NULL' are only suitable for Unix")
-        } else { # cropping possible
+        iNcrop <- is.null(crop)
+        if(.Platform$OS.type != "unix" && iNcrop) {
+            warning("'crop = NULL' is only suitable for Unix") # => continue without cropping
+        } else { # cropping
             f <- file.path(getwd(), file)
-            if(is.null(crop)) { # crop with default command
+            if(iNcrop) { # crop with default command
                 system(paste("pdfcrop --pdftexcmd pdftex", f, f, "1>/dev/null 2>&1"))
             } else if(nzchar(crop)) { # crop != "" crop with provided command
                 system(crop)
             }
         }
-        return(invisible(r))
-    }
-    ## return
-    invisible()
+        invisible(r)
+    } else invisible() # return invisibly
 }

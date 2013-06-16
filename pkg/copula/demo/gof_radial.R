@@ -27,22 +27,21 @@ require(copula)
 
 ## basic settings
 doPDF <- TRUE # TODO FALSE
-doCrop <- TRUE
 
 
 ### 1) Functions ###############################################################
-
-TODO: qqp -> qqBeta + mit pdf!
 
 ##' @title Q-Q plots of angular distributions against Beta distributions
 ##' @param k k for which B_k is computed
 ##' @param Bmat matrix as returned by gofBTstat()
 ##' @return invisible()
 ##' @author Marius Hofert
-qqp <- function(k, Bmat)
+qqp <- function(k, Bmat,
+                doPDF=FALSE, file="Rplots.pdf", width=6, height=6, crop=NULL, ...)
     qqplot2(Bmat[,k], qF=function(p) qbeta(p, shape1=k/2, shape2=(ncol(Bmat)+1-k)/2),
             main.args=list(text=as.expression(substitute(plain("Beta")(s1,s2)~~
-                bold("Q-Q Plot"), list(s1=k/2, s2=(ncol(Bmat)+1-k)/2)))))
+                bold("Q-Q Plot"), list(s1=k/2, s2=(ncol(Bmat)+1-k)/2)))),
+            doPDF=doPDF, file=file, width=width, height=height, crop=crop, ...)
 
 ##' @title -log-likelihood for t copulas
 ##' @param nu d.o.f. parameter
@@ -64,8 +63,6 @@ nLLt <- function(nu, P, u){
 
 ### 2.1) Checking R ############################################################
 
-### 2.1.1) Generate data from a multivariate normal / t distribution ###########
-
 ## setup
 n <- 250 # sample size
 d <- c(2, 10) # c(2, 10, 50, 100) # dimensions; numerically critical (due to estimator of P) for d > n/2
@@ -77,10 +74,10 @@ SigmaType <- c("EC", "AR") # equi-correlation, autoregressive
 for(st in SigmaType) {
     for(d. in d) {
 
-        ## generate data
+        ## generate multivariate normal and t data
         set.seed(271) # set seed
         mu <- rep(0, d.) # mean (does not make a difference in our setup)
-        Sigma <- switch(st,
+        Sigma <- switch(st, # standardized dispersion matrix
                         "EC" = {
                             Sigma <- matrix(rep(rho, d.*d.), nrow=d., ncol=d.)
                             diag(Sigma) <- rep(1, d.)
@@ -91,7 +88,7 @@ for(st in SigmaType) {
                         },
                         stop("wrong method"))
         X.norm <- rmvnorm(n, mean=mu, sigma=Sigma) # multivariate normal data
-        X.t <- rep(mu, each=n) + rmvt(n, sigma=Sigma, df=nu) # multivariate t_nu data (Sigma = *dispersion* matrix)
+        X.t <- rep(mu, each=n) + rmvt(n, sigma=Sigma, df=nu) # multivariate t_nu data
 
         ## compute the (R, S) decomposition
         RS.norm.norm <- RSpobs(X.norm, method="ellip", qQg=qnorm)
@@ -99,46 +96,44 @@ for(st in SigmaType) {
         RS.t.norm <- RSpobs(X.t, method="ellip", qQg=qnorm)
         RS.t.t <- RSpobs(X.t, method="ellip", qQg=function(p) qt(p, df=nu))
 
+        ## plot options
+        par(pty="s")
+
         ## Q-Q plot: R normal against the correct quantiles
         file <- paste0("ggof_radial_true=normal_H0=normal_d=", d.,"_Sigma=", st, ".pdf")
-        start.pdf(file=file, doPDF=doPDF)
-        par(pty="s") # use a square plotting region
         qqplot2(RS.norm.norm$R, qF=function(p) sqrt(qchisq(p, df=d.)),
                 main.args=list(text=as.expression(substitute(bold(italic(chi[d..])~~"Q-Q Plot"), list(d..=d.))),
-                side=3, cex=1.3, line=1.1, xpd=NA))
-        dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
+                side=3, cex=1.3, line=1.1, xpd=NA),
+                doPDF=doPDF, file=file)
 
         ## Q-Q plot: R normal against the quantiles of F_g for a multivariate t_nu distribution
         file <- paste0("ggof_radial_true=normal_H0=t4_d=", d.,"_Sigma=", st, ".pdf")
-        start.pdf(file=file, doPDF=doPDF)
-        par(pty="s") # use a square plotting region
         qqplot2(RS.norm.t$R, qF=function(p) sqrt(d.*qf(p, df1=d., df2=nu)),
                 main.args=list(text=as.expression(substitute(bold(italic(F[list(d..,nu.)](r^2/d..))~~"Q-Q Plot"),
-                    list(d..=d., nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA))
-        dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
+                    list(d..=d., nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA),
+                doPDF=doPDF, file=file))
 
         ## Q-Q plot: R t_nu against the quantiles of F_g for a multivariate normal distribution
         file <- paste0("ggof_radial_true=t4_H0=normal_d=", d.,"_Sigma=", st, ".pdf")
-        start.pdf(file=file, doPDF=doPDF)
-        par(pty="s") # use a square plotting region
         qqplot2(RS.t.norm$R, qF=function(p) sqrt(qchisq(p, df=d.)),
                 main.args=list(text=as.expression(substitute(bold(italic(chi[d..])~~"Q-Q Plot"), list(d..=d.))),
-                side=3, cex=1.3, line=1.1, xpd=NA))
-        dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
+                side=3, cex=1.3, line=1.1, xpd=NA),
+                doPDF=doPDF, file=file))
 
         ## Q-Q plot: R t_nu against the correct quantiles
         file <- paste0("ggof_radial_true=t4_H0=t4_d=", d., "_Sigma=", st, ".pdf")
-        start.pdf(file=file, doPDF=doPDF)
-        par(pty="s") # use a square plotting region
         qqplot2(RS.t.t$R, qF=function(p) sqrt(d.*qf(p, df1=d., df2=nu)),
                 main.args=list(text=as.expression(substitute(bold(italic(F[list(d..,nu.)](r^2/d..))~~"Q-Q Plot"),
-                    list(d..=d., nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA))
-        dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
+                    list(d..=d., nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA),
+                doPDF=doPDF, file=file))
 
     }
 }
 
 ## TODO: from here
+## TODO: ab hier: simplify, use pdf features...
+
+
 
 require(mvtnorm)
 require(copula)
