@@ -14,30 +14,32 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-## Goal: Graphical goodness-of-fit test(s) for meta-elliptical and
-##       meta-Archimedean models (or meta-'radial' models)
+## Goal: Graphical goodness-of-fit test(s) for meta-Archimedean and
+##       meta-elliptical models (or meta-'radial' models)
 
 
 ### setup ######################################################################
 
-## load packages
+## load packages and sources
 require(Matrix)
 require(mvtnorm)
 require(copula)
+source(system.file("Rsource", "AC-Liouville.R", package="copula"))
 
 ## basic settings
-doPDF <- TRUE # TODO FALSE
+.seed <- 271 # for seeding
+doPDF <- TRUE # whether plotting is done to pdf; TODO FALSE
 
 
-### 1) Functions ###############################################################
+### Functions ##################################################################
 
 ##' @title Q-Q plots of angular distributions against Beta distributions
 ##' @param k k for which B_k is computed
 ##' @param Bmat matrix as returned by gofBTstat()
 ##' @return invisible()
 ##' @author Marius Hofert
-qqp <- function(k, Bmat,
-                doPDF=FALSE, file="Rplots.pdf", width=6, height=6, crop=NULL, ...)
+qqplot2.angular <- function(k, Bmat, doPDF=FALSE, file="Rplots.pdf",
+                            width=6, height=6, crop=NULL, ...)
     qqplot2(Bmat[,k], qF=function(p) qbeta(p, shape1=k/2, shape2=(ncol(Bmat)+1-k)/2),
             main.args=list(text=as.expression(substitute(plain("Beta")(s1,s2)~~
                 bold("Q-Q Plot"), list(s1=k/2, s2=(ncol(Bmat)+1-k)/2)))),
@@ -49,7 +51,7 @@ qqp <- function(k, Bmat,
 ##' @param u data matrix (in [0,1]^d)
 ##' @return -log-likelihood for a t copula
 ##' @author Marius Hofert
-nLLt <- function(nu, P, u){
+nLLt <- function(nu, P, u) {
     stopifnot(require(mvtnorm))
     stopifnot((d <- ncol(u))==ncol(P), ncol(P)==nrow(P))
     qtu <- qt(u, df=nu)
@@ -59,7 +61,158 @@ nLLt <- function(nu, P, u){
 }
 
 
+### 1) Meta-Archimedean models #################################################
+
+### 1.1) Checking R ############################################################
+
+## Data from a Clayton, Gumbel, and Gamma-Archimedean (R ~ Gamma) copula
+
+## setup
+n <- 250 # sample size
+tau <- 0.5 # Kendall's tau
+d <- c(2, 10, 50) # dimensions
+
+## main
+for(d. in d) {
+
+    ## generate data
+    set.seed(.seed) # set seed
+    U.C <- rCopula(n, archmCopula("Clayton", param = getAcop("Clayton")@iTau(tau),
+                                  dim = d.))
+    U.G <- rCopula(n, archmCopula("Gumbel", param = getAcop("Gumbel")@iTau(tau),
+                                  dim = d.))
+    th.g <- iTauACsimplex(tau, d=d, Rdist="Gamma", interval=c(1e-2, 1e2))
+    U.g <- rACsimplex(n, d=d, theta = th.g, Rdist="Gamma")
+
+    ## compute the (R, S) decomposition for all data sets
+    RS.C <- RSpobs(U.C, method="archm")
+    RS.G <- RSpobs(U.G, method="archm")
+    RS.g <- RSpobs(U.g, method="archm")
+
+    ## plot options
+    par(pty="s")
+
+    ## R for Clayton...
+
+    ## Q-Q plot: ... against the correct quantiles
+    file <- paste0("ggof_radial_true=C_H0=C_d=", d.,"_tau=", tau, ".pdf")
+    qqplot2(RS.C$R, qF = function(p) qacR(p, family="Clayton",
+                    theta = iTau(claytonCopula(), tau=tau),
+                    d=d., interval = c(1e-4, 1e2)),
+            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
+                "for"~~italic(F[R])~~"from a Clayton copula")),
+            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
+
+    ## Q-Q plot: ... against the F_R quantiles for Gumbel
+    file <- paste0("ggof_radial_true=C_H0=G_d=", d.,"_tau=", tau, ".pdf")
+    qqplot2(RS.C$R, qF = function(p) qacR(p, family="Gumbel",
+                    theta = iTau(gumbelCopula(), tau=tau),
+                    d=d., interval = c(1+1e-4, 1e2)),
+            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
+                "for"~~italic(F[R])~~"from a Gumbel copula")),
+            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
+
+    ## Q-Q plot: ... against Gamma quantiles
+    file <- paste0("ggof_radial_true=C_H0=Gamma_d=", d.,"_tau=", tau, ".pdf")
+    qqplot2(RS.C$R, qF = function(p) qgamma(p, shape=th.g),
+            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
+                "for"~~italic(F[R])~~"being Gamma")),
+            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
+
+    ## R for Gumbel...
+
+    ## Q-Q plot: ... against the F_R quantiles quantiles for Clayton
+    file <- paste0("ggof_radial_true=G_H0=C_d=", d.,"_tau=", tau, ".pdf")
+    qqplot2(RS.G$R, qF = function(p) qacR(p, family="Clayton",
+                    theta = iTau(claytonCopula(), tau=tau),
+                    d=d., interval = c(1e-4, 1e2)),
+            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
+                "for"~~italic(F[R])~~"from a Clayton copula")),
+            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
+
+    ## Q-Q plot: ... against the correct quantiles
+    file <- paste0("ggof_radial_true=G_H0=G_d=", d.,"_tau=", tau, ".pdf")
+    qqplot2(RS.G$R, qF = function(p) qacR(p, family="Gumbel",
+                    theta = iTau(gumbelCopula(), tau=tau),
+                    d=d., interval = c(1+1e-4, 1e2)),
+            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
+                "for"~~italic(F[R])~~"from a Gumbel copula")),
+            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
+
+    ## Q-Q plot: ... against Gamma quantiles
+    file <- paste0("ggof_radial_true=G_H0=Gamma_d=", d.,"_tau=", tau, ".pdf")
+    qqplot2(RS.G$R, qF = function(p) qgamma(p, shape=th.g,
+            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
+                "for"~~italic(F[R])~~"being Gamma")),
+            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
+
+
+
+TODO: ab hier
+
+
+    ## Q-Q plot: R Clayton against the quantiles of F_g for a multivariate normal distribution
+    file <- paste0("ggof_radial_true=C_H0=normal_d=", d.,".pdf")
+    start.pdf(file=file, doPDF=doPDF)
+    par(pty="s") # use a square plotting region
+    qqplot2(RS.C.norm$R, qF=function(p) sqrt(qchisq(p, df=d.)),
+            main.args=list(text=as.expression(substitute(bold(italic(chi[d..])~~"Q-Q Plot"), list(d..=d.))),
+            side=3, cex=1.3, line=1.1, xpd=NA))
+    dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
+
+    ## Q-Q plot: R Clayton against the quantiles of F_g for a multivariate t_nu distribution
+    file <- paste0("ggof_radial_true=C_H0=t4_d=", d.,".pdf")
+    start.pdf(file=file, doPDF=doPDF)
+    par(pty="s") # use a square plotting region
+    qqplot2(RS.C.t$R, qF=function(p) sqrt(d.*qf(p, df1=d., df2=nu)),
+            main.args=list(text=as.expression(substitute(bold(italic(F[list(d..,nu.)](r^2/d..))~~"Q-Q Plot"),
+                list(d..=d., nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA))
+    dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
+
+    ## Q-Q plot: R Frank against the quantiles of F_g for a multivariate normal distribution
+    file <- paste0("ggof_radial_true=F_H0=normal_d=", d.,".pdf")
+    start.pdf(file=file, doPDF=doPDF)
+    par(pty="s") # use a square plotting region
+    qqplot2(RS.F.norm$R, qF=function(p) sqrt(qchisq(p, df=d.)),
+            main.args=list(text=as.expression(substitute(bold(italic(chi[d..])~~"Q-Q Plot"), list(d..=d.))),
+            side=3, cex=1.3, line=1.1, xpd=NA))
+    dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
+
+    ## Q-Q plot: R Frank against the quantiles of F_g for a multivariate t_nu distribution
+    file <- paste0("ggof_radial_true=F_H0=t4_d=", d.,".pdf")
+    start.pdf(file=file, doPDF=doPDF)
+    par(pty="s") # use a square plotting region
+    qqplot2(RS.F.t$R, qF=function(p) sqrt(d.*qf(p, df1=d., df2=nu)),
+            main.args=list(text=as.expression(substitute(bold(italic(F[list(d..,nu.)](r^2/d..))~~"Q-Q Plot"),
+                list(d..=d., nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA))
+    dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
+
+    ## Q-Q plot: R Gumbel against the quantiles of F_g for a multivariate normal distribution
+    file <- paste0("ggof_radial_true=G_H0=normal_d=", d.,".pdf")
+    start.pdf(file=file, doPDF=doPDF)
+    par(pty="s") # use a square plotting region
+    qqplot2(RS.G.norm$R, qF=function(p) sqrt(qchisq(p, df=d.)),
+            main.args=list(text=as.expression(substitute(bold(italic(chi[d..])~~"Q-Q Plot"), list(d..=d.))),
+            side=3, cex=1.3, line=1.1, xpd=NA))
+    dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
+
+    ## Q-Q plot: R Gumbel against the quantiles of F_g for a multivariate t_nu distribution
+    file <- paste0("ggof_radial_true=G_H0=t4_d=", d.,".pdf")
+    start.pdf(file=file, doPDF=doPDF)
+    par(pty="s") # use a square plotting region
+    qqplot2(RS.G.t$R, qF=function(p) sqrt(d.*qf(p, df1=d., df2=nu)),
+            main.args=list(text=as.expression(substitute(bold(italic(F[list(d..,nu.)](r^2/d..))~~"Q-Q Plot"),
+                list(d..=d., nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA))
+    dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
+
+}
+
+
+
 ### 2) Meta-elliptical models ##################################################
+
+## Note: This does not work too well, since there is no non-parametric estimator
+##       of the distribution of the radial part!
 
 ### 2.1) Checking R ############################################################
 
@@ -75,7 +228,7 @@ for(st in SigmaType) {
     for(d. in d) {
 
         ## generate multivariate normal and t data
-        set.seed(271) # set seed
+        set.seed(.seed) # set seed
         mu <- rep(0, d.) # mean (does not make a difference in our setup)
         Sigma <- switch(st, # standardized dispersion matrix
                         "EC" = {
@@ -143,7 +296,7 @@ rho <- 0.5
 mu <- rep(0, d)
 n <- 1000
 Sigma <- outer(1:d, 1:d, FUN=function(i,j) rho^abs(i-j))
-set.seed(271)
+set.seed(.seed)
 X.norm <- rmvnorm(n, mean=mu, sigma=Sigma) # multivariate normal data
 X.t <- rep(mu, each=n) + rmvt(n, sigma=Sigma, df=4) # multivariate t data
 X <- X.t
@@ -176,95 +329,16 @@ lines(x, 2*x*df(x^2/d, df1=d, df2=10)/d, col="blue") # true
 
 
 
-## ## 2.2.3) Q-Q plot of the angular distribution (Bmat[,k] should follow a Beta(k/2, (d-k)/2) distribution)
+## ## 2.1.2) Q-Q plot of the angular distribution (Bmat[,k] should follow a Beta(k/2, (d-k)/2) distribution)
 ## Bmat <- gofBTstat(S.t)
 ## qqp(1, Bmat=Bmat) # k=1
 ## qqp(3, Bmat=Bmat) # k=3
 
-## ## 2.2.4) Check independence between radial part and B_1 and B_3
+## ## 2.1.3) Check independence between radial part and B_1 and B_3
 ## plot(pobs(cbind(R.t, Bmat[,1])), xlab=expression(italic(R)), ylab=expression(italic(B)[1]),
 ##      main=expression(bold("Rank plot between"~~italic(R)~~"and"~~italic(B)[1])))
 ## plot(pobs(cbind(R.t, Bmat[,3])), xlab=expression(italic(R)), ylab=expression(italic(B)[3]),
 ##      main=expression(bold("Rank plot between"~~italic(R)~~"and"~~italic(B)[3])))
-
-
-### 2.1.2) Generate data from a Clayton, Frank, and Gumbel copula ##############
-
-tau <- 0.5
-
-## go through the Sigma types and dimensions
-for(d. in d) {
-
-    ## generate data
-    set.seed(271) # set seed
-    U.C <- rCopula(n, archmCopula("Clayton", param=getAcop("Clayton")@iTau(tau), dim=d.))
-    U.F <- rCopula(n, archmCopula("Frank", param=getAcop("Frank")@iTau(tau), dim=d.))
-    U.G <- rCopula(n, archmCopula("Gumbel", param=getAcop("Gumbel")@iTau(tau), dim=d.))
-
-    ## compute the (R, S) decomposition
-    RS.C.norm <- RSpobs(U.C, method="ellip", qQg=qnorm)
-    RS.C.t <- RSpobs(U.C, method="ellip", qQg=function(p) qt(p, df=nu))
-    RS.F.norm <- RSpobs(U.F, method="ellip", qQg=qnorm)
-    RS.F.t <- RSpobs(U.F, method="ellip", qQg=function(p) qt(p, df=nu))
-    RS.G.norm <- RSpobs(U.G, method="ellip", qQg=qnorm)
-    RS.G.t <- RSpobs(U.G, method="ellip", qQg=function(p) qt(p, df=nu))
-
-    ## Q-Q plot: R Clayton against the quantiles of F_g for a multivariate normal distribution
-    file <- paste0("ggof_radial_true=C_H0=normal_d=", d.,".pdf")
-    start.pdf(file=file, doPDF=doPDF)
-    par(pty="s") # use a square plotting region
-    qqplot2(RS.C.norm$R, qF=function(p) sqrt(qchisq(p, df=d.)),
-            main.args=list(text=as.expression(substitute(bold(italic(chi[d..])~~"Q-Q Plot"), list(d..=d.))),
-            side=3, cex=1.3, line=1.1, xpd=NA))
-    dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
-
-    ## Q-Q plot: R Clayton against the quantiles of F_g for a multivariate t_nu distribution
-    file <- paste0("ggof_radial_true=C_H0=t4_d=", d.,".pdf")
-    start.pdf(file=file, doPDF=doPDF)
-    par(pty="s") # use a square plotting region
-    qqplot2(RS.C.t$R, qF=function(p) sqrt(d.*qf(p, df1=d., df2=nu)),
-            main.args=list(text=as.expression(substitute(bold(italic(F[list(d..,nu.)](r^2/d..))~~"Q-Q Plot"),
-                list(d..=d., nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA))
-    dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
-
-    ## Q-Q plot: R Frank against the quantiles of F_g for a multivariate normal distribution
-    file <- paste0("ggof_radial_true=F_H0=normal_d=", d.,".pdf")
-    start.pdf(file=file, doPDF=doPDF)
-    par(pty="s") # use a square plotting region
-    qqplot2(RS.F.norm$R, qF=function(p) sqrt(qchisq(p, df=d.)),
-            main.args=list(text=as.expression(substitute(bold(italic(chi[d..])~~"Q-Q Plot"), list(d..=d.))),
-            side=3, cex=1.3, line=1.1, xpd=NA))
-    dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
-
-    ## Q-Q plot: R Frank against the quantiles of F_g for a multivariate t_nu distribution
-    file <- paste0("ggof_radial_true=F_H0=t4_d=", d.,".pdf")
-    start.pdf(file=file, doPDF=doPDF)
-    par(pty="s") # use a square plotting region
-    qqplot2(RS.F.t$R, qF=function(p) sqrt(d.*qf(p, df1=d., df2=nu)),
-            main.args=list(text=as.expression(substitute(bold(italic(F[list(d..,nu.)](r^2/d..))~~"Q-Q Plot"),
-                list(d..=d., nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA))
-    dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
-
-    ## Q-Q plot: R Gumbel against the quantiles of F_g for a multivariate normal distribution
-    file <- paste0("ggof_radial_true=G_H0=normal_d=", d.,".pdf")
-    start.pdf(file=file, doPDF=doPDF)
-    par(pty="s") # use a square plotting region
-    qqplot2(RS.G.norm$R, qF=function(p) sqrt(qchisq(p, df=d.)),
-            main.args=list(text=as.expression(substitute(bold(italic(chi[d..])~~"Q-Q Plot"), list(d..=d.))),
-            side=3, cex=1.3, line=1.1, xpd=NA))
-    dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
-
-    ## Q-Q plot: R Gumbel against the quantiles of F_g for a multivariate t_nu distribution
-    file <- paste0("ggof_radial_true=G_H0=t4_d=", d.,".pdf")
-    start.pdf(file=file, doPDF=doPDF)
-    par(pty="s") # use a square plotting region
-    qqplot2(RS.G.t$R, qF=function(p) sqrt(d.*qf(p, df1=d., df2=nu)),
-            main.args=list(text=as.expression(substitute(bold(italic(F[list(d..,nu.)](r^2/d..))~~"Q-Q Plot"),
-                list(d..=d., nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA))
-    dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
-
-}
-
 
 
 
@@ -306,7 +380,7 @@ for(d. in d) {
 
 if(FALSE) {
     ## checking qacR()
-    set.seed(271)
+    set.seed(.seed)
     n <- 250
     d <- 5
     th <- 2
@@ -321,7 +395,7 @@ if(FALSE) {
 require(copula)
 
 ## Johanna Ziegel...
-set.seed(1)
+set.seed(.seed)
 n <- 250 # sample size
 d <- 2 # dimension
 tau <- 0.5 # Kendall's tau
@@ -364,7 +438,7 @@ P <- c(r[2], r[1], r[1], r[1], # upper triangle (without diagonal) of correlatio
 cop <- ellipCopula(familyTrue, param=P, dim=d, dispstr="un", df=df)
 
 
-set.seed(271)
+set.seed(.seed)
 ## U <- rCopula(n, copula=cop)
 ## X <- qnorm(U)
 

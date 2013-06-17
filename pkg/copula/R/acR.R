@@ -69,10 +69,11 @@ pacR <- function(x, family, theta, d, lower.tail = TRUE, log.p = FALSE, ...)
 ##' For log.p = TRUE, compute x = log(F_R^{-1}(exp(p)))
 ##' @title Computing the Quantile Function of pacR()
 ##' @param p probability in (0,1) where to evaluate qacR()
-##' @param family Archimedean family
+##' @param family Archimedean family (e.g., "AMH", "Clayton", "Frank", "Gumbel", "Joe")
 ##' @param theta parameter
 ##' @param d dimension
 ##' @param log.p logical; if TRUE, probabilities p are given as log(p).
+##' @param interval interval for uniroot() [theoretically [0, Inf))
 ##' @param ... additional arguments passed to pacR()
 ##' @return the quantile function of F_R at x
 ##' @author Marius Hofert

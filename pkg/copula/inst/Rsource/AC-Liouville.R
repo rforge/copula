@@ -14,10 +14,12 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-### Note:
-### - Random number generation (RNG) for Archimedean-Simplex copulas, Liouville
-###   copulas, and Archimedean-Liouville copulas
-### - based on code of Alexander J. McNeil
+## Note:
+## - Random number generation (RNG) for simplex Archimedean copulas, Liouville
+##   copulas, and Archimedean-Liouville copulas
+## - Kendall's tau + inverse for simplex Archimedean copulas
+## - based on code of Alexander J. McNeil
+
 
 ### RNG for several ingredient distributions ###################################
 
@@ -78,7 +80,54 @@ rGPD <- function(n, xi, beta) {
 rPareto <- function(n, kappa) (1-runif(n))^(-1/kappa)
 
 
-### RNG for Archimedean-Simplex copulas ########################################
+### Kendall's tau + inverse for simplex Archimedean copulas ####################
+
+##' @title Kendall's tau for simplex ACs
+##' @param theta parameter
+##' @param d dimension
+##' @param Rdist distribution of the radial part
+##' @param ... additional arguments passed to integrate()
+##' @return Kendall's tau
+##' @author Marius Hofert
+tauACsimplex <- function(theta, d, Rdist, ...) {
+    switch(Rdist,
+           "Gamma" = {
+               k <- seq_len(d)-1
+               integrand <- function(x, k, theta) x^(k+theta-1) * (1-x)^(theta-k-1)
+               int <- vapply(k, function(k.) {
+                   integrate(integrand, lower=0, upper=1/2, k=k., theta=theta, ...)$value
+               }, NA_real_) / beta(theta, theta)
+               (2^d * sum(choose(d-1, k) * (-1)^k * int) - 1) / (2^(d-1) - 1)
+           },
+           "IGamma" =, "Pareto" =, "IPareto" = {
+               stop("Not implemented yet; see McNeil, Neslehova (2010) for formulas")
+           },
+           stop("Not implemented yet"))
+}
+
+##' @title Inverse Kendall's tau for simplex Archimedean copulas
+##' @param tau Kendall's tau
+##' @param d dimension
+##' @param Rdist distribution of the radial part
+##' @param interval theta-interval for uniroot()
+##' @param ... additional arguments passed to uniroot()
+##' @return theta such that tau(theta) = tau
+##' @author Marius Hofert
+iTauACsimplex <- function(tau, d, Rdist, interval, ...)
+    ## check
+    ## if(FALSE) {
+    ##     n <- 128
+    ##     d <- 3
+    ##     theta <- seq(0.01, 1e2, length.out=n)
+    ##     tau <- vapply(1:n, function(i) tauACsimplex(theta[i], d=3, Rdist="Gamma"), NA_real_)
+    ##     plot(theta, tau, type="l")
+    ## }
+    ## uniroot()
+    uniroot(function(th) tauACsimplex(th, d=d, Rdist=Rdist) - tau,
+            interval=interval, ...)$root
+
+
+### RNG for simplex Archimedean copulas ########################################
 
 ## auxiliary function for g()
 lg <- function(a, x, z){
@@ -151,14 +200,14 @@ psiW <- function(t, d, theta, Rdist=c("Gamma", "IGamma", "Pareto", "IPareto"))
            stop("wrong Rdist"))
 }
 
-##' Generating vectors of random variates from a d-dimensional Archimedean-Simplex
+##' Generating vectors of random variates from a d-dimensional simplex Archimedean
 ##' distribution
 ##'
-##' @title Generating vectors of random variates from a d-dimensional Archimedean-Simplex
+##' @title Generating vectors of random variates from a d-dimensional simplex Archimedean
 ##'        distribution
 ##' @param n sample size
 ##' @param d dimension
-##' @param theta parameter theta
+##' @param theta parameter
 ##' @param Rdist distribution of the radial part
 ##' @return (n, d) matrix
 ##' @author Marius Hofert
