@@ -63,8 +63,6 @@ nLLt <- function(nu, P, u) {
 
 ### 1) Meta-Archimedean models #################################################
 
-### 1.1) Checking R ############################################################
-
 ## Data from a Clayton, Gumbel, and Gamma-Archimedean (R ~ Gamma) copula
 
 ## setup
@@ -91,6 +89,9 @@ for(d. in d) {
 
     ## plot options
     par(pty="s")
+
+
+    ## 1.1) Checking R #########################################################
 
     ## R for Clayton...
 
@@ -141,71 +142,52 @@ for(d. in d) {
 
     ## Q-Q plot: ... against Gamma quantiles
     file <- paste0("ggof_radial_true=G_H0=Gamma_d=", d.,"_tau=", tau, ".pdf")
-    qqplot2(RS.G$R, qF = function(p) qgamma(p, shape=th.g,
+    qqplot2(RS.G$R, qF = function(p) qgamma(p, shape=th.g),
+            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
+                "for"~~italic(F[R])~~"being Gamma")),
+            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
+
+    ## Gamma R...
+
+    ## Q-Q plot: ... against the F_R quantiles quantiles for Clayton
+    file <- paste0("ggof_radial_true=Gamma_H0=C_d=", d.,"_tau=", tau, ".pdf")
+    qqplot2(RS.g$R, qF = function(p) qacR(p, family="Clayton",
+                    theta = iTau(claytonCopula(), tau=tau),
+                    d=d., interval = c(1e-4, 1e2)),
+            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
+                "for"~~italic(F[R])~~"from a Clayton copula")),
+            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
+
+    ## Q-Q plot: ... against the F_R quantiles quantiles for Gumbel
+    file <- paste0("ggof_radial_true=Gamma_H0=G_d=", d.,"_tau=", tau, ".pdf")
+    qqplot2(RS.g$R, qF = function(p) qacR(p, family="Gumbel",
+                    theta = iTau(gumbelCopula(), tau=tau),
+                    d=d., interval = c(1+1e-4, 1e2)),
+            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
+                "for"~~italic(F[R])~~"from a Gumbel copula")),
+            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
+
+    ## Q-Q plot: ... against the correct quantiles
+    file <- paste0("ggof_radial_true=Gamma_H0=Gamma_d=", d.,"_tau=", tau, ".pdf")
+    qqplot2(RS.g$R, qF = function(p) qgamma(p, shape=th.g),
             main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
                 "for"~~italic(F[R])~~"being Gamma")),
             side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
 
 
+    ## 1.2) Checking S #########################################################
 
-TODO: ab hier
+    TODO: Q-Q plots in log-log scale!
+    TODO: laeuft Obiges?
+    TODO: ab hier
+    TODO: 1 Beispiel wo numerik schiefgeht
 
+    ## 1.3) Checking independence of R and S ###################################
 
-    ## Q-Q plot: R Clayton against the quantiles of F_g for a multivariate normal distribution
-    file <- paste0("ggof_radial_true=C_H0=normal_d=", d.,".pdf")
-    start.pdf(file=file, doPDF=doPDF)
-    par(pty="s") # use a square plotting region
-    qqplot2(RS.C.norm$R, qF=function(p) sqrt(qchisq(p, df=d.)),
-            main.args=list(text=as.expression(substitute(bold(italic(chi[d..])~~"Q-Q Plot"), list(d..=d.))),
-            side=3, cex=1.3, line=1.1, xpd=NA))
-    dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
-
-    ## Q-Q plot: R Clayton against the quantiles of F_g for a multivariate t_nu distribution
-    file <- paste0("ggof_radial_true=C_H0=t4_d=", d.,".pdf")
-    start.pdf(file=file, doPDF=doPDF)
-    par(pty="s") # use a square plotting region
-    qqplot2(RS.C.t$R, qF=function(p) sqrt(d.*qf(p, df1=d., df2=nu)),
-            main.args=list(text=as.expression(substitute(bold(italic(F[list(d..,nu.)](r^2/d..))~~"Q-Q Plot"),
-                list(d..=d., nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA))
-    dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
-
-    ## Q-Q plot: R Frank against the quantiles of F_g for a multivariate normal distribution
-    file <- paste0("ggof_radial_true=F_H0=normal_d=", d.,".pdf")
-    start.pdf(file=file, doPDF=doPDF)
-    par(pty="s") # use a square plotting region
-    qqplot2(RS.F.norm$R, qF=function(p) sqrt(qchisq(p, df=d.)),
-            main.args=list(text=as.expression(substitute(bold(italic(chi[d..])~~"Q-Q Plot"), list(d..=d.))),
-            side=3, cex=1.3, line=1.1, xpd=NA))
-    dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
-
-    ## Q-Q plot: R Frank against the quantiles of F_g for a multivariate t_nu distribution
-    file <- paste0("ggof_radial_true=F_H0=t4_d=", d.,".pdf")
-    start.pdf(file=file, doPDF=doPDF)
-    par(pty="s") # use a square plotting region
-    qqplot2(RS.F.t$R, qF=function(p) sqrt(d.*qf(p, df1=d., df2=nu)),
-            main.args=list(text=as.expression(substitute(bold(italic(F[list(d..,nu.)](r^2/d..))~~"Q-Q Plot"),
-                list(d..=d., nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA))
-    dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
-
-    ## Q-Q plot: R Gumbel against the quantiles of F_g for a multivariate normal distribution
-    file <- paste0("ggof_radial_true=G_H0=normal_d=", d.,".pdf")
-    start.pdf(file=file, doPDF=doPDF)
-    par(pty="s") # use a square plotting region
-    qqplot2(RS.G.norm$R, qF=function(p) sqrt(qchisq(p, df=d.)),
-            main.args=list(text=as.expression(substitute(bold(italic(chi[d..])~~"Q-Q Plot"), list(d..=d.))),
-            side=3, cex=1.3, line=1.1, xpd=NA))
-    dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
-
-    ## Q-Q plot: R Gumbel against the quantiles of F_g for a multivariate t_nu distribution
-    file <- paste0("ggof_radial_true=G_H0=t4_d=", d.,".pdf")
-    start.pdf(file=file, doPDF=doPDF)
-    par(pty="s") # use a square plotting region
-    qqplot2(RS.G.t$R, qF=function(p) sqrt(d.*qf(p, df1=d., df2=nu)),
-            main.args=list(text=as.expression(substitute(bold(italic(F[list(d..,nu.)](r^2/d..))~~"Q-Q Plot"),
-                list(d..=d., nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA))
-    dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
 
 }
+
+
 
 
 
@@ -283,7 +265,6 @@ for(st in SigmaType) {
     }
 }
 
-## TODO: from here
 ## TODO: ab hier: simplify, use pdf features...
 
 

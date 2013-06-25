@@ -27,7 +27,7 @@ etau(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...)
     (currently only Archimedean copulas are provided).}
   \item{interval}{bivariate vector denoting the interval where
     optimization takes place.  The default is computed as described in Hofert et
-    al. (2013).}
+    al. (2012).}
   \item{method}{a character string specifying the method (only
     for \code{etau}), which has to be one (or a unique abbreviation) of
     \describe{
@@ -68,10 +68,10 @@ etau(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...)
   stands for first computing all pairwise Kendall's tau estimators and
   then returning the mean of these estimators.
 
-  For more details, see Hofert et al. (2013).
+  For more details, see Hofert et al. (2012).
 
   Note that these estimators should be used with care; see the
-  performance results in Hofert et al. (2013).  In particular,
+  performance results in Hofert et al. (2012).  In particular,
   \code{etau} should be used with the (default) method \code{"tau.mean"}
   since \code{"theta.mean"} is both slower and more prone to errors.
 }
@@ -89,10 +89,12 @@ etau(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...)
 }
 \author{Marius Hofert}
 \references{
-  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2013).
+  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2012).
   Archimedean Copulas in High Dimensions: Estimators and Numerical
   Challenges Motivated by Financial Applications.
-  \emph{Journal de la Soci\enc{é}{e}t\enc{é}{e} Fran\enc{ç}{c}aise de Statistique}.
+  \emph{Journal de la Soci\enc{é}{e}t\enc{é}{e} Fran\enc{ç}{c}aise de
+    Statistique}
+  \bold{153}(3), 25--63.
 }
 \seealso{
   The more sophisticated estimators \code{\link{emle}} (Maximum Likelihood) and

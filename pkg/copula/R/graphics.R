@@ -196,6 +196,8 @@ splom2 <- function(data, varnames=NULL, Vname="U", xlab="",
 ##' @title Q-Q plot with rugs and pointwise asymptotic confidence intervals
 ##' @param x data (n-vector)
 ##' @param qF theoretical quantile function
+##' @param log character string indicating whether log-scale should be used; see
+##'        ?plot.default
 ##' @param qqline.args argument list passed to qqline(); use NULL to omit Q-Q line
 ##' @param rug.args argument list passed to rug(); use NULL to omit rugs
 ##' @param alpha significance level
@@ -218,8 +220,11 @@ splom2 <- function(data, varnames=NULL, Vname="U", xlab="",
 ##' @param ... additional arguments passed to plot()
 ##' @return Q-Q plot
 ##' @author Marius Hofert
-##' Note: used in Genest, Hofert, Neslehova (2013)
-qqplot2 <- function(x, qF, qqline.args=list(distribution=qF),
+##' Note: - used in Genest, Hofert, Neslehova (2013)
+##'       - better than pointwise asymptotic CIs would be (non-parametric)
+##'         bootstrapped ones
+qqplot2 <- function(x, qF, log="", qqline.args=list(distribution=qF,
+                                   untf=nzchar(log)), # for log-case
                     rug.args=list(tcl=-0.6*par("tcl")),
                     alpha=0.05, CI.args=list(col="gray50"),
                     CI.mtext=list(text=paste0("Pointwise asymptotic ", 100*(1-alpha),
@@ -238,13 +243,16 @@ qqplot2 <- function(x, qF, qqline.args=list(distribution=qF),
     ## pdf device
     if(doPDF) pdf(file=file, width=width, height=height)
     ## plot points
-    plot(q, x., xlab=xlab, ylab=ylab, ...) # empirical vs. theoretical quantiles
+    plot(q, x., xlab=xlab, ylab=ylab, log=log, ...) # empirical vs. theoretical quantiles
     do.call(mtext, main.args)
     ## plot the line (overplots points, but that's good for the eye!)
     if(!is.null(qqline.args))
-        ## draw the line (through the first and third quartile; see ??qqline)
-        ## note: abline(a=0, b=1) only true if data is standardized (mu=0, sig2=1)
-        do.call(qqline, c(list(y=x.), qqline.args))
+        if(nzchar(log) && (is.null(untf <- qqline.args$untf) || !untf))
+            warning("for a Q-Q line in log-scale, specify 'untf = TRUE' in qqline.args")
+    ## draw the line (through the first and third quartile; see ?qqline)
+    ## note: - abline(a=0, b=1) only true if data is standardized (mu=0, sig2=1)
+    ##       - abline(..., untf=TRUE) displays a curve (proper line in log-space)
+        else do.call(qqline, args=c(list(y=x.), qqline.args)) # qqline(y, distribution=..)
     ## rugs
     if(!is.null(rug.args)) {
         do.call(rug, c(list(q, side=1), rug.args))

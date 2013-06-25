@@ -6,7 +6,7 @@
   Central Limit Theorem) two-sided 1-\eqn{\alpha}{alpha} confidence intervals.
 }
 \usage{
-qqplot2(x, qF, qqline.args = list(distribution=qF),
+qqplot2(x, qF, log = "", qqline.args = list(distribution=qF),
         rug.args = list(tcl=-0.6*par("tcl")),
         alpha = 0.05, CI.args = list(col="gray50"),
         CI.mtext = list(text=paste0("Pointwise asymptotic ", 100*(1-alpha),
@@ -20,7 +20,10 @@ qqplot2(x, qF, qqline.args = list(distribution=qF),
 }
 \arguments{
   \item{x}{\code{\link{numeric}}.}
-  \item{qF}{(theoretical) quantile function against which the Q-Q plot is created.}
+  \item{qF}{(theoretical) quantile function against which the Q-Q plot
+    is created.}
+  \item{log}{\code{\link{character}} string indicating whether log-scale should be
+    used; see \code{?plot.default}.}
   \item{qqline.args}{argument \code{\link{list}} passed to
     \code{\link{qqline}()} for creating the Q-Q line. Use
     \code{qqline.args=NULL} to omit the Q-Q line.}
@@ -79,6 +82,11 @@ x <- rchisq(n, df=df)
 
 ## Q-Q plot against the true quantiles (of a chi^2_3 distribution)
 qqplot2(x, qF=function(p) qchisq(p, df=df),
+        main.args=list(text=as.expression(substitute(bold(italic(chi[nu])~~"Q-Q Plot"),
+                       list(nu=df))), side=3, cex=1.3, line=1.1, xpd=NA))
+
+## in log-log scale
+qqplot2(x, qF=function(p) qchisq(p, df=df), log="xy",
         main.args=list(text=as.expression(substitute(bold(italic(chi[nu])~~"Q-Q Plot"),
                        list(nu=df))), side=3, cex=1.3, line=1.1, xpd=NA))
 
