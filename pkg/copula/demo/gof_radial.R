@@ -18,7 +18,12 @@
 ##       meta-elliptical models (or meta-'radial' models)
 
 
-### setup ######################################################################
+## TODO:
+## - shall we use pobs() everywhere? so far: known margins
+## - 1.2), 1.3): map to chi^2 (1d setup)?
+
+
+### Setup ######################################################################
 
 ## load packages and sources
 require(Matrix)
@@ -31,58 +36,191 @@ source(system.file("Rsource", "AC-Liouville.R", package="copula"))
 doPDF <- TRUE # whether plotting is done to pdf; TODO FALSE
 
 
-### Functions ##################################################################
 
-##' @title Q-Q plots of angular distributions against Beta distributions
-##' @param k k for which B_k is computed
-##' @param Bmat matrix as returned by gofBTstat()
-##' @return invisible()
-##' @author Marius Hofert
-qqplot2.angular <- function(k, Bmat, doPDF=FALSE, file="Rplots.pdf",
-                            width=6, height=6, crop=NULL, ...)
-    qqplot2(Bmat[,k], qF=function(p) qbeta(p, shape1=k/2, shape2=(ncol(Bmat)+1-k)/2),
-            main.args=list(text=as.expression(substitute(plain("Beta")(s1,s2)~~
-                bold("Q-Q Plot"), list(s1=k/2, s2=(ncol(Bmat)+1-k)/2)))),
-            doPDF=doPDF, file=file, width=width, height=height, crop=crop, ...)
+### 0) Minor checks ############################################################
 
-##' @title -log-likelihood for t copulas
-##' @param nu d.o.f. parameter
-##' @param P standardized dispersion matrix
-##' @param u data matrix (in [0,1]^d)
-##' @return -log-likelihood for a t copula
-##' @author Marius Hofert
-nLLt <- function(nu, P, u) {
-    stopifnot(require(mvtnorm))
-    stopifnot((d <- ncol(u))==ncol(P), ncol(P)==nrow(P))
-    qtu <- qt(u, df=nu)
-    ldtnu <- function(u, P, nu) dmvt(qtu, sigma=P, df=nu, log=TRUE) -
-        rowSums(dt(qtu, df=nu, log=TRUE)) # t copula log-density
-    -sum(ldtnu(u, P=P, nu=nu))
+if(FALSE) {
+
+    ## checking pacR() (F_R df) for Clayton
+    family <- "Clayton"
+    tau <- 0.5
+    m <- 256
+    dmax <- 20
+    x <- seq(0, 20, length.out=m)
+    y <- vapply(1:dmax, function(d)
+                pacR(x, family=family, theta=iTau(archmCopula(family), tau), d=d),
+                rep(NA_real_, m))
+    plot(x, y[,1], type="l", ylim=c(0,1),
+         xlab = expression(italic(x)),
+         ylab = substitute(italic(F[R](x))~~"for d=1:"*dm, list(dm=dmax)))
+    for(k in 2:dmax) lines(x, y[,k])
+
+    ## checking qacR()
+    set.seed(.seed)
+    n <- 250
+    d <- 5
+    th <- 2
+    family <- "Gumbel"
+    p <- ppoints(n)
+    qR <- qacR(p, family=family, theta=th, d=d, interval=c(0, 200)) # ~ 20s
+    p. <- pacR(qR, family=family, theta=th, d=d) # check
+    summary(p-p.) # => fine
+
 }
 
 
-### 1) Meta-Archimedean models #################################################
+
+### 1) Archimedean models ######################################################
 
 ## Data from a Clayton, Gumbel, and Gamma-Archimedean (R ~ Gamma) copula
 
-## setup
-n <- 250 # sample size
-tau <- 0.5 # Kendall's tau
-d <- c(2, 10, 50) # dimensions
+## auxiliary functions
+
+## Q-Q plot for R against the F_R quantiles for Clayton
+qq.R.C <- function(x, d, tau, doPDF, file)
+    qqplot2(x, qF = function(p) qacR(p, family="Clayton",
+               theta = iTau(claytonCopula(), tau=tau),
+               d=d, interval = c(1e-4, 1e2)), log="xy",
+            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
+                "for"~~italic(F[R])~~"from a Clayton copula")),
+            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
+
+## Q-Q plot for R against the F_R quantiles for Gumbel
+qq.R.G <- function(x, d, tau, doPDF, file)
+    qqplot2(x, qF = function(p) qacR(p, family="Gumbel",
+               theta = iTau(gumbelCopula(), tau=tau),
+               d=d, interval = c(1+1e-4, 1e2)), log="xy",
+            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
+                "for"~~italic(F[R])~~"from a Gumbel copula")),
+            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
+
+## Q-Q plot for R against Gamma quantiles
+qq.R.g <- function(x, d, tau, doPDF, file)
+{
+    th <- iTauACsimplex(tau, d=d, Rdist="Gamma", interval=c(1e-2, 1e2))
+    qqplot2(x, qF = function(p) qgamma(p, shape=th), log="xy",
+            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
+                "for"~~italic(F[R])~~"being Gamma")),
+            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
+}
+
+## Q-Q plot for S
+qq.angular <- function(x, shape1, shape2, doPDF, file)
+    qqplot2(x, qF=function(p) qbeta(p, shape1=1, shape2=d),
+            main.args=list(text=as.expression(substitute(plain("Beta")(s1,s2)~~
+                bold("Q-Q Plot"), list(s1=1, s2=d)))),
+            doPDF=doPDF, file=file)
+
+## check independence of R and S (via B)
+indepRB <- function(R, B, index, doPDF, file, width=6, height=6, crop=NULL, ...)
+{
+    if(doPDF) pdf(file=file, width=width, height=height)
+    ## plot
+    plot(pobs(cbind(R, B)),
+         xlab=expression(italic(R)), ylab=substitute(italic(B)[i], list(i=index)),
+         main=substitute(bold("Rank plot between"~~italic(R)~~"and"~~italic(B)[i]),
+         list(i=index)), ...)
+    ## pdf device
+    if(doPDF) {
+        r <- dev.off(...)
+        iNcrop <- is.null(crop)
+        if(.Platform$OS.type != "unix" && iNcrop) {
+            warning("'crop = NULL' is only suitable for Unix") # => continue without cropping
+        } else { # cropping
+            f <- file.path(getwd(), file)
+            if(iNcrop) { # crop with default command
+                system(paste("pdfcrop --pdftexcmd pdftex", f, f, "1>/dev/null 2>&1"))
+            } else if(nzchar(crop)) { # crop != "" crop with provided command
+                system(crop)
+            }
+        }
+        invisible(r)
+    } else invisible() # return invisibly
+}
+
+## check independence of R and S (via mapping R to Gamma(d))
+indepRS <- function(R, S, doPDF, file, width=6, height=6, crop=NULL, ...)
+{
+    d <- ncol(X)
+    qR <- qgamma(rank(R)/(n+1), shape=d) # make it Gamma(d) (=> C=Pi)
+    if(doPDF) pdf(file=file, width=width, height=height)
+    ## plot
+    pairs(pobs(qR*S), gap=0,
+          labels=as.expression( sapply(seq_len(d), function(j) bquote(italic(tilde(R)S[.(j)]))) ),
+          ...)
+    ## pdf device
+    if(doPDF) {
+        r <- dev.off(...)
+        iNcrop <- is.null(crop)
+        if(.Platform$OS.type != "unix" && iNcrop) {
+            warning("'crop = NULL' is only suitable for Unix") # => continue without cropping
+        } else { # cropping
+            f <- file.path(getwd(), file)
+            if(iNcrop) { # crop with default command
+                system(paste("pdfcrop --pdftexcmd pdftex", f, f, "1>/dev/null 2>&1"))
+            } else if(nzchar(crop)) { # crop != "" crop with provided command
+                system(crop)
+            }
+        }
+        invisible(r)
+    } else invisible() # return invisibly
+}
+
+## htrafo() for (R,S) data
+htrafoRS <- function(R,S)
+{
+    ## essentially the same as in 'copula'
+    lpsiI <- log(S)
+    lcumsum <- matrix(unlist(lapply(1:d, function(j)
+                                    copula:::lsum(t(lpsiI[,1:j, drop=FALSE])))),
+                      ncol=d)
+    U. <- matrix(unlist(lapply(1:(d-1),
+                               function(k) exp(k*(lcumsum[,k]-
+                                                  lcumsum[,k+1])) )),
+                 ncol=d-1)
+    cbind(U., rank(R)/(n+1))
+}
+
+## pairs plot for Hering--Hofert transformed data
+pairs2 <- function(x, gap=0, doPDF, file, width=6, height=6, crop=NULL, ...)
+{
+    ## plot
+    pairs(x, gap=0,
+          labels=as.expression( sapply(seq_len(d), function(j) bquote(italic(U*"'"[.(j)]))) ),
+          ...)
+    ## pdf device
+    if(doPDF) {
+        r <- dev.off(...)
+        iNcrop <- is.null(crop)
+        if(.Platform$OS.type != "unix" && iNcrop) {
+            warning("'crop = NULL' is only suitable for Unix") # => continue without cropping
+        } else { # cropping
+            f <- file.path(getwd(), file)
+            if(iNcrop) { # crop with default command
+                system(paste("pdfcrop --pdftexcmd pdftex", f, f, "1>/dev/null 2>&1"))
+            } else if(nzchar(crop)) { # crop != "" crop with provided command
+                system(crop)
+            }
+        }
+        invisible(r)
+    } else invisible() # return invisibly
+}
+
 
 ## main
-for(d. in d) {
-
+ggofArch <- function(n, d, tau, doPDF)
+{
     ## generate data
     set.seed(.seed) # set seed
     U.C <- rCopula(n, archmCopula("Clayton", param = getAcop("Clayton")@iTau(tau),
-                                  dim = d.))
+                                  dim = d))
     U.G <- rCopula(n, archmCopula("Gumbel", param = getAcop("Gumbel")@iTau(tau),
-                                  dim = d.))
-    th.g <- iTauACsimplex(tau, d=d, Rdist="Gamma", interval=c(1e-2, 1e2))
-    U.g <- rACsimplex(n, d=d, theta = th.g, Rdist="Gamma")
+                                  dim = d))
+    U.g <- rACsimplex(n, d=d, theta = iTauACsimplex(tau, d=d, Rdist="Gamma",
+                                                    interval=c(1e-2, 1e2))
+                      Rdist="Gamma")
 
-    ## compute the (R, S) decomposition for all data sets
+    ## compute the (R,S) decomposition for all data sets
     RS.C <- RSpobs(U.C, method="archm")
     RS.G <- RSpobs(U.G, method="archm")
     RS.g <- RSpobs(U.g, method="archm")
@@ -91,112 +229,192 @@ for(d. in d) {
     par(pty="s")
 
 
-    ## 1.1) Checking R #########################################################
+    ## 1.1) R-S decomposition ##################################################
 
-    ## R for Clayton...
+    ## 1.1.1) Checking the radial part R #######################################
 
-    ## Q-Q plot: ... against the correct quantiles
-    file <- paste0("ggof_radial_true=C_H0=C_d=", d.,"_tau=", tau, ".pdf")
-    qqplot2(RS.C$R, qF = function(p) qacR(p, family="Clayton",
-                    theta = iTau(claytonCopula(), tau=tau),
-                    d=d., interval = c(1e-4, 1e2)),
-            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
-                "for"~~italic(F[R])~~"from a Clayton copula")),
-            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
+    ## data: R from Clayton...
+    ## ... Q-Q plot against the F_R quantiles for Clayton (correct quantiles)
+    file <- paste0("ggof_R_H0=C_true=C_d=", d, "_tau=", tau, ".pdf")
+    qq.R.C(RS.C$R, d=d, tau=tau, doPDF=doPDF, file=file)
+    ## ... Q-Q plot against the F_R quantiles for Gumbel
+    file <- paste0("ggof_R_H0=G_true=C_d=", d, "_tau=", tau, ".pdf")
+    qq.R.G(RS.C$R, d=d, tau=tau, doPDF=doPDF, file=file)
+    ## ... Q-Q plot against Gamma quantiles
+    file <- paste0("ggof_R_H0=Gamma_true=C_d=", d, "_tau=", tau, ".pdf")
+    qq.R.g(RS.C$R, d=d, tau=tau, doPDF=doPDF, file=file)
 
-    ## Q-Q plot: ... against the F_R quantiles for Gumbel
-    file <- paste0("ggof_radial_true=C_H0=G_d=", d.,"_tau=", tau, ".pdf")
-    qqplot2(RS.C$R, qF = function(p) qacR(p, family="Gumbel",
-                    theta = iTau(gumbelCopula(), tau=tau),
-                    d=d., interval = c(1+1e-4, 1e2)),
-            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
-                "for"~~italic(F[R])~~"from a Gumbel copula")),
-            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
+    ## data: R from Gumbel...
+    ## ... Q-Q plot against the F_R quantiles for Clayton
+    file <- paste0("ggof_R_H0=C_true=G_d=", d, "_tau=", tau, ".pdf")
+    qq.R.C(RS.G$R, d=d, tau=tau, doPDF=doPDF, file=file)
+    ## ... Q-Q plot against the F_R quantiles for Gumbel (correct quantiles)
+    file <- paste0("ggof_R_H0=G_true=G_d=", d, "_tau=", tau, ".pdf")
+    qq.R.G(RS.G$R, d=d, tau=tau, doPDF=doPDF, file=file)
+    ## ... Q-Q plot against Gamma quantiles
+    file <- paste0("ggof_R_H0=Gamma_true=G_d=", d, "_tau=", tau, ".pdf")
+    qq.R.g(RS.G$R, d=d, tau=tau, doPDF=doPDF, file=file)
 
-    ## Q-Q plot: ... against Gamma quantiles
-    file <- paste0("ggof_radial_true=C_H0=Gamma_d=", d.,"_tau=", tau, ".pdf")
-    qqplot2(RS.C$R, qF = function(p) qgamma(p, shape=th.g),
-            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
-                "for"~~italic(F[R])~~"being Gamma")),
-            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
-
-    ## R for Gumbel...
-
-    ## Q-Q plot: ... against the F_R quantiles quantiles for Clayton
-    file <- paste0("ggof_radial_true=G_H0=C_d=", d.,"_tau=", tau, ".pdf")
-    qqplot2(RS.G$R, qF = function(p) qacR(p, family="Clayton",
-                    theta = iTau(claytonCopula(), tau=tau),
-                    d=d., interval = c(1e-4, 1e2)),
-            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
-                "for"~~italic(F[R])~~"from a Clayton copula")),
-            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
-
-    ## Q-Q plot: ... against the correct quantiles
-    file <- paste0("ggof_radial_true=G_H0=G_d=", d.,"_tau=", tau, ".pdf")
-    qqplot2(RS.G$R, qF = function(p) qacR(p, family="Gumbel",
-                    theta = iTau(gumbelCopula(), tau=tau),
-                    d=d., interval = c(1+1e-4, 1e2)),
-            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
-                "for"~~italic(F[R])~~"from a Gumbel copula")),
-            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
-
-    ## Q-Q plot: ... against Gamma quantiles
-    file <- paste0("ggof_radial_true=G_H0=Gamma_d=", d.,"_tau=", tau, ".pdf")
-    qqplot2(RS.G$R, qF = function(p) qgamma(p, shape=th.g),
-            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
-                "for"~~italic(F[R])~~"being Gamma")),
-            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
-
-    ## Gamma R...
-
-    ## Q-Q plot: ... against the F_R quantiles quantiles for Clayton
-    file <- paste0("ggof_radial_true=Gamma_H0=C_d=", d.,"_tau=", tau, ".pdf")
-    qqplot2(RS.g$R, qF = function(p) qacR(p, family="Clayton",
-                    theta = iTau(claytonCopula(), tau=tau),
-                    d=d., interval = c(1e-4, 1e2)),
-            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
-                "for"~~italic(F[R])~~"from a Clayton copula")),
-            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
-
-    ## Q-Q plot: ... against the F_R quantiles quantiles for Gumbel
-    file <- paste0("ggof_radial_true=Gamma_H0=G_d=", d.,"_tau=", tau, ".pdf")
-    qqplot2(RS.g$R, qF = function(p) qacR(p, family="Gumbel",
-                    theta = iTau(gumbelCopula(), tau=tau),
-                    d=d., interval = c(1+1e-4, 1e2)),
-            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
-                "for"~~italic(F[R])~~"from a Gumbel copula")),
-            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
-
-    ## Q-Q plot: ... against the correct quantiles
-    file <- paste0("ggof_radial_true=Gamma_H0=Gamma_d=", d.,"_tau=", tau, ".pdf")
-    qqplot2(RS.g$R, qF = function(p) qgamma(p, shape=th.g),
-            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
-                "for"~~italic(F[R])~~"being Gamma")),
-            side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
+    ## data: R ~ Gamma...
+    ## ... Q-Q plot against the F_R quantiles for Clayton
+    file <- paste0("ggof_R_H0=C_true=Gamma_d=", d, "_tau=", tau, ".pdf")
+    qq.R.C(RS.g$R, d=d, tau=tau, doPDF=doPDF, file=file)
+    ## ... Q-Q plot against the F_R quantiles for Gumbel
+    file <- paste0("ggof_R_H0=G_true=Gamma_d=", d, "_tau=", tau, ".pdf")
+    qq.R.G(RS.g$R, d=d, tau=tau, doPDF=doPDF, file=file)
+    ## ... Q-Q plot against Gamma quantiles (correct quantiles)
+    file <- paste0("ggof_R_H0=Gamma_true=Gamma_d=", d, "_tau=", tau, ".pdf")
+    qq.R.g(RS.g$R, d=d, tau=tau, doPDF=doPDF, file=file)
 
 
-    ## 1.2) Checking S #########################################################
+    ## 1.1.2) Checking the angular part S ######################################
 
-    TODO: Q-Q plots in log-log scale!
-    TODO: laeuft Obiges?
-    TODO: ab hier
-    TODO: 1 Beispiel wo numerik schiefgeht
+    ## Note (see Devroye (1986, pp. 207)):
+    ##      B_j = S_1+..+S_j = U_{(j)} ~ Beta(j, d-j+1)
+    ## We use j=1 and, if d>2, j=floor(d/2)
+    d2 <- floor(d/2)
 
-    ## 1.3) Checking independence of R and S ###################################
+    ## data: S from Clayton
+    ## B_1 (= S_1)
+    file <- paste0("ggof_B1_true=C_d=", d, "_tau=", tau, ".pdf")
+    qq.angular(RS.C$S[,1], shape1=1, shape2=d, doPDF=doPDF, file=file)
+    ## B_{d/2}
+    if(d > 2) {
+        Sd2.C <- rowSums(RS.C$S[,seq_len(d2)])/rowSums(RS.C$S)
+        file <- paste0("ggof_B", d2, "_true=C_d=", d, "_tau=", tau, ".pdf")
+        qq.angular(Sd2.C, shape1=d2, shape2=d-d2+1, doPDF=doPDF, file=file)
+    }
 
+    ## data: S from Gumbel
+    ## B_1 (= S_1)
+    file <- paste0("ggof_B1_true=G_d=", d, "_tau=", tau, ".pdf")
+    qq.angular(RS.G$S[,1], shape1=1, shape2=d, doPDF=doPDF, file=file)
+    ## B_{d/2}
+    if(d > 2) {
+        Sd2.G <- rowSums(RS.G$S[,seq_len(d2)])/rowSums(RS.G$S)
+        file <- paste0("ggof_B", d2, "_true=C_d=", d, "_tau=", tau, ".pdf")
+        qq.angular(Sd2.G, shape1=d2, shape2=d-d2+1, doPDF=doPDF, file=file)
+    }
+
+    ## data: S from Gamma-R Archimedean copula
+    ## B_1 (= S_1)
+    file <- paste0("ggof_B1_true=Gamma_d=", d, "_tau=", tau, ".pdf")
+    qq.angular(RS.g$S[,1], shape1=1, shape2=d, doPDF=doPDF, file=file)
+    ## B_{d/2}
+    if(d > 2) {
+        Sd2.g <- rowSums(RS.g$S[,seq_len(d2)])/rowSums(RS.g$S)
+        file <- paste0("ggof_B", d2, "_true=Gamma_d=", d, "_tau=", tau, ".pdf")
+        qq.angular(Sd2.g, shape1=d2, shape2=d-d2+1, doPDF=doPDF, file=file)
+    }
+
+
+    ## 1.1.3) Checking independence of R and B_1, B_{d/2} ######################
+
+    ## data: S from Clayton
+    file <- paste0("ggof_indep_R_B1_true=C_d=", d, "_tau=", tau, ".pdf")
+    indepRB(RS.C$R, B=RS.C$S[,1], index=1, doPDF=doPDF, file=file)
+    file <- paste0("ggof_indep_R_B", d2, "_true=C_d=", d, "_tau=", tau, ".pdf")
+    indepRB(RS.C$R, B=Sd2.C, index=d2, doPDF=doPDF, file=file)
+
+    ## data: S from Gumbel
+    file <- paste0("ggof_indep_R_B1_true=G_d=", d, "_tau=", tau, ".pdf")
+    indepRB(RS.G$R, B=RS.G$S[,1], index=1, doPDF=doPDF, file=file)
+    file <- paste0("ggof_indep_R_B", d2, "_true=C_d=", d, "_tau=", tau, ".pdf")
+    indepRB(RS.G$R, B=Sd2.G, index=d2, doPDF=doPDF, file=file)
+
+    ## data: S from Gamma-R Archimedean copula
+    file <- paste0("ggof_indep_R_B1_true=Gamma_d=", d, "_tau=", tau, ".pdf")
+    indepRB(RS.g$R, B=RS.G$S[,1], index=1, doPDF=doPDF, file=file)
+    file <- paste0("ggof_indep_R_B", d2, "_true=C_d=", d, "_tau=", tau, ".pdf")
+    indepRB(RS.g$R, B=Sd2.G, index=d2, doPDF=doPDF, file=file)
+
+
+    ## 1.2) Other idea for checking independence between R and S ###############
+
+    ## data: R from Clayton
+    file <- paste0("ggof_indep_R_S_true=C_d=", d, "_tau=", tau, ".pdf")
+    indepRS(RS.C$R, S=RS.C$S, doPDF=doPDF, file=file, pch=".") # should be independent
+
+    ## data: R from Gumbel
+    file <- paste0("ggof_indep_R_S_true=G_d=", d, "_tau=", tau, ".pdf")
+    indepRS(RS.G$R, S=RS.G$S, doPDF=doPDF, file=file, pch=".") # should be independent
+
+    ## data: R ~ Gamma
+    file <- paste0("ggof_indep_R_S_true=Gamma_d=", d, "_tau=", tau, ".pdf")
+    indepRS(RS.g$R, S=RS.g$S, doPDF=doPDF, file=file, pch=".") # should be independent
+
+
+    ## 1.3) Hofert-Hering transform as GoF test ################################
+
+    ## data: R from Clayton
+    file <- paste0("ggof_htrafo_true=C_d=", d, "_tau=", tau, ".pdf")
+    pairs2(htrafoRS(RS.C$R, S=RS.C$S), gap=0, doPDF=doPDF, file=file)
+
+    ## data: R from Gumbel
+    file <- paste0("ggof_htrafo_true=G_d=", d, "_tau=", tau, ".pdf")
+    pairs2(htrafoRS(RS.G$R, S=RS.G$S), gap=0, doPDF=doPDF, file=file)
+
+    ## data: R ~ Gamma
+    file <- paste0("ggof_htrafo_true=Gamma_d=", d, "_tau=", tau, ".pdf")
+    pairs2(htrafoRS(RS.g$R, S=RS.g$S), gap=0, doPDF=doPDF, file=file)
+}
+
+## setup
+n <- 250 # sample size
+d <- c(2, 10, 50) # dimensions
+tau <- 0.5 # Kendall's tau
+
+## call
+ggofArch(n, d=d[1], tau=tau, doPDF=doPDF)
+ggofArch(n, d=d[2], tau=tau, doPDF=doPDF)
+ggofArch(n, d=d[3], tau=tau, doPDF=doPDF)
+
+
+
+### 2) Exchangeable (but not Archimedean) models ###############################
+
+## main
+ggofExch <- function(n, d, tau, doPDF)
+{
+    ## generate data
+    set.seed(.seed) # set seed
+    rho <- iTau(normalCopula(), tau=tau)
+    U.Ga <- rCopula(n, ellipCopula("normal", param = rho, dim = d))
+    U.t4 <- rCopula(n, ellipCopula("t", param = rho, dim = d, df = 4))
+    th.gL <- if(tau==0.5) 1.5 else # roughly 1.5 for tau==0.5 (we make it 'fast' here)
+             iTauLiouville(tau, alpha=c(4,4), interval=c(1, 10), n.MC=1e5)
+    U.gL <- rLiouville(n, alpha=rep(4, d), theta = th.gL, Rdist="Gamma")
+    if(FALSE)
+        pairs(U.gL, gap=0, pch=".") # check
+
+    ## compute the (R,S) decomposition for all data sets
+    RS.Ga <- RSpobs(U.Ga, method="archm")
+    RS.t4 <- RSpobs(U.t4, method="archm")
+    RS.gL <- RSpobs(U.gL, method="archm")
+
+    ## plot options
+    par(pty="s")
+
+    ## TODO
 
 }
 
+## setup
+n <- 250 # sample size
+d <- c(2, 10, 50) # dimensions
+tau <- 0.5 # Kendall's tau
+
+## call
+ggofExch(n, d=d[1], tau=tau, doPDF=doPDF)
+ggofExch(n, d=d[2], tau=tau, doPDF=doPDF)
+ggofExch(n, d=d[3], tau=tau, doPDF=doPDF)
+
+2.2) check R with RS-decomposition
+...
+2.3) map hering hofert
+Was meint johanna mit unterer 2. Tafel?
 
 
-
-
-### 2) Meta-elliptical models ##################################################
-
-## Note: This does not work too well, since there is no non-parametric estimator
-##       of the distribution of the radial part!
-
-### 2.1) Checking R ############################################################
 
 ## setup
 n <- 250 # sample size
@@ -225,7 +443,7 @@ for(st in SigmaType) {
         X.norm <- rmvnorm(n, mean=mu, sigma=Sigma) # multivariate normal data
         X.t <- rep(mu, each=n) + rmvt(n, sigma=Sigma, df=nu) # multivariate t_nu data
 
-        ## compute the (R, S) decomposition
+        ## compute the (R,S) decomposition
         RS.norm.norm <- RSpobs(X.norm, method="ellip", qQg=qnorm)
         RS.norm.t <- RSpobs(X.norm, method="ellip", qQg=function(p) qt(p, df=nu))
         RS.t.norm <- RSpobs(X.t, method="ellip", qQg=qnorm)
@@ -265,115 +483,13 @@ for(st in SigmaType) {
     }
 }
 
-## TODO: ab hier: simplify, use pdf features...
 
 
+### 3) Non-exchangeable models #################################################
 
-require(mvtnorm)
-require(copula)
-
-d <- 10
-rho <- 0.5
-mu <- rep(0, d)
-n <- 1000
-Sigma <- outer(1:d, 1:d, FUN=function(i,j) rho^abs(i-j))
-set.seed(.seed)
-X.norm <- rmvnorm(n, mean=mu, sigma=Sigma) # multivariate normal data
-X.t <- rep(mu, each=n) + rmvt(n, sigma=Sigma, df=4) # multivariate t data
-X <- X.t
-
-RS.norm <- RSpobs(X, method="ellip", qQg=qnorm)
-RS.t2  <- RSpobs(X, method="ellip", qQg=function(p) qt(p, df=2))
-RS.t4  <- RSpobs(X, method="ellip", qQg=function(p) qt(p, df=4))
-RS.t10 <- RSpobs(X, method="ellip", qQg=function(p) qt(p, df=10))
-
-dens.norm <- density(RS.norm$R)
-dens.t2 <- density(RS.t2$R)
-dens.t4 <- density(RS.t4$R)
-dens.t10 <- density(RS.t10$R)
-
-xran <- range(dens.norm$x, dens.t2$x, dens.t4$x, dens.t10$x)
-yran <- range(dens.norm$y, dens.t2$y, dens.t4$y, dens.t10$y)
-## normal
-plot(dens.norm, xlim=xran, ylim=yran, lty=2)
-x <- dens.t2$x
-lines(x, 2*x*dchisq(x^2, df=d))
-## t2
-lines(dens.t2, col="red", lty=2)
-lines(x, 2*x*df(x^2/d, df1=d, df2=2)/d, col="red")
-## t4
-lines(dens.t4, col="darkgreen", lty=2) # estimate
-lines(x, 2*x*df(x^2/d, df1=d, df2=4)/d, col="darkgreen") # true
-## t10
-lines(dens.t10, col="blue", lty=2) # estimate
-lines(x, 2*x*df(x^2/d, df1=d, df2=10)/d, col="blue") # true
-
-
-
-## ## 2.1.2) Q-Q plot of the angular distribution (Bmat[,k] should follow a Beta(k/2, (d-k)/2) distribution)
-## Bmat <- gofBTstat(S.t)
-## qqp(1, Bmat=Bmat) # k=1
-## qqp(3, Bmat=Bmat) # k=3
-
-## ## 2.1.3) Check independence between radial part and B_1 and B_3
-## plot(pobs(cbind(R.t, Bmat[,1])), xlab=expression(italic(R)), ylab=expression(italic(B)[1]),
-##      main=expression(bold("Rank plot between"~~italic(R)~~"and"~~italic(B)[1])))
-## plot(pobs(cbind(R.t, Bmat[,3])), xlab=expression(italic(R)), ylab=expression(italic(B)[3]),
-##      main=expression(bold("Rank plot between"~~italic(R)~~"and"~~italic(B)[3])))
-
-
-
-
-## ## compute pseudo-observations of the radial part
-## RS.C <- RSpobs(U.C, method="ellip")
-## R.C <- RS.C$R
-## S.C <- RS.C$S
-## RS.G <- RSpobs(U.G, method="ellip")
-## R.G <- RS.G$R
-## S.G <- RS.G$S
-
-## ## 2.3.1) Q-Q plot of R against the quantiles of F_R for a multivariate t_4 distribution
-## qqplot2(R.C, qF=function(p) sqrt(d*qf(p, df1=d, df2=nu)),
-##         main.args=list(text=as.expression(substitute(bold(italic(F[list(d.,nu.)](r^2/d.))~~"Q-Q Plot"),
-##             list(d.=d, nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA))
-
-## ## 2.3.2) Q-Q plot of R against the quantiles of F_R for a multivariate t_4 distribution
-## qqplot2(R.G, qF=function(p) sqrt(d*qf(p, df1=d, df2=nu)),
-##         main.args=list(text=as.expression(substitute(bold(italic(F[list(d.,nu.)](r^2/d.))~~"Q-Q Plot"),
-##             list(d.=d, nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA))
-
-## ## 2.3.3) Q-Q plot of the angular distribution (Bmat[,k] should *not* follow a Beta(k/2, (d-k)/2) distribution anymore)
-## Bmat.C <- gofBTstat(S.C)
-## Bmat.G <- gofBTstat(S.G)
-## qqp(1, Bmat=Bmat.C) # k=1
-## qqp(3, Bmat=Bmat.C) # k=3
-## qqp(1, Bmat=Bmat.G) # k=1
-## qqp(3, Bmat=Bmat.G) # k=3
-
-## ## 2.3.4) Check independence between radial part and B_1 and B_3
-## plot(pobs(cbind(R.C, Bmat.C[,1])), xlab=expression(italic(R)), ylab=expression(italic(B)[1]),
-##      main=expression(bold("Rank plot between"~~italic(R)~~"and"~~italic(B)[1])))
-## plot(pobs(cbind(R.G, Bmat.G[,1])), xlab=expression(italic(R)), ylab=expression(italic(B)[1]),
-##      main=expression(bold("Rank plot between"~~italic(R)~~"and"~~italic(B)[1])))
-
-
-### 3) Meta-Archimedean ########################################################
-
-if(FALSE) {
-    ## checking qacR()
-    set.seed(.seed)
-    n <- 250
-    d <- 5
-    th <- 2
-    family <- "Gumbel"
-    p <- ppoints(n)
-    qR <- qacR(p, family=family, theta=th, d=d, interval=c(0, 200)) # ~ 20s
-    p. <- pacR(qR, family=family, theta=th, d=d) # check
-    summary(p-p.) # => fine
-}
-
-## generate data from a meta-Gumbel model with N(0,1) margins
-require(copula)
+3.1) generate data from 3rd board
+3.2) do RS decomposition
+3.3)
 
 ## Johanna Ziegel...
 set.seed(.seed)
@@ -392,23 +508,6 @@ X. <- A %*% U # (d,d)*(d,n)=(d,n)
 X <- t(rep(R, each=d) * X.)
 ## pairs(pobs(X))
 
-## Liouville
-n <- 250
-theta <- 0.6
-alpha <- c(1, 5, 20)
-source(system.file("Rsource", "AC-Liouville.R", package="copula"))
-U <- rLiouville(n, alpha=alpha, theta=theta, Rdist="Gamma")
-pairs(U)
-
-familyTrue <- "normal" # Gumbel, Clayton, t4 vs. Gumbel/Frank + work in log-log-space
-tau <- 0.5
-n <- 250
-d <- 5
-df <- 4
-##th <- iTau(archmCopula(familyTrue), tau)
-th <- iTau(ellipCopula(familyTrue, df=df), tau)
-##cop <- archmCopula(familyTrue, param=th, dim=d)
-cop <- ellipCopula(familyTrue, param=th, dim=d, df=df)
 
 tau <- c(0.2, 0.6, 0.8)
 r <- iTau(ellipCopula(familyTrue, df=df), tau)
@@ -419,124 +518,100 @@ P <- c(r[2], r[1], r[1], r[1], # upper triangle (without diagonal) of correlatio
 cop <- ellipCopula(familyTrue, param=P, dim=d, dispstr="un", df=df)
 
 
+
+### 4) Checking the density of R for the (not so well-working) *elliptical* case
+
+## Problem: no non-parametric estimator for the density generator known.
+## Density estimates still work comparably well.
+
+## simulate t_4 data
+n <- 1000
+d <- 10
+rho <- 0.5
+mu <- rep(0, d)
+Sigma <- outer(1:d, 1:d, FUN=function(i,j) rho^abs(i-j))
 set.seed(.seed)
-## U <- rCopula(n, copula=cop)
-## X <- qnorm(U)
+X.t <- rep(mu, each=n) + rmvt(n, sigma=Sigma, df=4) # multivariate t data
 
-## (R, S) decomposition
-## debug(RSpobs)
-##n <- 50
-U <- rCopula(n, copula=cop)
-X <- qnorm(U)
+## (R,S) decomposition
+RS.norm <- RSpobs(X.t, method="ellip", qQg=qnorm)
+RS.t2   <- RSpobs(X.t, method="ellip", qQg=function(p) qt(p, df=2))
+RS.t4   <- RSpobs(X.t, method="ellip", qQg=function(p) qt(p, df=4)) # true
+RS.t10  <- RSpobs(X.t, method="ellip", qQg=function(p) qt(p, df=10))
 
-#debug(RSpobs)
-RS.G <- RSpobs(X, method="archm")
-plot(RS.G$Rpn)
+## R density estimates
+## (already under the 'assumed' model (due to (R,S) decomposition
+##  in the *elliptical* case))
+d.hat.norm <- density(RS.norm$R)
+d.hat.t2   <- density(RS.t2$R)
+d.hat.t4   <- density(RS.t4$R) # true
+d.hat.t10  <- density(RS.t10$R)
 
-## Q-Q plot: R Gumbel against the correct quantiles
-## file <- paste0("ggof_radial_true=G_2_H0=.pdf")
-## start.pdf(file=file, doPDF=doPDF)
-## par(pty="s") # use a square plotting region
-familyTest <- "Gumbel"
-## qqplot2(RS.G$R,   qF=function(p) qacR(p, family=familyTest, theta=th, d=d, interval=c(0, 1e12)))
-## TODO: theta has to be estimated
-tau.emp <- cor(U, method="kendall")
-th.hat <- iTau(archmCopula(familyTest), mean(tau.emp[upper.tri(tau.emp)]))
-th.hat <- iTau(archmCopula(familyTest), 0.5)
+## x range
+xran <- c(4e-1, max(dens.norm$x, dens.t2$x, dens.t4$x, dens.t10$x))
+x <- seq(xran[1], xran[2], length.out=513)
 
-## qqplot2(RS.G$Rpn, qF=function(p) qacR(p, family=familyTest, theta=th.hat, d=d, interval=c(0, 1e12)))
+## corresponding theoretical R densities
+d.norm <- 2*x*dchisq(x^2, df=d)
+d.t2   <- 2*x*df(x^2/d, df1=d, df2=2)/d
+d.t4   <- 2*x*df(x^2/d, df1=d, df2=4)/d
+d.t10  <- 2*x*df(x^2/d, df1=d, df2=10)/d
 
-qqplot2(log(RS.G$Rpn), qF=function(p) log(qacR(p, family=familyTest, theta=th.hat, d=d, interval=c(0, 1e12)))) # TODO: use upper interval limit = max(RS.G$Rpn)+1... or s.th. data-constructed
-
-qqplot2(log(RS.G$Rpn), qF=function(p) log(qgamma(p, shape=d))) # under independence
-
-
-
-## S
-## qqplot2(RS.G$S[,1], qF=function(p) qbeta(p, shape=1, shape2=d-1))
-
-qqplot2(RS.G$Spn[,1], qF=function(p) qbeta(p, shape=1, shape2=d-1))
-qqplot2(RS.G$Spn[,2], qF=function(p) qbeta(p, shape=1, shape2=d-1))
-qqplot2(RS.G$Spn[,3], qF=function(p) qbeta(p, shape=1, shape2=d-1))
-qqplot2(RS.G$Spn[,4], qF=function(p) qbeta(p, shape=1, shape2=d-1))
-qqplot2(RS.G$Spn[,5], qF=function(p) qbeta(p, shape=1, shape2=d-1))
-
-## a different graphical test
-R <- RS.G$Rpn
-S <- RS.G$Spn
-qR <- qgamma(rank(R)/(n+1), shape=d) # make it Gamma(d) (=> corresponding to independence)
-pairs(pobs(qR*S)) # should be independent!
-
-## independence
-plot(pobs(cbind(RS.G$Rpn, RS.G$Spn[,1])))
-plot(pobs(cbind(RS.G$Rpn, RS.G$Spn[,2])))
-plot(pobs(cbind(RS.G$Rpn, RS.G$Spn[,3])))
-plot(pobs(cbind(RS.G$Rpn, RS.G$Spn[,4])))
-plot(pobs(cbind(RS.G$Rpn, RS.G$Spn[,5])))
-
-pairs(pobs(cbind(RS.G$Rpn, RS.G$Spn)), gap=0, cex=0.1) #
-
-pairs(X, gap=0, cex=0.1)
-pairs(U, gap=0, cex=0.1)
-## Bmat.C <- gofBTstat(S.C)
-## Bmat.G <- gofBTstat(S.G)
-## qqp(1, Bmat=Bmat.C) # k=1
-## qqp(3, Bmat=Bmat.C) # k=3
-## qqp(1, Bmat=Bmat.G) # k=1
-## qqp(3, Bmat=Bmat.G) # k=3
-
-
-## playing with htrafo()
-lpsiI <- log(RS.G$Spn)
-lcumsum <- matrix(unlist(lapply(1:d, function(j)
-                                copula:::lsum(t(lpsiI[,1:j, drop=FALSE])))),
-                  ncol=d)
-u. <- matrix(unlist(lapply(1:(d-1),
-                           function(k) exp(k*(lcumsum[,k]-
-                                              lcumsum[,k+1])) )),
-             ncol=d-1) # transformed components (uniform under H_0)
-U. <- cbind(u., rank(RS.G$Rpn)/(n+1))
-pairs(U., gap=0, cex=0.1)
-
-## numerical check of F_R for Clayton (!)
-
-## setup
-family <- "Clayton"
-tau <- 0.5
-m <- 256
-dmax <- 20
-x <- seq(0, 20, length.out=m)
-
-## compute and plot pacR() for various d's
-y <- vapply(1:dmax, function(d)
-            pacR(x, family=family, theta=iTau(archmCopula(family), tau), d=d),
-            rep(NA_real_, m))
-plot(x, y[,1], type="l", ylim=c(0,1),
-     xlab = expression(italic(x)),
-     ylab = substitute(italic(F[R](x))~~"for d=1:"*dm, list(dm=dmax)))
-for(k in 2:dmax) lines(x, y[,k])
+## plot of density estimate based on
+yran <- c(0, max(d.hat.norm$y, d.hat.t2$y, d.hat.t4$y, d.hat.t10$y,
+                 d.norm, d.t2, d.t4, d.t10))
+## normal
+plot(dens.norm, xlim=xran, ylim=yran, lty=2, log="x",
+     xlab=expression(italic(R)),
+     main="R density estimates vs assumed, theoretical densities") # R density estimate
+lines(x, d.norm) # 'true' if norm was correct
+## t2
+lines(dens.t2, col="red", lty=2) # R density estimate
+lines(x, d.t2, col="red") # 'true' if t2 was correct
+## t4
+lines(dens.t4, col="darkgreen", lty=2) # R density estimate
+lines(x, d.t4, col="darkgreen") # true
+## t10
+lines(dens.t10, col="blue", lty=2) # R density estimate
+lines(x, d.t10, col="blue") # 'true' if t10 was correct
+## legend
+legend("topright", inset=0.04, bty="n", lty=rep(1:2, 4),
+       col=rep(c("black", "red", "darkgreen", "blue"), each=2),
+       legend=c(expression(italic(N)), expression(italic(N)),
+                expression(italic(t)[2]), expression(italic(t)[2]),
+                expression(italic(t)[4]~~"(true)"), expression(italic(t)[4]),
+                expression(italic(t)[10]), expression(italic(t)[10])) )
 
 
 
+### 5) Application #############################################################
 
-        ## main.args=list(text=as.expression(substitute(bold(italic(F[list(d..,nu.)](r^2/d..))~~"Q-Q Plot"),
-        ##     list(d..=d, nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA))
+##' @title -log-likelihood for t copulas
+##' @param nu d.o.f. parameter
+##' @param P standardized dispersion matrix
+##' @param u data matrix (in [0,1]^d)
+##' @return -log-likelihood for a t copula
+##' @author Marius Hofert
+nLLt <- function(nu, P, u) {
+    stopifnot(require(mvtnorm))
+    stopifnot((d <- ncol(u))==ncol(P), ncol(P)==nrow(P))
+    qtu <- qt(u, df=nu)
+    ldtnu <- function(u, P, nu) dmvt(qtu, sigma=P, df=nu, log=TRUE) -
+        rowSums(dt(qtu, df=nu, log=TRUE)) # t copula log-density
+    -sum(ldtnu(u, P=P, nu=nu))
+}
 
-## dev.off.pdf(file=file, doPDF=doPDF, doCrop=doCrop)
-
-
-### 4) Application #############################################################
-
+## data, log-returns, pseudo-observations
 data(SMI.12)
 d <- ncol(x <- diff(log(SMI.12))) # log-returns
 u <- pobs(x) # pseudo-observations
-tau <- cor(u, method="kendall") # = cor(x, method="kendall")
+tau <- cor(u, method="kendall")
 
-## plot TODO: visualize matrix of pairwise tau! => not Archimedean
+## TODO: visualize matrix of pairwise tau! => not Archimedean
+image(M, colorkey=TRUE, col.regions=gray((1:15)/16))
 
-## 4.1) estimate a multivariate t copula (with the approach of
-##      Demarta, McNeil (2005)) assuming [and later checking] if
-##      the data comes from a meta-t-model
+## Estimate a multivariate t copula (with the approach of Demarta, McNeil (2005))
+## assuming [and later checking] if the data comes from a meta-t-model
 
 ## estimate P
 P <- as.matrix(nearPD(sin(cor(x, method="kendall")*pi/2), corr=TRUE)$mat)
@@ -547,26 +622,28 @@ nLL <- sapply(nu, nLLt, P=P, u=u)
 plot(nu, nLL+1200, type="l", log="xy",
      main=expression(bold("Negative log-likelihood as a function in"~~nu)),
      xlab=bquote(nu), ylab=expression(1200-logL(nu)))
-## now we got the picture, find the minimum:
+## now that we got the picture, find the minimum:
 nu. <- optimize(nLLt, interval=c(.5, 64), P=P, u=u, tol=1e-7)$minimum # 11.96
 
-## 4.2) checking if the data indeed comes from a meta-t_{nu.}-model
+## Checking if the data indeed comes from a meta-t_{nu.}-model
 RS.t <- RSpobs(x, method="ellip")
 R.t <- RS.t$R
 S.t <- RS.t$S
 
-## 4.2.1) Q-Q plot of R against the quantiles of F_R for the estimated t distribution
-qqplot2(R.t, qF=function(p) sqrt(d*qf(p, df1=d, df2=nu.)),
-        main.args=list(text=as.expression(substitute(bold(italic(F[list(d.,nu.)](r^2/d.))~~"Q-Q Plot"),
-            list(d.=d, nu.=round(nu.,2)))), side=3, cex=1.3, line=1.1, xpd=NA))
+## TODO: new... not sure yet what we should do in this case.
 
-## 4.2.2) Q-Q plot of the angular distribution (Bmat[,k] should follow a Beta(k/2, (d-k)/2) distribution)
-Bmat <- gofBTstat(S.t)
-qqp(1, Bmat=Bmat) # k=1
-qqp(10, Bmat=Bmat) # k=10
+## ## Q-Q plot of R against the quantiles of F_R for the estimated t distribution
+## qqplot2(R.t, qF=function(p) sqrt(d*qf(p, df1=d, df2=nu.)),
+##         main.args=list(text=as.expression(substitute(bold(italic(F[list(d.,nu.)](r^2/d.))~~"Q-Q Plot"),
+##             list(d.=d, nu.=round(nu.,2)))), side=3, cex=1.3, line=1.1, xpd=NA))
 
-## 4.2.3) Check independence between radial part and B_1 and B_3
-plot(pobs(cbind(R.t, Bmat[,1])), xlab=expression(italic(R)), ylab=expression(italic(B)[1]),
-     main=expression(bold("Rank plot between"~~italic(R)~~"and"~~italic(B)[1])))
-plot(pobs(cbind(R.t, Bmat[,10])), xlab=expression(italic(R)), ylab=expression(italic(B)[10]),
-     main=expression(bold("Rank plot between"~~italic(R)~~"and"~~italic(B)[10])))
+## ## Q-Q plot of the angular distribution (Bmat[,k] should follow a Beta(k/2, (d-k)/2) distribution)
+## Bmat <- gofBTstat(S.t)
+## qqp(1, Bmat=Bmat) # k=1
+## qqp(10, Bmat=Bmat) # k=10
+
+## ## Check independence between radial part and B_1 and B_3
+## plot(pobs(cbind(R.t, Bmat[,1])), xlab=expression(italic(R)), ylab=expression(italic(B)[1]),
+##      main=expression(bold("Rank plot between"~~italic(R)~~"and"~~italic(B)[1])))
+## plot(pobs(cbind(R.t, Bmat[,10])), xlab=expression(italic(R)), ylab=expression(italic(B)[10]),
+##      main=expression(bold("Rank plot between"~~italic(R)~~"and"~~italic(B)[10])))
