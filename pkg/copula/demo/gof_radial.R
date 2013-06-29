@@ -33,11 +33,14 @@ source(system.file("Rsource", "AC-Liouville.R", package="copula"))
 
 ## basic settings
 .seed <- 271 # for seeding
-doPDF <- TRUE # whether plotting is done to pdf; TODO FALSE
+doPDF <- TRUE # whether plotting is done to pdf
+dev.off.pdf <- copula:::dev.off.pdf # for plotting to pdf
 
 
 
-### 0) Minor checks ############################################################
+### 0) Preliminaries ###########################################################
+
+### 0.1) minor check ###########################################################
 
 if(FALSE) {
 
@@ -68,13 +71,11 @@ if(FALSE) {
 
 }
 
+if(FALSE)
+    image(Matrix(1:16, 4, 4), colorkey=TRUE) # in contrast to image('base'-matrix), this is *correct*
 
 
-### 1) Archimedean models ######################################################
-
-## Data from a Clayton, Gumbel, and Gamma-Archimedean (R ~ Gamma) copula
-
-## auxiliary functions
+### 0.2) Auxiliary functions ###################################################
 
 ## Q-Q plot for R against the F_R quantiles for Clayton
 qq.R.C <- function(x, d, tau, doPDF, file)
@@ -121,21 +122,7 @@ indepRB <- function(R, B, index, doPDF, file, width=6, height=6, crop=NULL, ...)
          main=substitute(bold("Rank plot between"~~italic(R)~~"and"~~italic(B)[i]),
          list(i=index)), ...)
     ## pdf device
-    if(doPDF) {
-        r <- dev.off(...)
-        iNcrop <- is.null(crop)
-        if(.Platform$OS.type != "unix" && iNcrop) {
-            warning("'crop = NULL' is only suitable for Unix") # => continue without cropping
-        } else { # cropping
-            f <- file.path(getwd(), file)
-            if(iNcrop) { # crop with default command
-                system(paste("pdfcrop --pdftexcmd pdftex", f, f, "1>/dev/null 2>&1"))
-            } else if(nzchar(crop)) { # crop != "" crop with provided command
-                system(crop)
-            }
-        }
-        invisible(r)
-    } else invisible() # return invisibly
+    if(doPDF) dev.off.pdf(file=file) else dev.off()
 }
 
 ## check independence of R and S (via mapping R to Gamma(d))
@@ -149,21 +136,7 @@ indepRS <- function(R, S, doPDF, file, width=6, height=6, crop=NULL, ...)
           labels=as.expression( sapply(seq_len(d), function(j) bquote(italic(tilde(R)S[.(j)]))) ),
           ...)
     ## pdf device
-    if(doPDF) {
-        r <- dev.off(...)
-        iNcrop <- is.null(crop)
-        if(.Platform$OS.type != "unix" && iNcrop) {
-            warning("'crop = NULL' is only suitable for Unix") # => continue without cropping
-        } else { # cropping
-            f <- file.path(getwd(), file)
-            if(iNcrop) { # crop with default command
-                system(paste("pdfcrop --pdftexcmd pdftex", f, f, "1>/dev/null 2>&1"))
-            } else if(nzchar(crop)) { # crop != "" crop with provided command
-                system(crop)
-            }
-        }
-        invisible(r)
-    } else invisible() # return invisibly
+    if(doPDF) dev.off.pdf(file=file) else dev.off()
 }
 
 ## htrafo() for (R,S) data
@@ -189,23 +162,14 @@ pairs2 <- function(x, gap=0, doPDF, file, width=6, height=6, crop=NULL, ...)
           labels=as.expression( sapply(seq_len(d), function(j) bquote(italic(U*"'"[.(j)]))) ),
           ...)
     ## pdf device
-    if(doPDF) {
-        r <- dev.off(...)
-        iNcrop <- is.null(crop)
-        if(.Platform$OS.type != "unix" && iNcrop) {
-            warning("'crop = NULL' is only suitable for Unix") # => continue without cropping
-        } else { # cropping
-            f <- file.path(getwd(), file)
-            if(iNcrop) { # crop with default command
-                system(paste("pdfcrop --pdftexcmd pdftex", f, f, "1>/dev/null 2>&1"))
-            } else if(nzchar(crop)) { # crop != "" crop with provided command
-                system(crop)
-            }
-        }
-        invisible(r)
-    } else invisible() # return invisibly
+    if(doPDF) dev.off.pdf(file=file) else dev.off()
 }
 
+
+
+### 1) Archimedean models ######################################################
+
+## Data from a Clayton, Gumbel, and Gamma-Archimedean (R ~ Gamma) copula
 
 ## main
 ggofArch <- function(n, d, tau, doPDF)
@@ -395,7 +359,7 @@ ggofExch <- function(n, d, tau, doPDF)
     ## plot options
     par(pty="s")
 
-    ## TODO
+    ## TODO: continue with checks
 
 }
 
@@ -409,84 +373,11 @@ ggofExch(n, d=d[1], tau=tau, doPDF=doPDF)
 ggofExch(n, d=d[2], tau=tau, doPDF=doPDF)
 ggofExch(n, d=d[3], tau=tau, doPDF=doPDF)
 
-2.2) check R with RS-decomposition
-...
-2.3) map hering hofert
-Was meint johanna mit unterer 2. Tafel?
-
-
-
-## setup
-n <- 250 # sample size
-d <- c(2, 10) # c(2, 10, 50, 100) # dimensions; numerically critical (due to estimator of P) for d > n/2
-nu <- 1 # degrees of freedom
-rho <- 0.5 # equi-correlation parameter
-SigmaType <- c("EC", "AR") # equi-correlation, autoregressive
-
-## go through the Sigma types and dimensions
-for(st in SigmaType) {
-    for(d. in d) {
-
-        ## generate multivariate normal and t data
-        set.seed(.seed) # set seed
-        mu <- rep(0, d.) # mean (does not make a difference in our setup)
-        Sigma <- switch(st, # standardized dispersion matrix
-                        "EC" = {
-                            Sigma <- matrix(rep(rho, d.*d.), nrow=d., ncol=d.)
-                            diag(Sigma) <- rep(1, d.)
-                            Sigma
-                        },
-                        "AR" = {
-                            outer(1:d., 1:d., FUN=function(i,j) rho^abs(i-j))
-                        },
-                        stop("wrong method"))
-        X.norm <- rmvnorm(n, mean=mu, sigma=Sigma) # multivariate normal data
-        X.t <- rep(mu, each=n) + rmvt(n, sigma=Sigma, df=nu) # multivariate t_nu data
-
-        ## compute the (R,S) decomposition
-        RS.norm.norm <- RSpobs(X.norm, method="ellip", qQg=qnorm)
-        RS.norm.t <- RSpobs(X.norm, method="ellip", qQg=function(p) qt(p, df=nu))
-        RS.t.norm <- RSpobs(X.t, method="ellip", qQg=qnorm)
-        RS.t.t <- RSpobs(X.t, method="ellip", qQg=function(p) qt(p, df=nu))
-
-        ## plot options
-        par(pty="s")
-
-        ## Q-Q plot: R normal against the correct quantiles
-        file <- paste0("ggof_radial_true=normal_H0=normal_d=", d.,"_Sigma=", st, ".pdf")
-        qqplot2(RS.norm.norm$R, qF=function(p) sqrt(qchisq(p, df=d.)),
-                main.args=list(text=as.expression(substitute(bold(italic(chi[d..])~~"Q-Q Plot"), list(d..=d.))),
-                side=3, cex=1.3, line=1.1, xpd=NA),
-                doPDF=doPDF, file=file)
-
-        ## Q-Q plot: R normal against the quantiles of F_g for a multivariate t_nu distribution
-        file <- paste0("ggof_radial_true=normal_H0=t4_d=", d.,"_Sigma=", st, ".pdf")
-        qqplot2(RS.norm.t$R, qF=function(p) sqrt(d.*qf(p, df1=d., df2=nu)),
-                main.args=list(text=as.expression(substitute(bold(italic(F[list(d..,nu.)](r^2/d..))~~"Q-Q Plot"),
-                    list(d..=d., nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA),
-                doPDF=doPDF, file=file))
-
-        ## Q-Q plot: R t_nu against the quantiles of F_g for a multivariate normal distribution
-        file <- paste0("ggof_radial_true=t4_H0=normal_d=", d.,"_Sigma=", st, ".pdf")
-        qqplot2(RS.t.norm$R, qF=function(p) sqrt(qchisq(p, df=d.)),
-                main.args=list(text=as.expression(substitute(bold(italic(chi[d..])~~"Q-Q Plot"), list(d..=d.))),
-                side=3, cex=1.3, line=1.1, xpd=NA),
-                doPDF=doPDF, file=file))
-
-        ## Q-Q plot: R t_nu against the correct quantiles
-        file <- paste0("ggof_radial_true=t4_H0=t4_d=", d., "_Sigma=", st, ".pdf")
-        qqplot2(RS.t.t$R, qF=function(p) sqrt(d.*qf(p, df1=d., df2=nu)),
-                main.args=list(text=as.expression(substitute(bold(italic(F[list(d..,nu.)](r^2/d..))~~"Q-Q Plot"),
-                    list(d..=d., nu.=nu))), side=3, cex=1.3, line=1.1, xpd=NA),
-                doPDF=doPDF, file=file))
-
-    }
-}
-
 
 
 ### 3) Non-exchangeable models #################################################
 
+TODO
 3.1) generate data from 3rd board
 3.2) do RS decomposition
 3.3)
@@ -561,6 +452,10 @@ d.t10  <- 2*x*df(x^2/d, df1=d, df2=10)/d
 yran <- c(0, max(d.hat.norm$y, d.hat.t2$y, d.hat.t4$y, d.hat.t10$y,
                  d.norm, d.t2, d.t4, d.t10))
 ## normal
+if(doPDF) {
+    file <- paste0("ggof_radial_densities_true=t4_d=", d, ".pdf")
+    pdf(file=file, width=width, height=height)
+}
 plot(dens.norm, xlim=xran, ylim=yran, lty=2, log="x",
      xlab=expression(italic(R)),
      main="R density estimates vs assumed, theoretical densities") # R density estimate
@@ -581,6 +476,7 @@ legend("topright", inset=0.04, bty="n", lty=rep(1:2, 4),
                 expression(italic(t)[2]), expression(italic(t)[2]),
                 expression(italic(t)[4]~~"(true)"), expression(italic(t)[4]),
                 expression(italic(t)[10]), expression(italic(t)[10])) )
+if(doPDF) dev.off.pdf(file=file) else dev.off()
 
 
 
@@ -605,10 +501,16 @@ nLLt <- function(nu, P, u) {
 data(SMI.12)
 d <- ncol(x <- diff(log(SMI.12))) # log-returns
 u <- pobs(x) # pseudo-observations
-tau <- cor(u, method="kendall")
 
-## TODO: visualize matrix of pairwise tau! => not Archimedean
-image(M, colorkey=TRUE, col.regions=gray((1:15)/16))
+## pairwise Kendall's tau
+tau <- cor(u, method="kendall")
+tau. <- Matrix(tau) # 'Matrix' object
+if(doPDF) {
+    file <- paste0("ggof_SMI_tau_n.pdf")
+    pdf(file=file, width=width, height=height)
+}
+image(tau., colorkey=TRUE, main="Pairwise sample versions of Kendall's tau") # => non-exchangeable; range(tau.[upper.tri(tau.)]) = (0.0880981, 0.6879079)
+if(doPDF) dev.off.pdf(file=file) else dev.off()
 
 ## Estimate a multivariate t copula (with the approach of Demarta, McNeil (2005))
 ## assuming [and later checking] if the data comes from a meta-t-model

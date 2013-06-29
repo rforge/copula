@@ -240,9 +240,8 @@ qqplot2 <- function(x, qF, log="", qqline.args=list(distribution=qF,
     n <- length(x.)
     p <- ppoints(n)
     q <- qF(p)
-    ## pdf device
-    if(doPDF) pdf(file=file, width=width, height=height)
     ## plot points
+    if(doPDF) pdf(file=file, width=width, height=height)
     plot(q, x., xlab=xlab, ylab=ylab, log=log, ...) # empirical vs. theoretical quantiles
     do.call(mtext, main.args)
     ## plot the line (overplots points, but that's good for the eye!)
@@ -286,20 +285,5 @@ qqplot2 <- function(x, qF, log="", qqline.args=list(distribution=qF,
         ## info
         if(!is.null(CI.mtext)) do.call(mtext, CI.mtext)
     }
-    ## pdf device
-    if(doPDF) {
-        r <- dev.off(...)
-        iNcrop <- is.null(crop)
-        if(.Platform$OS.type != "unix" && iNcrop) {
-            warning("'crop = NULL' is only suitable for Unix") # => continue without cropping
-        } else { # cropping
-            f <- file.path(getwd(), file)
-            if(iNcrop) { # crop with default command
-                system(paste("pdfcrop --pdftexcmd pdftex", f, f, "1>/dev/null 2>&1"))
-            } else if(nzchar(crop)) { # crop != "" crop with provided command
-                system(crop)
-            }
-        }
-        invisible(r)
-    } else invisible() # return invisibly
+    if(doPDF) dev.off.pdf(file=file) else dev.off()
 }
