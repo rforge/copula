@@ -79,29 +79,35 @@ if(FALSE)
 ### 0.2) Auxiliary functions ###################################################
 
 ## Q-Q plot for R against the F_R quantiles for Clayton
+## note: qacR(ppoints(n), ...) has to work (=> adjust interval accordingly)
 qq.R.C <- function(x, d, tau, doPDF, file)
-    qqplot2(x, qF = function(p) qacR(p, family="Clayton",
-               theta = iTau(claytonCopula(), tau=tau),
-               d=d, interval = c(1e-4, 1e2)), log="xy",
-            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
+    qqplot2(x, qF=function(p) qacR(p, family="Clayton",
+               theta=iTau(claytonCopula(), tau=tau),
+               d=d, interval=c(1e-4, 1e10)), log="xy", # interval
+            main.args=list(text=expression(bold(italic(F[R]^-1)~~"Q-Q Plot"~~
                 "for"~~italic(F[R])~~"from a Clayton copula")),
             side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
 
 ## Q-Q plot for R against the F_R quantiles for Gumbel
+## note: - qacR(ppoints(n), ...) has to work (=> adjust interval accordingly)
+##       - work with higher precision here since
+##         qacR(0.002, family="Gumbel", theta=iTau(gumbelCopula(), tau=0.5), d=2,
+##              interval=c(1e-5, 1e+2))
+##         gives 1e-5
 qq.R.G <- function(x, d, tau, doPDF, file)
-    qqplot2(x, qF = function(p) qacR(p, family="Gumbel",
-               theta = iTau(gumbelCopula(), tau=tau),
-               d=d, interval = c(1+1e-4, 1e2)), log="xy",
-            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
+    qqplot2(x, qF=function(p) qacR(p, family="Gumbel",
+                    theta=iTau(gumbelCopula(), tau=tau),
+                    d=d, interval=c(1e-5, 1e2), tol=.Machine$double.eps^0.5), log="xy", # interval
+            main.args=list(text=expression(bold(italic(F[R]^-1)~~"Q-Q Plot"~~
                 "for"~~italic(F[R])~~"from a Gumbel copula")),
             side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
 
 ## Q-Q plot for R against Gamma quantiles
 qq.R.g <- function(x, d, tau, doPDF, file)
 {
-    th <- iTauACsimplex(tau, d=d, Rdist="Gamma", interval=c(1e-2, 1e2))
+    th <- iTauACsimplex(tau, d=d, Rdist="Gamma", interval=c(1e-4, 1e10))
     qqplot2(x, qF = function(p) qgamma(p, shape=th), log="xy",
-            main.args=list(text=expression(bold(italic(F[R]^(-1))~~"Q-Q Plot"~~
+            main.args=list(text=expression(bold(italic(F[R]^-1)~~"Q-Q Plot"~~
                 "for"~~italic(F[R])~~"being Gamma")),
             side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
 }
@@ -134,7 +140,7 @@ indepRS <- function(R, S, doPDF, file, width=6, height=6, crop=NULL, ...)
     if(doPDF) pdf(file=file, width=width, height=height)
     ## plot
     pairs(pobs(qR*S), gap=0,
-          labels=as.expression( sapply(seq_len(d), function(j) bquote(italic(tilde(R)S[.(j)]))) ),
+          labels=as.expression( sapply(seq_len(d), function(j) bquote(italic(tilde(U)[.(j)]))) ),
           ...)
     ## pdf device
     if(doPDF) dev.off.pdf(file=file) else dev.off()
@@ -201,7 +207,7 @@ ggofArch <- function(n, d, tau, doPDF)
     U.G <- rCopula(n, archmCopula("Gumbel", param = getAcop("Gumbel")@iTau(tau),
                                   dim = d))
     U.g <- rACsimplex(n, d=d, theta = iTauACsimplex(tau, d=d, Rdist="Gamma",
-                                                    interval=c(1e-2, 1e2))
+                                                    interval=c(1e-2, 1e2)),
                       Rdist="Gamma")
 
     ## compute the (R,S) decomposition for all data sets
