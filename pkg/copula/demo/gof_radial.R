@@ -105,7 +105,7 @@ qq.R.G <- function(x, d, tau, doPDF, file)
 ## Q-Q plot for R against Gamma quantiles
 qq.R.g <- function(x, d, tau, doPDF, file)
 {
-    th <- iTauACsimplex(tau, d=d, Rdist="Gamma", interval=c(1e-4, 1e10))
+    th <- iTauACsimplex(tau, d=d, Rdist="Gamma", interval=c(1e-3, 1e2))
     qqplot2(x, qF = function(p) qgamma(p, shape=th), log="xy",
             main.args=list(text=expression(bold(italic(F[R]^-1)~~"Q-Q Plot"~~
                 "for"~~italic(F[R])~~"being Gamma")),
@@ -114,43 +114,40 @@ qq.R.g <- function(x, d, tau, doPDF, file)
 
 ## Q-Q plot for S
 qq.angular <- function(x, shape1, shape2, doPDF, file)
-    qqplot2(x, qF=function(p) qbeta(p, shape1=1, shape2=d),
+    qqplot2(x, qF=function(p) qbeta(p, shape1=shape1, shape2=shape2),
             main.args=list(text=as.expression(substitute(plain("Beta")(s1,s2)~~
-                bold("Q-Q Plot"), list(s1=1, s2=d)))),
+                bold("Q-Q Plot"), list(s1=shape1, s2=shape2)))),
             doPDF=doPDF, file=file)
 
 ## check independence of R and S (via B)
 indepRB <- function(R, B, index, doPDF, file, width=6, height=6, crop=NULL, ...)
 {
     if(doPDF) pdf(file=file, width=width, height=height)
-    ## plot
     plot(pobs(cbind(R, B)),
          xlab=expression(italic(R)), ylab=substitute(italic(B)[i], list(i=index)),
-         main=substitute(bold("Rank plot between"~~italic(R)~~"and"~~italic(B)[i]),
-         list(i=index)), ...)
-    ## pdf device
-    if(doPDF) dev.off.pdf(file=file) else dev.off()
+         main="Rank plot", ...)
+    if(doPDF) dev.off.pdf(file=file)
+    invisible()
 }
 
 ## check independence of R and S (via mapping R to Gamma(d))
 indepRS <- function(R, S, doPDF, file, width=6, height=6, crop=NULL, ...)
 {
-    d <- ncol(X)
+    d <- ncol(S)
     qR <- qgamma(rank(R)/(n+1), shape=d) # make it Gamma(d) (=> C=Pi)
     if(doPDF) pdf(file=file, width=width, height=height)
-    ## plot
     pairs(pobs(qR*S), gap=0,
           labels=as.expression( sapply(seq_len(d), function(j) bquote(italic(tilde(U)[.(j)]))) ),
           ...)
-    ## pdf device
-    if(doPDF) dev.off.pdf(file=file) else dev.off()
+    if(doPDF) dev.off.pdf(file=file)
+    invisible()
 }
 
 ## htrafo() for (R,S) data
-htrafoRS <- function(R,S)
+htrafoRS <- function(R, S)
 {
-    ## essentially the same as in 'copula'
-    lpsiI <- log(S)
+    ## essentially the same as in 'copula' (just directly using R and S)
+    lpsiI <- log(rep(R, ncol(S)) * S) # log(psiInv(U)) = log(R S_j)
     lcumsum <- matrix(unlist(lapply(1:d, function(j)
                                     copula:::lsum(t(lpsiI[,1:j, drop=FALSE])))),
                       ncol=d)
@@ -158,7 +155,7 @@ htrafoRS <- function(R,S)
                                function(k) exp(k*(lcumsum[,k]-
                                                   lcumsum[,k+1])) )),
                  ncol=d-1)
-    cbind(U., rank(R)/(n+1))
+    cbind(U., rank(R)/(n+1)) # last component: K_C(C(U)) = K_C(psi(R)); approximate K_C(t) by edf
 }
 
 ## pairs plot for Hering--Hofert transformed data
@@ -169,7 +166,8 @@ pairs2 <- function(x, gap=0, doPDF, file, width=6, height=6, crop=NULL, ...)
           labels=as.expression( sapply(seq_len(d), function(j) bquote(italic(U*"'"[.(j)]))) ),
           ...)
     ## pdf device
-    if(doPDF) dev.off.pdf(file=file) else dev.off()
+    if(doPDF) dev.off.pdf(file=file)
+    invisible()
 }
 
 ##' @title Sampling Tilted Archimedean Copulas (Hofert, Ziegel)
@@ -260,41 +258,41 @@ ggofArch <- function(n, d, tau, doPDF)
     ## 1.1.2) Checking the angular part S ######################################
 
     ## Note (see Devroye (1986, pp. 207)):
-    ##      B_j = S_1+..+S_j = U_{(j)} ~ Beta(j, d-j+1)
+    ##      B_j = S_1+...+S_j = U_{(j)} ~ Beta(j, d-j) [note: p. 207: n+1=d here!]
     ## We use j=1 and, if d>2, j=floor(d/2)
     d2 <- floor(d/2)
 
     ## data: S from Clayton
     ## B_1 (= S_1)
     file <- paste0("ggof_B1_true=C_d=", d, "_tau=", tau, ".pdf")
-    qq.angular(RS.C$S[,1], shape1=1, shape2=d, doPDF=doPDF, file=file)
+    qq.angular(RS.C$S[,1], shape1=1, shape2=d-1, doPDF=doPDF, file=file)
     ## B_{d/2}
     if(d > 2) {
         Sd2.C <- rowSums(RS.C$S[,seq_len(d2)])/rowSums(RS.C$S)
         file <- paste0("ggof_B", d2, "_true=C_d=", d, "_tau=", tau, ".pdf")
-        qq.angular(Sd2.C, shape1=d2, shape2=d-d2+1, doPDF=doPDF, file=file)
+        qq.angular(Sd2.C, shape1=d2, shape2=d-d2, doPDF=doPDF, file=file)
     }
 
     ## data: S from Gumbel
     ## B_1 (= S_1)
     file <- paste0("ggof_B1_true=G_d=", d, "_tau=", tau, ".pdf")
-    qq.angular(RS.G$S[,1], shape1=1, shape2=d, doPDF=doPDF, file=file)
+    qq.angular(RS.G$S[,1], shape1=1, shape2=d-1, doPDF=doPDF, file=file)
     ## B_{d/2}
     if(d > 2) {
         Sd2.G <- rowSums(RS.G$S[,seq_len(d2)])/rowSums(RS.G$S)
         file <- paste0("ggof_B", d2, "_true=C_d=", d, "_tau=", tau, ".pdf")
-        qq.angular(Sd2.G, shape1=d2, shape2=d-d2+1, doPDF=doPDF, file=file)
+        qq.angular(Sd2.G, shape1=d2, shape2=d-d2, doPDF=doPDF, file=file)
     }
 
     ## data: S from Gamma-R Archimedean copula
     ## B_1 (= S_1)
     file <- paste0("ggof_B1_true=Gamma_d=", d, "_tau=", tau, ".pdf")
-    qq.angular(RS.g$S[,1], shape1=1, shape2=d, doPDF=doPDF, file=file)
+    qq.angular(RS.g$S[,1], shape1=1, shape2=d-1, doPDF=doPDF, file=file)
     ## B_{d/2}
     if(d > 2) {
         Sd2.g <- rowSums(RS.g$S[,seq_len(d2)])/rowSums(RS.g$S)
         file <- paste0("ggof_B", d2, "_true=Gamma_d=", d, "_tau=", tau, ".pdf")
-        qq.angular(Sd2.g, shape1=d2, shape2=d-d2+1, doPDF=doPDF, file=file)
+        qq.angular(Sd2.g, shape1=d2, shape2=d-d2, doPDF=doPDF, file=file)
     }
 
 
@@ -303,20 +301,26 @@ ggofArch <- function(n, d, tau, doPDF)
     ## data: S from Clayton
     file <- paste0("ggof_indep_R_B1_true=C_d=", d, "_tau=", tau, ".pdf")
     indepRB(RS.C$R, B=RS.C$S[,1], index=1, doPDF=doPDF, file=file)
-    file <- paste0("ggof_indep_R_B", d2, "_true=C_d=", d, "_tau=", tau, ".pdf")
-    indepRB(RS.C$R, B=Sd2.C, index=d2, doPDF=doPDF, file=file)
+    if(d > 2) {
+        file <- paste0("ggof_indep_R_B", d2, "_true=C_d=", d, "_tau=", tau, ".pdf")
+        indepRB(RS.C$R, B=Sd2.C, index=d2, doPDF=doPDF, file=file)
+    }
 
     ## data: S from Gumbel
     file <- paste0("ggof_indep_R_B1_true=G_d=", d, "_tau=", tau, ".pdf")
     indepRB(RS.G$R, B=RS.G$S[,1], index=1, doPDF=doPDF, file=file)
-    file <- paste0("ggof_indep_R_B", d2, "_true=C_d=", d, "_tau=", tau, ".pdf")
-    indepRB(RS.G$R, B=Sd2.G, index=d2, doPDF=doPDF, file=file)
+    if(d > 2) {
+        file <- paste0("ggof_indep_R_B", d2, "_true=C_d=", d, "_tau=", tau, ".pdf")
+        indepRB(RS.G$R, B=Sd2.G, index=d2, doPDF=doPDF, file=file)
+    }
 
     ## data: S from Gamma-R Archimedean copula
     file <- paste0("ggof_indep_R_B1_true=Gamma_d=", d, "_tau=", tau, ".pdf")
     indepRB(RS.g$R, B=RS.G$S[,1], index=1, doPDF=doPDF, file=file)
-    file <- paste0("ggof_indep_R_B", d2, "_true=C_d=", d, "_tau=", tau, ".pdf")
-    indepRB(RS.g$R, B=Sd2.G, index=d2, doPDF=doPDF, file=file)
+    if(d > 2) {
+        file <- paste0("ggof_indep_R_B", d2, "_true=C_d=", d, "_tau=", tau, ".pdf")
+        indepRB(RS.g$R, B=Sd2.G, index=d2, doPDF=doPDF, file=file)
+    }
 
 
     ## 1.2) Other idea for checking independence between R and S ###############
@@ -355,9 +359,9 @@ d <- c(2, 10, 50) # dimensions
 tau <- 0.5 # Kendall's tau
 
 ## call
-ggofArch(n, d=d[1], tau=tau, doPDF=doPDF)
-ggofArch(n, d=d[2], tau=tau, doPDF=doPDF)
-ggofArch(n, d=d[3], tau=tau, doPDF=doPDF)
+system.time(ggofArch(n, d=d[1], tau=tau, doPDF=doPDF)) # ~ 2min (MH's notebook)
+system.time(ggofArch(n, d=d[2], tau=tau, doPDF=doPDF))
+system.time(ggofArch(n, d=d[3], tau=tau, doPDF=doPDF))
 
 
 
@@ -395,9 +399,9 @@ d <- c(2, 10, 50) # dimensions
 tau <- 0.5 # Kendall's tau
 
 ## call
-ggofExch(n, d=d[1], tau=tau, doPDF=doPDF)
-ggofExch(n, d=d[2], tau=tau, doPDF=doPDF)
-ggofExch(n, d=d[3], tau=tau, doPDF=doPDF)
+system.time(ggofExch(n, d=d[1], tau=tau, doPDF=doPDF))
+system.time(ggofExch(n, d=d[2], tau=tau, doPDF=doPDF))
+system.time(ggofExch(n, d=d[3], tau=tau, doPDF=doPDF))
 
 
 
@@ -443,9 +447,9 @@ d <- c(2, 10, 50) # dimensions
 tau <- 0.5 # Kendall's tau
 
 ## call
-ggofNonExch(n, d=d[1], tau=tau, doPDF=doPDF)
-ggofNonExch(n, d=d[2], tau=tau, doPDF=doPDF)
-ggofNonExch(n, d=d[3], tau=tau, doPDF=doPDF)
+system.time(ggofNonExch(n, d=d[1], tau=tau, doPDF=doPDF))
+system.time(ggofNonExch(n, d=d[2], tau=tau, doPDF=doPDF))
+system.time(ggofNonExch(n, d=d[3], tau=tau, doPDF=doPDF))
 
 
 
@@ -515,7 +519,7 @@ legend("topright", inset=0.04, bty="n", lty=rep(1:2, 4),
                 expression(italic(t)[2]), expression(italic(t)[2]),
                 expression(italic(t)[4]~~"(true)"), expression(italic(t)[4]),
                 expression(italic(t)[10]), expression(italic(t)[10])) )
-if(doPDF) dev.off.pdf(file=file) else dev.off()
+if(doPDF) dev.off.pdf(file=file)
 
 
 
@@ -549,7 +553,7 @@ if(doPDF) {
     pdf(file=file, width=width, height=height)
 }
 image(tau., colorkey=TRUE, main="Pairwise sample versions of Kendall's tau") # => non-exchangeable; range(tau.[upper.tri(tau.)]) = (0.0880981, 0.6879079)
-if(doPDF) dev.off.pdf(file=file) else dev.off()
+if(doPDF) dev.off.pdf(file=file)
 
 ## Estimate a multivariate t copula (with the approach of Demarta, McNeil (2005))
 ## assuming [and later checking] if the data comes from a meta-t-model

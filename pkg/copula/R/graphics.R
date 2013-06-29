@@ -285,5 +285,6 @@ qqplot2 <- function(x, qF, log="", qqline.args=list(distribution=qF,
         ## info
         if(!is.null(CI.mtext)) do.call(mtext, CI.mtext)
     }
-    if(doPDF) dev.off.pdf(file=file) else dev.off()
+    if(doPDF) dev.off.pdf(file=file)
+    invisible()
 }

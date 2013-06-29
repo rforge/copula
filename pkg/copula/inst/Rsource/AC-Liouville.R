@@ -81,15 +81,16 @@ rPareto <- function(n, kappa) (1-runif(n))^(-1/kappa)
 ##' @param ... additional arguments passed to integrate()
 ##' @return Kendall's tau
 ##' @author Marius Hofert
+##' @note *Multivariate* Kendall's tau according to Joe (1990)
 tauACsimplex <- function(theta, d, Rdist=c("Gamma", "IGamma"), ...) {
+    Rdist <- match.arg(Rdist)
     switch(Rdist,
            "Gamma" = {
-               k <- seq_len(d)-1
-               integrand <- function(x, k, theta) x^(k+theta-1) * (1-x)^(theta-k-1)
-               int <- vapply(k, function(k.) {
-                   integrate(integrand, lower=0, upper=1/2, k=k., theta=theta, ...)$value
-               }, NA_real_) / beta(theta, theta)
-               (2^d * sum(choose(d-1, k) * (-1)^k * int) - 1) / (2^(d-1) - 1)
+               integrand <- function(y, d, th) (1-y)^(d-1) * y^(th-1) * (1+y)^(-2*th)
+               ## note: numerically critical for small theta (large tau) or large theta
+               Int <- integrate(integrand, lower=0, upper=1, d=d, th=theta)$value / beta(theta, theta)
+               ## tau
+               (2^d * Int - 1) / (2^(d-1) - 1)
            },
            "IGamma" =, "Pareto" =, "IPareto" = {
                stop("Not implemented yet; see McNeil, Neslehova (2010) for formulas")
@@ -105,16 +106,8 @@ tauACsimplex <- function(theta, d, Rdist=c("Gamma", "IGamma"), ...) {
 ##' @param ... additional arguments passed to uniroot()
 ##' @return theta such that tau(theta) = tau
 ##' @author Marius Hofert
+##' @note non-critical numerical interval: c(1e-3, 1e2)
 iTauACsimplex <- function(tau, d, Rdist=c("Gamma", "IGamma"), interval, ...)
-    ## check
-    ## if(FALSE) {
-    ##     n <- 128
-    ##     d <- 3
-    ##     theta <- seq(0.01, 1e2, length.out=n)
-    ##     tau <- vapply(1:n, function(i) tauACsimplex(theta[i], d=3, Rdist="Gamma"), NA_real_)
-    ##     plot(theta, tau, type="l")
-    ## }
-    ## uniroot()
     uniroot(function(th) tauACsimplex(th, d=d, Rdist=Rdist) - tau,
             interval=interval, ...)$root
 
