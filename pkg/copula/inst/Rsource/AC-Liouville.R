@@ -23,9 +23,6 @@
 
 ### RNG for several ingredient distributions ###################################
 
-##' Generating vectors of random variates from a d-dimensional simplex
-##' distribution
-##'
 ##' @title Generating vectors of random variates from a d-dimensional simplex
 ##'        distribution
 ##' @param n sample size
@@ -39,9 +36,6 @@ rSimplex <- function(n, d) {
     E/matrix(rowSums(E), nrow=n, ncol=d)
 }
 
-##' Generating vectors of random variates from a d-dimensional simplex
-##' distribution
-##'
 ##' @title Generating vectors of random variates from a d-dimensional simplex
 ##'        distribution
 ##' @param n sample size
@@ -71,8 +65,6 @@ rGPD <- function(n, xi, beta) {
     if(any(is0)) -beta*log1p(-u) else (beta/xi)*((1-u)^(-xi)-1)
 }
 
-##' Generating random variates from a Pareto distribution on [1,Inf)
-##'
 ##' @title Generating random variates from a Pareto distribution on [1,Inf)
 ##' @param n sample size
 ##' @return n random variates
@@ -129,33 +121,32 @@ iTauACsimplex <- function(tau, d, Rdist=c("Gamma", "IGamma"), interval, ...)
 
 ### RNG for simplex Archimedean copulas ########################################
 
-## auxiliary function for g()
-lg <- function(a, x, z){
-    res <- numeric(length(x))
-    i0 <- x==0
-    res[i0] <- lgamma(z)
-    res[!i0] <- log(gsl:::gamma_inc(a, x[!i0]))
-    res
+## auxiliary function for g():
+## compute log(Gamma(a, x))
+lg <- function(a, x, method=c("gsl", "base")){
+    stopifnot(x>=0)
+    method <- match.arg(method)
+    switch(method,
+           "base" = {
+               stopifnot(a>0) # only works for this case
+               pgamma(x, a, lower=FALSE, log.p=TRUE) + lgamma(a)
+           },
+           "gsl" = log(gsl:::gamma_inc(a, x)), # if x!=0; log(int_x^Inf t^(a-1)exp(-t)dt)
+           stop("wrong method"))
 }
 
-## function g_{alpha, d, theta}(t) from Example 9 of McNeil, Neslehova (2010)
-## with k ~> d and x ~> t
-g <- function(t, alpha, d, theta){
-    lt <- length(t)
-    k <- 1:d
-    arg <- k-alpha+theta
-    ## use gsl's upper incomplete gamma function (pgamma-construction
-    ## via uiGamma <- function(a, x) pgamma(x, a, lower=FALSE) * gamma(a)
-    ## fails here)
-    lgam <- sapply(arg, function(a) lg(a, x=t, z=d+theta-alpha)) # (length(t), length(k))-matrix
-    lc <- lchoose(d-1, k-1)
-    coeff <- exp(rep(lc, each=lt) + lgam - lgamma(theta))
-    x <- outer(-t, d-k, FUN="^") # (length(t), length(k))-matrix
-    rowSums(coeff*x)
+## function from Example 9 of McNeil, Neslehova (2010) with k ~> d, n ~> k:
+## g_{alpha, d, theta}(x) = sum_{k=1}^d (-x)^(d-k) \binom{d-1}{k-1} Gamma(k+theta-alpha, x)/Gamma(theta)
+g <- function(x, alpha, d, theta){
+    k <- seq_len(d)
+    x. <- outer(-x, d-k, FUN="^") # (length(x), d)-matrix
+    ## remaining part: in log-scale
+    lc <- lchoose(d-1, k-1) # d-vector
+    lgam <- sapply(k+theta-alpha, function(a) lg(a, x=x)) - lgamma(theta) # (length(x), d)-matrix
+    coeff <- exp(rep(lc, each=length(x)) + lgam)
+    rowSums(x.*coeff)
 }
 
-##' Williamson d-transforms
-##'
 ##' @title Williamson d-transforms
 ##' @param t argument t>=0, a vector
 ##' @param d "dimension" d
@@ -200,9 +191,6 @@ psiW <- function(t, d, theta, Rdist=c("Gamma", "IGamma", "Pareto", "IPareto"))
            stop("wrong Rdist"))
 }
 
-##' Generating vectors of random variates from a d-dimensional simplex Archimedean
-##' distribution
-##'
 ##' @title Generating vectors of random variates from a d-dimensional simplex Archimedean
 ##'        distribution
 ##' @param n sample size
@@ -287,8 +275,6 @@ iTauLiouville <- function(tau, alpha, Rdist="Gamma", n.MC=1e4, interval, tol=1e-
 
 ### RNG for Liouville copulas (with given frailty distribution) ################
 
-##' Marginal survival function of Liouville distributions
-##'
 ##' @title Marginal survival function of Liouville distributions
 ##' @param x numeric vector
 ##' @param j index of the marginal
@@ -302,24 +288,25 @@ HbarL <- function(x, j, alpha, theta, Rdist=c("Gamma", "IGamma", "Clayton"))
     stopifnot(x>=0, alpha==as.integer(alpha), (d <- length(alpha))>=1,
               j==as.integer(j), length(j)==1, 1<=j, j<=d)
     Rdist <- match.arg(Rdist)
-    switch(Rdist,
+    switch(Rdist, # general formula: after Theorem 2 in McNeil, Neslehova (2010)
            "Gamma"={ # see Example 9 in McNeil, Neslehova (2010)
-               aj <- alpha[j]
+               ## bar(H)_j(x) = sum_{k=1}^{alpha_j} \binom{alpha-1}{k-1} x^{k-1} g_{alpha, alpha-k+1, theta}(x)
                asum <- sum(alpha)
-               k <- 1:aj
-               c. <- choose(asum-1, k-1) # length(k) = aj
-               g. <- sapply(asum-k+1, function(d) g(x, alpha=asum, d=d, theta=theta))
-               x. <- outer(x, k-1, FUN="^") # (length(x), length(k))-matrix
-               rowSums(rep(c., each=length(x))*g.*x.)
+               aj <- alpha[j]
+               k <- seq_len(aj)
+               c. <- choose(asum-1, k-1) # aj-vector
+               x. <- outer(x, k-1, FUN="^") # (length(x), aj)-matrix
+               g. <- sapply(asum-k+1, function(d.) g(x, alpha=asum, d=d., theta=theta)) # (length(x), aj)-matrix
+               rowSums(rep(c., each=length(x))*x.*g.)
            },
            "IGamma"={ # see Example 10 in McNeil, Neslehova (2010)
-               aj <- alpha[j]
                asum <- sum(alpha)
+               aj <- alpha[j]
                k <- 1:aj
                c. <- choose(asum-1, k-1)
+               x. <- outer(x, k-1, FUN="^") # (length(x), length(k))-matrix
                g. <- exp(lgamma(theta+k-1)-lgamma(theta))
                p. <- sapply(k-1, function(k.) psiW(x, d=asum-k., theta=theta+k., Rdist=Rdist))
-               x. <- outer(x, k-1, FUN="^") # (length(x), length(k))-matrix
                rowSums(rep(c.*g., each=length(x))*p.*x.)
            },
            "Clayton"={ # note: we use the simplified generator (!)
@@ -332,8 +319,6 @@ HbarL <- function(x, j, alpha, theta, Rdist=c("Gamma", "IGamma", "Clayton"))
            stop("wrong Rdist"))
 }
 
-##' Generating vectors of random variates from a Liouville copula
-##'
 ##' @title Generating vectors of random variates from a Liouville copula
 ##' @param n sample size
 ##' @param alpha vector of alphas for the Dirichlet distribution (positive integers)
@@ -352,18 +337,16 @@ rLiouville <- function(n, alpha, theta, Rdist=c("Gamma", "IGamma"))
                 "Gamma"=rgamma(n, theta),
                 "IGamma"=1/rgamma(n, theta),
                 stop("wrong Rdist"))
-    D <- rDirichlet(n, alpha=alpha)
-    X <- R*D
+    D <- rDirichlet(n, alpha=alpha) # (n,d)
+    X <- R*D # (n,d)
     sapply(1:d, function(j) HbarL(X[,j], j=j, alpha=alpha, theta=theta,
-                                  dist=Rdist))
+                                  Rdist=Rdist))
 }
 
 
 ### RNG for Archimedean-Liouville copulas ######################################
 ### (with frailty distribution given by Williamson trafos) #####################
 
-##' Generating vectors of random variates from an Archimedean-Liouville copula
-##'
 ##' @title Generating vectors of random variates from an Archimedean-Liouville copula
 ##' @param n sample size
 ##' @param alpha vector of alphas for the Dirichlet distribution (positive integers)

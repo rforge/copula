@@ -19,8 +19,9 @@
 
 
 ## TODO:
-## - shall we use pobs() everywhere? so far: known margins
-## - 1.2), 1.3): map to chi^2 (1d setup)?
+## - shall we use pobs() on the copula-generated data?
+##   So far we actually work under known margins
+## - 1.2), 1.3): shall we map the data to chi^2 (one-dimensional setup)?
 
 
 ### Setup ######################################################################
@@ -163,6 +164,25 @@ pairs2 <- function(x, gap=0, doPDF, file, width=6, height=6, crop=NULL, ...)
           ...)
     ## pdf device
     if(doPDF) dev.off.pdf(file=file) else dev.off()
+}
+
+##' @title Sampling Tilted Archimedean Copulas (Hofert, Ziegel)
+##' @param n sample size
+##' @param A matrix A
+##' @param Rdist distribution of the radial part
+##' @return (n, d) matrix
+##' @author Marius Hofert
+rTAC <- function(n, A, theta, Rdist="Gamma")
+{
+    stopifnot(is.matrix(A), (d <- nrow(A))==ncol(A),
+              diag(A)==1, A<=1)
+    Rdist <- match.arg(Rdist)
+    R <- switch(Rdist,
+                "Gamma" = rgamma(n, theta),
+                stop("wrong Rdist"))
+    S <- rSimplex(n, d=d) # (n,d)
+    X <- R * (S %*% t(A)) # S %*% t(A): (n,d) * (d,d) = (n,d)
+    pobs(X) # empirical margins
 }
 
 
@@ -377,36 +397,49 @@ ggofExch(n, d=d[3], tau=tau, doPDF=doPDF)
 
 ### 3) Non-exchangeable models #################################################
 
-TODO
-3.1) generate data from 3rd board
-3.2) do RS decomposition
-3.3)
+## main
+ggofNonExch <- function(n, d, tau, doPDF)
+{
+    ## generate data
+    set.seed(.seed) # set seed
+    rho <- iTau(normalCopula(), tau=tau)
+    U.Ga <- rCopula(n, ellipCopula("normal", param=rho, dim=d, dispstr="ar1")) # AR(1) (see ?getSigma)
+    U.t4 <- rCopula(n, ellipCopula("t", param=rho, dim=d, dispstr="ar1", df=4))
+    if(FALSE) {
+        set.seed(.seed)
+        (U <- rLiouville(n, alpha=seq_len(10), theta=1.5, Rdist="Gamma")) # => heavy numerical problems
+    }
+    U.gL <- rLiouville(n, alpha=sample(1:4, size=d, replace=TRUE), # comparably stable for small alpha
+                       theta=1.5, Rdist="Gamma") # use theta=1.5 as before; note: run time!
+    A <- tau^abs(outer(1:d, 1:d, FUN="-")) # just an example
+    U.HZ <- rTAC(n, A=A, theta=1.5, Rdist="Gamma")
+    if(FALSE) {
+        pairs(U.gL, gap=0, pch=".") # check
+        pairs(U.HZ, gap=0, pch=".") # check
+    }
 
-## Johanna Ziegel...
-set.seed(.seed)
+    ## compute the (R,S) decomposition for all data sets
+    RS.Ga <- RSpobs(U.Ga, method="archm")
+    RS.t4 <- RSpobs(U.t4, method="archm")
+    RS.gL <- RSpobs(U.gL, method="archm")
+    RS.HZ <- RSpobs(U.HZ, method="archm")
+
+    ## plot options
+    par(pty="s")
+
+    ## TODO: continue with checks
+
+}
+
+## setup
 n <- 250 # sample size
-d <- 2 # dimension
+d <- c(2, 10, 50) # dimensions
 tau <- 0.5 # Kendall's tau
-family <- "Gumbel" # family
-cop <- getAcop(family) # define copula
-R <- cop@V0(n, cop@iTau(tau)) # radial parts
-E <- matrix(rexp(n*d), ncol=d) # exponentials
-U <- t(E/rowSums(E))# (d,n) matrix; uniform distribution on the unit simplex
-A <- matrix(c(1,-1/10,
-              0.5,1), ncol=2, byrow=TRUE) # (d,d) matrix A
-stopifnot(A[1,1]==1, A[2,2]==1)
-X. <- A %*% U # (d,d)*(d,n)=(d,n)
-X <- t(rep(R, each=d) * X.)
-## pairs(pobs(X))
 
-
-tau <- c(0.2, 0.6, 0.8)
-r <- iTau(ellipCopula(familyTrue, df=df), tau)
-P <- c(r[2], r[1], r[1], r[1], # upper triangle (without diagonal) of correlation "matrix"
-             r[1], r[1], r[1],
-                   r[3], r[3],
-                         r[3])
-cop <- ellipCopula(familyTrue, param=P, dim=d, dispstr="un", df=df)
+## call
+ggofNonExch(n, d=d[1], tau=tau, doPDF=doPDF)
+ggofNonExch(n, d=d[2], tau=tau, doPDF=doPDF)
+ggofNonExch(n, d=d[3], tau=tau, doPDF=doPDF)
 
 
 
@@ -532,7 +565,7 @@ RS.t <- RSpobs(x, method="ellip")
 R.t <- RS.t$R
 S.t <- RS.t$S
 
-## TODO: new... not sure yet what we should do in this case.
+## TODO: new... not sure yet what we should do in this (*elliptical*) case
 
 ## ## Q-Q plot of R against the quantiles of F_R for the estimated t distribution
 ## qqplot2(R.t, qF=function(p) sqrt(d*qf(p, df1=d, df2=nu.)),
