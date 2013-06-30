@@ -74,7 +74,7 @@ rPareto <- function(n, kappa) (1-runif(n))^(-1/kappa)
 
 ### Kendall's tau + inverse for simplex Archimedean copulas ####################
 
-##' @title Kendall's tau for simplex ACs
+##' @title Multivariate Kendall's tau for Simplex ACs
 ##' @param theta parameter
 ##' @param d dimension
 ##' @param Rdist distribution of the radial part
@@ -82,7 +82,7 @@ rPareto <- function(n, kappa) (1-runif(n))^(-1/kappa)
 ##' @return Kendall's tau
 ##' @author Marius Hofert
 ##' @note *Multivariate* Kendall's tau according to Joe (1990)
-tauACsimplex <- function(theta, d, Rdist=c("Gamma", "IGamma"), ...) {
+tauACsimplex <- function(theta, d=2, Rdist=c("Gamma", "IGamma"), ...) {
     Rdist <- match.arg(Rdist)
     switch(Rdist,
            "Gamma" = {
@@ -98,7 +98,7 @@ tauACsimplex <- function(theta, d, Rdist=c("Gamma", "IGamma"), ...) {
            stop("Not implemented yet"))
 }
 
-##' @title Inverse Kendall's tau for simplex Archimedean copulas
+##' @title Inverse Multivariate Kendall's tau for Simplex Archimedean Copulas
 ##' @param tau Kendall's tau
 ##' @param d dimension
 ##' @param Rdist distribution of the radial part
@@ -107,7 +107,7 @@ tauACsimplex <- function(theta, d, Rdist=c("Gamma", "IGamma"), ...) {
 ##' @return theta such that tau(theta) = tau
 ##' @author Marius Hofert
 ##' @note non-critical numerical interval: c(1e-3, 1e2)
-iTauACsimplex <- function(tau, d, Rdist=c("Gamma", "IGamma"), interval, ...)
+iTauACsimplex <- function(tau, d=2, Rdist=c("Gamma", "IGamma"), interval, ...)
     uniroot(function(th) tauACsimplex(th, d=d, Rdist=Rdist) - tau,
             interval=interval, ...)$root
 
@@ -115,29 +115,31 @@ iTauACsimplex <- function(tau, d, Rdist=c("Gamma", "IGamma"), interval, ...)
 ### RNG for simplex Archimedean copulas ########################################
 
 ## auxiliary function for g():
-## compute log(Gamma(a, x))
-lg <- function(a, x, method=c("gsl", "base")){
-    stopifnot(x>=0)
-    method <- match.arg(method)
-    switch(method,
-           "base" = {
-               stopifnot(a>0) # only works for this case
-               pgamma(x, a, lower=FALSE, log.p=TRUE) + lgamma(a)
-           },
-           "gsl" = log(gsl:::gamma_inc(a, x)), # if x!=0; log(int_x^Inf t^(a-1)exp(-t)dt)
-           stop("wrong method"))
+## compute log(Gamma(a, x)), a in IR, x >= 0
+## note: pgamma(x, a, lower=FALSE, log.p=TRUE) + lgamma(a) only works for a > 0
+lg <- function(a, x) # vectorized in x
+{
+    stopifnot(x >= 0, length(a) == 1)
+    n <- length(x)
+    res <- numeric(n)
+    i0 <- x==0
+    if(any(i0)) res[i0]   <- lgamma(a)
+    if(any(!i0)) res[!i0] <- log(gsl:::gamma_inc(a, x[!i0])) # if x>0 log(int_x^Inf t^(a-1)exp(-t)dt); no 'proper' log() exists
+    res
 }
 
 ## function from Example 9 of McNeil, Neslehova (2010) with k ~> d, n ~> k:
 ## g_{alpha, d, theta}(x) = sum_{k=1}^d (-x)^(d-k) \binom{d-1}{k-1} Gamma(k+theta-alpha, x)/Gamma(theta)
 g <- function(x, alpha, d, theta){
+    n <- length(x)
     k <- seq_len(d)
-    x. <- outer(-x, d-k, FUN="^") # (length(x), d)-matrix
+    sgns <- (-1)^(d-k) # d-vector
     ## remaining part: in log-scale
+    lx <- outer(log(x), d-k) # (n, d)-matrix
     lc <- lchoose(d-1, k-1) # d-vector
-    lgam <- sapply(k+theta-alpha, function(a) lg(a, x=x)) - lgamma(theta) # (length(x), d)-matrix
-    coeff <- exp(rep(lc, each=length(x)) + lgam)
-    rowSums(x.*coeff)
+    lgam <- sapply(k+theta-alpha, function(a) lg(a, x=x)) # (n, d)-matrix
+    x.coeff <- exp(rep(lc, each=n) + lx + lgam - lgamma(theta)) # (n, d)-matrix
+    rowSums(rep(sgns, each=n)*x.coeff)
 }
 
 ##' @title Williamson d-transforms
@@ -153,7 +155,12 @@ psiW <- function(t, d, theta, Rdist=c("Gamma", "IGamma", "Pareto", "IPareto"))
     Rdist <- match.arg(Rdist)
     switch(Rdist,
            "Gamma"={ # see Example 1 in McNeil, Neslehova (2010)
-               g(t, alpha=d, d=d, theta=theta)
+               n <- length(t)
+               res <- numeric(n)
+               i0 <- t==0
+               if(any(i0))  res[i0]  <- 1
+               if(any(!i0)) res[!i0] <- g(t[!i0], alpha=d, d=d, theta=theta)
+               res
            },
            "IGamma"={ # see Example 2 in McNeil, Neslehova (2010)
                k <- 1:d

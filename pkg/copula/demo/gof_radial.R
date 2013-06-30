@@ -97,15 +97,15 @@ qq.R.C <- function(x, d, tau, doPDF, file)
 qq.R.G <- function(x, d, tau, doPDF, file)
     qqplot2(x, qF=function(p) qacR(p, family="Gumbel",
                     theta=iTau(gumbelCopula(), tau=tau),
-                    d=d, interval=c(1e-5, 1e2), tol=.Machine$double.eps^0.5), log="xy", # interval
+                    d=d, interval=c(1e-5, 1e3), tol=.Machine$double.eps^0.5), log="xy", # interval
             main.args=list(text=expression(bold(italic(F[R]^-1)~~"Q-Q Plot"~~
                 "for"~~italic(F[R])~~"from a Gumbel copula")),
             side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
 
 ## Q-Q plot for R against Gamma quantiles
-qq.R.g <- function(x, d, tau, doPDF, file)
+qq.R.g <- function(x, tau, doPDF, file)
 {
-    th <- iTauACsimplex(tau, d=d, Rdist="Gamma", interval=c(1e-3, 1e2))
+    th <- iTauACsimplex(tau, Rdist="Gamma", interval=c(1e-3, 1e2)) # d=2
     qqplot2(x, qF = function(p) qgamma(p, shape=th), log="xy",
             main.args=list(text=expression(bold(italic(F[R]^-1)~~"Q-Q Plot"~~
                 "for"~~italic(F[R])~~"being Gamma")),
@@ -148,7 +148,8 @@ htrafoRS <- function(R, S)
 {
     ## essentially the same as in 'copula' (just directly using R and S)
     lpsiI <- log(rep(R, ncol(S)) * S) # log(psiInv(U)) = log(R S_j)
-    lcumsum <- matrix(unlist(lapply(1:d, function(j)
+    d <- ncol(S)
+    lcumsum <- matrix(unlist(lapply(seq_len(d), function(j)
                                     copula:::lsum(t(lpsiI[,1:j, drop=FALSE])))),
                       ncol=d)
     U. <- matrix(unlist(lapply(1:(d-1),
@@ -161,11 +162,9 @@ htrafoRS <- function(R, S)
 ## pairs plot for Hering--Hofert transformed data
 pairs2 <- function(x, gap=0, doPDF, file, width=6, height=6, crop=NULL, ...)
 {
-    ## plot
-    pairs(x, gap=0,
-          labels=as.expression( sapply(seq_len(d), function(j) bquote(italic(U*"'"[.(j)]))) ),
-          ...)
-    ## pdf device
+    if(doPDF) pdf(file=file, width=width, height=height)
+    pairs(x, gap=0, labels=as.expression( sapply(seq_len(ncol(x)),
+        function(j) bquote(italic(U*"'"[.(j)]))) ), ...)
     if(doPDF) dev.off.pdf(file=file)
     invisible()
 }
@@ -204,8 +203,8 @@ ggofArch <- function(n, d, tau, doPDF)
                                   dim = d))
     U.G <- rCopula(n, archmCopula("Gumbel", param = getAcop("Gumbel")@iTau(tau),
                                   dim = d))
-    U.g <- rACsimplex(n, d=d, theta = iTauACsimplex(tau, d=d, Rdist="Gamma",
-                                                    interval=c(1e-2, 1e2)),
+    U.g <- rACsimplex(n, d=d, theta = iTauACsimplex(tau, Rdist="Gamma",
+                                                    interval=c(1e-2, 1e2)), # d=2
                       Rdist="Gamma")
 
     ## compute the (R,S) decomposition for all data sets
@@ -230,7 +229,7 @@ ggofArch <- function(n, d, tau, doPDF)
     qq.R.G(RS.C$R, d=d, tau=tau, doPDF=doPDF, file=file)
     ## ... Q-Q plot against Gamma quantiles
     file <- paste0("ggof_R_H0=Gamma_true=C_d=", d, "_tau=", tau, ".pdf")
-    qq.R.g(RS.C$R, d=d, tau=tau, doPDF=doPDF, file=file)
+    qq.R.g(RS.C$R, tau=tau, doPDF=doPDF, file=file)
 
     ## data: R from Gumbel...
     ## ... Q-Q plot against the F_R quantiles for Clayton
@@ -241,7 +240,7 @@ ggofArch <- function(n, d, tau, doPDF)
     qq.R.G(RS.G$R, d=d, tau=tau, doPDF=doPDF, file=file)
     ## ... Q-Q plot against Gamma quantiles
     file <- paste0("ggof_R_H0=Gamma_true=G_d=", d, "_tau=", tau, ".pdf")
-    qq.R.g(RS.G$R, d=d, tau=tau, doPDF=doPDF, file=file)
+    qq.R.g(RS.G$R, tau=tau, doPDF=doPDF, file=file)
 
     ## data: R ~ Gamma...
     ## ... Q-Q plot against the F_R quantiles for Clayton
@@ -252,7 +251,7 @@ ggofArch <- function(n, d, tau, doPDF)
     qq.R.G(RS.g$R, d=d, tau=tau, doPDF=doPDF, file=file)
     ## ... Q-Q plot against Gamma quantiles (correct quantiles)
     file <- paste0("ggof_R_H0=Gamma_true=Gamma_d=", d, "_tau=", tau, ".pdf")
-    qq.R.g(RS.g$R, d=d, tau=tau, doPDF=doPDF, file=file)
+    qq.R.g(RS.g$R, tau=tau, doPDF=doPDF, file=file)
 
 
     ## 1.1.2) Checking the angular part S ######################################
@@ -359,10 +358,12 @@ d <- c(2, 10, 50) # dimensions
 tau <- 0.5 # Kendall's tau
 
 ## call
-system.time(ggofArch(n, d=d[1], tau=tau, doPDF=doPDF)) # ~ 2min (MH's notebook)
-system.time(ggofArch(n, d=d[2], tau=tau, doPDF=doPDF))
-system.time(ggofArch(n, d=d[3], tau=tau, doPDF=doPDF))
+system.time(ggofArch(n, d=d[1], tau=tau, doPDF=doPDF)) # ~ 110s (MH's notebook)
+system.time(ggofArch(n, d=d[2], tau=tau, doPDF=doPDF)) # ~ 310s
+system.time(ggofArch(n, d=d[3], tau=tau, doPDF=doPDF)) # ~ s
 
+TODO: fix Q-Q line in log-log space (in qqplot2!)
+TODO: fix sampling in d=50
 
 
 ### 2) Exchangeable (but not Archimedean) models ###############################
@@ -421,7 +422,7 @@ ggofNonExch <- function(n, d, tau, doPDF)
     }
     U.gL <- rLiouville(n, alpha=sample(1:4, size=d, replace=TRUE), # comparably stable for small alpha
                        theta=1.5, Rdist="Gamma") # use theta=1.5 as before; note: run time!
-    A <- tau^abs(outer(1:d, 1:d, FUN="-")) # just an example
+    A <- tau^abs(outer(seq_len(d), seq_len(d), FUN="-")) # just an example
     U.HZ <- rTAC(n, A=A, theta=1.5, Rdist="Gamma")
     if(FALSE) {
         pairs(U.gL, gap=0, pch=".") # check
@@ -463,7 +464,7 @@ n <- 1000
 d <- 10
 rho <- 0.5
 mu <- rep(0, d)
-Sigma <- outer(1:d, 1:d, FUN=function(i,j) rho^abs(i-j))
+Sigma <- outer(seq_len(d), seq_len(d), FUN=function(i,j) rho^abs(i-j))
 set.seed(.seed)
 X.t <- rep(mu, each=n) + rmvt(n, sigma=Sigma, df=4) # multivariate t data
 
