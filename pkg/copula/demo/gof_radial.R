@@ -17,11 +17,19 @@
 ## Goal: Graphical goodness-of-fit test(s) for meta-Archimedean and
 ##       meta-elliptical models (or meta-'radial' models)
 
+## Observations:
+## 1) sampling from Gamma Simplex copulas (Ex. 1) is numerically critical
+##    for large d due psiW() which calls the numerically non-stable function g()
+## 2) sampling Gamma Liouville copulas (Ex. 9) is numerically critical for
+##    large d due to HbarL() which, again, calls the numerically non-stable function g()
+## We circumvent these problems by *directly* working with (inverted --
+## for survival functions) ranks on X instead of *first* sampling 'perfect' U's
+## and then build pobs.
 
-## TODO:
-## - shall we use pobs() on the copula-generated data?
-##   So far we actually work under known margins
+## TODOs:
 ## - 1.2), 1.3): shall we map the data to chi^2 (one-dimensional setup)?
+## - fix Q-Q line in log-log space (in qqplot2()!)
+
 
 
 ### Setup ######################################################################
@@ -78,12 +86,64 @@ if(FALSE)
 
 ### 0.2) Auxiliary functions ###################################################
 
+### 0.2.1) Sampling ############################################################
+
+## 'survival' pseudo-observations
+pobs.bar <- function(x) {
+    n <- nrow(x)
+    apply(x, 2, function(z) (n-rank(z, na.last="keep")+1)) / (n+1)
+}
+
+## Sampling a Gamma Simplex copula (McNeil, Neslehova (2010, Ex. 1))
+## *with* pobs() applied to margins
+rGammaSimplexPobs <- function(n, d, theta) {
+    R <- rgamma(n, theta)
+    S <- rSimplex(n, d=d)
+    ## this would give 'U', but numerically critical!
+    ## apply(R*S, 2, function(t) psiW(t, d=d, theta=theta, Rdist=Rdist))
+    pobs.bar(R*S)
+}
+
+## Sampling a Gamma Liouville copula (McNeil, Neslehova (2010, Ex. 9))
+## *with* pobs() applied to margins
+rGammaLiouville <- function(n, alpha, theta) {
+    R <- rgamma(n, theta)
+    D <- rDirichlet(n, alpha=alpha)
+    ## this would give 'U', but numerically critical!
+    ## sapply(1:d, function(j) HbarL(X[,j], j=j, alpha=alpha, theta=theta,
+    ##                               Rdist=Rdist))
+    pobs.bar(R*D)
+}
+
+##' @title Sampling Tilted Archimedean Copulas (Hofert, Ziegel)
+##' @param n sample size
+##' @param A matrix A
+##' @param Rdist distribution of the radial part
+##' @return (n, d) matrix
+##' @author Marius Hofert
+rTAC <- function(n, A, theta, Rdist="Gamma")
+{
+    stopifnot(is.matrix(A), (d <- nrow(A))==ncol(A),
+              diag(A)==1, A<=1)
+    Rdist <- match.arg(Rdist)
+    R <- switch(Rdist,
+                "Gamma" = rgamma(n, theta),
+                stop("wrong Rdist"))
+    S <- rSimplex(n, d=d) # (n,d)
+    X <- R * (S %*% t(A)) # S %*% t(A): (n,d) * (d,d) = (n,d)
+    pobs(X) # empirical margins
+}
+
+
+
+### 0.2.2) Plots for graphical GoF testing #####################################
+
 ## Q-Q plot for R against the F_R quantiles for Clayton
 ## note: qacR(ppoints(n), ...) has to work (=> adjust interval accordingly)
-qq.R.C <- function(x, d, tau, doPDF, file)
+qq.R.C <- function(x, d, tau, doPDF, file, log="") # TODO: maybe when qqline() works: log="xy"
     qqplot2(x, qF=function(p) qacR(p, family="Clayton",
                theta=iTau(claytonCopula(), tau=tau),
-               d=d, interval=c(1e-4, 1e10)), log="xy", # interval
+               d=d, interval=c(1e-4, 1e10)), log=log,
             main.args=list(text=expression(bold(italic(F[R]^-1)~~"Q-Q Plot"~~
                 "for"~~italic(F[R])~~"from a Clayton copula")),
             side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
@@ -94,19 +154,19 @@ qq.R.C <- function(x, d, tau, doPDF, file)
 ##         qacR(0.002, family="Gumbel", theta=iTau(gumbelCopula(), tau=0.5), d=2,
 ##              interval=c(1e-5, 1e+2))
 ##         gives 1e-5
-qq.R.G <- function(x, d, tau, doPDF, file)
+qq.R.G <- function(x, d, tau, doPDF, file, log="") # TODO: maybe when qqline() works: log="xy"
     qqplot2(x, qF=function(p) qacR(p, family="Gumbel",
                     theta=iTau(gumbelCopula(), tau=tau),
-                    d=d, interval=c(1e-5, 1e3), tol=.Machine$double.eps^0.5), log="xy", # interval
+                    d=d, interval=c(1e-5, 1e3), tol=.Machine$double.eps^0.5), log=log,
             main.args=list(text=expression(bold(italic(F[R]^-1)~~"Q-Q Plot"~~
                 "for"~~italic(F[R])~~"from a Gumbel copula")),
             side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
 
 ## Q-Q plot for R against Gamma quantiles
-qq.R.g <- function(x, tau, doPDF, file)
+qq.R.g <- function(x, tau, doPDF, file, log="") # TODO: maybe when qqline() works: log="xy"
 {
     th <- iTauACsimplex(tau, Rdist="Gamma", interval=c(1e-3, 1e2)) # d=2
-    qqplot2(x, qF = function(p) qgamma(p, shape=th), log="xy",
+    qqplot2(x, qF = function(p) qgamma(p, shape=th), log=log,
             main.args=list(text=expression(bold(italic(F[R]^-1)~~"Q-Q Plot"~~
                 "for"~~italic(F[R])~~"being Gamma")),
             side=3, cex=1.3, line=1.1, xpd=NA), doPDF=doPDF, file=file)
@@ -136,9 +196,14 @@ indepRS <- function(R, S, doPDF, file, width=6, height=6, crop=NULL, ...)
     d <- ncol(S)
     qR <- qgamma(rank(R)/(n+1), shape=d) # make it Gamma(d) (=> C=Pi)
     if(doPDF) pdf(file=file, width=width, height=height)
-    pairs(pobs(qR*S), gap=0,
-          labels=as.expression( sapply(seq_len(d), function(j) bquote(italic(tilde(U)[.(j)]))) ),
-          ...)
+    if(d==2) {
+        plot(pobs(qR*S), xlab=expression(italic(tilde(U)[1])),
+             ylab=expression(italic(tilde(U)[2])), ...)
+    } else {
+        pairs(pobs(qR*S), gap=0,
+              labels=as.expression( sapply(seq_len(d), function(j) bquote(italic(tilde(U)[.(j)]))) ),
+              ...)
+    }
     if(doPDF) dev.off.pdf(file=file)
     invisible()
 }
@@ -159,33 +224,20 @@ htrafoRS <- function(R, S)
     cbind(U., rank(R)/(n+1)) # last component: K_C(C(U)) = K_C(psi(R)); approximate K_C(t) by edf
 }
 
-## pairs plot for Hering--Hofert transformed data
+## pairs plot (for Hering--Hofert transformed data)
 pairs2 <- function(x, gap=0, doPDF, file, width=6, height=6, crop=NULL, ...)
 {
+    d <- ncol(x)
     if(doPDF) pdf(file=file, width=width, height=height)
-    pairs(x, gap=0, labels=as.expression( sapply(seq_len(ncol(x)),
-        function(j) bquote(italic(U*"'"[.(j)]))) ), ...)
+    if(d==2) {
+        plot(x, xlab=expression(italic(U*"'"[1])), ylab=expression(italic(U*"'"[2])),
+             ...)
+    } else {
+        pairs(x, gap=0, labels=as.expression( sapply(seq_len(ncol(x)),
+            function(j) bquote(italic(U*"'"[.(j)]))) ), ...)
+    }
     if(doPDF) dev.off.pdf(file=file)
     invisible()
-}
-
-##' @title Sampling Tilted Archimedean Copulas (Hofert, Ziegel)
-##' @param n sample size
-##' @param A matrix A
-##' @param Rdist distribution of the radial part
-##' @return (n, d) matrix
-##' @author Marius Hofert
-rTAC <- function(n, A, theta, Rdist="Gamma")
-{
-    stopifnot(is.matrix(A), (d <- nrow(A))==ncol(A),
-              diag(A)==1, A<=1)
-    Rdist <- match.arg(Rdist)
-    R <- switch(Rdist,
-                "Gamma" = rgamma(n, theta),
-                stop("wrong Rdist"))
-    S <- rSimplex(n, d=d) # (n,d)
-    X <- R * (S %*% t(A)) # S %*% t(A): (n,d) * (d,d) = (n,d)
-    pobs(X) # empirical margins
 }
 
 
@@ -199,13 +251,25 @@ ggofArch <- function(n, d, tau, doPDF)
 {
     ## generate data
     set.seed(.seed) # set seed
-    U.C <- rCopula(n, archmCopula("Clayton", param = getAcop("Clayton")@iTau(tau),
-                                  dim = d))
-    U.G <- rCopula(n, archmCopula("Gumbel", param = getAcop("Gumbel")@iTau(tau),
-                                  dim = d))
-    U.g <- rACsimplex(n, d=d, theta = iTauACsimplex(tau, Rdist="Gamma",
-                                                    interval=c(1e-2, 1e2)), # d=2
-                      Rdist="Gamma")
+    ## Clayton
+    U.C <- pobs(rCopula(n, archmCopula("Clayton", param = getAcop("Clayton")@iTau(tau),
+                                       dim = d)))
+    ## Gumbel
+    U.G <- pobs(rCopula(n, archmCopula("Gumbel", param = getAcop("Gumbel")@iTau(tau),
+                                       dim = d)))
+    ## Gamma Simplex
+    th.g <- iTauACsimplex(tau, Rdist="Gamma", interval=c(1e-2, 1e2))
+    U.g <- rGammaSimplexPobs(n, d=d, theta=th.g)
+
+    ## basic sanity check
+    stopifnot(0 < U.C, U.C < 1,
+              0 < U.G, U.G < 1,
+              0 < U.g, U.g < 1) # due to numerical issues for too large d
+    if(FALSE) {
+        pairs(U.C, gap=0, pch=".")
+        pairs(U.G, gap=0, pch=".")
+        pairs(U.g, gap=0, pch=".")
+    }
 
     ## compute the (R,S) decomposition for all data sets
     RS.C <- RSpobs(U.C, method="archm")
@@ -326,44 +390,45 @@ ggofArch <- function(n, d, tau, doPDF)
 
     ## data: R from Clayton
     file <- paste0("ggof_indep_R_S_true=C_d=", d, "_tau=", tau, ".pdf")
-    indepRS(RS.C$R, S=RS.C$S, doPDF=doPDF, file=file, pch=".") # should be independent
+    indepRS(RS.C$R, S=RS.C$S, doPDF=doPDF, file=file, pch=if(d>=10) ".")
 
     ## data: R from Gumbel
     file <- paste0("ggof_indep_R_S_true=G_d=", d, "_tau=", tau, ".pdf")
-    indepRS(RS.G$R, S=RS.G$S, doPDF=doPDF, file=file, pch=".") # should be independent
+    indepRS(RS.G$R, S=RS.G$S, doPDF=doPDF, file=file, pch=if(d>=10) ".")
 
     ## data: R ~ Gamma
     file <- paste0("ggof_indep_R_S_true=Gamma_d=", d, "_tau=", tau, ".pdf")
-    indepRS(RS.g$R, S=RS.g$S, doPDF=doPDF, file=file, pch=".") # should be independent
+    indepRS(RS.g$R, S=RS.g$S, doPDF=doPDF, file=file, pch=if(d>=10) ".")
 
 
     ## 1.3) Hofert-Hering transform as GoF test ################################
 
     ## data: R from Clayton
     file <- paste0("ggof_htrafo_true=C_d=", d, "_tau=", tau, ".pdf")
-    pairs2(htrafoRS(RS.C$R, S=RS.C$S), gap=0, doPDF=doPDF, file=file)
+    pairs2(htrafoRS(RS.C$R, S=RS.C$S), gap=0, doPDF=doPDF, file=file,
+           pch=if(d>=10) ".")
 
     ## data: R from Gumbel
     file <- paste0("ggof_htrafo_true=G_d=", d, "_tau=", tau, ".pdf")
-    pairs2(htrafoRS(RS.G$R, S=RS.G$S), gap=0, doPDF=doPDF, file=file)
+    pairs2(htrafoRS(RS.G$R, S=RS.G$S), gap=0, doPDF=doPDF, file=file,
+           pch=if(d>=10) ".")
 
     ## data: R ~ Gamma
     file <- paste0("ggof_htrafo_true=Gamma_d=", d, "_tau=", tau, ".pdf")
-    pairs2(htrafoRS(RS.g$R, S=RS.g$S), gap=0, doPDF=doPDF, file=file)
+    pairs2(htrafoRS(RS.g$R, S=RS.g$S), gap=0, doPDF=doPDF, file=file,
+           pch=if(d>=10) ".")
 }
 
 ## setup
 n <- 250 # sample size
-d <- c(2, 10, 50) # dimensions
+d <- c(2, 5, 20) # dimensions
 tau <- 0.5 # Kendall's tau
 
 ## call
-system.time(ggofArch(n, d=d[1], tau=tau, doPDF=doPDF)) # ~ 110s (MH's notebook)
-system.time(ggofArch(n, d=d[2], tau=tau, doPDF=doPDF)) # ~ 310s
-system.time(ggofArch(n, d=d[3], tau=tau, doPDF=doPDF)) # ~ s
+system.time(ggofArch(n, d=d[1], tau=tau, doPDF=doPDF)) # ~ 160s (MH's notebook)
+system.time(ggofArch(n, d=d[2], tau=tau, doPDF=doPDF)) # ~ 190s
+system.time(ggofArch(n, d=d[3], tau=tau, doPDF=doPDF)) # ~ 600s
 
-TODO: fix Q-Q line in log-log space (in qqplot2!)
-TODO: fix sampling in d=50
 
 
 ### 2) Exchangeable (but not Archimedean) models ###############################
@@ -374,13 +439,24 @@ ggofExch <- function(n, d, tau, doPDF)
     ## generate data
     set.seed(.seed) # set seed
     rho <- iTau(normalCopula(), tau=tau)
-    U.Ga <- rCopula(n, ellipCopula("normal", param = rho, dim = d))
-    U.t4 <- rCopula(n, ellipCopula("t", param = rho, dim = d, df = 4))
+    ## Gaussian
+    U.Ga <- pobs(rCopula(n, ellipCopula("normal", param = rho, dim = d)))
+    ## t_4
+    U.t4 <- pobs(rCopula(n, ellipCopula("t", param = rho, dim = d, df = 4)))
+    ## Gamma Liouville
     th.gL <- if(tau==0.5) 1.5 else # roughly 1.5 for tau==0.5 (we make it 'fast' here)
              iTauLiouville(tau, alpha=c(4,4), interval=c(1, 10), n.MC=1e5)
-    U.gL <- rLiouville(n, alpha=rep(4, d), theta = th.gL, Rdist="Gamma")
-    if(FALSE)
-        pairs(U.gL, gap=0, pch=".") # check
+    U.gL <- rGammaLiouville(n, alpha=rep(4, d), theta=th.gL)
+
+    ## basic sanity check
+    stopifnot(0 < U.Ga, U.Ga < 1,
+              0 < U.t4, U.t4 < 1,
+              0 < U.gL, U.gL < 1)
+    if(FALSE) {
+        pairs(U.Ga, gap=0, pch=".")
+        pairs(U.t4, gap=0, pch=".")
+        pairs(U.gL, gap=0, pch=".")
+    }
 
     ## compute the (R,S) decomposition for all data sets
     RS.Ga <- RSpobs(U.Ga, method="archm")
@@ -396,7 +472,7 @@ ggofExch <- function(n, d, tau, doPDF)
 
 ## setup
 n <- 250 # sample size
-d <- c(2, 10, 50) # dimensions
+d <- c(2, 5, 20) # dimensions
 tau <- 0.5 # Kendall's tau
 
 ## call
@@ -414,19 +490,34 @@ ggofNonExch <- function(n, d, tau, doPDF)
     ## generate data
     set.seed(.seed) # set seed
     rho <- iTau(normalCopula(), tau=tau)
-    U.Ga <- rCopula(n, ellipCopula("normal", param=rho, dim=d, dispstr="ar1")) # AR(1) (see ?getSigma)
-    U.t4 <- rCopula(n, ellipCopula("t", param=rho, dim=d, dispstr="ar1", df=4))
+    ## Gaussian
+    U.Ga <- pobs(rCopula(n, ellipCopula("normal", param=rho, dim=d, dispstr="ar1"))) # AR(1) (see ?getSigma)
+    ## t_4
+    U.t4 <- pobs(rCopula(n, ellipCopula("t", param=rho, dim=d, dispstr="ar1", df=4)))
+    ## Gamma Liouville
     if(FALSE) {
+        ## numerical problems for large alpha (due to HbarL() -> g())
         set.seed(.seed)
-        (U <- rLiouville(n, alpha=seq_len(10), theta=1.5, Rdist="Gamma")) # => heavy numerical problems
+        (U <- rLiouville(n, alpha=seq_len(10), theta=1.5, Rdist="Gamma"))
+        ## => we avoid these here
     }
-    U.gL <- rLiouville(n, alpha=sample(1:4, size=d, replace=TRUE), # comparably stable for small alpha
-                       theta=1.5, Rdist="Gamma") # use theta=1.5 as before; note: run time!
+    th.gL <- if(tau==0.5) 1.5 else # roughly 1.5 for tau==0.5 (we make it 'fast' here)
+             iTauLiouville(tau, alpha=c(4,4), interval=c(1, 10), n.MC=1e5) # => as above, but here (due to non-exchangeability) even less meaningful
+    U.gL <- rGammaLiouville(n, alpha=sample(1:8, size=d, replace=TRUE), theta=th.gL)
+    ## Tilted Archimedean copula
     A <- tau^abs(outer(seq_len(d), seq_len(d), FUN="-")) # just an example
     U.HZ <- rTAC(n, A=A, theta=1.5, Rdist="Gamma")
+
+    ## basic sanity check
+    stopifnot(0 < U.Ga, U.Ga < 1,
+              0 < U.t4, U.t4 < 1,
+              0 < U.gL, U.gL < 1,
+              0 < U.HZ, U.HZ < 1)
     if(FALSE) {
-        pairs(U.gL, gap=0, pch=".") # check
-        pairs(U.HZ, gap=0, pch=".") # check
+        pairs(U.Ga, gap=0, pch=".")
+        pairs(U.t4, gap=0, pch=".")
+        pairs(U.gL, gap=0, pch=".")
+        pairs(U.HZ, gap=0, pch=".")
     }
 
     ## compute the (R,S) decomposition for all data sets
@@ -444,7 +535,7 @@ ggofNonExch <- function(n, d, tau, doPDF)
 
 ## setup
 n <- 250 # sample size
-d <- c(2, 10, 50) # dimensions
+d <- c(2, 5, 20) # dimensions
 tau <- 0.5 # Kendall's tau
 
 ## call
@@ -483,7 +574,7 @@ d.hat.t4   <- density(RS.t4$R) # true
 d.hat.t10  <- density(RS.t10$R)
 
 ## x range
-xran <- c(4e-1, max(dens.norm$x, dens.t2$x, dens.t4$x, dens.t10$x))
+xran <- c(4e-1, max(d.hat.norm$x, d.hat.t2$x, d.hat.t4$x, d.hat.t10$x))
 x <- seq(xran[1], xran[2], length.out=513)
 
 ## corresponding theoretical R densities
@@ -498,20 +589,20 @@ yran <- c(0, max(d.hat.norm$y, d.hat.t2$y, d.hat.t4$y, d.hat.t10$y,
 ## normal
 if(doPDF) {
     file <- paste0("ggof_radial_densities_true=t4_d=", d, ".pdf")
-    pdf(file=file, width=width, height=height)
+    pdf(file=file, width=6, height=6)
 }
-plot(dens.norm, xlim=xran, ylim=yran, lty=2, log="x",
+plot(d.hat.norm, xlim=xran, ylim=yran, lty=2, log="x",
      xlab=expression(italic(R)),
      main="R density estimates vs assumed, theoretical densities") # R density estimate
 lines(x, d.norm) # 'true' if norm was correct
 ## t2
-lines(dens.t2, col="red", lty=2) # R density estimate
+lines(d.hat.t2, col="red", lty=2) # R density estimate
 lines(x, d.t2, col="red") # 'true' if t2 was correct
 ## t4
-lines(dens.t4, col="darkgreen", lty=2) # R density estimate
+lines(d.hat.t4, col="darkgreen", lty=2) # R density estimate
 lines(x, d.t4, col="darkgreen") # true
 ## t10
-lines(dens.t10, col="blue", lty=2) # R density estimate
+lines(d.hat.t10, col="blue", lty=2) # R density estimate
 lines(x, d.t10, col="blue") # 'true' if t10 was correct
 ## legend
 legend("topright", inset=0.04, bty="n", lty=rep(1:2, 4),
@@ -551,7 +642,7 @@ tau <- cor(u, method="kendall")
 tau. <- Matrix(tau) # 'Matrix' object
 if(doPDF) {
     file <- paste0("ggof_SMI_tau_n.pdf")
-    pdf(file=file, width=width, height=height)
+    pdf(file=file, width=6, height=6)
 }
 image(tau., colorkey=TRUE, main="Pairwise sample versions of Kendall's tau") # => non-exchangeable; range(tau.[upper.tri(tau.)]) = (0.0880981, 0.6879079)
 if(doPDF) dev.off.pdf(file=file)
@@ -571,12 +662,12 @@ plot(nu, nLL+1200, type="l", log="xy",
 ## now that we got the picture, find the minimum:
 nu. <- optimize(nLLt, interval=c(.5, 64), P=P, u=u, tol=1e-7)$minimum # 11.96
 
-## Checking if the data indeed comes from a meta-t_{nu.}-model
-RS.t <- RSpobs(x, method="ellip")
-R.t <- RS.t$R
-S.t <- RS.t$S
-
 ## TODO: new... not sure yet what we should do in this (*elliptical*) case
+
+## Checking if the data indeed comes from a meta-t_{nu.}-model
+## RS.t <- RSpobs(x, method="ellip")
+## R.t <- RS.t$R
+## S.t <- RS.t$S
 
 ## ## Q-Q plot of R against the quantiles of F_R for the estimated t distribution
 ## qqplot2(R.t, qF=function(p) sqrt(d*qf(p, df1=d, df2=nu.)),
