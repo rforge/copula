@@ -6,7 +6,8 @@
   Central Limit Theorem) two-sided 1-\eqn{\alpha}{alpha} confidence intervals.
 }
 \usage{
-qqplot2(x, qF, log = "", qqline.args = list(distribution=qF, untf = nzchar(log)),
+qqplot2(x, qF, log = "", qqline.args = if(log=="x" || log=="y")
+        list(untf=TRUE) else list(),
         rug.args = list(tcl=-0.6*par("tcl")),
         alpha = 0.05, CI.args = list(col="gray50"),
         CI.mtext = list(text=paste0("Pointwise asymptotic ", 100*(1-alpha),

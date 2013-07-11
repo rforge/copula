@@ -223,8 +223,7 @@ splom2 <- function(data, varnames=NULL, Vname="U", xlab="",
 ##' Note: - used in Genest, Hofert, Neslehova (2013)
 ##'       - better than pointwise asymptotic CIs would be (non-parametric)
 ##'         bootstrapped ones
-qqplot2 <- function(x, qF, log="", qqline.args=list(distribution=qF,
-                                   untf=nzchar(log)), # for log-case
+qqplot2 <- function(x, qF, log="", qqline.args=if(log=="x" || log=="y") list(untf=TRUE) else list(),
                     rug.args=list(tcl=-0.6*par("tcl")),
                     alpha=0.05, CI.args=list(col="gray50"),
                     CI.mtext=list(text=paste0("Pointwise asymptotic ", 100*(1-alpha),
@@ -246,12 +245,17 @@ qqplot2 <- function(x, qF, log="", qqline.args=list(distribution=qF,
     do.call(mtext, main.args)
     ## plot the line (overplots points, but that's good for the eye!)
     if(!is.null(qqline.args))
-        if(nzchar(log) && (is.null(untf <- qqline.args$untf) || !untf))
-            warning("for a Q-Q line in log-scale, specify 'untf = TRUE' in qqline.args")
+        if(nchar(log)==1 && (is.null(untf <- qqline.args$untf) || !untf))
+            warning("for a Q-Q line in x-log- or y-log-scale, specify 'untf = TRUE' in qqline.args")
     ## draw the line (through the first and third quartile; see ?qqline)
     ## note: - abline(a=0, b=1) only true if data is standardized (mu=0, sig2=1)
     ##       - abline(..., untf=TRUE) displays a curve (proper line in log-space)
-        else do.call(qqline, args=c(list(y=x.), qqline.args)) # qqline(y, distribution=..)
+        else {
+            if(log=="xy") do.call(qqline, args=c(list(y=log10(x.),
+                                                 distribution=function(p) log10(qF(p))),
+                                          qqline.args))
+            else do.call(qqline, args=c(list(y=x., distribution=qF), qqline.args))
+        }
     ## rugs
     if(!is.null(rug.args)) {
         do.call(rug, c(list(q, side=1), rug.args))
