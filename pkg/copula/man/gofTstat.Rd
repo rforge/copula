@@ -76,7 +76,7 @@ useR=FALSE, \dots)
   Goodness-of-fit tests for Archimedean copulas in large dimensions,
   submitted.
 
-  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2013).
+  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2012).
   Likelihood inference for Archimedean copulas in high dimensions
   under known margins. \emph{Journal of Multivariate Analysis}
   \bold{110}, 133--150.

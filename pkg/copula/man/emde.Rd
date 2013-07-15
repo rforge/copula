@@ -30,11 +30,11 @@ emde(u, cop,
 	a \ifelse{latex}{Kolmogorov-Smir-nov}{Kolmogorov-Smirnov} distance.}
 
     }
-    The four methods are described in Hofert et al. (2012); see also the
+    The four methods are described in Hofert et al. (2013); see also the
     \sQuote{Details} section.}
   \item{interval}{bivariate vector denoting the interval where
     optimization takes place.  The default is computed as described in
-    Hofert et al.(2012).}
+    Hofert et al. (2013).}
   \item{include.K}{logical indicating whether the last component, the
     (possibly numerically challenging) Kendall distribution function
     \eqn{K}, is used (\code{include.K=TRUE}) or not.  Note that the default is
@@ -71,12 +71,12 @@ emde(u, cop,
 }
 \author{Marius Hofert}
 \references{
-  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2012).
+  Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2013).
   Archimedean Copulas in High Dimensions: Estimators and Numerical
   Challenges Motivated by Financial Applications.
   \emph{Journal de la Soci\enc{é}{e}t\enc{é}{e} Fran\enc{ç}{c}aise de
     Statistique}
-  \bold{153}(3), 25--63.
+  \bold{154}(1), 25--63.
 
    Hering, C. and Hofert, M. (2011),
    Goodness-of-fit tests for Archimedean copulas in large dimensions,
