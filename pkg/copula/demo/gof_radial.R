@@ -42,7 +42,7 @@ source(system.file("Rsource", "AC-Liouville.R", package="copula"))
 
 ## basic settings
 .seed <- 271 # for seeding
-doPDF <- TRUE # whether plotting is done to pdf
+doPDF <- !dev.interactive() # plotting to pdf if not interactive graphics
 dev.off.pdf <- copula:::dev.off.pdf # for plotting to pdf
 
 
