@@ -26,6 +26,13 @@ stopifnot(NULL == 1) is not stopping
 *** DONE dCopula() = 0 {log = -Inf} for u "outside"
 *** TODO both should keep NA & NaN. Maybe keep them different, as  pnorm(c(2,NA,NaN));
 however relax, as  NA+NaN or NaN+NA  differ, too.
+** TODO why does...
+onacopulaL("Clayton", list(th=iTau(archmCopula("clayton"), tau=0.5), seq_len(3)))
+work but
+onacopulaL("clayton", list(th=iTau(archmCopula("clayton"), tau=0.5), seq_len(3)))
+doesn't?
+=> essentially, we always want to use the capitalized versions, but it might
+still be a bug (?) that it doesn't work otherwise
 ** DONE largely improve on gofTests.R: should be made more modular, so that users can provide functions for the parametric bootstrap (gofPB) and the multiplier boostrap (gofMB). Furthermore, checking and documentation have to be improved (see already improved gofPB());
 ** TODO deprecate gnacopula() [see 'Note' there!!!]
  MH: already 'prepared' a lot; only difficulty: many calls of gnacopula()
