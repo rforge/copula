@@ -411,15 +411,12 @@ pairsRosenblatt(cu.uN, pvalueMat=pmatN, method="none", cex.labels=0.7,
 nuOpt. <- round(nuOpt, 2)
 title <- list("Pairwise Rosenblatt transformed pseudo-observations",
               bquote(bold("to test")~~italic(H[0]:C)~~"is"~~italic(t)[.(nuOpt.)]))
-PDF <- FALSE
-if(PDF){ # for plotting to pdf
+doPDF <- !dev.interactive(orNone=TRUE)
+if(doPDF){ # for plotting to pdf
     file <- paste0("SMI.12_CH0=t_", nuOpt.,".pdf")
     pdf(file=file)
 }
 pairsRosenblatt(cu.ut, pvalueMat=pmatt, method="none", cex.labels=0.7,
                 key.space=1.5, main.centered=TRUE, main=title, line.main=c(3, 0.4))
-if(PDF){
-    dev.off()
-    f <- file.path(getwd(), file)
-    if(crop) system(paste("pdfcrop --pdftexcmd pdftex", f, f, "1>/dev/null 2>&1"), intern=FALSE)
-}
+
+if(doPDF) dev.off.pdf(file)
