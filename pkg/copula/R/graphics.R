@@ -250,6 +250,7 @@ qqplot2 <- function(x, qF, log="", qqline.args=if(log=="x" || log=="y") list(unt
     ## draw the line (through the first and third quartile; see ?qqline)
     ## note: - abline(a=0, b=1) only true if data is standardized (mu=0, sig2=1)
     ##       - abline(..., untf=TRUE) displays a curve (proper line in log-space)
+    ##         *unless* both axes are in log-scale
         else {
             if(log=="xy") do.call(qqline, args=c(list(y=log10(x.),
                                                  distribution=function(p) log10(qF(p))),
