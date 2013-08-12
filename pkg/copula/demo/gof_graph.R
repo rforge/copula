@@ -419,4 +419,4 @@ if(doPDF){ # for plotting to pdf
 pairsRosenblatt(cu.ut, pvalueMat=pmatt, method="none", cex.labels=0.7,
                 key.space=1.5, main.centered=TRUE, main=title, line.main=c(3, 0.4))
 
-if(doPDF) dev.off.pdf(file)
+if(doPDF) copula:::dev.off.pdf(file) ## FIXME: help page + export dev.off.pdf()
