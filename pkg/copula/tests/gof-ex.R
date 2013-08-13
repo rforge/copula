@@ -32,15 +32,9 @@ stopifnot(all.equal(rtG, rtrafo(u1, gumbelCopula(2, d=4)),
 (doExtras <- copula:::doExtras())
 source(system.file("Rsource", "estim-gof-fn.R", package="copula"))
 ## --> estimation.gof() etc
+source(system.file("Rsource", "utils.R",     package="copula", mustWork=TRUE))
+##-> assertError(), ... showProc.time()
 
-## From source(system.file("test-tools-1.R", package = "Matrix")) :
-showProc.time <- local({
-    pct <- proc.time()
-    function() { ## CPU elapsed __since last called__
-	ot <- pct ; pct <<- proc.time()
-	cat('Time elapsed: ', (pct - ot)[1:3],'\n')
-    }
-})
 
 ## Use GoF methods:
 (gofTraf <- eval(formals(gnacopula)$trafo))

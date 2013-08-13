@@ -147,6 +147,9 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
   \code{\link{mvdc}} for fitting multivariate distributions
   \emph{including} the margins aka \dQuote{meta copula}s;
   \code{\link{gofCopula}}.
+
+  For maximum likelihood of (nested) archimedean copulas:
+  \code{\link{emle}}, etc.
 }
 \examples{
 gumbel.cop <- gumbelCopula(3, dim=2)
