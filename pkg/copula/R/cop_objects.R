@@ -641,20 +641,23 @@ copGumbel <-
                   u. <- u[n01,, drop=FALSE]
                   mlu <- -log(u.) # -log(u)
                   lmlu <- log(mlu) # log(-log(u))
-                  t <- rowSums(C.@iPsi(u., theta))
+                  ## may overflow to Inf: t <- rowSums(C.@iPsi(u., theta))
+                  l.iP <- C.@iPsi(u., theta, log=TRUE)
+                  ln.t <- copula:::lsum(t(l.iP))
                   ## main part
                   if(n.MC > 0) { # Monte Carlo
                       V <- C.@V0(n.MC, theta)
                       sum. <- rowSums((theta-1)*lmlu + mlu)
                       sum.mat <- matrix(rep(sum., n.MC), nrow=n.MC, byrow=TRUE)
                       ## stably compute log(colMeans(exp(lx)))
+                      t <- exp(ln.t)## quickly overflows to +Inf ( <==> lx[.] == -Inf )
                       lx <- d*(log(theta)+log(V)) - log(n.MC) - V %*% t(t) + sum.mat  # matrix of exponents; dimension n.MC x n ["V x u"]
                       res[n01] <- lsum(lx)
                       if(log) res else exp(res)
                   } else { # explicit
                       alpha <- 1/theta
                       ## compute lx = alpha*log(sum(iPsi(u., theta)))
-                      lx <- alpha*log(t) ## == log(t^alpha) == log( t^(1/theta) )
+		      lx <- alpha*ln.t ## == log(t^alpha) == log( t^(1/theta) )
                       ## ==== former version [start] (numerically slightly more stable but slower) ====
                       ## im <- apply(u., 1, which.max)
                       ## mat.ind <- cbind(seq_len(n), im) # indices that pick out maxima from u.
