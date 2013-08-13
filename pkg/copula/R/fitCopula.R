@@ -254,24 +254,30 @@ fitCopula.ml <- function(copula, u, start=NULL,
     upper <- if(meth.has.bounds) copula@param.upbnd  - bound.eps else Inf
 
   ## messageOut may be used for debugging
-  if (hideWarnings) {
-    messageOut <- textConnection("fitMessages", open="w", local=TRUE)
-    sink(messageOut); sink(messageOut, type="message")
-    oop <- options(warn = -1) ## ignore warnings; can be undesirable!
-    on.exit({ options(oop); sink(type="message"); sink(); close(messageOut)})
-  }
+  ## if (hideWarnings) {
+    ## ## ?sink mentions that sink(*, type="message") is too dangerous: (!)
+    ## As we found too, it swallows error messages and makes fitCop*() return nothing!
 
+    ## messageOut <- textConnection("fitMessages", open="w", local=TRUE)
+    ## sink(messageOut)
+    ## sink(messageOut, type="message")
+    ## oop <- options(warn = -1) ## ignore warnings; can be undesirable!
+    ## on.exit({ options(oop); sink(type="message"); sink(); close(messageOut)})
+  ## }
+
+  (if(hideWarnings) suppressWarnings else identity)(
   fit <- optim(start, loglikCopula,
                lower=lower, upper=upper,
                method=method,
                copula = copula, x = u,
                control = control)
+  )
 
-  if (hideWarnings) {
-    options(oop); sink(type="message"); sink()
-    on.exit()
-    close(messageOut)
-  }
+  ## if (hideWarnings) {
+  ##   options(oop); sink(type="message"); sink()
+  ##   on.exit()
+  ##   close(messageOut)
+  ## }
 
   copula@parameters[1:q] <- fit$par
   loglik <- fit$val
@@ -279,6 +285,7 @@ fitCopula.ml <- function(copula, u, start=NULL,
       warning("possible convergence problem: optim() gave code=",
               fit$convergence)
 
+  ## MM{FIXME}: This should be done only by 'vcov()' and summary() !
   varNA <- matrix(NA_real_, q, q)
   var.est <- if(estimate.variance && fit$convergence == 0) {
     fit.last <- optim(copula@parameters, loglikCopula,
