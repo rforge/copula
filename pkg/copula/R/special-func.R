@@ -86,7 +86,7 @@ signFF <- function(alpha, j, d) {
 ##'         = log(x_max) + log(sum(exp(log(x)-log(x_max)))))
 ##'         = lx.max + log(sum(exp(lx-lx.max)))
 ##'         => VECTOR OF DIMENSION d
-##' @author Marius Hofert (implementation), Martin Maechler (concept)
+##' @author Marius Hofert, Martin Maechler
 lsum <- function(lx, l.off = apply(lx, 2, max)) {
     ## do not use cbind or rbind here, since it is not clear if the user specified
     ## only one vector log(x) or several vectors of dimension 1 !!!

@@ -18,6 +18,8 @@
 
 require(copula)
 
+doPDF <- !dev.interactive(orNone=TRUE)
+
 if(!(exists("setSeeds") && is.logical(as.logical(setSeeds))))
 setSeeds <- TRUE # for reproducibility
 ##  maybe set to FALSE *before* running this demo
@@ -93,7 +95,7 @@ sub. <- paste(paste(sub[1:3], collapse=", "), "\n",
               paste(sub[4:7], collapse=", "), sep="")
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=pwRoto, sub=sub., line.sub=5.4)
 
-## 4) two-line title including expressions, and centered  --- JCGS, Fig.3(left) ---
+## 4) two-line title including expressions, and centered --- JCGS, Fig.3 (left) ---
 title <- list(paste(pwRoto, "to test"),
               substitute(italic(H[0]:C~~bold("is Gumbel with"~~tau==tau.)),
                          list(tau.=tau)))
@@ -247,9 +249,17 @@ title <- list(paste(pwRoto, "to test"),
                          list(tau0=tau0[1], tau1=tau0[2], tau2=tau0[3])))
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title)
 
-## --- JCGS, Fig.3(right) ---
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, line.main=c(4, 1.4),
-                main.centered=TRUE)
+## --- JCGS, Fig.4 (left) ---
+if(doPDF) pdf(file=(file <- "gof_graph_fig-nG-scatter.pdf"))
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title,
+                line.main=c(4, 1.4), main.centered=TRUE)
+if(doPDF) copula:::dev.off.pdf(file=file)
+
+## --- JCGS, Fig.4 (right) ---
+if(doPDF) pdf(file=(file <- "gof_graph_fig-nG-QQ.pdf"))
+pairsRosenblatt(cu.u, pvalueMat=pmat, method="QQchisq", cex=0.2, main=title,
+                line.main=c(4, 1.4), main.centered=TRUE)
+if(doPDF) copula:::dev.off.pdf(file=file)
 
 
 ### Example 3: 5d t_4 copula (fixed/known d.o.f., estimated P) #################
@@ -295,12 +305,12 @@ which(pmat < 0.05, arr.ind=TRUE) # [none]
 ## pairwise Rosenblatt plot
 title <- list("Pairwise Rosenblatt transformed pseudo-observations",
               expression(bold("to test")~~italic(H[0]:C~~bold("is t")[4])))
-## --- JCGS, Fig.4(left) ---
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, line.main=c(4, 1.4),
-                main.centered=TRUE)
-## --- JCGS, Fig.4(right) ---
-pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title, line.main=c(4, 1.4),
-                method = "QQchisq", main.centered=TRUE)
+## --- JCGS, Fig.5 (left) ---
+pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title,
+                line.main=c(4, 1.4), main.centered=TRUE)
+## --- JCGS, Fig.5 (right) ---
+pairsRosenblatt(cu.u, pvalueMat=pmat, method = "QQchisq", pch=".", main=title,
+                line.main=c(4, 1.4), main.centered=TRUE)
 
 ### Example 4: SMI constituents ################################################
 
@@ -311,7 +321,7 @@ d <- ncol(SMI.12)
 x <- diff(log(SMI.12)) # build log-returns
 u <- pobs(x) # build pseudo-observations
 
-## --- JCGS, Fig.5 ---
+## --- JCGS, Fig.6 ---
 pairs(u, gap=0, pch=".", xaxt="n", yaxt="n", main="Pseudo-observations of the log-returns of the SMI",
       labels=as.expression( sapply(1:d, function(j) bquote(italic(hat(U)[.(j)]))) ))
 
@@ -407,16 +417,13 @@ title <- list("Pairwise Rosenblatt transformed pseudo-observations",
 pairsRosenblatt(cu.uN, pvalueMat=pmatN, method="none", cex.labels=0.7,
                 key.space=1.5, main.centered=TRUE, main=title, line.main=c(3, 0.4))
 
-## pairwise Rosenblatt plot (test for t_nuOpt) --- JCGS, Fig.6 --
+## pairwise Rosenblatt plot (test for t_nuOpt) --- JCGS, Fig.7 --
 nuOpt. <- round(nuOpt, 2)
 title <- list("Pairwise Rosenblatt transformed pseudo-observations",
               bquote(bold("to test")~~italic(H[0]:C)~~"is"~~italic(t)[.(nuOpt.)]))
-doPDF <- !dev.interactive(orNone=TRUE)
-if(doPDF){ # for plotting to pdf
-    file <- paste0("SMI.12_CH0=t_", nuOpt.,".pdf")
-    pdf(file=file)
-}
+if(doPDF) pdf(file=(file <- "gof_graph_fig-SMI-ex.pdf"))
 pairsRosenblatt(cu.ut, pvalueMat=pmatt, method="none", cex.labels=0.7,
-                key.space=1.5, main.centered=TRUE, main=title, line.main=c(3, 0.4))
-
-if(doPDF) copula:::dev.off.pdf(file) ## FIXME: help page + export dev.off.pdf()
+                key.space=1.5, main.centered=TRUE, main=title, line.main=c(3, 0.4),
+                keyOpt=list(space=1.5, width=1.5, axis=TRUE,
+                            rug.at = numeric(), title=NULL, line=5))
+if(doPDF) copula:::dev.off.pdf(file=file)
