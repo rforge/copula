@@ -28,7 +28,6 @@
 
 ## TODOs:
 ## - 1.2), 1.3): shall we map the data to chi^2 (one-dimensional setup)?
-## - fix Q-Q line in log-log space (in qqplot2()!)
 
 
 
@@ -43,7 +42,6 @@ source(system.file("Rsource", "AC-Liouville.R", package="copula"))
 ## basic settings
 .seed <- 271 # for seeding
 doPDF <- !dev.interactive(orNone=TRUE) # plotting to pdf if not interactive graphics
-dev.off.pdf <- copula:::dev.off.pdf # for plotting to pdf
 
 
 

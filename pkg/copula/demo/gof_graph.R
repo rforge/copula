@@ -97,7 +97,7 @@ pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=pwRoto, sub=sub., line.sub=5
 
 ## 4) two-line title including expressions, and centered --- JCGS, Fig.3 (left) ---
 title <- list(paste(pwRoto, "to test"),
-              substitute(italic(H[0]:C~~bold("is Gumbel with"~~tau==tau.)),
+              substitute(italic(H[0]^s:C~~bold("is Gumbel with"~~tau==tau.)),
                          list(tau.=tau)))
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".",
                 main=title, line.main=c(4, 1.4), main.centered=TRUE)
@@ -242,7 +242,7 @@ which(pmat < 0.05, arr.ind=TRUE)
 
 ## pairwise Rosenblatt plot
 title <- list(paste(pwRoto, "to test"),
-              substitute(italic(H[0]:C~~bold("is nested Gumbel with"~~
+              substitute(italic(H[0]^s:C~~bold("is nested Gumbel with"~~
                                              tau[0]==tau0*","~~
                                              tau[1]==tau1*","~~
                                              tau[2]==tau2)),
@@ -304,7 +304,7 @@ which(pmat < 0.05, arr.ind=TRUE) # [none]
 
 ## pairwise Rosenblatt plot
 title <- list("Pairwise Rosenblatt transformed pseudo-observations",
-              expression(bold("to test")~~italic(H[0]:C~~bold("is t")[4])))
+              expression(bold("to test")~~italic(H[0]^s:C~~bold("is t")[4])))
 ## --- JCGS, Fig.5 (left) ---
 pairsRosenblatt(cu.u, pvalueMat=pmat, pch=".", main=title,
                 line.main=c(4, 1.4), main.centered=TRUE)
@@ -413,14 +413,14 @@ abline(0,1, lty=2, col="gray")
 
 ## test for Gaussian copula
 title <- list("Pairwise Rosenblatt transformed pseudo-observations",
-              expression(bold("to test")~~italic(H[0]:C~~bold("is Gaussian"))))
+              expression(bold("to test")~~italic(H[0]^c:C~~bold("is Gaussian"))))
 pairsRosenblatt(cu.uN, pvalueMat=pmatN, method="none", cex.labels=0.7,
                 key.space=1.5, main.centered=TRUE, main=title, line.main=c(3, 0.4))
 
 ## pairwise Rosenblatt plot (test for t_nuOpt) --- JCGS, Fig.7 --
 nuOpt. <- round(nuOpt, 2)
 title <- list("Pairwise Rosenblatt transformed pseudo-observations",
-              bquote(bold("to test")~~italic(H[0]:C)~~"is"~~italic(t)[.(nuOpt.)]))
+              bquote(bold("to test")~~italic(H[0]^c:C)~~"is"~~italic(t)))
 if(doPDF) pdf(file=(file <- "gof_graph_fig-SMI-ex.pdf"))
 pairsRosenblatt(cu.ut, pvalueMat=pmatt, method="none", cex.labels=0.7,
                 key.space=1.5, main.centered=TRUE, main=title, line.main=c(3, 0.4),
