@@ -14,12 +14,13 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 ##' @title Check if function 'fun' is like pcopula or like pCopula
-##' @param fun function such as pCopula, dcopula, ..
+##' @param fun function such as pCopula, dcopula _or_ F.n()
 ##' @return logical: TRUE if "like pCopula"
 ##' @author Martin Maechler
 chkFun <- function(fun) {
     stopifnot(is.function(fun))
-    isObj <- function(nm) any(nm == c("copula","mvdc"))
+    isObj <- function(nm) ## [pdq][Cc]opula || F.n()
+        any(nm == c("copula","mvdc")) || identical(nm,"U")
     nf <- names(formals(fun))
     if(isObj(nf[2])) TRUE
     else if(isObj(nf[1])) FALSE
