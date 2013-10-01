@@ -1,6 +1,6 @@
-\name{Cn}
-\alias{Cn}
+\name{C.n}
 \alias{C.n}
+\alias{Cn}% <- deprecated, but of course keep here
 \alias{dCn}
 \title{The Empirical Copula}
 \description{
@@ -18,7 +18,7 @@ dCn(u, U, j.ind=1:d, b=1/sqrt(nrow(U)), ...)
 }
 \arguments{
   \item{u,w}{an \eqn{(m, d)}-\code{\link{matrix}} with elements in
-    \eqn{[0,1]} whose lines contain the evaluation points of the
+    \eqn{[0,1]} whose rows contain the evaluation points of the
     empirical copula.}
   \item{U,x}{an \eqn{(n, d)}-\code{\link{matrix}} with elements in
     \eqn{[0,1]} and with the same number \eqn{d} of columns as
@@ -49,7 +49,7 @@ dCn(u, U, j.ind=1:d, b=1/sqrt(nrow(U)), ...)
 \note{
   The first version of our empirical copula implementation, \code{Cn()},
   had its two arguments \emph{inverse} compared to \code{C.n()}, and is
-  deprecated now. You \bold{must} swap the arguments, and possibly use
+  deprecated now.  You \bold{must} swap the arguments, and possibly use
   \code{\link{pobs}}, i.e, \bold{ instead of \code{Cn(x, u)}, use
     \code{C.n(u, U=pobs(x))} !}
 }
@@ -94,7 +94,8 @@ dCn(u, U, j.ind=1:d, b=1/sqrt(nrow(U)), ...)
   %% \emph{Ann. Inst. Stat. Math.} \bold{64}, 811--834.
 }
 \seealso{\code{\link{pobs}()} for computing pseudo-observations,
-  \code{\link{pCopula}()} for evaluating a copula.}
+  \code{\link{pCopula}()} for evaluating a copula.
+}
 \examples{
 n <- 100
 d <- 3
