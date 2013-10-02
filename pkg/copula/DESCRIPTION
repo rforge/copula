@@ -1,7 +1,7 @@
 Package: copula
 Version: 0.999-8
 Date: $Date$
-SVNrev: $Revision$
+Subversion: $Revision$
 Title: Multivariate Dependence with Copulas
 Author: Marius Hofert <marius.hofert@math.ethz.ch>,
  Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>,
@@ -9,12 +9,12 @@ Author: Marius Hofert <marius.hofert@math.ethz.ch>,
  Jun Yan <jun.yan@uconn.edu>
 Maintainer: Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
-Depends: R (>= 2.15.2), methods
-Imports: stats4, stats, graphics, Matrix, gsl, ADGofTest,
+Depends: R (>= 2.15.2)
+Imports: stats, graphics, methods, stats4, Matrix, gsl, ADGofTest,
 	 stabledist (>= 0.6-4), mvtnorm, pspline
 Suggests: lattice, MASS, KernSmooth, sfsmisc, bbmle, scatterplot3d, Rmpfr,
 	  colorspace, mvnormtest, tseries, zoo
-SuggestComments: packages colorspace, mvnormtest, tseries, zoo
+SuggestsNote: packages colorspace, mvnormtest, tseries, zoo
 		 are only used in demos
 Enhances: nor1mix
 Description: Classes (S4) of commonly used elliptical, Archimedean, extreme
@@ -22,7 +22,7 @@ Description: Classes (S4) of commonly used elliptical, Archimedean, extreme
  random number generation, bivariate dependence measures, perspective and
  contour plots.  Fitting copula models including variance estimates.
  Independence and serial (univariate and multivariate) independence tests,
- and other copula related tests.
+ and other copula related tests. Empirical copula and multivariate CDF.
  Goodness-of-fit tests for copulas based on multipliers, the parametric
  bootstrap with several transformation options.
  Merged former package 'nacopula' for nested Archimedean copulas: Efficient

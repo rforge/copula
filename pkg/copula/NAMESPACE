@@ -16,6 +16,15 @@
 
 useDynLib(copula, .registration=TRUE)
 
+## import all we need, but not more..
+importFrom("methods", ## incl generics for which we export new methods:
+	   coerce, show
+	   , callGeneric, as, is, extends, new
+	   , getClass, getClassDef, validObject
+	   , setClass, setClassUnion, setMethod, setOldClass
+	   , setValidity, slot, "slot<-"
+	   , signature, representation, prototype)
+
 ### Part I: Mainly former copula ###############################################
 
 importFrom("graphics", persp, contour)
@@ -70,7 +79,7 @@ exportMethods(show)
 exportMethods(persp, contour)
 
 ## empirical copula
-export(Cn, C.n, dCn)
+export(F.n, C.n, dCn, Cn)# .Fn
 
 ## fitting copula
 export(loglikCopula, loglikMvdc)

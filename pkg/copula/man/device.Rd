@@ -41,7 +41,7 @@ dev.off.pdf(file="Rplots.pdf", crop=NULL, embedFonts="", ...)
 \seealso{
   \code{\link{dev.off}()} for closing a device,
   \code{\link{embedFonts}()} for font embedding.
-  \pkg{sfsmisc}'s \code{\link{pdf.end}()} for another approach.
+  \pkg{sfsmisc}'s \code{\link[sfsmisc]{pdf.end}()} for another approach.
 }
 \examples{
 ## example usage

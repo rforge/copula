@@ -15,16 +15,16 @@
 
 ##' @title Check if function 'fun' is like pcopula or like pCopula
 ##' @param fun function such as pCopula, dcopula _or_ F.n()
-##' @return logical: TRUE if "like pCopula"
+##' @return logical: TRUE if "like pCopula" _or_ F.n()
 ##' @author Martin Maechler
 chkFun <- function(fun) {
     stopifnot(is.function(fun))
-    isObj <- function(nm) ## [pdq][Cc]opula || F.n()
-        any(nm == c("copula","mvdc")) || identical(nm,"U")
+    isObj <- function(nm) any(nm == c("copula", "mvdc")) ## [pdq][Cc]opula
     nf <- names(formals(fun))
-    if(isObj(nf[2])) TRUE
+    if(isObj(nf[2]) || nf[1:2] == c("x","X")) ## || is F.n() 
+        TRUE
     else if(isObj(nf[1])) FALSE
-    else NA # and the caller will get an error eventually
+    else NA # and the caller will produce an error eventually
 }
 
 
@@ -81,6 +81,15 @@ setMethod("contour", signature("indepCopula"), contourCopula)
 ## all other copulas:
 setMethod("persp", signature("copula"), perspCopula)
 setMethod("contour", signature("copula"), contourCopula)
+
+## F.n(), C.n():
+## setMethod("persp", signature("mvFn"),
+##           function(x, ...) {
+##               perspCopula(x, F.n, ...)
+##               warning("persp(<mvFn>, ..)  implementation unfinished;
+##  contact maintainer(\"copula\")") ## FIXME : use trans3d() to add data; *or*
+##               ## ensure seeing vertical jumps, by using {x_i-eps, x_i+eps} or ..
+##           })
 
 setMethod("persp", signature("mvdc"), perspMvdc)
 setMethod("contour", signature("mvdc"), contourMvdc)

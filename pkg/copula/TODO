@@ -1,5 +1,7 @@
 ##-*- org -*-->  Emacs .. [Tab] key + [Org] menu; C-c C-o to follow links
 * Very Short Term
+** TODO ~/R/MM/Pkg-ex/maryamS-ex.R : negative correlation data has BAD error message
+ now see FIXME in   tests/fitting-ex.R  'msg <- tryCatch(fitCopula(gumbelCopula(), ....'
 ** DONE fitCopula() for 2-dim tCopula() *AND* 2-dim tevCopula(); latter clearly fails
 ** DONE mvdc() -- fitMvdc() and generate data from fit:
  - fitMvdc()@mvdc  must contain the *fitted* parameters, the same as
@@ -21,6 +23,11 @@ stopifnot(NULL == 1) is not stopping
 ** DONE implement uscore for MMMH's A, C, F, G, J (note MH: haven't done any testing)
 ** DONE MH: in man/empcop.Rd, document 'method' "C"/"R"
 * Short Term: Before 1.0.0
+** TODO introduce "empiricalCopula" (or "empCopula") as new subclass of "Copula" (not "copula")
+   and maybe *additionally* "empiricalDist" / "empMvdc", inheriting from 
+   new "Mvdc" which would contain "mvdc" and "empMvdc".
+*** -> nice persp() {and maybe contour()} method via perspCopula(*, fun=C.n, ....) and
+   perspMvdc(*, fun=F.n, ....). ---> man/Mvdc.Rd and R/graphics.R
 ** TODO pCopula(u,..) and dCopula(u,..) should work for u outside [0,1]^d  & NA/NaN
 *** DONE for pCopula(): using  u[] <- pmax(0, pmin(1, u))  {subtlety!}
 *** DONE dCopula() = 0 {log = -Inf} for u "outside"
@@ -102,7 +109,6 @@ instead of hand made function header documentation.
 *but* for back compatibility allow *global* options(....) to still get old
 random numbers.
 ** TODO MM: data(rdj) should have a "Date" in column 1, not a factor !
-
 ** DONE tests/pdf.R should use "all" copulas, similar to tests/moments.R.
 *** DONE Then, test that  exp(dCopula(*, log=TRUE)) "==" dCopula(*)
 {to test the bug, fixed in r954, reported by Benedikt}
