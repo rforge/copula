@@ -218,10 +218,10 @@ setMethod("pCopula", signature("numeric", "gumbelCopula"),
 
 setMethod("dCopula", signature("matrix", "gumbelCopula"),
 	  ## was  dgumbelCopula.pdf
-	  function (u, copula, log = FALSE, ...)
-	  copGumbel@dacopula(u, theta=copula@parameters, log=log, ...))
+	  function (u, copula, log = FALSE, checkPar=TRUE, ...)
+	  copGumbel@dacopula(u, theta=copula@parameters, log=log, checkPar=checkPar, ...))
 setMethod("dCopula", signature("numeric", "gumbelCopula"),
-	  function (u, copula, log = FALSE, ...)
+	  function (u, copula, log = FALSE, checkPar=TRUE, ...)
 	  copGumbel@dacopula(rbind(u, deparse.level=0L), theta=copula@parameters,
 			     log=log, ...))
 
@@ -244,7 +244,6 @@ setMethod("diPsi", signature("gumbelCopula"),
 	  s <- if(log || degree %% 2 == 0) 1. else -1.
 	  s* copGumbel@absdiPsi(u, theta=copula@parameters, degree=degree, log=log, ...)
       })
-
 
 
 

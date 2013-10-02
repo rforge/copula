@@ -176,14 +176,14 @@ pMatFrank <- function (u, copula, ...) {
         pacopula(u, copFrank, theta=copula@parameters, ...)
 }
 
-dMatFrank <- function (u, copula, log = FALSE, ...) {
+dMatFrank <- function (u, copula, log = FALSE, checkPar=TRUE, ...) {
     ## was  dfrankCopula.pdf
     stopifnot(!is.null(d <- ncol(u)), d == copula@dimension)
     th <- copula@parameters
     if(d == 2 && th < 0) # for now, copFrank does not yet support negative tau
         dfrankCopula.pdf(u, copula, log=log)
     else
-        copFrank@dacopula(u, theta=th, log=log, ...)
+        copFrank@dacopula(u, theta=th, log=log, checkPar=checkPar, ...)
 }
 setMethod("rCopula", signature("numeric", "frankCopula"), rfrankCopula)
 

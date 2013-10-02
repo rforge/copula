@@ -220,7 +220,7 @@ loglikCopula <- function(param, x, copula, hideWarnings) {
       warning("'hideWarnings' is deprecated and has no effect anymore")
   copula@parameters <- param
   if (chkParamBounds(copula))
-      sum(dCopula(x, copula, log=TRUE)) else -Inf # was NaN
+      sum(dCopula(x, copula, log=TRUE, checkPar=FALSE)) else -Inf # was NaN
 }
 
 fitCopula.ml <- function(copula, u, start=NULL,

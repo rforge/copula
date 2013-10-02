@@ -49,8 +49,8 @@ tC3f <- tCopula(c(.2,.7, .8), dim=3, dispstr="un", df.fixed=TRUE)
 print(f3 <- fitCopula(tC3f, u3, method="itau"))
 
 tC3 <- tCopula(c(.2,.7, .8), dim=3, dispstr="un")
-	 (f3.t <- fitCopula(tC3, u3, method="itau"))
-	 (f3.r <- fitCopula(tC3, u3, method="irho"))
+(f3.t <- fitCopula(tC3, u3, method="itau"))
+(f3.r <- fitCopula(tC3, u3, method="irho"))
 if(doExtras) {
     print(f3.m <- fitCopula(tC3, u3, method=  "ml"))
     print(f3.M <- fitCopula(tC3, u3, method= "mpl"))
@@ -142,6 +142,15 @@ stopifnot(is.finite(llrg), diff(llrg) < 0, llrg < -11990)## no longer NaN
 ## Estimation -> error for now:
 try(efm <- emle(u, copG))
 
+
+## A simple example with *negative* correlation;
+## Want *more helpful* error message here:
+set.seed(7)
+u1 <- seq(0,1, by=1/128)[2:127]; u2 <- -u1 + round(rnorm(u1)/4,2); u <- pobs(cbind(u1,u2))
+plot(u)
+msg <- tryCatch(fitCopula(gumbelCopula(), data = u), error=function(e)e$message)
+## check error message __FIXME__ want "negative correlation not possible"
+## or NO ERROR and a best fit to tau=0 [and the same for other Archimedean families!]
 
 
 

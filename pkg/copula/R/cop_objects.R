@@ -83,14 +83,18 @@ copAMH <-
 		      else d* x^(d-1) * ((x-theta)/(x^d-theta))^2
                   },
 		  ## density  AMH
-		  dacopula = function(u, theta, n.MC=0, log=FALSE,
+		  dacopula = function(u, theta, n.MC=0, log=FALSE, checkPar=TRUE,
 				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
               {
 		  ## if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-		  if(d > 2) stopifnot(C.@paraConstr(theta))
+                  n <- nrow(u)
+		  if(d > 2 && !C.@paraConstr(theta)) {
+		      if(checkPar) stop("theta is outside its defined interval")
+		      return(rep.int(if(log) -Inf else 0, n))
+		  }
                   ## f() := NaN outside and on the boundary of the unit hypercube
-                  res <- rep.int(NaN, n <- nrow(u))
+                  res <- rep.int(NaN, n)
 		  n01 <- u.in.01(u)## indices for which density has to be evaluated
                   ## if(!any(n01)) return(res)
                   if(theta == 0) { res[n01] <- if(log) 0 else 1; return(res) } # independence
@@ -246,12 +250,16 @@ copClayton <-
                       d*(1+(d-1)*(1-u^theta))^(-(1+1/theta))
                   },
 		  ## density  Clayton
-		  dacopula = function(u, theta, n.MC=0, log=FALSE) {
+		  dacopula = function(u, theta, n.MC=0, log=FALSE, checkPar=TRUE) {
 		      ## if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-		      if(d > 2) stopifnot(C.@paraConstr(theta))
+		      n <- nrow(u)
+		      if(d > 2 && !C.@paraConstr(theta)) {
+			  if(checkPar) stop("theta is outside its defined interval")
+			  return(rep.int(if(log) -Inf else 0, n))
+		      }
 		      ## f() := NaN outside and on the boundary of the unit hypercube
-		      res <- rep.int(NaN, n <- nrow(u))
+		      res <- rep.int(NaN, n)
 		      n01 <- u.in.01(u)## indices for which density has to be evaluated
 		      ## if(!any(n01)) return(res)
 		      ## auxiliary results
@@ -421,14 +429,18 @@ copFrank <-
 		      r
 		  },
 		  ## density  Frank
-		  dacopula = function(u, theta, n.MC=0, log=FALSE,
+		  dacopula = function(u, theta, n.MC=0, log=FALSE, checkPar=TRUE,
 				      method = "negI-s-Eulerian", Li.log.arg=TRUE)
 	      {
 		  ## if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		  if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-		  if(d > 2) stopifnot(C.@paraConstr(theta))
-		  ## f() := NaN outside and on the boundary of the unit hypercube
-		  res <- rep.int(NaN, n <- nrow(u))
+		  n <- nrow(u)
+		  if(d > 2 && !C.@paraConstr(theta)) {
+		      if(checkPar) stop("theta is outside its defined interval")
+		      return(rep.int(if(log) -Inf else 0, n))
+		  }
+                  ## f() := NaN outside and on the boundary of the unit hypercube
+                  res <- rep.int(NaN, n)
 		  n01 <- u.in.01(u)## indices for which density has to be evaluated
 		  ## if(!any(n01)) return(res)
 		  ## auxiliary results
@@ -626,14 +638,18 @@ copGumbel <-
                       if(log) (da-1)*log(u) + alpha*log(d) else da*u^(da-1)
                   },
 		  ## density  Gumbel
-		  dacopula = function(u, theta, n.MC=0,
+		  dacopula = function(u, theta, n.MC=0, checkPar=TRUE,
 				      method = eval(formals(polyG)$method), log=FALSE)
               {
                   ## if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-		  stopifnot(C.@paraConstr(theta))
-                  ## f() := NaN outside and on the boundary of the unit hypercube
-                  res <- rep.int(NaN, n <- nrow(u))
+		  n <- nrow(u)
+		  if(!C.@paraConstr(theta)) {
+		      if(checkPar) stop("theta is outside its defined interval")
+		      return(rep.int(if(log) -Inf else 0, n))
+		  }
+		  ## f() := NaN outside and on the boundary of the unit hypercube
+		  res <- rep.int(NaN, n)
 		  n01 <- u.in.01(u)## indices for which density has to be evaluated
                   ## if(!any(n01)) return(res)
                   if(theta == 1) { res[n01] <- if(log) 0 else 1; return(res) } # independence
@@ -876,14 +892,18 @@ copJoe <-
 		      else d* x^(d-1) * circRat(Ix, d)^(1/theta-1)
 		  },
 		  ## density  Joe
-		  dacopula = function(u, theta, n.MC=0,
+		  dacopula = function(u, theta, n.MC=0, checkPar=TRUE,
 				      method = eval(formals(polyJ)$method), log = FALSE)
               {
                   ## if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-		  stopifnot(C.@paraConstr(theta))
-                  ## f() := NaN outside and on the boundary of the unit hypercube
-                  res <- rep.int(NaN, n <- nrow(u))
+		  n <- nrow(u)
+		  if(d > 2 && !C.@paraConstr(theta)) {
+		      if(checkPar) stop("theta is outside its defined interval")
+		      return(rep.int(if(log) -Inf else 0, n))
+		  }
+		  ## f() := NaN outside and on the boundary of the unit hypercube
+		  res <- rep.int(NaN, n)
 		  n01 <- u.in.01(u)## indices for which density has to be evaluated
                   ## if(!any(n01)) return(res)
                   if(theta == 1) { res[n01] <- if(log) 0 else 1; return(res) } # independence
