@@ -154,7 +154,8 @@ fitCopula.itau <- function(copula, x, estimate.variance=TRUE, warn.df=TRUE) {
   estimate <-
       as.vector(# stripping attributes
 		if(isEll && copula@dispstr == "ar1") ## special treatment
-		exp(coef(lm(log(itau) ~ X - 1))) else coef(lm(itau ~ X - 1)))
+                exp(lm.fit(X, y=log(itau))$coefficients)
+                else lm.fit(X, y=itau)$coefficients)
   copula@parameters <- estimate
   var.est <- if (estimate.variance)
     varKendall(copula, x) / nrow(x) else matrix(NA, q, q)
@@ -187,7 +188,8 @@ fitCopula.irho <- function(copula, x, estimate.variance=TRUE, warn.df=TRUE) {
   estimate <-
       as.vector(# stripping attributes
 		if (isEll && copula@dispstr == "ar1") ## special treatment
-		exp(coef(lm(log(irho) ~ X - 1))) else coef(lm(irho ~ X - 1)))
+                exp(lm.fit(X, y=log(irho))$coefficients)
+                else lm.fit(X, y=irho)$coefficients)
   copula@parameters <- estimate
   var.est <- if (estimate.variance)
     varSpearman(copula, x)/nrow(x) else matrix(NA, q, q)
@@ -452,20 +454,25 @@ getL <- function(copula) {
 
   if (!is(copula, "ellipCopula") || copula@dispstr == "ex") {
     cbind(rep.int(1/pp, pp), deparse.level=0L)
-  } else if(copula@dispstr == "un") {
-    diag(pp)
-  } else if(copula@dispstr == "toep") {
-    mat <- model.matrix(~ factor(dgidx) - 1)
-    mat / matrix(colSums(mat), nrow = pp, ncol=p - 1, byrow=TRUE)
-  } else if(copula@dispstr == "ar1") {
-    stop("Not implemented yet for the dispersion structure 'ar1'.")
-    ## estimate log(rho) first and then exponetiate back
-    mat <- model.matrix(~ factor(dgidx) - 1)
-    mat * matrix(1:(p - 1), nrow=pp, ncol=p - 1, byrow=TRUE)
   }
-  else stop("Not implemented yet for the dispersion structure.")
+  else switch(copula@dispstr,
+	      "un" = diag(pp),
+	      "toep" =
+	      {
+		  mat <- model.matrix(~ factor(dgidx) - 1)
+		  mat / matrix(colSums(mat), nrow = pp, ncol=p - 1, byrow=TRUE)
+	      },
+	      "ar1" = {
+		  ## FIXME More efficient: estimate log(rho) first and then exponentiate back,
+		  ##  see e.g. fitSpearman above
+		  ## mat <- model.matrix(~ factor(dgidx) - 1)
+		  ## mat * matrix(1:(p - 1), nrow=pp, ncol=p - 1, byrow=TRUE)
+		  X <- getXmat(copula)
+		  ## L:
+		  t(solve(crossprod(X), t(X)))
+	      },
+	      stop("Not implemented yet for the dispersion structure ", copula@dispstr))
 }
-
 
 getXmat <- function(copula) {
     p <- copula@dimension
@@ -476,31 +483,34 @@ getXmat <- function(copula) {
 	switch(copula@dispstr,
 	       "ex" = matrix(1, nrow=pp, ncol=1),
 	       "un" = diag(pp),
-	       "toep" =,
-	       "ar1" = {
+	       "toep" =, "ar1" = {
 		   dgidx <- outer(1:p, 1:p, "-")
 		   dgidx <- P2p(dgidx)
 		   if(copula@dispstr == "toep")
 		       model.matrix(~ factor(dgidx) - 1)
 		   else { ## __"ar1"__
-		       ## estimate log(rho) first and then exponetiate back
+		       ## estimate log(rho) first and then exponentiate back
 		       ## mat <- model.matrix(~ factor(dgidx) - 1)
 		       ## mat %*% diag(1:(p - 1))
 		       cbind(dgidx, deparse.level=0L)
 		   }
 	       },
-	       stop("Not implemented yet for this copula/dispersion structure."))
+               stop("Not implemented yet for the dispersion structure ", copula@dispstr))
     }
 }
 
 
+##' Auxiliary for varKendall() and varSpearman()
+##' @param cop an ellipCopula with \code{dispstr = "ar1"}
+##' @param v influence for tau or rho
+##' @param L 
+##' @param der a character string, currently either "tau" or "rho"
 varInfluAr1 <- function(cop, v, L, der) {
-  ## v is influence for tau or rho
   p <- cop@dimension
   pp <- p * (p - 1) / 2
   n <- nrow(v)
 
-  ## estimate log(r) first, then log(theta), and then exponetiate back
+  ## estimate log(r) first, then log(theta), and then exponentiate back
   ## r is the lower.tri of sigma
   sigma <- getSigma(cop) # assuming cop is the fitted copula
   ## influ for log(r)
@@ -542,9 +552,9 @@ varKendall <- function(cop,u) {
       l <- l + 1
     }
   }
-  ## L <- getL(cop)
-  X <- getXmat(cop)
-  L <- t(solve(crossprod(X), t(X)))
+  ## X <- getXmat(cop)
+  ## L <- t(solve(crossprod(X), t(X)))
+  L <- getL(cop)
   v <- if (is(cop, "ellipCopula") && cop@dispstr == "ar1") { ## special treatment
     varInfluAr1(cop, v, L, "tau")
   }
@@ -588,9 +598,9 @@ varSpearman <- function(cop,u)  {
           c(0, cumsum(u[ord[,i], j]))[n + 1L - ordb[,i]] / n +
           c(0, cumsum(u[ord[,j], i]))[n + 1L - ordb[,j]] / n
   }
-  ## L <- getL(cop)
-  X <- getXmat(cop)
-  L <- t(solve(crossprod(X), t(X)))
+  ## X <- getXmat(cop)
+  ## L <- t(solve(crossprod(X), t(X)))
+  L <- getL(cop)
   v <- if (is(cop, "ellipCopula") && cop@dispstr == "ar1") {
       varInfluAr1(cop, v, L, "rho")
   } else {

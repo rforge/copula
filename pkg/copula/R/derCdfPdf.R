@@ -241,9 +241,9 @@ dCdthetaEllipCopula <- function(cop, u)
                     mat[k,1] <- mat[k,1] + (i - j) * rho ^ (i - j - 1) *
                       plackettFormula(cop, p, rho, s, m, v[k,], i, j)
 
-            return(mat)
+            mat
           }
-        else # unstructured or toeplitz
+	else # unstructured or toeplitz or ...
           {
             mat <- matrix(0,n,p*(p-1)/2)
             l <- 1
@@ -260,17 +260,17 @@ dCdthetaEllipCopula <- function(cop, u)
                   l <- l + 1
                 }
             if (cop@dispstr == "un") ## unstructured
-              return(mat)
-            else ## toeplitz: p-1 parameters
-              {
+                mat
+            else if (cop@dispstr == "toep") {
                 coef <- matrix(0,p*(p-1)/2,p-1)
                 for (k in 1:(p-1))
                   {
                     m <- row(sigma) == col(sigma) + k
                     coef[,k] <- P2p(m)
                   }
-                return(mat %*% coef)
-              }
+                mat %*% coef
+            }
+            else stop("Not implemented yet for the dispersion structure ", cop@dispstr)
           }
       }
   }
@@ -413,8 +413,8 @@ derPdfWrtParamsEllipCopula <- function(cop, u)
 			  / (df +  rowSums((v %*% invsig) * v)) ) / 2)
             as.matrix(mat)
         }
-        else ## unstructured or toeplitz
-        {
+	else # unstructured or toeplitz or ...
+	  {
             mat <- matrix(0,n,p*(p-1)/2)
             l <- 1
             for (j in 1:(p-1))
@@ -435,8 +435,7 @@ derPdfWrtParamsEllipCopula <- function(cop, u)
                 }
             if (cop@dispstr == "un") ## unstructured
                 mat
-            else ## toeplitz: p-1 parameters
-            {
+            else if (cop@dispstr == "toep") { ## toeplitz: p-1 parameters
                 coef <- matrix(0,p*(p-1)/2,p-1)
                 for (k in 1:(p-1))
                 {
@@ -445,6 +444,7 @@ derPdfWrtParamsEllipCopula <- function(cop, u)
                 }
                 mat %*% coef
             }
+            else stop("Not implemented yet for the dispersion structure ", cop@dispstr)
         }
     } ## p >= 3
 }

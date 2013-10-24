@@ -49,3 +49,4 @@ Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R special-func.
          tCopula.R tawnCopula.R tawnExpr.R tevCopula.R
          wrapper.R zzz.R
 Encoding: UTF-8
+URL: http://nacopula.r-forge.r-project.org/
