@@ -113,6 +113,9 @@ random numbers.
 *** DONE Then, test that  exp(dCopula(*, log=TRUE)) "==" dCopula(*)
 {to test the bug, fixed in r954, reported by Benedikt}
 * Mid Term
+** TODO Daniel Alai's email from 2013-10-24 (to MH): implement a new correlation structure "min" (row-wise the same rho)
+MH: doesn't seem complicated, but wouldn't feel comfortable to do this since
+this is old+stable code from Ivan/Jun
 ** TODO add *transformations* (for each copula): survival copula, convex combis (see Martin's nor1mix), Liebscher
 ** TODO implement Joe's BB copulas!
 ** DONE R/sysdata.rda:
