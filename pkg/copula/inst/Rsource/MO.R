@@ -112,8 +112,8 @@ fitMO <- function(x)
 
 ##' @title Parameter estimation for stable tail dependence functions in MSMVEs and EVCs
 ##' @param x (n, d)-matrix with n >= 2, d >= 2
-##' @param stdf function(x, theta)
-##' @param weights (2^d-1)-vector of weights (corresponding to subsets in II)
+##' @param stdf function(t, theta) which returns the value l_theta(t) for a vector t
+##' @param weights d-vector of weights (corresponding to non-empty subsets of same size)
 ##' @param ... additional arguments passed to optim()
 ##' @return estimate (return value of optim())
 ##' @author Marius Hofert
@@ -123,7 +123,7 @@ fitStdf <- function(x, stdf, weights, ...)
     stopifnot(length(dim(x)) == 2L,
               (d <- ncol(x)) >= 2L, (n <- nrow(x)) >= 2L,
               is.function(stdf),
-              length(weights) == 2^d-1)
+              length(weights) == d)
 
     ## compute estimators Lambda_I = hat(l)_theta(I)_n
     ## compute set II of indices of all non-empty subsets of {1,..,d}
@@ -133,8 +133,8 @@ fitStdf <- function(x, stdf, weights, ...)
     Lam <- 1 / apply(II, 1, function(ii) mean(apply(x[,ii, drop=FALSE], 1, min))) # 2^d-1 vector
 
     ## main
-    objfun <- function(th, x)
-        sum(weights * (apply(II, 1, function(x) stdf(x, th)) - Lam)^2)
-    optim(par=init, fn=objfun, x=x, ...)
+    w <- weights[rowSums(II)] # choose equal weights for sets I of equal size
+    optim(par=init, fn=function(th)
+          sum(w * (apply(II, 1, function(ii) stdf(ii, th)) - Lam)^2), ...)
 }
 
