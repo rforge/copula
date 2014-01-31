@@ -24,13 +24,26 @@ psiAmh <- function(copula, s) {
   (1 - alpha) / (exp(s) - alpha)
 }
 
-amhCopula <- function(param = NA_real_, dim = 2L) {
+amhCopula <- function(param = NA_real_, dim = 2L,
+		      indepC.maybe = c("message", TRUE, FALSE))
+{
   stopifnot(length(param) == 1)
+##   if (dim > 2 && param[1] < 0)
+##     stop("param can be negative only for dim = 2")
+  if((dim <- as.integer(dim))> 2) stop("dim can only be 2 for this copula")
+  if(!is.na(param) && param == 0) {
+      indepC.maybe <- match.arg(indepC.maybe)
+      if(!identical(indepC.maybe, "FALSE")) {
+	  if(identical(indepC.maybe, "message"))
+	      message("parameter at boundary ==> returning indepCopula()")
+	  return( indepCopula(dim=dim) )
+      }
+  }
   ## get expressions of cdf and pdf
   cdfExpr <- function(n) {
     expr <-   "log((1 - alpha * (1 - u1)) / u1)"
     for (i in 2:n) {
-      ui <- paste("u", i, sep="")
+      ui <- paste0("u", i)
       cur <- gsub("u1", ui, expr)
       expr <- paste(expr, cur, sep=" + ")
     }
@@ -40,15 +53,9 @@ amhCopula <- function(param = NA_real_, dim = 2L) {
 
   pdfExpr <- function(cdf, n) {
     val <- cdf
-    for (i in 1:n) {
-      val <- D(val, paste("u", i, sep=""))
-    }
+    for (i in 1:n) val <- D(val, paste0("u", i))
     val
   }
-
-##   if (dim > 2 && param[1] < 0)
-##     stop("param can be negative only for dim = 2")
-  if((dim <- as.integer(dim))> 2) stop("dim can only be 2 for this copula")
 
   cdf <- cdfExpr(dim)
   pdf <- if (dim <= 6)  pdfExpr(cdf, dim) else NULL
@@ -68,7 +75,7 @@ pamhCopula <- function(copula, u) {
   dim <- copula@dimension
   alpha <- copula@parameters[1]
   if (abs(alpha) <= .Machine$double.eps^.9) return (apply(u, 1, prod))
-  ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
+  ## for (i in 1:dim) assign(paste0("u", i), u[,i])
   u1 <- u[,1]
   u2 <- u[,2]
   u1 * u2 / (1 - alpha * (1 - u1) * (1 - u2))
@@ -79,7 +86,7 @@ damhCopula <- function(u, copula, log = FALSE, ...) {
   dim <- copula@dimension
   alpha <- copula@parameters[1]
   if (abs(alpha) <= .Machine$double.eps^.9) return (rep.int(if(log) 0 else 1, nrow(u)))
-  ## for (i in 1:dim) assign(paste("u", i, sep=""), u[,i])
+  ## for (i in 1:dim) assign(paste0("u", i), u[,i])
   ## bivariate anyway
   u1 <- u[,1]
   u2 <- u[,2]
