@@ -41,8 +41,8 @@ tanpi <- function(x) tan(pi * (x %% 1))
 cospi2 <- function(x) {
     x <- r <- (x %% 4)## cos(pi/2 x) == cos(pi/2(x + 4k))  \forall k \in \Z
     if(any(isI <- x == round(x))) {
-        i <- which(isI)
-        r[i           ] <-  0 # those that are 1 or 3
+	i <- which(isI)
+	r[i	      ] <-  0 # for those where x is 1 or 3
 	r[i[x[i] == 0]] <-  1
 	r[i[x[i] == 2]] <- -1
     }

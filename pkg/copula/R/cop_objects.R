@@ -165,7 +165,7 @@ copAMH <-
                   iTau = function(tau, tol=.Machine$double.eps^0.25, check=TRUE, warn=TRUE, ...) {
 		      if((L <- any(tau > 1/3)) || any(tau < 0)) {
 			  ct <- if(length(ct <- sort(tau, decreasing = L)) > 3)
-			      paste(paste(format(ct[1:3]),collapse=", "),", ...",sep="") else format(ct)
+			      paste0(paste(format(ct[1:3]),collapse=", "),", ...") else format(ct)
 			  msg <- "For AMH, Kendall's tau must be in [0, 1/3], but ("
 			  if(check)
 			      stop(msg, if(L) "largest" else "smallest", " sorted) tau = ", ct)
