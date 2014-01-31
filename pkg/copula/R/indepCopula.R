@@ -17,7 +17,7 @@
 indepCopula <- function(dim = 2L) {
     ## get expressions of cdf and pdf
   cdfExpr <- function(n) {
-    uis <- paste("u", 1:n, sep="")
+    uis <- paste0("u", 1:n)
     expr <- paste(uis, collapse="*")
     parse(text = expr)
   }
@@ -25,7 +25,7 @@ indepCopula <- function(dim = 2L) {
   pdfExpr <- function(cdf, n) {
     val <- cdf
     for (i in 1:n) {
-      val <- D(val, paste("u", i, sep=""))
+      val <- D(val, paste0("u", i))
     }
     val
   }
