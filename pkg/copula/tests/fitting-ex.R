@@ -203,7 +203,7 @@ ffc <- fitCopula(fc, u) ## (failed in 0.999-4 {param constraints})
 ffc
 summary(ffc)
 stopifnot(all.equal(unname(coef(ffc)),
-                    2.866564929, tol = 1e-5))
+                    2.866564929, tolerance = 1e-5))
 
 showProc.time()
 

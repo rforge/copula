@@ -101,7 +101,7 @@ px <- copula:::perspMvdc(x.samp, fun = F.n, xlim = c(-5,5), ylim=c(0,2),
                          main = "F.n(x.samp)", ticktype="detail")
 par(op)
 all.equal(px, pp)# about 5\% difference 
-\dontshow{stopifnot(all.equal(px, pp, tol = 0.08))}
+\dontshow{stopifnot(all.equal(px, pp, tolerance = 0.08))}
 }
 \keyword{distribution}
 \keyword{multivariate}

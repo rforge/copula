@@ -163,7 +163,7 @@ stopifnot(all.equal(tau(gumbel.cop), copGumbel@tau(3)),
 
           all.equal(tailIndex(gumbel.cop),
                     c(copGumbel@lambdaL(3), copGumbel@lambdaU(3)),
-                    check.attr=FALSE),
+                    check.attributes=FALSE),
 
           all.equal(iTau (gumbel.cop, 0.681),
                     copGumbel@iTau(0.681))

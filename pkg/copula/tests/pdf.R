@@ -57,7 +57,7 @@ round(dcop, 3)
 
 ## claytonCopula
 (theta.cl <- iTau(claytonCopula(), tau))
-stopifnot(all.equal(theta.cl, copClayton@iTau(tau), tol = 1e-13))
+stopifnot(all.equal(theta.cl, copClayton@iTau(tau), tolerance = 1e-13))
 dcop <- matrix(dCopula(umat, claytonCopula(param=theta.cl, dim = 2)),
                n1, n2)
 filled.contour(u1, u2, dcop, color.palette = fCols,
@@ -70,7 +70,7 @@ round(dcop, 3)
 
 ## gumbelCopula
 theta.gu <- iTau(gumbelCopula(), tau)
-stopifnot(all.equal(theta.gu, copGumbel@iTau(tau), tol = 1e-13))
+stopifnot(all.equal(theta.gu, copGumbel@iTau(tau), tolerance = 1e-13))
 dcop <- matrix(dCopula(umat, gumbelCopula(param=theta.gu, dim = 2)),
                n1, n2)
 filled.contour(u1, u2, dcop, color.palette = fCols,
@@ -118,7 +118,7 @@ round(dcop, 3)
 ## galambosCopula
 #
 (theta <- iTau(galambosCopula(), tau))
-stopifnot(all.equal(tau, tau(galambosCopula(theta)), tol = 1e-5))
+stopifnot(all.equal(tau, tau(galambosCopula(theta)), tolerance = 1e-5))
 dcop <- matrix(dCopula(umat, galambosCopula(param=theta)),
                n1, n2)
 filled.contour(u1, u2, log(dcop), color.palette = fCols,
@@ -131,7 +131,7 @@ round(dcop, 3)
 ## amhCopula
 tau <- 0.3 ## -- to be in range for AMH
 (theta <- iTau(amhCopula(), tau))
-stopifnot(all.equal(tau, tau(amhCopula(theta)), tol = 1e-5))
+stopifnot(all.equal(tau, tau(amhCopula(theta)), tolerance = 1e-5))
 dcop <- matrix(dCopula(umat, amhCopula(param=theta)),
                n1, n2)
 filled.contour(u1, u2, dcop, color.palette = fCols,
@@ -200,7 +200,7 @@ try({### FIXME!
         fu <- dCopula(u, cop); fu.na <- fu[u.ina]
         Fu <- pCopula(u, cop); Fu.na <- Fu[u.ina]
         stopifnot(fu[u.OUT] == 0,
-		  all.equal(fu, exp(dCopula(u, cop, log=TRUE)), tol = 1e-15),
+		  all.equal(fu, exp(dCopula(u, cop, log=TRUE)), tolerance = 1e-15),
                   0 <= Fu[!u.ina], Fu[!u.ina] <= 1,
                   is.na(fu.na) | (0 <= fu.na),
                   is.na(Fu.na) | (0 <= Fu.na & Fu.na <= 1))

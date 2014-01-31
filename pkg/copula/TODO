@@ -33,13 +33,17 @@ stopifnot(NULL == 1) is not stopping
 *** DONE dCopula() = 0 {log = -Inf} for u "outside"
 *** TODO both should keep NA & NaN. Maybe keep them different, as  pnorm(c(2,NA,NaN));
 however relax, as  NA+NaN or NaN+NA  differ, too.
-** TODO why does...
-onacopulaL("Clayton", list(th=iTau(archmCopula("clayton"), tau=0.5), seq_len(3)))
-work but
-onacopulaL("clayton", list(th=iTau(archmCopula("clayton"), tau=0.5), seq_len(3)))
-doesn't?
-=> essentially, we always want to use the capitalized versions, but it might
-still be a bug (?) that it doesn't work otherwise
+** TODO frankCopula(0) and similar should create indepCopula(), and hence work in all cases.
+ E-mail From Benedikt Gräler, Subject: frankCopula(0), Fri, 26 Apr 2013:
+ dCopula(c(0.3,0.7), frankCopula(0))  gives NaN   but should not
+** TODO why does onacopulaL("Clayton", *) work, but onacopulaL("clayton",*) does not?  
+Specifically,
+   onacopulaL("Clayton", list(th=iTau(archmCopula("clayton"), tau=0.5), seq_len(3)))
+works but
+   onacopulaL("clayton", list(th=iTau(archmCopula("clayton"), tau=0.5), seq_len(3)))
+doesn't.  Note the 2nd  "clayton", i.e. as arg to archmCopula(.) it _does_ work.
+ => essentially, we always want to use the capitalized versions, but it might
+    still be a bug that it doesn't work otherwise
 ** DONE largely improve on gofTests.R: should be made more modular, so that users can provide functions for the parametric bootstrap (gofPB) and the multiplier boostrap (gofMB). Furthermore, checking and documentation have to be improved (see already improved gofPB());
 ** TODO deprecate gnacopula() [see 'Note' there!!!]
  MH: already 'prepared' a lot; only difficulty: many calls of gnacopula()

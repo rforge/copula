@@ -35,6 +35,7 @@ importFrom("mvtnorm",
             dmvt, pmvt, rmvt)
 
 importFrom("Matrix", nearPD)
+## NB: "Dangerous" to not also depend on Matrix; as 'methods' for Matrixclasses are not seen.
 
 ## FIXME: we would only want importS3MethodsFrom("pspline", predict)
 import("pspline")

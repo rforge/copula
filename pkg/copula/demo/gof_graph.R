@@ -361,8 +361,8 @@ nu. <- if(doX) seq(.5, 128, by=.5) else 1:15
 system.time(nL1 <- vapply(nu., nLLt , .0, P=mP, u=u))
 system.time(nL2 <- vapply(nu., nLLt2, .0, P= p, u=u))
 system.time(nL3 <- vapply(nu., nLLt3, .0, P= p, u=u))
-stopifnot(all.equal(nL1, nL2, tol = 1e-14))
-stopifnot(all.equal(nL2, nL3, tol = 1e-14))
+stopifnot(all.equal(nL1, nL2, tolerance = 1e-14))
+stopifnot(all.equal(nL2, nL3, tolerance = 1e-14))
 
 ## estimate nu via MLE for given P
 nus <- if(doX) seq(.5, 128, by=.5) else 2^seq(-1,7, by=.5)

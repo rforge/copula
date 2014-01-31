@@ -21,7 +21,7 @@ sessionInfo() # will change often.. but if we need the info, get it here
 u1 <- pobs(rbind(1:4))
 (rtG <- rtrafo(u1, onacopula("Gumbel", C(2., 1:4))))
 stopifnot(all.equal(rtG, rtrafo(u1, gumbelCopula(2, d=4)),
-		    tol = 1e-15))
+		    tolerance = 1e-15))
 
 ### A faster, more checking version of demo(estimation.gof)
 ### that is, of ../demo/estimation.gof.R
@@ -97,26 +97,26 @@ x <- rCopula(200, claytonCopula(3))
 fMeth <- c("mpl", "ml", "itau", "irho")
 gofL <- sapply(fMeth, function(fitMeth) {
     catn("\nfit*( estim.method = '", fitMeth,"')\n----------------------")
-    print(gofCopula(gumbelCopula (1), x, N = 10, verbose=FALSE,
+    print(gofCopula(gumbelCopula (), x, N = 10, verbose=FALSE,
 		    estim.method = fitMeth))
-    print(gofCopula(claytonCopula(1), x, N = 10, verbose=FALSE,
+    print(gofCopula(claytonCopula(), x, N = 10, verbose=FALSE,
 		    estim.method = fitMeth))
 }, simplify=FALSE)
 showProc.time()
 stopifnot(all.equal(vapply(gofL, `[[`, 0., "statistic"),
 		    setNames(c(0.01355167, 0.01355167, 0.01201136, 0.01257382),
-			     fMeth), tol = 1e-6),
+			     fMeth), tolerance = 1e-6),
 	  all.equal(vapply(gofL, `[[`, 0., "p.value"),
 		    setNames(c(0.4090909, 0.3181818, 0.4090909, 0.8636364),
-			     fMeth), tol = 1e-6))
+			     fMeth), tolerance = 1e-6))
 
 
 ## The same using the multiplier approach -- "ml" is not allowed:
 for(fitMeth in c("mpl", "itau", "irho")) {
     catn("\nfit*( estim.method = '", fitMeth,"')\n----------------------\n")
-    print(gofCopula(gumbelCopula (1), x, N = 10, verbose=FALSE,
+    print(gofCopula(gumbelCopula (), x, N = 10, verbose=FALSE,
 		    estim.method = fitMeth, simulation="mult"))
-    print(gofCopula(claytonCopula(1), x, N = 10, verbose=FALSE,
+    print(gofCopula(claytonCopula(), x, N = 10, verbose=FALSE,
 		    estim.method = fitMeth, simulation="mult"))
 }
 
