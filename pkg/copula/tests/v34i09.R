@@ -57,10 +57,11 @@ indepTest(pseudoLoss, empsamp)
 ###################################################
 ### lossGof
 ###################################################
-system.time(gofGumb.pb <- gofCopula(gumbelCopula(1), pseudoLoss, estim.method="itau",
+gum1 <- gumbelCopula(1, indepC.maybe="FALSE")# not the indep.copula
+system.time(gofGumb.pb <- gofCopula(gum1, pseudoLoss, estim.method="itau",
                                     simulation="pb", N = N, print.every = 0))
 gofGumb.pb
-system.time(gofGumb.mult <- gofCopula(gumbelCopula(1), pseudoLoss, estim.method="itau",
+system.time(gofGumb.mult <- gofCopula(gum1, pseudoLoss, estim.method="itau",
                                       simulation="mult", N = N))
 gofGumb.mult
 
@@ -68,7 +69,7 @@ gofGumb.mult
 ###################################################
 ### lossFit
 ###################################################
-fitCopula(gumbelCopula(1), pseudoLoss, method="itau")
+fitCopula(gumbelCopula(), pseudoLoss, method="itau")
 
 
 ###################################################
@@ -80,14 +81,16 @@ myAnalysis <- function(u, verbose=TRUE) {
   pv.gof <- function(COP) { if(verbose) cat("gofC..(",class(COP),", ...) ")
       gofCopula(COP, u.pseudo, estim.method="itau", simulation="mult", N = N)$pvalue
                             if(verbose) cat("[done]\n") }
-  gof.g <- pv.gof(gumbelCopula(1))
+
+  gum1 <- gumbelCopula(1, indepC.maybe="FALSE")# not the indep.copula
+  gof.g <- pv.gof(gum1)
   gof.c <- pv.gof(claytonCopula(1))
   gof.f <- pv.gof(frankCopula(1))
   gof.n <- pv.gof(normalCopula(0))
   gof.p <- pv.gof(plackettCopula(1))
   gof.t <- pv.gof(tCopula(0, df = 4, df.fixed = TRUE))
 
-  fit.g <- fitCopula(gumbelCopula(1), u.pseudo, method="itau")
+  fit.g <- fitCopula(gum1, u.pseudo, method="itau")
   c(indep=indTest, gof.g=gof.g, gof.c=gof.c, gof.f=gof.f, gof.n=gof.n, gof.t=gof.t, gof.p=gof.p,
     est=fit.g@estimate, se=sqrt(fit.g@var.est))
 }
@@ -101,7 +104,7 @@ round(apply(myReps, 2, summary),3)
 ###################################################
 ### lossGof3
 ###################################################
-gofCopula(gumbelCopula(1), pseudoLoss.ave, estim.method="itau", simulation="mult", N = N)
+gofCopula(gum1, pseudoLoss.ave, estim.method="itau", simulation="mult", N = N)
 
 
 ###################################################
