@@ -25,7 +25,7 @@ psiAmh <- function(copula, s) {
 }
 
 amhCopula <- function(param = NA_real_, dim = 2L,
-		      indepC.maybe = c("message", TRUE, FALSE))
+		      indepC.maybe = c("message", "TRUE", "FALSE"))
 {
   stopifnot(length(param) == 1)
 ##   if (dim > 2 && param[1] < 0)
