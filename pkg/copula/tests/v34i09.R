@@ -57,7 +57,7 @@ indepTest(pseudoLoss, empsamp)
 ###################################################
 ### lossGof
 ###################################################
-gum1 <- gumbelCopula(1, indepC.maybe="FALSE")# not the indep.copula
+gum1 <- gumbelCopula(1, use.indepC="FALSE")# not the indep.copula
 system.time(gofGumb.pb <- gofCopula(gum1, pseudoLoss, estim.method="itau",
                                     simulation="pb", N = N, print.every = 0))
 gofGumb.pb
@@ -82,7 +82,7 @@ myAnalysis <- function(u, verbose=TRUE) {
       gofCopula(COP, u.pseudo, estim.method="itau", simulation="mult", N = N)$pvalue
                             if(verbose) cat("[done]\n") }
 
-  gum1 <- gumbelCopula(1, indepC.maybe="FALSE")# not the indep.copula
+  gum1 <- gumbelCopula(1, use.indepC="FALSE")# not the indep.copula
   gof.g <- pv.gof(gum1)
   gof.c <- pv.gof(claytonCopula(1))
   gof.f <- pv.gof(frankCopula(1))

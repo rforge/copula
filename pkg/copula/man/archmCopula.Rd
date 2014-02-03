@@ -15,13 +15,13 @@ archmCopula(family, param = NA_real_, dim = 2, ...)
 
 claytonCopula(param = NA_real_, dim = 2)
 frankCopula(param = NA_real_, dim = 2,
-          indepC.maybe = c("message", "TRUE", "FALSE"))
+          use.indepC = c("message", "TRUE", "FALSE"))
 gumbelCopula(param = NA_real_, dim = 2,
-          indepC.maybe = c("message", "TRUE", "FALSE"))
+          use.indepC = c("message", "TRUE", "FALSE"))
 amhCopula(param = NA_real_, dim = 2,
-          indepC.maybe = c("message", "TRUE", "FALSE"))
+          use.indepC = c("message", "TRUE", "FALSE"))
 joeCopula(param = NA_real_, dim = 2,
-          indepC.maybe = c("message", "TRUE", "FALSE"))
+          use.indepC = c("message", "TRUE", "FALSE"))
 }
 \arguments{
   \item{family}{a character string specifying the family of an
@@ -32,7 +32,7 @@ joeCopula(param = NA_real_, dim = 2,
   \item{dim}{the dimension of the copula.}
   \item{\dots}{further arguments, passed to the individual creator
     functions (\code{claytonCopula()}, etc).}
-  \item{indepC.maybe}{a string specifying if the independence copula
+  \item{use.indepC}{a string specifying if the independence copula
     \code{\link{indepCopula}}, should be returned in the case where the
     parameter \eqn{\theta}, \code{param}, is at the boundary or limit
     case where the corresponding Archimedean copula is the independence
@@ -41,7 +41,7 @@ joeCopula(param = NA_real_, dim = 2,
     \code{"TRUE"} does it without a message.  This makes the resulting
     object more useful typically, but does not return a formal
     Archimedean copula of the desired family, something needed e.g., for
-    fitting purposes, where you'd use \code{indepC.maybe="FALSE"}.}
+    fitting purposes, where you'd use \code{use.indepC="FALSE"}.}
 }
 \value{
   An Archimedean copula object of class \code{"claytonCopula"},

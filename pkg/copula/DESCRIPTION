@@ -1,7 +1,7 @@
 Package: copula
 Version: 0.999-8
 Date: $Date$
-Subversion: $Revision$
+Subversion: $Revision$ 
 Title: Multivariate Dependence with Copulas
 Author: Marius Hofert <marius.hofert@math.ethz.ch>,
  Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>,

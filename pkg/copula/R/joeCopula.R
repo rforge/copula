@@ -15,13 +15,13 @@
 
 
 joeCopula <- function(param = NA_real_, dim = 2L,
-		      indepC.maybe = c("message", "TRUE", "FALSE"))
+		      use.indepC = c("message", "TRUE", "FALSE"))
 {
   stopifnot(length(param) == 1)
   if(!is.na(param) && param == 1) {
-      indepC.maybe <- match.arg(indepC.maybe)
-      if(!identical(indepC.maybe, "FALSE")) {
-	  if(identical(indepC.maybe, "message"))
+      use.indepC <- match.arg(use.indepC)
+      if(!identical(use.indepC, "FALSE")) {
+	  if(identical(use.indepC, "message"))
 	      message("parameter at boundary ==> returning indepCopula()")
 	  return( indepCopula(dim=dim) )
       }

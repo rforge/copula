@@ -28,6 +28,7 @@ stopifnot(NULL == 1) is not stopping
    new "Mvdc" which would contain "mvdc" and "empMvdc".
 *** -> nice persp() {and maybe contour()} method via perspCopula(*, fun=C.n, ....) and
    perspMvdc(*, fun=F.n, ....). ---> man/Mvdc.Rd and R/graphics.R
+** TODO print(summary(<fitCop>)) prints *less* than print(.): not R like; -> R/fitCopula.R summary.fitCopula
 ** TODO pCopula(u,..) and dCopula(u,..) should work for u outside [0,1]^d  & NA/NaN
 *** DONE for pCopula(): using  u[] <- pmax(0, pmin(1, u))  {subtlety!}
 *** DONE dCopula() = 0 {log = -Inf} for u "outside"
@@ -64,7 +65,7 @@ IK: Me too
 ** TODO Renaming of current "base" functions see [[file:feature-table.org][Feature table]] and [[file:do-now.org][do-now table]]
     remaining: lambdaL/U and inverse ("iLambda").
 ** TODO fitCopula("itau") for "tCopula(df.fixed=FALSE)": (and tevCopula?):
-use itau for P matrix, then ML for df. {see also ggraph.Rnw}
+ use itau for P matrix, then ML for df. {see also ggraph.Rnw}
 ** DONE show(<mvdc>) method needed; otherwise printing mvdc(.) looks ugly.
 ** TODO Deprecation of Old Stuff / towards more consistency / Cleanup
 - with warning
@@ -157,7 +158,6 @@ which extracts the parameter (vector) from any copula object
 ** TODO Write a function "checkTheta" or "thetaConstr"(param_vector, Copula):
  checks if the parameters are all admissible.
 ** TODO Rebuild R-forge structure nacopula -> copula
-
 ** TODO Miscellaneous Functions (& bugs: all DONE)
 *** DONE (MH) rtrafo() {and probably htrafo()} --- "fail" (are *wrong*!) for n = 1
 *** DONE (MH) copFrank@psi(1/1e20, theta=200) == Inf instead of 1
