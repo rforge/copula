@@ -18,6 +18,7 @@
 \alias{tau,claytonCopula-method}
 \alias{tau,frankCopula-method}
 \alias{tau,gumbelCopula-method}
+\alias{tau,indepCopula-method}
 \alias{tau,joeCopula-method}
 \alias{tau,normalCopula-method}
 \alias{tau,tCopula-method}
@@ -44,6 +45,7 @@
 \alias{rho,plackettCopula-method}
 \alias{rho,galambosCopula-method}
 \alias{rho,huslerReissCopula-method}
+\alias{rho,indepCopula-method}
 \alias{rho,tawnCopula-method}
 \alias{rho,tevCopula-method}
 \alias{rho,evCopula-method}
@@ -57,6 +59,7 @@
 \alias{tailIndex,claytonCopula-method}
 \alias{tailIndex,frankCopula-method}
 \alias{tailIndex,gumbelCopula-method}
+\alias{tailIndex,indepCopula-method}
 \alias{tailIndex,amhCopula-method}
 \alias{tailIndex,joeCopula-method}
 \alias{tailIndex,normalCopula-method}
