@@ -13,7 +13,8 @@
 \usage{
 archmCopula(family, param = NA_real_, dim = 2, ...)
 
-claytonCopula(param = NA_real_, dim = 2)
+claytonCopula(param = NA_real_, dim = 2,
+          use.indepC = c("message", "TRUE", "FALSE"))
 frankCopula(param = NA_real_, dim = 2,
           use.indepC = c("message", "TRUE", "FALSE"))
 gumbelCopula(param = NA_real_, dim = 2,
