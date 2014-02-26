@@ -48,6 +48,11 @@ retstableR(alpha, V0, h = 1)
  \code{\link{rstable1}} for sampling stable distributions.
 }
 \references{
+  Devroye, L. (2009)
+  Random variate generation for exponentially and polynomially
+  tilted stable distributions,
+  \emph{ACM Transactions on Modeling and Computer Simulation} \bold{19}, 18, 1--20.
+
   Hofert, M. (2011)
   Efficiently sampling nested Archimedean copulas,
   \emph{Computational Statistics & Data Analysis} \bold{55}, 57--70.
