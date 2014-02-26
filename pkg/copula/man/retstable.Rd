@@ -59,8 +59,7 @@ retstableR(alpha, V0, h = 1)
 
   Hofert, M. (2012),
   Sampling exponentially tilted stable distributions,
-  \emph{ACM Transactions on Modeling and Computer Simulation} \bold{22}, 1,
-  page numbers: to be announced.
+  \emph{ACM Transactions on Modeling and Computer Simulation} \bold{22}, 1.
 }
 \examples{
 ## Draw random variates from an exponentially tilted stable distribution
