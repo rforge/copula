@@ -170,6 +170,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ## ,"coeffG", "polyG", "polyJ", "signFF"
        ,"initOpt"
        ,"beta.", "betan", "pobs"
+       , debye1, debye2 # <- since we extend the gsl ones
        ,"ebeta", "etau", "emde", "dDiag", "edmle", "emle", "enacopula"
        ## goodness-of-fit
        ,"gofTstat", "rtrafo", "htrafo", "gnacopula"

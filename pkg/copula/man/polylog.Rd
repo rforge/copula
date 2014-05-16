@@ -1,6 +1,8 @@
 \name{polylog}
+\title{Polylogarithm \eqn{\mathrm{Li_s(z)}}{Li_s(z)} and Debye Functions}
 \alias{polylog}
-\title{Polylogarithm \eqn{\mathrm{Li_s(z)}}{Li_s(z)}}
+\alias{debye1}
+\alias{debye2}
 \description{
   Compute the polylogarithm function \eqn{\mathrm{Li_s(z)}}{Li_s(z)},
   initially defined as the power series,
@@ -14,6 +16,11 @@
 
   Currently only the case of negative integer \eqn{s} is well supported,
   as that is used for some of the Archimedean copula densities.
+
+  Also compute the Debye_n functions, for \eqn{n=1} and \eqn{n=2}, in a
+  slightly more general manner than the \pkg{gsl} package functions
+  \code{\link[gsl]{debye_1}} and \code{debye_2} (which cannot deal with
+  non-finite \code{x}.)
 }
 \usage{
 polylog(z, s,
@@ -21,6 +28,9 @@ polylog(z, s,
                    "negI-s-Eulerian", "negI-s-asymp-w"),
         logarithm = FALSE, is.log.z = FALSE, is.logmlog = FALSE,
         asymp.w.order = 0, n.sum)
+
+debye1(x)
+debye2(x)
 }
 \arguments{
   \item{z}{numeric or complex vector}
@@ -37,6 +47,9 @@ polylog(z, s,
     (where as above, \eqn{w = \log(z)}{w = log(z)}).}
   \item{asymp.w.order}{currently only default is implemented.}
   \item{n.sum}{for \code{method="sum"} only: the number of terms used.}
+
+  \item{x}{numeric vector, may contain \code{Inf}, \code{\link{NA}}, and
+    negative values.}
 }
 \details{
   Almost entirely taken from
@@ -92,7 +105,7 @@ Eulerian numbers; see also \code{\link{Eulerian}}.
 % Duplication formula:  2^{1-s} Li_s(z^2) = Li_s(z) + Li_s(-z).
 }
 \value{
-  numeric/complex vector as \code{z}.
+  numeric/complex vector as \code{z}, or \code{x}, respectively.
 }
 \author{Martin Maechler}
 \references{
@@ -110,9 +123,17 @@ Eulerian numbers; see also \code{\link{Eulerian}}.
   Lewin, L. (1981).
   \emph{Polylogarithms and Associated Functions}.
   New York: North-Holland. ISBN 0-444-00550-1.
+
+  For Debye functions:  Levin (1981) above, and \cr
+  Wikipedia (2014) \emph{Debye function},
+  \url{http://en.wikipedia.org/wiki/Debye_function}.
 }
 \seealso{
-  is used in MLE for some Archimedean copulas; see \code{\link{emle}}.
+  The polylogarithm is used in MLE for some Archimedean copulas; see
+  \code{\link{emle}};
+
+  The Debye functions are used for \code{\link{tau}} or
+  \code{\link{rho}} computations of the Frank copula.
 }
 \examples{
 polylog(z = 1, s = 2, n.sum = 1e5)
