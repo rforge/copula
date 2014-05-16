@@ -613,14 +613,38 @@ Bernoulli <- function(n, method = c("sumBin", "sumRamanujan", "asymptotic"),
 
 
 debye1 <- function(x) {
-    d <- debye_1(abs(x))
-    ## ifelse(x >= 0, d, d - x / 2) ## k = 1, Frees & Valdez 1998, p.9
-    d - (x<0) * x / 2
+    ## gsl's debye_1() gives *errors* on NaN/NA/Inf
+    if(any(nfin <- !(fin <- is.finite(x)))) {
+	d <- abs(x)
+	d[fin] <- debye_1(d[fin])
+	if(any(isI <- d[nfin] == Inf))
+	    d[nfin][which(isI)] <- 0 # which(.) drops NAs
+	if(length(neg <- which(x < 0))) # NA's !
+	    d[neg] <- d[neg] - x[neg]/2
+	d
+    }
+    else {
+	d <- debye_1(abs(x))
+	## ifelse(x >= 0, d, d - x / 2) ## k = 1, Frees & Valdez 1998, p.9
+	d - (x<0) * x / 2
+    }
 }
 
 
 debye2 <- function(x) {
-    d <- debye_2(abs(x))
-    ## ifelse(x >= 0, d, d - x * 2/3) ## k = 2, Frees & Valdez 1998, p.9
-    d - (x<0) * x * 2/3
+    ## gsl's debye_2() gives *errors* on NaN/NA/Inf
+    if(any(nfin <- !(fin <- is.finite(x)))) {
+	d <- abs(x)
+	d[fin] <- debye_2(d[fin])
+	if(any(isI <- d[nfin] == Inf))
+	    d[nfin][which(isI)] <- 0 # which(.) drops NAs
+	if(length(neg <- which(x < 0))) # NA's !
+	    d[neg] <- d[neg] - 2/3 * x[neg]
+	d
+    }
+    else {
+	## k = 2, Frees & Valdez 1998, p.9
+	d <- debye_2(abs(x))
+	d - 2/3 * (x<0) * x
+    }
 }
