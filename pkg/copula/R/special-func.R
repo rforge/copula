@@ -29,7 +29,8 @@ polynEval <- function(coef, x) .Call(polyn_eval, coef, x)
 ##' @references Maechler(2012)
 ##' Accurately Computing log(1 - exp(-|a|)) Assessed by the Rmpfr package.
 ##' http://cran.r-project.org/web/packages/Rmpfr/vignettes/log1mexp-note.pdf
-##' MM: ~/R/Pkgs/Rmpfr/inst/doc/log1mexp-note.Rnw
+## MM: ~/R/Pkgs/Rmpfr/inst/doc/log1mexp-note.Rnw
+##--> ../man/log1mexp.Rd
 log1mexp <- function(a, cutoff = log(2)) ## << log(2) is optimal >>
 {
     if(has.na <- any(ina <- is.na(a))) {
@@ -44,6 +45,25 @@ log1mexp <- function(a, cutoff = log(2)) ## << log(2) is optimal >>
     r[!tst] <- log1p(-exp(-a[!tst]))
     if(has.na) { y[ok] <- r ; y } else r
 }
+
+##' @title Compute  f(x) = log(1 + exp(x))  stably and quickly
+##--> ../man/log1mexp.Rd
+log1pexp <- function(x, c0 = -37, c1 = 18, c2 = 33.3)
+{
+    if(has.na <- any(ina <- is.na(x))) {
+	y <- x
+	x <- x[ok <- !ina]
+    }
+    r <- exp(x)
+    if(any(i <- c0 < x & (i1 <- x <= c1)))
+	r[i] <- log1p(r[i])
+    if(any(i <- !i1 & (i2 <- x <= c2)))
+	r[i] <- x[i] + 1/r[i] # 1/exp(x) = exp(-x)
+    if(any(i3 <- !i2))
+	r[i3] <- x[i3]
+    if(has.na) { y[ok] <- r ; y } else r
+}
+
 
 ##' The sign of choose(alpha*j,d)*(-1)^(d-j) vectorized in j
 ##'
