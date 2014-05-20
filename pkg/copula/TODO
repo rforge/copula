@@ -228,6 +228,7 @@ maybe take  ./tests/copula-play.R  as sophisticated role model.
 
 ** DONE cacopula(): generalize to elliptical ("and more") -> cCopula(), (<==> rtrafo())
 
+** TODO Once we require R >= 3.1.0, use cospi(), tanpi(), etc instead of our tanpi(), cospi2()
 * Long Term
 ** TODO ChiPlot(), KPlot() [in R/graphics.R]: Export and document ?
 ** TODO copula code which is not used --- moved to ./misc/
