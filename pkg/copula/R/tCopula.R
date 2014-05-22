@@ -87,7 +87,7 @@ ptCopula <- function(u, copula) {
   i.lower <- rep.int(-Inf, dim)
   sigma <- getSigma(copula)
   df <- getdf(copula)
-  if(df != as.integer(df))
+  if(!(df == as.integer(df) || df==Inf))
     stop("'df' is not integer; therefore, pCopula() cannot be computed yet")
   ## happens in pCopula() generic, now:
   ## if(!is.matrix(u)) u <- matrix(u, ncol = dim)
