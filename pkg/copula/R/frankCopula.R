@@ -13,15 +13,28 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
+### Parameter  'a', also called 'alpha' or 'theta'
+### must be in (0, Inf)   for completely monotone psi ( <==> tau >= 0 )
+### a = 0  <==> independence copula
 
-iPsiFrank <- function(copula, u) {
-  alpha <- copula@parameters[1]
-  - log( (exp(- alpha * u) - 1) / (exp(- alpha) - 1))
+iPsiFrank <- function(copula, u) .iPsiFrank(u, copula@parameters[1])
+.iPsiFrank <- function(u, a) { ## FIXME: copFrank@iPsi() is clearly better for |a| << 1
+  - log(expm1(- a * u) / expm1(-a))
 }
 
-psiFrank <- function(copula, s) {
-  alpha <- copula@parameters[1]
-  -1/alpha * log(1 + exp(-s) * (exp(-alpha) - 1))
+psiFrank <- function(copula, s) .psiFrank(s, copula@parameters[1])
+.psiFrank <- function(s, a) {
+  ## -1/a * log(1 + exp(-s) * (exp(-a) - 1))
+  stopifnot(length(a) == 1)
+  if(a > 0)
+    copFrank@psi(s, a) # using log1mexp(.)
+  else if(a == 0)
+    exp(-s)
+  else if(a <= log(.Machine$double.eps))# -36.04
+    ## exp(-a) -1  ~= exp(-a)
+    -log1pexp(-(s+a))/a
+  else ## -36.04 < a < 0 :
+    -log1p(exp(-s) * expm1(-a))/a
 }
 
 ## psiDerFrank <- function(copula, s, n) {
@@ -75,12 +88,14 @@ frankCopula <- function(param = NA_real_, dim = 2L,
 }
 
 rfrankBivCopula <- function(n, copula) {
-  val <- cbind(runif(n), runif(n))
-  ## to fix numerical rounding problems for alpha >35 but not for alpha < -35
-  alpha <- - abs(copula@parameters[1])
-  val[,2] <- -1/alpha * log(1 + val[,2] * (1 - exp(-alpha)) / (exp(-alpha * val[,1]) * (val[,2] - 1) - val[,2])) ## reference: Joe (1997, p.147)
-  if (copula@parameters[1] > 0) val[,2] <- 1 - val[,2]
-  val
+  U <- runif(n); V <- runif(n)
+  alpha <- copula@parameters[1]
+  ## FIXME : |alpha| << 1  (including alpha == 0)
+  ## to fix numerical rounding problems for alpha >35 but not for alpha < -35 :
+  a <- -abs(alpha)
+  ## reference: Joe (1997, p.147)
+  V <- -1/a * log1p(-V * expm1(-a) / (exp(-a * U) * (V - 1) - V))
+  cbind(U, if(alpha > 0) 1 - V else V,  deparse.level=0L)
 }
 
 ## rfrankBivCopula <- function(n, copula) {
@@ -152,28 +167,38 @@ dfrankCopula.pdf <- function(u, copula, log=FALSE) {
 }
 
 
-tauFrankCopula <- function(copula) {
-  alpha <- copula@parameters[1]
-  if (alpha == 0) return (0)
-  1 - 4 / alpha * (1 - debye1(alpha))
-}
-
-rhoFrankCopula <- function(copula) {
-  alpha <- copula@parameters[1]
-  if (alpha == 0) 0
+tauFrankCopula <- function(copula) .tauFrankCopula(copula@parameters)
+.tauFrankCopula <- function(a) { # 'a', also called 'alpha' or 'theta'
+  ## For small a (not just a = 0), need Taylor approx:
+  ##  1 - 4 / a * (1 - debye1(a)) = a/9 *(1 - (a/10)^2  + O(a^4))  <<- MM, 16.May 2014
+  if(abs(a) < 10*sqrt(.Machine$double.eps))
+    a/9
   else
-      ## Genest (1987), "Frank's family of bivariate distributions" (Biometrika, 7, 549--555)
-      1 - 12/alpha * (debye1(alpha) - debye2(alpha))
+    1 - 4 / a * (1 - debye1(a))
 }
 
-dTauFrankCopula <- function(copula) {
-  alpha <- copula@parameters
-  4/alpha^2 + 4/(alpha * expm1(alpha)) - 8/alpha^2 * debye1(alpha)
+rhoFrankCopula <- function(copula) .rhoFrankCopula(copula@parameters)
+.rhoFrankCopula <- function(a) { # 'a', also called 'alpha' or 'theta'
+  ## For small alpha (not just alpha = 0), need Taylor approx:
+  ## Genest (1987), "Frank's family of bivariate distributions" (Biometrika, 7, 549--555)
+  ##  1 - 12/a * (debye1(a) - debye2(a)) =
+  ##  1 + 12/a * (debye2(a) - debye1(a)) = a/6 * (1 - a^2 / 75 + O(a^4)) <<- MM, 16.May 2014
+  if(abs(a) < sqrt(75*.Machine$double.eps))
+    a/6
+  else
+    1 + 12/a * (debye2(a) - debye1(a))
 }
 
-dRhoFrankCopula <- function(copula) {
-  alpha <- copula@parameters
-  12 / (alpha * expm1(alpha)) + (-36 * debye2(alpha) + 24 * debye1(alpha))/ alpha^2
+dTauFrankCopula <- function(copula) .dTauFrankCopula(copula@parameters)
+.dTauFrankCopula <- function(a) {
+  ## FIXME: use Taylor for small |a|
+  (2/a)^2 * (a/expm1(a) + 1 - 1/a * debye1(a))
+}
+
+dRhoFrankCopula <- function(copula) .dRhoFrankCopula(copula@parameters)
+.dRhoFrankCopula <- function(a) {
+  ## FIXME: use Taylor for small |a|
+  12 / a^2 * (a/expm1(a) - 3 * debye2(a) + 2 * debye1(a))
 }
 
 
@@ -209,13 +234,7 @@ setMethod("dCopula", signature("numeric", "frankCopula"),
 setMethod("dCopula", signature("matrix", "frankCopula"), dMatFrank)
 
 setMethod("iPsi", signature("frankCopula"), iPsiFrank)
-## FIXME {negative tau}
-## setMethod("iPsi", signature("frankCopula"),
-## 	  function(copula, u) copFrank@iPsi(u, theta=copula@parameters))
-setMethod("psi", signature("frankCopula"), psiFrank)
-## FIXME {negative tau}
-## setMethod("psi", signature("frankCopula"),
-## 	  function(copula, s) copFrank@psi(t=s, theta=copula@parameters))
+setMethod("psi",  signature("frankCopula"),  psiFrank)
 
 ## setMethod("psiDer", signature("frankCopula"), psiDerFrank)
 setMethod("diPsi", signature("frankCopula"),
