@@ -397,7 +397,7 @@ assign("Eul.full.n", 0	, envir = .nacopEnv)
 ##' @param n.sum  for "sum"--this is more for experiments etc
 ##' @return numeric/complex vector as \code{z}
 ##' @author Martin Maechler
-polylog <- function(z, s, method = c("sum", "negI-s-Stirling",
+polylog <- function(z, s, method = c("default", "sum", "negI-s-Stirling",
 			  "negI-s-Eulerian", "negI-s-asymp-w"),
 		    logarithm = FALSE, is.log.z = FALSE,
                     is.logmlog = FALSE, asymp.w.order = 0,
@@ -419,6 +419,11 @@ polylog <- function(z, s, method = c("sum", "negI-s-Stirling",
     }
     if(is.log..) z <- exp(w)
 
+    if(s == 2 && method == "default")## Dilog aka Dilogarithm, from gsl pkg -> GSL = GNU Scientific Library
+        return(if(is.numeric(z)) dilog(z) else complex_dilog(z))
+    if(method == "default")
+        method <- if(s == as.integer(s) && s <= 1)
+                      "negI-s-Stirling" else "sum"
     if(method == "sum") {
 	stopifnot((Mz <- Mod(z)) <= 1, Mz < 1 | Re(s) > 1,
 		  n.sum > 99, length(n.sum) == 1)

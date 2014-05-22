@@ -1,6 +1,9 @@
 \name{polylog}
 \title{Polylogarithm \eqn{\mathrm{Li_s(z)}}{Li_s(z)} and Debye Functions}
 \alias{polylog}
+\concept{Polylogarithm}
+\concept{Dilogarithm}
+\concept{dilog}
 \alias{debye1}
 \alias{debye2}
 \description{
@@ -14,8 +17,14 @@
   \deqn{\mathrm{Li}_{s+1}(z) = \int_0^z \frac{\mathrm{Li}_s(t)}{t}\,dt.}{%
     Li_{s+1}(z) = Int[0..z] (Li_s(t) / t) dt.}
 
-  Currently only the case of negative integer \eqn{s} is well supported,
+  Currently, mainly the case of negative integer \eqn{s} is well supported,
   as that is used for some of the Archimedean copula densities.
+
+  For \eqn{s = 2}, \eqn{\mathrm{Li_2(z)}}{Li_2(z)} is also called
+  \sQuote{dilogarithm} or \dQuote{Spence's function}.  The
+  \code{"default"} method uses the \code{\link[gsl]{dilog}} or
+  \code{\link[gsl]{complex_dilog}} function from package \pkg{gsl},
+  respectively when \eqn{s = 2}.
 
   Also compute the Debye_n functions, for \eqn{n=1} and \eqn{n=2}, in a
   slightly more general manner than the \pkg{gsl} package functions
@@ -24,7 +33,7 @@
 }
 \usage{
 polylog(z, s,
-        method = c("sum", "negI-s-Stirling",
+        method = c("default", "sum", "negI-s-Stirling",
                    "negI-s-Eulerian", "negI-s-asymp-w"),
         logarithm = FALSE, is.log.z = FALSE, is.logmlog = FALSE,
         asymp.w.order = 0, n.sum)
@@ -136,9 +145,21 @@ Eulerian numbers; see also \code{\link{Eulerian}}.
   \code{\link{rho}} computations of the Frank copula.
 }
 \examples{
-polylog(z = 1, s = 2, n.sum = 1e5)
-## in the limit, should be equal
+## The dilogarithm,  polylog(z, s = 2) = Li_2(.) -- mathmatically defined on C \ [1, Inf)
+## so x -> 1 is a limit case:
+polylog(z = 1, s = 2)
+## in the limit, should be equal to
 pi^2 / 6
+
+## Default method uses  GSL's dilog():
+rLi2 <- curve(polylog(x, 2), -5, 1, n= 1+ 6*64, col=2, lwd=2)
+abline(c(0,1), h=0,v=0:1, lty=3, col="gray40")
+## "sum" method gives the same for |z| < 1 and large number of terms:
+ii <- which(abs(rLi2$x) < 1)
+stopifnot(all.equal(rLi2$y[ii],
+            polylog(rLi2$x[ii], 2, "sum", n.sum = 1e5),
+          tolerance = 1e-15))
+
 
 z1 <- c(0.95, 0.99, 0.995, 0.999, 0.9999)
 L   <- polylog(         z1,  s=-3,method="negI-s-Euler") # close to Inf
