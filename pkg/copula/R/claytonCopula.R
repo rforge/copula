@@ -73,9 +73,8 @@ claytonCopula <- function(param = NA_real_, dim = 2L,
       fullname = "Clayton copula family; Archimedean copula")
 }
 
-rclaytonBivCopula <- function(n, copula) {
+rclaytonBivCopula <- function(n, alpha) {
   val <- cbind(runif(n), runif(n))
-  alpha <- copula@parameters[1]
   ## This implementation is confirmed by Splus module finmetrics
   val[,2] <- (val[,1]^(-alpha) * (val[,2]^(-alpha/(alpha + 1)) - 1) + 1)^(-1/alpha)
   ## Frees and Valdez (1998, p.11): wrong! Can be checked by sample Kendall' tau.
@@ -91,7 +90,7 @@ rclaytonCopula <- function(n, copula) {
   alpha <- copula@parameters[1]
   if (abs(alpha - 0) < .Machine$double.eps ^ (1/3))
     return(rCopula(n, indepCopula(dim)))
-  if (dim == 2) return (rclaytonBivCopula(n, copula))
+  if (dim == 2) return (rclaytonBivCopula(n, alpha))
   ## gamma frailty
   val <- matrix(runif(n * dim), nrow = n)
   if (abs(alpha) <= 100 * .Machine$double.eps)
