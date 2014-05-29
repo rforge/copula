@@ -87,9 +87,8 @@ frankCopula <- function(param = NA_real_, dim = 2L,
       fullname = "Frank copula family; Archimedean copula")
 }
 
-rfrankBivCopula <- function(n, copula) {
+rfrankBivCopula <- function(n, alpha) {
   U <- runif(n); V <- runif(n)
-  alpha <- copula@parameters[1]
   ## FIXME : |alpha| << 1  (including alpha == 0)
   ## to fix numerical rounding problems for alpha >35 but not for alpha < -35 :
   a <- -abs(alpha)
@@ -98,26 +97,19 @@ rfrankBivCopula <- function(n, copula) {
   cbind(U, if(alpha > 0) 1 - V else V,  deparse.level=0L)
 }
 
-## rfrankBivCopula <- function(n, copula) {
-##   delta <- copula@parameters[1]
-##   q <- runif(n); u <- runif(n)
-##   v <- - 1/ delta * log( 1 - (1 - exp(-delta)) / ((1 / q - 1) * exp(- delta * u) + 1))
-##   cbind(u, v)
-## }
-
 rfrankCopula <- function(n, copula) {
   dim <- copula@dimension
   alpha <- copula@parameters[1]
-  if (abs(alpha - 0) < .Machine$double.eps ^ (1/3))
+  if (abs(alpha) < .Machine$double.eps ^ (1/3))
     return(rCopula(n, indepCopula(dim)))
 ##   if (abs(alpha) <= .Machine$double.eps^.9)
 ##     return (matrix(runif(n * dim), nrow = n))
-  if (dim == 2) return (rfrankBivCopula(n, copula))
+  if (dim == 2) return (rfrankBivCopula(n, alpha))
   ## the frailty is a log series distribution with a = 1 - exp(-alpha)
-  fr <- rlogseries(n, 1 - exp(-alpha))
+  fr <- rlogseries(n, -expm1(-alpha))
   fr <- matrix(fr, nrow = n, ncol = dim)
-  val <- matrix(runif(dim * n), nrow = n)
-  psi(copula, - log(val) / fr)
+  U <- matrix(runif(dim * n), nrow = n)
+  psi(copula, - log(U) / fr)
 }
 
 
