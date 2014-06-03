@@ -38,7 +38,7 @@ ellipCopula <- function(family, param = NA_real_, dim = 2L, dispstr = "ex",
   familiesImplemented <- c("normal", "t")
   fam <- pmatch(family, familiesImplemented, -1)
   if (fam == -1)
-    stop(paste("Valid family names are", familiesImplemented))
+    stop(paste("Valid family names are", paste(familiesImplemented, collapse=", ")))
   switch(fam,
 	 normalCopula(param, dim = dim, dispstr = dispstr),
 	      tCopula(param, dim = dim, dispstr = dispstr, df = df, ...)
