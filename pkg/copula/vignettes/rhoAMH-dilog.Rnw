@@ -13,7 +13,6 @@
 %
 %\VignetteIndexEntry{copula}
 %\VignetteDepends{copula}
-%\VignetteDepends{lattice}
 %\VignetteDepends{sfsmisc}
 \SweaveOpts{engine=R,strip.white=true,keep.source=TRUE}
 %FF Quite a bit faster with*OUT* pdfCrop ing:
@@ -189,6 +188,7 @@ if(.Platform$OS.type != "windows")
   Sys.setlocale("LC_MESSAGES","C")
 ## if(Sys.getenv("USER") == "maechler")# take CRAN's version, not development one:
 ##    require("copula", lib="~/R/Pkgs/CRAN_lib")
+require("copula")
 @
 \section{Introduction}
 %% Copy-Paste, abridged from ./nacopula-pkg.Rnw  -- which I cite
