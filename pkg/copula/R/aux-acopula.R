@@ -1495,5 +1495,3 @@ getAcop <- function(family, check=TRUE) {
 
 coeffG.methods <- eval(formals(coeffG)$method)# - namespace hidden
 ## --> accesses formals(dsumSibuya) .. hence at end
-
-
