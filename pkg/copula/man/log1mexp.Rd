@@ -48,14 +48,20 @@ fExpr <- expression(
           log1mexp(a))
 names(fExpr) <- c("DEF", "expm1", "log1p", "F")
 str(fa <- do.call(cbind, as.list(fExpr)))
-matplot(a, fa, type = "l", log = "x")# don't see the big difference
-legend("topleft", fExpr, col=1:4, lty=1:4, bty="n")
-
 head(fa)# expm1() works here
 tail(fa)# log1p() works here
 
-matplot(a, -fa, type = "l", log = "xy")# don't see the big difference
-legend("left", fExpr, col=1:4, lty=1:4, bty="n")
+## graphically:
+lwd <- 1.5*(5:2); col <- adjustcolor(1:4, 0.4)
+op <- par(mfcol=c(1,2), mgp = c(1.25, .6, 0), mar = .1+c(3,2,1,1))
+  matplot(a, fa, type = "l", log = "x", col=col, lwd=lwd)
+  legend("topleft", fExpr, col=col, lwd=lwd, lty=1:4, bty="n")
+  # expm1() & log1mexp() work here
+
+  matplot(a, -fa, type = "l", log = "xy", col=col, lwd=lwd)
+  legend("left", paste("-",fExpr), col=col, lwd=lwd, lty=1:4, bty="n")
+  # log1p() & log1mexp() work here
+par(op)
 
 curve(log1pexp, -10, 10, asp=1)
 abline(0,1, h=0,v=0, lty=3, col="gray")
