@@ -16,7 +16,7 @@ Imports: stats, graphics, methods, stats4, Matrix, gsl, ADGofTest,
 Suggests: lattice, MASS, KernSmooth, sfsmisc, bbmle, scatterplot3d, Rmpfr,
 	  rugarch, colorspace, mvnormtest, tseries, zoo
 SuggestsNote: packages colorspace, mvnormtest, tseries, zoo
-		 are only used in demos
+ are only used in demos
 Enhances: nor1mix
 Description: Classes (S4) of commonly used elliptical, Archimedean, extreme
  value and some more copula families.  Methods for density, distribution,
