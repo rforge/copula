@@ -145,8 +145,8 @@ rhoAmhCopula <- function(copula, ...) {
     else if(aa < 0.007) a*(1/3 + a*(1/12 + a*(3/100 + a/75)))
     else if(aa < 0.016) a*(1/3 + a*(1/12 + a*(3/100 + a*(1/75 + a/147))))
     else { ## now has rel.error < 10^-10
-	Li2 <- dilog(a) ## polylog(alpha,2, n.sum=n.sum, ...)
-	3/a * (4 * (1 + 1/a) * Li2 - 8 * (1/a - 1) * log1p(- a) - (a + 12))
+	3/a * (4 * (1 + 1/a) * dilog(a)
+		(if(a < 1) 8 * (1/a - 1) * log1p(- a) else 0) - (a + 12))
     }
 }
 
