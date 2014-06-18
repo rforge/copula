@@ -12,6 +12,7 @@
 \Shorttitle{Spearman's Rho for AMH --Beautiful}
 %
 %\VignetteIndexEntry{copula}
+%\VignetteDepends{MASS}
 %\VignetteDepends{copula}
 %\VignetteDepends{sfsmisc}
 \SweaveOpts{engine=R,strip.white=true,keep.source=TRUE}
@@ -306,8 +307,26 @@ parameter $\th$.  Compare this compact formula
 \end{align*}
 with the original three term formula (\ref{rho-Nelsen}) which involves
 $\mathrm{dilog}()$ and $\log()$, to understand why I call it \emph{beautiful}.
-Note further that the ``beautiful formula'' clearly shows the linearity of
-$\rho(\th)$ for small $\th$, i.e., $\th \approx 0$.
+Note further that the ``beautiful formula'' clearly shows the approximate
+linearity of $\rho(\th)$ for small $|\th|$.
+Note that the first few coefficients $a_k$ in
+$\rho(\th) = \sum_{k=1}^\infty a_k \th^k$ are
+<<ak-frac1, eval=FALSE, echo=FALSE>>=
+require(sfsmisc) #--> mat2tex(), mult.fig(), eaxis()
+k <- 1:9; ak <- MASS::fractions(12/((k+1)*(k+2))^2)
+<<ak-frac2, eval=FALSE, echo=FALSE>>=
+rbind(k = k, `$a_k$` = as.character(ak))
+@
+<<ak-frac-show, eval=FALSE>>=
+<<ak-frac1>>
+<<ak-frac2>>
+@
+<<ak-frac-do, echo=FALSE, results=tex>>=
+<<ak-frac1>>
+mat2tex(
+<<ak-frac2>>
+      , stdout())
+@
 
 \subsection[Accurate and efficient R implementation of rho for AMH]{%
   Accurate and efficient \R{} implementation of $\rho_{\mathrm{AMH}}$}
@@ -376,66 +395,77 @@ shows that Nelsen's direct formula is
 really unusable for $|\theta| < 10^{-11}$ approximately.
 %% then also, that '2' is not ok, either:
 
-So, \code{.rhoAmh.2()} using a series approximation for $|\theta|<$\code{e.sml}
+So, \code{.rhoAmh.2()} using a 4-terms series approximation for $|\theta|<$\code{e.sml}
 is much better, but it is still not good enough, as is revealed by
 drawing it once with its default cutoff \code{e.sml}$= 10^{-11}$
 and then in red with a higher cutoff $10^{-6}$ (and in log-log and
 regular y-axis scale):
-<<more-curves, fig=TRUE>>=
-require(sfsmisc); op <- mult.fig(2, marP = -1)$old.par
-curve(Vectorize(.rhoAmh.2)(x), n=1025, 1e-18, 1e-1, log = "xy", ylab="")
-t0 <- eval(formals(.rhoAmh.2)$e.sml)*.999999999
+<<more-curves, fig=TRUE, height=6>>=
+if(require("sfsmisc")) {
+    myAxes <- function(sides) for(s in sides) eaxis(s)
+} else {
+    myAxes <- function(sides) for(s in sides)  axis(s)
+}
+rhoAcurve <- function(k, ..., log = "",
+                      ylab = substitute({rho^"*"}[2](x,KK), list(KK=k)))
+    curve(Vectorize(.rhoAmh.2)(x, k), n=1025, ylab=ylab, log=log,
+          xaxt = if(grepl("x", log, fixed=TRUE)) "n" else "s",
+          yaxt = if(grepl("y", log, fixed=TRUE)) "n" else "s", ...)
+
+e.s <- eval(formals(.rhoAmh.2)$e.sml); t0 <- e.s * .99999
+op <- sfsmisc::mult.fig(2, marP = -c(1.4,1,1,1))$old.par
+rhoAcurve(e.s, 1e-18, 1e-1, log = "xy", ylab=""); myAxes(1:2)
 lines(t0, .rhoAmh.2(t0), type="h", lty=3, lwd = 3/4)
-rhoAcurve <- function(k, ...) curve(Vectorize(.rhoAmh.2)(x, k), n=1025,
-          ylab=substitute({rho^"*"}[2](x,KK),list(KK=k)), ...)
 rhoAcurve(1e-6, add=TRUE, col=adjustcolor(2, 1/3), lwd=4)
-rhoAcurve(1e-6, 1e-18, 1, log="x", col="tomato")
+rhoAcurve(1e-6, 1e-18, 1, log="x", col="tomato"); myAxes(1)
 par(op)
 @
 
-So the default cutoff ($\approx 8\cdot 10^{-16}$) is much too small, as the
+So the default cutoff ($10^{-11}$) is too small, as the
 explicit (Nelsen) formula breaks down between the cutoff and $~\approx 10^{-7}$.
 Hence we are aiming for a cutoff $> 10^{-7}$, momentarily $= 10^{-6}$, and
 zoom into its neighborhood:
 <<curve4, fig=TRUE>>=
-rhoAcurve(1e-6, 1e-7, 1e-5, log = "y", col="tomato")
+rhoAcurve(1e-6, 1e-7, 1e-5, log = "y", col="tomato"); myAxes(2)
 abline(v=1e-6, lty=3, lwd=1/2)
 @
 
 Use still a larger cutoff:
-<<curve5, fig=TRUE>>=
-cc <- 1e-4 ; op <- sfsmisc::mult.fig(2, marP = -1)$old.par
-rhoAcurve(cc, 1e-6, 1e-3, log = "xy", col="tomato"); abline(v=cc, lty=3, lwd=1/2)
+<<curve5, fig=TRUE, height=6>>=
+cc <- 1e-4 ; op <- mult.fig(2, marP= -c(1,0,1,1))$old.par
+rhoAcurve(cc, 1e-6, 1e-3, log = "xy", col="tomato",ylab=""); myAxes(1:2)
+abline(v=cc, lty=3, lwd=1/2)
 ## zoom in extremely:
-rhoAcurve(cc, cc*(1-1e-4), cc*(1+1e-4), log = "y", col="tomato")
-abline(v=cc, lty=3, lwd=1/2) ;	par(op)
+rhoAcurve(cc, cc*(1-1e-4), cc*(1+1e-4), col="tomato")
+abline(v=cc, lty=3, lwd=1/2);          par(op)
 @
 
 Still larger cutoff:
 <<curve7, fig=TRUE>>=
 cc <- 1e-3
-rhoAcurve(cc, cc*(1-2^-20), cc*(1+2^-20), log="y", col="tomato"); abline(v=cc, lty=3, lwd=1/2)
+rhoAcurve(cc, cc*(1-2^-20), cc*(1+2^-20), log="y",yaxt="s", col="tomato")
+abline(v=cc, lty=3, lwd=1/2)
 rhoAcurve(cc*10, add=TRUE, col=adjustcolor(1,.25), lwd=3)
 @
 
 Still larger \dots
 <<curve8, fig=TRUE>>=
 cc <- 0.01
-rhoAcurve(cc, cc*(1-2^-20), cc*(1+2^-20), log="y", col="tomato"); abline(v=cc, lty=3, lwd=1/2)
+rhoAcurve(cc, cc*(1-2^-20), cc*(1+2^-20), log="y",yaxt="s", col="tomato")
+abline(v=cc, lty=3, lwd=1/2)
 rhoAcurve(cc*10, add=TRUE, col=adjustcolor(1,.25),lwd=5)
 @
 
 And ``visibly'', it still seems perfect.
+This would suggest that a 4-terms approximation is to be preferred to the
+direct formula for $|\theta < 10^{-3}|$, possibly even $|\theta <
+10^{-2}|$.  We will determine the best $k$-terms series approximation for
+different cutoffs for $k=1,2,3,4,5$, in the following.
 Looking at the series approximations (first order up to 6-th order) a first time,
 <<Taylor-curves-1, fig=TRUE>>=
 a <- 2^seq(-30,-1, by = 1/32)# 0 < a <= 0.5
 rhoA.T <-  vapply(1:6, rhoAmh.T, a=a, numeric(length(a)))
-if(require("sfsmisc")) {
-    myAxes <- function(sides) for(s in sides) eaxis(s)
-} else {
-    myAxes <- function(sides) for(s in sides)  axis(s)
-}
-op <- sfsmisc::mult.fig(mfcol=c(1,3))$old.par
+op <- mult.fig(mfcol=c(1,3), mgp=c(2.5,.8,0))$old.par
 matplot(a, rhoA.T, type="l")
 matplot(a, rhoA.T, type="l", log="y", yaxt="n")   ; myAxes(2)
 matplot(a, rhoA.T, type="l", log="xy", axes=FALSE); myAxes(1:2);box()
@@ -461,13 +491,14 @@ if(chk.w.mpfr) {
 matplot(a, 1 - rhoA.T / rhoA.true, type="l", log="y")
 @
 
-Now, using a flexible way to \emph{visualize} the {relative} approximation errors of the
-different Taylor series approximations:
+We rather provide a function for \emph{visualizing} the {relative}
+approximation errors of the different Taylor series approximations in a
+flexible way:
 <<def-plot-relE>>=
 pl.relE.rhoAMH <- function(N.max, N.inf = 50, N.min = 1, l2a.lim = c(-30, -1),
                            n.p.u = 2^round(log2(1000 / diff(l2a.lim))),
                            cut.rA2 = 1e-7,
-                           colX = adjustcolor("midnightblue", 0.5))
+                           colX = adjustcolor("midnightblue", 0.5), ...)
 {
     stopifnot(length(l2a.lim) >= 2, l2a.lim < 0, n.p.u >= 1,
               N.max >= N.min, N.min >= 1, N.inf > N.max + 4,
@@ -476,13 +507,13 @@ pl.relE.rhoAMH <- function(N.max, N.inf = 50, N.min = 1, l2a.lim = c(-30, -1),
     N.s <- N.min:N.max
     rhoA.true <- rhoAmh.T(a, N.inf)
     rhoA.T <- vapply(N.s, rhoAmh.T, a=a, numeric(length(a))) # matrix
-    rhoA.v2 <- Vectorize(.rhoAmh.2)(a, cut.rA2)
+    rhoA.v2 <- Vectorize(.rhoAmh.2)(a, cut.rA2) # "Li2()+direct" below
 
     ## matplot() compatible colors and lty's
     cols <- palette()[1 + (N.s-1) %% 6]
     ltys <- (1:5)    [1 + (N.s-1) %% 5]
     matplot(a, 1 - rhoA.T / rhoA.true, type="l", log="xy",
-            col=cols, lty=ltys, axes=FALSE, frame=TRUE)
+            col=cols, lty=ltys, axes=FALSE, frame=TRUE, ...)
     myAxes(1:2)
     lines(a, 1 - rhoA.v2 / rhoA.true, col= colX, lwd=3)
     legend("topleft", c(paste0("N=",N.s), "Li2()+direct"),
@@ -492,27 +523,30 @@ pl.relE.rhoAMH <- function(N.max, N.inf = 50, N.min = 1, l2a.lim = c(-30, -1),
 }
 @
 
-And now look at the ``very nice'' pictures:
-<<relE-curves-1, fig=TRUE>>=
-pl.relE.rhoAMH(4, l2a=c(-53,-1))
-<<relE-curves-2, fig=TRUE>>=
-pl.relE.rhoAMH(6)
+Note that the ``\textsf{Li2()+direct}'' comparison is only for
+$a=\theta > 10^{-7}$, as that is used as cutoff per default,
+\code{cut.rA2 = 1e-7}.
+And now look at the ``very nice'' pictures, using \code{l2a}$= \log_2(a)$
+to choose the range of $a = \theta$:
+<<relE-curves-1-2, fig=TRUE, height=7>>=
+op <- mult.fig(2, marP=-c(1.5,1.5,2,1))$old.par
+pl.relE.rhoAMH(4, l2a=c(-53,-1), ylab="")
+pl.relE.rhoAMH(6,                ylab="")
 @
 
-Zoom in to the right (from $2^{-12}$ to $2^{-3}$), and use up to 12 terms:
-<<relE-curves-3, fig=TRUE>>=
-pl.relE.rhoAMH(12, l2a=c(-12, -3))
-@
-
-Zoom in to the right, and up to 20 terms:
-<<relE-curves-4, fig=TRUE>>=
-pl.relE.rhoAMH(20, l2a=c(-8, -.5), N.min = 4)
+Successively zooming in ``to the right'', to larger $a$, first, with range
+$2^{-12} - 2^{-3}$, and up to 12 terms, then zooming into range
+$2^{-8}- 2^{-.5}$, and using 20,
+<<relE-curves-3-4, fig=TRUE, height=7.5>>=
+mult.fig(2, marP=-c(1.5,1.5,2,1))
+pl.relE.rhoAMH(12, l2a=c(-12, -3),            ylab="")
+pl.relE.rhoAMH(20, l2a=c(-8, -.5), N.min = 4, ylab="")
 @
 
 The next one is ``just for fun'', to see if there is consistency when
-$N \to N_\infty$, i.e., our \texttt{N.inf = 50}:
-<<relE-curves-5, fig=TRUE>>=
-pl.relE.rhoAMH(40, l2a=c(-5, -.5), N.min = 10)
+$N \to N_\infty$, i.e., our \texttt{N.inf = 50}, and not shown here:
+<<relE-curves-5>>=
+par(op); pl.relE.rhoAMH(40, l2a=c(-5, -.5), N.min = 10)
 @
 
 The following plots are now used to read off the final cutoff used for the
@@ -540,16 +574,17 @@ rhoA
 
 visualized on its full range $[-1,1]$,
 <<remnant-fig, fig=TRUE, width=6, height=6>>=
-curve(Vectorize(copula:::.rhoAmhCopula)(x), n=1025, -1, 1,
-      xlab= quote(theta), ylab="", ylim= c(-1,1), col="tomato", lwd=2, las=1)
+rhoAMH <- Vectorize(copula:::.rhoAmhCopula)
+curve(rhoAMH, n=1025, -1, 1, ylim= c(-1,1), xlab = quote(theta),
+      ylab="", col="tomato", lwd=2, las=1)
 abline(0, 1/3, lty=2, col=(adjustcolor(c2 <- "orange2", 2/3)))
 curve(x/3*(1+x/4), lty=2, col=(adjustcolor(c3 <- "blue", 1/2)),
-      -1.1,1.1, add=TRUE)
+      -1.1,1.1, add=TRUE); x. <- .65
 text(.4 , .3 , quote(rho[plain(AMH)](theta)),col="tomato")
 text(.88, .23, quote(y == theta/3), col=c2)
 text(.7,  .05, quote(y == theta/3*(1+theta/4)), col=adjustcolor(c3, 1/2))
 segments(.55, .10, x., x./3*(1+x./4), lty="82", col=adjustcolor(c3, 1/2))
-abline(h=0,v=0, lty=3); rect(-1,-1,1,1, lty=3); x. <- .65
+abline(h=0,v=0, lty=3); rect(-1,-1,1,1, lty=3)
 @
 
 Finally, we may add some simple tests, that the \pkg{copula} package's
@@ -561,12 +596,12 @@ $\th$, and checking that already the \emph{first} two order series approximation
 \end{align}
 are all already good approximations or very accurate, depending on $|\theta|$:
 <<regression-tests>>=
-rhoAMH <- Vectorize(copula:::.rhoAmhCopula)
 t0 <- seq(-1,1, by=2^-8)[1:512]
 t1 <- seq(-1/2, 1/2, by = 2^-8)
 th <- 10^-(6:99); i <- -(1:9)
 rth <- rhoAMH(th)
-stopifnot(all.equal(rhoAMH(t0), t0/3 * (1 + t0/4), tol = 0.06),
+stopifnot(all.equal(rhoAMH(1), 4*pi^2 - 39, tol = 8e-15),# <- gave NaN
+          all.equal(rhoAMH(t0), t0/3 * (1 + t0/4), tol = 0.06),
           all.equal(rhoAMH(t1), t1/3 * (1 + t1/4), tol = 1/85),
           all.equal(rth,      th / 3 * (1 + th/4), tol = 1e-15),
           all.equal(rth,      th / 3, tol = 1e-6),
