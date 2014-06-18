@@ -4,7 +4,7 @@
 %
 \author{Martin M\"achler \\ ETH Zurich%
   \\ June 2014 {\tiny (\LaTeX'ed \today)}}%---- for now
-\title{Spearman's Rho for the AMH Copula---a Beautiful Formula}
+\title{Spearman's Rho for the AMH Copula: \\ a Beautiful Formula}
 % \def\mythanks{a version of this paper, for \pkg{nacopula} 0.4\_4, has been published
 %     in JSS, \url{http://www.jstatsoft.org/v39/i09}.}
 %% for pretty printing and a nice hypersummary also set:
@@ -327,7 +327,7 @@ $\th$ (which is also called $\alpha$ in the literature):
 }
 
 ##' Version 2:
-.rhoAmh.2 <- function(a, e.sml = 4*.Machine$double.eps) {
+.rhoAmh.2 <- function(a, e.sml = 1e-11) {
   stopifnot(length(a) <= 1)
   if(abs(a) < e.sml) { ## if |a| << 1, do better than the direct formula:
       a*(1/3 + a*(1/12 + a*(3/100 + a/75)))
@@ -357,28 +357,35 @@ rhoAmh.T <- function(a, N) {
     }
 }
 @
-Now, for the first exploration, notably of the original Nelsen formula,
+
+Now, the first graphical exploration, notably of the original Nelsen formula,
 \code{.rhoAmh.1()} and its variant very slight improvement \code{.rhoAmh.1b()}
 <<first-curve, fig=TRUE>>=
 r1  <- curve( .rhoAmh.1 (x),  1e-20, .1, log="x", n=1025)
 r1b <- curve( .rhoAmh.1b(x), n=1025, add=TRUE, col=2)
 r2 <-  curve( Vectorize(.rhoAmh.2)(x), n=1025, add=TRUE,
              col=adjustcolor("blue4",1/4), lwd = 5)
-stopifnot(r1$x == r1b$x, r1$x == r2$x)
 tab <- cbind(as.data.frame(r1), y.b = r1b$y, y2 = r2$y)
 @
-%% investingating tab shows that '1b' is very slightly better than '1', but
-%% then also, that '2' is not ok, either
+\\
+expose the big problems (y-values between -400'000 and 200'000 where
+$|\rho()| < 1$ is known!). Investingating \code{tab} shows that \code{1b}
+is very slightly better than \code{1}, but looking closer, e.g. also with
+ \code{curve(.rhoAmh.1(x),  1e-20, .1, log="x", n=1025, ylim=c(-1,1)*.1)},
+shows that Nelsen's direct formula is
+really unusable for $|\theta| < 10^{-11}$ approximately.
+%% then also, that '2' is not ok, either:
 
-So, \code{.rhoAmh.2()}, using a series approximation when that is
-exact, is much better, but it is still not good enough, as is revealed by
-drawing it once (with its default cutoff of \code{4*.Machine\$double.eps}
-$= 8.88 \cdot 10^{-16}$ % toLatex(4*.Machine$double.eps)
-and then with a much higher cutoff (in log-log scale, and
-also regular y-axis scale):
+So, \code{.rhoAmh.2()} using a series approximation for $|\theta|<$\code{e.sml}
+is much better, but it is still not good enough, as is revealed by
+drawing it once with its default cutoff \code{e.sml}$= 10^{-11}$
+and then in red with a higher cutoff $10^{-6}$ (and in log-log and
+regular y-axis scale):
 <<more-curves, fig=TRUE>>=
 require(sfsmisc); op <- mult.fig(2, marP = -1)$old.par
 curve(Vectorize(.rhoAmh.2)(x), n=1025, 1e-18, 1e-1, log = "xy", ylab="")
+t0 <- eval(formals(.rhoAmh.2)$e.sml)*.999999999
+lines(t0, .rhoAmh.2(t0), type="h", lty=3, lwd = 3/4)
 rhoAcurve <- function(k, ...) curve(Vectorize(.rhoAmh.2)(x, k), n=1025,
           ylab=substitute({rho^"*"}[2](x,KK),list(KK=k)), ...)
 rhoAcurve(1e-6, add=TRUE, col=adjustcolor(2, 1/3), lwd=4)
@@ -419,10 +426,10 @@ rhoAcurve(cc*10, add=TRUE, col=adjustcolor(1,.25),lwd=5)
 @
 
 And ``visibly'', it still seems perfect.
-Looking at the series approximations a first time
+Looking at the series approximations (first order up to 6-th order) a first time,
 <<Taylor-curves-1, fig=TRUE>>=
 a <- 2^seq(-30,-1, by = 1/32)# 0 < a <= 0.5
-str(rhoA.T <-  vapply(1:6, rhoAmh.T, a=a, numeric(length(a))))
+rhoA.T <-  vapply(1:6, rhoAmh.T, a=a, numeric(length(a)))
 if(require("sfsmisc")) {
     myAxes <- function(sides) for(s in sides) eaxis(s)
 } else {
@@ -523,41 +530,55 @@ abline(v=16e-3, col="gray", lty=2)#-> N=5 cutoff
 @
 
 Consequently, the implementation in \pkg{copula} is
-<<rhoAmh-def>>=
+<<rhoAmh-def-show,eval=FALSE>>=
 copula ::: .rhoAmhCopula
+@
+<<rhoAmh-def-do, echo=FALSE>>=
+rhoA <- copula ::: .rhoAmhCopula; environment(rhoA) <- environment()
+rhoA
 @
 
 visualized on its full range $[-1,1]$,
-<<remnant-fig, fig=TRUE>>=
+<<remnant-fig, fig=TRUE, width=6, height=6>>=
 curve(Vectorize(copula:::.rhoAmhCopula)(x), n=1025, -1, 1,
-      xlab = quote(theta), ylab = "rho", main = quote(rho[theta]),
-      ylim = c(-1,1), col="tomato", lwd=2)
-abline(h=0,v=0, lty=3); rect(-1,-1,1,1, lty=3)
+      xlab= quote(theta), ylab="", ylim= c(-1,1), col="tomato", lwd=2, las=1)
+abline(0, 1/3, lty=2, col=(adjustcolor(c2 <- "orange2", 2/3)))
+curve(x/3*(1+x/4), lty=2, col=(adjustcolor(c3 <- "blue", 1/2)),
+      -1.1,1.1, add=TRUE)
+text(.4 , .3 , quote(rho[plain(AMH)](theta)),col="tomato")
+text(.88, .23, quote(y == theta/3), col=c2)
+text(.7,  .05, quote(y == theta/3*(1+theta/4)), col=adjustcolor(c3, 1/2))
+segments(.55, .10, x., x./3*(1+x./4), lty="82", col=adjustcolor(c3, 1/2))
+abline(h=0,v=0, lty=3); rect(-1,-1,1,1, lty=3); x. <- .65
 @
 
 Finally, we may add some simple tests, that the \pkg{copula} package's
 \texttt{rho(<amhCopula>, *)} did not fulfill because of the notorious cancellations,
 previously. Note that in fact, we are only looking at very small (positive)
-$\th$, and checking that already the \emph{first} order series approximation,
-\[
-  \rho_{\mathrm{AMH}}(\th) \approx \th/3
-\]
-is close enough:
+$\th$, and checking that already the \emph{first} two order series approximations,
+\begin{align}
+  \rho_{\mathrm{AMH}}(\th) \approx \frac{\th}{3}(1 + \frac{\th}{4}) \approx \th/3
+\end{align}
+are all already good approximations or very accurate, depending on $|\theta|$:
 <<regression-tests>>=
-th <- 10^-(6:99)
-rth <- sapply(th, function(.) rho(amhCopula(.)))
-i <- -(1:9)
-stopifnot(all.equal(rth,    th / 3,  tol=1e-6),
-          all.equal(rth[i], th[i]/3, tol=6e-16))
+rhoAMH <- Vectorize(copula:::.rhoAmhCopula)
+t0 <- seq(-1,1, by=2^-8)[1:512]
+t1 <- seq(-1/2, 1/2, by = 2^-8)
+th <- 10^-(6:99); i <- -(1:9)
+rth <- rhoAMH(th)
+stopifnot(all.equal(rhoAMH(t0), t0/3 * (1 + t0/4), tol = 0.06),
+          all.equal(rhoAMH(t1), t1/3 * (1 + t1/4), tol = 1/85),
+          all.equal(rth,      th / 3 * (1 + th/4), tol = 1e-15),
+          all.equal(rth,      th / 3, tol = 1e-6),
+          all.equal(rth[i], th[i]/ 3, tol = 6e-16))
 th <- 10^-(16:307)
-stopifnot(all.equal(th/3,
-                    sapply(th, function(.) rho(amhCopula(.))), tol=4e-16),
+stopifnot(all.equal(th/3, rhoAMH(th), tol=4e-16),
           rho(amhCopula(0, use.indepC="FALSE")) == 0)
 @
 
+%\medskip
 %\section{Conclusion}
-\section{Session Information}
-
+\subsection*{Session Information}
 <<sessionInfo, results=tex>>=
 toLatex(sessionInfo(), locale=FALSE)
 @
