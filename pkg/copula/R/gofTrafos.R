@@ -99,7 +99,7 @@ rtrafo <- function(u, cop, j.ind=2:d, m, n.MC=0, inverse=FALSE,
        is(cop, "archmCopula")) {
 	if(nac) {
 	    if(length(cop@childCops))
-		stop("currently, only Archimedean copulas are provided")
+		stop("currently, only Archimedean copulas are supported")
 	    cop <- cop@copula
 	    th <- cop@theta
 	} else { # "archmCopula"

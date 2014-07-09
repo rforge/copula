@@ -77,17 +77,18 @@ rtrafo(u, cop, j.ind = 2:d, m, n.MC=0, inverse=FALSE,
         (psi^{(j-1)}(sum(k=1..j-1) psi^{(-1)}(u_k))).}
       This formula is either evaluated with the exact derivatives or, if
       \code{n.MC} is positive, via Monte Carlo; see \code{\link{absdPsiMC}}.
+
       Rosenblatt (1952) showed that
-      \eqn{\bm{U}^\prime\sim\mathrm{U}[0,1]^m}{U'~U[0,1]^m}, where
-      \eqn{U_1^\prime=U_1}{U'_1=U_1},
-      \eqn{U_2^\prime=C(U_2\,|\,U_1)}{U'_2=C(U_2|U_1)}, ..., and
-      \eqn{U_m^\prime=C(U_m\,|\,U_1,\dots,U_{m-1})}
-      {U'_m=C(U_m|U_1,...,U_{m-1})}.
-      \code{rtrafo} applies this transformation row-wise to
-      \code{u} (with default \eqn{m=d}) and thus returns an
-      \eqn{n\times m}{n x m}-matrix. The inverse transformation
-      (choose \code{inverse=TRUE}) applied to \eqn{U[0,1]^d} data
-      is known as \dQuote{conditional distribution method} for sampling.
+      \eqn{\bm{U}^\prime\sim\mathrm{U}[0,1]^m}{U' ~ U[0,1]^m}, where
+      \eqn{U_1^\prime=U_1}{U'_1 = U_1},
+      \eqn{U_2^\prime=C(U_2\,|\,U_1)}{U'_2 = C(U_2|U_1)}, ..., and
+      \eqn{U_m^\prime=C(U_m\,|\,U_1,\dots,U_{m-1})}{U'_m = C(U_m|U_1,...,U_{m-1})}.
+
+      \code{rtrafo} applies this transformation row-wise to \code{u}
+      (with default \eqn{m=d}) and thus returns an \eqn{n\times m}{n x
+      m}-matrix. The inverse transformation (choose \code{inverse=TRUE})
+      applied to \eqn{U[0,1]^d} data is known as \dQuote{conditional
+	distribution method} for sampling.
     }
   }
 }

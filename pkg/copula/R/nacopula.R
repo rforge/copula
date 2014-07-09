@@ -28,7 +28,7 @@
 ##' @author Marius Hofert and Martin Maechler
 .dnacopula <- function(u, copula, log=FALSE, ...) {
     if(length(copula@childCops))
-	stop("currently, only Archimedean copulas are provided")
+	stop("currently, only Archimedean copulas are supported")
     stopifnot(ncol(u) >= dim(copula)) # will be larger for children
     C <- copula@copula
     C@dacopula(u, C@theta, log=log, ...)
@@ -52,7 +52,7 @@ dnacopula <- function(x, u, log=FALSE, ...) {
 dnacopulaG <- function(x, u, n.MC=0, log = FALSE) {
     stopifnot(is(x, "outer_nacopula"))
     if(length(x@childCops))
-        stop("currently, only Archimedean copulas are provided")
+	stop("currently, only Archimedean copulas are supported")
     dacopulaG(x@copula, u=u, n.MC=n.MC, log=log)
 }
 
@@ -140,7 +140,7 @@ setMethod("prob", signature(x ="Copula"),
                         length(u) == d, d == length(l),
                         0 <= l, l <= u, u <= 1)
               if(d > 30)
-                  stop("prob() for copula dimensions > 30 are not supported (yet)")
+		  stop("prob() for copula dimensions > 30 are not supported (yet)")
               D <- 2^d
               m <- 0:(D - 1)
               ## digitsBase() from package 'sfsmisc' {slightly simplified} :

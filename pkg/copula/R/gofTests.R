@@ -148,7 +148,7 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
 	if(!is(copula, "outer_nacopula"))
 	    stop("trafo.method='htrafo' only implemented for copula objects of type 'outer_nacopula'")
 	if(length(copula@childCops))
-	    stop("currently, only Archimedean copulas are provided")
+	    stop("currently, only Archimedean copulas are supported")
     }
 
     ## 1) Compute the pseudo-observations

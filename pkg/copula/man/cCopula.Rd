@@ -64,6 +64,6 @@ plot(U.[,1],U.[,2])
  stopifnot(all.equal(cacopula(U, cop),# with deprecation warning
                       cCopula(U, cop)))
 }
-## more examples:  -->  ?rtrafo % ./gtrafo.Rd
-}
+## more examples:  -->  ?rtrafo
+} % --> ./gofTrafos.Rd
 \keyword{distribution}

@@ -1178,7 +1178,7 @@ dimU <- function(u) {
 cacopula <- function(u, cop, n.MC=0, log=FALSE) {
     stopifnot(is(cop, "outer_nacopula"))
     if(length(cop@childCops))
-	stop("currently, only Archimedean copulas are provided")
+	stop("currently, only Archimedean copulas are supported")
 
     .Deprecated("cCopula")
     d <- ncol(u)
