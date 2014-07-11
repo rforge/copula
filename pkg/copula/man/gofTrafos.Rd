@@ -2,11 +2,19 @@
 \alias{gtrafo}
 \alias{htrafo}
 \alias{rtrafo}
-\title{Goodness-of-fit Testing Transformations for (Nested) Archimedean Copulas}
+\title{GOF Testing Transformations for (Nested) Archimedean Copulas}
 \description{
-  \code{htrafo()} the transformation described in Hering and Hofert (2011).
+  Compute the following goodness-of-fit (GOF) testing transformations,
+  \describe{
+    \item{\code{htrafo()}}{the transformation described in Hering and Hofert
+      (2011), for Archimedean copulas.}
 
-  \code{rtrafo()} the transformation of Rosenblatt (1952).
+    \item{Rosenblatt's transformation \code{rtrafo()}}{is also of
+      importance outside of GOF computations:  The Rosenblatt
+      transformation is used for conditional copula computations and
+      sampling.  Currently, \code{rtrafo()} is applicable to elliptical
+      and nested Archimedean copulas.}
+  }
 }
 \usage{
 htrafo(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
@@ -15,16 +23,19 @@ rtrafo(u, cop, j.ind = 2:d, m, n.MC=0, inverse=FALSE,
        log=FALSE, trafo.only=log)
 }
 \arguments{
-  \item{u}{\eqn{n\times d}{n x d}-matrix with values in \eqn{[0,1]}. If
-      \code{inverse=FALSE} (the default), \code{u} contains
-      (pseudo-/copula-)observations from the copula \code{cop} based on which the
-    transformation is carried out; consider applying the function
-    \code{\link{pobs}()} first in order to obtain \code{u}. If
+  \item{u}{\eqn{n\times d}{n x d}-matrix with values in \eqn{[0,1]}.  If
+    \code{inverse=FALSE} (the default), \code{u} contains
+    (pseudo-/copula-)observations from the copula \code{cop} based on
+    which the transformation is carried out; consider applying the
+    function \code{\link{pobs}()} first in order to obtain \code{u}.  If
     \code{inverse=TRUE}, \code{u} contains \eqn{U[0,1]^d} distributed
     values which are transformed to copula-based (\code{cop}) ones.}
-  \item{cop}{the \code{"\linkS4class{outer_nacopula}"} with specified
-    parameters based on which the transformation is computed (currently only
-    Archimedean copulas are provided).}
+  \item{cop}{a \code{"\linkS4class{Copula}"} with specified parameters
+    based on which the transformation is computed.  For \code{htrafo()},
+    currently only Archimedean copulas are supported (specified as
+    \code{"\linkS4class{outer_nacopula}"}), whereas for \code{rtrafo()},
+    \emph{hierarchical} Archimedean and elliptical copulas (see
+    \code{\link{ellipCopula}}) are allowed.}
   \item{include.K}{logical indicating whether the last component, involving the
     Kendall distribution function \code{\link{K}}, is used in \code{htrafo}.}
   \item{j.ind}{\code{\link{integer}} vector of indices \eqn{j} between 2 and \eqn{d}
@@ -49,15 +60,15 @@ rtrafo(u, cop, j.ind = 2:d, m, n.MC=0, inverse=FALSE,
 \details{
   \describe{
     \item{\code{htrafo}}{Given a \eqn{d}-dimensional random vector
-      \eqn{\bm{U}} following an Archimedean copula \eqn{C} with
+      \eqn{\bm{U}}{U} following an Archimedean copula \eqn{C} with
       generator \eqn{\psi}, Hering and Hofert (2011) showed that
       \eqn{\bm{U}^\prime\sim\mathrm{U}[0,1]^d}{U'~U[0,1]^d}, where
       \deqn{U_{j}^\prime=\left(\frac{\sum_{k=1}^{j}\psi^{-1}(U_{k})}{
 	  \sum_{k=1}^{j+1}\psi^{-1}(U_{k})}\right)^{j},\ j\in\{1,\dots,d-1\},\
 	U_{d}^\prime=K(C(\bm{U})).}{%
-	U'_j=((psi^{-1}(U_1)+...+psi^{-1}(U_j)) /
-	(psi^{-1}(U_1)+...+psi^{-1}(U_{j+1})))^j,  j in {1,...,d-1},
-	U'_d=K(C(U)).}
+	U'_j = ((psi^{-1}(U_1) + ... + psi^{-1}(U_j)) /
+	(psi^{-1}(U_1) + ... + psi^{-1}(U_{j+1})))^j,  j in {1,..., d-1},
+	U'_d = K(C(U)).}
       \code{htrafo} applies this transformation row-wise to
       \code{u} and thus returns either an \eqn{n\times d}{n x d}- or an
       \eqn{n\times (d-1)}{n x (d-1)}-matrix, depending on whether the last
@@ -66,29 +77,31 @@ rtrafo(u, cop, j.ind = 2:d, m, n.MC=0, inverse=FALSE,
       (\code{include.K=TRUE}) or not (\code{include.K=FALSE}).}
 
     \item{\code{rtrafo}}{Given a \eqn{d}-dimensional random vector
-      \eqn{\bm{U}} following an Archimedean copula \eqn{C} with
+      \eqn{\bm{U}}{U} following an Archimedean copula \eqn{C} with
       generator \eqn{\psi}, the conditional copula of \eqn{U_j=u_j} given
-      \eqn{U_1=u_1,\dots,U_{j-1}=u_{j-1}}{U_1=u_1,...,U_{j-1}=u_{j-1}} is
+      \eqn{U_1=u_1,\dots,U_{j-1}=u_{j-1}}{U_1=u_1,..., U_{j-1}=u_{j-1}} is
       given by
       \deqn{C(u_j\,|\,u_1,\dots,u_{j-1})=
 	\frac{\psi^{(j-1)} \Bigl(\sum_{k=1}^j    \psi^{(-1)}(u_k)\Bigr)}{
 	      \psi^{(j-1)} \Bigl(\sum_{k=1}^{j-1}\psi^{(-1)}(u_k)\Bigr)}.}{%
-	C(u_j | u_1,...,u_{j-1}) = (psi^{(j-1)}(sum(k=1..j)  psi^{(-1)}(u_k))) /
-        (psi^{(j-1)}(sum(k=1..j-1) psi^{(-1)}(u_k))).}
+	C(u_j | u_1,...,u_{j-1}) = (psi^{(j-1)}(sum(k=1.. j)  psi^{(-1)}(u_k))) /
+                                   (psi^{(j-1)}(sum(k=1..j-1) psi^{(-1)}(u_k))).}
       This formula is either evaluated with the exact derivatives or, if
       \code{n.MC} is positive, via Monte Carlo; see \code{\link{absdPsiMC}}.
 
       Rosenblatt (1952) showed that
       \eqn{\bm{U}^\prime\sim\mathrm{U}[0,1]^m}{U' ~ U[0,1]^m}, where
       \eqn{U_1^\prime=U_1}{U'_1 = U_1},
-      \eqn{U_2^\prime=C(U_2\,|\,U_1)}{U'_2 = C(U_2|U_1)}, ..., and
-      \eqn{U_m^\prime=C(U_m\,|\,U_1,\dots,U_{m-1})}{U'_m = C(U_m|U_1,...,U_{m-1})}.
+      \eqn{U_2^\prime=C(U_2\,|\,U_1)}{U'_2 = C(U_2 | U_1)}, ..., and
+      \eqn{U_m^\prime=C(U_m\,|\,U_1,\dots,U_{m-1})}{U'_m = C(U_m | U_1,..., U_{m-1})}.
 
       \code{rtrafo} applies this transformation row-wise to \code{u}
       (with default \eqn{m=d}) and thus returns an \eqn{n\times m}{n x
-      m}-matrix. The inverse transformation (choose \code{inverse=TRUE})
-      applied to \eqn{U[0,1]^d} data is known as \dQuote{conditional
-	distribution method} for sampling.
+	m}-matrix.
+
+      The inverse transformation (\code{inverse=TRUE}) applied to
+      \eqn{U[0,1]^d} data is known as \dQuote{conditional distribution
+	method} for sampling.
     }
   }
 }

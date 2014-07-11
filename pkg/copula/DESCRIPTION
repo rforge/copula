@@ -1,6 +1,6 @@
 Package: copula
-Version: 0.999-10
-LastCRAN: 0.999-9 on 2014-05-05
+Version: 0.999-11
+LastCRAN: 0.999-10 on 2014-06-18
 Date: $Date$,
       subversion $Revision$
 Title: Multivariate Dependence with Copulas
