@@ -1467,9 +1467,11 @@ setMethod(show, "nacopula", function(object) printNacopula(object))
 getAcop <- function(family, check=TRUE) {
     if(is.character(family)) {
 	stopifnot(length(family) == 1)
-	if(nchar(family) <= 2)		# it's a short name
-	    family <- c_longNames[family]
-	COP <- get(c_objNames[family])	# envir = "package:copula"
+	if((nf <- nchar(family)) <= 2) # it's a short name
+	    family <- .ac.longNames[family]
+	else if (nf >= 8 && grepl("Copula$", family))
+	    family <- names(which(.ac.classNames == family))
+	COP <- get(.ac.objNames[family]) # envir = "package:copula"
 	if(check && !is(COP, "acopula"))
 	    stop(paste("invalid acopula-family object, family=",family))
 	COP
@@ -1479,7 +1481,7 @@ getAcop <- function(family, check=TRUE) {
 	    family
 	else if(extends(cl, "archmCopula")) {
 	    if(extends(cl, "indepCopula"))## FIXME? do not want full family object!
-		stop("independence copula not implemnted as family")
+		stop("independence copula not implemented as Archimedean family")
 	    ## now use short family names
 	    getAcop(if(extends(cl, "claytonCopula")) "C" else
 		    if(extends(cl, "frankCopula"))   "F" else

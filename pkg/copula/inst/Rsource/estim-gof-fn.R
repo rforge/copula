@@ -48,8 +48,7 @@ estimation.gof <- function(n, d, simFamily, tau,
 			   estim.method = eval(formals(enacopula)$method),
 			   gof.trafo =	 eval(formals(gnacopula)$trafo),
 			   gof.method =	 eval(formals(gnacopula)$method),
-			   checkFamilies = copula:::c_longNames,
-			   verbose = TRUE)
+			   checkFamilies = .ac.longNames, verbose = TRUE)
 {
     ## generate data
     copFamily <- getAcop(simFamily)

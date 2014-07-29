@@ -164,6 +164,7 @@ exportClasses("acopula",
 
 ## Generics, functions and acopula - family objects defined in this package
 export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
+       , .ac.shortNames, .ac.longNames, .ac.objNames, .ac.classNames
        ,"getAcop"
        ,"cacopula", "dnacopula", "pnacopula", "rnacopula", "rnchild"
        ## estimation
