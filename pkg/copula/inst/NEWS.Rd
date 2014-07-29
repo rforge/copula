@@ -8,6 +8,7 @@
     of \code{fitCopula()} and \code{fitMvcd()} now is \code{TRUE} only if
     the optimization converged.
     \item \code{rtrafo()} more efficient for "normalCopula"
+    \item \code{fitMvdc()} now also works when margin parameter has length > 1.
   }
 }
 
