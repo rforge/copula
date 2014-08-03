@@ -47,7 +47,7 @@ doesn't.  Note the 2nd  "clayton", i.e. as arg to archmCopula(.) it _does_ work.
  => essentially, we always want to use the capitalized versions, but it might
     still be a bug that it doesn't work otherwise
 ** DONE largely improve on gofTests.R: should be made more modular, so that users can provide functions for the parametric bootstrap (gofPB) and the multiplier boostrap (gofMB). Furthermore, checking and documentation have to be improved (see already improved gofPB());
-** TODO deprecate gnacopula() [see 'Note' there!!!]
+** DONE deprecate gnacopula() [see 'Note' there!!!]
  MH: already 'prepared' a lot; only difficulty: many calls of gnacopula()
  => ideally, the checks should be done with gofCopula() instead of gnacopula()!!!!
 ** DONE persp(), contour() should work with pCopula / dCopula.

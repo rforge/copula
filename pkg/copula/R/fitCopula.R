@@ -402,7 +402,7 @@ varPL <- function(cop,u)
     isEll <- extends(ccl, "ellipCopula")
     ## check if variance can be computed
     msg <- gettext("The variance estimate cannot be computed for this copula.",
-                  "  Rather use  'estimate.variance = FALSE'")
+                   " Rather use 'estimate.variance = FALSE'")
     if (!isEll && (!hasMethod("dcopwrap", clc) ||
                    !hasMethod("derPdfWrtArgs", clc))) {
 	warning(msg); return(ans)
@@ -503,7 +503,7 @@ getXmat <- function(copula) {
 ##' Auxiliary for varKendall() and varSpearman()
 ##' @param cop an ellipCopula with \code{dispstr = "ar1"}
 ##' @param v influence for tau or rho
-##' @param L 
+##' @param L
 ##' @param der a character string, currently either "tau" or "rho"
 varInfluAr1 <- function(cop, v, L, der) {
   p <- cop@dimension

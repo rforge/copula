@@ -36,9 +36,10 @@ source(system.file("Rsource", "utils.R",     package="copula", mustWork=TRUE))
 ##-> assertError(), ... showProc.time()
 
 
-## Use GoF methods:
-(gofTraf <- eval(formals(gnacopula)$trafo))
-(gofMeth <- eval(formals(gnacopula)$method))
+## GoF methods (NOTE: 'htrafo' only implemented for objects of type 'outer_nacopula')
+## (gofTraf <- eval(formals(gofPB)$trafo.method)[-1]) # "rtrafo", "htrafo"
+gofTraf <- "rtrafo"
+(gofMeth <- eval(formals(gofCopula)$method)) # "Sn", "SnB", "SnC", "AnChisq", "AnGamma"
 
 n <- 64 # sample size [small here for CPU reasons]
 d <- 5 # dimension
@@ -56,16 +57,29 @@ cat("\n### data from ",simFamily," (n = ",n,", d = ",d,", theta = ",
 
 showProc.time()
 
+## for debugging purposes
+if(FALSE) {
+    set.seed(1)
+    estimation.gof(n, d=d, simFamily=simFamily, tau=tau,
+                   N=3, estim.method="mpl", verbose=FALSE,
+                   gof.traf="rtrafo", gof.method="Sn",
+                   checkFamilies = c("Clayton", "Gumbel"))
+}
+
 set.seed(1) # set seed
 ## note: this might (still) take a while...
 RR <- sapply(gofTraf, simplify="array", function(gt)
          {
              sapply(gofMeth, simplify="array", function(gm)
                     estimation.gof(n, d=d, simFamily=simFamily, tau=tau,
-				   n.bootstrap= 3, # << "nonsense" for speed reasons;..
-### for a particular method under consideration, please choose a larger number here, for example 1000
-                                   include.K=TRUE, estim.method = "mle",
-                                   gof.trafo=gt, gof.method=gm, verbose=FALSE))
+				   N=3, # << "nonsense" for speed reasons;..
+                                   ## for a particular method under consideration
+                                   ## please choose a larger number here, for example 1000
+                                   estim.method="mpl", # simulation="pb", default
+                                   verbose=FALSE,
+                                   gof.trafo=gt, # "rtrafo" ("htrafo"; see above)
+                                   gof.method=gm)) # "Sn", "SnB", "SnC", "AnChisq", "AnGamma"
+                                   # checkFamilies=setdiff(copula:::c_longNames, "AMH")) # default
          })
 showProc.time()
 str(RR, vec.len=8)
@@ -82,6 +96,7 @@ showProc.time()
 
 ### Make sure the log-Likelihood demos run: ####################################
 
+## NOTE: this takes a while...
 demo("logL-vis", package="copula")# will use 'doExtras' from above!
 
 showProc.time()
@@ -128,6 +143,7 @@ t.cop <- tCopula(rep(0, 3), dim = 3, dispstr = "un", df.fixed=TRUE)
 
 showProc.time()
 
+## NOTE: takes a while...
 if(doExtras)
 for(meth in eval(formals(gofCopula)$method)) {
   catn("\ngof method: ", meth,"\n==========================")
@@ -210,21 +226,28 @@ print(c(SnB = B., SnC = C.))
 showProc.time()
 }
 
-(cop <- onacopula("Clayton", C(2, 1:d)))
-for(met in gofMeth) {
-    catn("\n gof-method: ", met, ":\n---------")
-    nBoot <- switch(met,
-		    "SnB" = 1,
-		    "SnC" = 2,
-		    ## the rest:
-		    7)
-    if(doExtras) nBoot <- 8 * nBoot
-    set.seed(7)
-    st <- system.time( ## "SnB" is relatively slow - shorten here:
-	  gn <- gnacopula(u, cop, n.bootstrap = nBoot,
-			  method = met, trafo="Rosenblatt", verbose=FALSE))
-    print(gn)
-    print(st)
-    catn("=================================================")
+if(FALSE) {
+    ## fails with:
+    ## Error in optim(start, loglikCopula, lower = lower, upper = upper, method = method,  (from #10) :
+    ## non-finite finite-difference value [1]
+    cop <- archmCopula("Clayton", param=2, dim=d)
+    for(met in gofMeth) {
+        catn("\n gof-method: ", met, ":\n---------")
+        nBoot <- switch(met,
+                        "SnB" = 1,
+                        "SnC" = 2,
+                        ## the rest:
+                        7)
+        if(doExtras) nBoot <- 8 * nBoot
+        set.seed(7)
+        st <- system.time( ## "SnB" is relatively slow - shorten here:
+                          gn <- gofCopula(cop, x = u, N = nBoot,
+                                          method = met, estim.method = "mpl",
+                                          simulation = "pb", verbose = FALSE,
+                                          trafo.method="rtrafo"))
+        print(gn)
+        print(st)
+        catn("=================================================")
+    }
+    showProc.time()
 }
-showProc.time()

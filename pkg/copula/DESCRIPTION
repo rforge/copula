@@ -4,7 +4,7 @@ LastCRAN: 0.999-10 on 2014-06-18
 Date: $Date$,
       subversion $Revision$
 Title: Multivariate Dependence with Copulas
-Author: Marius Hofert <marius.hofert@math.ethz.ch>,
+Author: Marius Hofert <marius.hofert@uwaterloo.ca>,
  Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>,
  Martin Maechler <maechler@stat.math.ethz.ch>, and
  Jun Yan <jun.yan@uconn.edu>

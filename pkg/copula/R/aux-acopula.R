@@ -1182,7 +1182,7 @@ cacopula <- function(u, cop, n.MC=0, log=FALSE) {
 
     .Deprecated("cCopula")
     d <- ncol(u)
-    drop(rtrafo(u, cop=cop, j.ind = d, n.MC=n.MC, log=log, trafo.only=TRUE))
+    drop(rtrafo(u, cop=cop, j.ind = d, n.MC=n.MC, log=log))
 }
 
 ##' Function which computes absdPsi via Monte Carlo

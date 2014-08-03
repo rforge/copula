@@ -162,8 +162,8 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
     u <- if(method=="Sn"){
         switch(trafo.method,
 	       "none"= uhat,
-	       "rtrafo"= rtrafo(uhat, C.th.n, ...),
-	       "htrafo"= htrafo(uhat, C.th.n, ...),
+	       "rtrafo"= rtrafo(uhat, cop=C.th.n, ...),
+	       "htrafo"= htrafo(uhat, cop=C.th.n, ...),
                stop("wrong transformation method"))
     } else uhat
     T <- if(method=="Sn") gofTstat(u, method=method, copula=C.th.n)
@@ -186,8 +186,8 @@ gofPB <- function(copula, x, N, method=eval(formals(gofTstat)$method),
         u. <- if(method=="Sn"){
             switch(trafo.method,
 		   "none"= Uhat,
-		   "rtrafo"= rtrafo(Uhat, C.th.n., ...),
-		   "htrafo"= htrafo(Uhat, C.th.n., ...),
+		   "rtrafo"= rtrafo(Uhat, cop=C.th.n., ...),
+		   "htrafo"= htrafo(Uhat, cop=C.th.n., ...),
                    stop("wrong transformation method"))
         } else Uhat
         T0. <- if(method=="Sn") gofTstat(u., method=method, copula=C.th.n.)
@@ -312,7 +312,8 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
     method <- match.arg(method)
     estim.method <- match.arg(estim.method)
     if(estim.method == "ml") stop("estim.method='ml' not available")
-    if(estim.method %in% c("irho", "itau") && d > 2) stop("only bivariate case possible for estim.method='irho' or ='itau'")
+    if(estim.method %in% c("irho", "itau") && d > 2)
+        stop("only bivariate case possible for estim.method='irho' or ='itau'")
 
     ## 1) Compute the pseudo-observations
     u. <- pobs(x)
