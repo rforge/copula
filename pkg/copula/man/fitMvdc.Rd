@@ -13,7 +13,7 @@
 \usage{
 loglikMvdc(param, x, mvdc, hideWarnings)
 fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS",
-        estimate.variance = TRUE, hideWarnings = TRUE)
+        estimate.variance = fit$convergence == 0, hideWarnings = TRUE)
 
 \S3method{coef}{fittedMV}(object, ...)
 \S3method{logLik}{fittedMV}(object, ...)
@@ -35,8 +35,8 @@ fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS",
     \code{"param"} above for ordering of this vector.}
   \item{optim.control}{a list of controls to be passed to \code{\link{optim}}.}
   \item{method}{the method for \code{\link{optim}}.}
-  \item{estimate.variance}{logical; if TRUE, the asymptotic variance is
-    estimated.}
+  \item{estimate.variance}{logical; if true (as by default, if the
+    optimization converges), the asymptotic variance is estimated.}
 
   \item{object}{an \R object of class \code{"\linkS4class{fitMvdc}"}.}
   \item{\dots}{potentially further arguments to methods.}
@@ -126,12 +126,11 @@ if(copula:::doExtras()) { ## these are typically not run with CRAN checking:
 		     coef(summary(fI.2)),    tolerance = 2e-4),
 	   all.equal(coef(fitI), coef(fI.2), tolerance = 1e-4))
 }%dont...
-}% if(..doExtras())
 
 ## Roger Koenker prepared a demo illustrating MLE for a Clayton AR(1)
 ## copula model with identical, user-defined Student marginals
-if(FALSE) ## not yet ok %% FIXME !
 demo("QARClayton")
+}% if(..doExtras())
 }
 \keyword{models}
 \keyword{multivariate}
