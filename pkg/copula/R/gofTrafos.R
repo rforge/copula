@@ -135,6 +135,7 @@ rtrafo <- function(u, cop, j.ind=NULL, n.MC=0, inverse=FALSE, log=FALSE)
     ## Gauss copula ############################################################
 
         P <- getSigma(cop)
+        stopifnot(dim(P) == c(d,d)) # defensive programming
 
         ## compute inverse
         if(inverse) {
@@ -168,6 +169,7 @@ rtrafo <- function(u, cop, j.ind=NULL, n.MC=0, inverse=FALSE, log=FALSE)
     ## t Copula ################################################################
 
 	P <- getSigma(cop)
+        stopifnot(dim(P) == c(d,d)) # defensive programming
 	nu <- getdf(cop)
         n <- nrow(u)
 
