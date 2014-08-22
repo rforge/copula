@@ -1,7 +1,7 @@
 Package: copula
 Version: 0.999-11
 LastCRAN: 0.999-10 on 2014-06-18 
-Date: $Date$, 
+Date: $Date$,
       subversion $Revision $
 Title: Multivariate Dependence with Copulas
 Author: Marius Hofert <marius.hofert@uwaterloo.ca>,
@@ -14,7 +14,7 @@ Depends: R (>= 2.15.2)
 Imports: stats, graphics, methods, stats4, Matrix, gsl, ADGofTest,
 	 stabledist (>= 0.6-4), mvtnorm, pspline
 Suggests: lattice, MASS, KernSmooth, sfsmisc, bbmle, scatterplot3d, Rmpfr,
-	  rugarch, colorspace, mvnormtest, tseries, zoo
+	  rugarch, colorspace, mvnormtest, tseries, zoo 
 SuggestsNote: packages colorspace, mvnormtest, tseries, zoo
  are only used in demos
 Enhances: nor1mix

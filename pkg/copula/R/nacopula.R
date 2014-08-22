@@ -267,7 +267,14 @@ onacopula <- function(family, nacStructure) {
 ### Use a *recursive* function like this one (but add the "list(.)" wrapping:
 ###    repC <- function(e) { sC <- as.symbol("C"); if(identical(e[[1]], sC)) e[[1]] <- as.symbol("list"); if(length(e) == 4) e[[4]] <- repC(e[[4]]); e}
     nacl <- substitute(nacStructure)
-    stopifnot(identical(nacl[[1]], as.symbol("C")))
+    C. <- as.symbol("C")
+    if(!is.call(nacl) || !length(nacl) || !identical(nacl[[1]], C.)) {
+        ## assume nacStructure is rather a call or expression *object*
+        nacl <- if(is.expression(nacStructure)) nacStructure[[1]]
+                else if(is.call(nacStructure)) nacStructure # else NULL
+        if(!length(nacl) || !identical(nacl[[1]], C.))
+            stop("invalid 'nacStructure'.  Maybe use 'onacopulaL()' which is more robust albeit more verbose")
+    }
     COP <- getAcop(family)
     nacl[[1]] <- as.symbol("oC")
 ### does not work ..>>>>>>>>>>> we should use onacopulaL() inside functions! <<<<
