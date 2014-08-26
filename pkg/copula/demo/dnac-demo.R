@@ -16,10 +16,9 @@
 
 ### Densities of two-level nested Archimedean copulas ##########################
 
-## Note: see http://arxiv.org/abs/1204.2410 for more details
-
-
-### Setup ######################################################################
+## Note: see the following file  'dnac.R'  for the arxiv + publication reference
+##                                ------   [src pkg =  ../inst/Rsource/dnac.R ]
+## Setup ===
 
 (srcFn <- system.file("Rsource", "dnac.R", package="copula", mustWork = TRUE))
 source(srcFn)#--> a.coeff(),  b.coeff()  nacLL()
@@ -36,17 +35,17 @@ n <- 250
 family <- "Gumbel"
 tau <- c(0.2, 0.4, 0.6)
 th <- getAcop(family)@iTau(tau)
-c3 <- onacopula(family, C(th[1], , list(C(th[2], 1:2), C(th[3], 3:5))))
+G3 <- onacopula(family, C(th[1], , list(C(th[2], 1:2), C(th[3], 3:5))))
 
 ## the same with onacopulaL() :
-stopifnot(identical(c3,
+stopifnot(identical(G3,
     onacopulaL(family, list(th[1], NULL, list(list(th[2], 1:2),
                                               list(th[3], 3:5)))))
 )
 
 ## sample and compute log-likelihood
-U <- rnacopula(n, cop)
-nacLL(cop, u=U) # log-likelihood at correct parameters
+U <- rnacopula(n, G3)
+nacLL(G3, u=U) # log-likelihood at correct parameters
 
 
 ### Example 2: (1, (2,3), 4, (5,6,7)) Gumbel ###################################
