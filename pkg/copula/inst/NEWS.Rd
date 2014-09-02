@@ -7,8 +7,11 @@
     \item The default for the optional \code{estimate.variance} argument
     of \code{fitCopula()} and \code{fitMvcd()} now is \code{TRUE} only if
     the optimization converged.
-    \item \code{rtrafo()} more efficient for "normalCopula"
-    \item \code{fitMvdc()} now also works when margin parameter has length > 1.
+    \item \code{rtrafo()} is more efficient for "normalCopula".
+    \item \code{fitMvdc()} now also works when margin parameter has
+    length >1.
+    \item \code{fitMvdc()} gains optional arguments \code{lower} and
+    \code{upper} for specifying box-constraints to optim().
   }
 }
 

@@ -1,12 +1,12 @@
 Package: copula
 Version: 0.999-11
 LastCRAN: 0.999-10 on 2014-06-18
-Date: $Date$,
+Date: $Date $,
       subversion $Revision $
 Title: Multivariate Dependence with Copulas
 Author: Marius Hofert <marius.hofert@uwaterloo.ca>,
  Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>,
- Martin Maechler <maechler@stat.math.ethz.ch>, and 
+ Martin Maechler <maechler@stat.math.ethz.ch>, and
  Jun Yan <jun.yan@uconn.edu>
 Maintainer: Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
@@ -14,9 +14,8 @@ Depends: R (>= 2.15.2)
 Imports: stats, graphics, methods, stats4, Matrix, gsl, ADGofTest,
 	 stabledist (>= 0.6-4), mvtnorm, pspline
 Suggests: lattice, MASS, KernSmooth, sfsmisc, bbmle, scatterplot3d, Rmpfr,
-	  rugarch, colorspace, mvnormtest, tseries, zoo
-SuggestsNote: packages colorspace, mvnormtest, tseries, zoo
- are only used in demos
+  	  partitions, polynom, rugarch, colorspace, mvnormtest, tseries, zoo
+SuggestsNote: the last line packages partitions, ..., zoo are only used in demos
 Enhances: nor1mix
 Description: Classes (S4) of commonly used elliptical, Archimedean, extreme
  value and some more copula families.  Methods for density, distribution,

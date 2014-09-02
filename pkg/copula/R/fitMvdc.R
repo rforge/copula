@@ -132,6 +132,7 @@ loglikMvdc <- function(param, x, mvdc, hideWarnings) {
 
 fitMvdc <- function(data, mvdc, start,
                     optim.control=list(), method="BFGS",
+                    lower = -Inf, upper = Inf,
                     estimate.variance = fit$convergence == 0, hideWarnings=TRUE)
 {
     copula <- mvdc@copula
@@ -158,7 +159,7 @@ fitMvdc <- function(data, mvdc, start,
 		 ## loglikMvdc args :
 		 mvdc=mvdc, x=data,
 		 ## optim args:
-		 method = method, control= control)
+		 method=method, control=control, lower=lower, upper=upper)
 
     if (hideWarnings) {
 	options(oop); sink(type="message"); sink()

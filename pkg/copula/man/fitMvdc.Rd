@@ -13,6 +13,7 @@
 \usage{
 loglikMvdc(param, x, mvdc, hideWarnings)
 fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS",
+        lower = -Inf, upper = Inf,
         estimate.variance = fit$convergence == 0, hideWarnings = TRUE)
 
 \S3method{coef}{fittedMV}(object, ...)
@@ -31,10 +32,13 @@ fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS",
     logical; if TRUE, warning messages from likelihood maximization
     (mostly evaluating at invalid parameter values) are suppressed.}
   \item{data}{a data matrix.}
-  \item{start}{a vector of starting value for \code{"param"}. See
+  \item{start}{a vector of starting value for \code{"param"}.  See
     \code{"param"} above for ordering of this vector.}
   \item{optim.control}{a list of controls to be passed to \code{\link{optim}}.}
   \item{method}{the method for \code{\link{optim}}.}
+  \item{lower, upper}{bounds on each parameter, passed to
+    \code{\link{optim}}, typically \dQuote{box constraints} for
+    \code{method = "L-BFGS-B"}.}
   \item{estimate.variance}{logical; if true (as by default, if the
     optimization converges), the asymptotic variance is estimated.}
 
