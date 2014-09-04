@@ -345,10 +345,11 @@
 ##' @return vector of colors in hex code
 ##' @author Marius Hofert
 heatHCLgap <- function(beg, end, nBeg, nEnd, ngap, ...){
-    stopifnot(requireNamespace(colorspace), length(beg)==3, length(end)==3)
+    stopifnot(requireNamespace("colorspace"), length(beg)==3, length(end)==3)
     stopifnot(nBeg >=0, nEnd >=0, nBeg+nEnd >= 1, ngap >=0)
     hexPol <- function(...) colorspace::hex(colorspace::polarLUV(...))
-    n <- if(nBeg==0) nEnd else if(nEnd==0) nBeg else nBeg + nEnd + ngap # number of colors to generate on the path (ignore gap if nBeg==0 || nEnd==0
+    ## number of colors to generate on the path (ignore gap if nBeg==0 || nEnd==0):
+    n <- if(nBeg==0) nEnd else if(nEnd==0) nBeg else nBeg + nEnd + ngap
     heatHCL <- if(n==1){ # only one color: pick the right one of beg and end
 	if     (nBeg==0) hexPol(H=end[1], C=end[2], L=end[3])
 	else if(nEnd==0) hexPol(H=beg[1], C=beg[2], L=beg[3])
