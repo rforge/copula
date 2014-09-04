@@ -325,8 +325,9 @@ dDiagFrank <- function(u, theta, d, log=FALSE,
                        (1 + (d-4L)/4 * delt*(1 + (d-5L)/5 * delt))),
 		       "polyFull" = { ## full polynomial formula
 			   if(is(ut, "mpfr"))
-			       sfsmisc::polyn.eval(chooseMpfr.all(d1)[-1], x = delt)
-			   else		 polynEval(choose      (d1, 2:d1), x = delt)
+			       sfsmisc::polyn.eval(Rmpfr::chooseMpfr.all(d1)[-1],
+                                                   x = delt)
+			   else		 polynEval(choose(d1, 2:d1), x = delt)
 		       },
 		       stop("invalid poly* method: ", method,
 			    ". Should never happen") )
@@ -790,7 +791,7 @@ rFJoe <- function(n, alpha) rSibuya(n, alpha)
 dsumSibuya <- function(x, n, alpha,
 		       method= c("log", "direct", "diff", "exp.log",
 				"Rmpfr", "Rmpfr0", "RmpfrM", "Rmpfr0M"),
-                       mpfr = list(minPrec = 21, fac = 1.25, verbose=TRUE),
+                       mpfr.ctrl = list(minPrec = 21, fac = 1.25, verbose=TRUE),
 		       log=FALSE)
 {
     stopifnot(x == round(x), n == round(n), n >= 0, length(alpha) == 1,
@@ -844,33 +845,33 @@ dsumSibuya <- function(x, n, alpha,
 	   "Rmpfr" =,  "Rmpfr0" =,
 	   "RmpfrM" =, "Rmpfr0M" =
        {
-	   stopifnot(require("Rmpfr"))
+	   stopifnot(require("Rmpfr"))# need package: classes, methods, e.g. as.numeric(), new()
 	   ## as "direct" but using high-precision arithmetic, where
 	   ## the precision should be set via alpha = mpfr(*, precBits= .)
 	   mayRecall <- !grepl("Rmpfr0", method) ## only if not "Rmpfr0(M)"
 	   if(mayRecall) {
 	       ## FIXME(?): Hmm, when recalling, alpha becomes more and more precise, even going from n[i] to n[i+1]
 	       ## that's not ok.. strictly should only recall for those (x,n) pairs where it's needed
-	       stopifnot(is.numeric(minPrec <- mpfr$minPrec),
-			 is.numeric(fac.pr <- mpfr$fac), fac.pr > 1,
-			 length(mpfr$verbose) == 1)
+	       stopifnot(is.numeric(minPrec <- mpfr.ctrl$minPrec),
+			 is.numeric(fac.pr <- mpfr.ctrl$fac), fac.pr > 1,
+			 length(mpfr.ctrl$verbose) == 1)
 	   }
 	   mayRecall <- !grepl("Rmpfr0", method) ## only if not "Rmpfr0(M)"
 	   if(mayRecall) {
-	       stopifnot(is.numeric(minPrec <- mpfr$minPrec),
-			 is.numeric(fac.pr <- mpfr$fac), fac.pr > 1,
-			 length(mpfr$verbose) == 1)
+	       stopifnot(is.numeric(minPrec <- mpfr.ctrl$minPrec),
+			 is.numeric(fac.pr <- mpfr.ctrl$fac), fac.pr > 1,
+			 length(mpfr.ctrl$verbose) == 1)
 	   }
-	   mpfr.0 <- mpfr(0, precBits =
-			  if(!is(alpha, "mpfr")) 64 else getPrec(alpha))
+	   mpfr.0 <- Rmpfr::mpfr(0, precBits = if(!is(alpha, "mpfr")) 64
+					       else Rmpfr::getPrec(alpha))
 	   ## FIXME: --- speedup possible! ---
 	   if(FALSE && l.x == 1 && l.n == x. && all(n == seq_len(x.))) { ## Special case -- from coeffG()
 	       message("fast special case ..") ## <- just for now
 	       ## change notation (for now)
 	       j <- n  # == 1:d
 	       n <- x. # == d
-	       c.n <- chooseMpfr.all(n)
-	       ca.j <- chooseMpfr(alpha*j,n)*(-1)^(n-j)
+	       c.n <- Rmpfr::chooseMpfr.all(n)
+	       ca.j <- Rmpfr::chooseMpfr(alpha*j,n)*(-1)^(n-j)
 	       f.sp <- function(j) {
 		   j. <- seq_len(j)
 		   sum(c.n[j.] * ca.j[j.])
@@ -878,6 +879,9 @@ dsumSibuya <- function(x, n, alpha,
 	       stop("fast special case -- is still wrong !")
 	       S <- new("mpfr", unlist(lapply(j, f.sp)))
 	   } else { ## usual case
+	       ## satisfying codetools package checks:
+	       mpfr <- Rmpfr::mpfr; roundMpfr <- Rmpfr::roundMpfr
+	       chooseMpfr <- Rmpfr::chooseMpfr; chooseMpfr.all <- Rmpfr::chooseMpfr.all
 	       f.1 <- function(x,n, alpha) {
 		   if(x < n) return(mpfr.0)
                    pr. <- .dsSib.mpfr.prec(x, n, alpha)
@@ -910,10 +914,10 @@ dsumSibuya <- function(x, n, alpha,
 			   ## newPrec <- round(fac.pr * pr.)
 		       }
 		       if(recall) {
-			   if(mpfr$verbose)
+			   if(mpfr.ctrl$verbose)
                                message(sprintf("dsumSibuya(%d, %d, alpha= %g [pr = %d], method='%s'): %s ==> recalled w/ new prec. %d",
 					   x, n, as.numeric(alpha), as.integer(pr.), method, MSG, newPrec))
-			   dsumSibuya(x,n, alpha = roundMpfr(alpha, newPrec), mpfr = mpfr,
+			   dsumSibuya(x,n, alpha = roundMpfr(alpha, newPrec), mpfr.ctrl=mpfr.ctrl,
 				      method="RmpfrM", log=FALSE)
 		       } else S
 		   } else S
