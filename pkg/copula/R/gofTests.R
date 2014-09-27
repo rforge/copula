@@ -450,7 +450,7 @@ gofCopula <- function(copula, x, N=1000,
     stopifnot((d <- ncol(x)) > 1, (n <- nrow(x)) > 0, dim(copula) == d)
     method <- match.arg(method)
     estim.method <- match.arg(estim.method)
-    optim.method <- match.arg(optim.method)
+    optim.method <- match.arg(optim.method, eval(formals(optim)$method))
     simulation <- match.arg(simulation)
     stopifnot(optim.method %in% eval(formals(optim)$method))
     ## deprecation

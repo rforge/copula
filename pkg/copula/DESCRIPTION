@@ -1,8 +1,8 @@
 Package: copula
-Version: 0.999-11
-LastCRAN: 0.999-10 on 2014-06-18
+Version: 0.999-12
+LastCRAN: 0.999-11 on 2014-09-05
 Date: $Date$,
-      subversion $Revision$
+      subversion $Revision$  <<-- don't forget inst/NEWS.Rd !
 Title: Multivariate Dependence with Copulas
 Author: Marius Hofert <marius.hofert@uwaterloo.ca>,
  Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>,
