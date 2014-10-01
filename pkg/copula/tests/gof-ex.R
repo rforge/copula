@@ -39,7 +39,7 @@ source(system.file("Rsource", "utils.R",     package="copula", mustWork=TRUE))
 ## GoF methods (NOTE: 'htrafo' only implemented for objects of type 'outer_nacopula')
 ## (gofTraf <- eval(formals(gofPB)$trafo.method)[-1]) # "rtrafo", "htrafo"
 gofTraf <- "rtrafo"
-(gofMeth <- eval(formals(gofCopula)$method)) # "Sn", "SnB", "SnC", "AnChisq", "AnGamma"
+(gofMeth <- eval(formals(gofPB)$method)) # "Sn", "SnB", "SnC", "AnChisq", "AnGamma"
 
 n <- 64 # sample size [small here for CPU reasons]
 d <- 5 # dimension
@@ -101,6 +101,7 @@ demo("logL-vis", package="copula")# will use 'doExtras' from above!
 
 showProc.time()
 
+
 
 ### *Some* minimal  gofCopula() examples {the help page has \dontrun{} !}
 catn <- function(...) cat(..., "\n", sep="")
@@ -117,14 +118,19 @@ gofL <- sapply(fMeth, function(fitMeth) {
     print(gofCopula(claytonCopula(), x, N = 10, verbose=FALSE,
 		    estim.method = fitMeth))
 }, simplify=FALSE)
+## other 'optim.method's :
+gBr <- gofCopula(claytonCopula(), x, N=10, verbose=FALSE,
+                 optim.method="Brent", lower=0, upper=10)
+gNM <- gofCopula(claytonCopula(), x, N=10, verbose=FALSE, optim.method="Nelder")
 showProc.time()
 stopifnot(all.equal(vapply(gofL, `[[`, 0., "statistic"),
 		    setNames(c(0.01355167, 0.01355167, 0.01201136, 0.01257382),
 			     fMeth), tolerance = 1e-6),
 	  all.equal(vapply(gofL, `[[`, 0., "p.value"),
 		    setNames(c(0.4090909, 0.3181818, 0.4090909, 0.8636364),
-			     fMeth), tolerance = 1e-6))
-
+			     fMeth), tolerance = 1e-6),
+	  all.equal(unname(gBr$parameter), 3.193331257), gBr$p.value > 0.68,
+	  all.equal(unname(gNM$parameter), 3.1932227),	 gNM$p.value > 0.3 )
 
 ## The same using the multiplier approach -- "ml" is not allowed:
 for(fitMeth in c("mpl", "itau", "irho")) {
@@ -134,6 +140,12 @@ for(fitMeth in c("mpl", "itau", "irho")) {
     print(gofCopula(claytonCopula(), x, N = 10, verbose=FALSE,
 		    estim.method = fitMeth, simulation="mult"))
 }
+## "Rn" only works with "itau" (FIXME?)
+gofCopula(gumbelCopula (), x, N = 10, verbose=FALSE,
+          estim.method = "itau", simulation="mult", method="Rn")
+gofCopula(claytonCopula(), x, N = 10, verbose=FALSE,
+          estim.method = "itau", simulation="mult", method="Rn")
+
 
 ## A three-dimensional example	------------------------------------
 x <- rCopula(200, tCopula(c(0.5, 0.6, 0.7), dim = 3, dispstr = "un"))
@@ -145,7 +157,7 @@ showProc.time()
 
 ## NOTE: takes a while...
 if(doExtras)
-for(meth in eval(formals(gofCopula)$method)) {
+for(meth in eval(formals(gofPB)$method)) {
   catn("\ngof method: ", meth,"\n==========================")
   for(fitMeth in c("mpl", "ml", "itau", "irho")) {
     catn("fit*( estim.method = '", fitMeth,"')\n------------------------")
