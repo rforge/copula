@@ -13,8 +13,7 @@ dev.off.pdf(file="Rplots.pdf", crop=NULL, embedFonts="", ...)
   \item{file}{output file name including extension .pdf.}
   \item{crop}{cropping command, can be one of:
     \describe{
-      \item{\code{\link{NULL}}}{crop with the command \code{"pdfcrop
-      --pdftexcmd pdftex file file 1>/dev/null 2>&1"}. This is suitable
+      \item{\code{\link{NULL}}}{crop with the command \code{"pdfcrop --pdftexcmd pdftex file file 1>/dev/null 2>&1"}. This is suitable
 	for Unix; for non-Unix, no cropping is done.}
       \item{\code{\link{character}}}{a string containing the crop
 	command.}

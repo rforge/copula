@@ -17,4 +17,3 @@ dDiag-plots	    Plotting dDiag() densities (over range of families, theta, d)
 timings		    Using timing() to measure speed of basic Archimedean families
 tail_compatibility  Plots and copula constructions for tail-dependence matrices
 retstable	    Computation of exponentially tilted stable random variates
-
