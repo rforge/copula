@@ -110,6 +110,8 @@ set.seed(101)
 ## A two-dimensional data example -------
 x <- rCopula(200, claytonCopula(3))
 
+### FIXME:  test an    optim.method = "Brent"  (and maybe another optim.method) example !!
+
 fMeth <- c("mpl", "ml", "itau", "irho")
 gofL <- sapply(fMeth, function(fitMeth) {
     catn("\nfit*( estim.method = '", fitMeth,"')\n----------------------")

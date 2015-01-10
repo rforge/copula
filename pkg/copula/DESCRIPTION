@@ -1,6 +1,6 @@
 Package: copula
-Version: 0.999-12
-LastCRAN: 0.999-11 on 2014-09-05
+Version: 0.999-13
+LastCRAN: 0.999-12 on 2014-10-02
 Date: $Date$,
       subversion $Revision$  <<-- don't forget inst/NEWS.Rd !
 Title: Multivariate Dependence with Copulas
@@ -29,6 +29,7 @@ Description: Classes (S4) of commonly used elliptical, Archimedean, extreme
  sampling algorithms, various estimators, goodness-of-fit tests and related
  tools and special functions.
 License: GPL (>= 3) | file LICENCE
+ByteCompile: yes
 Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R special-func.R
 	 cop_objects.R nacopula.R
 	 derCdfPdf.R amhCopula.R amhExpr.R An.R
