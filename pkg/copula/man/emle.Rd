@@ -103,17 +103,16 @@ U <- rnacopula(n,cop)
 
 ## Estimation
 system.time(efm <- emle(U, cop))
-summary(efm)
+bbmle::summary(efm)
 
 ## Profile likelihood plot
-if(getRversion() >= "2.15.0") { # otherwise, need  'stats4::' everywhere
-pfm <- profile(efm)
-ci  <- confint(pfm, level=0.95)
-print(ci)
+pfm <- bbmle::profile(efm)
+ci  <- bbmle::confint(pfm, level=0.95)
+ci
 stopifnot(ci[1] <= theta, theta <= ci[2])
-plot(pfm)               # |z| against theta, |z| = sqrt(deviance)
-plot(pfm, absVal=FALSE, #  z  against theta
-      show.points=TRUE) # showing how it's interpolated
+bbmle::plot(pfm)               # |z| against theta, |z| = sqrt(deviance)
+bbmle::plot(pfm, absVal=FALSE, #  z  against theta
+            show.points=TRUE) # showing how it's interpolated
 ## and show the true theta:
 abline(v=theta, col="lightgray", lwd=2, lty=2)
 axis(1, pos = 0, at=theta, label=expression(theta[0]))
@@ -132,6 +131,5 @@ axis(1, at=c(theta, efm@coef), padj = c(-0.5, -0.8), hadj = -0.2,
 abline(v=ci, col="gray30", lwd=2, lty=3)
 text(ci[2], extendrange(par("usr")[3:4], f= -.04)[1],
      "95\% conf. int.", col="gray30", adj = -0.1)
-}#-- only in R >= 2.15.0
 }
 \keyword{models}

@@ -421,6 +421,7 @@ edmle <- function(u, cop, interval=initOpt(cop@copula@name), warn=TRUE, ...)
 ### (Simulated) maximum likelihood estimation ##################################
 
 ##' (Simulated) maximum likelihood estimation for nested Archimedean copulas
+##' -- *Fast* version (based on optimize()) called from enacopula
 ##'
 ##' @title (Simulated) maximum likelihood estimation for nested Archimedean copulas
 ##' @param u matrix of realizations following the copula
@@ -432,7 +433,6 @@ edmle <- function(u, cop, interval=initOpt(cop@copula@name), warn=TRUE, ...)
 ##' @param ... additional parameters for optimize
 ##' @return (simulated) maximum likelihood estimator; return value of optimize
 ##' @author Marius Hofert
-##' note: this is a *fast* version (based on optimize()) called from enacopula
 .emle <- function(u, cop, n.MC=0, interval=initOpt(cop@copula@name), ...)
 {
     stopifnot(is(cop, "outer_nacopula"))
