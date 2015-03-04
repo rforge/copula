@@ -2,7 +2,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-13 (2015-..-..)}{
+\section{Changes in version 0.999-13 (2015-03-..)}{
   \itemize{
     \item New demo on tail compatibility
     \item lsum(): also work for vectors and when result is zero,

@@ -486,7 +486,7 @@ emle <- function(u, cop, n.MC=0, optimizer="optimize", method,
 
     ## optimization
     if(!(is.null(optimizer) || is.na(optimizer))) {
-        stopifnot(require("bbmle"))
+        stopifnot(requireNamespace("bbmle"))
 	if(optimizer == "optimize")
 	    bbmle::mle2(minuslogl = nLL, optimizer = "optimize",
                         lower = interval[1], upper = interval[2],

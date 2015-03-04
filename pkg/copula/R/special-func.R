@@ -556,7 +556,7 @@ Bernoulli.all <-
     switch(method,
            "A-T" =
        {
-           if(verbose) stopifnot(require("MASS"))
+           if(verbose) stopifnot(requireNamespace("MASS"))
            nn <- seq_len(n1 <- n+1L) ## <- FIXME, make this work with Rmpfr optionally
            if(!is.numeric(precBits) || !is.finite(precBits)) {
                B <- numeric(n1)
