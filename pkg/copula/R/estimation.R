@@ -486,20 +486,18 @@ emle <- function(u, cop, n.MC=0, optimizer="optimize", method,
 
     ## optimization
     if(!(is.null(optimizer) || is.na(optimizer))) {
-        stopifnot(requireNamespace("bbmle"))
 	if(optimizer == "optimize")
-	    bbmle::mle2(minuslogl = nLL, optimizer = "optimize",
-                        lower = interval[1], upper = interval[2],
-                        ##vvv awkward to be needed, but it is - by mle2():
-                        start=start, ...)
+	    mle2(minuslogl = nLL, optimizer = "optimize",
+		 lower = interval[1], upper = interval[2],
+		 ##vvv awkward to be needed, but it is - by mle2():
+		 start=start, ...)
 	else if(optimizer == "optim") {
 	    message(" optimizer = \"optim\" -- using mle2(); consider optimizer=NULL instead")
-	    bbmle::mle2(minuslogl = nLL, optimizer = "optim", method = method,
-                        start=start, ...)
+	    mle2(minuslogl = nLL, optimizer = "optim", method = method,
+		 start=start, ...)
 	}
 	else ## "general"
-	    bbmle::mle2(minuslogl = nLL, optimizer = optimizer,
-                        start=start, ...)
+	    mle2(minuslogl = nLL, optimizer = optimizer, start=start, ...)
     }
     else
 	## use optim() .. [which uses suboptimal method for 1D, but provides Hessian]
