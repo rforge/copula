@@ -138,9 +138,9 @@ export(dev.off.pdf)
 ### Part II: Mainly former nacopula ############################################
 
 importFrom("stats4", mle)
-importMethodsFrom("stats4", coef, confint, logLik, AIC, BIC, plot, profile)
-## importMethodsFrom("stats4", logLik, AIC, BIC)
-## 			## coef, confint, plot, profile: now all from "bbmle"
+importMethodsFrom("stats4",
+		  coef, confint, logLik, AIC, BIC,
+		  plot, profile, summary)
 
 importFrom("lattice", trellis.par.get,
 	   splom, panel.fill, panel.splom, diag.panel.splom)
@@ -151,9 +151,7 @@ importFrom("ADGofTest", ad.test)# really would want the ad.test.statistic() but 
 
 importFrom("stabledist", dstable)
 
-## for emle(), and for user convenience, we may also re-export some of these:
-importFrom("bbmle", mle2)
-importMethodsFrom("bbmle", coef, confint, plot, profile, summary)
+## importFrom("bbmle", mle2)
 
 
 if(FALSE) {## currently do not "depend" on Rmpfr's correct installation:
@@ -233,7 +231,7 @@ exportMethods(## for both own and "other" generics:
     "prob",
     "%in%", "dim",
     "format", "show",
-    ## imported from "bbmle" / "stats4":
+    ## imported from "stats4" / "bbmle":
     "coef", "confint", "logLik", #-> hence AIC works [BIC: needs 'nobs' fix in bbmle]
-    "profile", "summary"
+    "profile", "summary", "plot"
     )

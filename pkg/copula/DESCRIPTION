@@ -12,8 +12,8 @@ Maintainer: Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Depends: R (>= 2.15.2)
 Imports: stats, graphics, methods, stats4, Matrix, lattice, gsl, ADGofTest,
-	 stabledist (>= 0.6-4), mvtnorm, pspline, bbmle
-Suggests: MASS, KernSmooth, sfsmisc, scatterplot3d, Rmpfr,
+	 stabledist (>= 0.6-4), mvtnorm, pspline
+Suggests: MASS, KernSmooth, sfsmisc, scatterplot3d, Rmpfr, bbmle,
   	  partitions, polynom, rugarch, colorspace, mvnormtest, tseries, zoo
 SuggestsNote: the last line packages partitions, ..., zoo are only used in demos
 Enhances: nor1mix
