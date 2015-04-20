@@ -19,7 +19,7 @@ require(copula)
 require(rugarch)
 
 
-### 1) Simulate data from two ARMA(1,1)-GARCH(1,1) processes with dependent innovations
+### 1) Simulate data from two ARMA(1,1)-GARCH(1,1) processes with copula-dependent innovations
 
 ## simulate innovation distribution
 n <- 200 # sample size
@@ -65,7 +65,7 @@ matplot(X@path$residSim,  type="l") # plot of Z's
 plot(pobs(X@path$residSim)) # plot of Z's pseudo-observations => seem fine
 
 
-### 2) Fit procedure based on the simulated data ###############################
+### 2) Fitting procedure based on the simulated data ###########################
 
 ## fit ARMA(1,1)-GARCH(1,1) process to X
 ## remove 'fixed.pars' from specification to be able to fit
