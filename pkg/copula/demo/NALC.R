@@ -1,48 +1,58 @@
 ### Simulating dependent multivariate Levy processes based on positive (nested)
 ### Archimedean Levy copulas (here: Clayton)
 
+## Note: As usual, we have to truncate small jumps. We do so by truncating
+##       large Gammas (by setting them to Inf in order for the jump heights
+##       to be \bar{\nu}^{-1}(Inf) = 0). In this sense, we only simulate the
+##       largest jumps; see below for more details. For a truncation-bias
+##       correction via a drift, see Asmussen, Rosinski (2001).
+
 require(gsl) # for exponential integral
 require(copula)
 
 doPDF <- Sys.getenv("USER")=="mhofert"
 
 
-## Auxiliary functions #########################################################
+### 1) Auxiliary functions #####################################################
+
+### 1.1) Margins ###############################################################
 
 ## Tail integral of a variance gamma Levy process
 ## \bar{\nu}(x) = \int_x^\infty f(z) dz for the Levy density
 ## f(z) = (c/x)*exp(-lambda*x) for x>0, c=1/kappa and
 ## lambda=(sqrt(theta^2+2*sigma^2/kappa)-theta)/sigma^2
-nu_bar_vargamma <- function(x, theta, kappa, sigma) {
-    lambda <- (sqrt(theta^2+2*sigma^2/kappa)-theta)/sigma^2
-    -expint_Ei(-lambda*x, give=FALSE)/kappa
+nu_bar_vargamma <- function(x, th, kap, sig) {
+    lambda <- (sqrt(th^2+2*sig^2/kap)-th)/sig^2
+    -expint_Ei(-lambda*x, give=FALSE)/kap
 }
 
 ## Test
 if(FALSE) {
-    theta <- -0.2
-    kappa <- 0.05
-    sigma <- 0.3
+    th <- -0.2
+    kap <- 0.05
+    sig <- 0.3
     x <- seq(.Machine$double.xmin, 29, by=0.01)
-    y <- nu_bar_vargamma(x, theta=theta, kappa=kappa, sigma=sigma) # monotonically decreasing
+    y <- nu_bar_vargamma(x, th=th, kap=kap, sig=sig) # monotonically decreasing
     range(y) # => max. value ~ 14093
     plot(x, y, type="l", log="y")
-    mtext(substitute("y-range: ("*l*","~u*")", list(l=min(y), u=max(y))), side=3, line=1)
+    mtext(substitute("y-range: ("*l*","~u*")", list(l=min(y), u=max(y))),
+          side=3, line=1)
 }
 
 ## Inverse of the tail integral of a variance gamma Levy process
 ## \bar{\nu}(x) = \int_x^\infty f(z) dz for the Levy density
 ## f(z) = (c/x)*exp(-lambda*x) for x>0, c=1/kappa and
 ## lambda=(sqrt(theta^2+2*sigma^2/kappa)-theta)/sigma^2
-nu_bar_inv_vargamma <- function(Gamma, theta, kappa, sigma, ...)
+nu_bar_inv_vargamma <- function(Gamma, th, kap, sig, ...)
 {
-    max.val <- nu_bar_vargamma(.Machine$double.xmin, theta=theta, kappa=kappa, sigma=sigma)
+    max.val <- nu_bar_vargamma(.Machine$double.xmin, th=th, kap=kap, sig=sig)
     res <- numeric(length(Gamma))
     large <- Gamma >= max.val
     res[large] <- 0 # de facto indistinguishable from 0 anyways
     if(any(!large)) {
-        lambda <- (sqrt(theta^2+2*sigma^2/kappa)-theta)/sigma^2
-        nu_bar_vargamma_minus <- function(x, z) -expint_Ei(-lambda*x, give=FALSE)/kappa - z
+        lambda <- (sqrt(th^2+2*sig^2/kap)-th)/sig^2
+        nu_bar_vargamma_minus <- function(x, z)
+            -expint_Ei(-lambda*x, give=FALSE)/kap - z
         res[!large] <- vapply(Gamma[!large], function(Gamma.)
             uniroot(nu_bar_vargamma_minus, z=Gamma.,
                     interval=c(.Machine$double.xmin, 29), ...)$root, NA_real_)
@@ -50,20 +60,23 @@ nu_bar_inv_vargamma <- function(Gamma, theta, kappa, sigma, ...)
     res
 }
 
-## V_0 for Clayton Levy copulas
-## tau = truncation point
-V0_Clayton_Levy <- function(theta, tau)
+## Transforming Gamma with variance-gamma Levy margins
+hom_vargamma_Levy <- function(Gamma, th, kap, sig)
 {
-    Z <- numeric(0) # generate arrival times of a Poi(1) process
-    repeat {
-        E <- rexp(1)
-        if(sum(Z) + E > tau) break
-        Z <- c(Z, E)
-    }
-    W <- cumsum(Z) # compute jump times of a Poi(1) process
-    # note: length(W) ~ tau
-    (W/theta * gamma(1/theta))^theta # compute V_0 = F_0^{-1}(W)
+    U <- runif(nrow(Gamma)) # jump times
+    ord <- order(U) # determine the order of the U's
+    jump_time <- U[ord] # (sorted) jump times
+    jump_size <- apply(Gamma, 2, function(y)
+        nu_bar_inv_vargamma(y, th=th, kap=kap, sig=sig)) # (unsorted) jump sizes (apply inverses of marginal tail integrals)
+    value <- apply(jump_size, 2, function(x) cumsum(x[ord])) # sort jump sizes according to U's and add them up => (L_t) at jump times
+    list(jump_time=jump_time, value=value)
 }
+
+
+### 1.2) (Nested) Clayton Levy copula ##########################################
+
+## \bar{\psi} for Clayton Levy copulas
+psi_bar_Clayton <- function(t, theta) t^(-1/theta)
 
 ## V_{01} for nested Clayton Levy copulas
 ## Note: V_{01,k} | V_{0,k} ~ LS^{-1}[\bar{\psi}_{01}(.; V_{0,k})] with
@@ -72,108 +85,157 @@ V0_Clayton_Levy <- function(theta, tau)
 V01_nested_Clayton_Levy <- function(V0, theta0, theta1)
     copGumbel@V01(V0, theta0=theta0, theta1=theta1)
 
-## \bar{\psi} for Clayton Levy copulas
-psi_bar_Clayton <- function(t, theta) t^(-1/theta)
-
-## Transforming Gamma with variance-gamma Levy margins
-hom_Levy_process <- function(Gamma, theta, kappa, sigma)
+## Generate Gamma for a d-dimensional Clayton Levy copula with parameter theta
+## Note: - Don't confuse the Clayton parameter theta with the parameter th
+##         for the marginal tail integral (variance gamma)
+##       - This procedure is only correct for large truncation points Gamma.star
+##       - The best stopping criterion would be if we are sure that in each
+##         dimension all generated Gammas which are <= Gamma^* (= Gamma.star)
+##         form a sample of jump times of a homogeneous Poi(1) process on
+##         [0, Gamma^*]; could be tested.
+##       - The advantage of a fixed truncation point Gamma^* is that one could
+##         correct the bias introduced when cutting off small jumps by adding
+##         a drift; see Asmussen, Rosinski (2001) for more details
+##       - We go with a simpler criterion here: Given a truncation point
+##         Gamma^*, we stop if trunc.factor*Gamma^* many Gammas are <= Gamma^*
+Gamma_Clayton_Levy <- function(d, theta, Gamma.star, trunc.factor=0.95)
 {
-    U <- runif(nrow(Gamma)) # jump times
-    ord <- order(U) # determine the order of the U's
-    jump_time <- U[ord] # (sorted) jump times
-    jump_size <- apply(Gamma, 2, function(y)
-        nu_bar_inv_vargamma(y, theta=theta, kappa=kappa, sigma=sigma)) # (unsorted) jump sizes (apply inverses of marginal tail integrals)
-    value <- apply(jump_size, 2, function(x) cumsum(x[ord])) # sort jump sizes according to U's and add them up => (L_t) at jump times
-    list(jump_time=jump_time, value=value)
+    stopifnot(d >= 1, length(theta) == 1, theta > 0 , Gamma.star > 0)
+    Gamma.star. <- trunc.factor*Gamma.star
+    Gamma <- matrix(, nrow=0, ncol=d)
+    num.Gamma <- rep(0, d) # number of Gammas < trunc.factor * Gamma.star
+    W <- 0
+    repeat {
+        E <- rexp(d+1)
+        W <- W + E[d+1]
+        V <- (W/theta * gamma(1/theta))^theta # generate V = F^{-1}(W)
+        G <- psi_bar_Clayton(E[1:d]/V, theta=theta) # Gamma
+        Gamma <- rbind(Gamma, G) # update Gamma
+        num.Gamma <- num.Gamma + (G <= Gamma.star)
+        if(all(num.Gamma >= Gamma.star.)) break
+    }
+    Gamma[Gamma > Gamma.star] <- Inf # => produce \bar{\mu}(.) = 0 (0-height jumps)
+    Gamma
+}
+
+## Generate Gamma for a 4-dimensional nested Clayton Levy copula
+Gamma_nested_Clayton_Levy <- function(theta, Gamma.star, trunc.factor=0.95)
+{
+    stopifnot(d >= 1, length(theta) == 3, theta > 0, min(theta[2:3]) >= theta[1],
+              Gamma.star > 0)
+    d <- 4 # d must be 4 here; obviously, this could be generalized
+    Gamma.star. <- trunc.factor*Gamma.star
+    Gamma <- matrix(, nrow=0, ncol=d)
+    num.Gamma <- rep(0, d) # number of Gammas < trunc.factor * Gamma.star
+    W <- 0
+    repeat {
+        E <- rexp(d+1)
+        W <- W + E[d+1]
+        V0 <- (W/theta[1] * gamma(1/theta[1]))^theta[1] # generate V_0 = F_0^{-1}(W)
+        V01 <- V01_nested_Clayton_Levy(V0, theta0=theta[1], theta1=theta[2]) # generate V_{01}
+        V02 <- V01_nested_Clayton_Levy(V0, theta0=theta[1], theta1=theta[3]) # generate V_{02}
+        G <- c(psi_bar_Clayton(E[1:2]/V01, theta=theta[2]),
+               psi_bar_Clayton(E[3:4]/V02, theta=theta[3])) # Gamma
+        Gamma <- rbind(Gamma, G) # update Gamma
+        num.Gamma <- num.Gamma + (G <= Gamma.star)
+        if(all(num.Gamma >= Gamma.star.)) break
+    }
+    Gamma[Gamma > Gamma.star] <- Inf # => produce \bar{\mu}(.) = 0 (0-height jumps)
+    Gamma
+}
+
+
+### 1.3) Plotting ##############################################################
+
+## Plot Gammas
+plot_Gamma <- function(Gamma, Gamma.star, file=NULL, ...)
+{
+    stopifnot(is.matrix(Gamma), (d <- ncol(Gamma)) >= 2,
+              is.null(file) || is.character(file))
+    palette <- colorRampPalette(c("black", "royalblue3", "darkorange2",
+                                  "maroon3"), space="Lab")
+    cols <- palette(d)
+    ## cols <- adjustcolor(cols, alpha.f=0.1) # no improvement here
+    doPDF <- !is.null(file)
+    if(doPDF) pdf(file=file, width=7, height=7)
+    par(pty="s")
+    plot(Gamma[,1], type="l", ylim=range(Gamma, finite=TRUE), # omit Inf
+         log="y", xlab="k", ylab="", col=cols[1], ...)
+    for(j in 2:d) lines(Gamma[,j], col=cols[j])
+    abline(h=Gamma.star, lty=2, lwd=1.6)
+    legend("bottomright", bty="n", lty=c(rep(1, d), 2), lwd=c(rep(1,d), 1.6),
+           col=c(cols, "black"), as.expression( c(lapply(1:d, function(j)
+               bquote(Gamma[list(k,.(j))])), list(bquote(Gamma*"*")))))
+    if(doPDF) dev.off.pdf(file)
 }
 
 ## Plot a multivariate Levy process
-plot_Levy_process <- function(jump_times, L, ...)
+plot_Levy <- function(L, file=NULL, ...)
 {
-    stopifnot(is.matrix(L), (d <- ncol(L)) >= 2,
-              length(jump_times)==nrow(L))
-    palette <- colorRampPalette(c("black", "royalblue3", "darkorange2", "maroon3"), space="Lab")
+    stopifnot(is.matrix(L$value), (d <- ncol(L$value)) >= 2,
+              length(L$jump_time)==nrow(L$value),
+              is.null(file) || is.character(file))
+    palette <- colorRampPalette(c("black", "royalblue3", "darkorange2",
+                                  "maroon3"), space="Lab")
     cols <- palette(d) # d colors
-    plot(jump_times, L[,1], type="l", ylim=range(L),
-         xlab="t", ylab=expression(bold(L)[t]), col=cols[1],
-         ...)
+    x_jump_time <- c(0, L$jump_time, 1) # extended jump times (for nicer plotting)
+    x_L <- rbind(rep(0, d), L$value, L$value[nrow(L$value),]) # extended Levy process (for nicer plotting)
+    doPDF <- !is.null(file)
+    if(doPDF) pdf(file=file, width=7, height=7)
+    par(pty="s")
+    plot(x_jump_time, x_L[,1], type="s", ylim=range(L),
+         xlab="t", ylab=expression(bold(L)[t]), col=cols[1], ...)
     for(j in 2:d)
-        lines(jump_times, L[,j], col=cols[j])
+        lines(x_jump_time, x_L[,j], type="s", col=cols[j])
     legend("bottomright", bty="n", lty=rep(1, d), col=cols,
            legend=as.expression( lapply(1:d, function(j) bquote(L[list(t,.(j))]))))
+    if(doPDF) dev.off.pdf(file)
 }
 
 
-### 4d positive Clayton Levy copula ############################################
+### 2) Sampling paths ##########################################################
+
+## Marginal (variance gamma) parameters
+th <- -0.2
+kap <- 0.05
+sig <- 0.3
+
+## Truncation point for Gamma
+Gamma.star <- 2000
+
+
+### 2.1) 4d positive Clayton Levy copula #######################################
 
 set.seed(271)
 theta <- 4 # theta
 d <- 4 # dimension
-tau <- 2000 # truncation point
 
-## Sampling Gamma
-V0 <- V0_Clayton_Levy(theta, tau=tau) # generate V0
-E <- matrix(rexp(length(V0)*d), ncol=d) # Exp(1)
-Gamma <- psi_bar_Clayton(E/rep(V0, d), theta=theta) # Gamma
+## Gamma
+system.time(Gamma <- Gamma_Clayton_Levy(d, theta=theta, Gamma.star=Gamma.star))
+plot_Gamma(Gamma, Gamma.star=Gamma.star,
+           file=if(doPDF) "fig_Gamma_positive_Clayton_Levy_copula.pdf" else NULL,
+           main=expression(bold(group("(",Gamma[k],")")~
+                           "for a positive Clayton Levy copula")))
 
-## Plot
-if(FALSE) {
-    plot(Gamma[,1], type="l", ylim=range(Gamma), xlab="k", ylab="")
-    lines(Gamma[,2], col="royalblue3")
-    lines(Gamma[,3], col="darkorange2")
-    lines(Gamma[,4], col="maroon3")
-    legend("topleft", bty="n", lty=rep(1, 4),
-       col=c("black", "royalblue3", "darkorange2", "maroon3"),
-       legend=c(expression(Gamma[list(k,1)]), expression(Gamma[list(k,2)]),
-                expression(Gamma[list(k,3)]), expression(Gamma[list(k,4)])))
-}
-
-## Sampling (L_t)
-L <- hom_Levy_process(Gamma, theta=-0.2, kappa=0.05, sigma=0.3)
-
-## Plot
-if(doPDF) pdf(file=(file <- "fig_L_with_positive_Clayton_Levy_copula.pdf"),
-              width=7, height=7)
-par(pty="s")
-plot_Levy_process(L$jump_time, L$value,
-                  main="Levy process with positive Clayton Levy copula")
-if(doPDF) dev.off.pdf(file)
+## (L_t)
+L <- hom_vargamma_Levy(Gamma, th=th, kap=kap, sig=sig)
+plot_Levy(L, file=if(doPDF) "fig_L_with_positive_Clayton_Levy_copula.pdf" else NULL,
+          main="Levy process with positive Clayton Levy copula")
 
 
-### 4d positive nested Clayton Levy copula #####################################
+### 2.2) 4d positive nested Clayton Levy copula ################################
 
 set.seed(271)
-theta <- c(0.7, 3, 2) # theta_0, theta_1, theta_2
-d <- 4 # dimension
-tau <- 2000 # truncation point
+theta <- c(0.7, 4, 2) # theta_0, theta_1, theta_2
 
-## Sampling Gamma
-V0 <- V0_Clayton_Levy(theta[1], tau=tau) # generate V0
-V01 <- V01_nested_Clayton_Levy(V0, theta0=theta[1], theta1=theta[2]) # compute V_{01}
-V02 <- V01_nested_Clayton_Levy(V0, theta0=theta[1], theta1=theta[3]) # compute V_{02}
-E <- matrix(rexp(length(V0)*d), ncol=d) # Exp(1)
-Gamma <- cbind(psi_bar_Clayton(E[,1:2]/V01, theta=theta[2]),
-               psi_bar_Clayton(E[,3:4]/V02, theta=theta[3])) # Gamma
+## Gamma
+system.time(Gamma <- Gamma_nested_Clayton_Levy(theta, Gamma.star=Gamma.star))
+plot_Gamma(Gamma, Gamma.star=Gamma.star,
+           file=if(doPDF) "fig_Gamma_positive_nested_Clayton_Levy_copula.pdf" else NULL,
+           main=expression(bold(group("(",Gamma[k],")")~
+                           "for a positive nested Clayton Levy copula")))
 
-## Plot
-if(FALSE) {
-    plot(Gamma[,1], type="l", ylim=range(Gamma), xlab="k", ylab="")
-    lines(Gamma[,2], col="royalblue3")
-    lines(Gamma[,3], col="darkorange2")
-    lines(Gamma[,4], col="maroon3")
-    legend("topleft", bty="n", lty=rep(1, 4),
-       col=c("black", "royalblue3", "darkorange2", "maroon3"),
-       legend=c(expression(Gamma[list(k,1)]), expression(Gamma[list(k,2)]),
-                expression(Gamma[list(k,3)]), expression(Gamma[list(k,4)])))
-}
-
-## Sampling (L_t)
-L <- hom_Levy_process(Gamma, theta=-0.2, kappa=0.05, sigma=0.3)
-
-## Plot
-if(doPDF) pdf(file=(file <- "fig_L_with_positive_nested_Clayton_Levy_copula.pdf"),
-              width=7, height=7)
-par(pty="s")
-plot_Levy_process(L$jump_time, L$value,
-                  main="Levy process with positive nested Clayton Levy copula")
-if(doPDF) dev.off.pdf(file)
+## (L_t)
+L <- hom_vargamma_Levy(Gamma, th=th, kap=kap, sig=sig)
+plot_Levy(L, file=if(doPDF) "fig_L_with_positive_nested_Clayton_Levy_copula.pdf" else NULL,
+          main="Levy process with positive nested Clayton Levy copula")
