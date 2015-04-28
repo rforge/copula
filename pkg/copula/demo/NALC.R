@@ -98,6 +98,9 @@ V01_nested_Clayton_Levy <- function(V0, theta0, theta1)
 ##         a drift; see Asmussen, Rosinski (2001) for more details
 ##       - We go with a simpler criterion here: Given a truncation point
 ##         Gamma^*, we stop if trunc.factor*Gamma^* many Gammas are <= Gamma^*
+##       - Note that with larger truncation factor, the repeat-loop may not
+##         (and is likely to not) terminate. It would be fail-safe(r) to
+##         include an argument maxiter or so.
 Gamma_Clayton_Levy <- function(d, theta, Gamma.star, trunc.factor=0.95)
 {
     stopifnot(d >= 1, length(theta) == 1, theta > 0 , Gamma.star > 0)
