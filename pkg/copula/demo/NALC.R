@@ -88,25 +88,25 @@ V01_nested_Clayton_Levy <- function(V0, theta0, theta1)
 ## Generate Gamma for a d-dimensional Clayton Levy copula with parameter theta
 ## Note: - Don't confuse the Clayton parameter theta with the parameter th
 ##         for the marginal tail integral (variance gamma)
-##       - This procedure is only correct for large truncation points Gamma.star
+##       - The advantage of a fixed truncation point Gamma^* is that one can
+##         correct the bias introduced when cutting off small jumps by adding
+##         a drift; see Asmussen, Rosinski (2001) for more details
 ##       - The best stopping criterion would be if we are sure that in each
 ##         dimension all generated Gammas which are <= Gamma^* (= Gamma.star)
 ##         form a sample of jump times of a homogeneous Poi(1) process on
-##         [0, Gamma^*]; could be tested.
-##       - The advantage of a fixed truncation point Gamma^* is that one could
-##         correct the bias introduced when cutting off small jumps by adding
-##         a drift; see Asmussen, Rosinski (2001) for more details
-##       - We go with a simpler criterion here: Given a truncation point
-##         Gamma^*, we stop if trunc.factor*Gamma^* many Gammas are <= Gamma^*
-##       - Note that with larger truncation factor, the repeat-loop may not
-##         (and is likely to not) terminate. It would be fail-safe(r) to
-##         include an argument maxiter or so.
-Gamma_Clayton_Levy <- function(d, theta, Gamma.star, trunc.factor=0.95)
+##         [0, Gamma^*]; this could be tested.
+##       - We go with a simpler stopping criterion here: Given a burn.in value
+##         (integer), we stop (only) if in the last burn.in-many generated
+##         Gammas each had at least one component larger than the corresponding
+##         component of Gamma^*. So it's unlikely that we still get such
+##         (uniformly) small Gammas (= smaller than Gamma^*) => large Gamma
+##         => small jump => correctly truncates (small) jumps.
+Gamma_Clayton_Levy <- function(d, theta, Gamma.star, burn.in)
 {
-    stopifnot(d >= 1, length(theta) == 1, theta > 0 , Gamma.star > 0)
-    Gamma.star. <- trunc.factor*Gamma.star
+    stopifnot(d >= 1, length(theta) == 1, theta > 0 , Gamma.star > 0,
+              burn.in >= 0)
     Gamma <- matrix(, nrow=0, ncol=d)
-    num.Gamma <- rep(0, d) # number of Gammas < trunc.factor * Gamma.star
+    count <- 0
     W <- 0
     repeat {
         E <- rexp(d+1)
@@ -114,22 +114,21 @@ Gamma_Clayton_Levy <- function(d, theta, Gamma.star, trunc.factor=0.95)
         V <- (W/theta * gamma(1/theta))^theta # generate V = F^{-1}(W)
         G <- psi_bar_Clayton(E[1:d]/V, theta=theta) # Gamma
         Gamma <- rbind(Gamma, G) # update Gamma
-        num.Gamma <- num.Gamma + (G <= Gamma.star)
-        if(all(num.Gamma >= Gamma.star.)) break
+        if(count >= burn.in) break # stopping criterion
+        count <- if(all(G <= Gamma.star)) 1 else count + 1 # if there are still Gammas <= Gamma^*, keep generating Gammas
     }
     Gamma[Gamma > Gamma.star] <- Inf # => produce \bar{\mu}(.) = 0 (0-height jumps)
     Gamma
 }
 
 ## Generate Gamma for a 4-dimensional nested Clayton Levy copula
-Gamma_nested_Clayton_Levy <- function(theta, Gamma.star, trunc.factor=0.95)
+Gamma_nested_Clayton_Levy <- function(theta, Gamma.star, burn.in)
 {
     stopifnot(d >= 1, length(theta) == 3, theta > 0, min(theta[2:3]) >= theta[1],
-              Gamma.star > 0)
+              Gamma.star > 0, burn.in >= 0)
     d <- 4 # d must be 4 here; obviously, this could be generalized
-    Gamma.star. <- trunc.factor*Gamma.star
     Gamma <- matrix(, nrow=0, ncol=d)
-    num.Gamma <- rep(0, d) # number of Gammas < trunc.factor * Gamma.star
+    count<- 0
     W <- 0
     repeat {
         E <- rexp(d+1)
@@ -140,8 +139,8 @@ Gamma_nested_Clayton_Levy <- function(theta, Gamma.star, trunc.factor=0.95)
         G <- c(psi_bar_Clayton(E[1:2]/V01, theta=theta[2]),
                psi_bar_Clayton(E[3:4]/V02, theta=theta[3])) # Gamma
         Gamma <- rbind(Gamma, G) # update Gamma
-        num.Gamma <- num.Gamma + (G <= Gamma.star)
-        if(all(num.Gamma >= Gamma.star.)) break
+        if(count >= burn.in) break # stopping criterion
+        count <- if(all(G <= Gamma.star)) 1 else count + 1 # if there are still Gammas <= Gamma^*, keep generating Gammas
     }
     Gamma[Gamma > Gamma.star] <- Inf # => produce \bar{\mu}(.) = 0 (0-height jumps)
     Gamma
@@ -203,8 +202,9 @@ th <- -0.2
 kap <- 0.05
 sig <- 0.3
 
-## Truncation point for Gamma
+## Truncation specification
 Gamma.star <- 2000
+burn.in <- 500
 
 
 ### 2.1) 4d positive Clayton Levy copula #######################################
@@ -214,7 +214,8 @@ theta <- 4 # theta
 d <- 4 # dimension
 
 ## Gamma
-system.time(Gamma <- Gamma_Clayton_Levy(d, theta=theta, Gamma.star=Gamma.star))
+system.time(Gamma <- Gamma_Clayton_Levy(d, theta=theta, Gamma.star=Gamma.star,
+                                        burn.in=burn.in))
 plot_Gamma(Gamma, Gamma.star=Gamma.star,
            file=if(doPDF) "fig_Gamma_positive_Clayton_Levy_copula.pdf" else NULL,
            main=expression(bold(group("(",Gamma[k],")")~
@@ -232,7 +233,8 @@ set.seed(271)
 theta <- c(0.7, 4, 2) # theta_0, theta_1, theta_2
 
 ## Gamma
-system.time(Gamma <- Gamma_nested_Clayton_Levy(theta, Gamma.star=Gamma.star))
+system.time(Gamma <- Gamma_nested_Clayton_Levy(theta, Gamma.star=Gamma.star,
+                                               burn.in=burn.in))
 plot_Gamma(Gamma, Gamma.star=Gamma.star,
            file=if(doPDF) "fig_Gamma_positive_nested_Clayton_Levy_copula.pdf" else NULL,
            main=expression(bold(group("(",Gamma[k],")")~
