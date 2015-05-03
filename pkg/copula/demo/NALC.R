@@ -97,14 +97,14 @@ V01_nested_Clayton_Levy <- function(V0, theta0, theta1)
 ##         [0, Gamma^*]; this could be tested.
 ##       - We go with a simpler stopping criterion here: Given a burn.in value
 ##         (integer), we stop (only) if in the last burn.in-many generated
-##         Gammas each had at least one component larger than the corresponding
-##         component of Gamma^*. So it's unlikely that we still get such
-##         (uniformly) small Gammas (= smaller than Gamma^*) => large Gamma
-##         => small jump => correctly truncates (small) jumps.
+##         Gammas each had at least one component larger than Gamma^*. So it's
+##         unlikely that we still get such (uniformly) small Gammas
+##         (<= Gamma^* in each component); large Gamma => small jump
+##         => we correctly only truncate (small) jumps.
 Gamma_Clayton_Levy <- function(d, theta, Gamma.star, burn.in)
 {
     stopifnot(d >= 1, length(theta) == 1, theta > 0 , Gamma.star > 0,
-              burn.in >= 0)
+              burn.in >= 1)
     Gamma <- matrix(, nrow=0, ncol=d)
     count <- 0
     W <- 0
@@ -125,7 +125,7 @@ Gamma_Clayton_Levy <- function(d, theta, Gamma.star, burn.in)
 Gamma_nested_Clayton_Levy <- function(theta, Gamma.star, burn.in)
 {
     stopifnot(d >= 1, length(theta) == 3, theta > 0, min(theta[2:3]) >= theta[1],
-              Gamma.star > 0, burn.in >= 0)
+              Gamma.star > 0, burn.in >= 1)
     d <- 4 # d must be 4 here; obviously, this could be generalized
     Gamma <- matrix(, nrow=0, ncol=d)
     count<- 0
