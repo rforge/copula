@@ -115,7 +115,7 @@ Gamma_Clayton_Levy <- function(d, theta, Gamma.star, burn.in)
         G <- psi_bar_Clayton(E[1:d]/V, theta=theta) # Gamma
         Gamma <- rbind(Gamma, G) # update Gamma
         if(count >= burn.in) break # stopping criterion
-        count <- if(all(G <= Gamma.star)) 1 else count + 1 # if there are still Gammas <= Gamma^*, keep generating Gammas
+        count <- if(any(G <= Gamma.star)) 1 else count + 1 # if there are still Gammas <= Gamma^*, keep generating Gammas
     }
     Gamma[Gamma > Gamma.star] <- Inf # => produce \bar{\mu}(.) = 0 (0-height jumps)
     Gamma
@@ -140,7 +140,7 @@ Gamma_nested_Clayton_Levy <- function(theta, Gamma.star, burn.in)
                psi_bar_Clayton(E[3:4]/V02, theta=theta[3])) # Gamma
         Gamma <- rbind(Gamma, G) # update Gamma
         if(count >= burn.in) break # stopping criterion
-        count <- if(all(G <= Gamma.star)) 1 else count + 1 # if there are still Gammas <= Gamma^*, keep generating Gammas
+        count <- if(any(G <= Gamma.star)) 1 else count + 1 # if there are still Gammas <= Gamma^*, keep generating Gammas
     }
     Gamma[Gamma > Gamma.star] <- Inf # => produce \bar{\mu}(.) = 0 (0-height jumps)
     Gamma
