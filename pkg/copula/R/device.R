@@ -35,11 +35,11 @@ dev.off.pdf <- function(file="Rplots.pdf", crop=NULL, embedFonts="", ...)
     ## close device
     r <- dev.off(...)
     ## non-Unix case
-    if(.Platform$OS.type != "unix") { # non-Unix
+    if(.Platform$OS.type != "unix") { # non-Unix, i.e., today almost surely == Windows
         iNcrop <- is.null(crop)
         iNeF <- is.null(embedFonts)
         if(iNcrop || iNeF)
-            warning("'crop = NULL' and 'embedFonts = NULL' are only suitable for Unix")
+            warning("'crop = NULL' or 'embedFonts = NULL' are only suitable for Unix-like platforms")
         if(iNcrop) crop <- "" # continue without cropping
         if(iNeF) embedFonts <- "" # continue without font embedding
     }

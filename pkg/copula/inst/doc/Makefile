@@ -1,4 +1,5 @@
 ###--- Makefile (adapted from pcalg & robustbase; origin from Douglas Bates)
+##_ *not* part of package tar-ball ==> we *can* use GNU-isms
 
 ## need to get 'texclean' command
 
