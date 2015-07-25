@@ -75,7 +75,7 @@ perspMvdc <- function(x, fun,
 contourMvdc <- function(x, fun, xlim, ylim, nx = 51, ny = 51,
                         xis = seq(xlim[1], xlim[2], length = nx),
                         yis = seq(ylim[1], ylim[2], length = ny),
-                        box01 = TRUE, ...)
+                        box01 = FALSE, ...)
 {
   grids <- as.matrix(expand.grid(xis, yis, KEEP.OUT.ATTRS=FALSE))
   zmat <- matrix(if(chkFun(fun)) fun(grids, x) else fun(x, grids), nx, ny)

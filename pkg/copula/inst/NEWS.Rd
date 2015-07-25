@@ -8,6 +8,9 @@
   \itemize{
     \item New demo "NALC" on nested Archimedean Levy copulas
     \item Explicitly import from "base packages"
+    \item \code{contour(<mvdc>, ..)} gets new default
+    \code{box01=FALSE}, as a \eqn{[0,1]^2} box does not make sense for
+    general multivariate distributions.
   }
 }
 
