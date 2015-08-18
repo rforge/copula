@@ -235,6 +235,7 @@ theta <- c(0.7, 4, 2) # theta_0, theta_1, theta_2
 ## Gamma
 system.time(Gamma <- Gamma_nested_Clayton_Levy(theta, Gamma.star=Gamma.star,
                                                burn.in=burn.in))
+## 15 seconds on 2015-fast platform
 plot_Gamma(Gamma, Gamma.star=Gamma.star,
            file=if(doPDF) "fig_Gamma_positive_nested_Clayton_Levy_copula.pdf" else NULL,
            main=expression(bold(group("(",Gamma[k],")")~
