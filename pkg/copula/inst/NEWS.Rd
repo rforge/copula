@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-14 (2015-08-..)}{
+\section{Changes in version 0.999-14 (2015-08-18)}{
   \itemize{
     \item New demo "NALC" on nested Archimedean Levy copulas
     \item Explicitly import from "base packages"
