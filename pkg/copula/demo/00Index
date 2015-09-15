@@ -5,7 +5,6 @@ estimation.gof	    Estimation and goodness-of-fit capabilities
 estimation_via_HAC  Estimation procedure from the HAC package
 gofCopula	    Goodness-of-fit test for copula models
 gof_graph	    Graphical goodness-of-fit based on pairwise Rosenblatt transforms
-gof_radial          Graphical goodness-of-fit based on radial decomposition (elliptical, AC)
 G_ak		    Coefficients a_k for Gumbel's density derivatives, MLE, etc
 GIG-demo            Generalized Inverse Gaussian Archimedean copulas
 logL-vis	    Log Likelihood Visualizations

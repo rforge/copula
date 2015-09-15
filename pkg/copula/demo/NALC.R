@@ -10,7 +10,7 @@
 require(gsl) # for exponential integral
 require(copula)
 
-doPDF <- Sys.getenv("USER")=="mhofert"
+doPDF <- !dev.interactive(orNone=TRUE)
 
 
 ### 1) Auxiliary functions #####################################################
