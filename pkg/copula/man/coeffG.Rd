@@ -56,6 +56,6 @@ coeffG(d, alpha,
   still considered somewhat experimental.
 }
 \examples{
-%% FIXME
+%% FIXME  ---> ../demo/G_ak.R
 }
 \keyword{arith}

@@ -1,4 +1,4 @@
-## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
+## Copyright (C) 2014 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -16,8 +16,10 @@
 
 ### Quasi-random numbers for copula models #####################################
 
-## Note: see ``A primer on quasi-random numbers for copula models'' for more
-##       details.
+
+### Note: see ``Quasi-random numbers for copula models''  for more details.
+###             ======================================
+### Jointly with  Christiane Lemieux  and  Mathieu Cambou
 
 
 ### 0) Setup ###################################################################
