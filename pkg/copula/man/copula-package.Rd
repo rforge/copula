@@ -2,7 +2,6 @@
 %%
 \name{copula-package}
 \alias{copula-package}
-%\alias{copula}
 \docType{package}
 \title{Multivariate Dependence Modeling with Copulas}
 \description{
@@ -15,13 +14,10 @@
   and other copula related tests.
 }
 \details{
-  \tabular{ll}{
-    Package: \tab copula\cr
-    Type: \tab Package\cr
-    License: \tab GPL (>= 3)\cr
-    Depends: \tab methods\cr
-    Imports: \tab stats4, graphics, gsl, ADGofTest, stabledist, mvtnorm, pspline\cr
-  }
+
+  The DESCRIPTION file:
+  \packageDESCRIPTION{copula}
+  \packageIndices{copula}
 
   The \pkg{copula} package provides
   \itemize{
