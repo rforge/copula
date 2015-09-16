@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-14 (2015-08-18)}{
+\section{Changes in version 0.999-14 (2015-..-.., svn r.........)}{
   \itemize{
     \item New demo "NALC" on nested Archimedean Levy copulas
     \item Explicitly import from "base packages"
@@ -12,10 +12,15 @@
     \code{box01=FALSE}, as a \eqn{[0,1]^2} box does not make sense for
     general multivariate distributions.
     \item \code{coeffG()} is exported (though still partly subject to change)
+    \item new vignette \code{wild_animals} from former demo.
+    %% TODO ../vignettes/wild_animals.Rmd
+    \item \code{pCopula(*, cop)} for normal- or t- copulas \code{cop}
+    now accepts optional arguments to be passed to the underlying
+    (numerical integration) algorithm from package \pkg{mvtnorm}.%% FIXME: *.Rd, example;
   }
 }
 
-\section{Changes in version 0.999-13 (2015-03-05)}{
+\section{Changes in version 0.999-13 (2015-03-05, svn r1156)}{
   \itemize{
     \item New demo on tail compatibility
     \item lsum(): also work for vectors and when result is zero,

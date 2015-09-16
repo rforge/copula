@@ -79,8 +79,10 @@ importClassesFrom("Rmpfr",
 }
 
 importFrom("mvtnorm",
-            dmvnorm, pmvnorm, rmvnorm,
-            dmvt, pmvt, rmvt)
+           dmvnorm, pmvnorm, rmvnorm,
+           ## rather user should require("mvtnorm") for these: GenzBretz, Miva, TVPACK,
+           dmvt, pmvt, rmvt)
+
 
 ## FIXME: we would only want importS3MethodsFrom("pspline", predict)
 import("pspline")
