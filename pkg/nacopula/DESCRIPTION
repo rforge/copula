@@ -1,4 +1,4 @@
-Package: nacopulaNew
+Package: nacopula
 Version: 0.8-1
 NOTE: nacopula is now *part* of the package copula.  Use that instead!
 NOTI: ----------------------------------------------------------------
