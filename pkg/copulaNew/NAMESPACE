@@ -14,7 +14,7 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-useDynLib(copula, .registration=TRUE)
+useDynLib(copulaNew, .registration=TRUE)
 
 
 ## import all we need, but not more..
