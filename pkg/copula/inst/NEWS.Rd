@@ -12,11 +12,12 @@
     \code{box01=FALSE}, as a \eqn{[0,1]^2} box does not make sense for
     general multivariate distributions.
     \item \code{coeffG()} is exported (though still partly subject to change)
-    \item new vignette \code{wild_animals} from former demo.
-    %% TODO ../vignettes/wild_animals.Rmd
+    \item new (rmarkdown -> knitr) vignette \code{wild_animals} from
+    former demo.% --> ../vignettes/wild_animals.Rmd
     \item \code{pCopula(*, cop)} for normal- or t- copulas \code{cop}
     now accepts optional arguments to be passed to the underlying
     (numerical integration) algorithm from package \pkg{mvtnorm}.%% FIXME: *.Rd, example;
+    \item fixed the (dontrun) 3d example of \code{gofCopula}.
   }
 }
 

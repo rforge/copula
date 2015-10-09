@@ -13,7 +13,7 @@ Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Depends: R (>= 3.0.1)
 Imports: stats, graphics, methods, stats4, Matrix, lattice, gsl, ADGofTest,
 	 stabledist (>= 0.6-4), mvtnorm, pspline
-Suggests: MASS, KernSmooth, sfsmisc, scatterplot3d, Rmpfr, bbmle,
+Suggests: MASS, KernSmooth, sfsmisc, scatterplot3d, Rmpfr, bbmle, knitr,
   	  partitions, polynom, rugarch, colorspace, mvnormtest, tseries, zoo
 SuggestsNote: the last line packages partitions, ..., zoo are only used in demos
 Enhances: nor1mix
@@ -30,6 +30,7 @@ Description: Classes (S4) of commonly used elliptical, Archimedean, extreme
  tools and special functions.
 License: GPL (>= 3) | file LICENCE
 ByteCompile: yes
+VignetteBuilder: knitr
 Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R special-func.R
 	 cop_objects.R nacopula.R
 	 derCdfPdf.R amhCopula.R amhExpr.R An.R

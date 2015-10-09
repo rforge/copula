@@ -1,8 +1,11 @@
 ---
 title: Examples of Nonstandard Copulas -- "Wild Animals"
 author: Marius Hofert and Martin Maechler
+date: '`r Sys.Date()`'
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Wild Animals: Examples of Nonstandard Copulas}
 ---
-<!-- FIXME: add  Vignettebuilder 'knitr' -->
 
 ## 1) Example from Marius Hofert and Frederik Vrins
 
@@ -18,15 +21,15 @@ LambdaInv <- function(t) (t != 0)*exp(t) ## <=>  ifelse(t == 0, 0, exp(t))
 M1 <- function(t) 0.01*t
 M1Inv <- function(t) t/0.01
 
-M2 <- function(t){
+M2 <- function(t) {
     f <- function(t.) {
-	ct <- ceiling(t.)
-	if(ct %% 2) t.-(ct-1)/2 else ct/2
+      	ct <- ceiling(t.)
+	if(ct %% 2) t. - (ct-1)/2 else ct/2
     }
     unlist(lapply(t, f))
 }
-M2Inv <- function(t){
-    f <- function(t.){
+M2Inv <- function(t) {
+    f <- function(t.) {
         if(t. == 0) return(0)
         t. + ceiling(t) - 1
     }
