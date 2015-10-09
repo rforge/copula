@@ -171,6 +171,7 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
 ## the following example is available in batch through
 ## demo(gofCopula)% == ../demo/gofCopula.R __keep >> EXACTLY << in sync!__
 %% Note that  ../tests/gof-ex.R (at the end) has "proof-of-concept" tests
+\dontrun{
 ## A two-dimensional data example ----------------------------------
 x <- rCopula(200, claytonCopula(3))
 
