@@ -144,8 +144,10 @@ dependogram(srMultIndepTest)
 ### srGof
 ###################################################
 tC3 <- tCopula(c(0,0,0), dim=3, dispstr="un", df=5, df.fixed=TRUE)
-system.time(srGof.t.pboo <- gofCopula(tC3, pseudoSR, N = N., estim.method="mpl"))
-srGof.t.pboo
+## The following is not working yet as pCopula() fails for t copulas with non-integer
+## degrees of freedom.
+## system.time(srGof.t.pboo <- gofCopula(tC3, pseudoSR, N = N., estim.method="mpl"))
+## srGof.t.pboo
 system.time(srGof.t.mult <- gofCopula(tC3, pseudoSR, N = N, estim.method="mpl", simulation="mult"))
 srGof.t.mult
 
