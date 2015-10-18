@@ -168,7 +168,7 @@ plot_Gamma <- function(Gamma, Gamma.star, file=NULL, ...)
     legend("bottomright", bty="n", lty=c(rep(1, d), 2), lwd=c(rep(1,d), 1.6),
            col=c(cols, "black"), as.expression( c(lapply(1:d, function(j)
                bquote(Gamma[list(k,.(j))])), list(bquote(Gamma*"*")))))
-    if(doPDF) dev.off.pdf(file)
+    if(doPDF) dev.off()
 }
 
 ## Plot a multivariate Levy process
@@ -191,7 +191,7 @@ plot_Levy <- function(L, file=NULL, ...)
         lines(x_jump_time, x_L[,j], type="s", col=cols[j])
     legend("bottomright", bty="n", lty=rep(1, d), col=cols,
            legend=as.expression( lapply(1:d, function(j) bquote(L[list(t,.(j))]))))
-    if(doPDF) dev.off.pdf(file)
+    if(doPDF) dev.off()
 }
 
 

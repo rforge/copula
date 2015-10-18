@@ -226,10 +226,6 @@ splom2 <- function(data, varnames=NULL, Vname="U", xlab="",
 ##' @param file file name (with extension .pdf) or "" (no pdf)
 ##' @param width width parameter of pdf()
 ##' @param height height parameter of pdf()
-##' @param crop crop command
-##'        - NULL: crop with a (Unix-)suitable default commands;
-##'        - "...": own crop command;
-##'        - "": no cropping
 ##' @param ... additional arguments passed to plot()
 ##' @return Q-Q plot
 ##' @author Marius Hofert
@@ -247,7 +243,7 @@ qqplot2 <- function(x, qF, log="", qqline.args=if(log=="x" || log=="y") list(unt
                                    cex=par("cex.main"), font=par("font.main"),
                                    adj=par("adj"), xpd=NA),
                     xlab="Theoretical quantiles", ylab="Sample quantiles",
-                    file="", width=6, height=6, crop=NULL, ...)
+                    file="", width=6, height=6, ...)
 {
     x. <- sort(x) # drops NA
     n <- length(x.)
@@ -305,6 +301,6 @@ qqplot2 <- function(x, qF, log="", qqline.args=if(log=="x" || log=="y") list(unt
         ## info
         if(!is.null(CI.mtext)) do.call(mtext, CI.mtext)
     }
-    if(doPDF) dev.off.pdf(file=file)
+    if(doPDF) dev.off()
     invisible()
 }

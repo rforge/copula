@@ -115,7 +115,7 @@ U <- matrix(runif(n*2), ncol=2)
 if(doPDF) pdf(file=(file <- "fig_prng.pdf"), width=6, height=6)
 par(pty="s")
 plot(U, xlab=expression(italic(U[1])), ylab=expression(italic(U[2])))
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 ## QRNG
 set.seed(271)
@@ -123,7 +123,7 @@ U. <- halton(n, dim=2)
 if(doPDF) pdf(file=(file <- "fig_qrng.pdf"), width=6, height=6)
 par(pty="s")
 plot(U., xlab=expression(italic(U[1])), ylab=expression(italic(U[2])))
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 
 ### t_3 copula #################################################################
@@ -140,7 +140,7 @@ file <- paste0("fig_prng_t", nu, "_", tau, ".pdf")
 if(doPDF) pdf(file=file, width=6, height=6)
 par(pty="s")
 plot(U.t, xlab=expression(italic(U[1])), ylab=expression(italic(U[2])))
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 ## QRNG
 U.t. <- rtrafo(U., cop=cop, inverse=TRUE)
@@ -148,7 +148,7 @@ file <- paste0("fig_qrng_t", nu, "_", tau, ".pdf")
 if(doPDF) pdf(file=file, width=6, height=6)
 par(pty="s")
 plot(U.t., xlab=expression(italic(U[1])), ylab=expression(italic(U[2])))
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 ## QRNG (pairs plot for 3d t_3 sample)
 set.seed(271)
@@ -160,7 +160,7 @@ if(doPDF) pdf(file=file, width=6, height=6)
 par(pty="s")
 pairs(U.t.3d., gap=0,
       labels=as.expression(sapply(1:3, function(j) bquote(italic(U[.(j)])))))
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 ## => projections (here: to pairs) can be deceiving/non-optimal
 ##    (but 'quasi-randomness' not easily visible from a 3d cloud plot either)
 
@@ -178,7 +178,7 @@ file <- paste0("fig_prng_C_", tau, ".pdf")
 if(doPDF) pdf(file=file, width=6, height=6)
 par(pty="s")
 plot(U.C, xlab=expression(italic(U[1])), ylab=expression(italic(U[2])))
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 ## QRNG
 U.C. <- rtrafo(U., cop=cop, inverse=TRUE)
@@ -186,7 +186,7 @@ file <- paste0("fig_qrng_C_", tau, ".pdf")
 if(doPDF) pdf(file=file, width=6, height=6)
 par(pty="s")
 plot(U.C., xlab=expression(italic(U[1])), ylab=expression(italic(U[2])))
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 
 ### Marshall--Olkin copula #####################################################
@@ -200,7 +200,7 @@ file <- paste0("fig_prng_MO_", paste0(alpha, collapse="_"), ".pdf")
 if(doPDF) pdf(file=file, width=6, height=6)
 par(pty="s")
 plot(U.MO, xlab=expression(italic(U[1])), ylab=expression(italic(U[2])))
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 ## QRNG
 U.MO. <- C.inv.MO(U., alpha=alpha)
@@ -208,7 +208,7 @@ file <- paste0("fig_qrng_MO_", paste0(alpha, collapse="_"), ".pdf")
 if(doPDF) pdf(file=file, width=6, height=6)
 par(pty="s")
 plot(U.MO., xlab=expression(italic(U[1])), ylab=expression(italic(U[2])))
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 
 ### R-Vine copula ##############################################################
@@ -256,7 +256,7 @@ U <- RVineSim(n, RVM)
 if(doPDF) pdf(file=(file <- "fig_R-vine_prng_d=3.pdf"), width=6, height=6)
 pairs(U, labels=as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ),
       gap=0, cex=0.3)
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 ## QRNG (Halton)
 set.seed(271)
@@ -264,13 +264,13 @@ U. <- halton(n, d=3)
 if(doPDF) pdf(file=(file <- "fig_qrng_d=3_halton.pdf"), width=6, height=6)
 pairs(U., labels=as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ),
       gap=0, cex=0.3)
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 ## transform to copula data
 U. <- RVineSim(n, RVM, U=U.)
 if(doPDF) pdf(file=(file <- "fig_R-vine_qrng_d=3_halton.pdf"), width=6, height=6)
 pairs(U., labels=as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ),
       gap=0, cex=0.3)
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 ## QRNG (Sobol)
 set.seed(271)
@@ -278,13 +278,13 @@ U. <- sobol(n, d=3)
 if(doPDF) pdf(file=(file <- "fig_qrng_d=3_sobol.pdf"), width=6, height=6)
 pairs(U., labels=as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ),
       gap=0, cex=0.3)
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 ## transform to copula data
 U. <- RVineSim(n, RVM, U=U.)
 if(doPDF) pdf(file=(file <- "fig_R-vine_qrng_d=3_sobol.pdf"), width=6, height=6)
 pairs(U., labels=as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ),
       gap=0, cex=0.3)
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 ## Similarly to the 3d t copula case, by the 'projection to pairs argument'
 ## not all pairs look 'quasi-random' (note: for some family choices, there is
 ## numerical root-finding involved, but not in this case here)
@@ -325,7 +325,7 @@ U <- RVineSim(n, RVM)
 if(doPDF) pdf(file=(file <- "fig_R-vine_prng_d=5.pdf"), width=6, height=6)
 pairs(U, labels=as.expression( sapply(1:5, function(j) bquote(italic(U[.(j)]))) ),
       gap=0, cex=0.3)
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 ## QRNG
 set.seed(271)
@@ -333,7 +333,7 @@ U. <- RVineSim(n, RVM, U=halton(n, d=5))
 if(doPDF) pdf(file=(file <- "fig_R-vine_qrng_d=5.pdf"), width=6, height=6)
 pairs(U., labels=as.expression( sapply(1:5, function(j) bquote(italic(U[.(j)]))) ),
       gap=0, cex=0.3)
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 
 ### 3) Why non-one-to-one transformations (may) fail ###########################
@@ -367,25 +367,25 @@ U_MO  <- MOtrafoC(U.., theta=th)
 if(doPDF) pdf(file=(file <- "fig_qrng_col.pdf"), width=6, height=6)
 par(pty="s")
 plot(U., xlab=expression(italic(U[1])), ylab=expression(italic(U[2])), col=col)
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 ## Colorized scatter plots (CDM)
 if(doPDF) pdf(file=(file <- "fig_qrng_col_CDM.pdf"), width=6, height=6)
 par(pty="s")
 plot(U_CDM, xlab=expression(italic(U[1])), ylab=expression(italic(U[2])), col=col)
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 ## Colorized scatter plots (WVS)
 if(doPDF) pdf(file=(file <- "fig_qrng_col_WVS.pdf"), width=6, height=6)
 par(pty="s")
 plot(U_WVS, xlab=expression(italic(U[1])), ylab=expression(italic(U[2])), col=col)
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 ## Colorized scatter plots (MO)
 if(doPDF) pdf(file=(file <- "fig_qrng_col_MO.pdf"), width=6, height=6)
 par(pty="s")
 plot(U_MO, xlab=expression(italic(U[1])), ylab=expression(italic(U[2])), col=col)
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 
 ### 3.2) Mapping nested squares ################################################
@@ -403,7 +403,7 @@ plot(NULL, type="l", xlim=0:1, ylim=0:1,
 for(i in 1:(nrow(sq.out[["u"]])-1)) lines(sq.out[["u"]][i:(i+1),], col=sq.out[["col"]][i], lwd=2)
 for(i in 1:(nrow(sq.mid[["u"]])-1)) lines(sq.mid[["u"]][i:(i+1),], col=sq.mid[["col"]][i], lwd=2)
 for(i in 1:(nrow(sq.in[["u"]])-1)) lines(sq.in[["u"]][i:(i+1),], col=sq.in[["col"]][i], lwd=2)
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 ## CDM-transformed squares
 if(doPDF) pdf(file=(file <- "fig_squares_CDM.pdf"), width=6, height=6)
@@ -413,7 +413,7 @@ plot(NULL, type="l", xlim=0:1, ylim=0:1,
 for(i in 1:(nrow(sq.out[["u.CDM"]])-1)) lines(sq.out[["u.CDM"]][i:(i+1),], col=sq.out[["col"]][i], lwd=2)
 for(i in 1:(nrow(sq.mid[["u.CDM"]])-1)) lines(sq.mid[["u.CDM"]][i:(i+1),], col=sq.mid[["col"]][i], lwd=2)
 for(i in 1:(nrow(sq.in[["u.CDM"]])-1)) lines(sq.in[["u.CDM"]][i:(i+1),], col=sq.in[["col"]][i], lwd=2)
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 ## WVS-transformed squares
 if(doPDF) pdf(file=(file <- "fig_squares_WVS.pdf"), width=6, height=6)
@@ -423,7 +423,7 @@ plot(NULL, type="l", xlim=0:1, ylim=0:1,
 for(i in 1:(nrow(sq.out[["u.WVS"]])-1)) lines(sq.out[["u.WVS"]][i:(i+1),], col=sq.out[["col"]][i], lwd=2)
 for(i in 1:(nrow(sq.mid[["u.WVS"]])-1)) lines(sq.mid[["u.WVS"]][i:(i+1),], col=sq.mid[["col"]][i], lwd=2)
 for(i in 1:(nrow(sq.in[["u.WVS"]])-1)) lines(sq.in[["u.WVS"]][i:(i+1),], col=sq.in[["col"]][i], lwd=2)
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 ## MO-transformed squares
 if(doPDF) pdf(file=(file <- "fig_squares_MO.pdf"), width=6, height=6)
@@ -433,7 +433,7 @@ plot(NULL, type="l", xlim=0:1, ylim=0:1,
 for(i in 1:(nrow(sq.out[["u.MO"]])-1)) lines(sq.out[["u.MO"]][i:(i+1),], col=sq.out[["col"]][i], lwd=2)
 for(i in 1:(nrow(sq.mid[["u.MO"]])-1)) lines(sq.mid[["u.MO"]][i:(i+1),], col=sq.mid[["col"]][i], lwd=2)
 for(i in 1:(nrow(sq.in[["u.MO"]])-1)) lines(sq.in[["u.MO"]][i:(i+1),], col=sq.in[["col"]][i], lwd=2)
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 
 ### 4) 3d vs 2d projections (for a Clayton copula) #############################
@@ -458,7 +458,7 @@ cloud(U[,3]~U[,1]+U[,2], scales=list(col=1, arrows=FALSE), col=1,
       zlab=expression(italic(U[3])),
       par.settings=list(background=list(col="#ffffff00"),
                 axis.line=list(col="transparent"), clip=list(panel="off")))
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 if(doPDF) pdf(file=(file <- "fig_3d_CDM_Clayton.pdf"), width=6, height=6)
 par(pty="s")
@@ -467,7 +467,7 @@ cloud(U.C.CDM[,3]~U.C.CDM[,1]+U.C.CDM[,2], scales=list(col=1, arrows=FALSE), col
       zlab=expression(italic(U[3])),
       par.settings=list(background=list(col="#ffffff00"),
                 axis.line=list(col="transparent"), clip=list(panel="off")))
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 if(doPDF) pdf(file=(file <- "fig_3d_MO_U_Clayton.pdf"), width=6, height=6)
 par(pty="s")
@@ -476,22 +476,22 @@ cloud(U.C.MO[,3]~U.C.MO[,1]+U.C.MO[,2], scales=list(col=1, arrows=FALSE), col=1,
       zlab=expression(italic(U[3])),
       par.settings=list(background=list(col="#ffffff00"),
                 axis.line=list(col="transparent"), clip=list(panel="off")))
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 
 ## 2d plots
 if(doPDF) pdf(file=(file <- "fig_3d_pairs_plot_Halton_U.pdf"), width=6, height=6)
 par(pty="s")
 pairs(U, labels=as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ), gap=0)
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 if(doPDF) pdf(file=(file <- "fig_3d_pairs_plot_CDM_Clayton.pdf"), width=6, height=6)
 par(pty="s")
 pairs(U.C.CDM, labels=as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ), gap=0)
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 if(doPDF) pdf(file=(file <- "fig_3d_pairs_plot_MO_U_Clayton.pdf"), width=6, height=6)
 par(pty="s")
 pairs(U.C.MO, labels=as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ), gap=0)
-if(doPDF) dev.off.pdf(file=file)
+if(doPDF) dev.off()
 

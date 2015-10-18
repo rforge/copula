@@ -73,12 +73,12 @@ if(FALSE) {
 if(doPDF) pdf(file=(file <- "U_Liebscher_n=2000_U1=C_th=4_U2=t3_th=0.5.pdf"), width=6, height=6)
 par(pty="s")
 plot(U, xlab=expression(italic(U[1])), ylab=expression(italic(U[2])))
-if(doPDF) copula:::dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 if(doPDF) pdf(file=(file <- "U_Liebscher_n=2000_U1=C_th=4_U2=sMO_a1=0.6_a2=0.8.pdf"), width=6, height=6)
 par(pty="s")
 plot(U., xlab=expression(italic(U[1])), ylab=expression(italic(U[2])))
-if(doPDF) copula:::dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 
 ### 2) Sample from Y = XU + Z circ V (margins uniform by construction) #########
@@ -267,7 +267,7 @@ plot(Y2, xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])))  # U=t3, 
 plot(Y1., xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2]))) # U=sMO, X=random, V=Pi
 plot(Y2., xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2]))) # U=sMO, X=multinomial, V=Pi
 par(opar)
-if(doPDF) copula:::dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 
 ### 3) Example of Federico Degen ###############################################
@@ -340,9 +340,9 @@ if(FALSE) {
 if(doPDF) pdf(file=(file <- "Y_n=2000_FD_max_alpha_V=Pi.pdf"), width=6, height=6)
 par(pty="s")
 pairs(Y, labels=as.expression( sapply(1:d, function(j) bquote(italic(Y[.(j)]))) ), gap=0, cex=0.25)
-if(doPDF) copula:::dev.off.pdf(file=file)
+if(doPDF) dev.off()
 
 if(doPDF) pdf(file=(file <- "Y_n=2000_FD_max_alpha_V=Ga_tau=0.8.pdf"), width=6, height=6)
 par(pty="s")
 pairs(Y., labels=as.expression( sapply(1:d, function(j) bquote(italic(Y[.(j)]))) ), gap=0, cex=0.25)
-if(doPDF) copula:::dev.off.pdf(file=file)
+if(doPDF) dev.off()

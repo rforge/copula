@@ -172,10 +172,6 @@ S3method(nobs, fittedMV)
 S3method(vcov, fittedMV)
 S3method(logLik, fittedMV)
 
-## pdf device
-export(dev.off.pdf)
-
-
 ##_TESTING_
 ## export(dCdtheta, derPdfWrtParams, dTau, dRho)
 ## export(dCdu)
