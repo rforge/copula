@@ -1,5 +1,4 @@
 AC-Liouville-demo   Some examples from McNeil, Neslehova (2010)
-copula_garch        A minimal example on the copula--GARCH modeling approach
 fitting-tests       Tests of fitCopula
 estimation.gof	    Estimation and goodness-of-fit capabilities
 estimation_via_HAC  Estimation procedure from the HAC package
