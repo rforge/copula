@@ -70,7 +70,7 @@ getSigma(t.cop)## the P ("Rho") matrix (with diagonal = 1)
 ## from the wrapper
 norm.cop <- ellipCopula("normal", param = c(0.5, 0.6, 0.7),
                         dim = 3, dispstr = "un")
-if(require("scatterplot3d")) {
+if(require("scatterplot3d") && dev.interactive(orNone=TRUE)) {
   ## 3d scatter plot of 1000 random observations
   scatterplot3d(rCopula(1000, norm.cop))
   scatterplot3d(rCopula(1000, t.cop))
@@ -80,11 +80,13 @@ uN <- rCopula(512, norm.cop)
 set.seed(2); pN1 <- pCopula(uN, norm.cop)
 set.seed(3); pN2 <- pCopula(uN, norm.cop)
 stopifnot(all.equal(pN1, pN2, 1e-4))# see 5.711e-5
-## a bit more accurately:
-set.seed(4); pN1. <- pCopula(uN, norm.cop, abseps = 1e-9)
-set.seed(5); pN2. <- pCopula(uN, norm.cop, abseps = 1e-9)
-stopifnot(all.equal(pN1., pN2., 1e-5))# see 3.397e-6
-## but increasing the required precision (e.g., abseps=1e-15) does *NOT* help
+(Xtras <- copula:::doExtras())
+if(Xtras) { ## a bit more accurately:
+  set.seed(4); pN1. <- pCopula(uN, norm.cop, abseps = 1e-9)
+  set.seed(5); pN2. <- pCopula(uN, norm.cop, abseps = 1e-9)
+  stopifnot(all.equal(pN1., pN2., 1e-5))# see 3.397e-6
+  ## but increasing the required precision (e.g., abseps=1e-15) does *NOT* help
+}
 
 ## For smaller copula dimension 'd', alternatives are available and
 ## non-random, see ?GenzBretz from package 'mvtnorm' :
