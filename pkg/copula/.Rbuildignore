@@ -1,6 +1,7 @@
 do-now\.org
 feature-table\.org
 ^Misc
+^old$
 auto
 [a-z]+-ggraph
 copula-Ex.*
