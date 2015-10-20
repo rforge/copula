@@ -18,27 +18,27 @@
 
 require(copula)
 
-##' @title [m]inus Log Likelihood for Archimedean copula "fast version"
+##' @title [m]inus Log-Likelihood for Archimedean Copulas ("fast version")
 ##' @param theta parameter (length 1 for our current families)
 ##' @param acop Archimedean copula (of class "acopula")
 ##' @param u data matrix n x d
 ##' @param n.MC if > 0 MC is applied with sample size equal to n.MC; otherwise,
 ##'        the exact formula is used
 ##' @param ... potential further arguments, passed to <acop> @dacopula()
-##' @return
+##' @return negative log-likelihood
 ##' @author Martin Maechler (Marius originally)
 mLogL <- function(theta, acop, u, n.MC=0, ...) { # -(log-likelihood)
     -sum(acop@dacopula(u, theta, n.MC=n.MC, log=TRUE, ...))
 }
 
-##' @title
+##' @title Plotting the Negative Log-Likelihood for Archimedean Copulas
 ##' @param cop an outer_nacopula (currently with no children)
 ##' @param u n x d  data matrix
 ##' @param xlim x-range for curve() plotting
 ##' @param main title for curve()
 ##' @param XtrArgs a list of further arguments for mLogL()
 ##' @param ... further arguments for curve()
-##' @return
+##' @return invisible()
 ##' @author Martin Maechler
 curveLogL <- function(cop, u, xlim, main, XtrArgs=list(), ...) {
     unam <- deparse(substitute(u))

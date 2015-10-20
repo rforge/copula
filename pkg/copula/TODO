@@ -29,29 +29,23 @@ stopifnot(NULL == 1) is not stopping
 | [[file:demo/AC-Liouville-demo.R][AC-Liouville-demo]]              | PKG+vign  | Some examples from McNeil, Neslehova (2010)                              |
 | [[file:demo/GIG-demo.R][GIG-demo]           | PKG+vign  | Generalized Inverse Gaussian Archimedean copulas                         |
 |--------------------------------+-----------+--------------------------------------------------------------------------|
-| [[file:demo/copula_garch.R][copula_garch]]       | vign      | minimal example on the copula--GARCH modeling approach                   |
 | [[file:demo/fitting-tests.R][fitting-tests]]      | k         | Tests of fitCopula                                                       |
 | [[file:demo/estimation_via_HAC.R][estimation_via_HAC]] | PKG       | Estimation procedure from the HAC package                                |
 |--------------------------------+-----------+--------------------------------------------------------------------------|
 | [[file:demo/estimation.gof.R][estimation.gof]]     | k         | Estimation and goodness-of-fit capabilities                              |
 | [[file:demo/gofCopula.R][gofCopula]]          | k?        | Goodness-of-fit test for copula models                                   |
 | [[file:demo/gof_graph.R][gof_graph]]          | k?        | Graphical goodness-of-fit based on pairwise Rosenblatt transforms        |
-| [[file:demo/gof_radial.R][gof_radial]]         | _rm_      | Graphical goodness-of-fit based on radial decomposition (elliptical, AC) |
 |--------------------------------+-----------+--------------------------------------------------------------------------|
 | [[file:demo/G_ak.R][G_ak]]               | test /ex  | Coefficients a_k for Gumbel's density derivatives, MLE, etc              |
 | [[file:demo/polyGJ.R][polyGJ]]             |           | Investigating precision and run time of polyG and polyJ                  |
 |--------------------------------+-----------+--------------------------------------------------------------------------|
-| [[file:demo/logL-vis.R][logL-vis]]           | vign +PKG | Log Likelihood Visualizations                                            |
-| [[file:demo/dDiag-plots.R][dDiag-plots]]        | vign / k  | Plotting dDiag() densities (over range of families, theta, d)            |
+| [[file:demo/logL-vis.R][logL-vis]]           | vign        | Log Likelihood Visualizations                                            |
+| [[file:demo/dDiag-plots.R][dDiag-plots]]        | k          | Plotting dDiag() densities (over range of families, theta, d)            |
 | [[file:demo/opC-demo.R][opC-demo]]           | k         | Outer power copula (Clayton only, for now)                               |
 | [[file:demo/dnac-demo.R][dnac-demo]]          | vign      | Usage of densities of two-level nested Archimedean copulas               |
-| [[file:demo/QARClayton.R][QARClayton]]         | vign (IK) | AR(1) Clayton with Student marginals Estimation and Quantile Curves      |
-| [[file:demo/qrng.R][qrng]]               | vign      | Quasi-random numbers for copula models                                   |
+| [[file:demo/QARClayton.R][QARClayton]]         | vign      | AR(1) Clayton with Student marginals Estimation and Quantile Curves      |
 | [[file:demo/timings.R][timings]]            | k         | Using timing() to measure speed of basic Archimedean families            |
-| [[file:demo/tail_compatibility.R][tail_compatibility]] | vign      | Plots and copula constructions for tail-dependence matrices              |
-| [[file:demo/retstable.R][retstable]]          | k / vign  | Computation of exponentially tilted stable random variates               |
-| [[file:demo/wild_animals.R][wild_animals]]       | vign      | Examples of rather exotic copulas                                        |
-| [[file:demo/NALC.R][NALC]]               | vign      | Nested Archimedean Levy copulas                                          |
+| [[file:demo/retstable.R][retstable]]          | k         | Computation of exponentially tilted stable random variates               |
 |--------------------------------+-----------+--------------------------------------------------------------------------|
 
 * Short Term: Before 1.0.0

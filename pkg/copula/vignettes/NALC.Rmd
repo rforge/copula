@@ -1,22 +1,34 @@
-### Simulating dependent multivariate Levy processes based on positive (nested)
-### Archimedean Levy copulas (here: Clayton)
-
-## Note: As usual, we have to truncate small jumps. We do so by truncating
-##       large Gammas (by setting them to Inf in order for the jump heights
-##       to be \bar{\nu}^{-1}(Inf) = 0). In this sense, we only simulate the
-##       largest jumps; see below for more details. For a truncation-bias
-##       correction via a drift, see Asmussen, Rosinski (2001).
-
+---
+title: Nested Archimedean L&eacute;vy Copulas
+author: Marius Hofert
+date: '`r Sys.Date()`'
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Nested Archimedean L&eacute;vy Copulas}
+---
+# Nested Archimedean L&eacute;vy Copulas
+By Marius Hofert.
+```{r, message=FALSE}
 require(gsl) # for exponential integral
 require(copula)
+doPDF <- FALSE
+```
 
-doPDF <- !dev.interactive(orNone=TRUE)
+Our goal is to simulate dependent multivariate L&eacute;vy processes based on
+positive (nested) Archimedean L&eacute;vy copulas (here: Clayton). As usual, we have
+to truncate small jumps. We do so by truncating large Gammas (by setting them to
+$\infty$ in order for the jump heights to be $\bar{\nu}^{-1}(\infty) = 0$). In this sense,
+we only simulate the largest jumps; see below for more details.
+<!-- For a truncation-bias correction via a drift, see, e.g., Asmussen, Rosinski (2001) -->
 
 
-### 1) Auxiliary functions #####################################################
+## 1) Auxiliary functions
 
-### 1.1) Margins ###############################################################
+We start by defining some auxiliary functions used later on.
 
+### Margins
+
+```{r}
 ## Tail integral of a variance gamma Levy process
 ## \bar{\nu}(x) = \int_x^\infty f(z) dz for the Levy density
 ## f(z) = (c/x)*exp(-lambda*x) for x>0, c=1/kappa and
@@ -25,20 +37,9 @@ nu_bar_vargamma <- function(x, th, kap, sig) {
     lambda <- (sqrt(th^2+2*sig^2/kap)-th)/sig^2
     -expint_Ei(-lambda*x, give=FALSE)/kap
 }
+```
 
-## Test
-if(FALSE) {
-    th <- -0.2
-    kap <- 0.05
-    sig <- 0.3
-    x <- seq(.Machine$double.xmin, 29, by=0.01)
-    y <- nu_bar_vargamma(x, th=th, kap=kap, sig=sig) # monotonically decreasing
-    range(y) # => max. value ~ 14093
-    plot(x, y, type="l", log="y")
-    mtext(substitute("y-range: ("*l*","~u*")", list(l=min(y), u=max(y))),
-          side=3, line=1)
-}
-
+```{r}
 ## Inverse of the tail integral of a variance gamma Levy process
 ## \bar{\nu}(x) = \int_x^\infty f(z) dz for the Levy density
 ## f(z) = (c/x)*exp(-lambda*x) for x>0, c=1/kappa and
@@ -59,7 +60,9 @@ nu_bar_inv_vargamma <- function(Gamma, th, kap, sig, ...)
     }
     res
 }
+```
 
+```{r}
 ## Transforming Gamma with variance-gamma Levy margins
 hom_vargamma_Levy <- function(Gamma, th, kap, sig)
 {
@@ -71,20 +74,25 @@ hom_vargamma_Levy <- function(Gamma, th, kap, sig)
     value <- apply(jump_size, 2, function(x) cumsum(x[ord])) # sort jump sizes according to U's and add them up => (L_t) at jump times
     list(jump_time=jump_time, value=value)
 }
+```
 
+### (Nested) Clayton L&eacute;vy copula
 
-### 1.2) (Nested) Clayton Levy copula ##########################################
-
+```{r}
 ## \bar{\psi} for Clayton Levy copulas
 psi_bar_Clayton <- function(t, theta) t^(-1/theta)
+```
 
+```{r}
 ## V_{01} for nested Clayton Levy copulas
 ## Note: V_{01,k} | V_{0,k} ~ LS^{-1}[\bar{\psi}_{01}(.; V_{0,k})] with
 ##       \bar{\psi}_{01}(t; V_{0,k}) = \exp(-V_{0,k} t^{\theta_0/\theta_1})
 ##       = copGumbel@V01() (not copClayton@V01()!)
 V01_nested_Clayton_Levy <- function(V0, theta0, theta1)
     copGumbel@V01(V0, theta0=theta0, theta1=theta1)
+```
 
+```{r}
 ## Generate Gamma for a d-dimensional Clayton Levy copula with parameter theta
 ## Note: - Don't confuse the Clayton parameter theta with the parameter th
 ##         for the marginal tail integral (variance gamma)
@@ -120,7 +128,9 @@ Gamma_Clayton_Levy <- function(d, theta, Gamma.star, burn.in)
     Gamma[Gamma > Gamma.star] <- Inf # => produce \bar{\mu}(.) = 0 (0-height jumps)
     Gamma
 }
+```
 
+```{r}
 ## Generate Gamma for a 4-dimensional nested Clayton Levy copula
 Gamma_nested_Clayton_Levy <- function(theta, Gamma.star, burn.in)
 {
@@ -145,10 +155,11 @@ Gamma_nested_Clayton_Levy <- function(theta, Gamma.star, burn.in)
     Gamma[Gamma > Gamma.star] <- Inf # => produce \bar{\mu}(.) = 0 (0-height jumps)
     Gamma
 }
+```
 
+### Plotting
 
-### 1.3) Plotting ##############################################################
-
+```{r}
 ## Plot Gammas
 plot_Gamma <- function(Gamma, Gamma.star, file=NULL, ...)
 {
@@ -170,7 +181,9 @@ plot_Gamma <- function(Gamma, Gamma.star, file=NULL, ...)
                bquote(Gamma[list(k,.(j))])), list(bquote(Gamma*"*")))))
     if(doPDF) dev.off()
 }
+```
 
+```{r}
 ## Plot a multivariate Levy process
 plot_Levy <- function(L, file=NULL, ...)
 {
@@ -193,10 +206,13 @@ plot_Levy <- function(L, file=NULL, ...)
            legend=as.expression( lapply(1:d, function(j) bquote(L[list(t,.(j))]))))
     if(doPDF) dev.off()
 }
+```
 
 
-### 2) Sampling paths ##########################################################
+## 2) Sampling paths
+Now let's sample some paths.
 
+```{r}
 ## Marginal (variance gamma) parameters
 th <- -0.2
 kap <- 0.05
@@ -205,10 +221,12 @@ sig <- 0.3
 ## Truncation specification
 Gamma.star <- 2000
 burn.in <- 500
+```
 
 
-### 2.1) 4d positive Clayton Levy copula #######################################
+### 4d positive Clayton L&eacute;vy copula
 
+```{r}
 set.seed(271)
 theta <- 4 # theta
 d <- 4 # dimension
@@ -225,10 +243,12 @@ plot_Gamma(Gamma, Gamma.star=Gamma.star,
 L <- hom_vargamma_Levy(Gamma, th=th, kap=kap, sig=sig)
 plot_Levy(L, file=if(doPDF) "fig_L_with_positive_Clayton_Levy_copula.pdf" else NULL,
           main="Levy process with positive Clayton Levy copula")
+```
 
 
-### 2.2) 4d positive nested Clayton Levy copula ################################
+### 4d positive nested Clayton L&eacute;vy copula
 
+```{r}
 set.seed(271)
 theta <- c(0.7, 4, 2) # theta_0, theta_1, theta_2
 
@@ -245,3 +265,4 @@ plot_Gamma(Gamma, Gamma.star=Gamma.star,
 L <- hom_vargamma_Levy(Gamma, th=th, kap=kap, sig=sig)
 plot_Levy(L, file=if(doPDF) "fig_L_with_positive_nested_Clayton_Levy_copula.pdf" else NULL,
           main="Levy process with positive nested Clayton Levy copula")
+```

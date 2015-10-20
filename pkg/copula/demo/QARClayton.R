@@ -70,7 +70,6 @@ h
 
 ## Plot some true and estimated conditional quantile functions
 
-##'  (??? TODO: explain!)
 u.cond <- function(z, tau, df, mu, sigma, alpha)
     ((tau^(-alpha/(1+alpha)) -1) * ptls(z,df,mu,sigma)^(-alpha) + 1) ^ (-1/alpha)
 

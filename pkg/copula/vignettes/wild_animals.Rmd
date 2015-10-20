@@ -1,13 +1,13 @@
 ---
 title: Examples of Nonstandard Copulas -- "Wild Animals"
-author: Marius Hofert and Martin Maechler
+author: Marius Hofert and Martin M&auml;chler
 date: '`r Sys.Date()`'
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Wild Animals: Examples of Nonstandard Copulas}
 ---
 # Wild Animals
-By Marius Hofert and Martin Maechler.
+By Marius Hofert and Martin M&auml;chler.
 
 ## 1) Example from Marius Hofert and Frederik Vrins
 
@@ -49,8 +49,8 @@ S2Inv <- function(u, H, upper=1e6) unlist(lapply(u, function(u.)
     uniroot(function(x) S2(x,H=H)-u., interval=c(0, upper))$root))
 ```
 
-### wrappers for $p_1$ and $p_2$ and their inverses:
-p and its inverse (for $p_i(t_k-)$ and $p_i(t_k), i = 1,2$) :
+### Wrappers for $p_1$ and $p_2$ and their inverses:
+p and its inverse (for $p_i(t_k-)$ and $p_i(t_k), i = 1,2$):
 ```{r, p1-p2}
 p1 <- function(t, k, H) exp(-M1(t)-H*k)
 p1Inv <- function(u, k, H, upper=1e6) unlist(lapply(u, function(u.)
@@ -82,14 +82,14 @@ pInv <- function(u, k, H, I, p1Inv, p2Inv){
 }
 ```
 
-### Define C
+### Define the copula $C$
 ```{r}
 C <- function(u, H, Lambda, S1Inv, S2Inv) {
     if(all(u == 0)) 0 else
     u[1]*u[2] * exp(expm1(-H)^2 * Lambda(min(S1Inv(u[1],H), S2Inv(u[2],H))))
 }
 ```
-Compute the singular component (given $u_1 =$`u1`, find $u_2=$`u2` on the singular component)
+Compute the singular component (given $u_1=$ `u1`, find $u_2=$ `u2` on the singular component)
 $u_2 = S2(S1^{-1}(u_1))$ :
 ```{r}
 s.comp <- function(u1, H, S1Inv, S2){
@@ -97,7 +97,7 @@ s.comp <- function(u1, H, S1Inv, S2){
 }
 ```
 
-Generate one bivariate random vector from C
+Generate one bivariate random vector from `C`
 <!-- MM: FIXME make faster: no need to grow  't_h', 'I_' all the time -->
 ```{r, rC1}
 rC1 <- function(H, LambdaInv, S1, S2, p1, p2, p1Inv, p2Inv) {
@@ -140,7 +140,7 @@ rC1 <- function(H, LambdaInv, S1, S2, p1, p2, p1Inv, p2Inv) {
 }
 ```
 
-### Draw n vectors of random variates from C
+### Draw n vectors of random variates from $C$
 ```{r}
 rC <- function(n, H, LambdaInv, S1, S2, p1, p2, p1Inv, p2Inv){
     mat <- t(sapply(rep(H, n), rC1, LambdaInv=LambdaInv, S1=S1, S2=S2,
@@ -207,10 +207,10 @@ wf.plot(grid=grid, val.grid=val.grid, s.comp=s.comp, val.s.comp=val.s.comp,
 
 For more details, see
 Trutschnig, Fernandez Sanchez (2014)
-_Copulas with continuous, strictly increasing singular conditional distribution functions_
+*Copulas with continuous, strictly increasing singular conditional distribution functions*
 
-Roughly, one defines an __Iterated Function System__ whose attractor is the word
-`Copula` and starts the chaos game.
+Roughly, one defines an **Iterated Function System** whose attractor is the word
+"Copula" and starts the chaos game.
 
 ### Define the Iterated Function System
 ```{r, ifs-def}
@@ -271,7 +271,7 @@ stopifnot(identical(dim(X), dim(A)))
 ```
 
 Now transform the margings by their marginal ECDF's so we get **uniform** margins.
-Note that, it is equivalent but faster to use `rank(*, ties.method="max")` :
+Note that, it is equivalent but faster to use `rank(*, ties.method="max")`:
 ```{r, transform}
 U <- apply(X, 2, function(x) ecdf(x)(x))
 ## Prove equivalence:
@@ -280,7 +280,7 @@ stopifnot(all.equal(U,
                     tolerance = 1e-14))
 ```
 
-Now, visually check the margins of U; they are *perfectly* uniform:
+Now, visually check the margins of `U`; they are *perfectly* uniform:
 ```{r, plot.margins}
 sfsmisc::mult.fig(mfcol = c(1,2), main = "Margins are uniform")
 hist(U[,1], probability=TRUE, main="Histogram of U[,1]", xlab=quote(italic(U[1])))
@@ -288,7 +288,7 @@ hist(U[,2], probability=TRUE, main="Histogram of U[,2]", xlab=quote(italic(U[2])
 ```
 
 whereas `U`, the copula sample, indeed is peculiar and contains the word
-`COPULA` many times if you look closely ((well, the `L` is defect ...)):
+"COPULA" many times if you look closely (well, the "L" is defect ...):
 ```{r, plot.U}
 plot(U, pch=".", xlab = quote(italic(U[1]) %~% ~ "U[0,1]"),
      asp = 1,    ylab = quote(italic(U[2]) %~% ~ "U[0,1]"))

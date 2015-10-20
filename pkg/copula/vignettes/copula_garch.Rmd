@@ -37,8 +37,9 @@ innovations. To this end, recall that an ARMA($p_1$,$q_1$)-GARCH($p_2$,$q_2$) mo
             \sum_{k=1}^{q_1} \theta_k (X_{t-k}-\mu_{t-k})\sigma_t^2\\\\
 		&= \alpha_0 + \sum_{k=1}^{p_2} \alpha_k (X_{t-k}-\mu_{t-k})^2 +
             \sum_{k=1}^{q_2} \beta_k \sigma_{t-k}^2.
-			\end{align}
+\end{align}
 \]
+
 ```{r}
 ## Set parameters
 fixed.p <- list(mu  = 1,
