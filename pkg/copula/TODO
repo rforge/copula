@@ -26,7 +26,7 @@ stopifnot(NULL == 1) is not stopping
 |--------------------------------+-----------+--------------------------------------------------------------------------|
 | File                           | Goal      | Topic                                                                    |
 |--------------------------------+-----------+--------------------------------------------------------------------------|
-| [[file:demo/AC-Liouville-demo.R][AC-Liouville-demo]]              | PKG+vign  | Some examples from McNeil, Neslehova (2010)                              |
+| [[file:demo/AC-Liouville-demo.R][AC-Liouville-demo]]              | PKG       | Some examples from McNeil, Neslehova (2010)                              |
 | [[file:demo/GIG-demo.R][GIG-demo]           | PKG+vign  | Generalized Inverse Gaussian Archimedean copulas                         |
 |--------------------------------+-----------+--------------------------------------------------------------------------|
 | [[file:demo/fitting-tests.R][fitting-tests]]      | k         | Tests of fitCopula                                                       |

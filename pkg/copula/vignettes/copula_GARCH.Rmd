@@ -6,11 +6,12 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{The Copula GARCH Model}
 ---
-# The Copula GARCH Model
+# The copula GARCH model
 By Marius Hofert.
 ```{r, message=FALSE}
 require(copula)
 require(rugarch)
+set.seed(271)
 ```
 
 ## 1) Simulate data
@@ -23,7 +24,6 @@ nu <- 3 # degrees of freedom for t
 tau <- 0.5 # Kendall's tau
 th <- iTau(ellipCopula("t", df=nu), tau) # corresponding parameter
 cop <- ellipCopula("t", param=th, dim=d, df=nu) # define copula object
-set.seed(271) # set seed
 U <- rCopula(n, cop) # sample the copula
 Z <- qnorm(U) # adjust margins
 ```

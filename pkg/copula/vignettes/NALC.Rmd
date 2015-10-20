@@ -6,7 +6,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Nested Archimedean L&eacute;vy Copulas}
 ---
-# Nested Archimedean L&eacute;vy Copulas
+# Nested Archimedean L&eacute;vy copulas
 By Marius Hofert.
 ```{r, message=FALSE}
 require(gsl) # for exponential integral
@@ -227,11 +227,10 @@ burn.in <- 500
 ### 4d positive Clayton L&eacute;vy copula
 
 ```{r}
-set.seed(271)
+## Gamma
 theta <- 4 # theta
 d <- 4 # dimension
-
-## Gamma
+set.seed(271)
 system.time(Gamma <- Gamma_Clayton_Levy(d, theta=theta, Gamma.star=Gamma.star,
                                         burn.in=burn.in))
 plot_Gamma(Gamma, Gamma.star=Gamma.star,
@@ -249,10 +248,9 @@ plot_Levy(L, file=if(doPDF) "fig_L_with_positive_Clayton_Levy_copula.pdf" else N
 ### 4d positive nested Clayton L&eacute;vy copula
 
 ```{r}
-set.seed(271)
-theta <- c(0.7, 4, 2) # theta_0, theta_1, theta_2
-
 ## Gamma
+theta <- c(0.7, 4, 2) # theta_0, theta_1, theta_2
+set.seed(271)
 system.time(Gamma <- Gamma_nested_Clayton_Levy(theta, Gamma.star=Gamma.star,
                                                burn.in=burn.in))
 ## 15 seconds on 2015-fast platform

@@ -6,7 +6,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Quasi-Random Numbers for Copula Models}
 ---
-# Quasi-Random Numbers for Copula Models
+# Quasi-random numbers for copula models
 By Marius Hofert.
 ```{r, message=FALSE}
 require(lattice)

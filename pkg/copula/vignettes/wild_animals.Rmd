@@ -6,7 +6,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Wild Animals: Examples of Nonstandard Copulas}
 ---
-# Wild Animals
+# Wild animals
 By Marius Hofert and Martin M&auml;chler.
 
 ## 1) Example from Marius Hofert and Frederik Vrins

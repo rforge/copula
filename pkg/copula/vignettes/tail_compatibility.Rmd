@@ -6,7 +6,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Copula Constructions for Tail-Dependence Matrices}
 ---
-# Copula Constructions for Tail-Dependence Matrices
+# Copula constructions for tail-dependence matrices
 By Marius Hofert.
 ```{r, message=FALSE}
 require(copula)
