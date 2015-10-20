@@ -6,8 +6,6 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Densities of Two-Level Nested Archimedean Copulas}
 ---
-# Densities of two-level nested Archimedean copulas
-By Marius Hofert.
 ```{r, message=FALSE}
 require(copula)
 require(grid)

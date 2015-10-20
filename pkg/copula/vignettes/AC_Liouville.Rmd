@@ -6,8 +6,6 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Archimedean Liouville Copulas}
 ---
-# Examples of Archimedean Liouville (and related) copulas
-By Marius Hofert.
 ```{r, message=FALSE}
 require(copula)
 source(system.file("Rsource", "AC-Liouville.R", package="copula"))
@@ -24,8 +22,9 @@ U <- rACsimplex(n, d=d, theta=theta, Rdist="Gamma")
 cor(U, method="kendall")
 ```
 
-```{r}
-pairs(U, gap=0)
+```{r, fig.width=6, fig.height=6}
+par(pty="s")
+pairs(U, gap=0, cex=0.5)
 ```
 
 
@@ -41,7 +40,8 @@ U <- rLiouville(n, alpha=alpha, theta=theta, Rdist="Gamma")
 cor(U, method="kendall")
 ```
 
-```{r}
+```{r, fig.width=6, fig.height=6}
+par(pty="s")
 pairs(U, gap=0, cex=0.5)
 ```
 
@@ -58,7 +58,8 @@ U <- rACLiouville(n, alpha=alpha, theta=theta, family="Clayton")
 cor(U, method="kendall")
 ```
 
-```{r}
-pairs(U, gap=0)
+```{r, fig.width=6, fig.height=6}
+par(pty="s")
+pairs(U, gap=0, cex=0.5)
 ```
 

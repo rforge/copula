@@ -6,8 +6,6 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Copula Constructions for Tail-Dependence Matrices}
 ---
-# Copula constructions for tail-dependence matrices
-By Marius Hofert.
 ```{r, message=FALSE}
 require(copula)
 doPDF <- FALSE
@@ -181,16 +179,16 @@ Y3 <- rY(n, copU=copU, copV=copV2, X.method="random")
 Y4 <- rY(n, copU=copU, copV=copV2, X.method="multinomial", prob=c(0.5, 0.5))
 ```
 
-```{r}
+```{r, fig.width=6, fig.height=6}
 ## Plot (left: X ~ random; right: X ~ multinomial; top: V ~ Pi; bottom: V ~ G)
 opar <- par(no.readonly=TRUE)
-par(pty="s", mar=c(4.6, 4, 1, 1) + 0.1)
+par(pty="s", mar=c(2.6, 2, 1, 1) + 0.1)
 lay <- matrix(1:4, ncol=2, byrow=TRUE) # layout matrix
 layout(lay, widths=c(1, 1), heights=c(1, 1)) # layout
-plot(Y1, xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])))
-plot(Y2, xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])))
-plot(Y3, xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])))
-plot(Y4, xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])))
+plot(Y1, xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])), cex=0.5)
+plot(Y2, xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])), cex=0.5)
+plot(Y3, xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])), cex=0.5)
+plot(Y4, xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])), cex=0.5)
 par(opar)
 ## Note:
 ## - the shape of Y is mainly determined by U, X
@@ -220,16 +218,16 @@ Y3. <- rY(n, copU=U, copV=copV3, X.method="random")
 Y4. <- rY(n, copU=U, copV=copV3, X.method="multinomial", prob=c(0.5, 0.5))
 ```
 
-```{r}
+```{r, fig.width=6, fig.height=6}
 ## Plot (left: X ~ random; right: X ~ multinomial; top: V ~ Pi; bottom: V ~ G)
 opar <- par(no.readonly=TRUE)
-par(pty="s", mar=c(4.6, 4, 1, 1) + 0.1)
+par(pty="s", mar=c(2.6, 2, 1, 1) + 0.1)
 lay <- matrix(1:4, ncol=2, byrow=TRUE) # layout matrix
 layout(lay, widths=c(1, 1), heights=c(1, 1)) # layout
-plot(Y1., xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])))
-plot(Y2., xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])))
-plot(Y3., xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])))
-plot(Y4., xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])))
+plot(Y1., xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])), cex=0.5)
+plot(Y2., xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])), cex=0.5)
+plot(Y3., xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])), cex=0.5)
+plot(Y4., xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])), cex=0.5)
 par(opar)
 ## Note:
 ## - the shape of Y is mainly determined by U, X
@@ -239,13 +237,13 @@ par(opar)
 file <- "Y_n=2000_U=t3_tau=0.75_or_sMO_a1=0.25_a2=0.75_X=random_or_multinomial_V=Pi.pdf"
 if(doPDF) pdf(file=file, width=8, height=8)
 opar <- par(no.readonly=TRUE)
-par(pty="s", mar=c(4.6, 4, 1, 1) + 0.1)
+par(pty="s", mar=c(2.6, 2, 1, 1) + 0.1)
 lay <- matrix(1:4, ncol=2, byrow=TRUE) # layout matrix
 layout(lay, widths=c(1, 1), heights=c(1, 1)) # layout
-plot(Y1, xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])))  # U=t3,  X=random, V=Pi
-plot(Y2, xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])))  # U=t3,  X=multinomial, V=Pi
-plot(Y1., xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2]))) # U=sMO, X=random, V=Pi
-plot(Y2., xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2]))) # U=sMO, X=multinomial, V=Pi
+plot(Y1, xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])), cex=0.5)  # U=t3,  X=random, V=Pi
+plot(Y2, xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])), cex=0.5)  # U=t3,  X=multinomial, V=Pi
+plot(Y1., xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])), cex=0.5) # U=sMO, X=random, V=Pi
+plot(Y2., xlab=expression(italic(Y[1])), ylab=expression(italic(Y[2])), cex=0.5) # U=sMO, X=multinomial, V=Pi
 par(opar)
 if(doPDF) dev.off()
 ```
@@ -312,7 +310,7 @@ Y  <- rY.FD(n, copV=V, alpha=alpha)
 Y. <- rY.FD(n, copV=copV, alpha=alpha)
 ```
 
-```{r}
+```{r, fig.width=6, fig.height=6}
 ## Plots
 if(doPDF) pdf(file=(file <- "Y_n=2000_FD_max_alpha_V=Pi.pdf"), width=6, height=6)
 par(pty="s")

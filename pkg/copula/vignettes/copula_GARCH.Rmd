@@ -6,8 +6,6 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{The Copula GARCH Model}
 ---
-# The copula GARCH model
-By Marius Hofert.
 ```{r, message=FALSE}
 require(copula)
 require(rugarch)
@@ -30,15 +28,13 @@ Z <- qnorm(U) # adjust margins
 
 Now we simulate two ARMA(1,1)-GARCH(1,1) processes with these copula-dependent
 innovations. To this end, recall that an ARMA($p_1$,$q_1$)-GARCH($p_2$,$q_2$) model is given by
-\[
 \begin{align}
-	X_t &= \mu_t + \sigma_t Z_t\\\\
+	X_t &= \mu_t + \sigma_t Z_t\\
   \mu_t &= \mu + \sum_{k=1}^{p_1} \phi_k  (X_{t-k}-\mu) +
-            \sum_{k=1}^{q_1} \theta_k (X_{t-k}-\mu_{t-k})\sigma_t^2\\\\
+            \sum_{k=1}^{q_1} \theta_k (X_{t-k}-\mu_{t-k})\sigma_t^2\\
 		&= \alpha_0 + \sum_{k=1}^{p_2} \alpha_k (X_{t-k}-\mu_{t-k})^2 +
             \sum_{k=1}^{q_2} \beta_k \sigma_{t-k}^2.
 \end{align}
-\]
 
 ```{r}
 ## Set parameters
@@ -61,6 +57,7 @@ str(X, max.level=2) # => @path$sigmaSim, $seriesSim, $residSim
 matplot(X@path$sigmaSim,  type="l") # plot of sigma's (conditional standard deviations)
 matplot(X@path$seriesSim, type="l") # plot of X's
 matplot(X@path$residSim,  type="l") # plot of Z's
+par(pty="s")
 plot(pobs(X@path$residSim)) # plot of Z's pseudo-observations => seem fine
 ```
 
@@ -81,6 +78,7 @@ Check the residuals.
 ```{r}
 Z. <- sapply(fit, function(fit.) residuals(fit.@fit))
 U. <- pobs(Z.)
+par(pty="s")
 plot(U., # plot of Z's pseudo-observations => seem fine
      xlab=expression(italic(hat(U)[1])),
      ylab=expression(italic(hat(U)[2])))
@@ -108,5 +106,6 @@ X.. <- sapply(X..sim, `[[`, "seriesSim")
 plot(X..Z, main="residSim"); abline(h=0,v=0, lty=2, col=adjustcolor(1, .5))
 plot(X.., main="seriesSim"); abline(h=0,v=0, lty=2, col=adjustcolor(1, .5))
 matplot(pobs(X..), type="l")
+par(pty="s")
 plot(pobs(X..), main="pobs(series..)"); rect(0,0,1,1, border=adjustcolor(1, 1/2))
 ```

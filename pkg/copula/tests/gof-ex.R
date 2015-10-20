@@ -94,14 +94,6 @@ apply(RR[,c("timeEstim","timeGoF"),,], c(3,1,2), mean)
 
 showProc.time()
 
-### Make sure the log-Likelihood demos run: ####################################
-
-## NOTE: this takes a while...
-demo("logL-vis", package="copula")# will use 'doExtras' from above!
-
-showProc.time()
-
-
 
 ### *Some* minimal  gofCopula() examples {the help page has \dontrun{} !}
 catn <- function(...) cat(..., "\n", sep="")
@@ -185,7 +177,6 @@ showProc.time()
 ### Test complicated implementation of SnB and SnC test statistics #############
 
 ##' Simple versions of the test statistics of Genest, Remillard, Beaudoin (2009)
-##'
 ##' @title Simple versions of the test statistics of Genest, Remillard, Beaudoin (2009)
 ##'	   for testing U[0,1]^d
 ##' @param u n x d matrix of (pseudo-/copula-)observations

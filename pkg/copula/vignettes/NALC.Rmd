@@ -6,8 +6,6 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Nested Archimedean L&eacute;vy Copulas}
 ---
-# Nested Archimedean L&eacute;vy copulas
-By Marius Hofert.
 ```{r, message=FALSE}
 require(gsl) # for exponential integral
 require(copula)

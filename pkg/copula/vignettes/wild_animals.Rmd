@@ -6,9 +6,6 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Wild Animals: Examples of Nonstandard Copulas}
 ---
-# Wild animals
-By Marius Hofert and Martin M&auml;chler.
-
 ## 1) Example from Marius Hofert and Frederik Vrins
 
 ### Lambda and its inverse
@@ -156,6 +153,7 @@ set.seed(271)
 U <- rC(n, H=H, LambdaInv=LambdaInv, S1=S1, S2=S2, p1=p1, p2=p2, p1Inv=p1Inv, p2Inv=p2Inv)
 
 ## Check margins of U
+par(pty="s")
 hist(U[,1], probability=TRUE, main="Histogram of the first component",
      xlab=expression(italic(U[1])))
 hist(U[,2], probability=TRUE, main="Histogram of the second component",
@@ -282,6 +280,7 @@ stopifnot(all.equal(U,
 
 Now, visually check the margins of `U`; they are *perfectly* uniform:
 ```{r, plot.margins}
+par(pty="s")
 sfsmisc::mult.fig(mfcol = c(1,2), main = "Margins are uniform")
 hist(U[,1], probability=TRUE, main="Histogram of U[,1]", xlab=quote(italic(U[1])))
 hist(U[,2], probability=TRUE, main="Histogram of U[,2]", xlab=quote(italic(U[2])))
@@ -290,6 +289,7 @@ hist(U[,2], probability=TRUE, main="Histogram of U[,2]", xlab=quote(italic(U[2])
 whereas `U`, the copula sample, indeed is peculiar and contains the word
 "COPULA" many times if you look closely (well, the "L" is defect ...):
 ```{r, plot.U}
+par(pty="s")
 plot(U, pch=".", xlab = quote(italic(U[1]) %~% ~ "U[0,1]"),
      asp = 1,    ylab = quote(italic(U[2]) %~% ~ "U[0,1]"))
 ```

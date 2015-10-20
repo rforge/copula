@@ -6,8 +6,6 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Quasi-Random Numbers for Copula Models}
 ---
-# Quasi-random numbers for copula models
-By Marius Hofert.
 ```{r, message=FALSE}
 require(lattice)
 require(copula)
@@ -18,7 +16,7 @@ doPDF <- FALSE
 ```
 
 
-## 1) Functions used
+## 1) Auxiliary functions
 
 We start by defining some auxiliary functions used below.
 ```{r}
@@ -158,7 +156,7 @@ if(doPDF) dev.off()
 ```
 
 #### QRNG (pairs plot for 3d $t_3$ sample)
-```{r}
+```{r, fig.width=6, fig.height=6}
 set.seed(271)
 U.3d. <- halton(n, dim=3)
 cop3d <- ellipCopula(family, param=th, dim=3, df=nu)
@@ -256,42 +254,47 @@ RVM <- RVineMatrix(Matrix=M, family=family, par=param, par2=param.) # RVineMatri
 ```
 
 #### PRNG
-```{r}
+```{r, fig.width=6, fig.height=6}
 set.seed(271)
 U <- RVineSim(n, RVM)
 if(doPDF) pdf(file=(file <- "fig_R-vine_prng_d=3.pdf"), width=6, height=6)
+par(pty="s")
 pairs(U, labels=as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ),
       gap=0, cex=0.3)
 if(doPDF) dev.off()
 ```
 
 #### QRNG (Halton)
-```{r}
+```{r, fig.width=6, fig.height=6}
 set.seed(271)
 U. <- halton(n, d=3)
 if(doPDF) pdf(file=(file <- "fig_qrng_d=3_halton.pdf"), width=6, height=6)
+par(pty="s")
 pairs(U., labels=as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ),
       gap=0, cex=0.3)
 if(doPDF) dev.off()
 ## Transform to copula data
 U. <- RVineSim(n, RVM, U=U.)
 if(doPDF) pdf(file=(file <- "fig_R-vine_qrng_d=3_halton.pdf"), width=6, height=6)
+par(pty="s")
 pairs(U., labels=as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ),
       gap=0, cex=0.3)
 if(doPDF) dev.off()
 ```
 
 #### QRNG (Sobol)
-```{r}
+```{r, fig.width=6, fig.height=6}
 set.seed(271)
 U. <- sobol(n, d=3)
 if(doPDF) pdf(file=(file <- "fig_qrng_d=3_sobol.pdf"), width=6, height=6)
+par(pty="s")
 pairs(U., labels=as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ),
       gap=0, cex=0.3)
 if(doPDF) dev.off()
 ## Transform to copula data
 U. <- RVineSim(n, RVM, U=U.)
 if(doPDF) pdf(file=(file <- "fig_R-vine_qrng_d=3_sobol.pdf"), width=6, height=6)
+par(pty="s")
 pairs(U., labels=as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ),
       gap=0, cex=0.3)
 if(doPDF) dev.off()
@@ -323,20 +326,22 @@ RVM <- RVineMatrix(Matrix=M, family=family, par=param, par2=param.) # RVineMatri
 ```
 
 #### PRNG
-```{r}
+```{r, fig.width=6, fig.height=6}
 set.seed(271)
 U <- RVineSim(n, RVM)
 if(doPDF) pdf(file=(file <- "fig_R-vine_prng_d=5.pdf"), width=6, height=6)
+par(pty="s")
 pairs(U, labels=as.expression( sapply(1:5, function(j) bquote(italic(U[.(j)]))) ),
       gap=0, cex=0.3)
 if(doPDF) dev.off()
 ```
 
 #### QRNG
-```{r}
+```{r, fig.width=6, fig.height=6}
 set.seed(271)
 U. <- RVineSim(n, RVM, U=halton(n, d=5))
 if(doPDF) pdf(file=(file <- "fig_R-vine_qrng_d=5.pdf"), width=6, height=6)
+par(pty="s")
 pairs(U., labels=as.expression( sapply(1:5, function(j) bquote(italic(U[.(j)]))) ),
       gap=0, cex=0.3)
 if(doPDF) dev.off()
@@ -518,21 +523,21 @@ if(doPDF) dev.off()
 ```
 
 ### 2d plots
-```{r, results="hide"}
+```{r, results="hide", fig.width=6, fig.height=6}
 if(doPDF) pdf(file=(file <- "fig_3d_pairs_plot_Halton_U.pdf"), width=6, height=6)
 par(pty="s")
 pairs(U, labels=as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ), gap=0)
 if(doPDF) dev.off()
 ```
 
-```{r, results="hide"}
+```{r, results="hide", fig.width=6, fig.height=6}
 if(doPDF) pdf(file=(file <- "fig_3d_pairs_plot_CDM_Clayton.pdf"), width=6, height=6)
 par(pty="s")
 pairs(U.C.CDM, labels=as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ), gap=0)
 if(doPDF) dev.off()
 ```
 
-```{r, results="hide"}
+```{r, results="hide", fig.width=6, fig.height=6}
 if(doPDF) pdf(file=(file <- "fig_3d_pairs_plot_MO_U_Clayton.pdf"), width=6, height=6)
 par(pty="s")
 pairs(U.C.MO, labels=as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ), gap=0)
