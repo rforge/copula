@@ -102,7 +102,7 @@
   %% and \CRANpkg{nacopula}, but that's only formal
 }
 \examples{
-## Some of the more important functions are
+## Some of the more important functions (and their examples) are
 \donttest{
 example(fitCopula)## fitting Copulas
 example(fitMvdc)  ## fitting multivariate distributions via Copulas

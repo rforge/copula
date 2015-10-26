@@ -7,13 +7,12 @@ vignette: >
   %\VignetteIndexEntry{Generalized Inverse Gaussian Archimedean Copulas}
 ---
 ```{r, message=FALSE}
-source(system.file("Rsource", "GIG.R", package="copula"))
+source(system.file("Rsource", "GIG.R", package="copula"))## ../inst/Rsource/GIG.R
 require(copula)
 require(bbmle)
 require(lattice)
 require(grid)
-do.profile <- FALSE # set this to TRUE to compute profile-likelihood plots (time-consuming)
-doPDF <- FALSE
+doPDF <- FALSE ## set 'do.profile' below -- *visibly*
 ```
 
 ## 1) Auxiliary functions
@@ -155,6 +154,7 @@ str(ml2@details)
 ### Profile likelihood plots
 
 ```{r}
+do.profile <- FALSE # set this to TRUE to compute profile-likelihood plots (time-consuming)
 if(do.profile){
     system.time(prof <- profile(ml))
     if(FALSE) { ## FIXME (?)
