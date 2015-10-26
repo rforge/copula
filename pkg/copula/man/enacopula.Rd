@@ -95,7 +95,7 @@ enacopula(u, cop,
 \seealso{
   \code{\link{emle}} which returns an object of \code{"\linkS4class{mle}"}
   providing useful methods not available for other estimators.
-  \code{\link{demo}(opC-demo)} and \code{\link{demo}(GIG-demo)} for
+  \code{\link{demo}(opC-demo)} and \code{vignette("GIG", package="copula")} for
   examples of two-parameter families.
   \code{\link{edmle}} for the diagonal maximum likelihood estimator.
   \code{\link{emde}} for the minimum distance estimators.

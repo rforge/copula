@@ -77,8 +77,8 @@ fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS",
 }
 \note{
   User-defined marginal distributions can be used as long as the
-  \code{"{dpq}"} functions are defined.  See \code{demo(QARClayton)}
-  prepared by Roger Koenker \email{rkoenker@uiuc.edu}.
+  \code{"{dpq}"} functions are defined.
+  See \code{vignette("AR_Clayton", package="copula")}.
 
   When covariates are available for marginal distributions or for the copula,
   one can construct the loglikelihood function and feed it to \code{"optim"}
@@ -137,9 +137,6 @@ if(copula:::doExtras()) { ## these are typically not run with CRAN checking:
 	   all.equal(coef(fitI), coef(fI.2), tolerance = 1e-4))
 }%dont...
 }% if(..doExtras())
-
-## Roger Koenker prepared a demo illustrating MLE for a Clayton AR(1)
-## ===>  see vignette("AR_Clayton", package="copula") % ../vignettes/AR_Clayton.Rmd
 }
 \keyword{models}
 \keyword{multivariate}
