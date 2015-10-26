@@ -1,6 +1,6 @@
 ---
 title: MLE and Quantile Evaluation for a Clayton AR(1) Model with Student Marginals
-author: By Marius Hofert, Ivan Kojadinovic, Martin M&auml;chler, Jun Yan
+author: Original demo from Roeger Koenker; by Marius Hofert, Ivan Kojadinovic, Martin M&auml;chler, Jun Yan
 date: '`r Sys.Date()`'
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
