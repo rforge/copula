@@ -6,7 +6,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Wild Animals: Examples of Nonstandard Copulas}
 ---
-## 1) Example from Marius Hofert and Frederik Vrins
+## 1 Example from Marius Hofert and Frederik Vrins
 
 ### Lambda and its inverse
 ```{r}
@@ -201,7 +201,7 @@ wf.plot(grid=grid, val.grid=val.grid, s.comp=s.comp, val.s.comp=val.s.comp,
 ```
 
 
-## 2) A nice example from Wolfgang Trutschnig and Manuela Schreyer ############
+## 2 A nice example from Wolfgang Trutschnig and Manuela Schreyer ############
 
 For more details, see
 Trutschnig, Fernandez Sanchez (2014)
