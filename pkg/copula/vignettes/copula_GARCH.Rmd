@@ -12,7 +12,7 @@ require(rugarch)
 set.seed(271)
 ```
 
-## 1) Simulate data
+## 1 Simulate data
 
 First, we simulate the innovation distribution.
 ```{r}
@@ -61,7 +61,7 @@ par(pty="s")
 plot(pobs(X@path$residSim)) # plot of Z's pseudo-observations => seem fine
 ```
 
-## 2) Fitting procedure based on the simulated data
+## 2 Fitting procedure based on the simulated data
 
 We now show how to fit an ARMA(1,1)-GARCH(1,1) process to `X`
 (remove 'fixed.pars' from specification to be able to fit).
@@ -90,7 +90,7 @@ fitcop <- fitCopula(ellipCopula("t", dim=2), data=U., method="mpl")
 rbind(est = fitcop@estimate, true = c(th, nu)) # hat{rho}, hat{nu}; close to th, nu
 ```
 
-## 3) Simulate from the fitted time series model
+## 3 Simulate from the fitted time series model
 
 Simulate from the fitted copula model.
 ```{r}
