@@ -16,7 +16,7 @@ doPDF <- FALSE
 ```
 
 
-## 1) Auxiliary functions
+## 1 Auxiliary functions
 
 We start by defining some auxiliary functions used below.
 ```{r}
@@ -92,7 +92,7 @@ square <- function(ll, ur, theta, np=16,
 ```
 
 
-## 2) PRNG vs QRNG
+## 2 PRNG vs QRNG
 
 Set the sample size.
 ```{r}
@@ -348,7 +348,7 @@ if(doPDF) dev.off()
 ```
 
 
-## 3) Why non-one-to-one transformations (may) not be optimal
+## 3 Why non-one-to-one transformations (may) not be optimal
 
 Here we visually show why non-one-to-one transformations for sampling may
 be non-optimal (concering discrepancy). To this end, we consider the following
@@ -361,7 +361,7 @@ th <- iTau(getAcop(family), tau)
 cop <- onacopulaL(family, nacList=list(th, 1:2))
 ```
 
-### 3.1) Colorized scatter plot
+### 3.1 Colorized scatter plot
 
 ```{r}
 ## Sample quasi-random numbers for CDM, WVS
@@ -413,7 +413,7 @@ if(doPDF) dev.off()
 ```
 
 
-### 3.2) Mapping nested squares
+### 3.2 Mapping nested squares
 
 How are squares mapped? Let's find out.
 #### Construct squares

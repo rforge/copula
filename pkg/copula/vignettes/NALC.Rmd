@@ -20,7 +20,7 @@ we only simulate the largest jumps; see below for more details.
 <!-- For a truncation-bias correction via a drift, see, e.g., Asmussen, Rosinski (2001) -->
 
 
-## 1) Auxiliary functions
+## 1 Auxiliary functions
 
 We start by defining some auxiliary functions used later on.
 
@@ -207,7 +207,7 @@ plot_Levy <- function(L, file=NULL, ...)
 ```
 
 
-## 2) Sampling paths
+## 2 Sampling paths
 Now let's sample some paths.
 
 ```{r}

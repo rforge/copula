@@ -12,7 +12,7 @@ doPDF <- FALSE
 ```
 
 
-## 1) Plot Liebscher copula
+## 1 Plot Liebscher copula
 
 The example we consider is
 \[
@@ -71,7 +71,7 @@ if(doPDF) dev.off()
 ```
 
 
-## 2) Sample $\mathbf{Y} = X\mathbf{U} + \mathbf{Z}\circ\mathbf{V}$
+## 2 Sample $\mathbf{Y} = X\mathbf{U} + \mathbf{Z}\circ\mathbf{V}$
 
 Note that the margins are standard uniform by construction.
 
@@ -149,7 +149,7 @@ rY <- function(n, copU, copV, X.method=c("random", "multinomial"), ...)
 ```
 
 
-### 2.1) $\mathbf{U}\sim t_3$, $\mathbf{V}\sim\Pi$ or $\mathbf{V}\sim G$
+### 2.1 $\mathbf{U}\sim t_3$, $\mathbf{V}\sim\Pi$ or $\mathbf{V}\sim G$
 
 ```{r}
 d <- 2
@@ -196,7 +196,7 @@ par(opar)
 ```
 
 
-### 2.2) $\mathbf{U}\sim$ survival MO, $\mathbf{V}\sim\Pi$ or $\mathbf{V}\sim G$
+### 2.2 $\mathbf{U}\sim$ survival MO, $\mathbf{V}\sim\Pi$ or $\mathbf{V}\sim G$
 
 ```{r}
 ## Sample U
@@ -249,7 +249,7 @@ if(doPDF) dev.off()
 ```
 
 
-## 3) Example of Federico Degen
+## 3 Example of Federico Degen
 
 ```{r}
 ## Y for the example of Federico Degen (note: m=1)

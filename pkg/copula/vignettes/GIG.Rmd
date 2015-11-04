@@ -15,7 +15,7 @@ require(grid)
 doPDF <- FALSE ## set 'do.profile' below -- *visibly*
 ```
 
-## 1) Auxiliary functions
+## 1 Auxiliary functions
 
 ```{r}
 ##' Initial interval for GIG
@@ -76,7 +76,7 @@ nlogl.GIG <- function(nu, theta, u){
 nlogl.GIG. <- function(theta, u) nlogl.GIG(theta[1], theta=theta[2], u=u) # vectorized version
 ```
 
-## 2) Setup
+## 2 Setup
 
 Note: The GIG family is *two*-parametric.
 
@@ -107,7 +107,7 @@ tau <- 0.5 # => psi(t)=(1+t)^(-nu/2)besselK(theta*sqrt(1+t), nu=nu)/besselK(thet
 h <- c(0.15, 0.15) # h_-, h_+ (for initial value)
 ```
 
-## 3) Sampling and estimation
+## 3 Sampling and estimation
 
 ### Sampling
 
@@ -149,7 +149,7 @@ summary(ml2)
 str(ml2@details)
 ```
 
-## 4) Plots
+## 4 Plots
 
 ### Profile likelihood plots
 
