@@ -155,10 +155,16 @@ for(meth in eval(formals(gofPB)$method)) {
   catn("\ngof method: ", meth,"\n==========================")
   for(fitMeth in c("mpl", "ml", "itau", "irho")) {
     catn("fit*( estim.method = '", fitMeth,"')\n------------------------")
+    catn("Gumbel copula:")
     print(gofCopula(gumbC, x, method=meth, N = 10, verbose=FALSE,
 		    estim.method = fitMeth))
-    print(gofCopula(t.cop, x, method=meth, N = 10, verbose=FALSE,
-		    estim.method = fitMeth))
+    if(!(meth == "Sn")) { ## currently for all 'fitMeth' (MM: really ?):
+	## ... not available for t copulas as pCopula() cannot be computed
+	##     for non-integer degrees of freedom yet.
+	catn("t-copula:")
+	print(gofCopula(t.cop, x, method=meth, N = 10, verbose=FALSE,
+			estim.method = fitMeth))
+    }
   }
   showProc.time()
 }
