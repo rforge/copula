@@ -528,10 +528,7 @@ pobs <- function(x, na.last = "keep",
 	     apply(x, 2, rank, na.last=na.last, ties.method=ties.method) / (nrow(x)+1)
 	 else
 	     rank(x, na.last=na.last, ties.method=ties.method) / (length(x)+1)
-    if(length(cc <- setdiff(class(x), c("data.frame", "matrix", "numeric"))))
-	## preserve non trivial classes (but *not* data.frame):
-        structure(class=cc, if(lower.tail) U else 1-U)
-    else if(lower.tail) U else 1-U
+    if(lower.tail) U else 1-U
 }
 
 ##' Computes different parameter estimates for a nested Archimedean copula
