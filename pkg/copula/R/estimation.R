@@ -516,15 +516,22 @@ emle <- function(u, cop, n.MC=0, optimizer="optimize", method,
 ##' @param ties.method passed to rank()
 ##' @param lower.tail if FALSE, pseudo-observations when apply the empirical
 ##'        marginal survival functions are returned.
-##' @return pseudo-observations (matrix of the same dimensions as x)
-##' @author Marius Hofert
+##' @return pseudo-observations (of the same dimensions as x)
+##' @author Marius Hofert & Martin Maechler
 pobs <- function(x, na.last = "keep",
 		 ## formals(rank) works in pre-2015-10-15 and newer version of rank():
 		 ties.method = eval(formals(rank)$ties.method),
-		 lower.tail = TRUE) {
+		 lower.tail = TRUE)
+{
     ties.method <- match.arg(ties.method)
-    U <- apply(x, 2, rank, na.last=na.last, ties.method=ties.method) / (nrow(x)+1)
-    if(lower.tail) U else 1-U
+    U <- if(!is.null(dim(x)))
+	     apply(x, 2, rank, na.last=na.last, ties.method=ties.method) / (nrow(x)+1)
+	 else
+	     rank(x, na.last=na.last, ties.method=ties.method) / (length(x)+1)
+    if(length(cc <- setdiff(class(x), c("data.frame", "matrix", "numeric"))))
+	## preserve non trivial classes (but *not* data.frame):
+        structure(class=cc, if(lower.tail) U else 1-U)
+    else if(lower.tail) U else 1-U
 }
 
 ##' Computes different parameter estimates for a nested Archimedean copula

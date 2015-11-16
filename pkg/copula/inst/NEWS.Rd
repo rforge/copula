@@ -4,7 +4,15 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-14 (2015-10-17, svn r1184)}{
+\section{Changes in version 0.999-15 (2015-..-.., svn r...)}{
+  \itemize{
+    \item \code{pobs()} is more flexible, accepting numeric vectors, and
+    e.g., keeping \code{"xts"} class.
+    \item improved R markdown vignettes.
+  }
+}
+
+\section{Changes in version 0.999-14 (2015-10-26, svn r1198)}{
   \itemize{
     \item New demo "NALC" on nested Archimedean Levy copulas
     \item Explicitly import from "base packages"
