@@ -44,10 +44,11 @@ fixed.p <- list(mu  = 1,
                 omega = 2, # alpha_0 (conditional variance intercept)
                 alpha1= 0.4,
                 beta1 = 0.2)
-varModel <- list(model = "sGARCH", garchOrder=c(1,1)) # standard GARCH
-uspec <- ugarchspec(varModel, mean.model = list(armaOrder=c(1,1)),
-                    fixed.pars = fixed.p,
-                    distribution.model = "norm") # conditional innovation density
+meanModel <- list(armaOrder=c(1,1))
+varModel <- list(model="sGARCH", garchOrder=c(1,1)) # standard GARCH
+uspec <- ugarchspec(varModel, mean.model=meanModel,
+                    fixed.pars=fixed.p,
+                    distribution.model="norm") # conditional innovation density (or use, e.g., "std")
 ## Note: ugarchpath(): simulate from a spec; ugarchsim(): simulate from a fitted object
 X <- ugarchpath(uspec,
                 n.sim= n, # simulated path length
@@ -66,8 +67,8 @@ plot(pobs(X@path$residSim)) # plot of Z's pseudo-observations => seem fine
 We now show how to fit an ARMA(1,1)-GARCH(1,1) process to `X`
 (remove 'fixed.pars' from specification to be able to fit).
 ```{r}
-uspec <- ugarchspec(varModel, mean.model = list(armaOrder=c(1,1)),
-                    distribution.model = "norm")
+uspec <- ugarchspec(varModel, mean.model=meanModel,
+                    distribution.model="norm")
 fit <- apply(X@path$seriesSim, 2, function(x) ugarchfit(uspec, x))
 str(fit, max.level=3)
 str(fit[[1]], max.level=2) # for first time series
@@ -76,7 +77,7 @@ stopifnot(identical(fit[[1]]@fit$residuals, residuals(fit[[1]]@fit))) # => the s
 
 Check the residuals.
 ```{r}
-Z. <- sapply(fit, function(fit.) residuals(fit.@fit))
+Z. <- sapply(fit, function(x) x@fit$residuals)
 U. <- pobs(Z.)
 par(pty="s")
 plot(U., # plot of Z's pseudo-observations => seem fine

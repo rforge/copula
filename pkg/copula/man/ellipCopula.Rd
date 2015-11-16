@@ -15,10 +15,10 @@ normalCopula(param, dim = 2, dispstr = "ex")
 \arguments{
   \item{family}{ a character string specifying the family of an
     elliptical copula. Implemented families are "normal" and "t".  }
-  \item{param}{a numeric vector specifying the parameter values.  The
-    \code{getRho()} method accesses this vector, whereas
+  \item{param}{a numeric vector specifying the parameter values;
+    \code{P2p()} accesses this vector, whereas
     \code{\link{p2P}()} and \code{\link{getSigma}()} provide
-    the corresponding \dQuote{Rho} matrix, see below.}
+    the corresponding \dQuote{P} matrix, see below.}
   \item{dim}{ the dimension of the copula. }
   \item{dispstr}{ a character string specifying the type of the symmetric
     positive definite matrix characterizing the elliptical
@@ -48,14 +48,11 @@ normalCopula(param, dim = 2, dispstr = "ex")
   \code{\link[mvtnorm]{GenzBretz}}, or \code{abseps}
   which defaults to \code{0.001}.
 ## For smaller copula dimension 'd', alternatives are available and
-## non-random, see ?GenzBretz from package 'mvtnorm' :
-
-
-
+## non-random, see ?GenzBretz from package 'mvtnorm'
 }
 \seealso{
   \code{\link{p2P}()}, and \code{\link{getSigma}()} for construction and
-  extraction of the \dQuote{Rho} (\eqn{P}) or \eqn{Sigma} matrix of
+  extraction of the dispersion matrix \eqn{P} or \eqn{Sigma} matrix of
   (generalized)% for t
   correlations.
 
@@ -65,7 +62,7 @@ normalCopula(param, dim = 2, dispstr = "ex")
 norm.cop <- normalCopula(c(0.5, 0.6, 0.7), dim = 3, dispstr = "un")
 t.cop <- tCopula(c(0.5, 0.3), dim = 3, dispstr = "toep",
                  df = 2, df.fixed = TRUE)
-getSigma(t.cop)## the P ("Rho") matrix (with diagonal = 1)
+getSigma(t.cop) # P matrix (with diagonal = 1)
 
 ## from the wrapper
 norm.cop <- ellipCopula("normal", param = c(0.5, 0.6, 0.7),
