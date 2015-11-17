@@ -80,7 +80,7 @@ getSigma <- function(copula)
 ##'         n values in the symmetric matrix x (3rd col) and the corresponding
 ##'         indices (1st and 2nd col)
 ##' @author Marius Hofert
-extreme_indices <- function(x, n=6, decreasing=FALSE)
+extreme_pairs <- function(x, n=6, decreasing=FALSE)
 {
     if(!is.matrix(x)) x <- rbind(x, deparse.level=0L)
     d <- ncol(x)

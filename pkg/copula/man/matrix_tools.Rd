@@ -2,7 +2,7 @@
 \alias{p2P}
 \alias{P2p}
 \alias{getSigma}
-\alias{extreme_indices}
+\alias{extreme_pairs}
 \title{Tools to Work with Matrices}
 \description{
   \code{p2P()} creates a \code{\link{matrix}} from a given
@@ -17,14 +17,14 @@
   Note that \code{getSigma()} works for all elliptical copulas and uses
   \code{p2P()} for the \dQuote{unstuctured} case, \code{dispstr = "un"}.
 
-  \code{extreme_indices()} identifies pairs with the smallest (or largest,
+  \code{extreme_pairs()} identifies pairs with the smallest (or largest,
   if \code{decreasing=TRUE}) \code{n} values in a symmetric matrix.
 }
 \usage{
 p2P(param, d)
 P2p(P)
 getSigma(copula)
-extreme_indices(x, n=6, decreasing=FALSE)
+extreme_pairs(x, n=6, decreasing=FALSE)
 }
 \arguments{
   \item{param}{A parameter vector.}
@@ -51,7 +51,7 @@ extreme_indices(x, n=6, decreasing=FALSE)
       case of a symmetric matrix).}
     \item{\code{getSigma}:}{\code{\link{matrix}} as from \code{p2P()}
       for all cases of elliptical copulas.}
-    \item{\code{extreme_indices}:}{A (\code{n}, 3)-\code{\link{matrix}}
+    \item{\code{extreme_pairs}:}{A (\code{n}, 3)-\code{\link{matrix}}
       containing the row and column indices (first two columns) of the pairs
       with the most extreme (smallest or largest) entries in \code{x}.}
   }
@@ -68,7 +68,7 @@ extreme_indices(x, n=6, decreasing=FALSE)
 ## display the definitions
 p2P
 P2p
-extreme_indices
+extreme_pairs
 
 param <- (2:7)/10
 tC <- tCopula(param, dim = 4, dispstr="un", df = 3)
