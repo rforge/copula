@@ -528,6 +528,8 @@ pobs <- function(x, na.last = "keep",
 	     apply(x, 2, rank, na.last=na.last, ties.method=ties.method) / (nrow(x)+1)
 	 else
 	     rank(x, na.last=na.last, ties.method=ties.method) / (length(x)+1)
+    if (inherits(x, "zoo"))
+	attributes(U) <- attributes(x)
     if(lower.tail) U else 1-U
 }
 
