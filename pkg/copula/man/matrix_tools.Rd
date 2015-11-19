@@ -42,7 +42,7 @@ extreme_pairs(x, n=6, decreasing=FALSE)
     should be displayed.}
 }
 \value{
-    \describe{
+  \describe{
     \item{\code{p2P}:}{A symmetric \code{\link{matrix}} with ones on the
       diagonal and the values of \code{param} filled column-wise below the
       diagonal (which corresponds to row-wise filling above the diagonal).}

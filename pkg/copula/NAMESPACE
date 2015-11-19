@@ -40,8 +40,9 @@ importFrom("graphics", Axis, abline, axis, box, contour, curve
          , rect, rug, strwidth, text
            )
 
-importFrom("methods", ## incl generics for which we export new methods:
-	   coerce, show, as, is, extends, new
+importMethodsFrom("methods", ## those for which we export new methods:
+		  coerce, show)
+importFrom("methods", as, is, extends, new
          , callGeneric, existsFunction, hasArg, hasMethod, callNextMethod
          , getClass, getClassDef
          , setClass, setClassUnion, setMethod, setOldClass
@@ -68,7 +69,7 @@ importFrom("stabledist", dstable)
 ## importFrom("bbmle", mle2)
 
 
-if(FALSE) {## currently do not "depend" on Rmpfr's correct installation:
+if(FALSE) {## currently do not want to "depend" on Rmpfr's correct installation:
 ## As we use it only in "numerically hard cases" polyG(), dsumSibuya(),..:
 importFrom("Rmpfr",
 	   mpfr, chooseMpfr, chooseMpfr.all,

@@ -53,21 +53,21 @@ getSigma <- function(copula)
 	   "ex" = {
 	       Sigma <- matrix(rho[1], nrow=d, ncol=d)
 	       diag(Sigma) <- rep(1, d)
+	       Sigma
 	   },
 	   "ar1" = {
-	       Sigma <- rho^abs(outer(1:d, 1:d, FUN="-"))
+	       rho^abs(outer(1:d, 1:d, FUN="-"))
 	   },
 	   "un" = {
-	       Sigma <- p2P(rho, d)
+	       p2P(rho, d)
 	   },
 	   "toep" = {
 	       rho <- c(rho, 1)
 	       ind <- outer(1:d, 1:d, FUN=function(i, j) abs(i-j))
 	       diag(ind) <- length(rho)
-	       Sigma <- matrix(rho[ind], nrow=d, ncol=d)
+	       matrix(rho[ind], nrow=d, ncol=d)
 	   },
 	   stop("invalid 'dispstr'"))
-    Sigma
 }
 
 ##' @title Find the pairs with smallest (or largest) n values in a symmetric
