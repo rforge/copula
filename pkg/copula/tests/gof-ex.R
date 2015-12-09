@@ -117,14 +117,17 @@ gBr <- gofCopula(claytonCopula(), x, N=10, verbose=FALSE,
                  optim.method="Brent", lower=0, upper=10)
 gNM <- gofCopula(claytonCopula(), x, N=10, verbose=FALSE, optim.method="Nelder")
 showProc.time()
+
 stopifnot(all.equal(vapply(gofL, `[[`, 0., "statistic"),
 		    setNames(c(0.01355167, 0.01355167, 0.01201136, 0.01257382),
 			     fMeth), tolerance = 1e-6),
 	  all.equal(vapply(gofL, `[[`, 0., "p.value"),
 		    setNames(c(0.4090909, 0.3181818, 0.4090909, 0.8636364),
 			     fMeth), tolerance = 1e-6),
-	  all.equal(unname(gBr$parameter), 3.193331257), gBr$p.value > 0.68,
-	  all.equal(unname(gNM$parameter), 3.1932227),	 gNM$p.value > 0.3 )
+	  all.equal(unname(gBr$parameter), 3.193331257, tolerance = 2e-7),
+	  gBr$p.value > 0.68,
+	  all.equal(unname(gNM$parameter), 3.1932227,   tolerance = 2e-7),
+	  gNM$p.value > 0.3)
 
 ## The same using the multiplier approach -- "ml" is not allowed:
 for(fitMeth in c("mpl", "itau", "irho")) {
