@@ -169,13 +169,11 @@ evTestA <- function(x, N = 1000, derivatives = c("An","Cn"))
 
 ind.matrix <- function(X)
 {
-  n <- nrow(X)
+  ## n <- nrow(X)
   x <- as.numeric(X[,1])
   y <- as.numeric(X[,2])
-  fun <- function(x,y) as.numeric(!(x>y))
-  M1 <- outer(x,x, FUN=fun)
-  M2 <- outer(y,y, FUN=fun)
-  M1*M2
+  fun <- function(x,y) as.numeric(x <= y)# !(x>y)
+  outer(x,x, FUN=fun) * outer(y,y, FUN=fun)
 }
 
 ## calculating the thetas for GKRstatistic
@@ -316,7 +314,7 @@ evTestK <- function(x, method = c("fsample","asymptotic","jackknife"))
 {
   method <- match.arg(method)
   n <- nrow(x)
-  negvar <- FALSE
+  ## negvar <- FALSE
   tmp <- switch(method,
                 "fsample"= GKRstatistic(x,variance="fsample"),
                 "asymptotic"=GKRstatistic(x,variance="asymptotic"),
@@ -329,7 +327,7 @@ evTestK <- function(x, method = c("fsample","asymptotic","jackknife"))
                 )
   if(var < 0){
     message("Variance estimator less then zero, using jackknife instead")## <- MM: reactivated 2012-02-22
-    negvar <- TRUE
+    ## negvar <- TRUE
     var <- n*GKRJack(x)$var
     method <- "jackknife"
   }

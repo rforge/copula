@@ -22,10 +22,10 @@ setGeneric("dCdu", function(cop, u) standardGeneric("dCdu"))
 dCduExplicitCopula <- function(cop, u)
 {
     p <- cop@dimension
-    alpha <- cop@parameters
     mat <- matrix(NA_real_, nrow(u),p)
     algNm <- paste(class(cop)[1], "cdfDerWrtArg.algr", sep=".")
     if(exists(algNm)) {
+	alpha <- cop@parameters # typically used in 'eval(der.cdf.u, *)' below
         der.cdf.u <- get(algNm)[p]
         unames0 <- paste0("u",1:p)
         for (j in 1:p)
@@ -35,7 +35,7 @@ dCduExplicitCopula <- function(cop, u)
             mat[,j] <- eval(der.cdf.u, data.frame(u))
         }
     } else warning("there is no formula for dCdu*() for this copula")
-    return(mat)
+    mat
 }
 
 ## this function is used for Khoudraji's device
@@ -176,11 +176,11 @@ setGeneric("dCdtheta", function(cop, u) standardGeneric("dCdtheta"))
 
 
 dCdthetaExplicitCopula <- function(cop, u)
-  {
+{
     p <- cop@dimension
-    alpha <- cop@parameters
     algNm <- paste(class(cop)[1], "cdfDerWrtPar.algr", sep=".")
     if(exists(algNm)) {
+        alpha <- cop@parameters # typically used in 'eval(*)' below
         der.cdf.alpha <- get(algNm)[p]
         colnames(u) <- paste0("u", 1:p)
         as.matrix(eval(der.cdf.alpha, data.frame(u)))
@@ -188,14 +188,13 @@ dCdthetaExplicitCopula <- function(cop, u)
         warning("there is no formula for dCdtheta*() for this copula")
         matrix(NA_real_, nrow(u),p)
     }
-  }
+}
 
 dCdthetaEvCopula <- function(cop, u) {
-  alpha <- cop@parameters
   loguv <- log(u[,1], u[,2])
   w <- log(u[,2]) / loguv
-  der.cdf.alpha <- pCopula(u, cop) * loguv * dAdtheta(cop, w)
-  return(as.matrix(der.cdf.alpha))
+  ## return  der.cdf.alpha
+  as.matrix(pCopula(u, cop) * loguv * dAdtheta(cop, w))
 }
 
 setMethod("dCdtheta", signature("archmCopula"), dCdthetaExplicitCopula)
@@ -204,7 +203,7 @@ setMethod("dCdtheta", signature("evCopula"), dCdthetaExplicitCopula)
 setMethod("dCdtheta", signature("gumbelCopula"), dCdthetaExplicitCopula)
 
 dCdthetaEllipCopula <- function(cop, u)
-  {
+{
     p <- cop@dimension
 
     ## quantile transformation
@@ -214,14 +213,14 @@ dCdthetaEllipCopula <- function(cop, u)
 		stop("not implemented for class ", class(cop)))
 
     if (p == 2)
-      plackettFormulaDim2(cop, v)
+        plackettFormulaDim2(cop, v)
     else
-      {
+    {
         n <- nrow(u)
         sigma <- getSigma(cop)
 
         if (cop@dispstr %in% c("ex","ar1")) ## exchangeable or ar1
-          {
+        {
             rho <- cop@parameters
             r <- matrix(c(1,-rho,-rho,1),2,2)/(1 - rho^2)
             m <- sigma[-c(1,2),c(1,2)] %*% r
@@ -239,41 +238,41 @@ dCdthetaEllipCopula <- function(cop, u)
                 for (j in 1:(p-1))
                   for (i in (j+1):p)
                     mat[k,1] <- mat[k,1] + (i - j) * rho ^ (i - j - 1) *
-                      plackettFormula(cop, p, rho, s, m, v[k,], i, j)
+				  plackettFormula(cop, p, rho, s, m, v[k,], i, j)
 
             mat
-          }
+        }
 	else # unstructured or toeplitz or ...
-          {
+        {
             mat <- matrix(0,n,p*(p-1)/2)
             l <- 1
             for (j in 1:(p-1))
-              for (i in (j+1):p)
+                for (i in (j+1):p)
                 {
-                  rho <- sigma[i,j]
-                  r <- matrix(c(1,-rho,-rho,1),2,2)/(1 - rho^2)
-                  m <- sigma[-c(i,j),c(i,j)] %*% r
-                  s <- sigma[-c(i,j),-c(i,j)] - sigma[-c(i,j),c(i,j)] %*% r %*% sigma[c(i,j),-c(i,j)]
+                    rho <- sigma[i,j]
+                    r <- matrix(c(1,-rho,-rho,1),2,2)/(1 - rho^2)
+                    m <- sigma[-c(i,j),c(i,j)] %*% r
+                    s <- sigma[-c(i,j),-c(i,j)] - m %*% sigma[c(i,j),-c(i,j)]
 
-                  for (k in 1:n)
-                    mat[k,l] <- plackettFormula(cop, p, rho, s, m, v[k,], i, j)
-                  l <- l + 1
+                    for (k in 1:n)
+                        mat[k,l] <- plackettFormula(cop, p, rho, s, m, v[k,], i, j)
+                    l <- l + 1
                 }
             if (cop@dispstr == "un") ## unstructured
                 mat
             else if (cop@dispstr == "toep") {
                 coef <- matrix(0,p*(p-1)/2,p-1)
                 for (k in 1:(p-1))
-                  {
+                {
                     m <- row(sigma) == col(sigma) + k
                     coef[,k] <- P2p(m)
-                  }
+                }
                 mat %*% coef
             }
             else stop("Not implemented yet for the dispersion structure ", cop@dispstr)
-          }
-      }
-  }
+        }
+    }
+}
 
 setMethod("dCdtheta", signature("ellipCopula"), dCdthetaEllipCopula)
 
@@ -283,13 +282,13 @@ setMethod("dCdtheta", signature("ellipCopula"), dCdthetaEllipCopula)
 setGeneric("derPdfWrtArgs", function(cop, u) standardGeneric("derPdfWrtArgs"))
 
 derPdfWrtArgsExplicitCopula <- function(cop, u)
-  {
+{
     p <- cop@dimension
-    alpha <- cop@parameters
     algNm <- paste(class(cop)[1], "pdfDerWrtArg.algr", sep=".")
     mat <- matrix(NA_real_, nrow(u),p)
     if(exists(algNm)) {
         der.pdf.u <- get(algNm)[p]
+	alpha <- cop@parameters # typically used in eval()
         unames0 <- paste0("u", 1:p)
         for (j in 1:p)
         {
@@ -298,8 +297,8 @@ derPdfWrtArgsExplicitCopula <- function(cop, u)
             mat[,j] <- eval(der.pdf.u, data.frame(u))
         }
     } else warning("there is no formula for derPdfWrtArgs*() for this copula")
-    return(mat)
-  }
+    mat
+}
 
 setMethod("derPdfWrtArgs", signature("archmCopula"), derPdfWrtArgsExplicitCopula)
 setMethod("derPdfWrtArgs", signature("plackettCopula"), derPdfWrtArgsExplicitCopula)
@@ -307,24 +306,22 @@ setMethod("derPdfWrtArgs", signature("evCopula"), derPdfWrtArgsExplicitCopula)
 setMethod("derPdfWrtArgs", signature("gumbelCopula"), derPdfWrtArgsExplicitCopula)
 
 derPdfWrtArgsNormalCopula <- function(cop, u)
-  {
+{
     v <- qnorm(u)
-    return( ( - v %*% solve(getSigma(cop)) + v)/ dnorm(v) )
-  }
+    (- v %*% solve(getSigma(cop)) + v) / dnorm(v)
+}
 
 setMethod("derPdfWrtArgs", signature("normalCopula"), derPdfWrtArgsNormalCopula)
 
 derPdfWrtArgsTCopula <- function(cop, u)
-  {
-
+{
     df <- cop@df
     v <- qt(u,df=df)
     w <- dt(v,df=df)
     m <- v %*% solve(getSigma(cop))
-
-    return( - (df + cop@dimension) * m / ((df + rowSums(m * v)) * w) +
-           (df + 1) * v / ((df +  v^2) * w) )
-  }
+    - (df + cop@dimension) * m / ((df + rowSums(m * v)) * w) +
+        (df + 1) * v / ((df +  v^2) * w)
+}
 
 setMethod("derPdfWrtArgs", signature("tCopula"), derPdfWrtArgsTCopula)
 
@@ -336,9 +333,9 @@ setGeneric("derPdfWrtParams", function(cop, u) standardGeneric("derPdfWrtParams"
 derPdfWrtParamsExplicitCopula <- function(cop, u)
 {
     p <- cop@dimension
-    alpha <- cop@parameters
     algNm <- paste(class(cop)[1], "pdfDerWrtPar.algr", sep=".")
     if(exists(algNm) && !is.null((der.pdf.alpha <- get(algNm)[p])[[1]])) {
+	alpha <- cop@parameters # typically used in val(.)
         colnames(u) <- paste0("u", 1:p)
         as.matrix(eval(der.pdf.alpha, data.frame(u)))
     } else {

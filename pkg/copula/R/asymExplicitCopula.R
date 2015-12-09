@@ -65,32 +65,34 @@ asymExplicitCopula <- function(shapes, copula1, copula2) {
     }
     val
   }
-  if (d <= 6) pdf <- pdfExpr(cdf, d)
-  else {
-    warnings("The pdf is only available for dim 6 or lower.")
-    pdf <- NULL
-  }
+  pdf <-
+      if (d <= 6)
+	  pdfExpr(cdf, d)
+      else {
+	  warnings("The pdf is only available for dim 6 or lower.")
+	  NULL
+      }
   derExprs <- function(cdf, n) {
     val <- as.expression(cdf)
     for (i in 1:n) {
-      val <- c(val, D(val[i], paste0("u", i )))
+      val <- c(val, D(val[i], paste0("u", i)))
     }
     val
   }
   derExprs1 <- derExprs(copula1@exprdist$cdf, d)
   derExprs2 <- derExprs(copula2@exprdist$cdf, d)
   shapes.names <- paste0("shape", 1:d)
-  val <- new("asymExplicitCopula",
-             dimension = d,
-             parameters = c(copula1@parameters, copula2@parameters, shapes),
-             param.names = c(copula1@param.names, copula2@param.names, shapes.names),
-             param.lowbnd = c(copula1@param.lowbnd, copula2@param.lowbnd, rep(0, d)),
-             param.upbnd = c(copula1@param.upbnd, copula2@param.upbnd, rep(1, d)),
-             copula1 = copula1,
-             copula2 = copula2,
-             exprdist = c(cdf=cdf, pdf=pdf),
-             derExprs1 = derExprs1, derExprs2 = derExprs2,
-             fullname = "Asymmetric Explicit Copula")
+  new("asymExplicitCopula",
+      dimension = d,
+      parameters = c(copula1@parameters, copula2@parameters, shapes),
+      param.names = c(copula1@param.names, copula2@param.names, shapes.names),
+      param.lowbnd = c(copula1@param.lowbnd, copula2@param.lowbnd, rep(0, d)),
+      param.upbnd = c(copula1@param.upbnd, copula2@param.upbnd, rep(1, d)),
+      copula1 = copula1,
+      copula2 = copula2,
+      exprdist = c(cdf=cdf, pdf=pdf),
+      derExprs1 = derExprs1, derExprs2 = derExprs2,
+      fullname = "Asymmetric Explicit Copula")
 }
 
 
@@ -134,7 +136,7 @@ getPowerSet <- function(d) {
 densDers <- function(idx, u, dg, copula, derExprs) {
   ## assuming exchangeable copula1 and copula2
   dorder <- sum(idx)
-  alpha <- copula@parameters[1]
+  alpha <- copula@parameters[1] # possibly needed in 'derExprs' below
   d <- copula@dimension
   newidx <- c((1:d)[idx], (1:d)[!idx])
   u <- u[, newidx]

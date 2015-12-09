@@ -437,9 +437,9 @@ gofCopula <- function(copula, x, N=1000, method = "Sn",
 		      verbose=TRUE, print.every=NULL, ...)
 {
     ## checks
-    stopifnot(is(copula, "copula"), N>=1)
+    stopifnot(is(copula, "copula"), N >= 1)
     if(!is.matrix(x)) x <- rbind(x, deparse.level=0L)
-    stopifnot((d <- ncol(x)) > 1, (n <- nrow(x)) > 0, dim(copula) == d)
+    stopifnot((d <- ncol(x)) > 1, nrow(x) > 0, dim(copula) == d)
     ## 'method' is checked inside gofPB() / gofMB()
     estim.method <- match.arg(estim.method)
     simulation <- match.arg(simulation)

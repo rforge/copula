@@ -1094,7 +1094,7 @@ circRat <- function(e, d)
 	    r[l1] <- d
 	if(any(l2 <- !l1 & ((d2 <- (d-2)/3)*(e2 <- e*e) < eps)))
 	    r[l2] <- d*(1 - d1*e[l2])
-	if(any(l3 <- !l1 & !l2 & ((d3 <- (d-3)/4)*e*e2 < eps)))
+	if(any(l3 <- !l1 & !l2 & ((d-3)/4 * e*e2 < eps)))
 	    r[l3] <- d*(1 - d1*e[l3]*(1 - d2*e[l3]))
 	## and for the remaining ones, we afford a little precision loss:
 	if(any(lrg <- !l1 & !l2 & !l3)) {

@@ -411,7 +411,7 @@ varPL <- function(cop,u)
 	warning(msg); return(ans)
     }
 
-    n <- nrow(u)
+    ## n <- nrow(u)
 
     ## influence: second part
     ## integrals computed from the original pseudo-obs u by Monte Carlo
@@ -510,7 +510,7 @@ getXmat <- function(copula) {
 varInfluAr1 <- function(cop, v, L, der) {
   p <- cop@dimension
   pp <- p * (p - 1) / 2
-  n <- nrow(v)
+  ## n <- nrow(v)
 
   ## estimate log(r) first, then log(theta), and then exponentiate back
   ## r is the lower.tri of sigma

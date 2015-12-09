@@ -80,8 +80,9 @@ tevCopula <- function(param = NA_real_, df = 4, df.fixed = FALSE) {
 }
 
 ptevCopula <- function(u, copula) {
-  dim <- copula@dimension
+  ## dim <- copula@dimension
   ## for (i in 1:dim) assign(paste0("u", i), u[,i])
+  ## dim = 2
   u1 <- u[,1]; u2 <- u[,2]
   p <- (r <- uu <- u1 * u2) > 0
   p <- p & (nna <- !is.na(p)) # p: positive uu
@@ -92,8 +93,7 @@ ptevCopula <- function(u, copula) {
 }
 
 dtevCopula <- function(u, copula, log=FALSE, ...) {
-  dim <- copula@dimension
-  ## for (i in 1:dim) assign(paste0("u", i), u[,i])
+  ## dim = 2
   u1 <- u[,1]; u2 <- u[,2]
   C <- ptevCopula(u, copula)
   logu <- log(u1 * u2)
@@ -106,7 +106,7 @@ dtevCopula <- function(u, copula, log=FALSE, ...) {
   A <- ATev(copula, w)
   Ader <- dAduTev(copula, w)
   Ader1 <- Ader$der1; Ader2 <- Ader$der2
-  dCdu1 <- C * (1 / u1 * A + logu * Ader1 * dwdu1)
+  ## dCdu1 <- C * (1 / u1 * A + logu * Ader1 * dwdu1)
   dCdu2 <- C * (1 / u2 * A + logu * Ader1 * dwdu2)
   ## pdf = d2Cdu1du2
   pdf <- dCdu2 * (1 / u1 * A + logu * Ader1 * dwdu1) +

@@ -128,7 +128,7 @@ setMethod("validTheta", signature(x = "acopula"),
 	      if(is((int <- x@paraInterval), "interval")) {
 		  if(is.finite(d <- diff(as.numeric(int)))) # take mid-value in interval
 		      int[1] + d/2
-		  else if (all(iinf <- is.infinite(is.finite(int)))) ##	 (-Inf, Inf)
+		  else if (all(is.infinite(is.finite(int)))) ##	 (-Inf, Inf)
 		      1/2
 		  else { ## at least one end is finite
 		      if(int[2] == Inf) int[1] + 1

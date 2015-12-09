@@ -91,8 +91,9 @@ R.pobs <- function(r, p, n, sample=FALSE) {
 ##' @return psi_{n,d}(x)
 ##' @author Marius Hofert
 psi.n <- function(x, r, p, d) {
-    stopifnot((m <- length(r)) == length(p), d > 1)
-    vapply(x, function(x.) if(any(ii <- r > x.)) sum((1-x./r[ii])^(d-1) * p[ii]) else 0, NA_real_)
+    stopifnot(length(r) == length(p), d > 1)
+    vapply(x, function(x.) if(any(ii <- r > x.)) sum((1-x./r[ii])^(d-1) * p[ii]) else 0,
+	   NA_real_)
 }
 
 ##' @title Inverse of the Non-parametric Generator Estimator

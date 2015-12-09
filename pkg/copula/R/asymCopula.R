@@ -37,15 +37,15 @@ igfun <- function(u, a) u^(1 / a)
 gfunDer <- function(u, a) a * u^(a - 1)
 
 asymCopula <- function(shapes, copula1, copula2) {
-  val <- new("asymCopula",
-             dimension = copula1@dimension,
-             parameters = c(copula1@parameters, copula2@parameters, shapes),
-             param.names = c(copula1@param.names, copula2@param.names, "shape1", "shape2"),
-             param.lowbnd = c(copula1@param.lowbnd, copula2@param.lowbnd, 0, 0),
-             param.upbnd = c(copula1@param.upbnd, copula2@param.upbnd, 1, 1),
-             copula1 = copula1,
-             copula2 = copula2,
-             fullname = "Asymmetric Copula")
+  new("asymCopula",
+      dimension = copula1@dimension,
+      parameters = c(copula1@parameters, copula2@parameters, shapes),
+      param.names = c(copula1@param.names, copula2@param.names, "shape1", "shape2"),
+      param.lowbnd = c(copula1@param.lowbnd, copula2@param.lowbnd, 0, 0),
+      param.upbnd = c(copula1@param.upbnd, copula2@param.upbnd, 1, 1),
+      copula1 = copula1,
+      copula2 = copula2,
+      fullname = "Asymmetric Copula")
 }
 
 

@@ -65,7 +65,7 @@ cospi2 <- function(x) {
 ##' @author Martin Maechler, based on Diethelm Wuertz's code in fBasics
 rstable1R <- function(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
 {
-    stopifnot((la <- length(alpha)) >= 1, (lb <- length(beta)) >= 1,
+    stopifnot((la <- length(alpha)) >= 1, length(beta) >= 1,
 	      length(gamma) >= 1, length(delta) >= 1,
 	      0 < alpha, alpha <= 2, abs(beta) <= 1,
 	      length(pm) == 1, pm %in% 0:1)
@@ -157,7 +157,7 @@ rstable1R <- function(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
 ##' @author Martin Maechler
 rstable1C <- function(n, alpha, beta, gamma = 1, delta = 0, pm = 1)
 {
-    stopifnot((la <- length(alpha)) >= 1, (lb <- length(beta)) >= 1,
+    stopifnot(length(alpha) >= 1, length(beta) >= 1,
 	      length(gamma) >= 1, length(delta) >= 1,
 	      0 < alpha, alpha <= 2, abs(beta) <= 1, gamma >= 0,
               length(pm) == 1, pm %in% 0:1)

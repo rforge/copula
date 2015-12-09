@@ -70,7 +70,7 @@ dacopulaG <- function(acop, u, n.MC=0, log = FALSE) {
     if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     if((d <- ncol(u)) < 2) stop("u should be at least bivariate")
     th <- acop@theta
-    res <- rep(NaN,n <- nrow(u)) # density not defined on the margins
+    res <- rep(NaN, nrow(u)) # density not defined on the margins
     n01 <- apply(u,1,function(x) all(0 < x, x < 1)) # indices for which density has to be evaluated
     if(any(n01)) {
         u. <- u[n01,, drop=FALSE]
@@ -361,7 +361,7 @@ rnacModel <- function(family, d, pr.comp, rtau0 = function() rbeta(1, 2,4),
     ## Care: theta values must obey family specific nesting constraints
     ##	  we use paraInterval +	 theta1 >= theta0  [ok for the 5 families]
 
-    RR <- if(do.round <- digits.theta < 17)
+    RR <- if(digits.theta < 17)
 	function(t) round(t, digits.theta) else identity
     stopifnot(is.numeric(t0 <- rtau0()), length(t0) == 1, abs(t0) <= 1)
     theta0 <- RR(COP@iTau(t0))

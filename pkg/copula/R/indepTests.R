@@ -311,8 +311,8 @@ multIndepTest <- function(x, d, m=length(d), N=1000, alpha=0.05,
         stop("data cannot contain missing values")
     if ((n <- nrow(x)) < 2)
         stop("data should contain more than 2 rows")
-    if (!is.numeric(d) || any((d <- as.integer(d)) < 1) || sum(d) != (nc <- ncol(x)))
-      stop(paste("wrong vector of dimensions"))
+    if (!is.numeric(d) || any((d <- as.integer(d)) < 1) || sum(d) != ncol(x))
+	stop("wrong vector 'd' of dimensions")
 
     p <- length(d)
 

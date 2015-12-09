@@ -201,10 +201,11 @@ qK <- function(u, cop, d, n.MC=0,
                        eps <- 1e-4 # ugly but due to non-monotonicity of K [otherwise: "Error... f() values at end points not of opposite sign"]
                        upper <- min(uN01o[i], q[i-1]+eps)
                        if(FALSE){       # checks for debugging
+                           if(lower >= upper) stop("lower=", lower, ", upper=", upper)
                            f.lower <- f(lower, uN01o[i])
                            f.upper <- f(upper, uN01o[i])
-                           if(lower >= upper) stop("lower=", lower, ", upper=", upper)
-                           if(sign(f.lower*f.upper) >= 0) stop("uN01o[",i,"]=", uN01o[i], ", f.lower=", f.lower, ", f.upper=", f.upper)
+                           if(sign(f.lower*f.upper) >= 0)
+                               stop("uN01o[",i,"]=", uN01o[i], ", f.lower=", f.lower, ", f.upper=", f.upper)
                        }
                        q[i] <- uniroot(f, u=uN01o[i], interval=c(lower, upper), ...)$root
                    }
