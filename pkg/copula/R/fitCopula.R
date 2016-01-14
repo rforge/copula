@@ -72,7 +72,7 @@ setMethod("show", signature("fitCopula"),
 fitCopula <- function(copula, data, method = c("mpl","ml","itau","irho"),
                       start = NULL, lower = NULL, upper = NULL,
                       optim.method = "BFGS", optim.control = list(maxit=1000),
-                      estimate.variance = NA, hideWarnings = TRUE)
+                      estimate.variance = NA, hideWarnings = TRUE, ...)
 {
   if(!is.matrix(data)) {
     warning("coercing 'data' to a matrix.")
@@ -87,7 +87,7 @@ fitCopula <- function(copula, data, method = c("mpl","ml","itau","irho"),
 	 fitCopula.mpl(copula, data, start=start, lower=lower, upper=upper,
 		       optim.method=optim.method, optim.control=optim.control,
 		       estimate.variance=estimate.variance, hideWarnings=hideWarnings),
-	 "itau" = fitCopula.itau(copula, data, estimate.variance=estimate.variance),
+	 "itau" = fitCopula.itau(copula, data, estimate.variance=estimate.variance, ...),
 	 "irho" = fitCopula.irho(copula, data, estimate.variance=estimate.variance))
 }
 
@@ -135,7 +135,8 @@ fitCopula.mpl <- function(copula, u, start, lower, upper,
 
 
 ##' fitCopula using inversion of Kendall's tau
-fitCopula.itau <- function(copula, x, estimate.variance, warn.df=TRUE) {
+## FIXME: d
+fitCopula.itau <- function(copula, x, estimate.variance, warn.df=TRUE, ...) {
   ccl <- getClass(class(copula))
   isEll <- extends(ccl, "ellipCopula")
   if(has.par.df(copula, ccl, isEll)) { ## must treat it as "df.fixed=TRUE"
@@ -145,7 +146,7 @@ fitCopula.itau <- function(copula, x, estimate.variance, warn.df=TRUE) {
       copula <- as.df.fixed(copula, classDef = ccl)
   }
   q <- length(copula@parameters)
-  tau <- cor(x, method="kendall")
+  tau <- corKendall(x, ...)
   itau <- fitKendall(copula, tau)
   itau <- P2p(itau)
 
@@ -353,17 +354,16 @@ fitSpearman <- function(cop,rho)  {
 ## tau given as a square matrix
 fitKendall <- function(cop,tau) {
   stopifnot(is.numeric(p <- ncol(tau)), p == nrow(tau))
-  sigma <- matrix(1,p,p)
-  for (j in 1:(p-1))
-    for (i in (j+1):p)
-      {
-        sigma[i,j] <- iTau(cop,tau[i,j])
-        sigma[j,i] <- sigma[i,j]
-      }
-
+  ## sigma <- matrix(1,p,p)
+  ## for (j in 1:(p-1))
+  ##   for (i in (j+1):p)
+  ##     {
+  ##       sigma[j,i] <- sigma[i,j] <- iTau(cop,tau[i,j])
+  ##     }
+  sigma <- p2P(iTau(cop, P2p(tau)))
   ## make positive definite if necessary
   if (is(cop, "ellipCopula"))
-    makePosDef(sigma, delta=0.001)
+      nearPD(sigma)
   else
     sigma
 }

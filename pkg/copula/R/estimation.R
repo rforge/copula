@@ -61,7 +61,7 @@ initOpt <- function(family, tau.range=NULL, interval=TRUE, u,
                           copGumbel@tau(theta.hat.G)
                       },
                       "tau.mean" = {
-                          tau.hat.mat <- cor(u, method="kendall", ...) # matrix of pairwise tau()
+                          tau.hat.mat <- corKendall(u, ...) # matrix of pairwise tau()
                           mean(tau.hat.mat[upper.tri(tau.hat.mat)]) # mean of estimated taus
                       },
                       stop("wrong method for initOpt"))
@@ -205,7 +205,7 @@ etau <- function(u, cop, method = c("tau.mean", "theta.mean"), warn=TRUE, ...){
               max(cop@comp) == d)
     if(length(cop@childCops))
         stop("currently, only Archimedean copulas are supported")
-    tau.hat.mat <- cor(u, method="kendall",...) # matrix of pairwise tau()
+    tau.hat.mat <- corKendall(u, ...) # matrix of pairwise tau()
     tau.hat <- tau.hat.mat[upper.tri(tau.hat.mat)] # all tau hat's
     ## define tau^{-1}
     tau_inv <- if(cop@copula@name == "AMH")

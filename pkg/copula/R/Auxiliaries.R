@@ -87,3 +87,7 @@ doExtras <- function() {
     interactive() || nzchar(Sys.getenv("R_copula_check_extra")) ||
         identical("true", unname(Sys.getenv("R_PKG_CHECKING_doExtras")))
 }
+
+corKendall <- function(x, ...) {
+    if(length(list(...))) cor(x, method="kendall", ...) else cor.fk(x)
+}

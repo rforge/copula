@@ -144,7 +144,9 @@ random numbers.
 ** DONE ~/R/Pkgs/copula : need a version with much shorter tests on CRAN?
 *** can we "not rebuild the PDFs" for the vignettes? to save a bit?
 
+** DONE Use much faster kendall's tau (instead of cor(*, method="kendall")
 * Mid Term
+** TODO use  sinpi() etc e.g. in R/ellipCopula.R
 ** TODO Ulf Schepsmeier's email to Marius on 2014-04-23: VineCopulas now has wrappers for 'copula' => Ulf suggested to refer to them / their copulas which are not in our package:
 library(copula)
 persp(BB1Copula(c(1,1.5)),dCopula, zlim=c(0,10))
@@ -190,7 +192,7 @@ these are *one* of the things where IJ-archmCopula' are better
 which extracts the parameter (vector) from any copula object
 ** TODO Write a function "checkTheta" or "thetaConstr"(param_vector, Copula):
  checks if the parameters are all admissible.
-** TODO Rebuild R-forge structure nacopula -> copula
+** DONE Rebuild R-forge structure nacopula -> copula
 ** TODO Miscellaneous Functions (& bugs: all DONE)
 *** DONE (MH) rtrafo() {and probably htrafo()} --- "fail" (are *wrong*!) for n = 1
 *** DONE (MH) copFrank@psi(1/1e20, theta=200) == Inf instead of 1
@@ -202,9 +204,7 @@ produce an object of class 'opacopula' ("outer power Archimedean copula")
 which is just 'acopula' with a new show method ("thetabase" at least!),
 possibly a new slot ...
 Longer term: want to *estimate* those correctly [MLE at least].
-*** TODO rtrafo() is now "available" for "t" and "normal" thanks to the Master thesis of Yongsheng Wang.  (--> ...../function-gof.R )
-**** DONE implement it,
-**** TODO Extend  rtrafo() to other (d > 2)-copula families
+*** DONE rtrafo() is now "available" for "t" and "normal" thanks to the Master thesis of Yongsheng Wang.  (--> ...../function-gof.R )
 ** TODO evTestA(), evTestC(), evTestK()  have basically no tests {but improvable code}
  [[file:man/evTestA.Rd][evTestA.Rd]], [[file:man/evTestC.Rd][evTestC.Rd]], [[file:man/evTestK.Rd][evTestK.Rd]
 ** TODO C code

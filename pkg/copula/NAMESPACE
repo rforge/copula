@@ -84,6 +84,8 @@ importFrom("mvtnorm",
            ## rather user should require("mvtnorm") for these: GenzBretz, Miva, TVPACK,
            dmvt, pmvt, rmvt)
 
+importFrom("pcaPP", cor.fk)# Fast Kendall's tau
+
 
 ## FIXME: we would only want importS3MethodsFrom("pspline", predict)
 import("pspline")

@@ -165,7 +165,7 @@ tauGalambosCopula <- function(copula) {
 }
 
 iTauGalambosCopula <- function(copula, tau) {
-  if (any(tau < 0)) warning("tau is out of the range [0, 1]")
+  if (any(tau < 0)) warning("some tau < 0")
   galambosTauInv <- approxfun(x = .galambosTau$assoMeasFun$fm$ysmth,
                               y = .galambosTau$assoMeasFun$fm$x, rule = 2)
 

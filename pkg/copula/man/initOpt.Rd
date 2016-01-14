@@ -34,7 +34,9 @@ initOpt(family, tau.range=NULL, interval = TRUE, u,
     \code{method="tau.Gumbel"} when the diagonal maximum-likelihood
     estimator is smaller than \eqn{1}.}
   \item{\dots}{additional arguments passed to \code{cor()} when
-    \code{method="tau.mean"}.}
+    \code{method="tau.mean"}.  Note that otherwise (no additional arg.),
+    the much faster \code{\link[pcaPP]{cor.fk}()} from package
+    \CRANpkg{pcaPP} is used.}
 }
 \details{
   For \code{method="tau.mean"} and \code{interval=FALSE}, the mean of pairwise

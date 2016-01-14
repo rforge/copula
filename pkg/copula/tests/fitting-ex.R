@@ -154,7 +154,60 @@ msg <- tryCatch(fitCopula(gumbelCopula(), data = u), error=function(e)e$message)
 msg
 
 
+## Date: Sat, 14 Nov 2015 20:21:27 -0500
+## Subject: Replace makePosDef() by nearPD()?
+## From: Marius Hofert <marius.hofert@uwaterloo.ca>
+## To: Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>, Jun Yan
+## 	<jun.yan@uconn.edu>, Martin Maechler <maechler@stat.math.ethz.ch>
 
+## I currently face the problem of estimating a t-copula to a (504, 413)
+## data matrix. A MWE is:
+
+require(copula)
+set.seed(271)
+n <- 504
+d <- 413
+d <- 50 # more realistic -- should become faster !!
+U <- matrix(runif(n*d), nrow=n, ncol=d)
+system.time(fit <- fitCopula(ellipCopula("t", dim=d, dispstr="un"),
+                             data=U, method="mpl"))
+
+
+## > Warning in makePosDef(sigma, delta = 0.001) :
+## >   Estimate is not positive-definite. Correction applied.
+## > Process R killed: 9 at Sat Nov 14 19:48:55 2015
+1
+## ... so R crashes (this also happens if the data is much 'closer' to a
+## t-copula than my data above, so that's not the problem). I'm wondering
+## about the following.
+
+## 1) Replace makePosDef() by nearPD()  everywhere
+
+## 2) The warning comes from makePosDef() which is called by
+## fitCopStart() (which is called by fitCopula.ml()). The argument
+## hideWarnings of fitCopula() [with default TRUE] is currently *not*
+## passed to fitCopStart()/makePosDef() and thus the warning generated
+## although hideWarnings=TRUE. Shall we pass that argument?
+
+## 2b) pass hideWarnings to makePosDef() --- no longer relevant if 1) happens
+
+## 3) Why do we get the crash?
+
+## 4) Implement: first estimating (via pairwise inversion of
+## Kendall's tau) the dispersion matrix and then estimating the d.o.f.
+## via MLE (based on the fitted dispersion matrix). Already in use in
+## vignettes --- would be good to have this in the
+## package as. What we could do is to extend
+## fitCopula.itau(): if the copula has a d.o.f. parameter, then don't
+## treat it as fixed but estimated it via MLE... (or to get this behavior
+## via a method argument or so?)
+
+## 5) pcaPP's cor.fk() is much faster than cor(, "kendall") => replace globally
+
+## 6) After 4), tailIndex() returns a vector of length 2* d(d-1)/2 ... ok
+##    in the bivariate case but not in higher dimensions => want a list
+
+
 if(!doExtras && !interactive()) q(save="no") ## so the following auto prints
 ##--------------------------------------------------------------------------
 
