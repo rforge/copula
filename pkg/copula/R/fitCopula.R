@@ -135,7 +135,6 @@ fitCopula.mpl <- function(copula, u, start, lower, upper,
 
 
 ##' fitCopula using inversion of Kendall's tau
-## FIXME: d
 fitCopula.itau <- function(copula, x, estimate.variance, warn.df=TRUE, ...) {
   ccl <- getClass(class(copula))
   isEll <- extends(ccl, "ellipCopula")
@@ -364,10 +363,10 @@ fitKendall <- function(cop, tau) {
   ##     {
   ##       sigma[j,i] <- sigma[i,j] <- iTau(cop,tau[i,j])
   ##     }
-  sigma <- p2P(iTau(cop, P2p(tau)), d=d)
+  sigma <- p2P(iTau(cop, tau), d=d)
   ## make positive definite if necessary
   if (is(cop, "ellipCopula"))
-      nearPD(sigma)
+      nearPD(sigma) # TODO: corr=TRUE => rather omit fitKendall() (and fitSpearman) overall!
   else
     sigma
 }
@@ -470,7 +469,6 @@ getL <- function(copula) {
 	      },
 	      "ar1" = {
 		  ## FIXME More efficient: estimate log(rho) first and then exponentiate back,
-		  ##  see e.g. fitSpearman above
 		  ## mat <- model.matrix(~ factor(dgidx) - 1)
 		  ## mat * matrix(1:(p - 1), nrow=pp, ncol=p - 1, byrow=TRUE)
 		  X <- getXmat(copula)
