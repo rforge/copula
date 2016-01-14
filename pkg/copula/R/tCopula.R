@@ -148,5 +148,7 @@ setMethod("tau", signature("tCopula"), tauTCopula)
 setMethod("rho", signature("tCopula"), rhoTCopula)
 setMethod("tailIndex", signature("tCopula"), tailIndexTCopula)
 
-setMethod("iTau", signature("tCopula"), iTauEllipCopula)
-setMethod("iRho", signature("tCopula"), iRhoEllipCopula)
+## unneeded:
+## setMethod("iTau", signature("tCopula"), iTauEllipCopula)
+setMethod("iRho", signature("tCopula"), function (copula, rho, ...)
+    stop("iRho() not available for 'tCopula's"))

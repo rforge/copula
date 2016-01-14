@@ -36,7 +36,8 @@ stopifnot(identical(f1, fit1(tCopula(df.fixed=TRUE),
 
 ## for df.fixed=FALSE, have 2 parameters ==> cannot use "fit1":
 	 (f2.t <- fitCopula(tCopula(), uu, method="itau"))#
-	 (f2.r <- fitCopula(tCopula(), uu, method="irho"))#
+if(FALSE) ## 14.Jan.2016: irho(<tCopula>) has been "non-sense" -> now erronous:
+    f2.r <- fitCopula(tCopula(), uu, method="irho")
 if(doExtras) {
     print(f2.m <- fitCopula(tCopula(), uu, method=  "ml"))# gives SE for 'df' {from optim()}
     print(f2.M <- fitCopula(tCopula(), uu, method= "mpl"))# no SE for 'df' (for now ..)
@@ -50,6 +51,7 @@ print(f3 <- fitCopula(tC3f, u3, method="itau"))
 
 tC3 <- tCopula(c(.2,.7, .8), dim=3, dispstr="un")
 (f3.t <- fitCopula(tC3, u3, method="itau"))
+if(FALSE) ## irho(<tCopula>) now an error:
 (f3.r <- fitCopula(tC3, u3, method="irho"))
 if(doExtras) {
     print(f3.m <- fitCopula(tC3, u3, method=  "ml"))
@@ -169,6 +171,8 @@ n <- 504
 d <- 413
 d <- 50 # more realistic -- should become faster !!
 U <- matrix(runif(n*d), nrow=n, ncol=d)
+if(FALSE) ## takes ??? (> one hour)
+## try  maxiter =  / trace =  to see what's happening
 system.time(fit <- fitCopula(ellipCopula("t", dim=d, dispstr="un"),
                              data=U, method="mpl"))
 
@@ -181,18 +185,6 @@ system.time(fit <- fitCopula(ellipCopula("t", dim=d, dispstr="un"),
 ## t-copula than my data above, so that's not the problem). I'm wondering
 ## about the following.
 
-## 1) Replace makePosDef() by nearPD()  everywhere
-
-## 2) The warning comes from makePosDef() which is called by
-## fitCopStart() (which is called by fitCopula.ml()). The argument
-## hideWarnings of fitCopula() [with default TRUE] is currently *not*
-## passed to fitCopStart()/makePosDef() and thus the warning generated
-## although hideWarnings=TRUE. Shall we pass that argument?
-
-## 2b) pass hideWarnings to makePosDef() --- no longer relevant if 1) happens
-
-## 3) Why do we get the crash?
-
 ## 4) Implement: first estimating (via pairwise inversion of
 ## Kendall's tau) the dispersion matrix and then estimating the d.o.f.
 ## via MLE (based on the fitted dispersion matrix). Already in use in
@@ -201,8 +193,6 @@ system.time(fit <- fitCopula(ellipCopula("t", dim=d, dispstr="un"),
 ## fitCopula.itau(): if the copula has a d.o.f. parameter, then don't
 ## treat it as fixed but estimated it via MLE... (or to get this behavior
 ## via a method argument or so?)
-
-## 5) pcaPP's cor.fk() is much faster than cor(, "kendall") => replace globally
 
 ## 6) After 4), tailIndex() returns a vector of length 2* d(d-1)/2 ... ok
 ##    in the bivariate case but not in higher dimensions => want a list
