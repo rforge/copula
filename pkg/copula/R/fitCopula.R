@@ -351,16 +351,20 @@ fitSpearman <- function(cop,rho)  {
     sigma
 }
 
-## tau given as a square matrix
-fitKendall <- function(cop,tau) {
-  stopifnot(is.numeric(p <- ncol(tau)), p == nrow(tau))
-  ## sigma <- matrix(1,p,p)
-  ## for (j in 1:(p-1))
-  ##   for (i in (j+1):p)
+##' @title Construct Parameter Matrix from Matrix of Kendall's Taus
+##' @param cop copula
+##' @param tau (d,d)-matrix of Kendall's taus
+##' @return (d,d)-matrix of parameters
+##' @author Marius Hofert
+fitKendall <- function(cop, tau) {
+  stopifnot(is.numeric(d <- ncol(tau)), d == nrow(tau))
+  ## sigma <- matrix(1,d,d)
+  ## for (j in 1:(d-1))
+  ##   for (i in (j+1):d)
   ##     {
   ##       sigma[j,i] <- sigma[i,j] <- iTau(cop,tau[i,j])
   ##     }
-  sigma <- p2P(iTau(cop, P2p(tau)))
+  sigma <- p2P(iTau(cop, P2p(tau)), d=d)
   ## make positive definite if necessary
   if (is(cop, "ellipCopula"))
       nearPD(sigma)
