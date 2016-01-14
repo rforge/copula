@@ -71,6 +71,7 @@ setMethod("show", signature("fitCopula"),
 
 fitCopula <- function(copula, data,
                       method = c("mpl","ml","itau","irho","itau.ml"),
+                      posDef = is(copula, "ellipCopula"),
                       start = NULL, lower = NULL, upper = NULL,
                       optim.method = "BFGS", optim.control = list(maxit=1000),
                       estimate.variance = NA, hideWarnings = TRUE, ...)
@@ -79,7 +80,8 @@ fitCopula <- function(copula, data,
     warning("coercing 'data' to a matrix.")
     data <- as.matrix(data); stopifnot(is.matrix(data))
   }
-  switch(match.arg(method),
+  method <- match.arg(method)
+  switch(method,
 	 "ml" =
 	 fitCopula.ml(copula, data, start=start, lower=lower, upper=upper,
 		      method=optim.method, optim.control=optim.control,
@@ -90,10 +92,10 @@ fitCopula <- function(copula, data,
 		       optim.method=optim.method, optim.control=optim.control,
 		       estimate.variance=estimate.variance,
 		       hideWarnings=hideWarnings, ...),
-         "itau.ml" = fitCopula.itau.ml(copula, data, start=start, lower=lower, upper=upper,
-		       optim.method=optim.method, optim.control=optim.control,
-		       estimate.variance=estimate.variance,
-		       hideWarnings=hideWarnings, ...),
+	 "itau.ml" = fitCopula.itau.ml(
+             copula, data, posDef=posDef, lower=lower, upper=upper,
+             estimate.variance=estimate.variance,
+             hideWarnings=hideWarnings, ...), # <- may include 'tol' !
 	 "itau" = fitCopula.itau(copula, data,
 				 estimate.variance=estimate.variance, ...),
 	 "irho" = fitCopula.irho(copula, data,
@@ -210,7 +212,8 @@ fitCopula.itau <- function(copula, x, estimate.variance, warn.df=TRUE,
 
 ## fitCopula using inversion of Spearman's rho #################################
 
-fitCopula.irho <- function(copula, x, estimate.variance, warn.df=TRUE, ...) {
+fitCopula.irho <- function(copula, x, estimate.variance, warn.df=TRUE,
+                           posDef = is(copula, "ellipCopula"), ...) {
   ccl <- getClass(class(copula))
   isEll <- extends(ccl, "ellipCopula")
   if(has.par.df(copula, ccl, isEll)) { ## must treat it as "df.fixed=TRUE"
