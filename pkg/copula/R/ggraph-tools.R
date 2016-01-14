@@ -236,9 +236,8 @@ RSpobs <- function(x, do.pobs = TRUE, method = c("ellip", "archm"), ...)
                ## and compute the inverse of the corresponding Cholesky factor
                ## Note: this is *critical* !!
                ## ----  => completely wrong R's if d > n/2 (roughly)
-               P <- as.matrix(nearPD(sin(corKendall(x)*pi/2),
-                                      corr=TRUE)$mat)
-	       L <- t(chol(P)) # lower triangular L such that LL' = P
+               P <- nearPD(sin(corKendall(x)*pi/2), corr=TRUE)$mat # "dpoMatrix"
+	       L <- t(chol(as.matrix(P))) # lower triangular L such that LL' = P
 	       ## TODO: it would be better to stay with 'Matrix' package here and to use LDL
 
 	       ## compute Ys

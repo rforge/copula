@@ -10,7 +10,7 @@ Author: Marius Hofert <marius.hofert@uwaterloo.ca>,
  Jun Yan <jun.yan@uconn.edu>
 Maintainer: Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
-Depends: R (>= 3.0.1)
+Depends: R (>= 3.1.0)
 Imports: stats, graphics, methods, stats4, Matrix, lattice, colorspace,
   gsl, ADGofTest, stabledist (>= 0.6-4), mvtnorm, pcaPP, pspline
 Suggests: MASS, KernSmooth, sfsmisc, scatterplot3d, Rmpfr, bbmle, knitr,
