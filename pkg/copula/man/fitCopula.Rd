@@ -106,10 +106,14 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
 }
 \note{
   In the multiparameter elliptical case and when the estimation is based
-  on Kendall's tau or Spearman's rho, the
-  estimated correlation matrix may not always be positive-definite.  If
-  it is not, the correction proposed by Rousseeuw and Molenberghs (1993)
-  is applied and a warning message given.
+  on Kendall's tau or Spearman's rho, the estimated correlation matrix
+  may not always be positive-definite.  In that case,
+  \code{\link[Matrix]{nearPD}(*, corr=TRUE)} (from \CRANpkg{Matrix}) is
+  applied, see there.
+
+  The only difference between \code{"mpl"} and \code{"ml"} is in the
+  variance-covariance estimate, \emph{not} in the parameter
+  (\eqn{\theta}) estimates!
 
   If method \code{"mpl"} in \code{fitCopula()} is used and if
   \code{start} is not assigned a value, estimates obtained
