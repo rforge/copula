@@ -149,6 +149,7 @@ x <- rCopula(200, tCopula(c(0.5, 0.6, 0.7), dim = 3, dispstr = "un"))
 
 gumbC <- gumbelCopula(1, dim = 3, use.indepC="FALSE")
 t.cop <- tCopula(rep(0, 3), dim = 3, dispstr = "un", df.fixed=TRUE)
+t.copV <- t.cop; t.copV@df.fixed <- FALSE
 
 showProc.time()
 
@@ -156,16 +157,18 @@ showProc.time()
 if(doExtras)
 for(meth in eval(formals(gofPB)$method)) {
   catn("\ngof method: ", meth,"\n==========================")
-  for(fitMeth in c("mpl", "ml", "itau", "irho")) {
+  for(fitMeth in c("mpl", "ml", "itau", "irho", "itau.ml")) {
     catn("fit*( estim.method = '", fitMeth,"')\n------------------------")
-    catn("Gumbel copula:")
-    print(gofCopula(gumbC, x, method=meth, N = 10, verbose=FALSE,
-		    estim.method = fitMeth))
-    if(!(meth == "Sn")) { ## currently for all 'fitMeth' (MM: really ?):
+    if(fitMeth != "itau.ml") {
+        catn("Gumbel copula:")
+        print(gofCopula(gumbC, x, method=meth, N = 10, verbose=FALSE,
+                        estim.method = fitMeth))
+    }
+    if(meth != "Sn" && fitMeth != "irho") {
 	## ... not available for t copulas as pCopula() cannot be computed
 	##     for non-integer degrees of freedom yet.
 	catn("t-copula:")
-	print(gofCopula(t.cop, x, method=meth, N = 10, verbose=FALSE,
+	print(gofCopula(t.copV, x, method=meth, N = 10, verbose=FALSE,
 			estim.method = fitMeth))
     }
   }

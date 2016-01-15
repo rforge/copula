@@ -35,7 +35,7 @@ stopifnot(identical(f1, fit1(tCopula(df.fixed=TRUE),
 ## did not work with data.frame before 2012-08-12
 
 ## for df.fixed=FALSE, have 2 parameters ==> cannot use "fit1":
-	 (f2.t <- fitCopula(tCopula(), uu, method="itau"))#
+(f2.t <- fitCopula(tCopula(), uu, method="itau"))#
 if(FALSE) ## 14.Jan.2016: irho(<tCopula>) has been "non-sense" -> now erronous:
     f2.r <- fitCopula(tCopula(), uu, method="irho")
 if(doExtras) {
@@ -47,12 +47,12 @@ showProc.time()
 ## d = 3 : -------------
 ## ok with df.fixed
 tC3f <- tCopula(c(.2,.7, .8), dim=3, dispstr="un", df.fixed=TRUE)
+tC3  <- tCopula(c(.2,.7, .8), dim=3, dispstr="un")
 print(f3 <- fitCopula(tC3f, u3, method="itau"))
-
-tC3 <- tCopula(c(.2,.7, .8), dim=3, dispstr="un")
-(f3.t <- fitCopula(tC3, u3, method="itau"))
+(f3.t <- fitCopula(tC3, u3, method="itau"))# warning: coercing to df.fixed=TRUE
 if(FALSE) ## irho(<tCopula>) now an error:
-(f3.r <- fitCopula(tC3, u3, method="irho"))
+(f3.r  <- fitCopula(tC3, u3, method="irho"))
+
 if(doExtras) {
     print(f3.m <- fitCopula(tC3, u3, method=  "ml"))
     print(f3.M <- fitCopula(tC3, u3, method= "mpl"))
@@ -64,7 +64,7 @@ set.seed(17)
 d <- 5 # dimension
 nu <- 4 # degrees of freedom
 ## define and sample the copula, build pseudo-observations
-ec4 <- ellipCopula("t", dim=d, df=nu, df.fixed=TRUE) # <- copula with param NA
+ec4 <- tCopula(dim=d, df=nu, df.fixed=TRUE) # <- copula with param NA
 (r <- iTau(ec4, tau <- c(0.2, 0.4, 0.6)))
 P <- c(r[2], r[1], r[1], r[1], # upper triangle (w/o diagonal) of corr.matrix
              r[1], r[1], r[1],
@@ -72,12 +72,26 @@ P <- c(r[2], r[1], r[1], r[1], # upper triangle (w/o diagonal) of corr.matrix
                          r[3])
 assertError( setTheta(ec4, value = P) )
 ## rather need "un" dispersion: Now with smarter tCopula():
-(uc4 <- tCopula(dim=d, df=nu, disp = "un", df.fixed=TRUE))
-validObject(copt4 <- setTheta(uc4, value = P))
-U. <- pobs(rCopula(n=1000, copula=copt4))
-pairs(U., gap=0) # => now correct dependency
+(uc4 <- tCopula(dim=d, df=nu, disp = "un", df.fixed=FALSE))
+validObject(uc4p <- setTheta(uc4, value = c(P, df=nu)))
+U. <- pobs(rCopula(n=1000, copula=uc4p))
+splom2(U.) # => now correct dependency
 (cU <- cor(U., method="kendall")) # => correct:
 stopifnot(cor(P, cU[lower.tri(cU)]) > 0.99)
+
+## Fitting a t-copula with "itau.ml" with disp="un"
+(fm4u <- fitCopula(uc4, U., method="itau.ml"))
+## Fitting a t-copula with "itau.ml" with disp="ex"
+uc4.ex <- tCopula(dim=d, df=nu, disp = "ex", df.fixed=FALSE)
+validObject(uc4p.ex <- setTheta(uc4.ex, value = c(0.75, df=nu)))
+U.ex <- pobs(rCopula(n=1000, copula=uc4p.ex))
+(fm4e <- fitCopula(uc4.ex, U.ex, method="itau.ml"))
+## Fitting a t-copula with "itau.ml" with disp="ar"
+uc4.ar <- tCopula(dim=d, df=nu, disp = "ar1", df.fixed=FALSE)
+validObject(uc4p.ar <- setTheta(uc4.ar, value = c(0.75, df=nu)))
+U.ar <- pobs(rCopula(n=1000, copula=uc4p.ar))
+(fm4e <- fitCopula(uc4.ar, U.ar, method="itau.ml"))
+
 
 
 
@@ -105,7 +119,7 @@ pFoo <- function(x, lower.tail=TRUE, log.p=FALSE)
      pnorm((x - 5)/20, lower.tail=lower.tail, log.p=log.p)
 dFoo <- function(x, lower.tail=TRUE, log.p=FALSE)
      1/20* dnorm((x - 5)/20, lower.tail=lower.tail, log.p=log.p)
-qFoo <- qunif
+qFoo <- qunif # must exist; not used for fitting
 
 ## 'Foo' distribution has *no* parameters:
 mv1 <- mvdc(gumbelC, c("gamma","Foo"), param= list(list(3,1), list()))

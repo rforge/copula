@@ -28,16 +28,16 @@ setMethod("paramNames", "fitCopula", function(x) x@copula@param.names)
 print.fitCopula <- function(x, digits = max(3, getOption("digits") - 3),
     signif.stars = getOption("show.signif.stars"), ...)
 {
-    foo <- summary.fitCopula(x)
+    sfit <- summary.fitCopula(x)
     cat("fitCopula() estimation based on '", x@method, "'\nand a sample of size ",
 	x@nsample, ".\n", sep="")
-    printCoefmat(foo$coefficients, digits = digits, signif.stars = signif.stars,
+    printCoefmat(sfit$coefficients, digits = digits, signif.stars = signif.stars,
 		 na.print = "NA", ...)
-    if (!is.na(foo$loglik))
-	cat("The maximized loglikelihood is ", format(foo$loglik, digits=digits), "\n")
-    if (!is.na(foo$convergence)) {
-	if(foo$convergence)
-            cat("Convergence problems: code is", foo$convergence, "see ?optim.\n")
+    if (!is.na(sfit$loglik))
+	cat("The maximized loglikelihood is ", format(sfit$loglik, digits=digits), "\n")
+    if (!is.na(sfit$convergence)) {
+	if(sfit$convergence)
+            cat("Convergence problems: code is", sfit$convergence, "see ?optim.\n")
 	else cat("Optimization converged\n")
     }
     if(!is.null(cnts <- x@fitting.stats$counts) && !all(is.na(cnts))) {
@@ -352,9 +352,7 @@ fitCopula.ml <- function(copula, u, start, lower, upper,
       copula = copula)
 }
 
-fitCopula.itau.ml <- function(copula, u,
-                              posDef = TRUE,
-                              interval, lower = min(interval), upper = max(interval),
+fitCopula.itau.ml <- function(copula, u, posDef = TRUE, lower = NULL, upper = NULL,
                               estimate.variance, hideWarnings,
                               tol = .Machine$double.eps ^ 0.25, ...)
 {
@@ -365,48 +363,48 @@ fitCopula.itau.ml <- function(copula, u,
   stopifnot(is.numeric(d <- ncol(u)), d >= 2)
   if (copula@dimension != d)
     stop("The dimension of the data and copula do not match")
+  if(is.null(lower)) lower <- 0  # <=>  df=Inf <=> Gaussian
+  if(is.null(upper)) upper <- 16 # down to df = 1/16
 
   ## Estimation of the t-copula with the approach of Demarta, McNeil (2005)
   ## 1) Estimate the correlation matrix P
-  P <- fitCopula.itau(copula, u, estimate.variance=FALSE,
-                      warn.df=TRUE, # <- maybe arg, default FALSE
-                      posDef=posDef, ...)
+  fm <- fitCopula.itau(copula, u, estimate.variance=FALSE,
+                       warn.df=FALSE, # (to change it there)
+                       posDef=posDef, ...)
+  p. <- fm@estimate
   ## 2) Estimate the d.o.f. parameter nu  via Maximum Likelihood :
-  P. <- P2p(P) # the correlation matrix as a vector
-  nLL <- function(nu) -loglikCopula(c(P., df=nu), x=u, copula=copula)
+  if(FALSE) # for debugging
+      nLL <- function(Inu) {
+          r <- -loglikCopula(c(p., df=1/Inu), x=u, copula=copula)
+          cat(sprintf("1/nu=%12g, df=%8.3g, logL=%g\n", Inu, 1/Inu, -r))
+          r
+      }
+  nLL <- function(Inu) -loglikCopula(c(p., df=1/Inu), x=u, copula=copula)
   (if(hideWarnings) suppressWarnings else identity)(
       fit <- optimize(nLL, interval=c(lower, upper), tol=tol)
   )
   q <- length(copula@parameters) # the last is 'df'
-  copula@parameters[seq_len(q-1L)] <- P.
-  copula@parameters[[q]] <- copula@df <- df <- fit$minimum
+  copula@parameters[seq_len(q-1L)] <- p.
+  copula@parameters[[q]] <- copula@df <- df <- 1/fit$minimum
   loglik <- fit$objective
   has.conv <- TRUE # FIXME? use tryCatch() above to catch non-convergence
   if (is.na(estimate.variance))
-      estimate.variance <- has.conv
+      estimate.variance <- FALSE ## not yet:  has.conv
   ## if(!has.conv)
   ##     warning("possible convergence problem: . . . . . . .)
 
   varNA <- matrix(NA_real_, q, q)
   var.est <- if(estimate.variance) {
     stop("'estimate.variance' not yet implemented for  \"itau.ml\" method")
-    ## MM: in principle, this could work
-    ## fit.last <- optim(copula@parameters, loglikCopula, lower=lower, upper=upper,
-    ##                   method=method, copula=copula, x=u,
-    ##                   control=c(control, maxit=0), hessian=TRUE)
-    ## vcov <- tryCatch(solve(-fit.last$hessian), error = function(e) e)
-    ## if(is(vcov, "error")) {
-    ##   warning("Hessian matrix not invertible: ", vcov$message)
-    ##   varNA
-    ## } else vcov ## ok
+    ## TODO: use one/zero step of fitCopula.mpl(*...., maxit=0) to get full vcov()
   } else varNA
 
   new("fitCopula",
-      estimate = c(P., df=df), # or just 'df' ??
+      estimate = c(p., df),
       var.est = var.est,
-      method = "itau for 'P', maximum likelihood of 'df'/'nu'",
+      method = "itau for dispersion matrix P and maximum likelihood for df",
       loglik = loglik,
-      fitting.stats = NA,
+      fitting.stats = list(convergence = 0),
       ## optimize() does not give any info! -- if we had final optim(*, hessian=TRUE) step?
       ## c(list(method=method),
       ## fit[c("convergence", "counts", "message")], control),
