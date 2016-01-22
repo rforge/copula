@@ -172,7 +172,6 @@ plot_Gamma <- function(Gamma, Gamma.star, file=NULL, ...)
     ## cols <- adjustcolor(cols, alpha.f=0.1) # no improvement here
     doPDF <- !is.null(file)
     if(doPDF) pdf(file=file, width=7, height=7)
-    par(pty="s")
     plot(Gamma[,1], type="l", ylim=range(Gamma, finite=TRUE), # omit Inf
          log="y", xlab="k", ylab="", col=cols[1], ...)
     for(j in 2:d) lines(Gamma[,j], col=cols[j])
@@ -198,7 +197,6 @@ plot_Levy <- function(L, file=NULL, ...)
     x_L <- rbind(rep(0, d), L$value, L$value[nrow(L$value),]) # extended Levy process (for nicer plotting)
     doPDF <- !is.null(file)
     if(doPDF) pdf(file=file, width=7, height=7)
-    par(pty="s")
     plot(x_jump_time, x_L[,1], type="s", ylim=range(L),
          xlab="t", ylab=expression(bold(L)[t]), col=cols[1], ...)
     for(j in 2:d)

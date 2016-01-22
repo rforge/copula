@@ -39,7 +39,7 @@ innovations. To this end, recall that an ARMA($p_1$,$q_1$)-GARCH($p_2$,$q_2$) mo
             \sum_{k=1}^{q_2} \beta_k \sigma_{t-k}^2.
 \end{align}
 
-```{r}
+```{r, fig.align="center", fig.width=7.5, fig.height=6}
 ## Set parameters
 fixed.p <- list(mu  = 1,
                 ar1 = 0.5,
@@ -61,6 +61,9 @@ str(X, max.level=2) # => @path$sigmaSim, $seriesSim, $residSim
 matplot(X@path$sigmaSim,  type="l") # plot of sigma's (conditional standard deviations)
 matplot(X@path$seriesSim, type="l") # plot of X's
 matplot(X@path$residSim,  type="l") # plot of Z's
+```
+
+```{r, fig.align="center", fig.width=6, fig.height=6}
 par(pty="s")
 plot(pobs(X@path$residSim)) # plot of Z's pseudo-observations => seem fine
 ```
