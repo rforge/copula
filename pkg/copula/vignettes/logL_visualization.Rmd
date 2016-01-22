@@ -2,6 +2,9 @@
 title: Log-Likelihood Visualization for Archimedean Copulas
 author: Marius Hofert and Martin M&auml;chler
 date: '`r Sys.Date()`'
+output:
+  html_vignette:
+    css: style.css
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Log-Likelihood Visualization for Archimedean Copulas}
@@ -92,7 +95,7 @@ tau <- 0.2
 cop <- onacopulaL("Joe",list(theta,1:d))
 ```
 
-```{r}
+```{r, fig.align="center", fig.width=7.5, fig.height=6}
 set.seed(1)
 U1 <- rnacopula(n,cop)
 enacopula(U1, cop, "mle") # 1.432885 --  fine
@@ -116,7 +119,7 @@ if(doExtras) {
 }
 ```
 
-```{r}
+```{r, fig.align="center", fig.width=7.5, fig.height=6}
 U2 <- rnacopula(n,cop)
 summary(dCopula(U2, cop)) # => density for the *correct* parameter looks okay
 ## hmm: max = 5.5e177
@@ -126,14 +129,14 @@ stopifnot(all.equal(enacopula(U2, cop, "mle"), 1.43992755, tolerance=1e-5),
           all.equal(mLogL(1.8, cop@copula, U2), -4070.1953,tolerance=1e-5)) # (was -Inf)
 ```
 
-```{r}
+```{r, fig.align="center", fig.width=7.5, fig.height=6}
 U3 <- rnacopula(n,cop)
 enacopula(U3, cop, "mle") # 1.4495
 if(doExtras)
     system.time(r3 <- curveLogL(cop, U3, c(1, 2.5)))
 ```
 
-```{r}
+```{r, fig.align="center", fig.width=7.5, fig.height=6}
 U4 <- rnacopula(n,cop)
 enacopula(U4, cop, "mle") # 1.4519  was 2.351..  "completely wrong"
 summary(dCopula(U4, cop)) # ok (had one Inf)
@@ -173,7 +176,7 @@ tau <- 0.3
 cop <- onacopulaL("Joe",list(theta,1:d))
 ```
 
-```{r}
+```{r, fig.align="center", fig.width=7.5, fig.height=6}
 set.seed(47)
 U. <- rnacopula(n,cop)
 enacopula(U., cop, "mle") # 1.784578
@@ -190,7 +193,7 @@ tau <- 0.4
 cop <- onacopulaL("Joe",list(theta,1:d))
 ```
 
-```{r}
+```{r, fig.align="center", fig.width=7.5, fig.height=6}
 U. <- rnacopula(n,cop)
 enacopula(U., cop, "mle") # 2.217582
 if(doExtras)
@@ -211,7 +214,7 @@ tau <- 0.2
 cop <- onacopulaL("Gumbel",list(theta,1:d))
 ```
 
-```{r}
+```{r, fig.align="center", fig.width=7.5, fig.height=6}
 set.seed(1)
 U1 <- rnacopula(n,cop)
 if(doExtras) {
@@ -291,7 +294,7 @@ tau <- 0.8
 cop <- onacopulaL("Frank", list(theta,1:d))
 ```
 
-```{r}
+```{r, fig.align="center", fig.width=7.5, fig.height=6}
 set.seed(11) # these seeds give no problems: 101, 41, 21
 U. <- rnacopula(n,cop)
 cop@copula <- setTheta(cop@copula, NA) # forget the true theta

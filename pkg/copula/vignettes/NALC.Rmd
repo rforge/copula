@@ -2,6 +2,9 @@
 title: Nested Archimedean L&eacute;vy Copulas
 author: Marius Hofert
 date: '`r Sys.Date()`'
+output:
+  html_vignette:
+    css: style.css
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Nested Archimedean L&eacute;vy Copulas}
@@ -224,7 +227,7 @@ burn.in <- 500
 
 ### 4d positive Clayton L&eacute;vy copula
 
-```{r}
+```{r, fig.align="center", fig.width=7.5, fig.height=6}
 ## Gamma
 theta <- 4 # theta
 d <- 4 # dimension
@@ -245,7 +248,7 @@ plot_Levy(L, file=if(doPDF) "fig_L_with_positive_Clayton_Levy_copula.pdf" else N
 
 ### 4d positive nested Clayton L&eacute;vy copula
 
-```{r}
+```{r, fig.align="center", fig.width=7.5, fig.height=6}
 ## Gamma
 theta <- c(0.7, 4, 2) # theta_0, theta_1, theta_2
 set.seed(271)
