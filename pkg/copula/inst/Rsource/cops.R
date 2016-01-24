@@ -29,8 +29,8 @@ if(FALSE) ## including the indepCopula
 
 copcl. <- names(copObs)# not including "indepCopula"
 
-copO.2 <- copObs[excl.2 <- !(copcl. %in% c("amhCopula","joeCopula"))]
-                                        # because AMH has limited tau-range
+copO.2 <- copObs[excl.2 <- !(copcl. %in% c("amhCopula", "joeCopula", "tCopula"))]
+                                        # because AMH has limited tau-range and t copula no iRho()
 copBnds <- sapply(copObs, function(C)
                   c(min= C@param.lowbnd[1], max= C@param.upbnd[1]))
 copBnd.2 <- copBnds[, excl.2]

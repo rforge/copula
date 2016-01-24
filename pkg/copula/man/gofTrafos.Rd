@@ -1,4 +1,4 @@
-\name{gtrafo}
+\name{gofTrafos}
 \title{GOF Testing Transformations for Archimedean Copulas}
 \alias{gtrafo}
 \alias{rtrafo}
@@ -172,7 +172,7 @@ u.R <- rtrafo(u, cop=copC) # transform the data
 pairs(u.R, gap=0, cex=0.2) # clearly visible
 
 ## rtrafo() for elliptical:
-fN <- fitCopula(normalCopula(dim=ncol(u)), u) # fit a Gauss copula
+fN <- fitCopula(normalCopula(dim=ncol(u)), data=u) # fit a Gauss copula
 pairs(rtrafo(u, cop=fN@copula), gap=0, cex=0.2) # visible but not so clearly
 if(copula:::doExtras()) {
   f.t <- fitCopula(tCopula(dim=ncol(u)), u)

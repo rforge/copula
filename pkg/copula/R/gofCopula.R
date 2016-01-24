@@ -19,10 +19,7 @@
 
 ### Test statistics ############################################################
 
-##' Test statistics for various goodness-of-fit tests of (supposedly) U[0,1]^d
-##' distributed vectors of random variates
-##'
-##' @title Test statistics for U[0,1]^d
+##' @title Test statistics for tests of U[0,1]^d
 ##' @param u (n, d)-matrix of supposedly U[0,1]^d observations
 ##' @param method various test statistics. Available are:
 ##'        "Sn"     : the test statistic S_n (Cramer-von Mises) in Genest, Remillard, Beaudoin (2009)
@@ -114,8 +111,6 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
 
 ### Computing different goodness-of-fit tests ##################################
 
-##' Goodness-of-fit tests based on the parametric bootstrap
-##'
 ##' @title Goodness-of-fit tests based on the parametric bootstrap
 ##' @param copula object of type 'copula' representing the H_0 copula
 ##'        (if necessary, parameters will be used as starting values for fitCopula())
@@ -207,8 +202,6 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
                    data.name = deparse(substitute(x))))
 }
 
-##' J-score \hat{J}_{\theta_n} for the multiplier bootstrap
-##'
 ##' @title J-score \hat{J}_{\theta_n} for the multiplier bootstrap
 ##' @param copula object of type 'copula'
 ##' @param u (n, d)-matrix of (pseudo-)observations
@@ -278,8 +271,6 @@ Jscore <- function(copula, u, method)
            stop("wrong method"))
 }
 
-##' Goodness-of-fit tests based on the multiplier bootstrap
-##'
 ##' @title Goodness-of-fit tests based on the multiplier bootstrap
 ##' @param copula object of type 'copula' representing the H_0 copula
 ##' @param x (n, d)-matrix containing the data
@@ -416,8 +407,6 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
 
 ### Wrapper ####################################################################
 
-##' Goodness-of-fit test wrapper function
-##'
 ##' @title Goodness-of-fit test wrapper function
 ##' @param copula object of type 'copula' representing the H_0 copula
 ##' @param x (n, d)-matrix containing the data

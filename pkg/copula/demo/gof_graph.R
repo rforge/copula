@@ -353,7 +353,7 @@ nLLt <- function(nu, P, u){
 
 ## Note:  nLLt() is ~ 30% faster than these  {where  p := P2p(P) } :
 t.20 <- tCopula(dim=d, dispstr="un")
-nLLt2 <- function(nu, P, u) -loglikCopula(c(P, df=nu), x=u, copula=t.20)
+nLLt2 <- function(nu, P, u) -loglikCopula(c(P, df=nu), u=u, copula=t.20)
 nLLt3 <- function(nu, P, u) -sum(dCopula(u, setTheta(t.20, c(P, nu)), log=TRUE))
 
 ## confirm the "equivalence" of nLLt(), nLLt2() and nLLt3()

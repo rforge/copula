@@ -143,13 +143,13 @@ u <- cbind(runif(10),runif(10))
 assertError(fgu <- fitCopula(gumbel, u, method = "ml"))
 copGumbel@paraInterval # -> [1, Inf) = exp([0, Inf))
 par <- 2^c((0:32)/16, 2+(1:10)/8)
-llg <- sapply(par, function(p) loglikCopula(param=p, u, gumbel))
+llg <- sapply(par, function(p) loglikCopula(param=p, u=u, copula=gumbel))
 if(dev.interactive()) plot(par, llg, type="b", col=2)
 stopifnot(diff(llg) < 0) # so the maximum is for par = 2^0 = 1
 ## is it just this problem?
 ## well, the likelihood was not ok for large param=theta; now is:
 lrgP <- 100*seq(8, 100, by = 3)
-llrg <- vapply(lrgP, function(P) loglikCopula(param = P, u, gumbel), NA_real_)
+llrg <- vapply(lrgP, function(P) loglikCopula(param=P, u=u, copula=gumbel), NA_real_)
 stopifnot(is.finite(llrg), diff(llrg) < 0, llrg < -11990)## no longer NaN
 
 ## Now is it because we *really* should use  elme()  and the "nacopula" families?

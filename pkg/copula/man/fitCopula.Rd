@@ -9,7 +9,7 @@
   true observations from the copula.
 }
 \usage{
-loglikCopula(param, x, copula, hideWarnings)
+loglikCopula(param, u, copula)
 fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
           start = NULL, lower = NULL, upper = NULL,
           optim.method = "BFGS", optim.control = list(maxit=1000),
@@ -17,7 +17,7 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
 }
 \arguments{
   \item{param}{ a vector of parameter values. }
-  \item{x, data}{\eqn{n\times d}{n x d}-matrix of (pseudo-)observations
+  \item{u, data}{\eqn{n\times d}{n x d}-matrix of (pseudo-)observations
     (for \code{"mpl"} and \code{"ml"} with values necessarily in
     \eqn{[0,1]}) from the copula to be estimated, where \eqn{n} denotes
     the sample size and \eqn{d} the dimension.  Consider applying the function
@@ -180,7 +180,7 @@ fit.ml # print()ing works via summary() ...
 ## and of that, what's the log likelihood (in two different ways):
 (ll. <- logLik(fit.ml))
 stopifnot(all.equal(as.numeric(ll.),
-    loglikCopula(coef(fit.ml), x=x, copula=gumbel.cop)))
+    loglikCopula(coef(fit.ml), u=x, copula=gumbel.cop)))
 
 ## a multiparameter example
 set.seed(6)
