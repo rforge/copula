@@ -157,9 +157,9 @@ showProc.time()
 if(doExtras)
 for(meth in eval(formals(gofPB)$method)) {
   catn("\ngof method: ", meth,"\n==========================")
-  for(fitMeth in c("mpl", "ml", "itau", "irho", "itau.ml")) {
+  for(fitMeth in c("mpl", "ml", "itau", "irho", "itau.mpl")) {
     catn("fit*( estim.method = '", fitMeth,"')\n------------------------")
-    if(fitMeth != "itau.ml") {
+    if(fitMeth != "itau.mpl") {
         catn("Gumbel copula:")
         print(gofCopula(gumbC, x, method=meth, N = 10, verbose=FALSE,
                         estim.method = fitMeth))

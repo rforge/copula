@@ -129,7 +129,8 @@ fitCopStart <- function(copula, u, default=copula@parameters, ...)
 	ccl <- getClass(clc)
 	.par.df <- has.par.df(copula, ccl)
 	start <- fitCopula.icor(if(.par.df) as.df.fixed(copula, ccl) else copula,
-				x=u, method="itau", estimate.variance=FALSE, warn.df=FALSE, ...)@estimate # fitCopula.icor(, method="itau")
+				x=u, method="itau", estimate.variance=FALSE,
+                                warn.df=FALSE, ...)@estimate # fitCopula.icor(, method="itau")
 	if(.par.df) # add starting value for 'df'
 	    start <- c(start, copula@df)
 	if(is.finite(loglikCopula(start, u=u, copula=copula))) start else default
@@ -309,12 +310,13 @@ varCor <- function(cop, u, method=c("itau", "irho"))
 ##' @return vcov matrix
 varPL <- function(cop, u)
 {
+    ## Checks
     q <- length(cop@parameters)
     p <- cop@dimension
     ans <- matrix(NA_real_, q, q)
     ccl <- getClass(clc <- class(cop))
     isEll <- extends(ccl, "ellipCopula")
-    ## check if variance can be computed
+    ## Check if variance can be computed
     msg <- gettext("The variance estimate cannot be computed for this copula.",
                    " Rather use 'estimate.variance = FALSE'")
     if(is(cop, "archmCopula")) {
@@ -407,7 +409,11 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
 
 ##' @title Estimator of Demarta, McNeil (2005) for t Copulas
 ##' @param copula The copula to be fitted
-##' @param u The data in [0,1]^d
+##' @param u The data in [0,1]^d (this would not be required if we applied pobs();
+##'        the latter is fine for estimating P via pairwise inversion of Kendall's tau,
+##'        but if we want a more true (up to the estimation of P) estimation of nu
+##'        based on simulated copula data, this would not be possible => require the
+##'        right data as input already)
 ##' @param posDef A logical indicating whether a proper correlation matrix
 ##'        is computed
 ##' @param lower The lower bound for optimize() (default 0 means Gaussian as we go in 1/nu)
@@ -422,13 +428,13 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
 ##' @author Marius Hofert and Martin Maechler
 ##' @note One could extend this to fitCopula.icor.ml(, method=c("itau", "irho"))
 ##'       once an *explicit* formula for Spearman's rho is available for t copulas.
-fitCopula.itau.ml <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
-                              estimate.variance, hideWarnings,
-                              tol=.Machine$double.eps^0.25, ...)
+fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
+                               estimate.variance, hideWarnings,
+                               tol=.Machine$double.eps^0.25, ...)
 {
     if(any(u < 0) || any(u > 1))
         stop("'u' must be in [0,1] -- probably rather use pobs(.)")
-    if(!is(copula, "tCopula")) stop("method \"itau.ml\" is only applicable for \"tCopula\"")
+    if(!is(copula, "tCopula")) stop("method \"itau.mpl\" is only applicable for \"tCopula\"")
     if(copula@df.fixed) stop("Use method=\"itau\" for 'tCopula' with 'df.fixed=TRUE'")
     stopifnot(is.numeric(d <- ncol(u)), d >= 2)
     if (copula@dimension != d)
@@ -459,13 +465,13 @@ fitCopula.itau.ml <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
     loglik <- fit$objective
     has.conv <- TRUE # FIXME? use tryCatch() above to catch non-convergence
     if (is.na(estimate.variance))
-        estimate.variance <- FALSE ## not yet: has.conv
+        estimate.variance <- FALSE # not yet: has.conv
     ## if(!has.conv)
     ##     warning("possible convergence problem: . . . . . . .)
 
     varNA <- matrix(NA_real_, q, q)
     var.est <- if(estimate.variance) {
-        stop("'estimate.variance' not yet implemented for  \"itau.ml\" method")
+        stop("'estimate.variance' not yet implemented for  \"itau.mpl\" method")
         ## TODO: use one/zero step of fitCopula.ml(*...., method="mpl", maxit=0) to get full vcov()
     } else varNA
 
@@ -484,7 +490,9 @@ fitCopula.itau.ml <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
 
 ##' @title Maximum Likelihood Estimator for Copulas
 ##' @param copula The copula to be fitted
-##' @param u The data in [0,1]^d
+##' @param u The data in [0,1]^d (for method="ml", this needs to be true copula data;
+##'        for method="mpl", this can be parametrically or non-parametrically estimated
+##'        pseudo-observations)
 ##' @param start The initial value for optim()
 ##' @param lower The vector of lower bounds for optim()
 ##' @param upper The vector of upper bounds for optim()
@@ -589,7 +597,7 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
 
 ##' @title Main Fitting Wrapper
 ##' @param copula The copula to be fitted
-##' @param data The data in [0,1]^d for "mpl", "ml", "itau.ml";
+##' @param data The data in [0,1]^d for "mpl", "ml", "itau.mpl";
 ##'        for "itau", "irho", it can be in [0,1]^d or IR^d
 ##' @param method The estimation method
 ##' @param posDef A logical indicating whether pairwise estimated correlation
@@ -606,7 +614,7 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
 ##' @param ... Additional arguments passed to auxiliary functions
 ##' @return The fitted copula object
 fitCopula <- function(copula, data,
-                      method=c("mpl", "ml", "itau", "irho", "itau.ml"),
+                      method=c("mpl", "ml", "itau", "irho", "itau.mpl"),
                       posDef=is(copula, "ellipCopula"),
                       start=NULL, lower=NULL, upper=NULL,
                       optim.method="BFGS", optim.control=list(maxit=1000),
@@ -626,9 +634,9 @@ fitCopula <- function(copula, data,
     } else if(method=="itau" || method=="irho") { # "itau" or "irho"
         fitCopula.icor(copula, x=data, method=method,
                        estimate.variance=estimate.variance, ...)
-    } else { # "itau.ml"
-        fitCopula.itau.ml(copula, u=data, posDef=posDef, lower=lower, upper=upper,
-                          estimate.variance=estimate.variance,
-                          hideWarnings=hideWarnings, ...) # <- may include 'tol' !
+    } else { # "itau.mpl"
+        fitCopula.itau.mpl(copula, u=data, posDef=posDef, lower=lower, upper=upper,
+                           estimate.variance=estimate.variance,
+                           hideWarnings=hideWarnings, ...) # <- may include 'tol' !
     }
 }
