@@ -204,7 +204,7 @@ system.time(fit <- fitCopula(ellipCopula("t", dim=d, dispstr="un"),
 ## via MLE (based on the fitted dispersion matrix). Already in use in
 ## vignettes --- would be good to have this in the
 ## package as. What we could do is to extend
-## fitCopula.itau(): if the copula has a d.o.f. parameter, then don't
+## fitCopula.icor(, method="kendall"): if the copula has a d.o.f. parameter, then don't
 ## treat it as fixed but estimated it via MLE... (or to get this behavior
 ## via a method argument or so?)
 

@@ -76,17 +76,17 @@ setMethod("show", signature("fitCopula"),
 ##'        is computed
 ##' @param ... Additional arguments passed to cor() or corKendall()
 ##' @return (d,d)-matrix of parameters *or* a d(d-1)/2 parameter vector
-fitCor <- function(cop, x, method = c("kendall", "spearman"),
+fitCor <- function(cop, x, method = c("itau", "irho"),
                    posDef = is(cop, "ellipCopula"), matrix = TRUE, ...) {
     method <- match.arg(method)
     theta <-
         switch(method,
-               "kendall" = {
+        "itau" = {
             tau <- corKendall(x, ...)
             iTau(cop, P2p(tau))
         },
-        "spearman" = {
-            rho <- cor(x, method=method, ...)
+        "irho" = {
+            rho <- cor(x, method="spearman", ...)
             iRho(cop, P2p(rho))
         },
         stop("Not yet implemented:", method))
@@ -116,6 +116,26 @@ loglikCopula <- function(param, u, copula) {
     } else -Inf
 }
 
+##' @title Computing Initial Values for fitCopula.ml()
+##' @param copula The copula to be fitted
+##' @param u The data in [0,1]^d
+##' @param default The default initial values
+##' @param ... Additional arguments passed to fitCopula.icor()
+##' @return Initial value for fitCopula.ml()
+fitCopStart <- function(copula, u, default=copula@parameters, ...)
+{
+    clc <- class(copula)
+    if(hasMethod("iTau", clc)) {
+	ccl <- getClass(clc)
+	.par.df <- has.par.df(copula, ccl)
+	start <- fitCopula.icor(if(.par.df) as.df.fixed(copula, ccl) else copula,
+				x=u, method="itau", estimate.variance=FALSE, warn.df=FALSE, ...)@estimate # fitCopula.icor(, method="itau")
+	if(.par.df) # add starting value for 'df'
+	    start <- c(start, copula@df)
+	if(is.finite(loglikCopula(start, u=u, copula=copula))) start else default
+    } else default
+}
+
 ## TODO: Currently "unfinished";  instead  L <- .....(X)   where X <- getXmat() below
 ##' @title Variance-Covariance Matrix (vcov) for Inversion of Kendall's tau Estimator
 ##' @param copula The *fitted* copula object
@@ -138,7 +158,7 @@ getL <- function(copula) {
                   },
                   "ar1" = {
                ## FIXME More efficient: estimate log(rho) first and then exponentiate back,
-               ##  see e.g. fitCor(*, "spearman") above
+               ##  see e.g. fitCor(*, "irho") above
                ## mat <- model.matrix(~ factor(dgidx) - 1)
                ## mat * matrix(1:(p - 1), nrow=pp, ncol=p - 1, byrow=TRUE)
                X <- getXmat(copula)
@@ -176,7 +196,7 @@ getXmat <- function(copula) {
     }
 }
 
-##' Auxiliary function for varKendall() and varSpearman()
+##' Auxiliary function for varCor()
 ##' @param cop An ellipCopula with \code{dispstr = "ar1"}
 ##' @param v Influence for tau or rho
 ##' @param L L
@@ -220,382 +240,68 @@ influ.terms <- function(u, influ, q)
 }
 
 
-### Method-of-moments based estimation #########################################
+### Variances of the estimators ################################################
 
-##' @title Variance of the Estimator based on Spearman's rho
+##' @title Variance of the Inversion of a Rank Correlation Measure Estimator
 ##' @param cop The *fitted* copula object
 ##' @param u The data in [0,1]^d
-##' @return Variance of the inversion of Spearman's rho estimator
+##' @param method A character string indicating whether Spearman's rho
+##'        or Kendall's tau shall be used
+##' @return Variance of the inversion of a rank correlation measure estimator
 ##' @note See Kojadinovic & Yan (2010) "Comparison of three semiparametric ...",
 ##'       IME 47, 52--63
-varSpearman <- function(cop,u)  {
-    ## check if variance can be computed
-    if (!hasMethod("dRho", class(cop))) {
-        warning("The variance estimate cannot be computed for this copula.")
-        q <- length(cop@parameters)
-        return(matrix(NA, q, q))
-    }
-
-    stopifnot((p <- cop@dimension) >= 2)
-    n <- nrow(u)
-    v <- matrix(0, n, p*(p-1)/2)
-
-    ord <- apply(u, 2, order, decreasing=TRUE)
-    ordb <- apply(u, 2, rank)# ties : "average"
-    storage.mode(ordb) <- "integer" # as used below
-
-    l <- 0L
-    for (j in 1:(p-1)) {
-        for (i in (j+ 1L):p)
-            v[,(l <- l + 1L)] <- u[,i] * u[,j] +
-                c(0, cumsum(u[ord[,i], j]))[n + 1L - ordb[,i]] / n +
-                c(0, cumsum(u[ord[,j], i]))[n + 1L - ordb[,j]] / n
-    }
-    ## X <- getXmat(cop)
-    ## L <- t(solve(crossprod(X), t(X)))
-    L <- getL(cop)
-    v <- if (is(cop, "ellipCopula") && cop@dispstr == "ar1") {
-        varInfluAr1(cop, v, L, "rho")
-    } else {
-        ## Caution: diag(0.5) is not a 1x1 matrix of 0.5!!! check it out.
-        D <- if (length(cop@parameters) == 1) 1 / dRho(cop) else diag(1 / dRho(cop))
-        v %*% L %*% D
-    }
-    144 * var(v)
-}
-
-##' @title Inversion of Spearman's rho estimator
-##' @param copula The copula to be fitted
-##' @param x The data in [0,1]^d or IR^d
-##' @param estimate.variance A logical indicating whether the variance
-##'        of the estimator shall be computed
-##' @param warn.df A logical indicating whether a warning is given
-##'        if the copula is coerced to df.fixed=TRUE
-##' @param posDef A logical indicating whether a proper correlation matrix
-##'        is computed
-##' @param ... Additional arguments passed to fitCor()
-##' @return The fitted copula object
-fitCopula.irho <- function(copula, x, estimate.variance, warn.df=TRUE,
-                           posDef=is(copula, "ellipCopula"), ...) {
-    ccl <- getClass(class(copula))
-    isEll <- extends(ccl, "ellipCopula")
-    if(has.par.df(copula, ccl, isEll)) { ## must treat it as "df.fixed=TRUE"
-        if(warn.df)
-            warning("\"irho\" fitting ==> copula coerced to 'df.fixed=TRUE'")
-        copula <- as.df.fixed(copula, classDef = ccl)
-    }
-    q <- length(copula@parameters)
-    irho <- fitCor(copula, x, method = "spearman", posDef=posDef, matrix=FALSE, ...)
-    X <- getXmat(copula)
-    estimate <-
-        as.vector(# stripping attributes
-            if (isEll && copula@dispstr == "ar1") ## special treatment
-                exp(.lm.fit(X, y=log(irho))$coefficients)
-            else .lm.fit(X, y=irho)$coefficients)
-    copula@parameters <- estimate
-    var.est <- if (is.na(estimate.variance) || estimate.variance)
-                   varSpearman(copula, x)/nrow(x)
-               else matrix(NA, q, q)
-    new("fitCopula",
-        estimate = estimate,
-        var.est = var.est,
-        method = "inversion of Spearman's rho",
-        loglik = NA_real_,
-        fitting.stats = list(convergence = NA_integer_),
-        nsample = nrow(x),
-        copula = copula)
-}
-
-##' @title Variance of the Estimator based on Kendall's rho
-##' @param cop the *fitted* copula object
-##' @param u The data in [0,1]^d
-##' @return variance of the inversion of Kendall's rho estimator
-##' @note See Kojadinovic & Yan (2010) "Comparison of three semiparametric ...",
-##'       IME 47, 52--63
-varKendall <- function(cop, u) {
-    ## check if variance can be computed
-    if (!hasMethod("dTau", class(cop))) {
+varCor <- function(cop, u, method=c("itau", "irho"))
+{
+    ## Check if variance can be computed
+    method <- match.arg(method)
+    dCor <- if(method=="itau") "dTau" else "dRho"
+    if (!hasMethod(dCor, class(cop))) {
         warning("The variance estimate cannot be computed for a copula of class ", class(cop))
         q <- length(cop@parameters)
         return(matrix(NA, q, q))
     }
     p <- cop@dimension
     n <- nrow(u)
-    ec <- numeric(n)
-    v <- matrix(0,n,p*(p-1)/2)
+    v <- matrix(0, n, p*(p-1)/2)
 
-    ## get influence functions for tau
-    l <- 1
-    for (j in 1:(p-1)) {
-        for (i in (j+1):p) {
-            for (k in 1:n) ## can this be vectorized?
-                ec[k] <- sum(u[,i] <= u[k,i] & u[,j] <= u[k,j])/n
-            v[,l] <- 2 * ec - u[,i] - u[,j]
-            l <- l + 1
+    ## Compute influence functions for the respective rank correlation measure
+    if(method=="itau") {
+        ec <- numeric(n)
+        l <- 1
+        for (j in 1:(p-1)) {
+            for (i in (j+1):p) {
+                for (k in 1:n) # can this be vectorized?
+                    ec[k] <- sum(u[,i] <= u[k,i] & u[,j] <= u[k,j]) / n
+                v[,l] <- 2 * ec - u[,i] - u[,j]
+                l <- l + 1
+            }
+        }
+    } else { # Spearman's rho
+        ord <- apply(u, 2, order, decreasing=TRUE)
+        ordb <- apply(u, 2, rank) # ties : "average"
+        storage.mode(ordb) <- "integer" # as used below
+        l <- 0L
+        for (j in 1:(p-1)) {
+            for (i in (j+ 1L):p)
+                v[,(l <- l + 1L)] <- u[,i] * u[,j] +
+                    c(0, cumsum(u[ord[,i], j]))[n + 1L - ordb[,i]] / n +
+                    c(0, cumsum(u[ord[,j], i]))[n + 1L - ordb[,j]] / n
         }
     }
+
     ## X <- getXmat(cop)
     ## L <- t(solve(crossprod(X), t(X)))
     L <- getL(cop)
-    v <- if (is(cop, "ellipCopula") && cop@dispstr == "ar1") { # special treatment
-        varInfluAr1(cop, v, L, "tau")
+    v <- if (is(cop, "ellipCopula") && cop@dispstr == "ar1") {
+        varInfluAr1(cop, v, L, if(method=="itau") "tau" else "rho")
+    } else {
+        ## Caution: diag(0.5) is not a 1x1 matrix of 0.5!!! check it out.
+        dCor <- if(method=="itau") dTau else dRho
+        D <- if (length(cop@parameters) == 1) 1 / dCor(cop) else diag(1 / dCor(cop))
+        v %*% L %*% D
     }
-  else {
-      ## Caution: diag(0.5) is not a 1x1 matrix of 0.5!!! check it out.
-      D <- if (length(cop@parameters) == 1) 1 / dTau(cop) else diag(1 / dTau(cop))
-      v %*% L %*% D
-  }
-    16 * var(v)
+    var(v) * if(method=="itau") 16 else 144
 }
-
-##' @title Inversion of Kendall's rho estimator
-##' @param copula The copula to be fitted
-##' @param x The data in [0,1]^d or IR^d
-##' @param estimate.variance A logical indicating whether the variance
-##'        of the estimator shall be computed
-##' @param warn.df A logical indicating whether a warning is given
-##'        if the copula is coerced to df.fixed=TRUE
-##' @param posDef A logical indicating whether a proper correlation matrix
-##'        is computed
-##' @param ... Additional arguments passed to fitCor()
-##' @return The fitted copula object
-fitCopula.itau <- function(copula, x, estimate.variance, warn.df=TRUE,
-                           posDef=is(copula, "ellipCopula"), ...) {
-    ccl <- getClass(class(copula))
-    isEll <- extends(ccl, "ellipCopula")
-    if(has.par.df(copula, ccl, isEll)) { ## must treat it as "df.fixed=TRUE"
-        ## currently: tCopula  or tevCopula
-        if(warn.df)
-            warning("\"itau\" fitting ==> copula coerced to 'df.fixed=TRUE'")
-        copula <- as.df.fixed(copula, classDef = ccl)
-    }
-    q <- length(copula@parameters)
-    itau <- fitCor(copula, x, method = "kendall", posDef=posDef, matrix=FALSE, ...)
-    X <- getXmat(copula)
-    estimate <-
-        as.vector(# stripping attributes
-            if(isEll && copula@dispstr == "ar1") ## special treatment
-                exp(lm.fit(X, y=log(itau))$coefficients)
-            else lm.fit(X, y=itau)$coefficients)
-    copula@parameters <- estimate
-    var.est <- if (is.na(estimate.variance) || estimate.variance)
-                   varKendall(copula, x) / nrow(x) else matrix(NA, q, q)
-    new("fitCopula",
-        estimate = estimate,
-        var.est = var.est,
-        method = "inversion of Kendall's tau",
-        loglik = NA_real_,
-        fitting.stats = list(convergence = NA_integer_),
-        nsample = nrow(x),
-        copula = copula)
-}
-
-
-### "Inversion of Kendall's tau + MLE for nu" estimator for t copula ###########
-
-##' @title Estimator of Demarta, McNeil (2005) for t Copulas
-##' @param copula The copula to be fitted
-##' @param u The data in [0,1]^d
-##' @param posDef A logical indicating whether a proper correlation matrix
-##'        is computed
-##' @param lower The lower bound for optimize() (default 0 means Gaussian as we go in 1/nu)
-##' @param upper The upper bound for optimize() (default 32 means down to nu = 1/32)
-##' @param estimate.variance A logical indicating whether the estimator's
-##'        variance shall be computed (TODO: not fully implemented yet)
-##' @param hideWarnings A logical indicating whether warnings from optimize()
-##'        shall be suppressed
-##' @param tol Tolerance of optimize() for estimating nu
-##' @param ... Additional arguments passed to fitCopula.itau()
-##' @return The fitted copula object
-##' @author Marius Hofert and Martin Maechler
-fitCopula.itau.ml <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
-                              estimate.variance, hideWarnings,
-                              tol=.Machine$double.eps^0.25, ...)
-{
-    if(any(u < 0) || any(u > 1))
-        stop("'u' must be in [0,1] -- probably rather use pobs(.)")
-    if(!is(copula, "tCopula")) stop("method \"itau.ml\" is only applicable for \"tCopula\"")
-    if(copula@df.fixed) stop("Use method=\"itau\" for 'tCopula' with 'df.fixed=TRUE'")
-    stopifnot(is.numeric(d <- ncol(u)), d >= 2)
-    if (copula@dimension != d)
-        stop("The dimension of the data and copula do not match")
-    if(is.null(lower)) lower <- 0  # <=>  df=Inf <=> Gaussian
-    if(is.null(upper)) upper <- 32 # down to df = 1/32
-
-    ## Estimation of the t-copula with the approach of Demarta, McNeil (2005)
-    ## 1) Estimate the correlation matrix P
-    fm <- fitCopula.itau(copula, u, estimate.variance=FALSE,
-                         warn.df=FALSE, # (to change it there)
-                         posDef=posDef, ...)
-    p. <- fm@estimate
-    ## 2) Estimate the d.o.f. parameter nu  via Maximum Likelihood :
-    if(FALSE) # for debugging
-        nLL <- function(Inu) {
-            r <- -loglikCopula(c(p., df=1/Inu), u=u, copula=copula)
-            cat(sprintf("1/nu=%12g, df=%8.3g, logL=%g\n", Inu, 1/Inu, -r))
-            r
-        }
-    nLL <- function(Inu) -loglikCopula(c(p., df=1/Inu), u=u, copula=copula) # negative log-likelihood in 1/nu given P
-    (if(hideWarnings) suppressWarnings else identity)(
-        fit <- optimize(nLL, interval=c(lower, upper), tol=tol) # optimize
-    )
-    q <- length(copula@parameters) # the last is nu
-    copula@parameters[seq_len(q-1L)] <- p.
-    copula@parameters[[q]] <- copula@df <- df <- 1/fit$minimum
-    loglik <- fit$objective
-    has.conv <- TRUE # FIXME? use tryCatch() above to catch non-convergence
-    if (is.na(estimate.variance))
-        estimate.variance <- FALSE ## not yet: has.conv
-    ## if(!has.conv)
-    ##     warning("possible convergence problem: . . . . . . .)
-
-    varNA <- matrix(NA_real_, q, q)
-    var.est <- if(estimate.variance) {
-        stop("'estimate.variance' not yet implemented for  \"itau.ml\" method")
-        ## TODO: use one/zero step of fitCopula.mpl(*...., maxit=0) to get full vcov()
-    } else varNA
-
-    new("fitCopula",
-        estimate = c(p., df),
-        var.est = var.est,
-        method = "itau for dispersion matrix P and maximum likelihood for df",
-        loglik = loglik,
-        fitting.stats = list(convergence = 0),
-        ## optimize() does not give any info! -- if we had final optim(*, hessian=TRUE) step?
-        ## c(list(method=method),
-        ## fit[c("convergence", "counts", "message")], control),
-        nsample = nrow(u),
-        copula = copula)
-}
-
-
-### Maximum likelihood estimation ##############################################
-
-##' @title Computing Initial Values for fitCopula.ml()
-##' @param copula The copula to be fitted
-##' @param u The data in [0,1]^d
-##' @param default The default initial values
-##' @param ... Additional arguments passed to fitCopula.itau()
-##' @return Initial value for fitCopula.ml()
-fitCopStart <- function(copula, u, default=copula@parameters, ...)
-{
-    clc <- class(copula)
-    if(hasMethod("iTau", clc)) {
-	ccl <- getClass(clc)
-	.par.df <- has.par.df(copula, ccl)
-	start <- fitCopula.itau(if(.par.df) as.df.fixed(copula, ccl) else copula,
-				x=u, estimate.variance=FALSE, warn.df=FALSE, ...)@estimate # fitCopula.itau()
-	if(.par.df) # add starting value for 'df'
-	    start <- c(start, copula@df)
-	if(is.finite(loglikCopula(start, u=u, copula=copula))) start else default
-    } else default
-}
-
-##' @title Maximum Likelihood Estimator for Copulas
-##' @param copula The copula to be fitted
-##' @param u The data in [0,1]^d
-##' @param start The initial value for optim()
-##' @param lower The vector of lower bounds for optim()
-##' @param upper The vector of upper bounds for optim()
-##' @param optim.method The optimization method for optim()
-##' @param optim.control optim()'s control parameter
-##' @param estimate.variance A logical indicating whether the estimator's
-##'        variance shall be computed
-##' @param hideWarnings A logical indicating whether warnings from optim()
-##'        shall be suppressed
-##' @param bound.eps A small quantity denoting an eps for staying away from
-##'        the theoretical parameter bounds
-##' @param ... Additional arguments (currently with no effect)
-##' @return The fitted copula object
-fitCopula.ml <- function(copula, u, start, lower, upper,
-                         optim.method, optim.control, estimate.variance, hideWarnings,
-                         bound.eps=.Machine$double.eps^0.5, ...)
-{
-    chk.s(...)
-    if(any(u < 0) || any(u > 1))
-        stop("'u' must be in [0,1] -- probably rather use pobs(.)")
-    stopifnot(is.numeric(d <- ncol(u)), d >= 2)
-    if (copula@dimension != d)
-        stop("The dimension of the data and copula do not match")
-    if(is.null(start))
-        start <- fitCopStart(copula, u=u)
-    if(any(is.na(start))) stop("'start' contains NA values")
-    q <- length(copula@parameters)
-    if (q != length(start))
-        stop(gettextf("The lengths of 'start' (= %d) and copula@parameters (=%d) differ",
-                      length(start), q), domain=NA)
-
-    control <- c(optim.control, fnscale = -1)
-    control <- control[!vapply(control, is.null, NA)]
-
-    if (!is.null(optim.control[[1]])) control <- c(control, optim.control)
-    meth.has.bounds <- optim.method %in% c("Brent","L-BFGS-B")
-    if (is.null(lower))
-        lower <- if(meth.has.bounds) copula@param.lowbnd + bound.eps else -Inf
-    if (is.null(upper))
-        upper <- if(meth.has.bounds) copula@param.upbnd  - bound.eps else Inf
-
-    ## messageOut may be used for debugging
-    ## if (hideWarnings) {
-    ## ## ?sink mentions that sink(*, type="message") is too dangerous: (!)
-    ## As we found too, it swallows error messages and makes fitCop*() return nothing!
-
-    ## messageOut <- textConnection("fitMessages", open="w", local=TRUE)
-    ## sink(messageOut)
-    ## sink(messageOut, type="message")
-    ## oop <- options(warn = -1) ## ignore warnings; can be undesirable!
-    ## on.exit({ options(oop); sink(type="message"); sink(); close(messageOut)})
-    ## }
-
-    (if(hideWarnings) suppressWarnings else identity)(
-        fit <- optim(start, loglikCopula,
-                     lower=lower, upper=upper,
-                     method=optim.method,
-                     copula = copula, u = u,
-                     control = control)
-    )
-
-    ## if (hideWarnings) {
-    ##   options(oop); sink(type="message"); sink()
-    ##   on.exit()
-    ##   close(messageOut)
-    ## }
-
-    copula@parameters[1:q] <- fit$par
-    loglik <- fit$val
-    has.conv <- fit[["convergence"]] == 0
-    if (is.na(estimate.variance))
-        estimate.variance <- has.conv
-    if(!has.conv)
-        warning("possible convergence problem: optim() gave code=",
-                fit$convergence)
-
-    ## MM{FIXME}: This should be done only by 'vcov()' and summary() !
-    varNA <- matrix(NA_real_, q, q)
-    var.est <- if(estimate.variance) {
-        fit.last <- optim(copula@parameters, loglikCopula, lower=lower, upper=upper,
-                          method=optim.method, copula=copula, u=u,
-                          control=c(control, maxit=0), hessian=TRUE)
-        vcov <- tryCatch(solve(-fit.last$hessian), error = function(e) e)
-        if(is(vcov, "error")) {
-            warning("Hessian matrix not invertible: ", vcov$message)
-            varNA
-        } else vcov ## ok
-    } else varNA
-
-    new("fitCopula",
-        estimate = fit$par,
-        var.est = var.est,
-        method = "maximum likelihood",
-        loglik = loglik,
-        fitting.stats = c(list(method=optim.method),
-                          fit[c("convergence", "counts", "message")], control),
-        nsample = nrow(u),
-        copula = copula)
-}
-
-
-### Maximum pseudo-likelihood estimation #######################################
 
 ##' @title Variance-Covariance Matrix (vcov) for Pseudo Likelihood Estimate
 ##' @param cop The *fitted* copula object
@@ -650,7 +356,133 @@ varPL <- function(cop, u)
 	inve %*% var(influ0 - influ.terms(u,influ, q)) %*% inve
 }
 
-##' @title Maximum Pseudo-Likelihood Estimator for Copulas
+
+### Estimators #################################################################
+
+##' @title Inversion of Spearman's rho or Kendall's tau Estimator
+##' @param copula The copula to be fitted
+##' @param x The data in [0,1]^d or IR^d
+##' @param estimate.variance A logical indicating whether the variance
+##'        of the estimator shall be computed
+##' @param warn.df A logical indicating whether a warning is given
+##'        if the copula is coerced to df.fixed=TRUE
+##' @param posDef A logical indicating whether a proper correlation matrix
+##'        is computed
+##' @param method A character string indicating whether Spearman's rho
+##'        or Kendall's tau shall be used
+##' @param ... Additional arguments passed to fitCor()
+##' @return The fitted copula object
+fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"),
+                           warn.df=TRUE, posDef=is(copula, "ellipCopula"), ...)
+{
+    method <- match.arg(method)
+    ccl <- getClass(class(copula))
+    isEll <- extends(ccl, "ellipCopula")
+    if(has.par.df(copula, ccl, isEll)) { # must treat it as "df.fixed=TRUE"
+        if(warn.df)
+            warning("\"", method, "\" fitting ==> copula coerced to 'df.fixed=TRUE'")
+        copula <- as.df.fixed(copula, classDef = ccl)
+    }
+    q <- length(copula@parameters)
+    icor <- fitCor(copula, x, method=method, posDef=posDef, matrix=FALSE, ...)
+    X <- getXmat(copula)
+    estimate <-
+        as.vector(# stripping attributes
+            if (isEll && copula@dispstr == "ar1") ## special treatment
+                exp(.lm.fit(X, y=log(icor))$coefficients)
+            else .lm.fit(X, y=icor)$coefficients)
+    copula@parameters <- estimate
+    var.est <- if (is.na(estimate.variance) || estimate.variance) {
+        varCor(copula, x, method=method)/nrow(x)
+    } else matrix(NA, q, q)
+    new("fitCopula",
+        estimate = estimate,
+        var.est = var.est,
+        method = paste("inversion of", if(method=="itau") "Kendall's tau" else "Spearman's rho"),
+        loglik = NA_real_,
+        fitting.stats = list(convergence = NA_integer_),
+        nsample = nrow(x),
+        copula = copula)
+}
+
+##' @title Estimator of Demarta, McNeil (2005) for t Copulas
+##' @param copula The copula to be fitted
+##' @param u The data in [0,1]^d
+##' @param posDef A logical indicating whether a proper correlation matrix
+##'        is computed
+##' @param lower The lower bound for optimize() (default 0 means Gaussian as we go in 1/nu)
+##' @param upper The upper bound for optimize() (default 32 means down to nu = 1/32)
+##' @param estimate.variance A logical indicating whether the estimator's
+##'        variance shall be computed (TODO: not fully implemented yet)
+##' @param hideWarnings A logical indicating whether warnings from optimize()
+##'        shall be suppressed
+##' @param tol Tolerance of optimize() for estimating nu
+##' @param ... Additional arguments passed to fitCopula.icor()
+##' @return The fitted copula object
+##' @author Marius Hofert and Martin Maechler
+##' @note One could extend this to fitCopula.icor.ml(, method=c("itau", "irho"))
+##'       once an *explicit* formula for Spearman's rho is available for t copulas.
+fitCopula.itau.ml <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
+                              estimate.variance, hideWarnings,
+                              tol=.Machine$double.eps^0.25, ...)
+{
+    if(any(u < 0) || any(u > 1))
+        stop("'u' must be in [0,1] -- probably rather use pobs(.)")
+    if(!is(copula, "tCopula")) stop("method \"itau.ml\" is only applicable for \"tCopula\"")
+    if(copula@df.fixed) stop("Use method=\"itau\" for 'tCopula' with 'df.fixed=TRUE'")
+    stopifnot(is.numeric(d <- ncol(u)), d >= 2)
+    if (copula@dimension != d)
+        stop("The dimension of the data and copula do not match")
+    if(is.null(lower)) lower <- 0  # <=>  df=Inf <=> Gaussian
+    if(is.null(upper)) upper <- 32 # down to df = 1/32
+
+    ## Estimation of the t-copula with the approach of Demarta, McNeil (2005)
+    ## 1) Estimate the correlation matrix P
+    fm <- fitCopula.icor(copula, u, estimate.variance=FALSE, method="itau",
+                         warn.df=FALSE, # (to change it there)
+                         posDef=posDef, ...)
+    p. <- fm@estimate
+    ## 2) Estimate the d.o.f. parameter nu  via Maximum Likelihood :
+    if(FALSE) # for debugging
+        nLL <- function(Inu) {
+            r <- -loglikCopula(c(p., df=1/Inu), u=u, copula=copula)
+            cat(sprintf("1/nu=%12g, df=%8.3g, logL=%g\n", Inu, 1/Inu, -r))
+            r
+        }
+    nLL <- function(Inu) -loglikCopula(c(p., df=1/Inu), u=u, copula=copula) # negative log-likelihood in 1/nu given P
+    (if(hideWarnings) suppressWarnings else identity)(
+        fit <- optimize(nLL, interval=c(lower, upper), tol=tol) # optimize
+    )
+    q <- length(copula@parameters) # the last is nu
+    copula@parameters[seq_len(q-1L)] <- p.
+    copula@parameters[[q]] <- copula@df <- df <- 1/fit$minimum
+    loglik <- fit$objective
+    has.conv <- TRUE # FIXME? use tryCatch() above to catch non-convergence
+    if (is.na(estimate.variance))
+        estimate.variance <- FALSE ## not yet: has.conv
+    ## if(!has.conv)
+    ##     warning("possible convergence problem: . . . . . . .)
+
+    varNA <- matrix(NA_real_, q, q)
+    var.est <- if(estimate.variance) {
+        stop("'estimate.variance' not yet implemented for  \"itau.ml\" method")
+        ## TODO: use one/zero step of fitCopula.ml(*...., method="mpl", maxit=0) to get full vcov()
+    } else varNA
+
+    new("fitCopula",
+        estimate = c(p., df),
+        var.est = var.est,
+        method = "itau for dispersion matrix P and maximum likelihood for df",
+        loglik = loglik,
+        fitting.stats = list(convergence = 0),
+        ## optimize() does not give any info! -- if we had final optim(*, hessian=TRUE) step?
+        ## c(list(method=method),
+        ## fit[c("convergence", "counts", "message")], control),
+        nsample = nrow(u),
+        copula = copula)
+}
+
+##' @title Maximum Likelihood Estimator for Copulas
 ##' @param copula The copula to be fitted
 ##' @param u The data in [0,1]^d
 ##' @param start The initial value for optim()
@@ -662,31 +494,94 @@ varPL <- function(cop, u)
 ##'        variance shall be computed
 ##' @param hideWarnings A logical indicating whether warnings from optim()
 ##'        shall be suppressed
-##' @param ... Additional arguments passed to fitCopula.ml()
+##' @param bound.eps A small quantity denoting an eps for staying away from
+##'        the theoretical parameter bounds
+##' @param ... Additional arguments (currently with no effect)
 ##' @return The fitted copula object
-fitCopula.mpl <- function(copula, u, start, lower, upper,
-                          optim.method, optim.control, estimate.variance,
-                          hideWarnings, ...)
+fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
+                         optim.method, optim.control, estimate.variance, hideWarnings,
+                         bound.eps=.Machine$double.eps^0.5, ...)
 {
-    fit <- fitCopula.ml(copula, u, start=start, lower=lower, upper=upper,
-                        optim.method=optim.method, optim.control=optim.control,
-                        estimate.variance=FALSE, hideWarnings=hideWarnings, ...)
+    ## Check inputs
+    chk.s(...) # 'check dots'
+    if(any(u < 0) || any(u > 1))
+        stop("'u' must be in [0,1] -- probably rather use pobs(.)")
+    stopifnot(is.numeric(d <- ncol(u)), d >= 2)
+    if (copula@dimension != d)
+        stop("The dimension of the data and copula do not match")
+    if(is.null(start))
+        start <- fitCopStart(copula, u=u)
+    if(any(is.na(start))) stop("'start' contains NA values")
+    q <- length(copula@parameters)
+    if (q != length(start))
+        stop(gettextf("The lengths of 'start' (= %d) and copula@parameters (=%d) differ",
+                      length(start), q), domain=NA)
+    method <- match.arg(method)
+
+    ## Determine optim() inputs
+    control <- c(optim.control, fnscale = -1)
+    control <- control[!vapply(control, is.null, NA)]
+    if (!is.null(optim.control[[1]])) control <- c(control, optim.control)
+    meth.has.bounds <- optim.method %in% c("Brent","L-BFGS-B")
+    if (is.null(lower))
+        lower <- if(meth.has.bounds) copula@param.lowbnd + bound.eps else -Inf
+    if (is.null(upper))
+        upper <- if(meth.has.bounds) copula@param.upbnd  - bound.eps else Inf
+
+    ## Maximize the likelihood
+    (if(hideWarnings) suppressWarnings else identity)(
+        fit <- optim(start, loglikCopula,
+                     lower=lower, upper=upper,
+                     method=optim.method,
+                     copula = copula, u = u,
+                     control = control)
+    )
+
+    ## Check convergence of the fitting procedure
+    copula@parameters[1:q] <- fit$par
+    loglik <- fit$val
+    has.conv <- fit[["convergence"]] == 0
     if (is.na(estimate.variance))
-        estimate.variance <- fit@fitting.stats[["convergence"]] == 0
-    var.est <- if(estimate.variance) {
-                   varPL(fit@copula, u) / nrow(u)
-               } else {
-                   q <- length(copula@parameters)
-                   matrix(NA, q, q)
-               }
+        estimate.variance <- has.conv
+    if(!has.conv)
+        warning("possible convergence problem: optim() gave code=",
+                fit$convergence)
+
+    ## Estimate the variance of the estimator
+    var.est <- switch(method,
+    "mpl" = {
+        if(estimate.variance) {
+            varPL(copula, u) / nrow(u)
+        } else {
+            q <- length(copula@parameters)
+            matrix(NA, q, q)
+        }
+    },
+    "ml" = {
+        ## MM{FIXME}: This should be done only by 'vcov()' and summary() !
+        if(estimate.variance) {
+            fit.last <- optim(copula@parameters, loglikCopula, lower=lower, upper=upper,
+                              method=optim.method, copula=copula, u=u,
+                              control=c(control, maxit=0), hessian=TRUE)
+            vcov <- tryCatch(solve(-fit.last$hessian), error = function(e) e)
+            if(is(vcov, "error")) {
+                warning("Hessian matrix not invertible: ", vcov$message)
+                matrix(NA_real_, q, q)
+            } else vcov ## ok
+        } else matrix(NA_real_, q, q)
+    },
+    stop("Wrong 'method'"))
+
+    ## Return the fitted copula object
     new("fitCopula",
-        estimate = fit@estimate,
+        estimate = fit$par,
         var.est = var.est,
-        method = "maximum pseudo-likelihood",
-        loglik = fit@loglik,
-        fitting.stats = fit@fitting.stats,
-        nsample = fit@nsample,
-        copula = fit@copula)
+        method = if(method=="mpl") "maximum pseudo-likelihood" else "maximum likelihood",
+        loglik = loglik,
+        fitting.stats = c(list(method=optim.method),
+                          fit[c("convergence", "counts", "message")], control),
+        nsample = nrow(u),
+        copula = copula)
 }
 
 
@@ -694,8 +589,8 @@ fitCopula.mpl <- function(copula, u, start, lower, upper,
 
 ##' @title Main Fitting Wrapper
 ##' @param copula The copula to be fitted
-##' @param data The data in [0,1]^d for "mpl", "ml", "itau.ml"; for "itau", "irho",
-##'        it can be in [0,1]^d or IR^d
+##' @param data The data in [0,1]^d for "mpl", "ml", "itau.ml";
+##'        for "itau", "irho", it can be in [0,1]^d or IR^d
 ##' @param method The estimation method
 ##' @param posDef A logical indicating whether pairwise estimated correlation
 ##'        matrices are turned into proper correlation matrices (via nearPD())
@@ -722,23 +617,18 @@ fitCopula <- function(copula, data,
         data <- as.matrix(data); stopifnot(is.matrix(data))
     }
     method <- match.arg(method)
-    switch(method,
-           "ml" =
-               fitCopula.ml(copula, data, start=start, lower=lower, upper=upper,
-                            optim.method=optim.method, optim.control=optim.control,
-                            estimate.variance=estimate.variance,
-                            hideWarnings=hideWarnings, ...),
-           "mpl" = # Note that fitCopula.mpl() calls *.ml():
-               fitCopula.mpl(copula, data, start=start, lower=lower, upper=upper,
-                             optim.method=optim.method, optim.control=optim.control,
-                             estimate.variance=estimate.variance,
-                             hideWarnings=hideWarnings, ...),
-           "itau.ml" = fitCopula.itau.ml(
-               copula, data, posDef=posDef, lower=lower, upper=upper,
-               estimate.variance=estimate.variance,
-               hideWarnings=hideWarnings, ...), # <- may include 'tol' !
-           "itau" = fitCopula.itau(copula, data,
-                                   estimate.variance=estimate.variance, ...),
-           "irho" = fitCopula.irho(copula, data,
-                                   estimate.variance=estimate.variance, ...))
+    if(method=="mpl" || method=="ml") { # "mpl" or "ml"
+        fitCopula.ml(copula, u=data, method=method,
+                     start=start, lower=lower, upper=upper,
+                     optim.method=optim.method, optim.control=optim.control,
+                     estimate.variance=estimate.variance,
+                     hideWarnings=hideWarnings, ...)
+    } else if(method=="itau" || method=="irho") { # "itau" or "irho"
+        fitCopula.icor(copula, x=data, method=method,
+                       estimate.variance=estimate.variance, ...)
+    } else { # "itau.ml"
+        fitCopula.itau.ml(copula, u=data, posDef=posDef, lower=lower, upper=upper,
+                          estimate.variance=estimate.variance,
+                          hideWarnings=hideWarnings, ...) # <- may include 'tol' !
+    }
 }

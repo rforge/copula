@@ -1,19 +1,23 @@
 \name{fitCopula}
 \alias{fitCopula}
 \alias{loglikCopula}
-\title{Estimation of the Parameters in Copula Models}
+\title{Copula Parameter Estimation}
 \description{
-  Fits a copula model to multivariate data belonging to the unit
-  hypercube. The data can be pseudo-observations constructed from
-  empirical or parametric marginal distribution functions, or
-  true observations from the copula.
+  Parameter estimation (fitting) of a copula model to multivariate data.
+  The data are typically pseudo-observations constructed from
+  empirically or parametrically estimated marginal distribution
+  functions. It can also be true observations from the copula (e.g.,
+  obtained by simulation). For inversion of Kendall's tau or Spearman's
+  rho, the data can also be the original observations (from the
+  \eqn{d}-dimensional space).
 }
 \usage{
 loglikCopula(param, u, copula)
-fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho"),
+fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho", "itau.ml"),
+          posDef = is(copula, "ellipCopula"),
           start = NULL, lower = NULL, upper = NULL,
           optim.method = "BFGS", optim.control = list(maxit=1000),
-          estimate.variance = NA, hideWarnings = TRUE)
+          estimate.variance = NA, hideWarnings = TRUE, ...)
 }
 \arguments{
   \item{param}{ a vector of parameter values. }
