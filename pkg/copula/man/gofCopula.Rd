@@ -38,7 +38,7 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
 \arguments{
   \item{copula}{object of class \code{"\linkS4class{copula}"} representing the
     hypothesized copula family.}
-  \item{x}{a data matrix that will be transformed to pseudo-observations. }
+  \item{x}{a data matrix that will be transformed to pseudo-observations.}
   \item{N}{number of bootstrap or multiplier replications to be used to
     simulate realizations of the test statistic under the null
     hypothesis.}
