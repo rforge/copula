@@ -15,8 +15,8 @@
   of the unknown copula.
 
   The function \code{F.n()} computes the empirical distribution function
-  based on a given sample. Note that \code{C.n()} just calls
-  \code{F.n()} and assumes the given sample are pseudo-observations.
+  of a multivariate sample. Note that \code{C.n()} just calls
+  \code{F.n()} and assumes the given data are pseudo-observations.
 }
 \usage{
 C.n(u, U, offset=0, method=c("C", "R"))
@@ -27,17 +27,19 @@ F.n(x, X, offset=0, method=c("C", "R"))
 Cn(x, w) ## <-- deprecated!  use  C.n(w, U=pobs(x)) instead!
 }
 \arguments{
-  \item{u,x,w}{an \eqn{(m, d)}-\code{\link{matrix}} with elements in
+  \item{u,w}{an \eqn{(m, d)}-\code{\link{matrix}} with elements in
     \eqn{[0,1]} whose rows contain the evaluation points of the
     empirical copula.}
-  \item{U,X}{(and \code{x} for \code{Cn()}:) an \eqn{(n,
-      d)}-\code{\link{matrix}}, for \code{C.n()} and \code{Cn()} with
+  \item{x}{an \eqn{(m, d)}-\code{\link{matrix}} whose rows
+    contain the evaluation points of the empirical distribution function.}
+  \item{U}{an \eqn{(n,d)}-\code{\link{matrix}} with
     elements in \eqn{[0,1]} and with the same number \eqn{d} of columns as
-    \code{u} (or \code{x} respectively.  The rows of \code{U} are the
-    pseudo-observations based on which the empirical copula is built.
-    The rows of \code{X} are the \dQuote{raw} observations. Recall that
-    a multivariate random sample \code{X} can be transformed to an appropriate
-    \code{U} via \code{\link{pobs}()}.}
+    \code{u}.  The rows of \code{U} are the pseudo-observations based
+    on which the empirical copula is computed.}
+  \item{X}{(and \code{x} for \code{Cn()}:) an \eqn{(n,
+      d)}-\code{\link{matrix}} with the same number \eqn{d} of columns as
+    \code{x}. Recall that a multivariate random sample \code{X} can be
+    transformed to an appropriate \code{U} via \code{\link{pobs}()}.}
   \item{j.ind}{\code{\link{integer}} vector of indices \eqn{j} between 1
     and \eqn{d} indicating the dimensions with respect to which
     first-order partial derivatives are approximated.}
