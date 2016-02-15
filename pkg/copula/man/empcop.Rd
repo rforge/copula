@@ -15,11 +15,11 @@
   of the unknown copula.
 
   The function \code{F.n()} computes the empirical distribution function
-  of a multivariate sample.  Note that \code{C.n(u, U, *)} simply calls
-  \code{F.n(u, pobs(U), *)} after checking \code{u}.
+  of a multivariate sample.  Note that \code{C.n(u, X, *)} simply calls
+  \code{F.n(u, pobs(X), *)} after checking \code{u}.
 }
 \usage{
-C.n(u, U, offset=0, method=c("C", "R"))
+C.n(u, X, offset=0, method=c("C", "R"))
 dCn(u, U, j.ind=1:d, b=1/sqrt(nrow(U)), ...)
 
 F.n(x, X, offset=0, method=c("C", "R"))
@@ -133,24 +133,24 @@ theta <- 2
 cop <- onacopulaL(family, list(theta=theta, 1:d))
 set.seed(1)
 X <- qnorm(rCopula(n, cop)) # meta-Gumbel data with N(0,1) margins
-U <- pobs(X) # pseudo-observations
 
 ## Random points were to evaluate the empirical copula
 u <- matrix(runif(n*d), n, d)
-ec <- C.n(u, U=U)
+ec <- C.n(u, X)
 
 ## Compare the empirical copula with the true copula
-mean(abs(pCopula(u, copula=cop)-ec)) # increase n to decrease this error
+mean(abs(pCopula(u, copula=cop)-ec)) # ~= 0.012 -- increase n to decrease this error
 
 ## Compare the empirical copula with F.n(pobs())
+U <- pobs(X) # pseudo-observations
 stopifnot(identical(ec, F.n(u, X=pobs(U)))) # even identical
 
 ## Compare the empirical copula based on U at U with the Kendall distribution
 ## Note: Theoretically, C(U) ~ K, so K(C_n(U, U=U)) should approximately be U(0,1)
-plot(pK(C.n(U, U=U), cop=cop@copula, d=d))
+plot(pK(C.n(U, X), cop=cop@copula, d=d))
 
 ## Compare the empirical copula and the true copula on the diagonal
-C.n.diag <- function(u) C.n(do.call(cbind, rep(list(u), d)), U=U) # diagonal of C_n
+C.n.diag <- function(u) C.n(do.call(cbind, rep(list(u), d)), X=X) # diagonal of C_n
 C.diag <- function(u) pCopula(do.call(cbind, rep(list(u), d)), cop) # diagonal of C
 curve(C.n.diag, from=0, to=1, # empirical copula diagonal
       main=paste("True vs empirical diagonal of a", family, "copula"),
@@ -169,7 +169,7 @@ summary(as.vector(abs(der23-der23.)))
 \dontshow{% check backward compatibility
   U <- U[1:64 ,]# such that m != n
   stopifnot(suppressWarnings( ## deprecation warning ..
-    identical(C.n(u, pobs(U)),
+    identical(C.n(u, U),
               Cn (U, u))))
 }
 ## For an example of using F.n(), see help(mvdc)% ./Mvdc.Rd

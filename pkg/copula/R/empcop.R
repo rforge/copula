@@ -19,7 +19,7 @@
 ## DEPRECATED
 Cn <- function(x,w) {
     .Deprecated("C.n")
-    C.n(w, pobs(x))
+    C.n(w, x)
 }
 
 ##' Empirical copula of X at x
@@ -27,7 +27,7 @@ Cn <- function(x,w) {
 ##' @title Empirical CDF and hence copula of X at x
 ##' @param x (m, d) matrix of evaluation points
 ##' @param X (n, d) matrix of pseudo-data based on which the empirical copula
-##'        is computed (if not pseudo-data already, use do.pobs=TRUE)
+##'        is computed.
 ##' @param offset scaling factor of result which is  sum(....)/(n+offset)
 ##' @param method method string ("C" for C code; "R" for R code)
 ##' @return empirical CDF / copula of X at x
@@ -72,12 +72,10 @@ F.n <- function(x, X, offset=0, method=c("C", "R"))
     }
 }
 
-C.n <- function(u, U, offset=0, method=c("C", "R")) {
-    if(any(U < 0, 1 < U))
-        stop("'U' must be in [0,1].. possibly use 'U=pobs(x)'...")
+C.n <- function(u, X, offset=0, method = c("C", "R")) {
     if(any(u < 0, 1 < u))
         stop("'u' must be in [0,1].")
-    F.n(u, U, offset=offset, method=method)
+    F.n(u, pobs(X), offset=offset, method=method)
 }
 
 ##' @title Estimated Partial Derivatives of a Copula Given the Empirical Copula

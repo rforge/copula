@@ -6,9 +6,16 @@
 
 \section{Changes in version 0.999-15 (2015-..-.., svn r...)}{
   \itemize{
+    \item \code{C.n(u, X, *)} now has \code{X} as second argument,
+    calls \code{pobs(X)} and then \code{F.n(*,*)}; previously,
+    \code{C.n} and \code{F.n} were practically equivalent, which has
+    been confusing.
     \item \code{pobs()} is more flexible, accepting numeric vectors, and
-    e.g., keeping \code{"xts"} class.
+    e.g., keeping \code{"xts"} and \code{"zoo"} class attributes.
     \item improved R markdown vignettes.
+
+    \item \code{fitCopula()} gets now method \code{"itau.mpl"} for \code{tCopula}s,
+    allowing to only estimate \code{df}, keeping the dispersion matrix fixed.
   }
 }
 
