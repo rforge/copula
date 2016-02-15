@@ -170,7 +170,7 @@ for(meth in eval(formals(gofPB)$method)) {
 	catn("t-copula (df.fixed = FALSE):")
 	print(gofCopula(t.copV, x, method=meth, N = 10, verbose=FALSE,
 			estim.method = fitMeth))
-    } else if(meth == "Sn" && fitMeth != "irho") {
+    } else if(meth == "Sn" && !(fitMeth %in% c("irho", "itau.mpl"))) {
 	catn("t-copula (df.fixed = TRUE):")
 	print(gofCopula(t.cop, x, method=meth, N = 10, verbose=FALSE,
 			estim.method = fitMeth))
