@@ -36,7 +36,10 @@
 gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
 		     useR=FALSE, ...)
 {
-    if(!is.matrix(u)) u <- rbind(u, deparse.level=0L)
+    if(!is.matrix(u)) {
+	stopifnot(is.numeric(u))
+	u <- rbind(u, deparse.level=0L)
+    }
     d <- ncol(u)
     n <- nrow(u)
     method <- match.arg(method)
@@ -49,7 +52,7 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
            ## typically \bm{u}_i ~> pobs \hat{\bm{U}}_i
            C. <- pCopula(u, copula=copula) # C_{\theta_n}(\bm{u}_i), i=1,..,n
            if(useR) {
-               C.n <- C.n(u, U=u, ...) # \hat{C}_n(\bm{u}_i), i=1,..,n
+               C.n <- F.n(u, X=u, ...) # \hat{C}_n(\bm{u}_i), i=1,..,n
                sum((C.n - C.)^2)
            } else {
                .C(cramer_vonMises,
@@ -143,8 +146,8 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
 	if(length(copula@childCops))
 	    stop("currently, only Archimedean copulas are supported")
     }
-    if(method=="Sn" && is(copula, "tCopula"))
-        stop("The parametric boostrap with method=\"Sn\" is not available for t copulas as pCopula() cannot be computed for non-integer degrees of freedom yet.")
+    if(method=="Sn" && is(copula, "tCopula") && ! copula@df.fixed) # df.fixed=TRUE should work
+	stop("Param. boostrap with method=\"Sn\" is not available for t copulas as pCopula() cannot be computed for non-integer degrees of freedom yet.")
 
     ## 1) Compute the pseudo-observations
     uhat <- pobs(x)
@@ -350,7 +353,7 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
            ## 3) Compute the realized test statistic
            C.th.n. <- pCopula(u., C.th.n) # n-vector
            denom <- (C.th.n.*(1-C.th.n.) + zeta.m)^m # n-vector
-           Cn. <- C.n(u., U=u.) # n-vector
+           Cn. <- F.n(u., u.) # n-vector
            T <- sum( ((Cn. - C.th.n.)/denom)^2 ) # test statistic R_n
 
            ## 4) Simulate the test statistic under H_0
