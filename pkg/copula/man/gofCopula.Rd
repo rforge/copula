@@ -171,7 +171,7 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
 ## the following example is available in batch through
 ## demo(gofCopula)% == ../demo/gofCopula.R __keep >> EXACTLY << in sync!__
 %% Note that  ../tests/gof-ex.R (at the end) has "proof-of-concept" tests
-\dontrun{
+\donttest{
 ## A two-dimensional data example ----------------------------------
 x <- rCopula(200, claytonCopula(3))
 
@@ -210,7 +210,7 @@ gofCopula(t.copula, x, estim.method="itau")
 ## The same using the multiplier approach
 gofCopula(gCi3,     x, simulation="mult")
 gofCopula(t.copula, x, simulation="mult")
-}% dontrun
+}% dont..
 }
 \keyword{htest}
 \keyword{models}

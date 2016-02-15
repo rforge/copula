@@ -1,8 +1,7 @@
 \name{rdj}
-\Rdversion{1.1}
+\title{Daily Returns of Three Stocks in the Dow Jones}
 \alias{rdj}
 \docType{data}
-\title{Daily Returns of Three Stocks in the Dow Jones}
 \description{
   Five years of daily log-returns (from 1996 to 2000) of Intel
   (INTC), Microsoft (MSFT) and General Electric (GE) stocks. These
@@ -26,5 +25,31 @@
 }
 \examples{
 data(rdj)
+## much better and R-like:
+rdj. <- within(rdj, DATE <- as.Date(DATE))
+str(rdj.)# now DATE makes more sense
+
+with(rdj., {
+   matplot(DATE, rdj.[,-1], type = "o", xaxt = "n", ylim = .15* c(-1,1),
+           main = paste("rdj - data;  n =", nrow(rdj.)))
+   Axis(DATE, side=1)
+})
+legend("top", paste(1:3, names(rdj.[,-1])), col=1:3, lty=1:3, bty="n")
+
+\donttest{% save 0.75 sec for fitting  and many more for gof
+x <- rdj.[, -1] # '-1' : not the DATE
+## a t-copula (with a vague inital guess of Rho entries)
+tCop <- tCopula(rep(.2, 3), dim=3, dispstr="un", df=10, df.fixed=TRUE)
+ft <- fitCopula(tCop, data = pobs(x))
+ft
+ft@copula # the fitted t-copula as tCopula object
+system.time(
+g.C <- gofCopula(claytonCopula(dim=3), as.matrix(x), simulation = "mult")
+) ## 5.3 sec
+system.time(
+g.t <- gofCopula(ft@copula, as.matrix(x), simulation = "mult")
+) ## 8.1 sec
+
+}% dont...
 }
 \keyword{datasets}

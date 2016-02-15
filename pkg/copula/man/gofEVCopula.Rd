@@ -65,16 +65,18 @@ gofEVCopula(copula, x, N = 1000, method = "mpl",
   \code{\link{evTestK}}, \code{\link{gofCopula}}, \code{\link{An}}.
 }
 \examples{
-\dontrun{% because the bootstraps are slow, particularly for the non-Gumbel ones
 x <- rCopula(100, claytonCopula(3))
 
+\donttest{% because the bootstraps are slow,..
 ## Does the Gumbel family seem to be a good choice?
-gofEVCopula(gumbelCopula(1), x)
+gofEVCopula(gumbelCopula(1.01), x) # '1.0' is the independence copula !
+}
 
 ## The same with different estimation methods
-gofEVCopula(gumbelCopula(1), x, method="itau")
-gofEVCopula(gumbelCopula(1), x, method="irho")
+gofEVCopula(gumbelCopula(1.01), x, method="itau")
+gofEVCopula(gumbelCopula(1.01), x, method="irho")
 
+\donttest{% non-gumbel bootstraps are slow
 ## The same with different extreme-value copulas
 gofEVCopula(galambosCopula(1), x)
 gofEVCopula(galambosCopula(1), x, method="itau")
@@ -87,7 +89,7 @@ gofEVCopula(huslerReissCopula(1), x, method="irho")
 gofEVCopula(tevCopula(0, df.fixed=TRUE), x)
 gofEVCopula(tevCopula(0, df.fixed=TRUE), x, method="itau")
 gofEVCopula(tevCopula(0, df.fixed=TRUE), x, method="irho")
-}
+}% dont..
 }
 \keyword{htest}
 \keyword{models}

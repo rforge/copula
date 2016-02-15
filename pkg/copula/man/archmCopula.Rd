@@ -53,7 +53,7 @@ joeCopula(param = NA_real_, dim = 2,
   \code{frankCopula()}, \code{gumbelCopula()}, \code{amhCopula()} and
   \code{joeCopula}.
 
-  For the mathematical definitions of the give Archimedean families,
+  For the mathematical definitions of the respective Archimedean families,
   see \code{\link{copClayton}}.
 
   For \eqn{d = 2}, i.e. \code{dim = 2}, the AMH, Clayton and Frank copulas
@@ -61,13 +61,16 @@ joeCopula(param = NA_real_, dim = 2,
   negative \eqn{\theta}{theta}, for AMH and Clayton
   \eqn{-1 \le \theta}{-1 <= theta}, and for Frank
   \eqn{-\infty < \theta}{-Inf < theta}.
-  %% AMH     :   -1 <= theta  ( tau(theta =  -1 ) = -0.1817258 )
-  %% Clayton :   -1 <= theta  ( tau(theta =  -1 ) = -1 )
-  %% Frank   : -Inf <= theta  ( tau(theta = -Inf) = -1 )
+  The respective boundary cases are
+  \describe{
+    \item{AMH:}{\eqn{\tau(\theta = -1) = -0.1817258},}
+    \item{Clayton:}{\eqn{\tau(\theta = -1) = -1},}
+    \item{Frank:}{\eqn{\tau(\theta = -Inf) = -1} (as limit).}
+  }
 
-%% FIXME: use copAMH instead !
   For the Ali-Mikhail-Haq copula family (\code{"amhCopula"}), only the
-  bivariate case is available.
+  bivariate case is available; however \code{\link{copAMH}} has no such
+  limitation.
 
   The maximum dimension for which the expression of the pdf is available
   is 6 for the Clayton, Gumbel and Frank families. The cdf expression is
@@ -89,6 +92,8 @@ joeCopula(param = NA_real_, dim = 2,
   \code{\linkS4class{acopula}}-classed Archimedean copulas, such as
   \code{\link{copClayton}}, \code{\link{copGumbel}}, etc, notably for
   mathematical definitions including the meaning of \code{param}.
+
+  \code{\link{fitCopula}} for fitting such copulas to data.
 
   \code{\link{ellipCopula}}, \code{\link{evCopula}}.
 }

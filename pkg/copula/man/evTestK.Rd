@@ -41,8 +41,9 @@ evTestK(Ug <- rCopula(200, gumbelCopula(3))) # not significant => yes, EV
 ## Clayton:                       tests are highly significant => no, not EV
 (K1 <- evTestK(Uc))
 (K2 <- evTestK(Uc, method = "asymptotic"))
-\dontrun{
-(K3 <- evTestK(Uc, method = "jackknife"))# slow !
+\donttest{
+system.time(print(K3 <- evTestK(Uc, method = "jackknife")))
+## slower: 1.06 sec (2015 intel core i7)
 }
 \dontshow{
 Xtra <- copula:::doExtras()

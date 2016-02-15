@@ -47,7 +47,11 @@ nacFrail.time(n, family, taus, digits = 3, verbose = FALSE)
 }
 \examples{
 ## takes about 7 seconds:% so we rather test a much smaller set in R CMD check
-\dontrun{nacFrail.time(10000, "Gumbel", tauso= c(0.05,(1:9)/10, 0.95))}
-\dontshow{nacFrail.time(1000, "Gumbel", taus= c(0.5,1,6,9)/10)}
+\donttest{
+nacFrail.time(10000, "Gumbel", taus=  c(0.05,(1:9)/10, 0.95))
+}%dont
+system.time(
+print( nacFrail.time(1000,  "Gumbel", taus = c(0.5,1,6,9)/10) )
+)% 0.84 sec
 }
 \keyword{utilities}

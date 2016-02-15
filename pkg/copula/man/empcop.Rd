@@ -1,22 +1,22 @@
 \name{C.n}
+\title{The Empirical Copula}
 \alias{C.n}
 \alias{Cn}% <- deprecated, but of course keep here
 \alias{F.n}
 %% \alias{.Fn}
 \alias{dCn}
-\title{The Empirical Copula}
 \description{
   Given pseudo-observations from a distribution with continuous margins and
   copula C, the empirical copula is the empirical distribution function
-  of these pseudo-observations. It is thus a natural nonparametric estimator of
-  C. The function \code{C.n()} computes the empirical copula.
+  of these pseudo-observations.  It is thus a natural nonparametric estimator of
+  C.  The function \code{C.n()} computes the empirical copula.
 
   The function \code{dCn()} approximates first-order partial derivatives
   of the unknown copula.
 
   The function \code{F.n()} computes the empirical distribution function
-  of a multivariate sample. Note that \code{C.n()} just calls
-  \code{F.n()} and assumes the given data are pseudo-observations.
+  of a multivariate sample.  Note that \code{C.n(u, U, *)} simply calls
+  \code{F.n(u, pobs(U), *)} after checking \code{u}.
 }
 \usage{
 C.n(u, U, offset=0, method=c("C", "R"))
@@ -24,7 +24,7 @@ dCn(u, U, j.ind=1:d, b=1/sqrt(nrow(U)), ...)
 
 F.n(x, X, offset=0, method=c("C", "R"))
 
-Cn(x, w) ## <-- deprecated!  use  C.n(w, U=pobs(x)) instead!
+Cn(x, w) ## <-- deprecated!  use  C.n(w, x) instead!
 }
 \arguments{
   \item{u,w}{an \eqn{(m, d)}-\code{\link{matrix}} with elements in
@@ -32,13 +32,13 @@ Cn(x, w) ## <-- deprecated!  use  C.n(w, U=pobs(x)) instead!
     empirical copula.}
   \item{x}{an \eqn{(m, d)}-\code{\link{matrix}} whose rows
     contain the evaluation points of the empirical distribution function.}
-  \item{U}{an \eqn{(n,d)}-\code{\link{matrix}} with
+  \item{U}{for \code{dCN()} only: an \eqn{(n,d)}-\code{\link{matrix}} with
     elements in \eqn{[0,1]} and with the same number \eqn{d} of columns as
     \code{u}.  The rows of \code{U} are the pseudo-observations based
     on which the empirical copula is computed.}
-  \item{X}{(and \code{x} for \code{Cn()}:) an \eqn{(n,
+  \item{X}{(and \code{x} and \code{U} for \code{Cn()}:) an \eqn{(n,
       d)}-\code{\link{matrix}} with the same number \eqn{d} of columns as
-    \code{x}. Recall that a multivariate random sample \code{X} can be
+    \code{x}.  Recall that a multivariate random sample \code{X} can be
     transformed to an appropriate \code{U} via \code{\link{pobs}()}.}
   \item{j.ind}{\code{\link{integer}} vector of indices \eqn{j} between 1
     and \eqn{d} indicating the dimensions with respect to which
@@ -56,9 +56,12 @@ Cn(x, w) ## <-- deprecated!  use  C.n(w, U=pobs(x)) instead!
 }
 \value{
   \code{C.n()} returns the empirical copula at \code{u} (that is, the
-  empirical distribution function of the pseudo-observations \code{U}
-  evaluated at \code{u}). \code{F.n()} returns the empirical
-  distribution function of \code{X} evaluated at \code{x}.
+  empirical distribution function of the observations \code{U}
+  evaluated at \code{u}).  The \emph{name} \dQuote{U} is a slight
+  misnomer here, for back compatibility reasons, as \code{U} typically
+  contains the original observations \code{X} here.  \code{F.n()}
+  returns the empirical distribution function of \code{X} evaluated at
+  \code{x}.
   %% The result is slightly wrapped as \code{"mvFn"} (S3) class object,
   %% with a \code{\link{persp}} and \code{\link{print}} method, but behaves
   %% otherwise a simple \code{\link{numeric}} vector.
@@ -73,9 +76,8 @@ Cn(x, w) ## <-- deprecated!  use  C.n(w, U=pobs(x)) instead!
 \note{
   The first version of our empirical copula implementation, \code{Cn()},
   had its two arguments \emph{reversed} compared to \code{C.n()}, and is
-  deprecated now. You \bold{must} swap the arguments, and possibly use
-  \code{\link{pobs}}, that is, \bold{instead of \code{Cn(x, u)}, use
-    \code{C.n(u, U=pobs(x))}!}
+  deprecated now.  You \bold{must} swap its arguments to transform to
+  new code.
 }
 \details{
   There are several asymptotically equivalent definitions of the
