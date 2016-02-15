@@ -20,7 +20,7 @@ useDynLib(copula, .registration=TRUE)
 ## import all we need, but not more..
 
 importFrom("stats", D, approxfun, cor # 'coef': from "bblme"; 'logLik': from "stats4"
-         , deriv, dnorm, dpois, dt, ecdf, integrate, lm.fit, median, model.matrix
+	 , deriv, dnorm, dpois, dt, ecdf, integrate, .lm.fit, median, model.matrix
          , na.omit, nobs
          , optimize, optim, p.adjust.methods, p.adjust
          , pchisq, pgamma, pnorm, ppois, ppoints, printCoefmat, pt
