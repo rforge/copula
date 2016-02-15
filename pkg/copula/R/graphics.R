@@ -87,7 +87,7 @@ contourMvdc <- function(x, fun, xlim, ylim, nx = 51, ny = 51,
 setMethod("persp",   signature("copula"), perspCopula)
 setMethod("contour", signature("copula"), contourCopula)
 
-## "F.n(), C.n()" -- once w ehave empirical
+## "F.n(), C.n()" -- once we have empirical
 ## setMethod("persp", signature("mvFn"),
 ##           function(x, ...) {
 ##               perspCopula(x, F.n, ...)

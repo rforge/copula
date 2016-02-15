@@ -139,23 +139,37 @@ gumbel <- archmCopula(family = "gumbel",dim = 2)
 
 set.seed(47)# MM {not important, but still want sure reproducibility}
 u <- cbind(runif(10),runif(10))
-## this now (newly) gives an error:
-assertError(fgu <- fitCopula(gumbel, u, method = "ml"))
+cor(u[,1], u[,2], method="kendall")
+## [1] -0.02222222 -- slightly negative
+## this now gives an error:
+try(fgu <- fitCopula(gumbel, u, method = "ml"))
+## Error in optim(start, loglikCopula, lower = lower, upper = upper, method = method,  :
+##   non-finite finite-difference value [1]
+## In addition: Warning message:
+## In .local(copula, tau, ...) : tau is out of the range [0, 1]
 copGumbel@paraInterval # -> [1, Inf) = exp([0, Inf))
 par <- 2^c((0:32)/16, 2+(1:10)/8)
 llg <- sapply(par, function(p) loglikCopula(param=p, u=u, copula=gumbel))
 if(dev.interactive()) plot(par, llg, type="b", col=2)
-stopifnot(diff(llg) < 0) # so the maximum is for par = 2^0 = 1
-## is it just this problem?
+stopifnot(diff(llg) < 0) # so the maximum is for par = 2^0 = 1 --> at *boundary* of interval
+## FIXME -- "ml" should return the boundary case, or a much better error message
+## These work (with a warning {which is interesting, but maybe should not be a warning}
+## "perfectly": They give the correct boundary case:
+fg.itau <- fitCopula(gumbel, u, method = "itau")
+fg.irho <- fitCopula(gumbel, u, method = "irho")
+
+## Is it just this problem?
 ## well, the likelihood was not ok for large param=theta; now is:
 lrgP <- 100*seq(8, 100, by = 3)
 llrg <- vapply(lrgP, function(P) loglikCopula(param=P, u=u, copula=gumbel), NA_real_)
 stopifnot(is.finite(llrg), diff(llrg) < 0, llrg < -11990)## no longer NaN
+if(FALSE)
+    plot(lrgP, llrg, type="b", col=2) ## all fine
 
 ## Now is it because we *really* should use  elme()  and the "nacopula" families?
 ## No, this fails too: "outside interval" error {instead of just -Inf !}:
 (copG <- onacopulaL("Gumbel", list(NaN,1:2)))
-## Estimation -> error for now:
+## Estimation -> error for now -- (FIXME!)
 try(efm <- emle(u, copG))
 
 

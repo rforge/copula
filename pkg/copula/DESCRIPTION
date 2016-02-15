@@ -16,7 +16,7 @@ Imports: stats, graphics, methods, stats4, Matrix, lattice, colorspace,
 Suggests: MASS, KernSmooth, sfsmisc, scatterplot3d, Rmpfr, bbmle, knitr,
  parallel, mvnormtest, partitions, polynom, randtoolbox, rugarch, Runuran,
  tseries, VGAM, VineCopula, zoo
-SuggestsNote: the last line packages {parallel, ..., zoo} are only used
+SuggestsNote: the last lines' packages {parallel, ..., zoo} are only used
  in vignettes and demos.
 Enhances: nor1mix
 Description: Classes (S4) of commonly used elliptical, Archimedean, extreme
