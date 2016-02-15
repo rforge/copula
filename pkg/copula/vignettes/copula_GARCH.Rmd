@@ -12,6 +12,8 @@ vignette: >
 ```{r, message=FALSE}
 require(copula)
 require(rugarch)
+print(sessionInfo(), # for reproducibility
+      locale=FALSE)
 set.seed(271)
 ```
 
