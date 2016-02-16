@@ -51,6 +51,6 @@ Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R special-func.
 	 schlatherCopula.R stable.R
 	 timing.R trafos.R
          tCopula.R tawnCopula.R tawnExpr.R tevCopula.R
-         wrapper.R zzz.R
+         wrapper.R xvCopula.R zzz.R
 Encoding: UTF-8
 URL: http://copula.r-forge.r-project.org/

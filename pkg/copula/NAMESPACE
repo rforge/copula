@@ -148,6 +148,9 @@ export(indepTestSim, indepTest, multIndepTest,
 ## gof tests
 export(gofCopula, gofMB, gofPB, gofEVCopula)
 
+## cross-validation
+export(xvCopula)
+
 ## ggraph utils
 export(pairwiseCcop, pairwiseIndepTest, pviTest, gpviTest, RSpobs, gofBTstat) # R/ggraph-tools.R
 export(pairsColList, pairsRosenblatt, .pairsCond) # R/pairsRosenblatt.R
