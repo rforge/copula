@@ -148,8 +148,8 @@ gofCopula(claytonCopula(), x, N = 10, verbose=FALSE,
 x <- rCopula(200, tCopula(c(0.5, 0.6, 0.7), dim = 3, dispstr = "un"))
 
 gumbC <- gumbelCopula(1, dim = 3, use.indepC="FALSE")
-t.cop  <- tCopula(rep(0, 3), dim = 3, dispstr = "un", df.fixed=TRUE)
-t.copV <- tCopula(rep(0, 3), dim = 3, dispstr = "un", df.fixed=FALSE)
+t.cop  <- tCopula(dim = 3, dispstr = "un", df.fixed=TRUE)
+t.copV <- tCopula(dim = 3, dispstr = "un", df.fixed=FALSE)
 
 showProc.time()
 

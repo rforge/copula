@@ -199,17 +199,20 @@ x <- rCopula(200, tCopula(c(0.5, 0.6, 0.7), dim = 3, dispstr = "un"))
 (gCi3 <- gumbelCopula(1, dim = 3, use.indepC="FALSE"))
 gofCopula(gCi3, x)
 ## What about the t copula?
-t.copula <- tCopula(rep(0, 3), dim = 3, dispstr = "un", df.fixed=TRUE)
-## this is *VERY* slow currently %% FIXME ??
-gofCopula(t.copula, x)
+t.copula <- tCopula(dim = 3, dispstr = "un", df.fixed=TRUE)
+if(FALSE) ## this is *VERY* slow currently -- never run%% FIXME ?? with correct param.?
+  gofCopula(t.copula, x) # ("pb": parametric bootstrap; N = 1000, "mpl")
 
 ## The same with a different estimation method
 gofCopula(gCi3,     x, estim.method="itau")
-gofCopula(t.copula, x, estim.method="itau")
+if(FALSE) # still really slow ( ~ 5-10 minutes!):
+  gofCopula(t.copula, x, estim.method="itau")
 
 ## The same using the multiplier approach
 gofCopula(gCi3,     x, simulation="mult")
 gofCopula(t.copula, x, simulation="mult")
+if(FALSE) # no yet possible: sim.="mult", est.="itau" and d > 2:
+gofCopula(t.copula, x, simulation="mult", estim.method="itau")
 }% dont..
 }
 \keyword{htest}

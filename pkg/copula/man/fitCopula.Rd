@@ -282,7 +282,7 @@ stopifnot(all.eqCop(tc.ml , tc.ml., tolerance= .005),
           all.eqCop(tc.mpl, tc.mp., tolerance= .005))
 
 ## The same t copula but with df.fixed=TRUE (=> use the same data!)
-(tC.f <- tCopula(c(0.2,0.4,0.6), dim=3, dispstr="un", df=5, df.fixed=TRUE))
+tC.f <- tCopula(dim=3, dispstr="un", df=5, df.fixed=TRUE)
 ## Maximum likelihood (start = rho[1:3])
 (tcF.ml  <- fitCopula(tC.f, x, method="ml", start=c(0,0,0)))
 (tcF.ml. <- fitCopula(tC.f, x, method="ml"))# without 'start'
