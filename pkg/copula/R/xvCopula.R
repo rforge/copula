@@ -1,3 +1,22 @@
+## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
+##
+## This program is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free Software
+## Foundation; either version 3 of the License, or (at your option) any later
+## version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+## FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+## details.
+##
+## You should have received a copy of the GNU General Public License along with
+## this program; if not, see <http://www.gnu.org/licenses/>.
+
+
+### Model selection for copulas based on (k-)cross-validation #####################
+
+
 ##' @title Model selection for copulas based on (k-)cross-validation
 ##' @param copula object of type 'copula' representing the copula to be evaluated
 ##'        as model
@@ -12,13 +31,14 @@ xvCopula <- function(copula, x, k=NULL, verbose=TRUE, ...)
 {
     ## checks
     stopifnot(is(copula, "copula"))
-    if(!is.matrix(x)) {
+    if(!is.matrix(x))
+    {
         warning("coercing 'x' to a matrix.")
         stopifnot(is.matrix(x <- as.matrix(x)))
     }
     stopifnot(is.numeric(x), (d <- ncol(x)) > 1, (n <- nrow(x)) > 0, dim(copula) == d)
     k <- if (is.null(k)) n else as.integer(k)
-    stopifnot(k >= 1L, n %/% k >= 1)
+    stopifnot(k >= 2L, n %/% k >= 1)
 
     ## setup progress bar
     if(verbose) {
@@ -42,17 +62,16 @@ xvCopula <- function(copula, x, k=NULL, verbose=TRUE, ...)
         sel <- (b[i] + 1):b[i+1] # lines of current block
         ## estimate copula from all lines except those in sel
         u <- pobs(x.not.s <- x[-sel, , drop=FALSE])
-        copula <- fitCopula(copula, u, estimate.variance=FALSE, ...)@copula
-        imi <- seq_len(m[i])# 1:m[i]
+        copula <- fitCopula(copula, u, method = "mpl",
+                            estimate.variance=FALSE, ...)@copula
+        imi <- seq_len(m[i]) # 1:m[i]
         x.sel <- x[sel, , drop=FALSE]
         ## points where copula density will be evaluated
         for (j in 1:d)
             v[imi,j] <- ecdf(x.not.s[,j])(x.sel[,j])
         nmi <- n - m[i]
-### FIXME: really rescale *all* v, instead of just v[imi, ]  ????  :
-        v <- v * nmi / (nmi + 1L) # rescale to avoid 1
-        v[v==0] <- 1 / (nmi + 1L) # to avoid 0
-### END(FIXME)
+        v[imi, ] <- v[imi, ] * nmi / (nmi + 1L) # rescale to avoid 1
+        v[imi, ][ v[imi, ]==0 ] <- 1 / (nmi + 1L) # to avoid 0
         ## cross-validation for block i
         xv <- xv + mean(dCopula(v[imi, , drop=FALSE], copula, log = TRUE))
 
