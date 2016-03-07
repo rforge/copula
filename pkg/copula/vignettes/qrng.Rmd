@@ -13,12 +13,13 @@ In this vignette, we present some findings around quasi-random numbers for
 copula models; see also Cambou et al. (2016, ``Quasi-random numbers for copula models'').
 
 ```{r, message=FALSE}
-require(lattice)
-require(gridExtra)
-require(copula)
-require(VineCopula)
-require(randtoolbox)
-require(VGAM)
+library(lattice)
+library(gridExtra)
+library(copula)
+library(VineCopula)
+library(randtoolbox)
+library(qrng)
+library(VGAM)
 ```
 
 ## 1 Quasi-random numbers for copula models via conditional distribution method
