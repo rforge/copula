@@ -59,21 +59,24 @@ xvCopula <- function(copula, x, k=NULL, verbose=TRUE, ...)
     ## for each block
     for (i in 1:k)
     {
-        sel <- (b[i] + 1):b[i+1] # lines of current block
+        sel <- (b[i] + 1):b[i+1] # m[i] lines of current block
         ## estimate copula from all lines except those in sel
         u <- pobs(x.not.s <- x[-sel, , drop=FALSE])
         copula <- fitCopula(copula, u, method = "mpl",
                             estimate.variance=FALSE, ...)@copula
         imi <- seq_len(m[i]) # 1:m[i]
+        v.i <- v[imi, , drop=FALSE] # (for efficiency)
         x.sel <- x[sel, , drop=FALSE]
         ## points where copula density will be evaluated
         for (j in 1:d)
-            v[imi,j] <- ecdf(x.not.s[,j])(x.sel[,j])
-        nmi <- n - m[i]
-        v[imi, ] <- v[imi, ] * nmi / (nmi + 1L) # rescale to avoid 1
-        v[imi, ][ v[imi, ]==0 ] <- 1 / (nmi + 1L) # to avoid 0
+            v.i[,j] <- ecdf(x.not.s[,j])(x.sel[,j])
+        nmi <- n - m[i] # == nr. of obs. in x.not.s
+        ## rescale v.i[,] to *inside* (0, 1) to avoid values 0 or 1
+        ## could map  k/n |--> (k+1)/(n+2) --- or rather the same as ppoints():
+        a <- if(nmi <= 10) 3/8 else 1/2 ## k/n |--> (k-a)/(n+1-2a) { = (k-1/2)/n for n >= 10}
+        v.i <- (v.i * nmi - a) / (nmi + 1-2*a)
         ## cross-validation for block i
-        xv <- xv + mean(dCopula(v[imi, , drop=FALSE], copula, log = TRUE))
+        xv <- xv + mean(dCopula(v.i, copula, log = TRUE))
 
         ## update progress bar
         if(verbose)
