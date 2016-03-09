@@ -4,7 +4,7 @@
 \description{
   Computes the leave-one-out cross-validation criterion (or a
   \code{k}-fold version of it) for the hypothesized parametric copula
-  family based on maximum pseudo-likelihood estimation. The
+  family using, by default, maximum pseudo-likelihood estimation. The
   leave-one-out criterion is given in equation (42) of
   Gr\enc{ø}{o}nneberg and Hjort (2014). Its \code{k}-fold version
   results from considering \code{k} data blocks instead of \code{n},
@@ -16,8 +16,8 @@
 xvCopula(copula, x, k = NULL, verbose = TRUE, \dots)
 }
 \arguments{
-  \item{copula}{object of class \code{"\linkS4class{copula}"} representing the
-    hypothesized copula family.}
+  \item{copula}{object of class \code{"\linkS4class{copula}"}
+    representing the hypothesized copula family.}
   \item{x}{a data matrix that will be transformed to pseudo-observations.}
   \item{k}{the number of data blocks; if \code{k = NULL}, \code{nrow(x)}
     blocks are considered (which corresponds to leave-one-out
@@ -34,7 +34,15 @@ xvCopula(copula, x, k = NULL, verbose = TRUE, \dots)
   criteria, \emph{Scandinavian Journal of Statistics}
   \bold{41}, 436--459.
 }
-%\note{}
+\note{Note that \code{k}-fold cross-validation with \code{k < n}
+  shuffles the lines of \code{x} prior to forming the blocks. The
+  result thus depends on the value of the random seed.
+
+  The default estimation method is maximum pseudo-likelihood estimation
+  but this can be changed if necessary along with all the other
+  arguments of \code{\link{fitCopula}()}.
+
+}
 \seealso{
   \code{\link{fitCopula}()} for the underlying estimation procedure and
   \code{\link{gofCopula}()} for goodness-of-fit tests.

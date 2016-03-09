@@ -26,7 +26,7 @@
 ##'        if NULL, leave-one out cross-validation is performed
 ##' @param verbose logical indicating whether a progress bar is shown
 ##' @return "cross validated log-likelihood"
-##' @author Ivan Kojadinovic
+##' @author Ivan Kojadinovic, Martin Maechler
 xvCopula <- function(copula, x, k=NULL, verbose=TRUE, ...)
 {
     ## checks
@@ -40,6 +40,9 @@ xvCopula <- function(copula, x, k=NULL, verbose=TRUE, ...)
     k <- if (is.null(k)) n else as.integer(k)
     stopifnot(k >= 2L, n %/% k >= 1)
 
+    ## shuffle lines of x if k < n
+    x <- x[sample(seq_len(n)),]
+
     ## setup progress bar
     if(verbose) {
 	pb <- txtProgressBar(max=k, style=if(isatty(stdout())) 3 else 1)
@@ -48,33 +51,33 @@ xvCopula <- function(copula, x, k=NULL, verbose=TRUE, ...)
 
     ## cross-validation
     xv <- 0
-    p <- n %/% k # size of all blocks except maybe the last one
+    p <- n %/% k # ideal size of blocks; blocks of size p+1 may exist
+    m <- rep(p, k) # sizes of blocks initialised at p
     r <- n - k * p # remaining number of lines
-    if (r > 0) k <- k + 1L # to account for last block
-    m <- rep(p, k) # sizes of blocks
-    if (r > 0) m[k] <- r # size of last block
+    if (r > 0) m[seq_len(r)] <- p + 1 # size of first r blocks incremented if r > 0
     b <- c(0, cumsum(m)) # 0 + ending line of each block
-    v <- matrix(NA, max(p, r), d) # points where copula density will be evaluated
+    v <- matrix(NA, p + 1, d) # points where copula density will be evaluated
 
     ## for each block
-    for (i in 1:k)
+    for (i in seq_len(k))
     {
         sel <- (b[i] + 1):b[i+1] # m[i] lines of current block
         ## estimate copula from all lines except those in sel
         u <- pobs(x.not.s <- x[-sel, , drop=FALSE])
-        copula <- fitCopula(copula, u, method = "mpl",
+        copula <- fitCopula(copula, u, #method = "mpl",
                             estimate.variance=FALSE, ...)@copula
-        imi <- seq_len(m[i]) # 1:m[i]
+        imi <- seq_len(m[i])
         v.i <- v[imi, , drop=FALSE] # (for efficiency)
         x.sel <- x[sel, , drop=FALSE]
         ## points where copula density will be evaluated
-        for (j in 1:d)
+        for (j in seq_len(d))
             v.i[,j] <- ecdf(x.not.s[,j])(x.sel[,j])
         nmi <- n - m[i] # == nr. of obs. in x.not.s
         ## rescale v.i[,] to *inside* (0, 1) to avoid values 0 or 1
+        v.i[v.i == 0] <- 1 / nmi ## needed as density can be zero on lower boundary of [0,1]^d
         ## could map  k/n |--> (k+1)/(n+2) --- or rather the same as ppoints():
-        a <- if(nmi <= 10) 3/8 else 1/2 ## k/n |--> (k-a)/(n+1-2a) { = (k-1/2)/n for n >= 10}
-        v.i <- (v.i * nmi - a) / (nmi + 1-2*a)
+        a <- if (nmi <= 10) 3/8 else 1/2 ## k/n |--> (k-a)/(n+1-2a) { = (k-1/2)/n for n >= 10}
+        v.i <- (v.i * nmi - a) / (nmi + 1 - 2 * a)
         ## cross-validation for block i
         xv <- xv + mean(dCopula(v.i, copula, log = TRUE))
 
