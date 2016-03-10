@@ -24,15 +24,15 @@ gofCopula(copula, x, N = 1000,
           method = "Sn",
           estim.method = eval(formals(fitCopula)$method),
           simulation = c("pb", "mult"),
-	  verbose = TRUE, print.every = NULL, \dots)
+	  verbose = interactive(), print.every = NULL, \dots)
 
 gofPB(copula, x, N, method = eval(formals(gofTstat)$method),
       estim.method = eval(formals(fitCopula)$method),
       trafo.method = c("none", "rtrafo", "htrafo"),
-      trafoArgs = list(), verbose = TRUE, \dots)
+      trafoArgs = list(), verbose = interactive(), \dots)
 
 gofMB(copula, x, N, method = c("Sn", "Rn"),
-      estim.method = eval(formals(fitCopula)$method), verbose = TRUE,
+      estim.method = eval(formals(fitCopula)$method), verbose = interactive(),
       useR = FALSE, m = 1/2, zeta.m = 0, b = 0.05, \dots)
 }
 \arguments{

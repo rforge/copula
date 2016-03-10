@@ -27,7 +27,7 @@
 ##' @param verbose logical indicating whether a progress bar is shown
 ##' @return "cross validated log-likelihood"
 ##' @author Ivan Kojadinovic, Martin Maechler
-xvCopula <- function(copula, x, k=NULL, verbose=TRUE, ...)
+xvCopula <- function(copula, x, k=NULL, verbose = interactive(), ...)
 {
     ## checks
     stopifnot(is(copula, "copula"))
@@ -40,8 +40,8 @@ xvCopula <- function(copula, x, k=NULL, verbose=TRUE, ...)
     k <- if (is.null(k)) n else as.integer(k)
     stopifnot(k >= 2L, n %/% k >= 1)
 
-    ## shuffle lines of x if k < n
-    x <- x[sample(seq_len(n)),]
+    if(k < n) ## shuffle lines of x  if 2 <= k < n
+	x <- x[sample.int(n), ]
 
     ## setup progress bar
     if(verbose) {
@@ -73,11 +73,8 @@ xvCopula <- function(copula, x, k=NULL, verbose=TRUE, ...)
         for (j in seq_len(d))
             v.i[,j] <- ecdf(x.not.s[,j])(x.sel[,j])
         nmi <- n - m[i] # == nr. of obs. in x.not.s
-        ## rescale v.i[,] to *inside* (0, 1) to avoid values 0 or 1
-        v.i[v.i == 0] <- 1 / nmi ## needed as density can be zero on lower boundary of [0,1]^d
-        ## could map  k/n |--> (k+1)/(n+2) --- or rather the same as ppoints():
-        a <- if (nmi <= 10) 3/8 else 1/2 ## k/n |--> (k-a)/(n+1-2a) { = (k-1/2)/n for n >= 10}
-        v.i <- (v.i * nmi - a) / (nmi + 1 - 2 * a)
+        ## rescale v.i to *inside* (0, 1) to avoid values 0 or 1 --- and do this *symmetrically*:
+        v.i <- (v.i * nmi + 1/2) / (nmi + 1)
         ## cross-validation for block i
         xv <- xv + mean(dCopula(v.i, copula, log = TRUE))
 
