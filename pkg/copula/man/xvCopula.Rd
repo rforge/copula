@@ -51,6 +51,7 @@ xvCopula(copula, x, k = NULL, verbose = interactive(), \dots)
   \code{\link{gofCopula}()} for goodness-of-fit tests.
 }
 \examples{
+\dontshow{set.seed(47)}% reproducibility
 ## A two-dimensional data example ----------------------------------
 x <- rCopula(200, claytonCopula(3))
 

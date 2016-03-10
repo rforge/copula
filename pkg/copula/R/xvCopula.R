@@ -59,27 +59,30 @@ xvCopula <- function(copula, x, k=NULL, verbose = interactive(), ...)
     v <- matrix(NA, p + 1, d) # points where copula density will be evaluated
 
     ## for each block
-    for (i in seq_len(k))
-    {
+    for (i in seq_len(k)) {
         sel <- (b[i] + 1):b[i+1] # m[i] lines of current block
         ## estimate copula from all lines except those in sel
         u <- pobs(x.not.s <- x[-sel, , drop=FALSE])
         copula <- fitCopula(copula, u, #method = "mpl",
                             estimate.variance=FALSE, ...)@copula
         imi <- seq_len(m[i])
-        v.i <- v[imi, , drop=FALSE] # (for efficiency)
+        v.i   <- v[imi, , drop=FALSE] # (for efficiency)
         x.sel <- x[sel, , drop=FALSE]
         ## points where copula density will be evaluated
-        for (j in seq_len(d))
-            v.i[,j] <- ecdf(x.not.s[,j])(x.sel[,j])
         nmi <- n - m[i] # == nr. of obs. in x.not.s
-        ## rescale v.i to *inside* (0, 1) to avoid values 0 or 1 --- and do this *symmetrically*:
-        v.i <- (v.i * nmi + 1/2) / (nmi + 1)
+	for (j in seq_len(d)) {
+	    ## v.i[,j] <- nmi * ecdf(x.not.s[,j])(x.sel[,j]) :
+	    vals <- unique.default(xj <- sort(x.not.s[,j]))
+	    v.i[,j] <- approxfun(vals, cumsum(tabulate(match(xj, vals))),
+				 method = "constant", ties = "ordered",
+				 yleft = 0, yright = nmi)(x.sel[,j])
+	}
+        ## rescale to *inside* (0,1) avoiding values {0,1} *symmetrically*:
+        v.i <- (v.i + 1/2) / (nmi + 1)
         ## cross-validation for block i
         xv <- xv + mean(dCopula(v.i, copula, log = TRUE))
 
-        ## update progress bar
-        if(verbose)
+        if(verbose) ## update progress bar
             setTxtProgressBar(pb, i)
     }
 

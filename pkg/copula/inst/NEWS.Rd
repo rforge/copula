@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-15 (2015-..-.., svn r...)}{
+\section{Changes in version 0.999-15 (2016-03-10, svn r1252)}{
   \itemize{
     \item \code{C.n(u, X, *)} now has \code{X} as second argument,
     calls \code{pobs(X)} and then \code{F.n(*,*)}; previously,
@@ -15,7 +15,11 @@
     \item improved R markdown vignettes.
 
     \item \code{fitCopula()} gets now method \code{"itau.mpl"} for \code{tCopula}s,
-    allowing to only estimate \code{df}, keeping the dispersion matrix fixed.
+    allowing to only estimate \code{df}, keeping the dispersion matrix
+    fixed.
+
+    \item new \code{xvCopula()} function: cross-validated copula fitting
+    for model selection.
   }
 }
 

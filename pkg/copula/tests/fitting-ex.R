@@ -106,14 +106,14 @@ stopifnot(identical(gMvGam@paramMargins,
                     list(list(shape = 2, rate = 3),
                          list(shape = 4, rate = 1))))
 X <- rMvdc(16000, gMvGam)
-plot(X, cex = 1/4)
+smoothScatter(X, main = "rMcdc(1600, gMvGam)")
 
 persp  (gMvGam, dMvdc, xlim = c(0,4), ylim=c(0,8)) ## almost discrete ????
 contour(gMvGam, dMvdc, xlim = c(0,2), ylim=c(0,8))
-points(X, cex = 1/16, col=adjustcolor("blue", 0.5))
+points(X, pch = ".", cex = 2, col=adjustcolor("blue", 0.5))
 
 if(FALSE)# unfinished --- TODO maybe move below ('doExtras')!
-fMv <- fitMvdc(X, gMvGam)
+fMv <- fitMvdc(X, gMvGam) # needs 'start' ...
 
 pFoo <- function(x, lower.tail=TRUE, log.p=FALSE)
      pnorm((x - 5)/20, lower.tail=lower.tail, log.p=log.p)
@@ -225,12 +225,23 @@ system.time(fit <- fitCopula(ellipCopula("t", dim=d, dispstr="un"),
 ## 6) After 4), tailIndex() returns a vector of length 2* d(d-1)/2 ... ok
 ##    in the bivariate case but not in higher dimensions => want a list
 
+###----------- xvCopula()  [ <--> ../man/xvCopula.Rd ] ---------
+set.seed(12)
+x <- rCopula(64, claytonCopula(pi))# "small" n ==> fast
+fG <- fitCopula(gumbelCopula(), x)
+(v <- c(logL   = logLik(fG),
+	xv.loo = xvCopula(gumbelCopula(), x       ), # l.o.o. CV
+	xv.5   = xvCopula(gumbelCopula(), x, k = 5)))# 5-fold CV
+stopifnot(all.equal(unname(v), c(32.783677, 32.835744, 32.247463),
+		    tolerance = 1e-7))
+
 
 if(!doExtras && !interactive()) q(save="no") ## so the following auto prints
 ##--------------------------------------------------------------------------
 
 ## d = 2 :
 ## ----- catching fitCopula() error: 'Lapack routine dgesv: system is exactly singular: U[2,2] = 0'
+##_FIXME_ since ca.end of 2015, this gives *different error*: iRho() not available for 'tCopula's'
 rtx <- tstFit1cop(tCopula(df.fixed=TRUE), tau.set=c(.4, .8),
                   n.set= c(10, 25), N=64)
 
