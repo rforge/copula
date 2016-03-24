@@ -118,6 +118,9 @@ exportClasses(galambosCopula, huslerReissCopula, tawnCopula, tevCopula)
 exportClasses(plackettCopula)
 exportClasses(fgmCopula)
 
+## NEW
+exportClasses(rotCopula)
+
 export(mvdc)
 export(ellipCopula, archmCopula, evCopula)
 export(normalCopula, tCopula)
@@ -126,6 +129,10 @@ export(claytonCopula, frankCopula, gumbelCopula, amhCopula, joeCopula)
 export(galambosCopula, huslerReissCopula, tawnCopula, tevCopula)
 export(plackettCopula)
 export(fgmCopula)
+
+## NEW
+export(rotCopula)
+
 ## auxiliary functions mainly used for working with elliptical copulas:
 export(p2P, P2p, getSigma, extreme_pairs)
 

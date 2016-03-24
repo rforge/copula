@@ -13,6 +13,7 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
+### Outer power trafos #############################################################
 
 ##' Outer power transformation of Archimedean copulas
 ##'
@@ -216,3 +217,174 @@ opower <- function(copbase, thetabase) {
               )
     C.
 }
+
+### Rotated copulas ###############################################################
+
+setClass("rotCopula", contains = "copula",
+         representation = representation(
+             copula = "copula",
+             mask = "logical"
+         ),
+	 validity = function(object) {
+    if(object@copula@dimension != length(object@mask))
+        "The dimension of the copula does not match the length of the mask"
+	     else TRUE
+})
+
+##' Rotated copulas created from an existing copula and a mask of logicals
+##'
+##' @title Rotated copulas
+##' @copula a "base" copula
+##' @mask vector of logicals; if element i is TRUE,
+##'       the copula is "rotated" wrt the axis x_i = 0.5;
+##'       the default value is all TRUE which gives the survival copula
+##' @return a new "rotCopula" object; see above
+##' @author Ivan Kojadinovic
+
+rotCopula <- function(copula, mask = rep(TRUE, copula@dimension)) {
+    new("rotCopula",
+        dimension = copula@dimension,
+        parameters = copula@parameters,
+        param.names = copula@param.names,
+        param.lowbnd = copula@param.lowbnd,
+        param.upbnd = copula@param.upbnd,
+        copula = copula,
+        mask = mask,
+        fullname = paste("Rotated copula based on:", copula@fullname))
+}
+
+## swicth u[,i] to 1 - u[,i] according to mask
+apply.mask <- function(u, mask) {
+    if (!is.matrix(u)) u <- matrix(u, ncol = length(mask))
+    u[,mask] <- 1 - u[,mask]
+    u
+}
+
+## pCopula
+pRotCopula <- function(u, copula) {
+    copula@copula@parameters <- copula@parameters # FIXME:avoidable?
+    apply(apply.mask(u, copula@mask), 1, # TODO: vectorize prob ?
+          function(x) prob(copula@copula,
+                           l = pmin(x, copula@mask),
+                           u = pmax(x, copula@mask)))
+}
+
+## dCopula
+dRotCopula <- function(u, copula, log = FALSE, ...) {
+    copula@copula@parameters <- copula@parameters # FIXME:avoidable?
+    dCopula(apply.mask(u, copula@mask), copula@copula, log = log, ...)
+}
+
+## rCopula
+rRotCopula <- function(n, copula) {
+    copula@copula@parameters <- copula@parameters # FIXME:avoidable?
+    apply.mask(rCopula(n, copula@copula), copula@mask)
+}
+
+## rho
+rhoRotCopula <- function(copula) {
+    ## if (copula@dimension > 2L)
+    ##     warning("considering only the first bivariate margin of the copula")
+    copula@copula@parameters <- copula@parameters # FIXME:avoidable?
+    (-1)^sum(copula@mask[1:2]) * rho(copula@copula)
+}
+
+## iRho
+iRhoRotCopula <- function(copula, rho) {
+    ## if (copula@dimension > 2L)
+    ##     warning("considering only the first bivariate margin of the copula")
+    iRho(copula@copula, (-1)^sum(copula@mask[1:2]) * rho)
+}
+
+## tau
+tauRotCopula <- function(copula) {
+    ## if (copula@dimension > 2L)
+    ##     warning("considering only the first bivariate margin of the copula")
+    copula@copula@parameters <- copula@parameters # FIXME:avoidable?
+    (-1)^sum(copula@mask[1:2]) * tau(copula@copula)
+}
+
+## iRho
+iTauRotCopula <- function(copula, tau) {
+    ## if (copula@dimension > 2L)
+    ##     warning("considering only the first bivariate margin of the copula")
+    iTau(copula@copula, (-1)^sum(copula@mask[1:2]) * tau)
+}
+
+## tailIndex
+tailIndexRotCopula <- function(copula) {
+    ## if (copula@dimension > 2L)
+    ##     warning("considering only the first bivariate margin of the copula")
+    copula@copula@parameters <- copula@parameters # FIXME:avoidable?
+    sm <- sum(copula@mask[1:2])
+    if (sm == 1) {
+        warning("not implemented yet")
+        return(c(lower= NA, upper= NA))
+    }
+    else {
+        ti <- tailIndex(copula@copula)
+        names(ti) <- NULL
+        if (sm == 0)
+            return(c(lower = ti[1], upper = ti[2]))
+        else
+            return(c(lower = ti[2], upper = ti[1]))
+    }
+}
+
+## dRho
+dRhoRotCopula <- function(copula) {
+    ## if (copula@dimension > 2)
+    ##     warning("considering only the first bivariate margin of the copula")
+    copula@copula@parameters <- copula@parameters # FIXME:avoidable?
+    (-1)^sum(copula@mask[1:2]) * dRho(copula@copula)
+}
+
+## dTau
+dTauRotCopula <- function(copula) {
+    ## if (copula@dimension > 2)
+    ##     warning("considering only the first bivariate margin of the copula")
+    copula@copula@parameters <- copula@parameters # FIXME: avoidable?
+    (-1)^sum(copula@mask[1:2]) * dTau(copula@copula)
+}
+
+## derPdfWrtArgs
+derPdfWrtArgsRotCopula <- function(cop, u) {
+    cop@copula@parameters <- cop@parameters # FIXME: avoidable?
+    derPdfWrtArgs(cop@copula, apply.mask(u, cop@mask)) # TODO: check
+}
+
+## derPdfWrtParams
+derPdfWrtParamsRotCopula <- function(cop, u) {
+    cop@copula@parameters <- cop@parameters # FIXME: avoidable?
+    derPdfWrtParams(cop@copula, apply.mask(u, cop@mask)) # TODO: check
+}
+
+## dCdtheta
+dCdthetaRotCopula <- function(cop, u) {
+    cop@copula@parameters <- cop@parameters # FIXME: avoidable?
+    dCdtheta(cop@copula, apply.mask(u, cop@mask)) # TODO: check
+}
+
+setMethod("pCopula", signature("numeric", "rotCopula"),pRotCopula)
+setMethod("pCopula", signature("matrix", "rotCopula"), pRotCopula)
+
+setMethod("dCopula", signature("numeric", "rotCopula"), dRotCopula)
+setMethod("dCopula", signature("matrix", "rotCopula"), dRotCopula)
+
+setMethod("rCopula", signature("numeric", "rotCopula"), rRotCopula)
+
+setMethod("rho", signature("rotCopula"), rhoRotCopula)
+setMethod("tau", signature("rotCopula"), tauRotCopula)
+
+setMethod("iRho", signature("rotCopula"), iRhoRotCopula)
+setMethod("iTau", signature("rotCopula"), iTauRotCopula)
+
+setMethod("tailIndex", signature("rotCopula"), tailIndexRotCopula)
+
+setMethod("dRho", signature("rotCopula"), dRhoRotCopula)
+setMethod("dTau", signature("rotCopula"), dTauRotCopula)
+
+setMethod("derPdfWrtArgs", signature("rotCopula"), derPdfWrtArgsRotCopula)
+setMethod("dcopwrap", signature("rotCopula"), dcopwrapExplicitCopula)
+setMethod("derPdfWrtParams", signature("rotCopula"), derPdfWrtParamsRotCopula)
+setMethod("dCdtheta", signature("rotCopula"), dCdthetaRotCopula)
