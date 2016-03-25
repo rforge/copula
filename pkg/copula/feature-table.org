@@ -14,8 +14,8 @@
 | c             | fitting ml mpl               | dcopula                       | dCopula        | I     | I  | I        | I  | P(demo) |
 | C'param       | gof mult                     | derCdfWrtParams               | dCdtheta       | I     |    | I ex amh |    |         |
 | C'args        | gof mult, cov emp cop proc   | derCdfWrtArgs                 | dCdu           | I     |    | I ex amh | P  |         |
-| c'param       | not directly needed -> score | derPdfWrtParams               | _rm_           |       |    | I ex amh |    |         |
-| c'args        | not directly ..... -> uscore | derPdfWrtArgs                 | _rm_           |       |    | I ex amh |    |         |
+| c'param       | not directly needed -> score | derPdfWrtParams               | dcdtheta       |       |    | I ex amh |    |         |
+| c'args        | not directly ..... -> uscore | derPdfWrtArgs                 | dcdu           |       |    | I ex amh |    |         |
 | c'param / c   | ml se, mpl se, gof mult      |                               | score          | I     |    |          | I  |         |
 | c'args / c    | ml se, mpl se, gof mult      |                               | uscore         | I     |    |          |    |         |
 | sampling      | gof pb                       | rcopula                       | rCopula        | I     |    |          | I  | I       |

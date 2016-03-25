@@ -242,7 +242,7 @@ setClass("rotCopula", contains = "copula",
 ##' @return a new "rotCopula" object; see above
 ##' @author Ivan Kojadinovic
 
-rotCopula <- function(copula = indepCopula(), mask = rep(TRUE, copula@dimension)) { # TODO: omit indepCopula() but then test 'rstable-ex.R' fails!
+rotCopula <- function(copula, mask = rep(TRUE, copula@dimension)) { # TODO: 'rstable-ex.R' fails!!!!!
     new("rotCopula",
         dimension = copula@dimension,
         parameters = copula@parameters,
