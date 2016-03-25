@@ -223,24 +223,6 @@ varInfluAr1 <- function(cop, v, L, der) {
     v %*% theta
 }
 
-## TODO this should *not* be used anymore; use Jscore() from gofCopula.R
-## Auxiliary Function for varPL()
-influ.terms <- function(u, influ, q)
-{
-    p <- ncol(u)
-    n <- nrow(u)
-    ## Integral w.r.t. empirical copula (-> sum):
-    S <- matrix(0,n,q)
-    for (i in 1:p) {
-        o.i <- order(u[,i], decreasing=TRUE)
-        obi <- rank(u[,i]) # FIXME? add.influ() in ./gofTests.R uses ecdf(.) * M here
-        S <- S + rbind(rep.int(0,q),
-                       apply(influ[[i]][o.i,,drop=FALSE],2,cumsum))[n + 1 - obi,,drop=FALSE]
-    }
-    S / n
-}
-
-
 ### Variances of the estimators ################################################
 
 ##' @title Variance of the Inversion of a Rank Correlation Measure Estimator
@@ -325,37 +307,17 @@ varPL <- function(cop, u)
                               sprintf(" oCop <- onacopula(%s, C(NA, 1:%d))", fam, p)))
     }
     if (!isEll && (!hasMethod("dcopwrap", clc) ||
-                    !hasMethod("derPdfWrtArgs", clc))) {
+                   !hasMethod("derPdfWrtArgs", clc))) {
 	warning(msg); return(ans)
     }
 
-    ## n <- nrow(u)
-
-    ## influence: second part
-    ## integrals computed from the original pseudo-obs u by Monte Carlo
-    dcop <- dcopwrap(cop,u) ## wrapper: either dCopula() or '1' (for ellip.)
-    ## New    dcop <- dCopula(u,cop) ## in some cases
-    ## influ0 <- score (cop,u, dcop)
-    ## derArg <- score2(cop,u, dcop)
-    influ0 <- derPdfWrtParams(cop,u) / dcop # c. / c  = of dim.  n x q  {== cop<foo>@score()}
-    if(is.na(influ0[1])) {
-	warning(msg); return(ans)
-    }
-    derArg <- derPdfWrtArgs(cop,u)   / dcop #         = of dim.  n x p  {missing in copFoo -- TODO}
-
-    ## TODO: use  array instead of list (and change influ.terms() accordingly)
-    influ <- vector("list",p)
-    for (i in 1:p)
-        influ[[i]] <- influ0 * derArg[,i]
-
-    inve <- solve(var(influ0))
+    ## If df.fixed = FALSE, Jscore() cannot be computed
     if(has.par.df(cop, ccl, isEll)) {
-        ## currently cannot get var/cov for 'df' part
-	ans[-q,-q] <- inve %*% var(influ0 - influ.terms(u,influ, q-1)) %*% inve
-	ans
-    }
-    else
-	inve %*% var(influ0 - influ.terms(u,influ, q)) %*% inve
+        cop <- as.df.fixed(cop, classDef = ccl)
+        ans[-q,-q] <- var(t(Jscore(cop, u, method = "mpl")))
+    } else
+        ans <- var(t(Jscore(cop, u, method = "mpl")))
+    ans
 }
 
 
