@@ -26,6 +26,7 @@ rotCopula <- function(copula, mask = rep(TRUE, copula@dimension))
 }
 \examples{
 ## A two-dimensional example
+\dontrun{
 rotated.clayton <- rotCopula(claytonCopula(3), mask = c(T, F))
 
 contour(rotated.clayton, dCopula, nlevels = 20)
@@ -65,7 +66,7 @@ fitCopula(rotCopula(frankCopula(dim=4), mask = c(T, F, T, F)), pobs(u))
 ## itau and irho should not be used
 gofCopula(rotCopula(frankCopula(dim=4), mask = c(T, F, T, F)), pobs(u))
 gofCopula(rotCopula(frankCopula(dim=4), mask = c(T, F, T, F)), pobs(u), sim = "mult")
-
+} # dontrun
 }
 \keyword{distribution}
 \keyword{multivariate}

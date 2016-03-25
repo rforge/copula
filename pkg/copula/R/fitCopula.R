@@ -128,7 +128,7 @@ fitCopStart <- function(copula, u, default=copula@parameters, ...)
     if(hasMethod("iTau", clc)) {
 	ccl <- getClass(clc)
 	.par.df <- has.par.df(copula, ccl)
-	start <- fitCopula.icor(if(.par.df) as.df.fixed(copula, ccl) else copula,
+	start <- fitCopula.icor(if(.par.df) as.df.fixed(copula, classDef = ccl) else copula,
 				x=u, method="itau", estimate.variance=FALSE,
                                 warn.df=FALSE, ...)@estimate # fitCopula.icor(, method="itau")
 	if(.par.df) # add starting value for 'df'
@@ -197,31 +197,6 @@ getXmat <- function(copula) {
     }
 }
 
-##' Auxiliary function for varCor()
-##' @param cop An ellipCopula with \code{dispstr = "ar1"}
-##' @param v Influence for tau or rho
-##' @param L L
-##' @param der A character string, currently either "tau" or "rho"
-varInfluAr1 <- function(cop, v, L, der) {
-    p <- cop@dimension
-    pp <- p * (p - 1) / 2
-    ## n <- nrow(v)
-
-    ## estimate log(r) first, then log(theta), and then exponentiate back
-    ## r is the lower.tri of sigma
-    sigma <- getSigma(cop) # assuming cop is the fitted copula
-    ## influ for log(r)
-    r <- P2p(sigma)
-    der <- if (der == "tau") dTauFun(cop)(r) else dRhoFun(cop)(r)
-    D <- diag(x = 1 / r / der, pp)
-    v <- v %*% D
-    ## influ for log(theta)
-    v <- v %*% L
-
-    ## influ for theta
-    theta <- cop@parameters[1]
-    v %*% theta
-}
 
 ### Variances of the estimators ################################################
 
@@ -233,7 +208,7 @@ varInfluAr1 <- function(cop, v, L, der) {
 ##' @return Variance of the inversion of a rank correlation measure estimator
 ##' @note See Kojadinovic & Yan (2010) "Comparison of three semiparametric ...",
 ##'       IME 47, 52--63
-varCor <- function(cop, u, method=c("itau", "irho"))
+var.icor <- function(cop, u, method=c("itau", "irho"))
 {
     ## Check if variance can be computed
     method <- match.arg(method)
@@ -276,7 +251,19 @@ varCor <- function(cop, u, method=c("itau", "irho"))
     ## L <- t(solve(crossprod(X), t(X)))
     L <- getL(cop)
     v <- if (is(cop, "ellipCopula") && cop@dispstr == "ar1") {
-        varInfluAr1(cop, v, L, if(method=="itau") "tau" else "rho")
+        pp <- p * (p - 1) / 2
+        ## Estimate log(r) first, then log(theta), and then exponentiate back
+        ## r is the lower.tri of sigma
+        sigma <- getSigma(cop) # assuming cop is the fitted copula
+        ## Influence function for log(r)
+        r <- P2p(sigma)
+        D <- diag(x = 1 / r / if(method=="itau") dTauFun(cop)(r) else dRhoFun(cop)(r), pp)
+        v <- v %*% D
+        ## Influence function for log(theta)
+        v <- v %*% L
+        ## Influence function for theta
+        theta <- cop@parameters[1]
+        v %*% theta
     } else {
         ## Caution: diag(0.5) is not a 1x1 matrix of 0.5!!! check it out.
         dCor <- if(method=="itau") dTau else dRho
@@ -290,11 +277,11 @@ varCor <- function(cop, u, method=c("itau", "irho"))
 ##' @param cop The *fitted* copula object
 ##' @param u The data in [0,1]^d
 ##' @return vcov matrix
-varPL <- function(cop, u)
+var.mpl <- function(cop, u)
 {
     ## Checks
-    q <- length(cop@parameters)
-    p <- cop@dimension
+    q <- length(cop@parameters) # parameter space dimension p
+    p <- cop@dimension # copula dimension d
     ans <- matrix(NA_real_, q, q)
     ccl <- getClass(clc <- class(cop))
     isEll <- extends(ccl, "ellipCopula")
@@ -307,12 +294,12 @@ varPL <- function(cop, u)
                               sprintf(" oCop <- onacopula(%s, C(NA, 1:%d))", fam, p)))
     }
     if (!isEll && (!hasMethod("dcopwrap", clc) ||
-                   !hasMethod("derPdfWrtArgs", clc))) {
+                   !hasMethod("dcdu", clc))) {
 	warning(msg); return(ans)
     }
 
     ## If df.fixed = FALSE, Jscore() cannot be computed
-    if(has.par.df(cop, ccl, isEll)) {
+    if(has.par.df(cop, ccl, isEll)) { # FIXME: should work with has.par.df(cop)
         cop <- as.df.fixed(cop, classDef = ccl)
         ans[-q,-q] <- var(t(Jscore(cop, u, method = "mpl")))
     } else
@@ -357,7 +344,7 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
             else .lm.fit(X, y=icor)$coefficients)
     copula@parameters <- estimate
     var.est <- if (is.na(estimate.variance) || estimate.variance) {
-        varCor(copula, x, method=method)/nrow(x)
+        var.icor(copula, x, method=method)/nrow(x)
     } else matrix(NA, q, q)
     new("fitCopula",
         estimate = estimate,
@@ -521,7 +508,7 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
     var.est <- switch(method,
     "mpl" = {
         if(estimate.variance) {
-            varPL(copula, u) / nrow(u)
+            var.mpl(copula, u) / nrow(u)
         } else {
             q <- length(copula@parameters)
             matrix(NA, q, q)

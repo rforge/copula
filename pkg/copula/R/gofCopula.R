@@ -131,7 +131,7 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
 gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
                   estim.method = eval(formals(fitCopula)$method),
                   trafo.method = c("none", "rtrafo", "htrafo"),
-		  trafoArgs = list(), verbose = interactive(), ...)
+		  trafoArgs = list(), verbose=TRUE, ...)
 {
     ## checks
     stopifnot(is(copula, "copula"), N >= 1)
@@ -225,41 +225,44 @@ Jscore <- function(copula, u, method)
     ## checks
     stopifnot(is(copula, "copula"))
     if(!is.matrix(u)) u <- rbind(u, deparse.level=0L)
-    stopifnot((d <- ncol(u)) > 1, (n <- nrow(u)) > 0, dim(copula) == d)
+    stopifnot((n <- nrow(u)) > 0, (d <- ncol(u)) > 1, dim(copula) == d)
 
     ## deal with different methods
     switch(method,
            "mpl"=
-       { ## see page 7 in Kojadinovic and Yan (2011)
-           ## integrals computed from n realizations by Monte Carlo
-           dcop <- dcopwrap(copula, u)
-           influ0 <- derPdfWrtParams(copula, u) / dcop
-           derArg <- derPdfWrtArgs  (copula, u) / dcop
-           influ <- lapply(1:copula@dimension, function(i) influ0*derArg[,i]) # FIXME improve
+       {   ## See page 7 in Kojadinovic and Yan (2011)
+           if(has.par.df(copula))
+               stop("Jscore() cannot be computed for df.fixed = FALSE")
+           ## Integrals computed from n realizations by Monte Carlo
+           dcop <- dcopwrap(copula, u) # nrow(u)-vector (density for ACs, EVCs; 1 for elliptical)
+           influ0 <- dcdtheta(copula, u) / dcop # (n, d)-matrix
+           derArg <- dcdu  (copula, u) / dcop # (n, d)-matrix
+           influ <- lapply(1:copula@dimension, function(i) influ0*derArg[,i])
            n <- nrow(u)
            d <- ncol(u)
            p <- length(copula@parameters)
            S <- matrix(0, n, p)
-           for(j in 1:d) { # FIXME remove for() and apply()
+           for(j in 1:d) {
                ij <- order(u[,j], decreasing=TRUE)
                ijb <- vapply(1:n, function(i) sum(t(u[,j]) <= u[i,j]), NA_real_)
                S <- S + rbind(rep.int(0, p),
                               apply(influ[[j]][ij,,drop=FALSE], 2, cumsum))[n+1-ijb,,drop=FALSE] / n -
                                   matrix(colMeans(influ[[j]]*u[,j]), n, p, byrow=TRUE)
            }
-           solve(crossprod(influ0)/n, t(derPdfWrtParams(copula, u)/dcopwrap(copula, u)-S))
+           Sigma.n <- crossprod(influ0) / n # = A^T A / n for A = influ0
+           solve(Sigma.n, t(dcdtheta(copula, u) / dcopwrap(copula, u) - S)) # solve(A, B) solves Ax = B => x = A^{-1}B
        },
            "ml"=
        {
            stop("method='ml' not available")
        },
            "itau"=
-       { ## see page 849 in Kojadinovic, Yan, and Holmes (2011)
+       { ## See page 849 in Kojadinovic, Yan, and Holmes (2011)
            stopifnot(dim(copula)==2)
            (4/dTau(copula)) * ( 2*pCopula(u, copula) - rowSums(u) + (1-tau(copula))/2 )
        },
            "irho"=
-       { ## see Equation (3.5) on page 847 in Kojadinovic, Yan, and Holmes (2011)
+       { ## See Equation (3.5) on page 847 in Kojadinovic, Yan, and Holmes (2011)
            stopifnot(dim(copula)==2)
            i1 <- order(u[,1], decreasing=TRUE)
            i2 <- order(u[,2], decreasing=TRUE)
@@ -293,7 +296,7 @@ Jscore <- function(copula, u, method)
 ##'         the realized test statistic and the bootstrapped one are computationally different
 gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
                   estim.method=eval(formals(fitCopula)$method),
-                  verbose = interactive(), useR=FALSE, m = 1/2, zeta.m = 0, b = 0.05, ...)
+                  verbose=TRUE, useR=FALSE, m = 1/2, zeta.m = 0, b = 0.05, ...)
 {
     ## checks
     stopifnot(is(copula, "copula"), N>=1)
@@ -426,7 +429,7 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
 gofCopula <- function(copula, x, N=1000, method = "Sn",
                       estim.method = eval(formals(fitCopula)$method),
                       simulation = c("pb", "mult"),
-		      verbose = interactive(), print.every=NULL, ...)
+		      verbose=TRUE, print.every=NULL, ...)
 {
     ## checks
     stopifnot(is(copula, "copula"), N >= 1)

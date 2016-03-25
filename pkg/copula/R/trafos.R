@@ -13,6 +13,7 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
+
 ### Outer power trafos #############################################################
 
 ##' Outer power transformation of Archimedean copulas
@@ -241,7 +242,7 @@ setClass("rotCopula", contains = "copula",
 ##' @return a new "rotCopula" object; see above
 ##' @author Ivan Kojadinovic
 
-rotCopula <- function(copula, mask = rep(TRUE, copula@dimension)) {
+rotCopula <- function(copula = indepCopula(), mask = rep(TRUE, copula@dimension)) { # TODO: omit indepCopula() but then test 'rstable-ex.R' fails!
     new("rotCopula",
         dimension = copula@dimension,
         parameters = copula@parameters,
@@ -347,16 +348,16 @@ dTauRotCopula <- function(copula) {
     (-1)^sum(copula@mask[1:2]) * dTau(copula@copula)
 }
 
-## derPdfWrtArgs
-derPdfWrtArgsRotCopula <- function(cop, u) {
+## dcdu
+dcduRotCopula <- function(cop, u) {
     cop@copula@parameters <- cop@parameters # FIXME: avoidable?
-    derPdfWrtArgs(cop@copula, apply.mask(u, cop@mask)) # TODO: check
+    dcdu(cop@copula, apply.mask(u, cop@mask)) # TODO: check
 }
 
-## derPdfWrtParams
-derPdfWrtParamsRotCopula <- function(cop, u) {
+## dcdtheta
+dcdthetaRotCopula <- function(cop, u) {
     cop@copula@parameters <- cop@parameters # FIXME: avoidable?
-    derPdfWrtParams(cop@copula, apply.mask(u, cop@mask)) # TODO: check
+    dcdtheta(cop@copula, apply.mask(u, cop@mask)) # TODO: check
 }
 
 ## dCdtheta
@@ -384,7 +385,7 @@ setMethod("tailIndex", signature("rotCopula"), tailIndexRotCopula)
 setMethod("dRho", signature("rotCopula"), dRhoRotCopula)
 setMethod("dTau", signature("rotCopula"), dTauRotCopula)
 
-setMethod("derPdfWrtArgs", signature("rotCopula"), derPdfWrtArgsRotCopula)
+setMethod("dcdu", signature("rotCopula"), dcduRotCopula)
 setMethod("dcopwrap", signature("rotCopula"), dcopwrapExplicitCopula)
-setMethod("derPdfWrtParams", signature("rotCopula"), derPdfWrtParamsRotCopula)
+setMethod("dcdtheta", signature("rotCopula"), dcdthetaRotCopula)
 setMethod("dCdtheta", signature("rotCopula"), dCdthetaRotCopula)

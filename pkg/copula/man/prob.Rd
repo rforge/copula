@@ -13,7 +13,7 @@
 prob(x, l, u)
 }
 \arguments{
-  \item{x}{copula of dimension, that is, an object
+  \item{x}{copula of dimension \eqn{d}, that is, an object
     of class \code{\linkS4class{Copula}}.}
   \item{l, u}{\eqn{d}-dimensional, \code{\link{numeric}}, lower and
     upper hypercube boundaries, respectively, satisfying

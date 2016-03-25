@@ -55,7 +55,7 @@ tCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex",
 	)
 }
 
-## used for tCopula *and* tevCopula :
+## Used for tCopula *and* tevCopula
 as.df.fixed <- function(cop, classDef = getClass(class(cop))) {
     stopifnot( ## fast .slotNames()
 	      any(names(classDef@slots) == "df.fixed"))
