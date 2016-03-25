@@ -188,7 +188,7 @@ S3method(vcov, fittedMV)
 S3method(logLik, fittedMV)
 
 ##_TESTING_
-## export(dCdtheta, derPdfWrtParams, dTau, dRho)
+## export(dCdtheta, dcdtheta, dTau, dRho)
 ## export(dCdu)
 ## export(ChiPlot, KPlot)
 ##

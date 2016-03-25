@@ -399,7 +399,7 @@ dcdthetaExplicitCopula <- function(cop, u)
         colnames(u) <- paste0("u", 1:p)
         as.matrix(eval(der.pdf.alpha, data.frame(u)))
     } else {
-        warning("There is no formula for derPdfWrtParam*() for this copula")
+        warning("There is no formula for dcdtheta*() for this copula")
         matrix(NA_real_, nrow(u), p)
     }
 }

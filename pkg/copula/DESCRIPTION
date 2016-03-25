@@ -35,13 +35,13 @@ ByteCompile: yes
 VignetteBuilder: knitr
 Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R special-func.R
 	 cop_objects.R nacopula.R
-	 derCdfPdf.R amhCopula.R amhExpr.R An.R
+	 dC-dc.R amhCopula.R amhExpr.R An.R
          archmCopula.R asymCopula.R asymExplicitCopula.R claytonCopula.R
          claytonExpr.R ellipCopula.R empcop.R empPsi.R acR.R
 	 estimation.R evCopula.R evTests.R
          exchTests.R fgmCopula.R fitCopula.R fitMvdc.R frankCopula.R
          frankExpr.R galambosCopula.R galambosExpr-math.R galambosExpr.R
-	 ggraph-tools.R pairsRosenblatt.R
+	 ggraph-tools.R pairsRosenblatt.R prob.R
 	 gofTrafos.R gofEVTests.R gofCopula.R
 	 graphics.R gumbelCopula.R gumbelExpr.R
          huslerReissCopula.R huslerReissExpr.R indepCopula.R
