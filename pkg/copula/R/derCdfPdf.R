@@ -16,7 +16,27 @@
 
 ### partial derivatives of the CDF wrt arguments ###############################
 
+
+
 setGeneric("dCdu", function(cop, u) standardGeneric("dCdu"))
+
+gradControl <- function(eps=1e-4, d=0.1,
+                        zero.tol=sqrt(.Machine$double.eps/7e-7),
+                        r=6, v=2, show.details=FALSE) {
+    list(eps=eps, d = d, zero.tol = zero.tol, r = r, v = v, show.details = show.details)
+}
+
+## Basic implementation based on numerical differentiation
+dCduCopulaNum <- function(cop, u) {
+    ## cop <- normalCopula(rep(0.5,3), dim=3, dispstr = "un")
+    ## u <- matrix(runif(15),5,3)
+    pCop <- function(x) pCopula(x, cop)
+    res <- t(apply(u, 1, function(u.) grad(pCop, u., method.args = gradControl())))
+    ## copula:::dCdu(cop, u)
+    res[res < 0] <- 0
+    res[res > 1] <- 1
+    res
+}
 
 ## Warning: This function assumes symmetry in u
 dCduExplicitCopula <- function(cop, u)
@@ -48,6 +68,7 @@ dCduIndepCopula <- function(cop, u) {
   mat
 }
 
+setMethod("dCdu", signature("Copula"), dCduCopulaNum)
 setMethod("dCdu", signature("archmCopula"), dCduExplicitCopula)
 setMethod("dCdu", signature("plackettCopula"), dCduExplicitCopula)
 setMethod("dCdu", signature("evCopula"), dCduExplicitCopula)
@@ -174,6 +195,20 @@ setMethod("plackettFormula", signature("tCopula"), plackettFormulaTCopula)
 
 setGeneric("dCdtheta", function(cop, u) standardGeneric("dCdtheta"))
 
+## Basic implementation based on numerical differentiation
+dCdthetaCopulaNum <- function(cop, u) {
+
+    ## cop <- normalCopula(rep(0.5,3), dim=3, dispstr = "un")
+    ## u <- matrix(runif(15),5,3)
+    pCop <- function(theta) {
+        cop@parameters <- theta
+        pCopula(u, cop)
+    }
+    theta <- cop@parameters
+    jacobian(pCop, theta, method.args = gradControl())
+    ## copula:::dCdtheta(cop, u)
+}
+
 
 dCdthetaExplicitCopula <- function(cop, u)
 {
@@ -197,6 +232,7 @@ dCdthetaEvCopula <- function(cop, u) {
   as.matrix(pCopula(u, cop) * loguv * dAdtheta(cop, w))
 }
 
+setMethod("dCdtheta", signature("Copula"), dCdthetaCopulaNum)
 setMethod("dCdtheta", signature("archmCopula"), dCdthetaExplicitCopula)
 setMethod("dCdtheta", signature("plackettCopula"), dCdthetaExplicitCopula)
 setMethod("dCdtheta", signature("evCopula"), dCdthetaExplicitCopula)
@@ -281,6 +317,15 @@ setMethod("dCdtheta", signature("ellipCopula"), dCdthetaEllipCopula)
 
 setGeneric("dcdu", function(cop, u) standardGeneric("dcdu"))
 
+## Basic implementation based on numerical differentiation
+dcduCopulaNum <- function(cop, u) {
+    ## cop <- normalCopula(rep(0.5,3), dim=3, dispstr = "un")
+    ## u <- matrix(runif(15),5,3)
+    dCop <- function(x) dCopula(x, cop)
+    t(apply(u, 1, function(u.) grad(dCop, u., method.args = gradControl())))
+    ## copula:::dcdu(cop, u)
+}
+
 dcduExplicitCopula <- function(cop, u)
 {
     p <- cop@dimension
@@ -300,6 +345,7 @@ dcduExplicitCopula <- function(cop, u)
     mat
 }
 
+setMethod("dcdu", signature("Copula"), dcduCopulaNum)
 setMethod("dcdu", signature("archmCopula"), dcduExplicitCopula)
 setMethod("dcdu", signature("plackettCopula"), dcduExplicitCopula)
 setMethod("dcdu", signature("evCopula"), dcduExplicitCopula)
@@ -326,9 +372,23 @@ dcduTCopula <- function(cop, u)
 setMethod("dcdu", signature("tCopula"), dcduTCopula)
 
 
-## Partial derivatives of the PDF wrt parameters for ellipCopula: DIVIDED BY PDF
+## Partial derivatives of the PDF wrt parameters (for ellipCopula: DIVIDED BY PDF)
 
 setGeneric("dcdtheta", function(cop, u) standardGeneric("dcdtheta"))
+
+## Basic implementation based on numerical differentiation
+dcdthetaCopulaNum <- function(cop, u) {
+
+    ## cop <- normalCopula(rep(0.5,3), dim=3, dispstr = "un")
+    ## u <- matrix(runif(15),5,3)
+    dCop <- function(theta) {
+        cop@parameters <- theta
+        dCopula(u, cop)
+    }
+    theta <- cop@parameters
+    jacobian(dCop, theta, method.args = gradControl())
+    ## copula:::dcdtheta(cop, u)
+}
 
 dcdthetaExplicitCopula <- function(cop, u)
 {
@@ -344,6 +404,7 @@ dcdthetaExplicitCopula <- function(cop, u)
     }
 }
 
+setMethod("dcdtheta", signature("Copula"), dcdthetaCopulaNum)
 setMethod("dcdtheta", signature("archmCopula"), dcdthetaExplicitCopula)
 setMethod("dcdtheta", signature("plackettCopula"), dcdthetaExplicitCopula)
 setMethod("dcdtheta", signature("evCopula"), dcdthetaExplicitCopula)

@@ -94,6 +94,8 @@ import("pspline")
 ## importFrom(sn, dmst)
 ## importFrom(sn, qsn, dsn, psn, dmsn, pmsn)
 
+importFrom("numDeriv", grad, jacobian)
+
 
 ### Part I: Mainly former copula ###############################################
 
