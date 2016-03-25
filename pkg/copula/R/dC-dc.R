@@ -38,6 +38,20 @@ dCduCopulaNum <- function(cop, u) {
     res
 }
 
+
+## TODO: For ACs, the following is better than 'fixed formulas' => use it
+## require(copula)
+## n <- 10
+## d <- 4
+## family <- "Gumbel"
+## th <- 2
+## u <- matrix(runif(n*d), ncol=d)
+## cop <- onacopulaL(family, nacList=list(th, seq_len(d)))
+## iPsi.u <- cop@copula@iPsi(u, theta=th)
+## j <- ceiling(d/2)
+## dCdu <- sapply(seq_len(d), function(j) exp(cop@copula@absdPsi(rowSums(iPsi.u), theta=th, degree=1, log=TRUE) -
+##                                            cop@copula@absdPsi(iPsi.u[,j], theta=th, degree=1, log=TRUE)))
+
 ## Warning: This function assumes symmetry in u
 dCduExplicitCopula <- function(cop, u)
 {
