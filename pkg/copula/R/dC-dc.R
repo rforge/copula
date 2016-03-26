@@ -13,17 +13,16 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-
-### partial derivatives of the CDF wrt arguments ###############################
-
-
+##################################################################################
+### partial derivatives of the CDF wrt arguments
+##################################################################################
 
 setGeneric("dCdu", function(cop, u) standardGeneric("dCdu"))
 
-gradControl <- function(eps=1e-4, d=0.1,
-                        zero.tol=sqrt(.Machine$double.eps/7e-7),
+gradControl <- function(eps=1e-4, d=0.1, zero.tol=sqrt(.Machine$double.eps/7e-7),
                         r=6, v=2, show.details=FALSE) {
-    list(eps=eps, d = d, zero.tol = zero.tol, r = r, v = v, show.details = show.details)
+    list(eps=eps, d = d, zero.tol = zero.tol,
+         r = r, v = v, show.details = show.details)
 }
 
 ## Basic implementation based on numerical differentiation
@@ -38,19 +37,22 @@ dCduCopulaNum <- function(cop, u) {
     res
 }
 
-
-## TODO: For ACs, the following is better than 'fixed formulas' => use it
-## require(copula)
-## n <- 10
-## d <- 4
-## family <- "Gumbel"
-## th <- 2
-## u <- matrix(runif(n*d), ncol=d)
-## cop <- onacopulaL(family, nacList=list(th, seq_len(d)))
-## iPsi.u <- cop@copula@iPsi(u, theta=th)
-## j <- ceiling(d/2)
-## dCdu <- sapply(seq_len(d), function(j) exp(cop@copula@absdPsi(rowSums(iPsi.u), theta=th, degree=1, log=TRUE) -
-##                                            cop@copula@absdPsi(iPsi.u[,j], theta=th, degree=1, log=TRUE)))
+dCduArchmCopula <- function(cop, u) {
+    ## TODO: For ACs, the following is better than 'fixed formulas' => use it
+    ## require(copula)
+    ## n <- 10
+    ## d <- 4
+    ## family <- "Gumbel"
+    ## th <- 2
+    ## u <- matrix(runif(n*d), ncol=d)
+    ## cop <- onacopulaL(family, nacList=list(th, seq_len(d)))
+    ## iPsi.u <- cop@copula@iPsi(u, theta=th)
+    iPsi.u <- iPsi(cop, u)
+    d <- copula@dimension
+    j <- ceiling(d/2)
+    ## NEED function absdPsi to make below work for any Archimedean copula in the same way that iPsi exists
+    ## dCdu <- sapply(seq_len(d), function(j) exp(cop@copula@absdPsi(rowSums(iPsi.u), theta=th, degree=1, log=TRUE) - cop@copula@absdPsi(iPsi.u[,j], theta=th, degree=1, log=TRUE)))
+}
 
 ## Warning: This function assumes symmetry in u
 dCduExplicitCopula <- function(cop, u)
@@ -71,6 +73,8 @@ dCduExplicitCopula <- function(cop, u)
     } else warning("there is no formula for dCdu*() for this copula")
     mat
 }
+
+
 
 ## this function is used for Khoudraji's device
 dCduIndepCopula <- function(cop, u) {
@@ -146,8 +150,9 @@ dCduEllipCopula <- function(cop, u)
 
 setMethod("dCdu", signature("ellipCopula"), dCduEllipCopula)
 
-
-### Plackett formula for elliptical copulas ####################################
+##################################################################################
+### Plackett formula for elliptical copulas
+##################################################################################
 
 setGeneric("plackettFormulaDim2", function(cop, x) standardGeneric("plackettFormulaDim2"))
 
@@ -204,8 +209,9 @@ plackettFormulaTCopula <- function(cop, p, rho, s, m, x, i, j)
 
 setMethod("plackettFormula", signature("tCopula"), plackettFormulaTCopula)
 
-
-### partial derivatives of the CDF wrt parameters ##############################
+##################################################################################
+### partial derivatives of the CDF wrt parameters
+##################################################################################
 
 setGeneric("dCdtheta", function(cop, u) standardGeneric("dCdtheta"))
 
@@ -326,8 +332,10 @@ dCdthetaEllipCopula <- function(cop, u)
 
 setMethod("dCdtheta", signature("ellipCopula"), dCdthetaEllipCopula)
 
-
-### Partial derivatives of the PDF wrt arguments for ellipCopula: DIVIDED BY PDF
+##################################################################################
+### Partial derivatives of the PDF wrt arguments
+### For ellipCopula: DIVIDED BY PDF
+##################################################################################
 
 setGeneric("dcdu", function(cop, u) standardGeneric("dcdu"))
 
@@ -385,8 +393,10 @@ dcduTCopula <- function(cop, u)
 
 setMethod("dcdu", signature("tCopula"), dcduTCopula)
 
-
-## Partial derivatives of the PDF wrt parameters (for ellipCopula: DIVIDED BY PDF)
+##################################################################################
+### Partial derivatives of the PDF wrt parameters
+### For ellipCopula: DIVIDED BY PDF
+##################################################################################
 
 setGeneric("dcdtheta", function(cop, u) standardGeneric("dcdtheta"))
 
@@ -521,11 +531,12 @@ dcdthetaEllipCopula <- function(cop, u)
 
 setMethod("dcdtheta", signature("ellipCopula"), dcdthetaEllipCopula)
 
+##################################################################################
+### dCopula wrapper for influence coefficients
+### dcopwrap() gives the density (for ACs, EVCs, Plackett) and a vector of 1s
+### for elliptical copulas
+##################################################################################
 
-### dCopula wrapper for influence coefficients #################################
-
-## dcopwrap() gives the density (for ACs, EVCs, Plackett) and a vector of 1s
-## for elliptical copulas
 setGeneric("dcopwrap",  function(cop, u, ...) standardGeneric("dcopwrap"))
 
 dcopwrapExplicitCopula <- function(cop, u) dCopula(u, cop)
