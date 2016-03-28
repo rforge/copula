@@ -175,8 +175,12 @@ dCduAsymBivCopula <- function(cop, u) {
     gu2 <- cbind(g(u[,1], a1), g(u[,2], a2))
     dC1du <- dCdu(copula1, gu1)
     dC2du <- dCdu(copula2, gu2)
-    cbind(dgdu(u[,1], 1 - a1) * dC1du[,1] + dgdu(u[,1], a1) * dC2du[,1],
-          dgdu(u[,2], 1 - a2) * dC1du[,2] + dgdu(u[,2], a2) * dC2du[,2])
+    pC1gu1 <- pCopula(gu1, copula1)
+    pC2gu2 <- pCopula(gu2, copula2)
+    cbind(dgdu(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 +
+          pC1gu1 * dgdu(u[,1], a1) * dC2du[,1],
+          dgdu(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
+          pC1gu1 * dgdu(u[,2], a2) * dC2du[,2])
 }
 
 ## dCdtheta: Restricted to *bivariate* asymmetric copulas
@@ -223,6 +227,9 @@ setMethod("pCopula", signature("matrix", "asymCopula"), pAsymCopula)
 
 setMethod("dCopula", signature("numeric", "asymBivCopula"), dAsymBivCopula)
 setMethod("dCopula", signature("matrix", "asymBivCopula"), dAsymBivCopula)
+
+setMethod("dCdu", signature("Copula"), dCduAsymBivCopula)
+setMethod("dCdtheta", signature("Copula"), dCdthetaAsymBivCopula)
 
 
 ################################################################################
@@ -328,7 +335,7 @@ densDers <- function(idx, u, dg, copula, derExprs) {
     c(eval(derExprs[dorder + 1])) * dgu
 }
 
-dasymExplicitCopula <- function(u, copula, log=FALSE, ...) {
+dAsymExplicitCopula <- function(u, copula, log=FALSE, ...) {
     u <- as.matrix(u)
     comps <- getAsymCopulaComps(copula)
     a <- comps$shapes
@@ -351,6 +358,6 @@ dasymExplicitCopula <- function(u, copula, log=FALSE, ...) {
     if(log) log(dens) else dens
 }
 
-setMethod("dCopula", signature("numeric", "asymExplicitCopula"), dasymExplicitCopula)
-setMethod("dCopula", signature("matrix", "asymExplicitCopula"), dasymExplicitCopula)
+setMethod("dCopula", signature("numeric", "asymExplicitCopula"), dAsymExplicitCopula)
+setMethod("dCopula", signature("matrix", "asymExplicitCopula"), dAsymExplicitCopula)
 
