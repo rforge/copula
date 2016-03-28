@@ -17,19 +17,22 @@
 ### Partial derivatives of the CDF wrt arguments
 ##################################################################################
 
-setGeneric("dCdu", function(cop, u, ...) standardGeneric("dCdu"))
+setGeneric("dCdu", function(cop, u) standardGeneric("dCdu"))
 
-gradControl <- function(eps=1e-4, d=0.05, zero.tol=sqrt(.Machine$double.eps/7e-7),
-                        r=6, v=2, show.details=FALSE) {
-    list(eps=eps, d = d, zero.tol = zero.tol,
-         r = r, v = v, show.details = show.details)
+gradControl <- function(eps = 1e-4, d = 0.1,
+                        zero.tol = sqrt(.Machine$double.eps / 7e-7),
+                        r = 6, v = 2, show.details = FALSE) {
+    list(eps = eps, d = d, zero.tol = zero.tol, r = r, v = v,
+         show.details = show.details)
 }
+
+min.d <- function(u) min(0.1, min(u), min(1 - u))
 
 ## Basic implementation based on numerical differentiation
 dCduCopulaNum <- function(cop, u) {
     warning("Function 'dCdu' not implemented for this copula: numerical differentiation used")
     pCop <- function(x) pCopula(x, cop)
-    res <- t(apply(u, 1, function(u.) grad(pCop, u., method.args = gradControl())))
+    res <- t(apply(u, 1, function(u.) grad(pCop, u., method.args = gradControl(d = min.d(u.)))))
     res[res < 0] <- 0
     res[res > 1] <- 1
     res
@@ -337,7 +340,7 @@ setGeneric("dcdu", function(cop, u) standardGeneric("dcdu"))
 dcduCopulaNum <- function(cop, u) {
     warning("Function 'dcdu' not implemented for this copula: numerical differentiation used")
     dCop <- function(x) dCopula(x, cop)
-    t(apply(u, 1, function(u.) grad(dCop, u., method.args = gradControl())))
+    t(apply(u, 1, function(u.) grad(dCop, u., method.args = gradControl(d = min.d(u.)))))
 }
 
 dcduExplicitCopula <- function(cop, u)

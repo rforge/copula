@@ -46,10 +46,10 @@ Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R special-func.
 	 graphics.R gumbelCopula.R gumbelExpr.R
          huslerReissCopula.R huslerReissExpr.R indepCopula.R
          indepTests.R joeCopula.R K.R logseries.R mvdc.R matrix_tools.R normalCopula.R
-         plackettCopula.R plackettExpr.R
+	 opower.R plackettCopula.R plackettExpr.R
 	 rotCopula.R rstable1.R safeUroot.R
 	 schlatherCopula.R stable.R
-	 timing.R trafos.R
+	 timing.R
          tCopula.R tawnCopula.R tawnExpr.R tevCopula.R
          wrapper.R xvCopula.R zzz.R
 Encoding: UTF-8
