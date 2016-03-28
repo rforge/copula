@@ -17,7 +17,7 @@
 ### Partial derivatives of the CDF wrt arguments
 ##################################################################################
 
-setGeneric("dCdu", function(cop, u) standardGeneric("dCdu"))
+setGeneric("dCdu", function(cop, u, ...) standardGeneric("dCdu"))
 
 gradControl <- function(eps=1e-4, d=0.05, zero.tol=sqrt(.Machine$double.eps/7e-7),
                         r=6, v=2, show.details=FALSE) {
