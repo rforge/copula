@@ -228,8 +228,8 @@ setMethod("pCopula", signature("matrix", "asymCopula"), pAsymCopula)
 setMethod("dCopula", signature("numeric", "asymBivCopula"), dAsymBivCopula)
 setMethod("dCopula", signature("matrix", "asymBivCopula"), dAsymBivCopula)
 
-setMethod("dCdu", signature("Copula"), dCduAsymBivCopula)
-setMethod("dCdtheta", signature("Copula"), dCdthetaAsymBivCopula)
+setMethod("dCdu", signature("asymBivCopula"), dCduAsymBivCopula)
+setMethod("dCdtheta", signature("asymBivCopula"), dCdthetaAsymBivCopula)
 
 
 ################################################################################

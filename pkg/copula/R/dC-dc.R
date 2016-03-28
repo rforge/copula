@@ -19,14 +19,14 @@
 
 setGeneric("dCdu", function(cop, u) standardGeneric("dCdu"))
 
-gradControl <- function(eps = 1e-4, d = 0.1,
+gradControl <- function(eps = 1e-4, d=0.0001,
                         zero.tol = sqrt(.Machine$double.eps / 7e-7),
-                        r = 6, v = 2, show.details = FALSE) {
+                        r = 6, v = 2, show.details = TRUE) {
     list(eps = eps, d = d, zero.tol = zero.tol, r = r, v = v,
          show.details = show.details)
 }
 
-min.d <- function(u) min(0.1, min(u), min(1 - u))
+min.d <- function(u) pmin(u, 1 - u, 0.1)
 
 ## Basic implementation based on numerical differentiation
 dCduCopulaNum <- function(cop, u) {
