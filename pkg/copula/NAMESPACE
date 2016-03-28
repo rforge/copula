@@ -122,6 +122,8 @@ exportClasses(fgmCopula)
 
 ## NEW
 exportClasses(rotCopula)
+exportClasses(asymBivCopula)
+exportClasses(asymExplicitCopula)
 
 export(mvdc)
 export(ellipCopula, archmCopula, evCopula)
@@ -134,6 +136,8 @@ export(fgmCopula)
 
 ## NEW
 export(rotCopula)
+export(asymBivCopula)
+export(asymExplicitCopula)
 
 ## auxiliary functions mainly used for working with elliptical copulas:
 export(p2P, P2p, getSigma, extreme_pairs)
@@ -168,11 +172,7 @@ export(pairsColList, pairsRosenblatt, .pairsCond) # R/pairsRosenblatt.R
 export(evTestC, evTestA, evTestK)
 export(exchEVTest, exchTest)
 
-## asymmetric copula class testing
-exportClasses(asymCopula)
-export(asymCopula)
-exportClasses(asymExplicitCopula)
-export(asymExplicitCopula)
+
 
 S3method(print, copula)
 S3method(print, mvdc)

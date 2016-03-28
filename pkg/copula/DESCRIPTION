@@ -36,7 +36,7 @@ VignetteBuilder: knitr
 Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R special-func.R
 	 cop_objects.R nacopula.R
 	 dC-dc.R amhCopula.R amhExpr.R An.R
-         archmCopula.R asymCopula.R asymExplicitCopula.R claytonCopula.R
+         archmCopula.R asymCopula.R claytonCopula.R
          claytonExpr.R ellipCopula.R empcop.R empPsi.R acR.R
 	 estimation.R evCopula.R evTests.R
          exchTests.R fgmCopula.R fitCopula.R fitMvdc.R frankCopula.R
@@ -47,7 +47,7 @@ Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R special-func.
          huslerReissCopula.R huslerReissExpr.R indepCopula.R
          indepTests.R joeCopula.R K.R logseries.R mvdc.R matrix_tools.R normalCopula.R
          plackettCopula.R plackettExpr.R
-	 rstable1.R safeUroot.R
+	 rotCopula.R rstable1.R safeUroot.R
 	 schlatherCopula.R stable.R
 	 timing.R trafos.R
          tCopula.R tawnCopula.R tawnExpr.R tevCopula.R

@@ -14,12 +14,12 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 ##################################################################################
-### partial derivatives of the CDF wrt arguments
+### Partial derivatives of the CDF wrt arguments
 ##################################################################################
 
 setGeneric("dCdu", function(cop, u) standardGeneric("dCdu"))
 
-gradControl <- function(eps=1e-4, d=0.1, zero.tol=sqrt(.Machine$double.eps/7e-7),
+gradControl <- function(eps=1e-4, d=0.05, zero.tol=sqrt(.Machine$double.eps/7e-7),
                         r=6, v=2, show.details=FALSE) {
     list(eps=eps, d = d, zero.tol = zero.tol,
          r = r, v = v, show.details = show.details)
@@ -27,11 +27,9 @@ gradControl <- function(eps=1e-4, d=0.1, zero.tol=sqrt(.Machine$double.eps/7e-7)
 
 ## Basic implementation based on numerical differentiation
 dCduCopulaNum <- function(cop, u) {
-    ## cop <- normalCopula(rep(0.5,3), dim=3, dispstr = "un")
-    ## u <- matrix(runif(15),5,3)
+    warning("Function 'dCdu' not implemented for this copula: numerical differentiation used")
     pCop <- function(x) pCopula(x, cop)
     res <- t(apply(u, 1, function(u.) grad(pCop, u., method.args = gradControl())))
-    ## copula:::dCdu(cop, u)
     res[res < 0] <- 0
     res[res > 1] <- 1
     res
@@ -73,7 +71,6 @@ dCduExplicitCopula <- function(cop, u)
     } else warning("there is no formula for dCdu*() for this copula")
     mat
 }
-
 
 
 ## this function is used for Khoudraji's device
@@ -210,23 +207,20 @@ plackettFormulaTCopula <- function(cop, p, rho, s, m, x, i, j)
 setMethod("plackettFormula", signature("tCopula"), plackettFormulaTCopula)
 
 ##################################################################################
-### partial derivatives of the CDF wrt parameters
+### Partial derivatives of the CDF wrt parameters
 ##################################################################################
 
 setGeneric("dCdtheta", function(cop, u) standardGeneric("dCdtheta"))
 
 ## Basic implementation based on numerical differentiation
 dCdthetaCopulaNum <- function(cop, u) {
-
-    ## cop <- normalCopula(rep(0.5,3), dim=3, dispstr = "un")
-    ## u <- matrix(runif(15),5,3)
+    warning("Function 'dCdtheta' not implemented for this copula: numerical differentiation used")
     pCop <- function(theta) {
         cop@parameters <- theta
         pCopula(u, cop)
     }
     theta <- cop@parameters
     jacobian(pCop, theta, method.args = gradControl())
-    ## copula:::dCdtheta(cop, u)
 }
 
 
@@ -341,11 +335,9 @@ setGeneric("dcdu", function(cop, u) standardGeneric("dcdu"))
 
 ## Basic implementation based on numerical differentiation
 dcduCopulaNum <- function(cop, u) {
-    ## cop <- normalCopula(rep(0.5,3), dim=3, dispstr = "un")
-    ## u <- matrix(runif(15),5,3)
+    warning("Function 'dcdu' not implemented for this copula: numerical differentiation used")
     dCop <- function(x) dCopula(x, cop)
     t(apply(u, 1, function(u.) grad(dCop, u., method.args = gradControl())))
-    ## copula:::dcdu(cop, u)
 }
 
 dcduExplicitCopula <- function(cop, u)
@@ -402,16 +394,13 @@ setGeneric("dcdtheta", function(cop, u) standardGeneric("dcdtheta"))
 
 ## Basic implementation based on numerical differentiation
 dcdthetaCopulaNum <- function(cop, u) {
-
-    ## cop <- normalCopula(rep(0.5,3), dim=3, dispstr = "un")
-    ## u <- matrix(runif(15),5,3)
+    warning("Function 'dcdtheta' not implemented for this copula: numerical differentiation used")
     dCop <- function(theta) {
         cop@parameters <- theta
         dCopula(u, cop)
     }
     theta <- cop@parameters
     jacobian(dCop, theta, method.args = gradControl())
-    ## copula:::dcdtheta(cop, u)
 }
 
 dcdthetaExplicitCopula <- function(cop, u)
@@ -539,10 +528,8 @@ setMethod("dcdtheta", signature("ellipCopula"), dcdthetaEllipCopula)
 
 setGeneric("dcopwrap",  function(cop, u, ...) standardGeneric("dcopwrap"))
 
-dcopwrapExplicitCopula <- function(cop, u) dCopula(u, cop)
-setMethod("dcopwrap", signature("archmCopula"),	   dcopwrapExplicitCopula)
-setMethod("dcopwrap", signature("evCopula"),	   dcopwrapExplicitCopula)
-setMethod("dcopwrap", signature("plackettCopula"), dcopwrapExplicitCopula)
+dcopwrapCopula <- function(cop, u) dCopula(u, cop)
+setMethod("dcopwrap", signature("Copula"),	   dcopwrapCopula)
 
 dcopwrapEllipCopula <- function(cop, u) rep.int(1, NROW(u))
 setMethod("dcopwrap", signature("ellipCopula"), dcopwrapEllipCopula)
