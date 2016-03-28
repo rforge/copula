@@ -2,7 +2,9 @@
 * Very Short Term
 ** TODO rhoTCopula not valid! => should define rho* and irho* only for Gauss copula!
 ** TODO ~/R/MM/Pkg-ex/maryamS-ex.R : negative correlation data has BAD error message
- now see FIXME in   tests/fitting-ex.R  'msg <- tryCatch(fitCopula(gumbelCopula(), ....'
+ now see FIXME in   tests/fitting-ex.R  'msg <-
+ tryCatch(fitCopula(gumbelCopula(), ....'
+** TODO see example code and TODO in dC-dc.R: use explicit formulas of partial derivatives for Archimedean copulas
 ** DONE fitCopula() for 2-dim tCopula() *AND* 2-dim tevCopula(); latter clearly fails
 ** DONE mvdc() -- fitMvdc() and generate data from fit:
  - fitMvdc()@mvdc  must contain the *fitted* parameters, the same as

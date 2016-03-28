@@ -30,7 +30,7 @@ importFrom("stats", D, approxfun, cor # 'coef': from "bblme"; 'logLik': from "st
          , var, vcov
            )
 
-importFrom("utils", str, setTxtProgressBar, txtProgressBar)
+importFrom("utils", str, setTxtProgressBar, txtProgressBar, modifyList)
 
 importFrom("grDevices", col2rgb, dev.flush, dev.hold, dev.off, pdf)
 importFrom("graphics", Axis, abline, axis, box, contour, curve
@@ -54,8 +54,8 @@ importMethodsFrom("stats4",
 		  coef, confint, logLik, AIC, BIC,
 		  plot, profile, summary)
 
-importFrom("lattice", trellis.par.get,
-	   splom, panel.fill, panel.splom, diag.panel.splom)
+importFrom("lattice", trellis.par.get, trellis.par.set,
+	   splom, wireframe, standard.theme, panel.fill, panel.splom, diag.panel.splom)
 
 importFrom("Matrix", nearPD)
 ## NB: "Dangerous" to not also depend on Matrix; as 'methods' for Matrixclasses are not seen.
@@ -243,7 +243,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"tauAMH", "tauJoe"
        ,"allComp" # <- maybe keep private ?
        ,"safeUroot"
-       ,"splom2", "qqplot2"
+       ,"splom2", "wireframe2", "qqplot2"
        )
 ## Deprecated old names [2012-07-25]:
 export(psiDabsMC

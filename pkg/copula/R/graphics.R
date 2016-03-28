@@ -167,27 +167,38 @@ KPlot <- function(x, plot=TRUE, ...) {
 ### Enhanced splom #############################################################
 
 ##' @title A scatter plot matrix with nice variable names
-##' @param data numeric matrix or as.matrix(.)able
-##' @param varnames variable names, typically unspecified
-##' @param Vname character string to become "root variable name"
-##' @param col.mat matrix of colors
-##' @param bg.col.mat matrix of background colors
-##' @param ... further arguments to splom()
-##' @return a splom() object
-##' @author Martin Maechler
-splom2 <- function(data, varnames=NULL, Vname="U", xlab="",
-                   col.mat=NULL, bg.col.mat=NULL, ...)
+##' @param x A numeric matrix or as.matrix(.)able
+##' @param varnames The variable names, typically unspecified
+##' @param varnames.null.lab A character string to determine varnames
+##'        in case 'x' doesn't have column names and 'varnames' is NULL
+##' @param xlab The x-axis label
+##' @param col.mat A matrix of colors
+##' @param bg.col.mat A matrix of background colors
+##' @param ... Further arguments passed to splom()
+##' @return An splom() object
+##' @author Martin Maechler and Marius Hofert
+splom2 <- function(x, varnames = NULL,
+                   varnames.null.lab = "U", xlab = "",
+                   col.mat = NULL, bg.col.mat = NULL, ...)
 {
-    stopifnot(is.numeric(data <- as.matrix(data)),
-	      (d <- ncol(data)) >= 1)
+    stopifnot(is.numeric(x <- as.matrix(x)), (d <- ncol(x)) >= 1,
+              length(varnames.null.lab) == 1, is.character(varnames.null.lab))
     if(is.null(varnames)) {
-	varnames <- do.call(expression,
-			    lapply(1:d, function(i)
-				   substitute(italic(A[I]), list(A = as.name(Vname), I=0+i))))
+        colnms <- colnames(x)
+        varnames <- if(sum(nzchar(colnms)) != d) {
+            do.call(expression,
+                    lapply(1:d, function(i)
+                        substitute(v[I], list(v = as.name(varnames.null.lab), I = 0+i))))
+        } else # 'x' has column names => parse them
+            parse(text = colnms)
     }
-    n <- nrow(data)
-    if(is.null(col.mat))
+    n <- nrow(x)
+    if(is.null(col.mat)) {
+        new.plot.symbol <- trellis.par.get("plot.symbol")
+        new.plot.symbol$col <- "black" # default of base graphics
+        trellis.par.set("plot.symbol", new.plot.symbol)
         col.mat <- matrix(trellis.par.get("plot.symbol")$col, n,d)
+    }
     if(is.null(bg.col.mat))
         bg.col.mat <- matrix(trellis.par.get("background")$col, n,d)
     ## From Deepayan Sarkar, working around missing feature
@@ -195,7 +206,7 @@ splom2 <- function(data, varnames=NULL, Vname="U", xlab="",
     my.diag.panel <- function(x, varname, ...)
         diag.panel.splom(x, varname=parse(text=varname), ...)
     ## splom
-    splom(~data[,1:d], varnames=varnames, diag.panel=my.diag.panel, xlab="",
+    splom(~x[,1:d], varnames = varnames, diag.panel = my.diag.panel, xlab="",
           panel = function(x, y, i, j, ...) {
               panel.fill(bg.col.mat[i,j])
               panel.splom(x, y, col=col.mat[i,j], ...)
@@ -203,10 +214,48 @@ splom2 <- function(data, varnames=NULL, Vname="U", xlab="",
 }
 
 
+### Enhanced wireframe plot ####################################################
+
+##' @title A wireframe plot
+##' @param x A numeric matrix or as.matrix(.)able
+##' @param labels The x-, y- and z-axis labels
+##' @param labels.null.lab A vector of length 3 giving the default labels
+##'        if labels is NULL
+##' @param alpha.regions see ?wireframe
+##' @param scales Additional arguments passed to 'scales' (some are set)
+##' @param par.settings Additional arguments passed to 'par.settings' (some are set)
+##' @param ... Further arguments passed to wireframe()
+##' @return A wireframe() object
+##' @author Marius Hofert
+wireframe2 <- function(x, labels = NULL,
+                       labels.null.lab = parse(text = c("u[1]", "u[2]", "C(u[1],u[2])")),
+                       alpha.regions = 0.5, scales = list(arrows = FALSE),
+                       par.settings = standard.theme(color = FALSE), ...)
+{
+    if(!is.matrix(x)) x <- rbind(x)
+    if(ncol(x) != 3) stop("'x' should be trivariate")
+    if(is.null(labels)) {
+        colnms <- colnames(x)
+        labels <- if(sum(nzchar(colnms)) != 3) {
+            stopifnot(length(labels.null.lab) == 3, is.character(labels.null.lab))
+            parse(text = labels.null.lab)
+        } else # 'x' has column names => parse them
+            parse(text = colnms)
+    }
+    wireframe(x[,3] ~ x[,1] * x[,2],
+              xlab = labels[1], ylab = labels[2], zlab = labels[3],
+              alpha.regions = alpha.regions,
+              scales = scales,
+              par.settings = modifyList(par.settings,
+                                        list(axis.line = list(col = "transparent"),
+                                             ## background = list(col = "#ffffff00"),
+                                             clip=list(panel = "off"))),
+              ...)
+}
+
+
 ### Enhanced, general Q-Q plot with rugs and confidence intervals ##############
 
-##' Q-Q plot with rugs and pointwise asymptotic confidence intervals
-##'
 ##' @title Q-Q plot with rugs and pointwise asymptotic confidence intervals
 ##' @param x data (n-vector)
 ##' @param qF theoretical quantile function
