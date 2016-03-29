@@ -131,7 +131,7 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
 gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
                   estim.method = eval(formals(fitCopula)$method),
                   trafo.method = c("none", "rtrafo", "htrafo"),
-		  trafoArgs = list(), verbose=TRUE, ...)
+		  trafoArgs = list(), verbose = interactive(), ...)
 {
     ## checks
     stopifnot(is(copula, "copula"), N >= 1)
@@ -295,7 +295,7 @@ Jscore <- function(copula, u, method)
 ##'         the realized test statistic and the bootstrapped one are computationally different
 gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
                   estim.method=eval(formals(fitCopula)$method),
-                  verbose=TRUE, useR=FALSE, m = 1/2, zeta.m = 0, b = 0.05, ...)
+                  verbose = interactive(), useR=FALSE, m = 1/2, zeta.m = 0, b = 0.05, ...)
 {
     ## checks
     stopifnot(is(copula, "copula"), N>=1)
@@ -428,7 +428,7 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
 gofCopula <- function(copula, x, N=1000, method = "Sn",
                       estim.method = eval(formals(fitCopula)$method),
                       simulation = c("pb", "mult"),
-		      verbose=TRUE, print.every=NULL, ...)
+		      verbose = interactive(), print.every=NULL, ...)
 {
     ## checks
     stopifnot(is(copula, "copula"), N >= 1)
