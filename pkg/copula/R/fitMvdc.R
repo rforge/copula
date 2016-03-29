@@ -141,24 +141,13 @@ fitMvdc <- function(data, mvdc, start,
     control <- control[ !vapply(control, is.null, NA)]
 
     ## messageOut may be used for debugging
-    if (hideWarnings) {
-	messageOut <- textConnection("fitMessages", open="w", local=TRUE)
-	sink(messageOut); sink(messageOut, type="message")
-	oop <- options(warn = -1) ## ignore warnings; can be undesirable!
-	on.exit({ options(oop); sink(type="message"); sink(); close(messageOut)})
-    }
-
+    (if(hideWarnings) suppressWarnings else identity)(
     fit <- optim(start, loglikMvdc,
 		 ## loglikMvdc args:
 		 mvdc=mvdc, x=data,
 		 ## optim args:
 		 method=method, control=control, lower=lower, upper=upper)
-
-    if (hideWarnings) {
-	options(oop); sink(type="message"); sink()
-	on.exit()
-        close(messageOut)
-    }
+    )
 
     if (fit$convergence > 0)
 	warning("possible convergence problem: optim gave code=", fit$convergence)

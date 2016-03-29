@@ -298,7 +298,7 @@ var.mpl <- function(cop, u)
     }
 
     ## If df.fixed = FALSE, Jscore() cannot be computed
-    if(has.par.df(cop, ccl, isEll)) { # FIXME: should work with has.par.df(cop)
+    if(has.par.df(cop, ccl, isEll)) {
         cop <- as.df.fixed(cop, classDef = ccl)
         ans[-q,-q] <- var(t(Jscore(cop, u, method = "mpl")))
     } else

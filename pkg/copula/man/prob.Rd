@@ -14,7 +14,7 @@ prob(x, l, u)
 }
 \arguments{
   \item{x}{copula of dimension \eqn{d}, that is, an object
-    of class \code{\linkS4class{Copula}}.}
+    inheriting from \code{\linkS4class{Copula}}.}
   \item{l, u}{\eqn{d}-dimensional, \code{\link{numeric}}, lower and
     upper hypercube boundaries, respectively, satisfying
     \eqn{0 \le l_i \le u_i \le 1}{0 <= l_i <= u_i <= 1},

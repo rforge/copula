@@ -1,4 +1,5 @@
 \name{generator}
+\title{Generator Functions for Archimedean and Extreme-Value Copulas}
 \docType{methods}
 %----------------------Archimedean Copulas------------------
 % iPsi
@@ -48,6 +49,7 @@
 \alias{A,tawnCopula-method}
 \alias{A,tevCopula-method}
 \alias{A,asymCopula-method}
+\alias{A,asymBivCopula-method}
 \alias{A,indepCopula-method}
 % dAdu
 \alias{AfunDer}%deprecated
@@ -59,7 +61,6 @@
 \alias{dAdu,tawnCopula-method}
 \alias{dAdu,tevCopula-method}
 % main
-\title{Generator Functions for Archimedean and Extreme-Value Copulas}
 \description{
   Methods to evaluate the generator function, the inverse generator
   function, and derivatives of the inverse of the generator function for

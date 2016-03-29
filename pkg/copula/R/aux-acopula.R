@@ -14,8 +14,8 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-if(getRversion() < "2.15")
-paste0 <- function(...) paste(..., sep="")
+## if(getRversion() < "2.15")
+## paste0 <- function(...) paste(..., sep="")
 
 #### Functions and Methods for "acopula" objects
 #### class definition in ./AllClass.R

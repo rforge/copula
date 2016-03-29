@@ -1,10 +1,10 @@
 \name{fitMvdc}
+\title{Estimation of Multivariate Models Defined via Copulas}
 \alias{fitMvdc}
 \alias{coef.fittedMV}
 \alias{logLik.fittedMV}
 \alias{vcov.fittedMV}
 \alias{loglikMvdc}
-\title{Estimation of Multivariate Models Defined via Copulas}
 \description{
   Fitting copula-based multivariate distributions
   (\code{"\linkS4class{mvdc}"}) to multivariate data,
@@ -32,6 +32,9 @@ fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS",
     parameters of one marginal must be specified.}
   \item{x}{a data matrix.}
   \item{mvdc}{a \code{"\linkS4class{mvdc}"} object. }
+  \item{hideWarnings}{logical indicating if warning messages from
+    likelihood maximization, e.g., from evaluating at invalid parameter
+    values, should be suppressed (via \code{\link{suppressWarnings}}).}
   \item{data}{a data matrix.}
   \item{start}{a vector of starting value for \code{"param"}.  See
     \code{"param"} above for ordering of this vector.}

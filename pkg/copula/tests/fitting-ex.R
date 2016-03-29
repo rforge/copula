@@ -106,7 +106,7 @@ stopifnot(identical(gMvGam@paramMargins,
                     list(list(shape = 2, rate = 3),
                          list(shape = 4, rate = 1))))
 X <- rMvdc(16000, gMvGam)
-smoothScatter(X, main = "rMcdc(1600, gMvGam)")
+smoothScatter(X, main = "rMvdc(1600, gMvGam)")
 
 persp  (gMvGam, dMvdc, xlim = c(0,4), ylim=c(0,8)) ## almost discrete ????
 contour(gMvGam, dMvdc, xlim = c(0,2), ylim=c(0,8))
