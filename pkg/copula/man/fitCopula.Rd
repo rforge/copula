@@ -11,7 +11,7 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
           posDef = is(copula, "ellipCopula"),
           start = NULL, lower = NULL, upper = NULL,
           optim.method = "BFGS", optim.control = list(maxit=1000),
-          estimate.variance = NA, hideWarnings = TRUE, ...)
+          estimate.variance = NA, hideWarnings = FALSE, ...)
 }
 \arguments{
   \item{param}{A vector of parameter values.}
@@ -61,9 +61,9 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
     \code{method}s \code{"itau"} and \code{"irho"}, cannot (yet) compute
     it for \code{"itau.mpl"} and only computes it for \code{"mpl"} or \code{"ml"}
     if the optimization converged).}
-  \item{hideWarnings}{This argument is \emph{deprecated}. A
-    \code{\link{logical}}, which, if \code{\link{TRUE}}, suppresses warnings
-    from the likelihood maximization (mostly when the likelihood is
+  \item{hideWarnings}{A \code{\link{logical}}, which, if
+    \code{\link{TRUE}}, suppresses warnings from the involved
+    likelihood maximization (typically when the likelihood is
     evaluated at invalid parameter values).}
   \item{\dots}{Additional arguments passed to the underlying auxiliary functions.}
 }

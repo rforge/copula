@@ -368,8 +368,6 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
 ##' @param upper The upper bound for optimize() (default 32 means down to nu = 1/32)
 ##' @param estimate.variance A logical indicating whether the estimator's
 ##'        variance shall be computed (TODO: not fully implemented yet)
-##' @param hideWarnings A logical indicating whether warnings from optimize()
-##'        shall be suppressed
 ##' @param tol Tolerance of optimize() for estimating nu
 ##' @param ... Additional arguments passed to fitCopula.icor()
 ##' @return The fitted copula object
@@ -377,8 +375,7 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
 ##' @note One could extend this to fitCopula.icor.ml(, method=c("itau", "irho"))
 ##'       once an *explicit* formula for Spearman's rho is available for t copulas.
 fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
-                               estimate.variance, hideWarnings,
-                               tol=.Machine$double.eps^0.25, ...)
+                               estimate.variance, tol=.Machine$double.eps^0.25, ...)
 {
     if(any(u < 0) || any(u > 1))
         stop("'u' must be in [0,1] -- probably rather use pobs(.)")
@@ -404,9 +401,7 @@ fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
             r
         }
     nLL <- function(Inu) -loglikCopula(c(p., df=1/Inu), u=u, copula=copula) # negative log-likelihood in 1/nu given P
-    (if(hideWarnings) suppressWarnings else identity)(
-        fit <- optimize(nLL, interval=c(lower, upper), tol=tol) # optimize
-    )
+    fit <- optimize(nLL, interval=c(lower, upper), tol=tol) # optimize
     q <- length(copula@parameters) # the last is nu
     copula@parameters[seq_len(q-1L)] <- p.
     copula@parameters[[q]] <- copula@df <- df <- 1/fit$minimum
@@ -448,14 +443,12 @@ fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
 ##' @param optim.control optim()'s control parameter
 ##' @param estimate.variance A logical indicating whether the estimator's
 ##'        variance shall be computed
-##' @param hideWarnings A logical indicating whether warnings from optim()
-##'        shall be suppressed
 ##' @param bound.eps A small quantity denoting an eps for staying away from
 ##'        the theoretical parameter bounds
 ##' @param ... Additional arguments (currently with no effect)
 ##' @return The fitted copula object
 fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
-                         optim.method, optim.control, estimate.variance, hideWarnings,
+                         optim.method, optim.control, estimate.variance,
                          bound.eps=.Machine$double.eps^0.5, ...)
 {
     ## Check inputs
@@ -485,13 +478,11 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
         upper <- if(meth.has.bounds) copula@param.upbnd  - bound.eps else Inf
 
     ## Maximize the likelihood
-    (if(hideWarnings) suppressWarnings else identity)(
-        fit <- optim(start, loglikCopula,
-                     lower=lower, upper=upper,
-                     method=optim.method,
-                     copula = copula, u = u,
-                     control = control)
-    )
+    fit <- optim(start, loglikCopula,
+                 lower=lower, upper=upper,
+                 method=optim.method,
+                 copula = copula, u = u,
+                 control = control)
 
     ## Check convergence of the fitting procedure
     copula@parameters[1:q] <- fit$par
@@ -557,8 +548,8 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
 ##' @param optim.control optim()'s control parameter
 ##' @param estimate.variance A logical indicating whether the estimator's
 ##'        variance shall be computed
-##' @param hideWarnings A logical indicating whether warnings from optim()
-##'        shall be suppressed
+##' @param hideWarnings A logical indicating whether warnings from the
+##'        underlying optimizations are suppressed
 ##' @param ... Additional arguments passed to auxiliary functions
 ##' @return The fitted copula object
 fitCopula <- function(copula, data,
@@ -566,7 +557,7 @@ fitCopula <- function(copula, data,
                       posDef=is(copula, "ellipCopula"),
                       start=NULL, lower=NULL, upper=NULL,
                       optim.method="BFGS", optim.control=list(maxit=1000),
-                      estimate.variance=NA, hideWarnings=TRUE, ...)
+                      estimate.variance=NA, hideWarnings=FALSE, ...)
 {
     if(!is.matrix(data)) {
         warning("coercing 'data' to a matrix.")
@@ -574,17 +565,19 @@ fitCopula <- function(copula, data,
     }
     method <- match.arg(method)
     if(method == "mpl" || method == "ml") { # "mpl" or "ml"
+        (if(hideWarnings) suppressWarnings else identity)(
         fitCopula.ml(copula, u=data, method=method,
                      start=start, lower=lower, upper=upper,
                      optim.method=optim.method, optim.control=optim.control,
-                     estimate.variance=estimate.variance,
-                     hideWarnings=hideWarnings, ...)
+                     estimate.variance=estimate.variance, ...)
+        )
     } else if(method == "itau" || method == "irho") { # "itau" or "irho"
         fitCopula.icor(copula, x=data, method=method,
                        estimate.variance=estimate.variance, ...)
     } else { # "itau.mpl"
+        (if(hideWarnings) suppressWarnings else identity)(
         fitCopula.itau.mpl(copula, u=data, posDef=posDef, lower=lower, upper=upper,
-                           estimate.variance=estimate.variance,
-                           hideWarnings=hideWarnings, ...) # <- may include 'tol' !
+                           estimate.variance=estimate.variance, ...) # <- may include 'tol' !
+        )
     }
 }
