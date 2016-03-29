@@ -32,7 +32,7 @@ A..Z <- function(x, alpha, I.alpha = 1 - alpha)
 ##' @param x numeric vector
 ##' @return numeric vector of values tan(pi*x)
 ##' @author Martin Maechler
-tanpi <- function(x) tan(pi * (x %% 1))
+##' tanpi <- function(x) tan(pi * (x %% 1))
 
 ##' @title cos(pi/2 * x), exact for integer x
 ##' @param x numeric vector

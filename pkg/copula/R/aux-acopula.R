@@ -108,7 +108,7 @@ m.opt.retst <- function(V0) {
 ##' @param alpha parameter in (0,1]
 ##' @return St
 ##' @author Marius Hofert, Martin Maechler
-retstablerej <- function(m,V0,alpha) {
+retstablerej <- function(m, V0, alpha) {
     gamm. <- (cospi2(alpha)*V0/m)^(1/alpha)
     sum(unlist(lapply(integer(m),
 		      function(.) {

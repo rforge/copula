@@ -24,7 +24,7 @@ pairs2(x, labels = NULL, labels.null.lab = "U", row1attop = FALSE,
 }
 \author{Marius Hofert.}
 \seealso{
-  \code{\link{sploms2}()} for a similar function based on
+  \code{\link{splom2}()} for a similar function based on
   \code{\link[lattice]{splom}()}.
 }
 \examples{

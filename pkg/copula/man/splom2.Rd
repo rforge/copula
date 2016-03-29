@@ -30,8 +30,8 @@ splom2(x, varnames = NULL, varnames.null.lab = "U",
 \author{Martin Maechler, with a hint from Deepayan Sarkar; based on
   ideas from Marius Hofert.}
 \seealso{
-  \code{\link{pairs2}()} for a similar function based on \pkg{graphics}'
-  \code{\link{pairs}()}.
+  \code{\link{pairs2}()} for a similar function based on
+  \code{\link[graphics]{pairs}()}.
 }
 \examples{
 ## Create a 100 x 7 matrix of random variates from a t distribution
