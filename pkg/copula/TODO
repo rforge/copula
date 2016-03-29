@@ -17,7 +17,8 @@
     report warnings by default: They are too disturbing for 'Joe Average'
     fitCopula() user.
 ** DONE tryCatch() in loglikMvdc(), but not longer hideWarnings there.
-   OTOH, hideWarnins now in fitMvdc().
+   OTOH,
+** TODO 'hideWarnings' now in fitMvdc(): Not sink(), change it to use suppressWarnings() the same as fitCopula!
 ** DONE timings() function name -- changed to nacFrail.time()
 ** DONE setTheta() bug: see tests/fitting-ex.R ..seed(17)
 ** DONE stopifnot(ncol(u) == (d <- copula@dimension))  *not* ok:
