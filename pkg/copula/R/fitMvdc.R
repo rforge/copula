@@ -114,15 +114,9 @@ setMvdcPar <- function(mvdc, param) {
     mvdc
 }
 
-loglikMvdc <- function(param, x, mvdc, hideWarnings) {
-  if(!missing(hideWarnings))
-      warning("'hideWarnings' is deprecated and has no effect here anymore")
-  ##       use suppressMessages() otherwise {and live without  "fitMessages"}
-
+loglikMvdc <- function(param, x, mvdc) {
   mvdc <- setMvdcPar(mvdc, param)
-
   loglik <- tryCatch(sum(log(dMvdc(x, mvdc))), error = function(e) e)
-
   if(is(loglik, "error")) {
       warning("error in loglik computation: ", loglik$message)
       (-Inf)# was NaN
