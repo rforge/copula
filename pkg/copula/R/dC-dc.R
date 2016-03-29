@@ -19,21 +19,34 @@
 
 setGeneric("dCdu", function(copula, u, ...) standardGeneric("dCdu"))
 
-gradControl <- function(eps = 1e-4, d = 0.0001,
+## Function returning a list of control arguments for grad() / jacobian()
+## in package numDeriv
+gradControl <- function(eps = 1e-4, d = 1e-4,
                         zero.tol = sqrt(.Machine$double.eps / 7e-7),
                         r = 6, v = 2, show.details = FALSE) {
     list(eps = eps, d = d, zero.tol = zero.tol, r = r, v = v,
          show.details = show.details)
 }
 
-min.d <- function(u) min(pmin(u, 1 - u, 0.1))
+## Returns 'side' vector for grad() / jacobian() when computing
+## partial derivatives wrt x in (lb, ub) or [lb, ud)
+## d comes from gradControl
+sides <- function(x, dimx, d, lb, ub) {
+    res <- rep(NA, dimx) # two-sided derivatives by default
+    res[x - lb < d] <- 1 # right derivative
+    res[ub - x < d] <- -1 # left derivative
+    res
+}
 
 ## Basic implementation based on numerical differentiation
-dCduCopulaNum <- function(copula, u, method.args = gradControl(d = min.d(u)), ...) {
-    warning("Function dCdu*() not implemented for this copula: numerical differentiation used")
-    pCop <- function(x) pCopula(x, copula)
-    res <- t(apply(u, 1, function(u.) grad(pCop, u., method.args = method.args)))
-    res[res < 0] <- 0
+dCduCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-1), ...) {
+    warning("Function dCdu() not implemented for this copula: numerical differentiation used")
+    logC <- function(x) log(pCopula(x, copula))
+    dim <- copula@dimension
+    res <- t(apply(u, 1, function(u.)
+        grad(logC, u., side = sides(u., dim, method.args$d, 0, 1),
+             method.args = method.args))) * pCopula(u, copula)
+    res[res < 0] <- 0 # because 0 < dCdu < 1 uniformly
     res[res > 1] <- 1
     res
 }
@@ -71,7 +84,7 @@ dCduExplicitCopula <- function(copula, u, ...)
             colnames(u) <- unames
             mat[,j] <- eval(der.cdf.u, data.frame(u))
         }
-    } else warning("there is no formula for dCdu*() for this copula")
+    } else warning("there is no formula for dCdu() for this copula")
     mat
 }
 
@@ -216,16 +229,19 @@ setMethod("plackettFormula", signature("tCopula"), plackettFormulaTCopula)
 setGeneric("dCdtheta", function(copula, u, ...) standardGeneric("dCdtheta"))
 
 ## Basic implementation based on numerical differentiation
-dCdthetaCopulaNum <- function(copula, u, method.args = gradControl(), ...) {
-    warning("Function dCdtheta*() not implemented for this copula: numerical differentiation used")
-    pCop <- function(theta) {
+dCdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-1), ...) {
+    warning("Function dCdtheta() not implemented for this copula: numerical differentiation used")
+    logC <- function(theta) {
         copula@parameters <- theta
-        pCopula(u, copula)
+        log(pCopula(u, copula))
     }
     theta <- copula@parameters
-    jacobian(pCop, theta, method.args = method.args)
+    p <- length(theta)
+    lb <- copula@param.lowbnd
+    ub <- copula@param.lowbnd
+    jacobian(logC, theta, side = sides(theta, p, method.args$d, lb, ub),
+             method.args = method.args) * pCopula(u, copula)
 }
-
 
 dCdthetaExplicitCopula <- function(copula, u, ...)
 {
@@ -237,7 +253,7 @@ dCdthetaExplicitCopula <- function(copula, u, ...)
         colnames(u) <- paste0("u", 1:p)
         as.matrix(eval(der.cdf.alpha, data.frame(u)))
     } else {
-        warning("there is no formula for dCdtheta*() for this copula")
+        warning("there is no formula for dCdtheta() for this copula")
         matrix(NA_real_, nrow(u),p)
     }
 }
@@ -336,10 +352,13 @@ setMethod("dCdtheta", signature("ellipCopula"), dCdthetaEllipCopula)
 setGeneric("dlogcdu", function(copula, u, ...) standardGeneric("dlogcdu"))
 
 ## Basic implementation based on numerical differentiation
-dlogcduCopulaNum <- function(copula, u, method.args = gradControl(d = min.d(u)), ...) {
-    warning("Function dlogcdu*() not implemented for this copula: numerical differentiation used")
-    dlogc <- function(x) dCopula(x, copula, log = TRUE)
-    t(apply(u, 1, function(u.) grad(dlogc, u., method.args = method.args)))
+dlogcduCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-5), ...) {
+    warning("Function dlogcdu() not implemented for this copula: numerical differentiation used")
+    logc <- function(x) dCopula(x, copula, log = TRUE)
+    dim <- copula@dimension
+    t(apply(u, 1, function(u.)
+        grad(logc, u., side = sides(u., dim, method.args$d, 0, 1),
+             method.args = method.args)))
 }
 
 dlogcduExplicitCopula <- function(copula, u, ...)
@@ -357,7 +376,7 @@ dlogcduExplicitCopula <- function(copula, u, ...)
             colnames(u) <- unames
             mat[,j] <- eval(der.pdf.u, data.frame(u))
         }
-    } else warning("there is no formula for dlogcdu*() for this copula")
+    } else warning("there is no formula for dlogcdu() for this copula")
     mat / dCopula(u, copula)
 }
 
@@ -394,14 +413,18 @@ setMethod("dlogcdu", signature("tCopula"), dlogcduTCopula)
 setGeneric("dlogcdtheta", function(copula, u, ...) standardGeneric("dlogcdtheta"))
 
 ## Basic implementation based on numerical differentiation
-dlogcdthetaCopulaNum <- function(copula, u, method.args = gradControl(), ...) {
-    warning("Function dlogcdtheta*() not implemented for this copula: numerical differentiation used")
-    dlogc <- function(theta) {
+dlogcdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-5), ...) {
+    warning("Function dlogcdtheta() not implemented for this copula: numerical differentiation used")
+    logc <- function(theta) {
         copula@parameters <- theta
         dCopula(u, copula, log = TRUE)
     }
     theta <- copula@parameters
-    jacobian(dlogc, theta, method.args = method.args)
+    p <- length(theta)
+    lb <- copula@param.lowbnd
+    ub <- copula@param.lowbnd
+    jacobian(logc, theta, side = sides(theta, p, method.args$d, lb, ub),
+             method.args = method.args)
 }
 
 dlogcdthetaExplicitCopula <- function(copula, u, ...)
@@ -413,7 +436,7 @@ dlogcdthetaExplicitCopula <- function(copula, u, ...)
         colnames(u) <- paste0("u", 1:p)
         as.matrix(eval(der.pdf.alpha, data.frame(u))) / dCopula(u, copula)
     } else {
-        warning("There is no formula for dlogcdtheta*() for this copula")
+        warning("There is no formula for dlogcdtheta() for this copula")
         matrix(NA_real_, nrow(u), p)
     }
 }

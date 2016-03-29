@@ -58,8 +58,6 @@ setClass("asymBivCopula", contains = "asymCopula",
 g <- function(u, a) u^a
 ig <- function(u, a) u^(1 / a) # inverse
 dgdu <- function(u, a) a * u^(a - 1) # derivative wrt u
-dgdu2 <- function(u, a) a * (a - 1) * u^(a - 2) # second derivative wrt u
-dgda <- function(u, a) log(u) * g(u, a) # derivative wrt a
 
 ##' Creates an asymBivCopula object
 ##'
@@ -200,20 +198,20 @@ dCdthetaAsymBivCopula <- function(copula, u, ...) {
     if (length(copula1@parameters) > 0 && length(copula1@parameters) > 0)
         cbind(dCdtheta(copula1, gu1) * pC2gu2,
               pC1gu1 * dCdtheta(copula2, gu2),
-              dgda(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 +
-              pC1gu1 * dgda(u[,1], a1) * dC2du[,1],
-              dgda(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
-              pC1gu1 * dgda(u[,2], a2) * dC2du[,2])
+              -log(u[,1]) * g(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 +
+               pC1gu1 * log(u[,1]) * g(u[,1], a1) * dC2du[,1],
+              -log(u[,2]) * g(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
+               pC1gu1 * log(u[,2]) * g(u[,2], a2) * dC2du[,2])
     else if (length(copula1@parameters) == 0)
         cbind(pC1gu1 * dCdtheta(copula2, gu2),
-              dgda(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 +
-              pC1gu1 * dgda(u[,1], a1) * dC2du[,1],
-              dgda(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
-              pC1gu1 * dgda(u[,2], a2) * dC2du[,2])
-    else cbind(dgda(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 +
-               pC1gu1 * dgda(u[,1], a1) * dC2du[,1],
-               dgda(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
-               pC1gu1 * dgda(u[,2], a2) * dC2du[,2])
+              -log(u[,1]) * g(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 +
+               pC1gu1 * log(u[,1]) * g(u[,1], a1) * dC2du[,1],
+              -log(u[,2]) * g(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
+               pC1gu1 * log(u[,2]) * g(u[,2], a2) * dC2du[,2])
+    else cbind(-log(u[,1]) * g(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 +
+               pC1gu1 * log(u[,1]) * g(u[,1], a1) * dC2du[,1],
+              -log(u[,2]) * g(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
+               pC1gu1 * log(u[,2]) * g(u[,2], a2) * dC2du[,2])
 }
 
 
