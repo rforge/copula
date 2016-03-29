@@ -24,13 +24,12 @@
 ##' @param estimator nonparametric estimator of the Pickands dependence function
 ##' @param m grid size
 ##' @param verbose display progress bar if TRUE
-##' @param print.every is deprecated
 ##' @param optim.method for fitCopula
 ##' @return an object of class 'htest'
 ##' @author Ivan Kojadinovic
 gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
                         estimator = "CFG", m = 1000,
-                        verbose = TRUE, print.every = NULL,
+                        verbose = interactive(), # print.every = NULL,
                         optim.method = "Nelder-Mead")
 {
     n <- nrow(x)
@@ -41,10 +40,10 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
     if (copula@dimension != 2 || p != 2)
       stop("The copula and the data should be of dimension two")
 
-    if (!is.null(print.every)) {
-        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead.")
-        verbose <- print.every > 0
-    }
+    ## if (!is.null(print.every)) {
+    ##     warning("Argument 'print.every' is deprecated. Please use 'verbose' instead.")
+    ##     verbose <- print.every > 0
+    ## }
 
     ## make pseudo-observations
     u <- pobs(x)

@@ -20,8 +20,8 @@
 ### Test statistics ############################################################
 
 ##' @title Test statistics for tests of U[0,1]^d
-##' @param u (n, d)-matrix of supposedly U[0,1]^d observations
-##' @param method various test statistics. Available are:
+##' @param u An (n, d)-matrix of supposedly U[0,1]^d observations
+##' @param method Various test statistics. Available are:
 ##'        "Sn"     : the test statistic S_n (Cramer-von Mises) in Genest, Remillard, Beaudoin (2009)
 ##'        "SnB"    : the test statistic S_n^{(B)} in Genest, Remillard, Beaudoin (2009)
 ##'        "SnC"    : the test statistic S_n^{(C)} in Genest, Remillard, Beaudoin (2009)
@@ -29,9 +29,9 @@
 ##'                   distribution using the standard normal quantile function
 ##'        "AnGamma": Anderson-Darling test statistic after map to an Erlang/Gamma
 ##'                   distribution using the logarithm
-##' @param useR logical indicating whether R or C implementations are used
-##' @param ... additional arguments for the different methods
-##' @return n-vector of values of the chosen test statistic
+##' @param useR A logical indicating whether R or C implementations are used
+##' @param ... Additional arguments for the different methods
+##' @return An n-vector of values of the chosen test statistic
 ##' @author Marius Hofert and Martin Maechler
 gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
 		     useR=FALSE, ...)
@@ -112,28 +112,28 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
 }
 
 
-### Computing different goodness-of-fit tests ##################################
+### The parametric bootstrap (for computing different goodness-of-fit tests) ###
 
 ##' @title Goodness-of-fit tests based on the parametric bootstrap
-##' @param copula object of type 'copula' representing the H_0 copula
+##' @param copula An object of type 'copula' representing the H_0 copula
 ##'        (if necessary, parameters will be used as starting values for fitCopula())
-##' @param x (n, d)-matrix containing the data
-##' @param N number of bootstrap replications
-##' @param method goodness-of-fit test statistic to be used; see ?gofTstat
-##' @param estim.method estimation method for the unknown parameter vector; see ?fitCopula
-##' @param trafo.method transformation to U[0,1]^d
-##' @param verbose logical indicating whether a progress bar is shown
-##' @param trafoArgs a list of optional arguments passed to the transformation method
-##' @param ... additional arguments passed to \code{fitCopula}
-##' @return an object of class 'htest'
+##' @param x An (n, d)-matrix containing the data
+##' @param N The number of bootstrap replications
+##' @param method The goodness-of-fit test statistic to be used; see ?gofTstat
+##' @param estim.method The estimation method for the unknown parameter vector; see ?fitCopula
+##' @param trafo.method The transformation to U[0,1]^d
+##' @param verbose A logical indicating whether a progress bar is shown
+##' @param trafoArgs A list of optional arguments passed to the transformation method
+##' @param ... Additional arguments passed to \code{fitCopula}
+##' @return An object of class 'htest'
 ##' @author Ivan Kojadinovic, Marius Hofert
-##' Note: - different '...' should be passed to different *.method
+##' Note: Different '...' should be passed to different *.method
 gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
                   estim.method = eval(formals(fitCopula)$method),
                   trafo.method = c("none", "rtrafo", "htrafo"),
 		  trafoArgs = list(), verbose = interactive(), ...)
 {
-    ## checks
+    ## Checks
     stopifnot(is(copula, "copula"), N >= 1)
     if(!is.matrix(x)) x <- rbind(x, deparse.level=0L)
     stopifnot((d <- ncol(x)) > 1, (n <- nrow(x)) > 0, dim(copula) == d)
@@ -148,6 +148,12 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
     }
     if(method=="Sn" && is(copula, "tCopula") && ! copula@df.fixed) # df.fixed=TRUE should work
 	stop("Param. boostrap with method=\"Sn\" is not available for t copulas as pCopula() cannot be computed for non-integer degrees of freedom yet.")
+
+    ## Progress bar
+    if(verbose) {
+	pb <- txtProgressBar(max=N+1, style=if(isatty(stdout())) 3 else 1) # setup progress bar
+	on.exit(close(pb)) # on exit, close progress bar
+    }
 
     ## 1) Compute the pseudo-observations
     uhat <- pobs(x)
@@ -168,12 +174,9 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
     } else uhat
     T <- if(method=="Sn") gofTstat(u, method=method, copula=C.th.n)
          else gofTstat(u, method=method)
+    if(verbose) setTxtProgressBar(pb, 1) # update progress bar
 
     ## 4) Simulate the test statistic under H_0
-    if(verbose) {
-	pb <- txtProgressBar(max=N, style=if(isatty(stdout())) 3 else 1) # setup progress bar
-	on.exit(close(pb)) # on exit, close progress bar
-    }
     T0 <- vapply(1:N, function(k) {
         ## 4.1) Sample the fitted copula
         Uhat <- pobs( rCopula(n, C.th.n) )
@@ -190,11 +193,11 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
         T0. <- if(method=="Sn") gofTstat(u., method=method, copula=C.th.n.)
                else gofTstat(u., method=method)
 
-        if(verbose) setTxtProgressBar(pb, k) # update progress bar
+        if(verbose) setTxtProgressBar(pb, k+1) # update progress bar
         T0. # return
     }, NA_real_)
 
-    ## 5) return result object
+    ## 5) Return result object
     structure(class = "htest",
 	      list(method = sprintf(
                    "Parametric bootstrap goodness-of-fit test with 'method'=\"%s\", 'estim.method'=\"%s\"",
@@ -205,11 +208,14 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
                    data.name = deparse(substitute(x))))
 }
 
+
+### The multiplier bootstrap (for computing different goodness-of-fit tests) ###
+
 ##' @title J-score \hat{J}_{\theta_n} for the multiplier bootstrap
-##' @param copula object of type 'copula'
-##' @param u (n, d)-matrix of (pseudo-)observations
+##' @param copula An object of type 'copula'
+##' @param u An (n, d)-matrix of (pseudo-)observations
 ##' @param method "mpl" or one of "itau", "irho"
-##' @return n-vector containing \hat{J}_{\theta_n}
+##' @return An n-vector containing \hat{J}_{\theta_n}
 ##' @author Marius Hofert (based on ideas of Ivan Kojadinovic)
 ##' Note: References:
 ##'       * For estim.method="mpl":
@@ -222,12 +228,12 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
 ##'       * for the function in general: van der Vaart "Asymptotic Statistics" (2000, p. 179 top)
 Jscore <- function(copula, u, method)
 {
-    ## checks
+    ## Checks
     stopifnot(is(copula, "copula"))
     if(!is.matrix(u)) u <- rbind(u, deparse.level=0L)
     stopifnot((n <- nrow(u)) > 0, (d <- ncol(u)) > 1, dim(copula) == d)
 
-    ## deal with different methods
+    ## Deal with different methods
     switch(method,
            "mpl"=
        {   ## See page 7 in Kojadinovic and Yan (2011)
@@ -256,12 +262,12 @@ Jscore <- function(copula, u, method)
            stop("method='ml' not available")
        },
            "itau"=
-       { ## See page 849 in Kojadinovic, Yan, and Holmes (2011)
+       { # See page 849 in Kojadinovic, Yan, and Holmes (2011)
            stopifnot(dim(copula)==2)
            (4/dTau(copula)) * ( 2*pCopula(u, copula) - rowSums(u) + (1-tau(copula))/2 )
        },
            "irho"=
-       { ## See Equation (3.5) on page 847 in Kojadinovic, Yan, and Holmes (2011)
+       { # See Equation (3.5) on page 847 in Kojadinovic, Yan, and Holmes (2011)
            stopifnot(dim(copula)==2)
            i1 <- order(u[,1], decreasing=TRUE)
            i2 <- order(u[,2], decreasing=TRUE)
@@ -277,18 +283,22 @@ Jscore <- function(copula, u, method)
 }
 
 ##' @title Goodness-of-fit tests based on the multiplier bootstrap
-##' @param copula object of type 'copula' representing the H_0 copula
-##' @param x (n, d)-matrix containing the data
-##' @param N number of bootstrap replications
-##' @param method test statistics. Available are:
+##' @param copula An object of type 'copula' representing the H_0 copula
+##' @param x An (n, d)-matrix containing the data
+##' @param N The number of bootstrap replications
+##' @param method A test statistics. Available are:
 ##'        "Sn"     : see gofTstat()
 ##'        "Rn"     : test statistic R_n in Genest, Huang, Dufour (2013)
-##' @param estim.method estimation method for the unknown parameter vector; see
+##' @param estim.method The estimation method for the unknown parameter vector; see
 ##'        ?fitCopula
-##' @param verbose indicating whether verbose output is shown
-##' @param useR logical indicating whether an R or the C implementation is used
-##' @param ... additional arguments passed to the different methods
-##' @return an object of class 'htest'
+##' @param verbose A logical indicating whether verbose output is shown
+##'        TODO This should be used with a progress bar, but it's currently not
+##'              since there is no (?) clear strategy in subdividing the overall
+##'              computation in reasonable sub-parts, especially when calling the
+##'              C code
+##' @param useR A logical indicating whether an R or the C implementation is used
+##' @param ... Additional arguments passed to the different methods
+##' @return An object of class 'htest'
 ##' @author Ivan Kojadinovic, Marius Hofert
 ##' Note: - Ugly C code switch
 ##'       - Using gofTstat() for the multiplier bootstrap seems difficult, since
@@ -297,7 +307,7 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
                   estim.method=eval(formals(fitCopula)$method),
                   verbose = interactive(), useR=FALSE, m = 1/2, zeta.m = 0, b = 0.05, ...)
 {
-    ## checks
+    ## Checks
     stopifnot(is(copula, "copula"), N>=1)
     if(!is.matrix(x)) x <- rbind(x, deparse.level=0L)
     stopifnot((d <- ncol(x)) > 1, (n <- nrow(x)) > 0, dim(copula) == d)
@@ -313,7 +323,7 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
     ## 2) Fit the copula (copula is the H_0 copula; C.th.n = C_{\theta_n}(.))
     C.th.n <- fitCopula(copula, u., method=estim.method,
 			estimate.variance=FALSE, ...)@copula
-    ## big, ugly switch due to C code version (although most likely not required)
+    ## Big, ugly switch due to C code version (although most likely not required)
     switch(method,
            "Sn"=
        {
@@ -349,7 +359,7 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
        },
            "Rn"=
        {
-           ## checks
+           ## Checks
 	   if(estim.method!="itau")
 	       stop("Currently only estim.method='itau' available for method='Rn'")
            ## 3) Compute the realized test statistic
@@ -398,7 +408,7 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
        },
            stop("wrong method"))
 
-    ## return result object
+    ## Return result object
     structure(class = "htest",
 	      list(method = sprintf(
 		   "Multiplier bootstrap goodness-of-fit test with 'method'=\"%s\", 'estim.method'=\"%s\"",
@@ -413,24 +423,23 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
 ### Wrapper ####################################################################
 
 ##' @title Goodness-of-fit test wrapper function
-##' @param copula object of type 'copula' representing the H_0 copula
-##' @param x (n, d)-matrix containing the data
-##' @param N the number of bootstrap (parametric or multiplier) replications
-##' @param method goodness-of-fit test statistic to be used
-##' @param estim.method estimation method for the unknown parameter vector
-##' @param simulation parametric bootstrap ('pb') or multiplier method ('mult')
-##' @param verbose logical indicating whether a progress bar is shown
-##' @param print.every deprecated
-##' @param ... additional arguments passed to the internal auxiliary functions
+##' @param copula An object of type 'copula' representing the H_0 copula
+##' @param x An (n, d)-matrix containing the data
+##' @param N The number of bootstrap (parametric or multiplier) replications
+##' @param method A goodness-of-fit test statistic to be used
+##' @param estim.method An estimation method for the unknown parameter vector
+##' @param simulation The parametric ('pb') or multiplier ('mult') bootstrap
+##' @param verbose A logical indicating whether a progress bar is shown
+##' @param ... Additional arguments passed to the internal auxiliary functions
 ##'        gofPB() and gofMB()
-##' @return an object of class 'htest'
+##' @return An object of class 'htest'
 ##' @author Ivan Kojadinovic, Marius Hofert
 gofCopula <- function(copula, x, N=1000, method = "Sn",
                       estim.method = eval(formals(fitCopula)$method),
                       simulation = c("pb", "mult"),
-		      verbose = interactive(), print.every=NULL, ...)
+		      verbose = interactive(), ...) # print.every=NULL, ...)
 {
-    ## checks
+    ## Checks
     stopifnot(is(copula, "copula"), N >= 1)
     if(!is.matrix(x)) {
         warning("coercing 'x' to a matrix.")
@@ -440,12 +449,12 @@ gofCopula <- function(copula, x, N=1000, method = "Sn",
     ## 'method' is checked inside gofPB() / gofMB()
     estim.method <- match.arg(estim.method)
     simulation <- match.arg(simulation)
-    ## deprecation
-    if (!is.null(print.every)) {
-        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead.")
-        verbose <- print.every > 0
-    }
-    ## back-compatibility
+    ## Deprecation
+    ## if (!is.null(print.every)) {
+    ##     warning("Argument 'print.every' is deprecated. Please use 'verbose' instead.")
+    ##     verbose <- print.every > 0
+    ## }
+    ## Back-compatibility
     if(missing(estim.method) && !missing(method)) {
         eMeth <- eval(formals()$estim.method)
 	if(!is.na(i <- pmatch(method, eMeth))) {
@@ -455,14 +464,15 @@ gofCopula <- function(copula, x, N=1000, method = "Sn",
 	}
     }
 
-    ## distinguish the methods
+    ## Distinguish the methods
     switch(simulation,
-           "pb" = { ## parametric bootstrap
-               gofPB(copula, x, N=N, method=method, estim.method=estim.method,
-                     verbose=verbose, ...)
-           },
-           "mult" = { ## multiplier bootstrap
-               gofMB(copula, x=x, N=N, method=method, estim.method=estim.method, ...)
-           },
-           stop("Invalid simulation method ", simulation))
+    "pb" = { ## parametric bootstrap
+        gofPB(copula, x, N=N, method=method, estim.method=estim.method,
+              verbose = verbose, ...)
+    },
+    "mult" = { ## multiplier bootstrap
+        gofMB(copula, x=x, N=N, method=method, estim.method=estim.method,
+              verbose = verbose, ...)
+    },
+    stop("Invalid simulation method ", simulation))
 }

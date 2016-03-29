@@ -16,11 +16,11 @@
 
 ### Kendall distribution #######################################################
 
-## deprecated (former) Kendall distribution function K
-K <- function(u, cop, d, n.MC=0, log=FALSE){
-    .Deprecated("pK") # set K to "deprecated" => throws a message
-    pK(u, cop=cop, d=d, n.MC=n.MC, log.p=log) # call the new function
-}
+## ## deprecated (former) Kendall distribution function K
+## K <- function(u, cop, d, n.MC=0, log=FALSE){
+##     .Deprecated("pK") # set K to "deprecated" => throws a message
+##     pK(u, cop=cop, d=d, n.MC=n.MC, log.p=log) # call the new function
+## }
 
 ##' Empirical Kendall distribution function K_{n,d} as in Lemma 1 of
 ##' Genest, Neslehova, Ziegel (2011)

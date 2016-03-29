@@ -24,13 +24,12 @@ gofCopula(copula, x, N = 1000,
           method = "Sn",
           estim.method = eval(formals(fitCopula)$method),
           simulation = c("pb", "mult"),
-	  verbose = interactive(), print.every = NULL, \dots)
+	  verbose = interactive(), \dots)
 
 gofPB(copula, x, N, method = eval(formals(gofTstat)$method),
       estim.method = eval(formals(fitCopula)$method),
       trafo.method = c("none", "rtrafo", "htrafo"),
       trafoArgs = list(), verbose = interactive(), \dots)
-
 gofMB(copula, x, N, method = c("Sn", "Rn"),
       estim.method = eval(formals(fitCopula)$method), verbose = interactive(),
       useR = FALSE, m = 1/2, zeta.m = 0, b = 0.05, \dots)
@@ -54,7 +53,6 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
     generating realizations of the test statistic under the null
     hypothesis; can be either \code{"pb"} (parametric bootstrap) or
     \code{"mult"} (multiplier).}
-  \item{print.every}{is deprecated in favor of \code{verbose}.}
   \item{verbose}{a logical specifying if progress of the bootstrap
     should be displayed via \code{\link[utils]{txtProgressBar}}.}
   \item{\dots}{for \code{gofCopula}, additional arguments passed to
@@ -108,6 +106,9 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
   approximate p-value is a number strictly between 0 and 1, which is
   sometimes necessary for further treatments. See Pesarin (2001) for
   more details.
+
+  The former argument \code{print.every} is deprecated and not
+  supported anymore; use \code{verbose} instead.
 }
 \value{
   An object of \code{\link{class}} \code{htest} which is a list,

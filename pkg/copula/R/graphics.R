@@ -164,13 +164,40 @@ KPlot <- function(x, plot=TRUE, ...) {
 ## KPlot(cbind(x, y))
 
 
-### Enhanced splom #############################################################
+### Enhanced pairs() and splom() ###############################################
 
-##' @title A scatter plot matrix with nice variable names
+##' @title A Pairs Plot with Nice Defaults
+##' @param x A numeric matrix or as.matrix(.)able
+##' @param labels The labels, typically unspecified
+##' @param labels.null.lab A character string to determine 'labels'
+##'        in case 'labels' is NULL and 'x' does not have all column names given
+##' @param row1attop See ?pairs
+##' @param pch See ?pairs
+##' @param ... Further arguments passed to splom()
+##' @return invisible()
+##' @author Marius Hofert
+pairs2 <- function(x, labels = NULL, labels.null.lab = "U", row1attop = FALSE,
+                   pch = ".", ...)
+{
+   stopifnot(is.numeric(x <- as.matrix(x)), (d <- ncol(x)) >= 1,
+             length(labels.null.lab) == 1, is.character(labels.null.lab))
+   if(is.null(labels)) {
+       colnms <- colnames(x)
+       labels <- if(sum(nzchar(colnms)) != d) {
+           do.call(expression,
+                   lapply(1:d, function(i)
+                       substitute(v[I], list(v = as.name(labels.null.lab), I = 0+i))))
+       } else # 'x' has column names => parse them
+           parse(text = colnms)
+   }
+   pairs(x, labels = labels, row1attop = row1attop, gap = 0, pch = pch, ...)
+}
+
+##' @title A Scatter-plot Matrix with Nice Defaults
 ##' @param x A numeric matrix or as.matrix(.)able
 ##' @param varnames The variable names, typically unspecified
-##' @param varnames.null.lab A character string to determine varnames
-##'        in case 'x' doesn't have column names and 'varnames' is NULL
+##' @param varnames.null.lab A character string to determine 'varnames'
+##'        in case 'varnames' is NULL and 'x' does not have all column names given
 ##' @param xlab The x-axis label
 ##' @param col.mat A matrix of colors
 ##' @param bg.col.mat A matrix of background colors
@@ -197,10 +224,10 @@ splom2 <- function(x, varnames = NULL,
         new.plot.symbol <- trellis.par.get("plot.symbol")
         new.plot.symbol$col <- "black" # default of base graphics
         trellis.par.set("plot.symbol", new.plot.symbol)
-        col.mat <- matrix(trellis.par.get("plot.symbol")$col, n,d)
+        col.mat <- matrix(trellis.par.get("plot.symbol")$col, nrow = n, ncol = d)
     }
     if(is.null(bg.col.mat))
-        bg.col.mat <- matrix(trellis.par.get("background")$col, n,d)
+        bg.col.mat <- matrix(trellis.par.get("background")$col, nrow = n, ncol = d)
     ## From Deepayan Sarkar, working around missing feature
     ##		(which should be in next release) of lattice
     my.diag.panel <- function(x, varname, ...)
@@ -216,7 +243,7 @@ splom2 <- function(x, varnames = NULL,
 
 ### Enhanced wireframe plot ####################################################
 
-##' @title A wireframe plot
+##' @title A Wireframe Plot with Nice Defaults
 ##' @param x A numeric matrix or as.matrix(.)able
 ##' @param labels The x-, y- and z-axis labels
 ##' @param labels.null.lab A vector of length 3 giving the default labels

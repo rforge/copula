@@ -14,8 +14,8 @@
 }
 \usage{
 gofEVCopula(copula, x, N = 1000, method = "mpl",
-            estimator = "CFG", m = 1000, verbose = TRUE,
-            print.every = NULL, optim.method = "Nelder-Mead")
+            estimator = "CFG", m = 1000, verbose = interactive(),
+            optim.method = "Nelder-Mead")
 }
 \arguments{
   \item{copula}{ object of class \code{"\linkS4class{evCopula}"}
@@ -33,13 +33,15 @@ gofEVCopula(copula, x, N = 1000, method = "mpl",
     \code{"CFG"} (Caperaa-Fougeres-Genest) or  \code{"Pickands"}.}
   \item{m}{ number of points of the uniform grid on [0,1] used to
     compute the test statistic numerically.}
-  \item{print.every}{ is deprecated in favor of \code{verbose}.}
   \item{verbose}{a logical specifying if progress of the bootstrap
     should be displayed via \code{\link[utils]{txtProgressBar}}.}
   \item{optim.method}{ the method for \code{"\link{optim}"}. }
 }
 \details{
   More details can be found in the second reference.
+
+  The former argument \code{print.every} is deprecated and not
+  supported anymore; use \code{verbose} instead.
 }
 \value{
   An object of \code{\link{class}} \code{htest} which is a list,

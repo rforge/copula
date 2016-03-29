@@ -35,7 +35,7 @@ importFrom("utils", str, setTxtProgressBar, txtProgressBar, modifyList)
 importFrom("grDevices", col2rgb, dev.flush, dev.hold, dev.off, pdf)
 importFrom("graphics", Axis, abline, axis, box, contour, curve
          , layout.show, layout, lcm, lines, mtext
-         , par, persp
+         , par, persp, pairs,
          , plot.new, plot.window, points
          , rect, rug, strwidth, text
            )
@@ -219,7 +219,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ## distribution of the radial part for Archimedean copulas
        ,"pacR", "qacR"
        ## Kendall distribution
-       ,"K", "Kn", "pK", "qK", "dK", "rK"
+       ,"Kn", "pK", "qK", "dK", "rK"
        ## misc
        ,"onacopula", "onacopulaL", "nac2list", "nesdepth", "rnacModel", "nacPairthetas"
        ,"polynEval"
@@ -243,7 +243,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"tauAMH", "tauJoe"
        ,"allComp" # <- maybe keep private ?
        ,"safeUroot"
-       ,"splom2", "wireframe2", "qqplot2"
+       ,"pairs2", "splom2", "wireframe2", "qqplot2"
        )
 ## Deprecated old names [2012-07-25]:
 export(psiDabsMC
