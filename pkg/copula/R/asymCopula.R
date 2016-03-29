@@ -165,8 +165,8 @@ AAsymCopula <- function(copula, w) {
 }
 
 ## dCdu: Restricted to *bivariate* asymmetric copulas
-dCduAsymBivCopula <- function(cop, u) {
-    comps <- getAsymCopulaComps(cop)
+dCduAsymBivCopula <- function(copula, u, ...) {
+    comps <- getAsymCopulaComps(copula)
     a1 <- comps$shapes[1]
     a2 <- comps$shapes[2]
     copula1 <- comps$copula1
@@ -184,8 +184,8 @@ dCduAsymBivCopula <- function(cop, u) {
 }
 
 ## dCdtheta: Restricted to *bivariate* asymmetric copulas
-dCdthetaAsymBivCopula <- function(cop, u) {
-    comps <- getAsymCopulaComps(cop)
+dCdthetaAsymBivCopula <- function(copula, u, ...) {
+    comps <- getAsymCopulaComps(copula)
     a1 <- comps$shapes[1]
     a2 <- comps$shapes[2]
     copula1 <- comps$copula1

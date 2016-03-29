@@ -145,27 +145,27 @@ dTauRotCopula <- function(copula) {
 }
 
 ## dlogcdu
-dlogcduRotCopula <- function(cop, u) {
-    cop@copula@parameters <- cop@parameters
-    dlogcdu(cop@copula, apply.rots(u, cop@rots)) # TODO: check
+dlogcduRotCopula <- function(copula, u, ...) {
+    copula@copula@parameters <- copula@parameters
+    dlogcdu(copula@copula, apply.rots(u, copula@rots)) # TODO: check
 }
 
 ## dCdu
-dCduRotCopula <- function(cop, u) {
-    cop@copula@parameters <- cop@parameters
-    dCdu(cop@copula, apply.rots(u, cop@rots)) # TODO: check
+dCduRotCopula <- function(copula, u, ...) {
+    copula@copula@parameters <- copula@parameters
+    dCdu(copula@copula, apply.rots(u, copula@rots)) # TODO: check
 }
 
 ## dlogcdtheta
-dlogcdthetaRotCopula <- function(cop, u) {
-    cop@copula@parameters <- cop@parameters
-    dlogcdtheta(cop@copula, apply.rots(u, cop@rots)) # TODO: check
+dlogcdthetaRotCopula <- function(copula, u, ...) {
+    copula@copula@parameters <- copula@parameters
+    dlogcdtheta(copula@copula, apply.rots(u, copula@rots)) # TODO: check
 }
 
 ## dCdtheta
-dCdthetaRotCopula <- function(cop, u) {
-    cop@copula@parameters <- cop@parameters
-    dCdtheta(cop@copula, apply.rots(u, cop@rots)) # TODO: check
+dCdthetaRotCopula <- function(copula, u, ...) {
+    copula@copula@parameters <- copula@parameters
+    dCdtheta(copula@copula, apply.rots(u, copula@rots)) # TODO: check
 }
 
 setMethod("pCopula", signature("numeric", "rotCopula"),pRotCopula)

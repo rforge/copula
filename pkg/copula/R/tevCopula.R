@@ -117,13 +117,13 @@ dtevCopula <- function(u, copula, log=FALSE, ...) {
   if(log) log(pdf) else pdf
 }
 
-dCduSymEvCopula <- function(cop, u) {
+dCduSymEvCopula <- function(copula, u, ...) {
   mat <- matrix(NA, nrow(u), 2)
-  pcop <- pCopula(u, cop)
+  pcop <- pCopula(u, copula)
   loguv <- log(u[,1]) + log(u[,2])
   w <- log(u[,2]) / loguv
-  a <- A(cop, w)
-  aDer <- dAdu(cop, w)$der1
+  a <- A(copula, w)
+  aDer <- dAdu(copula, w)$der1
   mat[,1] <- pcop * (a / u[,1] - loguv * aDer * log(u[,2]) / (loguv)^2 / u[,1])
   mat[,2] <- pcop * (a / u[,2] + loguv * aDer * log(u[,1]) / (loguv)^2 / u[,2])
   mat
