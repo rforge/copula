@@ -293,8 +293,7 @@ var.mpl <- function(cop, u)
 	msg <- c(msg, gettext(" Or rather  emle(u, oCop)  instead; where",
                               sprintf(" oCop <- onacopula(%s, C(NA, 1:%d))", fam, p)))
     }
-    if (!isEll && (!hasMethod("dcopwrap", clc) ||
-                   !hasMethod("dcdu", clc))) {
+    if (!isEll && !hasMethod("dlogcdu", clc)) {
 	warning(msg); return(ans)
     }
 

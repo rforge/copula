@@ -334,16 +334,16 @@ setMethod("dCdtheta", signature("ellipCopula"), dCdthetaEllipCopula)
 ### For ellipCopula: DIVIDED BY PDF
 ##################################################################################
 
-setGeneric("dcdu", function(cop, u) standardGeneric("dcdu"))
+setGeneric("dlogcdu", function(cop, u) standardGeneric("dlogcdu"))
 
 ## Basic implementation based on numerical differentiation
-dcduCopulaNum <- function(cop, u) {
-    warning("Function 'dcdu' not implemented for this copula: numerical differentiation used")
-    dCop <- function(x) dCopula(x, cop)
-    t(apply(u, 1, function(u.) grad(dCop, u., method.args = gradControl(d = min.d(u.)))))
+dlogcduCopulaNum <- function(cop, u) {
+    warning("Function 'dlogcdu' not implemented for this copula: numerical differentiation used")
+    dlogc <- function(x) dCopula(x, cop, log = TRUE)
+    t(apply(u, 1, function(u.) grad(dlogc, u., method.args = gradControl(d = min.d(u.)))))
 }
 
-dcduExplicitCopula <- function(cop, u)
+dlogcduExplicitCopula <- function(cop, u)
 {
     p <- cop@dimension
     algNm <- paste(class(cop)[1], "pdfDerWrtArg.algr", sep=".")
@@ -358,25 +358,25 @@ dcduExplicitCopula <- function(cop, u)
             colnames(u) <- unames
             mat[,j] <- eval(der.pdf.u, data.frame(u))
         }
-    } else warning("there is no formula for dcdu*() for this copula")
-    mat
+    } else warning("there is no formula for dlogcdu*() for this copula")
+    mat / dCopula(u, cop)
 }
 
-setMethod("dcdu", signature("Copula"), dcduCopulaNum)
-setMethod("dcdu", signature("archmCopula"), dcduExplicitCopula)
-setMethod("dcdu", signature("plackettCopula"), dcduExplicitCopula)
-setMethod("dcdu", signature("evCopula"), dcduExplicitCopula)
-setMethod("dcdu", signature("gumbelCopula"), dcduExplicitCopula)
+setMethod("dlogcdu", signature("Copula"), dlogcduCopulaNum)
+setMethod("dlogcdu", signature("archmCopula"), dlogcduExplicitCopula)
+setMethod("dlogcdu", signature("plackettCopula"), dlogcduExplicitCopula)
+setMethod("dlogcdu", signature("evCopula"), dlogcduExplicitCopula)
+setMethod("dlogcdu", signature("gumbelCopula"), dlogcduExplicitCopula)
 
-dcduNormalCopula <- function(cop, u)
+dlogcduNormalCopula <- function(cop, u)
 {
     v <- qnorm(u)
     (- v %*% solve(getSigma(cop)) + v) / dnorm(v)
 }
 
-setMethod("dcdu", signature("normalCopula"), dcduNormalCopula)
+setMethod("dlogcdu", signature("normalCopula"), dlogcduNormalCopula)
 
-dcduTCopula <- function(cop, u)
+dlogcduTCopula <- function(cop, u)
 {
     df <- cop@df
     v <- qt(u,df=df)
@@ -386,46 +386,46 @@ dcduTCopula <- function(cop, u)
         (df + 1) * v / ((df +  v^2) * w)
 }
 
-setMethod("dcdu", signature("tCopula"), dcduTCopula)
+setMethod("dlogcdu", signature("tCopula"), dlogcduTCopula)
 
 ##################################################################################
 ### Partial derivatives of the PDF wrt parameters
 ### For ellipCopula: DIVIDED BY PDF
 ##################################################################################
 
-setGeneric("dcdtheta", function(cop, u) standardGeneric("dcdtheta"))
+setGeneric("dlogcdtheta", function(cop, u) standardGeneric("dlogcdtheta"))
 
 ## Basic implementation based on numerical differentiation
-dcdthetaCopulaNum <- function(cop, u) {
-    warning("Function 'dcdtheta' not implemented for this copula: numerical differentiation used")
-    dCop <- function(theta) {
+dlogcdthetaCopulaNum <- function(cop, u) {
+    warning("Function 'dlogcdtheta' not implemented for this copula: numerical differentiation used")
+    dlogc <- function(theta) {
         cop@parameters <- theta
-        dCopula(u, cop)
+        dCopula(u, cop, log = TRUE)
     }
     theta <- cop@parameters
     jacobian(dCop, theta, method.args = gradControl())
 }
 
-dcdthetaExplicitCopula <- function(cop, u)
+dlogcdthetaExplicitCopula <- function(cop, u)
 {
     p <- cop@dimension
     algNm <- paste(class(cop)[1], "pdfDerWrtPar.algr", sep=".")
     if(exists(algNm) && !is.null((der.pdf.alpha <- get(algNm)[p])[[1]])) {
 	alpha <- cop@parameters # typically used in val(.)
         colnames(u) <- paste0("u", 1:p)
-        as.matrix(eval(der.pdf.alpha, data.frame(u)))
+        as.matrix(eval(der.pdf.alpha, data.frame(u))) / dCopula(u, cop)
     } else {
-        warning("There is no formula for dcdtheta*() for this copula")
+        warning("There is no formula for dlogcdtheta*() for this copula")
         matrix(NA_real_, nrow(u), p)
     }
 }
 
-setMethod("dcdtheta", signature("Copula"), dcdthetaCopulaNum)
-setMethod("dcdtheta", signature("archmCopula"), dcdthetaExplicitCopula)
-setMethod("dcdtheta", signature("plackettCopula"), dcdthetaExplicitCopula)
-setMethod("dcdtheta", signature("evCopula"), dcdthetaExplicitCopula)
+setMethod("dlogcdtheta", signature("Copula"), dlogcdthetaCopulaNum)
+setMethod("dlogcdtheta", signature("archmCopula"), dlogcdthetaExplicitCopula)
+setMethod("dlogcdtheta", signature("plackettCopula"), dlogcdthetaExplicitCopula)
+setMethod("dlogcdtheta", signature("evCopula"), dlogcdthetaExplicitCopula)
 
-dcdthetaEllipCopula <- function(cop, u)
+dlogcdthetaEllipCopula <- function(cop, u)
 {
     p <- cop@dimension
 
@@ -521,18 +521,4 @@ dcdthetaEllipCopula <- function(cop, u)
     } ## p >= 3
 }
 
-setMethod("dcdtheta", signature("ellipCopula"), dcdthetaEllipCopula)
-
-##################################################################################
-### dCopula wrapper for influence coefficients
-### dcopwrap() gives the density (for ACs, EVCs, Plackett) and a vector of 1s
-### for elliptical copulas
-##################################################################################
-
-setGeneric("dcopwrap",  function(cop, u, ...) standardGeneric("dcopwrap"))
-
-dcopwrapCopula <- function(cop, u) dCopula(u, cop)
-setMethod("dcopwrap", signature("Copula"),	   dcopwrapCopula)
-
-dcopwrapEllipCopula <- function(cop, u) rep.int(1, NROW(u))
-setMethod("dcopwrap", signature("ellipCopula"), dcopwrapEllipCopula)
+setMethod("dlogcdtheta", signature("ellipCopula"), dlogcdthetaEllipCopula)

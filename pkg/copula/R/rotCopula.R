@@ -144,10 +144,10 @@ dTauRotCopula <- function(copula) {
     (-1)^sum(copula@rots[1:2]) * dTau(copula@copula)
 }
 
-## dcdu
-dcduRotCopula <- function(cop, u) {
+## dlogcdu
+dlogcduRotCopula <- function(cop, u) {
     cop@copula@parameters <- cop@parameters
-    dcdu(cop@copula, apply.rots(u, cop@rots)) # TODO: check
+    dlogcdu(cop@copula, apply.rots(u, cop@rots)) # TODO: check
 }
 
 ## dCdu
@@ -156,10 +156,10 @@ dCduRotCopula <- function(cop, u) {
     dCdu(cop@copula, apply.rots(u, cop@rots)) # TODO: check
 }
 
-## dcdtheta
-dcdthetaRotCopula <- function(cop, u) {
+## dlogcdtheta
+dlogcdthetaRotCopula <- function(cop, u) {
     cop@copula@parameters <- cop@parameters
-    dcdtheta(cop@copula, apply.rots(u, cop@rots)) # TODO: check
+    dlogcdtheta(cop@copula, apply.rots(u, cop@rots)) # TODO: check
 }
 
 ## dCdtheta
@@ -187,8 +187,7 @@ setMethod("tailIndex", signature("rotCopula"), tailIndexRotCopula)
 setMethod("dRho", signature("rotCopula"), dRhoRotCopula)
 setMethod("dTau", signature("rotCopula"), dTauRotCopula)
 
-setMethod("dcdu", signature("rotCopula"), dcduRotCopula)
+setMethod("dlogcdu", signature("rotCopula"), dlogcduRotCopula)
 setMethod("dCdu", signature("rotCopula"), dCduRotCopula)
-setMethod("dcopwrap", signature("rotCopula"), dcopwrapCopula)
-setMethod("dcdtheta", signature("rotCopula"), dcdthetaRotCopula)
+setMethod("dlogcdtheta", signature("rotCopula"), dlogcdthetaRotCopula)
 setMethod("dCdtheta", signature("rotCopula"), dCdthetaRotCopula)

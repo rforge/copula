@@ -234,9 +234,8 @@ Jscore <- function(copula, u, method)
            if(has.par.df(copula))
                stop("Jscore() cannot be computed for df.fixed = FALSE")
            ## Integrals computed from n realizations by Monte Carlo
-           dcop <- dcopwrap(copula, u) # nrow(u)-vector (density for ACs, EVCs; 1 for elliptical)
-           influ0 <- dcdtheta(copula, u) / dcop # (n, d)-matrix
-           derArg <- dcdu  (copula, u) / dcop # (n, d)-matrix
+           influ0 <- dlogcdtheta(copula, u) # (n, d)-matrix
+           derArg <- dlogcdu    (copula, u) # (n, d)-matrix
            influ <- lapply(1:copula@dimension, function(i) influ0*derArg[,i])
            n <- nrow(u)
            d <- ncol(u)
@@ -250,7 +249,7 @@ Jscore <- function(copula, u, method)
                                   matrix(colMeans(influ[[j]]*u[,j]), n, p, byrow=TRUE)
            }
            Sigma.n <- crossprod(influ0) / n # = A^T A / n for A = influ0
-           solve(Sigma.n, t(dcdtheta(copula, u) / dcopwrap(copula, u) - S)) # solve(A, B) solves Ax = B => x = A^{-1}B
+           solve(Sigma.n, t(dlogcdtheta(copula, u) - S)) # solve(A, B) solves Ax = B => x = A^{-1}B
        },
            "ml"=
        {
