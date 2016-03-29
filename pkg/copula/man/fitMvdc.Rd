@@ -87,7 +87,7 @@ fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS",
   since 2013, notably for likelihood based methods (as the likelihood
   is now rather set to \code{-Inf} than giving an error).
 
-  Previously, \code{loglikMvdc()} had an argument \item{hideWarnings};
+  Previously, \code{loglikMvdc()} had an argument \code{hideWarnings};
   nowadays, do use \code{\link{suppressWarnings}(..)} if you are sure
   you do not want to see them.
 }
