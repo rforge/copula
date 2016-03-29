@@ -119,9 +119,8 @@ loglikMvdc <- function(param, x, mvdc) {
   loglik <- tryCatch(sum(log(dMvdc(x, mvdc))), error = function(e) e)
   if(is(loglik, "error")) {
       warning("error in loglik computation: ", loglik$message)
-      (-Inf)# was NaN
-  }
-  else loglik
+      (-Inf) # was NaN
+  } else loglik
 }
 
 fitMvdc <- function(data, mvdc, start,
@@ -150,7 +149,7 @@ fitMvdc <- function(data, mvdc, start,
     }
 
     fit <- optim(start, loglikMvdc,
-		 ## loglikMvdc args :
+		 ## loglikMvdc args:
 		 mvdc=mvdc, x=data,
 		 ## optim args:
 		 method=method, control=control, lower=lower, upper=upper)

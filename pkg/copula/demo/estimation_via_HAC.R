@@ -34,7 +34,7 @@ plot(hacG) # plot method
 
 ## Parameters can either be estimated based on a fixed structure...
 colnames(U) <- paste(1:ncol(U))
-hac.fixed <- estimate.copula(U, hac=hacG)
+hac.fixed <- estimate.copula(U, hac=hacG) # type = 1 (default)
 ## ... or the structure can be estimated as well:
 hac.flex <- estimate.copula(U, type=hacG$type)
 

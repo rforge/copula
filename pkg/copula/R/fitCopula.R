@@ -573,13 +573,13 @@ fitCopula <- function(copula, data,
         data <- as.matrix(data); stopifnot(is.matrix(data))
     }
     method <- match.arg(method)
-    if(method=="mpl" || method=="ml") { # "mpl" or "ml"
+    if(method == "mpl" || method == "ml") { # "mpl" or "ml"
         fitCopula.ml(copula, u=data, method=method,
                      start=start, lower=lower, upper=upper,
                      optim.method=optim.method, optim.control=optim.control,
                      estimate.variance=estimate.variance,
                      hideWarnings=hideWarnings, ...)
-    } else if(method=="itau" || method=="irho") { # "itau" or "irho"
+    } else if(method == "itau" || method == "irho") { # "itau" or "irho"
         fitCopula.icor(copula, x=data, method=method,
                        estimate.variance=estimate.variance, ...)
     } else { # "itau.mpl"

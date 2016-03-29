@@ -20,25 +20,22 @@
 setClass("rotCopula", contains = "copula",
          representation = representation(
              copula = "copula",
-             rots = "logical"
+             flip = "logical"
          ),
 	 validity = function(object) {
-    if(object@copula@dimension != length(object@rots))
-        "The dimension of the copula does not match the length of 'rots'"
+    if(object@copula@dimension != length(object@flip))
+        "The dimension of the copula does not match the length of 'flip'"
 	     else TRUE
 })
 
-##' Rotated copulas created from an existing copula and a mask of logicals
-##'
-##' @title Rotated copulas
-##' @copula a "base" copula
-##' @rots vector of logicals; if element i is TRUE,
-##'       the copula is "rotated" wrt the axis x_i = 0.5;
-##'       the default value is all TRUE which gives the survival copula
+##' @title Rotated Copulas Created from an Existing Copula and a Mask of Logicals
+##' @param copula The 'base' copula
+##' @param flip A vector of logicals; if element i is TRUE,
+##'        the copula is "rotated" wrt the axis x_i = 0.5;
+##'        the default value is all TRUE which gives the survival copula
 ##' @return a new "rotCopula" object; see above
 ##' @author Ivan Kojadinovic
-
-rotCopula <- function(copula, rots = rep(TRUE, copula@dimension)) { # TODO: 'rstable-ex.R' fails!!!!!
+rotCopula <- function(copula, flip = rep(TRUE, copula@dimension)) { # TODO: 'rstable-ex.R' fails!!!!!
     new("rotCopula",
         dimension = copula@dimension,
         parameters = copula@parameters,
@@ -46,36 +43,36 @@ rotCopula <- function(copula, rots = rep(TRUE, copula@dimension)) { # TODO: 'rst
         param.lowbnd = copula@param.lowbnd,
         param.upbnd = copula@param.upbnd,
         copula = copula,
-        rots = rots,
+        flip = flip,
         fullname = paste("Rotated copula based on:", copula@fullname))
 }
 
-## Internal. swicth u[,i] to 1 - u[,i] according to rots
-apply.rots <- function(u, rots) {
-    if (!is.matrix(u)) u <- matrix(u, ncol = length(rots))
-    u[,rots] <- 1 - u[,rots]
+## Internal. swicth u[,i] to 1 - u[,i] according to flip
+apply.flip <- function(u, flip) {
+    if (!is.matrix(u)) u <- matrix(u, ncol = length(flip))
+    u[,flip] <- 1 - u[,flip]
     u
 }
 
 ## pCopula
 pRotCopula <- function(u, copula) {
     copula@copula@parameters <- copula@parameters
-    apply(apply.rots(u, copula@rots), 1, # TODO: vectorize prob ?
+    apply(apply.flip(u, copula@flip), 1, # TODO: vectorize prob ?
           function(x) prob(copula@copula,
-                           l = pmin(x, copula@rots),
-                           u = pmax(x, copula@rots)))
+                           l = pmin(x, copula@flip),
+                           u = pmax(x, copula@flip)))
 }
 
 ## dCopula
 dRotCopula <- function(u, copula, log = FALSE, ...) {
     copula@copula@parameters <- copula@parameters
-    dCopula(apply.rots(u, copula@rots), copula@copula, log = log, ...)
+    dCopula(apply.flip(u, copula@flip), copula@copula, log = log, ...)
 }
 
 ## rCopula
 rRotCopula <- function(n, copula) {
     copula@copula@parameters <- copula@parameters
-    apply.rots(rCopula(n, copula@copula), copula@rots)
+    apply.flip(rCopula(n, copula@copula), copula@flip)
 }
 
 ## rho
@@ -83,14 +80,14 @@ rhoRotCopula <- function(copula) {
     ## if (copula@dimension > 2L)
     ##     warning("considering only the first bivariate margin of the copula")
     copula@copula@parameters <- copula@parameters
-    (-1)^sum(copula@rots[1:2]) * rho(copula@copula)
+    (-1)^sum(copula@flip[1:2]) * rho(copula@copula)
 }
 
 ## iRho
 iRhoRotCopula <- function(copula, rho) {
     ## if (copula@dimension > 2L)
     ##     warning("considering only the first bivariate margin of the copula")
-    iRho(copula@copula, (-1)^sum(copula@rots[1:2]) * rho)
+    iRho(copula@copula, (-1)^sum(copula@flip[1:2]) * rho)
 }
 
 ## tau
@@ -98,14 +95,14 @@ tauRotCopula <- function(copula) {
     ## if (copula@dimension > 2L)
     ##     warning("considering only the first bivariate margin of the copula")
     copula@copula@parameters <- copula@parameters
-    (-1)^sum(copula@rots[1:2]) * tau(copula@copula)
+    (-1)^sum(copula@flip[1:2]) * tau(copula@copula)
 }
 
 ## iRho
 iTauRotCopula <- function(copula, tau) {
     ## if (copula@dimension > 2L)
     ##     warning("considering only the first bivariate margin of the copula")
-    iTau(copula@copula, (-1)^sum(copula@rots[1:2]) * tau)
+    iTau(copula@copula, (-1)^sum(copula@flip[1:2]) * tau)
 }
 
 ## tailIndex
@@ -113,7 +110,7 @@ tailIndexRotCopula <- function(copula) {
     ## if (copula@dimension > 2L)
     ##     warning("considering only the first bivariate margin of the copula")
     copula@copula@parameters <- copula@parameters
-    sm <- sum(copula@rots[1:2])
+    sm <- sum(copula@flip[1:2])
     if (sm == 1) {
         warning("not implemented yet")
         return(c(lower= NA, upper= NA))
@@ -133,7 +130,7 @@ dRhoRotCopula <- function(copula) {
     ## if (copula@dimension > 2)
     ##     warning("considering only the first bivariate margin of the copula")
     copula@copula@parameters <- copula@parameters
-    (-1)^sum(copula@rots[1:2]) * dRho(copula@copula)
+    (-1)^sum(copula@flip[1:2]) * dRho(copula@copula)
 }
 
 ## dTau
@@ -141,31 +138,31 @@ dTauRotCopula <- function(copula) {
     ## if (copula@dimension > 2)
     ##     warning("considering only the first bivariate margin of the copula")
     copula@copula@parameters <- copula@parameters
-    (-1)^sum(copula@rots[1:2]) * dTau(copula@copula)
+    (-1)^sum(copula@flip[1:2]) * dTau(copula@copula)
 }
 
 ## dlogcdu
 dlogcduRotCopula <- function(copula, u, ...) {
     copula@copula@parameters <- copula@parameters
-    dlogcdu(copula@copula, apply.rots(u, copula@rots)) # TODO: check
+    dlogcdu(copula@copula, apply.flip(u, copula@flip)) # TODO: check
 }
 
 ## dCdu
 dCduRotCopula <- function(copula, u, ...) {
     copula@copula@parameters <- copula@parameters
-    dCdu(copula@copula, apply.rots(u, copula@rots)) # TODO: check
+    dCdu(copula@copula, apply.flip(u, copula@flip)) # TODO: check
 }
 
 ## dlogcdtheta
 dlogcdthetaRotCopula <- function(copula, u, ...) {
     copula@copula@parameters <- copula@parameters
-    dlogcdtheta(copula@copula, apply.rots(u, copula@rots)) # TODO: check
+    dlogcdtheta(copula@copula, apply.flip(u, copula@flip)) # TODO: check
 }
 
 ## dCdtheta
 dCdthetaRotCopula <- function(copula, u, ...) {
     copula@copula@parameters <- copula@parameters
-    dCdtheta(copula@copula, apply.rots(u, copula@rots)) # TODO: check
+    dCdtheta(copula@copula, apply.flip(u, copula@flip)) # TODO: check
 }
 
 setMethod("pCopula", signature("numeric", "rotCopula"),pRotCopula)
