@@ -37,22 +37,24 @@ setClass("asymCopula", contains = "copula",
 ##################################################################################
 
 ## Tests whether a bivariate copula is exchangeable
-is.exchangeable <- function(copula, m=6) {
-    x <- y <- seq(1/m, 1-1/m, length.out = m) # grid size
-    u <- as.matrix(expand.grid(x = x, y = y))
-    v <- cbind(u[,2], u[,1])
-    if (all(pCopula(u, copula) == pCopula(v, copula))) TRUE else FALSE
-}
+## is.exchangeable <- function(copula, m=6) {
+##     x <- y <- seq(1/m, 1-1/m, length.out = m) # grid size
+##     u <- as.matrix(expand.grid(x = x, y = y))
+##     v <- cbind(u[,2], u[,1])
+##     if (all(pCopula(u, copula) == pCopula(v, copula))) TRUE else FALSE
+## }
 
 ## Bivariate asymmetric copula class
-setClass("asymBivCopula", contains = "asymCopula",
-	 validity = function(object) {
-    if(object@copula1@dimension != 2 || object@copula2@dimension != 2 ||
-       is.exchangeable(object@copula1) == FALSE ||
-       is.exchangeable(object@copula2) == FALSE)
-        "The argument copulas are not all of dimension two and exchangeable"
-	     else TRUE
-})
+setClass("asymBivCopula", contains = "asymCopula")
+
+## ,
+## 	 validity = function(object) {
+##     if(object@copula1@dimension != 2 || object@copula2@dimension != 2 ||
+##        is.exchangeable(object@copula1) == FALSE ||
+##        is.exchangeable(object@copula2) == FALSE)
+##         "The argument copulas are not all of dimension two and exchangeable"
+## 	     else TRUE
+## })
 
 ## C(u_1^{1-a_1}, u_2^{1-a_2}) * D(u_1^a_1, u_2^a_1) = C(g(u, 1-a)) * D(g(u, a)
 g <- function(u, a) u^a
@@ -213,8 +215,6 @@ dCdthetaAsymBivCopula <- function(copula, u, ...) {
               -log(u[,2]) * g(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
                pC1gu1 * log(u[,2]) * g(u[,2], a2) * dC2du[,2])
 }
-
-
 
 setMethod("A", signature("asymBivCopula"), AAsymCopula)
 

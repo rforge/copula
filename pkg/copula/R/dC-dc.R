@@ -99,7 +99,8 @@ dCduIndepCopula <- function(copula, u, ...) {
   mat
 }
 
-setMethod("dCdu", signature("Copula"), dCduCopulaNum)
+setMethod("dCdu", signature("copula"), dCduCopulaNum)
+setMethod("dCdu", signature("joeCopula"), dCduCopulaNum) ## TODO: Martin, why do we need this?
 setMethod("dCdu", signature("archmCopula"), dCduExplicitCopula)
 setMethod("dCdu", signature("plackettCopula"), dCduExplicitCopula)
 setMethod("dCdu", signature("evCopula"), dCduExplicitCopula)
@@ -265,7 +266,8 @@ dCdthetaEvCopula <- function(copula, u, ...) {
   as.matrix(pCopula(u, copula) * loguv * dAdtheta(copula, w))
 }
 
-setMethod("dCdtheta", signature("Copula"), dCdthetaCopulaNum)
+setMethod("dCdtheta", signature("copula"), dCdthetaCopulaNum)
+setMethod("dCdtheta", signature("joeCopula"), dCdthetaCopulaNum) ## TODO: Martin, why do we need this?
 setMethod("dCdtheta", signature("archmCopula"), dCdthetaExplicitCopula)
 setMethod("dCdtheta", signature("plackettCopula"), dCdthetaExplicitCopula)
 setMethod("dCdtheta", signature("evCopula"), dCdthetaExplicitCopula)
@@ -380,7 +382,8 @@ dlogcduExplicitCopula <- function(copula, u, ...)
     mat / dCopula(u, copula)
 }
 
-setMethod("dlogcdu", signature("Copula"), dlogcduCopulaNum)
+setMethod("dlogcdu", signature("copula"), dlogcduCopulaNum)
+setMethod("dlogcdu", signature("joeCopula"), dlogcduCopulaNum) ## TODO: Martin, why do we need this?
 setMethod("dlogcdu", signature("archmCopula"), dlogcduExplicitCopula)
 setMethod("dlogcdu", signature("plackettCopula"), dlogcduExplicitCopula)
 setMethod("dlogcdu", signature("evCopula"), dlogcduExplicitCopula)
@@ -441,7 +444,8 @@ dlogcdthetaExplicitCopula <- function(copula, u, ...)
     }
 }
 
-setMethod("dlogcdtheta", signature("Copula"), dlogcdthetaCopulaNum)
+setMethod("dlogcdtheta", signature("copula"), dlogcdthetaCopulaNum)
+setMethod("dlogcdtheta", signature("joeCopula"), dlogcdthetaCopulaNum) ## TODO: Martin, why do we need this?
 setMethod("dlogcdtheta", signature("archmCopula"), dlogcdthetaExplicitCopula)
 setMethod("dlogcdtheta", signature("plackettCopula"), dlogcdthetaExplicitCopula)
 setMethod("dlogcdtheta", signature("evCopula"), dlogcdthetaExplicitCopula)
