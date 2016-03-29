@@ -5,6 +5,40 @@
  now see FIXME in   tests/fitting-ex.R  'msg <-
  tryCatch(fitCopula(gumbelCopula(), ....'
 ** TODO see example code and TODO in dC-dc.R: use explicit formulas of partial derivatives for Archimedean copulas
+** TODO 'hideWarnings' in fitCopula()
+- change default to FALSE
+- use within fitCopula() instead of fitCopula.ml() and fitCopula.itau.mpl()
+- update ?fitCopula (and other locations?) accordingly
+** TODO figure out and document somewhere how much archmCopula's already use the good things from nacopula-ACs
+** TODO implement estimation of standard error for fitCopula.itau.mpl
+** TODO 'hideWarnings' now in fitMvdc(): Not sink(), change it to use suppressWarnings() the same as fitCopula!
+** TODO implement fitting of NACs with fixed structure (how is it done in the R package 'HAC'?)
+** TODO Ivan: Document xvCopula()
+** TODO Ivan: gofCopula():
+- make sim="mult" work with more families (use numDeriv to get a generic implementation)
+- make method="Rd" work with all the sim="mult" families
+** TODO Implement copula rotations (rotCopula())
+** TODO Implement copula mixtures (mixCopula()) with sufficiently flexible structure so that we can maybe estimate the probability weights in the future
+** TODO Implement Liebscher copulas (asymCopula()) for 2 'base copulas' (any dimension)
+** TODO Ivan/Jun: document getL() a bit more in fitCopula.R (what is it for?); there's a TODO there as well (in the header of getL())
+** TODO Shall fitCopula.ml(, method="mpl") call pobs()?
+MH:
+At the moment, fitCopula.ml(, method="mpl") requires data in
+[0,1]^d. We could actually allow general data from IR^d for this
+method and then internally apply pobs(). The main advantage is that
+this would be more fail-safe for users (a user currently gets an error
+if the data is not in [0,1]^d, but that doesn't guarantee that the
+data are pobs()...). A "technical" drawback is that when called from
+gofPB() or gofMB() (time critical), pobs() is called a bit more often
+than necessary; however, since we always call fitCopula() with
+estimate.variance=FALSE from gofCopula(), it actually makes no sense
+to call fitCopula(, "mpl") [although you can choose to do so if you
+like] so one could simply call fitCopula(, "ml") then to avoid the
+additional pobs() evaluations. One "conceptual" drawback is this: in
+the whole file fitCopula.R, we never call pobs() -- it's always left
+to the reader. So implementing it in fitCopula.ml(, method="mpl")
+would 'contradict' that. Really not sure... I tend to say the
+advantage outweighs the drawbacks... What do you think?
 ** DONE fitCopula() for 2-dim tCopula() *AND* 2-dim tevCopula(); latter clearly fails
 ** DONE mvdc() -- fitMvdc() and generate data from fit:
  - fitMvdc()@mvdc  must contain the *fitted* parameters, the same as
@@ -18,7 +52,6 @@
     fitCopula() user.
 ** DONE tryCatch() in loglikMvdc(), but not longer hideWarnings there.
    OTOH,
-** TODO 'hideWarnings' now in fitMvdc(): Not sink(), change it to use suppressWarnings() the same as fitCopula!
 ** DONE timings() function name -- changed to nacFrail.time()
 ** DONE setTheta() bug: see tests/fitting-ex.R ..seed(17)
 ** DONE stopifnot(ncol(u) == (d <- copula@dimension))  *not* ok:
@@ -99,8 +132,7 @@ IK: Me too
 - with warning
 - on help pages
 *** TODO NAC Archimedean families <--> archmCopula  unification
-**** TODO The NAC Archimedean families are partly 'better' and partly "worse" than
-  archmCop: need 'uscore'
+**** TODO The NAC Archimedean families are partly 'better' and partly "worse" than archmCop: need 'uscore'
 **** TODO JY: For score & uscore (see [[file:feature-table.org][Feature table]]); write testing code
  based on IJ-"papers" that compares the two classes numerically.
 **** DONE MM: pCopula(<archm>) and dCopula(<archm>)
