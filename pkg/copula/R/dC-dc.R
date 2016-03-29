@@ -72,7 +72,7 @@ dCduArchmCopula <- function(copula, u, ...) {
 dCduExplicitCopula <- function(copula, u, ...)
 {
     p <- copula@dimension
-    mat <- matrix(NA_real_, nrow(u),p)
+    mat <- matrix(NA_real_, nrow(u), p)
     algNm <- paste(class(copula)[1], "cdfDerWrtArg.algr", sep=".")
     if(exists(algNm)) {
 	alpha <- copula@parameters # typically used in 'eval(der.cdf.u, *)' below
@@ -100,7 +100,7 @@ dCduIndepCopula <- function(copula, u, ...) {
 }
 
 setMethod("dCdu", signature("copula"), dCduCopulaNum)
-setMethod("dCdu", signature("joeCopula"), dCduCopulaNum) ## TODO: Martin, why do we need this?
+setMethod("dCdu", signature("joeCopula"), dCduCopulaNum)
 setMethod("dCdu", signature("archmCopula"), dCduExplicitCopula)
 setMethod("dCdu", signature("plackettCopula"), dCduExplicitCopula)
 setMethod("dCdu", signature("evCopula"), dCduExplicitCopula)
@@ -255,7 +255,7 @@ dCdthetaExplicitCopula <- function(copula, u, ...)
         as.matrix(eval(der.cdf.alpha, data.frame(u)))
     } else {
         warning("there is no formula for dCdtheta() for this copula")
-        matrix(NA_real_, nrow(u),p)
+        matrix(NA_real_, nrow(u), length(copula@parameters))
     }
 }
 
@@ -267,7 +267,8 @@ dCdthetaEvCopula <- function(copula, u, ...) {
 }
 
 setMethod("dCdtheta", signature("copula"), dCdthetaCopulaNum)
-setMethod("dCdtheta", signature("joeCopula"), dCdthetaCopulaNum) ## TODO: Martin, why do we need this?
+setMethod("dCdtheta", signature("joeCopula"), dCdthetaCopulaNum)
+setMethod("dCdtheta", signature("tevCopula"), dCdthetaCopulaNum)
 setMethod("dCdtheta", signature("archmCopula"), dCdthetaExplicitCopula)
 setMethod("dCdtheta", signature("plackettCopula"), dCdthetaExplicitCopula)
 setMethod("dCdtheta", signature("evCopula"), dCdthetaExplicitCopula)
@@ -383,7 +384,8 @@ dlogcduExplicitCopula <- function(copula, u, ...)
 }
 
 setMethod("dlogcdu", signature("copula"), dlogcduCopulaNum)
-setMethod("dlogcdu", signature("joeCopula"), dlogcduCopulaNum) ## TODO: Martin, why do we need this?
+setMethod("dlogcdu", signature("joeCopula"), dlogcduCopulaNum)
+setMethod("dlogcdu", signature("tevCopula"), dlogcduCopulaNum)
 setMethod("dlogcdu", signature("archmCopula"), dlogcduExplicitCopula)
 setMethod("dlogcdu", signature("plackettCopula"), dlogcduExplicitCopula)
 setMethod("dlogcdu", signature("evCopula"), dlogcduExplicitCopula)
@@ -440,12 +442,13 @@ dlogcdthetaExplicitCopula <- function(copula, u, ...)
         as.matrix(eval(der.pdf.alpha, data.frame(u))) / dCopula(u, copula)
     } else {
         warning("There is no formula for dlogcdtheta() for this copula")
-        matrix(NA_real_, nrow(u), p)
+        matrix(NA_real_, nrow(u), length(copula@parameters))
     }
 }
 
 setMethod("dlogcdtheta", signature("copula"), dlogcdthetaCopulaNum)
-setMethod("dlogcdtheta", signature("joeCopula"), dlogcdthetaCopulaNum) ## TODO: Martin, why do we need this?
+setMethod("dlogcdtheta", signature("joeCopula"), dlogcdthetaCopulaNum)
+setMethod("dlogcdtheta", signature("tevCopula"), dlogcdthetaCopulaNum)
 setMethod("dlogcdtheta", signature("archmCopula"), dlogcdthetaExplicitCopula)
 setMethod("dlogcdtheta", signature("plackettCopula"), dlogcdthetaExplicitCopula)
 setMethod("dlogcdtheta", signature("evCopula"), dlogcdthetaExplicitCopula)
