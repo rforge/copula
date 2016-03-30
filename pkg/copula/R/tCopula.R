@@ -115,7 +115,7 @@ showTCopula <- function(object) {
   invisible(object)
 }
 
-tailIndexTCopula <- function(copula) {
+lambdaTCopula <- function(copula) {
 ### McNeil, Frey, Embrechts (2005), p.211
   df <- getdf(copula)
   rho <- copula@getRho(copula)
@@ -146,7 +146,7 @@ setMethod("show", signature("tCopula"), showTCopula)
 
 setMethod("tau", signature("tCopula"), tauTCopula)
 setMethod("rho", signature("tCopula"), rhoTCopula)
-setMethod("tailIndex", signature("tCopula"), tailIndexTCopula)
+setMethod("lambda", signature("tCopula"), lambdaTCopula)
 
 ## unneeded:
 ## setMethod("iTau", signature("tCopula"), iTauEllipCopula)

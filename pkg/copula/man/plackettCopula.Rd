@@ -23,7 +23,6 @@ plackettCopula(param)
 }
 \examples{
 plackett.cop <- plackettCopula(param=2)
-tailIndex(plackett.cop)
 }
-\keyword{ distribution }
-\keyword{ multivariate }
+\keyword{distribution}
+\keyword{multivariate}

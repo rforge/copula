@@ -48,7 +48,6 @@
 \alias{A,huslerReissCopula-method}
 \alias{A,tawnCopula-method}
 \alias{A,tevCopula-method}
-\alias{A,asymCopula-method}
 \alias{A,asymBivCopula-method}
 \alias{A,indepCopula-method}
 % dAdu

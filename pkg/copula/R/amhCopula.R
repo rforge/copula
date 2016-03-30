@@ -197,7 +197,7 @@ setMethod("diPsi", signature("amhCopula"),
 setMethod("tau", signature("amhCopula"), function(copula) tauAMH(copula@parameters[1]))
 
 setMethod("rho", signature("amhCopula"), rhoAmhCopula)
-setMethod("tailIndex", signature("amhCopula"), function(copula) c(lower=0, upper=0))
+setMethod("lambda", signature("amhCopula"), function(copula) c(lower=0, upper=0))
 
 setMethod("iTau", signature("amhCopula"), iTauAmhCopula)
 ## iRho() uses default method:  uniroot(rho(.) - rh)

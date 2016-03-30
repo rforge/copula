@@ -35,7 +35,7 @@ setClass("rotCopula", contains = "copula",
 ##'        the default value is all TRUE which gives the survival copula
 ##' @return a new "rotCopula" object; see above
 ##' @author Ivan Kojadinovic
-rotCopula <- function(copula, flip = rep(TRUE, copula@dimension)) { # TODO: 'rstable-ex.R' fails!!!!!
+rotCopula <- function(copula, flip = rep(TRUE, copula@dimension)) {
     new("rotCopula",
         dimension = copula@dimension,
         parameters = copula@parameters,
@@ -105,8 +105,8 @@ iTauRotCopula <- function(copula, tau) {
     iTau(copula@copula, (-1)^sum(copula@flip[1:2]) * tau)
 }
 
-## tailIndex
-tailIndexRotCopula <- function(copula) {
+## lambda
+lambdaRotCopula <- function(copula) {
     ## if (copula@dimension > 2L)
     ##     warning("considering only the first bivariate margin of the copula")
     copula@copula@parameters <- copula@parameters
@@ -116,7 +116,7 @@ tailIndexRotCopula <- function(copula) {
         return(c(lower= NA, upper= NA))
     }
     else {
-        ti <- tailIndex(copula@copula)
+        ti <- lambda(copula@copula)
         names(ti) <- NULL
         if (sm == 0)
             return(c(lower = ti[1], upper = ti[2]))
@@ -179,7 +179,7 @@ setMethod("tau", signature("rotCopula"), tauRotCopula)
 setMethod("iRho", signature("rotCopula"), iRhoRotCopula)
 setMethod("iTau", signature("rotCopula"), iTauRotCopula)
 
-setMethod("tailIndex", signature("rotCopula"), tailIndexRotCopula)
+setMethod("lambda", signature("rotCopula"), lambdaRotCopula)
 
 setMethod("dRho", signature("rotCopula"), dRhoRotCopula)
 setMethod("dTau", signature("rotCopula"), dTauRotCopula)

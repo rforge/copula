@@ -101,7 +101,7 @@ showNormalCopula <- function(object) {
 }
 
 
-tailIndexNormalCopula <- function(copula) {
+lambdaNormalCopula <- function(copula) {
   rho <- copula@parameters
   upper <- lower <- ifelse(rho == 1, 1, 0)
   c(lower=lower, upper=upper)
@@ -129,7 +129,7 @@ setMethod("show", signature("normalCopula"), showNormalCopula)
 
 setMethod("tau", signature("normalCopula"), tauNormalCopula)
 setMethod("rho", signature("normalCopula"), rhoNormalCopula)
-setMethod("tailIndex", signature("normalCopula"), tailIndexNormalCopula)
+setMethod("lambda", signature("normalCopula"), lambdaNormalCopula)
 
 setMethod("iTau", signature("normalCopula"), iTauEllipCopula)
 setMethod("iRho", signature("normalCopula"), iRhoEllipCopula)

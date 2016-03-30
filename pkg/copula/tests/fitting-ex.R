@@ -222,7 +222,7 @@ system.time(fit <- fitCopula(ellipCopula("t", dim=d, dispstr="un"),
 ## treat it as fixed but estimated it via MLE... (or to get this behavior
 ## via a method argument or so?)
 
-## 6) After 4), tailIndex() returns a vector of length 2* d(d-1)/2 ... ok
+## 6) After 4), lambda() returns a vector of length 2* d(d-1)/2 ... ok
 ##    in the bivariate case but not in higher dimensions => want a list
 
 ###----------- xvCopula()  [ <--> ../man/xvCopula.Rd ] ---------

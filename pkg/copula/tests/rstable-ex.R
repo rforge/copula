@@ -65,7 +65,7 @@ aCt2 <- unlist(lapply(taus, function(TAU) {
 (csubc <- Filter(Negate(isVirtualClass), csubc))
 ## schlatherCopula() e.g. has no constructor:
 (cfnms <- intersect(csubc, ls(pkg, pattern = "[A-Za-z]+Copula$")))
-stopList <- c("asymCopula",  "asymExplicitCopula", "indepCopula")
+stopList <- c("asymBivCopula",  "asymExplicitCopula", "indepCopula", "rotCopula")
 cfnms <- cfnms[is.na(match(cfnms, stopList))]
 str(cfn <- sapply(cfnms, get, pkg, simplify=FALSE))
 str(th.25 <- lapply(cfn, function(F) iTau(F(), 0.25)))

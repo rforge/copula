@@ -1,10 +1,7 @@
 \name{copula-internal}
 % Undocumented code objects
-\alias{asymCopula}
-\alias{asymExplicitCopula}
+
 % Undocumented S4 classes:
-\alias{asymCopula-class}
-\alias{asymExplicitCopula-class}
 \alias{schlatherCopula-class}
 % Undocumented S4 methods
 \title{Internal Copula Functions}

@@ -49,7 +49,7 @@ plot(pseudoLoss.ave, sub="(b) average rank for ties")
 ###################################################
 ### lossIndep
 ###################################################
-system.time(empsamp <- indepTestSim(nrow(pseudoLoss), p = 2, N = N, print.every = 0))
+system.time(empsamp <- indepTestSim(nrow(pseudoLoss), p = 2, N = N, verbose = FALSE))
 ##_N_ 207 sec [nb-mm3]
 indepTest(pseudoLoss, empsamp)
 
@@ -59,7 +59,7 @@ indepTest(pseudoLoss, empsamp)
 ###################################################
 gum1 <- gumbelCopula(1, use.indepC="FALSE")# not the indep.copula
 system.time(gofGumb.pb <- gofCopula(gum1, pseudoLoss, estim.method="itau",
-                                    simulation="pb", N = N, print.every = 0))
+                                    simulation="pb", N = N, verbose = FALSE))
 gofGumb.pb
 system.time(gofGumb.mult <- gofCopula(gum1, pseudoLoss, estim.method="itau",
                                       simulation="mult", N = N))
@@ -126,7 +126,7 @@ pseudoSR <- apply(rdj[,2:4], 2, rank)/(nrow(rdj) + 1)
 ###################################################
 set.seed(123)
 system.time(srMultSerialIndepTest <-
-            multSerialIndepTest(rdj[,2:4]^2, lag.max=4, N = N, print.every = 0))
+            multSerialIndepTest(rdj[,2:4]^2, lag.max=4, N = N, verbose = FALSE))
 srMultSerialIndepTest
 dependogram(srMultSerialIndepTest)
 
@@ -134,7 +134,7 @@ dependogram(srMultSerialIndepTest)
 ###################################################
 ### multIndepTest
 ###################################################
-system.time(empsamp <- indepTestSim(nrow(pseudoSR), p = 3, N = N, print.every = 0))
+system.time(empsamp <- indepTestSim(nrow(pseudoSR), p = 3, N = N, verbose = FALSE))
 srMultIndepTest <- indepTest(pseudoSR, empsamp)
 srMultIndepTest
 dependogram(srMultIndepTest)

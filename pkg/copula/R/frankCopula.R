@@ -240,7 +240,7 @@ setMethod("diPsi", signature("frankCopula"),
 
 setMethod("tau", signature("frankCopula"), tauFrankCopula)
 setMethod("rho", signature("frankCopula"), rhoFrankCopula)
-setMethod("tailIndex", signature("frankCopula"), function(copula) c(lower=0, upper=0))
+setMethod("lambda", signature("frankCopula"), function(copula) c(lower=0, upper=0))
 
 setMethod("iTau", signature("frankCopula"),
 	  function(copula, tau, tol = 1e-7) copFrank@iTau(tau, tol=tol))

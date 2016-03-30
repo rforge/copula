@@ -153,7 +153,7 @@ tauGumbelCopula <- function(copula) {
   1 - 1/alpha
 }
 
-tailIndexGumbelCopula <- function(copula, ...) {
+lambdaGumbelCopula <- function(copula, ...) {
   alpha <- copula@parameters
   upper <- 2 - 2^(1/alpha)
   c(lower=0, upper=upper)
@@ -249,7 +249,7 @@ setMethod("diPsi", signature("gumbelCopula"),
 
 setMethod("tau", signature("gumbelCopula"), tauGumbelCopula)
 setMethod("rho", signature("gumbelCopula"), rhoGumbelCopula)
-setMethod("tailIndex", signature("gumbelCopula"), tailIndexGumbelCopula)
+setMethod("lambda", signature("gumbelCopula"), lambdaGumbelCopula)
 
 setMethod("iTau", signature("gumbelCopula"), iTauGumbelCopula)
 setMethod("iRho", signature("gumbelCopula"), iRhoGumbelCopula)

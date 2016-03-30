@@ -462,14 +462,14 @@ setMethod("dCopula", signature("numeric", "nacopula"),
 
 setMethod("rCopula", signature("numeric", "nacopula"), rnacopula)
 
-setMethod("tailIndex", "acopula",
+setMethod("lambda", "acopula",
 	  function(copula, ...) {
 	      th <- copula@theta
 	      if(any(is.na(th)))
 		  warning("'theta' is NA -- maybe rather apply to setTheta(.)")
 	      c(copula@lambdaL(th), copula@lambdaU(th))
 	  })
-setMethod("tailIndex", "nacopula", function(copula, ...) tailIndex(copula@copula, ...))
+setMethod("lambda", "nacopula", function(copula, ...) lambda(copula@copula, ...))
 
 setMethod("tau", "acopula", function(copula) copula@tau(copula@theta))
 setMethod("tau", "nacopula", function(copula) tau(copula@copula))

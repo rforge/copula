@@ -72,7 +72,7 @@ setGeneric("pCopula", function(u, copula, ...) {
 setGeneric("rCopula", function(n, copula, ...) standardGeneric("rCopula"))
 setGeneric("tau", function(copula, ...) standardGeneric("tau"))
 setGeneric("rho", function(copula, ...) standardGeneric("rho"))
-setGeneric("tailIndex", function(copula, ...) standardGeneric("tailIndex"))
+setGeneric("lambda", function(copula, ...) standardGeneric("lambda"))
 setGeneric("iTau", function(copula, tau, ...) standardGeneric("iTau"))
 setGeneric("iRho", function(copula, rho, ...) standardGeneric("iRho"))
 setGeneric("dTau", function(copula, ...) standardGeneric("dTau"))
@@ -86,6 +86,7 @@ calibKendallsTau <- function(copula, tau) { .Deprecated("iTau"); iTau(copula,tau
 calibSpearmansRho <- function(copula, rho) { .Deprecated("iRho"); iRho(copula,rho) }
 kendallsTau <- function(copula) { .Deprecated("tau"); tau(copula) }
 spearmansRho <- function(copula) { .Deprecated("rho"); rho(copula) }
+tailIndex <- function(copula) { .Deprecated("lambda"); lambda(copula) }
 genInv <- function(copula, s) { .Deprecated("psi"); psi(copula,s) }
 genFun <- function(copula, u) { .Deprecated("iPsi"); iPsi(copula, u) }
 genFunDer1 <- function(copula, u){ .Deprecated("diPsi"); diPsi(copula, u) }

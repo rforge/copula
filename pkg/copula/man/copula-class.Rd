@@ -70,7 +70,7 @@
 hc <- evCopula("husler", 1.25)
 dim(hc)
 smoothScatter(u <- rCopula(2^11, hc))
-tailIndex   (hc)
+lambda   (hc)
 tau (hc)
 rho(hc)
 str(hc)

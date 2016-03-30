@@ -54,18 +54,17 @@ setMethod("show", "copula", function(object) print.copula(object))
 
 
 ### numerical tail index, not accurate
+## lambdaCopula <- function(copula, eps = .Machine$double.eps^0.5) {
+##     u <- eps
+##     v <- 1 - u
+##     lower <- pCopula(c(u, u), copula)/u
+##     upper <- (1 - 2 * v + pCopula(c(v, v), copula))/ u
+##     c(lower=lower, upper=upper)
+## }
 
-tailIndexCopula <- function(copula, eps = .Machine$double.eps^0.5) {
-  u <- eps
-  v <- 1 - u
-  lower <- pCopula(c(u, u), copula)/u
-  upper <- (1 - 2 * v + pCopula(c(v, v), copula))/ u
-  c(lower=lower, upper=upper)
-}
-
-# setMethod("tau", signature("copula"), tauCopula)
-# setMethod("rho", signature("copula"), rhoCopula)
-setMethod("tailIndex", signature("copula"), tailIndexCopula)
+## setMethod("tau", signature("copula"), tauCopula)
+## setMethod("rho", signature("copula"), rhoCopula)
+## setMethod("lambda", signature("copula"), lambdaCopula)
 
 
 ### Numerical "calibration": inverse tau() and rho()
@@ -96,8 +95,10 @@ iRhoCopula <- function(copula, rho, bound.eps = 0, tol = 1e-7, ...) {
   uniroot(myfun, interval=c(lower, upper), tol=tol, ...)$root
 }
 
-setMethod("iTau", signature("copula"), iTauCopula)
-setMethod("iRho", signature("copula"), iRhoCopula)
+## From Ivan: do not make these the default methods as some copulas have
+## more than one parameter
+## setMethod("iTau", signature("copula"), iTauCopula)
+## setMethod("iRho", signature("copula"), iRhoCopula)
 
 cCopula <-  function(u, copula, j.ind=ncol(u), n.MC=0, log=FALSE) {
     stopifnot(is(copula, "Copula"))
@@ -107,8 +108,7 @@ cCopula <-  function(u, copula, j.ind=ncol(u), n.MC=0, log=FALSE) {
 
 ###-- "Copula" methods + glue  former "copula" <--> former "nacopula" ---------
 
-setMethod("dim", "copula",
-	  function(x) x@dimension)
+setMethod("dim", signature("copula"), function(x) x@dimension)
 
 ## Dummy bail-out methods for all generics --> ./zzz.R
 ##  "nacopula" methods                     --> ./nacopula.R

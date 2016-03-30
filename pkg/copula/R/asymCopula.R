@@ -19,7 +19,7 @@
 ##################################################################################
 
 ## Asymmetric copula class constructed from two d-dimensional copulas
-setClass("asymCopula", contains = "copula",
+setClass("asymCopula", contains = c("copula", "VIRTUAL"),
          representation = representation(
              copula1 = "copula",
              copula2 = "copula"
@@ -33,28 +33,15 @@ setClass("asymCopula", contains = "copula",
 ##################################################################################
 ### Asymmetric bivariate copulas of the form
 ### C(u_1^{1-a_1}, u_2^{1-a_2}) * D(u_1^a_1, u_2^a_1)
-### C and D are assumed exchangeable below
 ##################################################################################
 
-## Tests whether a bivariate copula is exchangeable
-## is.exchangeable <- function(copula, m=6) {
-##     x <- y <- seq(1/m, 1-1/m, length.out = m) # grid size
-##     u <- as.matrix(expand.grid(x = x, y = y))
-##     v <- cbind(u[,2], u[,1])
-##     if (all(pCopula(u, copula) == pCopula(v, copula))) TRUE else FALSE
-## }
-
 ## Bivariate asymmetric copula class
-setClass("asymBivCopula", contains = "asymCopula")
-
-## ,
-## 	 validity = function(object) {
-##     if(object@copula1@dimension != 2 || object@copula2@dimension != 2 ||
-##        is.exchangeable(object@copula1) == FALSE ||
-##        is.exchangeable(object@copula2) == FALSE)
-##         "The argument copulas are not all of dimension two and exchangeable"
-## 	     else TRUE
-## })
+setClass("asymBivCopula", contains = "asymCopula",
+	 validity = function(object) {
+    if(object@copula1@dimension != 2 || object@copula2@dimension != 2)
+        "The argument copulas are not all of dimension two"
+	     else TRUE
+})
 
 ## C(u_1^{1-a_1}, u_2^{1-a_2}) * D(u_1^a_1, u_2^a_1) = C(g(u, 1-a)) * D(g(u, a)
 g <- function(u, a) u^a
@@ -69,19 +56,23 @@ dgdu <- function(u, a) a * u^(a - 1) # derivative wrt u
 ##' @copula2 a bivariate exchangeable copula
 ##' @return a new "asymBivCopula" object; see above
 ##' @author Jun Yan and Ivan Kojadinovic
-asymBivCopula <- function(shapes = c(1,1),
-                          copula1 = indepCopula(),
-                          copula2 = indepCopula()) {
+asymBivCopula <- function(copula1 = indepCopula(),
+                          copula2 = indepCopula(),
+                          shapes = c(1,1)) {
   new("asymBivCopula",
       dimension = copula1@dimension,
       parameters = c(copula1@parameters, copula2@parameters, shapes),
-      param.names = c(copula1@param.names, copula2@param.names, "shape1", "shape2"),
+      param.names = c(if (length(copula1@parameters) > 0)
+                      paste0("C1.",copula1@param.names) else character(0),
+                      if (length(copula2@parameters) > 0)
+                      paste0("C2.",copula2@param.names) else character(0),
+                      "shape1", "shape2"),
       param.lowbnd = c(copula1@param.lowbnd, copula2@param.lowbnd, 0, 0),
       param.upbnd = c(copula1@param.upbnd, copula2@param.upbnd, 1, 1),
       copula1 = copula1,
       copula2 = copula2,
-      fullname = paste("Asymmetric Copula constructed from:",
-                       copula1@fullname, "and:", copula2@fullname))
+      fullname = paste("Asymmetric bivariate copula constructed from: [",
+                       copula1@fullname, "] and: [", copula2@fullname, "]"))
 }
 
 ## Returns shapes, copula1 and copula2 from an asymCopula object

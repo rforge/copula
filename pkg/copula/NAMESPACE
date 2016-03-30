@@ -102,7 +102,7 @@ importFrom("numDeriv", grad, jacobian)
 export(dCopula, pCopula, rCopula)
 export(cCopula)
 export(dMvdc, pMvdc, rMvdc)
-export(tau, rho, tailIndex)
+export(tau, rho, lambda)
 export(iTau, iRho)
 
 ## archmCopula methods
@@ -120,7 +120,7 @@ exportClasses(galambosCopula, huslerReissCopula, tawnCopula, tevCopula)
 exportClasses(plackettCopula)
 exportClasses(fgmCopula)
 
-## NEW
+## "transformed" copula classes
 exportClasses(rotCopula)
 exportClasses(asymBivCopula)
 exportClasses(asymExplicitCopula)
@@ -134,7 +134,7 @@ export(galambosCopula, huslerReissCopula, tawnCopula, tevCopula)
 export(plackettCopula)
 export(fgmCopula)
 
-## NEW
+## "transformed" copula classes
 export(rotCopula)
 export(asymBivCopula)
 export(asymExplicitCopula)
@@ -251,6 +251,7 @@ export(psiDabsMC
        , calibSpearmansRho
        , kendallsTau
        , spearmansRho
+       , tailIndex
        , genInv
        , genFun, genFunDer1, genFunDer2
        , Afun
