@@ -14,7 +14,25 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-### Elementary graphical tools for detecting dependence ########################
+### 0 Auxiliary functions ######################################################
+
+##' @title Checker for 'FUN'
+##' @param FUN A function such as pCopula, dcopula _or_ F.n()
+##' @return A logical being TRUE if "like pCopula" _or_ F.n()
+##' @author Martin Maechler
+chkFun <- function(FUN)
+{
+    if(!is.function(FUN)) stop("the 'FUN' argument is not even a function")
+    isObj <- function(nm) any(nm == c("copula", "mvdc")) ## [pdq][Cc]opula
+    nf <- names(formals(FUN))
+    if(isObj(nf[2]) || nf[1:2] == c("x","X")) ## || is F.n()
+        TRUE
+    else if(isObj(nf[1])) FALSE
+    else NA # and the caller will produce an error eventually
+}
+
+
+### 1 Elementary graphical tools for detecting dependence ######################
 
 ## NOTE: chiPlot() and Kplot() are currently not exported
 
@@ -83,123 +101,9 @@ if(FALSE) {
 }
 
 
-### Enhanced, general Q-Q plot with rugs and confidence intervals ##############
+### 2 Base graphics ############################################################
 
-##' @title Q-Q plot with rugs and pointwise asymptotic confidence intervals
-##' @param x data (n-vector)
-##' @param qF theoretical quantile function
-##' @param log character string indicating whether log-scale should be used; see
-##'        ?plot.default
-##' @param qqline.args argument list passed to qqline(); use NULL to omit Q-Q line
-##' @param rug.args argument list passed to rug(); use NULL to omit rugs
-##' @param alpha significance level
-##' @param CI.args argument list passed to lines() for drawing confidence intervals;
-##'        use NULL to omit confidence intervals
-##' @param CI.mtext argument list for information about confidence intervals; use
-##'        NULL to omit information about confidence intervals
-##' @param main title (can be an expression; use "" for no title)
-##' @param main.args argument list passed to mtext() for drawing title
-##' @param xlab x axis label
-##' @param ylab y axis label
-##' @param file file name (with extension .pdf) or "" (no pdf)
-##' @param width width parameter of pdf()
-##' @param height height parameter of pdf()
-##' @param ... additional arguments passed to plot()
-##' @return Q-Q plot
-##' @author Marius Hofert
-##' Note: - used in Genest, Hofert, Neslehova (2013)
-##'       - better than pointwise asymptotic CIs would be (non-parametric)
-##'         bootstrapped ones
-qqplot2 <- function(x, qF, log="", qqline.args=if(log=="x" || log=="y") list(untf=TRUE) else list(),
-                    rug.args=list(tcl=-0.6*par("tcl")),
-                    alpha=0.05, CI.args=list(col="gray50"),
-                    CI.mtext=list(text=paste0("Pointwise asymptotic ", 100*(1-alpha),
-                                  "% confidence intervals"), side=4,
-                                  cex=0.6*par("cex.main"), adj=0, col="gray50"),
-                    main=expression(bold(italic(F)~~"Q-Q plot")),
-                    main.args=list(text=main, side=3, line=1.1,
-                                   cex=par("cex.main"), font=par("font.main"),
-                                   adj=par("adj"), xpd=NA),
-                    xlab="Theoretical quantiles", ylab="Sample quantiles",
-                    file="", width=6, height=6, ...)
-{
-    x. <- sort(x) # drops NA
-    n <- length(x.)
-    p <- ppoints(n)
-    q <- qF(p)
-
-    ## Plot points
-    doPDF <- nchar(file)
-    if(doPDF) pdf(file=file, width=width, height=height)
-    plot(q, x., xlab=xlab, ylab=ylab, log=log, ...) # empirical vs. theoretical quantiles
-    if(nchar(main)) do.call(mtext, main.args)
-
-    ## Plot the line (overplots points, but that's good for the eye!)
-    if(!is.null(qqline.args))
-        if(nchar(log)==1 && (is.null(untf <- qqline.args$untf) || !untf))
-            warning("for a Q-Q line in x-log- or y-log-scale, specify 'untf = TRUE' in qqline.args")
-    ## Draw the line (through the first and third quartile; see ?qqline)
-    ## Note: abline(..., untf=TRUE) displays a curve (proper line in log-space)
-    ##       *unless* both axes are in log-scale
-        else {
-            if(log=="xy") do.call(qqline, args=c(list(y=log10(x.),
-                                                 distribution=function(p) log10(qF(p))),
-                                          qqline.args))
-            else do.call(qqline, args=c(list(y=x., distribution=qF), qqline.args))
-        }
-    ## Rugs
-    if(!is.null(rug.args)) {
-        do.call(rug, c(list(q, side=1), rug.args))
-        do.call(rug, c(list(x., side=2), rug.args))
-    }
-    ## Confidence intervals
-    if(!is.null(CI.args)) {
-        ## Pointwise approximate (CLT) two-sided 1-alpha confidence intervals
-        ## With up/low = p +/- qnorm(1-a/2)*sqrt(p(1-p)/n) it follows that
-        ##   IP(F^{-1}(p) in [F_n^{-1}(low), F_n^{-1}(up)]) (p ~> F(x))
-        ## = IP(x in [F_n^{-1}(low), F_n^{-1}(up)])
-        ## = IP(F_n(x) in [low, up]) ~= 1-a since (CLT)
-        ##   sqrt(n)*(F_n(x)-p)/sqrt(p*(1-p)) ~= N(0,1) since
-        ## X_i~F => F_n(x)=bar{Z}_n with Z_i=I_{X_i<=x}~B(1, p=F(x)) => mean=p, var=p(1-p)
-        SE <- sqrt(p*(1-p)/n) # standard error
-        qa2 <- qnorm(1-alpha/2)
-        ## Lower
-        low <- p - qa2 * SE
-        ilow <- 0 < low & low < 1 # in (0,1)
-        low.y <- quantile(x., probs=low[ilow]) # F_n^{-1}(0<low<1)
-        low.x <- q[ilow] # corresponding theoretical quantile at each ppoint
-        ## Upper
-        up <- p + qa2 * SE
-        iup <- 0 < up & up < 1 # in (0,1)
-        up.y <- quantile(x., probs=up[iup]) # F_n^{-1}(0<up<1)
-        up.x <- q[iup] # corresponding theoretical quantile at each ppoint
-        ## Draw lines
-        do.call(lines, c(list(low.x, low.y), CI.args))
-        do.call(lines, c(list(up.x, up.y), CI.args))
-        ## Info
-        if(!is.null(CI.mtext)) do.call(mtext, CI.mtext)
-    }
-    if(doPDF) dev.off()
-    invisible()
-}
-
-
-### persp() and contour() for "copula" and "mvdc" objects ######################
-
-##' @title Checker for 'FUN'
-##' @param FUN A function such as pCopula, dcopula _or_ F.n()
-##' @return A logical being TRUE if "like pCopula" _or_ F.n()
-##' @author Martin Maechler
-chkFun <- function(FUN)
-{
-    if(!is.function(FUN)) stop("the 'FUN' argument is not even a function")
-    isObj <- function(nm) any(nm == c("copula", "mvdc")) ## [pdq][Cc]opula
-    nf <- names(formals(FUN))
-    if(isObj(nf[2]) || nf[1:2] == c("x","X")) ## || is F.n()
-        TRUE
-    else if(isObj(nf[1])) FALSE
-    else NA # and the caller will produce an error eventually
-}
+### 2.1 Legacy persp() and contour() (still improved, though) ##################
 
 ##' @title Perspective Plot Method for Class "copula"
 ##' @param x An object of type "copula"
@@ -324,7 +228,9 @@ contourMvdc <- function(x, FUN, xlim, ylim, n.grid = 26,
     invisible(list(x = x., y = y., z = z.mat))
 }
 
-## Make persp() and contour() work for "copula" and "mvdc" objects
+## Define persp() and contour() methods for objects of type "copula" and "mvdc"
+## Note: - No generic method (via setGeneric()) needed here as already provided by R
+##       - The objects 'x' have to be named the same in perspCopula() and perspMvdc()
 setMethod("persp",   signature = signature("copula"), definition = perspCopula)
 setMethod("persp",   signature = signature("mvdc"),   definition = perspMvdc)
 setMethod("contour", signature = signature("copula"), definition = contourCopula)
@@ -340,7 +246,110 @@ setMethod("contour", signature = signature("mvdc"),   definition = contourMvdc)
 ##           })
 
 
-### Enhanced pairs() and splom() ###############################################
+### 2.2 Enhanced Q-Q plot with rugs and confidence intervals ###################
+
+##' @title Q-Q plot with rugs and pointwise asymptotic confidence intervals
+##' @param x data (n-vector)
+##' @param qF theoretical quantile function
+##' @param log character string indicating whether log-scale should be used; see
+##'        ?plot.default
+##' @param qqline.args argument list passed to qqline(); use NULL to omit Q-Q line
+##' @param rug.args argument list passed to rug(); use NULL to omit rugs
+##' @param alpha significance level
+##' @param CI.args argument list passed to lines() for drawing confidence intervals;
+##'        use NULL to omit confidence intervals
+##' @param CI.mtext argument list for information about confidence intervals; use
+##'        NULL to omit information about confidence intervals
+##' @param main title (can be an expression; use "" for no title)
+##' @param main.args argument list passed to mtext() for drawing title
+##' @param xlab x axis label
+##' @param ylab y axis label
+##' @param file file name (with extension .pdf) or "" (no pdf)
+##' @param width width parameter of pdf()
+##' @param height height parameter of pdf()
+##' @param ... additional arguments passed to plot()
+##' @return Q-Q plot
+##' @author Marius Hofert
+##' Note: - used in Genest, Hofert, Neslehova (2013)
+##'       - better than pointwise asymptotic CIs would be (non-parametric)
+##'         bootstrapped ones
+qqplot2 <- function(x, qF, log="", qqline.args=if(log=="x" || log=="y") list(untf=TRUE) else list(),
+                    rug.args=list(tcl=-0.6*par("tcl")),
+                    alpha=0.05, CI.args=list(col="gray40"),
+                    CI.mtext=list(text=paste0("Pointwise asymptotic ", 100*(1-alpha),
+                                  "% confidence intervals"), side=4,
+                                  cex=0.6*par("cex.main"), adj=0, col="gray40"),
+                    main=expression(bold(italic(F)~~"Q-Q plot")),
+                    main.args=list(text=main, side=3, line=1.1,
+                                   cex=par("cex.main"), font=par("font.main"),
+                                   adj=par("adj"), xpd=NA),
+                    xlab="Theoretical quantiles", ylab="Sample quantiles",
+                    file="", width=6, height=6, ...)
+{
+    x. <- sort(x) # drops NA
+    n <- length(x.)
+    p <- ppoints(n)
+    q <- qF(p)
+
+    ## Plot points
+    doPDF <- nchar(file)
+    if(doPDF) pdf(file=file, width=width, height=height)
+    plot(q, x., xlab=xlab, ylab=ylab, log=log, ...) # empirical vs. theoretical quantiles
+    if(nchar(main)) do.call(mtext, main.args)
+
+    ## Plot the line (overplots points, but that's good for the eye!)
+    if(!is.null(qqline.args))
+        if(nchar(log)==1 && (is.null(untf <- qqline.args$untf) || !untf))
+            warning("for a Q-Q line in x-log- or y-log-scale, specify 'untf = TRUE' in qqline.args")
+    ## Draw the line (through the first and third quartile; see ?qqline)
+    ## Note: abline(..., untf=TRUE) displays a curve (proper line in log-space)
+    ##       *unless* both axes are in log-scale
+        else {
+            if(log=="xy") do.call(qqline, args=c(list(y=log10(x.),
+                                                 distribution=function(p) log10(qF(p))),
+                                          qqline.args))
+            else do.call(qqline, args=c(list(y=x., distribution=qF), qqline.args))
+        }
+    ## Rugs
+    if(!is.null(rug.args)) {
+        do.call(rug, c(list(q, side=1), rug.args))
+        do.call(rug, c(list(x., side=2), rug.args))
+    }
+    ## Confidence intervals
+    if(!is.null(CI.args)) {
+        ## Pointwise approximate (CLT) two-sided 1-alpha confidence intervals
+        ## With up/low = p +/- qnorm(1-a/2)*sqrt(p(1-p)/n) it follows that
+        ##   IP(F^{-1}(p) in [F_n^{-1}(low), F_n^{-1}(up)]) (p ~> F(x))
+        ## = IP(x in [F_n^{-1}(low), F_n^{-1}(up)])
+        ## = IP(F_n(x) in [low, up]) ~= 1-a since (CLT)
+        ##   sqrt(n)*(F_n(x)-p)/sqrt(p*(1-p)) ~= N(0,1) since
+        ## X_i~F => F_n(x)=bar{Z}_n with Z_i=I_{X_i<=x}~B(1, p=F(x)) => mean=p, var=p(1-p)
+        SE <- sqrt(p*(1-p)/n) # standard error
+        qa2 <- qnorm(1-alpha/2)
+        ## Lower
+        low <- p - qa2 * SE
+        ilow <- 0 < low & low < 1 # in (0,1)
+        low.y <- quantile(x., probs=low[ilow]) # F_n^{-1}(0<low<1)
+        low.x <- q[ilow] # corresponding theoretical quantile at each ppoint
+        ## Upper
+        up <- p + qa2 * SE
+        iup <- 0 < up & up < 1 # in (0,1)
+        up.y <- quantile(x., probs=up[iup]) # F_n^{-1}(0<up<1)
+        up.x <- q[iup] # corresponding theoretical quantile at each ppoint
+        ## Draw lines
+        do.call(lines, c(list(low.x, low.y), CI.args))
+        do.call(lines, c(list(up.x, up.y), CI.args))
+        ## Info
+        if(!is.null(CI.mtext)) do.call(mtext, CI.mtext)
+    }
+    if(doPDF) dev.off()
+    invisible()
+}
+
+
+### 3 Lattice graphics #########################################################
+
+### 3.1 Enhanced pairs() and splom() ###########################################
 
 ##' @title A Pairs Plot with Nice Defaults
 ##' @param x A numeric matrix or as.matrix(.)able
@@ -417,10 +426,7 @@ splom2 <- function(x, varnames = NULL,
 }
 
 
-### Enhanced wireframe plot ####################################################
-
-## TODO: x is a copula !!!!
-setGeneric("wireframe2", function(object, ...) standardGeneric("wireframe2"))
+### 3.2 Enhanced wireframe() ###################################################
 
 ##' @title A Wireframe Plot with Nice Defaults
 ##' @param x A numeric matrix or as.matrix(.)able
@@ -436,13 +442,13 @@ setGeneric("wireframe2", function(object, ...) standardGeneric("wireframe2"))
 ##' @note - axis.line makes the outer box disappear
 ##'       - 'col = 1' in scales is required to make the ticks visible again
 ##'       - 'clip' is set to off to avoid axis labels being clipped
-wireframe2plot <- function(x, labels = NULL,
-                           labels.null.lab = parse(text = c("u[1]", "u[2]", "C(u[1],u[2])")),
-                           alpha.regions = 0.5, scales = list(arrows = FALSE, col = 1),
-                           par.settings = standard.theme(color = FALSE), ...)
+wireframe2 <- function(x, labels = NULL,
+                       labels.null.lab = parse(text = c("u[1]", "u[2]", "C(u[1],u[2])")),
+                       alpha.regions = 0.5, scales = list(arrows = FALSE, col = 1),
+                       par.settings = standard.theme(color = FALSE), ...)
 {
     ## Checking
-    if(!is.matrix(x)) x <- rbind(x)
+    if(!is.matrix(x)) x <- as.matrix(x)
     if(ncol(x) != 3) stop("'x' should be trivariate")
 
     ## Labels
@@ -465,8 +471,16 @@ wireframe2plot <- function(x, labels = NULL,
               ...)
 }
 
+##' @title Wireframe Plot Method for Class "matrix" or "data.frame"
+##' @param x An object of type "matrix" or "data.frame"
+##' @param ... Arguments passed to wireframe2()
+##' @return A wireframe() object
+##' @author Marius Hofert
+##wireframe2MatrixDf <- function(x, ...) wireframe2(x, ...)
+## TODO: probably not needed
+
 ##' @title Wireframe Plot Method for Class "copula"
-##' @param object An object of type "copula"
+##' @param x An object of type "copula"
 ##' @param FUN A function like dCopula or pCopula
 ##' @param n.grid The (vector of) number(s) of grid points in each dimension
 ##' @param delta Distance from the boundary of [0,1]^2
@@ -474,7 +488,7 @@ wireframe2plot <- function(x, labels = NULL,
 ##' @param ... Additional arguments passed to wireframe2()
 ##' @return A wireframe() object
 ##' @author Marius Hofert
-wireframe2Copula <- function(object, FUN, n.grid = 26, delta = 0,
+wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
                              labels = c("u[1]", "u[2]", deparse(substitute(FUN))[1]),
                              ...)
 {
@@ -484,14 +498,14 @@ wireframe2Copula <- function(object, FUN, n.grid = 26, delta = 0,
     x. <- seq(0 + delta, 1 - delta, length.out = n.grid[1])
     y. <- seq(0 + delta, 1 - delta, length.out = n.grid[2])
     grid <- as.matrix(expand.grid(x = x., y = y.))
-    z <- if(chkFun(FUN)) FUN(grid, object) else FUN(object, grid)
-    val <- cbind(grid, z)
+    z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
+    val <- cbind(grid, z = z)
     colnames(val) <- labels
-    wireframe2plot(val, ...)
+    wireframe2(val, ...)
 }
 
 ##' @title Wireframe Plot Method for Class "mvdc"
-##' @param object An object of type "mvdc"
+##' @param x An object of type "mvdc"
 ##' @param FUN A function like dCopula or pCopula
 ##' @param xlim x-axis limits
 ##' @param ylim y-axis limits
@@ -500,7 +514,7 @@ wireframe2Copula <- function(object, FUN, n.grid = 26, delta = 0,
 ##' @param ... Additional arguments passed to wireframe2()
 ##' @return A wireframe() object
 ##' @author Marius Hofert
-wireframe2Mvdc <- function(object, FUN, xlim, ylim, n.grid = 26,
+wireframe2Mvdc <- function(x, FUN, xlim, ylim, n.grid = 26,
                            labels = c("x[1]", "x[2]", deparse(substitute(FUN))[1]),
                            ...)
 {
@@ -510,36 +524,62 @@ wireframe2Mvdc <- function(object, FUN, xlim, ylim, n.grid = 26,
     x. <- seq(xlim[1], xlim[2], length.out = n.grid[1])
     y. <- seq(xlim[1], xlim[2], length.out = n.grid[2])
     grid <- as.matrix(expand.grid(x = x., y = y.))
-    z <- if(chkFun(FUN)) FUN(grid, object) else FUN(object, grid)
-    val <- cbind(grid, z)
+    z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
+    val <- cbind(grid, z = z)
     colnames(val) <- labels
-    wireframe2plot(val, ...)
+    wireframe2(val, ...)
 }
 
-setMethod("wireframe2", signature("copula"), wireframe2Copula)
-setMethod("wireframe2", signature("mvdc"), wireframe2Mvdc)
+## Define wireframe2() methods for objects of type "copula" and "mvdc"
+## Note: 'x' is a "matrix", "data.frame", "copula" or "mvdc" object
+## TODO: Error: C stack usage  8284028 is too close to the limit
+setGeneric("wireframe2", function(x, ...) standardGeneric("wireframe2"))
+setMethod("wireframe2", signature("matrix"),     function(x, ...) wireframe2(x, ...))
+setMethod("wireframe2", signature("data.frame"), function(x, ...) wireframe2(x, ...))
+setMethod("wireframe2", signature("copula"),     function(x, ...) wireframe2Copula(x, ...))
+setMethod("wireframe2", signature("mvdc"),       function(x, ...) wireframe2Mvdc(x, ...))
 
-## TODO: fix!!!
-## Make wireframe2() work for "copula" and "mvdc" objects
-## setMethod("wireframe2", signature = signature(x = "copula"), # FUN = "function", n.grid = "numeric",
-##                                               #delta = "numeric", labels = "character"),
-##           definition = function(x, FUN, n.grid = 26, delta = 0,
-##                                 labels = c("u[1]", "u[2]", deparse(substitute(FUN))[1]),
-##                                 ...)
-##     wireframe2Copula(x, FUN = FUN, n.grid = n.grid, delta = delta, labels = labels, ...))
-## ##setMethod("wireframe2", signature = signature("copula"), definition = wireframe2Copula)
-## setMethod("wireframe2", signature = signature("mvdc"), definition = wireframe2Mvdc)
-## TODO: make the following work
-if(FALSE) {
-    require(copula)
-    x <- frankCopula(-0.8)
-    wireframe2(x, FUN=pCopula) # Error: length(n.grid) == 2 is not TRUE (since n.grid is labels!)
-    wireframe2(x, dCopula, delta=0.01) # works
-    wireframe2(x, pCopula, labels=LETTERS[1:3]) # fails again
+
+### 3.3 Enhanced levelplot() ###################################################
+
+##' @title A Level Plot with Nice Defaults
+##' @param x A numeric matrix or as.matrix(.)able
+##' @param aspect The aspect ratio
+##' @param xlim The x-axis limits
+##' @param ylim The y-axis limits
+##' @param xlab The x-axis label
+##' @param ylab The y-axis label
+##' @param cuts The number of levels
+##' @param scales See ?wireframe
+##' @param par.settings Additional arguments passed to 'par.settings' (some are set)
+##' @param contour A logical indicating whether contour lines should be plotted
+##' @param ... Further arguments passed to wireframe()
+##' @return A levelplot() object
+##' @author Marius Hofert
+levelplot2 <- function(x, aspect = 1,
+                       xlim = extendrange(x[,1], f = 0.04),
+                       ylim = extendrange(x[,2], f = 0.04),
+                       xlab = expression(u[1]), ylab = expression(u[2]),
+                       cuts = 20, scales = list(alternating = c(1,1), tck = c(1,0)),
+                       par.settings = list(regions = list(col = gray(seq(0.4, 1, length.out=cuts+1)))),
+                       contour = TRUE, ...)
+{
+    ## Checking
+    if(!is.matrix(x)) x <- as.matrix(x)
+    if(ncol(x) != 3) stop("'x' should be trivariate")
+
+    ## Level plot
+    levelplot(x[,3] ~ x[,1] * x[,2], aspect = aspect, xlim = xlim, ylim = ylim,
+              xlab = xlab, ylab = ylab, cuts = cuts,
+              scales = scales, par.settings = par.settings,
+              contour = contour, ...)
 }
+## TODO:
+## - use labels only in case not available (here and elsewhere)
+## - document
 
 
-### Enhanced cloud plot ########################################################
+### 3.4 Enhanced cloud() #######################################################
 
 ##' @title A Cloud Plot with Nice Defaults
 ##' @param x A numeric matrix or as.matrix(.)able
@@ -561,7 +601,7 @@ cloud2 <- function(x, labels = NULL, labels.null.lab = "U",
                    par.settings = standard.theme(color = FALSE), ...)
 {
     ## Checking
-    if(!is.matrix(x)) x <- rbind(x)
+    if(!is.matrix(x)) x <- as.matrix(x)
     if(ncol(x) != 3) stop("'x' should be trivariate")
 
     ## Labels
@@ -583,12 +623,9 @@ cloud2 <- function(x, labels = NULL, labels.null.lab = "U",
         ylim <- if(is.factor(x[,2])) levels(x[,2]) else range(x[,2], finite = TRUE)
     if(is.null(zlim))
         zlim <- if(is.factor(x[,3])) levels(x[,3]) else range(x[,3], finite = TRUE)
-    xeps <- diff(xlim) * 0.04
-    yeps <- diff(ylim) * 0.04
-    zeps <- diff(zlim) * 0.04
-    xlim <- c(xlim[1] - xeps, xlim[2] + xeps)
-    ylim <- c(ylim[1] - yeps, ylim[2] + yeps)
-    zlim <- c(zlim[1] - zeps, zlim[2] + zeps)
+    xlim <- extendrange(xlim, f = 0.04)
+    ylim <- extendrange(ylim, f = 0.04)
+    zlim <- extendrange(zlim, f = 0.04)
 
     ## Cloud plot
     cloud(x[,3] ~ x[,1] * x[,2], xlim = xlim, ylim = ylim, zlim = zlim,
@@ -599,3 +636,5 @@ cloud2 <- function(x, labels = NULL, labels.null.lab = "U",
                                          clip = list(panel = "off"))),
           ...)
 }
+
+

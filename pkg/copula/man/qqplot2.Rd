@@ -9,10 +9,10 @@
 qqplot2(x, qF, log = "", qqline.args = if(log=="x" || log=="y")
         list(untf=TRUE) else list(),
         rug.args = list(tcl=-0.6*par("tcl")),
-        alpha = 0.05, CI.args = list(col="gray50"),
+        alpha = 0.05, CI.args = list(col="gray40"),
         CI.mtext = list(text=paste0("Pointwise asymptotic ", 100*(1-alpha),
                         "\% confidence intervals"), side=4,
-                        cex=0.6*par("cex.main"), adj=0, col="gray50"),
+                        cex=0.6*par("cex.main"), adj=0, col="gray40"),
         main = expression(bold(italic(F)~~"Q-Q plot")),
         main.args = list(text=main, side=3, line=1.1, cex=par("cex.main"),
                          font=par("font.main"), adj=par("adj"), xpd=NA),

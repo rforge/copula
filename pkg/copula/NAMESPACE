@@ -55,7 +55,8 @@ importMethodsFrom("stats4",
 		  plot, profile, summary)
 
 importFrom("lattice", trellis.par.get, trellis.par.set,
-	   splom, wireframe, cloud, standard.theme, panel.fill, panel.splom, diag.panel.splom)
+	   splom, wireframe, levelplot, cloud,
+           standard.theme, panel.fill, panel.splom, diag.panel.splom)
 
 importFrom("Matrix", nearPD)
 ## NB: "Dangerous" to not also depend on Matrix; as 'methods' for Matrixclasses are not seen.
@@ -243,7 +244,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"tauAMH", "tauJoe"
        ,"allComp" # <- maybe keep private ?
        ,"safeUroot"
-       ,"pairs2", "splom2", "wireframe2", "qqplot2"
+       ,"pairs2", "splom2", "wireframe2", "levelplot2", "qqplot2"
        )
 ## Deprecated old names [2012-07-25]:
 export(psiDabsMC

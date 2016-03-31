@@ -9,6 +9,8 @@
   two dimensional distributions from package \pkg{copula}).
 }
 \usage{
+\S4method{wireframe2}{matrix}(x, \dots)
+\S4method{wireframe2}{data.frame}(x, \dots)
 \S4method{wireframe2}{copula}(x, FUN, n.grid = 26, delta = 0,
       labels = c("u[1]", "u[2]", deparse(substitute(FUN))[1]), \dots)
 \S4method{wireframe2}{mvdc}(x, FUN, xlim, ylim, n.grid = 26,
