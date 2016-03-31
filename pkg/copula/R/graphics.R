@@ -442,10 +442,10 @@ splom2 <- function(x, varnames = NULL,
 ##' @note - axis.line makes the outer box disappear
 ##'       - 'col = 1' in scales is required to make the ticks visible again
 ##'       - 'clip' is set to off to avoid axis labels being clipped
-wireframe2 <- function(x, labels = NULL,
-                       labels.null.lab = parse(text = c("u[1]", "u[2]", "C(u[1],u[2])")),
-                       alpha.regions = 0.5, scales = list(arrows = FALSE, col = 1),
-                       par.settings = standard.theme(color = FALSE), ...)
+wireframe2matdf <- function(x, labels = NULL,
+                            labels.null.lab = parse(text = c("u[1]", "u[2]", "C(u[1],u[2])")),
+                            alpha.regions = 0.5, scales = list(arrows = FALSE, col = 1),
+                            par.settings = standard.theme(color = FALSE), ...)
 {
     ## Checking
     if(!is.matrix(x)) x <- as.matrix(x)
@@ -501,7 +501,7 @@ wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
     z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
     val <- cbind(grid, z = z)
     colnames(val) <- labels
-    wireframe2(val, ...)
+    wireframe2matdf(val, ...)
 }
 
 ##' @title Wireframe Plot Method for Class "mvdc"
@@ -527,17 +527,17 @@ wireframe2Mvdc <- function(x, FUN, xlim, ylim, n.grid = 26,
     z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
     val <- cbind(grid, z = z)
     colnames(val) <- labels
-    wireframe2(val, ...)
+    wireframe2matdf(val, ...)
 }
 
 ## Define wireframe2() methods for objects of type "copula" and "mvdc"
 ## Note: 'x' is a "matrix", "data.frame", "copula" or "mvdc" object
 ## TODO: Error: C stack usage  8284028 is too close to the limit
 setGeneric("wireframe2", function(x, ...) standardGeneric("wireframe2"))
-setMethod("wireframe2", signature("matrix"),     function(x, ...) wireframe2(x, ...))
-setMethod("wireframe2", signature("data.frame"), function(x, ...) wireframe2(x, ...))
-setMethod("wireframe2", signature("copula"),     function(x, ...) wireframe2Copula(x, ...))
-setMethod("wireframe2", signature("mvdc"),       function(x, ...) wireframe2Mvdc(x, ...))
+setMethod("wireframe2", signature("matrix"),     wireframe2matdf)
+setMethod("wireframe2", signature("data.frame"), wireframe2matdf)
+setMethod("wireframe2", signature("copula"),     wireframe2Copula)
+setMethod("wireframe2", signature("mvdc"),       wireframe2Mvdc)
 
 
 ### 3.3 Enhanced levelplot() ###################################################
