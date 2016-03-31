@@ -347,9 +347,7 @@ qqplot2 <- function(x, qF, log="", qqline.args=if(log=="x" || log=="y") list(unt
 }
 
 
-### 3 Lattice graphics #########################################################
-
-### 3.1 Enhanced pairs() and splom() ###########################################
+### 2.3 Enhanced pairs() #######################################################
 
 ##' @title A Pairs Plot with Nice Defaults
 ##' @param x A numeric matrix or as.matrix(.)able
@@ -377,6 +375,294 @@ pairs2 <- function(x, labels = NULL, labels.null.lab = "U", row1attop = FALSE,
    }
    pairs(x, labels = labels, row1attop = row1attop, gap = 0, pch = pch, ...)
 }
+
+
+### 3 Lattice graphics #########################################################
+
+### 3.1 Enhanced contourplot() #################################################
+
+##' @title Contour Plot Method for Classes "matrix" and "data.frame"
+##' @param x A numeric matrix or as.matrix(.)able
+##' @param aspect The aspect ratio
+##' @param xlim The x-axis limits
+##' @param ylim The y-axis limits
+##' @param xlab The x-axis label
+##' @param ylab The y-axis label
+##' @param region A logical indicating whether regions should be colored
+##' @param col.regions The colors used for the colored regions
+##' @param cuts The number of levels
+##' @param labels A logical indicating whether the contours should be labeled.
+##'        Use labels = list(cex = 0.7) to have nicer small labels
+##' @param scales See ?contourplot
+##' @param ... Further arguments passed to contourplot()
+##' @return A contourplot() object
+##' @author Marius Hofert
+contourplot2MatrixDf <- function(x, aspect = 1,
+                                 xlim = extendrange(x[,1], f = 0.04),
+                                 ylim = extendrange(x[,2], f = 0.04),
+                                 xlab = NULL, ylab = NULL,
+                                 region = TRUE, col.regions = gray(seq(0.4, 1, length.out = 100)),
+                                 cuts = 16, labels = !region,
+                                 scales = list(alternating = c(1,1), tck = c(1,0)), ...)
+{
+    ## Checking
+    if(!is.matrix(x)) x <- as.matrix(x)
+    if(ncol(x) != 3) stop("'x' should be trivariate")
+
+    ## Labels
+    colnms <- colnames(x)
+    if(is.null(xlab))
+        xlab <- if(is.null(colnms)) "" else parse(text = colnms[1])
+    if(is.null(ylab))
+        ylab <- if(is.null(colnms)) "" else parse(text = colnms[2])
+
+    ## Contour plot
+    contourplot(x[,3] ~ x[,1] * x[,2], aspect = aspect, xlim = xlim, ylim = ylim,
+                xlab = xlab, ylab = ylab, labels = labels, region = region,
+                col.regions = col.regions, cuts = cuts, scales = scales, ...)
+}
+
+##' @title Contourplot Plot Method for Class "copula"
+##' @param x An object of type "copula"
+##' @param FUN A function like dCopula or pCopula
+##' @param n.grid The (vector of) number(s) of grid points in each dimension
+##' @param xlim The x-axis limits
+##' @param ylim The y-axis limits
+##' @param xlab The x-axis label
+##' @param ylab The y-axis label
+##' @param ... Additional arguments passed to contourplot2()
+##' @return A contourplot() object
+##' @author Marius Hofert
+contourplot2Copula <- function(x, FUN, n.grid = 26, xlim = NULL, ylim = NULL,
+                               xlab = expression(u[1]), ylab = expression(u[2]),
+                               ...)
+{
+    stopifnot(n.grid >= 2)
+    if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)
+    stopifnot(length(n.grid) == 2)
+    if(is.null(xlim)) xlim <- 0:1
+    if(is.null(ylim)) ylim <- 0:1
+    x. <- seq(xlim[1], xlim[2], length.out = n.grid[1])
+    y. <- seq(ylim[1], ylim[2], length.out = n.grid[2])
+    grid <- as.matrix(expand.grid(x = x., y = y.))
+    z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
+    val <- cbind(grid, z = z)
+    contourplot2MatrixDf(val,
+                         xlim = extendrange(xlim, f = 0.04),
+                         ylim = extendrange(ylim, f = 0.04),
+                         xlab = xlab, ylab = ylab, ...)
+}
+
+##' @title Contourplot Plot Method for Class "mvdc"
+##' @param x An object of type "mvdc"
+##' @param FUN A function like dCopula or pCopula
+##' @param n.grid The (vector of) number(s) of grid points in each dimension
+##' @param xlim The x-axis limits
+##' @param ylim The y-axis limits
+##' @param xlab The x-axis label
+##' @param ylab The y-axis label
+##' @param ... Additional arguments passed to contourplot2()
+##' @return A contourplot() object
+##' @author Marius Hofert
+contourplot2Mvdc <- function(x, FUN, n.grid = 26, xlim, ylim,
+                             xlab = expression(x[1]), ylab = expression(x[2]),
+                             ...)
+{
+    stopifnot(n.grid >= 2)
+    if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)
+    stopifnot(length(n.grid) == 2)
+    x. <- seq(xlim[1], xlim[2], length.out = n.grid[1])
+    y. <- seq(ylim[1], ylim[2], length.out = n.grid[2])
+    grid <- as.matrix(expand.grid(x = x., y = y.))
+    z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
+    val <- cbind(grid, z = z)
+    contourplot2MatrixDf(val,
+                         xlim = extendrange(xlim, f = 0.04),
+                         ylim = extendrange(ylim, f = 0.04),
+                         xlab = xlab, ylab = ylab, ...)
+}
+
+## Define contourplot2() methods for objects of various types
+## Note: 'x' is a "matrix", "data.frame", "copula" or "mvdc" object
+setGeneric("contourplot2", function(x, ...) standardGeneric("contourplot2"))
+setMethod("contourplot2", signature(x = "matrix"),     contourplot2MatrixDf)
+setMethod("contourplot2", signature(x = "data.frame"), contourplot2MatrixDf)
+setMethod("contourplot2", signature(x = "copula"),     contourplot2Copula)
+setMethod("contourplot2", signature(x = "mvdc"),       contourplot2Mvdc)
+
+
+### 3.2 Enhanced wireframe() ###################################################
+
+##' @title Wireframe Plot Method for Classes "matrix" and "data.frame"
+##' @param x A numeric matrix or as.matrix(.)able
+##' @param xlim The x-axis limits
+##' @param ylim The y-axis limits
+##' @param zlim The z-axis limits
+##' @param xlab The x-axis label
+##' @param ylab The y-axis label
+##' @param zlab The z-axis label
+##' @param alpha.regions See ?wireframe
+##' @param scales See ?wireframe
+##' @param par.settings Additional arguments passed to 'par.settings' (some are set)
+##' @param ... Further arguments passed to wireframe()
+##' @return A wireframe() object
+##' @author Marius Hofert
+##' @note - axis.line makes the outer box disappear
+##'       - 'col = 1' in scales is required to make the ticks visible again
+##'       - 'clip' is set to off to avoid axis labels being clipped
+wireframe2MatrixDf <- function(x,
+                               xlim = range(x[,1], finite = TRUE),
+                               ylim = range(x[,2], finite = TRUE),
+                               zlim = range(x[,3], finite = TRUE),
+                               xlab = NULL, ylab = NULL, zlab = NULL,
+                               alpha.regions = 0.5, scales = list(arrows = FALSE, col = 1),
+                               par.settings = standard.theme(color = FALSE), ...)
+{
+    ## Checking
+    if(!is.matrix(x)) x <- as.matrix(x)
+    if(ncol(x) != 3) stop("'x' should be trivariate")
+
+    ## Labels
+    colnms <- colnames(x)
+    if(is.null(xlab))
+        xlab <- if(is.null(colnms)) "" else parse(text = colnms[1])
+    if(is.null(ylab))
+        ylab <- if(is.null(colnms)) "" else parse(text = colnms[2])
+    if(is.null(zlab))
+        zlab <- if(is.null(colnms)) "" else parse(text = colnms[3])
+
+    ## Wireframe plot
+    wireframe(x[,3] ~ x[,1] * x[,2], xlim = xlim, ylim = ylim, zlim = zlim,
+              xlab = xlab, ylab = ylab, zlab = zlab,
+              alpha.regions = alpha.regions, scales = scales,
+              par.settings = modifyList(par.settings,
+                                        list(axis.line = list(col = "transparent"),
+                                             clip = list(panel = "off"))),
+              ...)
+}
+
+##' @title Wireframe Plot Method for Class "copula"
+##' @param x An object of type "copula"
+##' @param FUN A function like dCopula or pCopula
+##' @param n.grid The (vector of) number(s) of grid points in each dimension
+##' @param delta Distance from the boundary of [0,1]^2
+##' @param xlim The x-axis limits
+##' @param ylim The y-axis limits
+##' @param zlim The z-axis limits
+##' @param xlab The x-axis label
+##' @param ylab The y-axis label
+##' @param zlab The z-axis label
+##' @param ... Additional arguments passed to wireframe2()
+##' @return A wireframe() object
+##' @author Marius Hofert
+wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
+                             xlim = NULL, ylim = NULL, zlim = NULL,
+                             xlab = expression(u[1]), ylab = expression(u[2]),
+                             zlab = deparse(substitute(FUN))[1], ...)
+{
+    stopifnot(n.grid >= 2)
+    if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)
+    stopifnot(length(n.grid) == 2, 0 <= delta, delta < 1/2)
+    if(is.null(xlim)) xlim <- 0:1
+    if(is.null(ylim)) ylim <- 0:1
+    x. <- seq(xlim[1] + delta, xlim[2] - delta, length.out = n.grid[1])
+    y. <- seq(xlim[1] + delta, xlim[2] - delta, length.out = n.grid[2])
+    grid <- as.matrix(expand.grid(x = x., y = y.))
+    z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
+    if(is.null(zlim)) zlim <- range(z, finite = TRUE)
+    val <- cbind(grid, z = z)
+    wireframe2MatrixDf(val, xlim = xlim, ylim = ylim, zlim = zlim,
+                       xlab = xlab, ylab = ylab, zlab = zlab, ...)
+}
+
+##' @title Wireframe Plot Method for Class "mvdc"
+##' @param x An object of type "mvdc"
+##' @param FUN A function like dCopula or pCopula
+##' @param n.grid The (vector of) number(s) of grid points in each dimension
+##' @param xlim The x-axis limits
+##' @param ylim The y-axis limits
+##' @param zlim The z-axis limits
+##' @param xlab The x-axis label
+##' @param ylab The y-axis label
+##' @param zlab The z-axis label
+##' @param ... Additional arguments passed to wireframe2()
+##' @return A wireframe() object
+##' @author Marius Hofert
+wireframe2Mvdc <- function(x, FUN, n.grid = 26,
+                           xlim, ylim, zlim = NULL,
+                           xlab = expression(x[1]), ylab = expression(x[2]),
+                           zlab = deparse(substitute(FUN))[1], ...)
+{
+    stopifnot(n.grid >= 2)
+    if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)
+    stopifnot(length(n.grid) == 2)
+    x. <- seq(xlim[1], xlim[2], length.out = n.grid[1])
+    y. <- seq(xlim[1], xlim[2], length.out = n.grid[2])
+    grid <- as.matrix(expand.grid(x = x., y = y.))
+    z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
+    if(is.null(zlim)) zlim <- range(z, finite = TRUE)
+    val <- cbind(grid, z = z)
+    wireframe2MatrixDf(val, xlim = xlim, ylim = ylim, zlim = zlim,
+                       xlab = xlab, ylab = ylab, zlab = zlab, ...)
+}
+
+## Define wireframe2() methods for objects of various types
+## Note: 'x' is a "matrix", "data.frame", "copula" or "mvdc" object
+setGeneric("wireframe2", function(x, ...) standardGeneric("wireframe2"))
+setMethod("wireframe2", signature(x = "matrix"),     wireframe2MatrixDf)
+setMethod("wireframe2", signature(x = "data.frame"), wireframe2MatrixDf)
+setMethod("wireframe2", signature(x = "copula"),     wireframe2Copula)
+setMethod("wireframe2", signature(x = "mvdc"),       wireframe2Mvdc)
+
+
+### 3.3 Enhanced cloud() #######################################################
+
+##' @title A Cloud Plot with Nice Defaults
+##' @param x A numeric matrix or as.matrix(.)able
+##' @param xlim The x-axis limits
+##' @param ylim The y-axis limits
+##' @param zlim The z-axis limits
+##' @param xlab The x-axis label
+##' @param ylab The y-axis label
+##' @param zlab The z-axis label
+##' @param delta Distance from the boundary of [0,1]^2
+##' @param scales See ?cloud
+##' @param par.settings Additional arguments passed to 'par.settings' (some are set)
+##' @param ... Further arguments passed to cloud()
+##' @return A cloud() object
+##' @author Marius Hofert
+cloud2 <- function(x,
+                   xlim = extendrange(x[,1], f = 0.04),
+                   ylim = extendrange(x[,2], f = 0.04),
+                   zlim = extendrange(x[,3], f = 0.04),
+                   xlab = NULL, ylab = NULL, zlab = NULL,
+                   delta = 0.04, scales = list(arrows = FALSE, col = 1),
+                   par.settings = standard.theme(color = FALSE), ...)
+{
+    ## Checking
+    if(!is.matrix(x)) x <- as.matrix(x)
+    if(ncol(x) != 3) stop("'x' should be trivariate")
+
+    ## Labels
+    colnms <- colnames(x)
+    if(is.null(xlab))
+        xlab <- if(is.null(colnms)) "" else parse(text = colnms[1])
+    if(is.null(ylab))
+        ylab <- if(is.null(colnms)) "" else parse(text = colnms[2])
+    if(is.null(zlab))
+        zlab <- if(is.null(colnms)) "" else parse(text = colnms[3])
+
+    ## Cloud plot
+    cloud(x[,3] ~ x[,1] * x[,2], xlim = xlim, ylim = ylim, zlim = zlim,
+          xlab = xlab, ylab = ylab, zlab = zlab, scales = scales,
+          par.settings = modifyList(par.settings,
+                                    list(axis.line = list(col = "transparent"),
+                                         clip = list(panel = "off"))),
+          ...)
+}
+
+
+### 3.4 Enhanced splom() #######################################################
 
 ##' @title A Scatter-plot Matrix with Nice Defaults
 ##' @param x A numeric matrix or as.matrix(.)able
@@ -423,214 +709,4 @@ splom2 <- function(x, varnames = NULL,
               panel.fill(bg.col.mat[i,j])
               panel.splom(x, y, col=col.mat[i,j], ...)
           }, ...)
-}
-
-
-### 3.2 Enhanced wireframe() ###################################################
-
-##' @title A Wireframe Plot with Nice Defaults
-##' @param x A numeric matrix or as.matrix(.)able
-##' @param labels The x-, y- and z-axis labels
-##' @param labels.null.lab A vector of length 3 giving the default labels
-##'        if labels is NULL
-##' @param alpha.regions See ?wireframe
-##' @param scales See ?wireframe
-##' @param par.settings Additional arguments passed to 'par.settings' (some are set)
-##' @param ... Further arguments passed to wireframe()
-##' @return A wireframe() object
-##' @author Marius Hofert
-##' @note - axis.line makes the outer box disappear
-##'       - 'col = 1' in scales is required to make the ticks visible again
-##'       - 'clip' is set to off to avoid axis labels being clipped
-wireframe2MatrixDf <- function(x, labels = NULL,
-                               labels.null.lab = parse(text = c("u[1]", "u[2]", "C(u[1],u[2])")),
-                               alpha.regions = 0.5, scales = list(arrows = FALSE, col = 1),
-                               par.settings = standard.theme(color = FALSE), ...)
-{
-    ## Checking
-    if(!is.matrix(x)) x <- as.matrix(x)
-    if(ncol(x) != 3) stop("'x' should be trivariate")
-
-    ## Labels
-    if(is.null(labels)) {
-        colnms <- colnames(x)
-        labels <- if(sum(nzchar(colnms)) != 3) {
-            stopifnot(length(labels.null.lab) == 3)
-            parse(text = labels.null.lab)
-        } else # 'x' has column names => parse them
-            parse(text = colnms)
-    }
-
-    ## Wireframe plot
-    wireframe(x[,3] ~ x[,1] * x[,2],
-              xlab = labels[1], ylab = labels[2], zlab = labels[3],
-              alpha.regions = alpha.regions, scales = scales,
-              par.settings = modifyList(par.settings,
-                                        list(axis.line = list(col = "transparent"),
-                                             clip = list(panel = "off"))),
-              ...)
-}
-
-##' @title Wireframe Plot Method for Class "copula"
-##' @param x An object of type "copula"
-##' @param FUN A function like dCopula or pCopula
-##' @param n.grid The (vector of) number(s) of grid points in each dimension
-##' @param delta Distance from the boundary of [0,1]^2
-##' @param labels The axis labels used
-##' @param ... Additional arguments passed to wireframe2()
-##' @return A wireframe() object
-##' @author Marius Hofert
-wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
-                             labels = c("u[1]", "u[2]", deparse(substitute(FUN))[1]),
-                             ...)
-{
-    stopifnot(n.grid >= 2)
-    if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)
-    stopifnot(length(n.grid) == 2, 0 <= delta, delta < 1/2)
-    x. <- seq(0 + delta, 1 - delta, length.out = n.grid[1])
-    y. <- seq(0 + delta, 1 - delta, length.out = n.grid[2])
-    grid <- as.matrix(expand.grid(x = x., y = y.))
-    z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
-    val <- cbind(grid, z = z)
-    colnames(val) <- labels
-    wireframe2MatrixDf(val, ...)
-}
-
-##' @title Wireframe Plot Method for Class "mvdc"
-##' @param x An object of type "mvdc"
-##' @param FUN A function like dCopula or pCopula
-##' @param xlim x-axis limits
-##' @param ylim y-axis limits
-##' @param n.grid The (vector of) number(s) of grid points in each dimension
-##' @param labels The axis labels used
-##' @param ... Additional arguments passed to wireframe2()
-##' @return A wireframe() object
-##' @author Marius Hofert
-wireframe2Mvdc <- function(x, FUN, xlim, ylim, n.grid = 26,
-                           labels = c("x[1]", "x[2]", deparse(substitute(FUN))[1]),
-                           ...)
-{
-    stopifnot(n.grid >= 2)
-    if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)
-    stopifnot(length(n.grid) == 2)
-    x. <- seq(xlim[1], xlim[2], length.out = n.grid[1])
-    y. <- seq(xlim[1], xlim[2], length.out = n.grid[2])
-    grid <- as.matrix(expand.grid(x = x., y = y.))
-    z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
-    val <- cbind(grid, z = z)
-    colnames(val) <- labels
-    wireframe2MatrixDf(val, ...)
-}
-
-## Define wireframe2() methods for objects of various types
-## Note: 'x' is a "matrix", "data.frame", "copula" or "mvdc" object
-setGeneric("wireframe2", function(x, ...) standardGeneric("wireframe2"))
-setMethod("wireframe2", signature(x = "matrix"),     wireframe2MatrixDf)
-setMethod("wireframe2", signature(x = "data.frame"), wireframe2MatrixDf)
-setMethod("wireframe2", signature(x = "copula"),     wireframe2Copula)
-setMethod("wireframe2", signature(x = "mvdc"),       wireframe2Mvdc)
-
-
-### 3.3 Enhanced levelplot() ###################################################
-
-##' @title A Level Plot with Nice Defaults
-##' @param x A numeric matrix or as.matrix(.)able
-##' @param aspect The aspect ratio
-##' @param xlim The x-axis limits
-##' @param ylim The y-axis limits
-##' @param xlab The x-axis label
-##' @param ylab The y-axis label
-##' @param cuts The number of levels
-##' @param scales See ?levelplot
-##' @param par.settings Additional arguments passed to 'par.settings' (some are set)
-##' @param contour A logical indicating whether contour lines should be plotted
-##' @param ... Further arguments passed to levelplot()
-##' @return A levelplot() object
-##' @author Marius Hofert
-levelplot2 <- function(x, aspect = 1,
-                       xlim = extendrange(x[,1], f = 0.04),
-                       ylim = extendrange(x[,2], f = 0.04),
-                       xlab = NULL, ylab = NULL,
-                       cuts = 20, scales = list(alternating = c(1,1), tck = c(1,0)),
-                       par.settings = list(regions = list(col = gray(seq(0.4, 1, length.out=cuts+1)))),
-                       contour = TRUE, ...)
-{
-    ## Checking
-    if(!is.matrix(x)) x <- as.matrix(x)
-    if(ncol(x) != 3) stop("'x' should be trivariate")
-
-    ## Labels
-    if(is.null(xlab) || is.null(ylab)) {
-        colnms <- colnames(x)
-        labels <- if(sum(nzchar(colnms)) != 2) {
-            xlab <- expression(u[1])
-            ylab <- expression(u[2])
-        } else # 'x' has column names => parse them
-            parse(text = colnms)
-    }
-
-    ## Level plot
-    levelplot(x[,3] ~ x[,1] * x[,2], aspect = aspect, xlim = xlim, ylim = ylim,
-              xlab = xlab, ylab = ylab, cuts = cuts,
-              scales = scales, par.settings = par.settings,
-              contour = contour, ...)
-}
-
-
-### 3.4 Enhanced cloud() #######################################################
-
-##' @title A Cloud Plot with Nice Defaults
-##' @param x A numeric matrix or as.matrix(.)able
-##' @param labels The x-, y- and z-axis labels
-##' @param labels.null.lab A vector of length 3 giving the default labels
-##'        if labels is NULL
-##' @param xlim x-axis limits
-##' @param ylim y-axis limits
-##' @param zlim z-axis limits
-##' @param delta Distance from the boundary of [0,1]^2
-##' @param scales See ?cloud
-##' @param par.settings Additional arguments passed to 'par.settings' (some are set)
-##' @param ... Further arguments passed to cloud()
-##' @return A cloud() object
-##' @author Marius Hofert
-cloud2 <- function(x, labels = NULL, labels.null.lab = "U",
-                   xlim = NULL, ylim = NULL, zlim = NULL,
-                   delta = 0.04, scales = list(arrows = FALSE, col = 1),
-                   par.settings = standard.theme(color = FALSE), ...)
-{
-    ## Checking
-    if(!is.matrix(x)) x <- as.matrix(x)
-    if(ncol(x) != 3) stop("'x' should be trivariate")
-
-    ## Labels
-    if(is.null(labels)) {
-        stopifnot(length(labels.null.lab) == 1, is.character(labels.null.lab))
-        colnms <- colnames(x)
-        labels <- if(sum(nzchar(colnms)) != 3) {
-            do.call(expression,
-                    lapply(1:3, function(j)
-                        substitute(v[I], list(v = as.name(labels.null.lab), I = 0+j))))
-        } else # 'x' has column names => parse them
-            parse(text = colnms)
-    }
-
-    ## Limits
-    if(is.null(xlim))
-        xlim <- if(is.factor(x[,1])) levels(x[,1]) else range(x[,1], finite = TRUE)
-    if(is.null(ylim))
-        ylim <- if(is.factor(x[,2])) levels(x[,2]) else range(x[,2], finite = TRUE)
-    if(is.null(zlim))
-        zlim <- if(is.factor(x[,3])) levels(x[,3]) else range(x[,3], finite = TRUE)
-    xlim <- extendrange(xlim, f = 0.04)
-    ylim <- extendrange(ylim, f = 0.04)
-    zlim <- extendrange(zlim, f = 0.04)
-
-    ## Cloud plot
-    cloud(x[,3] ~ x[,1] * x[,2], xlim = xlim, ylim = ylim, zlim = zlim,
-          xlab = labels[1], ylab = labels[2], zlab = labels[3],
-          scales = scales,
-          par.settings = modifyList(par.settings,
-                                    list(axis.line = list(col = "transparent"),
-                                         clip = list(panel = "off"))),
-          ...)
 }

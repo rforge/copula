@@ -12,29 +12,37 @@
   two dimensional distributions from package \pkg{copula}).
 }
 \usage{
-\S4method{wireframe2}{matrix}(x, labels = NULL,
-      labels.null.lab = parse(text = c("u[1]", "u[2]", "C(u[1],u[2])")),
+\S4method{wireframe2}{matrix}(x,
+      xlim = range(x[,1], finite = TRUE),
+      ylim = range(x[,2], finite = TRUE),
+      zlim = range(x[,3], finite = TRUE),
+      xlab = NULL, ylab = NULL, zlab = NULL,
       alpha.regions = 0.5, scales = list(arrows = FALSE, col = 1),
       par.settings = standard.theme(color = FALSE), \dots)
-\S4method{wireframe2}{data.frame}(x, labels = NULL,
-      labels.null.lab = parse(text = c("u[1]", "u[2]", "C(u[1],u[2])")),
+\S4method{wireframe2}{data.frame}(x,
+      xlim = range(x[,1], finite = TRUE),
+      ylim = range(x[,2], finite = TRUE),
+      zlim = range(x[,3], finite = TRUE),
+      xlab = NULL, ylab = NULL, zlab = NULL,
       alpha.regions = 0.5, scales = list(arrows = FALSE, col = 1),
       par.settings = standard.theme(color = FALSE), \dots)
 \S4method{wireframe2}{copula}(x, FUN, n.grid = 26, delta = 0,
-      labels = c("u[1]", "u[2]", deparse(substitute(FUN))[1]), \dots)
-\S4method{wireframe2}{mvdc}(x, FUN, xlim, ylim, n.grid = 26,
-      labels = c("x[1]", "x[2]", deparse(substitute(FUN))[1]), \dots)
+      xlim = NULL, ylim = NULL, zlim = NULL,
+      xlab = expression(u[1]), ylab = expression(u[2]),
+      zlab = deparse(substitute(FUN))[1], \dots)
+\S4method{wireframe2}{mvdc}(x, FUN, n.grid = 26, xlim, ylim, zlim = NULL,
+      xlab = expression(x[1]), ylab = expression(x[2]),
+      zlab = deparse(substitute(FUN))[1], \dots)
 }
 \arguments{
   \item{x}{A \code{"\linkS4class{matrix}"},
     \code{"\linkS4class{data.frame}"}, \code{"\linkS4class{copula}"} or
     a \code{"\linkS4class{mvdc}"} object.}
-  \item{labels}{The x-, y- and z-axis labels.}
-  \item{labels.null.lab}{A character vector of length 3 determining the
-    \dQuote{base name} of the variable labels in case \code{x} does not
-    have all column names given and \code{labels} is \code{NULL}.}
+  \item{xlim, ylim, zlim}{The x-, y- and z-axis limits.}
+  \item{xlab, ylab, zlab}{The x-, y- and z-axis labels.}
   \item{alpha.regions}{See \code{\link{wireframe}()}.}
-  \item{scales}{See \code{\link{wireframe}()}.}
+  \item{scales}{A \code{\link{list}} determining how the axes are drawn;
+    see \code{\link{wireframe}()}.}
   \item{par.settings}{See \code{\link{wireframe}()}.}
   \item{FUN}{The \code{\link{function}} to be plotted; typically
     \code{\link{dCopula}} or \code{\link{pCopula}}.}
@@ -45,8 +53,6 @@
   \item{delta}{A small number in \eqn{[0, \frac 1 2)}{[0, 1/2)}
     influencing the evaluation boundaries. The x- and y- vectors will
     have the range \code{[0+delta, 1-delta]}, the default being \code{[0,1]}.}
-  \item{xlim, ylim}{The \code{\link{range}} of the x and
-    y variables, respectively.}
   \item{\dots}{Additional arguments passed to the underlying
     \code{\link{wireframe}()}.}
 }
@@ -64,14 +70,10 @@
 }
 \examples{
 ## For 'matrix' objects
-## 1) The independence copula Pi
+## The Frechet--Hoeffding bounds W and M
 n.grid <- 26
 u <- seq(0, 1, length.out = n.grid)
 grid <- expand.grid("u[1]" = u, "u[2]" = u)
-x <- cbind(grid, "Pi(u[1],u[2])" = apply(grid, 1, prod)) # evaluate Pi on 'grid'
-wireframe2(x) # labels are parsed
-
-## 2) The Frechet--Hoeffding bounds W and M
 W <- function(u) pmax(0, rowSums(u)-1) # lower bound W
 M <- function(u) apply(u, 1, min) # upper bound M
 x.W <- cbind(grid, "W(u[1],u[2])" = W(grid)) # evaluate W on 'grid'
@@ -81,10 +83,10 @@ wireframe2(x.M) # plot of M
 
 ## For 'copula' objects
 cop <- frankCopula(-4)
-wireframe2(cop, pCopula)
-wireframe2(cop, dCopula)
-wireframe2(cop, dCopula, delta=0.01)
-wireframe2(cop, pCopula, labels=c("x", "y", "z"))
+wireframe2(cop, pCopula) # the copula
+wireframe2(cop, pCopula, xlab = expression(x[1])) # adjusting an axis label
+wireframe2(cop, dCopula, delta=0.01) # the density
+wireframe2(cop, dCopula) # => the density is set to 0 on the margins
 
 ## For 'mvdc' objects
 mvNN <- mvdc(gumbelCopula(3), c("norm", "norm"),
