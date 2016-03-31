@@ -217,7 +217,7 @@ chkFun <- function(FUN)
 ##' @return invisible()
 ##' @author Marius Hofert (based on Ivan's/Jun's code)
 ##' @note *ARGHHHHHHHH...* persp() doesn't allow for plotmath x-/y-labels!
-perspCopula <- function(x, FUN, n.grid = 41, delta = 0,
+perspCopula <- function(x, FUN, n.grid = 26, delta = 0,
                         xlab = "u1", ylab = "u2",
                         zlab = deparse(substitute(FUN))[1],
                         theta = -30, phi = 30, expand = 0.618, ticktype = "detail", ...)
@@ -252,8 +252,8 @@ perspCopula <- function(x, FUN, n.grid = 41, delta = 0,
 ##' @return invisible()
 ##' @author Marius Hofert (based on Ivan's/Jun's code)
 ##' @note *ARGHHHHHHHH...* persp() doesn't allow for plotmath x-/y-labels!
-perspMvdc <- function(x, FUN, xlim, ylim, n.grid = 41,
-                      xlab = "x", ylab = "y", zlab = deparse(substitute(FUN))[1],
+perspMvdc <- function(x, FUN, xlim, ylim, n.grid = 26,
+                      xlab = "x1", ylab = "x2", zlab = deparse(substitute(FUN))[1],
                       theta = -30, phi = 30, expand = 0.618, ticktype = "detail", ...)
 {
     stopifnot(n.grid >= 2)
@@ -274,11 +274,16 @@ perspMvdc <- function(x, FUN, xlim, ylim, n.grid = 41,
 ##' @param FUN A function like dCopula or pCopula
 ##' @param n.grid The (vector of) number(s) of grid points in each dimension
 ##' @param delta Distance from the boundary of [0,1]^2
+##' @param xlab The x-axis label
+##' @param ylab The y-axis label
 ##' @param box01 A logical indicating whether a box is drawn to on the boundary of [0,1]^2
 ##' @param ... Additional arguments passed to contour()
 ##' @return invisible()
 ##' @author Marius Hofert (based on Ivan's/Jun's code)
-contourCopula <- function(x, FUN, n.grid = 41, delta = 0, box01 = TRUE, ...) {
+contourCopula <- function(x, FUN, n.grid = 26, delta = 0,
+                          xlab = expression(u[1]), ylab = expression(u[2]),
+                          box01 = TRUE, ...)
+{
     stopifnot(n.grid >= 2)
     if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)
     stopifnot(length(n.grid) == 2, 0 <= delta, delta < 1/2)
@@ -286,8 +291,8 @@ contourCopula <- function(x, FUN, n.grid = 41, delta = 0, box01 = TRUE, ...) {
     y. <- seq(0 + delta, 1 - delta, length.out = n.grid[2])
     grid <- as.matrix(expand.grid(x = x., y = y.))
     z.mat <- matrix(if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid), ncol = n.grid[2])
-    contour(x = x., y = y., z = z.mat, ...)
-    if(box01) rect(0, 0, 1, 1, border = "gray40", lty=3)
+    contour(x = x., y = y., z = z.mat, xlab = xlab, ylab = ylab, ...)
+    if(box01) rect(0, 0, 1, 1, border = "gray40", lty = 2)
     invisible(list(x = x., y = y., z = z.mat))
 }
 
@@ -297,11 +302,15 @@ contourCopula <- function(x, FUN, n.grid = 41, delta = 0, box01 = TRUE, ...) {
 ##' @param xlim The x-axis limits
 ##' @param ylim The y-axis limits
 ##' @param n.grid The (vector of) number(s) of grid points in each dimension
+##' @param xlab The x-axis label
+##' @param ylab The y-axis label
 ##' @param box01 A logical indicating whether a box is drawn to on the boundary of [0,1]^2
 ##' @param ... Additional arguments passed to contour()
 ##' @return invisible()
 ##' @author Marius Hofert
-contourMvdc <- function(x, FUN, xlim, ylim, n.grid = 41, box01 = FALSE, ...)
+contourMvdc <- function(x, FUN, xlim, ylim, n.grid = 26,
+                        xlab = expression(x[1]), ylab = expression(x[2]),
+                        box01 = FALSE, ...)
 {
     stopifnot(n.grid >= 2)
     if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)
@@ -310,14 +319,14 @@ contourMvdc <- function(x, FUN, xlim, ylim, n.grid = 41, box01 = FALSE, ...)
     y. <- seq(xlim[1], xlim[2], length.out = n.grid[2])
     grid <- as.matrix(expand.grid(x = x., y = y.))
     z.mat <- matrix(if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid), ncol = n.grid[2])
-    contour(x = x., y = y., z = z.mat, ...)
-    if(box01) rect(0, 0, 1, 1, border = "gray40", lty=3)
+    contour(x = x., y = y., z = z.mat, xlab = xlab, ylab = ylab, ...)
+    if(box01) rect(0, 0, 1, 1, border = "gray40", lty = 2)
     invisible(list(x = x., y = y., z = z.mat))
 }
 
 ## Make persp() and contour() work for "copula" and "mvdc" objects
-setMethod("persp", signature = signature("copula"), definition = perspCopula)
-setMethod("persp", signature = signature("mvdc"),   definition = perspMvdc)
+setMethod("persp",   signature = signature("copula"), definition = perspCopula)
+setMethod("persp",   signature = signature("mvdc"),   definition = perspMvdc)
 setMethod("contour", signature = signature("copula"), definition = contourCopula)
 setMethod("contour", signature = signature("mvdc"),   definition = contourMvdc)
 
@@ -346,9 +355,9 @@ setMethod("contour", signature = signature("mvdc"),   definition = contourMvdc)
 pairs2 <- function(x, labels = NULL, labels.null.lab = "U", row1attop = FALSE,
                    pch = ".", ...)
 {
-   stopifnot(is.numeric(x <- as.matrix(x)), (d <- ncol(x)) >= 1,
-             length(labels.null.lab) == 1, is.character(labels.null.lab))
+   stopifnot(is.numeric(x <- as.matrix(x)), (d <- ncol(x)) >= 1)
    if(is.null(labels)) {
+       stopifnot(length(labels.null.lab) == 1, is.character(labels.null.lab))
        colnms <- colnames(x)
        labels <- if(sum(nzchar(colnms)) != d) {
            do.call(expression,
@@ -375,14 +384,14 @@ splom2 <- function(x, varnames = NULL,
                    varnames.null.lab = "U", xlab = "",
                    col.mat = NULL, bg.col.mat = NULL, ...)
 {
-    stopifnot(is.numeric(x <- as.matrix(x)), (d <- ncol(x)) >= 1,
-              length(varnames.null.lab) == 1, is.character(varnames.null.lab))
+    stopifnot(is.numeric(x <- as.matrix(x)), (d <- ncol(x)) >= 1)
     if(is.null(varnames)) {
+        stopifnot(length(varnames.null.lab) == 1, is.character(varnames.null.lab))
         colnms <- colnames(x)
         varnames <- if(sum(nzchar(colnms)) != d) {
             do.call(expression,
-                    lapply(1:d, function(i)
-                        substitute(v[I], list(v = as.name(varnames.null.lab), I = 0+i))))
+                    lapply(1:d, function(j)
+                        substitute(v[I], list(v = as.name(varnames.null.lab), I = 0+j))))
         } else # 'x' has column names => parse them
             parse(text = colnms)
     }
@@ -415,52 +424,172 @@ splom2 <- function(x, varnames = NULL,
 ##' @param labels The x-, y- and z-axis labels
 ##' @param labels.null.lab A vector of length 3 giving the default labels
 ##'        if labels is NULL
-##' @param alpha.regions see ?wireframe
-##' @param scales Additional arguments passed to 'scales' (some are set)
+##' @param alpha.regions See ?wireframe
+##' @param scales See ?wireframe
 ##' @param par.settings Additional arguments passed to 'par.settings' (some are set)
 ##' @param ... Further arguments passed to wireframe()
 ##' @return A wireframe() object
 ##' @author Marius Hofert
+##' @note - axis.line makes the outer box disappear
+##'       - 'col = 1' in scales is required to make the ticks visible again
+##'       - 'clip' is set to off to avoid axis labels being clipped
 wireframe2 <- function(x, labels = NULL,
                        labels.null.lab = parse(text = c("u[1]", "u[2]", "C(u[1],u[2])")),
-                       alpha.regions = 0.5, scales = list(arrows = FALSE),
+                       alpha.regions = 0.5, scales = list(arrows = FALSE, col = 1),
                        par.settings = standard.theme(color = FALSE), ...)
 {
+    ## Checking
     if(!is.matrix(x)) x <- rbind(x)
     if(ncol(x) != 3) stop("'x' should be trivariate")
+
+    ## Labels
     if(is.null(labels)) {
         colnms <- colnames(x)
         labels <- if(sum(nzchar(colnms)) != 3) {
-            stopifnot(length(labels.null.lab) == 3, is.character(labels.null.lab))
+            stopifnot(length(labels.null.lab) == 3)
             parse(text = labels.null.lab)
         } else # 'x' has column names => parse them
             parse(text = colnms)
     }
+
+    ## Wireframe plot
     wireframe(x[,3] ~ x[,1] * x[,2],
               xlab = labels[1], ylab = labels[2], zlab = labels[3],
-              alpha.regions = alpha.regions,
-              scales = scales,
+              alpha.regions = alpha.regions, scales = scales,
               par.settings = modifyList(par.settings,
                                         list(axis.line = list(col = "transparent"),
-                                             ## background = list(col = "#ffffff00"),
-                                             clip=list(panel = "off"))),
+                                             clip = list(panel = "off"))),
               ...)
 }
 
-## wireframe2Copula <- function(x, fun, n.grid = 41, delta = 0, ...)
-## {
-##     stopifnot(0 <= delta, delta < 1/2)
-##     u <- seq(0 + delta, 1 - delta, len = n.grid)
-## TODO
-##     grids <- as.matrix(expand.grid(u1 = u, u2 = , KEEP.OUT.ATTRS=FALSE))
-##     zmat <- matrix(if(chkFun(fun)) fun(grids, x) else fun(x, grids), n, n)
-##     wireframe2(x, ...)
-## }
+##' @title Wireframe Plot Method for Class "copula"
+##' @param x An object of type "copula"
+##' @param FUN A function like dCopula or pCopula
+##' @param n.grid The (vector of) number(s) of grid points in each dimension
+##' @param delta Distance from the boundary of [0,1]^2
+##' @param labels The axis labels used
+##' @param ... Additional arguments passed to wireframe2()
+##' @return A wireframe() object
+##' @author Marius Hofert
+wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
+                             labels = c("u[1]", "u[2]", deparse(substitute(FUN))[1]),
+                             ...)
+{
+    stopifnot(n.grid >= 2)
+    if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)
+    stopifnot(length(n.grid) == 2, 0 <= delta, delta < 1/2)
+    x. <- seq(0 + delta, 1 - delta, length.out = n.grid[1])
+    y. <- seq(0 + delta, 1 - delta, length.out = n.grid[2])
+    grid <- as.matrix(expand.grid(x = x., y = y.))
+    z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
+    val <- cbind(grid, z)
+    colnames(val) <- labels
+    wireframe2(val, ...)
+}
 
-## ## Make wireframe2() work for "copula" and "mvdc" objects
-## setMethod("wireframe2", signature = signature("copula"),
-##           definition = wireframe2Copula)
-## setMethod("wireframe2", signature = signature("mvdc"),
-##           definition = wireframe2Mvdc)
+##' @title Wireframe Plot Method for Class "mvdc"
+##' @param x An object of type "mvdc"
+##' @param FUN A function like dCopula or pCopula
+##' @param xlim x-axis limits
+##' @param ylim y-axis limits
+##' @param n.grid The (vector of) number(s) of grid points in each dimension
+##' @param labels The axis labels used
+##' @param ... Additional arguments passed to wireframe2()
+##' @return A wireframe() object
+##' @author Marius Hofert
+wireframe2Mvdc <- function(x, FUN, xlim, ylim, n.grid = 26,
+                           labels = c("x[1]", "x[2]", deparse(substitute(FUN))[1]),
+                           ...)
+{
+    stopifnot(n.grid >= 2)
+    if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)
+    stopifnot(length(n.grid) == 2)
+    x. <- seq(xlim[1], xlim[2], length.out = n.grid[1])
+    y. <- seq(xlim[1], xlim[2], length.out = n.grid[2])
+    grid <- as.matrix(expand.grid(x = x., y = y.))
+    z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
+    val <- cbind(grid, z)
+    colnames(val) <- labels
+    wireframe2(val, ...)
+}
+
+## TODO: fix!!!
+## Make wireframe2() work for "copula" and "mvdc" objects
+setMethod("wireframe2", signature = signature(x = "copula"), # FUN = "function", n.grid = "numeric",
+                                              #delta = "numeric", labels = "character"),
+          definition = function(x, FUN, n.grid = 26, delta = 0,
+                                labels = c("u[1]", "u[2]", deparse(substitute(FUN))[1]),
+                                ...)
+    wireframe2Copula(x, FUN = FUN, n.grid = n.grid, delta = delta, labels = labels, ...))
+##setMethod("wireframe2", signature = signature("copula"), definition = wireframe2Copula)
+setMethod("wireframe2", signature = signature("mvdc"), definition = wireframe2Mvdc)
+## TODO: make the following work
+if(FALSE) {
+    require(copula)
+    x <- frankCopula(-0.8)
+    wireframe2(x, FUN=pCopula) # Error: length(n.grid) == 2 is not TRUE (since n.grid is labels!)
+    wireframe2(x, dCopula, delta=0.01) # works
+    wireframe2(x, pCopula, labels=LETTERS[1:3]) # fails again
+}
 
 
+### Enhanced cloud plot ########################################################
+
+##' @title A Cloud Plot with Nice Defaults
+##' @param x A numeric matrix or as.matrix(.)able
+##' @param labels The x-, y- and z-axis labels
+##' @param labels.null.lab A vector of length 3 giving the default labels
+##'        if labels is NULL
+##' @param xlim x-axis limits
+##' @param ylim y-axis limits
+##' @param zlim z-axis limits
+##' @param delta Distance from the boundary of [0,1]^2
+##' @param scales See ?wireframe
+##' @param par.settings Additional arguments passed to 'par.settings' (some are set)
+##' @param ... Further arguments passed to cloud()
+##' @return A cloud() object
+##' @author Marius Hofert
+cloud2 <- function(x, labels = NULL, labels.null.lab = "U",
+                   xlim = NULL, ylim = NULL, zlim = NULL,
+                   delta = 0.04, scales = list(arrows = FALSE, col = 1),
+                   par.settings = standard.theme(color = FALSE), ...)
+{
+    ## Checking
+    if(!is.matrix(x)) x <- rbind(x)
+    if(ncol(x) != 3) stop("'x' should be trivariate")
+
+    ## Labels
+    if(is.null(labels)) {
+        stopifnot(length(labels.null.lab) == 1, is.character(labels.null.lab))
+        colnms <- colnames(x)
+        labels <- if(sum(nzchar(colnms)) != 3) {
+            do.call(expression,
+                    lapply(1:3, function(j)
+                        substitute(v[I], list(v = as.name(labels.null.lab), I = 0+j))))
+        } else # 'x' has column names => parse them
+            parse(text = colnms)
+    }
+
+    ## Limits
+    if(is.null(xlim))
+        xlim <- if(is.factor(x[,1])) levels(x[,1]) else range(x[,1], finite = TRUE)
+    if(is.null(ylim))
+        ylim <- if(is.factor(x[,2])) levels(x[,2]) else range(x[,2], finite = TRUE)
+    if(is.null(zlim))
+        zlim <- if(is.factor(x[,3])) levels(x[,3]) else range(x[,3], finite = TRUE)
+    xeps <- diff(xlim) * 0.04
+    yeps <- diff(ylim) * 0.04
+    zeps <- diff(zlim) * 0.04
+    xlim <- c(xlim[1] - xeps, xlim[2] + xeps)
+    ylim <- c(ylim[1] - yeps, ylim[2] + yeps)
+    zlim <- c(zlim[1] - zeps, zlim[2] + zeps)
+
+    ## Cloud plot
+    cloud(x[,3] ~ x[,1] * x[,2], xlim = xlim, ylim = ylim, zlim = zlim,
+          xlab = labels[1], ylab = labels[2], zlab = labels[3],
+          scales = scales,
+          par.settings = modifyList(par.settings,
+                                    list(axis.line = list(col = "transparent"),
+                                         clip = list(panel = "off"))),
+          ...)
+}

@@ -6,16 +6,16 @@
 \title{Methods for Function `persp' in Package `copula'}
 \description{
   Methods for function \code{\link{persp}} to draw perspective plots (of
-  two dimensional distributions from package \pkg{copula}.
+  two dimensional distributions from package \pkg{copula}).
 }
-\usage{% want \usage{} since we have many "surprising arguments"
-\S4method{persp}{copula}(x, FUN, n.grid = 41, delta = 0,
+\usage{
+\S4method{persp}{copula}(x, FUN, n.grid = 26, delta = 0,
       xlab = "u1", ylab = "u2",
       zlab = deparse(substitute(FUN))[1],
       theta = -30, phi = 30, expand = 0.618,
       ticktype = "detail", \dots)
-\S4method{persp}{mvdc}(x, FUN, xlim, ylim, n.grid = 41,
-      xlab = "x", ylab = "y", zlab = deparse(substitute(FUN))[1],
+\S4method{persp}{mvdc}(x, FUN, xlim, ylim, n.grid = 26,
+      xlab = "x1", ylab = "x2", zlab = deparse(substitute(FUN))[1],
       theta = -30, phi = 30, expand = 0.618,
       ticktype = "detail", \dots)
 }
@@ -63,7 +63,7 @@ persp(amhCopula(th1), dCopula)
 persp(amhCopula(th1), pCopula, ticktype = "simple") # no axis ticks
 
 mvNN <- mvdc(gumbelCopula(3), c("norm", "norm"),
-          list(list(mean = 0, sd =1), list(mean = 1)))
+          list(list(mean = 0, sd = 1), list(mean = 1)))
 persp(mvNN, dMvdc, xlim=c(-2, 2), ylim=c(-1, 3), main = "Density")
 persp(mvNN, pMvdc, xlim=c(-2, 2), ylim=c(-1, 3), main = "Cumulative Distr.")
 }

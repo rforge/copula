@@ -55,7 +55,7 @@ importMethodsFrom("stats4",
 		  plot, profile, summary)
 
 importFrom("lattice", trellis.par.get, trellis.par.set,
-	   splom, wireframe, standard.theme, panel.fill, panel.splom, diag.panel.splom)
+	   splom, wireframe, cloud, standard.theme, panel.fill, panel.splom, diag.panel.splom)
 
 importFrom("Matrix", nearPD)
 ## NB: "Dangerous" to not also depend on Matrix; as 'methods' for Matrixclasses are not seen.
@@ -143,7 +143,7 @@ export(asymExplicitCopula)
 export(p2P, P2p, getSigma, extreme_pairs)
 
 exportMethods(show)
-exportMethods(persp, contour)
+exportMethods(persp, contour, wireframe2)
 
 ## empirical copula
 export(F.n, C.n, dCn, Cn)# .Fn

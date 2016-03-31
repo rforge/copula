@@ -8,7 +8,6 @@
 ** TODO implement fitting of NACs with fixed structure (how is it done in the R package 'HAC'?)
 ** TODO see example code and TODO in dC-dc.R: use explicit formulas of partial derivatives for Archimedean copulas
 ** TODO implement estimation of standard error for fitCopula.itau.mpl
-** TODO 'hideWarnings' now in fitMvdc(): Not sink(), change it to use suppressWarnings() the same as fitCopula!
 ** TODO Shall fitCopula.ml(, method="mpl") call pobs()?
 MH:
 At the moment, fitCopula.ml(, method="mpl") requires data in
@@ -28,14 +27,15 @@ to the reader. So implementing it in fitCopula.ml(, method="mpl")
 would 'contradict' that. Really not sure... I tend to say the
 advantage outweighs the drawbacks... What do you think?
 ** TODO We seem to have quite a few 'deprecated' statements in the package => should be fine to remove some of the old stuff by now!
-** TODO Ivan: Document xvCopula()
-** TODO Ivan: gofCopula():
-- make sim="mult" work with more families (use numDeriv to get a generic implementation)
-- make method="Rd" work with all the sim="mult" families
+** TODO Ivan: make method="Rd" work with all the sim="mult" families
+** TODO Ivan: clean-up test functions
 ** TODO Implement copula rotations (rotCopula())
 ** TODO Implement copula mixtures (mixCopula()) with sufficiently flexible structure so that we can maybe estimate the probability weights in the future
 ** TODO Implement Liebscher copulas (asymCopula()) for 2 'base copulas' (any dimension)
 ** TODO Ivan/Jun: document getL() a bit more in fitCopula.R (what is it for?); there's a TODO there as well (in the header of getL())
+** DONE Ivan: Document xvCopula()
+** DONE Ivan: gofCopula(): make sim="mult" work with more families (use numDeriv to get a generic implementation)
+** DONE 'hideWarnings' now in fitMvdc(): Not sink(), change it to use suppressWarnings() the same as fitCopula!
 ** DONE 'hideWarnings' in fitCopula()
 - change default to FALSE
 - use within fitCopula() instead of fitCopula.ml() and fitCopula.itau.mpl()

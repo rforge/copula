@@ -8,7 +8,7 @@
 \usage{
 wireframe2(x, labels = NULL,
            labels.null.lab = parse(text = c("u[1]", "u[2]", "C(u[1],u[2])")),
-           alpha.regions = 0.5, scales = list(arrows = FALSE),
+           alpha.regions = 0.5, scales = list(arrows = FALSE, col = 1),
            par.settings = standard.theme(color = FALSE), ...)
 }
 \arguments{

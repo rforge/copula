@@ -11,9 +11,12 @@
 }
 \usage{% want \usage{} since we have many "surprising arguments"
 \S4method{contour}{copula}(x, FUN,
-      n.grid = 41, delta = 0, box01 = TRUE, \dots)
-\S4method{contour}{mvdc}(x, FUN,
-      xlim, ylim, n.grid = 41, box01 = FALSE, \dots)
+                   n.grid = 26, delta = 0,
+                   xlab = expression(u[1]), ylab = expression(u[2]),
+                   box01 = TRUE, \dots)
+\S4method{contour}{mvdc}(x, FUN, xlim, ylim, n.grid = 26,
+                   xlab = expression(x[1]), ylab = expression(x[2]),
+		   box01 = FALSE, \dots)
 }
 \arguments{
   \item{x}{A \code{"\linkS4class{copula}"} or
@@ -27,6 +30,7 @@
   \item{delta}{A small number in \eqn{[0, \frac 1 2)}{[0, 1/2)}
     influencing the evaluation boundaries. The x- and y- vectors will
     have the range \code{[0+delta, 1-delta]}, the default being \code{[0,1]}.}
+  \item{xlab, ylab}{The x-axis and y-axis labels.}
   \item{xlim, ylim}{The \code{\link{range}} of the x and
     y variables, respectively.}
   \item{box01}{A logical specifying if a faint rectangle should be drawn
