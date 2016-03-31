@@ -45,8 +45,8 @@ if (doExtras)
     ##plot(u)
 
     fitCopula(asymBivCopula(copula2 = claytonCopula()),
-              start = c(1.1, 0.5), data = pobs(u),
-              optim.method="BFGS")
+              start = c(1.1, 0.5, 0.5), data = pobs(u),
+              optim.method="Nelder-Mead")
 
     ## GOF example
 
@@ -54,18 +54,18 @@ if (doExtras)
     ##           start = c(1.1, 0.5, 0.5), optim.method="Nelder-Mead")
 
     gofCopula(asymBivCopula(copula2 = claytonCopula()), pobs(u),
-              start = c(1.1, 0.5), optim.method="BFGS", sim = "mult")
+              start = c(1.1, 0.5, 0.5), optim.method="Nelder-Mead", sim = "mult")
 
     ## check size of GOF test briefly
-    do1 <- function() {
-        u <- rCopula(n, ac)
-        gofCopula(asymBivCopula(copula2 = claytonCopula()), pobs(u),
-                  start = c(1.1, 0.5), optim.method="BFGS",
-                  sim = "mult")$p.value
-    }
-    M <- 100
-    res <- replicate(M, do1())
-    mean(res < 0.05)
+    ## do1 <- function() {
+    ##     u <- rCopula(n, ac)
+    ##     gofCopula(asymBivCopula(copula2 = claytonCopula()), pobs(u),
+    ##               start = c(1.1, 0.5, 0.5), optim.method="Nelder-Mead",
+    ##               sim = "mult")$p.value
+    ## }
+    ## M <- 100
+    ## res <- replicate(M, do1())
+    ## mean(res < 0.05)
 
     ## under the alternative
     u <- rCopula(n, gumbelCopula(4))
@@ -83,4 +83,3 @@ if (doExtras)
 
 
 }
-

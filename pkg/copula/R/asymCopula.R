@@ -19,7 +19,7 @@
 ##################################################################################
 
 ## Asymmetric copula class constructed from two d-dimensional copulas
-setClass("asymCopula", contains = c("copula"),
+setClass("asymCopula", contains = c("copula", "VIRTUAL"),
          representation = representation(
              copula1 = "copula",
              copula2 = "copula"
@@ -61,14 +61,14 @@ asymBivCopula <- function(copula1 = indepCopula(),
                           shapes = c(1,1)) {
   new("asymBivCopula",
       dimension = copula1@dimension,
-      parameters = c(copula1@parameters, copula2@parameters, shapes[1]), ## changed
+      parameters = c(copula1@parameters, copula2@parameters, shapes),
       param.names = c(if (length(copula1@parameters) > 0)
                       paste0("C1.",copula1@param.names) else character(0),
                       if (length(copula2@parameters) > 0)
                       paste0("C2.",copula2@param.names) else character(0),
-                      "shape1"),# "shape2"), ## changed
-      param.lowbnd = c(copula1@param.lowbnd, copula2@param.lowbnd, 0) , # 0), ##changed
-      param.upbnd = c(copula1@param.upbnd, copula2@param.upbnd, 1), #1), ## changed
+                      "shape1", "shape2"),
+      param.lowbnd = c(copula1@param.lowbnd, copula2@param.lowbnd, 0, 0),
+      param.upbnd = c(copula1@param.upbnd, copula2@param.upbnd, 1, 1),
       copula1 = copula1,
       copula2 = copula2,
       fullname = paste("Asymmetric bivariate copula constructed from: [",
@@ -81,7 +81,7 @@ getAsymCopulaComps <- function(object) {
     p1 <- length(object@copula1@parameters)
     p2 <- length(object@copula2@parameters)
     d <- object@dimension
-    shapes <- object@parameters[(p1 + p2) + 1:d]; shapes[2] <- 1 ## changed
+    shapes <- object@parameters[(p1 + p2) + 1:d]
     copula1 <- object@copula1
     copula2 <- object@copula2
     if (p1 > 0) slot(copula1, "parameters") <- object@parameters[1:p1]
@@ -192,19 +192,19 @@ dCdthetaAsymBivCopula <- function(copula, u, ...) {
         cbind(dCdtheta(copula1, gu1) * pC2gu2,
               pC1gu1 * dCdtheta(copula2, gu2),
               -log(u[,1]) * g(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 +
-               pC1gu1 * log(u[,1]) * g(u[,1], a1) * dC2du[,1])#, ## changed
-              #-log(u[,2]) * g(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
-              # pC1gu1 * log(u[,2]) * g(u[,2], a2) * dC2du[,2])
+               pC1gu1 * log(u[,1]) * g(u[,1], a1) * dC2du[,1],
+              -log(u[,2]) * g(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
+               pC1gu1 * log(u[,2]) * g(u[,2], a2) * dC2du[,2])
     else if (length(copula1@parameters) == 0)
         cbind(pC1gu1 * dCdtheta(copula2, gu2),
               -log(u[,1]) * g(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 +
-               pC1gu1 * log(u[,1]) * g(u[,1], a1) * dC2du[,1])#, ## changed
-              #-log(u[,2]) * g(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
-              # pC1gu1 * log(u[,2]) * g(u[,2], a2) * dC2du[,2])
+               pC1gu1 * log(u[,1]) * g(u[,1], a1) * dC2du[,1],
+              -log(u[,2]) * g(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
+               pC1gu1 * log(u[,2]) * g(u[,2], a2) * dC2du[,2])
     else cbind(-log(u[,1]) * g(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 +
-               pC1gu1 * log(u[,1]) * g(u[,1], a1) * dC2du[,1]) #, ## changed
-              #-log(u[,2]) * g(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
-              # pC1gu1 * log(u[,2]) * g(u[,2], a2) * dC2du[,2])
+               pC1gu1 * log(u[,1]) * g(u[,1], a1) * dC2du[,1],
+              -log(u[,2]) * g(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
+               pC1gu1 * log(u[,2]) * g(u[,2], a2) * dC2du[,2])
 }
 
 setMethod("A", signature("asymBivCopula"), AAsymCopula)
@@ -349,4 +349,3 @@ dAsymExplicitCopula <- function(u, copula, log=FALSE, ...) {
 
 setMethod("dCopula", signature("numeric", "asymExplicitCopula"), dAsymExplicitCopula)
 setMethod("dCopula", signature("matrix", "asymExplicitCopula"), dAsymExplicitCopula)
-
