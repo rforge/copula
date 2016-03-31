@@ -419,6 +419,9 @@ splom2 <- function(x, varnames = NULL,
 
 ### Enhanced wireframe plot ####################################################
 
+## TODO: x is a copula !!!!
+setGeneric("wireframe2", function(object, ...) standardGeneric("wireframe2"))
+
 ##' @title A Wireframe Plot with Nice Defaults
 ##' @param x A numeric matrix or as.matrix(.)able
 ##' @param labels The x-, y- and z-axis labels
@@ -433,10 +436,10 @@ splom2 <- function(x, varnames = NULL,
 ##' @note - axis.line makes the outer box disappear
 ##'       - 'col = 1' in scales is required to make the ticks visible again
 ##'       - 'clip' is set to off to avoid axis labels being clipped
-wireframe2 <- function(x, labels = NULL,
-                       labels.null.lab = parse(text = c("u[1]", "u[2]", "C(u[1],u[2])")),
-                       alpha.regions = 0.5, scales = list(arrows = FALSE, col = 1),
-                       par.settings = standard.theme(color = FALSE), ...)
+wireframe2plot <- function(x, labels = NULL,
+                           labels.null.lab = parse(text = c("u[1]", "u[2]", "C(u[1],u[2])")),
+                           alpha.regions = 0.5, scales = list(arrows = FALSE, col = 1),
+                           par.settings = standard.theme(color = FALSE), ...)
 {
     ## Checking
     if(!is.matrix(x)) x <- rbind(x)
@@ -463,7 +466,7 @@ wireframe2 <- function(x, labels = NULL,
 }
 
 ##' @title Wireframe Plot Method for Class "copula"
-##' @param x An object of type "copula"
+##' @param object An object of type "copula"
 ##' @param FUN A function like dCopula or pCopula
 ##' @param n.grid The (vector of) number(s) of grid points in each dimension
 ##' @param delta Distance from the boundary of [0,1]^2
@@ -471,7 +474,7 @@ wireframe2 <- function(x, labels = NULL,
 ##' @param ... Additional arguments passed to wireframe2()
 ##' @return A wireframe() object
 ##' @author Marius Hofert
-wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
+wireframe2Copula <- function(object, FUN, n.grid = 26, delta = 0,
                              labels = c("u[1]", "u[2]", deparse(substitute(FUN))[1]),
                              ...)
 {
@@ -481,14 +484,14 @@ wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
     x. <- seq(0 + delta, 1 - delta, length.out = n.grid[1])
     y. <- seq(0 + delta, 1 - delta, length.out = n.grid[2])
     grid <- as.matrix(expand.grid(x = x., y = y.))
-    z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
+    z <- if(chkFun(FUN)) FUN(grid, object) else FUN(object, grid)
     val <- cbind(grid, z)
     colnames(val) <- labels
-    wireframe2(val, ...)
+    wireframe2plot(val, ...)
 }
 
 ##' @title Wireframe Plot Method for Class "mvdc"
-##' @param x An object of type "mvdc"
+##' @param object An object of type "mvdc"
 ##' @param FUN A function like dCopula or pCopula
 ##' @param xlim x-axis limits
 ##' @param ylim y-axis limits
@@ -497,7 +500,7 @@ wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
 ##' @param ... Additional arguments passed to wireframe2()
 ##' @return A wireframe() object
 ##' @author Marius Hofert
-wireframe2Mvdc <- function(x, FUN, xlim, ylim, n.grid = 26,
+wireframe2Mvdc <- function(object, FUN, xlim, ylim, n.grid = 26,
                            labels = c("x[1]", "x[2]", deparse(substitute(FUN))[1]),
                            ...)
 {
@@ -507,22 +510,25 @@ wireframe2Mvdc <- function(x, FUN, xlim, ylim, n.grid = 26,
     x. <- seq(xlim[1], xlim[2], length.out = n.grid[1])
     y. <- seq(xlim[1], xlim[2], length.out = n.grid[2])
     grid <- as.matrix(expand.grid(x = x., y = y.))
-    z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
+    z <- if(chkFun(FUN)) FUN(grid, object) else FUN(object, grid)
     val <- cbind(grid, z)
     colnames(val) <- labels
-    wireframe2(val, ...)
+    wireframe2plot(val, ...)
 }
+
+setMethod("wireframe2", signature("copula"), wireframe2Copula)
+setMethod("wireframe2", signature("mvdc"), wireframe2Mvdc)
 
 ## TODO: fix!!!
 ## Make wireframe2() work for "copula" and "mvdc" objects
-setMethod("wireframe2", signature = signature(x = "copula"), # FUN = "function", n.grid = "numeric",
-                                              #delta = "numeric", labels = "character"),
-          definition = function(x, FUN, n.grid = 26, delta = 0,
-                                labels = c("u[1]", "u[2]", deparse(substitute(FUN))[1]),
-                                ...)
-    wireframe2Copula(x, FUN = FUN, n.grid = n.grid, delta = delta, labels = labels, ...))
-##setMethod("wireframe2", signature = signature("copula"), definition = wireframe2Copula)
-setMethod("wireframe2", signature = signature("mvdc"), definition = wireframe2Mvdc)
+## setMethod("wireframe2", signature = signature(x = "copula"), # FUN = "function", n.grid = "numeric",
+##                                               #delta = "numeric", labels = "character"),
+##           definition = function(x, FUN, n.grid = 26, delta = 0,
+##                                 labels = c("u[1]", "u[2]", deparse(substitute(FUN))[1]),
+##                                 ...)
+##     wireframe2Copula(x, FUN = FUN, n.grid = n.grid, delta = delta, labels = labels, ...))
+## ##setMethod("wireframe2", signature = signature("copula"), definition = wireframe2Copula)
+## setMethod("wireframe2", signature = signature("mvdc"), definition = wireframe2Mvdc)
 ## TODO: make the following work
 if(FALSE) {
     require(copula)
