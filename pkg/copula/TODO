@@ -1,10 +1,15 @@
 ##-*- org -*-->  Emacs .. [Tab] key + [Org] menu; C-c C-o to follow links
 * Very Short Term
+** TODO [MM] copula@fullname: is used in print() method; Want also use for plotting -- hence urgent for book!
+- want to use "it" by default, e.g.,  `main = copula@fullname` in persp() etc, *HOWEVER*
+  it is too long / ugly, e.g.,  "Gumbel copula family; Archimedean copula; Extreme value copula"
+  contains "copula" *3* times !
 ** TODO rhoTCopula not valid! => should define rho* and irho* only for Gauss copula!
 ** TODO ~/R/MM/Pkg-ex/maryamS-ex.R : negative correlation data has BAD error message
  now see FIXME in   tests/fitting-ex.R  'msg <-
  tryCatch(fitCopula(gumbelCopula(), ....'
 ** TODO figure out and document somewhere how much archmCopula's already use the good things from nacopula-ACs
+- fitCopula() -> loglikCopula() always uses the nacopula slots [all of the 5 AC families in R/fitCopula.R]
 ** TODO implement fitting of NACs with fixed structure (how is it done in the R package 'HAC'?)
 ** TODO see example code and TODO in dC-dc.R: use explicit formulas of partial derivatives for Archimedean copulas
 ** TODO implement estimation of standard error for fitCopula.itau.mpl
@@ -29,7 +34,11 @@ advantage outweighs the drawbacks... What do you think?
 ** TODO We seem to have quite a few 'deprecated' statements in the package => should be fine to remove some of the old stuff by now!
 ** TODO Ivan: make method="Rd" work with all the sim="mult" families
 ** TODO Ivan: clean-up test functions
-** TODO Implement copula rotations (rotCopula())
+** TODO Ivan: Document xvCopula(); mostly done: man/xvCopula.Rd
+** TODO Ivan: gofCopula():
+- make sim="mult" work with more families (use numDeriv to get a generic implementation)
+- make method="Rd" work with all the sim="mult" families
+** TODO Implement copula rotations (rotCopula()); mostly done incl tests/rotCopula-ex.R
 ** TODO Implement copula mixtures (mixCopula()) with sufficiently flexible structure so that we can maybe estimate the probability weights in the future
 ** TODO Implement Liebscher copulas (asymCopula()) for 2 'base copulas' (any dimension)
 ** TODO Ivan/Jun: document getL() a bit more in fitCopula.R (what is it for?); there's a TODO there as well (in the header of getL())
