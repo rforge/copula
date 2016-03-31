@@ -1,4 +1,5 @@
 \name{wireframe2-methods}
+\alias{wireframe2}
 \alias{wireframe2-methods}
 \alias{wireframe2,matrix-method}
 \alias{wireframe2,data.frame-method}
