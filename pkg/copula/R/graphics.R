@@ -442,10 +442,10 @@ splom2 <- function(x, varnames = NULL,
 ##' @note - axis.line makes the outer box disappear
 ##'       - 'col = 1' in scales is required to make the ticks visible again
 ##'       - 'clip' is set to off to avoid axis labels being clipped
-wireframe2matdf <- function(x, labels = NULL,
-                            labels.null.lab = parse(text = c("u[1]", "u[2]", "C(u[1],u[2])")),
-                            alpha.regions = 0.5, scales = list(arrows = FALSE, col = 1),
-                            par.settings = standard.theme(color = FALSE), ...)
+wireframe2MatrixDf <- function(x, labels = NULL,
+                               labels.null.lab = parse(text = c("u[1]", "u[2]", "C(u[1],u[2])")),
+                               alpha.regions = 0.5, scales = list(arrows = FALSE, col = 1),
+                               par.settings = standard.theme(color = FALSE), ...)
 {
     ## Checking
     if(!is.matrix(x)) x <- as.matrix(x)
@@ -471,14 +471,6 @@ wireframe2matdf <- function(x, labels = NULL,
               ...)
 }
 
-##' @title Wireframe Plot Method for Class "matrix" or "data.frame"
-##' @param x An object of type "matrix" or "data.frame"
-##' @param ... Arguments passed to wireframe2()
-##' @return A wireframe() object
-##' @author Marius Hofert
-##wireframe2MatrixDf <- function(x, ...) wireframe2(x, ...)
-## TODO: probably not needed
-
 ##' @title Wireframe Plot Method for Class "copula"
 ##' @param x An object of type "copula"
 ##' @param FUN A function like dCopula or pCopula
@@ -501,7 +493,7 @@ wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
     z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
     val <- cbind(grid, z = z)
     colnames(val) <- labels
-    wireframe2matdf(val, ...)
+    wireframe2MatrixDf(val, ...)
 }
 
 ##' @title Wireframe Plot Method for Class "mvdc"
@@ -527,17 +519,16 @@ wireframe2Mvdc <- function(x, FUN, xlim, ylim, n.grid = 26,
     z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
     val <- cbind(grid, z = z)
     colnames(val) <- labels
-    wireframe2matdf(val, ...)
+    wireframe2MatrixDf(val, ...)
 }
 
-## Define wireframe2() methods for objects of type "copula" and "mvdc"
+## Define wireframe2() methods for objects of various types
 ## Note: 'x' is a "matrix", "data.frame", "copula" or "mvdc" object
-## TODO: Error: C stack usage  8284028 is too close to the limit
 setGeneric("wireframe2", function(x, ...) standardGeneric("wireframe2"))
-setMethod("wireframe2", signature("matrix"),     wireframe2matdf)
-setMethod("wireframe2", signature("data.frame"), wireframe2matdf)
-setMethod("wireframe2", signature("copula"),     wireframe2Copula)
-setMethod("wireframe2", signature("mvdc"),       wireframe2Mvdc)
+setMethod("wireframe2", signature(x = "matrix"),     wireframe2MatrixDf)
+setMethod("wireframe2", signature(x = "data.frame"), wireframe2MatrixDf)
+setMethod("wireframe2", signature(x = "copula"),     wireframe2Copula)
+setMethod("wireframe2", signature(x = "mvdc"),       wireframe2Mvdc)
 
 
 ### 3.3 Enhanced levelplot() ###################################################
@@ -550,16 +541,16 @@ setMethod("wireframe2", signature("mvdc"),       wireframe2Mvdc)
 ##' @param xlab The x-axis label
 ##' @param ylab The y-axis label
 ##' @param cuts The number of levels
-##' @param scales See ?wireframe
+##' @param scales See ?levelplot
 ##' @param par.settings Additional arguments passed to 'par.settings' (some are set)
 ##' @param contour A logical indicating whether contour lines should be plotted
-##' @param ... Further arguments passed to wireframe()
+##' @param ... Further arguments passed to levelplot()
 ##' @return A levelplot() object
 ##' @author Marius Hofert
 levelplot2 <- function(x, aspect = 1,
                        xlim = extendrange(x[,1], f = 0.04),
                        ylim = extendrange(x[,2], f = 0.04),
-                       xlab = expression(u[1]), ylab = expression(u[2]),
+                       xlab = NULL, ylab = NULL,
                        cuts = 20, scales = list(alternating = c(1,1), tck = c(1,0)),
                        par.settings = list(regions = list(col = gray(seq(0.4, 1, length.out=cuts+1)))),
                        contour = TRUE, ...)
@@ -568,15 +559,22 @@ levelplot2 <- function(x, aspect = 1,
     if(!is.matrix(x)) x <- as.matrix(x)
     if(ncol(x) != 3) stop("'x' should be trivariate")
 
+    ## Labels
+    if(is.null(xlab) || is.null(ylab)) {
+        colnms <- colnames(x)
+        labels <- if(sum(nzchar(colnms)) != 2) {
+            xlab <- expression(u[1])
+            ylab <- expression(u[2])
+        } else # 'x' has column names => parse them
+            parse(text = colnms)
+    }
+
     ## Level plot
     levelplot(x[,3] ~ x[,1] * x[,2], aspect = aspect, xlim = xlim, ylim = ylim,
               xlab = xlab, ylab = ylab, cuts = cuts,
               scales = scales, par.settings = par.settings,
               contour = contour, ...)
 }
-## TODO:
-## - use labels only in case not available (here and elsewhere)
-## - document
 
 
 ### 3.4 Enhanced cloud() #######################################################
@@ -590,7 +588,7 @@ levelplot2 <- function(x, aspect = 1,
 ##' @param ylim y-axis limits
 ##' @param zlim z-axis limits
 ##' @param delta Distance from the boundary of [0,1]^2
-##' @param scales See ?wireframe
+##' @param scales See ?cloud
 ##' @param par.settings Additional arguments passed to 'par.settings' (some are set)
 ##' @param ... Further arguments passed to cloud()
 ##' @return A cloud() object
@@ -636,5 +634,3 @@ cloud2 <- function(x, labels = NULL, labels.null.lab = "U",
                                          clip = list(panel = "off"))),
           ...)
 }
-
-

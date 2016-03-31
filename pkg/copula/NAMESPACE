@@ -32,7 +32,8 @@ importFrom("stats", D, approxfun, cor # 'coef': from "bblme"; 'logLik': from "st
 
 importFrom("utils", str, setTxtProgressBar, txtProgressBar, modifyList)
 
-importFrom("grDevices", col2rgb, dev.flush, dev.hold, dev.off, pdf)
+importFrom("grDevices", col2rgb, dev.flush, dev.hold, dev.off, pdf, extendrange,
+           gray)
 importFrom("graphics", Axis, abline, axis, box, contour, curve
          , layout.show, layout, lcm, lines, mtext
          , par, persp, pairs
@@ -244,7 +245,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"tauAMH", "tauJoe"
        ,"allComp" # <- maybe keep private ?
        ,"safeUroot"
-       ,"pairs2", "splom2", "wireframe2", "levelplot2", "qqplot2"
+       ,"pairs2", "splom2", "levelplot2", "qqplot2"
        )
 ## Deprecated old names [2012-07-25]:
 export(psiDabsMC
