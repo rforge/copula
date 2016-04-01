@@ -27,7 +27,7 @@
       alpha.regions = 0.5, scales = list(arrows = FALSE, col = 1),
       par.settings = standard.theme(color = FALSE), \dots)
 \S4method{wireframe2}{copula}(x, FUN, n.grid = 26, delta = 0,
-      xlim = NULL, ylim = NULL, zlim = NULL,
+      xlim = 0:1, ylim = 0:1, zlim = NULL,
       xlab = expression(u[1]), ylab = expression(u[2]),
       zlab = deparse(substitute(FUN))[1], \dots)
 \S4method{wireframe2}{mvdc}(x, FUN, n.grid = 26, xlim, ylim, zlim = NULL,

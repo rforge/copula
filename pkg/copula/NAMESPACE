@@ -145,7 +145,7 @@ export(asymExplicitCopula)
 export(p2P, P2p, getSigma, extreme_pairs)
 
 exportMethods(show)
-exportMethods(persp, contour, contourplot2, wireframe2, cloud2) #, splom2)
+exportMethods(persp, contour, plot, contourplot2, wireframe2, cloud2, splom2)
 
 ## empirical copula
 export(F.n, C.n, dCn, Cn)# .Fn

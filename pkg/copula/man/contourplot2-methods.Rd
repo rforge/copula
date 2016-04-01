@@ -13,20 +13,20 @@
 }
 \usage{
 \S4method{contourplot2}{matrix}(x, aspect = 1,
-      xlim = extendrange(x[,1], f = 0.04),
-      ylim = extendrange(x[,2], f = 0.04),
+      xlim = range(x[,1], finite = TRUE),
+      ylim = range(x[,2], finite = TRUE),
       xlab = NULL, ylab = NULL,
       region = TRUE, col.regions = gray(seq(0.4, 1, length.out = 100)),
       cuts = 16, labels = !region,
       scales = list(alternating = c(1,1), tck = c(1,0)), \dots)
 \S4method{contourplot2}{data.frame}(x, aspect = 1,
-      xlim = extendrange(x[,1], f = 0.04),
-      ylim = extendrange(x[,2], f = 0.04),
+      xlim = range(x[,1], finite = TRUE),
+      ylim = range(x[,2], finite = TRUE),
       xlab = NULL, ylab = NULL,
       region = TRUE, col.regions = gray(seq(0.4, 1, length.out = 100)),
       cuts = 16, labels = !region,
       scales = list(alternating = c(1,1), tck = c(1,0)), \dots)
-\S4method{contourplot2}{copula}(x, FUN, n.grid = 26, xlim = NULL, ylim = NULL,
+\S4method{contourplot2}{copula}(x, FUN, n.grid = 26, xlim = 0:1, ylim = 0:1,
       xlab = expression(u[1]), ylab = expression(u[2]), \dots)
 \S4method{contourplot2}{mvdc}(x, FUN, n.grid = 26, xlim, ylim,
       xlab = expression(x[1]), ylab = expression(x[2]), \dots)

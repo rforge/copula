@@ -103,7 +103,7 @@ if(FALSE) {
 
 ### 2 Base graphics ############################################################
 
-### 2.1 Legacy persp() and contour() (still improved, though) ##################
+### 2.1 Legacy persp() and contour() methods (still improved, though) ##########
 
 ##' @title Perspective Plot Method for Class "copula"
 ##' @param x An object of class "copula"
@@ -347,7 +347,49 @@ qqplot2 <- function(x, qF, log="", qqline.args=if(log=="x" || log=="y") list(unt
 }
 
 
-### 2.3 Enhanced pairs() #######################################################
+### 2.3 plot() methods #########################################################
+
+##' @title Scatter Plot Method for Class "copula"
+##' @param x An object of class "copula" (bivariate)
+##' @param n The sample size
+##' @param ... Additional arguments passed to plot()
+##' @return invisible()
+##' @author Marius Hofert
+plotCopula <- function(x, n, xlim = 0:1, ylim = 0:1,
+                       xlab = expression(U[1]), ylab = expression(U[2]), ...)
+{
+    stopifnot(n >= 1)
+    if(dim(x) != 2)
+        stop("The copula needs to be bivariate.")
+    U <- rCopula(n, copula = x)
+    plot(U, xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab, ...)
+}
+
+##' @title Scatter Plot Method for Class "mvdc"
+##' @param x An object of class "mvdc" (bivariate)
+##' @param n The sample size
+##' @param ... Additional arguments passed to plot()
+##' @return invisible()
+##' @author Marius Hofert
+plotMvdc <- function(x, n, xlim = NULL, ylim = NULL,
+                     xlab = expression(X[1]), ylab = expression(X[2]), ...)
+{
+    stopifnot(n >= 1)
+    if(dim(x) != 2)
+        stop("The multivariate distribution needs to be bivariate.")
+    X <- rMvdc(n, mvdc = x)
+    if(is.null(xlim)) xlim <- range(X[,1], finite = TRUE)
+    if(is.null(ylim)) ylim <- range(X[,2], finite = TRUE)
+    plot(X, xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab, ...)
+}
+
+## Define plot() methods for objects of various classes
+## Note: 'x' is a "copula" or "mvdc" object
+setMethod("plot", signature(x = "copula"), plotCopula)
+setMethod("plot", signature(x = "mvdc"),   plotMvdc)
+
+
+### 2.4 Enhanced pairs() #######################################################
 
 ##' @title A Pairs Plot with Nice Defaults
 ##' @param x A numeric matrix or as.matrix(.)able
@@ -379,7 +421,7 @@ pairs2 <- function(x, labels = NULL, labels.null.lab = "U", row1attop = FALSE,
 
 ### 3 Lattice graphics #########################################################
 
-### 3.1 Enhanced contourplot() #################################################
+### 3.1 contourplot() methods ##################################################
 
 ##' @title Contour Plot Method for Classes "matrix" and "data.frame"
 ##' @param x A numeric matrix or as.matrix(.)able
@@ -398,8 +440,8 @@ pairs2 <- function(x, labels = NULL, labels.null.lab = "U", row1attop = FALSE,
 ##' @return A contourplot() object
 ##' @author Marius Hofert
 contourplot2MatrixDf <- function(x, aspect = 1,
-                                 xlim = extendrange(x[,1], f = 0.04),
-                                 ylim = extendrange(x[,2], f = 0.04),
+                                 xlim = range(x[,1], finite = TRUE),
+                                 ylim = range(x[,2], finite = TRUE),
                                  xlab = NULL, ylab = NULL,
                                  region = TRUE, col.regions = gray(seq(0.4, 1, length.out = 100)),
                                  cuts = 16, labels = !region,
@@ -417,7 +459,9 @@ contourplot2MatrixDf <- function(x, aspect = 1,
         ylab <- if(is.null(colnms)) "" else parse(text = colnms[2])
 
     ## Contour plot
-    contourplot(x[,3] ~ x[,1] * x[,2], aspect = aspect, xlim = xlim, ylim = ylim,
+    contourplot(x[,3] ~ x[,1] * x[,2], aspect = aspect,
+                xlim = extendrange(xlim, f = 0.04),
+                ylim = extendrange(ylim, f = 0.04),
                 xlab = xlab, ylab = ylab, labels = labels, region = region,
                 col.regions = col.regions, cuts = cuts, scales = scales, ...)
 }
@@ -433,15 +477,13 @@ contourplot2MatrixDf <- function(x, aspect = 1,
 ##' @param ... Additional arguments passed to contourplot2MatrixDf()
 ##' @return A contourplot() object
 ##' @author Marius Hofert
-contourplot2Copula <- function(x, FUN, n.grid = 26, xlim = NULL, ylim = NULL,
+contourplot2Copula <- function(x, FUN, n.grid = 26, xlim = 0:1, ylim = 0:1,
                                xlab = expression(u[1]), ylab = expression(u[2]),
                                ...)
 {
-    stopifnot(n.grid >= 2)
+    stopifnot(dim(x) == 2, n.grid >= 2)
     if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)
     stopifnot(length(n.grid) == 2)
-    if(is.null(xlim)) xlim <- 0:1
-    if(is.null(ylim)) ylim <- 0:1
     x. <- seq(xlim[1], xlim[2], length.out = n.grid[1])
     y. <- seq(ylim[1], ylim[2], length.out = n.grid[2])
     grid <- as.matrix(expand.grid(x = x., y = y.))
@@ -468,7 +510,7 @@ contourplot2Mvdc <- function(x, FUN, n.grid = 26, xlim, ylim,
                              xlab = expression(x[1]), ylab = expression(x[2]),
                              ...)
 {
-    stopifnot(n.grid >= 2)
+    stopifnot(dim(x) == 2, n.grid >= 2)
     if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)
     stopifnot(length(n.grid) == 2)
     x. <- seq(xlim[1], xlim[2], length.out = n.grid[1])
@@ -491,7 +533,7 @@ setMethod("contourplot2", signature(x = "copula"),     contourplot2Copula)
 setMethod("contourplot2", signature(x = "mvdc"),       contourplot2Mvdc)
 
 
-### 3.2 Enhanced wireframe() ###################################################
+### 3.2 wireframe() methods ####################################################
 
 ##' @title Wireframe Plot Method for Classes "matrix" and "data.frame"
 ##' @param x A numeric matrix or as.matrix(.)able
@@ -556,15 +598,13 @@ wireframe2MatrixDf <- function(x,
 ##' @return A wireframe() object
 ##' @author Marius Hofert
 wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
-                             xlim = NULL, ylim = NULL, zlim = NULL,
+                             xlim = 0:1, ylim = 0:1, zlim = NULL,
                              xlab = expression(u[1]), ylab = expression(u[2]),
                              zlab = deparse(substitute(FUN))[1], ...)
 {
-    stopifnot(n.grid >= 2)
+    stopifnot(dim(x) == 2, n.grid >= 2)
     if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)
     stopifnot(length(n.grid) == 2, 0 <= delta, delta < 1/2)
-    if(is.null(xlim)) xlim <- 0:1
-    if(is.null(ylim)) ylim <- 0:1
     x. <- seq(xlim[1] + delta, xlim[2] - delta, length.out = n.grid[1])
     y. <- seq(xlim[1] + delta, xlim[2] - delta, length.out = n.grid[2])
     grid <- as.matrix(expand.grid(x = x., y = y.))
@@ -593,7 +633,7 @@ wireframe2Mvdc <- function(x, FUN, n.grid = 26,
                            xlab = expression(x[1]), ylab = expression(x[2]),
                            zlab = deparse(substitute(FUN))[1], ...)
 {
-    stopifnot(n.grid >= 2)
+    stopifnot(dim(x) == 2, n.grid >= 2)
     if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)
     stopifnot(length(n.grid) == 2)
     x. <- seq(xlim[1], xlim[2], length.out = n.grid[1])
@@ -615,7 +655,7 @@ setMethod("wireframe2", signature(x = "copula"),     wireframe2Copula)
 setMethod("wireframe2", signature(x = "mvdc"),       wireframe2Mvdc)
 
 
-### 3.3 Enhanced cloud() #######################################################
+### 3.3 cloud() methods ########################################################
 
 ##' @title Cloud Plot Method for Classes "matrix" and "data.frame"
 ##' @param x A numeric matrix or as.matrix(.)able
@@ -631,9 +671,9 @@ setMethod("wireframe2", signature(x = "mvdc"),       wireframe2Mvdc)
 ##' @return A cloud() object
 ##' @author Marius Hofert
 cloud2MatrixDf <- function(x,
-                           xlim = extendrange(x[,1], f = 0.04),
-                           ylim = extendrange(x[,2], f = 0.04),
-                           zlim = extendrange(x[,3], f = 0.04),
+                           xlim = range(x[,1], finite = TRUE),
+                           ylim = range(x[,2], finite = TRUE),
+                           zlim = range(x[,3], finite = TRUE),
                            xlab = NULL, ylab = NULL, zlab = NULL,
                            scales = list(arrows = FALSE, col = 1),
                            par.settings = standard.theme(color = FALSE), ...)
@@ -652,7 +692,10 @@ cloud2MatrixDf <- function(x,
         zlab <- if(is.null(colnms)) "" else parse(text = colnms[3])
 
     ## Cloud plot
-    cloud(x[,3] ~ x[,1] * x[,2], xlim = xlim, ylim = ylim, zlim = zlim,
+    cloud(x[,3] ~ x[,1] * x[,2],
+          xlim = extendrange(xlim, f = 0.04),
+          ylim = extendrange(ylim, f = 0.04),
+          zlim = extendrange(zlim, f = 0.04),
           xlab = xlab, ylab = ylab, zlab = zlab, scales = scales,
           par.settings = modifyList(par.settings,
                                     list(axis.line = list(col = "transparent"),
@@ -660,7 +703,7 @@ cloud2MatrixDf <- function(x,
           ...)
 }
 
-##' @title Clout Plot Method for Class "copula"
+##' @title Cloud Plot Method for Class "copula"
 ##' @param x An object of class "copula"
 ##' @param n The sample size
 ##' @param xlim The x-axis limits
@@ -673,22 +716,25 @@ cloud2MatrixDf <- function(x,
 ##' @return A cloud() object
 ##' @author Marius Hofert
 cloud2Copula <- function(x, n,
-                         xlim = NULL, ylim = NULL, zlim = NULL,
+                         xlim = 0:1, ylim = 0:1, zlim = 0:1,
                          xlab = expression(U[1]), ylab = expression(U[2]),
                          zlab = expression(U[3]), ...)
 {
     stopifnot(n >= 1)
-    U <- rCopula(n, copula = x)
-    if(ncol(U) != 3)
+    if(dim(x) != 3)
         stop("The copula needs to be of dimension 3.")
-    if(is.null(xlim)) xlim <- extendrange(0:1, f = 0.04)
-    if(is.null(ylim)) ylim <- extendrange(0:1, f = 0.04)
-    if(is.null(zlim)) zlim <- extendrange(0:1, f = 0.04)
-    cloud2MatrixDf(U, xlim = xlim, ylim = ylim, zlim = zlim,
+    U <- rCopula(n, copula = x)
+    if(is.null(xlim)) xlim <-
+    if(is.null(ylim)) ylim <- extendrange(ylim, f = 0.04)
+    if(is.null(zlim)) zlim <- extendrange(zlim, f = 0.04)
+    cloud2MatrixDf(U,
+                   xlim = extendrange(xlim, f = 0.04),
+                   ylim = extendrange(ylim, f = 0.04),
+                   zlim = extendrange(zlim, f = 0.04),
                    xlab = xlab, ylab = ylab, zlab = zlab, ...)
 }
 
-##' @title Clout Plot Method for Class "mvdc"
+##' @title Cloud Plot Method for Class "mvdc"
 ##' @param x An object of class "mvdc"
 ##' @param n The sample size
 ##' @param xlim The x-axis limits
@@ -706,9 +752,9 @@ cloud2Mvdc <- function(x, n,
                        zlab = expression(X[3]), ...)
 {
     stopifnot(n >= 1)
-    X <- rMvdc(n, mvdc = x)
-    if(ncol(X) != 3)
+    if(dim(x) != 3)
         stop("The multivariate distribution needs to be of dimension 3.")
+    X <- rMvdc(n, mvdc = x)
     if(is.null(xlim)) xlim <- extendrange(X[,1], f = 0.04)
     if(is.null(ylim)) ylim <- extendrange(X[,2], f = 0.04)
     if(is.null(zlim)) zlim <- extendrange(X[,3], f = 0.04)
@@ -725,7 +771,7 @@ setMethod("cloud2", signature(x = "copula"),     cloud2Copula)
 setMethod("cloud2", signature(x = "mvdc"),       cloud2Mvdc)
 
 
-### 3.4 Enhanced splom() #######################################################
+### 3.4 splom() methods ########################################################
 
 ##' @title A Scatter-plot Matrix with Nice Defaults
 ##' @param x A numeric matrix or as.matrix(.)able
@@ -738,9 +784,9 @@ setMethod("cloud2", signature(x = "mvdc"),       cloud2Mvdc)
 ##' @param ... Further arguments passed to splom()
 ##' @return An splom() object
 ##' @author Martin Maechler and Marius Hofert
-splom2 <- function(x, varnames = NULL,
-                   varnames.null.lab = "U", xlab = "",
-                   col.mat = NULL, bg.col.mat = NULL, ...)
+splom2MatrixDf <- function(x, varnames = NULL,
+                           varnames.null.lab = "U", xlab = "",
+                           col.mat = NULL, bg.col.mat = NULL, ...)
 {
     stopifnot(is.numeric(x <- as.matrix(x)), (d <- ncol(x)) >= 1)
     if(is.null(varnames)) {
@@ -773,3 +819,42 @@ splom2 <- function(x, varnames = NULL,
               panel.splom(x, y, col=col.mat[i,j], ...)
           }, ...)
 }
+
+##' @title Scatter-Plot Matrix Method for Class "copula"
+##' @param x An object of class "copula"
+##' @param n The sample size
+##' @param ... Additional arguments passed to splom2MatrixDf()
+##' @return An splom() object
+##' @author Marius Hofert
+splom2Copula <- function(x, n, ...)
+{
+    stopifnot(n >= 1)
+    if(dim(x) <= 2)
+        stop("The copula needs to be of dimension >= 3.")
+    U <- rCopula(n, copula = x)
+    splom2MatrixDf(U, ...)
+}
+
+##' @title Scatter-Plot Matrix Method for Class "mvdc"
+##' @param x An object of class "mvdc"
+##' @param n The sample size
+##' @param ... Additional arguments passed to splom2MatrixDf()
+##' @return An splom() object
+##' @author Marius Hofert
+splom2Mvdc <- function(x, n, varnames.null.lab = "X", ...)
+{
+    stopifnot(n >= 1)
+    if(dim(x) <= 2)
+        stop("The multivariate distribution needs to be of dimension >= 3.")
+    X <- rMvdc(n, mvdc = x)
+    splom2MatrixDf(X, varnames.null.lab = varnames.null.lab, ...)
+}
+
+## Define splom2() methods for objects of various classes
+## Note: 'x' is a "matrix", "data.frame", "copula" or "mvdc" object
+setGeneric("splom2", function(x, ...) standardGeneric("splom2"))
+setMethod("splom2", signature(x = "matrix"),     splom2MatrixDf)
+setMethod("splom2", signature(x = "data.frame"), splom2MatrixDf)
+setMethod("splom2", signature(x = "copula"),     splom2Copula)
+setMethod("splom2", signature(x = "mvdc"),       splom2Mvdc)
+
