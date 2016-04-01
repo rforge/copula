@@ -8,8 +8,8 @@
 \docType{methods}
 \title{Methods `wireframe2' in Package `copula'}
 \description{
-  Methods \code{wireframe2()} to draw wireframe plots (of
-  two dimensional distributions from package \pkg{copula}).
+  Methods \code{wireframe2()} to draw wireframe plots of
+  two dimensional distributions from package \pkg{copula}.
 }
 \usage{
 \S4method{wireframe2}{matrix}(x,

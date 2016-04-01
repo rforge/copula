@@ -106,7 +106,7 @@ if(FALSE) {
 ### 2.1 Legacy persp() and contour() (still improved, though) ##################
 
 ##' @title Perspective Plot Method for Class "copula"
-##' @param x An object of type "copula"
+##' @param x An object of class "copula"
 ##' @param FUN A function like dCopula or pCopula
 ##' @param n.grid The (vector of) number(s) of grid points in each dimension
 ##' @param delta Distance from the boundary of [0,1]^2
@@ -140,7 +140,7 @@ perspCopula <- function(x, FUN, n.grid = 26, delta = 0,
 }
 
 ##' @title Perspective Plot Method for Class "mvdc"
-##' @param x An object of type "mvdc"
+##' @param x An object of class "mvdc"
 ##' @param FUN A function like dCopula or pCopula
 ##' @param xlim The x-axis limits
 ##' @param ylim The y-axis limits
@@ -174,7 +174,7 @@ perspMvdc <- function(x, FUN, xlim, ylim, n.grid = 26,
 }
 
 ##' @title Contour Plot Method for Class "copula"
-##' @param x An object of type "copula"
+##' @param x An object of class "copula"
 ##' @param FUN A function like dCopula or pCopula
 ##' @param n.grid The (vector of) number(s) of grid points in each dimension
 ##' @param delta Distance from the boundary of [0,1]^2
@@ -201,7 +201,7 @@ contourCopula <- function(x, FUN, n.grid = 26, delta = 0,
 }
 
 ##' @title Contour Plot Method for Class "mvdc"
-##' @param x An object of type "mvdc"
+##' @param x An object of class "mvdc"
 ##' @param FUN A function like dCopula or pCopula
 ##' @param xlim The x-axis limits
 ##' @param ylim The y-axis limits
@@ -228,7 +228,7 @@ contourMvdc <- function(x, FUN, xlim, ylim, n.grid = 26,
     invisible(list(x = x., y = y., z = z.mat))
 }
 
-## Define persp() and contour() methods for objects of type "copula" and "mvdc"
+## Define persp() and contour() methods for objects of class "copula" and "mvdc"
 ## Note: - No generic method (via setGeneric()) needed here as already provided by R
 ##       - The objects 'x' have to be named the same in perspCopula() and perspMvdc()
 setMethod("persp",   signature = signature("copula"), definition = perspCopula)
@@ -407,7 +407,7 @@ contourplot2MatrixDf <- function(x, aspect = 1,
 {
     ## Checking
     if(!is.matrix(x)) x <- as.matrix(x)
-    if(ncol(x) != 3) stop("'x' should be trivariate")
+    if(ncol(x) != 3) stop("'x' should have three columns")
 
     ## Labels
     colnms <- colnames(x)
@@ -423,14 +423,14 @@ contourplot2MatrixDf <- function(x, aspect = 1,
 }
 
 ##' @title Contourplot Plot Method for Class "copula"
-##' @param x An object of type "copula"
+##' @param x An object of class "copula"
 ##' @param FUN A function like dCopula or pCopula
 ##' @param n.grid The (vector of) number(s) of grid points in each dimension
 ##' @param xlim The x-axis limits
 ##' @param ylim The y-axis limits
 ##' @param xlab The x-axis label
 ##' @param ylab The y-axis label
-##' @param ... Additional arguments passed to contourplot2()
+##' @param ... Additional arguments passed to contourplot2MatrixDf()
 ##' @return A contourplot() object
 ##' @author Marius Hofert
 contourplot2Copula <- function(x, FUN, n.grid = 26, xlim = NULL, ylim = NULL,
@@ -454,14 +454,14 @@ contourplot2Copula <- function(x, FUN, n.grid = 26, xlim = NULL, ylim = NULL,
 }
 
 ##' @title Contourplot Plot Method for Class "mvdc"
-##' @param x An object of type "mvdc"
+##' @param x An object of class "mvdc"
 ##' @param FUN A function like dCopula or pCopula
 ##' @param n.grid The (vector of) number(s) of grid points in each dimension
 ##' @param xlim The x-axis limits
 ##' @param ylim The y-axis limits
 ##' @param xlab The x-axis label
 ##' @param ylab The y-axis label
-##' @param ... Additional arguments passed to contourplot2()
+##' @param ... Additional arguments passed to contourplot2MatrixDf()
 ##' @return A contourplot() object
 ##' @author Marius Hofert
 contourplot2Mvdc <- function(x, FUN, n.grid = 26, xlim, ylim,
@@ -482,7 +482,7 @@ contourplot2Mvdc <- function(x, FUN, n.grid = 26, xlim, ylim,
                          xlab = xlab, ylab = ylab, ...)
 }
 
-## Define contourplot2() methods for objects of various types
+## Define contourplot2() methods for objects of various classes
 ## Note: 'x' is a "matrix", "data.frame", "copula" or "mvdc" object
 setGeneric("contourplot2", function(x, ...) standardGeneric("contourplot2"))
 setMethod("contourplot2", signature(x = "matrix"),     contourplot2MatrixDf)
@@ -520,7 +520,7 @@ wireframe2MatrixDf <- function(x,
 {
     ## Checking
     if(!is.matrix(x)) x <- as.matrix(x)
-    if(ncol(x) != 3) stop("'x' should be trivariate")
+    if(ncol(x) != 3) stop("'x' should have three columns")
 
     ## Labels
     colnms <- colnames(x)
@@ -542,7 +542,7 @@ wireframe2MatrixDf <- function(x,
 }
 
 ##' @title Wireframe Plot Method for Class "copula"
-##' @param x An object of type "copula"
+##' @param x An object of class "copula"
 ##' @param FUN A function like dCopula or pCopula
 ##' @param n.grid The (vector of) number(s) of grid points in each dimension
 ##' @param delta Distance from the boundary of [0,1]^2
@@ -552,7 +552,7 @@ wireframe2MatrixDf <- function(x,
 ##' @param xlab The x-axis label
 ##' @param ylab The y-axis label
 ##' @param zlab The z-axis label
-##' @param ... Additional arguments passed to wireframe2()
+##' @param ... Additional arguments passed to wireframe2MatrixDf()
 ##' @return A wireframe() object
 ##' @author Marius Hofert
 wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
@@ -576,7 +576,7 @@ wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
 }
 
 ##' @title Wireframe Plot Method for Class "mvdc"
-##' @param x An object of type "mvdc"
+##' @param x An object of class "mvdc"
 ##' @param FUN A function like dCopula or pCopula
 ##' @param n.grid The (vector of) number(s) of grid points in each dimension
 ##' @param xlim The x-axis limits
@@ -585,7 +585,7 @@ wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
 ##' @param xlab The x-axis label
 ##' @param ylab The y-axis label
 ##' @param zlab The z-axis label
-##' @param ... Additional arguments passed to wireframe2()
+##' @param ... Additional arguments passed to wireframe2MatrixDf()
 ##' @return A wireframe() object
 ##' @author Marius Hofert
 wireframe2Mvdc <- function(x, FUN, n.grid = 26,
@@ -606,7 +606,7 @@ wireframe2Mvdc <- function(x, FUN, n.grid = 26,
                        xlab = xlab, ylab = ylab, zlab = zlab, ...)
 }
 
-## Define wireframe2() methods for objects of various types
+## Define wireframe2() methods for objects of various classes
 ## Note: 'x' is a "matrix", "data.frame", "copula" or "mvdc" object
 setGeneric("wireframe2", function(x, ...) standardGeneric("wireframe2"))
 setMethod("wireframe2", signature(x = "matrix"),     wireframe2MatrixDf)
@@ -617,7 +617,7 @@ setMethod("wireframe2", signature(x = "mvdc"),       wireframe2Mvdc)
 
 ### 3.3 Enhanced cloud() #######################################################
 
-##' @title A Cloud Plot with Nice Defaults
+##' @title Cloud Plot Method for Classes "matrix" and "data.frame"
 ##' @param x A numeric matrix or as.matrix(.)able
 ##' @param xlim The x-axis limits
 ##' @param ylim The y-axis limits
@@ -625,23 +625,22 @@ setMethod("wireframe2", signature(x = "mvdc"),       wireframe2Mvdc)
 ##' @param xlab The x-axis label
 ##' @param ylab The y-axis label
 ##' @param zlab The z-axis label
-##' @param delta Distance from the boundary of [0,1]^2
 ##' @param scales See ?cloud
 ##' @param par.settings Additional arguments passed to 'par.settings' (some are set)
 ##' @param ... Further arguments passed to cloud()
 ##' @return A cloud() object
 ##' @author Marius Hofert
-cloud2 <- function(x,
-                   xlim = extendrange(x[,1], f = 0.04),
-                   ylim = extendrange(x[,2], f = 0.04),
-                   zlim = extendrange(x[,3], f = 0.04),
-                   xlab = NULL, ylab = NULL, zlab = NULL,
-                   delta = 0.04, scales = list(arrows = FALSE, col = 1),
-                   par.settings = standard.theme(color = FALSE), ...)
+cloud2MatrixDf <- function(x,
+                           xlim = extendrange(x[,1], f = 0.04),
+                           ylim = extendrange(x[,2], f = 0.04),
+                           zlim = extendrange(x[,3], f = 0.04),
+                           xlab = NULL, ylab = NULL, zlab = NULL,
+                           scales = list(arrows = FALSE, col = 1),
+                           par.settings = standard.theme(color = FALSE), ...)
 {
     ## Checking
     if(!is.matrix(x)) x <- as.matrix(x)
-    if(ncol(x) != 3) stop("'x' should be trivariate")
+    if(ncol(x) != 3) stop("'x' should have three columns")
 
     ## Labels
     colnms <- colnames(x)
@@ -660,6 +659,70 @@ cloud2 <- function(x,
                                          clip = list(panel = "off"))),
           ...)
 }
+
+##' @title Clout Plot Method for Class "copula"
+##' @param x An object of class "copula"
+##' @param n The sample size
+##' @param xlim The x-axis limits
+##' @param ylim The y-axis limits
+##' @param zlim The z-axis limits
+##' @param xlab The x-axis label
+##' @param ylab The y-axis label
+##' @param zlab The z-axis label
+##' @param ... Additional arguments passed to cloud2MatrixDf()
+##' @return A cloud() object
+##' @author Marius Hofert
+cloud2Copula <- function(x, n,
+                         xlim = NULL, ylim = NULL, zlim = NULL,
+                         xlab = expression(U[1]), ylab = expression(U[2]),
+                         zlab = expression(U[3]), ...)
+{
+    stopifnot(n >= 1)
+    U <- rCopula(n, copula = x)
+    if(ncol(U) != 3)
+        stop("The copula needs to be of dimension 3.")
+    if(is.null(xlim)) xlim <- extendrange(0:1, f = 0.04)
+    if(is.null(ylim)) ylim <- extendrange(0:1, f = 0.04)
+    if(is.null(zlim)) zlim <- extendrange(0:1, f = 0.04)
+    cloud2MatrixDf(U, xlim = xlim, ylim = ylim, zlim = zlim,
+                   xlab = xlab, ylab = ylab, zlab = zlab, ...)
+}
+
+##' @title Clout Plot Method for Class "mvdc"
+##' @param x An object of class "mvdc"
+##' @param n The sample size
+##' @param xlim The x-axis limits
+##' @param ylim The y-axis limits
+##' @param zlim The z-axis limits
+##' @param xlab The x-axis label
+##' @param ylab The y-axis label
+##' @param zlab The z-axis label
+##' @param ... Additional arguments passed to cloud2MatrixDf()
+##' @return A cloud() object
+##' @author Marius Hofert
+cloud2Mvdc <- function(x, n,
+                       xlim = NULL, ylim = NULL, zlim = NULL,
+                       xlab = expression(X[1]), ylab = expression(X[2]),
+                       zlab = expression(X[3]), ...)
+{
+    stopifnot(n >= 1)
+    X <- rMvdc(n, mvdc = x)
+    if(ncol(X) != 3)
+        stop("The multivariate distribution needs to be of dimension 3.")
+    if(is.null(xlim)) xlim <- extendrange(X[,1], f = 0.04)
+    if(is.null(ylim)) ylim <- extendrange(X[,2], f = 0.04)
+    if(is.null(zlim)) zlim <- extendrange(X[,3], f = 0.04)
+    cloud2MatrixDf(X, xlim = xlim, ylim = ylim, zlim = zlim,
+                   xlab = xlab, ylab = ylab, zlab = zlab, ...)
+}
+
+## Define cloud2() methods for objects of various classes
+## Note: 'x' is a "matrix", "data.frame", "copula" or "mvdc" object
+setGeneric("cloud2", function(x, ...) standardGeneric("cloud2"))
+setMethod("cloud2", signature(x = "matrix"),     cloud2MatrixDf)
+setMethod("cloud2", signature(x = "data.frame"), cloud2MatrixDf)
+setMethod("cloud2", signature(x = "copula"),     cloud2Copula)
+setMethod("cloud2", signature(x = "mvdc"),       cloud2Mvdc)
 
 
 ### 3.4 Enhanced splom() #######################################################

@@ -8,8 +8,8 @@
 \docType{methods}
 \title{Methods `contourplot2' in Package `copula'}
 \description{
-  Methods \code{contourplot2()} to draw contour plots (of
-  two dimensional distributions from package \pkg{copula}).
+  Methods \code{contourplot2()} to draw contour plots of
+  two dimensional distributions from package \pkg{copula}.
 }
 \usage{
 \S4method{contourplot2}{matrix}(x, aspect = 1,
