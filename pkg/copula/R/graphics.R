@@ -460,8 +460,8 @@ contourplot2MatrixDf <- function(x, aspect = 1,
 
     ## Contour plot
     contourplot(x[,3] ~ x[,1] * x[,2], aspect = aspect,
-                xlim = extendrange(xlim, f = 0.04),
-                ylim = extendrange(ylim, f = 0.04),
+                xlim = extendrange(xlim, f = 0.025), # exactly the right balance to show all labels but no whitespace
+                ylim = extendrange(ylim, f = 0.025),
                 xlab = xlab, ylab = ylab, labels = labels, region = region,
                 col.regions = col.regions, cuts = cuts, scales = scales, ...)
 }
@@ -489,9 +489,7 @@ contourplot2Copula <- function(x, FUN, n.grid = 26, xlim = 0:1, ylim = 0:1,
     grid <- as.matrix(expand.grid(x = x., y = y.))
     z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
     val <- cbind(grid, z = z)
-    contourplot2MatrixDf(val,
-                         xlim = extendrange(xlim, f = 0.04),
-                         ylim = extendrange(ylim, f = 0.04),
+    contourplot2MatrixDf(val, xlim = xlim, ylim = ylim,
                          xlab = xlab, ylab = ylab, ...)
 }
 
@@ -518,9 +516,7 @@ contourplot2Mvdc <- function(x, FUN, n.grid = 26, xlim, ylim,
     grid <- as.matrix(expand.grid(x = x., y = y.))
     z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
     val <- cbind(grid, z = z)
-    contourplot2MatrixDf(val,
-                         xlim = extendrange(xlim, f = 0.04),
-                         ylim = extendrange(ylim, f = 0.04),
+    contourplot2MatrixDf(val, xlim = xlim, ylim = ylim,
                          xlab = xlab, ylab = ylab, ...)
 }
 
@@ -550,14 +546,15 @@ setMethod("contourplot2", signature(x = "mvdc"),       contourplot2Mvdc)
 ##' @return A wireframe() object
 ##' @author Marius Hofert
 ##' @note - axis.line makes the outer box disappear
-##'       - 'col = 1' in scales is required to make the ticks visible again
+##'       - 'col = "black"' in scales is required to make the ticks visible again
 ##'       - 'clip' is set to off to avoid axis labels being clipped
 wireframe2MatrixDf <- function(x,
                                xlim = range(x[,1], finite = TRUE),
                                ylim = range(x[,2], finite = TRUE),
                                zlim = range(x[,3], finite = TRUE),
                                xlab = NULL, ylab = NULL, zlab = NULL,
-                               alpha.regions = 0.5, scales = list(arrows = FALSE, col = 1),
+                               alpha.regions = 0.5, scales = list(arrows = FALSE,
+                                                                  col = "black"),
                                par.settings = standard.theme(color = FALSE), ...)
 {
     ## Checking
@@ -675,7 +672,7 @@ cloud2MatrixDf <- function(x,
                            ylim = range(x[,2], finite = TRUE),
                            zlim = range(x[,3], finite = TRUE),
                            xlab = NULL, ylab = NULL, zlab = NULL,
-                           scales = list(arrows = FALSE, col = 1),
+                           scales = list(arrows = FALSE, col = "black"),
                            par.settings = standard.theme(color = FALSE), ...)
 {
     ## Checking
@@ -724,13 +721,7 @@ cloud2Copula <- function(x, n,
     if(dim(x) != 3)
         stop("The copula needs to be of dimension 3.")
     U <- rCopula(n, copula = x)
-    if(is.null(xlim)) xlim <-
-    if(is.null(ylim)) ylim <- extendrange(ylim, f = 0.04)
-    if(is.null(zlim)) zlim <- extendrange(zlim, f = 0.04)
-    cloud2MatrixDf(U,
-                   xlim = extendrange(xlim, f = 0.04),
-                   ylim = extendrange(ylim, f = 0.04),
-                   zlim = extendrange(zlim, f = 0.04),
+    cloud2MatrixDf(U, xlim = xlim, ylim = ylim, zlim = zlim,
                    xlab = xlab, ylab = ylab, zlab = zlab, ...)
 }
 
@@ -755,9 +746,9 @@ cloud2Mvdc <- function(x, n,
     if(dim(x) != 3)
         stop("The multivariate distribution needs to be of dimension 3.")
     X <- rMvdc(n, mvdc = x)
-    if(is.null(xlim)) xlim <- extendrange(X[,1], f = 0.04)
-    if(is.null(ylim)) ylim <- extendrange(X[,2], f = 0.04)
-    if(is.null(zlim)) zlim <- extendrange(X[,3], f = 0.04)
+    if(is.null(xlim)) xlim <- range(X[,1], finite = TRUE)
+    if(is.null(ylim)) ylim <- range(X[,2], finite = TRUE)
+    if(is.null(zlim)) zlim <- range(X[,3], finite = TRUE)
     cloud2MatrixDf(X, xlim = xlim, ylim = ylim, zlim = zlim,
                    xlab = xlab, ylab = ylab, zlab = zlab, ...)
 }

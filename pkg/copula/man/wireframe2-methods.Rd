@@ -17,14 +17,14 @@
       ylim = range(x[,2], finite = TRUE),
       zlim = range(x[,3], finite = TRUE),
       xlab = NULL, ylab = NULL, zlab = NULL,
-      alpha.regions = 0.5, scales = list(arrows = FALSE, col = 1),
+      alpha.regions = 0.5, scales = list(arrows = FALSE, col = "black"),
       par.settings = standard.theme(color = FALSE), \dots)
 \S4method{wireframe2}{data.frame}(x,
       xlim = range(x[,1], finite = TRUE),
       ylim = range(x[,2], finite = TRUE),
       zlim = range(x[,3], finite = TRUE),
       xlab = NULL, ylab = NULL, zlab = NULL,
-      alpha.regions = 0.5, scales = list(arrows = FALSE, col = 1),
+      alpha.regions = 0.5, scales = list(arrows = FALSE, col = "black"),
       par.settings = standard.theme(color = FALSE), \dots)
 \S4method{wireframe2}{copula}(x, FUN, n.grid = 26, delta = 0,
       xlim = 0:1, ylim = 0:1, zlim = NULL,
