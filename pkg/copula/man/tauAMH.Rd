@@ -77,7 +77,7 @@ tauJoe(theta, method = c("hybrid", "digamma", "sum"), noTerms=446)
     \code{str(uniroot(function(th) tauJoe(th)-(-1), c(0.1, 0.3), tol = 1e-17), digits=12)}
     to be \code{0.2387339899}.}
 }}
-\author{Martin Maechler}% copAMH: June 2010;  copJoe: August 2012
+%\author{Martin Maechler}% copAMH: June 2010;  copJoe: August 2012
 \seealso{
   \code{\link{acopula-families}}, and their class definition,
   \code{"\linkS4class{acopula}"}.

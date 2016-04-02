@@ -36,6 +36,7 @@ exchEVTest(x, N = 1000,  estimator = "CFG", derivatives = "Cn", m = 100)
   \item{statistic}{ value of the test statistic. }
   \item{pvalue}{ corresponding approximate p-value. }
 }
+%\author{Ivan Kojadinovic and Jun Yan}
 \references{
   Genest, C. and Segers, J. (2009)
   Rank-based inference for bivariate extreme-value copulas.

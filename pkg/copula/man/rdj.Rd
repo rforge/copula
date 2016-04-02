@@ -18,6 +18,7 @@
     \item{\code{GE}}{daily log-return of the General Electric}
   }
 }
+%\author{Marius Hofert, Ivan Kojadinovic, Martin Maechler and Jun Yan}
 \references{
   McNeil, A. J., Frey, R., and Embrechts, P. (2005).
   \emph{Quantitative Risk Management: Concepts, Techniques, Tools}.

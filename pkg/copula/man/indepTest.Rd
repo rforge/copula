@@ -84,6 +84,7 @@ dependogram(test, pvalues = FALSE, print = FALSE)
   process - see Genest \emph{et al} (2007), p.175) and
   \code{global.statistic.pvalue} (corresponding p-value).
 }
+%\author{Ivan Kojadinovic and Jun Yan}
 \references{%% do not add or remove easily
   Deheuvels, P. (1979).
   La fonction de dépendance empirique et ses

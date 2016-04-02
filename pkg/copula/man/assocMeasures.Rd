@@ -146,6 +146,7 @@ iRho (copula, rho, \dots)
   calibration function based on Spearman's rho uses the corresponding
   expression for the normal copula as an approximation.
 }
+%\author{Marius Hofert, Ivan Kojadinovic, Martin Maechler and Jun Yan}
 \references{
   E.W. Frees and E.A. Valdez (1998)
   Understanding relationships using copulas.

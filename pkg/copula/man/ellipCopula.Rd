@@ -50,6 +50,7 @@ normalCopula(param, dim = 2, dispstr = "ex")
 ## For smaller copula dimension 'd', alternatives are available and
 ## non-random, see ?GenzBretz from package 'mvtnorm'
 }
+%\author{Ivan Kojadinovic and Jun Yan}
 \seealso{
   \code{\link{p2P}()}, and \code{\link{getSigma}()} for construction and
   extraction of the dispersion matrix \eqn{P} or \eqn{Sigma} matrix of

@@ -94,6 +94,7 @@ fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS",
   nowadays, do use \code{\link{suppressWarnings}(..)} if you are sure
   you do not want to see them.
 }
+%\author{Ivan Kojadinovic and Martin Maechler}
 \seealso{
   \code{\link{mvdc}} and \code{\linkS4class{mvdc}};
   further, \code{\link{Copula}}, \code{\link{fitCopula}},

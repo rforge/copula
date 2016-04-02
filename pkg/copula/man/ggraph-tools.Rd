@@ -79,7 +79,7 @@ gpviTest(pvalues, method=p.adjust.methods, globalFun=min)
     \item{gpviTest}{global p-values for the specified methods.}
   }
 }
-\author{Marius Hofert, Martin \enc{Mächler}{Maechler}.}
+%\author{Marius Hofert and Martin Maechler}
 \references{
   Hofert and \enc{Mächler}{Maechler} (2013),
   see \code{\link{pairsRosenblatt}}.% -> ./pairsRosenblatt.Rd

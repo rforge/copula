@@ -68,6 +68,7 @@ rMvdc(n, mvdc)
 %   Yan (2007). Enjoy the joy of copulas. \emph{Journal of Statistical
 %     Software}, 21(4): 1--21.
 % }
+%\author{Ivan Kojadinovic and Jun Yan}
 \seealso{
   \code{\link{ellipCopula}},
   \code{\link{archmCopula}};

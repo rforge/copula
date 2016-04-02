@@ -143,6 +143,7 @@ rCopula(n, copula, \dots)
   \code{dCopula()} gives the density, \code{pCopula()} gives the
   distribution function, and \code{rCopula()} generates random variates.
 }
+%\author{Marius Hofert, Ivan Kojadinovic, Martin Maechler and Jun Yan}
 \references{
   Frees, E. W.  and Valdez, E. A. (1998). Understanding relationships using
   copulas.

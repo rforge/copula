@@ -45,6 +45,7 @@
   \code{"\linkS4class{mvdc}"} objects, see \code{x} in the
   \emph{Arguments} section.
 }
+%\author{Marius Hofert, Ivan Kojadinovic and Jun Yan}
 \seealso{
   The \code{\link{persp-methods}} for \dQuote{perspective} aka
   \dQuote{3D} plots.

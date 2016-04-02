@@ -67,7 +67,7 @@
 \value{
   An object of class \dQuote{trellis} as returned by \code{\link[lattice]{contourplot}()}.
 }
-\author{Marius Hofert}
+%\author{Marius Hofert}
 \seealso{
   The \code{\link{contour-methods}} for drawing perspective plots via base graphics.
 }

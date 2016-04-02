@@ -63,7 +63,7 @@ extreme_pairs(x, n=6, decreasing=FALSE)
 \seealso{
   \code{\link{ellipCopula}}, \code{\link{tCopula}}, \code{\link{normalCopula}}.
 }
-%\author{Marius Hofert.}
+%\author{Marius Hofert}
 \examples{
 ## display the definitions
 p2P

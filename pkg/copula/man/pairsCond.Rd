@@ -78,6 +78,7 @@
 \note{based on pairs.default() and
   filled.contour() from R-2.14.1 - used in Hofert and Maechler (2013)
 }
+\author{Marius Hofert and Martin Maechler}
 \seealso{
   \code{\link{pairsRosenblatt}()}, the prinicipal function, calling
   \code{.pairsCond()}.

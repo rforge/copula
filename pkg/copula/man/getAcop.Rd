@@ -35,7 +35,7 @@ getAcop(family, check=TRUE)
   \code{.as.longnames} etc are named string constants, useful in
   programming for all our (five) standard Archimedean families.
 }
-\author{Martin Maechler}
+%\author{Martin Maechler}
 \seealso{
   Our predefined \code{\link{acopula-families}};
   the class definition \code{"\linkS4class{acopula}"}.

@@ -25,6 +25,7 @@ evTestK(x, method = c("fsample","asymptotic","jackknife"))
   \item{statistic}{ value of the test statistic. }
   \item{p.value}{ corresponding p-value. }
 }
+%\author{Ivan Kojadinovic and Jun Yan}
 \references{
   Ghorbal, M. B., Genest, C., and G. \enc{Nešlehová}{Neslehova}, J. (2009)
   On the test of Ghoudi, Khoudraji, and Rivest for extreme-value dependence.

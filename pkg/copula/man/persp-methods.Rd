@@ -50,6 +50,7 @@
   \item{persp}{the \eqn{4 \times 4}{4 x 4} transformation matrix
     returned by \code{\link{persp.default}}.}
 }
+%\author{Ivan Kojadinovic and Jun Yan}
 \seealso{
   The \code{\link{contour-methods}} for drawing contour lines of the
   same functions.

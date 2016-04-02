@@ -43,6 +43,7 @@
     \item{rCopula}{\code{signature(copula = "tCopula")}: ... }
   }
 }
+%\author{Ivan Kojadinovic and Jun Yan}
 \seealso{
   \code{\link{ellipCopula}},
   \code{\link{copula-class}}.

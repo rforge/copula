@@ -64,7 +64,7 @@
 \value{
   An object of class \dQuote{trellis} as returned by \code{\link[lattice]{wireframe}()}.
 }
-\author{Marius Hofert}
+%\author{Marius Hofert}
 \seealso{
   The \code{\link{persp-methods}} for drawing perspective plots via base graphics.
 }

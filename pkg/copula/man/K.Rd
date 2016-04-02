@@ -94,7 +94,7 @@ rK(n, cop, d)
 \value{The empirical Kendall distribution function, the Kendall
   distribution function, its quantile function, density, and random
   number generator.}
-\author{Marius Hofert}
+%\author{Marius Hofert}
 \references{
   Barbe, P., Genest, C., Ghoudi, K., and R\enc{é}{e}millard, B. (1996),
   On Kendall's Process,

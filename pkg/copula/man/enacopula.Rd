@@ -78,7 +78,7 @@ enacopula(u, cop,
   the estimated parameter, \eqn{\hat{\theta}}{hat(theta)}, that is, currently a
   number as only one-parameter Archimedean copulas are considered.
 }
-\author{Marius Hofert, Martin Maechler.}
+%\author{Marius Hofert and Martin Maechler}
 \references{
   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2012).
   Likelihood inference for Archimedean copulas in high dimensions

@@ -141,7 +141,7 @@ pairsColList(P, pdiv = c(1e-04, 0.001, 0.01, 0.05, 0.1, 0.5),
   detail in Hofert and \enc{Mächler}{Maechler} (2013).
   See also \code{\link{demo}(gof_graph)}.
 }
-\author{Marius Hofert, Martin \enc{Mächler}{Maechler}.}
+%\author{Marius Hofert and Martin Maechler}
 \references{
   Hofert, M. and \enc{Mächler}{Maechler}, M. (2013)
   A graphical goodness-of-fit test for dependence models in higher dimensions;

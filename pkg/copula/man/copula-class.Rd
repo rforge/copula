@@ -54,6 +54,7 @@
   This implementation is still at the experimental
   stage and is subject to change during the development.
 }
+%\author{Marius Hofert, Ivan Kojadinovic, Martin Maechler and Jun Yan}
 \seealso{
   Help for the (sub)classes
   \code{\linkS4class{archmCopula}},

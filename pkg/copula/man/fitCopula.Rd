@@ -137,7 +137,7 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
   There are methods for \code{\link{vcov}()}, \code{\link{coef}()},
   \code{\link{logLik}()}, and \code{\link{nobs}()}.
 }
-\author{Marius Hofert, Ivan Kojadinovic, Martin Maechler, Jun Yan}
+%\author{Marius Hofert, Ivan Kojadinovic, Martin Maechler and Jun Yan}
 \references{
   Genest, C. (1987). Frank's family of bivariate distributions.
   \emph{Biometrika} \bold{74}, 549--555.

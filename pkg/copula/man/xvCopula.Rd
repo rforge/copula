@@ -33,6 +33,7 @@ xvCopula(copula, x, k = NULL, verbose = interactive(), \dots)
   A real number equal to the cross-validation criterion
   multiplied by the sample size.% \eqn{n}
 }
+%\author{Ivan Kojadinovic and Martin Maechler}
 \references{
   Gr\enc{ø}{o}nneberg, S., and Hjort, N.L. (2014)
   The copula information criteria.

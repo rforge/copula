@@ -29,6 +29,7 @@ exchTest(x, N = 1000, m = 0)
   \item{statistic}{ value of the test statistic. }
   \item{p.value}{ corresponding approximate p-value. }
 }
+%\author{Ivan Kojadinovic and Jun Yan}
 \references{
   Genest, C., G. \enc{Nešlehová}{Neslehova}, J. and Quessy, J.-F. (2012). Tests of symmetry for
   bivariate copulas. \emph{Annals of the Institute of Statistical

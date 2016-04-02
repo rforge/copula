@@ -91,7 +91,7 @@ edmle(u, cop, interval = initOpt(cop@copula@name), warn=TRUE, ...)
       Kendall's tau for the chosen method.}
   }
 }
-\author{Marius Hofert}
+%\author{Marius Hofert}
 \references{
   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2013).
   Archimedean Copulas in High Dimensions: Estimators and Numerical

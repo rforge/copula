@@ -40,7 +40,7 @@
 }
 \value{From \code{\link{splom}()}, an \R object of class \code{"trellis"}.
 }
-\author{Marius Hofert and Martin Maechler, with a hints from Deepayan Sarkar.}
+%\author{Marius Hofert and Martin Maechler, with a hints from Deepayan Sarkar.}
 \seealso{
   \code{\link{pairs2}()} for a similar function (for matrices and data
   frames) based on \code{\link[graphics]{pairs}()}.

@@ -46,6 +46,7 @@ multSerialIndepTest(x, lag.max, m=lag.max+1, N=1000, alpha=0.05,
   the independence empirical copula process - see \code{In} in the last
   reference) and \code{global.statistic.pvalue} (corresponding p-value).
 }
+%\author{Ivan Kojadinovic and Jun Yan}
 \references{
   Deheuvels, P. (1979). La fonction de dépendance empirique et ses
   propriétés: un test non paramétrique d'indépendance, \emph{Acad. Roy.

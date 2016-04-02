@@ -26,7 +26,7 @@
 }
 \value{invisible().
 }
-\author{Marius Hofert}
+%\author{Marius Hofert}
 \seealso{
   \code{\link{splom2}()} for a scatter-plot matrix based on \code{\link[lattice]{splom}()}.
 }

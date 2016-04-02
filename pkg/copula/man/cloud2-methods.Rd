@@ -56,7 +56,7 @@
 \value{
   An object of class \dQuote{trellis} as returned by \code{\link[lattice]{cloud}()}.
 }
-\author{Marius Hofert}
+%\author{Marius Hofert}
 \examples{
 ## For 'matrix' objects
 cop <- gumbelCopula(2, dim = 3)

@@ -99,7 +99,7 @@ gnacopula(u, cop, n.bootstrap,
       for each bootstrap replication.}
   }
 }
-\author{Marius Hofert, Martin Maechler.}
+%\author{Marius Hofert and Martin Maechler}
 \references{
   Genest, C., R\enc{é}{e}millard, B., and Beaudoin, D. (2009),
   Goodness-of-fit tests for copulas: A review and a power study

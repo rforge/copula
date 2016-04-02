@@ -84,6 +84,7 @@ joeCopula(param = NA_real_, dim = 2,
   \code{\linkS4class{acopula}}-classed Archimedean copulas, as there is
   no restriction on the dimension there.
 }
+%\author{Marius Hofert, Ivan Kojadinovic, Martin Maechler and Jun Yan}
 \references{
   R.B. Nelsen (2006), \emph{An introduction to Copulas}, Springer, New York.
 }

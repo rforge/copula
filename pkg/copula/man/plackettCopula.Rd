@@ -14,6 +14,7 @@ plackettCopula(param)
 \value{
   A Plackett copula object of class \code{"\linkS4class{plackettCopula}"}.
 }
+%\author{Ivan Kojadinovic and Jun Yan}
 \references{
   Plackett, R. L. (1965). A Class of Bivariate Distributions.
   \emph{Journal of the American Statistical Association} \bold{60}, 516--522.

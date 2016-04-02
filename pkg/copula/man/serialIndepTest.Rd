@@ -70,6 +70,7 @@
   empirical copula process --- see last reference p 175) and
   \code{global.statistic.pvalue} (corresponding p-value).
 }
+%\author{Ivan Kojadinovic and Jun Yan}
 \references{
   Deheuvels, P. (1979). La fonction de dépendance empirique et ses
   propriétés: un test non paramétrique d'indépendance, \emph{Acad. Roy.

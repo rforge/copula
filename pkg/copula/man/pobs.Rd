@@ -35,7 +35,7 @@ pobs(x, na.last = "keep",
   avoid problems with density evaluation at the boundaries. Note that
   \code{pobs(, lower.tail=FALSE)} simply returns \code{1-pobs()}.
 }
-\author{Marius Hofert}
+%\author{Marius Hofert}
 \examples{
 ## Simple definition of the function:
 pobs

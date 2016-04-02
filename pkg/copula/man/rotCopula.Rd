@@ -19,6 +19,7 @@ rotCopula(copula, flip = rep(TRUE, copula@dimension))
   A rotated copula object of class \code{"rotCopula"}.
 }
 %\details{}
+%\author{Ivan Kojadinovic}
 %\references{}
 \seealso{
   \code{"\linkS4class{Copula}"},

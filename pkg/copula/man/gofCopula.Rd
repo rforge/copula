@@ -118,6 +118,7 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
   \item{parameter}{estimates of the parameters for the hypothesized
     copula family.}
 }
+%\author{Marius Hofert, Ivan Kojadinovic, Martin Maechler and Jun Yan}
 \references{
   Genest, C., Huang, W., and Dufour, J.-M. (2013).
   A regularized goodness-of-fit test for copulas.

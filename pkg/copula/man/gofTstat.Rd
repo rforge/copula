@@ -63,7 +63,7 @@ gofTstat(u, method = c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
 \value{
   The value of the test statistic, a \code{\link{numeric}}.
 }
-\author{Marius Hofert, Martin Maechler.}
+%\author{Marius Hofert and Martin Maechler}
 \references{
   Genest, C., R\enc{é}{e}millard, B., and Beaudoin, D. (2009),
   Goodness-of-fit tests for copulas: A review and a power study

@@ -100,7 +100,7 @@ Cn(x, w) ## <-- deprecated!  use  C.n(w, x) instead!
                       C[n](u[1], .., u[j-1], max(u[j]-b, 0), u[j+1], .., u[d])) / (2b),}
   where \eqn{b} denotes the bandwidth and \eqn{C_n}{C[n]} the empirical copula.
 }
-\author{Ivan Kojadinovic, Marius Hofert}
+%\author{Ivan Kojadinovic and Marius Hofert}
 \references{
   R\enc{ü}{u}schendorf, L. (1976).  Asymptotic distributions of
   multivariate rank order statistics,

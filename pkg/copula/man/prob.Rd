@@ -23,7 +23,7 @@ prob(x, l, u)
 \value{A \code{\link{numeric}} in \eqn{[0,1]} which is the probability
   \eqn{P(l_i< U_i \le u_i)}{P(l[i] < U[i] <= u[i])}.
 }
-\author{Marius Hofert, Martin Maechler}
+%\author{Marius Hofert and Martin Maechler}
 \seealso{
   \code{\link{pCopula}(.)}.
 }

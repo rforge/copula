@@ -55,6 +55,7 @@ gofEVCopula(copula, x, N = 1000, method = "mpl",
   For a given degree of dependence, the most popular extreme-value
   copulas are strikingly similar.
 }
+%\author{Ivan Kojadinovic and Jun Yan}
 \references{
   Genest, C. and Segers, J. (2009). Rank-based inference for bivariate
   extreme-value copulas. \emph{Annals of Statistics} \bold{37}, 2990--3022.

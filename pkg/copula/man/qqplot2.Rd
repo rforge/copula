@@ -56,7 +56,7 @@ qqplot2(x, qF, log = "", qqline.args = if(log=="x" || log=="y")
 \details{
   See the source code for how the confidence intervals are constructed precisely.
 }
-\author{Marius Hofert.}
+%\author{Marius Hofert}
 \seealso{
   \code{\link{plot}()} for the underlying plot function,
   \code{\link{qqline}()} for how the Q-Q line is implemented,

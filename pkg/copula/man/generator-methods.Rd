@@ -113,6 +113,7 @@ dAdu(copula, w)
   \code{dAdu()} returns a data.frame containing the 1st and 2nd
   derivative of \code{A()}.
 }
+%\author{Marius Hofert, Ivan Kojadinovic, Martin Maechler and Jun Yan}
 \references{
   Gudendorf, G. and Segers, J. (2009)
   {Nonparametric estimation of an extreme-value copula in arbitrary dimensions},

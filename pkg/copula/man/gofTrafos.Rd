@@ -114,7 +114,7 @@ htrafo(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
   \code{rtrafo()} returns an \eqn{n\times d}{n x d}-matrix containing the
   transformed input \code{u}.
 }
-\author{Marius Hofert, Martin Maechler.}
+%\author{Marius Hofert and Martin Maechler}
 \references{
   Genest, C., R\enc{é}{e}millard, B., and Beaudoin, D. (2009).
   Goodness-of-fit tests for copulas: A review and a power study.

@@ -72,7 +72,7 @@ initOpt(family, tau.range=NULL, interval = TRUE, u,
 \value{initial interval which can be used for optimization (for example, for
   \code{\link{emle}}).
 }
-\author{Marius Hofert}
+%\author{Marius Hofert}
 \references{
   Hofert, M., \enc{Mächler}{Maechler}, M., and McNeil, A. J. (2012).
   Likelihood inference for Archimedean copulas in high dimensions

@@ -42,7 +42,7 @@ cacopula(u, cop, n.MC=0, log=FALSE)
   conditional distribution can be achieved by
   \code{\link{rtrafo}(*, inverse=TRUE)}.
 }
-\author{Marius Hofert, Yongsheng Wang, and Martin Maechler}
+%\author{Marius Hofert, Yongsheng Wang, and Martin Maechler}
 \note{
   For some (but not all) families, this function also makes sense on the
   boundaries (if the corresponding limits can be computed).

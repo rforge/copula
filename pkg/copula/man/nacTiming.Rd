@@ -38,7 +38,7 @@ nacFrail.time(n, family, taus, digits = 3, verbose = FALSE)
   for the \eqn{V_{01}}{V01}s for a particular \eqn{\theta_0}{theta0} and all the
   admissible \eqn{\theta_1}{theta1}s.
 }
-\author{Marius Hofert, Martin Maechler}
+%\author{Marius Hofert and Martin Maechler}
 \seealso{
   The class \code{\linkS4class{acopula}} and our predefined \code{"acopula"}
   family objects in \code{\link{acopula-families}}.  For some timings on a
