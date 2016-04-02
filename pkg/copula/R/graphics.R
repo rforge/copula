@@ -788,7 +788,8 @@ splom2MatrixDf <- function(x, varnames = NULL,
                            varnames.null.lab = "U", xlab = "",
                            col.mat = NULL, bg.col.mat = NULL, ...)
 {
-    stopifnot(is.numeric(x <- as.matrix(x)), (d <- ncol(x)) >= 1)
+    if(!is.matrix(x)) x <- as.matrix(x)
+    stopifnot((d <- ncol(x)) >= 1)
     if(is.null(varnames)) {
         stopifnot(length(varnames.null.lab) == 1, is.character(varnames.null.lab))
         colnms <- colnames(x)
