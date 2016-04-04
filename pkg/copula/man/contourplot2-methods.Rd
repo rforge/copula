@@ -16,16 +16,18 @@
       xlim = range(x[,1], finite = TRUE),
       ylim = range(x[,2], finite = TRUE),
       xlab = NULL, ylab = NULL,
-      region = TRUE, col.regions = gray(seq(0.4, 1, length.out = 100)),
       cuts = 16, labels = !region,
-      scales = list(alternating = c(1,1), tck = c(1,0)), \dots)
+      scales = list(alternating = c(1,1), tck = c(1,0)),
+      region = TRUE, \dots,
+      col.regions = gray(seq(0.4, 1, length.out = 100)))
 \S4method{contourplot2}{data.frame}(x, aspect = 1,
       xlim = range(x[,1], finite = TRUE),
       ylim = range(x[,2], finite = TRUE),
       xlab = NULL, ylab = NULL,
-      region = TRUE, col.regions = gray(seq(0.4, 1, length.out = 100)),
       cuts = 16, labels = !region,
-      scales = list(alternating = c(1,1), tck = c(1,0)), \dots)
+      scales = list(alternating = c(1,1), tck = c(1,0)),
+      region = TRUE, \dots,
+      col.regions = gray(seq(0.4, 1, length.out = 100)))
 \S4method{contourplot2}{copula}(x, FUN, n.grid = 26, xlim = 0:1, ylim = 0:1,
       xlab = expression(u[1]), ylab = expression(u[2]), \dots)
 \S4method{contourplot2}{mvdc}(x, FUN, n.grid = 26, xlim, ylim,
@@ -40,15 +42,15 @@
   \item{xlab, ylab}{The x- and y-axis labels. If at least one is
     \code{NULL}, useful \code{xlab} and \code{ylab} are determined
     automatically; the behavior depends on the class of \code{x}.}
+  \item{cuts}{The number of levels; see \code{\link{contourplot}()}.}
   \item{labels}{A \code{\link{logical}} indicating whether the contour
     lines are labeled; see \code{\link{contourplot}()}.}
+  \item{scales}{A \code{\link{list}} determining how the axes are drawn;
+    see \code{\link{contourplot}()}.}
   \item{region}{A \code{\link{logical}} indicating whether regions
     between contour lines should be filled as in a level plot; see
     \code{\link{contourplot}()}.}
   \item{col.regions}{The colors of the regions if \code{region = TRUE};
-    see \code{\link{contourplot}()}.}
-  \item{cuts}{The number of levels; see \code{\link{contourplot}()}.}
-  \item{scales}{A \code{\link{list}} determining how the axes are drawn;
     see \code{\link{contourplot}()}.}
   \item{FUN}{The \code{\link{function}} to be plotted; typically
     \code{\link{dCopula}} or \code{\link{pCopula}}.}

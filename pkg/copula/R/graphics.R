@@ -430,22 +430,25 @@ pairs2 <- function(x, labels = NULL, labels.null.lab = "U", row1attop = FALSE,
 ##' @param ylim The y-axis limits
 ##' @param xlab The x-axis label
 ##' @param ylab The y-axis label
-##' @param region A logical indicating whether regions should be colored
-##' @param col.regions The colors used for the colored regions
 ##' @param cuts The number of levels
 ##' @param labels A logical indicating whether the contours should be labeled.
 ##'        Use labels = list(cex = 0.7) to have nicer small labels
 ##' @param scales See ?contourplot
+##' @param region A logical indicating whether regions should be colored
 ##' @param ... Further arguments passed to contourplot()
+##' @param col.regions The colors used for the colored regions
 ##' @return A contourplot() object
 ##' @author Marius Hofert
+##' @note Note that '...' has to come before 'col.regions', otherwise 'col = "red"'
+##'       is interpreted as 'col.regions = "red"'
 contourplot2MatrixDf <- function(x, aspect = 1,
                                  xlim = range(x[,1], finite = TRUE),
                                  ylim = range(x[,2], finite = TRUE),
                                  xlab = NULL, ylab = NULL,
-                                 region = TRUE, col.regions = gray(seq(0.4, 1, length.out = 100)),
                                  cuts = 16, labels = !region,
-                                 scales = list(alternating = c(1,1), tck = c(1,0)), ...)
+                                 scales = list(alternating = c(1,1), tck = c(1,0)),
+                                 region = TRUE, ...,
+                                 col.regions = gray(seq(0.4, 1, length.out = 100)))
 {
     ## Checking
     if(!is.matrix(x)) x <- as.matrix(x)
