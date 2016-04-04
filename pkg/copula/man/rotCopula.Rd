@@ -4,7 +4,7 @@
 \title{Construction of "Rotated" Copulas}
 \description{
   Constructs a rotated copula from an initial copula and a vector of
-  logicals indicating which dimension to "flip".
+  logicals indicating which dimension to \dQuote{flip}.
 }
 \usage{
 rotCopula(copula, flip = rep(TRUE, copula@dimension))
@@ -12,7 +12,7 @@ rotCopula(copula, flip = rep(TRUE, copula@dimension))
 \arguments{
   \item{copula}{an object of class \code{"\linkS4class{Copula}"}.}
   \item{flip}{a vector of logicals indicating which dimension should be
-    "flipped"; by default, all the components are rotated, implying that
+    \dQuote{flipped}; by default, all the components are rotated, implying that
     the rotated copula is the survival copula.}
 }
 \value{
@@ -50,7 +50,7 @@ method = "itau")
 fitCopula(rotCopula(claytonCopula(), flip = c(TRUE, FALSE)), pobs(u),
 method = "mpl")
 
-\dontrun{
+\donttest{
 ## Goodness-of-fit testing
 gofCopula(rotCopula(claytonCopula(), flip = c(TRUE, FALSE)), u)
 gofCopula(rotCopula(claytonCopula(), flip = c(TRUE, FALSE)), u,

@@ -236,8 +236,11 @@ stopifnot(all.equal(unname(v), c(32.783677, 32.835744, 32.247463),
 		    tolerance = 1e-7))
 
 
-if(!doExtras && !interactive()) q(save="no") ## so the following auto prints
+if(!doExtras) q(save="no") ## so the following auto prints
 ##--------------------------------------------------------------------------
+## TODO: no longer use q() / quit() -- because it breaks 'covr'
+## --- R-devel Q: How can we turn on auto-printing inside an if() { .. } clause via  withVisible()?
+
 
 ## d = 2 :
 ## ----- catching fitCopula() error: 'Lapack routine dgesv: system is exactly singular: U[2,2] = 0'
@@ -260,14 +263,13 @@ fitCopula(tevCopula(df.fixed=TRUE), x, method="itau")# fine
 fitCopula(tevCopula(df.fixed=TRUE), x)# two warnings ==> do not estimate.var:
 fitCopula(tevCopula(df.fixed=TRUE), x, estimate.variance=FALSE)
 fitCopula(tevCopula(df.fixed=TRUE), x, method="ml")
-fitCopula(tevCopula(),		    x)
+## 'df' is not estimated, but it should
+fitCopula(tevCopula(),		    x)# df as parameter, but "kept at df := 4" (FIXME?)
 fitCopula(tevCopula(), 		    x, estimate.variance=FALSE)
-try( ## 'df' is not estimated, but it should
-fitCopula(tevCopula(), 		    x, method="ml")
-)
+fitCopula(tevCopula(), 		    x, method="ml")# currently ~= the one above
 
 set.seed(7)
-try(
+try(# now works .. slowly!
 rtevx <- tstFit1cop(tevCopula(, df.fixed=TRUE),
                     tau.set= c(.5, .75), n.set=c(10, 25), N=32)
 )##--> singular linear system (Lapack ...)
@@ -284,7 +286,7 @@ dim(u <- pobs(rdj))# 1262 3
 fc <- frankCopula(dim=3)
 ffc <- fitCopula(fc, u) ## (failed in 0.999-4 {param constraints})
 ffc
-summary(ffc)
+## summary(ffc) -- *not* useful -- FIXME: needs print.summary.fitCopula()
 stopifnot(all.equal(unname(coef(ffc)),
                     2.866564929, tolerance = 1e-5))
 
