@@ -194,7 +194,7 @@ setMethod("dim", signature(x = "nacopula"),
 	  function(x) length(x@comp) + sum(vapply(x@childCops, dim, 1L)))
 
 
-##' @title nesting depth of a NAcopula
+##' @title nesting depth of a nacopula
 ##' @param x object of class "nacopula"
 ##' @return integer
 nesdepth <- function(x) {

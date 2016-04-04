@@ -1,5 +1,8 @@
 ##-*- org -*-->  Emacs .. [Tab] key + [Org] menu; C-c C-o to follow links
 * Very Short Term
+** TODO Clarify C.n() argument issues
+     - most likely, we should rename 'X' to 'data' (as is used everywhere else!)
+     - the same probably applies to dCn()
 ** TODO [MM] copula@fullname: is used in print() method; Want also use for plotting -- hence urgent for book!
 - want to use "it" by default, e.g.,  `main = copula@fullname` in persp() etc, *HOWEVER*
   it is too long / ugly, e.g.,  "Gumbel copula family; Archimedean copula; Extreme value copula"

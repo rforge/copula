@@ -301,7 +301,7 @@ nac2list <- function(x) {
     else list(x@copula@theta, x@comp)
 }
 
-##'*randomly* construct a nested Archimedean copula model
+##' Randomly construct a nested Archimedean copula model
 ##' @title Random nacopula Model
 ##' @param family the Archimedean family
 ##' @param d integer >=2; the dimension
