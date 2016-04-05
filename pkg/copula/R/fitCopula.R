@@ -393,18 +393,21 @@ fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
                          warn.df=FALSE, # (to change it there)
                          posDef=posDef, ...)
     p. <- fm@estimate
+
     ## 2) Estimate the d.o.f. parameter nu  via Maximum Likelihood :
     if(FALSE) # for debugging
-        nLL <- function(Inu) {
-            r <- -loglikCopula(c(p., df=1/Inu), u=u, copula=copula)
-            cat(sprintf("1/nu=%12g, df=%8.3g, logL=%g\n", Inu, 1/Inu, -r))
+        logL <- function(Inu) {
+            r <- loglikCopula(c(p., df=1/Inu), u=u, copula=copula)
+            cat(sprintf("1/nu=%12g, df=%8.3g, logL=%g\n", Inu, 1/Inu, r))
             r
         }
-    nLL <- function(Inu) -loglikCopula(c(p., df=1/Inu), u=u, copula=copula) # negative log-likelihood in 1/nu given P
-    fit <- optimize(nLL, interval=c(lower, upper), tol=tol) # optimize
+    logL <- function(Inu) loglikCopula(c(p., df=1/Inu), u=u, copula=copula) # log-likelihood in 1/nu given P
+    fit <- optimize(logL, interval=c(lower, upper), tol=tol, maximum = TRUE) # optimize
+
+    ## Extract the fitted parameters
     q <- length(copula@parameters) # the last is nu
     copula@parameters[seq_len(q-1L)] <- p.
-    copula@parameters[[q]] <- copula@df <- df <- 1/fit$minimum
+    copula@parameters[[q]] <- copula@df <- df <- 1/fit$maximum # '1/.' because of logL() being in '1/.'-scale
     loglik <- fit$objective
     has.conv <- TRUE # FIXME? use tryCatch() above to catch non-convergence
     if (is.na(estimate.variance))
@@ -468,7 +471,7 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
     method <- match.arg(method)
 
     ## Determine optim() inputs
-    control <- c(optim.control, fnscale = -1)
+    control <- c(optim.control, fnscale = -1) # fnscale < 0 => maximization
     control <- control[!vapply(control, is.null, NA)]
     if (!is.null(optim.control[[1]])) control <- c(control, optim.control)
     meth.has.bounds <- optim.method %in% c("Brent","L-BFGS-B")

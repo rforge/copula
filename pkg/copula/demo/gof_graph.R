@@ -424,6 +424,5 @@ title <- list("Pairwise Rosenblatt transformed pseudo-observations",
 if(doPDF) pdf(file=(file <- "gof_graph_fig-SMI-ex.pdf"))
 pairsRosenblatt(cu.ut, pvalueMat=pmatt, method="none", cex.labels=0.7,
                 key.space=1.5, main.centered=TRUE, main=title, line.main=c(3, 0.4),
-                keyOpt=list(space=1.5, width=1.5, axis=TRUE,
-                            rug.at = numeric(), title=NULL, line=5))
+                keyOpt=list(space=1.5, width=1.5, axis=TRUE, title=NULL, line=5))
 if(doPDF) dev.off()
