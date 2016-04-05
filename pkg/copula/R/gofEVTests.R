@@ -103,9 +103,9 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
 }
 
 
-### Version for simulations; was named gofEVCopula before; not exported
+### Original version for simulations; was named gofEVCopula before -- *not exported*
 gofA <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
-                    m = 1000, verbose = TRUE, optim.method = "Nelder-Mead")
+                    m = 1000, verbose = interactive(), optim.method = "Nelder-Mead")
 {
     n <- nrow(x)
     p <- ncol(x)

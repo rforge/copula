@@ -5,14 +5,14 @@
 \description{
   Analog of the independence test based on the empirical copula process
   proposed by Christian Genest and Bruno Rémillard (see
-  \code{\link{indepTest}}) for \emph{random vectors}. The main
+  \code{\link{indepTest}}) for \emph{random vectors}.  The main
   difference comes from the fact that critical values and p-values are
-  obtainted through the bootstrap/permutation methodology, since, here,
+  obtained through the bootstrap/permutation methodology, since, here,
   test statistics are not distribution-free.
 }
 \usage{
-multIndepTest(x, d, m=length(d), N=1000, alpha=0.05, verbose = TRUE,
-              print.every = NULL)
+multIndepTest(x, d, m = length(d), N = 1000, alpha = 0.05,
+              verbose = interactive(), print.every = NULL)
 }
 \arguments{
   \item{x}{ data frame (\code{\link{data.frame}}) or  matrix containing
