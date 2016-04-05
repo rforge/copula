@@ -17,15 +17,14 @@
 ### basic copula class #########################################################
 
 
-setClass("copula",
-         representation(dimension = "integer", # as for "nacopula"
-                        parameters = "numeric",
-                        param.names = "character",
-                        param.lowbnd = "numeric",
-                        param.upbnd = "numeric",
-                        ## TODO: "a vector" of intervals" paraInterval = "maybeInterval", # [.,.]  (.,.], etc .. parameter interval
-                        fullname = "character",
-                        "VIRTUAL"),
+setClass("copula", contains = "VIRTUAL",
+         slots = c(dimension = "integer", # as for "nacopula"
+                   parameters = "numeric",
+                   param.names = "character",
+                   param.lowbnd = "numeric",
+                   param.upbnd = "numeric",
+                   ## TODO: "a vector" of intervals" paraInterval = "maybeInterval", # [.,.]  (.,.], etc .. parameter interval
+                   fullname = "character"),
          prototype = prototype(dimension = 2L, parameters = NA_real_),
          validity = ##' Check validity of "copula"
          function(object) {
@@ -132,8 +131,8 @@ validEllipCopula <- function(object) {
            length(rho))
 }
 
-setClass("ellipCopula", contains = "copula",
-	 representation(dispstr = "character", getRho="function", "VIRTUAL"),
+setClass("ellipCopula", contains = c("copula", "VIRTUAL"),
+	 slots = c(dispstr = "character", getRho = "function"),
          validity = validEllipCopula)
 
 if(FALSE) # not yet needed -- validEllipCopula() is used anyway
@@ -150,8 +149,8 @@ validTCopula <- function(object) {
   ## df inside boundaries is checked in "copula" validity
 }
 
-setClass("tCopula", representation(df = "numeric", df.fixed = "logical"),
-         contains = "ellipCopula"
+setClass("tCopula", contains = "ellipCopula",
+	 slots = c(df = "numeric", df.fixed = "logical")
          ## , validity = validTCopula
          )
 
@@ -160,8 +159,8 @@ setClass("tCopula", representation(df = "numeric", df.fixed = "logical"),
 
 ### Archimedean copulas, contains AMH, Clayton, Frank, Gumbel, ... #############
 
-setClass("archmCopula", representation(exprdist = "expression", "VIRTUAL"),
-	 contains = "copula")
+setClass("archmCopula", contains = c("copula", "VIRTUAL"),
+         slots = c(exprdist = "expression"))
 
 ## clayton copula
 setClass("claytonCopula", contains = "archmCopula")
@@ -188,26 +187,26 @@ setGeneric("diPsi", function(copula, u, degree=1, log=FALSE, ...) standardGeneri
 
 ### Extreme value copulas, contains galambos, husler-reiss, gumbel, ... ########
 
-setClass("evCopula", representation("VIRTUAL"), contains = "copula")
+setClass("evCopula", contains = c("copula", "VIRTUAL"))
 
 ## galambos copula
-setClass("galambosCopula", representation(exprdist = "expression"),
-         contains = "evCopula")
+setClass("galambosCopula", contains = "evCopula",
+	 slots = c(exprdist = "expression"))
 
 ## gumbel copula, also an archm copula;
 setClass("gumbelCopula", contains = list("archmCopula", "evCopula"))
 
 ## husler-reiss copula
-setClass("huslerReissCopula",representation(exprdist = "expression"),
-         contains = "evCopula")
+setClass("huslerReissCopula", contains = "evCopula",
+	 slots = c(exprdist = "expression"))
 
 ## tawn copula; does not offer full range of dependence
-setClass("tawnCopula", representation(exprdist = "expression"),
-         contains = "evCopula")
+setClass("tawnCopula", contains = "evCopula",
+	 slots = c(exprdist = "expression"))
 
 ## tEV copula
-setClass("tevCopula", representation(df = "numeric", df.fixed = "logical"),
-         contains = "evCopula")
+setClass("tevCopula", contains = "evCopula",
+	 slots = c(df = "numeric", df.fixed = "logical"))
 
 setGeneric("A", function(copula, w) standardGeneric("A"))
 setGeneric("dAdu", function(copula, w) standardGeneric("dAdu"))
@@ -223,8 +222,7 @@ setClass("indepCopula", contains = c("evCopula", "archmCopula"))
 ### Other copulas ##############################################################
 
 ## Farlie-Gumbel-Morgenstern multivariate copula
-setClass("fgmCopula", representation(exprdist = "expression"),
-         contains = "copula",
+setClass("fgmCopula", contains = "copula", slots = c(exprdist = "expression"),
          ## verify that the pdf is positive at each vertex of [0,1]^dim
          validity = function(object) {
              dim <- object@dimension
@@ -243,8 +241,8 @@ setClass("fgmCopula", representation(exprdist = "expression"),
 
 
 ## plackett copula
-setClass("plackettCopula",representation(exprdist = "expression"),
-         contains = "copula")
+setClass("plackettCopula", contains = "copula",
+	 slots = c(exprdist = "expression"))
 
 ### Multivariate distibution via copula ########################################
 
@@ -281,10 +279,10 @@ validMvdc <- function(object) {
 }## validMvdc()
 
 setClass("mvdc",
-	 representation(copula = "copula",
-			margins = "character",
-			paramMargins = "list",
-			marginsIdentical = "logical"),
+	 slots = c(copula = "copula",
+                   margins = "character",
+                   paramMargins = "list",
+                   marginsIdentical = "logical"),
 	 validity = validMvdc)
 
 ## methods like {dpr}mvdc are defined in mvdc.R
@@ -292,13 +290,13 @@ setClass("mvdc",
 ## A fitted multivariate distribution -- "generic mother class",
 ## "fitCopula" and "fitMvdc" will inherit from it:
 setClass("fittedMV",
-	 representation(estimate = "numeric",
-			var.est = "matrix", ## FIXME 'vcov'
-			loglik = "numeric",
-			nsample = "integer",
-			method = "character",
-			## convergence = "integer",
-			fitting.stats = "list"))
+	 slots = c(estimate = "numeric",
+                   var.est = "matrix", ## FIXME 'vcov'
+                   loglik = "numeric",
+                   nsample = "integer",
+                   method = "character",
+                   ## convergence = "integer",
+                   fitting.stats = "list"))
 
 setGeneric("paramNames", function(x) standardGeneric("paramNames"))
 ## paramNames() methods: provided separately for "fitCopula", "fitMvdc"
