@@ -16,7 +16,7 @@
   or \code{\link{asymExplicitCopula}(...)}.
 }
 \section{Slots}{
-  As these classes extend \code{\linkS4class{"copula"}}, they have all
+  As these classes extend \code{"\linkS4class{copula}"}, they have all
   its slots, \code{dimension}, \code{parameters}, \code{param.names},
   \code{param.lowbnd}, \code{param.upbnd}, and \code{fullname}.
   Additionally, \code{"asymCopula"} has slots
@@ -27,8 +27,8 @@
   and \code{"asymExplicitCopula"} has the additional slots
   \describe{
     \item{\code{exprdist}:}{an \code{\link{expression}}, ...}% FIXME
-    \item{\code{derExprs1}:}{an \code{\link{expression}}, ...}% FIXME
-    \item{\code{derExprs2}:}{an \code{\link{expression}}, ...}% FIXME
+    \item{\code{derExprs1}:}{an \code{\link{expression}} of length \eqn{d}, ...}% FIXME
+    \item{\code{derExprs2}:}{an \code{\link{expression}} of length \eqn{d}, ...}% FIXME
   }
   (whereas \code{"asymBivCopula"} has no extra slots).
 }

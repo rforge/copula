@@ -92,7 +92,11 @@ pp <- sapply(Uc, function(U2)
 
 ## The P-values should simply be uniform in [0,1]:
 hh <- hist(c(pp), breaks = (0:20)/20)## should "look" uniform
+summary(hh$counts)
+## Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+## 4.00    5.75    7.00    7.20    9.00   11.00
+
 ## and hence their test should typically *not* be significant
 (ad.pp <- ad.test(c(pp)))
-stopifnot(hh$counts[1] < 15, # for the above seed, it is 13 , "somewhat high"
+stopifnot(hh$counts < 15,
           ad.pp$p.value > 0.10)

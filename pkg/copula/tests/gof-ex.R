@@ -137,11 +137,13 @@ for(fitMeth in c("mpl", "itau", "irho")) {
     print(gofCopula(claytonCopula(), x, N = 10, verbose=FALSE,
 		    estim.method = fitMeth, simulation="mult"))
 }
+warnings()
 ## "Rn" only works with "itau" (FIXME?)
 gofCopula(gumbelCopula (), x, N = 10, verbose=FALSE,
           estim.method = "itau", simulation="mult", method="Rn")
 gofCopula(claytonCopula(), x, N = 10, verbose=FALSE,
           estim.method = "itau", simulation="mult", method="Rn")
+warnings()
 
 
 ## A three-dimensional example	------------------------------------
@@ -152,6 +154,7 @@ t.cop  <- tCopula(dim = 3, dispstr = "un", df.fixed=TRUE)
 t.copV <- tCopula(dim = 3, dispstr = "un", df.fixed=FALSE)
 
 showProc.time()
+warnings()
 
 ## NOTE: takes a while...
 if(doExtras)
@@ -178,7 +181,7 @@ for(meth in eval(formals(gofPB)$method)) {
   }
   showProc.time()
 }
-
+warnings()
 
 ## The same using the multiplier approach -- "ml" is not allowed in general;
 ##  "itau" and "irho"  only  for  d = 2	 (for now !)
@@ -188,6 +191,7 @@ for(fitMeth in c("mpl")) {
     print(gofCopula(t.cop, x, N = 10, estim.method = fitMeth, simulation="mult"))
 }
 showProc.time()
+warnings()
 
 
 ### Test complicated implementation of SnB and SnC test statistics #############
@@ -246,6 +250,7 @@ stopifnot(all.equal(B., gofTstatSimple(u, method="SnB")),
 print(c(SnB = B., SnC = C.))
 showProc.time()
 }
+warnings()
 
 if(FALSE) {
     ## fails with:

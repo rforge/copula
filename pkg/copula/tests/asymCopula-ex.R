@@ -17,32 +17,33 @@ require(copula)
 
 (doExtras <- copula:::doExtras())
 
+if(!dev.interactive(orNone=TRUE)) pdf("asymCopula-ex.pdf")
+
+## An asymetric Clayton copula object
+ac <- asymBivCopula(copula1 = indepCopula(),
+                    copula2 = claytonCopula(6),
+                    shapes = c(0.4, 0.95))
+contour(ac, dCopula, nlevels = 20, main = "dCopula(<asymBivCopula>)")
+
+## true versus numerical derivatives
+v <- matrix(runif(6), 3, 2)
+max(abs(copula:::dCduCopulaNum(ac, v) - copula:::dCdu(ac, v)))
+max(abs(copula:::dCdthetaCopulaNum(ac, v) - copula:::dCdtheta(ac, v)))
+
+## tau, rho, lambda not supposed to work
+## tau(ac)
+## rho(ac)
+## iTau(ac, 0.5)
+## iRho(ac, 0.5)
+## lambda(ac)
+
+## fitting example
+n <- 300
+u <- rCopula(n, ac)
+##plot(u)
+
 if (doExtras)
 {
-    ## An asymetric Clayton copula object
-    ac <- asymBivCopula(copula1 = indepCopula(),
-                        copula2 = claytonCopula(6),
-                        shapes = c(0.4, 0.95))
-
-    ## contour(ac, dCopula, nlevels = 20)
-    ## contour(ac, pCopula, nlevels = 20)
-
-    ## true versus numerical derivatives
-    v <- matrix(runif(6), 3, 2)
-    max(abs(copula:::dCduCopulaNum(ac, v) - copula:::dCdu(ac, v)))
-    max(abs(copula:::dCdthetaCopulaNum(ac, v) - copula:::dCdtheta(ac, v)))
-
-    ## tau, rho, lambda not supposed to work
-    ## tau(ac)
-    ## rho(ac)
-    ## iTau(ac, 0.5)
-    ## iRho(ac, 0.5)
-    ## lambda(ac)
-
-    ## fitting example
-    n <- 300
-    u <- rCopula(n, ac)
-    ##plot(u)
 
     fitCopula(asymBivCopula(copula2 = claytonCopula()),
               start = c(1.1, 0.5, 0.5), data = pobs(u),
@@ -83,3 +84,5 @@ if (doExtras)
 
 
 }
+
+## All 'copula' subclasses

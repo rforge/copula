@@ -22,11 +22,15 @@ setClass("rotCopula", contains = "copula",
              copula = "copula",
              flip = "logical"
          ),
-	 validity = function(object) {
-    if(object@copula@dimension != length(object@flip))
-        "The dimension of the copula does not match the length of 'flip'"
-	     else TRUE
-})
+	 validity =
+	     function(object) {
+		 d <- object@copula@dimension
+		 if(length(object@flip) != d)
+		     "The dimension of the copula does not match the length of 'flip'"
+		 else if(anyNA(object@flip))
+		     "'flip' contains NA/NaN"
+		 else TRUE
+	     })
 
 ##' @title Rotated Copulas Created from an Existing Copula and a Mask of Logicals
 ##' @param copula The 'base' copula
@@ -112,16 +116,16 @@ lambdaRotCopula <- function(copula) {
     copula@copula@parameters <- copula@parameters
     sm <- sum(copula@flip[1:2])
     if (sm == 1) {
-        warning("not implemented yet")
-        return(c(lower= NA, upper= NA))
+        warning("lambda() method for 'rotCopula' not implemented yet")
+        c(lower= NA, upper= NA)
     }
     else {
         ti <- lambda(copula@copula)
         names(ti) <- NULL
         if (sm == 0)
-            return(c(lower = ti[1], upper = ti[2]))
+            c(lower = ti[1], upper = ti[2])
         else
-            return(c(lower = ti[2], upper = ti[1]))
+            c(lower = ti[2], upper = ti[1])
     }
 }
 

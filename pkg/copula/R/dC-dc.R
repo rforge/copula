@@ -387,9 +387,10 @@ setMethod("dlogcdu", signature("copula"), dlogcduCopulaNum)
 setMethod("dlogcdu", signature("joeCopula"), dlogcduCopulaNum)
 setMethod("dlogcdu", signature("tevCopula"), dlogcduCopulaNum)
 setMethod("dlogcdu", signature("archmCopula"), dlogcduExplicitCopula)
-setMethod("dlogcdu", signature("plackettCopula"), dlogcduExplicitCopula)
 setMethod("dlogcdu", signature("evCopula"), dlogcduExplicitCopula)
-setMethod("dlogcdu", signature("gumbelCopula"), dlogcduExplicitCopula)
+
+setMethod("dlogcdu", signature("plackettCopula"), dlogcduExplicitCopula)
+## gumbel* is archm*:setMethod("dlogcdu", signature("gumbelCopula"), dlogcduExplicitCopula)
 
 dlogcduNormalCopula <- function(copula, u, ...)
 {

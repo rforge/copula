@@ -36,10 +36,10 @@ setClass("asymCopula", contains = c("copula", "VIRTUAL"),
 ##################################################################################
 
 ## Bivariate asymmetric copula class
-setClass("asymBivCopula", contains = "asymCopula",
+setClass("asymBivCopula", contains = "asymCopula", ## -> calls *ITS* validity (eq. dim)
 	 validity = function(object) {
-    if(object@copula1@dimension != 2 || object@copula2@dimension != 2)
-        "The argument copulas are not all of dimension two"
+    if(object@copula1@dimension != 2)
+        "The asymBivCopula constituents must have dimension two"
 	     else TRUE
 })
 
@@ -51,9 +51,9 @@ dgdu <- function(u, a) a * u^(a - 1) # derivative wrt u
 ##' Creates an asymBivCopula object
 ##'
 ##' @title Asymmetric bivariate copula constructor
-##' @shapes a numeric with two elements in [0,1]
-##' @copula1 a bivariate exchangeable copula
-##' @copula2 a bivariate exchangeable copula
+##' @param copula1
+##' @param copula2 each a bivariate exchangeable \code{\linkS4class{copula}}
+##' @param shapes a numeric with two elements in [0,1]
 ##' @return a new "asymBivCopula" object; see above
 ##' @author Jun Yan and Ivan Kojadinovic
 asymBivCopula <- function(copula1 = indepCopula(),
@@ -241,18 +241,30 @@ setClass("asymExplicitCopula", contains = "asymCopula",
 ##' Creates an asymExplicitCopula object
 ##'
 ##' @title Asymmetric explicit copula constructor
-##' @shapes a numeric with two elements in [0,1]
-##' @copula1 a d-dimensional copula
-##' @copula2 a d-dimensional copula
+##' @param copula1 a d-dimensional copula
+##' @param copula2 a d-dimensional copula
+##' @param shapes a numeric with elements in [0,1]
 ##' @return a new "asymExplicitCopula" object; see above
 ##' @author Jun Yan and Ivan Kojadinovic
-asymExplicitCopula <- function(shapes, copula1, copula2) {
-    d <- copula1@dimension
-    stopifnot(d == copula2@dimension,
-              d == length(shapes))
+asymExplicitCopula <- function(copula1, copula2, shapes) {
+    stopifnot(copula2@dimension == (d <- copula1@dimension),
+              length(shapes) == d)
+    ## check if have 'exprdist' slots [otherwise "bad" error msg below]:
+    if(is.na(match("exprdist", slotNames(copula1))))
+        stop(gettextf("Not yet implemented for '%s' of class \"%s\"",
+                      "copula1", class(copula1)), domain = NA)
+    if(is.na(match("exprdist", slotNames(copula2))))
+        stop(gettextf("Not yet implemented for '%s' of class \"%s\"",
+                      "copula2", class(copula2)), domain = NA)
+    stopifnot(is.language(F1 <- copula1@exprdist$cdf),
+              is.language(F2 <- copula2@exprdist$cdf))
+
+    ## FIXME: not characters and parse(text=), rather expressions, substitute() ...
+
     ## cdf
     getcdfchar <- function(cdf, om=FALSE) {
-        ## WARNING: this only works up to dim 9; e.g., u10 could be replaced with u1^shp1
+        ## FIXME: this only works up to dim 9; e.g., u10 could be replaced with u1^shp1
+        ## -----  TODO: be smarter in gsub() --- rather do *NOT* use characters at all !!
     if (d >= 10) stop("The maximum implemented dim is 9.")
         cdf <- deparse(cdf)
         for (i in 1:d) {
@@ -265,23 +277,24 @@ asymExplicitCopula <- function(shapes, copula1, copula2) {
         cdf
     }
 
-    cdf1 <- getcdfchar(copula1@exprdist$cdf, TRUE)
-    cdf2 <- getcdfchar(copula2@exprdist$cdf, FALSE)
-    cdf <- c("(", cdf1, ") * (", cdf2, ")")
-    cdf <- parse(text = cdf)
+    ## FIXME: work with expressions F1 / F2, not chars...
+    cdf1 <- getcdfchar(F1, om=TRUE)
+    cdf2 <- getcdfchar(F2, om=FALSE)
+    cdf <- parse(text = c("(", cdf1, ") * (", cdf2, ")"))
+    ## cdf <- substitute((F1) * (F2),
+    ##                   list(F1 = cdf1, F2 = cdf2))
+
     ## pdf
     pdfExpr <- function(cdf, n) {
-        val <- cdf
-        for (i in 1:n) {
-            val <- D(val, paste0("u", i))
-        }
-        val
+        for (i in 1:n)
+            cdf <- D(cdf, paste0("u", i))
+        cdf
     }
     pdf <-
         if (d <= 6)
             pdfExpr(cdf, d)
         else {
-            warnings("The pdf is only available for dim 6 or lower.")
+            warning("The pdf is only available for dim 6 or lower.")
             NULL
       }
     derExprs <- function(cdf, n) {
@@ -291,15 +304,15 @@ asymExplicitCopula <- function(shapes, copula1, copula2) {
         }
         val
     }
-    derExprs1 <- derExprs(copula1@exprdist$cdf, d)
-    derExprs2 <- derExprs(copula2@exprdist$cdf, d)
+    derExprs1 <- derExprs(F1, d)
+    derExprs2 <- derExprs(F2, d)
     shapes.names <- paste0("shape", 1:d)
     new("asymExplicitCopula",
         dimension = d,
         parameters = c(copula1@parameters, copula2@parameters, shapes),
         param.names = c(copula1@param.names, copula2@param.names, shapes.names),
         param.lowbnd = c(copula1@param.lowbnd, copula2@param.lowbnd, rep(0, d)),
-        param.upbnd = c(copula1@param.upbnd, copula2@param.upbnd, rep(1, d)),
+        param.upbnd  = c(copula1@param.upbnd,  copula2@param.upbnd,  rep(1, d)),
         copula1 = copula1,
         copula2 = copula2,
         exprdist = c(cdf=cdf, pdf=pdf),

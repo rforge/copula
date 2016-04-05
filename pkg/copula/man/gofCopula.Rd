@@ -60,6 +60,7 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
 
     for \code{gofPB()} and \code{gofMB()}: additional arguments passed
     to \code{\link{fitCopula}()}.  These may notably contain
+    \code{hideWarnings}, and
     \code{optim.method}, \code{optim.control}, \code{lower},
     or \code{upper} depending on the \code{optim.method}.}
   \item{trafo.method}{string specifying the transformation to
@@ -173,7 +174,7 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
 ## the following example is available in batch through
 ## demo(gofCopula)% == ../demo/gofCopula.R __keep >> EXACTLY << in sync!__
 %% Note that  ../tests/gof-ex.R (at the end) has "proof-of-concept" tests
-\donttest{
+\donttest{# don't run during tests, because this needs a lot of time
 ## A two-dimensional data example ----------------------------------
 x <- rCopula(200, claytonCopula(3))
 
