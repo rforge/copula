@@ -102,20 +102,8 @@ showNormalCopula <- function(object) {
 
 
 lambdaNormalCopula <- function(copula) {
-  rho <- copula@parameters
-  upper <- lower <- ifelse(rho == 1, 1, 0)
-  c(lower=lower, upper=upper)
-}
-
-
-tauNormalCopula <- function(copula) {
-  rho <- copula@parameters
-  2 * asin(rho) /pi
-}
-
-rhoNormalCopula <- function(copula) {
-  rho <- copula@parameters
-  asin(rho / 2) * 6 / pi
+  i01 <- as.numeric(copula@parameters == 1) ## == rho
+  c(lower = i01, upper = i01)
 }
 
 setMethod("rCopula", signature("numeric", "normalCopula"), rnormalCopula)
@@ -127,9 +115,11 @@ setMethod("dCopula", signature("numeric", "normalCopula"),dnormalCopula)
 
 setMethod("show", signature("normalCopula"), showNormalCopula)
 
-setMethod("tau", signature("normalCopula"), tauNormalCopula)
-setMethod("rho", signature("normalCopula"), rhoNormalCopula)
+## rho := copula@parameters
+setMethod("tau", "normalCopula", function(copula) 2 * asin(copula@parameters) /pi)
+setMethod("rho", "normalCopula", function(copula) asin(copula@parameters / 2) * 6 / pi)
 setMethod("lambda", signature("normalCopula"), lambdaNormalCopula)
 
-setMethod("iTau", signature("normalCopula"), iTauEllipCopula)
-setMethod("iRho", signature("normalCopula"), iRhoEllipCopula)
+setMethod("iRho", "normalCopula",
+          function(copula, rho) sin(pi * rho / 6) * 2)
+

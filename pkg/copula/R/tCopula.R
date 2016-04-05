@@ -123,16 +123,6 @@ lambdaTCopula <- function(copula) {
   c(upper=upper, lower=lower)
 }
 
-tauTCopula <- function(copula) {
-  rho <- copula@getRho(copula)
-  2 * asin(rho) /pi
-}
-
-rhoTCopula <- function(copula) {
-  rho <- copula@getRho(copula)
-  asin(rho / 2) * 6 / pi
-}
-
 setMethod("rCopula", signature("numeric", "tCopula"), rtCopula)
 
 setMethod("pCopula", signature("matrix", "tCopula"), ptCopula)
@@ -140,15 +130,11 @@ setMethod("pCopula", signature("numeric", "tCopula"),ptCopula)
 setMethod("dCopula", signature("matrix", "tCopula"), dtCopula)
 setMethod("dCopula", signature("numeric", "tCopula"),dtCopula)
 
-
-
 setMethod("show", signature("tCopula"), showTCopula)
 
-setMethod("tau", signature("tCopula"), tauTCopula)
-setMethod("rho", signature("tCopula"), rhoTCopula)
-setMethod("lambda", signature("tCopula"), lambdaTCopula)
+setMethod("tau", "tCopula",
+          function(copula) 2 * asin(copula@getRho(copula)) / pi)
+setMethod("rho", "tCopula",
+          function(copula) asin(copula@getRho(copula) / 2) * 6 / pi)
 
-## unneeded:
-## setMethod("iTau", signature("tCopula"), iTauEllipCopula)
-setMethod("iRho", signature("tCopula"), function (copula, rho, ...)
-    stop("iRho() not available for 'tCopula's"))
+setMethod("lambda", signature("tCopula"), lambdaTCopula)

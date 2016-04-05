@@ -47,7 +47,7 @@ ellipCopula <- function(family, param = NA_real_, dim = 2L, dispstr = "ex",
 
 iTauEllipCopula <- function(copula, tau) sin((tau * pi) / 2)
 
-iRhoEllipCopula <- function(copula, rho) sin(pi * rho / 6) * 2
+## iRho --> only for normalCopula
 
 dTauEllipCopula <- function(copula)  {
   2 / (pi * sqrt(1 - copula@getRho(copula)^2))
@@ -66,7 +66,7 @@ dRhoFunEllipCopula <- function(copula) {
 }
 
 setMethod("iTau", signature("ellipCopula"), iTauEllipCopula)
-setMethod("iRho", signature("ellipCopula"), iRhoEllipCopula)
+## iRho: only for --> ./normalCopula.R
 
 setMethod("dTau", signature("ellipCopula"), dTauEllipCopula)
 setMethod("dRho", signature("ellipCopula"), dRhoEllipCopula)

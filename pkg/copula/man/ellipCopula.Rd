@@ -1,8 +1,8 @@
 \name{ellipCopula}
+\title{Construction of Elliptical Copula Class Objects}
 \alias{ellipCopula}
 \alias{normalCopula}
 \alias{tCopula}
-\title{Construction of Elliptical Copula Class Object}
 \description{
   Constructs an elliptical copula class object with its corresponding
   parameters and dimension.
@@ -14,7 +14,7 @@ normalCopula(param, dim = 2, dispstr = "ex")
 }
 \arguments{
   \item{family}{ a character string specifying the family of an
-    elliptical copula. Implemented families are "normal" and "t".  }
+    elliptical copula.  Implemented families are "normal" and "t".  }
   \item{param}{a numeric vector specifying the parameter values;
     \code{P2p()} accesses this vector, whereas
     \code{\link{p2P}()} and \code{\link{getSigma}()} provide
