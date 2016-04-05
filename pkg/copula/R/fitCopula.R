@@ -355,7 +355,7 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
         copula = copula)
 }
 
-##' @title Estimator of Demarta, McNeil (2005) for t Copulas
+##' @title Estimator of Mashal, Zeevi (2002) for t Copulas; see also Demarta, McNeil (2005)
 ##' @param copula The copula to be fitted
 ##' @param u The data in [0,1]^d (this would not be required if we applied pobs();
 ##'        the latter is fine for estimating P via pairwise inversion of Kendall's tau,
