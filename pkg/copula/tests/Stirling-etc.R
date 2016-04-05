@@ -14,9 +14,11 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
+.libPaths() # [for developers with non-trivial setups]
 require(copula)
 (isLinux <- identical("Linux", Sys.info()[["sysname"]]))
 (doExtras <- copula:::doExtras())
+sessionInfo()
 
 ## From source(system.file("test-tools-1.R", package = "Matrix")) :
 showSys.time <- function(expr) {
