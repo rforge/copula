@@ -4,7 +4,6 @@
 \alias{asymCopula-class}
 \alias{asymBivCopula-class}
 \alias{asymExplicitCopula-class}
-%
 \description{
   The \emph{virtual} class \code{"asymBivCopula"} and its two (\sQuote{actual})
   subclasses \code{"asymBivCopula"} and \code{"asymExplicitCopula"}
