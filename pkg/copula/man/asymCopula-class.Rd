@@ -4,8 +4,9 @@
 \alias{asymCopula-class}
 \alias{asymBivCopula-class}
 \alias{asymExplicitCopula-class}
+
 \description{
-  The \emph{virtual} class \code{"asymBivCopula"} and its two (\sQuote{actual})
+  The \emph{virtual} class \code{"asymCopula"} and its two (\sQuote{actual})
   subclasses \code{"asymBivCopula"} and \code{"asymExplicitCopula"}
   represent asymmetric copulas constructed from two (simple) copulas of
   the same dimension.
