@@ -1,6 +1,7 @@
 ##-*- org -*-->  Emacs .. [Tab] key + [Org] menu; C-c C-o to follow links
 * Short Term (before 1.0.0):
 ** TODO [MM/JY]: Add slot 'fixed' (or similar) to copula class, change constructors of existing classes accordingly and make appropriate changes in fitCopula() (and gofCopula() if required and do basic checks)
+** TODO [JY]: once 'fixed' stuff added, rewrite/adapt tCopula, tevCopula (so that the 'df.fixed' stuff uses the new 'fixed' stuff) ?
 ** TODO need a "getTheta" analogously to "setTheta"
 which extracts the parameter (vector) from any copula object
 ** TODO Clarify C.n() argument issues
@@ -11,14 +12,14 @@ which extracts the parameter (vector) from any copula object
 - want to use "it" by default, e.g.,  `main = copula@fullname` in persp() etc, *HOWEVER*
   it is too long / ugly, e.g.,  "Gumbel copula family; Archimedean copula; Extreme value copula"
   contains "copula" *3* times !
-** TODO [MM] Is it possible to generate (inheritance) tree class structure with methods automatically from the code
+** TODO [MM] Is it possible to generate (inheritance) tree class structure with methods automatically from the code ?
 ** TODO rhoTCopula not valid! => should define rho* and irho* only for Gauss copula!
 ** TODO [JY] Clean-up/document "old" copula files (such as ellip*/archm*/ev* copula files); write documentation a la 'Marius' (with Roxygen)
 ** TODO [JY] Check appropriate position of methods in classes
 ** TODO ~/R/MM/Pkg-ex/maryamS-ex.R : negative correlation data has BAD error message
  now see FIXME in   tests/fitting-ex.R  'msg <-
  tryCatch(fitCopula(gumbelCopula(), ....'
-** TODO Make absdPsi() work for class archmCopula() using nacopula stuff (see dC-dc.R)
+** TODO Make absdPsi() work for class archmCopula() using nacopula stuff (see TODO ub dC-dc.R)
 ** TODO Figure out and document somewhere how much objects of class archmCopula already use the good old nacopula stuff
 - fitCopula() -> loglikCopula() always uses the nacopula slots [all of the 5 AC families in R/fitCopula.R]
 ** TODO Make more archmCopula stuff use acopula stuff (like pK() doesn't work for archmCopulas!! => we should really have all functionality of acopulas used by archmCopulas! so much 'overhead')
