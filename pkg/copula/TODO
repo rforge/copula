@@ -1,5 +1,5 @@
 ##-*- org -*-->  Emacs .. [Tab] key + [Org] menu; C-c C-o to follow links
-* Short Term (before 1.0.0 and before book is published):
+* Short Term (before 1.0.0):
 ** TODO [MM/JY]: Add slot 'fixed' (or similar) to copula class, change constructors of existing classes accordingly and make appropriate changes in fitCopula() (and gofCopula() if required and do basic checks)
 ** TODO need a "getTheta" analogously to "setTheta"
 which extracts the parameter (vector) from any copula object
