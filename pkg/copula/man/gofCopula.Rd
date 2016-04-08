@@ -1,6 +1,9 @@
 \name{gofCopula}
 \title{Goodness-of-fit Tests for Copulas}
 \alias{gofCopula}
+\alias{gofCopula-methods}
+\alias{gofCopula,copula-method}
+\alias{gofCopula,rotCopula-method}
 \alias{gofMB}
 \alias{gofPB}
 \description{
@@ -32,7 +35,7 @@ gofPB(copula, x, N, method = eval(formals(gofTstat)$method),
       trafoArgs = list(), verbose = interactive(), \dots)
 gofMB(copula, x, N, method = c("Sn", "Rn"),
       estim.method = c("mpl", "ml", "itau", "irho"),
-      verbose = interactive(), useR = TRUE, m = 1/2, zeta.m = 0,
+      verbose = interactive(), useR = FALSE, m = 1/2, zeta.m = 0,
       b = 1/sqrt(nrow(x)), \dots)
 }
 \arguments{

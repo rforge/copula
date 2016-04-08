@@ -1,5 +1,8 @@
 \name{fitCopula}
 \alias{fitCopula}
+\alias{fitCopula-methods}
+\alias{fitCopula,copula-method}
+\alias{fitCopula,rotCopula-method}
 \alias{loglikCopula}
 \title{Copula Parameter Estimation}
 \description{
@@ -11,7 +14,7 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
           posDef = is(copula, "ellipCopula"),
           start = NULL, lower = NULL, upper = NULL,
           optim.method = "BFGS", optim.control = list(maxit=1000),
-          estimate.variance = NA, hideWarnings = FALSE, ...)
+          estimate.variance = NA, hideWarnings = FALSE, \dots)
 }
 \arguments{
   \item{param}{A vector of parameter values.}

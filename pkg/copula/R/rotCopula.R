@@ -67,44 +67,50 @@ pRotCopula <- function(u, copula) {
                            u = pmax(x, copula@flip)))
 }
 
+setMethod("pCopula", signature("numeric", "rotCopula"), pRotCopula)
+setMethod("pCopula", signature("matrix", "rotCopula"), pRotCopula)
+
 ## dCopula
 dRotCopula <- function(u, copula, log = FALSE, ...) {
     copula@copula@parameters <- copula@parameters
     dCopula(apply.flip(u, copula@flip), copula@copula, log = log, ...)
 }
 
+setMethod("dCopula", signature("numeric", "rotCopula"), dRotCopula)
+setMethod("dCopula", signature("matrix", "rotCopula"), dRotCopula)
+
 ## rCopula
-rRotCopula <- function(n, copula) {
+setMethod("rCopula", signature("numeric", "rotCopula"),
+          function(n, copula) {
     copula@copula@parameters <- copula@parameters
     apply.flip(rCopula(n, copula@copula), copula@flip)
-}
+})
+
 
 ## rho
-rhoRotCopula <- function(copula) {
+setMethod("rho", signature("rotCopula"), function(copula) {
     copula@copula@parameters <- copula@parameters
     (-1)^sum(copula@flip[1:2]) * rho(copula@copula)
-}
+})
 
 ## iRho
-iRhoRotCopula <- function(copula, rho) {
+setMethod("iRho", signature("rotCopula"), function(copula, rho) {
     iRho(copula@copula, (-1)^sum(copula@flip[1:2]) * rho)
-}
+})
 
 ## tau
-tauRotCopula <- function(copula) {
+setMethod("tau", signature("rotCopula"), function(copula) {
     copula@copula@parameters <- copula@parameters
     (-1)^sum(copula@flip[1:2]) * tau(copula@copula)
-}
+})
 
-## iRho
-iTauRotCopula <- function(copula, tau) {
+## iTau
+setMethod("iTau", signature("rotCopula"), function(copula, tau) {
     iTau(copula@copula, (-1)^sum(copula@flip[1:2]) * tau)
-}
+})
 
 ## lambda
-lambdaRotCopula <- function(copula) {
-    ## if (copula@dimension > 2L)
-    ##     warning("considering only the first bivariate margin of the copula")
+setMethod("lambda", signature("rotCopula"), function(copula) {
     copula@copula@parameters <- copula@parameters
     sm <- sum(copula@flip[1:2])
     if (sm == 1) {
@@ -119,10 +125,10 @@ lambdaRotCopula <- function(copula) {
         else
             c(lower = ti[2], upper = ti[1])
     }
-}
+})
 
 ## fitCopula
-fitCopulaRotCopula  <- function(copula, data, ...) {
+setMethod("fitCopula", signature("rotCopula"), function(copula, data, ...) {
     if(!is.matrix(data)) {
         warning("coercing 'data' to a matrix.")
         data <- as.matrix(data); stopifnot(is.matrix(data))
@@ -132,33 +138,14 @@ fitCopulaRotCopula  <- function(copula, data, ...) {
     copula@parameters <- fit@estimate
     fit@copula <- copula
     fit
-}
+})
 
 ## gofCopula
-gofCopulaRotCopula  <- function(copula, x, ...) {
+setMethod("gofCopula", signature("rotCopula"), function(copula, x, ...) {
     if(!is.matrix(x)) {
         warning("coercing 'x' to a matrix.")
         stopifnot(is.matrix(x <- as.matrix(x)))
     }
     x[,copula@flip] <- -x[,copula@flip]
     gofCopulaCopula(copula@copula, x = x, ...)
-}
-
-setMethod("pCopula", signature("numeric", "rotCopula"),pRotCopula)
-setMethod("pCopula", signature("matrix", "rotCopula"), pRotCopula)
-
-setMethod("dCopula", signature("numeric", "rotCopula"), dRotCopula)
-setMethod("dCopula", signature("matrix", "rotCopula"), dRotCopula)
-
-setMethod("rCopula", signature("numeric", "rotCopula"), rRotCopula)
-
-setMethod("rho", signature("rotCopula"), rhoRotCopula)
-setMethod("tau", signature("rotCopula"), tauRotCopula)
-
-setMethod("iRho", signature("rotCopula"), iRhoRotCopula)
-setMethod("iTau", signature("rotCopula"), iTauRotCopula)
-
-setMethod("lambda", signature("rotCopula"), lambdaRotCopula)
-
-setMethod("fitCopula", signature("rotCopula"), fitCopulaRotCopula)
-setMethod("gofCopula", signature("rotCopula"), gofCopulaRotCopula)
+})
