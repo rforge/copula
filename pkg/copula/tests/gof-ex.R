@@ -136,13 +136,14 @@ for(fitMeth in c("mpl", "itau", "irho")) {
 		    estim.method = fitMeth, simulation="mult"))
     print(gofCopula(claytonCopula(), x, N = 10, verbose=FALSE,
 		    estim.method = fitMeth, simulation="mult"))
+    print(gofCopula(gumbelCopula (), x, N = 10, verbose=FALSE,
+		    estim.method = fitMeth, simulation="mult",
+                    method="Rn"))
+    print(gofCopula(claytonCopula(), x, N = 10, verbose=FALSE,
+		    estim.method = fitMeth, simulation="mult",
+                    method="Rn"))
+
 }
-warnings()
-## "Rn" only works with "itau" (FIXME?)
-gofCopula(gumbelCopula (), x, N = 10, verbose=FALSE,
-          estim.method = "itau", simulation="mult", method="Rn")
-gofCopula(claytonCopula(), x, N = 10, verbose=FALSE,
-          estim.method = "itau", simulation="mult", method="Rn")
 warnings()
 
 
@@ -189,6 +190,10 @@ for(fitMeth in c("mpl")) {
     catn("\nfit*( estim.method = '", fitMeth,"')\n----------------------\n")
     print(gofCopula(gumbC, x, N = 10, estim.method = fitMeth, simulation="mult"))
     print(gofCopula(t.cop, x, N = 10, estim.method = fitMeth, simulation="mult"))
+    print(gofCopula(gumbC, x, N = 10, estim.method = fitMeth, simulation="mult",
+                    method="Rn"))
+    print(gofCopula(t.cop, x, N = 10, estim.method = fitMeth, simulation="mult",
+                    method="Rn"))
 }
 showProc.time()
 warnings()

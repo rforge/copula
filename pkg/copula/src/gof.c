@@ -85,12 +85,13 @@ void cramer_vonMises_grid(int *p, double *U, int *n, double *V, int *m,
  * @param G grid (g x p)
  * @param g grid size
  * @param influ influence matrix (g x n)
+ * @param denom "denominator" n-vector for Rn approach
  * @param N number of multiplier replications
  * @param s0 N replications of the test statistic
  * @author Ivan Kojadinovic
  */
 void multiplier(int *p, double *U, int *n, double *G, int *g,
-		double *influ, int *N, double *s0)
+		double *influ, double *denom, int *N, double *s0)
 {
   int i, j, k, l, ind;
   double invsqrtn = 1.0/sqrt(*n);
@@ -155,8 +156,8 @@ void multiplier(int *p, double *U, int *n, double *G, int *g,
 	{
 	  double process = 0.0;
 	  for (i=0; i<*n; i++)
-	    process += (random[i] - mean) * influ_mat[i + j * (*n)]
-	      - random[i] * influ[j + i * (*g)];
+	      process += ((random[i] - mean) * influ_mat[i + j * (*n)]
+			  - random[i] * influ[j + i * (*g)]) / denom[j];
 	  s0[l] += process * process;
 	}
       s0[l] /= *g;

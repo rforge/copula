@@ -22,17 +22,18 @@
 \usage{
 gofCopula(copula, x, N = 1000,
           method = "Sn",
-          estim.method = eval(formals(fitCopula)$method),
+          estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
           simulation = c("pb", "mult"),
 	  verbose = interactive(), \dots)
 
 gofPB(copula, x, N, method = eval(formals(gofTstat)$method),
-      estim.method = eval(formals(fitCopula)$method),
+      estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
       trafo.method = c("none", "rtrafo", "htrafo"),
       trafoArgs = list(), verbose = interactive(), \dots)
 gofMB(copula, x, N, method = c("Sn", "Rn"),
-      estim.method = eval(formals(fitCopula)$method), verbose = interactive(),
-      useR = FALSE, m = 1/2, zeta.m = 0, b = 0.05, \dots)
+      estim.method = c("mpl", "ml", "itau", "irho"),
+      verbose = interactive(), useR = TRUE, m = 1/2, zeta.m = 0,
+      b = 1/sqrt(nrow(x)), \dots)
 }
 \arguments{
   \item{copula}{object of class \code{"\linkS4class{copula}"} representing the

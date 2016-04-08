@@ -59,7 +59,7 @@ advantage outweighs the drawbacks... What do you think?
 ** TODO We seem to have quite a few 'deprecated' statements in the package (should be fine to remove some of the old stuff by now!)
 ** DONE [IK] Improve warning message in dC-dc.R when numerical stuff is used (provide the copula name!)
 ** TODO [IK] make method = "Rd" work with all the sim = "mult" families
-** TODO [IK] clean-up test functions
+** DONE [IK] clean-up test functions
 ** DONE [IK] Document dC-dc.R
 ** TODO [IK] Implement copula rotations (rotCopula()); mostly done incl tests/rotCopula-ex.R
 ** TODO [IK] Implement copula mixtures (mixCopula()) with sufficiently flexible structure so that we can maybe estimate the probability weights in the future

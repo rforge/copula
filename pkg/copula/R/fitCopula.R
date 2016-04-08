@@ -537,6 +537,8 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
 
 ### Wrapper ####################################################################
 
+setGeneric("fitCopula", function(copula, data, ...) standardGeneric("fitCopula"))
+
 ##' @title Main Fitting Wrapper
 ##' @param copula The copula to be fitted
 ##' @param data The data in [0,1]^d for "mpl", "ml", "itau.mpl";
@@ -585,6 +587,4 @@ fitCopulaCopula <- function(copula, data,
     }
 }
 
-## CHANGED: renamed function "fitCopula" above to "fitCopulaCopula" and created generic "fitCopula"
-setGeneric("fitCopula", function(copula, data, ...) standardGeneric("fitCopula"))
 setMethod("fitCopula", signature("copula"), fitCopulaCopula)

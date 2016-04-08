@@ -37,8 +37,8 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
 		     useR=FALSE, ...)
 {
     if(!is.matrix(u)) {
-	stopifnot(is.numeric(u))
-	u <- rbind(u, deparse.level=0L)
+        warning("coercing 'u' to a matrix.")
+        stopifnot(is.matrix(u <- as.matrix(u)))
     }
     d <- ncol(u)
     n <- nrow(u)
@@ -129,13 +129,16 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
 ##' @author Ivan Kojadinovic, Marius Hofert
 ##' Note: Different '...' should be passed to different *.method
 gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
-                  estim.method = eval(formals(copula:::fitCopulaCopula)$method), # CHANGED: fitCopula -> copula:::fitCopulaCopula
+                  estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
                   trafo.method = c("none", "rtrafo", "htrafo"),
 		  trafoArgs = list(), verbose = interactive(), ...)
 {
     ## Checks
     stopifnot(is(copula, "copula"), N >= 1)
-    if(!is.matrix(x)) x <- rbind(x, deparse.level=0L)
+    if(!is.matrix(x)) {
+        warning("coercing 'x' to a matrix.")
+        stopifnot(is.matrix(x <- as.matrix(x)))
+    }
     stopifnot((d <- ncol(x)) > 1, (n <- nrow(x)) > 0, dim(copula) == d)
     method <- match.arg(method)
     estim.method <- match.arg(estim.method)
@@ -230,7 +233,10 @@ Jscore <- function(copula, u, method)
 {
     ## Checks
     stopifnot(is(copula, "copula"))
-    if(!is.matrix(u)) u <- rbind(u, deparse.level=0L)
+    if(!is.matrix(u)) {
+        warning("coercing 'u' to a matrix.")
+        stopifnot(is.matrix(u <- as.matrix(u)))
+    }
     stopifnot((n <- nrow(u)) > 0, (d <- ncol(u)) > 1, dim(copula) == d)
 
     ## Deal with different methods
@@ -296,20 +302,21 @@ Jscore <- function(copula, u, method)
 ##'              since there is no (?) clear strategy in subdividing the overall
 ##'              computation in reasonable sub-parts, especially when calling the
 ##'              C code
-##' @param useR A logical indicating whether an R or the C implementation is used
+##' @param useR A logical indicating whether the R or C implementation is used
 ##' @param ... Additional arguments passed to the different methods
 ##' @return An object of class 'htest'
 ##' @author Ivan Kojadinovic, Marius Hofert
-##' Note: - Ugly C code switch
-##'       - Using gofTstat() for the multiplier bootstrap seems difficult, since
-##'         the realized test statistic and the bootstrapped one are computationally different
-gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
-                  estim.method=eval(formals(copula:::fitCopulaCopula)$method), # CHANGED: fitCopula -> copula:::fitCopulaCopula
-                  verbose = interactive(), useR=FALSE, m = 1/2, zeta.m = 0, b = 0.05, ...)
+gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
+                  estim.method = c("mpl", "ml", "itau", "irho"),
+                  verbose = interactive(), useR = FALSE, m = 1/2,
+                  zeta.m = 0, b = 1/sqrt(nrow(x)), ...)
 {
     ## Checks
     stopifnot(is(copula, "copula"), N>=1)
-    if(!is.matrix(x)) x <- rbind(x, deparse.level=0L)
+    if(!is.matrix(x)) {
+        warning("coercing 'x' to a matrix.")
+        stopifnot(is.matrix(x <- as.matrix(x)))
+    }
     stopifnot((d <- ncol(x)) > 1, (n <- nrow(x)) > 0, dim(copula) == d)
     method <- match.arg(method)
     estim.method <- match.arg(estim.method)
@@ -323,96 +330,91 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
     ## 2) Fit the copula (copula is the H_0 copula; C.th.n = C_{\theta_n}(.))
     C.th.n <- fitCopula(copula, u., method=estim.method,
 			estimate.variance=FALSE, ...)@copula
-    ## Big, ugly switch due to C code version (although most likely not required)
-    switch(method,
-           "Sn"=
-       {
-           ## 3) Compute the realized test statistic
-           T <- if(useR) { # R version
-               ## compute \sum_{i=1}^n (\hat{C}_n(\hat{\bm{U}}_i) - C_{\theta_n}(\hat{\bm{U}}_i))^2
-               gofTstat(u., method="Sn", useR=TRUE, copula=C.th.n)
-           } else { # C version
-               ## former code (MH: I don't see any reason why we should not use
-               ## cramer_vonMises (via gofTstat()) here)
-               ## .C(cramer_vonMises_grid,
-               ##    as.integer(d),
-               ##    as.double(u.),
-               ##    as.integer(n),
-               ##    as.double(u.),
-               ##    as.integer(n),
-               ##    as.double(pCopula(u., C.th.n)), # C_{\theta_n}(\hat{\bm{U}}_i), i=1,..,n
-               ##    stat=double(1))$stat
-               gofTstat(u., method="Sn", copula=C.th.n)
-           }
 
-           ## 4) Simulate the test statistic under H_0
-           T0 <- .C(multiplier,## -> ../src/gof.c
-                    p = as.integer(d),
-                    U = as.double(u.),
-                    n = as.integer(n),
-                    G = as.double(u.),
-                    g = as.integer(n),
-                    influ = as.double(dCdtheta(C.th.n, u.) %*%
-                                      Jscore(C.th.n, u=u., method=estim.method)),
-                    N = as.integer(N),
-                    s0 = double(N))$s0
-       },
-           "Rn"=
-       {
-           ## Checks
-	   if(estim.method!="itau")
-	       stop("Currently only estim.method='itau' available for method='Rn'")
-           ## 3) Compute the realized test statistic
-           C.th.n. <- pCopula(u., C.th.n) # n-vector
-           denom <- (C.th.n.*(1-C.th.n.) + zeta.m)^m # n-vector
-           Cn. <- F.n(u., u.) # n-vector
-           T <- sum( ((Cn. - C.th.n.)/denom)^2 ) # test statistic R_n
+    ## 3) Compute the realized test statistic
+    C.th.n. <- pCopula(u., C.th.n) # n-vector
+    denom <- rep(1, n) # Sn
+    if (method == "Rn") # Rn
+        denom <- (C.th.n.*(1-C.th.n.) + zeta.m)^m # n-vector
+    Cn. <- F.n(u., u.) # n-vector
+    T <- sum( ((Cn. - C.th.n.)/denom)^2 ) # test statistic Sn or Rn
 
-           ## 4) Simulate the test statistic under H_0
+    if (useR)
+    {
+        ## R version ################################################
 
-           ## 4.1) Draw Z's with mean 0 and variance 1
-           Z <- matrix(rnorm(N*n), nrow=N, ncol=n) # (N, n)-matrix
-           Zbar <- rowMeans(Z) # N-vector
+        ## 4) Simulate the test statistic under H_0
 
-           ## 4.2) Compute \hat{C}_n^{(h)}, h=1,..,N
-           factor <- (Z-Zbar)/sqrt(n) # (N, n)-matrix
-           ## now use a trick similar to C.n()
-           ## note: - u. is an (n, d)-matrix
-           ##       - t(u.)<=u.[i,] is an (d, n)-matrix
-           ##       - colSums(t(u.)<=u.[i,])==d is an n-vector of logicals with kth entry
-           ##         I_{\{\hat{\bm{U}}_k <= \bm{u}_i\}}
-           ind <- vapply(1:n, function(i) colSums(t(u.) <= u.[i,]) == d, logical(n)) # (n, n)-matrix
-           hCnh. <- factor %*% ind # (N, n)-matrix * (n, n)-matrix = (N, n)-matrix
-           for(j in 1:d) { # bivariate only here
-               ## build a matrix with 1s only, except for the jth column, which contains u.[,j]
-               u.j <- matrix(1, nrow=n, ncol=d)
-               u.j[,j] <- u.[,j]
-               ## evaluate the empirical copula there
-               ind.u.j <- vapply(1:n, function(i) colSums(t(u.) <= u.j[i,]) == d, logical(n)) # (n, n)-matrix
-               Cnh <- factor %*% ind.u.j # (N, n)-matrix * (n, n)-matrix = (N, n)-matrix
-               ## compute the "derivative" of the empirical copula at u.
-               Cjn. <- dCn(u., U=u., j.ind=j, b=b) # n vector
-               ## compute the sum
-               Cjn.. <- matrix(rep(Cjn., each=N), nrow=N, ncol=n) # auxiliary (N, n)-matrix
-               hCnh. <- hCnh. - Cjn.. * Cnh # (N, n)-matrix
-           }
+        ## 4.1) Draw Z's with mean 0 and variance 1
+        Z <- matrix(rnorm(N*n), nrow=N, ncol=n) # (N, n)-matrix
+        Zbar <- rowMeans(Z) # N-vector
 
-           ## 4.3) compute score function J and Theta
-           J.th.n <- Jscore(C.th.n, u=u., method=estim.method) # n-vector
-           Theta <- rowSums(Z * rep(J.th.n, each=N) / sqrt(n)) # rowSums((N, n)-matrix) = N-vector
+        ## 4.2) Compute \hat{C}_n^{(h)}, h=1,..,N
+        factor <- (Z-Zbar)/sqrt(n) # (N, n)-matrix
+        ## now use a trick similar to C.n()
+        ## note: - u. is an (n, d)-matrix
+        ##       - t(u.)<=u.[i,] is an (d, n)-matrix
+        ##       - colSums(t(u.)<=u.[i,])==d is an n-vector of logicals with kth entry
+        ##         I_{\{\hat{\bm{U}}_k <= \bm{u}_i\}}
+        ind <- vapply(1:n, function(i) colSums(t(u.) <= u.[i,]) == d, logical(n)) # (n, n)-matrix
+        hCnh. <- factor %*% ind # (N, n)-matrix * (n, n)-matrix = (N, n)-matrix
+        for(j in 1:d) { # bivariate only here
+            ## build a matrix with 1s only, except for the jth column, which contains u.[,j]
+            u.j <- matrix(1, nrow=n, ncol=d)
+            u.j[,j] <- u.[,j]
+            ## evaluate the empirical copula there
+            ind.u.j <- vapply(1:n, function(i) colSums(t(u.) <= u.j[i,]) == d, logical(n)) # (n, n)-matrix
+            Cnh <- factor %*% ind.u.j # (N, n)-matrix * (n, n)-matrix = (N, n)-matrix
+            ## compute the "derivative" of the empirical copula at u.
+            Cjn. <- dCn(u., U=u., j.ind=j, b=b) # n vector
+            ## compute the sum
+            Cjn.. <- matrix(rep(Cjn., each=N), nrow=N, ncol=n) # auxiliary (N, n)-matrix
+            hCnh. <- hCnh. - Cjn.. * Cnh # (N, n)-matrix
+        }
 
-           ## 4.4) Compute the multiplier replicates of the test statistic
-           d.dth.C.th.n <- as.vector(dCdtheta(C.th.n, u=u.)) # n-vector; Note: we need to have pseudo-observations here, since for a Gumbel (H_0) copula, for example, d.dth.C=NaN for those u which have at least one component equal to 1!!!
-           num <- t(hCnh. - outer(Theta, d.dth.C.th.n)) # (n, N)-matrix
-           T0 <- colSums( (num/denom)^2 )/n # (n, N)-matrix => N vector; test statistic R_n^{(h)}
-       },
-           stop("wrong method"))
+        ## 4.3) compute score function J and Theta
+        J.th.n <- Jscore(C.th.n, u=u., method=estim.method) # n-vector
+        ## TODO: FIXME
+        Theta <- rowSums(Z * rep(J.th.n, each=N) / sqrt(n)) # rowSums((N, n)-matrix) = N-vector
+
+        ## 4.4) Compute the multiplier replicates of the test statistic
+        d.dth.C.th.n <- as.vector(dCdtheta(C.th.n, u=u.)) # n-vector;
+        ## Note: we need to have pseudo-observations above, since for a Gumbel (H_0) copula,
+        ## for example, d.dth.C=NaN for those u which have at least one component equal to 1!!!
+        num <- t(hCnh. - outer(Theta, d.dth.C.th.n)) # (n, N)-matrix
+        T0 <- colSums( (num/denom)^2 )/n # (n, N)-matrix => N vector; test statistic Sn^{(h)} or Rn^{(h)}
+    } else {
+        ## C version ################################################
+
+        ## .C(cramer_vonMises_grid,
+        ##    as.integer(d),
+        ##    as.double(u.),
+        ##    as.integer(n),
+        ##    as.double(u.),
+        ##    as.integer(n),
+        ##    as.double(pCopula(u., C.th.n)), # C_{\theta_n}(\hat{\bm{U}}_i), i=1,..,n
+        ##    stat=double(1))$stat
+        ##   gofTstat(u., method="Sn", copula=C.th.n)
+
+        ## 4) Simulate the test statistic under H_0
+        T0 <- .C(multiplier,## -> ../src/gof.c
+                 p = as.integer(d),
+                 U = as.double(u.),
+                 n = as.integer(n),
+                 G = as.double(u.),
+                 g = as.integer(n),
+                 influ = as.double(dCdtheta(C.th.n, u.) %*%
+                                   Jscore(C.th.n, u=u., method=estim.method)),
+                 denom = as.double(denom),
+                 N = as.integer(N),
+                 s0 = double(N))$s0
+    }
 
     ## Return result object
     structure(class = "htest",
 	      list(method = sprintf(
-		   "Multiplier bootstrap goodness-of-fit test with 'method'=\"%s\", 'estim.method'=\"%s\"",
-		   method, estim.method),
+                       "Multiplier bootstrap goodness-of-fit test with 'method'=\"%s\", 'estim.method'=\"%s\"",
+                       method, estim.method),
                    parameter = c(parameter = C.th.n@parameters),
                    statistic = c(statistic = T),
                    p.value = (sum(T0 >= T) + 0.5) / (N + 1), # typical correction =>  p-values in (0, 1)
@@ -421,6 +423,8 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
 
 
 ### Wrapper ####################################################################
+
+setGeneric("gofCopula", function(copula, x, ...) standardGeneric("gofCopula"))
 
 ##' @title Goodness-of-fit test wrapper function
 ##' @param copula An object of type 'copula' representing the H_0 copula
@@ -435,7 +439,7 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
 ##' @return An object of class 'htest'
 ##' @author Ivan Kojadinovic, Marius Hofert
 gofCopulaCopula <- function(copula, x, N=1000, method = "Sn",
-                            estim.method = eval(formals(copula:::fitCopulaCopula)$method), # CHANGED: fitCopula -> copula:::fitCopulaCopula
+                            estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
                             simulation = c("pb", "mult"),
                             verbose = interactive(), ...) # print.every=NULL, ...)
 {
@@ -477,7 +481,5 @@ gofCopulaCopula <- function(copula, x, N=1000, method = "Sn",
     stop("Invalid simulation method ", simulation))
 }
 
-## CHANGED: renamed function "gofCopula" above to "gofCopulaCopula" and created generic "gofCopula"
-setGeneric("gofCopula", function(copula, x, ...) standardGeneric("gofCopula"))
 setMethod("gofCopula", signature("copula"), gofCopulaCopula)
 
