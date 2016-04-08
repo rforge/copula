@@ -41,14 +41,15 @@ rotCopula(copula, flip = rep(TRUE, copula@dimension))
 %\author{Ivan Kojadinovic}
 %\references{}
 \seealso{
-  \code{\link{fitCopula}} for fitting such copulas to data.
+  \code{\link{fitCopula}} for fitting such copulas to data,
+  \code{\link{gofCopula}} for goodness-of-fit tests for such copulas.
 }
 \examples{
 ## A two-dimensional example: a "rotated" Clayton copula
 rc <- rotCopula(claytonCopula(3), flip = c(TRUE, FALSE))
 
-contour(rc, dCopula, nlevels = 20, main = "dCopula(<rotCopula>)")
-contour(rc, pCopula, nlevels = 20, main = "pCopula(<rotCopula>)")
+contourplot2(rc, dCopula, nlevels = 20, main = "dCopula(<rotCopula>)")
+contourplot2(rc, pCopula, nlevels = 20, main = "pCopula(<rotCopula>)")
 rho(rc)
 tau(rc) # -0.6
 
@@ -63,13 +64,13 @@ iRho(rc., rho.n)
 iTau(rc., tau.n)
 
 ## Fitting
-fitCopula(rc., pobs(u), method = "irho")
-fitCopula(rc., pobs(u), method = "itau")
-fitCopula(rc., pobs(u), method = "mpl")
+fitCopula(rc., data = pobs(u), method = "irho")
+fitCopula(rc., data = pobs(u), method = "itau")
+fitCopula(rc., data = pobs(u), method = "mpl")
 
 ## Goodness-of-fit testing -- the first, parametric bootstrap, is *really* slow
-\dontrun{gofCopula(rc., u)}
-\donttest{gofCopula(rc., u, sim = "mult")}
+\dontrun{gofCopula(rc., x = u)}
+\donttest{gofCopula(rc., x = u, simulation = "mult")}
 
 ## A four-dimensional example: a "rotated" Frank copula
 rf <- rotCopula(frankCopula(10, dim = 4),
@@ -77,19 +78,22 @@ rf <- rotCopula(frankCopula(10, dim = 4),
 
 n <- 1000
 u <- rCopula(n, rf)
-pairs(u)
+splom2(u)
 
 pCopula(c(0.6,0.7,0.6,0.8), rf)
 C.n(cbind(0.6,0.7,0.6,0.8),  u)
 
-## Fitting: itau and irho should not be used (FIXME?)
+## Fitting
 (rf. <- rotCopula(frankCopula(dim=4),
                   flip = c(TRUE, FALSE, TRUE, FALSE)))
-fitCopula(rf., pobs(u))
+## fitCopula(rf., data = pobs(u), method = "irho")
+## FIXME above: not related to rotCopula but frankCopula
+fitCopula(rf., data = pobs(u), method = "itau")
+fitCopula(rf., data = pobs(u), method = "mpl")
 
 ## Goodness-of-fit testing (first ("PB") is really slow, see above):
-\dontrun{gofCopula(rf., pops(u))}
-\donttest{gofCopula(rf., pobs(u), sim = "mult") # takes 3.7 sec [lynne, 2015]}
+\dontrun{gofCopula(rf., x = u)}
+\donttest{gofCopula(rf., x = u, simulation = "mult") # takes 3.7 sec [lynne, 2015]}
 }
 \keyword{distribution}
 \keyword{multivariate}

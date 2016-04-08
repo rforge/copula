@@ -43,7 +43,7 @@ f.tms <- function(x) paste(round(x),"ms") # with a space (sep=" ") !
 ##' @note In a next step, one could include Ga and t as well, not only Archimedean copulas
 estimation.gof <- function(n, d, simFamily, tau,
 			   N = 1, # dummy number of bootstrap replications
-                           estim.method = eval(formals(fitCopula)$method),
+                           estim.method = eval(formals(copula:::fitCopulaCopula)$method), ## CHANGED: fitCopula -> copula:::fitCopulaCopula
                            simulation="pb", verbose=TRUE,
                            gof.trafo = c("rtrafo", "htrafo"),
                            gof.method = eval(formals(gofTstat)$method),

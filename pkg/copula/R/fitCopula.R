@@ -555,12 +555,12 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
 ##'        underlying optimizations are suppressed
 ##' @param ... Additional arguments passed to auxiliary functions
 ##' @return The fitted copula object
-fitCopula <- function(copula, data,
-                      method=c("mpl", "ml", "itau", "irho", "itau.mpl"),
-                      posDef=is(copula, "ellipCopula"),
-                      start=NULL, lower=NULL, upper=NULL,
-                      optim.method="BFGS", optim.control=list(maxit=1000),
-                      estimate.variance=NA, hideWarnings=FALSE, ...)
+fitCopulaCopula <- function(copula, data,
+                            method=c("mpl", "ml", "itau", "irho", "itau.mpl"),
+                            posDef=is(copula, "ellipCopula"),
+                            start=NULL, lower=NULL, upper=NULL,
+                            optim.method="BFGS", optim.control=list(maxit=1000),
+                            estimate.variance=NA, hideWarnings=FALSE, ...)
 {
     if(!is.matrix(data)) {
         warning("coercing 'data' to a matrix.")
@@ -577,10 +577,14 @@ fitCopula <- function(copula, data,
     } else if(method == "itau" || method == "irho") { # "itau" or "irho"
         fitCopula.icor(copula, x=data, method=method,
                        estimate.variance=estimate.variance, ...)
-    } else { # "itau.mpl"
+    } else { # "itau.mpl" 
         (if(hideWarnings) suppressWarnings else identity)(
         fitCopula.itau.mpl(copula, u=data, posDef=posDef, lower=lower, upper=upper,
                            estimate.variance=estimate.variance, ...) # <- may include 'tol' !
         )
     }
 }
+
+## CHANGED: renamed function "fitCopula" above to "fitCopulaCopula" and created generic "fitCopula"
+setGeneric("fitCopula", function(copula, data, ...) standardGeneric("fitCopula"))
+setMethod("fitCopula", signature("copula"), fitCopulaCopula)

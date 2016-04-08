@@ -48,7 +48,7 @@ rotCopula <- function(copula, flip = rep(TRUE, copula@dimension)) {
         param.upbnd = copula@param.upbnd,
         copula = copula,
         flip = flip,
-        fullname = paste("Rotated copula based on:", copula@fullname))
+        fullname = paste("Rotated copula based on: [", copula@fullname, "]"))
 }
 
 ## Internal. swicth u[,i] to 1 - u[,i] according to flip
@@ -81,31 +81,23 @@ rRotCopula <- function(n, copula) {
 
 ## rho
 rhoRotCopula <- function(copula) {
-    ## if (copula@dimension > 2L)
-    ##     warning("considering only the first bivariate margin of the copula")
     copula@copula@parameters <- copula@parameters
     (-1)^sum(copula@flip[1:2]) * rho(copula@copula)
 }
 
 ## iRho
 iRhoRotCopula <- function(copula, rho) {
-    ## if (copula@dimension > 2L)
-    ##     warning("considering only the first bivariate margin of the copula")
     iRho(copula@copula, (-1)^sum(copula@flip[1:2]) * rho)
 }
 
 ## tau
 tauRotCopula <- function(copula) {
-    ## if (copula@dimension > 2L)
-    ##     warning("considering only the first bivariate margin of the copula")
     copula@copula@parameters <- copula@parameters
     (-1)^sum(copula@flip[1:2]) * tau(copula@copula)
 }
 
 ## iRho
 iTauRotCopula <- function(copula, tau) {
-    ## if (copula@dimension > 2L)
-    ##     warning("considering only the first bivariate margin of the copula")
     iTau(copula@copula, (-1)^sum(copula@flip[1:2]) * tau)
 }
 
@@ -116,7 +108,7 @@ lambdaRotCopula <- function(copula) {
     copula@copula@parameters <- copula@parameters
     sm <- sum(copula@flip[1:2])
     if (sm == 1) {
-        warning("lambda() method for 'rotCopula' not implemented yet")
+        warning("lambda() method for copula class 'rotCopula' not implemented yet")
         c(lower= NA, upper= NA)
     }
     else {
@@ -129,44 +121,18 @@ lambdaRotCopula <- function(copula) {
     }
 }
 
-## dRho
-dRhoRotCopula <- function(copula) {
-    ## if (copula@dimension > 2)
-    ##     warning("considering only the first bivariate margin of the copula")
-    copula@copula@parameters <- copula@parameters
-    (-1)^sum(copula@flip[1:2]) * dRho(copula@copula)
+## fitCopula
+fitCopulaRotCopula  <- function(copula, data, method, ...) {
+    fit <- fitCopulaCopula(copula@copula, data = apply.flip(data, copula@flip), method = method, ...)
+    copula@copula <- fit@copula
+    copula@parameters <- fit@estimate
+    fit@copula <- copula
+    fit
 }
 
-## dTau
-dTauRotCopula <- function(copula) {
-    ## if (copula@dimension > 2)
-    ##     warning("considering only the first bivariate margin of the copula")
-    copula@copula@parameters <- copula@parameters
-    (-1)^sum(copula@flip[1:2]) * dTau(copula@copula)
-}
-
-## dlogcdu
-dlogcduRotCopula <- function(copula, u, ...) {
-    copula@copula@parameters <- copula@parameters
-    dlogcdu(copula@copula, apply.flip(u, copula@flip)) # TODO: check
-}
-
-## dCdu
-dCduRotCopula <- function(copula, u, ...) {
-    copula@copula@parameters <- copula@parameters
-    dCdu(copula@copula, apply.flip(u, copula@flip)) # TODO: check
-}
-
-## dlogcdtheta
-dlogcdthetaRotCopula <- function(copula, u, ...) {
-    copula@copula@parameters <- copula@parameters
-    dlogcdtheta(copula@copula, apply.flip(u, copula@flip)) # TODO: check
-}
-
-## dCdtheta
-dCdthetaRotCopula <- function(copula, u, ...) {
-    copula@copula@parameters <- copula@parameters
-    dCdtheta(copula@copula, apply.flip(u, copula@flip)) # TODO: check
+## gofCopula
+gofCopulaRotCopula  <- function(copula, x, ...) {
+    gofCopulaCopula(copula@copula, x = apply.flip(x, copula@flip), ...)
 }
 
 setMethod("pCopula", signature("numeric", "rotCopula"),pRotCopula)
@@ -185,10 +151,5 @@ setMethod("iTau", signature("rotCopula"), iTauRotCopula)
 
 setMethod("lambda", signature("rotCopula"), lambdaRotCopula)
 
-setMethod("dRho", signature("rotCopula"), dRhoRotCopula)
-setMethod("dTau", signature("rotCopula"), dTauRotCopula)
-
-setMethod("dlogcdu", signature("rotCopula"), dlogcduRotCopula)
-setMethod("dCdu", signature("rotCopula"), dCduRotCopula)
-setMethod("dlogcdtheta", signature("rotCopula"), dlogcdthetaRotCopula)
-setMethod("dCdtheta", signature("rotCopula"), dCdthetaRotCopula)
+setMethod("fitCopula", signature("rotCopula"), fitCopulaRotCopula)
+setMethod("gofCopula", signature("rotCopula"), gofCopulaRotCopula)

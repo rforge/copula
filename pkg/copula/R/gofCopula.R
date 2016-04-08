@@ -129,7 +129,7 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
 ##' @author Ivan Kojadinovic, Marius Hofert
 ##' Note: Different '...' should be passed to different *.method
 gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
-                  estim.method = eval(formals(fitCopula)$method),
+                  estim.method = eval(formals(copula:::fitCopulaCopula)$method), # CHANGED: fitCopula -> copula:::fitCopulaCopula
                   trafo.method = c("none", "rtrafo", "htrafo"),
 		  trafoArgs = list(), verbose = interactive(), ...)
 {
@@ -304,7 +304,7 @@ Jscore <- function(copula, u, method)
 ##'       - Using gofTstat() for the multiplier bootstrap seems difficult, since
 ##'         the realized test statistic and the bootstrapped one are computationally different
 gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
-                  estim.method=eval(formals(fitCopula)$method),
+                  estim.method=eval(formals(copula:::fitCopulaCopula)$method), # CHANGED: fitCopula -> copula:::fitCopulaCopula
                   verbose = interactive(), useR=FALSE, m = 1/2, zeta.m = 0, b = 0.05, ...)
 {
     ## Checks
@@ -434,10 +434,10 @@ gofMB <- function(copula, x, N, method=c("Sn", "Rn"),
 ##'        gofPB() and gofMB()
 ##' @return An object of class 'htest'
 ##' @author Ivan Kojadinovic, Marius Hofert
-gofCopula <- function(copula, x, N=1000, method = "Sn",
-                      estim.method = eval(formals(fitCopula)$method),
-                      simulation = c("pb", "mult"),
-		      verbose = interactive(), ...) # print.every=NULL, ...)
+gofCopulaCopula <- function(copula, x, N=1000, method = "Sn",
+                            estim.method = eval(formals(copula:::fitCopulaCopula)$method), # CHANGED: fitCopula -> copula:::fitCopulaCopula
+                            simulation = c("pb", "mult"),
+                            verbose = interactive(), ...) # print.every=NULL, ...)
 {
     ## Checks
     stopifnot(is(copula, "copula"), N >= 1)
@@ -476,3 +476,8 @@ gofCopula <- function(copula, x, N=1000, method = "Sn",
     },
     stop("Invalid simulation method ", simulation))
 }
+
+## CHANGED: renamed function "gofCopula" above to "gofCopulaCopula" and created generic "gofCopula"
+setGeneric("gofCopula", function(copula, x, ...) standardGeneric("gofCopula"))
+setMethod("gofCopula", signature("copula"), gofCopulaCopula)
+
