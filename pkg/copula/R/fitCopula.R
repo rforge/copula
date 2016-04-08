@@ -562,7 +562,6 @@ fitCopulaCopula <- function(copula, data,
                             optim.method="BFGS", optim.control=list(maxit=1000),
                             estimate.variance=NA, hideWarnings=FALSE, ...)
 {
-    cat("coucou\n")
     if(!is.matrix(data)) {
         warning("coercing 'data' to a matrix.")
         data <- as.matrix(data); stopifnot(is.matrix(data))

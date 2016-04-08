@@ -13,8 +13,10 @@
   parametric bootstrap.
 }
 \usage{
-gofEVCopula(copula, x, N = 1000, method = "mpl",
-            estimator = "CFG", m = 1000, verbose = interactive(),
+gofEVCopula(copula, x, N = 1000,
+            method = c("mpl", "ml", "itau", "irho"),
+            estimator = c("CFG", "Pickands"), m = 1000,
+            verbose = interactive(),
             optim.method = "Nelder-Mead")
 }
 \arguments{

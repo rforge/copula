@@ -27,23 +27,24 @@
 ##' @param optim.method for fitCopula
 ##' @return an object of class 'htest'
 ##' @author Ivan Kojadinovic
-gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
-                        estimator = "CFG", m = 1000,
-                        verbose = interactive(), # print.every = NULL,
-                        optim.method = "Nelder-Mead")
-{
-    n <- nrow(x)
-    p <- ncol(x)
+gofEVCopula <- function(copula, x, N = 1000,
+                        method = c("mpl", "ml", "itau", "irho"),
+                        estimator = c("CFG", "Pickands"), m = 1000,
+                        verbose = interactive(),
+                        optim.method = "Nelder-Mead") {
 
-    if (n < 2) stop("There should be at least 2 observations")
+    ## Checks
+    stopifnot(is(copula, "copula"), N >= 1L, m>= 100L)
+    if(!is.matrix(x)) {
+        warning("coercing 'x' to a matrix.")
+        stopifnot(is.matrix(x <- as.matrix(x)))
+    }
+    stopifnot((p <- ncol(x)) > 1, (n <- nrow(x)) > 1, dim(copula) == p)
+    method <- match.arg(method)
+    estimator <- match.arg(estimator)
 
-    if (copula@dimension != 2 || p != 2)
-      stop("The copula and the data should be of dimension two")
-
-    ## if (!is.null(print.every)) {
-    ##     warning("Argument 'print.every' is deprecated. Please use 'verbose' instead.")
-    ##     verbose <- print.every > 0
-    ## }
+    if (p != 2)
+        stop("The copula and the data should be of dimension two")
 
     ## make pseudo-observations
     u <- pobs(x)
@@ -71,8 +72,7 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
 	pb <- txtProgressBar(max = N, style = if(isatty(stdout())) 3 else 1) # setup progress bar
 	on.exit(close(pb)) # and close it on exit
     }
-    for (i in 1:N)
-    {
+    for (i in 1:N) {
         u0 <- pobs(rCopula(n, fcop))
 
         ## fit the copula
@@ -94,7 +94,7 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
     ## corrected version only
     structure(class = "htest",
               list(method = paste("Parametric bootstrap based GOF test for EV copulas with argument 'method' set to '",
-                   method, "' and argument 'estimator' set to '", estimator, "'", sep = ""),
+                                  method, "' and argument 'estimator' set to '", estimator, "'", sep = ""),
                    parameter = c(parameter = fcop@parameters),
                    statistic = c(statistic = s[1]),
                    p.value=(sum(s0[,1] >= s[1])+0.5)/(N+1),
@@ -105,8 +105,7 @@ gofEVCopula <- function(copula, x, N = 1000, method = "mpl",
 
 ### Original version for simulations; was named gofEVCopula before -- *not exported*
 gofA <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
-                    m = 1000, verbose = interactive(), optim.method = "Nelder-Mead")
-{
+                 m = 1000, verbose = interactive(), optim.method = "Nelder-Mead") {
     n <- nrow(x)
     p <- ncol(x)
     ## make pseudo-observations
@@ -159,8 +158,7 @@ gofA <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
 
     ## set starting values for fitCopula
     copula@parameters <- fcop@parameters
-    for (i in 1:N)
-    {
+    for (i in 1:N) {
         u0 <- pobs(rCopula(n, fcop))
 
         ## fit the copula
