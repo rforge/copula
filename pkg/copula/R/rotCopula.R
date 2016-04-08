@@ -133,7 +133,7 @@ setMethod("fitCopula", signature("rotCopula"), function(copula, data, ...) {
         warning("coercing 'data' to a matrix.")
         data <- as.matrix(data); stopifnot(is.matrix(data))
     }
-    fit <- fitCopulaCopula(copula@copula, data = apply.flip(data, copula@flip), ...)
+    fit <- fitCopula(copula@copula, data = apply.flip(data, copula@flip), ...)
     copula@copula <- fit@copula
     copula@parameters <- fit@estimate
     fit@copula <- copula
@@ -147,5 +147,5 @@ setMethod("gofCopula", signature("rotCopula"), function(copula, x, ...) {
         stopifnot(is.matrix(x <- as.matrix(x)))
     }
     x[,copula@flip] <- -x[,copula@flip]
-    gofCopulaCopula(copula@copula, x = x, ...)
+    gofCopula(copula@copula, x = x, ...)
 })
