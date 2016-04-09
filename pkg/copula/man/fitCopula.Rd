@@ -1,34 +1,38 @@
 \name{fitCopula}
+\title{Fitting Copulas to Data -- Copula Parameter Estimation}
 \alias{fitCopula}
 \alias{fitCopula-methods}
 \alias{fitCopula,copula-method}
 \alias{fitCopula,rotCopula-method}
 \alias{loglikCopula}
-\title{Copula Parameter Estimation}
 \description{
-  Parameter estimation (fitting) of a copula model to multivariate data.
+  Parameter estimation of copulas, i.e., fitting of a copula model to
+  multivariate (unit margin (\dQuote{pseudo})) data.
 }
 \usage{
 loglikCopula(param, u, copula)
-fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
+
+## Generic [and "rotCopula" method] :
+fitCopula(copula, data, \dots)
+\S4method{fitCopula}{copula}(copula, data, method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
           posDef = is(copula, "ellipCopula"),
           start = NULL, lower = NULL, upper = NULL,
           optim.method = "BFGS", optim.control = list(maxit=1000),
           estimate.variance = NA, hideWarnings = FALSE, \dots)
 }
 \arguments{
-  \item{param}{A vector of parameter values.}
+  \item{param}{vector of parameter values.}
   \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-)observations in
     \eqn{[0,1]^d} for computing the copula log-likelihood, where \eqn{n} denotes
     the sample size and \eqn{d} the dimension. Consider applying the function
     \code{\link{pobs}()} first in order to obtain such data.}
-  \item{data}{As \eqn{u}, an \eqn{n\times d}{n x d}-matrix of data. For
+  \item{data}{as \eqn{u}, an \eqn{n\times d}{n x d}-matrix of data.  For
     \code{method} being \code{"mpl"}, \code{"ml"} or \code{"itau.mpl"},
     this has to be data in \eqn{[0,1]^d}. For \code{method} being
     \code{"itau"} or \code{"irho"}, it can either be data in \eqn{[0,1]^d}
     or in the whole \eqn{d}-dimensional space.}
-  \item{copula}{A \code{"\linkS4class{copula}"} object.}
-  \item{method}{A \code{\link{character}} string specifying the copula
+  \item{copula}{a \code{"\linkS4class{copula}"} object.}
+  \item{method}{a \code{\link{character}} string specifying the copula
     parameter estimator used. This can be one of:
     \describe{
       \item{"mpl"}{Maximum pseudo-likelihood estimator (based on the given data
@@ -48,23 +52,23 @@ fitCopula(copula, data, method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
 	the underlying copula to be estimated).}
     }
   }
-  \item{posDef}{A \code{\link{logical}} indicating whether a proper
+  \item{posDef}{a \code{\link{logical}} indicating whether a proper
     correlation matrix is computed.}
-  \item{start}{A \code{\link{vector}} of starting values for the
+  \item{start}{a \code{\link{vector}} of starting values for the
     parameter optimization via \code{\link{optim}()}.}
   \item{lower, upper}{Lower or Upper parameter bounds for the
     optimization methods \code{"Brent"} or \code{"L-BFGS-B"}.}
-  \item{optim.control}{A \code{\link{list}} of control parameters
+  \item{optim.control}{a \code{\link{list}} of control parameters
     passed to \code{\link{optim}(*, control=optim.control)}.}
   \item{optim.method}{The optimization method; see
     \code{\link{optim}()}'s \code{method}.}
-  \item{estimate.variance}{A \code{\link{logical}} indicating whether
+  \item{estimate.variance}{a \code{\link{logical}} indicating whether
     the estimator's asymptotic variance is computed (if available for
     the given \code{copula}; the default \code{NA} computes it for the
     \code{method}s \code{"itau"} and \code{"irho"}, cannot (yet) compute
     it for \code{"itau.mpl"} and only computes it for \code{"mpl"} or \code{"ml"}
     if the optimization converged).}
-  \item{hideWarnings}{A \code{\link{logical}}, which, if
+  \item{hideWarnings}{a \code{\link{logical}}, which, if
     \code{\link{TRUE}}, suppresses warnings from the involved
     likelihood maximization (typically when the likelihood is
     evaluated at invalid parameter values).}

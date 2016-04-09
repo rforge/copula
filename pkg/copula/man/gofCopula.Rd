@@ -23,7 +23,9 @@
   \code{simulation} either calls \code{gofPB()} or \code{gofMB()}.
 }
 \usage{
-gofCopula(copula, x, N = 1000,
+## Generic [and "rotCopula" method] :
+gofCopula(copula, x, \dots)
+\S4method{gofCopula}{copula}(copula, x, N = 1000,
           method = "Sn",
           estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
           simulation = c("pb", "mult"),

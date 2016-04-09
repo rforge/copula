@@ -382,9 +382,9 @@ res <- apply(res.ES, 1:3, sd) # (n, cop.methods, rng.methods)
 ## Fit linear models to the curves
 ## All pseudo-quantities
 res.p <- data.frame(n=rep(n, 2), sd=c(res[,"CDM","runif"], res[,"MO","runif"]))
-lm.p <- lm(log(sd)~log(n), data=res.p)
-c.p <- exp(lm.p$coefficients[[1]])
-a.p <- lm.p$coefficients[[2]]
+cf.lm.p <- coef( lm(log(sd) ~ log(n), data = res.p) )
+c.p <- exp(cf.lm.p[[1]])
+a.p <- cf.lm.p[[2]]
 y.p <- c.p * n^a.p # log(y) = -a*log(n)+b <=> y = exp(b)*n^(-a)
 ## All quasi-quantities
 res.q <- data.frame(n=rep(n, 2), sd=c(res[,"CDM","ghalton"], res[,"MO","ghalton"]))
