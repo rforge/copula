@@ -58,10 +58,11 @@ would 'contradict' that. Really not sure... I tend to say the
 advantage outweighs the drawbacks... What do you think?
 ** TODO We seem to have quite a few 'deprecated' statements in the package (should be fine to remove some of the old stuff by now!)
 ** DONE [IK] Improve warning message in dC-dc.R when numerical stuff is used (provide the copula name!)
-** TODO [IK] make method = "Rd" work with all the sim = "mult" families
+** DONE [IK] make method = "Rd" work with all the sim = "mult" families
 ** DONE [IK] clean-up test functions
 ** DONE [IK] Document dC-dc.R
-** TODO [IK] Implement copula rotations (rotCopula()); mostly done incl tests/rotCopula-ex.R
+** DONE [IK] Implement copula rotations (rotCopula()); mostly done incl tests/rotCopula-ex.R
+** TODO [IK] Write test code for mult gof Sn, Rn
 ** TODO [IK] Implement copula mixtures (mixCopula()) with sufficiently flexible structure so that we can maybe estimate the probability weights in the future
 ** TODO [IK/JY] Implement Liebscher copulas (asymCopula()) for 2 'base copulas' (any dimension)
 ** TODO [JY] document getL() a bit more in fitCopula.R (what is it for?); there's a TODO there as well (in the header of getL())

@@ -343,46 +343,38 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
     {
         ## R version ################################################
 
-        ## 4) Simulate the test statistic under H_0
+        ## Obtain approximate realizations of the test statistic under H_0
 
-        ## 4.1) Draw Z's with mean 0 and variance 1
+        ## The multipliers
         Z <- matrix(rnorm(N*n), nrow=N, ncol=n) # (N, n)-matrix
         Zbar <- rowMeans(Z) # N-vector
+        Zcent <- (Z-Zbar) # (N, n)-matrix
 
-        ## 4.2) Compute \hat{C}_n^{(h)}, h=1,..,N
-        factor <- (Z-Zbar)/sqrt(n) # (N, n)-matrix
-        ## now use a trick similar to C.n()
+        ## The non-parametric part
+        ## use a trick similar to C.n()
         ## note: - u. is an (n, d)-matrix
         ##       - t(u.)<=u.[i,] is an (d, n)-matrix
         ##       - colSums(t(u.)<=u.[i,])==d is an n-vector of logicals with kth entry
         ##         I_{\{\hat{\bm{U}}_k <= \bm{u}_i\}}
         ind <- vapply(1:n, function(i) colSums(t(u.) <= u.[i,]) == d, logical(n)) # (n, n)-matrix
-        hCnh. <- factor %*% ind # (N, n)-matrix * (n, n)-matrix = (N, n)-matrix
+        hCnh. <- Zcent %*% ind # (N, n)-matrix * (n, n)-matrix = (N, n)-matrix
         for(j in 1:d) { # bivariate only here
             ## build a matrix with 1s only, except for the jth column, which contains u.[,j]
             u.j <- matrix(1, nrow=n, ncol=d)
             u.j[,j] <- u.[,j]
-            ## evaluate the empirical copula there
             ind.u.j <- vapply(1:n, function(i) colSums(t(u.) <= u.j[i,]) == d, logical(n)) # (n, n)-matrix
-            Cnh <- factor %*% ind.u.j # (N, n)-matrix * (n, n)-matrix = (N, n)-matrix
-            ## compute the "derivative" of the empirical copula at u.
+            Cnh <- Zcent %*% ind.u.j # (N, n)-matrix * (n, n)-matrix = (N, n)-matrix
+            ## finite-differences of the empirical copula at u.
             Cjn. <- dCn(u., U=u., j.ind=j, b=b) # n vector
             ## compute the sum
             Cjn.. <- matrix(rep(Cjn., each=N), nrow=N, ncol=n) # auxiliary (N, n)-matrix
             hCnh. <- hCnh. - Cjn.. * Cnh # (N, n)-matrix
         }
 
-        ## 4.3) compute score function J and Theta
-        J.th.n <- Jscore(C.th.n, u=u., method=estim.method) # n-vector
-        ## TODO: FIXME
-        Theta <- rowSums(Z * rep(J.th.n, each=N) / sqrt(n)) # rowSums((N, n)-matrix) = N-vector
-
-        ## 4.4) Compute the multiplier replicates of the test statistic
-        d.dth.C.th.n <- as.vector(dCdtheta(C.th.n, u=u.)) # n-vector;
-        ## Note: we need to have pseudo-observations above, since for a Gumbel (H_0) copula,
-        ## for example, d.dth.C=NaN for those u which have at least one component equal to 1!!!
-        num <- t(hCnh. - outer(Theta, d.dth.C.th.n)) # (n, N)-matrix
-        T0 <- colSums( (num/denom)^2 )/n # (n, N)-matrix => N vector; test statistic Sn^{(h)} or Rn^{(h)}
+        ## Add the parametric part and compute multiplier replicates of T
+        num <- (hCnh. - Z %*% t(dCdtheta(C.th.n, u=u.) %*%
+                                Jscore(C.th.n, u=u., method=estim.method)))  # (N, n)-matrix
+        T0 <- rowSums( (num %*% diag(1 / denom))^2 ) / n^2 # N vector; test statistic Sn^{(h)} or Rn^{(h)}
     } else {
         ## C version ################################################
 
