@@ -125,33 +125,27 @@ validRho <- function(dispstr, dim, lenRho) {
     TRUE
 }
 
-validEllipCopula <- function(object) {
-  rho <- object@getRho(object)
-  validRho(dispstr=object@dispstr, dim=object@dimension,
-           length(rho))
-}
 
 setClass("ellipCopula", contains = c("copula", "VIRTUAL"),
 	 slots = c(dispstr = "character", getRho = "function"),
-         validity = validEllipCopula)
+         validity = function(object)
+             validRho(dispstr=object@dispstr, dim=object@dimension,
+                      length(object@getRho(object))))
 
-if(FALSE) # not yet needed -- validEllipCopula() is used anyway
-##' normal copula
-validNormalCopula <- function(object) {
-  ## can do more if needed here
-}
-setClass("normalCopula", contains = "ellipCopula")
-         ## validity = validNormalCopula)
+setClass("normalCopula", contains = "ellipCopula"
+         ## not really needed -- validity for ellipCopula is checked already
+         ## , validity =  function(object) {
+         ##     can do more if needed here
+         ## }
+         )
 
-if(FALSE)## not needed
-## t copula
-validTCopula <- function(object) {
-  ## df inside boundaries is checked in "copula" validity
-}
 
 setClass("tCopula", contains = "ellipCopula",
 	 slots = c(df = "numeric", df.fixed = "logical")
-         ## , validity = validTCopula
+         ## not needed:
+         ## , validity =  function(object) {
+         ##    df inside boundaries is checked in "copula" validity
+         ## }
          )
 
 

@@ -16,7 +16,7 @@
 
 ## Schlather copula; does not offer full range of dependence
 setClass("schlatherCopula", contains = "evCopula"
-           # , exprdist = "expression")
+           # , slots = c(exprdist = "expression")
          )
 
 ASchlather <- function(copula, w) { ## one-parameter for now

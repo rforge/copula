@@ -20,13 +20,13 @@
 
 ## Asymmetric copula class constructed from two d-dimensional copulas
 setClass("asymCopula", contains = c("copula", "VIRTUAL"),
-         representation = representation(
+	 slots = c(
              copula1 = "copula",
              copula2 = "copula"
          ),
 	 validity = function(object) {
-    if(object@copula1@dimension != object@copula2@dimension)
-        "The argument copulas are not of the same dimension"
+	     if(object@copula1@dimension != object@copula2@dimension)
+		 "The argument copulas are not of the same dimension"
 	     else TRUE
 })
 
@@ -38,8 +38,8 @@ setClass("asymCopula", contains = c("copula", "VIRTUAL"),
 ## Bivariate asymmetric copula class
 setClass("asymBivCopula", contains = "asymCopula", ## -> calls *ITS* validity (eq. dim)
 	 validity = function(object) {
-    if(object@copula1@dimension != 2)
-        "The asymBivCopula constituents must have dimension two"
+             if(object@copula1@dimension != 2)
+                 "The asymBivCopula constituents must have dimension two"
 	     else TRUE
 })
 
@@ -228,11 +228,11 @@ setMethod("dCdtheta", signature("asymBivCopula"), dCdthetaAsymBivCopula)
 ################################################################################
 
 setClass("asymExplicitCopula", contains = "asymCopula",
-         representation = representation(
-           exprdist = "expression",
-           derExprs1 = "expression",
-           derExprs2 = "expression"
-           )
+	 slots = c(
+             exprdist = "expression",
+             derExprs1 = "expression",
+             derExprs2 = "expression"
+         )
          ## validity = function(object) {
          ##     ## TODO: check exprdist, derExprs[12]
          ## },

@@ -16,11 +16,11 @@
 
 ## This has advantage that arithmetic with scalars works "for free" already:
 setClass("interval", contains = "numeric", # of length 2
-	 representation(open  = "logical"),# of length 2
+	 slots = c(open  = "logical"),# of length 2
 	 validity = function(object) {
 	     if(length(rng <- object@.Data) != 2) "interval must be of length 2"
 	     else if(length(object@open) != 2) "'open' must be of length 2"
-	     else if(any(is.na(object@open))) "'open' may not be NA"
+	     else if(anyNA(object@open)) "'open' may not be NA"
 	     else if(rng[2] < rng[1]) "'range[2]' must not be smaller than range[1]"
 	     else TRUE
 	 })
@@ -30,34 +30,34 @@ setClassUnion("maybeInterval", c("interval", "NULL"))
 ### Mother class of all (simple, *NON*-nested) Archimedean Copula Types
 ### for *any* dimension d
 setClass("acopula",
-	 representation(name = "character",
-                        psi = "function",         # of (t, theta) -- the generator
-                        iPsi = "function",      # of (u, theta, log=FALSE) -- (log-)psi_inverse: \psi^{-1}(u)=t
-			## when theta is one-dimensional, specifying the interval is more convenient:
-                        paraInterval = "maybeInterval", # [.,.]  (.,.], etc .. parameter interval
-                        absdPsi = "function",     # of (t, theta, degree=1, n.MC=0, log=FALSE) -- (-1)^d * the degree-th generator derivative
-                        theta = "numeric",        # value of theta or  'NA'  (for unspecified)
-                        paraConstr = "function",  # of (theta) ; constr(theta) |--> TRUE: "fulfilled"
-                        absdiPsi = "function", # of (t, theta, log=FALSE) -- absolute value of first derivative of iPsi
-                        dDiag = "function",       # of (u, theta, log=FALSE) -- compute the density of the diagonal
-			dacopula = "function",	  # of (u, theta, n.MC=0, log=FALSE) -- computes the (log-)density of the Archimedean
+	 slots = c(name = "character",
+                   psi = "function",         # of (t, theta) -- the generator
+                   iPsi = "function",      # of (u, theta, log=FALSE) -- (log-)psi_inverse: \psi^{-1}(u)=t
+                   ## when theta is one-dimensional, specifying the interval is more convenient:
+                   paraInterval = "maybeInterval", # [.,.]  (.,.], etc .. parameter interval
+                   absdPsi = "function",     # of (t, theta, degree=1, n.MC=0, log=FALSE) -- (-1)^d * the degree-th generator derivative
+                   theta = "numeric",        # value of theta or  'NA'  (for unspecified)
+                   paraConstr = "function",  # of (theta) ; constr(theta) |--> TRUE: "fulfilled"
+                   absdiPsi = "function", # of (t, theta, log=FALSE) -- absolute value of first derivative of iPsi
+                   dDiag = "function",       # of (u, theta, log=FALSE) -- compute the density of the diagonal
+                   dacopula = "function",	  # of (u, theta, n.MC=0, log=FALSE) -- computes the (log-)density of the Archimedean
 					# copula with parameter theta at the vector/matrix u (n.MC > 0: apply Monte Carlo with sample size n.MC)
-			score = "function",	  # of (u, theta) -- computes the score function
-                        uscore = "function",      # of (u, theta, d) -- computed (dC/du)(u) / C(u) for each u_j => for all components simultaneously
-			V0 = "function",	  # of (n,theta) -- RNGenerator
-			dV0 = "function",	  # of (x,theta,log=FALSE) -- density of F=LS^{-1}[psi]
-			tau = "function",	  # of (theta)
-			iTau = "function",	  # of (tau)
-			lambdaL = "function",	  # of (theta) lower bound  \lambda_l
-			lambdaLInv = "function",  # of (lambda) - Inverse of \lambda_l
-			lambdaU = "function",	  # of (theta)	- upper bound  \lambda_u
-			lambdaUInv = "function",  # of (lambda) - Inverse of \lambda_u
-			## Nesting properties if the child copulas are of the same family :
-			nestConstr = "function",  # of (th0, th1) ; TRUE <==> "fulfilled"
-			V01= "function",	  # of (V0,theta0,theta1) -- RNGenerator
-			dV01= "function"	   # of (x,(V0),theta0,theta1,log=FALSE) -- density
+                   score = "function",	  # of (u, theta) -- computes the score function
+                   uscore = "function",      # of (u, theta, d) -- computed (dC/du)(u) / C(u) for each u_j => for all components simultaneously
+                   V0 = "function",	  # of (n,theta) -- RNGenerator
+                   dV0 = "function",	  # of (x,theta,log=FALSE) -- density of F=LS^{-1}[psi]
+                   tau = "function",	  # of (theta)
+                   iTau = "function",	  # of (tau)
+                   lambdaL = "function",	  # of (theta) lower bound  \lambda_l
+                   lambdaLInv = "function",  # of (lambda) - Inverse of \lambda_l
+                   lambdaU = "function",	  # of (theta)	- upper bound  \lambda_u
+                   lambdaUInv = "function",  # of (lambda) - Inverse of \lambda_u
+                   ## Nesting properties if the child copulas are of the same family :
+                   nestConstr = "function",  # of (th0, th1) ; TRUE <==> "fulfilled"
+                   V01= "function",	  # of (V0,theta0,theta1) -- RNGenerator
+                   dV01= "function"	   # of (x,(V0),theta0,theta1,log=FALSE) -- density
 					# *related to* F01=LS^{-1}[psi_0^{-1}(psi_1(t))] (see the specific families)
-                        ),
+                   ),
          prototype = prototype(theta = NA_real_),
 	 validity = function(object) {
 	     if (length(nm <- object@name) != 1 || nchar(nm) < 1)
@@ -146,11 +146,11 @@ setMethod("validTheta", signature(x = "acopula"),
 
 ### Nested Archimedean Copulas with *specified* dimension(s)
 setClass("nacopula",
-	 representation(copula = "acopula",
-                        comp = "integer", # from 1:d -- of length in [0,d]
-                        childCops = "list" #of nacopulas, possibly empty
-                        ## nesting properties (V01,..) for specific mother-child relations could be added
-                        ),
+	 slots = c(copula = "acopula",
+                   comp = "integer", # from 1:d -- of length in [0,d]
+                   childCops = "list" #of nacopulas, possibly empty
+                   ## nesting properties (V01,..) for specific mother-child relations could be added
+                   ),
          validity = function(object) {
              if(length(d <- dim(object)) != 1 || !is.numeric(d) || d <= 0)
                  return("invalid dim(.)")
@@ -220,8 +220,8 @@ allComp <- function(x) {
 ##' @return logical vector of length nrow(u) - with*out* any NAs
 ##' @author Martin Maechler
 u.in.01 <- function(u) apply(u, 1, function(x)
-			     !any(is.na(x)) && all(0 < x, x < 1))
-## TODO? rather use		                   0 < x, x <= 1  ??
+			     !anyNA(x) && all(0 < x, x < 1))
+## TODO? rather use	                      0 < x, x <= 1  ??
 
 
 ##' Which values u are "outside (0,1)^d" ?

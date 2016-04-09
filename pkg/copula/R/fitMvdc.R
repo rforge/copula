@@ -13,8 +13,8 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-setClass("fitMvdc", representation(mvdc = "mvdc"),
-	 contains="fittedMV" #-> ./Classes.R
+setClass("fitMvdc", contains = "fittedMV", #-> ./Classes.R
+         slots = c(mvdc = "mvdc")
 	 ## FIXME , validity = function(object) TRUE
 	 )
 
