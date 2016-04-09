@@ -14,7 +14,8 @@ loglikCopula(param, u, copula)
 
 ## Generic [and "rotCopula" method] :
 fitCopula(copula, data, \dots)
-\S4method{fitCopula}{copula}(copula, data, method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
+\S4method{fitCopula}{copula}(copula, data,
+          method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
           posDef = is(copula, "ellipCopula"),
           start = NULL, lower = NULL, upper = NULL,
           optim.method = "BFGS", optim.control = list(maxit=1000),

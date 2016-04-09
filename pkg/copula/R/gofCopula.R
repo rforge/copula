@@ -111,6 +111,9 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
 	   stop("unsupported method ", method))
 }
 
+### gofMB ####################################################################
+
+setGeneric("gofPB", function(copula, x, ...) standardGeneric("gofPB"))
 
 ### The parametric bootstrap (for computing different goodness-of-fit tests) ###
 
@@ -128,7 +131,7 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
 ##' @return An object of class 'htest'
 ##' @author Ivan Kojadinovic, Marius Hofert
 ##' Note: Different '...' should be passed to different *.method
-gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
+gofPBCopula <- function(copula, x, N, method = eval(formals(gofTstat)$method),
                   estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
                   trafo.method = c("none", "rtrafo", "htrafo"),
 		  trafoArgs = list(), verbose = interactive(), ...)
@@ -211,7 +214,9 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
                    data.name = deparse(substitute(x))))
 }
 
+setMethod("gofPB", signature("copula"), gofPBCopula)
 
+################################################################################
 ### The multiplier bootstrap (for computing different goodness-of-fit tests) ###
 
 ##' @title J-score \hat{J}_{\theta_n} for the multiplier bootstrap
@@ -288,6 +293,10 @@ Jscore <- function(copula, u, method)
            stop("wrong method"))
 }
 
+### gofMB ####################################################################
+
+setGeneric("gofMB", function(copula, x, ...) standardGeneric("gofMB"))
+
 ##' @title Goodness-of-fit tests based on the multiplier bootstrap
 ##' @param copula An object of type 'copula' representing the H_0 copula
 ##' @param x An (n, d)-matrix containing the data
@@ -306,10 +315,10 @@ Jscore <- function(copula, u, method)
 ##' @param ... Additional arguments passed to the different methods
 ##' @return An object of class 'htest'
 ##' @author Ivan Kojadinovic, Marius Hofert
-gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
-                  estim.method = c("mpl", "ml", "itau", "irho"),
-                  verbose = interactive(), useR = FALSE, m = 1/2,
-                  zeta.m = 0, b = 1/sqrt(nrow(x)), ...)
+gofMBCopula <- function(copula, x, N, method = c("Sn", "Rn"),
+                        estim.method = c("mpl", "ml", "itau", "irho"),
+                        verbose = interactive(), useR = FALSE, m = 1/2,
+                        zeta.m = 0, b = 1/sqrt(nrow(x)), ...)
 {
     ## Checks
     stopifnot(is(copula, "copula"), N>=1)
@@ -413,6 +422,7 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
                    data.name = deparse(substitute(x))))
 }
 
+setMethod("gofMB", signature("copula"), gofMBCopula)
 
 ### Wrapper ####################################################################
 

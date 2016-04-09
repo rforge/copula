@@ -149,3 +149,23 @@ setMethod("gofCopula", signature("rotCopula"), function(copula, x, ...) {
     x[,copula@flip] <- -x[,copula@flip]
     gofCopula(copula@copula, x = x, ...)
 })
+
+## gofPB
+setMethod("gofPB", signature("rotCopula"), function(copula, x, ...) {
+    if(!is.matrix(x)) {
+        warning("coercing 'x' to a matrix.")
+        stopifnot(is.matrix(x <- as.matrix(x)))
+    }
+    x[,copula@flip] <- -x[,copula@flip]
+    gofPB(copula@copula, x = x, ...)
+})
+
+## gofMB
+setMethod("gofMB", signature("rotCopula"), function(copula, x, ...) {
+    if(!is.matrix(x)) {
+        warning("coercing 'x' to a matrix.")
+        stopifnot(is.matrix(x <- as.matrix(x)))
+    }
+    x[,copula@flip] <- -x[,copula@flip]
+    gofMB(copula@copula, x = x, ...)
+})
