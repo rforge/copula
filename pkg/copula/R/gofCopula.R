@@ -316,7 +316,7 @@ setGeneric("gofMB", function(copula, x, ...) standardGeneric("gofMB"))
 ##' @return An object of class 'htest'
 ##' @author Ivan Kojadinovic, Marius Hofert
 gofMBCopula <- function(copula, x, N, method = c("Sn", "Rn"),
-                        estim.method = c("mpl", "ml", "itau", "irho"),
+                        estim.method = c("mpl", "itau", "irho"),
                         verbose = interactive(), useR = FALSE, m = 1/2,
                         zeta.m = 0, b = 1/sqrt(nrow(x)), ...)
 {

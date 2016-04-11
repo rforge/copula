@@ -13,17 +13,21 @@
 \alias{gofPB,copula-method}
 \alias{gofPB,rotCopula-method}
 \description{
-  Goodness-of-fit tests for copulas based on the empirical process
+  The goodness-of-fit tests are based, by default, on the empirical
+  process
   comparing the empirical copula with a parametric estimate of the
-  copula derived under the null hypothesis.
-  Approximate p-values for the test statistic can be obtained either
-  using the \emph{parametric bootstrap} (see the two first
-  references) or by means of a fast \emph{multiplier} approach
-  (see references three and four).
-
-  The default test statistic, "Sn", is the Cramer-von Mises functional
+  copula derived under the null hypothesis, the default test
+  statistic, "Sn", being the Cramer-von Mises functional
   \eqn{\mathrm{S_n}}{S[n]} defined
-  in Equation (2) of Genest, Remillard and Beaudoin (2009).
+  in Equation (2) of Genest, Remillard and Beaudoin (2009). In that
+  case, approximate p-values for the test statistic can be obtained
+  either
+  using a \emph{parametric bootstrap} (see references two and three)
+  or by means of a faster \emph{multiplier} approach
+  (see references four and five).
+
+  Alternative test statistics can be used, in particular if a
+  \emph{parametric bootstrap} is employed.
 
   The prinicipal function is \code{gofCopula()} which, depending on
   \code{simulation} either calls \code{gofPB()} or \code{gofMB()}.
@@ -45,16 +49,17 @@ gofPB(copula, x, \dots)
           trafoArgs = list(), verbose = interactive(), \dots)
 gofMB(copula, x, \dots)
 \S4method{gofMB}{copula}(copula, x, N, method = c("Sn", "Rn"),
-          estim.method = c("mpl", "ml", "itau", "irho"),
+          estim.method = c("mpl", "itau", "irho"),
           verbose = interactive(), useR = FALSE, m = 1/2, zeta.m = 0,
           b = 1/sqrt(nrow(x)), \dots)
 }
 \arguments{
   \item{copula}{object of class \code{"\linkS4class{copula}"} representing the
     hypothesized copula family.}
-  \item{x}{a data matrix that will be transformed to pseudo-observations.}
+  \item{x}{a data matrix that will be transformed to pseudo-observations
+    using \code{\link{pobs}()}.}
   \item{N}{number of bootstrap or multiplier replications to be used to
-    simulate realizations of the test statistic under the null
+    obtain approximate realizations of the test statistic under the null
     hypothesis.}
   \item{method}{a \code{\link{character}} string specifying the
     goodness-of-fit test statistic to be used.  For \code{simulation = "pb"},
@@ -64,15 +69,14 @@ gofMB(copula, x, \dots)
     Genest et al. (2013).}
   \item{estim.method}{a character string specifying the estimation method to
     be used to estimate the dependence parameter(s); see \code{\link{fitCopula}()}.}
-  \item{simulation}{a string specifying the simulation method for
-    generating realizations of the test statistic under the null
+  \item{simulation}{a string specifying the resampling method for
+    generating approximate realizations of the test statistic under the null
     hypothesis; can be either \code{"pb"} (parametric bootstrap) or
     \code{"mult"} (multiplier).}
-  \item{verbose}{a logical specifying if progress of the bootstrap
+  \item{verbose}{a logical specifying if progress of the parametric bootstrap
     should be displayed via \code{\link[utils]{txtProgressBar}}.}
   \item{\dots}{for \code{gofCopula}, additional arguments passed to
     \code{gofPB()} or \code{gofMB()};
-
     for \code{gofPB()} and \code{gofMB()}: additional arguments passed
     to \code{\link{fitCopula}()}.  These may notably contain
     \code{hideWarnings}, and
@@ -83,7 +87,7 @@ gofMB(copula, x, \dots)
     see \code{\link{rtrafo}}, or \code{"htrafo"}, see \code{\link{htrafo}}.}
   \item{trafoArgs}{a \code{\link{list}} of optional arguments passed
     to the transformation method (see \code{trafo.method} above).}
-  \item{useR}{logical indicating whether an R or the C implementation is used.}
+  \item{useR}{logical indicating whether the R or C implementation is used.}
   \item{m, zeta.m, b}{only for method \code{"Rn"} in \dQuote{MB}, the
     multiplier bootstrap. \code{m} is the power, \code{zeta.m} the adjustment
     parameter \eqn{\zeta_m}{zeta.m} for the denominator of the test
@@ -92,23 +96,24 @@ gofMB(copula, x, \dots)
 }
 \details{
   If the parametric bootstrap is used, the dependence parameters of
-  the hypothesized copula family can be estimated either by maximizing
-  the pseudo-likelihood, by inverting Kendall's tau, or by inverting
-  Spearman's rho.  If the multiplier is used, any estimation method
+  the hypothesized copula family can be estimated by any estimation
+  method available for the family, up to a few exceptions
+  If the multiplier is used, any of the rank-based methods
   can be used in the bivariate case, but only maximum pseudo-likelihood
   estimation can be used in the multivariate (multiparameter) case.
 
-  For the normal and t copulas, several dependence structures can be
-  hypothesized: \code{"ex"} for exchangeable, \code{"ar1"} for AR(1),
-  \code{"toep"} for Toeplitz, and \code{"un"} for unstructured (see
-  \code{\link{ellipCopula}()}). For the t copula, \code{"df.fixed"} has to
-  be set to \code{TRUE}, which implies that the degrees of freedom are
-  not considered as a parameter to be estimated.
+  The price to pay for the higher computational efficiency of the
+  multiplier is more programming work as certain
+  partial derivatives need to be computed for each hypothesized
+  parametric copula family. When estimation is based on maximization of
+  the pseudo-likelihood, these have been implemented for six copula
+  families thus far: the Clayton, Gumbel-Hougaard, Frank, Plackett,
+  normal and \eqn{t} copula families.  For other families, numerical
+  differentiation based on \code{\link[numDeriv]{grad}()} from package
+  \CRANpkg{numDeriv} is used (and a warning message is displayed).
 
-  Thus far, the multiplier approach is implemented for six copula
-  families: the Clayton, Gumbel, Frank, Plackett, normal and t.
-
-  Although the processes involved in the multiplier and the parametric
+  Although the empirical processes involved in the multiplier and the
+  parametric
   bootstrap-based test are asymptotically equivalent under the null,
   note that the finite-sample behavior of the two tests might differ
   significantly.
@@ -122,6 +127,13 @@ gofMB(copula, x, \dots)
   approximate p-value is a number strictly between 0 and 1, which is
   sometimes necessary for further treatments. See Pesarin (2001) for
   more details.
+
+  For the normal and \eqn{t} copulas, several dependence structures can be
+  hypothesized: \code{"ex"} for exchangeable, \code{"ar1"} for AR(1),
+  \code{"toep"} for Toeplitz, and \code{"un"} for unstructured (see
+  \code{\link{ellipCopula}()}). For the \eqn{t} copula, \code{"df.fixed"} has to
+  be set to \code{TRUE}, which implies that the degrees of freedom are
+  not considered as a parameter to be estimated.
 
   The former argument \code{print.every} is deprecated and not
   supported anymore; use \code{verbose} instead.
@@ -175,15 +187,15 @@ gofMB(copula, x, \dots)
   approximate p-values. One way of dealing with ties was suggested in the
   Journal of Statistical Software reference.
 
-  Since \R is widely used by practitioners, a word of warning concerning
-  goodness-of-fit tests \emph{in general} is also advisable.
-  Goodness-of-fit tests are often (ab)used in practice to
-  \dQuote{justify} an assumption under which one then continues to work
-  (carelessly).  From a mathematical point of view, this is not correct.
+  %% Since \R is widely used by practitioners, a word of warning concerning
+  %% goodness-of-fit tests \emph{in general} is also advisable.
+  %% Goodness-of-fit tests are often (ab)used in practice to
+  %% \dQuote{justify} an assumption under which one then continues to work
+  %% (carelessly).  From a mathematical point of view, this is not correct.
 }
 \seealso{
   \code{\link{fitCopula}()} for the underlying estimation procedure and
-  \code{\link{gofTstat}()} for the available test statistics.
+  \code{\link{gofTstat}()} for details on all available test statistics.
 }
 \examples{
 ## the following example is available in batch through
@@ -193,20 +205,20 @@ gofMB(copula, x, \dots)
 ## A two-dimensional data example ----------------------------------
 x <- rCopula(200, claytonCopula(3))
 
-(tau. <- cor(x, method="kendall")[1,2]) # around 0.5 -- 0.6
+%(tau. <- cor(x, method="kendall")[1,2]) # around 0.5 -- 0.6
 ## Does the Gumbel family seem to be a good choice?
-(thG <- iTau(gumbelCopula(), tau.)) # 3.02
-gofCopula(gumbelCopula(thG), x)
+%(thG <- iTau(gumbelCopula(), tau.)) # 3.02
+gofCopula(gumbelCopula(), x)
 # SnC: really s..l..o..w.. --- SnB is *EVEN* slower
-gofCopula(gumbelCopula(thG), x, method = "SnC")
+gofCopula(gumbelCopula(), x, method = "SnC")
 ## What about the Clayton family?
-(thC <- iTau(claytonCopula(), tau.)) # 4.05
-gofCopula(claytonCopula(thC), x)
-gofCopula(claytonCopula(thC), x, method = "AnChisq")
+%(thC <- iTau(claytonCopula(), tau.)) # 4.05
+gofCopula(claytonCopula(), x)
+gofCopula(claytonCopula(), x, method = "AnChisq")
 
 ## The same with a different estimation method
-gofCopula(gumbelCopula (thG), x, estim.method="itau")
-gofCopula(claytonCopula(thC), x, estim.method="itau")
+gofCopula(gumbelCopula (), x, estim.method="itau")
+gofCopula(claytonCopula(), x, estim.method="itau")
 
 
 ## A three-dimensional example  ------------------------------------
