@@ -2,6 +2,7 @@
 * Short Term (before 1.0.0):
 ** TODO [MM/JY]: Add slot 'fixed' (or similar) to copula class, change constructors of existing classes accordingly and make appropriate changes in fitCopula() (and gofCopula() if required and do basic checks)
 ** TODO [JY]: once 'fixed' stuff added, rewrite/adapt tCopula, tevCopula (so that the 'df.fixed' stuff uses the new 'fixed' stuff) ?
+** TODO [MM]: bug? library(copula); d <- 3; pCopula(0.4, copula = normalCopula(param = 0.5, dim = d))
 ** TODO need a "getTheta" analogously to "setTheta"
 which extracts the parameter (vector) from any copula object
 ** TODO Clarify C.n() argument issues
