@@ -120,12 +120,12 @@ lambdaTCopula <- function(copula)
   ## McNeil, Frey, Embrechts (p. 211, 2005)
     df <- getdf(copula)
     rho <- copula@getRho(copula)
-    res <- if(is.infinite(df)) {
+    if(is.infinite(df)) {
         lambdaNormalCopula(normalCopula(rho))
     } else {
-        2 * pt(- sqrt((df + 1) * (1 - rho) / (1 + rho)), df=df + 1)
+        res <- 2 * pt(- sqrt((df + 1) * (1 - rho) / (1 + rho)), df=df + 1)
+        c(lower = res, upper = res)
     }
-    c(lower = res, upper = res)
 }
 
 setMethod("rCopula", signature("numeric", "tCopula"), rtCopula)
