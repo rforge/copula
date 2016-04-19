@@ -571,7 +571,8 @@ wireframe2MatrixDf <- function(x,
     if(is.null(ylab))
         ylab <- if(is.null(colnms)) "" else parse(text = colnms[2])
     if(is.null(zlab))
-        zlab <- if(is.null(colnms)) "" else parse(text = colnms[3])
+        zlab <- list(if(is.null(colnms)) "" else parse(text = colnms[3]),
+                     rot = 90)
 
     ## Wireframe plot
     wireframe(x[,3] ~ x[,1] * x[,2], xlim = xlim, ylim = ylim, zlim = zlim,
@@ -600,7 +601,7 @@ wireframe2MatrixDf <- function(x,
 wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
                              xlim = 0:1, ylim = 0:1, zlim = NULL,
                              xlab = expression(u[1]), ylab = expression(u[2]),
-                             zlab = deparse(substitute(FUN))[1], ...)
+                             zlab = list(deparse(substitute(FUN))[1], rot = 90), ...)
 {
     stopifnot(dim(x) == 2, n.grid >= 2)
     if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)
@@ -631,7 +632,7 @@ wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
 wireframe2Mvdc <- function(x, FUN, n.grid = 26,
                            xlim, ylim, zlim = NULL,
                            xlab = expression(x[1]), ylab = expression(x[2]),
-                           zlab = deparse(substitute(FUN))[1], ...)
+                           zlab = list(deparse(substitute(FUN))[1], rot = 90), ...)
 {
     stopifnot(dim(x) == 2, n.grid >= 2)
     if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)

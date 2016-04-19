@@ -29,10 +29,10 @@
 \S4method{wireframe2}{copula}(x, FUN, n.grid = 26, delta = 0,
       xlim = 0:1, ylim = 0:1, zlim = NULL,
       xlab = expression(u[1]), ylab = expression(u[2]),
-      zlab = deparse(substitute(FUN))[1], \dots)
+      zlab = list(deparse(substitute(FUN))[1], rot = 90), \dots)
 \S4method{wireframe2}{mvdc}(x, FUN, n.grid = 26, xlim, ylim, zlim = NULL,
       xlab = expression(x[1]), ylab = expression(x[2]),
-      zlab = deparse(substitute(FUN))[1], \dots)
+      zlab = list(deparse(substitute(FUN))[1], rot = 90), \dots)
 }
 \arguments{
   \item{x}{A \code{"\linkS4class{matrix}"},
