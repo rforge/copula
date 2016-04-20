@@ -52,6 +52,25 @@ cacopula(u, cop, n.MC=0, log=FALSE)
   \code{\link{rtrafo}}; \code{\link{acopula-families}}.
 }
 \examples{
+## 1) Sampling a conditional Clayton copula given u_1
+tau <- 0.5
+theta <- iTau(claytonCopula(), tau = tau)
+d <- 2
+cc <- claytonCopula(theta, dim = d)
+n <- 1000
+set.seed(271)
+## Small u_1
+u1 <- 0.05
+U <- cCopula(cbind(u1, runif(n)), copula = cc, j.ind = NULL, inverse = TRUE)
+plot(U[,2], ylab = expression(U[2]))
+## Large u_1
+u1 <- 0.95
+U <- cCopula(cbind(u1, runif(n)), copula = cc, j.ind = NULL, inverse = TRUE)
+plot(U[,2], ylab = expression(U[2]))
+
+
+## 2) Sample via conditional distribution method and then apply the
+##    Rosenblatt transform
 ## Note: This illustrates the numerically more involved (and thus much slower)
 ##       Gumbel case.
 
