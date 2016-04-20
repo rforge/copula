@@ -32,9 +32,9 @@ htrafo(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
   \item{cop}{a \code{"\linkS4class{Copula}"} with specified parameters
     based on which the transformation is computed.  For \code{htrafo()},
     currently only Archimedean copulas are supported (specified as
-    \code{"\linkS4class{outer_nacopula}"}), whereas for \code{rtrafo()},
-    \emph{hierarchical} Archimedean and elliptical copulas (see
-    \code{\link{ellipCopula}}) are allowed.}
+    \code{"\linkS4class{outer_nacopula}"} or \code{"\linkS4class{archmCopula}"}),
+    whereas for \code{rtrafo()}, \emph{hierarchical} Archimedean and elliptical
+    copulas (see \code{\link{ellipCopula}}) are allowed.}
   \item{j.ind}{\code{\link{NULL}} (in which case the Rosenblatt
     transformation is computed (all components)) or an
     \code{\link{integer}} between 2 and \eqn{d}
@@ -138,57 +138,68 @@ htrafo(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
   \code{\link{emde}} where \code{htrafo} is applied.
 }
 \examples{
+## 1) Graphically apply rtrafo() and htrafo()
+
+## Sample and build pseudo-observations (what we normally have available)
+## of a Clayton copula
 tau <- 0.5
-(theta <- copGumbel@iTau(tau)) # 2
-(copG <- onacopulaL("Gumbel", list(theta, 1:5))) # d = 5
-
-set.seed(1)
+theta <- iTau(claytonCopula(), tau = tau)
+d <- 5
+cc <- claytonCopula(theta, dim = d)
+set.seed(271)
 n <- 1000
-x <- rnacopula(n, copG)
-x <- qnorm(x) # x now follows a meta-Gumbel model with N(0,1) marginals
-u <- pobs(x) # build pseudo-observations
+U <- rCopula(n, copula = cc)
+X <- qnorm(U) # X now follows a meta-Gumbel model with N(0,1) marginals
+U <- pobs(X) # build pseudo-observations
 
-## graphically check if the data comes from a meta-Gumbel model
+## Graphically check if the data comes from a meta-Clayton model
 ## with the transformation of Hering and Hofert (2014):
-u.h <- htrafo(u, cop=copG) # transform the data
-pairs(u.h, gap=0, cex=0.2) # looks good
+U.H <- htrafo(U, cop = cc) # transform the data
+splom2(U.H, cex = 0.2) # looks good
 
-## with the transformation of Rosenblatt (1952):
-u.r <- rtrafo(u, cop=copG) # transform the data
-pairs(u.r, gap=0, cex=0.2) # looks good
+## The same for an 'outer_nacopula' object
+cc. <- onacopulaL("Clayton", list(theta, 1:d))
+U.H. <- htrafo(U, cop = cc.)
+splom2(U.H., cex = 0.2) # looks good
 
-## what about a meta-Clayton model?
-## the parameter is chosen such that Kendall's tau equals (the same) tau
-copC <- onacopulaL("Clayton", list(copClayton@iTau(tau), 1:5))
+## With the transformation of Rosenblatt (1952)
+U.R <- rtrafo(U, cop = cc)
+splom2(U.R, cex = 0.2) # looks good
 
-## plot of the transformed data (Hering and Hofert (2014)) to see the
+## What about a meta-Gumbel model?
+## The parameter is chosen such that Kendall's tau equals (the same) tau
+gc <- gumbelCopula(iTau(gumbelCopula(), tau = tau), dim = d)
+
+## Plot of the transformed data (Hering and Hofert (2014)) to see the
 ## deviations from uniformity
-u.H <- htrafo(u, cop=copC) # transform the data
-pairs(u.H, gap=0, cex=0.2) # clearly visible
+U.H.. <- htrafo(U, cop = gc)
+splom2(U.H.., cex = 0.2) # deviations visible
 
-## plot of the transformed data (Rosenblatt (1952)) to see the
+## Plot of the transformed data (Rosenblatt (1952)) to see the
 ## deviations from uniformity
-u.R <- rtrafo(u, cop=copC) # transform the data
-pairs(u.R, gap=0, cex=0.2) # clearly visible
+U.R. <- rtrafo(U, cop = gc)
+splom2(U.R., cex = 0.2) # deviations visible
 
-## rtrafo() for elliptical:
-fN <- fitCopula(normalCopula(dim=ncol(u)), data=u) # fit a Gauss copula
-pairs(rtrafo(u, cop=fN@copula), gap=0, cex=0.2) # visible but not so clearly
+
+## 2) rtrafo() for elliptical copulas
+fN <- fitCopula(normalCopula(dim=d), data=U) # fit a Gauss copula
+splom2(rtrafo(U, cop = fN@copula), cex = 0.2) # visible but not so clearly
 if(copula:::doExtras()) {
-  f.t <- fitCopula(tCopula(dim=ncol(u)), u)
-  tCop <- f.t@copula
+  f.t <- fitCopula(tCopula(dim = d), U)
+  tc <- f.t@copula
 } else {
-  tCop <- tCopula(param = 0.685, df = 7, dim=ncol(u))
+  tc <- tCopula(param = 0.685, df = 7, dim=d)
 }
-u.Rt <- rtrafo(u, cop=tCop) # transform with a fitted t copula
-pairs(u.Rt, gap=0, cex=0.2) # *not* clearly visible
+U.Rt <- rtrafo(U, cop = tc) # transform with a fitted t copula
+splom2(U.Rt, cex = 0.2) # still visible but not so clear
 \dontshow{%% consistency of  log=FALSE / TRUE:
-stopifnot(all.equal(log(u.R),
-		    rtrafo(u, cop=copC, log=TRUE), tolerance=1e-14),
-	  all.equal(log(rtrafo(u, cop= fN@copula)),
-		    rtrafo(u, cop=fN@copula, log=TRUE), tolerance=1e-14),
-	  all.equal(log(u.Rt),
-		    rtrafo(u, cop=tCop, log=TRUE), tolerance=1e-14),
+    tol <- 1e-14
+    stopifnot(all.equal(log(U.R),
+		    rtrafo(U, cop = cc, log=TRUE), tolerance=tol),
+	  all.equal(log(rtrafo(U, cop = fN@copula)),
+		    rtrafo(U, cop = fN@copula, log=TRUE), tolerance=tol),
+	  all.equal(log(U.Rt),
+		    rtrafo(U, cop = tc, log=TRUE), tolerance=tol),
 	  TRUE)
 }% only for testing
 }

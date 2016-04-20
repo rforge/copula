@@ -579,7 +579,7 @@ fitCopulaCopula <- function(copula, data,
     } else if(method == "itau" || method == "irho") { # "itau" or "irho"
         fitCopula.icor(copula, x=data, method=method,
                        estimate.variance=estimate.variance, ...)
-    } else { # "itau.mpl" 
+    } else { # "itau.mpl"
         (if(hideWarnings) suppressWarnings else identity)(
         fitCopula.itau.mpl(copula, u=data, posDef=posDef, lower=lower, upper=upper,
                            estimate.variance=estimate.variance, ...) # <- may include 'tol' !

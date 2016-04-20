@@ -23,22 +23,21 @@
 ##' copula (with specified parameters) to U[0,1]^d vectors of random variates
 ##' via Rosenblatt's transformation
 ##'
-##' @title Rosenblatt transformation for a (nested) Archimedean copula
+##' @title Rosenblatt transformation
 ##' @param u data matrix in [0,1]^(n, d) ((pseudo-/copula-)observations if
 ##'        inverse==TRUE and U[0,1] observations if inverse==FALSE)
 ##' @param cop object of class Copula
-##' @param j.ind index j for which C(u_j | u_1,..,u_{j-1}) is computed
-##'        (in which case only this result is returned) or NULL
-##'        in which case C(u_j | u_1,..,u_{j-1}) is computed for all j in
-##'        {2,...,d} (in which case the non-transformed first column is returned
-##'        as well)
+##' @param j.ind single index in {2,..,d} for which C(u_j | u_1,..,u_{j-1}) is
+##'        computed and returned or NULL for which C(u_j | u_1,..,u_{j-1}) is
+##'        computed for all j in {2,...,d} (and in which case the non-transformed
+##'        first column is also returned)
 ##' @param n.MC parameter n.MC for evaluating the derivatives via Monte Carlo;
 ##'        if 0, the available (theoretical) formula is used.
 ##' @param inverse logical indicating whether the inverse of rtrafo is computed
 ##'        (this is known as 'conditional distribution method' for sampling)
 ##' @param log logical indicating whether the log-transform is computed
-##' @return (n,d) matrix U supposedly U[0,1]^d (if inverse==FALSE) or 'copula'
-##'         (if inverse=TRUE) realizations (if j.ind==NULL) or
+##' @return An (n,d) matrix U of supposedly U[0,1]^d realizations (if inverse==FALSE)
+##'         or copula samples (if inverse=TRUE) (if j.ind==NULL) or
 ##'         C(u_j | u_1,..,u_{j-1}) (if j.ind in {2,..,d}) [or the log of
 ##'         the result if log=TRUE]
 ##' @author Marius Hofert and Martin Maechler
@@ -51,32 +50,32 @@ rtrafo <- function(u, cop, j.ind=NULL, n.MC=0, inverse=FALSE, log=FALSE)
     d <- ncol(u)
     stopifnot(d >= 2)
     is.null.j.ind <- is.null(j.ind)
-    stopifnot(is.null.j.ind || (length(j.ind)==1 && 2 <= j.ind && j.ind <= d))
+    stopifnot(is.null.j.ind || (length(j.ind)==1 && 2 <= j.ind && j.ind <= d)) # either NULL or of length 1
     jj     <- if(is.null.j.ind) 2:d else j.ind
     jj.res <- if(is.null.j.ind) 1:d else j.ind
 
-    ## distinguish the families (as they are quite different)
+    ## Distinguish the families (as they are quite different)
 
     ## (nested) Archimedean case ###############################################
 
-    if((nac <- is(cop, "outer_nacopula")) || is(cop, "archmCopula")) {
-	if(nac) {
+    if((NAC <- is(cop, "outer_nacopula")) || is(cop, "archmCopula")) {
+	if(NAC) {
 	    if(length(cop@childCops))
-		stop("currently, only Archimedean copulas are supported")
-	    cop <- cop@copula
+		stop("Currently, only Archimedean copulas are supported")
+            ## outer_nacopula but with no children => an AC => continue
+	    cop <- cop@copula # class(cop) = "acopula"
 	    th <- cop@theta
 	} else { # "archmCopula"
 	    th <- cop@parameters
-	    cop <- getAcop(cop)
+	    cop <- getAcop(cop) # class(cop) = "acopula" but without parameter or dim
 	}
 	stopifnot(cop@paraConstr(th))
 
-        ## compute inverse
+        ## Compute inverse
         if(inverse) {
-            U <- u # consider u as U[0,1]^d
-            max.col <- if(is.null(j.ind)) d else j.ind
-            ## Clayton case (explicit)
-            if(cop@name=="Clayton") {
+            U <- u # u's are supposedly U[0,1]^d
+            max.col <- if(is.null(j.ind)) d else j.ind # maximal column index up to which the conditional copula inverses need to be computed
+            if(cop@name=="Clayton") { # Clayton case (explicit)
                 sum. <- U[,1]^(-th)
                 for(j in 2:max.col) {
                     U[,j] <- log1p((1-j+1+sum.)*(u[,j]^(-1/(j-1+1/th))-1))/(-th)
@@ -84,21 +83,25 @@ rtrafo <- function(u, cop, j.ind=NULL, n.MC=0, inverse=FALSE, log=FALSE)
                     sum. <- sum. + eUj^(-th)
                     if(!log) U[,j] <- eUj
                 }
-            } else { # non-Clayton
-                ## general case
+            } else { # non-Clayton / general case
+                ## TODO: After the acopula and archmCopula classes are better merged, the
+                ##       tedious conversion to acopula (above) and then again to archmCopula (below)
+                ##       is not required anymore.
                 if(n.MC) stop("The inverse of Rosenblatt's transformation with uniroot() requires n.MC=0")
-                U <- u # treat u as U[0,1]^d
-                for(i in 1:n)
-                    for(j in j.ind)
+                for(j in 2:max.col) {
+                    for(i in 1:n) {
+                        cond_cop_given_j_minus_1 <- function(x)
+                            rtrafo(c(U[i,1:(j-1)], x), cop=archmCopula(cop@name, param=th), j.ind=j)
                         U[i,j] <- uniroot(function(x)
-                                          rtrafo(c(U[i,1:(j-1)], x), cop=cop, j.ind=j) - u[i,j],
-                                          interval=c(0,1))$root
+                            cond_cop_given_j_minus_1(x) - u[i,j], interval=c(0,1))$root
+                    }
+                }
                 if(log) U <- log(U)
             }
             return(U[,jj.res])
         }
 
-        ## compute conditional probabilities
+        ## Compute conditional probabilities
 	psiI <- cop@iPsi(u, theta=th)	   # (n,d) matrix of psi^{-1}(u)
 	psiI. <- t(apply(psiI, 1, cumsum)) # corresponding (n,d) matrix of row sums
 	if(n.MC==0){
@@ -215,7 +218,7 @@ rtrafo <- function(u, cop, j.ind=NULL, n.MC=0, inverse=FALSE, log=FALSE)
         if(is.null.j.ind) cbind(trafo, if(log) log(u[,1]) else u[,1]) else trafo
 
     } else {
-	stop("not yet implemented for copula class ", class(cop))
+	stop("Not yet implemented for copula class ", class(cop))
     }
 }
 
@@ -226,7 +229,7 @@ rtrafo <- function(u, cop, j.ind=NULL, n.MC=0, inverse=FALSE, log=FALSE)
 ##'
 ##' @title Transformation of Hering and Hofert (2014) or its inverse
 ##' @param u data matrix in [0,1]^(n, d)
-##' @param cop an outer_nacopula
+##' @param cop an 'outer_nacopula' or 'archmCopula' object
 ##' @param include.K boolean indicating whether the last component, K, is also
 ##'        used (include.K = TRUE); ignored when inverse=TRUE since K is crucial
 ##'        there
@@ -238,22 +241,36 @@ rtrafo <- function(u, cop, j.ind=NULL, n.MC=0, inverse=FALSE, log=FALSE)
 ##' @param ... additional arguments passed to qK() (see there)
 ##' @return matrix of transformed realizations
 ##' @author Marius Hofert and Martin Maechler
-htrafo <- function(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
-                   method=eval(formals(qK)$method), u.grid, ...)
+htrafo <- function(u, cop, include.K = TRUE, n.MC = 0, inverse = FALSE,
+                   method = eval(formals(qK)$method), u.grid, ...)
 {
-    ## checks
-    stopifnot(is(cop, "outer_nacopula"))
-    if(length(cop@childCops))
-        stop("currently, only Archimedean copulas are provided")
+    ## Checks
+    if((NAC <- is(cop, "outer_nacopula")) || is(cop, "archmCopula")) {
+        if(NAC) {
+	    if(length(cop@childCops))
+		stop("Currently, only Archimedean copulas are supported")
+            ## outer_nacopula but with no children => an AC => continue
+	    cop <- cop@copula # class(cop) = "acopula"
+	    th <- cop@theta
+	} else { # "archmCopula"
+	    th <- cop@parameters
+            d <- cop@dimension
+	    cop <- onacopulaL(getAcop(cop)@name, nacList=list(th, 1:d))@copula
+            ## => class(cop) = "acopula" *with* dimension and parameter (as required below)
+	}
+    } else {
+        stop("Not yet implemented for copula class ", class(cop))
+    }
     if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
     stopifnot((d <- ncol(u)) >= 2, 0 <= u, u <= 1)
-    ## trafos
-    th <- cop@copula@theta
+
+    ## Trafos
     if(inverse){ # "simulation trafo" of Wu, Valdez, Sherris (2006)
+
         ## ingredient 1: log(psi^{-1}(K^{-1}(u_d)))
-        KI <- qK(u[,d], cop=cop@copula, d=d, n.MC=n.MC, method=method,
+        KI <- qK(u[,d], cop=cop, d=d, n.MC=n.MC, method=method,
                  u.grid=u.grid, ...) # n-vector K^{-1}(u_d)
-        lpsiIKI <- cop@copula@iPsi(KI, th, log=TRUE) # n-vector log(psi^{-1}(K^{-1}(u_d)))
+        lpsiIKI <- cop@iPsi(KI, th, log=TRUE) # n-vector log(psi^{-1}(K^{-1}(u_d)))
         n <- nrow(u)
         ## ingredient 2: sum_{k=j}^{d-1} log(u_k)/k) for j=1,..,d
         lu. <- log(u[,-d, drop=FALSE]) * (ik <- 1/rep(1:(d-1), each=n))
@@ -266,19 +283,21 @@ htrafo <- function(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
         l1p <- cbind(0, log1p(-u[,1:(d-1), drop=FALSE]^ ik)) # n x (d-1) matrix + dummy 0's in the first col
         ## finally, compute the transformation
         expo <- rep(lpsiIKI, d) + cslu + l1p
-        cop@copula@psi(exp(expo), th)
+        cop@psi(exp(expo), th)
+
     } else { # "goodness-of-fit trafo" of Hering and Hofert (2014)
-        lpsiI <- cop@copula@iPsi(u, th, log=TRUE) # matrix log(psi^{-1}(u))
+
+        lpsiI <- cop@iPsi(u, th, log=TRUE) # matrix log(psi^{-1}(u))
         lcumsum <- matrix(unlist(lapply(1:d, function(j)
-                                        lsum(t(lpsiI[,1:j, drop=FALSE])))),
-                          ncol=d)
+                                        lsum(t(lpsiI[,1:j, drop=FALSE])))), ncol=d)
         u. <- matrix(unlist(lapply(1:(d-1),
                                    function(k) exp(k*(lcumsum[,k]-
                                                       lcumsum[,k+1])) )),
                      ncol=d-1) # transformed components (uniform under H_0)
-	if(include.K) u. <- cbind(u., pK(cop@copula@psi(exp(lcumsum[,d]), th),
-                                         cop=cop@copula, d=d, n.MC=n.MC))
+	if(include.K) u. <- cbind(u., pK(cop@psi(exp(lcumsum[,d]), th),
+                                         cop=cop, d=d, n.MC=n.MC))
         u.
+
     }
 }
 

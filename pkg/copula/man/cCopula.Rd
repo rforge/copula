@@ -8,7 +8,7 @@
   of \eqn{u_d}{u[d]} given \eqn{u_1,\dots,u_{d-1}}{u[1],..., u[d-1]}.
 }
 \usage{
-cCopula(u, copula, j.ind=ncol(u), n.MC=0, log=FALSE)
+cCopula(u, copula, j.ind=ncol(u), n.MC=0, inverse=FALSE, log=FALSE)
 
 ## Deprecated, for Archimedean copulas only:
 cacopula(u, cop, n.MC=0, log=FALSE)
@@ -25,6 +25,8 @@ cacopula(u, cop, n.MC=0, log=FALSE)
     parameters (only Archimedean copulas are currently provided).}
   \item{n.MC}{Monte Carlo sample size; for Archimedean copulas only,
     used if positive.}
+  \item{inverse}{logical indicating whether the inverse
+    conditional copula is returned.}
   \item{log}{if TRUE the logarithm of the conditional copula function is
     returned.}
 }
@@ -39,8 +41,7 @@ cacopula(u, cop, n.MC=0, log=FALSE)
   Conseqently, \code{cCopula()} simply calls \code{\link{rtrafo}()}.
 
   Note that \emph{sampling} aka random number generation from the
-  conditional distribution can be achieved by
-  \code{\link{rtrafo}(*, inverse=TRUE)}.
+  conditional distribution can be achieved by using \code{inverse=TRUE}.
 }
 %\author{Marius Hofert, Yongsheng Wang, and Martin Maechler}
 \note{
@@ -51,23 +52,30 @@ cacopula(u, cop, n.MC=0, log=FALSE)
   \code{\link{rtrafo}}; \code{\link{acopula-families}}.
 }
 \examples{
+## Note: This illustrates the numerically more involved (and thus much slower)
+##       Gumbel case.
+
+## Define the copula
 tau <- 0.5
-(theta <- copGumbel@iTau(tau)) # 2
-d <- 2
-# two ways to specify a Gumbel copula:
-cop  <- onacopulaL("Gumbel", list(theta,1:d))
-gCop <- gumbelCopula(theta, dim=d) #
+theta <- iTau(gumbelCopula(), tau = tau)
+d <- 5
+gc <- gumbelCopula(theta, dim = d)
 
-n <- 1000
-set.seed(1)
-U <- rCopula(n, cop)
+## Sample via conditional distribution method
+n <- 200
+set.seed(271)
+U. <- matrix(runif(n*d), ncol = d) # U(0,1)^d
+if(FALSE)
+    Rprof(profiling <- tempfile(), line.profiling=TRUE) # enable profiling
+U <- cCopula(U., copula = gc, j.ind = NULL, inverse = TRUE) # slow for ACs except Clayton
+if(FALSE) {
+    Rprof(NULL) # disable profiling
+    (profile <- summaryRprof(profiling, lines="both")) # get a summary
+}
+splom2(U) # scatter-plot matrix copula sample
 
-U. <- cbind(U[,1], cCopula(U, cop=cop)) # should be ~ U[0,1]^2
-plot(U.[,1],U.[,2])
-\donttest{\dontshow{suppressWarnings(}% <- for --run-donttest
-stopifnot(all.equal(cacopula(U, cop),# with deprecation warning
-                    cCopula (U, cop)))
-\dontshow{)}
-}## more examples:  -->  ?rtrafo
-} % --> ./gofTrafos.Rd
+## Rosenblatt-transform back to U(0,1)^d
+U. <- cCopula(U, copula = gc, j.ind = NULL)
+splom2(U.) # U(0,1)^d again
+}
 \keyword{distribution}
