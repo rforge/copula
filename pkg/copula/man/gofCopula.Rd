@@ -88,7 +88,7 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
 \details{
   If the parametric bootstrap is used, the dependence parameters of
   the hypothesized copula family can be estimated by any estimation
-  method available for the family, up to a few exceptions
+  method available for the family, up to a few exceptions.
   If the multiplier is used, any of the rank-based methods
   can be used in the bivariate case, but only maximum pseudo-likelihood
   estimation can be used in the multivariate (multiparameter) case.
@@ -106,10 +106,10 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
   Although the empirical processes involved in the multiplier and the
   parametric
   bootstrap-based test are asymptotically equivalent under the null,
-  note that the finite-sample behavior of the two tests might differ
+  the finite-sample behavior of the two tests might differ
   significantly.
 
-  Also note that in the case of the parametric and multiplier bootstraps,
+  Both for the parametric bootstrap and the multiplier,
   the approximate p-value is computed as
   \deqn{(0.5 +\sum_{b=1}^N\mathbf{1}_{\{T_b\ge T\}})/(N+1),}{%
         (0.5 + sum(T[b] >= T, b=1, .., N)) / (N+1),}
