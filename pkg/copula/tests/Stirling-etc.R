@@ -13,8 +13,15 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
+## MM --- addition: to be put into  <pkg>/tests/*.R
+##    --- diagnose the .libPaths setup and why the wrong lme4 is found ...
+(.lP <- .libPaths())
+(.ip <- installed.packages(lib.loc = .lP[1]))[,c("Version", "Priority", "Built")]
+## (l.lme4 <- with(ll, results[results[,"Package"] == "lme4", , drop=FALSE]))
+## sapply(l.lme4[,"LibPath"], function(lib) packageDescription("lme4", lib.loc=lib))
+sessionInfo()
+## ------ end{diagnose_libPaths}
 
-.libPaths() # [for developers with non-trivial setups]
 require(copula)
 (isLinux <- identical("Linux", Sys.info()[["sysname"]]))
 (doExtras <- copula:::doExtras())
