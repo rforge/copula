@@ -18,7 +18,7 @@
 ##################################################################################
 
 setClass("rotCopula", contains = "copula",
-         representation = representation(
+	 slots = c(
              copula = "copula",
              flip = "logical"
          ),
