@@ -5,13 +5,7 @@
 \alias{gofCopula,copula-method}
 \alias{gofCopula,rotCopula-method}
 \alias{gofMB}
-\alias{gofMB-methods}
-\alias{gofMB,copula-method}
-\alias{gofMB,rotCopula-method}
 \alias{gofPB}
-\alias{gofPB-methods}
-\alias{gofPB,copula-method}
-\alias{gofPB,rotCopula-method}
 \description{
   The goodness-of-fit tests are based, by default, on the empirical
   process
@@ -33,7 +27,7 @@
   \code{simulation} either calls \code{gofPB()} or \code{gofMB()}.
 }
 \usage{
-## Generic [and "rotCopula" methods] :
+## Generic [and "rotCopula" method] :
 gofCopula(copula, x, \dots)
 \S4method{gofCopula}{copula}(copula, x, N = 1000,
           method = "Sn",
@@ -41,17 +35,14 @@ gofCopula(copula, x, \dots)
           simulation = c("pb", "mult"),
 	  verbose = interactive(), \dots)
 
-gofPB(copula, x, \dots)
-\S4method{gofPB}{copula}(copula, x, N,
-          method = eval(formals(gofTstat)$method),
-          estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
-          trafo.method = c("none", "rtrafo", "htrafo"),
-          trafoArgs = list(), verbose = interactive(), \dots)
-gofMB(copula, x, \dots)
-\S4method{gofMB}{copula}(copula, x, N, method = c("Sn", "Rn"),
-          estim.method = c("mpl", "itau", "irho"),
-          verbose = interactive(), useR = FALSE, m = 1/2, zeta.m = 0,
-          b = 1/sqrt(nrow(x)), \dots)
+gofPB(copula, x, N, method = eval(formals(gofTstat)$method),
+      estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
+      trafo.method = c("none", "rtrafo", "htrafo"),
+      trafoArgs = list(), verbose = interactive(), \dots)
+gofMB(copula, x, N, method = c("Sn", "Rn"),
+      estim.method = c("mpl", "ml", "itau", "irho"),
+      verbose = interactive(), useR = FALSE, m = 1/2, zeta.m = 0,
+      b = 1/sqrt(nrow(x)), \dots)
 }
 \arguments{
   \item{copula}{object of class \code{"\linkS4class{copula}"} representing the

@@ -39,7 +39,7 @@ source(system.file("Rsource", "utils.R",     package="copula", mustWork=TRUE))
 ## GoF methods (NOTE: 'htrafo' only implemented for objects of type 'outer_nacopula')
 ## (gofTraf <- eval(formals(gofPB)$trafo.method)[-1]) # "rtrafo", "htrafo"
 gofTraf <- "rtrafo"
-(gofMeth <- eval(formals(copula:::gofPBCopula)$method)) # "Sn", "SnB", "SnC", "AnChisq", "AnGamma"
+(gofMeth <- eval(formals(gofPB)$method)) # "Sn", "SnB", "SnC", "AnChisq", "AnGamma"
 
 n <- 64 # sample size [small here for CPU reasons]
 d <- 5 # dimension
@@ -159,7 +159,7 @@ warnings()
 
 ## NOTE: takes a while...
 if(doExtras)
-for(meth in eval(formals(copula:::gofPBCopula)$method)) {
+for(meth in eval(formals(gofPB)$method)) {
   catn("\ngof method: ", meth,"\n==========================")
   for(fitMeth in c("mpl", "ml", "itau", "irho", "itau.mpl")) {
     catn("fit*( estim.method = '", fitMeth,"')\n------------------------")
