@@ -17,7 +17,7 @@
 require(copula)
 source(system.file("Rsource", "tstFit-fn.R", package="copula", mustWork=TRUE))
 source(system.file("Rsource", "utils.R",     package="copula", mustWork=TRUE))
-##-> assertError(), ... showProc.time()
+##-> assertError(), assert.EQ(), ... showProc.time()
 
 (doExtras <- copula:::doExtras())
 
@@ -91,6 +91,32 @@ uc4.ar <- tCopula(dim=d, df=nu, disp = "ar1", df.fixed=FALSE)
 validObject(uc4p.ar <- setTheta(uc4.ar, value = c(0.75, df=nu)))
 U.ar <- pobs(rCopula(n=1000, copula=uc4p.ar))
 (fm4e <- fitCopula(uc4.ar, U.ar, method="itau.mpl"))
+
+## Extra checks --------------------------------------------------------
+if(doExtras) { ## Typically not run on R CMD check
+
+## Without 'start'
+tc.mp. <- fitCopula(tCopula(dim=3, dispstr="un"), x, estimate.variance=FALSE)
+print(tc.mp.)
+noC <- function(x) { x@fitting.stats$counts <- NULL ; x }
+
+assert.EQ(noC(tc.ml) , noC(tc.ml.), tol= .005)
+assert.EQ(noC(tc.mpl), noC(tc.mp.), tol= .100, giveRE=TRUE)
+
+## The same t copula but with df.fixed=TRUE (=> use the same data!)
+tC3u5 <- tCopula(dim=3, dispstr="un", df=5, df.fixed=TRUE)
+## Maximum likelihood (start = rho[1:3])
+print(tcF.ml  <- fitCopula(tC3u5, x, method="ml", start=c(0,0,0)))
+print(tcF.ml. <- fitCopula(tC3u5, x, method="ml"))  # without 'start'
+assert.EQ(noC(tcF.ml), noC(tcF.ml.), tol= 4e-4)
+print(vcov(tcF.ml)) # the (estimated, asymptotic) var-cov matrix
+
+## Maximum pseudo-likelihood (the asymptotic variance cannot be estimated)
+print(tcF.mpl <- fitCopula(tC3u5, u, method="mpl", estimate.variance=FALSE,
+                           start=c(0,0,0)))
+print(tcF.mp. <- fitCopula(tC3u5, u, method="mpl", estimate.variance=FALSE))
+assert.EQ(noC(tcF.mpl), noC(tcF.mp.), tol = 1e-5)
+} # end Xtras
 
 
 
