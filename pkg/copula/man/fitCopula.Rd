@@ -294,7 +294,8 @@ u <- pobs(x)          # pseudo-observations
 if(Xtras) { ## Typically not run on R CMD check
 
 ## Without 'start'
-(tc.mp. <- fitCopula(tCopula(dim=3, dispstr="un"), estimate.variance=FALSE))
+tc.mp. <- fitCopula(tCopula(dim=3, dispstr="un"), x, estimate.variance=FALSE)
+print(tc.mp.)
 all.eqCop <- function(x,y, ...) {
    x@fitting.stats$counts <- y@fitting.stats$counts <- NULL
    all.equal(x,y, ...) }
@@ -302,22 +303,19 @@ stopifnot(all.eqCop(tc.ml , tc.ml., tolerance= .005),
           all.eqCop(tc.mpl, tc.mp., tolerance= .005))
 
 ## The same t copula but with df.fixed=TRUE (=> use the same data!)
+tC3u5 <- tCopula(dim=3, dispstr="un", df=5, df.fixed=TRUE)
 ## Maximum likelihood (start = rho[1:3])
-(tcF.ml  <- fitCopula(tCopula(dim=3, dispstr="un", df=5, df.fixed=TRUE),
-                      x, method="ml", start=c(0,0,0)))
-(tcF.ml. <- fitCopula(tCopula(dim=3, dispstr="un", df=5, df.fixed=TRUE),
-                      x, method="ml"))# without 'start'
+print(tcF.ml  <- fitCopula(tC3u5, x, method="ml", start=c(0,0,0)))
+print(tcF.ml. <- fitCopula(tC3u5, x, method="ml"))  # without 'start'
 stopifnot(all.eqCop(tcF.ml,tcF.ml., tolerance= 4e-4))
-vcov(tcF.ml) # the (estimated, asymptotic) var-cov matrix
+print(vcov(tcF.ml)) # the (estimated, asymptotic) var-cov matrix
 
 ## Maximum pseudo-likelihood (the asymptotic variance cannot be estimated)
-(tcF.mpl <- fitCopula(tCopula(dim=3, dispstr="un", df=5, df.fixed=TRUE),
-                      u, method="mpl", estimate.variance=FALSE,
-                      start=c(0,0,0)))
-(tcF.mp. <- fitCopula(tCopula(dim=3, dispstr="un", df=5, df.fixed=TRUE),
-                      u, method="mpl", estimate.variance=FALSE))
-stopifnot(all.eqCop(tcF.mpl,tcF.mp., tolerance= 1e-5))
-
+print(tcF.mpl <- fitCopula(tC3u5, u, method="mpl", estimate.variance=FALSE,
+                           start=c(0,0,0)))
+print(tcF.mp. <- fitCopula(tC3u5, u, method="mpl", estimate.variance=FALSE))
+if(!isTRUE(ae <- all.eqCop(tcF.mpl, tcF.mp., tolerance= 1e-5)))
+  stop("The two \"mpl\" fits differ too much: ", ae)
 } # end Xtras
 }
 \keyword{models}
