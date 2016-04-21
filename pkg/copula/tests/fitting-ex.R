@@ -96,7 +96,7 @@ U.ar <- pobs(rCopula(n=1000, copula=uc4p.ar))
 if(doExtras) { ## Typically not run on R CMD check
 tCop <- tCopula(c(0.2,0.4,0.6), dim=3, dispstr="un", df=5)
 set.seed(101)
-x <- rCopula(n, tCop) # "true" observations (simulated)
+x <- rCopula(n=200, tCop) # "true" observations (simulated)
 ## Without 'start'
 tc.mp. <- fitCopula(tCopula(dim=3, dispstr="un"), x, estimate.variance=FALSE)
 print(tc.mp.)
