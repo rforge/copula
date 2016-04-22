@@ -282,8 +282,6 @@ u <- pobs(x)          # pseudo-observations
 ## Maximum likelihood (start = (rho[1:3], df))
 (tc.ml  <- fitCopula(tCopula(dim=3, dispstr="un"), x, method="ml",
                      start=c(0,0,0, 10)))
-(tc.ml. <- fitCopula(tCopula(dim=3, dispstr="un"),
-                     x, method="ml")) # without 'start'
 ## Maximum pseudo-likelihood (the asymptotic variance cannot be estimated)
 (tc.mpl <- fitCopula(tCopula(dim=3, dispstr="un"),
                      u, method="mpl", estimate.variance=FALSE,

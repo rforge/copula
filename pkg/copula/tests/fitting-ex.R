@@ -97,6 +97,16 @@ if(doExtras) { ## Typically not run on R CMD check
 tCop <- tCopula(c(0.2,0.4,0.6), dim=3, dispstr="un", df=5)
 set.seed(101)
 x <- rCopula(n=200, tCop) # "true" observations (simulated)
+## Maximum likelihood (start = (rho[1:3], df))
+print(tc.ml  <- fitCopula(tCopula(dim=3, dispstr="un"), x, method="ml",
+                          start=c(0,0,0, 10)))
+print(tc.ml. <- fitCopula(tCopula(dim=3, dispstr="un"),
+                          x, method="ml")) # without 'start'
+## Maximum pseudo-likelihood (the asymptotic variance cannot be estimated)
+u <- pobs(x)
+print(tc.mpl <- fitCopula(tCopula(dim=3, dispstr="un"),
+                          u, method="mpl", estimate.variance=FALSE,
+                          start= c(0,0,0,10)))
 ## Without 'start'
 tc.mp. <- fitCopula(tCopula(dim=3, dispstr="un"), x, estimate.variance=FALSE)
 print(tc.mp.)
@@ -114,7 +124,6 @@ assert.EQ(noC(tcF.ml), noC(tcF.ml.), tol= 4e-4)
 print(vcov(tcF.ml)) # the (estimated, asymptotic) var-cov matrix
 
 ## Maximum pseudo-likelihood (the asymptotic variance cannot be estimated)
-u <- pobs(x)
 print(tcF.mpl <- fitCopula(tC3u5, u, method="mpl", estimate.variance=FALSE,
                            start=c(0,0,0)))
 print(tcF.mp. <- fitCopula(tC3u5, u, method="mpl", estimate.variance=FALSE))
