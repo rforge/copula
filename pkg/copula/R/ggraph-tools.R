@@ -18,9 +18,7 @@
 
 ### FIXME  replace by cCopula() in the long run
 
-##' Conditional copula function C(u2|u1) of u2 given u1
-##'
-##' @title Bivariate ("2") Conditional Copula function
+##' @title Bivariate Conditional Copulas C(u2|u1) of u2 given u1
 ##' @param u2 data vector (numeric(n))
 ##' @param u1 data vector (numeric(n))
 ##' @param family copula family

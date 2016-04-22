@@ -14,7 +14,6 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-
 ## NB: For  d = dim = 2,   -1 <= param = theta = alpha < 0 is allowed
 ## --  psi() and iPsi() now ok
 
