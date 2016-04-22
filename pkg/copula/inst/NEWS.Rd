@@ -30,6 +30,11 @@
 
     \item \dQuote{Rotated} copulas, i.e., generalizations of
     \dQuote{survival} copulas, are now available via \code{rotCopula()}.
+
+    \item \code{gofEVCopula()}'s default \code{optim.method} has been
+    changed from \code{"Nelder-Mead"} to \code{"BFGS"} in line with
+    \code{fitCopula()} and because Nelder-Mead is warned against in the
+    1-dimensional case.
   }
 }
 

@@ -31,8 +31,8 @@ gofEVCopula <- function(copula, x, N = 1000,
                         method = c("mpl", "ml", "itau", "irho"),
                         estimator = c("CFG", "Pickands"), m = 1000,
                         verbose = interactive(),
-                        optim.method = "Nelder-Mead") {
-
+                        optim.method = "BFGS")
+{
     ## Checks
     stopifnot(is(copula, "copula"), N >= 1L, m>= 100L)
     if(!is.matrix(x)) {
@@ -103,7 +103,8 @@ gofEVCopula <- function(copula, x, N = 1000,
 }
 
 
-### Original version for simulations; was named gofEVCopula before -- *not exported*
+### Original version to reprodcue simulations  ___no longer really used___
+## was named gofEVCopula before -- *not exported*
 gofA <- function(copula, x, N = 1000, method = "mpl", # estimator = "CFG",
                  m = 1000, verbose = interactive(), optim.method = "Nelder-Mead") {
     n <- nrow(x)
