@@ -384,6 +384,7 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
                  n = as.integer(n),
                  G = as.double(u.),
                  g = as.integer(n),
+                 b = as.double(b),
                  influ = as.double(dCdtheta(C.th.n, u.) %*%
                                    Jscore(C.th.n, u=u., method=estim.method)),
                  denom = as.double(denom),

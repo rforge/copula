@@ -84,13 +84,14 @@ void cramer_vonMises_grid(int *p, double *U, int *n, double *V, int *m,
  * @param n sample size
  * @param G grid (g x p)
  * @param g grid size
+ * @param b bandwidth for partial derivative estimation
  * @param influ influence matrix (g x n)
  * @param denom "denominator" n-vector for Rn approach
  * @param N number of multiplier replications
  * @param s0 N replications of the test statistic
  * @author Ivan Kojadinovic
  */
-void multiplier(int *p, double *U, int *n, double *G, int *g,
+void multiplier(int *p, double *U, int *n, double *G, int *g, double *b,
 		double *influ, double *denom, int *N, double *s0)
 {
   int i, j, k, l, ind;
@@ -110,11 +111,11 @@ void multiplier(int *p, double *U, int *n, double *G, int *g,
         }
       for (k = 0; k < *p; k++)
         {
-	  v1[k] += invsqrtn;
-	  v2[k] -= invsqrtn;
-	  der[k] = der_multCn(U, *n, *p, v1, v2, 2 * invsqrtn);
-	  v1[k] -= invsqrtn;
-	  v2[k] += invsqrtn;
+	  v1[k] += *b;
+	  v2[k] -= *b;
+	  der[k] = der_multCn(U, *n, *p, v1, v2, 2.0 * (*b));
+	  v1[k] -= *b;
+	  v2[k] += *b;
 	}
 
       for (i = 0; i < *n; i++) /* loop over the data */

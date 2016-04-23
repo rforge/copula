@@ -59,8 +59,8 @@ gofEVCopula(copula, x, N = 1000,
     copula family. }
 }
 \note{
-  For a given degree of dependence, the most popular extreme-value
-  copulas are strikingly similar.
+  For a given degree of dependence, the most popular bivariate
+  extreme-value copulas are strikingly similar.
 }
 %\author{Ivan Kojadinovic and Jun Yan}
 \references{
