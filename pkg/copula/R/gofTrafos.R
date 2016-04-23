@@ -78,23 +78,25 @@ rtrafo <- function(u, cop, j.ind=NULL, n.MC=0, inverse=FALSE, log=FALSE)
             if(cop@name=="Clayton") { # Clayton case (explicit)
                 sum. <- U[,1]^(-th)
                 for(j in 2:max.col) {
-                    U[,j] <- log1p((1-j+1+sum.)*(u[,j]^(-1/(j-1+1/th))-1))/(-th)
+                    U[,j] <- log1p((1-j+1+sum.)*(u[,j]^(-1/(j-1+1/th)) - 1))/(-th)
                     eUj <- exp(U[,j])
                     sum. <- sum. + eUj^(-th)
                     if(!log) U[,j] <- eUj
                 }
             } else { # non-Clayton / general case
+                if(n.MC) stop("The inverse of Rosenblatt's transformation with uniroot() requires n.MC=0")
                 ## TODO: After the acopula and archmCopula classes are better merged, the
                 ##       tedious conversion to acopula (above) and then again to archmCopula (below)
                 ##       is not required anymore.
-                if(n.MC) stop("The inverse of Rosenblatt's transformation with uniroot() requires n.MC=0")
+                arCop <- archmCopula(cop@name, param=th)
+                ## f(x) := cond_cop_given_j_minus_1(x) -  u[i,j]  =  rtrafo(...) - u[i,j]
+                fx.ij <- function(x) rtrafo(c(U.j1[i, , drop=FALSE], x), cop=arCop, j.ind=j) - uj[i]
                 for(j in 2:max.col) {
-                    for(i in 1:n) {
-                        cond_cop_given_j_minus_1 <- function(x)
-                            rtrafo(c(U[i,1:(j-1)], x), cop=archmCopula(cop@name, param=th), j.ind=j)
-                        U[i,j] <- uniroot(function(x)
-                            cond_cop_given_j_minus_1(x) - u[i,j], interval=c(0,1))$root
-                    }
+                    ## precompute j-stuff so the uniroot() in for(i ..) is as fast as possible:
+                    U.j1 <- U[, seq_len(j-1L), drop=FALSE]
+                    uj <- u[,j]
+                    for(i in 1:n)
+                        U[i,j] <- uniroot(fx.ij, interval=c(0,1))$root
                 }
                 if(log) U <- log(U)
             }
@@ -245,20 +247,18 @@ htrafo <- function(u, cop, include.K = TRUE, n.MC = 0, inverse = FALSE,
                    method = eval(formals(qK)$method), u.grid, ...)
 {
     ## Checks
-    if((NAC <- is(cop, "outer_nacopula")) || is(cop, "archmCopula")) {
-        if(NAC) {
-	    if(length(cop@childCops))
-		stop("Currently, only Archimedean copulas are supported")
-            ## outer_nacopula but with no children => an AC => continue
-	    cop <- cop@copula # class(cop) = "acopula"
-	    th <- cop@theta
-	} else { # "archmCopula"
-	    th <- cop@parameters
-            d <- cop@dimension
-            fam.name <- names(.ac.objNames)[match("clayton", tolower(names(.ac.objNames)))] # more efficient than getAcop(cop)@name
-	    cop <- onacopulaL(fam.name, nacList=list(th, 1:d))@copula
-            ## => class(cop) = "acopula" *with* dimension and parameter (as required below)
-	}
+    if(is(cop, "outer_nacopula")) {
+	if(length(cop@childCops))
+	    stop("Currently, only Archimedean copulas are supported")
+	## outer_nacopula but with no children => an AC => continue
+	cop <- cop@copula # class(cop) = "acopula"
+	th <- cop@theta
+    } else if(is(cop, "archmCopula")) {
+	th <- cop@parameters
+	d <- cop@dimension
+	fam.name <- getAname(cop)
+	cop <- onacopulaL(fam.name, nacList=list(th, 1:d))@copula
+	## cop is an "acopula" *with* dimension and parameter (as required below)
     } else {
         stop("Not yet implemented for copula class ", class(cop))
     }

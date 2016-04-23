@@ -1459,6 +1459,46 @@ printNacopula <-
 
 setMethod(show, "nacopula", function(object) printNacopula(object))
 
+
+##' (hidden) utility for getAname() and getAcop()
+archm2ch <- function(class) {
+    if(extends(class, "indepCopula"))## FIXME? do not want full family object!
+        stop("independence copula not implemented as Archimedean family")
+    if(extends(class, "claytonCopula")) "C" else
+    if(extends(class, "frankCopula"))   "F" else
+    if(extends(class, "amhCopula"))     "A" else
+    if(extends(class, "joeCopula"))     "J" else
+    if(extends(class, "gumbelCopula"))  "G" else
+    stop("invalid archmCopula class: ", class)
+}
+
+
+##' Get the *name* of "acopula" family objects, typically from
+##'
+##' @title Get Name of "acopula" Family Objects
+##' @param family either character string (short or longer form of
+##'	 copula family name), or an "archmCopula" or "acopula" object
+##' @return string: the name one of our "acopula" objects
+##' @author Martin Maechler
+getAname <- function(family, objName=FALSE) {
+    if(is.character(family)) {
+	stopifnot(length(family) == 1)
+	if((nf <- nchar(family)) <= 2) # it's a short name
+	    family <- .ac.longNames[[family]]
+	else if (nf >= 8 && grepl("Copula$", family))
+	    family <- names(which(.ac.classNames == family))
+    } else {
+	cl <- getClass(class(family))# so the extends(.) below are fast
+	family <-
+	    if(extends(cl, "acopula"))
+		family@name
+	    else if(extends(cl, "archmCopula"))
+		.ac.longNames[[archm2ch(cl)]]
+	else stop("'family' must be an \"archmCopula\" or \"acopula\" object or family name")
+    }
+    if(objName) .ac.objNames[[family]] else family
+}
+
 ##' Get one of our "acopula" family objects by name
 ##'
 ##' @title Get one of our "acopula" family objects by name
@@ -1473,7 +1513,7 @@ getAcop <- function(family, check=TRUE) {
     if(is.character(family)) {
 	stopifnot(length(family) == 1)
 	if((nf <- nchar(family)) <= 2) # it's a short name
-	    family <- .ac.longNames[family]
+	    family <- .ac.longNames[[family]]
 	else if (nf >= 8 && grepl("Copula$", family))
 	    family <- names(which(.ac.classNames == family))
 	COP <- get(.ac.objNames[family]) # envir = "package:copula"
@@ -1484,17 +1524,8 @@ getAcop <- function(family, check=TRUE) {
 	cl <- getClass(class(family))# so the extends(.) below are fast
 	if(extends(cl, "acopula"))
 	    family
-	else if(extends(cl, "archmCopula")) {
-	    if(extends(cl, "indepCopula"))## FIXME? do not want full family object!
-		stop("independence copula not implemented as Archimedean family")
-	    ## now use short family names
-	    getAcop(if(extends(cl, "claytonCopula")) "C" else
-		    if(extends(cl, "frankCopula"))   "F" else
-		    if(extends(cl, "amhCopula"))     "A" else
-		    if(extends(cl, "joeCopula"))     "J" else
-		    if(extends(cl, "gumbelCopula"))  "G" else
-		    stop("invalid archmCopula class: ", cl))
-	}
+	else if(extends(cl, "archmCopula"))
+	    getAcop(archm2ch(cl))
 	else stop("'family' must be an \"archmCopula\" or \"acopula\" object or family name")
     }
 }

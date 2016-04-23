@@ -35,6 +35,8 @@
     changed from \code{"Nelder-Mead"} to \code{"BFGS"} in line with
     \code{fitCopula()} and because Nelder-Mead is warned against in the
     1-dimensional case.
+
+    \item new \code{getAname()} useful e.g., in \code{htrafo()}.
   }
 }
 
