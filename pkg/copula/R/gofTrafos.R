@@ -255,7 +255,7 @@ htrafo <- function(u, cop, include.K = TRUE, n.MC = 0, inverse = FALSE,
 	} else { # "archmCopula"
 	    th <- cop@parameters
             d <- cop@dimension
-            fam.name <- sub("Copula$", "", class(cop)[1L]) # more efficient than getAcop(cop)@name
+            fam.name <- names(.ac.objNames)[match("clayton", tolower(names(.ac.objNames)))] # more efficient than getAcop(cop)@name
 	    cop <- onacopulaL(fam.name, nacList=list(th, 1:d))@copula
             ## => class(cop) = "acopula" *with* dimension and parameter (as required below)
 	}
