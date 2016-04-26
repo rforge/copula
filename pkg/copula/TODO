@@ -59,6 +59,11 @@ to the reader. So implementing it in fitCopula.ml(, method="mpl")
 would 'contradict' that. Really not sure... I tend to say the
 advantage outweighs the drawbacks... What do you think?
 ** TODO We seem to have quite a few 'deprecated' statements in the package (should be fine to remove some of the old stuff by now!)
+** TODO [MM + MH] Colors for book, coPal() in Sweave-prelim.R) --> part of copula package.
+*** we already have heatHCLgap() in R/pairsRosenblatt.R --- export and generalize where needed to defined
+   Continuous/monotone color palettes -- via short function calls -->
+   vector of colors (use either in palette() for col=<n>, *or* more
+   frequently as  cols = *  argument, whenever needed in the book.
 ** DONE [IK] Improve warning message in dC-dc.R when numerical stuff is used (provide the copula name!)
 ** DONE [IK] make method = "Rd" work with all the sim = "mult" families
 ** DONE [IK] clean-up test functions
