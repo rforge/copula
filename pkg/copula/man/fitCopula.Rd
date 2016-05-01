@@ -48,7 +48,8 @@ fitCopula(copula, data, \dots)
       \item{"irho"}{As \code{"itau"} just with Spearman's rho instead of
 	Kendall's tau.}
       \item{"itau.mpl"}{This is the estimator of \eqn{t} copula
-	parameters suggested by Demarta and McNeil (2005) based on the
+	parameters suggested by Mashal and Zeevi (2002) (see also
+	Demarta and McNeil (2005)) based on the
 	given \code{data} in \eqn{[0,1]^d} (true or pseudo-observations of
 	the underlying copula to be estimated).}
     }
@@ -173,6 +174,10 @@ fitCopula(copula, data, \dots)
   Joe, H. (2005). Asymptotic efficiency of the two-stage estimation
   method for copula-based models.
   \emph{Journal of Multivariate Analysis} \bold{94}, 401--419.
+
+  Mashal, R. and Zeevi, A. (2002). Beyond Correlation: Extreme Co-movements Between
+  Financial Assets.
+  \url{https://www0.gsb.columbia.edu/faculty/azeevi/PAPERS/BeyondCorrelation.pdf} (2016-04-05)
 
   Demarta, S. and McNeil, A. J. (2005). The t copula and related copulas.
   \emph{International Statistical Review} \bold{73}, 111--129.

@@ -81,16 +81,18 @@ stopifnot(cor(P, cU[lower.tri(cU)]) > 0.99)
 
 ## Fitting a t-copula with "itau.mpl" with disp="un"
 (fm4u <- fitCopula(uc4, U., method="itau.mpl"))
-## Fitting a t-copula with "itau.mpl" with disp="ex"
-uc4.ex <- tCopula(dim=d, df=nu, disp = "ex", df.fixed=FALSE)
-validObject(uc4p.ex <- setTheta(uc4.ex, value = c(0.75, df=nu)))
-U.ex <- pobs(rCopula(n=1000, copula=uc4p.ex))
-(fm4e <- fitCopula(uc4.ex, U.ex, method="itau.mpl"))
-## Fitting a t-copula with "itau.mpl" with disp="ar"
-uc4.ar <- tCopula(dim=d, df=nu, disp = "ar1", df.fixed=FALSE)
-validObject(uc4p.ar <- setTheta(uc4.ar, value = c(0.75, df=nu)))
-U.ar <- pobs(rCopula(n=1000, copula=uc4p.ar))
-(fm4e <- fitCopula(uc4.ar, U.ar, method="itau.mpl"))
+if(FALSE) { # The following are not available (yet); see ~/R/fitCopula.R
+    ## Fitting a t-copula with "itau.mpl" with disp="ex"
+    uc4.ex <- tCopula(dim=d, df=nu, disp = "ex", df.fixed=FALSE)
+    validObject(uc4p.ex <- setTheta(uc4.ex, value = c(0.75, df=nu)))
+    U.ex <- pobs(rCopula(n=1000, copula=uc4p.ex))
+    (fm4e <- fitCopula(uc4.ex, U.ex, method="itau.mpl"))
+    ## Fitting a t-copula with "itau.mpl" with disp="ar"
+    uc4.ar <- tCopula(dim=d, df=nu, disp = "ar1", df.fixed=FALSE)
+    validObject(uc4p.ar <- setTheta(uc4.ar, value = c(0.75, df=nu)))
+    U.ar <- pobs(rCopula(n=1000, copula=uc4p.ar))
+    (fm4e <- fitCopula(uc4.ar, U.ar, method="itau.mpl"))
+}
 
 ## Extra checks --------------------------------------------------------
 if(doExtras) { ## Typically not run on R CMD check

@@ -335,12 +335,20 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
     }
     q <- length(copula@parameters)
     icor <- fitCor(copula, x, method=method, posDef=posDef, matrix=FALSE, ...)
-    X <- getXmat(copula)
-    estimate <-
-        as.vector(# stripping attributes
-            if (isEll && copula@dispstr == "ar1") ## special treatment
-                exp(.lm.fit(X, y=log(icor))$coefficients)
-            else .lm.fit(X, y=icor)$coefficients)
+
+    ## Note: The following code (possibly .lm.fit() but at least matrix(NA, q, q))
+    ##       can lead to R being killed (under Mac OS X) for d ~= 450
+    ##       Also, it's slow in higher dimensions (even getXmat())
+    estimate <- if(isEll && copula@dispstr == "un") {
+        icor
+    } else if(isEll && copula@dispstr == "ar1") {
+        X <- getXmat(copula)
+        exp(.lm.fit(X, y=log(icor))$coefficients)
+    } else {
+        X <- getXmat(copula)
+        .lm.fit(X, y=icor)$coefficients
+    }
+    estimate <- as.vector(estimate) # strip attributes
     copula@parameters <- estimate
     var.est <- if (is.na(estimate.variance) || estimate.variance) {
         var.icor(copula, x, method=method)/nrow(x)
@@ -369,7 +377,7 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
 ##' @param estimate.variance A logical indicating whether the estimator's
 ##'        variance shall be computed (TODO: not fully implemented yet)
 ##' @param tol Tolerance of optimize() for estimating nu
-##' @param ... Additional arguments passed to fitCopula.icor()
+##' @param ... Additional arguments passed to the underlying fitCor
 ##' @return The fitted copula object
 ##' @author Marius Hofert and Martin Maechler
 ##' @note One could extend this to fitCopula.icor.ml(, method=c("itau", "irho"))
@@ -379,7 +387,10 @@ fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
 {
     if(any(u < 0) || any(u > 1))
         stop("'u' must be in [0,1] -- probably rather use pobs(.)")
-    if(!is(copula, "tCopula")) stop("method \"itau.mpl\" is only applicable for \"tCopula\"")
+    ## Note: We require dispstr = "un" as it is a) the method of Mashal, Zeevi (2002) and
+    ##       b) otherwise would require the use of .lm.fit which can crash for large d!
+    if(!(is(copula, "tCopula") && copula@dispstr == "un"))
+        stop("method \"itau.mpl\" is only applicable for \"tCopula\" with 'dispstr=\"un\"'")
     if(copula@df.fixed) stop("Use method=\"itau\" for 'tCopula' with 'df.fixed=TRUE'")
     stopifnot(is.numeric(d <- ncol(u)), d >= 2)
     if (copula@dimension != d)
@@ -387,42 +398,51 @@ fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
     if(is.null(lower)) lower <- 0  # <=>  df=Inf <=> Gaussian
     if(is.null(upper)) upper <- 32 # down to df = 1/32
 
-    ## Estimation of the t-copula with the approach of Demarta, McNeil (2005)
-    ## 1) Estimate the correlation matrix P
-    fm <- fitCopula.icor(copula, u, estimate.variance=FALSE, method="itau",
-                         warn.df=FALSE, # (to change it there)
-                         posDef=posDef, ...)
-    p. <- fm@estimate
+    ## Estimate the correlation matrix P
+    ## Note: We could have also used...
+    ##       fitCopula.icor(copula, u, estimate.variance=FALSE, method="itau",
+    ##                      warn.df=FALSE, posDef=posDef, ...)
+    ##       ... here but the variance estimation fails in higher dimensions (matrix too large; see also below and at various other points!)
+    ##       and we don't estimate the variance here (at the moment)!
+    p <- fitCor(copula, x = u, method = "itau", posDef = posDef, matrix=FALSE, ...) # matrix P as vector
+    ## Note: fitCor() works even in d~=450 (some seconds)
 
-    ## 2) Estimate the d.o.f. parameter nu  via Maximum Likelihood :
-    if(FALSE) # for debugging
+    ## Estimate the d.o.f. parameter nu via Maximum Likelihood
+    if(FALSE)
+        ## For debugging
         logL <- function(Inu) {
-            r <- loglikCopula(c(p., df=1/Inu), u=u, copula=copula)
+            r <- loglikCopula(c(p, df=1/Inu), u=u, copula=copula)
             cat(sprintf("1/nu=%12g, df=%8.3g, logL=%g\n", Inu, 1/Inu, r))
             r
         }
-    logL <- function(Inu) loglikCopula(c(p., df=1/Inu), u=u, copula=copula) # log-likelihood in 1/nu given P
+    logL <- function(Inu) loglikCopula(c(p, df=1/Inu), u=u, copula=copula) # log-likelihood in 1/nu given p
     fit <- optimize(logL, interval=c(lower, upper), tol=tol, maximum = TRUE) # optimize
+    ## Note: optimize(logL) works even in d ~= 450 (~ min)
 
     ## Extract the fitted parameters
-    q <- length(copula@parameters) # the last is nu
-    copula@parameters[seq_len(q-1L)] <- p.
+    q <- length(copula@parameters) # p*(p-1)/2 + 1 (the last is nu)
+    copula@parameters[seq_len(q-1L)] <- p
     copula@parameters[[q]] <- copula@df <- df <- 1/fit$maximum # '1/.' because of logL() being in '1/.'-scale
     loglik <- fit$objective
     has.conv <- TRUE # FIXME? use tryCatch() above to catch non-convergence
-    if (is.na(estimate.variance))
-        estimate.variance <- FALSE # not yet: has.conv
-    ## if(!has.conv)
-    ##     warning("possible convergence problem: . . . . . . .)
 
-    varNA <- matrix(NA_real_, q, q)
-    var.est <- if(estimate.variance) {
-        stop("'estimate.variance' not yet implemented for  \"itau.mpl\" method")
-        ## TODO: use one/zero step of fitCopula.ml(*...., method="mpl", maxit=0) to get full vcov()
-    } else varNA
+    ## Deal with the variance
+    if(!is.na(estimate.variance)) {
+        stop("'estimate.variance' currently has to be NA for method \"itau.mpl\" (in which case the variance is *not* estimated)")
+        ## if(!has.conv)
+        ##     warning("possible convergence problem: . . . . . . .)
+        var.est <- if(estimate.variance) {
+            ## TODO: use one/zero step of fitCopula.ml(*...., method="mpl", maxit=0) to get full vcov()
+        } else {
+            matrix(NA_real_, q, q) # TODO: super slow in high dimensions; R crashes for d ~= 450 (q = p*(p-1)/2 + 1)
+        }
+    } else {
+        var.est <- matrix(NA) # TODO: should be matrix(NA_real_, q, q) but is super slow in high dimensions and R crashes for d ~= 450
+    }
 
+    ## Return
     new("fitCopula",
-        estimate = c(p., df),
+        estimate = c(p, df),
         var.est = var.est,
         method = "itau for dispersion matrix P and maximum likelihood for df",
         loglik = loglik,
