@@ -396,13 +396,10 @@ setMethod("plot", signature(x = "mvdc"),   plotMvdc)
 ##' @param labels The labels, typically unspecified
 ##' @param labels.null.lab A character string to determine 'labels'
 ##'        in case 'labels' is NULL and 'x' does not have all column names given
-##' @param row1attop See ?pairs
-##' @param pch See ?pairs
-##' @param ... Further arguments passed to splom()
+##' @param ... Further arguments passed to pairs()
 ##' @return invisible()
 ##' @author Marius Hofert
-pairs2 <- function(x, labels = NULL, labels.null.lab = "U", row1attop = FALSE,
-                   pch = ".", ...)
+pairs2 <- function(x, labels = NULL, labels.null.lab = "U", ...)
 {
    stopifnot(is.numeric(x <- as.matrix(x)), (d <- ncol(x)) >= 1)
    if(is.null(labels)) {
@@ -415,7 +412,7 @@ pairs2 <- function(x, labels = NULL, labels.null.lab = "U", row1attop = FALSE,
        } else # 'x' has column names => parse them
            parse(text = colnms)
    }
-   pairs(x, labels = labels, row1attop = row1attop, gap = 0, pch = pch, ...)
+   pairs(x, gap = 0, labels = labels, ...)
 }
 
 
