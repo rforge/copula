@@ -51,7 +51,8 @@ fitCopula(copula, data, \dots)
 	parameters suggested by Mashal and Zeevi (2002) (see also
 	Demarta and McNeil (2005)) based on the
 	given \code{data} in \eqn{[0,1]^d} (true or pseudo-observations of
-	the underlying copula to be estimated).}
+	the underlying copula to be estimated). Note that it requires
+	\code{dispstr = "un"}.}
     }
   }
   \item{posDef}{a \code{\link{logical}} indicating whether a proper
