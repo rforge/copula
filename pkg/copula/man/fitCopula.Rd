@@ -51,7 +51,7 @@ fitCopula(copula, data, \dots)
 	parameters suggested by Mashal and Zeevi (2002) (see also
 	Demarta and McNeil (2005)) based on the
 	given \code{data} in \eqn{[0,1]^d} (true or pseudo-observations of
-	the underlying copula to be estimated). Note that it requires
+	the underlying copula to be estimated).  Note that it requires
 	\code{dispstr = "un"}.}
     }
   }
@@ -75,7 +75,9 @@ fitCopula(copula, data, \dots)
     \code{\link{TRUE}}, suppresses warnings from the involved
     likelihood maximization (typically when the likelihood is
     evaluated at invalid parameter values).}
-  \item{\dots}{Additional arguments passed to the underlying auxiliary functions.}
+  \item{\dots}{additional arguments passed to \code{method} specific auxiliary
+    functions, e.g., \code{traceOpt = TRUE} for tracing
+    \code{\link{optimize}} for method \code{"itau.mpl"}.}
 }
 \value{
   \code{loglikCopula()} returns the copula log-likelihood evaluated at the

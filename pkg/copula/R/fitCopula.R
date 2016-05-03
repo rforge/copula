@@ -166,18 +166,21 @@ getL <- function(copula) {
 ##' @title Design Matrix for Method-of-Moments Estimators via lm()
 ##' @param copula Copula object
 ##' @return Design matrix for method-of-moments estimators via lm()
-getXmat <- function(copula) {
+getXmat <- function(copula) { ## FIXME(?) only works for "copula" objects, but not rotCopula, mixed*, ...
     p <- copula@dimension
     pp <- p * (p - 1) / 2
     if (!is(copula, "ellipCopula")) # one-parameter non-elliptical copula
-	matrix(1, nrow=pp, ncol=1)
+	if((n.th <- length(copula@parameters)) == 1L)
+	    matrix(1, nrow=pp, ncol=1)
+	else stop(gettextf( ## should not happen currently, but s
+		 "getXmat() not yet implemented for non-elliptical copulas with %d parameters",
+		 n.th), domain=NA)
     else {
 	switch(copula@dispstr,
 	       "ex" = matrix(1, nrow=pp, ncol=1),
 	       "un" = diag(pp),
 	       "toep" =, "ar1" = {
-            dgidx <- outer(1:p, 1:p, "-")
-            dgidx <- P2p(dgidx)
+            dgidx <- P2p(outer(1:p, 1:p, "-"))
             if(copula@dispstr == "toep")
                 model.matrix(~ factor(dgidx) - 1)
             else { ## __"ar1"__
@@ -329,6 +332,7 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
     q <- length(copula@parameters)
     icor <- fitCor(copula, x, method=method, posDef=posDef, matrix=FALSE, ...)
 
+    ## FIXME: Using 'X' & 'lm(X,y)' is computationally very inefficient for large q
     ## Note: The following code (possibly .lm.fit() but at least matrix(NA, q, q))
     ##       can lead to R being killed (under Mac OS X) for d ~= 450
     ##       Also, it's slow in higher dimensions (even getXmat())
@@ -376,7 +380,8 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
 ##' @note One could extend this to fitCopula.icor.ml(, method=c("itau", "irho"))
 ##'       once an *explicit* formula for Spearman's rho is available for t copulas.
 fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
-                               estimate.variance, tol=.Machine$double.eps^0.25, ...)
+                               estimate.variance, tol=.Machine$double.eps^0.25,
+                               traceOpt = FALSE, ...)
 {
     if(any(u < 0) || any(u > 1))
         stop("'u' must be in [0,1] -- probably rather use pobs(.)")
@@ -397,19 +402,22 @@ fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
     ##       fitCopula.icor(copula, u, estimate.variance=FALSE, method="itau",
     ##                      warn.df=FALSE, posDef=posDef, ...)
     ## the variance estimation fails in higher dimensions (matrix too large)
-    P <- fitCor(copula, x = u, method = "itau", posDef = posDef, matrix=FALSE, ...) # matrix P as vector
+    ## matrix P ("Rho") as vector:
+    P <- fitCor(copula, x = u, method = "itau", posDef = posDef, matrix=FALSE, ...)
 
     ## Estimate the d.o.f. parameter nu via Maximum Likelihood
-    if(FALSE)
-        ## For debugging
-        logL <- function(Inu) {
-            r <- loglikCopula(c(P, df=1/Inu), u=u, copula=copula)
-            cat(sprintf("1/nu=%12g, df=%8.3g, logL=%g\n", Inu, 1/Inu, r))
-            r
-        }
-    logL <- function(Inu) loglikCopula(c(P, df=1/Inu), u=u, copula=copula) # log-likelihood in 1/nu given P
-    fit <- optimize(logL, interval=c(lower, upper), tol=tol, maximum = TRUE) # optimize
-    ## Note: optimize(logL) works even in d ~= 450 (~ min)
+    logL <-
+        if(traceOpt) { ## for debugging
+	    function(Inu) {
+		r <- loglikCopula(c(P, df=1/Inu), u=u, copula=copula)
+		cat(sprintf("1/nu=%14.9g => nu=%9.4f; logL=%12.8g\n",
+			    Inu, 1/Inu, r))
+		r
+	    }
+	} else
+	    function(Inu) loglikCopula(c(P, df=1/Inu), u=u, copula=copula)
+
+    fit <- optimize(logL, interval=c(lower, upper), tol=tol, maximum = TRUE)
 
     ## Extract the fitted parameters
     q <- length(copula@parameters) # d*(d-1)/2 + 1 (the last is nu)
@@ -421,11 +429,11 @@ fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
 
     ## Deal with the variance
     if (is.na(estimate.variance))
-        estimate.variance <- FALSE # not yet: has.conv
+        estimate.variance <- FALSE # not yet: using 'has.conv'
     if(estimate.variance)
         ## TODO: if (d <= 20) or so ... or  if( q < n / 5 ) then
         ## use one/zero step of fitCopula.ml(*...., method="mpl", maxit=0) to get full vcov()
-        stop("Cannote estimate var-cov matrix currently for method \"itau.mpl\"")
+        stop("Cannot estimate var-cov matrix currently for method \"itau.mpl\"")
     var.est <- matrix(NA_real_, 0,0) # length 0  <==> not-estimated / not-available
 
     ## Return
@@ -588,6 +596,15 @@ fitCopulaCopula <- function(copula, data,
         fitCopula.icor(copula, x=data, method=method,
                        estimate.variance=estimate.variance, ...)
     } else { # "itau.mpl"
+	if(!missing(optim.method))
+	    warning(gettextf("method \"%s\" uses optimize(); hence '%s' is not used",
+			     "itau.mpl", "optim.method"), domain=NA)
+	if(!is.null(optim.control$trace)) {
+	    warning(gettextf("method \"%s\" uses optimize(); hence '%s' is not used",
+			     "itau.mpl", "optim.control = list(.., trace = *)"),
+		    domain=NA)
+	    warning("Rather use fitCopula(...., traceOpt = TRUE)")
+	}
         (if(hideWarnings) suppressWarnings else identity)(
         fitCopula.itau.mpl(copula, u=data, posDef=posDef, lower=lower, upper=upper,
                            estimate.variance=estimate.variance, ...) # <- may include 'tol' !
