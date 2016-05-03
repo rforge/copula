@@ -14,6 +14,18 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
+##' The mother of all copula classes:
+setClass("Copula")#  'Virtual' automatically
+
+##' Virtual class of copulas that can be fully parametrized or fitted, e.g. dim() must work
+setClass("parCopula", contains = c("Copula", "VIRTUAL"))
+##' Virtual class of "extended" copulas that *contain* one 'parCopula' slot
+setClass("xcopula", contains = c("parCopula", "VIRTUAL"),
+         slots = c(copula = "parCopula"))
+
+setGeneric("paramNames", function(x) standardGeneric("paramNames"))
+setMethod("paramNames", "xcopula", function(x) paramNames(x@copula))
+
 ## This has advantage that arithmetic with scalars works "for free" already:
 setClass("interval", contains = "numeric", # of length 2
 	 slots = c(open  = "logical"),# of length 2
@@ -145,7 +157,7 @@ setMethod("validTheta", signature(x = "acopula"),
 
 
 ### Nested Archimedean Copulas with *specified* dimension(s)
-setClass("nacopula",
+setClass("nacopula", contains = "parCopula",
 	 slots = c(copula = "acopula",
                    comp = "integer", # from 1:d -- of length in [0,d]
                    childCops = "list" #of nacopulas, possibly empty

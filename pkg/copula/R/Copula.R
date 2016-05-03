@@ -114,3 +114,6 @@ setMethod("dPsi", "acopula",
 	      s <- if(log || degree %% 2 == 0) 1. else -1.
 	      s * copula@absdPsi(t, theta, degree=degree, log=log, ...)
        })
+
+## Methods for 'xcopula': extended copulas defined by mainly *one* copula slot
+setMethod("dim", signature("xcopula"), function(x) x@copula@dimension)

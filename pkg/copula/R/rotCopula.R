@@ -1,4 +1,4 @@
-## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
+## Copyright (C) 2016 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -17,11 +17,8 @@
 ### Rotated copulas created from an existing copula and a mask of logicals
 ##################################################################################
 
-setClass("rotCopula", contains = "copula",
-	 slots = c(
-             copula = "copula",
-             flip = "logical"
-         ),
+setClass("rotCopula", contains = "xcopula",
+	 slots = c(flip = "logical"), # plus "copula"
 	 validity =
 	     function(object) {
 		 d <- object@copula@dimension
@@ -40,15 +37,7 @@ setClass("rotCopula", contains = "copula",
 ##' @return a new "rotCopula" object; see above
 ##' @author Ivan Kojadinovic
 rotCopula <- function(copula, flip = rep(TRUE, copula@dimension)) {
-    new("rotCopula",
-        dimension = copula@dimension,
-        parameters = copula@parameters,
-        param.names = copula@param.names,
-        param.lowbnd = copula@param.lowbnd,
-        param.upbnd = copula@param.upbnd,
-        copula = copula,
-        flip = flip,
-        fullname = paste("Rotated copula based on: [", copula@fullname, "]"))
+    new("rotCopula", copula = copula, flip = flip)
 }
 
 ## Internal. swicth u[,i] to 1 - u[,i] according to flip
@@ -60,8 +49,7 @@ apply.flip <- function(u, flip) {
 
 ## pCopula
 pRotCopula <- function(u, copula) {
-    copula@copula@parameters <- copula@parameters
-    apply(apply.flip(u, copula@flip), 1, # TODO: vectorize prob ?
+    apply(apply.flip(u, copula@flip), 1L, # TODO: vectorize prob ?
           function(x) prob(copula@copula,
                            l = pmin(x, copula@flip),
                            u = pmax(x, copula@flip)))
@@ -72,7 +60,6 @@ setMethod("pCopula", signature("matrix", "rotCopula"), pRotCopula)
 
 ## dCopula
 dRotCopula <- function(u, copula, log = FALSE, ...) {
-    copula@copula@parameters <- copula@parameters
     dCopula(apply.flip(u, copula@flip), copula@copula, log = log, ...)
 }
 
@@ -81,15 +68,10 @@ setMethod("dCopula", signature("matrix", "rotCopula"), dRotCopula)
 
 ## rCopula
 setMethod("rCopula", signature("numeric", "rotCopula"),
-          function(n, copula) {
-    copula@copula@parameters <- copula@parameters
-    apply.flip(rCopula(n, copula@copula), copula@flip)
-})
-
+          function(n, copula) apply.flip(rCopula(n, copula@copula), copula@flip))
 
 ## rho
 setMethod("rho", signature("rotCopula"), function(copula) {
-    copula@copula@parameters <- copula@parameters
     (-1)^sum(copula@flip[1:2]) * rho(copula@copula)
 })
 
@@ -100,7 +82,6 @@ setMethod("iRho", signature("rotCopula"), function(copula, rho) {
 
 ## tau
 setMethod("tau", signature("rotCopula"), function(copula) {
-    copula@copula@parameters <- copula@parameters
     (-1)^sum(copula@flip[1:2]) * tau(copula@copula)
 })
 
@@ -111,7 +92,6 @@ setMethod("iTau", signature("rotCopula"), function(copula, tau) {
 
 ## lambda
 setMethod("lambda", signature("rotCopula"), function(copula) {
-    copula@copula@parameters <- copula@parameters
     sm <- sum(copula@flip[1:2])
     if (sm == 1) {
         warning("lambda() method for copula class 'rotCopula' not implemented yet")
@@ -135,7 +115,6 @@ setMethod("fitCopula", signature("rotCopula"), function(copula, data, ...) {
     }
     fit <- fitCopula(copula@copula, data = apply.flip(data, copula@flip), ...)
     copula@copula <- fit@copula
-    copula@parameters <- fit@estimate
     fit@copula <- copula
     fit
 })

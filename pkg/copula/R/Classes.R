@@ -13,17 +13,16 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-
 ### basic copula class #########################################################
 
 
-setClass("copula", contains = "VIRTUAL",
+setClass("copula", contains = c("parCopula", "VIRTUAL"),
          slots = c(dimension = "integer", # as for "nacopula"
                    parameters = "numeric",
                    param.names = "character",
                    param.lowbnd = "numeric",
                    param.upbnd = "numeric",
-                   ## TODO: "a vector" of intervals" paraInterval = "maybeInterval", # [.,.]  (.,.], etc .. parameter interval
+                   ## TODO: "a vector" of intervals" paraInterval = "maybeInterval", # [.,.]  (.,.], etc ..
                    fullname = "character"),
          prototype = prototype(dimension = 2L, parameters = NA_real_),
          validity = ##' Check validity of "copula"
@@ -285,15 +284,16 @@ setClass("mvdc",
 ## "fitCopula" and "fitMvdc" will inherit from it:
 setClass("fittedMV",
 	 slots = c(estimate = "numeric",
-                   var.est = "matrix", ## FIXME 'vcov'
+		   var.est = "matrix", ##  and matrix(,0,0) means "not estimated/available"
                    loglik = "numeric",
                    nsample = "integer",
                    method = "character",
                    ## convergence = "integer",
                    fitting.stats = "list"))
 
-setGeneric("paramNames", function(x) standardGeneric("paramNames"))
-## paramNames() methods: provided separately for "fitCopula", "fitMvdc"
+setMethod("paramNames", "copula", function(x) x@param.names)
+## paramNames() methods: further provided separately for "fitCopula", "fitMvdc"
+
 
 coef.fittedMV <- function(object, ...)
     setNames(object@estimate, paramNames(object))
@@ -313,12 +313,6 @@ logLik.fittedMV <- function(object, ...) {
     val
 }
 
-###-------------------------- Glue   "copula" <-> "nacopula"
-
-##' The mother of all copula classes:
-setClassUnion("Copula",
-              members = c("copula", "nacopula"))
-## NB: "acopula" *not* : It has no dimension, is rather a family object
 
 ##' does the copula have 'df' as parameter?
 has.par.df <- function(cop, classDef = getClass(class(cop)),
