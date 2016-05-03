@@ -1,9 +1,9 @@
 \name{matrix_tools}
+\title{Tools to Work with Matrices}
 \alias{p2P}
 \alias{P2p}
 \alias{getSigma}
 \alias{extreme_pairs}
-\title{Tools to Work with Matrices}
 \description{
   \code{p2P()} creates a \code{\link{matrix}} from a given
   \code{\link{vector}} of parameters.  \code{P2p()} creates a
@@ -21,23 +21,26 @@
   if \code{decreasing=TRUE}) \code{n} values in a symmetric matrix.
 }
 \usage{
-p2P(param, d)
+p2P(param, d = round(sqrt(1 + length(param))))
 P2p(P)
 getSigma(copula)
 extreme_pairs(x, n=6, decreasing=FALSE)
 }
 \arguments{
-  \item{param}{A parameter vector.}
-  \item{d}{Dimension of the resulting \code{\link{matrix}}.}
-  \item{P}{A \code{\link{matrix}} which should be converted to a vector.}
-  \item{copula}{An \bold{elliptical} copula, i.e., an object (extending)
+  \item{param}{a parameter vector.}
+  \item{d}{dimension of the resulting \code{\link{matrix}}.  The default
+  is correct under the assumption (of \code{p2P()} in general!)  that
+  \code{param} is the lower-triangular part of a correlation matrix \code{P}.}
+  \item{P}{a \code{\link{matrix}} which should be converted to a vector.}
+
+  \item{copula}{an \bold{elliptical} copula, i.e., an object (extending)
     class \code{\linkS4class{ellipCopula}}; typically resulting from
     \code{\link{tCopula}()} or \code{\link{normalCopula}()}.}
-  \item{x}{A symmetric \code{\link{matrix}}.}
-  \item{n}{The number of pairs with smallest (or largest) values to be
+  \item{x}{a symmetric \code{\link{matrix}}.}
+  \item{n}{the number of pairs with smallest (or largest) values to be
     displayed.}
-  \item{decreasing}{A \code{\link{logical}} indicating whether pairs
-    corresponding to the smallest (for \code{decreasing=FALSE}; the
+  \item{decreasing}{a \code{\link{logical}} indicating whether pairs
+    corresponding to the smallest (for \code{decreasing=FALSE}, the
     default) or largest (for \code{decreasing=TRUE}) \code{n} values
     should be displayed.}
 }
@@ -63,7 +66,7 @@ extreme_pairs(x, n=6, decreasing=FALSE)
 \seealso{
   \code{\link{ellipCopula}}, \code{\link{tCopula}}, \code{\link{normalCopula}}.
 }
-%\author{Marius Hofert}
+%\author{Marius Hofert and Martin M}
 \examples{
 ## display the definitions
 p2P
