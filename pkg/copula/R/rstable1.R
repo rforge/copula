@@ -47,7 +47,7 @@ cospi2 <- function(x) {
 	r[i[x[i] == 2]] <- -1
     }
     io <- which(!isI)
-    r[io] <- cos(pi/2 * x[io])
+    r[io] <- cospi(x[io]/2)
     r
 }
 

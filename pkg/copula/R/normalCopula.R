@@ -120,6 +120,5 @@ setMethod("tau", "normalCopula", function(copula) 2 * asin(copula@parameters) /p
 setMethod("rho", "normalCopula", function(copula) asin(copula@parameters / 2) * 6 / pi)
 setMethod("lambda", signature("normalCopula"), lambdaNormalCopula)
 
-setMethod("iRho", "normalCopula",
-          function(copula, rho) sin(pi * rho / 6) * 2)
+setMethod("iRho", "normalCopula", function(copula, rho) sinpi(rho / 6) * 2)
 

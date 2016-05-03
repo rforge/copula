@@ -45,7 +45,7 @@ ellipCopula <- function(family, param = NA_real_, dim = 2L, dispstr = "ex",
          )
 }
 
-iTauEllipCopula <- function(copula, tau) sin((tau * pi) / 2)
+iTauEllipCopula <- function(copula, tau) sinpi(tau / 2)
 
 ## iRho --> only for normalCopula
 
