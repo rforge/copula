@@ -105,8 +105,8 @@ if(FALSE) {
 
 ### 2.1 Legacy persp() and contour() methods (still improved, though) ##########
 
-##' @title Perspective Plot Method for Class "copula"
-##' @param x An object of class "copula"
+##' @title Perspective Plot Method for Class "Copula"
+##' @param x An object of class "Copula"
 ##' @param FUN A function like dCopula or pCopula
 ##' @param n.grid The (vector of) number(s) of grid points in each dimension
 ##' @param delta Distance from the boundary of [0,1]^2
@@ -173,8 +173,8 @@ perspMvdc <- function(x, FUN, xlim, ylim, n.grid = 26,
     invisible(list(x = x., y = y., z = z.mat, persp = T))
 }
 
-##' @title Contour Plot Method for Class "copula"
-##' @param x An object of class "copula"
+##' @title Contour Plot Method for Class "Copula"
+##' @param x An object of class "Copula"
 ##' @param FUN A function like dCopula or pCopula
 ##' @param n.grid The (vector of) number(s) of grid points in each dimension
 ##' @param delta Distance from the boundary of [0,1]^2
@@ -228,12 +228,12 @@ contourMvdc <- function(x, FUN, xlim, ylim, n.grid = 26,
     invisible(list(x = x., y = y., z = z.mat))
 }
 
-## Define persp() and contour() methods for objects of class "copula" and "mvdc"
+## Define persp() and contour() methods for objects of class "Copula" and "mvdc"
 ## Note: - No generic method (via setGeneric()) needed here as already provided by R
 ##       - The objects 'x' have to be named the same in perspCopula() and perspMvdc()
-setMethod("persp",   signature = signature("copula"), definition = perspCopula)
+setMethod("persp",   signature = signature("Copula"), definition = perspCopula)
 setMethod("persp",   signature = signature("mvdc"),   definition = perspMvdc)
-setMethod("contour", signature = signature("copula"), definition = contourCopula)
+setMethod("contour", signature = signature("Copula"), definition = contourCopula)
 setMethod("contour", signature = signature("mvdc"),   definition = contourMvdc)
 
 ## "F.n(), C.n()" -- once we have empirical
@@ -349,8 +349,8 @@ qqplot2 <- function(x, qF, log="", qqline.args=if(log=="x" || log=="y") list(unt
 
 ### 2.3 plot() methods #########################################################
 
-##' @title Scatter Plot Method for Class "copula"
-##' @param x An object of class "copula" (bivariate)
+##' @title Scatter Plot Method for Class "Copula"
+##' @param x An object of class "Copula" (bivariate)
 ##' @param n The sample size
 ##' @param ... Additional arguments passed to plot()
 ##' @return invisible()
@@ -385,7 +385,7 @@ plotMvdc <- function(x, n, xlim = NULL, ylim = NULL,
 
 ## Define plot() methods for objects of various classes
 ## Note: 'x' is a "copula" or "mvdc" object
-setMethod("plot", signature(x = "copula"), plotCopula)
+setMethod("plot", signature(x = "Copula"), plotCopula)
 setMethod("plot", signature(x = "mvdc"),   plotMvdc)
 
 
@@ -466,8 +466,8 @@ contourplot2MatrixDf <- function(x, aspect = 1,
                 col.regions = col.regions, cuts = cuts, scales = scales, ...)
 }
 
-##' @title Contourplot Plot Method for Class "copula"
-##' @param x An object of class "copula"
+##' @title Contourplot Plot Method for Class "Copula"
+##' @param x An object of class "Copula"
 ##' @param FUN A function like dCopula or pCopula
 ##' @param n.grid The (vector of) number(s) of grid points in each dimension
 ##' @param xlim The x-axis limits
@@ -521,11 +521,11 @@ contourplot2Mvdc <- function(x, FUN, n.grid = 26, xlim, ylim,
 }
 
 ## Define contourplot2() methods for objects of various classes
-## Note: 'x' is a "matrix", "data.frame", "copula" or "mvdc" object
+## Note: 'x' is a "matrix", "data.frame", "Copula" or "mvdc" object
 setGeneric("contourplot2", function(x, ...) standardGeneric("contourplot2"))
 setMethod("contourplot2", signature(x = "matrix"),     contourplot2MatrixDf)
 setMethod("contourplot2", signature(x = "data.frame"), contourplot2MatrixDf)
-setMethod("contourplot2", signature(x = "copula"),     contourplot2Copula)
+setMethod("contourplot2", signature(x = "Copula"),     contourplot2Copula)
 setMethod("contourplot2", signature(x = "mvdc"),       contourplot2Mvdc)
 
 
@@ -581,8 +581,8 @@ wireframe2MatrixDf <- function(x,
               ...)
 }
 
-##' @title Wireframe Plot Method for Class "copula"
-##' @param x An object of class "copula"
+##' @title Wireframe Plot Method for Class "Copula"
+##' @param x An object of class "Copula"
 ##' @param FUN A function like dCopula or pCopula
 ##' @param n.grid The (vector of) number(s) of grid points in each dimension
 ##' @param delta Distance from the boundary of [0,1]^2
@@ -645,11 +645,11 @@ wireframe2Mvdc <- function(x, FUN, n.grid = 26,
 }
 
 ## Define wireframe2() methods for objects of various classes
-## Note: 'x' is a "matrix", "data.frame", "copula" or "mvdc" object
+## Note: 'x' is a "matrix", "data.frame", "Copula" or "mvdc" object
 setGeneric("wireframe2", function(x, ...) standardGeneric("wireframe2"))
 setMethod("wireframe2", signature(x = "matrix"),     wireframe2MatrixDf)
 setMethod("wireframe2", signature(x = "data.frame"), wireframe2MatrixDf)
-setMethod("wireframe2", signature(x = "copula"),     wireframe2Copula)
+setMethod("wireframe2", signature(x = "Copula"),     wireframe2Copula)
 setMethod("wireframe2", signature(x = "mvdc"),       wireframe2Mvdc)
 
 
@@ -701,8 +701,8 @@ cloud2MatrixDf <- function(x,
           ...)
 }
 
-##' @title Cloud Plot Method for Class "copula"
-##' @param x An object of class "copula"
+##' @title Cloud Plot Method for Class "Copula"
+##' @param x An object of class "Copula"
 ##' @param n The sample size
 ##' @param xlim The x-axis limits
 ##' @param ylim The y-axis limits
@@ -755,11 +755,11 @@ cloud2Mvdc <- function(x, n,
 }
 
 ## Define cloud2() methods for objects of various classes
-## Note: 'x' is a "matrix", "data.frame", "copula" or "mvdc" object
+## Note: 'x' is a "matrix", "data.frame", "Copula" or "mvdc" object
 setGeneric("cloud2", function(x, ...) standardGeneric("cloud2"))
 setMethod("cloud2", signature(x = "matrix"),     cloud2MatrixDf)
 setMethod("cloud2", signature(x = "data.frame"), cloud2MatrixDf)
-setMethod("cloud2", signature(x = "copula"),     cloud2Copula)
+setMethod("cloud2", signature(x = "Copula"),     cloud2Copula)
 setMethod("cloud2", signature(x = "mvdc"),       cloud2Mvdc)
 
 
@@ -813,8 +813,8 @@ splom2MatrixDf <- function(x, varnames = NULL,
           }, ...)
 }
 
-##' @title Scatter-Plot Matrix Method for Class "copula"
-##' @param x An object of class "copula"
+##' @title Scatter-Plot Matrix Method for Class "Copula"
+##' @param x An object of class "Copula"
 ##' @param n The sample size
 ##' @param ... Additional arguments passed to splom2MatrixDf()
 ##' @return An splom() object
@@ -844,10 +844,10 @@ splom2Mvdc <- function(x, n, varnames.null.lab = "X", ...)
 }
 
 ## Define splom2() methods for objects of various classes
-## Note: 'x' is a "matrix", "data.frame", "copula" or "mvdc" object
+## Note: 'x' is a "matrix", "data.frame", "Copula" or "mvdc" object
 setGeneric("splom2", function(x, ...) standardGeneric("splom2"))
 setMethod("splom2", signature(x = "matrix"),     splom2MatrixDf)
 setMethod("splom2", signature(x = "data.frame"), splom2MatrixDf)
-setMethod("splom2", signature(x = "copula"),     splom2Copula)
+setMethod("splom2", signature(x = "Copula"),     splom2Copula)
 setMethod("splom2", signature(x = "mvdc"),       splom2Mvdc)
 

@@ -1,8 +1,8 @@
 \name{pairs2}
 \alias{pairs2}
-\title{Scatter-Plot Matrix (pairs) with Nice Defaults}
+\title{Scatter-Plot Matrix ('pairs') for Copula Distributions with Nice Defaults}
 \description{
-  A version of \pkg{graphics}' \code{\link{pairs}()} function,
+  A version of \pkg{graphics}' package \code{\link{pairs}()},
   particularly useful for visualizing dependence in multivariate
   (copula) data.
 }
@@ -10,12 +10,13 @@
 pairs2(x, labels = NULL, labels.null.lab = "U", \dots)
 }
 \arguments{
-  \item{x}{A numeric matrix or as.matrix(.)able.}
-  \item{labels}{The variable names, typically unspecified.}
-  \item{labels.null.lab}{The \code{\link{character}} string
+  \item{x}{a numeric \code{\link{matrix}} or an \R object for which
+    \code{\link{as.matrix}(x)} returns such a matrix.}
+  \item{labels}{the variable names, typically unspecified.}
+  \item{labels.null.lab}{the \code{\link{character}} string
     determining the \dQuote{base name} of the variable labels in case
     \code{labels} is \code{NULL} and \code{x} does not have all column names given.}
-  \item{\dots}{Further arguments, passed to \code{\link{pairs}()}.}
+  \item{\dots}{further arguments, passed to \code{\link{pairs}()}.}
 }
 \value{\code{\link{invisible}()}
 }

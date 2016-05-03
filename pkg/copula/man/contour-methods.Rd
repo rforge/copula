@@ -3,14 +3,14 @@
 \docType{methods}
 \alias{contour-methods}
 \alias{contour,indepCopula-method}
-\alias{contour,copula-method}
+\alias{contour,Copula-method}
 \alias{contour,mvdc-method}
 \description{
   Methods for function \code{\link{contour}} to draw contour lines aka a
   level plot for objects from package \pkg{copula}.
 }
 \usage{% want \usage{} since we have many "surprising arguments"
-\S4method{contour}{copula}(x, FUN,
+\S4method{contour}{Copula}(x, FUN,
                    n.grid = 26, delta = 0,
                    xlab = expression(u[1]), ylab = expression(u[2]),
                    box01 = TRUE, \dots)
@@ -19,29 +19,29 @@
 		   box01 = FALSE, \dots)
 }
 \arguments{
-  \item{x}{A \code{"\linkS4class{copula}"} or
+  \item{x}{a \code{"\linkS4class{Copula}"} or
     a \code{"\linkS4class{mvdc}"} object.}
-  \item{FUN}{The \code{\link{function}} to be plotted; typically
+  \item{FUN}{the \code{\link{function}} to be plotted; typically
     \code{\link{dCopula}} or \code{\link{pCopula}}.}
-  \item{n.grid}{The number of grid points used in each dimension. This
+  \item{n.grid}{the number of grid points used in each dimension.  This
     can be a vector of length two, giving the number of grid points used
     in x- and y-direction, respectively; the function \code{FUN} will be
     evaluated on the corresponding (x,y)-grid.}
-  \item{delta}{A small number in \eqn{[0, \frac 1 2)}{[0, 1/2)}
+  \item{delta}{a small number in \eqn{[0, \frac 1 2)}{[0, 1/2)}
     influencing the evaluation boundaries. The x- and y- vectors will
     have the range \code{[0+delta, 1-delta]}, the default being \code{[0,1]}.}
-  \item{xlab, ylab}{The x-axis and y-axis labels.}
-  \item{xlim, ylim}{The \code{\link{range}} of the x and
+  \item{xlab, ylab}{the x-axis and y-axis labels.}
+  \item{xlim, ylim}{the \code{\link{range}} of the x and
     y variables, respectively.}
-  \item{box01}{A logical specifying if a faint rectangle should be drawn
+  \item{box01}{a logical specifying if a faint rectangle should be drawn
     on the boundary of \eqn{[0,1]^2} (often useful for copulas, but
     typically \emph{not} for general multivariate distributions
     (\code{"mvdc"})).}
-  \item{\dots}{Further arguments for (the default method of)
+  \item{\dots}{further arguments for (the default method of)
     \code{\link{contour}()}, e.g., \code{nlevels}, \code{levels}, etc.}
 }
 \section{Methods}{
-  Contour lines are drawn for \code{"\linkS4class{copula}"} or
+  Contour lines are drawn for \code{"\linkS4class{Copula}"} or
   \code{"\linkS4class{mvdc}"} objects, see \code{x} in the
   \emph{Arguments} section.
 }

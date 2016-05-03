@@ -1,18 +1,32 @@
 \name{copula-class}
-\title{Mother Classes "Copula" and "copula" of All Copulas in the Package}
+\title{Mother Classes "Copula", etc of all Copulas in the Package}
 \docType{class}
 \alias{copula-class}
 \alias{Copula-class}
+\alias{parCopula-class}
+\alias{xcopula-class}
+%
 \alias{plackettCopula-class}% the only "actual" class also on this help page
 \alias{dim,copula-method}
+\alias{dim,xcopula-method}
 \description{
   A copula is a multivariate distribution with uniform margins.
-  The virtual class \code{"Copula"} is the mother of all copula classes
-  in the package \pkg{copula} which encompasses classes of the former
-  packages \pkg{nacopula} and \pkg{copula}.
+  The virtual class \code{"Copula"} is the mother (or \dQuote{super
+    class}) of all copula classes in the package \pkg{copula} which
+  encompasses classes of the former packages \pkg{nacopula} and \pkg{copula}.
 
-  The virtual class \code{"copula"} is the mother of all copula classes
-  from former package \pkg{copula}.
+  The virtual class \code{"parCopula"} extends \code{"Copula"} and is
+  the super class of all copulas that can be fully \emph{par}ametrized and
+  hence fitted to data.  For these, at least the \code{\link{dim}()} method
+  must be well defined.
+
+  The virtual class \code{"copula"} extends \code{"parCopula"} and is
+  the mother of all copula classes from former package \pkg{copula}.  It
+  has set of slots for the dimension and parameter vector, see below.
+
+  The virtual class \code{"xcopula"} extends \code{"parCopula"} and
+  contains a slot \code{copula}; an (\dQuote{actual}) class example are
+  the rotated copulas, \code{\linkS4class{rotCopula}}.
 }
 \section{Objects from the Class}{
   Objects are typically created by are by \code{\link{tCopula}()},

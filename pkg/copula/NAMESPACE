@@ -114,13 +114,13 @@ export(psi, iPsi, diPsi)
 export(A, dAdu, An.biv, An)
 
 exportClasses(mvdc)
-exportClasses(Copula, copula, ellipCopula, archmCopula, evCopula)
+exportClasses(Copula, parCopula, xcopula, copula, # virtual classes
+	      ellipCopula, archmCopula, evCopula)
 exportClasses(indepCopula)
 exportClasses(normalCopula, tCopula)
 exportClasses(claytonCopula, frankCopula, gumbelCopula, amhCopula, joeCopula)
 exportClasses(galambosCopula, huslerReissCopula, tawnCopula, tevCopula)
-exportClasses(plackettCopula)
-exportClasses(fgmCopula)
+exportClasses(fgmCopula, plackettCopula)
 
 export(mvdc)
 export(ellipCopula, archmCopula, evCopula)

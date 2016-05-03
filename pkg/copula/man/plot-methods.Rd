@@ -5,8 +5,8 @@
 \docType{methods}
 \title{Methods for 'plot' in Package 'copula'}
 \description{
-  Methods for \code{\link{plot}()} to draw scatter plot of bivariate
-  distributions from package \pkg{copula}.
+  Methods for \code{\link{plot}()} to draw a scatter plot of a random
+  sample from bivariate distributions from package \pkg{copula}.
 }
 \usage{
 \S4method{plot}{Copula,ANY}(x, n, xlim = 0:1, ylim = 0:1,
@@ -18,7 +18,8 @@
   \item{x}{a \emph{bivariate} \code{"\linkS4class{matrix}"},
     \code{"\linkS4class{data.frame}"}, \code{"\linkS4class{Copula}"} or
     a \code{"\linkS4class{mvdc}"} object.}
-  \item{n}{the sample size.}
+  \item{n}{when \code{x} is not matrix-like: The sample size of the
+    random sample drawn from \code{x}.}
   \item{xlim, ylim}{the x- and y-axis limits.}
   \item{xlab, ylab}{the x- and y-axis labels.}
   \item{\dots}{additional arguments passed to \code{\link{plot}}
@@ -28,7 +29,8 @@
 }
 %\author{Marius Hofert}
 \seealso{
-  \code{\link{splom2}()} for a scatter-plot \emph{matrix} based on \code{\link[lattice]{splom}()}.
+  \code{\link{splom2}()} for a scatter-plot \emph{matrix} based on
+  \code{\link[lattice]{splom}()}.
 }
 \examples{
 ## For 2-dim. 'copula' objects

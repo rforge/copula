@@ -3,12 +3,12 @@
 \alias{cloud2-methods}
 \alias{cloud2,matrix-method}
 \alias{cloud2,data.frame-method}
-\alias{cloud2,copula-method}
+\alias{cloud2,Copula-method}
 \alias{cloud2,mvdc-method}
 \docType{methods}
-\title{Methods `cloud2' in Package `copula'}
+\title{Cloud Plot Methods ('cloud2') in Package 'copula'}
 \description{
-  Methods \code{cloud2()} to draw cloud plots of
+  Function and Methods \code{cloud2()} to draw cloud plots of
   three-dimensional distributions from package \pkg{copula}.
 }
 \usage{
@@ -26,7 +26,7 @@
       xlab = NULL, ylab = NULL, zlab = NULL,
       scales = list(arrows = FALSE, col = "black"),
       par.settings = standard.theme(color = FALSE), \dots)
-\S4method{cloud2}{copula}(x, n,
+\S4method{cloud2}{Copula}(x, n,
       xlim = 0:1, ylim = 0:1, zlim = 0:1,
       xlab = expression(U[1]), ylab = expression(U[2]),
       zlab = expression(U[3]), \dots)
@@ -36,21 +36,22 @@
       zlab = expression(X[3]), \dots)
 }
 \arguments{
-  \item{x}{A \code{"\linkS4class{matrix}"},
-    \code{"\linkS4class{data.frame}"}, \code{"\linkS4class{copula}"} or
+  \item{x}{a \code{"\linkS4class{matrix}"},
+    \code{"\linkS4class{data.frame}"}, \code{"\linkS4class{Copula}"} or
     a \code{"\linkS4class{mvdc}"} object.}
-  \item{xlim, ylim, zlim}{The x-, y- and z-axis limits.}
-  \item{xlab, ylab, zlab}{The x-, y- and z-axis labels.}
-  \item{scales}{A \code{\link{list}} determining how the axes are drawn;
+  \item{xlim, ylim, zlim}{the x-, y- and z-axis limits.}
+  \item{xlab, ylab, zlab}{the x-, y- and z-axis labels.}
+  \item{scales}{a \code{\link{list}} determining how the axes are drawn;
     see \code{\link{cloud}()}.}
-  \item{par.settings}{See \code{\link{cloud}()}.}
-  \item{n}{The sample size.}
-  \item{\dots}{Additional arguments passed to the underlying
+  \item{par.settings}{see \code{\link{cloud}()}.}
+  \item{n}{when \code{x} is not matrix-like: The sample size of the
+    random sample drawn from \code{x}.}
+  \item{\dots}{additional arguments passed to the underlying
     \code{\link{cloud}()}.}
 }
 \section{Methods}{
   Cloud plots for objects of class \code{"\linkS4class{matrix}"} ,
-  \code{"\linkS4class{data.frame}"}, \code{"\linkS4class{copula}"} or
+  \code{"\linkS4class{data.frame}"}, \code{"\linkS4class{Copula}"} or
   \code{"\linkS4class{mvdc}"}.
 }
 \value{
@@ -65,7 +66,7 @@ set.seed(271)
 U <- rCopula(n, copula = cop)
 cloud2(U, xlab = expression(U[1]), ylab = expression(U[2]), zlab = expression(U[3]))
 
-## For 'copula' objects
+## For 'Copula' objects
 set.seed(271)
 cloud2(cop, n = n) # same as above
 

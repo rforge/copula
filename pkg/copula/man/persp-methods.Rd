@@ -1,7 +1,7 @@
 \name{persp-methods}
 \docType{methods}
 \alias{persp-methods}
-\alias{persp,copula-method}
+\alias{persp,Copula-method}
 \alias{persp,mvdc-method}
 \title{Methods for Function `persp' in Package `copula'}
 \description{
@@ -9,7 +9,7 @@
   two dimensional distributions from package \pkg{copula}).
 }
 \usage{
-\S4method{persp}{copula}(x, FUN, n.grid = 26, delta = 0,
+\S4method{persp}{Copula}(x, FUN, n.grid = 26, delta = 0,
       xlab = "u1", ylab = "u2",
       zlab = deparse(substitute(FUN))[1],
       theta = -30, phi = 30, expand = 0.618,
@@ -20,11 +20,10 @@
       ticktype = "detail", \dots)
 }
 \arguments{
-  \item{x}{A \code{"\linkS4class{copula}"} or
-    a \code{"\linkS4class{mvdc}"} object.}
-  \item{FUN}{The \code{\link{function}} to be plotted; typically
+  \item{x}{a \code{"\linkS4class{Copula}"} or a \code{"\linkS4class{mvdc}"} object.}
+  \item{FUN}{the \code{\link{function}} to be plotted; typically
     \code{\link{dCopula}} or \code{\link{pCopula}}.}
-  \item{n.grid}{The number of grid points used in each dimension. This
+  \item{n.grid}{the number of grid points used in each dimension.  This
     can be a vector of length two, giving the number of grid points used
     in x- and y-direction, respectively; the function \code{FUN} will be
     evaluated on the corresponding (x,y)-grid.}
