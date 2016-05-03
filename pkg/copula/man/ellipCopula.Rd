@@ -13,8 +13,8 @@ normalCopula(param, dim = 2, dispstr = "ex")
     tCopula (param, dim = 2, dispstr = "ex", df = 4, df.fixed = FALSE)
 }
 \arguments{
-  \item{family}{ a character string specifying the family of an
-    elliptical copula.  Implemented families are "normal" and "t".  }
+  \item{family}{a character string specifying the family of an
+    elliptical copula.  Must be \code{"normal"} (the default) or \code{"t"}.}
   \item{param}{a numeric vector specifying the parameter values;
     \code{P2p()} accesses this vector, whereas
     \code{\link{p2P}()} and \code{\link{getSigma}()} provide
