@@ -1,39 +1,42 @@
 ##-*- org -*-->  Emacs .. [Tab] key + [Org] menu; C-c C-o to follow links
 * Short Term (before 1.0.0):
 ** TODO [MM/JY]: Add slot 'fixed' (or similar) to copula class, change constructors of existing classes accordingly and make appropriate changes in fitCopula() (and gofCopula() if required and do basic checks)
-** TODO [JY]: once 'fixed' stuff added, rewrite/adapt tCopula, tevCopula (so that the 'df.fixed' stuff uses the new 'fixed' stuff) ?
-** TODO [MM]: bug? library(copula); d <- 3; pCopula(0.4, copula = normalCopula(param = 0.5, dim = d))
-** TODO need a "getTheta" analogously to "setTheta"
-which extracts the parameter (vector) from any copula object
-** TODO Fitting high-dimensional "un"structured elliptic copulas: memory explosion and potential R crash
-# MH's Email to everyone on 2016-05-01
-
-I came back to my problem of estimating a d=442 dimensional t copula (sample size 1510). fitCopula(, method = "mpl") led to my R process being killed (Process R killed: 9 at Sun May  1 10:12:51 2016). I then tried the more adequate method for large d: fitCopula(, method = "itau.mpl") [= first estimate P, then the d.o.f. via a one-dimensional likelihood optimization given P].
-To my surprise, R crashed again, and already in 200 dimensions. The problem was that for the inversion of Kendall's tau we called fitCopula.icor()... which failed because of the .lm.fit() calls (the dimensions there were to large...). Now if you think about it, .lm.fit() only makes sense if dispstr != "un" (for dispstr = "un", there is no need to call this 'overhead'), so I fixed fitCopula.icor().  Still the procedure failed and R crashed. Reason: the 'q' in pretty much all fitCopula.*() functions is p*(p-1)/2 (+ 1). For d = 442, q is 97462. Try and allocate such a matrix on your set-up, I get:
+** TODO Fitting high-dimensional copulas: memory explosion due to allocation of large (d*(d-1)/2) matrix for variance estimators
+# See also MH's email from 2016-05-01
+We frequently allocate matrices 'var.est' in ./R/fitCopula.R (potentially
+elsewhere) for the variance estimators. In larger dimensions, R can be killed by
+doing so on multiple platforms (see
+https://stat.ethz.ch/pipermail/r-devel/2016-May/072648.html and the discussion
+in that thread).
 
 d <- 442
 q <- d*(d-1)/2 + 1 # 97462
 var.est <- matrix(NA_real_, q, q)
-Process R killed: 9 at Sun May  1 12:11:18 2016
 
-Of course this is extremely bad. We have such a construction in most fitting procedures where we compute variances (see ~/R/fitCopula.R)... One way to address this would be to figure out on the current architecture what's the largest size of a matrix one can allocate so that the memory can handle it and to throw a warning + omit the variance estimation in case the copula dimension is too large... (can this be done?)
+We need to address this. As the thread says, there is little hope to test
+beforehand whether for a specific dimension, the matrix of variance estimators
+can be allocated. This is what we could/should do:
+1) Most functions already have a logical estimate.variance. The problem is that,
+   if FALSE, we still try and allocate (+ pass through) a matrix of type
+   matrix(NA_real_, q, q) -- which then leads to failure. We should allow the
+   validity to simply set var.est (see return objects) to NA in that case.
+2) Besides 1), our 'fixed.param' idea should also allow to only compute variance
+   estimators for some of the (pairwise) estimators. That could keep the matrix
+   small as well.
 
-What I did for the moment (to make it work) are two things:
-1) fitCopula(, method="itau.mpl") doesn't estimate the variance yet anyways; disable that for now.
-2) I commented out some tests of fitCopula(, method="itau.mpl") in ./tests/fitting-ex.R  for dispstr != "un".
-   Would be usefuk to have but they are 1) not doable due to the crashes of
-   .lm.fit() and 2) the original method of Mashal/Zeevi was intended to be
-   used for dispstr = "un" anyways.  << MM: seems nonsense for d=442
-
-With these fixes, I can fit a t copula in 442 dimensions in about 90s.
-Still, these are rather hacks. I think it would be important to address the above problem of R crashing (again, this affects the variance computation for several methods, just search for matrix(, q,  q))
-
-Apart from the above, things like getXmat() also get extremely slow in high dimensions, so (again) I think it's fine to 'omit' the variance computation in high dimension (depending on what your hardware offers).
-MM (2016-05-03):
+MH: Apart from the above, .lm.fit() (and possibly getXmat()) is not ideal
+MM: (2016-05-03):
     - getXmat() is ok if you do *NOT* use "un"structured Rho.
     - Using the X matrix and lm() or much better .lm.fit() has been a convenience hack (not by me!)
       but has always been *FAR* from a good idea in all but small 'd'
-      cases, AFAICS, lm() here is used to compute simple (or possibly weighted) means.
+      cases, AFAICS, lm() here is used to compute simple (or possibly weighted)
+      means.
+** TODO tau()/rho()/lambda() should get 'matrix = TRUE' argument and internally call p2P() to allow to return matrices. lambda() should return a list (at least in d > 2) with two components (lower/upper tail dependence parameters or their matrices). The examples on the help files (e.g. ?tau, ?lambda) should be improved and also address d > 2.
+** TODO Improve error message: tCopula(c(rep(0.5, 3), 4), dim = 3, dispstr = "un", df = 4) => should rather say that the *length* of 'param' is not correct (in case one accidentally adds the d.o.f. parameter there as so often)
+** TODO [JY]: once 'fixed' stuff added, rewrite/adapt tCopula, tevCopula (so that the 'df.fixed' stuff uses the new 'fixed' stuff) ?
+** TODO [MM]: bug? library(copula); d <- 3; pCopula(0.4, copula = normalCopula(param = 0.5, dim = d))
+** TODO need a "getTheta" analogously to "setTheta"
+which extracts the parameter (vector) from any copula object
 ** TODO Clarify C.n() argument issues
      - most likely, we should rename 'X' to 'data' (as is used often; sometimes
        not, though (like gofCopula()) => but clarify)
@@ -46,7 +49,6 @@ MM (2016-05-03):
 
 ** TODO [MM] copula@fullname: *abolish* (deprecate) and replace by a function (i.e. a method) !!!!
 ** TODO [MM] Is it possible to generate (inheritance) tree class structure with methods automatically from the code ?
-** DONE rhoTCopula not valid! => should define rho* and irho* only for Gauss copula!
 ** TODO [JY] Clean-up/document "old" copula files (such as ellip*/archm*/ev* copula files); write documentation a la 'Marius' (with Roxygen)
 ** TODO [JY] Check appropriate position of methods in classes
 ** TODO Make absdPsi() work for class archmCopula() using nacopula stuff (see TODO in dC-dc.R)
@@ -92,6 +94,7 @@ advantage outweighs the drawbacks... What do you think?
    Continuous/monotone color palettes -- via short function calls -->
    vector of colors (use either in palette() for col=<n>, *or* more
    frequently as  cols = *  argument, whenever needed in the book.
+** DONE rhoTCopula not valid! => should define rho* and irho* only for Gauss copula!
 ** DONE [IK] Improve warning message in dC-dc.R when numerical stuff is used (provide the copula name!)
 ** DONE [IK] make method = "Rd" work with all the sim = "mult" families
 ** DONE [IK] clean-up test functions
