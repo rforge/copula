@@ -39,7 +39,7 @@ Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R special-func.
          archmCopula.R asymCopula.R cCopula.R claytonCopula.R
          claytonExpr.R ellipCopula.R empcop.R empPsi.R acR.R
 	 estimation.R evCopula.R evTests.R
-         exchTests.R fgmCopula.R fitCopula.R fitMvdc.R frankCopula.R
+         exchTests.R fgmCopula.R fitCopula.R fitMvdc.R fitLambda.R frankCopula.R
          frankExpr.R galambosCopula.R galambosExpr-math.R galambosExpr.R
 	 ggraph-tools.R pairsRosenblatt.R prob.R
 	 gofTrafos.R gofEVTests.R gofCopula.R

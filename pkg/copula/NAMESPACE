@@ -153,6 +153,9 @@ export(loglikCopula, loglikMvdc)
 export(fitCopula, fitMvdc)
 exportClasses(fittedMV, fitCopula, fitMvdc)
 
+## estimation of tail dependence
+export(fitLambda)
+
 ## independence tests
 export(indepTestSim, indepTest, multIndepTest,
        serialIndepTestSim, serialIndepTest, multSerialIndepTest,

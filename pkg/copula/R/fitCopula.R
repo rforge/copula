@@ -213,7 +213,7 @@ var.icor <- function(cop, u, method=c("itau", "irho"))
     if (!hasMethod(dCor, class(cop))) {
         warning("The variance estimate cannot be computed for a copula of class ", class(cop))
         q <- length(cop@parameters)
-        return(matrix(NA, 0, 0))
+        return(matrix(NA_real_, 0, 0))
     }
     p <- cop@dimension
     n <- nrow(u)
@@ -333,7 +333,7 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
     icor <- fitCor(copula, x, method=method, posDef=posDef, matrix=FALSE, ...)
 
     ## FIXME: Using 'X' & 'lm(X,y)' is computationally very inefficient for large q
-    ## Note: The following code (possibly .lm.fit() but at least matrix(NA, q, q))
+    ## Note: The following code (possibly .lm.fit() but at least matrix(NA_real_, q, q))
     ##       can lead to R being killed (under Mac OS X) for d ~= 450
     ##       Also, it's slow in higher dimensions (even getXmat())
     estimate <- if(isEll && copula@dispstr == "un") {
@@ -349,7 +349,7 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
     copula@parameters <- estimate
     var.est <- if (is.na(estimate.variance) || estimate.variance) {
         var.icor(copula, x, method=method)/nrow(x)
-    } else matrix(NA, 0, 0)
+    } else matrix(NA_real_, 0, 0)
     new("fitCopula",
         estimate = estimate,
         var.est = var.est,
@@ -434,7 +434,7 @@ fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
         ## TODO: if (d <= 20) or so ... or  if( q < n / 5 ) then
         ## use one/zero step of fitCopula.ml(*...., method="mpl", maxit=0) to get full vcov()
         stop("Cannot estimate var-cov matrix currently for method \"itau.mpl\"")
-    var.est <- matrix(NA_real_, 0,0) # length 0  <==> not-estimated / not-available
+    var.est <- matrix(NA_real_, 0, 0) # length 0  <==> not-estimated / not-available
 
     ## Return
     new("fitCopula",
@@ -520,7 +520,7 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
             var.mpl(copula, u) / nrow(u)
         } else {
             q <- length(copula@parameters)
-            matrix(NA, q, q)
+            matrix(NA_real_, q, q)
         }
     },
     "ml" = {
