@@ -30,7 +30,7 @@ importFrom("stats", D, approxfun, cor # 'coef': from "bblme"; 'logLik': from "st
          , var, vcov
            )
 
-importFrom("utils", str, setTxtProgressBar, txtProgressBar, modifyList)
+importFrom("utils", str, setTxtProgressBar, txtProgressBar, modifyList, head, tail)
 
 importFrom("grDevices", col2rgb, dev.flush, dev.hold, dev.off, pdf, extendrange,
            gray)
@@ -139,7 +139,7 @@ export(asymBivCopula, asymExplicitCopula)
 exportClasses(asymCopula, asymBivCopula, asymExplicitCopula)
 
 ## auxiliary functions mainly used for working with elliptical copulas:
-export(p2P, P2p, getSigma, extreme_pairs)
+export(p2P, P2p, getSigma, extremePairs)
 
 exportMethods(show)
 exportMethods(persp, contour, plot, contourplot2, wireframe2, cloud2, splom2)

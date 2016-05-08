@@ -3,7 +3,7 @@
 \alias{p2P}
 \alias{P2p}
 \alias{getSigma}
-\alias{extreme_pairs}
+\alias{extremePairs}
 \description{
   \code{p2P()} creates a \code{\link{matrix}} from a given
   \code{\link{vector}} of parameters.  \code{P2p()} creates a
@@ -17,14 +17,15 @@
   Note that \code{getSigma()} works for all elliptical copulas and uses
   \code{p2P()} for the \dQuote{unstuctured} case, \code{dispstr = "un"}.
 
-  \code{extreme_pairs()} identifies pairs with the smallest (or largest,
-  if \code{decreasing=TRUE}) \code{n} values in a symmetric matrix.
+  \code{extremePairs()} identifies pairs with the largest (or smallest
+  or both) entries in a symmetric matrix.
 }
 \usage{
 p2P(param, d = round(sqrt(1 + length(param))))
 P2p(P)
 getSigma(copula)
-extreme_pairs(x, n=6, decreasing=FALSE)
+extremePairs(x, n = 6, method = c("largest", "smallest", "both"),
+             use.names = FALSE)
 }
 \arguments{
   \item{param}{a parameter vector.}
@@ -39,14 +40,19 @@ extreme_pairs(x, n=6, decreasing=FALSE)
   \item{x}{a symmetric \code{\link{matrix}}.}
   \item{n}{the number of pairs with smallest (or largest) values to be
     displayed.}
-  \item{decreasing}{a \code{\link{logical}} indicating whether pairs
-    corresponding to the smallest (for \code{decreasing=FALSE}, the
-    default) or largest (for \code{decreasing=TRUE}) \code{n} values
-    should be displayed.}
+  \item{method}{a \code{\link{character}} string indicating the method
+    to be used (with \code{"largest"} to comute the \code{n} pairs with
+    largest entries in \code{x} (sorted in decreasing order); with
+    \code{"smallest"} to compute the \code{n} pairs with smallest entries
+    in \code{x} (sorted in increasing order); and with \code{"both"} to
+    comute the 2\code{n} pairs with \code{n} largest entries and
+    \code{n} smallest entries (sorted in decreasing order)).}
+  \item{use.names}{A \code{\link{logical}} indicating whether
+    \code{colnames(x)} are used as labels (if \code{!is.null(colnames(x))}).}
 }
 \value{
   \describe{
-    \item{\code{p2P}:}{A symmetric \code{\link{matrix}} with ones on the
+    \item{\code{p2P}:}{a symmetric \code{\link{matrix}} with ones on the
       diagonal and the values of \code{param} filled column-wise below the
       diagonal (which corresponds to row-wise filling above the diagonal).}
     \item{\code{P2p}:}{\code{\link{vector}} of column-wise below-diagonal
@@ -54,9 +60,9 @@ extreme_pairs(x, n=6, decreasing=FALSE)
       case of a symmetric matrix).}
     \item{\code{getSigma}:}{\code{\link{matrix}} as from \code{p2P()}
       for all cases of elliptical copulas.}
-    \item{\code{extreme_pairs}:}{A (\code{n}, 3)-\code{\link{matrix}}
-      containing the row and column indices (first two columns) of the pairs
-      with the most extreme (smallest or largest) entries in \code{x}.}
+    \item{\code{extremePairs}:}{a \code{\link{data.frame}}
+      consisting of three columns (\code{row} (index or name), \code{col} (index or name),
+      \code{value}).}
   }
 }
 \details{
@@ -71,7 +77,7 @@ extreme_pairs(x, n=6, decreasing=FALSE)
 ## display the definitions
 p2P
 P2p
-extreme_pairs
+extremePairs
 
 param <- (2:7)/10
 tC <- tCopula(param, dim = 4, dispstr="un", df = 3)

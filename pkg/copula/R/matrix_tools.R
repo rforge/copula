@@ -70,27 +70,57 @@ getSigma <- function(copula)
 	   stop("invalid 'dispstr'"))
 }
 
-##' @title Find the pairs with smallest (or largest) n values in a symmetric
-##'        matrix
+##' @title Find the Pairs with Smallest (or Largest) Entry in the (Lower)
+##'        Triangular Area of a Symmetric Matrix
 ##' @param x A symmetric matrix
 ##' @param n Number of extreme values to be returned
-##' @param decreasing logical indicating whether the numbers are sorted in
-##'        decreasing order
-##' @return A (n, 3)-matrix with the smallest (or, if decreasing=TRUE, largest)
-##'         n values in the symmetric matrix x (3rd col) and the corresponding
-##'         indices (1st and 2nd col)
-##' @author Marius Hofert
-extreme_pairs <- function(x, n=6, decreasing=FALSE)
+##' @param method A character string indicating the method to be used
+##' @param use.names A logical indicating whether colnames(x) are to be
+##'        used (if not NULL)
+##' @return A (n, 3)-matrix with the n largest/smallest/both
+##'         values in the symmetric matrix x (3rd column) and the
+##'         corresponding indices (1st and 2nd column)
+##' @author Marius Hofert and Wayne Oldford
+extremePairs <- function(x, n = 6, method = c("largest", "smallest", "both"),
+                         use.names = FALSE)
 {
-    if(!is.matrix(x)) x <- rbind(x, deparse.level=0L)
+    ## Checks
+    if(!is.matrix(x)) x <- rbind(x, deparse.level = 0L)
     d <- ncol(x)
-    stopifnot(n>=1, is.logical(decreasing), d>=2, nrow(x)==d)
-    ind <- expand.grid(1:d, 1:d)
-    names(ind) <- c("row", "col")
-    ind <- ind[ind[,"row"]>ind[,"col"],] # pick out indices of lower triangular matrix
-    x.vec <- P2p(x) # values of lower triangular matrix as a vector
-    val.ind <- cbind(ind, value=x.vec)
-    val.ind.sorted <- val.ind[order(val.ind[,"value"], decreasing=decreasing),] # sort according to values
-    rownames(val.ind.sorted) <- NULL
-    val.ind.sorted[1:min(n, d*(d-1)/2),]
+    method <- match.arg(method)
+    stopifnot(n >= 1, d >= 2, nrow(x) == d, is.logical(use.names))
+
+    ## Build (row, col)-matrix
+    ind <- as.matrix(expand.grid(1:d, 1:d)[,2:1])
+    ind <- ind[ind[,1]<ind[,2],] # pick out indices as they appear in the upper triangular matrix
+    colnms <- colnames(x)
+    if(use.names && !is.null(colnms))
+        ind <- matrix(colnms[as.matrix(ind)], ncol = 2)
+
+    ## Merge with entries to a (row, col, value)-data frame
+    ## Note that, since x is symmetric, values of the *lower* triangular
+    ## matrix as a vector matches indices in 'ind'
+    val <- data.frame(ind, x[lower.tri(x)], stringsAsFactors = FALSE)
+
+    ## Sort the data.frame according to the values and adjust the row/column names
+    res <- val[order(val[,3], decreasing = TRUE),]
+    colnames(res) <- c("row", "col", "value")
+    rownames(res) <- NULL
+
+    ## Now grab out the 'extreme' pairs and values
+    pairs <- 1:nrow(ind) # d*(d-1)/2 pairs
+    switch(method,
+    "largest" = {
+        stopifnot(n <= nrow(ind))
+        res[head(pairs, n = n),] # from large to small
+    },
+    "smallest" = {
+        stopifnot(n <= nrow(ind))
+        res[rev(tail(pairs, n = n)),] # from small to large
+    },
+    "both" = {
+        stopifnot(n <= floor(nrow(ind)/2))
+        res[c(head(pairs, n = n), tail(pairs, n = n)),] # from large to small
+    },
+    stop("Wrong 'method'"))
 }
