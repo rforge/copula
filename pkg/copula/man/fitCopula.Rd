@@ -252,6 +252,12 @@ coef(sf.mpl) # the matrix, with SE, t-value, ...
 fit.ml <- fitCopula(normalCopula(dim=3, dispstr="un"), x, method="ml")
 fit.ml
 
+## Fix some of the parameters
+ncp <- normalCopula(param = c(.6, .3, NA), dim = 3, dispstr = "un")
+setFixedAttr(ncp) <- c(TRUE, TRUE, FALSE)
+fitCopula(ncp, u, method = "mpl")
+
+
 ## With dispstr="toep"
 normal.cop.toep <- normalCopula(c(0, 0), dim=3, dispstr="toep")
 ## Inverting Kendall's tau

@@ -48,7 +48,7 @@ summary.fitCopula <- function(object, ...) {
     pvalue <- 2* pnorm(abs(zvalue), lower.tail=FALSE)
     coef <- cbind(Estimate = estimate, "Std. Error" = se,
                   "z value" = zvalue, "Pr(>|z|)" = pvalue)
-    rownames(coef) <- paramNames(object)
+    rownames(coef) <- paramNames(object) #[isFree(object@copula@parameters)]
     structure(class = "summary.fitCopula",
               list(method = object@method,
                    loglik = object@loglik,
@@ -97,17 +97,22 @@ fitCor <- function(cop, x, method = c("itau", "irho"),
 ##' @param copula Copula object
 ##' @return Log-likelihood of the given copula at param given the data x
 loglikCopula <- function(param, u, copula) {
-    stopifnot((l <- length(param)) == length(copula@parameters)) # sanity check
-    copula@parameters <- param
-    lower <- copula@param.lowbnd
+    stopifnot((l <- length(param)) == nFree(copula@parameters)) # sanity check
+    setFreeParam(copula) <- param # copula@parameters <- param
+    free <- isFree(copula@parameters)
+    lower <- copula@param.lowbnd[free]
     if(length(lower) != l) return(-Inf)
-    upper <- copula@param.upbnd
+    upper <- copula@param.upbnd[free]
     if(length(upper) != l) return(-Inf)
-    cop.param <- copula@parameters
+    cop.param <- getParam(copula) # copula@parameters
     admissible <- !(any(is.na(cop.param) | cop.param > upper | cop.param < lower))
-    if (admissible) {
+    if (admissible) { ## JY: param range check is only part of validity check
         sum(dCopula(u, copula=copula, log=TRUE, checkPar=FALSE))
     } else -Inf
+    ## stopifnot(length(param) == nFree(copula@parameters))
+    ## setparam <- try(setFreeParam(copula) <- param)
+    ## if (inherits(setparam, "try-error")) -Inf ## not admissible 
+    ## else sum(dCopula(u, copula=copula, log=TRUE, checkPar=FALSE))
 }
 
 ##' @title Computing Initial Values for fitCopula.ml()
@@ -119,6 +124,7 @@ loglikCopula <- function(param, u, copula) {
 fitCopStart <- function(copula, u, default=copula@parameters, ...)
 {
     clc <- class(copula)
+    ## start <- 
     if(hasMethod("iTau", clc)) {
 	ccl <- getClass(clc)
 	.par.df <- has.par.df(copula, ccl)
@@ -128,13 +134,20 @@ fitCopStart <- function(copula, u, default=copula@parameters, ...)
 	if(.par.df) # add starting value for 'df'
 	    start <- c(start, copula@df)
 	if(is.finite(loglikCopula(start, u=u, copula=copula))) start else default
-    } else default
+    } else default[isFree(copula@parameters)]
+    ## JY: minimal-change solution; could do free params only but not easy...
+    ## free <- isFree(copula@parameters)
+    ## start[free]
 }
 
-## TODO: Currently "unfinished";  instead  L <- .....(X)   where X <- getXmat() below
-##' @title Variance-Covariance Matrix (vcov) for Inversion of Kendall's tau Estimator
-##' @param copula The *fitted* copula object
-##' @return L
+##' @title Generate the Contrast Matrix L for Sample Tau or Rho
+##' @details For elliptical copulas, pairwise sample tau or rho can be pooled to
+##'          estimate the true tau or rho depending on the dispersion structure.
+##'          The contrast matrix L is such that the pooled estimate is expressed
+##'          as t(L) multiplied by the vector of pairwise sample values. This is
+##'          used in the variance estimation; see var.icor below.
+##' @param copula A (most likely elliptical) copula object
+##' @return L 
 getL <- function(copula) {
     ## for ellipCopula only!
     p <- copula@dimension
@@ -145,22 +158,24 @@ getL <- function(copula) {
 
     if (!is(copula, "ellipCopula") || copula@dispstr == "ex") {
         cbind(rep.int(1/pp, pp), deparse.level=0L)
-    } else switch(copula@dispstr,
-                  "un" = diag(pp),
-                  "toep" = {
-                     mat <- model.matrix(~ factor(dgidx) - 1)
-                     mat / matrix(colSums(mat), nrow = pp, ncol=p - 1, byrow=TRUE)
-                  },
-                  "ar1" = {
-               ## FIXME More efficient: estimate log(rho) first and then exponentiate back,
-               ##  see e.g. fitCor(*, "irho") above
-               ## mat <- model.matrix(~ factor(dgidx) - 1)
-               ## mat * matrix(1:(p - 1), nrow=pp, ncol=p - 1, byrow=TRUE)
-               X <- getXmat(copula)
-               ## L:
-               t(solve(crossprod(X), t(X)))
-           },
-           stop("Not implemented yet for the dispersion structure ", copula@dispstr))
+    } else 
+        switch(copula@dispstr,
+               "un" = diag(pp),
+               "toep" = {
+                   mat <- model.matrix(~ factor(dgidx) - 1)
+                   mat / matrix(colSums(mat), nrow = pp, ncol= p - 1, byrow=TRUE)
+               },
+               "ar1" = {
+                   ## FIXME More efficient: estimate log(rho) first and then exponentiate back,
+                   ##  see e.g. fitCor(*, "irho") above
+                   ## JY: can sometimes rho be negative? May need fix.
+                   ## mat <- model.matrix(~ factor(dgidx) - 1)
+                   ## mat * matrix(1:(p - 1), nrow=pp, ncol=p - 1, byrow=TRUE)
+                   X <- getXmat(copula)
+                   ## L:
+                   t(solve(crossprod(X), t(X)))
+               },
+               stop("Not implemented yet for the dispersion structure ", copula@dispstr))
 }
 
 ##' @title Design Matrix for Method-of-Moments Estimators via lm()
@@ -266,6 +281,9 @@ var.icor <- function(cop, u, method=c("itau", "irho"))
         D <- if (length(cop@parameters) == 1) 1 / dCor(cop) else diag(1 / dCor(cop))
         v %*% L %*% D
     }
+    ## FIXME: can be made more efficient by extracting L and D
+    free <- isFree(cop@parameters)
+    v <- v[free, free, drop = FALSE]
     var(v) * if(method=="itau") 16 else 144
 }
 
@@ -278,7 +296,7 @@ var.mpl <- function(cop, u)
     ## Checks
     q <- length(cop@parameters) # parameter space dimension p
     p <- cop@dimension # copula dimension d
-    ans <- matrix(NA_real_, 0, 0)
+    ans <- matrix(NA_real_, q, q) # matrix(NA_real_, 0, 0)
     ccl <- getClass(clc <- class(cop))
     isEll <- extends(ccl, "ellipCopula")
     ## Check if variance can be computed
@@ -299,7 +317,9 @@ var.mpl <- function(cop, u)
         ans[-q,-q] <- var(t(Jscore(cop, u, method = "mpl")))
     } else
         ans <- var(t(Jscore(cop, u, method = "mpl")))
-    ans
+    ## JY: quick solution; could be made more efficient
+    free <- isFree(cop@parameters)
+    ans[free, free, drop=FALSE]
 }
 
 
@@ -329,6 +349,7 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
             warning("\"", method, "\" fitting ==> copula coerced to 'df.fixed=TRUE'")
         copula <- as.df.fixed(copula, classDef = ccl)
     }
+    stopifnot(any(free <- isFree(copula@parameters)))
     q <- length(copula@parameters)
     icor <- fitCor(copula, x, method=method, posDef=posDef, matrix=FALSE, ...)
 
@@ -340,13 +361,15 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
         icor
     } else if(isEll && copula@dispstr == "ar1") {
         X <- getXmat(copula)
-        exp(.lm.fit(X, y=log(icor))$coefficients)
+        exp(.lm.fit(X, y=log(icor))$coefficients) # FIXME: assuming icor > 0
     } else {
         X <- getXmat(copula)
         .lm.fit(X, y=icor)$coefficients
     }
-    estimate <- as.vector(estimate) # strip attributes
-    copula@parameters <- estimate
+
+    estimate <- as.vector(estimate)[free] # strip attributes
+    ## copula@parameters <- estimate
+    setFreeParam(copula) <- estimate
     var.est <- if (is.na(estimate.variance) || estimate.variance) {
         var.icor(copula, x, method=method)/nrow(x)
     } else matrix(NA_real_, 0, 0)
@@ -382,7 +405,8 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
 fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
                                estimate.variance, tol=.Machine$double.eps^0.25,
                                traceOpt = FALSE, ...)
-{
+{  
+    stopifnot(any(free <- isFree(copula@parameters)))
     if(any(u < 0) || any(u > 1))
         stop("'u' must be in [0,1] -- probably rather use pobs(.)")
     ## Note: We require dispstr = "un" as it is a) the method of Mashal, Zeevi (2002) and
@@ -470,6 +494,7 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
                          optim.method, optim.control, estimate.variance,
                          bound.eps=.Machine$double.eps^0.5, ...)
 {
+    stopifnot(any(free <- isFree(copula@parameters)))
     ## Check inputs
     chk.s(...) # 'check dots'
     if(any(u < 0) || any(u > 1))
@@ -480,7 +505,7 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
     if(is.null(start))
         start <- fitCopStart(copula, u=u)
     if(any(is.na(start))) stop("'start' contains NA values")
-    q <- length(copula@parameters)
+    q <- nFree(copula@parameters) # length(copula@parameters)
     if (q != length(start))
         stop(gettextf("The lengths of 'start' (= %d) and copula@parameters (=%d) differ",
                       length(start), q), domain=NA)
@@ -492,9 +517,9 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
     if (!is.null(optim.control[[1]])) control <- c(control, optim.control)
     meth.has.bounds <- optim.method %in% c("Brent","L-BFGS-B")
     if (is.null(lower))
-        lower <- if(meth.has.bounds) copula@param.lowbnd + bound.eps else -Inf
+        lower <- if(meth.has.bounds) copula@param.lowbnd[free] + bound.eps else -Inf
     if (is.null(upper))
-        upper <- if(meth.has.bounds) copula@param.upbnd  - bound.eps else Inf
+        upper <- if(meth.has.bounds) copula@param.upbnd[free]  - bound.eps else Inf
 
     ## Maximize the likelihood
     fit <- optim(start, loglikCopula,
@@ -504,7 +529,7 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
                  control = control)
 
     ## Check convergence of the fitting procedure
-    copula@parameters[1:q] <- fit$par
+    setFreeParam(copula) <- fit$par # copula@parameters[1:q] <- fit$par
     loglik <- fit$val
     has.conv <- fit[["convergence"]] == 0
     if (is.na(estimate.variance))
@@ -526,7 +551,8 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
     "ml" = {
         ## MM{FIXME}: This should be done only by 'vcov()' and summary() !
         if(estimate.variance) {
-            fit.last <- optim(copula@parameters, loglikCopula, lower=lower, upper=upper,
+            fit.last <- optim(fit$par, # copula@@parameters
+                              loglikCopula, lower=lower, upper=upper,
                               method=optim.method, copula=copula, u=u,
                               control=c(control, maxit=0), hessian=TRUE)
             vcov <- tryCatch(solve(-fit.last$hessian), error = function(e) e)
@@ -580,6 +606,7 @@ fitCopulaCopula <- function(copula, data,
                             optim.method="BFGS", optim.control=list(maxit=1000),
                             estimate.variance=NA, hideWarnings=FALSE, ...)
 {
+    stopifnot(any(free <- isFree(copula@parameters)))
     if(!is.matrix(data)) {
         warning("coercing 'data' to a matrix.")
         data <- as.matrix(data); stopifnot(is.matrix(data))

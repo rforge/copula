@@ -214,7 +214,7 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
 ##' @param copula An object of type 'copula'
 ##' @param u An (n, d)-matrix of (pseudo-)observations
 ##' @param method "mpl" or one of "itau", "irho"
-##' @return An n-vector containing \hat{J}_{\theta_n}
+##' @return A q by n matrix containing \hat{J}_{\theta_n}
 ##' @author Marius Hofert (based on ideas of Ivan Kojadinovic)
 ##' Note: References:
 ##'       * For estim.method="mpl":

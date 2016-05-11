@@ -291,7 +291,7 @@ setClass("fittedMV",
                    ## convergence = "integer",
                    fitting.stats = "list"))
 
-setMethod("paramNames", "copula", function(x) x@param.names)
+setMethod("paramNames", "copula", function(x) x@param.names[isFree(x@parameters)])
 ## paramNames() methods: further provided separately for "fitCopula", "fitMvdc"
 
 
