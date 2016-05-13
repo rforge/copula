@@ -154,7 +154,7 @@ export(fitCopula, fitMvdc)
 exportClasses(fittedMV, fitCopula, fitMvdc)
 
 ## some parameters can be fixed
-export(`setFixedAttr<-`)
+## export(`setFixedAttr<-`)
 
 
 ## estimation of tail dependence

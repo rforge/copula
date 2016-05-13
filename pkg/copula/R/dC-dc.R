@@ -93,14 +93,14 @@ dCduArchmCopula <- function(copula, u, ...) {
 ## For copulas with explicit cdf
 ## Warning: This function assumes symmetry in u
 dCduExplicitCopula <- function(copula, u, ...) {
-    p <- copula@dimension
-    mat <- matrix(NA_real_, nrow(u), p)
+    dim <- copula@dimension
+    mat <- matrix(NA_real_, nrow(u), dim)
     algNm <- paste(class(copula)[1], "cdfDerWrtArg.algr", sep=".")
     if(exists(algNm)) {
 	alpha <- copula@parameters # typically used in 'eval(der.cdf.u, *)' below
-        der.cdf.u <- get(algNm)[p]
-        unames0 <- paste0("u",1:p)
-        for (j in 1:p) {
+        der.cdf.u <- get(algNm)[dim]
+        unames0 <- paste0("u",1:dim)
+        for (j in 1:dim) {
             unames <- unames0; unames[1] <- unames0[j]; unames[j] <- unames0[1]
             colnames(u) <- unames
             mat[,j] <- eval(der.cdf.u, data.frame(u))
@@ -113,9 +113,9 @@ dCduExplicitCopula <- function(copula, u, ...) {
 
 ## This function is used for Khoudraji's device
 dCduIndepCopula <- function(copula, u, ...) {
-  p <- copula@dimension
-  mat <- matrix(0, nrow(u), p)
-  for (j in 1:p) {
+  dim <- copula@dimension
+  mat <- matrix(0, nrow(u), dim)
+  for (j in 1:dim) {
     mat[,j] <- apply(u[, -j, drop=FALSE], 1, prod)
   }
   mat
@@ -131,39 +131,39 @@ setMethod("dCdu", signature("indepCopula"), dCduIndepCopula)
 
 ## For ellipCopula objects
 dCduEllipCopula <- function(copula, u, ...) {
-    p <- copula@dimension
+    dim <- copula@dimension
     sigma <- getSigma(copula)
 
     ## quantile transformation
     v <- switch(class(copula),
 		"normalCopula" = qnorm(u),
 		"tCopula" = {
-        df <- copula@df
-		    qt(u, df=df)
+                    df <- copula@df
+                    qt(u, df=df)
     },
     stop("not implemented for class ", class(copula)))
     n <- nrow(u)
-    mat <- matrix(0,n,p)
+    mat <- matrix(0,n,dim)
 
-    for (j in 1:p) {
+    for (j in 1:dim) {
 	s <- sigma[-j,-j] - sigma[-j,j,drop=FALSE] %*% sigma[j,-j,drop=FALSE]
 
 	switch(class(copula),
                "normalCopula" =
                    {
-                       if (p == 2) {
+                       if (dim == 2) {
                            rho <- copula@parameters
                            mat[,j] <- pnorm(v[,-j], rho * v[,j], sqrt(1 - rho^2))
                        }
                else
                    for (i in 1:n)
-                       mat[i,j] <- pmvnorm(lower = rep(-Inf, p - 1), upper = v[i,-j],
+                       mat[i,j] <- pmvnorm(lower = rep(-Inf, dim - 1), upper = v[i,-j],
                                            mean = v[i,j] * sigma[-j,j],
                                            sigma = drop(s))
                    },
                "tCopula" =
                    {
-                       if (p == 2) {
+                       if (dim == 2) {
                            rho <- copula@parameters
                            mat[,j] <-  pt(sqrt((df+1)/(df+v[,j]^2)) / sqrt(1 - rho^2)
                                           * (v[,-j] - rho * v[,j]), df=df+1)
@@ -172,7 +172,7 @@ dCduEllipCopula <- function(copula, u, ...) {
                    if(df != as.integer(df))
                        stop("'df' is not integer; therefore, dCdu() cannot be computed yet")
                    for (i in 1:n)
-                       mat[i,j] <- pmvt(lower = rep(-Inf, p - 1),
+                       mat[i,j] <- pmvt(lower = rep(-Inf, dim - 1),
                                         upper = drop(sqrt((df+1)/(df+v[i,j]^2)) *
                                                      (v[i,-j] - v[i,j] * sigma[-j,j])),
                                         sigma = s, df = df + 1)
@@ -197,7 +197,7 @@ setGeneric("plackettFormulaDim2", function(copula, x) standardGeneric("plackettF
 ##' @return the derivative at x
 ##' @author Ivan Kojadinovic
 plackettFormulaDim2NormalCopula <- function(copula, x) {
-    rho <- copula@parameters
+    rho <- copula@parameters # JY: single parameter only
     ir2 <- 1 - rho^2
     as.matrix(exp(-(x[,1]^2 + x[,2]^2 - 2 * rho * x[,1] * x[,2]) /
                    (2 * ir2)) /
@@ -212,7 +212,7 @@ setMethod("plackettFormulaDim2", signature("normalCopula"), plackettFormulaDim2N
 ##' @return the derivative at x
 ##' @author Ivan Kojadinovic
 plackettFormulaDim2TCopula <- function(copula, x) {
-    rho <- copula@parameters
+    rho <- copula@parameters #JY: single parameter only
     ir2 <- 1 - rho^2
     df <- copula@df
     as.matrix((1 + (x[,1]^2 + x[,2]^2 - 2 * rho * x[,1] * x[,2]) /
@@ -221,14 +221,16 @@ plackettFormulaDim2TCopula <- function(copula, x) {
 
 setMethod("plackettFormulaDim2", signature("tCopula"), plackettFormulaDim2TCopula)
 
-setGeneric("plackettFormula",  function(copula, p, rho, s, m, x, i, j) standardGeneric("plackettFormula"))
+
+## JY: is rho a single parameter?
+setGeneric("plackettFormula",  function(copula, dim, rho, s, m, x, i, j) standardGeneric("plackettFormula"))
 
 ## For the multivariate standard normal cdf
-plackettFormulaNormalCopula <- function(copula, p, rho, s, m, x, i, j) {
+plackettFormulaNormalCopula <- function(copula, dim, rho, s, m, x, i, j) {
     exp(-(x[i]^2 + x[j]^2 - 2 * rho * x[i] * x[j]) /
          (2 * (1 - rho^2))) / (2 * pi * sqrt(1 - rho^2)) *
-        (if (p == 3) pnorm(drop((x[-c(i,j)] - m %*% x[c(i,j)])/sqrt(s)))
-         else pmvnorm(lower = rep(-Inf, p - 2),
+        (if (dim == 3) pnorm(drop((x[-c(i,j)] - m %*% x[c(i,j)])/sqrt(s)))
+         else pmvnorm(lower = rep(-Inf, dim - 2),
                       upper = drop(x[-c(i,j)] - m %*% x[c(i,j)]),
                       sigma = s))
 }
@@ -236,16 +238,16 @@ plackettFormulaNormalCopula <- function(copula, p, rho, s, m, x, i, j) {
 setMethod("plackettFormula", signature("normalCopula"), plackettFormulaNormalCopula)
 
 ## For the multivariate standard t cdf
-plackettFormulaTCopula <- function(copula, p, rho, s, m, x, i, j) {
-    stopifnot(p >= 3)
+plackettFormulaTCopula <- function(copula, dim, rho, s, m, x, i, j) {
+    stopifnot(dim >= 3)
     df <- copula@df
-    if(df != as.integer(df) && p > 3)
+    if(df != as.integer(df) && dim > 3)
 	stop("'df' is not integer; therefore, plackettFormula() cannot be computed yet")
     term <- 1 + (x[i]^2 + x[j]^2 - 2 * rho * x[i] * x[j]) / (df * (1 - rho^2))
     ## return:
     term^(-df / 2) / (2 * pi * sqrt(1 - rho^2)) *
-             if (p == 3) pt(drop((x[-c(i,j)] - m %*% x[c(i,j)]) / sqrt(term * s)), df= df)
-             else pmvt(df = df, lower = rep(-Inf, p - 2),
+             if (dim == 3) pt(drop((x[-c(i,j)] - m %*% x[c(i,j)]) / sqrt(term * s)), df= df)
+             else pmvt(df = df, lower = rep(-Inf, dim - 2),
                        upper = drop((x[-c(i,j)] - m %*% x[c(i,j)]) / sqrt(term)),
                        sigma = s)
 }
@@ -263,44 +265,47 @@ setGeneric("dCdtheta", function(copula, u, ...) standardGeneric("dCdtheta"))
 ##' @param u evaluation point in [0,1]^d or matrix of evaluation points
 ##' @param method.args to be passed to grad()
 ##' @param ...
-##' @return partial derivatives of the copula wrt parameters at u
+##' @return n by p, partial derivatives of the copula wrt parameters at u
 ##' @author Ivan Kojadinovic
 dCdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-1), ...) {
     warning("Function dCdtheta() not implemented for copulas of class '",
             class(copula), "'; numerical differentiation used")
     logC <- function(theta) {
-        copula@parameters <- theta
+        setFreeParam(copula) <- theta
         log(pCopula(u, copula))
     }
-    theta <- copula@parameters
+    theta <- getParam(copula) 
     p <- length(theta)
-    lb <- copula@param.lowbnd
-    ub <- copula@param.lowbnd
+    lb <- attr(theta, "param.lowbnd")
+    ub <- attr(theta, "param.upbnd" )
     jacobian(logC, theta, side = sides(theta, p, method.args$d, lb, ub),
              method.args = method.args) * pCopula(u, copula)
 }
 
 ## For copulas with explicit cdf
 dCdthetaExplicitCopula <- function(copula, u, ...) {
-    p <- copula@dimension
+    dim <- copula@dimension
     algNm <- paste(class(copula)[1], "cdfDerWrtPar.algr", sep=".")
+    alpha <- getParam(copula) # typically used in 'eval(*)' below
+    ## JY: alpha is a scalar parameter
     if(exists(algNm)) {
-        alpha <- copula@parameters # typically used in 'eval(*)' below
-        der.cdf.alpha <- get(algNm)[p]
-        colnames(u) <- paste0("u", 1:p)
+        der.cdf.alpha <- get(algNm)[dim]
+        colnames(u) <- paste0("u", 1:dim)
         as.matrix(eval(der.cdf.alpha, data.frame(u)))
     } else {
         warning("Function dCdtheta() not implemented for copulas of class '",
                 class(copula), "'")
-        matrix(NA_real_, nrow(u), length(copula@parameters))
+        matrix(NA_real_, nrow(u), length(alpha)) # copula@parameters))
     }
 }
 
 ## For evCopula objects
+## JY: For single parameter only
 dCdthetaEvCopula <- function(copula, u, ...) {
   loguv <- log(u[,1], u[,2])
   w <- log(u[,2]) / loguv
   ## return  der.cdf.alpha
+  ## JY: single parameter only
   as.matrix(pCopula(u, copula) * loguv * dAdtheta(copula, w))
 }
 
@@ -314,7 +319,7 @@ setMethod("dCdtheta", signature("gumbelCopula"), dCdthetaExplicitCopula)
 
 ## For ellipCopula objects
 dCdthetaEllipCopula <- function(copula, u, ...) {
-    p <- copula@dimension
+    dim <- copula@dimension
 
     ## quantile transformation
     v <- switch(class(copula),
@@ -322,7 +327,8 @@ dCdthetaEllipCopula <- function(copula, u, ...) {
 		"tCopula" = qt(u, df = copula@df),
 		stop("not implemented for class ", class(copula)))
 
-    if (p == 2)
+    val <-
+    if (dim == 2)
         plackettFormulaDim2(copula, v)
     else {
         n <- nrow(u)
@@ -339,24 +345,24 @@ dCdthetaEllipCopula <- function(copula, u, ...) {
 
             if (copula@dispstr == "ex") ## exchangeable
               for (k in 1:n)
-                for (j in 1:(p-1))
-                  for (i in (j+1):p)
+                for (j in 1:(dim-1))
+                  for (i in (j+1):dim)
                       mat[k,1] <- mat[k,1] +
-                          plackettFormula(copula, p, rho, s, m, v[k,], i, j)
+                          plackettFormula(copula, dim, rho, s, m, v[k,], i, j)
             else ## ar1
               for (k in 1:n)
-                for (j in 1:(p-1))
-                  for (i in (j+1):p)
+                for (j in 1:(dim-1))
+                  for (i in (j+1):dim)
                     mat[k,1] <- mat[k,1] + (i - j) * rho ^ (i - j - 1) *
-				  plackettFormula(copula, p, rho, s, m, v[k,], i, j)
+				  plackettFormula(copula, dim, rho, s, m, v[k,], i, j)
 
             mat
         }
 	else { # unstructured or toeplitz or ...
-            mat <- matrix(0,n,p*(p-1)/2)
+            mat <- matrix(0,n,dim*(dim-1)/2)
             l <- 1
-            for (j in 1:(p-1))
-                for (i in (j+1):p)
+            for (j in 1:(dim-1))
+                for (i in (j+1):dim)
                 {
                     rho <- sigma[i,j]
                     r <- matrix(c(1,-rho,-rho,1),2,2)/(1 - rho^2)
@@ -364,14 +370,14 @@ dCdthetaEllipCopula <- function(copula, u, ...) {
                     s <- sigma[-c(i,j),-c(i,j)] - m %*% sigma[c(i,j),-c(i,j)]
 
                     for (k in 1:n)
-                        mat[k,l] <- plackettFormula(copula, p, rho, s, m, v[k,], i, j)
+                        mat[k,l] <- plackettFormula(copula, dim, rho, s, m, v[k,], i, j)
                     l <- l + 1
                 }
             if (copula@dispstr == "un") ## unstructured
                 mat
             else if (copula@dispstr == "toep") {
-                coef <- matrix(0,p*(p-1)/2,p-1)
-                for (k in 1:(p-1)) {
+                coef <- matrix(0, dim*(dim-1)/2, dim-1)
+                for (k in 1:(dim-1)) {
                     m <- row(sigma) == col(sigma) + k
                     coef[,k] <- P2p(m)
                 }
@@ -381,6 +387,7 @@ dCdthetaEllipCopula <- function(copula, u, ...) {
                       copula@dispstr)
         }
     }
+    val[, isFree(copula@parameters), drop = FALSE]
 }
 
 setMethod("dCdtheta", signature("ellipCopula"), dCdthetaEllipCopula)
@@ -410,14 +417,14 @@ dlogcduCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-5), ...
 
 ## For copulas with explicit densities
 dlogcduExplicitCopula <- function(copula, u, ...) {
-    p <- copula@dimension
+    dim <- copula@dimension
     algNm <- paste(class(copula)[1], "pdfDerWrtArg.algr", sep=".")
-    mat <- matrix(NA_real_, nrow(u), p)
+    mat <- matrix(NA_real_, nrow(u), dim)
     if(exists(algNm)) {
-        der.pdf.u <- get(algNm)[p]
-	alpha <- copula@parameters # typically used in eval()
-        unames0 <- paste0("u", 1:p)
-        for (j in 1:p) {
+        der.pdf.u <- get(algNm)[dim]
+	alpha <- copula@parameters # typically used in eval() # JY: scalar alpha
+        unames0 <- paste0("u", 1:dim)
+        for (j in 1:dim) {
             unames <- unames0; unames[1] <- unames0[j]; unames[j] <- unames0[1]
             colnames(u) <- unames
             mat[,j] <- eval(der.pdf.u, data.frame(u))
@@ -471,29 +478,29 @@ dlogcdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-5),
     warning("Function dlogcdtheta() not implemented for copulas of class '",
             class(copula), "'; numerical differentiation used")
     logc <- function(theta) {
-        copula@parameters <- theta
+        setFreeParam(copula) <- theta
         dCopula(u, copula, log = TRUE)
     }
-    theta <- copula@parameters
+    theta <- getParam(copula)
     p <- length(theta)
-    lb <- copula@param.lowbnd
-    ub <- copula@param.lowbnd
+    lb <- attr(theta, "param.lowbnd")
+    ub <- attr(theta, "param.upbnd" )
     jacobian(logc, theta, side = sides(theta, p, method.args$d, lb, ub),
              method.args = method.args)
 }
 
 ## For copulas with explicit densities
 dlogcdthetaExplicitCopula <- function(copula, u, ...) {
-    p <- copula@dimension
+    dim <- copula@dimension
     algNm <- paste(class(copula)[1], "pdfDerWrtPar.algr", sep=".")
-    if(exists(algNm) && !is.null((der.pdf.alpha <- get(algNm)[p])[[1]])) {
+    if(exists(algNm) && !is.null((der.pdf.alpha <- get(algNm)[dim])[[1]])) {
 	alpha <- copula@parameters # typically used in val(.)
-        colnames(u) <- paste0("u", 1:p)
+        colnames(u) <- paste0("u", 1:dim)
         as.matrix(eval(der.pdf.alpha, data.frame(u))) / dCopula(u, copula)
     } else {
         warning("Function dlogcdtheta() not implemented for copulas of class '",
                 class(copula), "'")
-        matrix(NA_real_, nrow(u), length(copula@parameters))
+        matrix(NA_real_, nrow(u), nFree(copula@parameters))
     }
 }
 
@@ -506,7 +513,7 @@ setMethod("dlogcdtheta", signature("evCopula"), dlogcdthetaExplicitCopula)
 
 ## For ellipCopula objects
 dlogcdthetaEllipCopula <- function(copula, u, ...) {
-    p <- copula@dimension
+    dim <- copula@dimension
 
     ## quantile transformation
     v <- switch(clc <- class(copula),
@@ -517,7 +524,8 @@ dlogcdthetaEllipCopula <- function(copula, u, ...) {
 		},
 		## else:
 		stop("not implemented"))
-    if (p == 2) {
+    val <- 
+    if (dim == 2) {
 	rho <- copula@parameters
 	ir2 <- 1 - rho^2
         sv2 <- rowSums(v^2) # == v[,1]^2 + v[,2]^2
@@ -528,7 +536,7 @@ dlogcdthetaEllipCopula <- function(copula, u, ...) {
                              (1 + df) * rho / -ir2 + (2 + df) * (df * rho + v[,1] * v[,2])
 			 / (df * ir2 + sv2 - 2 * rho * v[,1] * v[,2])))
 
-    } else { ##  p >= 3
+    } else { ##  dim >= 3
         n <- nrow(u)
         sigma <- getSigma(copula)
         detsig <- det(sigma)
@@ -536,12 +544,12 @@ dlogcdthetaEllipCopula <- function(copula, u, ...) {
 
         if (copula@dispstr %in% c("ex","ar1")) { ## exchangeable or ar1
             rho <- copula@parameters
-            dersig <- matrix(1,p,p)
+            dersig <- matrix(1, dim, dim)
             if (copula@dispstr == "ex") ## ex
                 diag(dersig) <- 0
             else ## ar1
-                for (i in 1:p)
-                    for (j in 1:p) {
+                for (i in 1:dim)
+                    for (j in 1:dim) {
                         ij <- abs(i - j)
                         dersig[i,j] <- ij * rho^(ij - 1)
                     }
@@ -557,15 +565,15 @@ dlogcdthetaEllipCopula <- function(copula, u, ...) {
 		       "normalCopula" =
                            - (firstterm + rowSums((v %*% derinvsig) * v))/2,
 		       "tCopula" =
-                           - (firstterm + (df + p) * rowSums((v %*% derinvsig) * v)
+                           - (firstterm + (df + dim) * rowSums((v %*% derinvsig) * v)
                     / (df +  rowSums((v %*% invsig) * v)) ) / 2)
             as.matrix(mat)
         }
 	else {# unstructured or toeplitz or ...
-            mat <- matrix(0,n,p*(p-1)/2)
+            mat <- matrix(0, n, dim*(dim - 1)/2)
             l <- 1
-            for (j in 1:(p-1))
-                for (i in (j+1):p) {
+            for (j in 1:(dim-1))
+                for (i in (j+1):dim) {
                     derdetsig <- 2 * det(sigma[-i,-j,drop=FALSE]) * (-1)^(i+j)
                     derinvsig <- - invsig[,i] %*% t(invsig[,j]) - invsig[,j] %*% t(invsig[,i])
                     firstterm <- derdetsig/detsig
@@ -575,15 +583,15 @@ dlogcdthetaEllipCopula <- function(copula, u, ...) {
 			       "normalCopula" =
                                    - (firstterm + rowSums((v %*% derinvsig) * v))/2,
 			       "tCopula" =
-                                   - (firstterm + (df + p) * rowSums((v %*% derinvsig) * v)
+                                   - (firstterm + (df + dim) * rowSums((v %*% derinvsig) * v)
                             / (df +  rowSums((v %*% invsig) * v)) ) / 2)
                     l <- l + 1
                 }
             if (copula@dispstr == "un") ## unstructured
                 mat
-            else if (copula@dispstr == "toep") { ## toeplitz: p-1 parameters
-                coef <- matrix(0,p*(p-1)/2,p-1)
-                for (k in 1:(p-1)) {
+            else if (copula@dispstr == "toep") { ## toeplitz: dim-1 parameters
+                coef <- matrix(0, dim*(dim-1)/2, dim-1)
+                for (k in 1:(dim-1)) {
                     m <- row(sigma) == col(sigma) + k
                     coef[,k] <- P2p(m)
                 }
@@ -591,7 +599,8 @@ dlogcdthetaEllipCopula <- function(copula, u, ...) {
             }
             else stop("Not implemented yet for the dispersion structure ", copula@dispstr)
         }
-    } ## p >= 3
+    } ## dim >= 3
+    val[, isFree(copula@parameters), drop = FALSE]
 }
 
 setMethod("dlogcdtheta", signature("ellipCopula"), dlogcdthetaEllipCopula)

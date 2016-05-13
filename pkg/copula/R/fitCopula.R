@@ -106,7 +106,8 @@ loglikCopula <- function(param, u, copula) {
     if(length(upper) != l) return(-Inf)
     cop.param <- getParam(copula) # copula@parameters
     admissible <- !(any(is.na(cop.param) | cop.param > upper | cop.param < lower))
-    if (admissible) { ## JY: param range check is only part of validity check
+    if (admissible) {
+        ## FIXME-JY: param range check is only part of validity check
         sum(dCopula(u, copula=copula, log=TRUE, checkPar=FALSE))
     } else -Inf
     ## stopifnot(length(param) == nFree(copula@parameters))
@@ -133,7 +134,8 @@ fitCopStart <- function(copula, u, default=copula@parameters, ...)
                                 warn.df=FALSE, ...)@estimate # fitCopula.icor(, method="itau")
 	if(.par.df) # add starting value for 'df'
 	    start <- c(start, copula@df)
-	if(is.finite(loglikCopula(start, u=u, copula=copula))) start else default
+	if(is.finite(loglikCopula(start, u=u, copula=copula))) start
+        else default[isFree(copula@parameters)]
     } else default[isFree(copula@parameters)]
     ## JY: minimal-change solution; could do free params only but not easy...
     ## free <- isFree(copula@parameters)
@@ -150,28 +152,30 @@ fitCopStart <- function(copula, u, default=copula@parameters, ...)
 ##' @return L 
 getL <- function(copula) {
     ## for ellipCopula only!
-    p <- copula@dimension
-    pp <- p * (p - 1) / 2
-
-    dgidx <- outer(1:p, 1:p, "-")
+    dim <- copula@dimension
+    dd <- dim * (dim - 1) / 2
+    free <- isFree(copula@parameters)
+    
+    dgidx <- outer(1:dim, 1:dim, "-")
     dgidx <- P2p(dgidx)
 
     if (!is(copula, "ellipCopula") || copula@dispstr == "ex") {
-        cbind(rep.int(1/pp, pp), deparse.level=0L)
+        cbind(rep.int(1/dd, dd), deparse.level=0L) # no free adjustment for scalar parameter
     } else 
         switch(copula@dispstr,
-               "un" = diag(pp),
+               "un" = diag(dd)[,free,drop=FALSE],
                "toep" = {
                    mat <- model.matrix(~ factor(dgidx) - 1)
-                   mat / matrix(colSums(mat), nrow = pp, ncol= p - 1, byrow=TRUE)
+                   mat <- mat / matrix(colSums(mat), nrow = dd, ncol= dim - 1, byrow=TRUE)
+                   mat[,free,drop=FALSE]
                },
                "ar1" = {
                    ## FIXME More efficient: estimate log(rho) first and then exponentiate back,
                    ##  see e.g. fitCor(*, "irho") above
                    ## JY: can sometimes rho be negative? May need fix.
                    ## mat <- model.matrix(~ factor(dgidx) - 1)
-                   ## mat * matrix(1:(p - 1), nrow=pp, ncol=p - 1, byrow=TRUE)
-                   X <- getXmat(copula)
+                   ## mat * matrix(1:(dim - 1), nrow=dd, ncol=dim - 1, byrow=TRUE)
+                   X <- getXmat(copula) # no free adjustment for scalar parameter
                    ## L:
                    t(solve(crossprod(X), t(X)))
                },
@@ -180,33 +184,35 @@ getL <- function(copula) {
 
 ##' @title Design Matrix for Method-of-Moments Estimators via lm()
 ##' @param copula Copula object
-##' @return Design matrix for method-of-moments estimators via lm()
+##' @return dd by p Design matrix for method-of-moments estimators via lm()
 getXmat <- function(copula) { ## FIXME(?) only works for "copula" objects, but not rotCopula, mixed*, ...
-    p <- copula@dimension
-    pp <- p * (p - 1) / 2
+    dim <- copula@dimension
+    dd <- dim * (dim - 1) / 2
+    xmat <- 
     if (!is(copula, "ellipCopula")) # one-parameter non-elliptical copula
-	if((n.th <- length(copula@parameters)) == 1L)
-	    matrix(1, nrow=pp, ncol=1)
+	if((n.th <- nFree(copula@parameters)) == 1L)
+	    matrix(1, nrow=dd, ncol=1)
 	else stop(gettextf( ## should not happen currently, but s
 		 "getXmat() not yet implemented for non-elliptical copulas with %d parameters",
 		 n.th), domain=NA)
     else {
 	switch(copula@dispstr,
-	       "ex" = matrix(1, nrow=pp, ncol=1),
-	       "un" = diag(pp),
+	       "ex" = matrix(1, nrow=dd, ncol=1),
+	       "un" = diag(dd),
 	       "toep" =, "ar1" = {
-            dgidx <- P2p(outer(1:p, 1:p, "-"))
+            dgidx <- P2p(outer(1:dim, 1:dim, "-"))
             if(copula@dispstr == "toep")
                 model.matrix(~ factor(dgidx) - 1)
             else { ## __"ar1"__
                 ## estimate log(rho) first and then exponentiate back
                 ## mat <- model.matrix(~ factor(dgidx) - 1)
-                ## mat %*% diag(1:(p - 1))
+                ## mat %*% diag(1:(dim - 1))
                 cbind(dgidx, deparse.level=0L)
             }
         },
         stop("Not implemented yet for the dispersion structure ", copula@dispstr))
     }
+    xmat[, isFree(copula@parameters), drop=FALSE]
 }
 
 
@@ -227,19 +233,21 @@ var.icor <- function(cop, u, method=c("itau", "irho"))
     dCor <- if(method=="itau") "dTau" else "dRho"
     if (!hasMethod(dCor, class(cop))) {
         warning("The variance estimate cannot be computed for a copula of class ", class(cop))
-        q <- length(cop@parameters)
+        ## q <- length(cop@parameters) # unused
         return(matrix(NA_real_, 0, 0))
     }
-    p <- cop@dimension
+    dim <- cop@dimension
+    dd <- dim * (dim - 1) / 2
+    free <- isFree(cop@parameters)
     n <- nrow(u)
-    v <- matrix(0, n, p*(p-1)/2)
+    v <- matrix(0, n, dd)
 
     ## Compute influence functions for the respective rank correlation measure
     if(method=="itau") {
         ec <- numeric(n)
         l <- 0L
-        for (j in 1:(p-1)) {
-            for (i in (j+1):p) {
+        for (j in 1:(dim-1)) {
+            for (i in (j+1):dim) {
                 for (k in 1:n) # can this be vectorized?
                     ec[k] <- sum(u[,i] <= u[k,i] & u[,j] <= u[k,j]) / n
                 v[,(l <- l + 1L)] <- 2 * ec - u[,i] - u[,j]
@@ -250,8 +258,8 @@ var.icor <- function(cop, u, method=c("itau", "irho"))
         ordb <- apply(u, 2, rank) # ties : "average"
         storage.mode(ordb) <- "integer" # as used below
         l <- 0L
-        for (j in 1:(p-1)) {
-            for (i in (j+ 1L):p)
+        for (j in 1:(dim-1)) {
+            for (i in (j+ 1L):dim)
                 v[,(l <- l + 1L)] <- u[,i] * u[,j] +
                     c(0, cumsum(u[ord[,i], j]))[n + 1L - ordb[,i]] / n +
                     c(0, cumsum(u[ord[,j], i]))[n + 1L - ordb[,j]] / n
@@ -262,13 +270,12 @@ var.icor <- function(cop, u, method=c("itau", "irho"))
     ## L <- t(solve(crossprod(X), t(X)))
     L <- getL(cop)
     v <- if (is(cop, "ellipCopula") && cop@dispstr == "ar1") {
-        pp <- p * (p - 1) / 2
         ## Estimate log(r) first, then log(theta), and then exponentiate back
         ## r is the lower.tri of sigma
         sigma <- getSigma(cop) # assuming cop is the fitted copula
         ## Influence function for log(r)
         r <- P2p(sigma)
-        D <- diag(x = 1 / r / if(method=="itau") dTauFun(cop)(r) else dRhoFun(cop)(r), pp)
+        D <- diag(x = 1 / r / if(method=="itau") dTauFun(cop)(r) else dRhoFun(cop)(r), dd)
         v <- v %*% D
         ## Influence function for log(theta)
         v <- v %*% L
@@ -278,12 +285,13 @@ var.icor <- function(cop, u, method=c("itau", "irho"))
     } else {
         ## Caution: diag(0.5) is not a 1x1 matrix of 0.5!!! check it out.
         dCor <- if(method=="itau") dTau else dRho
-        D <- if (length(cop@parameters) == 1) 1 / dCor(cop) else diag(1 / dCor(cop))
+        ## D <- if (length(cop@parameters) == 1) 1 / dCor(cop) else diag(1 / dCor(cop))
+        D <- diag(1 / dCor(cop)[free], sum(free))
         v %*% L %*% D
     }
     ## FIXME: can be made more efficient by extracting L and D
-    free <- isFree(cop@parameters)
-    v <- v[free, free, drop = FALSE]
+    ## free <- isFree(cop@parameters)
+    ## v <- v[free, free, drop = FALSE]
     var(v) * if(method=="itau") 16 else 144
 }
 
@@ -294,8 +302,8 @@ var.icor <- function(cop, u, method=c("itau", "irho"))
 var.mpl <- function(cop, u)
 {
     ## Checks
-    q <- length(cop@parameters) # parameter space dimension p
-    p <- cop@dimension # copula dimension d
+    q <- nFree(cop@parameters) # parameter space dimension p
+    dim <- cop@dimension # copula dimension d
     ans <- matrix(NA_real_, q, q) # matrix(NA_real_, 0, 0)
     ccl <- getClass(clc <- class(cop))
     isEll <- extends(ccl, "ellipCopula")
@@ -305,7 +313,7 @@ var.mpl <- function(cop, u)
     if(is(cop, "archmCopula")) {
 	fam <- names(which(.ac.classNames == class(cop)[[1]]))
 	msg <- c(msg, gettext(" Or rather  emle(u, oCop)  instead; where",
-                              sprintf(" oCop <- onacopula(%s, C(NA, 1:%d))", fam, p)))
+                              sprintf(" oCop <- onacopula(%s, C(NA, 1:%d))", fam, dim)))
     }
     if (!isEll && !hasMethod("dlogcdu", clc)) {
 	warning(msg); return(ans)
@@ -314,12 +322,9 @@ var.mpl <- function(cop, u)
     ## If df.fixed = FALSE, Jscore() cannot be computed
     if(has.par.df(cop, ccl, isEll)) {
         cop <- as.df.fixed(cop, classDef = ccl)
-        ans[-q,-q] <- var(t(Jscore(cop, u, method = "mpl")))
+        var(t(Jscore(cop, u, method = "mpl")))
     } else
-        ans <- var(t(Jscore(cop, u, method = "mpl")))
-    ## JY: quick solution; could be made more efficient
-    free <- isFree(cop@parameters)
-    ans[free, free, drop=FALSE]
+        var(t(Jscore(cop, u, method = "mpl")))
 }
 
 
@@ -341,6 +346,7 @@ var.mpl <- function(cop, u)
 fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"),
                            warn.df=TRUE, posDef=is(copula, "ellipCopula"), ...)
 {
+    ##  stopifnot(any(free <- isFree(copula@parameters))) # moved to after df coercement
     method <- match.arg(method)
     ccl <- getClass(class(copula))
     isEll <- extends(ccl, "ellipCopula")
@@ -350,7 +356,7 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
         copula <- as.df.fixed(copula, classDef = ccl)
     }
     stopifnot(any(free <- isFree(copula@parameters)))
-    q <- length(copula@parameters)
+    ## q <- length(copula@parameters) # not used 
     icor <- fitCor(copula, x, method=method, posDef=posDef, matrix=FALSE, ...)
 
     ## FIXME: Using 'X' & 'lm(X,y)' is computationally very inefficient for large q
@@ -358,7 +364,7 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
     ##       can lead to R being killed (under Mac OS X) for d ~= 450
     ##       Also, it's slow in higher dimensions (even getXmat())
     estimate <- if(isEll && copula@dispstr == "un") {
-        icor
+        icor[free]
     } else if(isEll && copula@dispstr == "ar1") {
         X <- getXmat(copula)
         exp(.lm.fit(X, y=log(icor))$coefficients) # FIXME: assuming icor > 0
@@ -367,7 +373,7 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
         .lm.fit(X, y=icor)$coefficients
     }
 
-    estimate <- as.vector(estimate)[free] # strip attributes
+    estimate <- as.vector(estimate) # strip attributes
     ## copula@parameters <- estimate
     setFreeParam(copula) <- estimate
     var.est <- if (is.na(estimate.variance) || estimate.variance) {
@@ -579,6 +585,7 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
 
 ### Wrapper ####################################################################
 
+## JY: Is this generic function intended for other signatures later?
 setGeneric("fitCopula", function(copula, data, ...) standardGeneric("fitCopula"))
 
 ##' @title Main Fitting Wrapper
@@ -606,7 +613,7 @@ fitCopulaCopula <- function(copula, data,
                             optim.method="BFGS", optim.control=list(maxit=1000),
                             estimate.variance=NA, hideWarnings=FALSE, ...)
 {
-    stopifnot(any(free <- isFree(copula@parameters)))
+    stopifnot(any(isFree(copula@parameters)))
     if(!is.matrix(data)) {
         warning("coercing 'data' to a matrix.")
         data <- as.matrix(data); stopifnot(is.matrix(data))

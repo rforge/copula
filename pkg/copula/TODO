@@ -1,5 +1,6 @@
 ##-*- org -*-->  Emacs .. [Tab] key + [Org] menu; C-c C-o to follow links
 * Short Term (before 1.0.0):
+** TODO [IK]: review the derivatives expression in dC-dc.R for free parameter adjustment
 ** TODO [MM/JY]: Add slot 'fixed' (or similar) to copula class, change constructors of existing classes accordingly and make appropriate changes in fitCopula() (and gofCopula() if required and do basic checks)
 ** TODO Fitting high-dimensional copulas: memory explosion due to allocation of large (d*(d-1)/2) matrix for variance estimators
 # See also MH's email from 2016-05-01
@@ -103,7 +104,7 @@ advantage outweighs the drawbacks... What do you think?
 ** TODO [IK] Write test code for mult gof Sn, Rn
 ** TODO [IK] Implement copula mixtures (mixCopula()) with sufficiently flexible structure so that we can maybe estimate the probability weights in the future
 ** TODO [IK/JY] Implement Liebscher copulas (asymCopula()) for 2 'base copulas' (any dimension)
-** TODO [JY] document getL() a bit more in fitCopula.R (what is it for?); there's a TODO there as well (in the header of getL())
+** DONE [JY] document getL() a bit more in fitCopula.R (what is it for?); there's a TODO there as well (in the header of getL())
 ** TODO introduce "empiricalCopula" (or "empCopula") as new subclass of "Copula" (not "copula")
    and maybe *additionally* "empiricalDist" / "empMvdc", inheriting from
    new "Mvdc" which would contain "mvdc" and "empMvdc".

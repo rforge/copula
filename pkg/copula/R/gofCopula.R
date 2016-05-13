@@ -214,7 +214,7 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
 ##' @param copula An object of type 'copula'
 ##' @param u An (n, d)-matrix of (pseudo-)observations
 ##' @param method "mpl" or one of "itau", "irho"
-##' @return A q by n matrix containing \hat{J}_{\theta_n}
+##' @return A p by n matrix containing \hat{J}_{\theta_n}
 ##' @author Marius Hofert (based on ideas of Ivan Kojadinovic)
 ##' Note: References:
 ##'       * For estim.method="mpl":
@@ -242,12 +242,12 @@ Jscore <- function(copula, u, method)
            if(has.par.df(copula))
                stop("Jscore() cannot be computed for df.fixed = FALSE")
            ## Integrals computed from n realizations by Monte Carlo
-           influ0 <- dlogcdtheta(copula, u) # (n, d)-matrix
+           influ0 <- dlogcdtheta(copula, u) # (n, p)-matrix
            derArg <- dlogcdu    (copula, u) # (n, d)-matrix
            influ <- lapply(1:copula@dimension, function(i) influ0*derArg[,i])
            n <- nrow(u)
            d <- ncol(u)
-           p <- length(copula@parameters)
+           p <- nFree(copula@parameters)
            S <- matrix(0, n, p)
            for(j in 1:d) {
                ij <- order(u[,j], decreasing=TRUE)

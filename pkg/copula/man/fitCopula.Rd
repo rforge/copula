@@ -253,8 +253,10 @@ fit.ml <- fitCopula(normalCopula(dim=3, dispstr="un"), x, method="ml")
 fit.ml
 
 ## Fix some of the parameters
-ncp <- normalCopula(param = c(.6, .3, NA), dim = 3, dispstr = "un")
-setFixedAttr(ncp) <- c(TRUE, TRUE, FALSE)
+param <- c(.6, .3, NA_real_)
+attr(param, "fixed") <- c(TRUE, FALSE, FALSE)
+ncp <- normalCopula(param = param, dim = 3, dispstr = "un")
+## setFixedAttr(ncp) <- c(TRUE, TRUE, FALSE)
 fitCopula(ncp, u, method = "mpl")
 
 
