@@ -23,6 +23,13 @@ isFree <- function(param) {
     if(is.null(fixed)) rep(TRUE, length(param)) else !fixed
 }
 
+##' @title Whether or not the copula has "fixed" attr in parameters
+##' @param copula A 'copula' object
+##' @return TRUE if has, otherwise FALSE
+##' @author Jun Yan
+hasFixedAttr <- function(copula) {
+    !is.null(attr(copula, "fixed"))
+}
 ### This to be used in place when npar is needed ###############################
 
 ##' @title Number of Free Parameters of a Vector
@@ -83,6 +90,9 @@ getParam <- function(copula, freeOnly = TRUE) {
         stopifnot(sum(sel) == length(value))
         copula@parameters[sel] <- value
     }
+    ## special operation for copulas with df parameters
+    if (has.par.df(copula))
+        copula@df <- copula@parameters[length(copula@parameters)] 
     ## if (validObject(copula)) copula
     ## else stop("Invalid copula object.")
     copula

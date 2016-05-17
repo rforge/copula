@@ -197,7 +197,7 @@ setGeneric("plackettFormulaDim2", function(copula, x) standardGeneric("plackettF
 ##' @return the derivative at x
 ##' @author Ivan Kojadinovic
 plackettFormulaDim2NormalCopula <- function(copula, x) {
-    rho <- copula@parameters # JY: single parameter only
+    rho <- copula@parameters[1] # JY: single parameter only
     ir2 <- 1 - rho^2
     as.matrix(exp(-(x[,1]^2 + x[,2]^2 - 2 * rho * x[,1] * x[,2]) /
                    (2 * ir2)) /
@@ -212,7 +212,7 @@ setMethod("plackettFormulaDim2", signature("normalCopula"), plackettFormulaDim2N
 ##' @return the derivative at x
 ##' @author Ivan Kojadinovic
 plackettFormulaDim2TCopula <- function(copula, x) {
-    rho <- copula@parameters #JY: single parameter only
+    rho <- copula@parameters[1] #JY: single parameter only
     ir2 <- 1 - rho^2
     df <- copula@df
     as.matrix((1 + (x[,1]^2 + x[,2]^2 - 2 * rho * x[,1] * x[,2]) /
@@ -387,7 +387,9 @@ dCdthetaEllipCopula <- function(copula, u, ...) {
                       copula@dispstr)
         }
     }
-    val[, isFree(copula@parameters), drop = FALSE]
+    free <- isFree(copula@parameters)
+    if (.hasSlot(copula, "df")) free <- free[-length(free)]
+    val[, free, drop = FALSE]
 }
 
 setMethod("dCdtheta", signature("ellipCopula"), dCdthetaEllipCopula)
@@ -526,7 +528,7 @@ dlogcdthetaEllipCopula <- function(copula, u, ...) {
 		stop("not implemented"))
     val <- 
     if (dim == 2) {
-	rho <- copula@parameters
+	rho <- copula@parameters[1] # JY: single rho parameter, free
 	ir2 <- 1 - rho^2
         sv2 <- rowSums(v^2) # == v[,1]^2 + v[,2]^2
 	as.matrix(switch(clc,
@@ -543,7 +545,7 @@ dlogcdthetaEllipCopula <- function(copula, u, ...) {
         invsig <- solve(sigma)
 
         if (copula@dispstr %in% c("ex","ar1")) { ## exchangeable or ar1
-            rho <- copula@parameters
+            rho <- copula@parameters[1] # JY: single rho parameter
             dersig <- matrix(1, dim, dim)
             if (copula@dispstr == "ex") ## ex
                 diag(dersig) <- 0
@@ -600,7 +602,9 @@ dlogcdthetaEllipCopula <- function(copula, u, ...) {
             else stop("Not implemented yet for the dispersion structure ", copula@dispstr)
         }
     } ## dim >= 3
-    val[, isFree(copula@parameters), drop = FALSE]
+    free <- isFree(copula@parameters)
+    if (.hasSlot(copula, "df")) free <- free[-length(free)]
+    val[, free, drop = FALSE]
 }
 
 setMethod("dlogcdtheta", signature("ellipCopula"), dlogcdthetaEllipCopula)

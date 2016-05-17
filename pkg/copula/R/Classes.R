@@ -140,11 +140,13 @@ setClass("normalCopula", contains = "ellipCopula"
 
 
 setClass("tCopula", contains = "ellipCopula",
-	 slots = c(df = "numeric", df.fixed = "logical")
-         ## not needed:
-         ## , validity =  function(object) {
-         ##    df inside boundaries is checked in "copula" validity
-         ## }
+	 slots = c(df = "numeric", df.fixed = "logical"),
+         validity =  function(object) {
+             ## JY: making sure @df == tail(@parametersnot, 1) 
+             if (has.par.df(object))
+                 stopifnot(object@df == tail(object@parameters, 1))
+             TRUE
+         }
          )
 
 
@@ -199,7 +201,14 @@ setClass("tawnCopula", contains = "evCopula",
 
 ## tEV copula
 setClass("tevCopula", contains = "evCopula",
-	 slots = c(df = "numeric", df.fixed = "logical"))
+	 slots = c(df = "numeric", df.fixed = "logical"),
+         validity = function(object) {
+             ## JY: making sure @df == tail(@parametersnot, 1) 
+             if (has.par.df(object))
+                 stopifnot(object@df == tail(object@parameters, 1))
+             TRUE
+         }
+         )
 
 setGeneric("A", function(copula, w) standardGeneric("A"))
 setGeneric("dAdu", function(copula, w) standardGeneric("dAdu"))

@@ -155,6 +155,7 @@ getL <- function(copula) {
     dim <- copula@dimension
     dd <- dim * (dim - 1) / 2
     free <- isFree(copula@parameters)
+    if (.hasSlot(copula, "df")) free <- free[-length(free)]
     
     dgidx <- outer(1:dim, 1:dim, "-")
     dgidx <- P2p(dgidx)
@@ -212,7 +213,9 @@ getXmat <- function(copula) { ## FIXME(?) only works for "copula" objects, but n
         },
         stop("Not implemented yet for the dispersion structure ", copula@dispstr))
     }
-    xmat[, isFree(copula@parameters), drop=FALSE]
+    free <- isFree(copula@parameters) ## the last one is for df and not needed
+    if (.hasSlot(copula, "df")) free <- free[-length(free)]
+    xmat[, free, drop=FALSE]
 }
 
 
@@ -356,6 +359,7 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
         copula <- as.df.fixed(copula, classDef = ccl)
     }
     stopifnot(any(free <- isFree(copula@parameters)))
+    if (.hasSlot(copula, "df")) free <- free[-length(free)]
     ## q <- length(copula@parameters) # not used 
     icor <- fitCor(copula, x, method=method, posDef=posDef, matrix=FALSE, ...)
 
