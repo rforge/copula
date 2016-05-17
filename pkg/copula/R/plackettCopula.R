@@ -147,3 +147,5 @@ setMethod("iRho", signature("plackettCopula"), iRhoCopula)
 
 setMethod("dTau", signature("plackettCopula"), dTauPlackettCopula)
 setMethod("dRho", signature("plackettCopula"), dRhoPlackettCopula)
+
+setMethod("lambda", signature("plackettCopula"), function(copula) c(lower=0, upper=0))
