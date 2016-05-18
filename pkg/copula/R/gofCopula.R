@@ -201,7 +201,7 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
 	      list(method = sprintf(
                    "Parametric bootstrap goodness-of-fit test with 'method'=\"%s\", 'estim.method'=\"%s\"",
 		   method, estim.method),
-                   parameter = c(parameter = C.th.n@parameters),
+                   parameter = c(parameter = getParam(C.th.n)),
                    statistic = c(statistic = T),
                    p.value = (sum(T0 >= T) + 0.5) / (N + 1), # typical correction => p-values in (0, 1)
                    data.name = deparse(substitute(x))))
@@ -397,7 +397,7 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
 	      list(method = sprintf(
                        "Multiplier bootstrap goodness-of-fit test with 'method'=\"%s\", 'estim.method'=\"%s\"",
                        method, estim.method),
-                   parameter = c(parameter = C.th.n@parameters),
+                   parameter = c(parameter = getParam(C.th.n)),
                    statistic = c(statistic = T),
                    p.value = (sum(T0 >= T) + 0.5) / (N + 1), # typical correction =>  p-values in (0, 1)
                    data.name = deparse(substitute(x))))
