@@ -65,6 +65,7 @@
 \alias{lambda,indepCopula-method}
 \alias{lambda,amhCopula-method}
 \alias{lambda,joeCopula-method}
+\alias{lambda,plackettCopula-method}
 \alias{lambda,normalCopula-method}
 \alias{lambda,tCopula-method}
 \alias{lambda,acopula-method}
