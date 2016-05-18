@@ -16,7 +16,7 @@ fixParam <- function(param, fixed = TRUE) {
 ##' @author Jun Yan
 isFree <- function(param) {
     fixed <- attr(param, "fixed")
-    if(is.null(fixed)) TRUE else !fixed
+    if(is.null(fixed)) rep(TRUE, length(param)) else !fixed
 }
 
 ##' @title Whether or not the copula has "fixed" attr in parameters
