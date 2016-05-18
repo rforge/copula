@@ -111,7 +111,7 @@ dCduExplicitCopula <- function(copula, u, ...) {
 }
 
 
-## This function is used for Khoudraji's device
+## This function is used for asymCopula objects
 dCduIndepCopula <- function(copula, u, ...) {
   dim <- copula@dimension
   mat <- matrix(0, nrow(u), dim)
@@ -140,8 +140,8 @@ dCduEllipCopula <- function(copula, u, ...) {
 		"tCopula" = {
                     df <- copula@df
                     qt(u, df=df)
-    },
-    stop("not implemented for class ", class(copula)))
+                },
+                stop("not implemented for class ", class(copula)))
     n <- nrow(u)
     mat <- matrix(0,n,dim)
 
@@ -152,7 +152,7 @@ dCduEllipCopula <- function(copula, u, ...) {
                "normalCopula" =
                    {
                        if (dim == 2) {
-                           rho <- copula@parameters
+                           rho <- copula@parameters[1] # IK: single parameter only
                            mat[,j] <- pnorm(v[,-j], rho * v[,j], sqrt(1 - rho^2))
                        }
                else
@@ -164,7 +164,7 @@ dCduEllipCopula <- function(copula, u, ...) {
                "tCopula" =
                    {
                        if (dim == 2) {
-                           rho <- copula@parameters
+                           rho <- copula@parameters[1] # IK: single parameter only
                            mat[,j] <-  pt(sqrt((df+1)/(df+v[,j]^2)) / sqrt(1 - rho^2)
                                           * (v[,-j] - rho * v[,j]), df=df+1)
                        }
@@ -274,7 +274,7 @@ dCdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-1), ..
         freeParam(copula) <- theta
         log(pCopula(u, copula))
     }
-    theta <- getParam(copula) 
+    theta <- getParam(copula)
     p <- length(theta)
     lb <- attr(theta, "param.lowbnd")
     ub <- attr(theta, "param.upbnd" )
@@ -335,7 +335,7 @@ dCdthetaEllipCopula <- function(copula, u, ...) {
         sigma <- getSigma(copula)
 
         if (copula@dispstr %in% c("ex","ar1")) { ## exchangeable or ar1
-            rho <- copula@parameters
+            rho <- copula@parameters[1] # IK: single parameter only
             r <- matrix(c(1,-rho,-rho,1),2,2)/(1 - rho^2)
             m <- sigma[-c(1,2),c(1,2)] %*% r
             s <- sigma[-c(1,2),-c(1,2)] -
@@ -526,7 +526,7 @@ dlogcdthetaEllipCopula <- function(copula, u, ...) {
 		},
 		## else:
 		stop("not implemented"))
-    val <- 
+    val <-
     if (dim == 2) {
 	rho <- copula@parameters[1] # JY: single rho parameter, free
 	ir2 <- 1 - rho^2
