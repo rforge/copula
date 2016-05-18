@@ -122,7 +122,7 @@ loglikCopula <- function(param, u, copula) {
 ##' @param default The default initial values
 ##' @param ... Additional arguments passed to fitCopula.icor()
 ##' @return Initial value for fitCopula.ml()
-fitCopStart <- function(copula, u, default=copula@parameters, ...)
+fitCopStart <- function(copula, u, default=getParam(copula), ...)
 {
     clc <- class(copula)
     ## start <-
@@ -135,11 +135,8 @@ fitCopStart <- function(copula, u, default=copula@parameters, ...)
 	if(.par.df) # add starting value for 'df'
 	    start <- c(start, copula@df)
 	if(is.finite(loglikCopula(start, u=u, copula=copula))) start
-        else default[isFree(copula@parameters)]
-    } else default[isFree(copula@parameters)]
-    ## JY: minimal-change solution; could do free params only but not easy...
-    ## free <- isFree(copula@parameters)
-    ## start[free]
+        else default
+    } else default
 }
 
 ##' @title Generate the Contrast Matrix L for Sample Tau or Rho
