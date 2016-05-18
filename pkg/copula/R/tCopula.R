@@ -77,14 +77,8 @@ as.df.fixed <- function(copula, classDef = getClass(class(copula))) {
     if (!is.null(fixed <- attr(copula@parameters, "fixed"))) {
         ## for tCopula with "fixed" attr in @parameters
         fixed[length(fixed)] <- TRUE
-    } else { ## old version, without fixed attr
-        fixed <- c(rep(FALSE, length(copula@parameters)), TRUE)
-        if (copula@df.fixed) { ## only needed if df.fixed for old version
-            copula@parameters   <- c(copula@parameters, copula@df)
-            copula@param.names  <- c(copula@param.names, "df")
-            copula@param.lowbnd <- c(copula@param.lowbnd, 1e-6)
-            copula@param.upbnd  <- c(copula@param.upbnd, Inf)
-        }
+    } else {
+        fixed <- c(rep(FALSE, length(copula@parameters) - 1), TRUE)
     }
     attr(copula@parameters, "fixed") <- fixed
     copula@df.fixed <- TRUE # (to be deprecated)

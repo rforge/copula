@@ -44,10 +44,10 @@ print.fitCopula <- function(x, digits = max(3, getOption("digits") - 3),
 summary.fitCopula <- function(object, ...) {
     estimate <- object@estimate
     se <- sqrt(diag(object@var.est))
-    zvalue <- estimate / se
-    pvalue <- 2* pnorm(abs(zvalue), lower.tail=FALSE)
-    coef <- cbind(Estimate = estimate, "Std. Error" = se,
-                  "z value" = zvalue, "Pr(>|z|)" = pvalue)
+    #zvalue <- estimate / se # TODO: DELETE ME LATER
+    #pvalue <- 2* pnorm(abs(zvalue), lower.tail=FALSE) # TODO: DELETE ME LATER
+    coef <- cbind(Estimate = estimate, "Std. Error" = se)#,
+                  #"z value" = zvalue, "Pr(>|z|)" = pvalue) # TODO: DELETE ME LATER
     rownames(coef) <- paramNames(object) #[isFree(object@copula@parameters)]
     structure(class = "summary.fitCopula",
               list(method = object@method,
@@ -112,7 +112,7 @@ loglikCopula <- function(param, u, copula) {
     } else -Inf
     ## stopifnot(length(param) == nFree(copula@parameters))
     ## setparam <- try(freeParam(copula) <- param)
-    ## if (inherits(setparam, "try-error")) -Inf ## not admissible 
+    ## if (inherits(setparam, "try-error")) -Inf ## not admissible
     ## else sum(dCopula(u, copula=copula, log=TRUE, checkPar=FALSE))
 }
 
@@ -125,7 +125,7 @@ loglikCopula <- function(param, u, copula) {
 fitCopStart <- function(copula, u, default=copula@parameters, ...)
 {
     clc <- class(copula)
-    ## start <- 
+    ## start <-
     if(hasMethod("iTau", clc)) {
 	ccl <- getClass(clc)
 	.par.df <- has.par.df(copula, ccl)
@@ -149,20 +149,20 @@ fitCopStart <- function(copula, u, default=copula@parameters, ...)
 ##'          as t(L) multiplied by the vector of pairwise sample values. This is
 ##'          used in the variance estimation; see var.icor below.
 ##' @param copula A (most likely elliptical) copula object
-##' @return L 
+##' @return L
 getL <- function(copula) {
     ## for ellipCopula only!
     dim <- copula@dimension
     dd <- dim * (dim - 1) / 2
     free <- isFree(copula@parameters)
     if (.hasSlot(copula, "df")) free <- free[-length(free)]
-    
+
     dgidx <- outer(1:dim, 1:dim, "-")
     dgidx <- P2p(dgidx)
 
     if (!is(copula, "ellipCopula") || copula@dispstr == "ex") {
         cbind(rep.int(1/dd, dd), deparse.level=0L) # no free adjustment for scalar parameter
-    } else 
+    } else
         switch(copula@dispstr,
                "un" = diag(dd)[,free,drop=FALSE],
                "toep" = {
@@ -189,7 +189,7 @@ getL <- function(copula) {
 getXmat <- function(copula) { ## FIXME(?) only works for "copula" objects, but not rotCopula, mixed*, ...
     dim <- copula@dimension
     dd <- dim * (dim - 1) / 2
-    xmat <- 
+    xmat <-
     if (!is(copula, "ellipCopula")) # one-parameter non-elliptical copula
 	if((n.th <- nFree(copula@parameters)) == 1L)
 	    matrix(1, nrow=dd, ncol=1)
@@ -305,9 +305,9 @@ var.icor <- function(cop, u, method=c("itau", "irho"))
 var.mpl <- function(cop, u)
 {
     ## Checks
-    q <- nFree(cop@parameters) # parameter space dimension p
+    p <- nFree(cop@parameters) # parameter space dimension p
     dim <- cop@dimension # copula dimension d
-    ans <- matrix(NA_real_, q, q) # matrix(NA_real_, 0, 0)
+    ans <- matrix(NA_real_, p, p) # matrix(NA_real_, 0, 0)
     ccl <- getClass(clc <- class(cop))
     isEll <- extends(ccl, "ellipCopula")
     ## Check if variance can be computed
@@ -325,7 +325,8 @@ var.mpl <- function(cop, u)
     ## If df.fixed = FALSE, Jscore() cannot be computed
     if(has.par.df(cop, ccl, isEll)) {
         cop <- as.df.fixed(cop, classDef = ccl)
-        var(t(Jscore(cop, u, method = "mpl")))
+        ans[-p, -p] <- var(t(Jscore(cop, u, method = "mpl")))
+        ans
     } else
         var(t(Jscore(cop, u, method = "mpl")))
 }
@@ -360,7 +361,7 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
     }
     stopifnot(any(free <- isFree(copula@parameters)))
     if (.hasSlot(copula, "df")) free <- free[-length(free)]
-    ## q <- length(copula@parameters) # not used 
+    ## q <- length(copula@parameters) # not used
     icor <- fitCor(copula, x, method=method, posDef=posDef, matrix=FALSE, ...)
 
     ## FIXME: Using 'X' & 'lm(X,y)' is computationally very inefficient for large q
@@ -415,7 +416,7 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
 fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
                                estimate.variance, tol=.Machine$double.eps^0.25,
                                traceOpt = FALSE, ...)
-{  
+{
     stopifnot(any(free <- isFree(copula@parameters)))
     if(any(u < 0) || any(u > 1))
         stop("'u' must be in [0,1] -- probably rather use pobs(.)")
