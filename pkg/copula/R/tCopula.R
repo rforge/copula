@@ -40,10 +40,12 @@ tCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex",
     param.lowbnd <- c(rep.int(-1, pdim), 1e-6)
     param.upbnd	 <- c(rep.int( 1, pdim), Inf)
     ## JY: handle fixed attributes
-    if (is.null(fixed <- attr(parameters, "fixed"))) 
-        attr(parameters, "fixed") <- c(rep(FALSE, pdim), df.fixed)
-    else attr(parameters, "fixed") <- c(fixed, df.fixed)
-    
+    attr(parameters, "fixed") <-
+        c(if(is.null(fixed <- attr(parameters, "fixed")))
+              rep(FALSE, pdim)
+          else fixed,
+          df.fixed)
+
     new("tCopula",
 	dispstr = dispstr,
 	dimension = dim,
@@ -85,7 +87,7 @@ as.df.fixed <- function(copula, classDef = getClass(class(copula))) {
         }
     }
     attr(copula@parameters, "fixed") <- fixed
-    copula@df.fixed <- TRUE            
+    copula@df.fixed <- TRUE # (to be deprecated)
     copula
 }
 

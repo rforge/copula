@@ -80,7 +80,7 @@ splom2(U.) # => now correct dependency
 stopifnot(cor(P, cU[lower.tri(cU)]) > 0.99)
 
 ## Fitting a t-copula with "itau.mpl" with disp="un"
-(fm4u <- fitCopula(uc4, U., method="itau.mpl"))
+(fm4u <- fitCopula(uc4, U., method="itau.mpl", traceOpt = TRUE))
 if(FALSE) { # The following are not available (yet); see ~/R/fitCopula.R
     ## Fitting a t-copula with "itau.mpl" with disp="ex"
     uc4.ex <- tCopula(dim=d, df=nu, disp = "ex", df.fixed=FALSE)

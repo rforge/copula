@@ -153,8 +153,8 @@ export(loglikCopula, loglikMvdc)
 export(fitCopula, fitMvdc)
 exportClasses(fittedMV, fitCopula, fitMvdc)
 
-## some parameters can be fixed
-## export(`setFixedAttr<-`)
+## some parameters can be fixed ( ./R/fixedPar.R ) :
+export(fixParam, "fixedParam<-")
 
 
 ## estimation of tail dependence

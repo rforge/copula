@@ -98,7 +98,7 @@ fitCor <- function(cop, x, method = c("itau", "irho"),
 ##' @return Log-likelihood of the given copula at param given the data x
 loglikCopula <- function(param, u, copula) {
     stopifnot((l <- length(param)) == nFree(copula@parameters)) # sanity check
-    setFreeParam(copula) <- param # copula@parameters <- param
+    freeParam(copula) <- param # copula@parameters <- param
     free <- isFree(copula@parameters)
     lower <- copula@param.lowbnd[free]
     if(length(lower) != l) return(-Inf)
@@ -111,7 +111,7 @@ loglikCopula <- function(param, u, copula) {
         sum(dCopula(u, copula=copula, log=TRUE, checkPar=FALSE))
     } else -Inf
     ## stopifnot(length(param) == nFree(copula@parameters))
-    ## setparam <- try(setFreeParam(copula) <- param)
+    ## setparam <- try(freeParam(copula) <- param)
     ## if (inherits(setparam, "try-error")) -Inf ## not admissible 
     ## else sum(dCopula(u, copula=copula, log=TRUE, checkPar=FALSE))
 }
@@ -379,7 +379,7 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
 
     estimate <- as.vector(estimate) # strip attributes
     ## copula@parameters <- estimate
-    setFreeParam(copula) <- estimate
+    freeParam(copula) <- estimate
     var.est <- if (is.na(estimate.variance) || estimate.variance) {
         var.icor(copula, x, method=method)/nrow(x)
     } else matrix(NA_real_, 0, 0)
@@ -539,7 +539,7 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
                  control = control)
 
     ## Check convergence of the fitting procedure
-    setFreeParam(copula) <- fit$par # copula@parameters[1:q] <- fit$par
+    freeParam(copula) <- fit$par # copula@parameters[1:q] <- fit$par
     loglik <- fit$val
     has.conv <- fit[["convergence"]] == 0
     if (is.na(estimate.variance))

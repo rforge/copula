@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-15 (2016-04-04, svn r1301)}{
+\section{Changes in version 0.999-15 (2016-05-18, svn r1370)}{
   \itemize{
     \item \code{C.n(u, X, *)} now has \code{X} as second argument,
     calls \code{pobs(X)} and then \code{F.n(*,*)}; previously,
@@ -37,6 +37,9 @@
     1-dimensional case.
 
     \item new \code{getAname()} useful e.g., in \code{htrafo()}.
+
+    \item Parts of a parameter vector can be kept fixed
+    (\dQuote{known}), see \code{\link{fixedPar}}.
   }
 }
 

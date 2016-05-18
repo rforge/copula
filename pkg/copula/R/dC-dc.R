@@ -271,7 +271,7 @@ dCdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-1), ..
     warning("Function dCdtheta() not implemented for copulas of class '",
             class(copula), "'; numerical differentiation used")
     logC <- function(theta) {
-        setFreeParam(copula) <- theta
+        freeParam(copula) <- theta
         log(pCopula(u, copula))
     }
     theta <- getParam(copula) 
@@ -480,7 +480,7 @@ dlogcdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-5),
     warning("Function dlogcdtheta() not implemented for copulas of class '",
             class(copula), "'; numerical differentiation used")
     logc <- function(theta) {
-        setFreeParam(copula) <- theta
+        freeParam(copula) <- theta
         dCopula(u, copula, log = TRUE)
     }
     theta <- getParam(copula)
