@@ -14,6 +14,11 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
+##' @title A (Pickands dependence) function of a bivariate tevCopula
+##' @param copula a bivariate tevCopula object
+##' @param w points at which A is to be evaluated
+##' @return A(w) for the tevCopula
+##' @author Jun Yan
 ATev <- function(copula, w) {
   rho <- copula@parameters[1]
   ## nu <- getdf(copula) ## defined in tCopula.R
@@ -25,6 +30,10 @@ ATev <- function(copula, w) {
   ifelse(w == 0 | w == 1, 1, A)
 }
 
+##' @title First and second derivatives of A of a bivariate tevCopula
+##' @param copula a bivariate tevCopula object
+##' @param w points at which A is to be evaluated
+##' @return data frame with two coplumns: A'(w) and A''(w)
 dAduTev <- function(copula, w) {
   rho <- copula@parameters[1]
   ## nu <- getdf(copula) ## defined in tCopula.R
@@ -54,19 +63,26 @@ dAduTev <- function(copula, w) {
   data.frame(der1 = der1, der2 = der2)
 }
 
+##' @title Constructor of a bivariate tevCopula
+##' @param param dispersion parameter of the tevCopula
+##' @param df numeric scalar, degrees of freedom
+##' @param df.fixed logical, whether df is fixed
+##' @return a bivariate tevCopula
+##' FIXME: we should allow multivariate tevCopula???
 tevCopula <- function(param = NA_real_, df = 4, df.fixed = FALSE) {
   dim <- 2L
   pdim <- length(param)
-  parameters <- param
-  param.names <- paste("rho", 1:pdim, sep=".")
-  param.lowbnd <- rep(-1, pdim)
-  param.upbnd <- rep(1, pdim)
-  if (!df.fixed) {
-    parameters <- c(parameters, df)
-    param.names <- c(param.names, "df")
-    param.lowbnd <- c(param.lowbnd, 1) ## qt won't work for df < 1
-    param.upbnd <- c(param.upbnd, Inf)
-  }
+  parameters <- c(param, df)
+  param.names <- c(paste("rho", 1:pdim, sep="."), "df")
+  param.lowbnd <- c(rep(-1, pdim), 1e-6)
+  param.upbnd <- c(rep(1, pdim), Inf)
+  ## similar to tCopula
+  attr(parameters, "fixed") <-
+      c(if(is.null(fixed <- attr(param, "fixed"))) ## IK: parameters -> param
+            rep(FALSE, pdim)
+        else fixed,
+        df.fixed)
+
   new("tevCopula",
              dimension = dim,
              parameters = parameters,
@@ -79,6 +95,7 @@ tevCopula <- function(param = NA_real_, df = 4, df.fixed = FALSE) {
                if(df.fixed) paste("df fixed at", df)))
 }
 
+##' @title Evaluation of distribution function of a tevCopula at u
 ptevCopula <- function(u, copula) {
   ## dim <- copula@dimension
   ## for (i in 1:dim) assign(paste0("u", i), u[,i])
@@ -92,6 +109,7 @@ ptevCopula <- function(u, copula) {
   r
 }
 
+##' @title Evaluation of density function of a tevCopula at u
 dtevCopula <- function(u, copula, log=FALSE, ...) {
   ## dim = 2
   u1 <- u[,1]; u2 <- u[,2]
@@ -117,6 +135,8 @@ dtevCopula <- function(u, copula, log=FALSE, ...) {
   if(log) log(pdf) else pdf
 }
 
+##' @title 1st and 2nd derivatives of C wrt to arguments of a bivariate symmetric evCopula
+##' TODO: 
 dCduSymEvCopula <- function(copula, u, ...) {
   mat <- matrix(NA, nrow(u), 2)
   pcop <- pCopula(u, copula)

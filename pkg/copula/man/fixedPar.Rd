@@ -14,6 +14,8 @@ fixedParam(copula) <- value
 \arguments{
   \item{param}{numeric parameter vector}
   \item{fixed}{logical vector of the same length as param: TRUE = fixed}
+  \item{copula}{a copula object}
+  \item{value}{a logical vector to modify the fixedness of the parameters}
 }
 \value{
   A numerical vector with attribute \code{"fixed"} (a
