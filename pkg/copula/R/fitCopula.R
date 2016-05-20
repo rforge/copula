@@ -44,10 +44,7 @@ print.fitCopula <- function(x, digits = max(3, getOption("digits") - 3),
 summary.fitCopula <- function(object, ...) {
     estimate <- object@estimate
     se <- sqrt(diag(object@var.est))
-    #zvalue <- estimate / se # TODO: DELETE ME LATER
-    #pvalue <- 2* pnorm(abs(zvalue), lower.tail=FALSE) # TODO: DELETE ME LATER
-    coef <- cbind(Estimate = estimate, "Std. Error" = se)#,
-                  #"z value" = zvalue, "Pr(>|z|)" = pvalue) # TODO: DELETE ME LATER
+    coef <- cbind(Estimate = estimate, "Std. Error" = se)
     rownames(coef) <- paramNames(object) #[isFree(object@copula@parameters)]
     structure(class = "summary.fitCopula",
               list(method = object@method,
@@ -62,7 +59,8 @@ setMethod("show", signature("fitCopula"),
 
 ### Auxiliary functions ########################################################
 
-##' @title Construct Parameter Matrix from Matrix of Kendall's Taus
+##' @title Construct Parameter Matrix from Matrix of
+##'        Kendall's Taus / Spearman's Rhos
 ##' @param cop Copula object (typically with NA parameters)
 ##' @param x The data in [0,1]^d or IR^d
 ##' @param method The rank correlation measure used
@@ -98,13 +96,13 @@ fitCor <- function(cop, x, method = c("itau", "irho"),
 ##' @return Log-likelihood of the given copula at param given the data x
 loglikCopula <- function(param, u, copula) {
     stopifnot((l <- length(param)) == nFree(copula@parameters)) # sanity check
-    freeParam(copula) <- param # copula@parameters <- param
+    freeParam(copula) <- param
     free <- isFree(copula@parameters)
     lower <- copula@param.lowbnd[free]
     if(length(lower) != l) return(-Inf)
     upper <- copula@param.upbnd[free]
     if(length(upper) != l) return(-Inf)
-    cop.param <- getParam(copula) # copula@parameters
+    cop.param <- getParam(copula)
     admissible <- !(any(is.na(cop.param) | cop.param > upper | cop.param < lower))
     if (admissible) {
         ## FIXME-JY: param range check is only part of validity check
@@ -233,7 +231,6 @@ var.icor <- function(cop, u, method=c("itau", "irho"))
     dCor <- if(method=="itau") "dTau" else "dRho"
     if (!hasMethod(dCor, class(cop))) {
         warning("The variance estimate cannot be computed for a copula of class ", class(cop))
-        ## q <- length(cop@parameters) # unused
         return(matrix(NA_real_, 0, 0))
     }
     dim <- cop@dimension
@@ -347,7 +344,6 @@ var.mpl <- function(cop, u)
 fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"),
                            warn.df=TRUE, posDef=is(copula, "ellipCopula"), ...)
 {
-    ##  stopifnot(any(free <- isFree(copula@parameters))) # moved to after df coercement
     method <- match.arg(method)
     ccl <- getClass(class(copula))
     isEll <- extends(ccl, "ellipCopula")
@@ -358,7 +354,6 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
     }
     stopifnot(any(free <- isFree(copula@parameters)))
     if (.hasSlot(copula, "df")) free <- free[-length(free)]
-    ## q <- length(copula@parameters) # not used
     icor <- fitCor(copula, x, method=method, posDef=posDef, matrix=FALSE, ...)
 
     ## FIXME: Using 'X' & 'lm(X,y)' is computationally very inefficient for large q
@@ -376,7 +371,6 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
     }
 
     estimate <- as.vector(estimate) # strip attributes
-    ## copula@parameters <- estimate
     freeParam(copula) <- estimate
     var.est <- if (is.na(estimate.variance) || estimate.variance) {
         var.icor(copula, x, method=method)/nrow(x)
@@ -441,21 +435,27 @@ fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
     logL <-
         if(traceOpt) { ## for debugging
 	    function(Inu) {
-		r <- loglikCopula(c(P, df=1/Inu), u=u, copula=copula)
+		r <- loglikCopula(c(P, df=1/Inu)[free], u=u, copula=copula) # IK: [free]
 		cat(sprintf("1/nu=%14.9g => nu=%9.4f; logL=%12.8g\n",
 			    Inu, 1/Inu, r))
 		r
 	    }
 	} else
-	    function(Inu) loglikCopula(c(P, df=1/Inu), u=u, copula=copula)
+	    function(Inu) loglikCopula(c(P, df=1/Inu)[free], u=u, copula=copula) # IK: [free]
 
     fit <- optimize(logL, interval=c(lower, upper), tol=tol, maximum = TRUE)
 
     ## Extract the fitted parameters
-    q <- length(copula@parameters) # d*(d-1)/2 + 1 (the last is nu)
-    copula@parameters[seq_len(q-1L)] <- P
-    copula@parameters[[q]] <- copula@df <- df <- 1/fit$maximum
+    copula@df <- df <- 1/fit$maximum # '1/.' because of logL() being in '1/.'-scale
+    estimate <- c(P, df)[free]
+    freeParam(copula) <- estimate
+
+    ## IK: old version before fixed param
+    ## q <- length(copula@parameters) # d*(d-1)/2 + 1 (the last is nu)
+    ## copula@parameters[seq_len(q-1L)] <- P
+    ## copula@parameters[[q]] <- copula@df <- df <- 1/fit$maximum
                                         # '1/.' because of logL() being in '1/.'-scale
+
     loglik <- fit$objective
     has.conv <- TRUE # FIXME? use tryCatch() above to catch non-convergence
 
@@ -470,7 +470,7 @@ fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
 
     ## Return
     new("fitCopula",
-        estimate = c(P, df),
+        estimate = estimate,
         var.est = var.est,
         method = "itau for dispersion matrix P and maximum likelihood for df",
         loglik = loglik,
@@ -513,9 +513,9 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
     if(is.null(start))
         start <- fitCopStart(copula, u=u)
     if(any(is.na(start))) stop("'start' contains NA values")
-    q <- nFree(copula@parameters) # length(copula@parameters)
+    q <- nFree(copula@parameters)
     if (q != length(start))
-        stop(gettextf("The lengths of 'start' (= %d) and copula@parameters (=%d) differ",
+        stop(gettextf("The lengths of 'start' (= %d) and the number of free copula parameters (=%d) differ",
                       length(start), q), domain=NA)
     method <- match.arg(method)
 
@@ -537,7 +537,7 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
                  control = control)
 
     ## Check convergence of the fitting procedure
-    freeParam(copula) <- fit$par # copula@parameters[1:q] <- fit$par
+    freeParam(copula) <- fit$par
     loglik <- fit$val
     has.conv <- fit[["convergence"]] == 0
     if (is.na(estimate.variance))
@@ -549,12 +549,10 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
     ## Estimate the variance of the estimator
     var.est <- switch(method,
     "mpl" = {
-        if(estimate.variance) {
+        if(estimate.variance)
             var.mpl(copula, u) / nrow(u)
-        } else {
-            q <- length(copula@parameters)
-            matrix(NA_real_, q, q)
-        }
+        else
+            matrix(NA_real_, 0, 0) #matrix(NA_real_, q, q)
     },
     "ml" = {
         ## MM{FIXME}: This should be done only by 'vcov()' and summary() !
@@ -566,9 +564,9 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
             vcov <- tryCatch(solve(-fit.last$hessian), error = function(e) e)
             if(is(vcov, "error")) {
                 warning("Hessian matrix not invertible: ", vcov$message)
-                matrix(NA_real_, q, q)
+                matrix(NA_real_, 0, 0) #matrix(NA_real_, q, q)
             } else vcov ## ok
-        } else matrix(NA_real_, q, q)
+        } else matrix(NA_real_, 0, 0) #matrix(NA_real_, q, q)
     },
     stop("Wrong 'method'"))
 

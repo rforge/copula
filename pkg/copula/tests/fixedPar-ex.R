@@ -22,23 +22,30 @@ if (doExtras)
 
 ### TEST FITTING ##########################################################
 
-    n <- 100
+    n <- 1000
     ## with normal copulas
     nc3  <- normalCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, FALSE, FALSE)),
                          dispstr = "un")
     nc3@parameters
 
     set.seed(4521)
-    u <- pobs(rCopula(n, nc3))
+    x <- rCopula(n, nc3)
+    u <- pobs(x)
     fitCopula(nc3, data = u)
+    fitCopula(nc3, data = u, estimate.variance = FALSE)
+    fitCopula(nc3, data = x, method = "ml")
+    fitCopula(nc3, data = x, method = "ml", estimate.variance = FALSE)
     fitCopula(nc3, data = u, method = "itau")
+    fitCopula(nc3, data = u, method = "itau", estimate.variance = FALSE)
     fitCopula(nc3, data = u, method = "irho")
+    fitCopula(nc3, data = u, method = "irho", estimate.variance = FALSE)
 
     nc2  <- normalCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, TRUE, FALSE)),
                          dispstr = "un")
     nc2@parameters
 
     fitCopula(nc2, data = u)
+    fitCopula(nc2, data = x, method = "ml")
     fitCopula(nc2, data = u, method = "itau")
     fitCopula(nc2, data = u, method = "irho")
 
@@ -48,9 +55,16 @@ if (doExtras)
     tc3df@parameters
 
     set.seed(4521)
-    u <- pobs(rCopula(n, tc3df))
+    x <- rCopula(n, tc3df)
+    u <- pobs(x)
     fitCopula(tc3df, data = u)
+    fitCopula(tc3df, data = x, method = "ml")
     fitCopula(tc3df, data = u, method = "itau")
+    fitCopula(tc3df, data = u, estimate.variance = FALSE)
+    fitCopula(tc3df, data = x, method = "ml", estimate.variance = FALSE)
+    fitCopula(tc3df, data = u, method = "itau", estimate.variance = FALSE)
+    fitCopula(tc3df, data = u, method = "itau.mpl")
+
     ## fitCopula(tc3df, data = u, method = "irho")
 
     tc2df  <- tCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, TRUE, FALSE)),
@@ -58,7 +72,9 @@ if (doExtras)
     tc2df@parameters
 
     fitCopula(tc2df, data = u)
+    fitCopula(tc2df, data = x, method = "ml")
     fitCopula(tc2df, data = u, method = "itau")
+    fitCopula(tc2df, data = u, method = "itau.mpl")
     ## fitCopula(tc2df, data = u, method = "irho")
 
     ## with t copulas (df.fixed = TRUE)
