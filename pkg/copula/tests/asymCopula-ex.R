@@ -19,70 +19,108 @@ require(copula)
 
 if(!dev.interactive(orNone=TRUE)) pdf("asymCopula-ex.pdf")
 
-## An asymetric Clayton copula object
-ac <- asymBivCopula(copula1 = indepCopula(),
-                    copula2 = claytonCopula(6),
-                    shapes = c(0.4, 0.95))
-contour(ac, dCopula, nlevels = 20, main = "dCopula(<asymBivCopula>)")
+### some constructions ###########################################################
 
-## true versus numerical derivatives
+## A Khoudraji-Clayton copula
+kc <- khoudrajiCopula(copula2 = claytonCopula(6),
+                      shapes = c(0.4, 0.95))
+kc@parameters
+contour(kc, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
+
+
+## True versus numerical derivatives
 v <- matrix(runif(6), 3, 2)
-max(abs(copula:::dCduCopulaNum(ac, v) - copula:::dCdu(ac, v)))
-max(abs(copula:::dCdthetaCopulaNum(ac, v) - copula:::dCdtheta(ac, v)))
+max(abs(copula:::dCduCopulaNum(kc, v) - copula:::dCdu(kc, v)))
+max(abs(copula:::dCdthetaCopulaNum(kc, v) - copula:::dCdtheta(kc, v)))
 
 ## tau, rho, lambda not supposed to work
-## tau(ac)
-## rho(ac)
-## iTau(ac, 0.5)
-## iRho(ac, 0.5)
-## lambda(ac)
+## tau(kc)
+## rho(kc)
+## iTau(kc, 0.5)
+## iRho(kc, 0.5)
+## lambda(kc)
 
-## fitting example
+## A Khoudraji-Clayton copula with one fixed shape parameter
+kcf <- khoudrajiCopula(copula2 = claytonCopula(6),
+                       shapes = fixParam(c(0.4, 0.95), c(FALSE, TRUE)))
+kcf@parameters
+
+## True versus numerical derivatives
+v <- matrix(runif(6), 3, 2)
+max(abs(copula:::dCduCopulaNum(kcf, v) - copula:::dCdu(kcf, v)))
+max(abs(copula:::dCdthetaCopulaNum(kcf, v) - copula:::dCdtheta(kcf, v)))
+
+## A Khoudraji-normal-Clayton copula
+knc <- khoudrajiCopula(copula1 = normalCopula(-0.7),
+                       copula2 = claytonCopula(6),
+                       shapes = c(0.4, 0.95))
+knc@parameters
+contour(knc, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
+
+## True versus numerical derivatives
+max(abs(copula:::dCduCopulaNum(knc, v) - copula:::dCdu(knc, v)))
+max(abs(copula:::dCdthetaCopulaNum(knc, v) - copula:::dCdtheta(knc, v)))
+
+## A Khoudraji-normal-Clayton copula with fixed params
+kncf <- khoudrajiCopula(copula1 = normalCopula(fixParam(-0.7, TRUE)),
+                        copula2 = claytonCopula(6),
+                        shapes = fixParam(c(0.4, 0.95), c(FALSE, TRUE)))
+kncf@parameters
+
+## True versus numerical derivatives
+max(abs(copula:::dCduCopulaNum(kncf, v) - copula:::dCdu(knc, v)))
+max(abs(copula:::dCdthetaCopulaNum(kncf, v) - copula:::dCdtheta(kncf, v)))
+
+
+## A "nested" Khoudraji bivariate copula
+kgkcf <- khoudrajiCopula(copula1 = gumbelCopula(3),
+                         copula2 = kcf,
+                         shapes = c(0.7, 0.25))
+kgkcf@parameters
+contour(kgkcf, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
+max(abs(copula:::dCduCopulaNum(kncf, v) - copula:::dCdu(knc, v)))
+max(abs(copula:::dCdthetaCopulaNum(kncf, v) - copula:::dCdtheta(kncf, v)))
+
+
+### fitting ###########################################################
 n <- 300
-u <- rCopula(n, ac)
-##plot(u)
+u <- rCopula(n, kc)
+plot(u)
 
 if (doExtras)
 {
 
-    fitCopula(asymBivCopula(copula2 = claytonCopula()),
+    fitCopula(khoudrajiCopula(copula2 = claytonCopula()),
               start = c(1.1, 0.5, 0.5), data = pobs(u),
-              optim.method="Nelder-Mead")
+              optim.method = "Nelder-Mead")
+
+    ## second shape parameter fixed to 1
+    fitCopula(kcf,
+              start = c(1.1, 0.5), data = pobs(u),
+              optim.method = "Nelder-Mead")
+
+    fitCopula(kcf,
+              start = c(1.1, 0.5), data = pobs(u),
+              optim.method = "BFGS")
 
     ## GOF example
+    ## gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS")
+    gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS", sim = "mult")
 
-    ## gofCopula(asymBivCopula(copula2 = claytonCopula()), pobs(u),
-    ##           start = c(1.1, 0.5, 0.5), optim.method="Nelder-Mead")
-
-    gofCopula(asymBivCopula(copula2 = claytonCopula()), pobs(u),
-              start = c(1.1, 0.5, 0.5), optim.method="Nelder-Mead", sim = "mult")
-
-    ## check size of GOF test briefly
+    ## check size of mult GOF test briefly
     ## do1 <- function() {
-    ##     u <- rCopula(n, ac)
-    ##     gofCopula(asymBivCopula(copula2 = claytonCopula()), pobs(u),
-    ##               start = c(1.1, 0.5, 0.5), optim.method="Nelder-Mead",
+    ##     u <- rCopula(n, kc)
+    ##     gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS",
     ##               sim = "mult")$p.value
     ## }
-    ## M <- 100
+    ## M <- 1000
     ## res <- replicate(M, do1())
     ## mean(res < 0.05)
 
     ## under the alternative
     u <- rCopula(n, gumbelCopula(4))
-
-    ## gofCopula(asymBivCopula(copula2 = claytonCopula()), pobs(u),
-    ##          start = c(1.1, 0.5, 0.5), optim.method="Nelder-Mead")
-
-    gofCopula(asymBivCopula(copula2 = claytonCopula()), pobs(u),
-              start = c(1.1, 0.5, 0.5), optim.method="Nelder-Mead", sim = "mult")
-
-    ## a "nested" asymetric bivariate copula
-    agac <- asymBivCopula(copula1 = gumbelCopula(3),
-                          copula2 = ac,
-                          shapes = c(0.4, 0.95))
-
-
+    ## gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS")
+    gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS", sim = "mult")
 }
 
 ## All 'copula' subclasses

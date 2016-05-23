@@ -21,8 +21,8 @@
 \alias{dCopula,matrix,plackettCopula-method}
 \alias{dCopula,matrix,fgmCopula-method}
 \alias{dCopula,matrix,indepCopula-method}
-\alias{dCopula,matrix,asymBivCopula-method}
-\alias{dCopula,matrix,asymExplicitCopula-method}
+\alias{dCopula,matrix,khoudrajiBivCopula-method}
+\alias{dCopula,matrix,khoudrajiExplicitCopula-method}
 \alias{dCopula,matrix,rotCopula-method}
 %\alias{dCopula,matrix,nacopula-method}-> ./dnacopula.Rd
 %
@@ -40,8 +40,8 @@
 \alias{dCopula,numeric,plackettCopula-method}
 \alias{dCopula,numeric,fgmCopula-method}
 \alias{dCopula,numeric,indepCopula-method}
-\alias{dCopula,numeric,asymBivCopula-method}
-\alias{dCopula,numeric,asymExplicitCopula-method}
+\alias{dCopula,numeric,khoudrajiBivCopula-method}
+\alias{dCopula,numeric,khoudrajiExplicitCopula-method}
 \alias{dCopula,numeric,rotCopula-method}
 %\alias{dCopula,numeric,nacopula-method}-> ./dnacopula.Rd
 % pCopula
@@ -59,7 +59,7 @@
 \alias{pCopula,matrix,plackettCopula-method}
 \alias{pCopula,matrix,fgmCopula-method}
 \alias{pCopula,matrix,indepCopula-method}
-\alias{pCopula,matrix,asymCopula-method}
+\alias{pCopula,matrix,khoudrajiCopula-method}
 \alias{pCopula,matrix,rotCopula-method}
 %\alias{pCopula,matrix,nacopula-method}-> ./pnacopula.Rd
 %
@@ -77,7 +77,7 @@
 \alias{pCopula,numeric,plackettCopula-method}
 \alias{pCopula,numeric,fgmCopula-method}
 \alias{pCopula,numeric,indepCopula-method}
-\alias{pCopula,numeric,asymCopula-method}
+\alias{pCopula,numeric,khoudrajiCopula-method}
 \alias{pCopula,numeric,rotCopula-method}
 %\alias{pCopula,numeric,nacopula-method}-> ./pnacopula.Rd
 % rCopula
@@ -94,7 +94,7 @@
 \alias{rCopula,numeric,fgmCopula-method}
 \alias{rCopula,numeric,evCopula-method}
 \alias{rCopula,numeric,indepCopula-method}
-\alias{rCopula,numeric,asymCopula-method}
+\alias{rCopula,numeric,khoudrajiCopula-method}
 \alias{rCopula,numeric,rotCopula-method}
 \alias{rCopula,numeric,nacopula-method}
 % main

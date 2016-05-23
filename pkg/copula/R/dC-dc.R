@@ -111,7 +111,7 @@ dCduExplicitCopula <- function(copula, u, ...) {
 }
 
 
-## This function is used for asymCopula objects
+## This function is used for khoudrajiCopula objects
 dCduIndepCopula <- function(copula, u, ...) {
   dim <- copula@dimension
   mat <- matrix(0, nrow(u), dim)

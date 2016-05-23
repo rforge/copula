@@ -135,8 +135,8 @@ export(fgmCopula)
 export(rotCopula)
 exportClasses(rotCopula)
 
-export(asymBivCopula, asymExplicitCopula)
-exportClasses(asymCopula, asymBivCopula, asymExplicitCopula)
+export(khoudrajiCopula)
+exportClasses(khoudrajiCopula, khoudrajiBivCopula, khoudrajiExplicitCopula)
 
 ## auxiliary functions mainly used for working with elliptical copulas:
 export(p2P, P2p, getSigma, extremePairs)

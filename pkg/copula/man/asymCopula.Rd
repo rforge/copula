@@ -1,43 +1,43 @@
-\name{asymCopula}
-\title{Asymmetric Copula Constructors}
-\alias{asymBivCopula}
-\alias{asymExplicitCopula}
+\name{khoudrajiCopula}
+\title{Construction of copulas using Khoudraji's device}
+\alias{khoudrajiCopula}
 \description{
-  Creates an asymmetric copula, an \R object either of class
-  \code{"\linkS4class{asymBivCopula}"} or class
-  \code{"\linkS4class{asymExplicitCopula}"}.
-  
-  In the bivariate case, constructs
-  an asymmetric bivariate copula from two initial bivariate copulas
-  \eqn{C} and \eqn{D} using the general principle described in Liebscher
-  (2008). The resulting copula is of the form:
-  \deqn{C(u_1^{1 - a_1}, u_2^{1 - a_2}) D(u_1^{a_1}, u_2^{a_2})}{
-    C(u_1^{1 - a_1}, u_2^{1 - a_2}) D(u_1^{a_1}, u_2^{a_2})}
+
+  Creates an object representing a copula constructed using
+  \emph{Khoudraji's device} (Khoudraji, 1995). The resulting \R object
+  is either of class \code{"\linkS4class{khoudrajiBivCopula}"} or class
+  \code{"\linkS4class{khoudrajiExplicitCopula}"}.
+
+  In the bivariate case, given two copulas \eqn{C_1} and \eqn{C_2},
+  Khoudraji's device consists of defining a copula whose c.d.f. is given
+  by:
+
+  \deqn{C_1(u_1^{1 - a_1}, u_2^{1 - a_2}) C_2(u_1^{a_1}, u_2^{a_2})}{
+    C_1(u_1^{1 - a_1}, u_2^{1 - a_2}) C_2(u_1^{a_1}, u_2^{a_2})}
+
   where \eqn{a_1} and \eqn{a_2} are \emph{shape parameters} in [0,1].
 
-  The construction known as \emph{Khoudraji's device} (Khoudraji 1995)
-  is a special case of the aforementioned one. See also Genest et
-  al. (1998).
+  The construction principle (see also Genest et al. 1998) is a special
+  case of that considered in Liebscher (2008).
+
 }
 \usage{
-asymBivCopula     (copula1, copula2, shapes)
-asymExplicitCopula(copula1, copula2, shapes)
+khoudrajiCopula(copula1 = indepCopula(), copula2 = indepCopula(),
+                shapes = c(1,1))
 }
 \arguments{
   \item{copula1, copula2}{each an \code{\linkS4class{copula}}, of the
-    same dimension \eqn{d}, bivariate (\eqn{d = 2}) in the case of
-    \code{asymBivCopula()}.}
+    same dimension \eqn{d}.}
   \item{shapes}{\code{\link{numeric}} vector of length \eqn{d},
-    with values
-    in \eqn{[0,1]}.}
+    with values in \eqn{[0,1]}.}
 }
 %% \details{
 %% }
 %\author{Jun Yan and Ivan Kojadinovic}
 \value{
-  a new \code{"\linkS4class{asymCopula}"} object, an
- \code{"\linkS4class{asymBivCopula}"} or
- \code{"\linkS4class{asymExplicitCopula}"}, respectively.
+  A new object of class \code{"\linkS4class{khoudrajiBivCopula}"} in
+  dimension two or of class
+  \code{"\linkS4class{khoudrajiExplicitCopula}"} when \eqn{d > 2}.
 }
 \references{
   Genest, C., Ghoudi, K., and Rivest, L.-P. (1998), Discussion of
@@ -56,66 +56,56 @@ asymExplicitCopula(copula1, copula2, shapes)
 %% \seealso{
 %% }
 \examples{
-## An asymetric Clayton copula object
-ac2 <- asymBivCopula(copula1 = indepCopula(),
-                     copula2 = claytonCopula(6),
-                     shapes = c(0.4, 0.95))
-ac2 ## FIXME: too long 'fullname'
-contour(ac2, dCopula, nlevels = 20, main = "dCopula(<asymBivCopula>)")
+## A bivariate Khoudraji-Clayton copula
+kc <- khoudrajiCopula(copula2 = claytonCopula(6),
+                      shapes = c(0.4, 0.95))
+kc ## FIXME: too long 'fullname'
+contour(kc, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
 
-ac3 <- asymExplicitCopula(copula1 = claytonCopula(2, dim = 3),
-                          copula2 = claytonCopula(6, dim = 3),
-                          shapes = c(0.2, 0.6, 0.9))
-ac3 ## FIXME: too short 'fullname': does not mention 'claytonCopula'
-U3 <- rCopula(200, ac3)
-pairs2(U3, pch = par("pch"))
+## A Khoudraji-Clayton copula with second shape parameter fixed
+kcf <- khoudrajiCopula(copula2 = claytonCopula(6),
+                       shapes = fixParam(c(0.4, 0.95), c(FALSE, TRUE)))
 
-## An asymetric Clayton copula object
-ac <- asymBivCopula(copula1 = indepCopula(),
-                    copula2 = claytonCopula(6),
-                    shapes = c(0.4, 0.95))
+## A "nested" Khoudraji bivariate copula
+kgkcf <- khoudrajiCopula(copula1 = gumbelCopula(3),
+                         copula2 = kcf,
+                         shapes = c(0.7, 0.25))
+contour(kgkcf, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
 
-## Pseudo-random observations from the copula
-n <- 1000
-u <- rCopula(n, ac)
+n <- 300
+u <- rCopula(n, kc)
 plot(u)
 
 \dontrun{
 ## Fitting can be difficult
-## Starting values for the parameters are required 
-fitCopula(asymBivCopula(copula2 = claytonCopula()),
+## Starting values are required for all parameters
+fitCopula(khoudrajiCopula(copula2 = claytonCopula()),
           start = c(1.1, 0.5, 0.5), data = pobs(u),
-          optim.method="Nelder-Mead")
+          optim.method = "Nelder-Mead")
 
-## Goodness-of-fit testing
-n <- 100
-u <- rCopula(n, ac)
+## Second shape parameter fixed to 1
+fitCopula(kcf,
+          start = c(1.1, 0.5), data = pobs(u),
+          optim.method = "Nelder-Mead")
 
+## With a different optimization method
+fitCopula(kcf,
+          start = c(1.1, 0.5), data = pobs(u),
+          optim.method = "BFGS")
+
+## GOF example
+gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS")
+gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS",
+          sim = "mult")
 ## Warning: Whether the goodness-of-fit tests hold their level
 ## needs to be tested
-gofCopula(asymBivCopula(copula2 = claytonCopula()), pobs(u),
-                        start = c(1.1, 0.5, 0.5),
-                        optim.method="Nelder-Mead")
 
-gofCopula(asymBivCopula(copula2 = claytonCopula()), pobs(u),
-          start = c(1.1, 0.5, 0.5), optim.method="Nelder-Mead",
-          sim = "mult")
-
+## Another example
 u <- rCopula(n, gumbelCopula(4))
-
-gofCopula(asymBivCopula(copula2 = claytonCopula()), pobs(u),
-          start = c(1.1, 0.5, 0.5), optim.method="Nelder-Mead")
-
-gofCopula(asymBivCopula(copula2 = claytonCopula()), pobs(u),
-          start = c(1.1, 0.5, 0.5), optim.method="Nelder-Mead",
+gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS")
+gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS",
           sim = "mult")
-} 
-
-## A "nested" asymetric copula object
-agac <- asymBivCopula(copula1 = gumbelCopula(3),
-                      copula2 = ac,
-                      shapes = c(0.4, 0.95))
-
+}
 }
 \keyword{distribution}
 \keyword{multivariate}

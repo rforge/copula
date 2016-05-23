@@ -1,18 +1,21 @@
 
 ## Look at all non-virtual classes:
-copClasses <- function(notYet = "schlatherCopula") {
+copClasses <- function(notYet = c("schlatherCopula", "khoudrajiBivCopula",
+                                  "khoudrajiExplicitCopula")) { ## IK
     stopifnot(require("copula"))
     copcl <- unique(names(getClass("copula")@subclasses))
     isVirt <- vapply(copcl, isVirtualClass, NA)
     copcl <- copcl[!isVirt]
-    copcl[notYet != copcl]
+    copcl[-match(notYet, copcl)] #copcl[notYet != copcl]
 }
 copcl <- copClasses()
 
 ## TODO: Generalize to allow 'dim = 3'
 ## ----  ==> take only those which have a 'dim' argument
 ##' generates a list of copulas (dim = 2) from their class names
-copObjs <- function(cl, first.arg = c("dim", "param"), exclude = "indepCopula",
+copObjs <- function(cl, first.arg = c("dim", "param"),
+                    exclude = c("indepCopula","khoudrajiBivCopula",
+                                "khoudrajiExplicitCopula"), ## IK
                     envir = asNamespace("copula"))
 {
     copF <- sapply(cl, get, envir=envir)

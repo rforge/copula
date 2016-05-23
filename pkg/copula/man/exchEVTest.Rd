@@ -68,11 +68,11 @@ exchEVTest(x, N = 1000,  estimator = c("CFG", "Pickands"),
 exchEVTest(rCopula(200,  gumbelCopula(3)))
 \donttest{exchEVTest(rCopula(200, claytonCopula(3)))}
 
-## An asymmetric Gumbel-Hougaard copula
-ac <- asymBivCopula(copula1 = indepCopula(),
-                     copula2 = gumbelCopula(4),
-                     shapes = c(0.4, 0.95))
-exchEVTest(rCopula(200, ac))
+## An asymmetric Khoudraji-Gumbel-Hougaard copula
+kc <- khoudrajiCopula(copula1 = indepCopula(),
+                      copula2 = gumbelCopula(4),
+                      shapes = c(0.4, 0.95))
+exchEVTest(rCopula(200, kc))
 }
 \keyword{htest}
 \keyword{multivariate}

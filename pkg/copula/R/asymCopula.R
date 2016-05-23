@@ -14,12 +14,12 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 ##################################################################################
-### Asymmetric bivariate copulas of the form C(u^(1-a)) * D(u^a)
-### as in Liebscher (2008, JMVA) of which Khoudraji's device is a special case
+### Potentially asymmetric d-dimensional copulas of the form C(u^{1-a}) * D(u^a)
+### This construction is known as Khoudraji's device
+### VIRTUAL class for the moment
 ##################################################################################
 
-## Asymmetric copula class constructed from two d-dimensional copulas
-setClass("asymCopula", contains = c("copula", "VIRTUAL"),
+setClass("khoudrajiCopula", contains = c("copula", "VIRTUAL"),
 	 slots = c(
              copula1 = "copula",
              copula2 = "copula"
@@ -31,80 +31,141 @@ setClass("asymCopula", contains = c("copula", "VIRTUAL"),
 })
 
 ##################################################################################
-### Asymmetric bivariate copulas of the form
-### C(u_1^{1-a_1}, u_2^{1-a_2}) * D(u_1^a_1, u_2^a_1)
+### Bivariate Khoudraji copulas
+### Can be constructed from any bivariate copula for which dCdu is implemented
+### IK: Note that if dCdu is not implemented than numerical differentiation will
+### be used and a warning issued; we might not want that; issue an error instead?
 ##################################################################################
 
-## Bivariate asymmetric copula class
-setClass("asymBivCopula", contains = "asymCopula", ## -> calls *ITS* validity (eq. dim)
+setClass("khoudrajiBivCopula", contains = "khoudrajiCopula",
 	 validity = function(object) {
              if(object@copula1@dimension != 2)
-                 "The asymBivCopula constituents must have dimension two"
+                 "The argument copulas must have dimension two"
 	     else TRUE
 })
+
+################################################################################
+### Khoudraji *explicit* copulas
+### Explicit refers to the fact that the two d-dimensional copulas
+### have explicit cdfs and pdfs
+################################################################################
+
+setClass("khoudrajiExplicitCopula", contains = "khoudrajiCopula",
+	 slots = c(
+             exprdist = "expression",
+             derExprs1 = "expression",
+             derExprs2 = "expression"
+         )
+         ## validity = function(object) {
+         ##     ## TODO: check exprdist, derExprs[12]
+         ## },
+         )
+
+##################################################################################
+### Generators for Khoudraji copulas
+##################################################################################
 
 ## C(u_1^{1-a_1}, u_2^{1-a_2}) * D(u_1^a_1, u_2^a_1) = C(g(u, 1-a)) * D(g(u, a)
 g <- function(u, a) u^a
 ig <- function(u, a) u^(1 / a) # inverse
 dgdu <- function(u, a) a * u^(a - 1) # derivative wrt u
 
-##' Creates an asymBivCopula object
+##################################################################################
+### Constructor of Khoudraji copulas
+##################################################################################
+
+##' Creates a khoudrajiBivCopula object or a khoudrajiExplicitCopula object
 ##'
-##' @title Asymmetric bivariate copula constructor
-##' @param copula1
-##' @param copula2 each a bivariate exchangeable \code{\linkS4class{copula}}
-##' @param shapes a numeric with two elements in [0,1]
-##' @return a new "asymBivCopula" object; see above
+##' @title Creates a khoudrajiBivCopula object
+##'        or a khoudrajiExplicitCopula object
+##' @param copula a bivariate copula or a copula with explicit pdf and cdf
+##' @param copula2 a bivariate copula or a copula with explicit pdf and cdf
+##' @param shapes a numeric of length dim(copula) with elements in [0,1]
+##' @return a new khoudrajiBivCopula object
+##'         or new a khoudrajiExplicitCopula object
 ##' @author Jun Yan and Ivan Kojadinovic
-asymBivCopula <- function(copula1 = indepCopula(),
-                          copula2 = indepCopula(),
-                          shapes = c(1,1)) {
-  new("asymBivCopula",
-      dimension = copula1@dimension,
-      parameters = c(copula1@parameters, copula2@parameters, shapes),
-      param.names = c(if (length(copula1@parameters) > 0)
-                      paste0("C1.",copula1@param.names) else character(0),
-                      if (length(copula2@parameters) > 0)
-                      paste0("C2.",copula2@param.names) else character(0),
-                      "shape1", "shape2"),
-      param.lowbnd = c(copula1@param.lowbnd, copula2@param.lowbnd, 0, 0),
-      param.upbnd = c(copula1@param.upbnd, copula2@param.upbnd, 1, 1),
-      copula1 = copula1,
-      copula2 = copula2,
-      fullname = paste("Asymmetric bivariate copula constructed from: [",
-                       copula1@fullname, "] and: [", copula2@fullname, "]"))
+khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
+                            shapes = c(1,1)) {
+
+    ## checks
+    stopifnot(is.numeric(shapes) && all(shapes >= 0) && all(shapes <= 1)
+              && (d <- dim(copula1)) == length(shapes))
+
+    ## deal with possibly fixed attributes
+    parameters <- c(copula1@parameters, copula2@parameters, shapes)
+    attr(parameters, "fixed") <- c(fixed(copula1@parameters), fixed(copula2@parameters),
+                                   fixed(shapes))
+
+    if (d == 2)
+        new("khoudrajiBivCopula",
+            dimension = copula1@dimension,
+            parameters = parameters,
+            param.names = c(if (length(copula1@parameters) > 0)
+                                paste0("c1.", copula1@param.names) else character(0),
+                            if (length(copula2@parameters) > 0)
+                                paste0("c2.", copula2@param.names) else character(0),
+                            "shape1", "shape2"),
+            param.lowbnd = c(copula1@param.lowbnd, copula2@param.lowbnd, 0, 0),
+            param.upbnd = c(copula1@param.upbnd, copula2@param.upbnd, 1, 1),
+            copula1 = copula1,
+            copula2 = copula2,
+            fullname = paste("Khoudraji bivariate copula constructed from: [",
+                             copula1@fullname, "] and: [", copula2@fullname, "]"))
+    else
+        koudrajiExplicitCopula(copula1, copula2, shapes)
+
 }
 
-## Returns shapes, copula1 and copula2 from an asymCopula object
+##################################################################################
+### Utility function for Khoudraji copulas
+##################################################################################
+
+## Returns shapes, copula1 and copula2 from a khoudrajiCopulaobject
 ## Not restricted to bivariate asymmetric copulas
-getAsymCopulaComps <- function(object) {
-    p1 <- length(object@copula1@parameters)
-    p2 <- length(object@copula2@parameters)
-    d <- object@dimension
-    shapes <- object@parameters[(p1 + p2) + 1:d]
+getKhoudrajiCopulaComps <- function(object) {
     copula1 <- object@copula1
     copula2 <- object@copula2
-    if (p1 > 0) slot(copula1, "parameters") <- object@parameters[1:p1]
-    if (p2 > 0) slot(copula2, "parameters") <- object@parameters[p1 + 1:p2]
-    list(shapes = shapes, copula1 = copula1, copula2 = copula2)
+    p1 <- length(copula1@parameters)
+    p2 <- length(copula2@parameters)
+    d <- object@dimension
+    fixed <- attr(object@parameters, "fixed")
+    shapes <- object@parameters[(p1 + p2) + 1:d]
+    attr(shapes, "fixed") <- fixed[(p1 + p2) + 1:d]
+    if (p1 > 0) {
+        copula1@parameters <- object@parameters[1:p1]
+        attr(copula1@parameters, "fixed") <- fixed[1:p1]
+    }
+    if (p2 > 0) {
+        copula2@parameters <- object@parameters[p1 + 1:p2]
+        attr(copula2@parameters, "fixed") <- fixed[p1 + 1:p2]
+    }
+    list(copula1 = copula1, copula2 = copula2, shapes = shapes)
 }
 
-## pCopula: Not restricted to *bivariate* asymmetric copulas
-pAsymCopula <- function(u, copula) {
+
+##################################################################################
+### Methods for Khoudraji copulas
+##################################################################################
+
+## pCopula: Not restricted to *bivariate* Khoudraji copulas
+pKhoudrajiCopula <- function(u, copula) {
     tu <- t(rbind(u, deparse.level=0L))
-    comps <- getAsymCopulaComps(copula)
+    comps <- getKhoudrajiCopulaComps(copula)
     p1 <- pCopula(t(tu^(1 - comps$shapes)), comps$copula1)
     p2 <- pCopula(t(tu^comps$shapes), comps$copula2)
     p1 * p2
 }
 
-## rCopula: Not restricted to *bivariate* asymmetric copulas
-rAsymCopula <- function(n, copula) {
-    comps <- getAsymCopulaComps(copula)
+setMethod("pCopula", signature("numeric", "khoudrajiCopula"),pKhoudrajiCopula)
+setMethod("pCopula", signature("matrix", "khoudrajiCopula"), pKhoudrajiCopula)
+
+## rCopula: Not restricted to *bivariate* Khoudraji copulas
+setMethod("rCopula", signature("numeric", "khoudrajiCopula"),
+          function(n, copula) {
+    comps <- getKhoudrajiCopulaComps(copula)
     copula1 <- comps$copula1
     copula2 <- comps$copula2
     shapes <- comps$shapes
-    ## Theorem 2.1, Lemma 2.1, Liebscher (2008, JMVA)
     u <- rCopula(n, copula1)
     v <- rCopula(n, copula2)
     d <- copula@dimension
@@ -113,11 +174,11 @@ rAsymCopula <- function(n, copula) {
         x[,i] <- pmax(ig(u[,i], 1 - shapes[i]), ig(v[,i], shapes[i]))
     }
     x
-}
+})
 
-## dCopula: Restricted to *bivariate* asymmetric copulas
-dAsymBivCopula <- function(u, copula, log=FALSE, ...) {
-    comps <- getAsymCopulaComps(copula)
+## dCopula: Restricted to *bivariate*  copulas
+dKhoudrajiBivCopula <- function(u, copula, log = FALSE, ...) {
+    comps <- getKhoudrajiCopulaComps(copula)
     a1 <- comps$shapes[1]
     a2 <- comps$shapes[2]
     copula1 <- comps$copula1
@@ -139,10 +200,13 @@ dAsymBivCopula <- function(u, copula, log=FALSE, ...) {
     else    part1 + part2 + part3 + part4
 }
 
+setMethod("dCopula", signature("numeric", "khoudrajiBivCopula"), dKhoudrajiBivCopula)
+setMethod("dCopula", signature("matrix", "khoudrajiBivCopula"), dKhoudrajiBivCopula)
+
 ## A: Pickands dependence function if copula1 and copula2 are extreme-value
-## Restricted to *bivariate* asymmetric copulas
-AAsymCopula <- function(copula, w) {
-    comps <- getAsymCopulaComps(copula)
+## Restricted to *bivariate* Khoudraji copulas
+setMethod("A", signature("khoudrajiBivCopula"), function(copula, w) {
+    comps <- getKhoudrajiCopulaComps(copula)
     copula1 <- comps$copula1
     copula2 <- comps$copula2
     ## assuming copula1 and copula2 are both evCopula
@@ -153,11 +217,12 @@ AAsymCopula <- function(copula, w) {
     t1 <- (1 - a2) * w / den1; t1 <- ifelse(is.na(t1), 1, t1)
     t2 <- a2 * w / den2; t2 <- ifelse(is.na(t2), 1, t2)
     den1 * A(copula1, t1) + den2 * A(copula2, t2)
-}
+})
 
-## dCdu: Restricted to *bivariate* asymmetric copulas
-dCduAsymBivCopula <- function(copula, u, ...) {
-    comps <- getAsymCopulaComps(copula)
+## dCdu: Restricted to *bivariate* Khoudraji copulas
+setMethod("dCdu", signature("khoudrajiBivCopula"),
+          function(copula, u, ...) {
+    comps <- getKhoudrajiCopulaComps(copula)
     a1 <- comps$shapes[1]
     a2 <- comps$shapes[2]
     copula1 <- comps$copula1
@@ -172,81 +237,46 @@ dCduAsymBivCopula <- function(copula, u, ...) {
           pC1gu1 * dgdu(u[,1], a1) * dC2du[,1],
           dgdu(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
           pC1gu1 * dgdu(u[,2], a2) * dC2du[,2])
-}
+})
 
-## dCdtheta: Restricted to *bivariate* asymmetric copulas
-dCdthetaAsymBivCopula <- function(copula, u, ...) {
-    comps <- getAsymCopulaComps(copula)
+## dCdtheta: Restricted to *bivariate* Khoudraji copulas
+setMethod("dCdtheta", signature("khoudrajiBivCopula"),
+          function(copula, u, ...) {
+    comps <- getKhoudrajiCopulaComps(copula)
     a1 <- comps$shapes[1]
     a2 <- comps$shapes[2]
     copula1 <- comps$copula1
     copula2 <- comps$copula2
+    shapes <- comps$shapes
     gu1 <- cbind(g(u[,1], 1 - a1), g(u[,2], 1 - a2))
     gu2 <- cbind(g(u[,1], a1), g(u[,2], a2))
     dC1du <- dCdu(copula1, gu1)
     dC2du <- dCdu(copula2, gu2)
     pC1gu1 <- pCopula(gu1, copula1)
     pC2gu2 <- pCopula(gu2, copula2)
+    cbind(if (nFree(copula1@parameters) > 0) dCdtheta(copula1, gu1) * pC2gu2 else NULL,
+          if (nFree(copula2@parameters) > 0) pC1gu1 * dCdtheta(copula2, gu2) else NULL,
+          if (isFree(shapes)[1]) -log(u[,1]) * g(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 +
+          pC1gu1 * log(u[,1]) * g(u[,1], a1) * dC2du[,1] else NULL,
+          if (isFree(shapes)[2]) -log(u[,2]) * g(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
+          pC1gu1 * log(u[,2]) * g(u[,2], a2) * dC2du[,2] else NULL)
+})
 
-    if (length(copula1@parameters) > 0 && length(copula1@parameters) > 0)
-        cbind(dCdtheta(copula1, gu1) * pC2gu2,
-              pC1gu1 * dCdtheta(copula2, gu2),
-              -log(u[,1]) * g(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 +
-               pC1gu1 * log(u[,1]) * g(u[,1], a1) * dC2du[,1],
-              -log(u[,2]) * g(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
-               pC1gu1 * log(u[,2]) * g(u[,2], a2) * dC2du[,2])
-    else if (length(copula1@parameters) == 0)
-        cbind(pC1gu1 * dCdtheta(copula2, gu2),
-              -log(u[,1]) * g(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 +
-               pC1gu1 * log(u[,1]) * g(u[,1], a1) * dC2du[,1],
-              -log(u[,2]) * g(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
-               pC1gu1 * log(u[,2]) * g(u[,2], a2) * dC2du[,2])
-    else cbind(-log(u[,1]) * g(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 +
-               pC1gu1 * log(u[,1]) * g(u[,1], a1) * dC2du[,1],
-              -log(u[,2]) * g(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
-               pC1gu1 * log(u[,2]) * g(u[,2], a2) * dC2du[,2])
-}
-
-setMethod("A", signature("asymBivCopula"), AAsymCopula)
-
-setMethod("rCopula", signature("numeric", "asymCopula"), rAsymCopula)
-
-setMethod("pCopula", signature("numeric", "asymCopula"),pAsymCopula)
-setMethod("pCopula", signature("matrix", "asymCopula"), pAsymCopula)
-
-setMethod("dCopula", signature("numeric", "asymBivCopula"), dAsymBivCopula)
-setMethod("dCopula", signature("matrix", "asymBivCopula"), dAsymBivCopula)
-
-setMethod("dCdu", signature("asymBivCopula"), dCduAsymBivCopula)
-setMethod("dCdtheta", signature("asymBivCopula"), dCdthetaAsymBivCopula)
+##################################################################################
+### Below is for explicit Khoudraji copulas
+### TODO JY: finish me please
+##################################################################################
 
 
-################################################################################
-### Asymmetric *explicit* copulas
-### Explicit refers to the fact that the two d-dimensional copulas
-### have explicit cdfs and pdfs
-################################################################################
-
-setClass("asymExplicitCopula", contains = "asymCopula",
-	 slots = c(
-             exprdist = "expression",
-             derExprs1 = "expression",
-             derExprs2 = "expression"
-         )
-         ## validity = function(object) {
-         ##     ## TODO: check exprdist, derExprs[12]
-         ## },
-         )
-
-##' Creates an asymExplicitCopula object
+##' Creates an khoudrajiExplicitCopula object (NOT EXPORTED)
 ##'
-##' @title Asymmetric explicit copula constructor
+##' @title Khoudraji explicit copula constructor
 ##' @param copula1 a d-dimensional copula
 ##' @param copula2 a d-dimensional copula
 ##' @param shapes a numeric with elements in [0,1]
-##' @return a new "asymExplicitCopula" object; see above
+##' @return a new "khoudrajiExplicitCopula" object; see above
 ##' @author Jun Yan and Ivan Kojadinovic
-asymExplicitCopula <- function(copula1, copula2, shapes) {
+koudrajiExplicitCopula <- function(copula1, copula2, shapes) {
     stopifnot(copula2@dimension == (d <- copula1@dimension),
               length(shapes) == d)
     ## check if have 'exprdist' slots [otherwise "bad" error msg below]:
@@ -307,7 +337,7 @@ asymExplicitCopula <- function(copula1, copula2, shapes) {
     derExprs1 <- derExprs(F1, d)
     derExprs2 <- derExprs(F2, d)
     shapes.names <- paste0("shape", 1:d)
-    new("asymExplicitCopula",
+    new("khoudrajiExplicitCopula",
         dimension = d,
         parameters = c(copula1@parameters, copula2@parameters, shapes),
         param.names = c(copula1@param.names, copula2@param.names, shapes.names),
@@ -317,7 +347,7 @@ asymExplicitCopula <- function(copula1, copula2, shapes) {
         copula2 = copula2,
         exprdist = c(cdf=cdf, pdf=pdf),
         derExprs1 = derExprs1, derExprs2 = derExprs2,
-        fullname = "Asymmetric Explicit Copula")
+        fullname = "Khoudraji Explicit Copula")
 }
 
 getPowerSet <- function(d) {
@@ -337,9 +367,9 @@ densDers <- function(idx, u, dg, copula, derExprs) {
     c(eval(derExprs[dorder + 1])) * dgu
 }
 
-dAsymExplicitCopula <- function(u, copula, log=FALSE, ...) {
+dKhoudrajiExplicitCopula <- function(u, copula, log=FALSE, ...) {
     u <- as.matrix(u)
-    comps <- getAsymCopulaComps(copula)
+    comps <- getKhoudrajiCopulaComps(copula)
     a <- comps$shapes
     tu <- t(u)
     u1 <- t(tu^(1 - a))
@@ -360,5 +390,5 @@ dAsymExplicitCopula <- function(u, copula, log=FALSE, ...) {
     if(log) log(dens) else dens
 }
 
-setMethod("dCopula", signature("numeric", "asymExplicitCopula"), dAsymExplicitCopula)
-setMethod("dCopula", signature("matrix", "asymExplicitCopula"), dAsymExplicitCopula)
+setMethod("dCopula", signature("numeric", "khoudrajiExplicitCopula"), dKhoudrajiExplicitCopula)
+setMethod("dCopula", signature("matrix", "khoudrajiExplicitCopula"), dKhoudrajiExplicitCopula)

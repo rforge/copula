@@ -57,11 +57,11 @@ exchTest(x, N = 1000, m = 0)
 exchTest(rCopula(200,  gumbelCopula(3)))
 \donttest{exchTest(rCopula(200, claytonCopula(3)))}
 
-## An asymmetric Clayton copula
-ac <- asymBivCopula(copula1 = indepCopula(),
-                     copula2 = claytonCopula(6),
-                     shapes = c(0.4, 0.95))
-exchTest(rCopula(200, ac))
+## An asymmetric Khoudraji-Clayton copula
+kc <- khoudrajiCopula(copula1 = indepCopula(),
+                      copula2 = claytonCopula(6),
+                      shapes = c(0.4, 0.95))
+exchTest(rCopula(200, kc))
 }
 \keyword{htest}
 \keyword{multivariate}

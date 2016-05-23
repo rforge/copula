@@ -27,7 +27,7 @@ print.fitCopula <- function(x, digits = max(3, getOption("digits") - 3),
     printCoefmat(sfit$coefficients, digits = digits, signif.stars = signif.stars,
 		 na.print = "NA", ...)
     if (!is.na(sfit$loglik))
-	cat("The maximized loglikelihood is ", format(sfit$loglik, digits=digits), "\n")
+	cat("The maximized loglikelihood is", format(sfit$loglik, digits=digits), "\n")
     if (!is.na(sfit$convergence)) {
 	if(sfit$convergence)
             cat("Convergence problems: code is", sfit$convergence, "see ?optim.\n")
@@ -45,7 +45,7 @@ summary.fitCopula <- function(object, ...) {
     estimate <- object@estimate
     se <- sqrt(diag(object@var.est))
     coef <- cbind(Estimate = estimate, "Std. Error" = se)
-    rownames(coef) <- paramNames(object) #[isFree(object@copula@parameters)]
+    rownames(coef) <- paramNames(object)
     structure(class = "summary.fitCopula",
               list(method = object@method,
                    loglik = object@loglik,
