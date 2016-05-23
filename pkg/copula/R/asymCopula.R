@@ -93,8 +93,9 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
 
     ## deal with possibly fixed attributes
     parameters <- c(copula1@parameters, copula2@parameters, shapes)
-    attr(parameters, "fixed") <- c(fixed(copula1@parameters), fixed(copula2@parameters),
-                                   fixed(shapes))
+    attr(parameters, "fixed") <- c(fixedAttr(copula1@parameters),
+                                   fixedAttr(copula2@parameters),
+                                   fixedAttr(shapes))
 
     if (d == 2)
         new("khoudrajiBivCopula",

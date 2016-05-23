@@ -31,16 +31,16 @@ fixParam <- function(param, fixed = TRUE) {
 ##' @author Jun Yan
 isFree <- function(param) {
     fixed <- attr(param, "fixed")
-    if(is.null(fixed)) rep(TRUE, length(param)) else !fixed
+    if (is.null(fixed)) rep(TRUE, length(param)) else !fixed
 }
 
 ##' @title Return the attribute "fixed" even if it does not explicitly exist
 ##' @param param Numeric parameter vector, possibly with "fixed" attribute
 ##' @return A vector of logicals, FALSE = fixed
 ##' @author Ivan Kojadinovic
-fixed <- function(param) {
+fixedAttr <- function(param) {
     fixed <- attr(param, "fixed")
-    if(is.null(fixed)) rep(FALSE, length(param)) else fixed
+    if (is.null(fixed)) rep(FALSE, length(param)) else fixed
 }
 
 ##' @title Whether or not the copula has "fixed" attr in parameters
