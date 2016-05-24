@@ -83,7 +83,7 @@ max(abs(copula:::dCdthetaCopulaNum(kgkcf, v) - copula:::dCdtheta(kgkcf, v)))
 
 
 ### fitting ###########################################################
-n <- 100
+n <- 300
 u <- rCopula(n, kc)
 plot(u)
 

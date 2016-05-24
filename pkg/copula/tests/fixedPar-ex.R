@@ -22,7 +22,7 @@ if (doExtras)
 
 ### TEST FITTING ##########################################################
 
-    n <- 1000
+    n <- 100
     ## with normal copulas
     nc3  <- normalCopula(dim = 3, c(.6,.3,.2), dispstr = "un")
     nc3@parameters
