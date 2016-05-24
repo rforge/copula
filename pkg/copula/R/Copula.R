@@ -20,9 +20,16 @@ print.copula <- function(x, digits = getOption("digits"), ...) {
   cat(x@fullname, "\n")
   cat("Dimension: ", x@dimension, "\n")
   if (length(par <- x@parameters) > 0) {
-    cat("Parameters:\n")
+    hasFx <- !is.null(.fixed <- attr(par, "fixed")) && any(.fixed)
+    cat(sprintf("Parameters%s:\n",
+		if(hasFx) " (partly fixed, see ':==')" else ""))
+    ## FIXME:  for the d=400  ellipsCopula with dispstr = "un": do *not* print all!
+    pnms <- format(x@param.names) # padding
+    pars <- format(par, digits=digits)
     for (i in seq_along(par))
-      cat("  ", x@param.names[i], " = ", format(par[i], digits=digits), "\n")
+      cat(sprintf("  %s %3s %s\n",
+		  pnms[i], if(hasFx && .fixed[i]) ":==" else " = ",
+		  pars[i]))
   }
   invisible(x)
 }
