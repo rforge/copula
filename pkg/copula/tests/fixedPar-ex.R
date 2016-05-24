@@ -24,13 +24,12 @@ if (doExtras)
 
     n <- 1000
     ## with normal copulas
-    nc3  <- normalCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, FALSE, FALSE)),
-                         dispstr = "un")
+    nc3  <- normalCopula(dim = 3, c(.6,.3,.2), dispstr = "un")
     nc3@parameters
-
     set.seed(4521)
     x <- rCopula(n, nc3)
     u <- pobs(x)
+
     fitCopula(nc3, data = u)
     fitCopula(nc3, data = u, estimate.variance = FALSE)
     fitCopula(nc3, data = x, method = "ml")
@@ -40,20 +39,31 @@ if (doExtras)
     fitCopula(nc3, data = u, method = "irho")
     fitCopula(nc3, data = u, method = "irho", estimate.variance = FALSE)
 
-    nc2  <- normalCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, TRUE, FALSE)),
+    nc2  <- normalCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, FALSE, FALSE)),
                          dispstr = "un")
     nc2@parameters
 
     fitCopula(nc2, data = u)
+    fitCopula(nc2, data = u, estimate.variance = FALSE)
     fitCopula(nc2, data = x, method = "ml")
+    fitCopula(nc2, data = x, method = "ml", estimate.variance = FALSE)
     fitCopula(nc2, data = u, method = "itau")
+    fitCopula(nc2, data = u, method = "itau", estimate.variance = FALSE)
     fitCopula(nc2, data = u, method = "irho")
+    fitCopula(nc2, data = u, method = "irho", estimate.variance = FALSE)
+
+    nc1  <- normalCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, TRUE, FALSE)),
+                         dispstr = "un")
+    nc1@parameters
+
+    fitCopula(nc1, data = u)
+    fitCopula(nc1, data = x, method = "ml")
+    fitCopula(nc1, data = u, method = "itau")
+    fitCopula(nc1, data = u, method = "irho")
 
     ## with t copulas (df.fixed = FALSE)
-    tc3df  <- tCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, FALSE, FALSE)),
-                    dispstr = "un")
+    tc3df  <- tCopula(dim = 3, c(.6,.3,.2), dispstr = "un")
     tc3df@parameters
-
     set.seed(4521)
     x <- rCopula(n, tc3df)
     u <- pobs(x)
@@ -65,34 +75,47 @@ if (doExtras)
     fitCopula(tc3df, data = u, method = "itau", estimate.variance = FALSE)
     fitCopula(tc3df, data = u, method = "itau.mpl")
 
-    ## fitCopula(tc3df, data = u, method = "irho")
-
-    tc2df  <- tCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, TRUE, FALSE)),
+    tc2df  <- tCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, FALSE, FALSE)),
                     dispstr = "un")
     tc2df@parameters
+
 
     fitCopula(tc2df, data = u)
     fitCopula(tc2df, data = x, method = "ml")
     fitCopula(tc2df, data = u, method = "itau")
+    fitCopula(tc2df, data = u, estimate.variance = FALSE)
+    fitCopula(tc2df, data = x, method = "ml", estimate.variance = FALSE)
+    fitCopula(tc2df, data = u, method = "itau", estimate.variance = FALSE)
     fitCopula(tc2df, data = u, method = "itau.mpl")
+
     ## fitCopula(tc2df, data = u, method = "irho")
 
+    tc1df  <- tCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, TRUE, FALSE)),
+                    dispstr = "un")
+    tc1df@parameters
+
+    fitCopula(tc1df, data = u)
+    fitCopula(tc1df, data = x, method = "ml")
+    fitCopula(tc1df, data = u, method = "itau")
+    fitCopula(tc1df, data = u, method = "itau.mpl")
+    ## fitCopula(tc1df, data = u, method = "irho")
+
     ## with t copulas (df.fixed = TRUE)
-    tc3  <- tCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, FALSE, FALSE)),
-                    dispstr = "un", df.fixed = TRUE)
-    tc3@parameters
-
-    fitCopula(tc3, data = u)
-    fitCopula(tc3, data = u, method = "itau")
-    ## fitCopula(tc3, data = u, method = "irho")
-
-    tc2  <- tCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, TRUE, FALSE)),
+    tc2  <- tCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, FALSE, FALSE)),
                     dispstr = "un", df.fixed = TRUE)
     tc2@parameters
 
     fitCopula(tc2, data = u)
     fitCopula(tc2, data = u, method = "itau")
-    ##fitCopula(tc2, data = u, method = "irho")
+    ## fitCopula(tc2, data = u, method = "irho")
+
+    tc1  <- tCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, TRUE, FALSE)),
+                    dispstr = "un", df.fixed = TRUE)
+    tc1@parameters
+
+    fitCopula(tc1, data = u)
+    fitCopula(tc1, data = u, method = "itau")
+    ##fitCopula(tc1, data = u, method = "irho")
 
 ### TEST dC-dc functions #####################################################
 
@@ -115,14 +138,13 @@ if (doExtras)
 
 
     ## normal
-    nc.unfixed  <- normalCopula(dim = 3, c(.6,.3,.2), dispstr = "un")
-    testdCdc(nc3, v, nc.unfixed)
-    testdCdc(nc2, v, nc.unfixed)
+    testdCdc(nc2, v, nc3)
+    testdCdc(nc1, v, nc3)
 
     ## t with df.fixed = TRUE
-    tc.unfixed  <- tCopula(dim = 3, c(.6,.3,.2), dispstr = "un", df.fixed = TRUE)
-    testdCdc(tc3, v, tc.unfixed)
-    testdCdc(tc2, v, tc.unfixed)
+    tc3  <- tCopula(dim = 3, c(.6,.3,.2), dispstr = "un", df.fixed = TRUE)
+    testdCdc(tc2, v, tc3)
+    testdCdc(tc1, v, tc3)
 
     ## Compare true and numerical derivatives
     comparederiv <- function(cop, u) {
@@ -136,10 +158,10 @@ if (doExtras)
           dlogcdtheta = max(abs(copula:::dlogcdtheta(cop, u) -
                                 copula:::dlogcdthetaCopulaNum(cop, u))))
     }
-    comparederiv(nc3, v)
     comparederiv(nc2, v)
-    comparederiv(tc3, v)
+    comparederiv(nc1, v)
     comparederiv(tc2, v)
+    comparederiv(tc1, v)
 
 ### Multiplier GOF #####################################################
 
@@ -148,12 +170,13 @@ if (doExtras)
         u <- pobs(rCopula(n, cop))
         gofCopula(cop, pobs(u), sim = "mult")$p.value
     }
+    n <- 100
     M <- 10 #1000
-    mean(replicate(M, do1(n, nc3)) < 0.05)
     mean(replicate(M, do1(n, nc2)) < 0.05)
-    mean(replicate(M, do1(n, tc3)) < 0.05)
+    mean(replicate(M, do1(n, nc1)) < 0.05)
     mean(replicate(M, do1(n, tc2)) < 0.05)
-    ## do1(n, tc3df)
+    mean(replicate(M, do1(n, tc1)) < 0.05)
     ## do1(n, tc2df)
+    ## do1(n, tc1df)
 }
 

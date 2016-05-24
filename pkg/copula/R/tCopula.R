@@ -40,11 +40,14 @@ tCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex",
     param.lowbnd <- c(rep.int(-1, pdim), 1e-6)
     param.upbnd	 <- c(rep.int( 1, pdim), Inf)
     ## JY: handle fixed attributes
-    attr(parameters, "fixed") <-
-        c(if(is.null(fixed <- attr(param, "fixed"))) ## IK: parameters -> param
-              rep(FALSE, pdim)
-          else fixed,
-          df.fixed)
+    ## attr(parameters, "fixed") <-
+    ##     c(if(is.null(fixed <- attr(param, "fixed"))) ## IK: parameters -> param
+    ##           rep(FALSE, pdim)
+    ##       else fixed,
+    ##       df.fixed)
+
+    ## IK: new version
+    attr(parameters, "fixed") <- c(fixedAttr(param), df.fixed)
 
     new("tCopula",
 	dispstr = dispstr,

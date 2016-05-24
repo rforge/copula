@@ -77,11 +77,14 @@ tevCopula <- function(param = NA_real_, df = 4, df.fixed = FALSE) {
   param.lowbnd <- c(rep(-1, pdim), 1e-6)
   param.upbnd <- c(rep(1, pdim), Inf)
   ## similar to tCopula
-  attr(parameters, "fixed") <-
-      c(if(is.null(fixed <- attr(param, "fixed"))) ## IK: parameters -> param
-            rep(FALSE, pdim)
-        else fixed,
-        df.fixed)
+  ## attr(parameters, "fixed") <-
+  ##     c(if(is.null(fixed <- attr(param, "fixed"))) ## IK: parameters -> param
+  ##           rep(FALSE, pdim)
+  ##       else fixed,
+  ##       df.fixed)
+
+  ## IK: new version
+  attr(parameters, "fixed") <- c(fixedAttr(param), df.fixed)
 
   new("tevCopula",
              dimension = dim,
@@ -136,7 +139,7 @@ dtevCopula <- function(u, copula, log=FALSE, ...) {
 }
 
 ##' @title 1st and 2nd derivatives of C wrt to arguments of a bivariate symmetric evCopula
-##' TODO: 
+##' TODO:
 dCduSymEvCopula <- function(copula, u, ...) {
   mat <- matrix(NA, nrow(u), 2)
   pcop <- pCopula(u, copula)

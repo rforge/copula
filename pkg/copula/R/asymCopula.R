@@ -33,15 +33,14 @@ setClass("khoudrajiCopula", contains = c("copula", "VIRTUAL"),
 ##################################################################################
 ### Bivariate Khoudraji copulas
 ### Can be constructed from any bivariate copula for which dCdu is implemented
-### IK: Note that if dCdu is not implemented than numerical differentiation will
-### be used and a warning issued; we might not want that; issue an error instead?
 ##################################################################################
 
 setClass("khoudrajiBivCopula", contains = "khoudrajiCopula",
 	 validity = function(object) {
-             if(object@copula1@dimension != 2)
-                 "The argument copulas must have dimension two"
-	     else TRUE
+    if(object@copula1@dimension != 2 || !hasMethod(dCdu, class(object@copula1)) ||
+       !hasMethod(dCdu, class(object@copula2)))
+        "The argument copulas must be of dimension two and have method 'dCdu'"
+    else TRUE
 })
 
 ################################################################################

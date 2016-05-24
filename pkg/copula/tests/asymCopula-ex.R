@@ -78,18 +78,17 @@ kgkcf <- khoudrajiCopula(copula1 = gumbelCopula(3),
                          shapes = c(0.7, 0.25))
 kgkcf@parameters
 contour(kgkcf, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
-max(abs(copula:::dCduCopulaNum(kncf, v) - copula:::dCdu(knc, v)))
-max(abs(copula:::dCdthetaCopulaNum(kncf, v) - copula:::dCdtheta(kncf, v)))
+max(abs(copula:::dCduCopulaNum(kgkcf, v) - copula:::dCdu(kgkcf, v)))
+max(abs(copula:::dCdthetaCopulaNum(kgkcf, v) - copula:::dCdtheta(kgkcf, v)))
 
 
 ### fitting ###########################################################
-n <- 300
+n <- 100
 u <- rCopula(n, kc)
 plot(u)
 
 if (doExtras)
 {
-
     fitCopula(khoudrajiCopula(copula2 = claytonCopula()),
               start = c(1.1, 0.5, 0.5), data = pobs(u),
               optim.method = "Nelder-Mead")
@@ -110,7 +109,7 @@ if (doExtras)
     ## check size of mult GOF test briefly
     ## do1 <- function() {
     ##     u <- rCopula(n, kc)
-    ##     gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS",
+    ##     gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "Nelder-Mead",
     ##               sim = "mult")$p.value
     ## }
     ## M <- 1000

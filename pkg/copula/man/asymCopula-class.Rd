@@ -6,25 +6,25 @@
 \alias{khoudrajiExplicitCopula-class}
 
 \description{
-  The \emph{virtual} class \code{"khoudrajiCopula"} and its two (\sQuote{actual})
+  The \emph{virtual} class \code{"khoudrajiCopula"} and its two
   subclasses \code{"khoudrajiBivCopula"} and \code{"khoudrajiExplicitCopula"}
   represent copulas constructed using Khoudraji's device from two copulas of
-  the same dimension.
+  the same dimension; see \code{\link{khoudrajiCopula}()} for more details.
 }
 \section{Objects from the Class}{
   Objects are typically created via \code{\link{khoudrajiCopula}(...)}.
 }
 \section{Slots}{
   As these classes extend \code{"\linkS4class{copula}"}, they have all
-  its slots, \code{dimension}, \code{parameters}, \code{param.names},
+  its slots: \code{dimension}, \code{parameters}, \code{param.names},
   \code{param.lowbnd}, \code{param.upbnd}, and \code{fullname}.
   The classes \code{"khoudrajiCopula"} and \code{"khoudrajiBivCopula"}
   have the extra slots
   \describe{
-    \item{\code{copula1}:}{Object of class \code{"\linkS4class{copula}"}.}
-    \item{\code{copula2}:}{second object of class \code{"copula"},}
+    \item{\code{copula1}:}{object of class \code{"\linkS4class{copula}"}.}
+    \item{\code{copula2}:}{second object of class  \code{"\linkS4class{copula}"}.}
   }
-  while the class \code{"khoudrajiExplicitCopula"} has the additional slots
+  In addition to these, the class \code{"khoudrajiExplicitCopula"} has the slots
   \describe{
     \item{\code{exprdist}:}{an \code{\link{expression}}, ...}% FIXME
     \item{\code{derExprs1}:}{an \code{\link{expression}} of length \eqn{d}, ...}% FIXME
@@ -32,11 +32,26 @@
   }
 }
 \section{Methods}{
-  TODO:%Importantly, \code{\link{A}} and \code{\link{dCopula}} methods where
-  %devised explicitly, the latter allowing likelihood fitting (in principle).
+  When possible, methods are defined at the \code{"khoudrajiCopula"}
+  class level. The implementation of method \code{\link{dCopula}} for
+  instance is however not possible at that level. In addition, it
+  differs for \code{"khoudrajiBivCopula"} and
+  \code{"khoudrajiExplicitCopula"} classes.
 }
-%% \references{
-%% }
+\references{
+  Genest, C., Ghoudi, K., and Rivest, L.-P. (1998), Discussion of
+  "Understanding relationships using copulas", by Frees, E., and
+  Valdez, E., \emph{North American Actuarial Journal} \bold{3},
+  143--149.
+
+  Khoudraji, A. (1995), Contributions à l'\enc{é}{e}tude des copules et
+  \enc{à}{a}la mod\enc{é}{e}lisation des valeurs extr\enc{ê}{e}mes
+  bivari\enc{é}{e}es, \emph{PhD thesis, Université Laval}, Québec,
+  Canada.
+
+  Liebscher, E. (2008), Construction of asymmetric multivariate copulas,
+  \emph{Journal of Multivariate Analysis} \bold{99}, 2234--2250.
+}
 %% \author{Ivan Kojadinovic}
 \seealso{ \code{\link{khoudrajiCopula}()}}
 \examples{

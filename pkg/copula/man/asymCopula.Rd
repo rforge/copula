@@ -2,10 +2,9 @@
 \title{Construction of copulas using Khoudraji's device}
 \alias{khoudrajiCopula}
 \description{
-
   Creates an object representing a copula constructed using
   \emph{Khoudraji's device} (Khoudraji, 1995). The resulting \R object
-  is either of class \code{"\linkS4class{khoudrajiBivCopula}"} or class
+  is either of class \code{"\linkS4class{khoudrajiBivCopula}"} or of class
   \code{"\linkS4class{khoudrajiExplicitCopula}"}.
 
   In the bivariate case, given two copulas \eqn{C_1} and \eqn{C_2},
@@ -19,20 +18,28 @@
 
   The construction principle (see also Genest et al. 1998) is a special
   case of that considered in Liebscher (2008).
-
 }
 \usage{
 khoudrajiCopula(copula1 = indepCopula(), copula2 = indepCopula(),
                 shapes = c(1,1))
 }
 \arguments{
-  \item{copula1, copula2}{each an \code{\linkS4class{copula}}, of the
+  \item{copula1, copula2}{each a \code{\linkS4class{copula}}, of the
     same dimension \eqn{d}.}
   \item{shapes}{\code{\link{numeric}} vector of length \eqn{d},
     with values in \eqn{[0,1]}.}
 }
-%% \details{
-%% }
+\details{
+  If the argument copulas are bivariate, \code{copula1} and
+  \code{copula2} can be of almost all copula classes (those for which
+  partial derivatives of the copula c.d.f. with respect to arguments are
+  implemented). If they are \eqn{d}-dimensional with
+  \eqn{d > 2}, the construction will be allowed only if they have explicit
+  p.d.f. and c.d.f. expressions. For instance, normal copulas can be used
+  in the construction in dimension two but not in higher
+  dimensions. These constraints are imposed so that the density of
+  \dQuote{Khoudraji copulas} can be evaluated.
+}
 %\author{Jun Yan and Ivan Kojadinovic}
 \value{
   A new object of class \code{"\linkS4class{khoudrajiBivCopula}"} in
