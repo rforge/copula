@@ -1,12 +1,18 @@
 \name{khoudrajiCopula-class}
 \title{Class \code{"khoudrajiCopula"} and its Subclasses}
 \docType{class}
+\alias{asymCopula-class}
+\alias{asym2Copula-class}
 \alias{khoudrajiCopula-class}
 \alias{khoudrajiBivCopula-class}
 \alias{khoudrajiExplicitCopula-class}
 
 \description{
-  The \emph{virtual} class \code{"khoudrajiCopula"} and its two
+  The \emph{virtual} class \code{"asymCopula"} of (conceptually) all
+  aysymmetric copulas and its \sQuote{sub clsas} \code{"asym2copula"} of those who are
+  constructed from two copulas.
+
+  More specifically, the \emph{virtual} class \code{"khoudrajiCopula"} and its two
   subclasses \code{"khoudrajiBivCopula"} and \code{"khoudrajiExplicitCopula"}
   represent copulas constructed using Khoudraji's device from two copulas of
   the same dimension; see \code{\link{khoudrajiCopula}()} for more details.

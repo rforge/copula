@@ -13,13 +13,9 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-##################################################################################
-### Potentially asymmetric d-dimensional copulas of the form C(u^{1-a}) * D(u^a)
-### This construction is known as Khoudraji's device
-### VIRTUAL class for the moment
-##################################################################################
-
-setClass("khoudrajiCopula", contains = c("copula", "VIRTUAL"),
+setClass("asymCopula", contains = c("copula", "VIRTUAL"))
+## Asymmetric copula class constructed from two d-dimensional copulas
+setClass("asym2Copula", contains = c("asymCopula", "VIRTUAL"),
 	 slots = c(
              copula1 = "copula",
              copula2 = "copula"
@@ -28,7 +24,16 @@ setClass("khoudrajiCopula", contains = c("copula", "VIRTUAL"),
 	     if(object@copula1@dimension != object@copula2@dimension)
 		 "The argument copulas are not of the same dimension"
 	     else TRUE
-})
+         })
+
+##################################################################################
+### Potentially asymmetric d-dimensional copulas of the form C(u^{1-a}) * D(u^a)
+### This construction is known as Khoudraji's device
+### VIRTUAL class for the moment
+##################################################################################
+
+setClass("khoudrajiCopula", contains = c("asym2Copula", "VIRTUAL"))
+## slots *and* validity currently from 'asym2Copula' !
 
 ##################################################################################
 ### Bivariate Khoudraji copulas
@@ -36,12 +41,14 @@ setClass("khoudrajiCopula", contains = c("copula", "VIRTUAL"),
 ##################################################################################
 
 setClass("khoudrajiBivCopula", contains = "khoudrajiCopula",
-	 validity = function(object) {
-    if(object@copula1@dimension != 2 || !hasMethod(dCdu, class(object@copula1)) ||
-       !hasMethod(dCdu, class(object@copula2)))
-        "The argument copulas must be of dimension two and have method 'dCdu'"
-    else TRUE
-})
+	 validity = function(object)
+	     if(object@copula1@dimension != 2)
+		 "The argument copulas must be of dimension two"
+	     else if(!hasMethod(dCdu, class(object@copula1)) ||
+		     !hasMethod(dCdu, class(object@copula2)))
+		 "The argument copulas must both have 'dCdu()' methods"
+	     else TRUE
+	 )
 
 ################################################################################
 ### Khoudraji *explicit* copulas
@@ -65,9 +72,14 @@ setClass("khoudrajiExplicitCopula", contains = "khoudrajiCopula",
 ##################################################################################
 
 ## C(u_1^{1-a_1}, u_2^{1-a_2}) * D(u_1^a_1, u_2^a_1) = C(g(u, 1-a)) * D(g(u, a)
-g <- function(u, a) u^a
-ig <- function(u, a) u^(1 / a) # inverse
-dgdu <- function(u, a) a * u^(a - 1) # derivative wrt u
+KhoudFn <-
+    list(
+        g = function(u, a) u^a,
+        ## inverse of g :
+        ig = function(u, a) u^(1 / a),
+        ## derivative wrt u :
+        dgdu = function(u, a) a * u^(a - 1)
+        )
 
 ##################################################################################
 ### Constructor of Khoudraji copulas
@@ -87,15 +99,14 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
                             shapes = c(1,1)) {
 
     ## checks
-    stopifnot(is.numeric(shapes) && all(shapes >= 0) && all(shapes <= 1)
-              && (d <- dim(copula1)) == length(shapes))
+    stopifnot(is.numeric(shapes), shapes >= 0, shapes <= 1,
+              (d <- dim(copula1)) == length(shapes))
 
     ## deal with possibly fixed attributes
     parameters <- c(copula1@parameters, copula2@parameters, shapes)
     attr(parameters, "fixed") <- c(fixedAttr(copula1@parameters),
                                    fixedAttr(copula2@parameters),
                                    fixedAttr(shapes))
-
     if (d == 2)
         new("khoudrajiBivCopula",
             dimension = copula1@dimension,
@@ -170,6 +181,7 @@ setMethod("rCopula", signature("numeric", "khoudrajiCopula"),
     v <- rCopula(n, copula2)
     d <- copula@dimension
     x <- matrix(NA, n, d)
+    ig <- KhoudFn$ig
     for (i in seq_len(d)) {
         x[,i] <- pmax(ig(u[,i], 1 - shapes[i]), ig(v[,i], shapes[i]))
     }
@@ -183,6 +195,7 @@ dKhoudrajiBivCopula <- function(u, copula, log = FALSE, ...) {
     a2 <- comps$shapes[2]
     copula1 <- comps$copula1
     copula2 <- comps$copula2
+    g <- KhoudFn$g ; dgdu <- KhoudFn$dgdu
     gu1 <- cbind(g(u[,1], 1 - a1), g(u[,2], 1 - a2))
     gu2 <- cbind(g(u[,1], a1), g(u[,2], a2))
     dC1du <- dCdu(copula1, gu1)
@@ -227,6 +240,7 @@ setMethod("dCdu", signature("khoudrajiBivCopula"),
     a2 <- comps$shapes[2]
     copula1 <- comps$copula1
     copula2 <- comps$copula2
+    g <- KhoudFn$g ; dgdu <- KhoudFn$dgdu
     gu1 <- cbind(g(u[,1], 1 - a1), g(u[,2], 1 - a2))
     gu2 <- cbind(g(u[,1], a1), g(u[,2], a2))
     dC1du <- dCdu(copula1, gu1)
@@ -248,6 +262,7 @@ setMethod("dCdtheta", signature("khoudrajiBivCopula"),
     copula1 <- comps$copula1
     copula2 <- comps$copula2
     shapes <- comps$shapes
+    g <- KhoudFn$g
     gu1 <- cbind(g(u[,1], 1 - a1), g(u[,2], 1 - a2))
     gu2 <- cbind(g(u[,1], a1), g(u[,2], a2))
     dC1du <- dCdu(copula1, gu1)
