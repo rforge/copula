@@ -13,15 +13,20 @@ fixedParam(copula) <- value
 }
 \arguments{
   \item{param}{numeric parameter vector}
-  \item{fixed}{logical vector of the same length as param: TRUE = fixed}
-  \item{copula}{a copula object}
-  \item{value}{a logical vector to modify the fixedness of the parameters}
+  \item{fixed, value}{logical vector of the same length as \code{param}
+    indicating for each component \code{param[j]} if it is (going to be)
+    fixed or not.}
+  \item{copula}{a \code{"\linkS4class{copula}"} object.}
 }
 \value{
-  A numerical vector with attribute \code{"fixed"} (a
-  \code{\link{logical}}, either \code{TRUE} or vector of the same length
-  as \code{param}) to indicate which components of \code{param} are to
-  be held fixed or not.
+  \code{fixParam(param)} returns a \code{\link{numeric}} vector with
+  attribute \code{"fixed"}(a \code{\link{logical}}, either \code{TRUE}
+  or vector of the same length as \code{param}) to indicate which
+  components of \code{param} are to be held fixed or not.
+
+  \code{fixedParam<-} returns a \code{"\linkS4class{copula}"} object
+  with a partly fixed parameter (slot), i.e., corresponding to
+  \code{fixParam()} above.
 }
 %\author{Jun Yan}
 %% \details{
@@ -33,9 +38,12 @@ fixedParam(copula) <- value
   %% FIXME  t-copulas (\code{\link{tCopula}}) ...
 }
 \examples{
-normalCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, FALSE,FALSE)),
-             dispstr = "un")
-%% FIXME: print() / show() should indicated "fixed"
+nc1 <- normalCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, FALSE,FALSE)),
+                    dispstr = "un")
+nc1
+nc13 <- nc12 <- nc1
+fixedParam(nc12) <- c(TRUE, TRUE, FALSE) ; nc12
+fixedParam(nc13) <- c(TRUE, FALSE, TRUE) ; nc13
 }
 \keyword{manip}
 \keyword{utilities}
