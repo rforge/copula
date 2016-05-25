@@ -1,5 +1,7 @@
 ##-*- org -*-->  Emacs .. [Tab] key + [Org] menu; C-c C-o to follow links
 * Short Term (before 1.0.0):
+** TODO [IK/JY] Implement Khoudraji copulas (asymCopula()) for 2 'base copulas' (any dimension)
+** TODO [IK] modify khoudrajiCopula code to allow construction from any two copulas; have tests (e.g. dCdu implemented?) as method level, not in constructor
 ** TODO [IK]: review the derivatives expression in dC-dc.R for free parameter adjustment
 ** TODO [MM/JY]: Add slot 'fixed' (or similar) to copula class, change constructors of existing classes accordingly and make appropriate changes in fitCopula() (and gofCopula() if required and do basic checks)
 ** TODO Fitting high-dimensional copulas: memory explosion due to allocation of large (d*(d-1)/2) matrix for variance estimators
@@ -103,7 +105,6 @@ advantage outweighs the drawbacks... What do you think?
 ** DONE [IK] Implement copula rotations (rotCopula()); mostly done incl tests/rotCopula-ex.R
 ** TODO [IK] Write test code for mult gof Sn, Rn
 ** TODO [IK] Implement copula mixtures (mixCopula()) with sufficiently flexible structure so that we can maybe estimate the probability weights in the future
-** TODO [IK/JY] Implement Liebscher copulas (asymCopula()) for 2 'base copulas' (any dimension)
 ** DONE [JY] document getL() a bit more in fitCopula.R (what is it for?); there's a TODO there as well (in the header of getL())
 ** TODO introduce "empiricalCopula" (or "empCopula") as new subclass of "Copula" (not "copula")
    and maybe *additionally* "empiricalDist" / "empMvdc", inheriting from
