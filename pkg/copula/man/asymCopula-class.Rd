@@ -9,8 +9,8 @@
 
 \description{
   The \emph{virtual} class \code{"asymCopula"} of (conceptually) all
-  aysymmetric copulas and its \sQuote{sub clsas} \code{"asym2copula"} of those who are
-  constructed from two copulas.
+  asymmetric copulas and its \sQuote{subclass} \code{"asym2copula"} of
+  those which are constructed from two copulas.
 
   More specifically, the \emph{virtual} class \code{"khoudrajiCopula"} and its two
   subclasses \code{"khoudrajiBivCopula"} and \code{"khoudrajiExplicitCopula"}
