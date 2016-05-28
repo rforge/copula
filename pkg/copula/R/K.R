@@ -22,10 +22,8 @@
 ##     pK(u, cop=cop, d=d, n.MC=n.MC, log.p=log) # call the new function
 ## }
 
-##' Empirical Kendall distribution function K_{n,d} as in Lemma 1 of
-##' Genest, Neslehova, Ziegel (2011)
-##'
-##' @title Empirical Kendall distribution function
+##' @title Empirical Kendall distribution function K_{n,d} as in Lemma 1 of
+##'        Genest, Neslehova, Ziegel (2011)
 ##' @param u evaluation points u in [0,1]
 ##' @param x data (in IR^d) based on which K is estimated
 ##' @return K_{n,d}(u)
@@ -40,8 +38,6 @@ Kn <- function(u, x)
     ecdf(W)(u)
 }
 
-##' Distribution function of the Kendall distribution
-##'
 ##' @title Kendall distribution function
 ##' @param u evaluation point(s) in [0,1]
 ##' @param cop acopula with specified parameter
@@ -116,9 +112,6 @@ pK <- function(u, cop, d, n.MC=0, log.p=FALSE)
     res
 }
 
-
-##' Quantile function of the Kendall distribution
-##'
 ##' @title Quantile function of the Kendall distribution function
 ##' @param u evaluation point(s) in [0,1]
 ##' @param cop acopula with specified parameter
@@ -239,9 +232,6 @@ qK <- function(u, cop, d, n.MC=0,
     res
 }
 
-
-##' Density of the Kendall distribution
-##'
 ##' @title Density of the Kendall distribution
 ##' @param u evaluation point(s) in (0,1)
 ##' @param cop acopula with specified parameter
@@ -265,9 +255,6 @@ dK <- function(u, cop, d, n.MC=0, log.p=FALSE)
     if(log.p) res else exp(res)
 }
 
-
-##' Random number generation for the Kendall distribution
-##'
 ##' @title Random number generation for the Kendall distribution
 ##' @param n number of random variates to generate
 ##' @param cop acopula with specified parameter or onacopula
