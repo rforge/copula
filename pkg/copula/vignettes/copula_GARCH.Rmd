@@ -92,7 +92,7 @@ uspec <- ugarchspec(varModel, mean.model = meanModel, distribution.model = "std"
 fit <- apply(X., 2, function(x) ugarchfit(uspec, data = x))
 ```
 
-Check the residuals.
+Check the (standardized) `Z`.
 ```{r, fig.align = "center", fig.width = 6, fig.height = 6}
 ## Check pseudo-observations of the residuals Z
 Z. <- sapply(fit, residuals, standardize = TRUE)
@@ -106,7 +106,7 @@ assume $t$ distributions but with different degrees of freedom; for simplicity,
 the estimation is omitted here.
 ```{r}
 ## Fit copula (and marginal t distributions) to the pseudo-observations
-## of the standardized residuals
+## of the standardized Z
 fitcop <- fitCopula(ellipCopula("t", dim = 2), data = U., method = "mpl")
 nu. <- rep(nu., d) # marginal degrees of freedom; for simplicity treated as known here
 est <- cbind(fitted = c(fitcop@estimate, nu.), true = c(th, nu, nu.)) # fitted vs true
