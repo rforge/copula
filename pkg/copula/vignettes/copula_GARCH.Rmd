@@ -12,7 +12,6 @@ vignette: >
 ```{r, message = FALSE}
 require(copula)
 require(rugarch)
-set.seed(271)
 ```
 
 In this vignette, we demonstrate the copula GARCH approach (in general). Note
@@ -31,6 +30,7 @@ nu <- 3 # degrees of freedom for t
 tau <- 0.5 # Kendall's tau
 th <- iTau(ellipCopula("t", df = nu), tau) # corresponding parameter
 cop <- ellipCopula("t", param = th, dim = d, df = nu) # define copula object
+set.seed(271) # reproducibility
 U <- rCopula(n, cop) # sample the copula
 nu. <- 3.5 # degrees of freedom for the t margins
 Z <- sqrt((nu.-2)/nu.) * qt(U, df = nu.) # margins (have to have mean 0 and variance 1 for ugarchpath()!)
@@ -67,9 +67,9 @@ X <- ugarchpath(uspec,
                 custom.dist = list(name = "sample", distfit = Z)) # passing (n, d)-matrix of *standardized* innovations
 
 ## Extract the resulting series
-X. <- fitted(X) # X_t = mu_t + eps_t
+X. <- fitted(X) # X_t = mu_t + eps_t (simulated process)
 sig.X <- sigma(X) # sigma_t (conditional standard deviations)
-eps.X <- X@path$residSim # epsilon_t = sigma_t * Z_t
+eps.X <- X@path$residSim # epsilon_t = sigma_t * Z_t (residuals)
 
 ## Basic checks
 stopifnot(all.equal(X., X@path$seriesSim, check.attributes = FALSE)) # sanity check
@@ -87,9 +87,9 @@ We now show how to fit an ARMA(1,1)-GARCH(1,1) process to `X`
 (we remove the argument 'fixed.pars' from the above specification for estimating
 these parameters).
 ```{r}
-## Fit marginal time series models
+## Fit an ARMA(1,1)-GARCH(1,1) model
 uspec <- ugarchspec(varModel, mean.model = meanModel, distribution.model = "std")
-fit <- apply(X., 2, function(x) ugarchfit(uspec, x))
+fit <- apply(X., 2, function(x) ugarchfit(uspec, data = x))
 ```
 
 Check the residuals.
@@ -120,6 +120,7 @@ est
 Simulate from the fitted copula model.
 ```{r, fig.align = "center", fig.width = 6, fig.height = 6}
 ## Simulate from the fitted model
+set.seed(271) # reproducibility
 U.. <- rCopula(n, fitcop@copula)
 Z.. <- sapply(1:d, function(j) sqrt((nu.[j]-2)/nu.[j]) * qt(U..[,j], df = nu.[j]))
 ## => Innovations have to be standardized for ugarchsim()
