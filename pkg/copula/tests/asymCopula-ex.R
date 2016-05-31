@@ -45,6 +45,7 @@ kcf <- khoudrajiCopula(copula2 = claytonCopula(6),
                        shapes = fixParam(c(0.4, 0.95), c(FALSE, TRUE)))
 kcf@parameters
 
+
 ## True versus numerical derivatives
 v <- matrix(runif(6), 3, 2)
 max(abs(copula:::dCduCopulaNum(kcf, v) - copula:::dCdu(kcf, v)))
@@ -84,27 +85,42 @@ max(abs(copula:::dCdthetaCopulaNum(kgkcf, v) - copula:::dCdtheta(kgkcf, v)))
 
 ### fitting ###########################################################
 n <- 300
+set.seed(17)
 u <- rCopula(n, kc)
 plot(u)
 
 if (doExtras)
 {
-    fitCopula(khoudrajiCopula(copula2 = claytonCopula()),
-              start = c(1.1, 0.5, 0.5), data = pobs(u),
-              optim.method = "Nelder-Mead")
+    fk1 <- fitCopula(khoudrajiCopula(copula2 = claytonCopula()),
+                     start = c(1.1, 0.5, 0.5), data = pobs(u),
+                     optim.method = "Nelder-Mead", optim.control = list(trace = TRUE))
+    fk1
 
-    ## second shape parameter fixed to 1
-    fitCopula(kcf,
-              start = c(1.1, 0.5), data = pobs(u),
-              optim.method = "Nelder-Mead")
-
-    fitCopula(kcf,
-              start = c(1.1, 0.5), data = pobs(u),
-              optim.method = "BFGS")
+    ## kcf : second shape parameter fixed to 0.95
+    fkN <- fitCopula(kcf,
+                     start = c(1.1, 0.5), data = pobs(u),
+                     optim.method = "Nelder-Mead", optim.control = list(trace = TRUE))
+    fkN
+    fkB <- fitCopula(kcf,
+                     start = c(1.1, 0.5), data = pobs(u),
+                     optim.method = "BFGS", optim.control = list(trace = TRUE))
+    fkB
+    stopifnot(
+        all.equal(coef(fk1), c(c2.param = 5.42332, shape1 = 0.364467, shape2 = 0.868297),
+                  tol = 1e-4), # seen 2.7e-7
+        all.equal(coef(fkN), c(c2.param = 4.40525, shape1 = 0.389693), tol = 1e-4), # seen 3e-7
+        all.equal(coef(fkN), coef(fkB), tol = 1e-3) # seen 1.19e-4
+    )
 
     ## GOF example
+    ## takes too long:
     ## gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS")
-    gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS", sim = "mult")
+    set.seed(12)
+    g.kcf <- gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS", sim = "mult")
+    g.kcf
+    stopifnot(inherits(g.kcf, "htest"),
+              all.equal(g.kcf$p.value, 0.05544456, tol = 1e-3) # seen 8.2e-8
+              )
 
     ## check size of mult GOF test briefly
     ## do1 <- function() {
@@ -117,9 +133,14 @@ if (doExtras)
     ## mean(res < 0.05)
 
     ## under the alternative
-    u <- rCopula(n, gumbelCopula(4))
+    set.seed(11); u <- rCopula(n, gumbelCopula(4))
     ## gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS")
-    gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS", sim = "mult")
+    gA <- try(gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS", sim = "mult"))
+    ## optim(*, "BFGS") sometimes not converging, but the above ex. does and  "Nelder-Mead" does:
+    set.seed(17)
+    g2 <- gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "Nelder-M", sim = "mult")
+    stopifnot(inherits(g2, "htest"),
+	      all.equal(g2$p.value, 0.0004995005, tol = 1e-4))# seen 1e-9
 }
 
 ## All 'copula' subclasses
