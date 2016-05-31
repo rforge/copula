@@ -111,7 +111,7 @@ betan <- function(u, scaling = FALSE) {
     if(scaling) b else {T <- 2^(ncol(u)-1); (T*b - 1)/(T - 1)}
 }
 
-beta.hat <- function(u, scaling = FALSE) { .Deprecated("betan") ; betan(u, scaling) }
+beta.hat <- function(u, scaling = FALSE) { .Defunct("betan") ; betan(u, scaling) }
 
 ##' @title Population version of Blomqvist's beta for Archimedean copulas
 ##' @param cop acopula to be estimated

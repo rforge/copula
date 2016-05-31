@@ -71,7 +71,7 @@ setClass("khoudrajiExplicitCopula", contains = "khoudrajiCopula",
 ### Generators for Khoudraji copulas
 ##################################################################################
 
-## C(u_1^{1-a_1}, u_2^{1-a_2}) * D(u_1^a_1, u_2^a_1) = C(g(u, 1-a)) * D(g(u, a)
+## C(u_1^{1-a_1}, u_2^{1-a_2}) * D(u_1^a_1, u_2^a_1) = C(g(u, 1-a)) * D(g(u, a))
 KhoudFn <-
     list(
         g = function(u, a) u^a,
@@ -126,6 +126,16 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
         koudrajiExplicitCopula(copula1, copula2, shapes)
 
 }
+
+## In CRAN's copula up to 0.999-14 i.e  mid-2016: --> deprecated now
+asymCopula <-
+asymExplicitCopula <- function(shapes, copula1, copula2) {
+    .Deprecated("khoudrajiCopula(c.1, c.2, shapes) -- *reordered* arguments")
+    khoudrajiCopula(copula1, copula2, shapes)
+}
+
+
+
 
 ##################################################################################
 ### Utility function for Khoudraji copulas

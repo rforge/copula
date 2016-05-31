@@ -1,11 +1,11 @@
 \name{K}
-\alias{K}
+\title{Kendall Distribution Function for Archimedean Copulas}
 \alias{Kn}
 \alias{pK}
 \alias{qK}
 \alias{dK}
 \alias{rK}
-\title{Kendall Distribution Function for Archimedean Copulas}
+\alias{K}% Defunct
 \description{
   The distribution function of the \emph{Kendall distribution} of an Archimedean
   copula is defined as

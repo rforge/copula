@@ -8,7 +8,7 @@
 \alias{iRho}
 \alias{calibKendallsTau}
 \alias{calibSpearmansRho}
-\alias{tailIndex}
+\alias{tailIndex}% Deprecated for
 \alias{lambda}
 
 \alias{tau-methods}

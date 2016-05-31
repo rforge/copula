@@ -146,8 +146,7 @@ exportMethods(show)
 exportMethods(persp, contour, plot, contourplot2, wireframe2, cloud2, splom2)
 
 ## empirical copula
-## empirical copula
-export(F.n, C.n, dCn, Cn)# .Fn
+export(F.n, C.n, dCn)# .Fn
 
 ## fitting copula
 export(loglikCopula, loglikMvdc)
@@ -215,7 +214,7 @@ exportClasses("acopula",
 export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        , .ac.shortNames, .ac.longNames, .ac.objNames, .ac.classNames
        ,"getAcop", "getAname"
-       ,"cacopula", "dnacopula", "pnacopula", "rnacopula", "rnchild"
+       , "dnacopula", "pnacopula", "rnacopula", "rnchild"
        ## estimation
        ,"coeffG" ## , "polyG", "polyJ", "signFF"
        ,"initOpt"
@@ -223,7 +222,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"debye1", "debye2" # <- since we extend the gsl ones
        ,"ebeta", "etau", "emde", "dDiag", "edmle", "emle", "enacopula"
        ## goodness-of-fit
-       ,"gofTstat", "rtrafo", "htrafo", "gnacopula"
+       ,"gofTstat", "rtrafo", "htrafo"
        ## distribution of the radial part for Archimedean copulas
        ,"pacR", "qacR"
        ## Kendall distribution
@@ -246,29 +245,45 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"polylog", "Bernoulli", "Bernoulli.all"
        ,"Eulerian", "Stirling1", "Stirling2"
        ,"Eulerian.all", "Stirling1.all", "Stirling2.all"
-       ,"absdPsiMC"
        ,"setTheta"
        ,"tauAMH", "tauJoe"
        ,"allComp" # <- maybe keep private ?
        ,"safeUroot"
        ,"pairs2", "splom2", "qqplot2"
        )
-## Deprecated old names [2012-07-25]:
-export(psiDabsMC
-       , calibKendallsTau
-       , calibSpearmansRho
-       , kendallsTau
-       , spearmansRho
-       , tailIndex
-       , genInv
-       , genFun, genFunDer1, genFunDer2
-       , Afun
-       , AfunDer
-       , Anfun
-       , beta.hat
-       , pcopula, dcopula, rcopula
-       , dmvdc, pmvdc, rmvdc
+## Deprecated (old names) --- move to 'Defunct', i.e., replace .Deprecated(.) by .Defunct()
+export(
+    ## 2012-08-27 :
+    cacopula
+    ## 2013-01-08 :
+  , Cn
+    ## 2014-08-03 :
+  , gnacopula
+    ## 2016-04-22 :
+  , gofMB, gofPB
+    ## in CRAN's copula 0.999-14 till mid-2016
+  , tailIndex
+  , asymCopula
+  , asymExplicitCopula
        )
+
+## Defunct (from copula 0.999-15,  mid-2016):
+export(
+    K
+  , absdPsiMC
+  , beta.hat
+  , calibKendallsTau
+  , calibSpearmansRho
+  , kendallsTau
+  , spearmansRho
+  , genInv
+  , genFun, genFunDer1, genFunDer2
+  , Afun
+  , AfunDer
+  , Anfun
+  , dcopula, pcopula, rcopula
+  , dmvdc, pmvdc, rmvdc
+)
 
 exportMethods(## for both own and "other" generics:
     prob,

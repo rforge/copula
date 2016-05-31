@@ -25,8 +25,9 @@
     \item new \code{xvCopula()} function: cross-validated copula fitting
     for model selection.
 
-    \item Asymmetric copulas are now properly implemented, via
-    \code{asymBivCopula()} and \code{asymExplicitCopula()}.
+    \item Asymmetric copulas are now better implemented; previous
+    \code{asymCopula()} and \code{asymExplicitCopula()} are deprecated
+    and to be replaced by \code{khoudrajiCopula()}.
 
     \item \dQuote{Rotated} copulas, i.e., generalizations of
     \dQuote{survival} copulas, are now available via \code{rotCopula()}.
@@ -40,6 +41,20 @@
 
     \item Parts of a parameter vector can be kept fixed
     (\dQuote{known}), see \code{\link{fixedPar}}.
+
+    \item Functions deprecated (\code{\link{.Deprecated}}) since 2012, namely,
+    \code{K}, \code{beta.hat}, \code{calibKendallsTau},
+    \code{calibSpearmansRho}, \code{kendallsTau}, \code{spearmansRho},
+    \code{genInv}, \code{genFun}, \code{genFunDer1}, \code{genFunDer2},
+    \code{Afun}, \code{AfunDer}, \code{Anfun},
+    \code{dcopula}, \code{pcopula}, \code{rcopula},
+    \code{dmvdc}, \code{pmvdc}, and \code{rmvdc}
+    are now defunct (the user still sees them and gets a useful
+    error message from \code{\link{.Defunct}()}!).
+
+    \item Function \code{tailindex} is deprecated in favor of new
+    \code{lambda()}; \code{gofMB()} and \code{gofPB()} calls are
+    deprecated and to be replaced by \code{gofCopula(.., simulation = *)}.
   }
 }
 

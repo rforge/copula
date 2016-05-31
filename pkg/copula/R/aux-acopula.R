@@ -1266,7 +1266,7 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC,
                       method=c("log", "direct", "pois.direct", "pois"),
                       log = FALSE, is.log.t = FALSE)
 {
-    .Deprecated("absdPsiMC")
+    .Defunct("absdPsiMC")
     absdPsiMC(t, family=family, theta=theta, degree=degree, n.MC=n.MC,
                       method=method, log=log, is.log.t)
 }

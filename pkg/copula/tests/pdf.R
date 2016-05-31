@@ -107,7 +107,7 @@ filled.contour(u1, u2, dcop, color.palette = fCols,
 round(dcop, 3)
 ## tCopula -- df=4
 (theta <- iTau(tCopula(df=4), tau))
-dcop <- matrix(dcopula(tCopula(param=theta, dim = 2, df=4), umat),
+dcop <- matrix(dCopula(umat, tCopula(param=theta, dim = 2, df=4)),
                n1, n2)
 filled.contour(u1, u2, log(dcop), color.palette = fCols,
                main=sprintf("log Density( tCopula(%.4g, df = 4) )", theta))
@@ -151,13 +151,16 @@ dev.off()
 
 ## dim = 3, frankCopula
 um3 <- Exp.grid(u1=u1, u2=u2, u3=u1)
-dcop <- dcopula(frankCopula(param=theta.fr, dim = 3), um3)
-stopifnot(dcop >= 0)# no NA here
+dcE <- tryCatch(dcopula(um3), error=identity)
+dcop <- dCopula(um3, frankCopula(param=theta.fr, dim = 3))
+stopifnot(dcop >= 0, # no NA here
+          inherits(dcE, "error"),
+          grepl("defunct", conditionMessage(dcE), ignore.case=TRUE))
 round(array(dcop, c(n1,n2,n1)), 3)
 
 ## dim = 4 --- fine as long we are "out of corners"
 um4 <- Exp.grid(u1=u1, u2=u2, u3=u1, u4=rev(u2))
-dcop <- dcopula(frankCopula(param=theta.fr, dim = 4), um4)
+dcop <- dCopula(um4, frankCopula(param=theta.fr, dim = 4))
 stopifnot(dcop >= 0,# no NA here
 	  all.equal(dcop, copFrank@dacopula(um4, theta = theta.fr)))
 ## round(array(dcop, c(n1,n2,n1,n2)), 3)

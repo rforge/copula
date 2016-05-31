@@ -1,6 +1,9 @@
 \name{khoudrajiCopula}
 \title{Construction of copulas using Khoudraji's device}
 \alias{khoudrajiCopula}
+% Deprecated:
+\alias{asymCopula}
+\alias{asymExplicitCopula}
 \description{
   Creates an object representing a copula constructed using
   \emph{Khoudraji's device} (Khoudraji, 1995). The resulting \R object

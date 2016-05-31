@@ -79,23 +79,25 @@ setGeneric("dRho", function(copula, ...) standardGeneric("dRho"))
 setGeneric("dTauFun", function(copula) standardGeneric("dTauFun"))
 setGeneric("dRhoFun", function(copula) standardGeneric("dRhoFun"))
 
-## Deprecated:
-calibKendallsTau <- function(copula, tau) { .Deprecated("iTau"); iTau(copula,tau) }
-calibSpearmansRho <- function(copula, rho) { .Deprecated("iRho"); iRho(copula,rho) }
-kendallsTau <- function(copula) { .Deprecated("tau"); tau(copula) }
-spearmansRho <- function(copula) { .Deprecated("rho"); rho(copula) }
+## Defunct:
+calibKendallsTau <- function(copula, tau) { .Defunct("iTau"); iTau(copula,tau) }
+calibSpearmansRho <- function(copula, rho) { .Defunct("iRho"); iRho(copula,rho) }
+kendallsTau <- function(copula) { .Defunct("tau"); tau(copula) }
+spearmansRho <- function(copula) { .Defunct("rho"); rho(copula) }
+genInv <- function(copula, s) { .Defunct("psi"); psi(copula,s) }
+genFun <- function(copula, u) { .Defunct("iPsi"); iPsi(copula, u) }
+genFunDer1 <- function(copula, u){ .Defunct("diPsi"); diPsi(copula, u) }
+genFunDer2 <- function(copula, u){ .Defunct("diPsi(*, degree=2)"); diPsi(copula, u, degree=2) }
+
+AfunDer <- function(copula, w) { .Defunct("dAdu"); dAdu(copula, w) }
+Afun    <- function(copula, w) { .Defunct("A"); A(copula, w) }
+
+pcopula <- function(copula, u, ...) { .Defunct("pCopula"); pCopula(u, copula) }
+dcopula <- function(copula, u, ...) { .Defunct("dCopula"); dCopula(u, copula, ...) }
+rcopula <- function(copula, n, ...) { .Defunct("rCopula"); rCopula(n, copula, ...) }
+
+## Deprecated (mid 2016):
 tailIndex <- function(copula) { .Deprecated("lambda"); lambda(copula) }
-genInv <- function(copula, s) { .Deprecated("psi"); psi(copula,s) }
-genFun <- function(copula, u) { .Deprecated("iPsi"); iPsi(copula, u) }
-genFunDer1 <- function(copula, u){ .Deprecated("diPsi"); diPsi(copula, u) }
-genFunDer2 <- function(copula, u){ .Deprecated("diPsi(*, degree=2)"); diPsi(copula, u, degree=2) }
-
-AfunDer <- function(copula, w) { .Deprecated("dAdu"); dAdu(copula, w) }
-Afun    <- function(copula, w) { .Deprecated("A"); A(copula, w) }
-
-pcopula <- function(copula, u, ...) { .Deprecated("pCopula"); pCopula(u, copula) }
-dcopula <- function(copula, u, ...) { .Deprecated("dCopula"); dCopula(u, copula, ...) }
-rcopula <- function(copula, n, ...) { .Deprecated("rCopula"); rCopula(n, copula, ...) }
 
 
 ### elliptical copulas, contains normalCopula and tCopula ######################
@@ -142,7 +144,7 @@ setClass("normalCopula", contains = "ellipCopula"
 setClass("tCopula", contains = "ellipCopula",
 	 slots = c(df = "numeric", df.fixed = "logical"),
          validity =  function(object) {
-             ## JY: making sure @df == tail(@parametersnot, 1) 
+             ## JY: making sure @df == tail(@parametersnot, 1)
              if (has.par.df(object))
                  stopifnot(object@df == tail(object@parameters, 1))
              TRUE
@@ -203,7 +205,7 @@ setClass("tawnCopula", contains = "evCopula",
 setClass("tevCopula", contains = "evCopula",
 	 slots = c(df = "numeric", df.fixed = "logical"),
          validity = function(object) {
-             ## JY: making sure @df == tail(@parametersnot, 1) 
+             ## JY: making sure @df == tail(@parametersnot, 1)
              if (has.par.df(object))
                  stopifnot(object@df == tail(object@parameters, 1))
              TRUE
