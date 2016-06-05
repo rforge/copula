@@ -222,7 +222,7 @@ export("copAMH", "copClayton", "copFrank", "copGumbel", "copJoe"
        ,"debye1", "debye2" # <- since we extend the gsl ones
        ,"ebeta", "etau", "emde", "dDiag", "edmle", "emle", "enacopula"
        ## goodness-of-fit
-       ,"gofTstat", "rtrafo", "htrafo"
+       ,"gofTstat", "htrafo"
        ## distribution of the radial part for Archimedean copulas
        ,"pacR", "qacR"
        ## Kendall distribution
@@ -261,11 +261,13 @@ export(
   , gnacopula
     ## 2016-04-22 :
   , gofMB, gofPB
+    ## 2016-06-04 :
+  , rtrafo
     ## in CRAN's copula 0.999-14 till mid-2016
   , tailIndex
   , asymCopula
   , asymExplicitCopula
-       )
+)
 
 ## Defunct (from copula 0.999-15,  mid-2016):
 export(
@@ -293,4 +295,4 @@ exportMethods(## for both own and "other" generics:
     ## imported from "stats4" / "bbmle":
     coef, confint, logLik, #-> hence AIC works [BIC: needs 'nobs' fix in bbmle]
     plot, profile, summary
-    )
+)

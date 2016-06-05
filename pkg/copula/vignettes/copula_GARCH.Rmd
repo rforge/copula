@@ -21,7 +21,9 @@ the `rmgarch` package (thanks to Alexios Ghalanos for pointing this out).
 
 ## 1 Simulate data
 
-First, we simulate the innovation distribution.
+First, we simulate the innovation distribution. Note that, for demonstration
+purposes, we choose a small sample size. Ideally, the sample size should be
+larger to capture GARCH effects.
 ```{r}
 ## Simulate innovations
 n <- 200 # sample size

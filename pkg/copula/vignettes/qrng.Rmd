@@ -41,7 +41,7 @@ plot(U., xlab=expression(italic(U)[1]*"'"), ylab=expression(italic(U)[2]*"'"))
 Let's check if the more equally spaced points (less gaps, less clusters)
 are preserved in the copula world when determined with one-to-one
 transformations (such as the conditional distribution method (CDM); this can be
-obtained via `rtrafo(, inverse=TRUE)`).
+obtained via `cCopula(, inverse=TRUE)`).
 
 ### $t$ copula with three degrees of freedom
 
@@ -56,8 +56,8 @@ cop <- ellipCopula(family, param=th, df=nu)
 ```
 
 ```{r, fig.align="center", fig.width=12, fig.height=6}
-U.t  <- rtrafo(U,  cop=cop, inverse=TRUE) # via PRNG
-U.t. <- rtrafo(U., cop=cop, inverse=TRUE) # via QRNG
+U.t  <- cCopula(U,  copula = cop, inverse = TRUE) # via PRNG
+U.t. <- cCopula(U., copula = cop, inverse=TRUE) # via QRNG
 par(pty="s", mfrow=1:2)
 plot(U.t,  xlab=expression(italic(U)[1]), ylab=expression(italic(U)[2]))
 plot(U.t., xlab=expression(italic(U)[1]), ylab=expression(italic(U)[2]))
@@ -74,8 +74,8 @@ cop <- onacopulaL(family, nacList=list(th, 1:2))
 ```
 
 ```{r, fig.align="center", fig.width=12, fig.height=6}
-U.C  <- rtrafo(U, cop=cop, inverse=TRUE) # via PRNG
-U.C. <- rtrafo(U., cop=cop, inverse=TRUE) # via QRNG
+U.C  <- cCopula(U,  copula = cop, inverse = TRUE) # via PRNG
+U.C. <- cCopula(U., copula = cop, inverse = TRUE) # via QRNG
 par(pty="s", mfrow=1:2)
 plot(U.C,  xlab=expression(italic(U)[1]), ylab=expression(italic(U)[2]))
 plot(U.C., xlab=expression(italic(U)[1]), ylab=expression(italic(U)[2]))
@@ -133,7 +133,7 @@ cop <- ellipCopula(family, param=th, dim=3, df=nu)
 First the pseudo-random version.
 ```{r, fig.align="center", fig.width=6, fig.height=6}
 U.3d <- matrix(runif(n*3), ncol=3)
-U.t.3d <- rtrafo(U.3d,  cop=cop, inverse=TRUE)
+U.t.3d <- cCopula(U.3d, copula = cop, inverse = TRUE)
 par(pty="s")
 pairs(U.t.3d, gap=0,
       labels=as.expression(sapply(1:3, function(j) bquote(italic(U[.(j)])))))
@@ -142,7 +142,7 @@ pairs(U.t.3d, gap=0,
 Now the quasi-random version.
 ```{r, fig.align="center", fig.width=6, fig.height=6}
 U.3d. <- halton(n, dim=3)
-U.t.3d. <- rtrafo(U.3d., cop=cop, inverse=TRUE)
+U.t.3d. <- cCopula(U.3d., copula = cop, inverse = TRUE)
 par(pty="s")
 pairs(U.t.3d., gap=0,
       labels=as.expression(sapply(1:3, function(j) bquote(italic(U[.(j)])))))
@@ -237,7 +237,7 @@ cop <- onacopulaL(family, nacList=list(th, 1:2))
 ```{r}
 ## Generate dependent samples
 U <- halton(n, 3)
-U_CDM <- rtrafo(U[,1:2], cop=cop, inverse=TRUE) # via CDM
+U_CDM <- cCopula(U[,1:2], copula = cop, inverse = TRUE) # via CDM
 U_MO <- copClayton@psi(-log(U[,2:3]) / qgamma(U[,1], 1/th), theta=th) # via Marshall-Olkin (MO)
 
 ## Colorization of U[,1:2]
@@ -326,7 +326,7 @@ rng_Clayton <- function(n, d, B, theta, survival=FALSE,
     U <- switch(cop.method, # B-list of (n, d)-matrices
     "CDM" = {
         cop <- onacopulaL("Clayton", nacList=list(theta, 1:d)) # d=k here
-        lst <- apply(U., 3, FUN=function(x) list(rtrafo(x, cop=cop, inverse=TRUE)))
+        lst <- apply(U., 3, FUN=function(x) list(cCopula(x, copula = cop, inverse = TRUE)))
         lapply(lst, `[[`, 1)
     },
     "MO" = {

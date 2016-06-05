@@ -115,7 +115,7 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
 ### The parametric bootstrap (for computing different goodness-of-fit tests) ###
 gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
                   estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
-                  trafo.method = c("none", "rtrafo", "htrafo"),
+                  trafo.method = c("none", "cCopula", "htrafo"),
 		  trafoArgs = list(), verbose = interactive(), ...)
 {
     .Deprecated("gofCopula(*, simulation = \"pb\")")
@@ -126,7 +126,7 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
 ##' revert to  gofPB()  once it is hidden
 .gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
                   estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
-                  trafo.method = c("none", "rtrafo", "htrafo"),
+                  trafo.method = c("none", "cCopula", "htrafo"),
 		  trafoArgs = list(), verbose = interactive(), ...)
 {
     ## Checks
@@ -167,8 +167,8 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
 	if(length(names(trafoArgs)) != length(trafoArgs))
 	    stop("'trafoArgs' must be a fully named list")
 	switch(trafo.method,
-	       "rtrafo"= do.call(rtrafo, c(list(uhat, cop=C.th.n), trafoArgs)),
-	       "htrafo"= do.call(htrafo, c(list(uhat, cop=C.th.n), trafoArgs)),
+	       "cCopula"= do.call(cCopula, c(list(uhat, copula = C.th.n), trafoArgs)),
+	       "htrafo"= do.call(htrafo, c(list(uhat, copula = C.th.n), trafoArgs)),
 	       stop("wrong transformation method"))
     } else uhat
     T <- if(method=="Sn") gofTstat(u, method=method, copula=C.th.n)
@@ -186,10 +186,10 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
         ## 4.3) Compute the test statistic
         u. <- if(doTrafo) { # (no checks needed; all done above)
 	    switch(trafo.method,
-		   "rtrafo"= do.call(rtrafo, c(list(Uhat, cop=C.th.n.), trafoArgs)),
-		   "htrafo"= do.call(htrafo, c(list(Uhat, cop=C.th.n.), trafoArgs)))
+		   "cCopula"= do.call(cCopula, c(list(Uhat, copula = C.th.n.), trafoArgs)),
+		   "htrafo"= do.call(htrafo, c(list(Uhat, copula = C.th.n.), trafoArgs)))
         } else Uhat
-        T0. <- if(method=="Sn") gofTstat(u., method=method, copula=C.th.n.)
+        T0. <- if(method=="Sn") gofTstat(u., method = method, copula = C.th.n.)
                else gofTstat(u., method=method)
 
         if(verbose) setTxtProgressBar(pb, k+1) # update progress bar

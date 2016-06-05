@@ -309,7 +309,7 @@ emde <- function(u, cop, method = c("mde.chisq.CvM", "mde.chisq.KS", "mde.gamma.
     method <- match.arg(method) # match argument method
     distance <- function(theta) { # distance to be minimized
         cop@copula@theta <- theta
-        u. <- htrafo(u, cop=cop, include.K=include.K, n.MC=0) # transform data [don't use MC here; too slow]
+        u. <- htrafo(u, copula = cop, include.K = include.K, n.MC = 0) # transform data [don't use MC here; too slow]
         emde.dist(u., method)
     }
     if(repara){

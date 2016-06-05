@@ -94,8 +94,8 @@ U <- rCopula(1000, cop)
 
 ## compute Sn (as is done in a parametric bootstrap, for example)
 Uhat <- pobs(U) # pseudo-observations
-u <- rtrafo(Uhat, cop) # Rosenblatt transformed data (with correct copula)
-gofTstat(u, method="Sn", copula=cop) # compute test statistic Sn; requires copula argument
+u <- cCopula(Uhat, copula = cop) # Rosenblatt transformed data (with correct copula)
+gofTstat(u, method = "Sn", copula = cop) # compute test statistic Sn; requires copula argument
 }
 \keyword{htest}
 \keyword{goodness-of-fit}

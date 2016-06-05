@@ -37,7 +37,7 @@ gofCopula(copula, x, \dots)
 
 gofPB(copula, x, N, method = eval(formals(gofTstat)$method),
       estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
-      trafo.method = c("none", "rtrafo", "htrafo"),
+      trafo.method = c("none", "cCopula", "htrafo"),
       trafoArgs = list(), verbose = interactive(), \dots)
 gofMB(copula, x, N, method = c("Sn", "Rn"),
       estim.method = c("mpl", "ml", "itau", "irho"),
@@ -74,8 +74,8 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
     \code{optim.method}, \code{optim.control}, \code{lower},
     or \code{upper} depending on the \code{optim.method}.}
   \item{trafo.method}{string specifying the transformation to
-    \eqn{U[0,1]^d}; either \code{"none"} or one of \code{"rtrafo"},
-    see \code{\link{rtrafo}}, or \code{"htrafo"}, see \code{\link{htrafo}}.}
+    \eqn{U[0,1]^d}; either \code{"none"} or one of \code{"cCopula"},
+    see \code{\link{cCopula}()}, or \code{"htrafo"}, see \code{\link{htrafo}()}.}
   \item{trafoArgs}{a \code{\link{list}} of optional arguments passed
     to the transformation method (see \code{trafo.method} above).}
   \item{useR}{logical indicating whether the R or C implementation is used.}

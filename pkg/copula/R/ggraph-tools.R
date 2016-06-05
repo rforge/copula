@@ -16,7 +16,7 @@
 
 ### Tools for graphical gof tests based on pairwise Rosenblatt trafo ###########
 
-### FIXME  replace by cCopula() in the long run
+## TODO: replace by cCopula()
 
 ##' @title Bivariate Conditional Copulas C(u2|u1) of u2 given u1
 ##' @param u2 data vector (numeric(n))

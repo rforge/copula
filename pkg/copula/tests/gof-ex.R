@@ -19,8 +19,8 @@ sessionInfo() # will change often.. but if we need the info, get it here
 
 ## Regression Tests -- n=1 failed till 2012-07-15
 u1 <- pobs(rbind(1:4))
-(rtG <- rtrafo(u1, onacopula("Gumbel", C(2., 1:4))))
-stopifnot(all.equal(rtG, rtrafo(u1, gumbelCopula(2, d=4)),
+(rtG <- cCopula(u1, copula = onacopula("Gumbel", C(2., 1:4))))
+stopifnot(all.equal(rtG, cCopula(u1, copula = gumbelCopula(2, d=4)),
 		    tolerance = 1e-15))
 
 ### A faster, more checking version of demo(estimation.gof)
@@ -37,8 +37,8 @@ source(system.file("Rsource", "utils.R",     package="copula", mustWork=TRUE))
 
 
 ## GoF methods (NOTE: 'htrafo' only implemented for objects of type 'outer_nacopula')
-## (gofTraf <- eval(formals(gofPB)$trafo.method)[-1]) # "rtrafo", "htrafo"
-gofTraf <- "rtrafo"
+## (gofTraf <- eval(formals(gofPB)$trafo.method)[-1]) # "cCopula", "htrafo"
+gofTraf <- "cCopula"
 (gofMeth <- eval(formals(gofPB)$method)) # "Sn", "SnB", "SnC", "AnChisq", "AnGamma"
 
 n <- 64 # sample size [small here for CPU reasons]
@@ -62,7 +62,7 @@ if(FALSE) {
     set.seed(1)
     estimation.gof(n, d=d, simFamily=simFamily, tau=tau,
                    N=3, estim.method="mpl", verbose=FALSE,
-                   gof.traf="rtrafo", gof.method="Sn",
+                   gof.traf="cCopula", gof.method="Sn",
                    checkFamilies = c("Clayton", "Gumbel"))
 }
 
@@ -77,7 +77,7 @@ RR <- sapply(gofTraf, simplify="array", function(gt)
                                    ## please choose a larger number here, for example 1000
                                    estim.method="mpl", # simulation="pb", default
                                    verbose=FALSE,
-                                   gof.trafo=gt, # "rtrafo" ("htrafo"; see above)
+                                   gof.trafo=gt, # "cCopula" ("htrafo"; see above)
                                    gof.method=gm)) # "Sn", "SnB", "SnC", "AnChisq", "AnGamma"
                                    # checkFamilies=setdiff(copula:::c_longNames, "AMH")) # default
          })
@@ -274,8 +274,7 @@ if(FALSE) {
         st <- system.time( ## "SnB" is relatively slow - shorten here:
                           gn <- gofCopula(cop, x = u, N = nBoot,
                                           method = met, estim.method = "mpl",
-                                          simulation = "pb", verbose = FALSE,
-                                          trafo.method="rtrafo"))
+                                          simulation = "pb", verbose = FALSE))
         print(gn)
         print(st)
         catn("=================================================")

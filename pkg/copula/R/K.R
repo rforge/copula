@@ -17,9 +17,9 @@
 ### Kendall distribution #######################################################
 
 ## deprecated (former) Kendall distribution function K -- deprecated till 2016-06
-K <- function(u, cop, d, n.MC=0, log=FALSE){
+K <- function(u, copula, d, n.MC = 0, log = FALSE){
     .Defunct("pK") # since 2016-06; deprecated before
-    pK(u, cop=cop, d=d, n.MC=n.MC, log.p=log) # call the new function
+    pK(u, copula = copula, d = d, n.MC = n.MC, log.p = log) # call the new function
 }
 
 ##' @title Empirical Kendall distribution function K_{n,d} as in Lemma 1 of
@@ -40,7 +40,7 @@ Kn <- function(u, x)
 
 ##' @title Kendall distribution function
 ##' @param u evaluation point(s) in [0,1]
-##' @param cop acopula with specified parameter
+##' @param copula acopula with specified parameter
 ##' @param d dimension
 ##' @param n.MC if > 0 a Monte Carlo approach is applied with sample size equal
 ##'	   to n.MC to evaluate the generator derivatives; otherwise the exact
@@ -48,9 +48,9 @@ Kn <- function(u, x)
 ##' @param log.p logical indicating whether the logarithm is returned
 ##' @return Kendall distribution function at u
 ##' @author Marius Hofert
-pK <- function(u, cop, d, n.MC=0, log.p=FALSE)
+pK <- function(u, copula, d, n.MC = 0, log.p = FALSE)
 {
-    stopifnot(is(cop, "acopula"), 0 <= u, u <= 1)
+    stopifnot(is(copula, "acopula"), 0 <= u, u <= 1)
     ## limiting cases
     n <- length(u)
     res <- numeric(n)
@@ -59,12 +59,12 @@ pK <- function(u, cop, d, n.MC=0, log.p=FALSE)
     not01 <- seq_len(n)[!(is0 | is1)]
     uN01 <- u[not01]
     ## computations
-    th <- cop@theta
+    th <- copula@theta
     if(n.MC > 0) { # Monte Carlo
 	stopifnot(is.finite(n.MC))
         if(length(not01)){
-            V <- cop@V0(n.MC, th) # vector of length n.MC
-            psiI <- cop@iPsi(uN01, th) # vector of length n
+            V <- copula@V0(n.MC, th) # vector of length n.MC
+            psiI <- copula@iPsi(uN01, th) # vector of length n
             lr <- unlist(lapply(psiI, function(psInv){
                 -log(n.MC) + lsum(as.matrix(ppois(d-1, V*psInv, log.p=TRUE)))
                 ## Former code: mean(ppois(d-1, V*psInv))
@@ -76,15 +76,15 @@ pK <- function(u, cop, d, n.MC=0, log.p=FALSE)
 	    res[not01] <- if(d == 1) { # d == 1
 		if(log.p) log(uN01) else uN01 # K(u) = u
 	    } else if(d == 2) { # d == 2
-		r <- uN01 + exp( cop@iPsi(uN01, theta=th, log=TRUE) -
-                                 cop@absdiPsi(uN01, th, log=TRUE) ) # K(u) = u - psi^{-1}(u) / (psi^{-1})'(u)
+		r <- uN01 + exp( copula@iPsi(uN01, theta=th, log=TRUE) -
+                                 copula@absdiPsi(uN01, th, log=TRUE) ) # K(u) = u - psi^{-1}(u) / (psi^{-1})'(u)
                 if(log.p) log(r) else r
 	    } else { # d >= 3
 		j <- seq_len(d-1)
-		lpsiI. <- cop@iPsi(uN01, theta=th, log=TRUE)
+		lpsiI. <- copula@iPsi(uN01, theta=th, log=TRUE)
 		labsdPsi <- do.call(rbind,
 				    lapply(j, function(j.)
-					   cop@absdPsi(exp(lpsiI.),
+					   copula@absdPsi(exp(lpsiI.),
 						       theta=th,
 						       degree=j.,
 						       log=TRUE))) # (d-1) x n  matrix [n = length(not01)]
@@ -96,7 +96,7 @@ pK <- function(u, cop, d, n.MC=0, log.p=FALSE)
                 if(log.p) ls else pmin(1, exp(ls)) # ensure we are in [0,1] {numerical inaccuracy}
 		## Former code:
 		## K2 <- function(psInv) {
-		##    labsdPsi <- unlist(lapply(j, cop@absdPsi,
+		##    labsdPsi <- unlist(lapply(j, copula@absdPsi,
 		##			      u=psInv, theta=th, log=TRUE))
 		##    sum(exp(labsdPsi + j*log(psInv) - lfac.j))
 		## }
@@ -104,7 +104,7 @@ pK <- function(u, cop, d, n.MC=0, log.p=FALSE)
 		##
 		## NB: AMH, Clayton, Frank are numerically not quite monotone near one;
 		## --  this does not change that {but maybe slightly *more* accurate}:
-		## absdPsi. <- unlist(lapply(j, cop@absdPsi, u = psInv, theta = th,
+		## absdPsi. <- unlist(lapply(j, copula@absdPsi, u = psInv, theta = th,
 		##						 log = FALSE))
 		##		       sum(absdPsi.*psInv^j/factorial(j))
 	    } # else (d >= 3)
@@ -114,7 +114,7 @@ pK <- function(u, cop, d, n.MC=0, log.p=FALSE)
 
 ##' @title Quantile function of the Kendall distribution function
 ##' @param u evaluation point(s) in [0,1]
-##' @param cop acopula with specified parameter
+##' @param copula acopula with specified parameter
 ##' @param d dimension
 ##' @param n.MC if > 0 a Monte Carlo approach is applied to evaluate K with
 ##'        sample size equal to n.MC; otherwise the exact formula is used
@@ -135,23 +135,23 @@ pK <- function(u, cop, d, n.MC=0, log.p=FALSE)
 ##' Note: - K(u) >= u => u gives an upper bound for K^{-1}(u)
 ##'       - K for smaller dimensions would also give upper bounds for K^{-1}(u),
 ##'         but even for d=2, there is no explicit formula for K^{-1}(u) known.
-qK <- function(u, cop, d, n.MC=0,
-               method=c("default", "simple", "sort", "discrete", "monoH.FC"),
+qK <- function(u, copula, d, n.MC = 0,
+               method = c("default", "simple", "sort", "discrete", "monoH.FC"),
                u.grid, ...)
 {
-    stopifnot(is(cop, "acopula"), 0 <= u, u <= 1)
+    stopifnot(is(copula, "acopula"), 0 <= u, u <= 1)
     if(d==1) ## special case : K = identity
 	return(u)
     ## limiting cases
     n <- length(u)
-    res <- numeric(n)                   # all 0
+    res <- numeric(n) # all 0
     res[is1 <- u == 1] <- 1
-    is0 <- u == 0 ## res[is0 <- u == 0] <- 0
+    is0 <- u == 0 # res[is0 <- u == 0] <- 0
     if(!any(not01 <- !(is0 | is1)))
 	return(res)
     ## usual case:
-    uN01 <- u[not01]           # u's for which we have to determine quantiles
-    lnot01 <- sum(not01)       # may be < n
+    uN01 <- u[not01] # u's for which we have to determine quantiles
+    lnot01 <- sum(not01) # may be < n
     ## computing the quantile function
     method <- match.arg(method)
     res[not01] <-
@@ -161,7 +161,7 @@ qK <- function(u, cop, d, n.MC=0,
                ## Note: This is the same code as method="monoH.FC" (but with a
                ##       chosen grid)
                u.grid <- 0:128/128 # default grid
-               K.u.grid <- pK(u.grid, cop=cop, d=d, n.MC=n.MC, log.p=FALSE)
+               K.u.grid <- pK(u.grid, copula=copula, d=d, n.MC=n.MC, log.p=FALSE)
                ## function for root finding
                fspl <- function(x, u)
                    splinefun(u.grid, K.u.grid, method = "monoH.FC")(x) - u
@@ -173,7 +173,7 @@ qK <- function(u, cop, d, n.MC=0,
                "simple" =               # straightforward root finding
            {
                ## function for root finding
-               f <- function(t, u) pK(t, cop=cop, d=d, n.MC=n.MC, log.p=FALSE) - u
+               f <- function(t, u) pK(t, copula=copula, d=d, n.MC=n.MC, log.p=FALSE) - u
                ## root finding
                vapply(uN01, function(u)
                       uniroot(f, u=u, interval=c(0,u), ...)$root, NA_real_)
@@ -181,7 +181,7 @@ qK <- function(u, cop, d, n.MC=0,
                "sort" =                 # root finding with first sorting u's
            {
                ## function for root finding
-               f <- function(t, u) pK(t, cop=cop, d=d, n.MC=n.MC, log.p=FALSE) - u
+               f <- function(t, u) pK(t, copula=copula, d=d, n.MC=n.MC, log.p=FALSE) - u
                ## sort u's
                ord <- order(uN01, decreasing=TRUE)
                uN01o <- uN01[ord]       # uN01 ordered in decreasing order
@@ -211,7 +211,7 @@ qK <- function(u, cop, d, n.MC=0,
                "discrete" = # evaluate K at a grid and compute approximate quantiles based on this grid
            {
                stopifnot(0 <= u.grid, u.grid <= 1)
-               K.u.grid <- pK(u.grid, cop=cop, d=d, n.MC=n.MC, log.p=FALSE)
+               K.u.grid <- pK(u.grid, copula=copula, d=d, n.MC=n.MC, log.p=FALSE)
                u.grid[findInterval(uN01, vec=K.u.grid,
                                    rightmost.closed=TRUE, ...)+1] # note: this gives quantiles according to the "typical" definition
            },
@@ -219,7 +219,7 @@ qK <- function(u, cop, d, n.MC=0,
            {
                ## evaluate K at a grid
                stopifnot(0 <= u.grid, u.grid <= 1)
-               K.u.grid <- pK(u.grid, cop=cop, d=d, n.MC=n.MC,
+               K.u.grid <- pK(u.grid, copula=copula, d=d, n.MC=n.MC,
                               log.p=FALSE)
                ## function for root finding
                fspl <- function(x, u)
@@ -234,7 +234,7 @@ qK <- function(u, cop, d, n.MC=0,
 
 ##' @title Density of the Kendall distribution
 ##' @param u evaluation point(s) in (0,1)
-##' @param cop acopula with specified parameter
+##' @param copula acopula with specified parameter
 ##' @param d dimension
 ##' @param n.MC if > 0 a Monte Carlo approach is applied with sample size equal
 ##'	   to n.MC to evaluate the d-th generator derivative; otherwise the exact
@@ -242,31 +242,31 @@ qK <- function(u, cop, d, n.MC=0,
 ##' @param log.p logical indicating whether the logarithm of the density is returned
 ##' @return Density of the Kendall distribution at u
 ##' @author Marius Hofert
-dK <- function(u, cop, d, n.MC=0, log.p=FALSE)
+dK <- function(u, copula, d, n.MC = 0, log.p = FALSE)
 {
-    stopifnot(is(cop, "acopula"), 0 < u, u < 1)
-    th <- cop@theta
-    lpsiI <- cop@iPsi(u, theta=th, log=TRUE) # log(psi^{-1}(u))
-    lpsiIDabs <- cop@absdiPsi(u, theta=th, log=TRUE) # (-psi^{-1})'(u)
+    stopifnot(is(copula, "acopula"), 0 < u, u < 1)
+    th <- copula@theta
+    lpsiI <- copula@iPsi(u, theta=th, log=TRUE) # log(psi^{-1}(u))
+    lpsiIDabs <- copula@absdiPsi(u, theta=th, log=TRUE) # (-psi^{-1})'(u)
     ld <- lfactorial(d-1) # log((d-1)!)
-    psiI <- cop@iPsi(u, theta=th) # psi^{-1}(u)
-    labsdPsi <- cop@absdPsi(psiI, theta=th, degree=d, n.MC=n.MC, log=TRUE) # log((-1)^d psi^{(d)}(psi^{-1}(u)))
+    psiI <- copula@iPsi(u, theta=th) # psi^{-1}(u)
+    labsdPsi <- copula@absdPsi(psiI, theta=th, degree=d, n.MC=n.MC, log=TRUE) # log((-1)^d psi^{(d)}(psi^{-1}(u)))
     res <- labsdPsi-ld+(d-1)*lpsiI+lpsiIDabs
     if(log.p) res else exp(res)
 }
 
 ##' @title Random number generation for the Kendall distribution
 ##' @param n number of random variates to generate
-##' @param cop acopula with specified parameter or onacopula
+##' @param copula acopula with specified parameter or onacopula
 ##' @param d dimension (only needed if ...)
 ##' @return Random numbers from the Kendall distribution
 ##' @author Marius Hofert
-rK <- function(n, cop, d) {
-    if(is(cop, c1 <- "acopula")) {
+rK <- function(n, copula, d) {
+    if(is(copula, c1 <- "acopula")) {
 	stopifnot(d == round(d))
-	cop <- onacopulaL(cop@name, list(cop@theta, 1L:d))
-    } else if(!is(cop, c2 <- "outer_nacopula"))
-	stop(gettextf("'cop' must be \"%s\" or \"%s\"", c1,c2), domain=NA)
+	copula <- onacopulaL(copula@name, list(copula@theta, 1L:d))
+    } else if(!is(copula, c2 <- "outer_nacopula"))
+	stop(gettextf("'copula' must be \"%s\" or \"%s\"", c1,c2), domain=NA)
 
-    pCopula(rCopula(n, cop), cop)
+    pCopula(rCopula(n, copula = copula), copula = copula)
 }

@@ -44,7 +44,7 @@ which extracts the parameter (vector) from any copula object
      - most likely, we should rename 'X' to 'data' (as is used often; sometimes
        not, though (like gofCopula()) => but clarify)
      - the same probably applies to dCn()
-** TODO Make rtrafo(, inverse = TRUE) and rtrafo() overall faster by avoiding 'archmCopula' class conversion to 'acopula' and back (see email from 2016-04-20); see the TODO in ./R/gofTrafos.R
+** TODO Make rosenblatt() and iRosenblatt() faster by avoiding 'archmCopula' class conversion to 'acopula' and back (see email from 2016-04-20); see the TODO in ./R/gofTrafos.R
 ** TODO [MM] copula@fullname: is used in print() method; Want also use for plotting -- hence urgent for book!
 - want to use "it" by default, e.g.,  `main = copula@fullname` in persp() etc, *HOWEVER*
   it is too long / ugly, e.g.,  "Gumbel copula family; Archimedean copula; Extreme value copula"

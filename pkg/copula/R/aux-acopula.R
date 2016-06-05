@@ -1171,13 +1171,13 @@ dimU <- function(u) {
 }
 
 
-
 ##' Conditional copula function C(u[,d]|u[,1],...,u[,d-1])
 ##'
 ##' @title Conditional copula function
 ##' @param u (n x d)-matrix of evaluation points (first d-1 columns are conditioned on)
 ##' @param cop an outer_nacopula
 ##' @param n.MC Monte Carlo sample size
+##'        => NOT USED ANYMORE
 ##' @param log if TRUE the logarithm of the conditional copula is returned
 ##' @author Marius Hofert
 cacopula <- function(u, cop, n.MC=0, log=FALSE) {
@@ -1187,8 +1187,9 @@ cacopula <- function(u, cop, n.MC=0, log=FALSE) {
 
     .Deprecated("cCopula")
     d <- ncol(u)
-    drop(rtrafo(u, cop=cop, j.ind = d, n.MC=n.MC, log=log))
+    drop(cCopula(u, copula = cop, indices = d, log = log))
 }
+
 
 ##' Function which computes absdPsi via Monte Carlo
 ##'

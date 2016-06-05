@@ -26,22 +26,22 @@
   Archimedean copula.
 }
 \usage{
-% K(u, cop, d, n.MC=0, log.p=FALSE) # is deprecated
+% K(u, copula, d, n.MC=0, log.p=FALSE) # is deprecated
 Kn(u, x)
-pK(u, cop, d, n.MC=0, log.p=FALSE)
-qK(u, cop, d, n.MC=0,
+pK(u, copula, d, n.MC=0, log.p=FALSE)
+qK(u, copula, d, n.MC=0,
    method=c("default", "simple", "sort", "discrete", "monoH.FC"),
    u.grid, \dots)
-dK(u, cop, d, n.MC=0, log.p=FALSE)
-rK(n, cop, d)
+dK(u, copula, d, n.MC=0, log.p=FALSE)
+rK(n, copula, d)
 }
 \arguments{
   \item{u}{evaluation point(s) (have to be in \eqn{[0,1]}).}
   \item{x}{data (in the \eqn{d}-dimensional space) based on which the
     Kendall distribution function is estimated.}
-  \item{cop}{\code{\linkS4class{acopula}} with specified parameter, or
+  \item{copula}{\code{\linkS4class{acopula}} with specified parameter, or
     (currently for \code{rK} only) a \code{\linkS4class{outer_nacopula}}.}
-  \item{d}{dimension (not used when \code{cop} is an
+  \item{d}{dimension (not used when \code{copula} is an
     \code{\linkS4class{outer_nacopula}}).}
   \item{n.MC}{\code{\link{integer}}, if positive, a Monte Carlo approach
     is applied with sample size equal to \code{n.MC} to evaluate the
@@ -118,36 +118,36 @@ tau <- 0.5
 d <- 20
 (cop <- onacopulaL("Gumbel", list(theta,1:d)))
 
-## basic check empirical Kendall distribution function
+## Basic check empirical Kendall distribution function
 set.seed(271)
 n <- 1000
-U <- rCopula(n, cop)
+U <- rCopula(n, copula = cop)
 X <- qnorm(U)
-K.sample <- pCopula(U, copula=cop)
+K.sample <- pCopula(U, copula = cop)
 u <- seq(0, 1, length.out=256)
 edfK <- ecdf(K.sample)
 plot(u, edfK(u), type="l", ylim=c(0,1),
      xlab=expression(italic(u)), ylab=expression(K[n](italic(u)))) # simulated
 K.n <- Kn(u, x=X)
 lines(u, K.n, col="royalblue3") # Kn
-## difference at 0
+## Difference at 0
 edfK(0) # edf of K at 0
 K.n[1] # K_n(0); this is > 0 since K.n is the edf of a discrete distribution
 ## => therefore, Kn(K.sample, x=X) is not uniform
 plot(Kn(K.sample, x=X), ylim=c(0,1))
 ## Note: Kn(0) -> 0 for n -> Inf
 
-## compute Kendall distribution function
+## Compute Kendall distribution function
 u <- seq(0,1, length.out = 255)
-Ku    <- pK(u, cop=cop@copula, d=d) # exact
-Ku.MC <- pK(u, cop=cop@copula, d=d, n.MC=1000) # via Monte Carlo
+Ku    <- pK(u, copula = cop@copula, d = d) # exact
+Ku.MC <- pK(u, copula = cop@copula, d = d, n.MC = 1000) # via Monte Carlo
 
-## build sample from K
+## Build sample from K
 set.seed(1)
 n <- 200
-W <- rK(n, cop)
+W <- rK(n, copula = cop)
 
-## plot empirical distribution function based on W
+## Plot empirical distribution function based on W
 ## and the corresponding theoretical Kendall distribution function
 ## (exact and via Monte Carlo)
 plot(ecdf(W), col="blue", xlim=c(0,1), verticals=TRUE,
@@ -162,22 +162,22 @@ legend(.2,.6, expression(F[n],K(u), K[MC](u)),
        xjust = 0.25, yjust = 0.5)
 
 \donttest{% needs a couple of valuable CRAN seconds :-)
-### testing qK
+## Testing qK
 uexpr <- quote( 0:63/63 );  u <- eval(uexpr)
 d <- 10
 cop <- onacopulaL("Gumbel", list(theta = 2, 1:d))
 
-system.time(Ku1 <- qK(u, cop=cop@copula, d=d, method="simple"))
-system.time(Ku2 <- qK(u, cop=cop@copula, d=d, method="sort"))
-system.time(Ku3 <- qK(u, cop=cop@copula, d=d, method="discrete",
-                      u.grid=0:1e4/1e4))
-system.time(Ku4 <- qK(u, cop=cop@copula, d=d, method="monoH.FC",
-                      u.grid=0:5e2/5e2))
+system.time(Ku1 <- qK(u, copula = cop@copula, d = d, method = "simple"))
+system.time(Ku2 <- qK(u, copula = cop@copula, d = d, method = "sort"))
+system.time(Ku3 <- qK(u, copula = cop@copula, d = d, method = "discrete",
+                      u.grid = 0:1e4/1e4))
+system.time(Ku4 <- qK(u, copula = cop@copula, d = d, method = "monoH.FC",
+                      u.grid = 0:5e2/5e2))
 
 cols <- adjustcolor(c("gray80", "light blue", "royal blue", "purple3"), 0.6)
-matplot(u, cbind(Ku1,Ku2,Ku3,Ku4), type="l", lwd=2*4:1, lty = 1:4, col= cols,
+matplot(u, cbind(Ku1, Ku2, Ku3, Ku4), type = "l", lwd = 2*4:1, lty = 1:4, col = cols,
         xlab=substitute(u == U, list(U=uexpr)), ylab=expression({K^{-1}}(u)))
-legend("topleft", col=cols, lwd=2*4:1, lty=1:4, bty="n", inset=.03,
+legend("topleft", col = cols, lwd = 2*4:1, lty = 1:4, bty = "n", inset = .03,
        legend= paste0("method= ",
              sQuote(c("simple", "sort", "discrete", "monoH.FC"))))
 }

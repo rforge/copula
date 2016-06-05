@@ -1,35 +1,23 @@
-\name{gofTrafos}
-\title{GOF Testing Transformations for Archimedean Copulas}
-\alias{gtrafo}
-\alias{rtrafo}
+\name{htrafo}
+\title{GOF Testing Transformation of Hering and Hofert}
 \alias{htrafo}
 \description{
-  Compute the following goodness-of-fit (GOF) testing transformations,
-  \describe{
-    \item{Rosenblatt's transformation \code{rtrafo()}}{is also of
-      importance outside of GOF computations: The Rosenblatt
-      transformation is used for computing conditional copulas and
-      for sampling purposes. Currently, \code{rtrafo()} is applicable
-      to elliptical and Archimedean copulas.}
-
-    \item{\code{htrafo()}}{the transformation described in Hering and Hofert
-      (2014), for Archimedean copulas.}
-  }
+  The transformation described in Hering and Hofert
+  (2014), for Archimedean copulas.
 }
 \usage{
-rtrafo(u, cop, j.ind = NULL, n.MC=0, inverse=FALSE, log=FALSE)
-htrafo(u, cop, include.K=TRUE, n.MC=0, inverse=FALSE,
-       method=eval(formals(qK)$method), u.grid, ...)
+htrafo(u, copula, include.K = TRUE, n.MC = 0, inverse = FALSE,
+       method = eval(formals(qK)$method), u.grid, ...)
 }
 \arguments{
   \item{u}{\eqn{n\times d}{n x d}-matrix with values in \eqn{[0,1]}.  If
     \code{inverse=FALSE} (the default), \code{u} contains
-    (pseudo-/copula-)observations from the copula \code{cop} based on
+    (pseudo-/copula-)observations from the copula \code{copula} based on
     which the transformation is carried out; consider applying the
     function \code{\link{pobs}()} first in order to obtain \code{u}.  If
     \code{inverse=TRUE}, \code{u} contains \eqn{U[0,1]^d} distributed
-    values which are transformed to copula-based (\code{cop}) ones.}
-  \item{cop}{a \code{"\linkS4class{Copula}"} with specified parameters
+    values which are transformed to copula-based (\code{copula}) ones.}
+  \item{copula}{a \code{"\linkS4class{Copula}"} with specified parameters
     based on which the transformation is computed.  For \code{htrafo()},
     currently only Archimedean copulas are supported (specified as
     \code{"\linkS4class{outer_nacopula}"} or \code{"\linkS4class{archmCopula}"}),
@@ -154,12 +142,12 @@ U <- pobs(X) # build pseudo-observations
 
 ## Graphically check if the data comes from a meta-Clayton model
 ## with the transformation of Hering and Hofert (2014):
-U.H <- htrafo(U, cop = cc) # transform the data
+U.H <- htrafo(U, copula = cc) # transform the data
 splom2(U.H, cex = 0.2) # looks good
 
 ## The same for an 'outer_nacopula' object
 cc. <- onacopulaL("Clayton", list(theta, 1:d))
-U.H. <- htrafo(U, cop = cc.)
+U.H. <- htrafo(U, copula = cc.)
 splom2(U.H., cex = 0.2) # looks good
 
 ## With the transformation of Rosenblatt (1952)
@@ -172,7 +160,7 @@ gc <- gumbelCopula(iTau(gumbelCopula(), tau = tau), dim = d)
 
 ## Plot of the transformed data (Hering and Hofert (2014)) to see the
 ## deviations from uniformity
-U.H.. <- htrafo(U, cop = gc)
+U.H.. <- htrafo(U, copula = gc)
 splom2(U.H.., cex = 0.2) # deviations visible
 
 ## Plot of the transformed data (Rosenblatt (1952)) to see the
