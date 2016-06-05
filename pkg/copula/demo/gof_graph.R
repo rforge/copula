@@ -385,7 +385,7 @@ cop.t <- ellipCopula("t", df=nuOpt, param=P.., dim=ncol(P.), dispstr="un")
 
 ## create array of pairwise copH0-transformed data columns
 cu.uN <- pairwiseCcop(u, cop.N)
-cu.ut <- pairwiseCcop(u, cop.t, df=nuOpt)
+cu.ut <- pairwiseCcop(u, cop.t)
 
 if(setSeeds) set.seed(8)
 ## compute pairwise matrix (d x d) of p-values and corresponding colors

@@ -4,7 +4,7 @@
 \description{
   \code{.pairsCond()} is an internal function for plotting the pairwise
   Rosenblatt transforms, i.e., the pairwise conditional distributions,
-  as returned by \code{\link{pairwiseCcop}}, via the principal function
+  as returned by \code{\link{pairwiseCcop}()}, via the principal function
   \code{\link{pairsRosenblatt}()}.
 
   The intention is that \code{\link{pairsRosenblatt}()} be called,

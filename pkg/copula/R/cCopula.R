@@ -30,6 +30,7 @@ rosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, ...)
 {
     if (!is.matrix(u)) # minimal checking here!
         u <- rbind(u, deparse.level = 0L)
+    n <- nrow(u) # sample size
 
     if(is(copula, "normalCopula")) { # Gauss copula (see, e.g., Cambou, Hofert, Lemieux)
 
@@ -54,7 +55,6 @@ rosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, ...)
         max.ind <- tail(indices, n = 1) # maximal index
         nu <- getdf(copula) # degrees of freedom
         x <- qt(u[, 1:max.ind, drop = FALSE], df = nu) # compute all 'x' we need
-        n <- nrow(u) # sample size
         C.j <- function(j) # C_{j|1,..,j-1}(u_j | u_1,..,u_{j-1})
         {
             if(j == 1) {
@@ -94,7 +94,6 @@ rosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, ...)
         ## Note: C_{j|1,..,j-1}(u_j | u_1,...,u_{j-1})
         ##       = \psi^{(j-1)}(\sum_{k=1}^j \psi^{-1}(u_k)) /
         ##         \psi^{(j-1)}(\sum_{k=1}^{j-1} \psi^{-1}(u_k))
-        n <- nrow(u)
         C.j <- function(j) # C_{j|1,..,j-1}(u_j | u_1,..,u_{j-1})
         {
             if(j == 1) {
