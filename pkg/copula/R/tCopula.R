@@ -32,7 +32,8 @@ tCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex",
 		    df = 4, df.fixed = FALSE)
 {
     dim <- as.integer(dim)
-    stopifnot((pdim <- length(param)) >= 1, is.numeric(param))
+    param <- as.numeric(param)
+    stopifnot((pdim <- length(param)) >= 1)
     if(pdim == 1 && is.na(param)) ## extend it (rho only!)
 	pdim <- length(param <- rep(param, length.out = npar.ellip(dim, dispstr)))
     parameters <- c(param, df) ## df is another parameter __at end__

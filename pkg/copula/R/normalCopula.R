@@ -15,7 +15,8 @@
 
 
 normalCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex") {
-    stopifnot((pdim <- length(param)) >= 1, is.numeric(param))
+    param <- as.numeric(param)
+    stopifnot((pdim <- length(param)) >= 1)
     if(pdim == 1 && is.na(param)) ## extend it (rho)
 	pdim <- length(param <- rep(param, length.out = npar.ellip(dim, dispstr)))
   new("normalCopula",

@@ -1,11 +1,9 @@
 ##-*- org -*-->  Emacs .. [Tab] key + [Org] menu; C-c C-o to follow links
 * Short Term (before 1.0.0):
-** TODO BUG fix: ellipCopula("normal") works (=> param = NA), but ellipCopula("normla", param = NA) fails (the same for the t copula: ellipCopula("t", param = NA, df.fixed = TRUE))
 ** TODO How can we extract marginal copulas from a given copula without having to first extract all information (family, parameter) and then defining a new copula? A pretty cool feature would be to simply use dim(copula, ...) <- 2 where '...' specifies (through a vector of variables) which marginal copula is extracted.
 ** TODO [IK/JY] Implement Khoudraji copulas (asymCopula()) for 2 'base copulas' (any dimension)
 ** TODO [IK] modify khoudrajiCopula code to allow construction from any two copulas; have tests (e.g. dCdu implemented?) as method level, not in constructor
 ** TODO [IK]: review the derivatives expression in dC-dc.R for free parameter adjustment
-** TODO [MM/JY]: Add slot 'fixed' (or similar) to copula class, change constructors of existing classes accordingly and make appropriate changes in fitCopula() (and gofCopula() if required and do basic checks)
 ** TODO Fitting high-dimensional copulas: memory explosion due to allocation of large (d*(d-1)/2) matrix for variance estimators
 # See also MH's email from 2016-05-01
 We frequently allocate matrices 'var.est' in ./R/fitCopula.R (potentially
@@ -39,12 +37,12 @@ MM: (2016-05-03):
 ** TODO tau()/rho()/lambda() should get 'matrix = TRUE' argument and internally call p2P() to allow to return matrices. lambda() should return a list (at least in d > 2) with two components (lower/upper tail dependence parameters or their matrices). The examples on the help files (e.g. ?tau, ?lambda) should be improved and also address d > 2.
 ** TODO Improve error message: tCopula(c(rep(0.5, 3), 4), dim = 3, dispstr = "un", df = 4) => should rather say that the *length* of 'param' is not correct (in case one accidentally adds the d.o.f. parameter there as so often)
 ** TODO [JY]: once 'fixed' stuff added, rewrite/adapt tCopula, tevCopula (so that the 'df.fixed' stuff uses the new 'fixed' stuff) ?
-** TODO [MM]: bug? library(copula); d <- 3; pCopula(0.4, copula = normalCopula(param = 0.5, dim = d))
+** TODO [MM]: bug? library(copula); pCopula(0.4, copula = normalCopula(param = 0.5, dim = 3)) is *random* !??!!
 ** TODO need a "getTheta" analogously to "setTheta"
 which extracts the parameter (vector) from any copula object
 ** TODO Clarify C.n() argument issues
      - most likely, we should rename 'X' to 'data' (as is used often; sometimes
-       not, though (like gofCopula()) => but clarify)
+       not, though (like gofCopula()) => but clarify).  MM: I strongly *prefer* 'X' to 'data'
      - the same probably applies to dCn()
 ** TODO Make rosenblatt() and iRosenblatt() faster by avoiding 'archmCopula' class conversion to 'acopula' and back (see email from 2016-04-20); see the TODO in ./R/gofTrafos.R
 ** TODO [MM] copula@fullname: is used in print() method; Want also use for plotting -- hence urgent for book!
@@ -172,6 +170,8 @@ Longer term: want to *estimate* those correctly [MLE at least].
     - shouldn't it {and all other tests} return a (valid) object of class
     "htest" (maybe "htest" in addition to the specific S3 class)?
     --> we would probably not need extra print() methods, and just use print.htest()
+** DONE [MM/JY]: Add slot 'fixed' (or similar) to copula class, change constructors of existing classes accordingly and make appropriate changes in fitCopula() (and gofCopula() if required and do basic checks)
+** DONE fix: ellipCopula("normal") works (=> param = NA_real_), but ellipCopula("normal", param = NA) fails: MM because NA is logical
 ** DONE use sinpi() etc e.g. in R/ellipCopula.R
 ** DONE New Wrapper functions or rather extending one or the other function names
 *** DONE dcopula(), pcopula(), rcopula()  (for "nacopula")

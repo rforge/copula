@@ -1,5 +1,5 @@
 
-R version 3.2.4 Revised (2016-03-16 r70336) -- "Very Secure Dishes"
+R version 3.3.0 Patched (2016-06-10 r70759) -- "Supposedly Educational"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -155,14 +155,14 @@ lower upper
 t copula family  
 Dimension:  2 
 Parameters:
-   rho.1  =  0.7 
-   df  =  3 
+  rho.1  =  0.7
+  df     =  3.0
 > (t.9.2 <- tCopula(0.9, df=2, dim = 2))
 t copula family  
 Dimension:  2 
 Parameters:
-   rho.1  =  0.9 
-   df  =  2 
+  rho.1  =  0.9
+  df     =  2.0
 > 
 > t.frac <- tCopula(0.9, df=2.5, dim = 2)
 > ## fractional df  currently (must) *fail* for pCopula
@@ -203,8 +203,8 @@ Parameters:
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ''statistical reasons''
-Time elapsed:  0.915 0.122 1.18 0 0.003 
+Time elapsed:  0.675 0.106 0.777 0 0.002 
 > 
 > proc.time()
    user  system elapsed 
-  0.915   0.125   1.180 
+  0.675   0.108   0.777 
