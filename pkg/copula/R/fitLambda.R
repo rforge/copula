@@ -102,8 +102,10 @@ fitLambda <- function(u, method = c("Schmid.Schmidt", "t"),
                 nu <- optimize(nLLt, interval = c(1e-4, 1e3), P = P., u = u., ...)$minimum
                 Nu[i,j] <- nu
                 Lam[i,j] <- 2 * pt(-sqrt((nu + 1) * (1 - rho) / (1 + rho)), df = nu + 1)
-                l <- l + 1
-                setTxtProgressBar(pb, l) # update progress bar
+                if(verbose) {
+                    l <- l + 1
+                    setTxtProgressBar(pb, l) # update progress bar
+                }
             }
         }
         ## Symmetrize and return
