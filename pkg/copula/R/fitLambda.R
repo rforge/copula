@@ -40,8 +40,7 @@ fitLambda <- function(u, method = c("Schmid.Schmidt", "t"),
     method <- match.arg(method)
     if(verbose) { # setup progress bar
         l <- 0 # counter
-        ch <- choose(d, 2) # number of pairs
-        pb <- txtProgressBar(max = ch, style = if(isatty(stdout())) 3 else 1) # setup progress bar
+        pb <- txtProgressBar(max = choose(d, 2), style = if(isatty(stdout())) 3 else 1) # setup progress bar
         on.exit(close(pb)) # on exit, close progress bar
     }
 
@@ -50,19 +49,16 @@ fitLambda <- function(u, method = c("Schmid.Schmidt", "t"),
     "Schmid.Schmidt" = {
 
         ## Compute lambda for each pair
-        if(lower.tail) {
-            u. <- u
-        } else { # upper tail-dependence coefficient (compute lambda_L for survival copula)
-            u. <- 1-u
-        }
+        u. <- if(lower.tail) u else 1-u # for upper tail dependence compute the lower tail dependence for the survival copula
         Lam <- diag(1, nrow = d)
-        M <- matrix(pmax(0, p-u), ncol = d)
+        M <- matrix(pmax(0, p-u.), ncol = d)
         for(i in 2:d) {
-            for(j in 1:(i-1))
+            for(j in 1:(i-1)) {
                 Lam[i,j] <- mean(apply(M[, c(i, j)], 1, prod)) # \hat{Lambda}_{ij}
-            if(verbose) {
-                l <- l+1
-                setTxtProgressBar(pb, l) # update progress bar
+                if(verbose) {
+                    l <- l + 1
+                    setTxtProgressBar(pb, l) # update progress bar
+                }
             }
         }
         int.over.Pi <- (p^2 / 2)^2
