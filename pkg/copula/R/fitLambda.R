@@ -29,7 +29,7 @@
 ##'       for the method "Schmid.Schmidt". We use this formula only pairwise,
 ##'       so for d = 2.
 fitLambda <- function(u, method = c("Schmid.Schmidt", "t"),
-                      p = ceiling(nrow(u)/10), # copula = tCopula(), => maybe for a general copula at some point...
+                      p = min(100/nrow(u), 0.1) , # copula = tCopula(), => maybe for a general copula at some point...
                       lower.tail = TRUE, verbose = FALSE, ...)
 {
     ## Checking

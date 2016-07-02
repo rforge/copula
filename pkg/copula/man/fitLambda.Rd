@@ -5,8 +5,8 @@
   Computing non-parametric estimators of the (matrix of) tail-dependence coefficients.
 }
 \usage{
-fitLambda(u, method = c("Schmid.Schmidt", "t"),
-          p = ceiling(nrow(u)/10), lower.tail = TRUE, verbose = FALSE, ...)
+fitLambda(u, method = c("Schmid.Schmidt", "t"), p = min(100/nrow(u), 0.1),
+          lower.tail = TRUE, verbose = FALSE, ...)
 }
 \arguments{
   \item{u}{\eqn{n\times d}{n x d}-\code{\link{matrix}} of (pseudo-)observations in
