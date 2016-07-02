@@ -17,8 +17,13 @@ require(copula)
 
 (doExtras <- copula:::doExtras())
 
-if (doExtras)
-{
+showProc.time <- local({
+    pct <- proc.time()
+    function() { ## CPU elapsed __since last called__
+	ot <- pct ; pct <<- proc.time()
+	cat('Time elapsed: ', (pct - ot)[1:3],'\n')
+    }
+})
 
 ### TEST FITTING ##########################################################
 
@@ -39,6 +44,8 @@ if (doExtras)
     fitCopula(nc3, data = u, method = "irho")
     fitCopula(nc3, data = u, method = "irho", estimate.variance = FALSE)
 
+showProc.time()
+
     nc2  <- normalCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, FALSE, FALSE)),
                          dispstr = "un")
     nc2@parameters
@@ -52,6 +59,9 @@ if (doExtras)
     fitCopula(nc2, data = u, method = "irho")
     fitCopula(nc2, data = u, method = "irho", estimate.variance = FALSE)
 
+showProc.time()
+
+
     nc1  <- normalCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, TRUE, FALSE)),
                          dispstr = "un")
     nc1@parameters
@@ -60,6 +70,9 @@ if (doExtras)
     fitCopula(nc1, data = x, method = "ml")
     fitCopula(nc1, data = u, method = "itau")
     fitCopula(nc1, data = u, method = "irho")
+
+showProc.time()
+
 
     ## with t copulas (df.fixed = FALSE)
     tc3df  <- tCopula(dim = 3, c(.6,.3,.2), dispstr = "un")
@@ -75,10 +88,12 @@ if (doExtras)
     fitCopula(tc3df, data = u, method = "itau", estimate.variance = FALSE)
     fitCopula(tc3df, data = u, method = "itau.mpl")
 
+showProc.time()
+
+
     tc2df  <- tCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, FALSE, FALSE)),
                     dispstr = "un")
     tc2df@parameters
-
 
     fitCopula(tc2df, data = u)
     fitCopula(tc2df, data = x, method = "ml")
@@ -87,8 +102,9 @@ if (doExtras)
     fitCopula(tc2df, data = x, method = "ml", estimate.variance = FALSE)
     fitCopula(tc2df, data = u, method = "itau", estimate.variance = FALSE)
     fitCopula(tc2df, data = u, method = "itau.mpl")
-
     ## fitCopula(tc2df, data = u, method = "irho")
+showProc.time()
+
 
     tc1df  <- tCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, TRUE, FALSE)),
                     dispstr = "un")
@@ -99,6 +115,8 @@ if (doExtras)
     fitCopula(tc1df, data = u, method = "itau")
     fitCopula(tc1df, data = u, method = "itau.mpl")
     ## fitCopula(tc1df, data = u, method = "irho")
+showProc.time()
+
 
     ## with t copulas (df.fixed = TRUE)
     tc2  <- tCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, FALSE, FALSE)),
@@ -108,6 +126,8 @@ if (doExtras)
     fitCopula(tc2, data = u)
     fitCopula(tc2, data = u, method = "itau")
     ## fitCopula(tc2, data = u, method = "irho")
+showProc.time()
+
 
     tc1  <- tCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, TRUE, FALSE)),
                     dispstr = "un", df.fixed = TRUE)
@@ -116,6 +136,7 @@ if (doExtras)
     fitCopula(tc1, data = u)
     fitCopula(tc1, data = u, method = "itau")
     ##fitCopula(tc1, data = u, method = "irho")
+showProc.time()
 
 ### TEST dC-dc functions #####################################################
 
@@ -136,7 +157,6 @@ if (doExtras)
     set.seed(7615)
     v <- matrix(runif(15), 5, 3)
 
-
     ## normal
     testdCdc(nc2, v, nc3)
     testdCdc(nc1, v, nc3)
@@ -145,6 +165,8 @@ if (doExtras)
     tc3  <- tCopula(dim = 3, c(.6,.3,.2), dispstr = "un", df.fixed = TRUE)
     testdCdc(tc2, v, tc3)
     testdCdc(tc1, v, tc3)
+
+showProc.time()
 
     ## Compare true and numerical derivatives
     comparederiv <- function(cop, u) {
@@ -163,6 +185,10 @@ if (doExtras)
     comparederiv(tc2, v)
     comparederiv(tc1, v)
 
+showProc.time()
+
+if (doExtras) {## ~ 7 secs
+
 ### Multiplier GOF #####################################################
 
     ## check size of mult GOF test briefly
@@ -172,11 +198,12 @@ if (doExtras)
     }
     n <- 100
     M <- 10 #1000
-    mean(replicate(M, do1(n, nc2)) < 0.05)
-    mean(replicate(M, do1(n, nc1)) < 0.05)
-    mean(replicate(M, do1(n, tc2)) < 0.05)
-    mean(replicate(M, do1(n, tc1)) < 0.05)
-    ## do1(n, tc2df)
-    ## do1(n, tc1df)
+    mM <- sapply(list(nc2=nc2, nc1=nc1, tc2=tc2, tc1=tc1
+                    ## , tc2df, tc1df
+                      ), function(COP) mean(replicate(M, do1(n, COP))))
+    print(mM)
+    print(mM < 0.05)
+
+showProc.time()
 }
 
