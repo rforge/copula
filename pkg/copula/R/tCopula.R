@@ -32,7 +32,7 @@ tCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex",
 		    df = 4, df.fixed = FALSE)
 {
     dim <- as.integer(dim)
-    param <- as.numeric(param)
+    if(!is.numeric(param)) storage.mode(param) <- "double" # for NA, keeping attributes!
     stopifnot((pdim <- length(param)) >= 1)
     if(pdim == 1 && is.na(param)) ## extend it (rho only!)
 	pdim <- length(param <- rep(param, length.out = npar.ellip(dim, dispstr)))
