@@ -125,9 +125,9 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
 
 ##' revert to  gofPB()  once it is hidden
 .gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
-                  estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
-                  trafo.method = c("none", "cCopula", "htrafo"),
-		  trafoArgs = list(), verbose = interactive(), ...)
+                   estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
+                   trafo.method = c("none", "cCopula", "htrafo"),
+                   trafoArgs = list(), verbose = interactive(), ...)
 {
     ## Checks
     stopifnot(is(copula, "copula"), N >= 1)
@@ -161,14 +161,14 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
     C.th.n <- fitCopula(copula, uhat, method=estim.method,
 			estimate.variance=FALSE, ...)@copula
     ## 3) Compute the realized test statistic
-    doTrafo <- (method == "Sn" && trafo.method != "none")
+    doTrafo <- (method == "Sn" && trafo.method != "none") # (only) transform if method = "Sn" and trafo.method given
     u <- if(doTrafo) {
 	stopifnot(is.list(trafoArgs))
 	if(length(names(trafoArgs)) != length(trafoArgs))
 	    stop("'trafoArgs' must be a fully named list")
 	switch(trafo.method,
 	       "cCopula"= do.call(cCopula, c(list(uhat, copula = C.th.n), trafoArgs)),
-	       "htrafo"= do.call(htrafo, c(list(uhat, copula = C.th.n), trafoArgs)),
+	       "htrafo" = do.call(htrafo,  c(list(uhat, copula = C.th.n), trafoArgs)),
 	       stop("wrong transformation method"))
     } else uhat
     T <- if(method=="Sn") gofTstat(u, method=method, copula=C.th.n)
@@ -187,7 +187,7 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
         u. <- if(doTrafo) { # (no checks needed; all done above)
 	    switch(trafo.method,
 		   "cCopula"= do.call(cCopula, c(list(Uhat, copula = C.th.n.), trafoArgs)),
-		   "htrafo"= do.call(htrafo, c(list(Uhat, copula = C.th.n.), trafoArgs)))
+		   "htrafo" = do.call(htrafo,  c(list(Uhat, copula = C.th.n.), trafoArgs)))
         } else Uhat
         T0. <- if(method=="Sn") gofTstat(u., method = method, copula = C.th.n.)
                else gofTstat(u., method=method)

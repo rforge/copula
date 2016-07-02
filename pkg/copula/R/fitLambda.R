@@ -18,8 +18,8 @@
 ##' @title Non-parametric Estimators of the Matrix of Tail Dependence Coefficients
 ##' @param u An (n, d)-data matrix of pseudo-observations
 ##' @param p A probability (in (0,1)) used as 'cut-off' point
-##' @param tail Whether the lower or upper tail dependence coefficient is
-##'        to be computed
+##' @param lower.tail A logical indicating whether the lower or upper tail dependence
+##'        coefficient is to be computed
 ##' @param verbose A logical indicating whether a progress bar is displayed
 ##' @return Estimate of the (matrix of) tail dependence coefficients
 ##'         (depending on p)
@@ -28,14 +28,13 @@
 ##'         for the method implemented below. We use this only for d = 2
 ##'       - If further methods are implemented, introduce 'method' argument
 ##'         with name "Schmid.Schmidt" for the method below.
-fitLambda <- function(u, p, tail = c("lower", "upper"), verbose = FALSE)
+fitLambda <- function(u, p, lower.tail = TRUE, verbose = FALSE)
 {
     ## Checking
     if(!is.matrix(u)) u <- rbind(u, deparse.level=0L)
     d <- ncol(u)
     stopifnot(0 <= u, u <= 1, 0 <= p, p <= 1,
-              length(p) == 1, d >= 2)
-    tail <- match.arg(tail)
+              length(p) == 1, d >= 2, is.logical(lower.tail))
 
     ## Compute Lambda
     Lam <- diag(1, nrow = d)
@@ -43,8 +42,7 @@ fitLambda <- function(u, p, tail = c("lower", "upper"), verbose = FALSE)
         pb <- txtProgressBar(max = d, style = if(isatty(stdout())) 3 else 1)
         on.exit(close(pb))
     }
-    switch(tail,
-    "lower" = {
+    if(lower.tail) {
         M <- matrix(pmax(0, p-u), ncol = d)
         for(i in 1:(d-1)) {
             for(j in (i+1):d)
@@ -53,8 +51,7 @@ fitLambda <- function(u, p, tail = c("lower", "upper"), verbose = FALSE)
         }
         int.over.Pi <- (p^2 / 2)^2
         int.over.M <- p^3 / 3
-    },
-    "upper" = {
+    } else { # upper tail-dependence coefficient
         M <- matrix(pmin(p, 1-u), ncol = d)
         for(i in 1:(d-1)) {
             for(j in (i+1):d)
@@ -63,8 +60,7 @@ fitLambda <- function(u, p, tail = c("lower", "upper"), verbose = FALSE)
         }
         int.over.Pi <- (p*(2-p)/2)^2
         int.over.M <- (1-(1-p)^2 * (1+2*p))/3
-    },
-    stop("Wrong 'tail'"))
+    }
     Lam <- (Lam - int.over.Pi) / (int.over.M - int.over.Pi) # proper scaling
     if(d == 2) {
         min(max(Lam[1,2], 0), 1)
