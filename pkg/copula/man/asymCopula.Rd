@@ -7,8 +7,9 @@
 \description{
   Creates an object representing a copula constructed using
   \emph{Khoudraji's device} (Khoudraji, 1995). The resulting \R object
-  is either of class \code{"\linkS4class{khoudrajiBivCopula}"} or of class
-  \code{"\linkS4class{khoudrajiExplicitCopula}"}.
+  is either of class \code{"\linkS4class{khoudrajiBivCopula}"},
+  \code{"\linkS4class{khoudrajiExplicitCopula}"}
+  or \code{"\linkS4class{khoudrajiCopula}"}.
 
   In the bivariate case, given two copulas \eqn{C_1} and \eqn{C_2},
   Khoudraji's device consists of defining a copula whose c.d.f. is given
@@ -33,21 +34,25 @@ khoudrajiCopula(copula1 = indepCopula(), copula2 = indepCopula(),
     with values in \eqn{[0,1]}.}
 }
 \details{
-  If the argument copulas are bivariate, \code{copula1} and
-  \code{copula2} can be of almost all copula classes (those for which
-  partial derivatives of the copula c.d.f. with respect to arguments are
-  implemented). If they are \eqn{d}-dimensional with
-  \eqn{d > 2}, the construction will be allowed only if they have explicit
-  p.d.f. and c.d.f. expressions. For instance, normal copulas can be used
-  in the construction in dimension two but not in higher
-  dimensions. These constraints are imposed so that the density of
-  \dQuote{Khoudraji copulas} can be evaluated.
+  If the argument copulas are bivariate, an object of class
+  \code{"\linkS4class{khoudrajiBivCopula}"} will be constructed.  If
+  they are \eqn{d}-dimensional with \eqn{d > 2} and if they have
+  explicit p.d.f. and c.d.f. expressions, an object of class
+  \code{"\linkS4class{khoudrajiExplicitCopula}"} will be
+  constructed. For these two classes, density evaluation is implemented,
+  and fitting and goodness-of-fit testing can be attempted. If \eqn{d >
+  2} but one of the argument copulas does not have explicit p.d.f. and
+  c.d.f. expressions, an object of class
+  \code{"\linkS4class{khoudrajiCopula}"} will be constructed, for which
+  density evaluation is not possible.
 }
 %\author{Jun Yan and Ivan Kojadinovic}
 \value{
   A new object of class \code{"\linkS4class{khoudrajiBivCopula}"} in
   dimension two or of class
-  \code{"\linkS4class{khoudrajiExplicitCopula}"} when \eqn{d > 2}.
+  \code{"\linkS4class{khoudrajiExplicitCopula}"} or
+  \code{"\linkS4class{khoudrajiCopula}"} when \eqn{d > 2}when \eqn{d >
+   2}.
 }
 \references{
   Genest, C., Ghoudi, K., and Rivest, L.-P. (1998), Discussion of
@@ -69,6 +74,8 @@ khoudrajiCopula(copula1 = indepCopula(), copula2 = indepCopula(),
 ## A bivariate Khoudraji-Clayton copula
 kc <- khoudrajiCopula(copula2 = claytonCopula(6),
                       shapes = c(0.4, 0.95))
+class(kc)
+
 kc ## FIXME: too long 'fullname'
 contour(kc, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
 
@@ -93,7 +100,7 @@ fitCopula(khoudrajiCopula(copula2 = claytonCopula()),
           start = c(1.1, 0.5, 0.5), data = pobs(u),
           optim.method = "Nelder-Mead")
 
-## Second shape parameter fixed to 1
+## Second shape parameter fixed to 0.95
 fitCopula(kcf,
           start = c(1.1, 0.5), data = pobs(u),
           optim.method = "Nelder-Mead")
@@ -115,7 +122,33 @@ u <- rCopula(n, gumbelCopula(4))
 gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS")
 gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS",
           sim = "mult")
+
+## Higher-dimensional constructions
+
+## A three dimensional Khoudraji-Clayton copula
+kcd3 <- khoudrajiCopula(copula1 = indepCopula(dim=3),
+                        copula2 = claytonCopula(6, dim=3),
+                        shapes = c(0.4, 0.95, 0.95))
+kcd3
+class(kcd3)
+
+n <- 1000
+u <- rCopula(n, kcd3)
+v <- matrix(runif(15), 5, 3)
+splom2(u)
+dCopula(v, kcd3) ## FIXME: bugged
+
+## A four dimensional Khoudraji-Normal copula
+knd4 <- khoudrajiCopula(copula1 = indepCopula(dim=4),
+                        copula2 = normalCopula(.9, dim=4),
+                        shapes = c(0.4, 0.95, 0.95, 0.95))
+knd4
+class(knd4)
+u <- rCopula(n, knd4)
+splom2(u)
+## dCopula(v, knd4) ## not implemented
 }
 }
+
 \keyword{distribution}
 \keyword{multivariate}

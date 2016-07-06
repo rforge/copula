@@ -12,7 +12,7 @@
   asymmetric copulas and its \sQuote{subclass} \code{"asym2copula"} of
   those which are constructed from two copulas.
 
-  More specifically, the \emph{virtual} class \code{"khoudrajiCopula"} and its two
+  More specifically, the class \code{"khoudrajiCopula"} and its two
   subclasses \code{"khoudrajiBivCopula"} and \code{"khoudrajiExplicitCopula"}
   represent copulas constructed using Khoudraji's device from two copulas of
   the same dimension; see \code{\link{khoudrajiCopula}()} for more details.

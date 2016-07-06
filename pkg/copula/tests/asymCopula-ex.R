@@ -82,6 +82,28 @@ contour(kgkcf, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
 max(abs(copula:::dCduCopulaNum(kgkcf, v) - copula:::dCdu(kgkcf, v)))
 max(abs(copula:::dCdthetaCopulaNum(kgkcf, v) - copula:::dCdtheta(kgkcf, v)))
 
+## A three dimensional Khoudraji-Clayton copula
+kcd3 <- khoudrajiCopula(copula1 = indepCopula(dim=3),
+                        copula2 = claytonCopula(6, dim=3),
+                        shapes = c(0.4, 0.95, 0.95))
+kcd3@parameters
+class(kcd3) ## "khoudrajiExplicitCopula"
+set.seed(1712)
+n <- 1000
+u <- rCopula(n, kcd3)
+v <- matrix(runif(15), 5, 3)
+splom2(u)
+dCopula(v, kcd3) ## bugged?
+
+## A four dimensional Khoudraji-Normal copula
+knd4 <- khoudrajiCopula(copula1 = indepCopula(dim=4),
+                        copula2 = normalCopula(.9, dim=4),
+                        shapes = c(0.4, 0.95, 0.95, 0.95))
+knd4
+class(knd4) ## "khoudrajiCopula"
+u <- rCopula(n, knd4)
+splom2(u)
+try(dCopula(v, knd4)) ## not implemented
 
 ### fitting ###########################################################
 n <- 300
