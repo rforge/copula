@@ -105,6 +105,16 @@ u <- rCopula(n, knd4)
 splom2(u)
 try(dCopula(v, knd4)) ## not implemented
 
+
+## comparing copula density between dKhoudrajiCopula and dKhoudrajiExplicitCopula
+kgc    <-                 khoudrajiCopula(gumbelCopula(2), claytonCopula(6), c(.4, .95))
+kgc.ex <- copula:::khoudrajiExplictCopula(gumbelCopula(2), claytonCopula(6), c(.4, .95))
+
+u <- rCopula(20, kgc)
+copula:::dKhoudrajiBivCopula(u, kgc)
+copula:::dKhoudrajiExplicitCopula(u, kgc.ex)
+
+
 ### fitting ###########################################################
 n <- 300
 set.seed(17)

@@ -176,6 +176,7 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
 
         ## pdf
         pdfExpr <- function(cdf, n) {
+            ## This function returns the pdf expression by differentiating the cdf
             for (i in 1:n)
                 cdf <- D(cdf, paste0("u", i))
             cdf
@@ -189,10 +190,14 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
                 NULL
             }
 
+        ## derExprs: get the derivatives of cdf of order 1 to n
+        ## That is: dC/du1, d2C/(du1 du2), d3C / (du1 du2 du3), ...
+        ## WARNING: This is assuming exchangeable copula so that
+        ## the ordering of arguments does not matter
         derExprs <- function(cdf, n) {
-            val <- as.expression(cdf)
+            val <- rep(as.expression(cdf), n + 1) ## the first one is cdf itself
             for (i in 1:n) {
-                val <- c(val, D(val[i], paste0("u", i)))
+                val[i + 1] <- D(val[i], paste0("u", i))
             }
             val
         }
@@ -413,25 +418,25 @@ densDers <- function(idx, u, dg, copula, derExprs) {
     newidx <- c((1:d)[idx], (1:d)[!idx])
     u <- u[, newidx]
     for (i in 1:d) assign(paste0("u", i), u[,i])
-    dgu <- if(sum(idx) == 0) 1 else apply(dg[,idx,drop=FALSE], 1, prod)
+    dgu <- if (sum(idx) == 0) 1 else apply(dg[,idx,drop=FALSE], 1, prod)
     c(eval(derExprs[dorder + 1])) * dgu
 }
 
 dKhoudrajiExplicitCopula <- function(u, copula, log=FALSE, ...) {
     u <- as.matrix(u)
     comps <- getKhoudrajiCopulaComps(copula)
-    a <- comps$shapes
-    tu <- t(u)
-    u1 <- t(tu^(1 - a))
-    u2 <- t(tu^a)
-    dg1 <- t((1 - a) * tu^(-a))
-    dg2 <- t(a * tu^(a - 1))
+    a <- matrix(comps$shapes, nrow(u), ncol(u), byrow=TRUE)
+    u1 <- u ^ (1 - a)
+    u2 <- u ^ a
+    dg1 <- (1 - a) * u^(-a)
+    dg2 <- a * u^(a - 1)
     d <- copula@dimension
     powerSet <- getPowerSet(d)
     dens <- 0
     for (i in 1:nrow(powerSet)) {
         idx1 <- c(powerSet[i,])
         idx2 <- c(!powerSet[i,])
+        ## WARNING: Again, this works for exchangeable copula components only
         part1 <- densDers(idx1, u1, dg1, copula@copula1, copula@derExprs1)
         part2 <- densDers(idx2, u2, dg2, copula@copula2, copula@derExprs2)
         dens <- dens + part1 * part2
@@ -442,3 +447,113 @@ dKhoudrajiExplicitCopula <- function(u, copula, log=FALSE, ...) {
 
 setMethod("dCopula", signature("numeric", "khoudrajiExplicitCopula"), dKhoudrajiExplicitCopula)
 setMethod("dCopula", signature("matrix", "khoudrajiExplicitCopula"), dKhoudrajiExplicitCopula)
+
+
+################ testing only; to be removed ################################
+khoudrajiExplictCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
+                                   shapes = c(1,1)) {
+
+    ## checks
+    stopifnot(is.numeric(shapes), shapes >= 0, shapes <= 1,
+              (d <- dim(copula1)) == length(shapes))
+
+    ## deal with possibly fixed attributes
+    parameters <- c(copula1@parameters, copula2@parameters, shapes)
+    attr(parameters, "fixed") <- c(fixedAttr(copula1@parameters),
+                                   fixedAttr(copula2@parameters),
+                                   fixedAttr(shapes))
+
+    ## if d==2, create a khoudrajiBivCopula object
+    ## if d > 2
+    ##          if copula1 and copula2 are explicit copulas
+    ##               create a khoudrajiExplicitCopula object
+    ##               (for which pdrCopula will work)
+    ##          else create a khoudrajiCopula object
+    ##               (for which only prCopula will work)
+
+
+    ## check if copula1 and copula2 have 'exprdist' slots
+    areNotBothExplicit <- if(is.na(match("exprdist", slotNames(copula1))) ||
+                          is.na(match("exprdist", slotNames(copula2))) ||
+                          !is.language(F1 <- copula1@exprdist$cdf) ||
+                          !is.language(F2 <- copula2@exprdist$cdf)) TRUE else FALSE
+
+    {
+
+        ## Explicit Khourdraji copulas
+
+        ## FIXME: not characters and parse(text=), rather expressions, substitute() ...
+
+        ## cdf
+        getcdfchar <- function(cdf, om=FALSE) {
+            ## FIXME: this only works up to dim 9; e.g., u10 could be replaced with u1^shp1
+            ## -----  TODO: be smarter in gsub() --- rather do *NOT* use characters at all !!
+            if (d >= 10) stop("The maximum implemented dim is 9.")
+            cdf <- deparse(cdf)
+            for (i in 1:d) {
+                ui <- paste0("u", i)
+                shpi <- paste0("shp", i)
+                if (om) shpi <- paste("(1 - ", shpi, ")")
+                replacement <- paste("(", ui, "^", shpi, ")")
+                cdf <- gsub(ui, replacement, cdf)
+            }
+            cdf
+        }
+
+        ## FIXME: work with expressions F1 / F2, not chars...
+        cdf1 <- getcdfchar(F1, om=TRUE)
+        cdf2 <- getcdfchar(F2, om=FALSE)
+        cdf <- parse(text = c("(", cdf1, ") * (", cdf2, ")"))
+        ## cdf <- substitute((F1) * (F2),
+        ##                   list(F1 = cdf1, F2 = cdf2))
+
+        ## pdf
+        pdfExpr <- function(cdf, n) {
+            ## This function returns the pdf expression by differentiating the cdf
+            for (i in 1:n)
+                cdf <- D(cdf, paste0("u", i))
+            cdf
+        }
+
+        pdf <-
+            if (d <= 6)
+                pdfExpr(cdf, d)
+            else {
+                warning("The pdf is only available for dim 6 or lower.")
+                NULL
+            }
+
+        ## derExprs: get the derivatives of cdf of order 1 to n
+        ## That is: dC/du1, d2C/(du1 du2), d3C / (du1 du2 du3), ...
+        ## WARNING: This is assuming exchangeable copula so that
+        ## the ordering of arguments does not matter
+
+        derExprs <- function(cdf, n) {
+            val <- as.expression(cdf) ## the first one is cdf itself
+            for (i in 1:n) {
+                val <- c(val, D(val[i], paste0("u", i)))
+            }
+            val
+        }
+        derExprs1 <- derExprs(F1, d)
+        derExprs2 <- derExprs(F2, d)
+
+        new("khoudrajiExplicitCopula",
+            dimension = d,
+            parameters = parameters,
+            param.names = c(if (length(copula1@parameters) > 0)
+                                paste0("c1.", copula1@param.names) else character(0),
+                            if (length(copula2@parameters) > 0)
+                                paste0("c2.", copula2@param.names) else character(0),
+                            paste0("shape", 1:d)),
+            param.lowbnd = c(copula1@param.lowbnd, copula2@param.lowbnd, rep(0, d)),
+            param.upbnd  = c(copula1@param.upbnd,  copula2@param.upbnd,  rep(1, d)),
+            copula1 = copula1,
+            copula2 = copula2,
+            exprdist = c(cdf=cdf, pdf=pdf),
+            derExprs1 = derExprs1, derExprs2 = derExprs2,
+            fullname = paste("Khoudraji copula constructed from: [",
+                             copula1@fullname, "] and: [", copula2@fullname, "]"))
+    }
+}
+
