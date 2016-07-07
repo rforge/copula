@@ -151,7 +151,11 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
 
         ## FIXME: not characters and parse(text=), rather expressions, substitute() ...
 
-        ## cdf
+        ## The following block handles the cdf 
+        ##'' @title Replace ui with (ui^shp) for each ui in a cdf expression
+        ##'' @param cdf cdf expression of a copula
+        ##'' @param om logical, TRUE = use 1 - shp in place of shp
+        ##'' @return a string of cdf expression with (ui^shp) or (ui^(1 - shp)) in place of ui
         getcdfchar <- function(cdf, om=FALSE) {
             ## FIXME: this only works up to dim 9; e.g., u10 could be replaced with u1^shp1
             ## -----  TODO: be smarter in gsub() --- rather do *NOT* use characters at all !!
@@ -174,7 +178,11 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
         ## cdf <- substitute((F1) * (F2),
         ##                   list(F1 = cdf1, F2 = cdf2))
 
-        ## pdf
+        ## The following block handles pdf
+        ##'' @title Get pdf expression by differentiating the cdf with D iteratively
+        ##'' @param cdf Expression of cdf
+        ##'' @param n dimension
+        ##'' @return Expression of pdf
         pdfExpr <- function(cdf, n) {
             ## This function returns the pdf expression by differentiating the cdf
             for (i in 1:n)
@@ -190,7 +198,9 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
                 NULL
             }
 
-        ## derExprs: get the derivatives of cdf of order 1 to n
+        ## The following block handles the partial derivatives of a component copula cdf
+        ## needed in the density
+derExprs: get the derivatives of cdf of order 1 to n
         ## That is: dC/du1, d2C/(du1 du2), d3C / (du1 du2 du3), ...
         ## WARNING: This is assuming exchangeable copula so that
         ## the ordering of arguments does not matter
