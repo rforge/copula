@@ -102,7 +102,7 @@ KhoudFn <-
 ##' @author Jun Yan and Ivan Kojadinovic
 ##'
 khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
-                            shapes = c(1,1)) {
+                            shapes = rep(1, dim(copula1))) {
 
     ## checks
     stopifnot(is.numeric(shapes), shapes >= 0, shapes <= 1,
@@ -425,6 +425,8 @@ densDers <- function(idx, u, dg, copula, derExprs) {
 dKhoudrajiExplicitCopula <- function(u, copula, log=FALSE, ...) {
     u <- as.matrix(u)
     comps <- getKhoudrajiCopulaComps(copula)
+    copula1 <- comps$copula1
+    copula2 <- comps$copula2
     a <- matrix(comps$shapes, nrow(u), ncol(u), byrow=TRUE)
     u1 <- u ^ (1 - a)
     u2 <- u ^ a
@@ -437,8 +439,8 @@ dKhoudrajiExplicitCopula <- function(u, copula, log=FALSE, ...) {
         idx1 <- c(powerSet[i,])
         idx2 <- c(!powerSet[i,])
         ## WARNING: Again, this works for exchangeable copula components only
-        part1 <- densDers(idx1, u1, dg1, copula@copula1, copula@derExprs1)
-        part2 <- densDers(idx2, u2, dg2, copula@copula2, copula@derExprs2)
+        part1 <- densDers(idx1, u1, dg1, copula1, copula@derExprs1)
+        part2 <- densDers(idx2, u2, dg2, copula2, copula@derExprs2)
         dens <- dens + part1 * part2
         ## print(part1); print(part2)
     }

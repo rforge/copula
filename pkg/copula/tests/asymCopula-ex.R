@@ -93,7 +93,7 @@ n <- 1000
 u <- rCopula(n, kcd3)
 v <- matrix(runif(15), 5, 3)
 splom2(u)
-dCopula(v, kcd3) ## bugged?
+try(dCopula(v, kcd3)) ## bugged
 
 ## A four dimensional Khoudraji-Normal copula
 knd4 <- khoudrajiCopula(copula1 = indepCopula(dim=4),
@@ -173,6 +173,25 @@ if (doExtras)
     g2 <- gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "Nelder-M", sim = "mult")
     stopifnot(inherits(g2, "htest"),
 	      all.equal(g2$p.value, 0.0004995005, tol = 1e-4))# seen 1e-9
+
+    ##############################################################################
+    ## for JY: testing higher-dimensional density
+    ## copula:::dKhoudrajiExplicitCopula(v, kcd3)
+    ## copula:::dCopula(matrix(v, kcd3)) ## should the same
+
+    ## n <- 1000
+    ## do1 <- function() {
+    ##     u <- rCopula(n, kcd3)
+    ##     fitCopula(khoudrajiCopula(copula1 = indepCopula(dim=3),
+    ##                               copula2 = claytonCopula(dim=3)),
+    ##               start = c(1.1, 0.5, 0.5, 0.5), data = pobs(u),
+    ##               optim.method = "Nelder-Mead")$estimate
+    ## }
+    ## M <- 10 ## 1000
+    ## res <- replicate(M, do1())
+    ## mean(res)
+    ## sd(res)
+
 }
 
 ## All 'copula' subclasses

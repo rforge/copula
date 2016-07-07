@@ -25,7 +25,7 @@
 }
 \usage{
 khoudrajiCopula(copula1 = indepCopula(), copula2 = indepCopula(),
-                shapes = c(1,1))
+                shapes = rep(1, dim(copula1)))
 }
 \arguments{
   \item{copula1, copula2}{each a \code{\linkS4class{copula}}, of the
