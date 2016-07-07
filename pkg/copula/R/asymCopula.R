@@ -197,7 +197,8 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
         derExprs <- function(cdf, n) {
             val <- rep(as.expression(cdf), n + 1) ## the first one is cdf itself
             for (i in 1:n) {
-                val[i + 1] <- D(val[i], paste0("u", i))
+                val[i + 1] <- as.expression(D(val[i], paste0("u", i)))
+                ## FIXME: why is this as.expression necessary? Martin may know.
             }
             val
         }
@@ -531,9 +532,9 @@ khoudrajiExplictCopula <- function(copula1 = indepCopula(), copula2 = indepCopul
         ## the ordering of arguments does not matter
 
         derExprs <- function(cdf, n) {
-            val <- as.expression(cdf) ## the first one is cdf itself
+            val <- rep(as.expression(cdf), n + 1) ## the first one is cdf itself
             for (i in 1:n) {
-                val <- c(val, D(val[i], paste0("u", i)))
+                val[i + 1] <- as.expression(D(val[i], paste0("u", i)))
             }
             val
         }

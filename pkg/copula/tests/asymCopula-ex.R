@@ -95,6 +95,24 @@ v <- matrix(runif(15), 5, 3)
 splom2(u)
 try(dCopula(v, kcd3)) ## bugged
 
+## how can we check correctness?
+dCopula(v, kcd3)
+
+## check special case where we know the answer
+kcd3a <- khoudrajiCopula(copula1 = indepCopula(dim=3),
+                        copula2 = claytonCopula(6, dim=3),
+                         shapes = c(1, 1, 1))
+
+kcd3b <- khoudrajiCopula(copula1 = indepCopula(dim=3),
+                        copula2 = claytonCopula(6, dim=3),
+                         shapes = c(0, 0, 0))
+
+dCopula(v, kcd3a)
+dCopula(v, kcd3b)
+dCopula(v, kcd3@copula1)
+dCopula(v, kcd3@copula2)
+
+
 ## A four dimensional Khoudraji-Normal copula
 knd4 <- khoudrajiCopula(copula1 = indepCopula(dim=4),
                         copula2 = normalCopula(.9, dim=4),
@@ -113,6 +131,7 @@ kgc.ex <- copula:::khoudrajiExplictCopula(gumbelCopula(2), claytonCopula(6), c(.
 u <- rCopula(20, kgc)
 copula:::dKhoudrajiBivCopula(u, kgc)
 copula:::dKhoudrajiExplicitCopula(u, kgc.ex)
+
 
 
 ### fitting ###########################################################
@@ -177,7 +196,7 @@ if (doExtras)
     ##############################################################################
     ## for JY: testing higher-dimensional density
     ## copula:::dKhoudrajiExplicitCopula(v, kcd3)
-    ## copula:::dCopula(matrix(v, kcd3)) ## should the same
+    ## copula:::dCopula(v, kcd3) ## should the same
 
     ## n <- 1000
     ## do1 <- function() {
