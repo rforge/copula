@@ -1,6 +1,9 @@
 ##-*- org -*-->  Emacs .. [Tab] key + [Org] menu; C-c C-o to follow links
 * Short Term (before 1.0.0):
 ** TODO How can we extract marginal copulas from a given copula without having to first extract all information (family, parameter) and then defining a new copula? A pretty cool feature would be to simply use dim(copula, ...) <- 2 where '...' specifies (through a vector of variables) which marginal copula is extracted.
+** TODO [JY] Debug/fix dCopula for khoudrajiExplicitCopula (dim > 2) when estimate.variance is TRUE 
+*** TODO Use package Deriv (symbolic derivatives) to obtain pdf from cdf expression of khoudrajiExplicitCopula 
+*** TODO Use algorithm expressions (deriv) instead of symbolic expressions to speed up 
 ** DONE [IK/JY] Implement Khoudraji copulas (asymCopula()) for 2 'base copulas' (any dimension)
 ** DONE [IK] modify khoudrajiCopula code to allow construction from any two copulas; have tests (e.g. dCdu implemented?) as method level, not in constructor
 ** DONE [IK]: review the derivatives expression in dC-dc.R for free parameter adjustment
