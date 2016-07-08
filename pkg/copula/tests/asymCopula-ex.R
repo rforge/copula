@@ -24,8 +24,22 @@ if(!dev.interactive(orNone=TRUE)) pdf("asymCopula-ex.pdf")
 ## A Khoudraji-Clayton copula
 kc <- khoudrajiCopula(copula2 = claytonCopula(6),
                       shapes = c(0.4, 0.95))
-kc@parameters
+kc
 contour(kc, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
+
+## check density: special case where we know the answer
+kd2a <- khoudrajiCopula(copula1 = indepCopula(),
+                        copula2 = claytonCopula(6),
+                        shapes = c(1, 1))
+
+kd2b <- khoudrajiCopula(copula1 = gumbelCopula(4),
+                        copula2 = indepCopula(),
+                        shapes = c(0, 0))
+
+v <- matrix(runif(10), 5, 2)
+
+stopifnot(all.equal(dCopula(v, kd2a), dCopula(v, claytonCopula(6))))
+stopifnot(all.equal(dCopula(v, kd2b), dCopula(v, gumbelCopula(4))))
 
 
 ## True versus numerical derivatives
@@ -34,16 +48,16 @@ max(abs(copula:::dCduCopulaNum(kc, v) - copula:::dCdu(kc, v)))
 max(abs(copula:::dCdthetaCopulaNum(kc, v) - copula:::dCdtheta(kc, v)))
 
 ## tau, rho, lambda not supposed to work
-## tau(kc)
-## rho(kc)
-## iTau(kc, 0.5)
-## iRho(kc, 0.5)
-## lambda(kc)
+try(tau(kc))
+try(rho(kc))
+try(iTau(kc, 0.5))
+try(iRho(kc, 0.5))
+try(lambda(kc))
 
 ## A Khoudraji-Clayton copula with one fixed shape parameter
 kcf <- khoudrajiCopula(copula2 = claytonCopula(6),
                        shapes = fixParam(c(0.4, 0.95), c(FALSE, TRUE)))
-kcf@parameters
+kcf
 
 
 ## True versus numerical derivatives
@@ -55,7 +69,7 @@ max(abs(copula:::dCdthetaCopulaNum(kcf, v) - copula:::dCdtheta(kcf, v)))
 knc <- khoudrajiCopula(copula1 = normalCopula(-0.7),
                        copula2 = claytonCopula(6),
                        shapes = c(0.4, 0.95))
-knc@parameters
+knc
 contour(knc, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
 
 ## True versus numerical derivatives
@@ -66,7 +80,7 @@ max(abs(copula:::dCdthetaCopulaNum(knc, v) - copula:::dCdtheta(knc, v)))
 kncf <- khoudrajiCopula(copula1 = normalCopula(fixParam(-0.7, TRUE)),
                         copula2 = claytonCopula(6),
                         shapes = fixParam(c(0.4, 0.95), c(FALSE, TRUE)))
-kncf@parameters
+kncf
 
 ## True versus numerical derivatives
 max(abs(copula:::dCduCopulaNum(kncf, v) - copula:::dCdu(knc, v)))
@@ -77,7 +91,7 @@ max(abs(copula:::dCdthetaCopulaNum(kncf, v) - copula:::dCdtheta(kncf, v)))
 kgkcf <- khoudrajiCopula(copula1 = gumbelCopula(3),
                          copula2 = kcf,
                          shapes = c(0.7, 0.25))
-kgkcf@parameters
+kgkcf
 contour(kgkcf, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
 max(abs(copula:::dCduCopulaNum(kgkcf, v) - copula:::dCdu(kgkcf, v)))
 max(abs(copula:::dCdthetaCopulaNum(kgkcf, v) - copula:::dCdtheta(kgkcf, v)))
@@ -86,31 +100,26 @@ max(abs(copula:::dCdthetaCopulaNum(kgkcf, v) - copula:::dCdtheta(kgkcf, v)))
 kcd3 <- khoudrajiCopula(copula1 = indepCopula(dim=3),
                         copula2 = claytonCopula(6, dim=3),
                         shapes = c(0.4, 0.95, 0.95))
-kcd3@parameters
+kcd3
 class(kcd3) ## "khoudrajiExplicitCopula"
 set.seed(1712)
-n <- 1000
+n <- 300
 u <- rCopula(n, kcd3)
 v <- matrix(runif(15), 5, 3)
 splom2(u)
-try(dCopula(v, kcd3)) ## bugged
-
-## how can we check correctness?
 dCopula(v, kcd3)
 
-## check special case where we know the answer
-kcd3a <- khoudrajiCopula(copula1 = indepCopula(dim=3),
+## check density: special case where we know the answer
+kd3a <- khoudrajiCopula(copula1 = indepCopula(dim=3),
                         copula2 = claytonCopula(6, dim=3),
-                         shapes = c(1, 1, 1))
+                        shapes = c(1, 1, 1))
 
-kcd3b <- khoudrajiCopula(copula1 = indepCopula(dim=3),
-                        copula2 = claytonCopula(6, dim=3),
-                         shapes = c(0, 0, 0))
+kd3b <- khoudrajiCopula(copula1 = gumbelCopula(4, dim=3),
+                        copula2 = indepCopula(dim=3),
+                        shapes = c(0, 0, 0))
 
-dCopula(v, kcd3a)
-dCopula(v, kcd3b)
-dCopula(v, kcd3@copula1)
-dCopula(v, kcd3@copula2)
+stopifnot(all.equal(dCopula(v, kd3a), dCopula(v, claytonCopula(6, dim=3))))
+stopifnot(all.equal(dCopula(v, kd3b), dCopula(v, gumbelCopula(4, dim=3))))
 
 
 ## A four dimensional Khoudraji-Normal copula
@@ -121,18 +130,21 @@ knd4
 class(knd4) ## "khoudrajiCopula"
 u <- rCopula(n, knd4)
 splom2(u)
-try(dCopula(v, knd4)) ## not implemented
+v <- matrix(runif(20), 5, 4)
+try(dCopula(v, knd4)) ## should fail
 
+## a nested Khoudraji copula whose construction should result
+## in a khoudrajiCopula object, but not a khoudrajiExplicitCopula object
 
-## comparing copula density between dKhoudrajiCopula and dKhoudrajiExplicitCopula
-kgc    <-                 khoudrajiCopula(gumbelCopula(2), claytonCopula(6), c(.4, .95))
-kgc.ex <- copula:::khoudrajiExplictCopula(gumbelCopula(2), claytonCopula(6), c(.4, .95))
+kd3 <- khoudrajiCopula(copula1 = khoudrajiCopula(copula1 = gumbelCopula(4, dim=3),
+                                                 copula2 = claytonCopula(6, dim=3),
+                                                 shapes = c(.4, 0.95, 0.95)),
+                       copula2 = frankCopula(10, dim=3),
+                       shapes = c(.4, 0.95, 0.95))
 
-u <- rCopula(20, kgc)
-copula:::dKhoudrajiBivCopula(u, kgc)
-copula:::dKhoudrajiExplicitCopula(u, kgc.ex)
-
-
+kd3
+class(kd3) # this should be a khoudrajiCopula, not a khoudrajiExplicitCopula
+## as second argument copula is not symmetric (and in practice is not archmCopula)
 
 ### fitting ###########################################################
 n <- 300
@@ -193,24 +205,91 @@ if (doExtras)
     stopifnot(inherits(g2, "htest"),
 	      all.equal(g2$p.value, 0.0004995005, tol = 1e-4))# seen 1e-9
 
+}
+
+if (FALSE)
+{
     ##############################################################################
-    ## for JY: testing higher-dimensional density
-    ## copula:::dKhoudrajiExplicitCopula(v, kcd3)
-    ## copula:::dCopula(v, kcd3) ## should the same
+    ## Testing higher-dimensional density / fitting
 
-    ## n <- 1000
-    ## do1 <- function() {
-    ##     u <- rCopula(n, kcd3)
-    ##     fitCopula(khoudrajiCopula(copula1 = indepCopula(dim=3),
-    ##                               copula2 = claytonCopula(dim=3)),
-    ##               start = c(1.1, 0.5, 0.5, 0.5), data = pobs(u),
-    ##               optim.method = "Nelder-Mead")$estimate
-    ## }
-    ## M <- 10 ## 1000
-    ## res <- replicate(M, do1())
-    ## mean(res)
-    ## sd(res)
+    n <- 500
 
+    set.seed(1251)
+
+    ## A three dimensional Khoudraji-Clayton copula
+    kcd3 <- khoudrajiCopula(copula1 = indepCopula(dim=3),
+                            copula2 = claytonCopula(6, dim=3),
+                            shapes = c(0.4, 0.95, 0.95))
+
+    ## one fitting
+    u <- rCopula(n, kcd3)
+    fitCopula(khoudrajiCopula(copula1 = indepCopula(dim=3),
+                              copula2 = claytonCopula(dim=3)),
+              start = c(1.1, 0.5, 0.5, 0.5), data = pobs(u),
+              optim.method = "Nelder-Mead")
+
+
+    ## bias and stderr
+    do1 <- function() {
+        u <- rCopula(n, kcd3)
+        fitCopula(khoudrajiCopula(copula1 = indepCopula(dim=3),
+                                  copula2 = claytonCopula(dim=3)),
+                  start = c(1.1, 0.5, 0.5, 0.5), data = pobs(u),
+                  optim.method = "Nelder-Mead", estimate.variance = FALSE)@estimate
+    }
+    res <- replicate(100, do1())
+    apply(res,1,mean)
+    apply(res,1,sd)
+
+    ## A three dimensional Khoudraji-Gumbel copula
+    kgd3 <- khoudrajiCopula(copula1 = indepCopula(dim=3),
+                            copula2 = gumbelCopula(6, dim=3),
+                            shapes = c(0.4, 0.95, 0.95))
+
+    ## one fitting
+    u <- rCopula(n, kgd3)
+    fitCopula(khoudrajiCopula(copula1 = indepCopula(dim=3),
+                              copula2 = gumbelCopula(dim=3)),
+              start = c(1.1, 0.5, 0.5, 0.5), data = pobs(u),
+              optim.method = "Nelder-Mead")
+
+
+    ## bias and stderr
+    do1 <- function() {
+        u <- rCopula(n, kgd3)
+        fitCopula(khoudrajiCopula(copula1 = indepCopula(dim=3),
+                                  copula2 = gumbelCopula(dim=3)),
+                  start = c(1.1, 0.5, 0.5, 0.5), data = pobs(u),
+                  optim.method = "Nelder-Mead", estimate.variance = FALSE)@estimate
+    }
+    res <- replicate(100, do1())
+    apply(res,1,mean)
+    apply(res,1,sd)
+
+    ## A three dimensional Khoudraji-Frank copula
+    kfd3 <- khoudrajiCopula(copula1 = indepCopula(dim=3),
+                            copula2 = frankCopula(10, dim=3),
+                            shapes = c(0.4, 0.95, 0.95))
+
+    ## one fitting
+    u <- rCopula(n, kfd3)
+    fitCopula(khoudrajiCopula(copula1 = indepCopula(dim=3),
+                              copula2 = frankCopula(dim=3)),
+              start = c(1.1, 0.5, 0.5, 0.5), data = pobs(u),
+              optim.method = "Nelder-Mead")
+
+
+    ## bias and stderr
+    do1 <- function() {
+        u <- rCopula(n, kfd3)
+        fitCopula(khoudrajiCopula(copula1 = indepCopula(dim=3),
+                                  copula2 = frankCopula(dim=3)),
+                  start = c(1.1, 0.5, 0.5, 0.5), data = pobs(u),
+                  optim.method = "Nelder-Mead", estimate.variance = FALSE)@estimate
+    }
+    res <- replicate(100, do1())
+    apply(res,1,mean)
+    apply(res,1,sd)
 }
 
 ## All 'copula' subclasses

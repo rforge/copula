@@ -1,9 +1,9 @@
 ##-*- org -*-->  Emacs .. [Tab] key + [Org] menu; C-c C-o to follow links
 * Short Term (before 1.0.0):
 ** TODO How can we extract marginal copulas from a given copula without having to first extract all information (family, parameter) and then defining a new copula? A pretty cool feature would be to simply use dim(copula, ...) <- 2 where '...' specifies (through a vector of variables) which marginal copula is extracted.
-** TODO [IK/JY] Implement Khoudraji copulas (asymCopula()) for 2 'base copulas' (any dimension)
-** TODO [IK] modify khoudrajiCopula code to allow construction from any two copulas; have tests (e.g. dCdu implemented?) as method level, not in constructor
-** TODO [IK]: review the derivatives expression in dC-dc.R for free parameter adjustment
+** DONE [IK/JY] Implement Khoudraji copulas (asymCopula()) for 2 'base copulas' (any dimension)
+** DONE [IK] modify khoudrajiCopula code to allow construction from any two copulas; have tests (e.g. dCdu implemented?) as method level, not in constructor
+** DONE [IK]: review the derivatives expression in dC-dc.R for free parameter adjustment
 ** TODO Fitting high-dimensional copulas: memory explosion due to allocation of large (d*(d-1)/2) matrix for variance estimators
 # See also MH's email from 2016-05-01
 We frequently allocate matrices 'var.est' in ./R/fitCopula.R (potentially

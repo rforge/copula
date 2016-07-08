@@ -25,7 +25,7 @@
 }
 \usage{
 khoudrajiCopula(copula1 = indepCopula(), copula2 = indepCopula(),
-                shapes = rep(1, dim(copula1)))
+                shapes = rep(NA_real_, dim(copula1)))
 }
 \arguments{
   \item{copula1, copula2}{each a \code{\linkS4class{copula}}, of the
@@ -34,15 +34,16 @@ khoudrajiCopula(copula1 = indepCopula(), copula2 = indepCopula(),
     with values in \eqn{[0,1]}.}
 }
 \details{
+
   If the argument copulas are bivariate, an object of class
   \code{"\linkS4class{khoudrajiBivCopula}"} will be constructed.  If
-  they are \eqn{d}-dimensional with \eqn{d > 2} and if they have
-  explicit p.d.f. and c.d.f. expressions, an object of class
+  they are exchangeable and \eqn{d}-dimensional with \eqn{d > 2}, and if
+  they have explicit p.d.f. and c.d.f. expressions, an object of class
   \code{"\linkS4class{khoudrajiExplicitCopula}"} will be
-  constructed. For these two classes, density evaluation is implemented,
+  constructed. For the latter two classes, density evaluation is implemented,
   and fitting and goodness-of-fit testing can be attempted. If \eqn{d >
   2} but one of the argument copulas does not have explicit p.d.f. and
-  c.d.f. expressions, an object of class
+  c.d.f. expressions, or is not exchangeable, an object of class
   \code{"\linkS4class{khoudrajiCopula}"} will be constructed, for which
   density evaluation is not possible.
 }
@@ -101,26 +102,29 @@ fitCopula(khoudrajiCopula(copula2 = claytonCopula()),
           optim.method = "Nelder-Mead")
 
 ## Second shape parameter fixed to 0.95
-fitCopula(kcf,
+kcf2 <- khoudrajiCopula(copula2 = claytonCopula(),
+                        shapes = fixParam(c(NA_real_, 0.95), c(FALSE, TRUE)))
+fitCopula(kcf2,
           start = c(1.1, 0.5), data = pobs(u),
           optim.method = "Nelder-Mead")
 
 ## With a different optimization method
-fitCopula(kcf,
+fitCopula(kcf2,
           start = c(1.1, 0.5), data = pobs(u),
           optim.method = "BFGS")
 
 ## GOF example
-gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS")
-gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS",
+optim.method <- "Nelder-Mead" #try "BFGS" as well
+gofCopula(kcf2, x = u, start = c(1.1, 0.5), optim.method = optim.method)
+gofCopula(kcf2, x = u, start = c(1.1, 0.5), optim.method = optim.method,
           sim = "mult")
-## Warning: Whether the goodness-of-fit tests hold their level
-## needs to be tested
+## The goodness-of-fit tests should hold their level
+## but this would need to be tested
 
-## Another example
+## Another example under the alternative
 u <- rCopula(n, gumbelCopula(4))
-gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS")
-gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS",
+gofCopula(kcf2, x = u, start = c(1.1, 0.5), optim.method = optim.method)
+gofCopula(kcf2, x = u, start = c(1.1, 0.5), optim.method = optim.method,
           sim = "mult")
 
 ## Higher-dimensional constructions
@@ -136,7 +140,7 @@ n <- 1000
 u <- rCopula(n, kcd3)
 v <- matrix(runif(15), 5, 3)
 splom2(u)
-dCopula(v, kcd3) ## FIXME: bugged
+dCopula(v, kcd3)
 
 ## A four dimensional Khoudraji-Normal copula
 knd4 <- khoudrajiCopula(copula1 = indepCopula(dim=4),
