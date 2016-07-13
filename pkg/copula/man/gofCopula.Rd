@@ -12,7 +12,7 @@
   comparing the empirical copula with a parametric estimate of the
   copula derived under the null hypothesis, the default test
   statistic, "Sn", being the Cramer-von Mises functional
-  \eqn{\mathrm{S_n}}{S[n]} defined
+  \eqn{S_n}{S[n]} defined
   in Equation (2) of Genest, Remillard and Beaudoin (2009). In that
   case, approximate p-values for the test statistic can be obtained
   either
@@ -72,16 +72,20 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
     \code{hideWarnings}, and
     \code{optim.method}, \code{optim.control}, \code{lower},
     or \code{upper} depending on the \code{optim.method}.}
-  \item{trafo.method}{string specifying the transformation to
+  \item{trafo.method}{only for the parametric bootstrap.
+    String specifying the transformation to
     \eqn{U[0,1]^d}; either \code{"none"} or one of \code{"cCopula"},
     see \code{\link{cCopula}()}, or \code{"htrafo"}, see \code{\link{htrafo}()}.}
-  \item{trafoArgs}{a \code{\link{list}} of optional arguments passed
+  \item{trafoArgs}{only for the parametric bootstrap.
+    A \code{\link{list}} of optional arguments passed
     to the transformation method (see \code{trafo.method} above).}
-  \item{useR}{logical indicating whether the R or C implementation is used.}
-  \item{m, zeta.m, b}{only for method \code{"Rn"} in \dQuote{MB}, the
-    multiplier bootstrap. \code{m} is the power, \code{zeta.m} the adjustment
+  \item{useR}{logical indicating whether an \R or C implementation is used.}
+  \item{m, zeta.m}{only for the multiplier with method \code{"Rn"}.
+    \code{m} is the power and \code{zeta.m} is the adjustment
     parameter \eqn{\zeta_m}{zeta.m} for the denominator of the test
-    statistic, and \code{b} is the bandwidth required for the estimation
+    statistic.}
+  \item{b}{only for the multiplier. \code{b} is the
+    bandwidth required for the estimation
     of the first-order partial derivatives based on the empirical copula.}
 }
 \details{

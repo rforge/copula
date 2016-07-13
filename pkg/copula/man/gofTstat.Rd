@@ -29,7 +29,7 @@ gofTstat(u, method = c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
       \item{\code{"AnChisq"}}{Anderson-Darling test statistic for
 	computing (supposedly) \eqn{\mathrm{U}[0,1]}{U[0,1]}-distributed
 	(under \eqn{H_0}) random variates via the distribution function
-	of chi-square distribution with \eqn{d}
+	of the chi-square distribution with \eqn{d}
 	degrees of freedom. To be more precise, the Anderson-Darling
 	test statistc of the variates
 	\deqn{\chi_d^2\Bigl(\sum_{j=1}^d(\Phi^{-1}(u_{ij}))^2\Bigr)}{%
