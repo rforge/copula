@@ -2,18 +2,20 @@
 \title{Construction and Class of "Rotated" Copulas}
 \alias{rotCopula}
 \alias{rotCopula-class}
+\concept{survival copula}
 \description{
   Constructs a rotated copula from an initial copula and a vector of
   logicals indicating which dimension to \dQuote{flip}.
 }
 \usage{
-rotCopula(copula, flip = rep(TRUE, copula@dimension))
+rotCopula(copula, flip = TRUE)
 }
 \arguments{
   \item{copula}{an object of class \code{"\linkS4class{Copula}"}.}
-  \item{flip}{a vector of logicals indicating which dimension should be
-    \dQuote{flipped}; by default, all the components are flipped, implying that
-    the rotated copula is the survival copula.}
+  \item{flip}{\code{\link{logical}} vector (of length 1 or
+    \code{dim(copula)}) indicating which dimension should be
+    \dQuote{flipped}; by default, all the components are flipped,
+    implying that the rotated copula is the \emph{\dQuote{survival copula}}.}
 }
 \value{
   A rotated copula object of class \code{"rotCopula"}.
@@ -45,16 +47,20 @@ rotCopula(copula, flip = rep(TRUE, copula@dimension))
   \code{\link{gofCopula}} for goodness-of-fit tests for such copulas.
 }
 \examples{
-## A two-dimensional example: a "rotated" Clayton copula
-rc <- rotCopula(claytonCopula(3), flip = c(TRUE, FALSE))
+## Two-dimensional examples: First the Clayton(3) survival copula:
+survC <- rotCopula(claytonCopula(3)) # default: flip = 'all TRUE'
+contourplot2(survC, dCopula)
 
-contourplot2(rc, dCopula, nlevels = 20, main = "dCopula(<rotCopula>)")
-contourplot2(rc, pCopula, nlevels = 20, main = "pCopula(<rotCopula>)")
-rho(rc)
-tau(rc) # -0.6
+## Now, a "rotated" Clayton copula:
+r10C  <- rotCopula(claytonCopula(3), flip = c(TRUE, FALSE))
+
+contourplot2(r10C, dCopula, nlevels = 20, main = "dCopula(<rotCopula>)")
+contourplot2(r10C, pCopula, nlevels = 20, main = "pCopula(<rotCopula>)")
+rho(r10C)
+tau(r10C) # -0.6
 
 n <- 1000
-u <- rCopula(n, rc)
+u <- rCopula(n, r10C)
 rho.n <- cor(u[,1], u[,2], method = "spearman")
 tau.n <- cor(u[,1], u[,2], method = "kendall")
 

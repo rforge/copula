@@ -279,7 +279,8 @@ getKhoudrajiCopulaComps <- function(object) {
 
 ## pCopula: for all Khoudraji copulas
 pKhoudrajiCopula <- function(u, copula) {
-    tu <- t(rbind(u, deparse.level=0L))
+    d <- copula@dimension
+    tu <- if(is.matrix(u)) t(u) else matrix(u, nrow = d)
     comps <- getKhoudrajiCopulaComps(copula)
     p1 <- pCopula(t(tu^(1 - comps$shapes)), comps$copula1)
     p2 <- pCopula(t(tu^comps$shapes), comps$copula2)
@@ -423,12 +424,21 @@ setMethod("dCdtheta", signature("khoudrajiBivCopula"),
 ##################################################################################
 
 ## TODO JY: document
-getPowerSet <- function(d) {
-  TF <- matrix(c(TRUE, FALSE), 2, d)
-  as.matrix(expand.grid(as.list(as.data.frame(TF))))
+getPowerSet <- function(d) { ## TODO: impossible for large d -- need "nextSet()" there!
+    as.matrix(unname(expand.grid(replicate(d, list(c(TRUE,FALSE))),
+                                 KEEP.OUT.ATTRS = FALSE)))
 }
 
 ## TODO JY: document
+##' @title
+##' @param idx
+##' @param u
+##' @param dg
+##' @param copula
+##' @param derExprs
+##' @return
+##' @author Jun Yan
+##' __NOT_EXPORTED__ ==> not checking arguments
 densDers <- function(idx, u, dg, copula, derExprs) {
     ## assuming exchangeable copula1 and copula2
     ## IK: assuming one-parameter copulas also
@@ -443,7 +453,8 @@ densDers <- function(idx, u, dg, copula, derExprs) {
 }
 
 dKhoudrajiExplicitCopula <- function(u, copula, log=FALSE, ...) {
-    u <- as.matrix(u)
+    d <- copula@dimension
+    if(!is.matrix(u)) u <- matrix(u, ncol = d)
     comps <- getKhoudrajiCopulaComps(copula)
     copula1 <- comps$copula1
     copula2 <- comps$copula2
@@ -452,7 +463,6 @@ dKhoudrajiExplicitCopula <- function(u, copula, log=FALSE, ...) {
     u2 <- u ^ a
     dg1 <- (1 - a) * u^(-a)
     dg2 <- a * u^(a - 1)
-    d <- copula@dimension
     powerSet <- getPowerSet(d)
     dens <- 0
     for (i in 1:nrow(powerSet)) {

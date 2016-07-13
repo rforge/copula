@@ -22,8 +22,8 @@ setClass("rotCopula", contains = "xcopula",
 	 validity =
 	     function(object) {
 		 d <- object@copula@dimension
-		 if(length(object@flip) != d)
-		     "The dimension of the copula does not match the length of 'flip'"
+		 if((lfl <- length(object@flip)) != 1L && lfl != d)
+		     "'length(flip)' must be one or match the copula dimension"
 		 else if(anyNA(object@flip))
 		     "'flip' contains NA/NaN"
 		 else TRUE
@@ -31,20 +31,25 @@ setClass("rotCopula", contains = "xcopula",
 
 ##' @title Rotated Copulas Created from an Existing Copula and a Mask of Logicals
 ##' @param copula The 'base' copula
-##' @param flip A vector of logicals; if element i is TRUE,
+##' @param flip logical (vector); if element i is TRUE,
 ##'        the copula is "rotated" wrt the axis x_i = 0.5;
 ##'        the default value is all TRUE which gives the survival copula
 ##' @return a new "rotCopula" object; see above
 ##' @author Ivan Kojadinovic
-rotCopula <- function(copula, flip = rep(TRUE, copula@dimension)) {
+rotCopula <- function(copula, flip = TRUE) {
     new("rotCopula", copula = copula, flip = flip)
 }
 
 ## Internal. swicth u[,i] to 1 - u[,i] according to flip
 apply.flip <- function(u, flip) {
-    if (!is.matrix(u)) u <- matrix(u, ncol = length(flip))
-    u[,flip] <- 1 - u[,flip]
-    u
+    if(identical(flip, TRUE))
+        u
+    else if(identical(flip, FALSE))
+        1 - u
+    else {
+        u[,flip] <- 1 - u[,flip]
+        u
+    }
 }
 
 ## pCopula
@@ -70,29 +75,35 @@ setMethod("dCopula", signature("matrix", "rotCopula"), dRotCopula)
 setMethod("rCopula", signature("numeric", "rotCopula"),
           function(n, copula) apply.flip(rCopula(n, copula@copula), copula@flip))
 
+##' sign() of a bivariate rotated copula
+##' @return -1 : if the two 'flip' differ;  +1 : if they are (T,T) or (F,F)
+sign.rot2C <- function(flip)
+    if(length(flip) == 1L || flip[1L] == flip[2L]) +1 else -1
+
 ## rho
 setMethod("rho", signature("rotCopula"), function(copula) {
-    (-1)^sum(copula@flip[1:2]) * rho(copula@copula)
+    stopifnot(copula@copula@dimension == 2)
+    sign.rot2C(copula@flip) * rho(copula@copula)
 })
 
 ## iRho
-setMethod("iRho", signature("rotCopula"), function(copula, rho) {
-    iRho(copula@copula, (-1)^sum(copula@flip[1:2]) * rho)
-})
+setMethod("iRho", signature("rotCopula"), function(copula, rho)
+    iRho(copula@copula, sign.rot2C(copula@flip) * rho))
 
 ## tau
 setMethod("tau", signature("rotCopula"), function(copula) {
-    (-1)^sum(copula@flip[1:2]) * tau(copula@copula)
+    sign.rot2C(copula@flip) * tau(copula@copula)
 })
 
 ## iTau
 setMethod("iTau", signature("rotCopula"), function(copula, tau) {
-    iTau(copula@copula, (-1)^sum(copula@flip[1:2]) * tau)
+    iTau(copula@copula, sign.rot2C(copula@flip) * tau)
 })
 
 ## lambda
 setMethod("lambda", signature("rotCopula"), function(copula) {
-    sm <- sum(copula@flip[1:2])
+    stopifnot(copula@copula@dimension == 2)
+    sm <- sum(rep(copula@flip, length.out = 2))
     if (sm == 1) {
         warning("lambda() method for copula class 'rotCopula' not implemented yet")
         c(lower= NA, upper= NA)
@@ -102,7 +113,7 @@ setMethod("lambda", signature("rotCopula"), function(copula) {
         names(ti) <- NULL
         if (sm == 0)
             c(lower = ti[1], upper = ti[2])
-        else
+        else ## sm == 2
             c(lower = ti[2], upper = ti[1])
     }
 })
