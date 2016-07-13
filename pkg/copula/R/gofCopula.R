@@ -33,8 +33,8 @@
 ##' @param ... Additional arguments for the different methods
 ##' @return An n-vector of values of the chosen test statistic
 ##' @author Marius Hofert and Martin Maechler
-gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
-		     useR=FALSE, ...)
+gofTstat <- function(u, method = c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
+		     useR = FALSE, ...)
 {
     if(!is.matrix(u)) {
         warning("coercing 'u' to a matrix.")
@@ -116,7 +116,7 @@ gofTstat <- function(u, method=c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
 gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
                   estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
                   trafo.method = c("none", "cCopula", "htrafo"),
-		  trafoArgs = list(), verbose = interactive(), ...)
+		  trafoArgs = list(), verbose = interactive(), useR = FALSE, ...) # IK: added useR
 {
     .Deprecated("gofCopula(*, simulation = \"pb\")")
     .gofPB(copula, x, N, method=method, estim.method=estim.method,
@@ -127,7 +127,7 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
 .gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
                    estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
                    trafo.method = c("none", "cCopula", "htrafo"),
-                   trafoArgs = list(), verbose = interactive(), ...)
+                   trafoArgs = list(), verbose = interactive(), useR = FALSE, ...) # IK: added useR
 {
     ## Checks
     stopifnot(is(copula, "copula"), N >= 1)
@@ -139,18 +139,24 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
     method <- match.arg(method)
     estim.method <- match.arg(estim.method)
     trafo.method <- match.arg(trafo.method)
-    if(trafo.method=="htrafo") {
+    if(trafo.method == "htrafo") {
 	if(!is(copula, "outer_nacopula"))
-	    stop("trafo.method='htrafo' only implemented for copula objects of type 'outer_nacopula'")
+	    stop("'trafo.method' = \"htrafo\" only implemented for copula objects of type 'outer_nacopula'")
 	if(length(copula@childCops))
 	    stop("currently, only Archimedean copulas are supported")
     }
-    if(method=="Sn" && is(copula, "tCopula") && ! copula@df.fixed) # df.fixed=TRUE should work
-	stop("Param. boostrap with method=\"Sn\" is not available for t copulas as pCopula() cannot be computed for non-integer degrees of freedom yet.")
+    if(method == "Sn" && is(copula, "tCopula") && !copula@df.fixed) # df.fixed=TRUE should work
+	stop("Param. boostrap with 'method'=\"Sn\" not available for t copulas as pCopula() cannot be computed for non-integer degrees of freedom yet.")
+
+    ## IK NEW (MH: remove me if you agree)
+    if (method != "Sn" && trafo.method == "none")
+        stop(sprintf("Argument 'trafo.method' need to be set to \"cCopula\" or \"htrafo\" with 'method'=\"%s\"", method))
+    if (method == "Sn" && trafo.method != "none")
+        stop(sprintf("Argument 'trafo.method' need to be set to \"none\" with 'method'=\"%s\"", method))
 
     ## Progress bar
     if(verbose) {
-	pb <- txtProgressBar(max=N+1, style=if(isatty(stdout())) 3 else 1) # setup progress bar
+	pb <- txtProgressBar(max = N+1, style=if(isatty(stdout())) 3 else 1) # setup progress bar
 	on.exit(close(pb)) # on exit, close progress bar
     }
 
@@ -158,10 +164,11 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
     uhat <- pobs(x)
 
     ## 2) Fit the copula
-    C.th.n <- fitCopula(copula, uhat, method=estim.method,
-			estimate.variance=FALSE, ...)@copula
+    C.th.n <- fitCopula(copula, uhat, method = estim.method,
+			estimate.variance = FALSE, ...)@copula
     ## 3) Compute the realized test statistic
-    doTrafo <- (method == "Sn" && trafo.method != "none") # (only) transform if method = "Sn" and trafo.method given
+    ## IK CHANGED (MH: remove me if you agree)
+    doTrafo <- (method != "Sn" && trafo.method != "none") # (only) transform if method != "Sn" and trafo.method given
     u <- if(doTrafo) {
 	stopifnot(is.list(trafoArgs))
 	if(length(names(trafoArgs)) != length(trafoArgs))
@@ -171,8 +178,8 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
 	       "htrafo" = do.call(htrafo,  c(list(uhat, copula = C.th.n), trafoArgs)),
 	       stop("wrong transformation method"))
     } else uhat
-    T <- if(method=="Sn") gofTstat(u, method=method, copula=C.th.n)
-         else gofTstat(u, method=method)
+    T <- if(method == "Sn") gofTstat(u, method = method, copula = C.th.n, useR = useR)
+         else gofTstat(u, method = method)
     if(verbose) setTxtProgressBar(pb, 1) # update progress bar
 
     ## 4) Simulate the test statistic under H_0
@@ -189,7 +196,7 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
 		   "cCopula"= do.call(cCopula, c(list(Uhat, copula = C.th.n.), trafoArgs)),
 		   "htrafo" = do.call(htrafo,  c(list(Uhat, copula = C.th.n.), trafoArgs)))
         } else Uhat
-        T0. <- if(method=="Sn") gofTstat(u., method = method, copula = C.th.n.)
+        T0. <- if(method=="Sn") gofTstat(u., method = method, copula = C.th.n., useR = useR)
                else gofTstat(u., method=method)
 
         if(verbose) setTxtProgressBar(pb, k+1) # update progress bar
@@ -435,6 +442,7 @@ gofCopulaCopula <- function(copula, x, N=1000, method = "Sn",
     ## 'method' is checked inside gofPB() / gofMB()
     estim.method <- match.arg(estim.method)
     simulation <- match.arg(simulation)
+
     ## Deprecation
     ## if (!is.null(print.every)) {
     ##     warning("Argument 'print.every' is deprecated. Please use 'verbose' instead.")

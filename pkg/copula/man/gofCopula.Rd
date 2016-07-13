@@ -29,16 +29,15 @@
 \usage{
 ## Generic [and "rotCopula" method] :
 gofCopula(copula, x, \dots)
-\S4method{gofCopula}{copula}(copula, x, N = 1000,
-          method = "Sn",
+\S4method{gofCopula}{copula}(copula, x, N = 1000, method = "Sn",
           estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
-          simulation = c("pb", "mult"),
-	  verbose = interactive(), \dots)
+          simulation = c("pb", "mult"), verbose = interactive(), \dots)
 
 gofPB(copula, x, N, method = eval(formals(gofTstat)$method),
       estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
       trafo.method = c("none", "cCopula", "htrafo"),
-      trafoArgs = list(), verbose = interactive(), \dots)
+      trafoArgs = list(), verbose = interactive(), useR = FALSE, \dots)
+
 gofMB(copula, x, N, method = c("Sn", "Rn"),
       estim.method = c("mpl", "ml", "itau", "irho"),
       verbose = interactive(), useR = FALSE, m = 1/2, zeta.m = 0,

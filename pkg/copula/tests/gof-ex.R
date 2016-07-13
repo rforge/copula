@@ -39,7 +39,7 @@ source(system.file("Rsource", "utils.R",     package="copula", mustWork=TRUE))
 ## GoF methods (NOTE: 'htrafo' only implemented for objects of type 'outer_nacopula')
 ## (gofTraf <- eval(formals(gofPB)$trafo.method)[-1]) # "cCopula", "htrafo"
 gofTraf <- "cCopula"
-(gofMeth <- eval(formals(gofPB)$method)) # "Sn", "SnB", "SnC", "AnChisq", "AnGamma"
+(gofMeth <- c("SnB", "SnC", "AnChisq", "AnGamma")) ## IK: eval(formals(gofPB)$method)) # "Sn", "SnB", "SnC", "AnChisq", "AnGamma"
 
 n <- 64 # sample size [small here for CPU reasons]
 d <- 5 # dimension
@@ -160,24 +160,25 @@ warnings()
 ## NOTE: takes a while...
 if(doExtras)
 for(meth in eval(formals(gofPB)$method)) {
-  catn("\ngof method: ", meth,"\n==========================")
+    catn("\ngof method: ", meth,"\n==========================")
+    traMeth <- if(meth == "Sn") "none" else "cCopula"
   for(fitMeth in c("mpl", "ml", "itau", "irho", "itau.mpl")) {
     catn("fit*( estim.method = '", fitMeth,"')\n------------------------")
     if(fitMeth != "itau.mpl") {
         catn("Gumbel copula:")
         print(gofCopula(gumbC, x, method=meth, N = 10, verbose=FALSE,
-                        estim.method = fitMeth))
+                        estim.method = fitMeth, trafo.method = traMeth))
     }
     if(meth != "Sn" && fitMeth != "irho") {
 	## ... not available for t copulas as pCopula() cannot be computed
 	##     for non-integer degrees of freedom yet.
 	catn("t-copula (df.fixed = FALSE):")
 	print(gofCopula(t.copV, x, method=meth, N = 10, verbose=FALSE,
-			estim.method = fitMeth))
+			estim.method = fitMeth, trafo.method = traMeth))
     } else if(meth == "Sn" && !(fitMeth %in% c("irho", "itau.mpl"))) {
 	catn("t-copula (df.fixed = TRUE):")
 	print(gofCopula(t.cop, x, method=meth, N = 10, verbose=FALSE,
-			estim.method = fitMeth))
+			estim.method = fitMeth, trafo.method = traMeth))
     }
   }
   showProc.time()
