@@ -11,15 +11,16 @@
 \format{
   A data frame of 762 daily prices from 2003 to 2006.
   \describe{
+    \item{\code{date}}{date}
     \item{\code{oil}}{daily price of crude oil}
     \item{\code{gas}}{daily price of natural gas}
   }
 }
 %\author{Marius Hofert, Ivan Kojadinovic, Martin Maechler and Jun Yan}
 \references{
-  Gr\enc{é}{e} goire, V., Genest, C., and Gendron, M. (2008)
+  Gr\enc{é}{e}goire, V., Genest, C., and Gendron, M. (2008)
   Using copulas to model price dependence in energy markets.
-  \emph{Energy Risk} \bold{5}(5), 58--64.    
+  \emph{Energy Risk} \bold{5}(5), 58--64.
 }
 \examples{
 data(gasoil)
