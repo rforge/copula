@@ -13,6 +13,14 @@ vignette: >
 require(copula)
 doExtras <- FALSE
 ```
+## Intro
+
+This vignette visualizes (log) likelihood functions of Archimedean copulas,
+some of which are numerically challenging to compute.
+Because of this computational challenge, we also check for equivalence of
+some of the several computational methods, testing for numerical
+near-equality using `all.equal(L1, L2)`.
+
 
 ## Auxiliary functions
 We start by defining the following auxiliary functions.
@@ -79,10 +87,12 @@ curveLogL <- function(cop, u, xlim, main, XtrArgs=list(), ...) {
 
 <!-- if(!exists("doExtras") || !is.logical(doExtras)) doExtras <- copula:::doExtras() -->
 <!-- doExtras -->
+
+Ensure that we are told about it, if the numerical algorithms choose
+methods using `Rmpfr` (R package interfacing to multi precision arithmetic MPFR):
 ```{r}
 op <- options("copula:verboseUsingRmpfr"=TRUE) # see when "Rmpfr" methods are chosen automatically
 ```
-
 
 ## Joe's family
 
@@ -91,9 +101,12 @@ op <- options("copula:verboseUsingRmpfr"=TRUE) # see when "Rmpfr" methods are ch
 n <- 200
 d <- 100
 tau <- 0.2
-(theta <- copJoe@iTau(tau)) # 1.44381
-cop <- onacopulaL("Joe",list(theta,1:d))
+theta <- copJoe@iTau(tau)
+cop <- onacopulaL("Joe", list(theta,1:d))
+theta
 ```
+
+Here, the three different methods work "the same":
 
 ```{r, fig.align="center", fig.width=7.5, fig.height=6}
 set.seed(1)
@@ -108,15 +121,13 @@ stopifnot(all.equal(mLt1, mL.tr, tolerance=5e-5),
           all.equal(mLt2, mL.tr, tolerance=5e-5),
           all.equal(mLt3, mL.tr, tolerance=5e-5))
 system.time(r1l  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="log.poly")))
-if(doExtras) {
- mtext("all three polyJ() methods on top of each other")
- system.time({
-     r1J <- curveLogL(cop, U1, c(1, 2.5), X=list(method="poly"),
-		      add=TRUE, col=adjustcolor("red", .4))
-     r1m  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="log1p"),
-		       add=TRUE, col=adjustcolor("blue",.5))
- })
-}
+mtext("all three polyJ() methods on top of each other")
+system.time({
+    r1J <- curveLogL(cop, U1, c(1, 2.5), X=list(method="poly"),
+                     add=TRUE, col=adjustcolor("red", .4))
+    r1m  <- curveLogL(cop, U1, c(1, 2.5), X=list(method="log1p"),
+                      add=TRUE, col=adjustcolor("blue",.5))
+})
 ```
 
 ```{r, fig.align="center", fig.width=7.5, fig.height=6}
@@ -131,14 +142,14 @@ stopifnot(all.equal(enacopula(U2, cop, "mle"), 1.43992755, tolerance=1e-5),
 
 ```{r, fig.align="center", fig.width=7.5, fig.height=6}
 U3 <- rnacopula(n,cop)
-enacopula(U3, cop, "mle") # 1.4495
-if(doExtras)
-    system.time(r3 <- curveLogL(cop, U3, c(1, 2.5)))
+(th. <- enacopula(U3, cop, "mle")) # 1.4495
+system.time(r3 <- curveLogL(cop, U3, c(1, 2.5)))
+axis(1, at = th., label = quote(hat(theta)))
 ```
 
 ```{r, fig.align="center", fig.width=7.5, fig.height=6}
 U4 <- rnacopula(n,cop)
-enacopula(U4, cop, "mle") # 1.4519  was 2.351..  "completely wrong"
+enacopula(U4, cop, "mle") # 1.4519  (prev. was 2.351 : "completely wrong")
 summary(dCopula(U4, cop)) # ok (had one Inf)
 if(doExtras)
     system.time(r4 <- curveLogL(cop, U4, c(1, 2.5)))
