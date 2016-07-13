@@ -6,7 +6,7 @@
 \description{
   Multivariate independence test based on the empirical
   copula process as proposed by Christian Genest and Bruno
-  Rémillard.  The test can be seen as composed of
+  R\enc{é}{e}millard.  The test can be seen as composed of
   three steps: (i) a simulation step, which consists of simulating the
   distribution of the test statistics under independence for the sample
   size under consideration; (ii) the test itself, which consists of
