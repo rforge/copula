@@ -282,3 +282,69 @@ if(FALSE) {
     }
     showProc.time()
 }
+
+## Test parametric-bootstrap with all statistics
+## for Clayton, Gumbel, danube and rdj data sets
+if(FALSE) {
+    library(copula)
+
+    meths <- c("Sn", "SnB", "SnC", "AnChisq", "AnGamma")
+    trafos <- c("none", "cCopula", "cCopula", "cCopula", "cCopula")
+
+    doGOFTests <- function(cop, x, N) {
+        for (i in 1:5)
+            print(gofCopula(cop, x = x, method = meths[i],
+                            trafo.method = trafos[i], N = N))
+    }
+
+    ### Clayton #############################
+    x <- rCopula(300,claytonCopula(4))
+    N <- 100
+
+    ## Clayton should not be rejected
+    cop <- claytonCopula()
+    doGOFTests(cop, x, N)
+
+    ## Gumbel should be rejected
+    cop <- gumbelCopula()
+    doGOFTests(cop, x, N)
+
+    ### Gumbel #############################
+    x <- rCopula(300,gumbelCopula(4))
+    N <- 100
+
+    ## Clayton should be rejected
+    cop <- claytonCopula()
+    doGOFTests(cop, x, N)
+
+    ## Gumbel should not be rejected
+    cop <- gumbelCopula()
+    doGOFTests(cop, x, N)
+
+    ### danube #############################
+    data(danube, package = "lcopula")
+    x <- as.matrix(danube)
+    N <- 100
+
+    ## Clayton should be rejected
+    cop <- claytonCopula()
+    doGOFTests(cop, x, N)
+
+    ## Gumbel should not be (too strongly) rejected
+    cop <- gumbelCopula()
+    doGOFTests(cop, x, N)
+
+    ### rdj ###############################
+    data(rdj)
+    x <- as.matrix(rdj[,2:4])
+    N <- 50
+
+    ## Clayton should be rejected
+    cop <- claytonCopula(dim = 3)
+    doGOFTests(cop, x, N)
+
+    ## t with df=10 should not be rejected
+    cop <- tCopula(dim = 3, dispstr = "un", df = 10, df.fixed = TRUE)
+    doGOFTests(cop, x, N)
+
+}

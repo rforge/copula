@@ -150,9 +150,9 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
 
     ## IK NEW (MH: remove me if you agree)
     if (method != "Sn" && trafo.method == "none")
-        stop(sprintf("Argument 'trafo.method' need to be set to \"cCopula\" or \"htrafo\" with 'method'=\"%s\"", method))
+        stop(sprintf("Argument 'trafo.method' needs to be set to \"cCopula\" or \"htrafo\" with 'method'=\"%s\"", method))
     if (method == "Sn" && trafo.method != "none")
-        stop(sprintf("Argument 'trafo.method' need to be set to \"none\" with 'method'=\"%s\"", method))
+        stop(sprintf("Argument 'trafo.method' needs to be set to \"none\" with 'method'=\"%s\"", method))
 
     ## Progress bar
     if(verbose) {
