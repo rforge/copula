@@ -3,9 +3,11 @@
 \alias{gasoil}
 \docType{data}
 \description{
-  Three years of daily prices (from July 2003 to July 2006) of crude oil and
-  natural gas. These data should be very close to those analysed in
+  
+  Three years of daily prices (from July 2003 to July 2006) of crude oil
+  and natural gas. These data should be very close to those analysed in
   Gr\enc{é}{e}goire, Genest and Gendron (2008).
+
 }
 \usage{data(gasoil)}
 \format{
@@ -25,7 +27,9 @@
 \examples{
 data(gasoil)
 ## Log Scaled  Oil & Gas Prices :
-lattice :: xyplot(oil + gas ~ date, data = gasoil, auto.key=TRUE, type = c("l","r"),
-                  scales=list(y = list(log = TRUE), equispaced.log = FALSE))
+lattice :: xyplot(oil + gas ~ date, data = gasoil, auto.key=TRUE,
+                  type = c("l","r"),
+                  scales=list(y = list(log = TRUE),
+                  equispaced.log = FALSE))
 }
 \keyword{datasets}

@@ -84,7 +84,7 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
     A \code{\link{list}} of optional arguments passed
     to the transformation method (see \code{trafo.method} above).}
   \item{useR}{logical indicating whether an \R or C implementation is used.}
-  \item{m, zeta.m}{only for the multiplier with method \code{"Rn"}.
+  \item{m, zeta.m}{only for the multiplier with \code{method = "Rn"}.
     \code{m} is the power and \code{zeta.m} is the adjustment
     parameter \eqn{\zeta_m}{zeta.m} for the denominator of the test
     statistic.}
