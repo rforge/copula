@@ -11,7 +11,7 @@
 \format{
   A data frame of 762 daily prices from 2003 to 2006.
   \describe{
-    \item{\code{date}}{date}
+    \item{\code{date}}{date (of class \code{\link{Date}}).}
     \item{\code{oil}}{daily price of crude oil}
     \item{\code{gas}}{daily price of natural gas}
   }
@@ -24,5 +24,8 @@
 }
 \examples{
 data(gasoil)
+## Log Scaled  Oil & Gas Prices :
+lattice :: xyplot(oil + gas ~ date, data = gasoil, auto.key=TRUE, type = c("l","r"),
+                  scales=list(y = list(log = TRUE), equispaced.log = FALSE))
 }
 \keyword{datasets}
