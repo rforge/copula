@@ -89,6 +89,7 @@ fitLambda <- function(u, method = c("Schmid.Schmidt", "t"),
         Nu  <- matrix(, nrow = d, ncol = d) # matrix of pairwise estimated degrees of freedom (NA on diagonal)
 
         ## Compute lambda for each pair (manually here, for performance reasons)
+        ## Note: We use the approach of Mashal, Zeevi (2002) here
         for(i in 2:d) {
             for(j in 1:(i-1)) { # go over lower triangular matrix
                 u. <- u[, c(i, j)]

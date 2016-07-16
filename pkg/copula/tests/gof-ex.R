@@ -39,7 +39,7 @@ source(system.file("Rsource", "utils.R",     package="copula", mustWork=TRUE))
 ## GoF methods (NOTE: 'htrafo' only implemented for objects of type 'outer_nacopula')
 ## (gofTraf <- eval(formals(gofPB)$trafo.method)[-1]) # "cCopula", "htrafo"
 gofTraf <- "cCopula"
-(gofMeth <- c("SnB", "SnC", "AnChisq", "AnGamma")) ## IK: eval(formals(gofPB)$method)) # "Sn", "SnB", "SnC", "AnChisq", "AnGamma"
+(gofMeth <- c("SnB", "SnC")) ## IK: eval(formals(gofPB)$method)) # "Sn", "SnB", "SnC", "AnChisq", "AnGamma"
 
 n <- 64 # sample size [small here for CPU reasons]
 d <- 5 # dimension
@@ -78,7 +78,7 @@ RR <- sapply(gofTraf, simplify="array", function(gt)
                                    estim.method="mpl", # simulation="pb", default
                                    verbose=FALSE,
                                    gof.trafo=gt, # "cCopula" ("htrafo"; see above)
-                                   gof.method=gm)) # "Sn", "SnB", "SnC", "AnChisq", "AnGamma"
+                                   gof.method=gm)) # gofMeth (one of "Sn", "SnB", "SnC")
                                    # checkFamilies=setdiff(copula:::c_longNames, "AMH")) # default
          })
 showProc.time()

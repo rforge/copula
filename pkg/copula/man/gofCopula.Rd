@@ -29,11 +29,12 @@
 \usage{
 ## Generic [and "rotCopula" method] :
 gofCopula(copula, x, \dots)
-\S4method{gofCopula}{copula}(copula, x, N = 1000, method = "Sn",
+\S4method{gofCopula}{copula}(copula, x, N = 1000,
+          method = c("Sn", "SnB", "SnC", "Rn"),
           estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
           simulation = c("pb", "mult"), verbose = interactive(), \dots)
 
-gofPB(copula, x, N, method = eval(formals(gofTstat)$method),
+gofPB(copula, x, N, method = c("Sn", "SnB", "SnC"),
       estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
       trafo.method = c("none", "cCopula", "htrafo"),
       trafoArgs = list(), verbose = interactive(), useR = FALSE, \dots)
@@ -53,8 +54,7 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
     hypothesis.}
   \item{method}{a \code{\link{character}} string specifying the
     goodness-of-fit test statistic to be used.  For \code{simulation = "pb"},
-    one of "Sn", "SnB", "SnC", "AnChisq", or "AnGamma" (see
-    \code{\link{gofTstat}()}) with \code{trafo.method != "none"} if
+    one of "Sn", "SnB" or "SnC" with \code{trafo.method != "none"} if
       \code{method != "Sn"}.
     For \code{simulation = "mult"}, one of
     \code{"Sn"} or \code{"Rn"}, where the latter is \eqn{R_n} from
@@ -193,7 +193,8 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
 }
 \seealso{
   \code{\link{fitCopula}()} for the underlying estimation procedure and
-  \code{\link{gofTstat}()} for details on all available test statistics.
+  \code{\link{gofTstat}()} for details on *some* of the available test
+  statistics.
 }
 
 %% Examples == ../demo/gofCopula.R __keep >> EXACTLY << in sync!__

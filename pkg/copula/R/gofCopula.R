@@ -25,10 +25,8 @@
 ##'        "Sn"     : the test statistic S_n (Cramer-von Mises) in Genest, Remillard, Beaudoin (2009)
 ##'        "SnB"    : the test statistic S_n^{(B)} in Genest, Remillard, Beaudoin (2009)
 ##'        "SnC"    : the test statistic S_n^{(C)} in Genest, Remillard, Beaudoin (2009)
-##'        "AnChisq": Anderson-Darling test statistic after map to a chi-square
-##'                   distribution using the standard normal quantile function
-##'        "AnGamma": Anderson-Darling test statistic after map to an Erlang/Gamma
-##'                   distribution using the logarithm
+##'        "AnChisq": Anderson-Darling test statistic after map to a chi-square distribution
+##'        "AnGamma": Anderson-Darling test statistic after map to an Erlang/Gamma distribution
 ##' @param useR A logical indicating whether R or C implementations are used
 ##' @param ... Additional arguments for the different methods
 ##' @return An n-vector of values of the chosen test statistic
@@ -106,14 +104,14 @@ gofTstat <- function(u, method = c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
            Cperp <- apply(u, 1, prod)
 	   sum((Dn-Cperp)^2)
        },
-           "AnChisq" = ad.test( pchisq(rowSums(qnorm(u)^2), d) )$statistic,
-	   "AnGamma" = ad.test( pgamma(rowSums(-log(u)), shape=d) )$statistic,
+           "AnChisq" = ad.test( pchisq(rowSums(qnorm(u)^2), df = d) )$statistic,
+	   "AnGamma" = ad.test( pgamma(rowSums(-log(u)), shape = d) )$statistic,
 	   stop("unsupported method ", method))
 }
 
 
 ### The parametric bootstrap (for computing different goodness-of-fit tests) ###
-gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
+gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
                   estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
                   trafo.method = c("none", "cCopula", "htrafo"),
 		  trafoArgs = list(), verbose = interactive(), useR = FALSE, ...) # IK: added useR
@@ -124,7 +122,7 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
 }
 
 ##' revert to  gofPB()  once it is hidden
-.gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
+.gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
                    estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
                    trafo.method = c("none", "cCopula", "htrafo"),
                    trafoArgs = list(), verbose = interactive(), useR = FALSE, ...) # IK: added useR
@@ -148,7 +146,7 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
     if(method == "Sn" && is(copula, "tCopula") && !copula@df.fixed) # df.fixed=TRUE should work
 	stop("Param. boostrap with 'method'=\"Sn\" not available for t copulas as pCopula() cannot be computed for non-integer degrees of freedom yet.")
 
-    ## IK NEW (MH: remove me if you agree)
+    ## Input checks
     if (method != "Sn" && trafo.method == "none")
         stop(sprintf("Argument 'trafo.method' needs to be set to \"cCopula\" or \"htrafo\" with 'method'=\"%s\"", method))
     if (method == "Sn" && trafo.method != "none")
@@ -167,7 +165,6 @@ gofPB <- function(copula, x, N, method = eval(formals(gofTstat)$method),
     C.th.n <- fitCopula(copula, uhat, method = estim.method,
 			estimate.variance = FALSE, ...)@copula
     ## 3) Compute the realized test statistic
-    ## IK CHANGED (MH: remove me if you agree)
     doTrafo <- (method != "Sn" && trafo.method != "none") # (only) transform if method != "Sn" and trafo.method given
     u <- if(doTrafo) {
 	stopifnot(is.list(trafoArgs))
@@ -427,7 +424,7 @@ setGeneric("gofCopula", function(copula, x, ...) standardGeneric("gofCopula"))
 ##'        gofPB() and gofMB()
 ##' @return An object of class 'htest'
 ##' @author Ivan Kojadinovic, Marius Hofert
-gofCopulaCopula <- function(copula, x, N=1000, method = "Sn",
+gofCopulaCopula <- function(copula, x, N=1000, method = c("Sn", "SnB", "SnC", "Rn"),
                             estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
                             simulation = c("pb", "mult"),
                             verbose = interactive(), ...) # print.every=NULL, ...)
@@ -439,7 +436,7 @@ gofCopulaCopula <- function(copula, x, N=1000, method = "Sn",
         stopifnot(is.matrix(x <- as.matrix(x)))
     }
     stopifnot((d <- ncol(x)) > 1, nrow(x) > 0, dim(copula) == d)
-    ## 'method' is checked inside gofPB() / gofMB()
+    method <- match.arg(method)
     estim.method <- match.arg(estim.method)
     simulation <- match.arg(simulation)
 
