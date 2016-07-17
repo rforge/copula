@@ -131,7 +131,7 @@ fitCopStart <- function(copula, u, default=getParam(copula), ...)
 				x=u, method="itau", estimate.variance=FALSE,
                                 warn.df=FALSE, ...)@estimate # fitCopula.icor(, method="itau")
 	if(.par.df) # add starting value for 'df'
-	    start <- c(start, copula@df)
+	    start <- c(start, getdf(copula))
 	if(is.finite(loglikCopula(start, u=u, copula=copula))) start
         else default
     } else default
@@ -150,7 +150,7 @@ getL <- function(copula) {
     dim <- copula@dimension
     dd <- dim * (dim - 1) / 2
     free <- isFree(copula@parameters)
-    if (.hasSlot(copula, "df")) free <- free[-length(free)]
+    if (.hasSlot(copula, "df.fixed")) free <- free[-length(free)]
 
     dgidx <- outer(1:dim, 1:dim, "-")
     dgidx <- P2p(dgidx)
@@ -209,7 +209,7 @@ getXmat <- function(copula) { ## FIXME(?) only works for "copula" objects, but n
         stop("Not implemented yet for the dispersion structure ", copula@dispstr))
     }
     free <- isFree(copula@parameters) ## the last one is for df and not needed
-    if (.hasSlot(copula, "df")) free <- free[-length(free)]
+    if (.hasSlot(copula, "df.fixed")) free <- free[-length(free)]
     xmat[, free, drop=FALSE]
 }
 
@@ -353,7 +353,7 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
         copula <- as.df.fixed(copula, classDef = ccl)
     }
     stopifnot(any(free <- isFree(copula@parameters)))
-    if (.hasSlot(copula, "df")) free <- free[-length(free)]
+    if (.hasSlot(copula, "df.fixed")) free <- free[-length(free)]
     icor <- fitCor(copula, x, method=method, posDef=posDef, matrix=FALSE, ...)
 
     ## FIXME: Using 'X' & 'lm(X,y)' is computationally very inefficient for large q
@@ -446,15 +446,9 @@ fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
     fit <- optimize(logL, interval=c(lower, upper), tol=tol, maximum = TRUE)
 
     ## Extract the fitted parameters
-    copula@df <- df <- 1/fit$maximum # '1/.' because of logL() being in '1/.'-scale
+    df <- 1/fit$maximum # '1/.' because of logL() being in '1/.'-scale
     estimate <- c(P, df)[free]
     freeParam(copula) <- estimate
-
-    ## IK: old version before fixed param
-    ## q <- length(copula@parameters) # d*(d-1)/2 + 1 (the last is nu)
-    ## copula@parameters[seq_len(q-1L)] <- P
-    ## copula@parameters[[q]] <- copula@df <- df <- 1/fit$maximum
-                                        # '1/.' because of logL() being in '1/.'-scale
 
     loglik <- fit$objective
     has.conv <- TRUE # FIXME? use tryCatch() above to catch non-convergence

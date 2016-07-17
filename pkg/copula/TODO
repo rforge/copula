@@ -1,5 +1,7 @@
 ##-*- org -*-->  Emacs .. [Tab] key + [Org] menu; C-c C-o to follow links
 * Short Term (before 1.0.0):
+** TODO R/dC-dc.R : switch(class(copula)[1], "normalCopula" = , ....) does *NOT* work when class(copula) *extends*,
+ e.g., setClass('nrmCopula', contains="normalCopula")  ... also in othe R/*.R files ?
 ** TODO How can we extract marginal copulas from a given copula without having to first extract all information (family, parameter) and then defining a new copula? A pretty cool feature would be to simply use dim(copula, ...) <- 2 where '...' specifies (through a vector of variables) which marginal copula is extracted.
 ** TODO [JY] Debug/fix dCopula for khoudrajiExplicitCopula (dim > 2) when estimate.variance is TRUE
 *** TODO Use package Deriv (symbolic derivatives) to obtain pdf from cdf expression of khoudrajiExplicitCopula
@@ -250,6 +252,11 @@ instead of hand made function header documentation.
 
 ** DONE Use much faster kendall's tau (instead of cor(*, method="kendall")
 * Mid Term
+** TODO R/gofCopula.R : speedup at least *three* instances of
+       vapply(1:n, function(i) sum(t(u[,j]) <= u[i,j]), NA_real_)
+   and *two* matrix versions
+       vapply(1:n, function(i) colSums(t(u.) <= u.[i,]) == d, logical(n)) # (n, n)-matrix
+   and MM is sure these can be nicely vectorized ==> much faster for large 'n'.
 ** TODO ~/R/MM/Pkg-ex/maryamS-ex.R : negative correlation data has BAD error message
  now see FIXME in   tests/fitting-ex.R  'msg <-
  tryCatch(fitCopula(gumbelCopula(), ....'

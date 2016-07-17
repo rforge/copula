@@ -22,7 +22,7 @@
 ATev <- function(copula, w) {
   rho <- copula@parameters[1]
   ## nu <- getdf(copula) ## defined in tCopula.R
-  nu <- copula@df
+  nu <- getdf(copula)
   wnu <- (w / (1 - w))^(1 / nu)
   x <- (wnu - rho) / sqrt(1 - rho^2) * sqrt(nu + 1)
   y <- (1 / wnu - rho) / sqrt(1 - rho^2) * sqrt(nu + 1)
@@ -37,7 +37,7 @@ ATev <- function(copula, w) {
 dAduTev <- function(copula, w) {
   rho <- copula@parameters[1]
   ## nu <- getdf(copula) ## defined in tCopula.R
-  nu <- copula@df
+  nu <- getdf(copula)
   ## prepare dx, dy
   wnu <- (w / (1 - w))^(1 / nu)
   x <- (wnu - rho) / sqrt(1 - rho^2) * sqrt(nu + 1)
@@ -84,12 +84,11 @@ tevCopula <- function(param = NA_real_, df = 4, df.fixed = FALSE) {
   ##       df.fixed)
 
   ## IK: new version
-  attr(parameters, "fixed") <- c(fixedAttr(param), df.fixed)
+  attr(parameters, "fixed") <- c(isFixedP(param), df.fixed)
 
   new("tevCopula",
              dimension = dim,
              parameters = parameters,
-             df = df,
              df.fixed = df.fixed,
              param.names = param.names,
              param.lowbnd = param.lowbnd,

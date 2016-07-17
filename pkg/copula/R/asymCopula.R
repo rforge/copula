@@ -109,9 +109,9 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
 
     ## deal with possibly fixed attributes
     parameters <- c(copula1@parameters, copula2@parameters, shapes)
-    attr(parameters, "fixed") <- c(fixedAttr(copula1@parameters),
-                                   fixedAttr(copula2@parameters),
-                                   fixedAttr(shapes))
+    attr(parameters, "fixed") <- c(isFixedP(copula1@parameters),
+                                   isFixedP(copula2@parameters),
+                                   isFixedP(shapes))
 
     ## if d==2, create a khoudrajiBivCopula object
     ## if d > 2

@@ -142,13 +142,13 @@ setClass("normalCopula", contains = "ellipCopula"
 
 
 setClass("tCopula", contains = "ellipCopula",
-	 slots = c(df = "numeric", df.fixed = "logical"),
-         validity =  function(object) {
-             ## JY: making sure @df == tail(@parametersnot, 1)
-             if (has.par.df(object))
-                 stopifnot(object@df == tail(object@parameters, 1))
-             TRUE
-         }
+	 , slots = c(df.fixed = "logical")
+         ## validity =  function(object) {
+         ##     ## JY: making sure @df == tail(.@parameter, 1)
+         ##     if (has.par.df(object))
+         ##         stopifnot(object@df == tail(object@parameters, 1))
+         ##     TRUE
+         ## }
          )
 
 
@@ -202,14 +202,14 @@ setClass("tawnCopula", contains = "evCopula",
 	 slots = c(exprdist = "expression"))
 
 ## tEV copula
-setClass("tevCopula", contains = "evCopula",
-	 slots = c(df = "numeric", df.fixed = "logical"),
-         validity = function(object) {
-             ## JY: making sure @df == tail(@parametersnot, 1)
-             if (has.par.df(object))
-                 stopifnot(object@df == tail(object@parameters, 1))
-             TRUE
-         }
+setClass("tevCopula", contains = "evCopula"
+	 , slots = c(df.fixed = "logical")
+         ## , validity = function(object) {
+         ##     ## JY: making sure @df == tail(@parametersnot, 1)
+         ##     if(object@df != tail(object@parameters, 1))
+         ##         return("'df' must be the last element of @parameters")
+         ##     TRUE
+         ## }
          )
 
 setGeneric("A", function(copula, w) standardGeneric("A"))
@@ -325,9 +325,9 @@ logLik.fittedMV <- function(object, ...) {
 }
 
 
-##' does the copula have 'df' as parameter?
+##' does the copula have 'df' as *free*, i.e., non-fixed parameter?
 has.par.df <- function(cop, classDef = getClass(class(cop)),
                        isEllip = extends(classDef, "ellipCopula")) {
-  ((isEllip && extends(classDef, "tCopula")) ||
-   extends(classDef, "tevCopula")) && !cop@df.fixed
+    ((isEllip && extends(classDef, "tCopula")) || extends(classDef, "tevCopula")) &&
+        !cop@df.fixed
 }

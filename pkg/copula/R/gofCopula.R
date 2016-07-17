@@ -148,9 +148,9 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
 
     ## Input checks
     if (method != "Sn" && trafo.method == "none")
-        stop(sprintf("Argument 'trafo.method' needs to be set to \"cCopula\" or \"htrafo\" with 'method'=\"%s\"", method))
+        stop(sprintf("'trafo.method' must be \"cCopula\" or \"htrafo\" with 'method'=\"%s\"", method))
     if (method == "Sn" && trafo.method != "none")
-        stop(sprintf("Argument 'trafo.method' needs to be set to \"none\" with 'method'=\"%s\"", method))
+        stop(sprintf("'trafo.method' must be \"none\" with 'method'=\"%s\"", method))
 
     ## Progress bar
     if(verbose) {
@@ -249,16 +249,15 @@ Jscore <- function(copula, u, method)
            influ0 <- dlogcdtheta(copula, u) # (n, p)-matrix
            derArg <- dlogcdu    (copula, u) # (n, d)-matrix
            influ <- lapply(1:copula@dimension, function(i) influ0*derArg[,i])
-           n <- nrow(u)
-           d <- ncol(u)
            p <- nFree(copula@parameters)
            S <- matrix(0, n, p)
            for(j in 1:d) {
                ij <- order(u[,j], decreasing=TRUE)
                ijb <- vapply(1:n, function(i) sum(t(u[,j]) <= u[i,j]), NA_real_)
-               S <- S + rbind(rep.int(0, p),
-                              apply(influ[[j]][ij,,drop=FALSE], 2, cumsum))[n+1-ijb,,drop=FALSE] / n -
-                                  matrix(colMeans(influ[[j]]*u[,j]), n, p, byrow=TRUE)
+	       S <- S +
+		   rbind(rep.int(0, p),
+			 apply(influ[[j]][ij,,drop=FALSE], 2L, cumsum))[n+1-ijb,,drop=FALSE] / n -
+		   matrix(colMeans(influ[[j]]*u[,j]), n, p, byrow=TRUE)
            }
            Sigma.n <- crossprod(influ0) / n # = A^T A / n for A = influ0
            solve(Sigma.n, t(dlogcdtheta(copula, u) - S)) # solve(A, B) solves Ax = B => x = A^{-1}B

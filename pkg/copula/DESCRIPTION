@@ -14,10 +14,10 @@ Depends: R (>= 3.1.0)
 Imports: stats, graphics, methods, stats4, Matrix, lattice, colorspace,
  gsl, ADGofTest, stabledist (>= 0.6-4), mvtnorm, pcaPP, pspline, numDeriv
 Suggests: MASS, KernSmooth, sfsmisc, scatterplot3d, Rmpfr, bbmle, knitr,
- parallel, mvnormtest, partitions, polynom, randtoolbox, rugarch, Runuran,
- tseries, VGAM, VineCopula, zoo
+ parallel, lcopula, mvnormtest, partitions, polynom, randtoolbox, rugarch,
+ Runuran, tseries, VGAM, VineCopula, zoo
 SuggestsNote: the last lines' packages {parallel, ..., zoo} are only used
- in vignettes and demos.
+ in vignettes, demos and few tests.
 Enhances: nor1mix
 Description: Classes (S4) of commonly used elliptical, Archimedean, extreme
  value and some more copula families.  Methods for density, distribution,

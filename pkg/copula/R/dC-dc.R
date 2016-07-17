@@ -96,6 +96,7 @@ dCduExplicitCopula <- function(copula, u, ...) {
     dim <- copula@dimension
     mat <- matrix(NA_real_, nrow(u), dim)
     algNm <- paste(class(copula)[1], "cdfDerWrtArg.algr", sep=".")
+    ## FIXME: fails if class(copula) *extends* (but is not identical to) say "normalCopula"
     if(exists(algNm)) {
 	alpha <- copula@parameters # typically used in 'eval(der.cdf.u, *)' below
         der.cdf.u <- get(algNm)[dim]
@@ -138,7 +139,7 @@ dCduEllipCopula <- function(copula, u, ...) {
     v <- switch(class(copula),
 		"normalCopula" = qnorm(u),
 		"tCopula" = {
-                    df <- copula@df
+                    df <- getdf(copula) # (needed further)
                     qt(u, df=df)
                 },
                 stop("not implemented for class ", class(copula)))
@@ -149,36 +150,36 @@ dCduEllipCopula <- function(copula, u, ...) {
 	s <- sigma[-j,-j] - sigma[-j,j,drop=FALSE] %*% sigma[j,-j,drop=FALSE]
 
 	switch(class(copula),
-               "normalCopula" =
-                   {
-                       if (dim == 2) {
-                           rho <- copula@parameters[1] # IK: single parameter only
-                           mat[,j] <- pnorm(v[,-j], rho * v[,j], sqrt(1 - rho^2))
-                       }
-               else
-                   for (i in 1:n)
-                       mat[i,j] <- pmvnorm(lower = rep(-Inf, dim - 1), upper = v[i,-j],
-                                           mean = v[i,j] * sigma[-j,j],
-                                           sigma = drop(s))
-                   },
-               "tCopula" =
-                   {
-                       if (dim == 2) {
-                           rho <- copula@parameters[1] # IK: single parameter only
-                           mat[,j] <-  pt(sqrt((df+1)/(df+v[,j]^2)) / sqrt(1 - rho^2)
-                                          * (v[,-j] - rho * v[,j]), df=df+1)
-                       }
-               else {
-                   if(df != as.integer(df))
-                       stop("'df' is not integer; therefore, dCdu() cannot be computed yet")
-                   for (i in 1:n)
-                       mat[i,j] <- pmvt(lower = rep(-Inf, dim - 1),
-                                        upper = drop(sqrt((df+1)/(df+v[i,j]^2)) *
-                                                     (v[i,-j] - v[i,j] * sigma[-j,j])),
-                                        sigma = s, df = df + 1)
-               }
+	       "normalCopula" =
+		   {
+		       if (dim == 2) {
+			   rho <- copula@parameters[1] # IK: single parameter only
+			   mat[,j] <- pnorm(v[,-j], rho * v[,j], sqrt(1 - rho^2))
+		       }
+		       else
+			   for (i in 1:n)
+			       mat[i,j] <- pmvnorm(lower = rep(-Inf, dim - 1), upper = v[i,-j],
+						   mean = v[i,j] * sigma[-j,j],
+						   sigma = drop(s))
+		   },
+	       "tCopula" =
+		   {
+		       if (dim == 2) {
+			   rho <- copula@parameters[1] # IK: single parameter only
+			   mat[,j] <-  pt(sqrt((df+1)/(df+v[,j]^2)) / sqrt(1 - rho^2)
+					  * (v[,-j] - rho * v[,j]), df=df+1)
+		       }
+		       else {
+			   if(df != as.integer(df))
+			       stop("'df' is not integer; therefore, dCdu() cannot be computed yet")
+			   for (i in 1:n)
+			       mat[i,j] <- pmvt(lower = rep(-Inf, dim - 1),
+						upper = drop(sqrt((df+1)/(df+v[i,j]^2)) *
+							     (v[i,-j] - v[i,j] * sigma[-j,j])),
+						sigma = s, df = df + 1)
+		       }
 
-                   })
+		   })
     }
     mat
 }
@@ -214,7 +215,7 @@ setMethod("plackettFormulaDim2", signature("normalCopula"), plackettFormulaDim2N
 plackettFormulaDim2TCopula <- function(copula, x) {
     rho <- copula@parameters[1] #JY: single parameter only
     ir2 <- 1 - rho^2
-    df <- copula@df
+    df <- getdf(copula)
     as.matrix((1 + (x[,1]^2 + x[,2]^2 - 2 * rho * x[,1] * x[,2]) /
                (df * ir2))^(-df / 2) / (2 * pi * sqrt(ir2)))
 }
@@ -240,7 +241,7 @@ setMethod("plackettFormula", signature("normalCopula"), plackettFormulaNormalCop
 ## For the multivariate standard t cdf
 plackettFormulaTCopula <- function(copula, dim, rho, s, m, x, i, j) {
     stopifnot(dim >= 3)
-    df <- copula@df
+    df <- getdf(copula)
     if(df != as.integer(df) && dim > 3)
 	stop("'df' is not integer; therefore, plackettFormula() cannot be computed yet")
     term <- 1 + (x[i]^2 + x[j]^2 - 2 * rho * x[i] * x[j]) / (df * (1 - rho^2))
@@ -324,7 +325,7 @@ dCdthetaEllipCopula <- function(copula, u, ...) {
     ## quantile transformation
     v <- switch(class(copula),
 		"normalCopula" = qnorm(u),
-		"tCopula" = qt(u, df = copula@df),
+		"tCopula" = qt(u, df = getdf(copula)),
 		stop("not implemented for class ", class(copula)))
 
     val <-
@@ -388,7 +389,7 @@ dCdthetaEllipCopula <- function(copula, u, ...) {
         }
     }
     free <- isFree(copula@parameters)
-    if (.hasSlot(copula, "df")) free <- free[-length(free)]
+    if (.hasSlot(copula, "df.fixed")) free <- free[-length(free)]
     val[, free, drop = FALSE]
 }
 
@@ -453,7 +454,7 @@ setMethod("dlogcdu", signature("normalCopula"), dlogcduNormalCopula)
 
 ## For tCopula objects
 dlogcduTCopula <- function(copula, u, ...) {
-    df <- copula@df
+    df <- getdf(copula)
     v <- qt(u,df=df)
     w <- dt(v,df=df)
     m <- v %*% solve(getSigma(copula))
@@ -518,14 +519,14 @@ dlogcdthetaEllipCopula <- function(copula, u, ...) {
     dim <- copula@dimension
 
     ## quantile transformation
-    v <- switch(clc <- class(copula),
+    v <- switch(clc <- class(copula), ## FIXME: fails if copula *extends* "tCopula" (e.g.)
 		"normalCopula" = qnorm(u),
 		"tCopula" = {
-		    df <- copula@df
+		    df <- getdf(copula)
 		    qt(u, df=df)
 		},
 		## else:
-		stop("not implemented"))
+		stop("class ", sQuote(clc), " not implemented"))
     val <-
     if (dim == 2) {
 	rho <- copula@parameters[1] # JY: single rho parameter, free
@@ -603,7 +604,7 @@ dlogcdthetaEllipCopula <- function(copula, u, ...) {
         }
     } ## dim >= 3
     free <- isFree(copula@parameters)
-    if (.hasSlot(copula, "df")) free <- free[-length(free)]
+    if (.hasSlot(copula, "df.fixed")) free <- free[-length(free)]
     val[, free, drop = FALSE]
 }
 

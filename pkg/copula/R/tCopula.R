@@ -40,21 +40,13 @@ tCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex",
     param.names <- c(paste("rho", seq_len(pdim), sep="."), "df")
     param.lowbnd <- c(rep.int(-1, pdim), 1e-6)
     param.upbnd	 <- c(rep.int( 1, pdim), Inf)
-    ## JY: handle fixed attributes
-    ## attr(parameters, "fixed") <-
-    ##     c(if(is.null(fixed <- attr(param, "fixed"))) ## IK: parameters -> param
-    ##           rep(FALSE, pdim)
-    ##       else fixed,
-    ##       df.fixed)
-
-    ## IK: new version
-    attr(parameters, "fixed") <- c(fixedAttr(param), df.fixed)
+    attr(parameters, "fixed") <- c(isFixedP(param), df.fixed)
 
     new("tCopula",
 	dispstr = dispstr,
 	dimension = dim,
 	parameters = parameters,
-	df = df, ## JY: need to deprecate this in the future
+	## df = df, ## JY: need to deprecate this in the future
 	df.fixed = df.fixed,
 	param.names = param.names,
 	param.lowbnd = param.lowbnd,
@@ -62,7 +54,6 @@ tCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex",
 	fullname = paste("t copula family", if(df.fixed) paste("df fixed at", df)),
 	getRho = function(obj) {
 	    par <- obj@parameters
-	    ## if (obj@df.fixed) par else
             par[-length(par)]
 	}
 	)
@@ -75,14 +66,13 @@ tCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex",
 ##' @return a copula with df.fixed = TRUE
 ##' @author MH/MM?
 as.df.fixed <- function(copula, classDef = getClass(class(copula))) {
-    stopifnot( ## fast .slotNames()
-        any(names(classDef@slots) == "df.fixed"))
     if (copula@df.fixed) return(copula)
+    stopifnot(extends(classDef, "tCopula") || extends(classDef, "tevCopula"))
     if (!is.null(fixed <- attr(copula@parameters, "fixed"))) {
         ## for tCopula with "fixed" attr in @parameters
         fixed[length(fixed)] <- TRUE
     } else {
-        fixed <- c(rep(FALSE, length(copula@parameters) - 1), TRUE)
+        fixed <- c(rep(FALSE, length(copula@parameters) - 1L), TRUE)
     }
     attr(copula@parameters, "fixed") <- fixed
     copula@df.fixed <- TRUE # (to be deprecated)
@@ -93,36 +83,32 @@ as.df.fixed <- function(copula, classDef = getClass(class(copula))) {
 ##' @param object a copula object
 ##' @return the df of copula
 ##' @author Jun Yan
-getdf <- function(object) {
-  ## if (object@df.fixed) object@df
-  ## else ## the last par. is 'df'
-  ##     object@parameters[length(object@parameters)]
-    if (is.null(attr(object@parameters, "fixed"))) object@df
-    else object@parameters[length(object@parameters)]
-}
+getdf <- function(object) object@parameters[[length(object@parameters)]]
 
-##' @title Set the df parameter of a t/tev copula
-##' @param object a copula object
-##' @param df the df value to be set
-##' @return a copula object with df set
-##' @author Jun Yan
-`setdf<-` <- function(object, value) {
-    stopifnot(is.numeric(value), length(value) == 1, value > 0, value < Inf)
-    object@df <- value
-    if (!is.null(fixed <- attr(object@parameters, "fixed"))) {
-        object@parameters[length(object@parameters)] <- value
-    } else { ## old version
-        fixed <- c(rep(FALSE, length(object@parameters)), object@df.fixed)
-        if (object@df.fixed) {
-            object@parameters <- c(object@parameters, value)
-            object@param.names  <- c(object@param.names, "df")
-            object@param.lowbnd <- c(object@param.lowbnd, 1e-6)
-            object@param.upbnd  <- c(object@param.upbnd, Inf)
-        } else object@parameters[length(object@parameters)] <- value
-        attr(object@parameters, "fixed") <- fixed
-    }
-    object
-}
+## __ NOWHERE USED __
+##
+## ##' @title Set the df parameter of a t/tev copula
+## ##' @param object a copula object
+## ##' @param df the df value to be set
+## ##' @return a copula object with df set
+## ##' @author Jun Yan
+## `setdf<-` <- function(object, value) {
+##     stopifnot(is.numeric(value), length(value) == 1, value > 0, value < Inf)
+##     object@df <- value
+##     if (!is.null(fixed <- attr(object@parameters, "fixed"))) {
+##         object@parameters[length(object@parameters)] <- value
+##     } else { ## old version
+##         fixed <- c(rep(FALSE, length(object@parameters)), object@df.fixed)
+##         if (object@df.fixed) {
+##             object@parameters <- c(object@parameters, value)
+##             object@param.names  <- c(object@param.names, "df")
+##             object@param.lowbnd <- c(object@param.lowbnd, 1e-6)
+##             object@param.upbnd  <- c(object@param.upbnd, Inf)
+##         } else object@parameters[length(object@parameters)] <- value
+##         attr(object@parameters, "fixed") <- fixed
+##     }
+##     object
+## }
 
 rtCopula <- function(n, copula) {
   df <- getdf(copula)

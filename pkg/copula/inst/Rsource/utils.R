@@ -59,6 +59,6 @@ nCorrDigits <- function(target, current, zeroDigs = 16) {
 
 setPar <- function(cop, par) {
     if((is(cop, "tCopula") || is(cop, "tevCopula")) && !cop@df.fixed)
-	par <- c(par, df = cop@df)
+	par <- c(par, df = cop@parameters[length(cop@parameters)])
     setTheta(cop, par, noCheck=TRUE)
 }

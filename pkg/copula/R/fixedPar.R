@@ -1,4 +1,4 @@
-## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
+## Copyright (C) 2016 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -20,7 +20,10 @@
 
 ##' @title Fix a Subset of a Parameter Vector --> ../man/fixedPar.Rd
 fixParam <- function(param, fixed = TRUE) {
-    stopifnot(isTRUE(fixed) || length(param) == length(fixed))
+    stopifnot(length(fixed) %in% c(1L, length(param)), is.logical(fixed))
+    if(identical(fixed, FALSE)) attr(param, "fixed") <- NULL
+    stopifnot(isTRUE(fixed) || length(param) == length(fixed), is.logical(fixed))
+    if(!any(fixed)) attr(param, "fixed") <- NULL
     attr(param, "fixed") <- fixed
     param
 }
@@ -29,19 +32,16 @@ fixParam <- function(param, fixed = TRUE) {
 ##' @param param Numeric parameter vector, possibly with "fixed" attribute
 ##' @return A vector of logicals, TRUE = free
 ##' @author Jun Yan
-isFree <- function(param) {
-    fixed <- attr(param, "fixed")
-    if (is.null(fixed)) rep(TRUE, length(param)) else !fixed
-}
+isFree <- function(param)
+    if (is.null(fixed <- attr(param, "fixed"))) rep(TRUE, length(param)) else !fixed
 
 ##' @title Return the attribute "fixed" even if it does not explicitly exist
 ##' @param param Numeric parameter vector, possibly with "fixed" attribute
 ##' @return A vector of logicals, FALSE = fixed
 ##' @author Ivan Kojadinovic
-fixedAttr <- function(param) {
-    fixed <- attr(param, "fixed")
-    if (is.null(fixed)) rep(FALSE, length(param)) else fixed
-}
+isFixedP <- function(param)
+    if (is.null(fixed <- attr(param, "fixed"))) rep(FALSE, length(param)) else fixed
+
 
 ##' @title Whether or not the copula has "fixed" attr in parameters
 ##' @param copula A 'copula' object
@@ -103,8 +103,8 @@ getParam <- function(copula, freeOnly = TRUE) {
         copula@parameters[sel] <- value
     }
     ## special operation for copulas with df parameters
-    if (has.par.df(copula))
-        copula@df <- copula@parameters[length(copula@parameters)]
+    ## if (has.par.df(copula))
+    ##     copula@df <- copula@parameters[length(copula@parameters)]
     ## if (validObject(copula)) copula
     ## else stop("Invalid copula object.")
     copula

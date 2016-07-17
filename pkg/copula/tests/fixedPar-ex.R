@@ -144,7 +144,7 @@ showProc.time()
     ## d*dtheta functions should return "columns" corresponding to free params
     testdCdc <- function(cop, v, cop.unfixed) {
         fixed <- attr(cop@parameters, "fixed")
-        if (.hasSlot(cop, "df")) fixed <- fixed[-length(fixed)]
+        if (.hasSlot(cop, "df.fixed")) fixed <- fixed[-length(fixed)]
         stopifnot(all.equal(copula:::dCdu(cop, v), copula:::dCdu(cop.unfixed, v)),
                   all.equal(copula:::dCdtheta(cop, v),
                             copula:::dCdtheta(cop.unfixed, v)[, !fixed, drop = FALSE]),

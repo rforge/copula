@@ -57,14 +57,14 @@ cat("\n### data from ",simFamily," (n = ",n,", d = ",d,", theta = ",
 
 showProc.time()
 
-## for debugging purposes
-if(FALSE) {
-    set.seed(1)
+## checking / for debugging purposes
+tools::assertError(
     estimation.gof(n, d=d, simFamily=simFamily, tau=tau,
                    N=3, estim.method="mpl", verbose=FALSE,
-                   gof.traf="cCopula", gof.method="Sn",
+                   gof.trafo = "cCopula", #  <- only "none" is allowed
+                   gof.method="Sn",
                    checkFamilies = c("Clayton", "Gumbel"))
-}
+)
 
 set.seed(1) # set seed
 ## note: this might (still) take a while...
@@ -246,15 +246,15 @@ n <- 200
 set.seed(1)
 
 for(d in if(doExtras) 2:4 else 3) {
-u <- matrix(runif(n*d), ncol=d)
-showProc.time()
-##
-system.time(B. <- gofTstat(u, method="SnB"))
-system.time(C. <- gofTstat(u, method="SnC"))
-stopifnot(all.equal(B., gofTstatSimple(u, method="SnB")),
-	  all.equal(C., gofTstatSimple(u, method="SnC")))
-print(c(SnB = B., SnC = C.))
-showProc.time()
+    u <- matrix(runif(n*d), ncol=d)
+    showProc.time()
+    ##
+    system.time(B. <- gofTstat(u, method="SnB"))
+    system.time(C. <- gofTstat(u, method="SnC"))
+    stopifnot(all.equal(B., gofTstatSimple(u, method="SnB")),
+              all.equal(C., gofTstatSimple(u, method="SnC")))
+    print(c(SnB = B., SnC = C.))
+    showProc.time()
 }
 warnings()
 
@@ -285,66 +285,56 @@ if(FALSE) {
 
 ## Test parametric-bootstrap with all statistics
 ## for Clayton, Gumbel, danube and rdj data sets
-if(FALSE) {
-    library(copula)
+if(doExtras >= 2) {
 
-    meths <- c("Sn", "SnB", "SnC", "AnChisq", "AnGamma")
+    meths  <- c("Sn",    "SnB",     "SnC",    "AnChisq", "AnGamma")
     trafos <- c("none", "cCopula", "cCopula", "cCopula", "cCopula")
 
+    stopifnot(length(meths) == length(trafos))
     doGOFTests <- function(cop, x, N) {
-        for (i in 1:5)
+        for (i in seq_along(meths))
             print(gofCopula(cop, x = x, method = meths[i],
                             trafo.method = trafos[i], N = N))
     }
 
     ### Clayton #############################
     x <- rCopula(300,claytonCopula(4))
-    N <- 100
 
     ## Clayton should not be rejected
-    cop <- claytonCopula()
-    doGOFTests(cop, x, N)
+    doGOFTests(claytonCopula(), x, N=100)
 
     ## Gumbel should be rejected
-    cop <- gumbelCopula()
-    doGOFTests(cop, x, N)
+    doGOFTests(gumbelCopula(), x, N=100)
 
     ### Gumbel #############################
     x <- rCopula(300,gumbelCopula(4))
-    N <- 100
 
     ## Clayton should be rejected
-    cop <- claytonCopula()
-    doGOFTests(cop, x, N)
+    doGOFTests(claytonCopula(), x, N=100)
 
     ## Gumbel should not be rejected
-    cop <- gumbelCopula()
-    doGOFTests(cop, x, N)
+    doGOFTests(gumbelCopula(), x, N=100)
 
-    ### danube #############################
-    data(danube, package = "lcopula")
-    x <- as.matrix(danube)
-    N <- 100
+    ### danube -- skip if lcopula is not available ##########################
+    if(!inherits(try(data(danube, package = "lcopula")), "try-error")) {
+        x <- as.matrix(danube)
 
-    ## Clayton should be rejected
-    cop <- claytonCopula()
-    doGOFTests(cop, x, N)
+        ## Clayton should be rejected
+        doGOFTests(claytonCopula(), x, N=100)
 
-    ## Gumbel should not be (too strongly) rejected
-    cop <- gumbelCopula()
-    doGOFTests(cop, x, N)
+        ## Gumbel should not be (too strongly) rejected
+        doGOFTests(gumbelCopula(), x, N=100)
+    }
 
     ### rdj ###############################
     data(rdj)
     x <- as.matrix(rdj[,2:4])
-    N <- 50
 
     ## Clayton should be rejected
-    cop <- claytonCopula(dim = 3)
-    doGOFTests(cop, x, N)
+    doGOFTests(claytonCopula(dim = 3), x, N=50)
 
     ## t with df=10 should not be rejected
     cop <- tCopula(dim = 3, dispstr = "un", df = 10, df.fixed = TRUE)
-    doGOFTests(cop, x, N)
+    doGOFTests(cop, x, N=50)
 
 }
