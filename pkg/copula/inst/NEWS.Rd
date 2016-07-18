@@ -40,7 +40,9 @@
     \item new \code{getAname()} useful e.g., in \code{htrafo()}.
 
     \item Parts of a parameter vector can be kept fixed
-    (\dQuote{known}), see \code{\link{fixedPar}}.
+    (\dQuote{known}), see \code{\link{fixedPar}}.  The \code{"tCopula"}
+    and \code{"tevCopula"} classes consequently no longer have a
+    \code{df} slot.
 
     \item Functions deprecated (\code{\link{.Deprecated}}) since 2012, namely,
     \code{K}, \code{beta.hat}, \code{calibKendallsTau},
