@@ -1,5 +1,10 @@
 ##-*- org -*-->  Emacs .. [Tab] key + [Org] menu; C-c C-o to follow links
 * Short Term (before 1.0.0):
+** TODO [MM] copula@fullname: *abolish* (deprecate) and replace by a function (i.e. a method) !!!!
+*** TODO [MM] copula@fullname: is used in print() method; Want also use for plotting -- hence urgent for book!
+- want to use "it" by default, e.g.,  `main = copula@fullname` in persp() etc, *HOWEVER*
+  it is too long / ugly, e.g.,  "Gumbel copula family; Archimedean copula; Extreme value copula"
+  contains "copula" *3* times !
 ** TODO R/dC-dc.R : switch(class(copula)[1], "normalCopula" = , ....) does *NOT* work when class(copula) *extends*,
  e.g., setClass('nrmCopula', contains="normalCopula")  ... also in othe R/*.R files ?
 ** TODO How can we extract marginal copulas from a given copula without having to first extract all information (family, parameter) and then defining a new copula? A pretty cool feature would be to simply use dim(copula, ...) <- 2 where '...' specifies (through a vector of variables) which marginal copula is extracted.
@@ -50,12 +55,6 @@ which extracts the parameter (vector) from any copula object
        not, though (like gofCopula()) => but clarify).  MM: I strongly *prefer* 'X' to 'data'
      - the same probably applies to dCn()
 ** TODO Make rosenblatt() and iRosenblatt() faster by avoiding 'archmCopula' class conversion to 'acopula' and back (see email from 2016-04-20); see the TODO in ./R/gofTrafos.R
-** TODO [MM] copula@fullname: is used in print() method; Want also use for plotting -- hence urgent for book!
-- want to use "it" by default, e.g.,  `main = copula@fullname` in persp() etc, *HOWEVER*
-  it is too long / ugly, e.g.,  "Gumbel copula family; Archimedean copula; Extreme value copula"
-  contains "copula" *3* times !
-
-** TODO [MM] copula@fullname: *abolish* (deprecate) and replace by a function (i.e. a method) !!!!
 ** TODO [MM] Is it possible to generate (inheritance) tree class structure with methods automatically from the code ?
 ** TODO [JY] Clean-up/document "old" copula files (such as ellip*/archm*/ev* copula files); write documentation a la 'Marius' (with Roxygen)
 ** TODO [JY] Check appropriate position of methods in classes
