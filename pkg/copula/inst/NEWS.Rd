@@ -48,8 +48,8 @@
     \code{K}, \code{beta.hat}, \code{calibKendallsTau},
     \code{calibSpearmansRho}, \code{kendallsTau}, \code{spearmansRho},
     \code{genInv}, \code{genFun}, \code{genFunDer1}, \code{genFunDer2},
-    \code{Afun}, \code{AfunDer}, \code{Anfun},
-    \code{dcopula}, \code{pcopula}, \code{rcopula},
+    \code{Afun}, \code{AfunDer},
+    \code{Anfun}, \code{dcopula}, \code{pcopula}, \code{rcopula},
     \code{dmvdc}, \code{pmvdc}, and \code{rmvdc}
     are now defunct (the user still sees them and gets a useful
     error message from \code{\link{.Defunct}()}!).
@@ -57,6 +57,12 @@
     \item Function \code{tailindex} is deprecated in favor of new
     \code{lambda()}; \code{gofMB()} and \code{gofPB()} calls are
     deprecated and to be replaced by \code{gofCopula(.., simulation = *)}.
+
+    \item Function \code{rtrafo()} has now been deprecated, users
+    should work with \code{cCopula()} instead.
+
+    \item Various improvements in data visualization tools such as
+    \code{pairs2()}, \code{splom2()}, etc.
   }
 }
 
