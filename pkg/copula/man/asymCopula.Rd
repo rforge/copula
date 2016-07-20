@@ -52,8 +52,7 @@ khoudrajiCopula(copula1 = indepCopula(), copula2 = indepCopula(),
   A new object of class \code{"\linkS4class{khoudrajiBivCopula}"} in
   dimension two or of class
   \code{"\linkS4class{khoudrajiExplicitCopula}"} or
-  \code{"\linkS4class{khoudrajiCopula}"} when \eqn{d > 2}when \eqn{d >
-   2}.
+  \code{"\linkS4class{khoudrajiCopula}"} when \eqn{d > 2}.
 }
 \references{
   Genest, C., Ghoudi, K., and Rivest, L.-P. (1998), Discussion of
