@@ -21,7 +21,7 @@
   or both) entries in a symmetric matrix.
 }
 \usage{
-p2P(param, d = round(sqrt(1 + length(param))))
+p2P(param, d = floor(1 + sqrt(2*length(param))))
 P2p(P)
 getSigma(copula)
 extremePairs(x, n = 6, method = c("largest", "smallest", "both"),
@@ -31,7 +31,9 @@ extremePairs(x, n = 6, method = c("largest", "smallest", "both"),
   \item{param}{a parameter vector.}
   \item{d}{dimension of the resulting \code{\link{matrix}}.  The default
   is correct under the assumption (of \code{p2P()} in general!)  that
-  \code{param} is the lower-triangular part of a correlation matrix \code{P}.}
+  \code{param} is the lower-triangular part of a correlation matrix
+  \code{P} and hence corresponds to \code{\link{ellipCopula}(.., dispstr
+  = "un")}.}
   \item{P}{a \code{\link{matrix}} which should be converted to a vector.}
 
   \item{copula}{an \bold{elliptical} copula, i.e., an object (extending)
@@ -80,9 +82,9 @@ P2p
 extremePairs
 
 param <- (2:7)/10
-tC <- tCopula(param, dim = 4, dispstr="un", df = 3)
+tC <- tCopula(param, dim = 4, dispstr = "un", df = 3)
 ## consistency of the three functions :
-P <- p2P(param, d=4)
+P <- p2P(param) # (using the default 'd')
 stopifnot(identical(param, P2p(P)),
 	  identical(P, getSigma(tC)))
 

@@ -127,7 +127,7 @@ frank.cop <- frankCopula(3)# dim=2
 persp(frank.cop, dCopula)
 
 gumbel.cop <- archmCopula("gumbel", 5)
-stopifnot(identical(gumbel.cop, gumbelCopula(5))
+stopifnot(identical(gumbel.cop, gumbelCopula(5)))
 contour(gumbel.cop, dCopula)
 
 amh.cop <- amhCopula(0.5)

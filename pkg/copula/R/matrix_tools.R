@@ -23,7 +23,7 @@
 ##' @return a symmetric matrix with 1s on the diagonal and the values of param
 ##'         filled column-wise below the diagonal (= row-wise above the diagonal)
 ##' @author Marius Hofert
-p2P <- function(param, d = round(sqrt(1 + length(param))))
+p2P <- function(param, d = floor(1 + sqrt(2*length(param))))
 {
     P <- diag(0, nrow=d)# (0 is faster to add)
     P[lower.tri(P)] <- param
