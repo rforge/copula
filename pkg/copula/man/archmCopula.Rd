@@ -127,6 +127,7 @@ frank.cop <- frankCopula(3)# dim=2
 persp(frank.cop, dCopula)
 
 gumbel.cop <- archmCopula("gumbel", 5)
+stopifnot(identical(gumbel.cop, gumbelCopula(5))
 contour(gumbel.cop, dCopula)
 
 amh.cop <- amhCopula(0.5)
@@ -141,8 +142,8 @@ x <- rCopula(5, frank.cop)
 dCopula(x, frank.cop)
 
 ## A 7-dim Gumbel copula
-gumbel.cop <- gumbelCopula(2, dim = 7)
-dCopula(x, gumbel.cop)
+gumbelC.7 <- gumbelCopula(2, dim = 7)
+dCopula(x, gumbelC.7)
 
 ## A 12-dim Joe copula
 joe.cop <- joeCopula(iTau(joeCopula(), 0.5), dim = 12)

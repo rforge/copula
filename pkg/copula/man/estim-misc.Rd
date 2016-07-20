@@ -65,7 +65,7 @@ edmle(u, cop, interval = initOpt(cop@copula@name), warn=TRUE, ...)
   For \code{etau}, if no additional arguments are provided to
   \code{\link{cor}(*, method="kendall")} (see \code{\dots}), the much
   faster \code{\link[pcaPP]{cor.fk}()} from package \CRANpkg{pcaPP} is
-  used. Furthermore, \code{method="tau.mean"} means that the average
+  used.  Furthermore, \code{method="tau.mean"} means that the average
   of sample versions of Kendall's tau are computed first and then the
   parameter is determined such that the population version of Kendall's
   tau matches this average (if possible); the \code{method="theta.mean"}

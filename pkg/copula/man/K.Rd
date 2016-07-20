@@ -53,8 +53,8 @@ rK(n, copula, d)
   \item{method}{string for the method to compute the quantile function
     of \eqn{K}.  Currently, one of
     \describe{
-      \item{"default"}{The default method. Currently chooses
-	\code{method="monoH.FC"} with \code{u.grid=0:128/128}.}
+      \item{"default"}{The default method.  Currently chooses
+	\code{method="monoH.FC"} with \code{u.grid = 0:128/128}.}
       \item{"simple"}{Straightforward root finding based on
 	\code{\link{uniroot}}.}
       \item{"sort"}{Root finding based on \code{\link{uniroot}} but

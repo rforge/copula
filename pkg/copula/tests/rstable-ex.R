@@ -65,7 +65,7 @@ aCt2 <- unlist(lapply(taus, function(TAU) {
 (csubc <- Filter(Negate(isVirtualClass), csubc))
 ## schlatherCopula() e.g. has no constructor:
 (cfnms <- intersect(csubc, ls(pkg, pattern = "[A-Za-z]+Copula$")))
-stopList <- c("khoudrajiCopula", "khoudrajiBivCopula",  "khoudrajiExplicitCopula",
+stopList <- c("khoudrajiCopula", #"khoudrajiBivCopula",  "khoudrajiExplicitCopula",
               "indepCopula", "rotCopula")
 cfnms <- cfnms[is.na(match(cfnms, stopList))]
 str(cfn <- sapply(cfnms, get, pkg, simplify=FALSE))
@@ -79,6 +79,15 @@ length(cops <- c(aCt2, Ct2))
 
 set.seed(17)
 Uc <- lapply(cops, rCopula, n = 1024)
+
+## rPosStable [coverage]
+gC <- cops[[match("gumbelCopula", names(cops))]]
+set.seed(17); Uc <- c(Uc, list(gumbelC.x  = rCopula(gC, n = nrow(Uc[[1]]))))
+options('copula:rstable1' = "rPosStable")
+set.seed(17); Uc <- c(Uc, list(gumbelC.rP = rCopula(gC, n = nrow(Uc[[1]]))))
+options('copula:rstable1' = NULL) # check that things *are* reproducible
+set.seed(17); stopifnot(all.equal(Uc[["gumbelC.x"]], rCopula(gC, n = nrow(Uc[[1]]))))
+
 
 ## 1) Check the tau's
 

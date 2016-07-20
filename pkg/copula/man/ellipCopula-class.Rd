@@ -15,18 +15,20 @@
 }
 \section{Slots}{
   \describe{
-    \item{\code{dispstr}:}{Object of class \code{"character"}, indicating
-    how the dispersion matrix is parameterized; can 'ex', 'ar1', 'toep',
-    or 'un'.}
+    \item{\code{dispstr}:}{\code{"\link{character}"} string indicating
+      how the dispersion matrix is parameterized; one of \code{"ex"},
+      \code{"ar1"}, \code{"toep"}, or \code{"un"}, see the \code{dispstr}
+      argument of \code{\link{ellipCopula}()}.}
     \item{\code{dimension}:}{Object of class \code{"numeric"}, dimension
       of the copula. }
-    \item{\code{parameters}:}{a \code{\link{numeric}}, the parameter value.}
-    \item{\code{param.names}:}{Object of class \code{"character"},
-      parameter names. }
-    \item{\code{param.lowbnd}:}{Object of class \code{"numeric"},
-      parameter lower bound. }
-    \item{\code{param.upbnd}:}{Object of class \code{"numeric"},
-      parameter upper bound. }
+    \item{\code{parameters}:}{a \code{\link{numeric}}, (vector of) the parameter
+      value(s).}
+    \item{\code{param.names}:}{\code{\link{character}} vector with names
+      for the \code{parameters} slot, of the same length.}
+    \item{\code{param.lowbnd}:}{\code{\link{numeric}} vector of lower
+      bounds for the \code{parameters} slot, of the same length.}
+    \item{\code{param.upbnd}:}{upper bounds for \code{parameters},
+      analogous to \code{parm.lowbnd}.}
     \item{\code{fullname}:}{Object of class \code{"character"}, family names
       of the copula.}
   }

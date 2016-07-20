@@ -20,16 +20,18 @@ normalCopula(param, dim = 2, dispstr = "ex")
     \code{\link{p2P}()} and \code{\link{getSigma}()} provide
     the corresponding \dQuote{P} matrix, see below.}
   \item{dim}{ the dimension of the copula. }
-  \item{dispstr}{ a character string specifying the type of the symmetric
+  \item{dispstr}{a character string specifying the type of the symmetric
     positive definite matrix characterizing the elliptical
-    copula. Implemented structures are "ex" for exchangeable, "ar1" for
-    AR(1), "toep" for Toeplitz, and "un" for unstructured. }
-  \item{df}{ a integer value specifying the number of degrees of freedom
+    copula.  Currently available structures are \code{"ex"} for
+    \bold{ex}changeable, \code{"ar1"} for \eqn{AR(1)}, \code{"toep"} for
+    Toeplitz (\code{\link{toeplitz}}), and \code{"un"} for
+    \bold{un}structured.}
+  \item{df}{integer value specifying the number of degrees of freedom
     of the multivariate t distribution used to construct the t copulas.}
   \item{df.fixed}{logical specifying if the degrees of freedom \code{df} will be
     considered as a parameter (to be estimated) or not.  The default,
     \code{FALSE}, means that \code{df} is to be estimated if the object is
-    passed as argument to \code{fitCopula}.}
+    passed as argument to \code{\link{fitCopula}}.}
   \item{\dots}{ currently nothing. }
 }
 \value{
