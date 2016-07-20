@@ -33,6 +33,7 @@
 #include "An.h"
 #include "gof.h"
 #include "empcop.h"
+#include "set_utils.h" // for progress bar
 
 /**
  * Cramer-von Mises test statistic
@@ -92,7 +93,7 @@ void cramer_vonMises_grid(int *p, double *U, int *n, double *V, int *m,
  * @author Ivan Kojadinovic
  */
 void multiplier(int *p, double *U, int *n, double *G, int *g, double *b,
-		double *influ, double *denom, int *N, double *s0)
+		double *influ, double *denom, int *N, double *s0, int *verbose)
 {
   int i, j, k, l, ind;
   double invsqrtn = 1.0/sqrt(*n);
@@ -162,6 +163,10 @@ void multiplier(int *p, double *U, int *n, double *G, int *g, double *b,
 	  s0[l] += process * process;
 	}
       s0[l] /= *g;
+
+      /* update progress bar */
+      if (*verbose)
+	  progressBar(l, *N, 70);
     }
 
   PutRNGstate();

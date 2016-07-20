@@ -27,7 +27,7 @@ void cramer_vonMises_grid(int *p, double *U, int *n, double *V, int *m,
 			  double *Ctheta, double *stat);
 
 void multiplier(int *p, double *u0, int *m, double *u, int *n, double *b,
-		double *influ, double *denom, int *N, double *s0);
+		double *influ, double *denom, int *N, double *s0, int *verbose);
 
 void cramer_vonMises_Pickands(int n, int m, double *S,
 			      double *T, double *Atheta,

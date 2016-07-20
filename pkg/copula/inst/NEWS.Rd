@@ -18,9 +18,12 @@
     use of fast Kendall's tau from package \pkg{pcaPP} (via hidden
     \code{corKendall()}).
 
-    \item \code{fitCopula()} gets now method \code{"itau.mpl"} for \code{tCopula}s,
-    allowing to only estimate \code{df}, keeping the dispersion matrix
-    fixed.
+    \item \code{fitCopula()} gets now method \code{"itau.mpl"} for
+    \code{tCopula}s, which implements the robust estimation method of
+    Mashal and Zeevi (2002).
+
+    \item various improvements in \code{gofCopula()} related to the
+    alternative test statistics (\code{method != "Sn"}).
 
     \item new \code{xvCopula()} function: cross-validated copula fitting
     for model selection.

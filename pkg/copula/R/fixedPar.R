@@ -94,12 +94,16 @@ getParam <- function(copula, freeOnly = TRUE) {
     oldpar <- copula@parameters
     fixed <- attr(oldpar, "fixed")
     if (is.null(fixed) || !any(fixed)) {
-        stopifnot(length(oldpar) == length(value))
+        ## stopifnot(length(oldpar) == length(value))
+        if (length(oldpar) != length(value)) # IK
+            stop("the length of 'value' is not equal to the number of free parameters")
         copula@parameters[] <- value
     }
     else {
         sel <- !fixed
-        stopifnot(sum(sel) == length(value))
+        ## stopifnot(sum(sel) == length(value))
+        if (sum(sel) != length(value)) # IK
+            stop("the length of 'value' is not equal to the number of free parameters")
         copula@parameters[sel] <- value
     }
     ## special operation for copulas with df parameters

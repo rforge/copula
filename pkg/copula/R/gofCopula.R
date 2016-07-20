@@ -143,8 +143,6 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
 	if(length(copula@childCops))
 	    stop("currently, only Archimedean copulas are supported")
     }
-    if(method == "Sn" && is(copula, "tCopula") && !copula@df.fixed) # df.fixed=TRUE should work
-	stop("Param. boostrap with 'method'=\"Sn\" not available for t copulas as pCopula() cannot be computed for non-integer degrees of freedom yet.")
 
     ## Input checks
     if (method != "Sn" && trafo.method == "none")
@@ -202,9 +200,8 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
 
     ## 5) Return result object
     structure(class = "htest",
-	      list(method = sprintf(
-                   "Parametric bootstrap goodness-of-fit test with 'method'=\"%s\", 'estim.method'=\"%s\"",
-		   method, estim.method),
+	      list(method = if (trafo.method == "none")
+                                sprintf("Parametric bootstrap goodness-of-fit test with 'method'=\"%s\", 'estim.method'=\"%s\"", method, estim.method) else sprintf("Parametric bootstrap goodness-of-fit test with 'method'=\"%s\", 'estim.method'=\"%s\", 'trafo.method'=\"%s\"", method, estim.method, trafo.method),
                    parameter = c(parameter = getParam(C.th.n)),
                    statistic = c(statistic = T),
                    p.value = (sum(T0 >= T) + 0.5) / (N + 1), # typical correction => p-values in (0, 1)
@@ -337,6 +334,9 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
 
         ## Obtain approximate realizations of the test statistic under H_0
 
+        if (verbose)
+            warning("The 'verbose' argument is ignored in 'gofMB' when 'useR' is set to TRUE")
+
         ## The multipliers
         Z <- matrix(rnorm(N*n), nrow=N, ncol=n) # (N, n)-matrix
         Zbar <- rowMeans(Z) # N-vector
@@ -392,7 +392,8 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
                                    Jscore(C.th.n, u=u., method=estim.method)),
                  denom = as.double(denom),
                  N = as.integer(N),
-                 s0 = double(N))$s0
+                 s0 = double(N),
+                 verbose = as.integer(verbose))$s0
     }
 
     ## Return result object
@@ -438,6 +439,9 @@ gofCopulaCopula <- function(copula, x, N=1000, method = c("Sn", "SnB", "SnC", "R
     method <- match.arg(method)
     estim.method <- match.arg(estim.method)
     simulation <- match.arg(simulation)
+
+    if (method == "Sn" && is(copula, "tCopula") && !copula@df.fixed)
+	stop("'method'=\"Sn\" not available for t copulas whose df are not fixed as pCopula() cannot be computed for non-integer degrees of freedom yet.")
 
     ## Deprecation
     ## if (!is.null(print.every)) {
