@@ -33,7 +33,7 @@
 #include "An.h"
 #include "gof.h"
 #include "empcop.h"
-#include "set_utils.h" // for progress bar
+#include "indepTests.h" // for progress bar
 
 /**
  * Cramer-von Mises test statistic
