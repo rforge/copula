@@ -178,12 +178,12 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
         }
 
         ## FIXME: work with expressions F1 / F2, not chars...
-        cdf1 <- getcdfchar(F1, om=TRUE)
-        cdf2 <- getcdfchar(F2, om=FALSE)
+        cdf1 <- gsub("alpha", "c1alpha", getcdfchar(F1, om=TRUE))
+        cdf2 <- gsub("alpha", "c2alpha", getcdfchar(F2, om=FALSE))
         cdf <- parse(text = c("(", cdf1, ") * (", cdf2, ")"))
-        ## cdf <- substitute((F1) * (F2),
-        ##                   list(F1 = cdf1, F2 = cdf2))
-
+        ## cdf <- substitute((F1) * (F2), list(F1 = cdf1, F2 = cdf2))
+        cdf.algr <- deriv(cdf, "nothing")
+        
         ## The following block handles pdf
         ##'' @title Get pdf expression by differentiating the cdf with D iteratively
         ##'' @param cdf Expression of cdf
@@ -203,7 +203,11 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
                 warning("The pdf is only available for dim 6 or lower.")
                 NULL
             }
-
+        pdf.algr <- deriv(pdf, "nothing")
+        exprdist <- c(cdf, pdf)
+        attr(exprdist, "cdfalgr") <- cdf.algr
+        attr(exprdist, "pdfalgr") <- pdf.algr
+        
         ## The following block handles the partial derivatives of a component copula cdf
         ## needed in the density
         ## derExprs: get the derivatives of cdf of order 1 to n
@@ -233,7 +237,7 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
             param.upbnd  = c(copula1@param.upbnd,  copula2@param.upbnd,  rep(1, d)),
             copula1 = copula1,
             copula2 = copula2,
-            exprdist = c(cdf=cdf, pdf=pdf),
+            exprdist = exprdist,
             derExprs1 = derExprs1, derExprs2 = derExprs2,
             fullname = paste("Khoudraji copula constructed from: [",
                              copula1@fullname, "] and: [", copula2@fullname, "]"))
@@ -423,20 +427,58 @@ setMethod("dCdtheta", signature("khoudrajiBivCopula"),
 ### dCopula method for Explicit Khoudraji copulas
 ##################################################################################
 
-## TODO JY: document
+## This function uses the algorithmic expressions stored in the class object
+dKhoudrajiExplicitCopula.algr <- function(u, copula, log=FALSE, ...) {
+    dim <- copula@dimension
+    stopifnot(!is.null(d <- ncol(u)), dim == d)
+    comps <- getKhoudrajiCopulaComps(copula)
+    copula1 <- comps$copula1
+    copula2 <- comps$copula2
+    for (i in 1:dim) {
+        assign(paste0("u", i), u[,i])
+        assign(paste0("shp", i), comps$shapes[i])
+    }
+    ## WARNING: assuming one parameter (or no-parameter) copula components
+    c1alpha <- copula1@parameters
+    c2alpha <- copula2@parameters
+    dens <- c(eval(attr(copula@exprdist, "pdfalgr")))
+    if(log) log(dens) else dens
+}
+
+setMethod("dCopula", signature("numeric", "khoudrajiExplicitCopula"), dKhoudrajiExplicitCopula.algr)
+setMethod("dCopula", signature("matrix",  "khoudrajiExplicitCopula"), dKhoudrajiExplicitCopula.algr)
+
+
+#### The following is no longer used #################################################################
+#### They are much slower than the one above
+## > microbenchmark(dKhoudrajiExplicitCopula.algr(u, kcd3), dCopula(u, kcd3))
+## Unit: milliseconds
+##                                    expr       min        lq      mean    median
+##  dKhoudrajiExplicitCopula.algr(u, kcd3)  2.107368  2.268947  2.660072  2.471952
+##                        dCopula(u, kcd3) 60.112831 64.307831 67.056729 66.658310
+##         uq      max neval
+##   2.569195 19.22082   100
+##  68.780618 89.72618   100
+
+
+##' @title Get the power set of a sequence 1:d
+##' @param d the dimension
+##' @return a logical matrix of 2^d rows and d columns
+##' where each row indicates one subset (TRUE indicating a component is selected)
 getPowerSet <- function(d) { ## TODO: impossible for large d -- need "nextSet()" there!
     as.matrix(unname(expand.grid(replicate(d, list(c(TRUE,FALSE))),
                                  KEEP.OUT.ATTRS = FALSE)))
 }
 
-## TODO JY: document
-##' @title
-##' @param idx
-##' @param u
-##' @param dg
-##' @param copula
-##' @param derExprs
-##' @return
+##' @title The derivatives of CDF of a copula needed in Khoudraji's copula density
+##' @param idx logical vector of d dimension, TRUE means derivative requested;
+##' it is designed to be one row from the returned matrix from getPowerSet.
+##' @param u matrix of observations with d columns at which the derivatives are needed
+##' @param dg matrix of derivatives of g at u
+##' @param copula a copula object
+##' @param derExprs expressions of length d + 1, the first one being the cdf of the copula,
+##' the second one dC / du1, the third one dC2 / (du1 du2), and so on.
+##' @return a vector of the derivatives requested via idx
 ##' @author Jun Yan
 ##' __NOT_EXPORTED__ ==> not checking arguments
 densDers <- function(idx, u, dg, copula, derExprs) {
@@ -452,9 +494,10 @@ densDers <- function(idx, u, dg, copula, derExprs) {
     c(eval(derExprs[dorder + 1])) * dgu
 }
 
-dKhoudrajiExplicitCopula <- function(u, copula, log=FALSE, ...) {
+
+dKhoudrajiExplicitCopula <- function(u, copula, log = FALSE, ...) {
     d <- copula@dimension
-    if(!is.matrix(u)) u <- matrix(u, ncol = d)
+    if (!is.matrix(u)) u <- matrix(u, ncol = d)
     comps <- getKhoudrajiCopulaComps(copula)
     copula1 <- comps$copula1
     copula2 <- comps$copula2
@@ -476,8 +519,6 @@ dKhoudrajiExplicitCopula <- function(u, copula, log=FALSE, ...) {
     }
     if(log) log(dens) else dens
 }
-
-setMethod("dCopula", signature("numeric", "khoudrajiExplicitCopula"), dKhoudrajiExplicitCopula)
-setMethod("dCopula", signature("matrix", "khoudrajiExplicitCopula"), dKhoudrajiExplicitCopula)
+  
 
 

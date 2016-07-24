@@ -232,10 +232,11 @@ if (FALSE)
     ## bias and stderr
     do1 <- function() {
         u <- rCopula(n, kcd3)
-        fitCopula(khoudrajiCopula(copula1 = indepCopula(dim=3),
-                                  copula2 = claytonCopula(dim=3)),
-                  start = c(1.1, 0.5, 0.5, 0.5), data = pobs(u),
-                  optim.method = "Nelder-Mead", estimate.variance = FALSE)@estimate
+        fit <- fitCopula(khoudrajiCopula(copula1 = indepCopula(dim=3),
+                                         copula2 = claytonCopula(dim=3)),
+                         start = c(1.1, 0.5, 0.5, 0.5), data = pobs(u),
+                         optim.method = "Nelder-Mead", estimate.variance = TRUE)
+        c(fit@estimate, sqrt(diag(fit@var.est)))
     }
     res <- replicate(100, do1())
     apply(res,1,mean)
@@ -257,10 +258,11 @@ if (FALSE)
     ## bias and stderr
     do1 <- function() {
         u <- rCopula(n, kgd3)
-        fitCopula(khoudrajiCopula(copula1 = indepCopula(dim=3),
-                                  copula2 = gumbelCopula(dim=3)),
-                  start = c(1.1, 0.5, 0.5, 0.5), data = pobs(u),
-                  optim.method = "Nelder-Mead", estimate.variance = FALSE)@estimate
+        fit <- fitCopula(khoudrajiCopula(copula1 = indepCopula(dim=3),
+                                         copula2 = gumbelCopula(dim=3)),
+                         start = c(1.1, 0.5, 0.5, 0.5), data = pobs(u),
+                         optim.method = "Nelder-Mead", estimate.variance = TRUE)
+        c(fit@estimate, sqrt(diag(fit@var.est)))
     }
     res <- replicate(100, do1())
     apply(res,1,mean)
@@ -282,10 +284,11 @@ if (FALSE)
     ## bias and stderr
     do1 <- function() {
         u <- rCopula(n, kfd3)
-        fitCopula(khoudrajiCopula(copula1 = indepCopula(dim=3),
-                                  copula2 = frankCopula(dim=3)),
-                  start = c(1.1, 0.5, 0.5, 0.5), data = pobs(u),
-                  optim.method = "Nelder-Mead", estimate.variance = FALSE)@estimate
+        fit <- fitCopula(khoudrajiCopula(copula1 = indepCopula(dim=3),
+                                         copula2 = frankCopula(dim=3)),
+                         start = c(1.1, 0.5, 0.5, 0.5), data = pobs(u),
+                         optim.method = "Nelder-Mead", estimate.variance = TRUE)
+        c(fit@estimate, sqrt(diag(fit@var.est)))
     }
     res <- replicate(100, do1())
     apply(res,1,mean)
