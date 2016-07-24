@@ -66,6 +66,8 @@
 
     \item Various improvements in data visualization tools such as
     \code{pairs2()}, \code{splom2()}, etc.
+
+    \item \code{qK()} gets \code{log.p} option.
   }
 }
 

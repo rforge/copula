@@ -75,7 +75,9 @@ gofEVCopula(copula, x, N = 1000,
   \code{\link{evTestK}}, \code{\link{gofCopula}}, \code{\link{An}}.
 }
 \examples{
-x <- rCopula(100, claytonCopula(3))
+n <- 100; N <- 1000 # realistic (but too large currently for CRAN checks)
+n <-  60; N <-  200 # (for now)
+x <- rCopula(n, claytonCopula(3))
 
 \donttest{% because the bootstraps are slow,..
 ## Does the Gumbel family seem to be a good choice?
@@ -83,8 +85,8 @@ gofEVCopula(gumbelCopula(), x)
 }
 
 ## The same with different (and cheaper) estimation methods:
-gofEVCopula(gumbelCopula(), x, method="itau")
-gofEVCopula(gumbelCopula(), x, method="irho")
+gofEVCopula(gumbelCopula(), x, N=N, method="itau")
+gofEVCopula(gumbelCopula(), x, N=N, method="irho")
 
 \donttest{% non-gumbel bootstraps are slow
 ## The same with different extreme-value copulas

@@ -119,6 +119,7 @@ n <- 200
 set.seed(271)
 U. <- matrix(runif(n*d), ncol = d) # U(0,1)^d
 
+\donttest{
 ## Transform to Gumbel sample via conditional distribution method
 U <- cCopula(U., copula = gc, inverse = TRUE) # slow for ACs except Clayton
 splom2(U) # scatter-plot matrix copula sample
@@ -126,7 +127,7 @@ splom2(U) # scatter-plot matrix copula sample
 ## Rosenblatt transform back to U(0,1)^d (as a check)
 U. <- cCopula(U, copula = gc)
 splom2(U.) # U(0,1)^d again
-
+}% dont
 
 ## 3) cCopula() for elliptical copulas
 
