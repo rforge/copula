@@ -57,58 +57,47 @@ pK <- function(u, copula, d, n.MC = 0, log.p = FALSE)
     res[is0 <- u == 0] <- if(log.p) -Inf else 0
     res[is1 <- u == 1] <- if(log.p) 0 else 1
     not01 <- seq_len(n)[!(is0 | is1)]
-    uN01 <- u[not01]
-    ## computations
+    n <- length(uN01 <- u[not01])
+    if(n == 0) return(res)
+    ## else: computations for the non-trivial  0 < uN01 < 1
     th <- copula@theta
-    if(n.MC > 0) { # Monte Carlo
-	stopifnot(is.finite(n.MC))
-        if(length(not01)){
+    res[not01] <-
+        if(n.MC > 0) { # Monte Carlo
+            stopifnot(is.finite(n.MC))
             V <- copula@V0(n.MC, th) # vector of length n.MC
             psiI <- copula@iPsi(uN01, th) # vector of length n
-            lr <- unlist(lapply(psiI, function(psInv){
-                -log(n.MC) + lsum(as.matrix(ppois(d-1, V*psInv, log.p=TRUE)))
                 ## Former code: mean(ppois(d-1, V*psInv))
-            }))
-            res[not01] <- if(log.p) lr else exp(lr)
+            lr <- -log(n.MC) + vapply(psiI, function(pI) lsum(cbind(ppois(d-1, V*pI, log.p=TRUE),
+                                                                    deparse.level=0L)), numeric(1))
+            if(log.p) lr else exp(lr)
         }
-    } else { # direct
-	if(length(not01))
-	    res[not01] <- if(d == 1) { # d == 1
-		if(log.p) log(uN01) else uN01 # K(u) = u
-	    } else if(d == 2) { # d == 2
-		r <- uN01 + exp( copula@iPsi(uN01, theta=th, log=TRUE) -
-                                 copula@absdiPsi(uN01, th, log=TRUE) ) # K(u) = u - psi^{-1}(u) / (psi^{-1})'(u)
-                if(log.p) log(r) else r
-	    } else { # d >= 3
-		j <- seq_len(d-1)
-		lpsiI. <- copula@iPsi(uN01, theta=th, log=TRUE)
-		labsdPsi <- do.call(rbind,
-				    lapply(j, function(j.)
-					   copula@absdPsi(exp(lpsiI.),
-						       theta=th,
-						       degree=j.,
-						       log=TRUE))) # (d-1) x n  matrix [n = length(not01)]
-                ## containing log( (-1)^j * psi^{(j)}(psi^{-1}(u)) ) in the j-th row
-		lfac.j <- cumsum(log(j)) ## == lfactorial(j)
-                lx <- labsdPsi + j %*% t(lpsiI.) - lfac.j # (d-1) x n matrix
-                lx <- rbind(log(uN01), lx) # d x n matrix containing the logarithms of the summands of K
-                ls <- lsum(lx) # log(K(u))
-                if(log.p) ls else pmin(1, exp(ls)) # ensure we are in [0,1] {numerical inaccuracy}
-		## Former code:
-		## K2 <- function(psInv) {
-		##    labsdPsi <- unlist(lapply(j, copula@absdPsi,
-		##			      u=psInv, theta=th, log=TRUE))
-		##    sum(exp(labsdPsi + j*log(psInv) - lfac.j))
-		## }
-		## pmin(1, uN01 + unlist(lapply(psiI[not01], K2)))
-		##
-		## NB: AMH, Clayton, Frank are numerically not quite monotone near one;
-		## --  this does not change that {but maybe slightly *more* accurate}:
-		## absdPsi. <- unlist(lapply(j, copula@absdPsi, u = psInv, theta = th,
-		##						 log = FALSE))
-		##		       sum(absdPsi.*psInv^j/factorial(j))
-	    } # else (d >= 3)
-    } # if/else method (MC/direct)
+        else if(d == 1) { # d == 1
+            if(log.p) log(uN01) else uN01 # K(u) = u
+        } else if(d == 2) { # d == 2
+            ## K(u) = u - psi^{-1}(u) / (psi^{-1})'(u)
+            r <- uN01 + exp( copula@iPsi(uN01, theta=th, log=TRUE) -
+                             copula@absdiPsi(uN01, th, log=TRUE) )
+            if(log.p) log(r) else r
+        } else { # d >= 3
+            j <- seq_len(d-1)
+            lpsiI. <- copula@iPsi(uN01, theta=th, log=TRUE)
+            psiI. <- exp(lpsiI.)
+            ## (d-1) x n  matrix
+            ##  containing log( (-1)^j * psi^{(j)}(psi^{-1}(u)) ) in the j-th row
+            lx <- vapply(j, function(j.) copula@absdPsi(psiI., theta=th, degree = j., log=TRUE),
+                         numeric(n))
+            lfac.j <- cumsum(log(j)) ## == lfactorial(j)
+            lx <- (if(n==1) lx else t(lx)) + tcrossprod(j, lpsiI.) - lfac.j # (d-1) x n matrix
+            ## lsum( < d x n matrix containing the logarithms of the summands of K> ) :
+            ls <- lsum(rbind(log(uN01), lx)) # log(K(u))
+            if(log.p) ls else pmin(1, exp(ls)) # ensure we are in [0,1] {numerical inaccuracy}
+
+            ## NB: AMH, Clayton, Frank are numerically not quite monotone near one;
+            ## --  this does not change that {but maybe slightly *more* accurate}:
+            ## absdPsi. <- unlist(lapply(j, copula@absdPsi, u = psInv, theta = th,
+            ##						 log = FALSE))
+            ##		       sum(absdPsi.*psInv^j/factorial(j))
+        } # else (d >= 3)
     res
 }
 
@@ -135,18 +124,21 @@ pK <- function(u, copula, d, n.MC = 0, log.p = FALSE)
 ##' Note: - K(u) >= u => u gives an upper bound for K^{-1}(u)
 ##'       - K for smaller dimensions would also give upper bounds for K^{-1}(u),
 ##'         but even for d=2, there is no explicit formula for K^{-1}(u) known.
-qK <- function(u, copula, d, n.MC = 0,
+qK <- function(u, copula, d, n.MC = 0, log.p = FALSE,
                method = c("default", "simple", "sort", "discrete", "monoH.FC"),
                u.grid, ...)
 {
-    stopifnot(is(copula, "acopula"), 0 <= u, u <= 1)
+    stopifnot(is(copula, "acopula"))
+    if(log.p) stopifnot(u <= 0) else stopifnot(0 <= u, u <= 1)
     if(d==1) ## special case : K = identity
 	return(u)
     ## limiting cases
     n <- length(u)
     res <- numeric(n) # all 0
-    res[is1 <- u == 1] <- 1
-    is0 <- u == 0 # res[is0 <- u == 0] <- 0
+    u0 <- if(log.p) -Inf else 0
+    u1 <- if(log.p)   0  else 1
+    res[is1 <- u == u1] <- 1
+    is0 <- u == u0 # res[is0 <- u == 0] <- 0
     if(!any(not01 <- !(is0 | is1)))
 	return(res)
     ## usual case:
@@ -160,38 +152,39 @@ qK <- function(u, copula, d, n.MC = 0,
            {
                ## Note: This is the same code as method="monoH.FC" (but with a
                ##       chosen grid)
-               u.grid <- 0:128/128 # default grid
-               K.u.grid <- pK(u.grid, copula=copula, d=d, n.MC=n.MC, log.p=FALSE)
+               u.grid <- if(log.p) seq(-720, 0, by = 720/128) else 0:128/128 # default grid
+               K.u.grid <- pK(u.grid, copula=copula, d=d, n.MC=n.MC, log.p=log.p)
                ## function for root finding
-               fspl <- function(x, u)
-                   splinefun(u.grid, K.u.grid, method = "monoH.FC")(x) - u
+	       splFn <- splinefun(u.grid, K.u.grid, method = "monoH.FC")
+	       fspl <- function(x, u) splFn(x) - u
                ## root finding
                vapply(uN01, function(u)
-                      uniroot(fspl, u=u, interval=c(0,u), ...)$root, NA_real_)
+                      uniroot(fspl, u=u, interval=c(u0,u), ...)$root, NA_real_)
 
            },
                "simple" =               # straightforward root finding
            {
                ## function for root finding
-               f <- function(t, u) pK(t, copula=copula, d=d, n.MC=n.MC, log.p=FALSE) - u
+               f <- function(t, u) pK(t, copula=copula, d=d, n.MC=n.MC, log.p=log.p) - u
                ## root finding
                vapply(uN01, function(u)
-                      uniroot(f, u=u, interval=c(0,u), ...)$root, NA_real_)
+                      uniroot(f, u=u, interval=c(u0,u), ...)$root, NA_real_)
            },
                "sort" =                 # root finding with first sorting u's
            {
                ## function for root finding
-               f <- function(t, u) pK(t, copula=copula, d=d, n.MC=n.MC, log.p=FALSE) - u
+               f <- function(t, u) pK(t, copula=copula, d=d, n.MC=n.MC, log.p=log.p) - u
                ## sort u's
                ord <- order(uN01, decreasing=TRUE)
                uN01o <- uN01[ord]       # uN01 ordered in decreasing order
                ## deal with the first one (largest u) separately
                q <- numeric(lnot01)
-               q[1] <- uniroot(f, u=uN01o[1], interval=c(0, uN01o[1]), ...)$root # last quantile -- used in the following
+               q[1] <- uniroot(f, u=uN01o[1], interval=c(u0, uN01o[1]), ...)$root # last quantile -- used in the following
                if(lnot01 > 1){
+                   eps <- 1e-4 # {FIXME for log.p!} ugly but due to non-monotonicity of K
+                   ## otherwise: "Error... f() values at end points not of opposite sign"
                    for(i in 2:lnot01){
-                       lower <- 0
-                       eps <- 1e-4 # ugly but due to non-monotonicity of K [otherwise: "Error... f() values at end points not of opposite sign"]
+                       lower <- u0
                        upper <- min(uN01o[i], q[i-1]+eps)
                        if(FALSE){       # checks for debugging
                            if(lower >= upper) stop("lower=", lower, ", upper=", upper)
@@ -210,23 +203,22 @@ qK <- function(u, copula, d, n.MC = 0,
            },
                "discrete" = # evaluate K at a grid and compute approximate quantiles based on this grid
            {
-               stopifnot(0 <= u.grid, u.grid <= 1)
-               K.u.grid <- pK(u.grid, copula=copula, d=d, n.MC=n.MC, log.p=FALSE)
+	       if(log.p) stopifnot(u.grid <= 0) else stopifnot(0 <= u.grid, u.grid <= 1)
+               K.u.grid <- pK(u.grid, copula=copula, d=d, n.MC=n.MC, log.p=log.p)
                u.grid[findInterval(uN01, vec=K.u.grid,
                                    rightmost.closed=TRUE, ...)+1] # note: this gives quantiles according to the "typical" definition
            },
                "monoH.FC" = # root finding based on an approximation of K via monotone splines (see ?splinefun)
            {
+	       if(log.p) stopifnot(u.grid <= 0) else stopifnot(0 <= u.grid, u.grid <= 1)
                ## evaluate K at a grid
-               stopifnot(0 <= u.grid, u.grid <= 1)
-               K.u.grid <- pK(u.grid, copula=copula, d=d, n.MC=n.MC,
-                              log.p=FALSE)
+               K.u.grid <- pK(u.grid, copula=copula, d=d, n.MC=n.MC, log.p=log.p)
                ## function for root finding
-               fspl <- function(x, u)
-                   splinefun(u.grid, K.u.grid, method = "monoH.FC")(x) - u
+               splFn <- splinefun(u.grid, K.u.grid, method = "monoH.FC")
+               fspl <- function(x, u) splFn(x) - u
                ## root finding
                vapply(uN01, function(u)
-                      uniroot(fspl, u=u, interval=c(0,u), ...)$root, NA_real_)
+                      uniroot(fspl, u=u, interval=c(u0,u), ...)$root, NA_real_)
            },
                stop("unsupported method ", method))
     res
