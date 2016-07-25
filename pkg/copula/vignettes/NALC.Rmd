@@ -1,13 +1,14 @@
 ---
-title: Nested Archimedean L&eacute;vy Copulas
-author: Marius Hofert
+title: "Nested Archimedean L&eacute;vy Copulas"
+author: "Marius Hofert"
 date: '`r Sys.Date()`'
 output:
-  html_vignette:
+  rmarkdown::html_vignette:
     css: style.css
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{Nested Archimedean L&eacute;vy Copulas}
+  %\VignetteIndexEntry{Nested Archimedean Lévy Copulas} <!-- on CRAN page;  &eacute; fails there -->
+  %\VignetteEncoding{UTF-8}
 ---
 ```{r, message=FALSE}
 require(gsl) # for exponential integral

@@ -15,7 +15,7 @@
   R Package 'Rmpfr'}
 \Shorttitle{Numerically Stable Frank via Multiprecision in R}
 %
-%\VignetteIndexEntry{Franknacopula}
+%\VignetteIndexEntry{Numerically stable Frank Copulas via Multiprecision (Rmpfr)}
 %\VignetteDepends{copula}
 %\VignetteDepends{Rmpfr}
 \SweaveOpts{engine=R,eps=FALSE,pdf=TRUE,width=7,height=5,strip.white=true,keep.source=TRUE}

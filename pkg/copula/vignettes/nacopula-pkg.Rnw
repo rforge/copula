@@ -14,7 +14,7 @@
 \Plaintitle{Nested Archimedean Copulas Meet R---The nacopula Package} %% without formatting
 % \Shorttitle{}
 %
-%\VignetteIndexEntry{copula}
+%\VignetteIndexEntry{Nested Archimedean Copulas Meet R}% << shown on CRAN page!
 %\VignetteDepends{copula}
 %\VignetteDepends{lattice}
 \SweaveOpts{engine=R,eps=FALSE,pdf=TRUE,width=7,height=4,strip.white=true,keep.source=TRUE}

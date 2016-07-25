@@ -4,7 +4,13 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-15 (2016-05-21, svn r1435)}{
+\section{Changes in version 0.999-16 (2016-..-.., svn r....)}{
+  \itemize{
+    \item ..(place holder)
+  }
+}
+
+\section{Changes in version 0.999-15 (2016-07-24, svn r1438)}{
   \itemize{
     \item \code{C.n(u, X, *)} now has \code{X} as second argument,
     calls \code{pobs(X)} and then \code{F.n(*,*)}; previously,
