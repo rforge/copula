@@ -43,9 +43,9 @@ rotCopula <- function(copula, flip = TRUE) {
 ## Internal. swicth u[,i] to 1 - u[,i] according to flip
 apply.flip <- function(u, flip) {
     if(identical(flip, TRUE))
-        u
-    else if(identical(flip, FALSE))
         1 - u
+    else if(identical(flip, FALSE))
+        u
     else {
         u[,flip] <- 1 - u[,flip]
         u
