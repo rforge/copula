@@ -20,9 +20,9 @@ fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS",
         lower = -Inf, upper = Inf,
         estimate.variance = fit$convergence == 0, hideWarnings = TRUE)
 
-\S3method{coef}{fittedMV}(object, ...)
-\S3method{logLik}{fittedMV}(object, ...)
-\S3method{vcov}{fittedMV}(object, ...)
+\S3method{coef}{fittedMV}(object, SE = FALSE, \dots)
+\S3method{logLik}{fittedMV}(object, \dots)
+\S3method{vcov}{fittedMV}(object, \dots)
 }
 \arguments{
   \item{param}{a vector of parameter values.  When specifying parameters for
@@ -32,9 +32,6 @@ fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS",
     parameters of one marginal must be specified.}
   \item{x}{a data matrix.}
   \item{mvdc}{a \code{"\linkS4class{mvdc}"} object. }
-  \item{hideWarnings}{logical indicating if warning messages from
-    likelihood maximization, e.g., from evaluating at invalid parameter
-    values, should be suppressed (via \code{\link{suppressWarnings}}).}
   \item{data}{a data matrix.}
   \item{start}{a vector of starting value for \code{"param"}.  See
     \code{"param"} above for ordering of this vector.}
@@ -45,8 +42,15 @@ fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS",
     \code{method = "L-BFGS-B"}.}
   \item{estimate.variance}{logical; if true (as by default, if the
     optimization converges), the asymptotic variance is estimated.}
+  \item{hideWarnings}{logical indicating if warning messages from
+    likelihood maximization, e.g., from evaluating at invalid parameter
+    values, should be suppressed (via \code{\link{suppressWarnings}}).}
 
   \item{object}{an \R object of class \code{"\linkS4class{fitMvdc}"}.}
+  \item{SE}{for the \code{\link{coef}} method, a logical indicating if
+    standard errors should be returned in addition to the estimated
+    parameters (in a \code{\link{matrix}}).  This is equivalent, but
+    more efficient than, e.g., \code{coef(summary(object))}.}
   \item{\dots}{potentially further arguments to methods.}
 }
 \value{

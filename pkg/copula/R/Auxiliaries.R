@@ -97,3 +97,12 @@ doExtras <- function() {
 corKendall <- function(x, ...) {
     if(length(list(...))) cor(x, method="kendall", ...) else cor.fk(x)
 }
+
+##' format() a 'call' -- used for print(<fitCopula>) and print(<fitMvdc>):
+formatCall <- function(cal, className, sep = "\n", collapse = "\n") {
+    if(cal[[1L]] == as.symbol(".local"))
+	cal[[1L]] <- as.symbol(className)
+    if(names(cal[2L]) == "copula")
+	names(cal)[2L] <- ""
+    paste(deparse(cal), sep=sep, collapse=collapse)
+}

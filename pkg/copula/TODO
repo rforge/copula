@@ -5,6 +5,7 @@
 - want to use "it" by default, e.g.,  `main = copula@fullname` in persp() etc, *HOWEVER*
   it is too long / ugly, e.g.,  "Gumbel copula family; Archimedean copula; Extreme value copula"
   contains "copula" *3* times !
+** TODO [MM,MH] qK(p, method="default") is quite inaccurate.  Change default; be smart about "close to 0".
 ** TODO R/dC-dc.R : switch(class(copula)[1], "normalCopula" = , ....) does *NOT* work when class(copula) *extends*,
  e.g., setClass('nrmCopula', contains="normalCopula")  ... also in othe R/*.R files ?
 ** TODO How can we extract marginal copulas from a given copula without having to first extract all information (family, parameter) and then defining a new copula? A pretty cool feature would be to simply use dim(copula, ...) <- 2 where '...' specifies (through a vector of variables) which marginal copula is extracted.
@@ -77,7 +78,7 @@ use the the numerically good formulae rather than the "exprDist".
 which corresponds to the different sectors.
 This can be used, e.g., for building a [default] color-matrix for splom2 or
 for estimation purposes etc. Note: look at nacPairthetas
-** TODO Shall fitCopula.ml(, method="mpl") call pobs()?
+** DONE Shall fitCopula.ml(, method="mpl") call pobs()?  A: _NO_; had to finalize for the book.
 MH:
 At the moment, fitCopula.ml(, method="mpl") requires data in
 [0,1]^d. We could actually allow general data from IR^d for this
@@ -115,8 +116,8 @@ advantage outweighs the drawbacks... What do you think?
    new "Mvdc" which would contain "mvdc" and "empMvdc".
    -> nice persp() {and maybe contour()} method via perspCopula(*, fun=C.n, ....) and
       perspMvdc(*, fun=F.n, ....). ---> man/Mvdc.Rd and R/graphics.R
-** TODO [MM] print(summary(<fitCop>)) prints *less* than print(.): not R like; -> R/fitCopula.R summary.fitCopula
-** TODO [MM] Shall we make print(fitCopula()) nicer by omitting the (theoretical meaningless) p-values?
+** DONE [MM] print(summary(<fitCop>)) prints *less* than print(.): not R like; -> R/fitCopula.R summary.fitCopula
+** DONE make print(fitCopula()) nicer by omitting the (theoretical meaningless) p-values
 ** TODO [MM] pCopula(u,..) and dCopula(u,..) should work for u outside [0,1]^d  & NA/NaN
 *** TODO both should keep NA & NaN. Maybe keep them different, as  pnorm(c(2,NA,NaN));
 however relax, as  NA+NaN or NaN+NA  differ, too.
@@ -174,7 +175,8 @@ Longer term: want to *estimate* those correctly [MLE at least].
     - shouldn't it {and all other tests} return a (valid) object of class
     "htest" (maybe "htest" in addition to the specific S3 class)?
     --> we would probably not need extra print() methods, and just use print.htest()
-** DONE [MM/JY]: Add slot 'fixed' (or similar) to copula class, change constructors of existing classes accordingly and make appropriate changes in fitCopula() (and gofCopula() if required and do basic checks)
+** DONE [MM/JY]: Add slot 'fixed' (or similar) to copula class, change constructors of existing classes accordingly
+ and make appropriate changes in fitCopula() (and gofCopula() if required and do basic checks)
 ** DONE fix: ellipCopula("normal") works (=> param = NA_real_), but ellipCopula("normal", param = NA) fails: MM because NA is logical
 ** DONE use sinpi() etc e.g. in R/ellipCopula.R
 ** DONE New Wrapper functions or rather extending one or the other function names
@@ -248,8 +250,7 @@ instead of hand made function header documentation.
 {to test the bug, fixed in r954, reported by Benedikt}
 ** DONE ~/R/Pkgs/copula : need a version with much shorter tests on CRAN?
 *** can we "not rebuild the PDFs" for the vignettes? to save a bit?
-
-** DONE Use much faster kendall's tau (instead of cor(*, method="kendall")
+** DONE Use much faster kendall's tau (instead of cor(*, method="kendall"): importFrom("pcaPP", cor.fk)
 * Mid Term
 ** TODO R/gofCopula.R : speedup at least *three* instances of
        vapply(1:n, function(i) sum(t(u[,j]) <= u[i,j]), NA_real_)
@@ -259,6 +260,11 @@ instead of hand made function header documentation.
 ** TODO ~/R/MM/Pkg-ex/maryamS-ex.R : negative correlation data has BAD error message
  now see FIXME in   tests/fitting-ex.R  'msg <-
  tryCatch(fitCopula(gumbelCopula(), ....'
+** TODO (MM): Matrix multiplication with *diagonal* matrices is not very efficient with (base R) matrices.
+ When D == diag(d, n), replace
+ 	M %*% D   by   M * rep(d, each = nrow(M))
+ and
+ 	D %*% M   by   d * M
 ** TODO Extend polynEval() with the methods of polyJ();
  this can be called from polyJ() and uscore of Joe.
 ** TODO Write a function "checkTheta" or "thetaConstr"(param_vector, Copula): checks if the parameters are all admissible.
@@ -345,25 +351,26 @@ Actually, define setAs("nacopula", "dendrogram", ....) and then use
 dendrogram print()ing.
 *** TODO Khoudraji d + p + r (see asymCopula.R)
 *** TODO IK: add d-dimensional EV copulas corresponding to max-stable processes and corresponding "composite densities"
-* Demos -> [ Package functions | Vignettes | Tests | man/ Ex. | Keep Demo ]
-|-----------------------------------+----------+-------------------------------------------------------------------|
-| File                              | Goal     | Topic                                                             |
-|-----------------------------------+----------+-------------------------------------------------------------------|
-| [[file:demo/AC-Liouville-demo.R][AC-Liouville-demo]]                 | PKG      | Some examples from McNeil, Neslehova (2010)                       |
-| [[file:demo/GIG-demo.R][GIG-demo] | PKG      | Generalized Inverse Gaussian Archimedean copulas                  |
-|-----------------------------------+----------+-------------------------------------------------------------------|
-| [[file:demo/fitting-tests.R][fitting-tests]]                     | k        | Tests of fitCopula                                                |
-| [[file:demo/estimation_via_HAC.R][estimation_via_HAC]]                | PKG      | Estimation procedure from the HAC package                         |
-|-----------------------------------+----------+-------------------------------------------------------------------|
-| [[file:demo/estimation.gof.R][estimation.gof]]                    | k        | Estimation and goodness-of-fit capabilities                       |
-| [[file:demo/gofCopula.R][gofCopula]]                         | k?       | Goodness-of-fit test for copula models                            |
-| [[file:demo/gof_graph.R][gof_graph]]                         | k?       | Graphical goodness-of-fit based on pairwise Rosenblatt transforms |
-|-----------------------------------+----------+-------------------------------------------------------------------|
-| [[file:demo/G_ak.R][G_ak]]                              | test /ex | Coefficients a_k for Gumbel's density derivatives, MLE, etc       |
-| [[file:demo/polyGJ.R][polyGJ]]                            |          | Investigating precision and run time of polyG and polyJ           |
-|-----------------------------------+----------+-------------------------------------------------------------------|
-| [[file:demo/dDiag-plots.R][dDiag-plots]]                       | k        | Plotting dDiag() densities (over range of families, theta, d)     |
-| [[file:demo/opC-demo.R][opC-demo]]                          | k        | Outer power copula (Clayton only, for now)                        |
-| [[file:demo/timings.R][timings]]                           | k        | Using timing() to measure speed of basic Archimedean families     |
-| [[file:demo/retstable.R][retstable]]                         | k        | Computation of exponentially tilted stable random variates        |
-|-----------------------------------+----------+-------------------------------------------------------------------|
+* Demos (./demo/ ) -> [ Package functions | Vignettes | Tests | man/ Ex. | Keep Demo ]
+|--------------------+-------+-----------+-------------------------------------------------------------------|
+| File               | State | Goal      | Topic                                                             |
+|--------------------+-------+-----------+-------------------------------------------------------------------|
+| [[file:vignettes/AC_Liouville.Rmd][AC_Liouville]]       | vign. | PKG       | Some examples from McNeil, Neslehova (2010)                       |
+| [[file:vignettes/GIG.Rmd][GIG]]                | vign. | PKG       | Generalized Inverse Gaussian Archimedean copulas                  |
+|--------------------+-------+-----------+-------------------------------------------------------------------|
+|--------------------+-------+-----------+-------------------------------------------------------------------|
+| [[file:demo/fitting-tests.R][fitting-tests]]      |       | k         | Tests of fitCopula                                                |
+| [[file:demo/estimation_via_HAC.R][estimation_via_HAC]] |       | PKG? doc? | Estimation procedure from the HAC package                         |
+|--------------------+-------+-----------+-------------------------------------------------------------------|
+| [[file:demo/estimation.gof.R][estimation.gof]]     |       | k         | Estimation and goodness-of-fit capabilities                       |
+| [[file:demo/gofCopula.R][gofCopula]]          |       | k?        | Goodness-of-fit test for copula models                            |
+| [[file:demo/gof_graph.R][gof_graph]]          |       | k?        | Graphical goodness-of-fit based on pairwise Rosenblatt transforms |
+|--------------------+-------+-----------+-------------------------------------------------------------------|
+| [[file:demo/G_ak.R][G_ak]]               |       | test /ex  | Coefficients a_k for Gumbel's density derivatives, MLE, etc       |
+| [[file:demo/polyGJ.R][polyGJ]]             |       |           | Investigating precision and run time of polyG and polyJ           |
+|--------------------+-------+-----------+-------------------------------------------------------------------|
+| [[file:demo/dDiag-plots.R][dDiag-plots]]        |       | k         | Plotting dDiag() densities (over range of families, theta, d)     |
+| [[file:demo/opC-demo.R][opC-demo]]           |       | k         | Outer power copula (Clayton only, for now)                        |
+| [[file:demo/timings.R][timings]]            |       | k         | Using timing() to measure speed of basic Archimedean families     |
+| [[file:demo/retstable.R][retstable]]          |       | k         | Computation of exponentially tilted stable random variates        |
+|--------------------+-------+-----------+-------------------------------------------------------------------|

@@ -299,6 +299,7 @@ setClass("fittedMV",
                    loglik = "numeric",
                    nsample = "integer",
                    method = "character",
+                   call = "call",
                    ## convergence = "integer",
                    fitting.stats = "list"))
 
@@ -306,14 +307,25 @@ setMethod("paramNames", "copula", function(x) x@param.names[isFree(x@parameters)
 ## paramNames() methods: further provided separately for "fitCopula", "fitMvdc"
 
 
-coef.fittedMV <- function(object, ...)
-    setNames(object@estimate, paramNames(object))
+coef.fittedMV <- function(object, SE = FALSE, ...) {
+    pNms <- paramNames(object)
+    if(SE)
+	structure(cbind(object@estimate,
+			if(length(V <- object@var.est)) sqrt(diag(V))
+			else rep(NA_real_, length(pNms)),
+			deparse.level=0L),
+		  dimnames = list(pNms, c("Estimate", "Std. Error")))
+    else
+	setNames(object@estimate, pNms)
+}
 
 nobs.fittedMV <- function(object, ...) object@nsample
 
 vcov.fittedMV <- function(object, ...) {
     pNms <- paramNames(object)
-    structure(object@var.est, dimnames = list(pNms, pNms))
+    structure(if(length(V <- object@var.est)) V
+              else matrix(NA, length(pNms), length(pNms)),
+              dimnames = list(pNms, pNms))
 }
 
 logLik.fittedMV <- function(object, ...) {

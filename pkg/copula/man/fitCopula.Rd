@@ -84,8 +84,8 @@ fitCopula(copula, data, \dots)
   parameter (vector) \code{param} given the data \code{u}.
 
   The return value of \code{fitCopula()} is an object of class
-  \code{"\linkS4class{fitCopula}"} (see there), containing (among
-  others!) the slots
+  \code{"\linkS4class{fitCopula}"} (inheriting from hidden class
+  \code{"fittedMV"}), containing (among others!) the slots
   \describe{
     \item{estimate}{The parameter estimates.}
     \item{var.est}{The large-sample (i.e., asymptotic) variance estimate of the parameter
@@ -133,24 +133,24 @@ fitCopula(copula, data, \dots)
   Consider the \eqn{t} copula with \code{df.fixed=FALSE} (see
   \code{\link{ellipCopula}()}).  In this case, the methods \code{"itau"}
   and \code{"irho"} cannot be used in \code{fitCopula()} as they cannot
-  estimate the degrees of freedom parameter \code{df}. For the methods
+  estimate the degrees of freedom parameter \code{df}.  For the methods
   \code{"mpl"} and \code{"itau.mpl"} the asymptotic variance cannot be
-  (fully) estimated (yet). And for the methods \code{"ml"} and \code{"mpl"},
+  (fully) estimated (yet).  For the methods \code{"ml"} and \code{"mpl"},
   when \code{start} is not specified, the starting value for \code{df}
   is set to \code{copula@df}, typically 4.
 
   To implement the \emph{Inference Functions for Margins} (IFM) method
   (see, e.g., Joe 2005), set \code{method="ml"} and note that
   \code{data} need to be parametric pseudo-observations obtained from \emph{fitted}
-  parametric marginal distribution functions. The returned large-sample
+  parametric marginal distribution functions.  The returned large-sample
   variance will then underestimate the true variance (as the procedure
   cannot take into account the (unknown) estimation error for the margins).
 
   The fitting procedures based on \code{\link{optim}()} generate
   warnings because invalid parameter values are tried during the
-  optimization process. When the number of parameters is one and the
+  optimization process.  When the number of parameters is one and the
   parameter space is bounded, using \code{optim.method="Brent"} is
-  likely to give less warnings. Furthermore, from experience,
+  likely to give less warnings.  Furthermore, from experience,
   \code{optim.method="Nelder-Mead"} is sometimes a more robust
   alternative to \code{optim.method="BFGS"}.
 
@@ -214,20 +214,23 @@ u <- pobs(x)                # pseudo-observations
 ## Inverting Kendall's tau
 fit.tau <- fitCopula(gumbelCopula(), u, method="itau")
 fit.tau
+summary(fit.tau) # a bit more, notably 'Std.Error's
 coef(fit.tau)# named vector
+coef(fit.tau, SE = TRUE)# matrix
+\dontshow{stopifnot(is.matrix(cm <- coef(fit.tau, SE = TRUE)), cm[,2] > 0)}
 ## Inverting Spearman's rho
 fit.rho <- fitCopula(gumbelCopula(), u, method="irho")
-fit.rho
+summary(fit.rho)
 ## Maximum pseudo-likelihood
 fit.mpl <- fitCopula(gumbelCopula(), u, method="mpl")
 fit.mpl
-## Maximum likelihood
+## Maximum likelihood -- use 'x', not 'u' ! --
 fit.ml <- fitCopula(gumbelCopula(), x, method="ml")
-fit.ml # print()ing works via summary() ...
-## ... and of that, what's the log likelihood (in two different ways):
+summary(fit.ml) # now prints a bit more than simple 'fit.ml'
+## ... and what's the log likelihood (in two different ways):
 (ll. <- logLik(fit.ml))
 stopifnot(all.equal(as.numeric(ll.),
-    loglikCopula(coef(fit.ml), u=x, copula=gumbel.cop)))
+            loglikCopula(coef(fit.ml), u=x, copula=gumbel.cop)))
 
 ## A Gauss/normal copula
 
@@ -244,64 +247,61 @@ fit.rho <- fitCopula(normalCopula(dim=3, dispstr="un"), u, method="irho")
 fit.rho
 ## Maximum pseudo-likelihood
 fit.mpl <- fitCopula(normalCopula(dim=3, dispstr="un"), u, method="mpl")
-fit.mpl
+summary(fit.mpl)
 coef(fit.mpl) # named vector
-str(sf.mpl <- summary(fit.mpl))
-coef(sf.mpl) # the matrix, with SE, t-value, ...
-## Maximum likelihood
+coef(fit.mpl, SE = TRUE) # the matrix, with SE
+## Maximum likelihood (use 'x', not 'u' !)
 fit.ml <- fitCopula(normalCopula(dim=3, dispstr="un"), x, method="ml")
-fit.ml
+summary(fit.ml)
 
 ## Fix some of the parameters
 param <- c(.6, .3, NA_real_)
 attr(param, "fixed") <- c(TRUE, FALSE, FALSE)
 ncp <- normalCopula(param = param, dim = 3, dispstr = "un")
 fixedParam(ncp) <- c(TRUE, TRUE, FALSE)
-fitCopula(ncp, u, method = "mpl")
+summary(Fxf.mpl <- fitCopula(ncp, u, method = "mpl"))
+Fxf.mpl@copula # reminding of the fixed param. values
 
-
-## With dispstr="toep"
+## With dispstr = "toep" :
 normal.cop.toep <- normalCopula(c(0, 0), dim=3, dispstr="toep")
 ## Inverting Kendall's tau
 fit.tau <- fitCopula(normalCopula(dim=3, dispstr="toep"), u, method="itau")
 fit.tau
 ## Inverting Spearman's rho
 fit.rho <- fitCopula(normalCopula(dim=3, dispstr="toep"), u, method="irho")
-fit.rho
+summary(fit.rho)
 ## Maximum pseudo-likelihood
 fit.mpl <- fitCopula(normalCopula(dim=3, dispstr="toep"), u, method="mpl")
 fit.mpl
-## Maximum likelihood
+## Maximum likelihood (use 'x', not 'u' !)
 fit.ml <- fitCopula(normalCopula(dim=3, dispstr="toep"), x, method="ml")
-fit.ml
+summary(fit.ml)
 
-## With dispstr="ar1"
+## With dispstr = "ar1"
 normal.cop.ar1 <- normalCopula(c(0), dim=3, dispstr="ar1")
 ## Inverting Kendall's tau
-fit.tau <- fitCopula(normalCopula(dim=3, dispstr="ar1"), u, method="itau")
-fit.tau
+summary(fit.tau <- fitCopula(normalCopula(dim=3, dispstr="ar1"), u, method="itau"))
 ## Inverting Spearman's rho
-fit.rho <- fitCopula(normalCopula(dim=3, dispstr="ar1"), u, method="irho")
-fit.rho
+summary(fit.rho <- fitCopula(normalCopula(dim=3, dispstr="ar1"), u, method="irho"))
 ## Maximum pseudo-likelihood
-fit.mpl <- fitCopula(normalCopula(dim=3, dispstr="ar1"), u, method="mpl")
-fit.mpl
-## Maximum likelihood
+summary(fit.mpl <- fitCopula(normalCopula(dim=3, dispstr="ar1"), u, method="mpl"))
+## Maximum likelihood (use 'x', not 'u' !)
 fit.ml <- fitCopula(normalCopula(dim=3, dispstr="ar1"), x, method="ml")
-fit.ml
+summary(fit.ml)
 
 ## A t copula with variable df (df.fixed=FALSE)
 (tCop <- tCopula(c(0.2,0.4,0.6), dim=3, dispstr="un", df=5))
 set.seed(101)
 x <- rCopula(n, tCop) # "true" observations (simulated)
-u <- pobs(x)          # pseudo-observations
 ## Maximum likelihood (start = (rho[1:3], df))
-(tc.ml  <- fitCopula(tCopula(dim=3, dispstr="un"), x, method="ml",
-                     start=c(0,0,0, 10)))
+summary(tc.ml <- fitCopula(tCopula(dim=3, dispstr="un"), x, method="ml",
+                           start = c(0,0,0, 10)))
 ## Maximum pseudo-likelihood (the asymptotic variance cannot be estimated)
-(tc.mpl <- fitCopula(tCopula(dim=3, dispstr="un"),
+u <- pobs(x)          # pseudo-observations
+tc.mpl <- fitCopula(tCopula(dim=3, dispstr="un"),
                      u, method="mpl", estimate.variance=FALSE,
-                     start= c(0,0,0,10)))
+                     start= c(0,0,0, 10))
+summary(tc.mpl)
 }% extra checks etc ---> ../tests/fitting-ex.R
 \keyword{models}
 \keyword{multivariate}

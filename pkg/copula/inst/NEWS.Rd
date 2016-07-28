@@ -4,9 +4,26 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-16 (2016-..-.., svn r....)}{
-  \itemize{
-    \item ..(place holder)
+\section{Changes in version 0.999-16 (2016-08-.., svn r14..)}{
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item \code{pK(u, log.p=TRUE)} now correctly checks \code{u}.
+      \item \code{rotCopula(cop)} now \emph{does} rotate in the default
+      case.
+      \item \code{vcov(fitCopula(*, "mpl"))} now works (returning a
+      matrix of \code{NA}s).
+    }
+  }
+  \subsection{New Features}{
+    \itemize{
+      \item The \code{coef()} method for \code{fitCopula()} or
+      \code{fitMvdc()} results can get the matrix of parameters
+      \emph{and} their standard errors by the new option \code{SE = TRUE}.
+
+      \item \code{summary(fitCopula())} has a nicer \code{print()} method.
+
+      \item improved documentation about \code{pK()} and \code{qK()}.
+    }
   }
 }
 

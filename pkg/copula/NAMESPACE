@@ -188,6 +188,7 @@ S3method(print, fitCopula)
 S3method(summary, fitCopula)
 S3method(print, fitMvdc)
 S3method(summary, fitMvdc)
+S3method(print, summary.fitCopula)
 ##
 S3method(coef, fittedMV)
 S3method(nobs, fittedMV)
