@@ -30,7 +30,7 @@
 % K(u, copula, d, n.MC=0, log.p=FALSE) # is deprecated
 Kn(u, x)
 pK(u, copula, d, n.MC=0, log.p=FALSE)
-qK(u, copula, d, n.MC=0, log.p=FALSE,
+qK(p, copula, d, n.MC=0, log.p=FALSE,
    method=c("default", "simple", "sort", "discrete", "monoH.FC"),
    u.grid, \dots)
 dK(u, copula, d, n.MC=0, log.p=FALSE)
@@ -51,6 +51,7 @@ rK(n, copula, d)
     derivatives as found by Hofert et al. (2012).}
   \item{log.p}{\code{\link{logical}}; if \code{TRUE}, probabilities
     \eqn{p} are given as \eqn{\log p}{log(p)}.}
+  \item{p}{probabilities or log-probabilities if \code{log.p} is true.}
   \item{method}{string for the method to compute the quantile function
     of \eqn{K}.  Currently, one of
     \describe{
@@ -146,6 +147,8 @@ plot(Kn(K.sample, x=X), ylim=c(0,1))
 u <- seq(0,1, length.out = 255)
 Ku    <- pK(u, copula = cop@copula, d = d) # exact
 Ku.MC <- pK(u, copula = cop@copula, d = d, n.MC = 1000) # via Monte Carlo
+stopifnot(all.equal(log(Ku),
+		    pK(u, copula = cop@copula, d = d, log.p=TRUE)))# rel.err 3.2e-16
 
 ## Build sample from K
 set.seed(1)
@@ -167,41 +170,56 @@ legend(.25, .75, expression(F[n], K[MC](u), K(u)),
        col=c("blue" , "red", "black"), lty=1, lwd = 1.5, bty="n")
 
 ## Testing qK
-uexpr <- quote( 0:63/63 );  u <- eval(uexpr)
+pexpr <- quote( 0:63/63 );  p <- eval(pexpr)
 d <- 10
 cop <- onacopulaL("Gumbel", list(theta = 2, 1:d))
-system.time(qK0 <- qK(u, copula = cop@copula, d = d)) # "default" - fast
+system.time(qK0 <- qK(p, copula = cop@copula, d = d)) # "default" - fast
 \donttest{% needs a couple of valuable CRAN seconds :-)
-system.time(qK1 <- qK(u, copula = cop@copula, d = d, method = "simple"))
-system.time(qK2 <- qK(u, copula = cop@copula, d = d, method = "sort"))
-system.time(qK3 <- qK(u, copula = cop@copula, d = d, method = "discrete",
-                      u.grid = 0:1e4/1e4))
-system.time(qK4 <- qK(u, copula = cop@copula, d = d, method = "monoH.FC",
-                      u.grid = 0:5e2/5e2))
-system.time(qK5 <- qK(u, copula = cop@copula, d = d, method = "monoH.FC",
-                      u.grid = 0:5e3/5e3))
-system.time(qK6 <- qK(u, copula = cop@copula, d = d, method = "monoH.FC",
-                      u.grid = c(0, (1:5e3/5e3)^2)))
+
+system.time(qK1  <- qK(p, copula= cop@copula, d=d, method = "simple"))
+system.time(qK1. <- qK(p, copula= cop@copula, d=d, method = "simple", tol = 1e-12))
+system.time(qK2  <- qK(p, copula= cop@copula, d=d, method = "sort"))
+system.time(qK2. <- qK(p, copula= cop@copula, d=d, method = "sort",   tol = 1e-12))
+system.time(qK3  <- qK(p, copula= cop@copula, d=d, method = "discrete", u.grid = 0:1e4/1e4))
+system.time(qK4  <- qK(p, copula= cop@copula, d=d, method = "monoH.FC",
+                       u.grid = 0:5e2/5e2))
+system.time(qK4. <- qK(p, copula= cop@copula, d=d, method = "monoH.FC",
+                       u.grid = 0:5e2/5e2, tol = 1e-12))
+system.time(qK5  <- qK(p, copula= cop@copula, d=d, method = "monoH.FC",
+                       u.grid = 0:5e3/5e3))
+system.time(qK5. <- qK(p, copula= cop@copula, d=d, method = "monoH.FC",
+                       u.grid = 0:5e3/5e3, tol = 1e-12))
+system.time(qK6  <- qK(p, copula= cop@copula, d=d, method = "monoH.FC",
+                       u.grid = (0:5e3/5e3)^2))
+system.time(qK6. <- qK(p, copula= cop@copula, d=d, method = "monoH.FC",
+                       u.grid = (0:5e3/5e3)^2, tol = 1e-12))
 
 ## Visually they all coincide :
 cols <- adjustcolor(c("gray50", "gray80", "light blue",
                       "royal blue", "purple3", "purple4", "purple"), 0.6)
-matplot(u, cbind(qK0, qK1, qK2, qK3, qK4, qK5, qK6), type = "l", lwd = 2*7:1, lty = 1:7, col = cols,
-        xlab = bquote(u == .(uexpr)), ylab = quote({K^{-1}}(u)),
-        main = "qK(u, method = *)")
+matplot(p, cbind(qK0, qK1, qK2, qK3, qK4, qK5, qK6), type = "l", lwd = 2*7:1, lty = 1:7, col = cols,
+        xlab = bquote(p == .(pexpr)), ylab = quote({K^{-1}}(u)),
+        main = "qK(p, method = *)")
 legend("topleft", col = cols, lwd = 2*7:1, lty = 1:7, bty = "n", inset = .03,
        legend= paste0("method= ",
              sQuote(c("default", "simple", "sort",
                       "discrete(1e4)", "monoH.FC(500)", "monoH.FC(5e3)", "monoH.FC(*^2)"))))
 
 ## See they *are* inverses  (but only approximately!):
-all.equal(u, pK(qK0, cop@copula, d=d)) # "default"	 0.03  worst
-all.equal(u, pK(qK1, cop@copula, d=d)) # "simple"	 0.0011 - best
-all.equal(u, pK(qK2, cop@copula, d=d)) # "sort"		 0.0013 (close)
-all.equal(u, pK(qK3, cop@copula, d=d)) # "discrete"	 0.0026
-all.equal(u, pK(qK4, cop@copula, d=d)) # "monoH.FC(500)" 0.0095
-all.equal(u, pK(qK5, cop@copula, d=d)) # "monoH.FC(5e3)" 0.001148 - (best)
-all.equal(u, pK(qK6, cop@copula, d=d)) # "monoH.FC(*^2)" 0.001111 - best
+eqInv <- function(qK) all.equal(p, pK(qK, cop@copula, d=d), tol=0)
+
+eqInv(qK0 ) # "default"	       0.03  worst
+eqInv(qK1 ) # "simple"	       0.0011 - best
+eqInv(qK1.) # "simple", e-12   0.00000 (8.73 e-13) !
+eqInv(qK2 ) # "sort"	       0.0013 (close)
+eqInv(qK2.) # "sort", e-12     0.00000 (7.32 e-12)
+eqInv(qK3 ) # "discrete"       0.0026
+eqInv(qK4 ) # "monoH.FC(500)"  0.0095
+eqInv(qK4.) # "m.H.FC(5c)e-12" 0.00963
+eqInv(qK5 ) # "monoH.FC(5e3)"  0.001148
+eqInv(qK5.) # "m.H.FC(5k)e-12" 0.000989
+eqInv(qK6 ) # "monoH.FC(*^2)"  0.001111
+eqInv(qK6.) # "m.H.FC(*^2)e-12"0.00000 (1.190 e-09)
 
 ## and ensure the differences are not too large
 stopifnot(
@@ -217,6 +235,6 @@ stopifnot(
 )
 
 }%dont
-stopifnot(all.equal(u, pK(qK0, cop@copula, d=d), tol = 0.04))
+stopifnot(all.equal(p, pK(qK0, cop@copula, d=d), tol = 0.04))
 }
 \keyword{distribution}
