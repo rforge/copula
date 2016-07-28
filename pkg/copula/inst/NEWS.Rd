@@ -12,6 +12,8 @@
       case.
       \item \code{vcov(fitCopula(*, "mpl"))} now works (returning a
       matrix of \code{NA}s).
+      \item \code{fitCopula(joeCopula(), *, method = "itau")} gave an
+      error instead of warning.
     }
   }
   \subsection{New Features}{
@@ -20,9 +22,16 @@
       \code{fitMvdc()} results can get the matrix of parameters
       \emph{and} their standard errors by the new option \code{SE = TRUE}.
 
-      \item \code{summary(fitCopula())} has a nicer \code{print()} method.
+      \item \code{summary(fitCopula(*))} and \code{summary(fitMvdc(*))}
+      have a nicer \code{print()} method and print \emph{more} than just
+      printing the fitted objects.  Note that
+      \item Printing \code{fitCopula(*)} or  \code{fitMvdc(*)} no longer
+      computes and prints standard errors (\code{"Std. Error"}), but
+      printing \code{summary(fit..(*))} does (see above).
 
       \item improved documentation about \code{pK()} and \code{qK()}.
+
+%% TODO \item qK() gets a more accurate (still quite fast) default method
     }
   }
 }

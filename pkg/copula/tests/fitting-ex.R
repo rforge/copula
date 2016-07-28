@@ -50,15 +50,16 @@ tC3f <- tCopula(c(.2,.7, .8), dim=3, dispstr="un", df.fixed=TRUE)
 tC3  <- tCopula(c(.2,.7, .8), dim=3, dispstr="un")
 print(f3 <- fitCopula(tC3f, u3, method="itau"))
 (f3.t <- fitCopula(tC3, u3, method="itau"))# warning: coercing to df.fixed=TRUE
-if(FALSE) ## irho(<tCopula>) now an error:
+if(FALSE) ## Error: iRho() method for class "tCopula" not yet implemented
 (f3.r  <- fitCopula(tC3, u3, method="irho"))
+showProc.time()
 
 if(doExtras) {
-    print(f3.m <- fitCopula(tC3, u3, method=  "ml"))
-    print(f3.M <- fitCopula(tC3, u3, method= "mpl"))
+    print(f3.m <- fitCopula(tC3, u3, method=  "ml")); c.m <- coef(f3.m, SE=TRUE)
+    print(f3.M <- fitCopula(tC3, u3, method= "mpl")); c.M <- coef(f3.M, SE=TRUE)
+    showProc.time()
+    stopifnot(all.equal(c.m[,1], c.M[,1])) # the estimates don't differ; the SE's do
 }
-
-showProc.time()
 
 set.seed(17)
 d <- 5 # dimension
@@ -81,16 +82,17 @@ stopifnot(cor(P, cU[lower.tri(cU)]) > 0.99)
 
 ## Fitting a t-copula with "itau.mpl" with disp="un"
 (fm4u <- fitCopula(uc4, U., method="itau.mpl", traceOpt = TRUE))
+## Fitting  t-copulas  .............  with disp = "ex" and "ar" :
+uc4.ex <- tCopula(dim=d, df=nu, disp = "ex", df.fixed=FALSE)
+uc4.ar <- tCopula(dim=d, df=nu, disp = "ar1", df.fixed=FALSE)
+validObject(uc4p.ex <- setTheta(uc4.ex, value = c(0.75, df=nu)))
+validObject(uc4p.ar <- setTheta(uc4.ar, value = c(0.75, df=nu)))
+U.ex <- pobs(rCopula(n=1000, copula=uc4p.ex))
+U.ar <- pobs(rCopula(n=1000, copula=uc4p.ar))
 if(FALSE) { # The following are not available (yet); see ~/R/fitCopula.R
     ## Fitting a t-copula with "itau.mpl" with disp="ex"
-    uc4.ex <- tCopula(dim=d, df=nu, disp = "ex", df.fixed=FALSE)
-    validObject(uc4p.ex <- setTheta(uc4.ex, value = c(0.75, df=nu)))
-    U.ex <- pobs(rCopula(n=1000, copula=uc4p.ex))
     (fm4e <- fitCopula(uc4.ex, U.ex, method="itau.mpl"))
     ## Fitting a t-copula with "itau.mpl" with disp="ar"
-    uc4.ar <- tCopula(dim=d, df=nu, disp = "ar1", df.fixed=FALSE)
-    validObject(uc4p.ar <- setTheta(uc4.ar, value = c(0.75, df=nu)))
-    U.ar <- pobs(rCopula(n=1000, copula=uc4p.ar))
     (fm4e <- fitCopula(uc4.ar, U.ar, method="itau.mpl"))
 }
 
@@ -100,10 +102,11 @@ tCop <- tCopula(c(0.2,0.4,0.6), dim=3, dispstr="un", df=5)
 set.seed(101)
 x <- rCopula(n=200, tCop) # "true" observations (simulated)
 ## Maximum likelihood (start = (rho[1:3], df))
-print(tc.ml  <- fitCopula(tCopula(dim=3, dispstr="un"), x, method="ml",
-                          start=c(0,0,0, 10)))
-print(tc.ml. <- fitCopula(tCopula(dim=3, dispstr="un"),
-                          x, method="ml")) # without 'start'
+print(summary(tc.ml <-
+                  fitCopula(tCopula(dim=3, dispstr="un"), x, method="ml",
+                            start=c(0,0,0, 10))))
+print(summary(tc.ml. <-
+                  fitCopula(tCopula(dim=3, dispstr="un"), x, method="ml")))# w/o 'start'
 ## Maximum pseudo-likelihood (the asymptotic variance cannot be estimated)
 u <- pobs(x)
 print(tc.mpl <- fitCopula(tCopula(dim=3, dispstr="un"),
@@ -274,6 +277,15 @@ fG <- fitCopula(gumbelCopula(), x)
 	xv.5   = xvCopula(gumbelCopula(), x, k = 5)))# 5-fold CV
 stopifnot(all.equal(unname(v), c(32.783677, 32.835744, 32.247463),
 		    tolerance = 1e-7))
+
+## From: Ivan, 27 Jul 2016 08:58
+u <- pobs(rCopula(300, joeCopula(4)))
+fitCopula(joeCopula(), data = u, method = "itau")
+## Error in dCor(cop) :
+##   dTau() method for class "joeCopula" not yet implemented
+
+## MM: From var.icor() we *should* have got a warning and NA variance, no error!
+
 
 
 if(!doExtras) q(save="no") ## so the following auto prints

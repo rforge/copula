@@ -1,5 +1,6 @@
 ### --- At the end, when "everything" is defined  ---
 
+if(FALSE) { ## <<--- 2016-07-28 --- The following kills  hasMethod(<genfun>, <signature>)
 
 ## the generics for which we may want to have "bail out" methods:
 .thisEnv <- environment()# == asNamespace("copula")  but not yet
@@ -28,3 +29,4 @@ for(gname in gg) { # possibly more than one arg -- use correct argument list
 }
 rm(gg, .thisEnv)
 
+}## no longer (2016-07-28)
