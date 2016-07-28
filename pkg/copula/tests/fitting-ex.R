@@ -280,11 +280,10 @@ stopifnot(all.equal(unname(v), c(32.783677, 32.835744, 32.247463),
 
 ## From: Ivan, 27 Jul 2016 08:58
 u <- pobs(rCopula(300, joeCopula(4)))
-fitCopula(joeCopula(), data = u, method = "itau")
-## Error in dCor(cop) :
+fjc <- fitCopula(joeCopula(), data = u, method = "itau")
+## Now a warning.  Previously gave 'Error in dCor(cop) :'
 ##   dTau() method for class "joeCopula" not yet implemented
-
-## MM: From var.icor() we *should* have got a warning and NA variance, no error!
+summary(fjc)
 
 
 

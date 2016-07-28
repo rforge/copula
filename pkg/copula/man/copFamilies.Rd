@@ -80,6 +80,8 @@ copJoe
 }
 \seealso{
   The class definition, \code{"\linkS4class{acopula}"}.
+  \code{\link{onacopula}} and \code{\link{setTheta}} for such
+  Archimedean copulas with specific parameters.
   \cr
   \code{\link{getAcop}} accesses these families
   \dQuote{programmatically}.

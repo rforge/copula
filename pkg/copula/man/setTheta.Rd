@@ -41,6 +41,8 @@ setTheta(x, value, \dots)
 \examples{
 myC <- setTheta(copClayton, 0.5)
 myC
+## Frank copula with Kendall's tau = 0.8 :
+(myF.8 <- setTheta(copFrank, iTau(copFrank, tau = 0.8)))
 
 # negative theta is ok for dim = 2 :
 myF <- setTheta(copFrank, -2.5, noCheck=TRUE)
@@ -52,6 +54,5 @@ stopifnot(all.equal(myT, tCopula(0.7, df.fixed=TRUE), tolerance=0))
 (myT2 <- setTheta(tCopula(dim=3, df.fixed=TRUE), 0.7))
 ## Setting 'rho' and 'df'  --- for default df.fixed=FALSE :
 (myT3 <- setTheta(tCopula(dim=3), c(0.7, 4)))
-
 }
 \keyword{manip}
