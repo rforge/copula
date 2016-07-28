@@ -41,13 +41,7 @@ canGet <- function(file,
     ok
 }
 
-
-##' @title Number of correct digits: Based on relErrV(), recoding "Inf" to 'zeroDigs'
-##' @param target  numeric vector of "true" values
-##' @param current numeric vector of "approximate" values
-##' @param zeroDigs how many correct digits should zero error give
-##' @return basically   -log10 (| relErrV(target, current) | )
-##' @author Martin Maechler
+if(!exists("nCorrDigits", mode="function"))
 nCorrDigits <- function(target, current, zeroDigs = 16) {
     stopifnot(zeroDigs >= -log10(.Machine$double.eps))# = 15.65
     RE <- relErrV(target, current)
