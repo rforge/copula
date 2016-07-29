@@ -1,5 +1,7 @@
 ### --- At the end, when "everything" is defined  ---
 
+fitCopula_methods <- eval(formals(fitCopula_dflt)$method)
+
 if(FALSE) { ## <<--- 2016-07-28 --- The following kills  hasMethod(<genfun>, <signature>)
 
 ## the generics for which we may want to have "bail out" methods:
