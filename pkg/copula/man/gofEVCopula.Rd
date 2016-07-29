@@ -76,12 +76,12 @@ gofEVCopula(copula, x, N = 1000,
 }
 \examples{
 n <- 100; N <- 1000 # realistic (but too large currently for CRAN checks)
-n <-  60; N <-  200 # (for now)
+n <-  60; N <-  200 # (time (and tree !) saving ...)
 x <- rCopula(n, claytonCopula(3))
 
 \donttest{% because the bootstraps are slow,..
 ## Does the Gumbel family seem to be a good choice?
-gofEVCopula(gumbelCopula(), x)
+gofEVCopula(gumbelCopula(), x, N=N)
 }
 
 ## The same with different (and cheaper) estimation methods:
@@ -90,17 +90,17 @@ gofEVCopula(gumbelCopula(), x, N=N, method="irho")
 
 \donttest{% non-gumbel bootstraps are slow
 ## The same with different extreme-value copulas
-gofEVCopula(galambosCopula(), x)
-gofEVCopula(galambosCopula(), x, method="itau")
-gofEVCopula(galambosCopula(), x, method="irho")
+gofEVCopula(galambosCopula(), x, N=N)
+gofEVCopula(galambosCopula(), x, N=N, method="itau")
+gofEVCopula(galambosCopula(), x, N=N, method="irho")
 
-gofEVCopula(huslerReissCopula(), x)
-gofEVCopula(huslerReissCopula(), x, method="itau")
-gofEVCopula(huslerReissCopula(), x, method="irho")
+gofEVCopula(huslerReissCopula(), x, N=N)
+gofEVCopula(huslerReissCopula(), x, N=N, method="itau")
+gofEVCopula(huslerReissCopula(), x, N=N, method="irho")
 
-gofEVCopula(tevCopula(df.fixed=TRUE), x)
-gofEVCopula(tevCopula(df.fixed=TRUE), x, method="itau")
-gofEVCopula(tevCopula(df.fixed=TRUE), x, method="irho")
+gofEVCopula(tevCopula(df.fixed=TRUE), x, N=N)
+gofEVCopula(tevCopula(df.fixed=TRUE), x, N=N, method="itau")
+gofEVCopula(tevCopula(df.fixed=TRUE), x, N=N, method="irho")
 }% dont..
 }
 \keyword{htest}
