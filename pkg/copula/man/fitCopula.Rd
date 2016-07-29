@@ -214,7 +214,9 @@ u <- pobs(x)                # pseudo-observations
 ## Inverting Kendall's tau
 fit.tau <- fitCopula(gumbelCopula(), u, method="itau")
 fit.tau
-summary(fit.tau) # a bit more, notably 'Std.Error's
+confint(fit.tau) # work fine !
+confint(fit.tau, level = 0.98)
+summary(fit.tau) # a bit more, notably "Std. Error"s
 coef(fit.tau)# named vector
 coef(fit.tau, SE = TRUE)# matrix
 \dontshow{stopifnot(is.matrix(cm <- coef(fit.tau, SE = TRUE)), cm[,2] > 0)}
@@ -253,6 +255,8 @@ coef(fit.mpl, SE = TRUE) # the matrix, with SE
 ## Maximum likelihood (use 'x', not 'u' !)
 fit.ml <- fitCopula(normalCopula(dim=3, dispstr="un"), x, method="ml")
 summary(fit.ml)
+confint(fit.ml)
+confint(fit.ml, level = 0.999) # clearly non-0
 
 ## Fix some of the parameters
 param <- c(.6, .3, NA_real_)

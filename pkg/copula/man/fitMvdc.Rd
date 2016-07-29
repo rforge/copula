@@ -121,8 +121,10 @@ gMvd.I <- mvdc(gumbel.cop, "exp", param = list(rate=3), marginsIdentical=TRUE)
 
 ## Default:     hideWarnings = FALSE .. i.e. show warnings here
 fit2 <- fitMvdc(x, gMvd2, start = c(1,1, 2))
-summary(fit2)
-## The (estimated, asymptotic) var-cov matrix:
+fit2
+confint(fit2)
+summary(fit2) # slightly more
+## The estimated, asymptotic var-cov matrix [was used for confint()]:
 vcov(fit2)
 
 ## with even more output for the "identical margin" case:
@@ -130,7 +132,8 @@ fitI <- fitMvdc(x, gMvd.I, start = c(3, 2),
                 optim.control=list(trace= TRUE, REPORT= 2))
 summary(fitI)
 coef(fitI, SE = TRUE)
-stopifnot(is.matrix(coef(fitI, SE = TRUE)))
+stopifnot(is.matrix(coef(fitI, SE = TRUE)),
+          is.matrix(print( confint(fitI) )) )
 
 ## a wrong starting value can already be *the* problem:
 f2 <- try(fitMvdc(x, gMvd.I, start = c(1, 1),
