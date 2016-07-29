@@ -110,42 +110,43 @@ fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS",
 gumbel.cop <- gumbelCopula(3, dim=2)
 gMvd2 <- mvdc(gumbel.cop, c("exp","exp"),
               list(list(rate=2), list(rate=4)))
+
+(Xtras <- copula:::doExtras()) # determine whether examples will be extra (long)
+n <- if(Xtras) 10000 else 200 # sample size (realistic vs short for example)
+
 set.seed(11)
-x <- rMvdc(10000, gMvd2)
+x <- rMvdc(n, gMvd2)
 ## with identical margins:
 gMvd.I <- mvdc(gumbel.cop, "exp", param = list(rate=3), marginsIdentical=TRUE)
-if(copula:::doExtras()) { ## these are typically not run with CRAN checking:
- ## Takes about 25 sec. [2012-07]:
- fit2 <- fitMvdc(x, gMvd2, start = c(1,1, 2),
-                 hideWarnings=FALSE) ## <- show warnings here
- print(fit2)
- ## The (estimated, asymptotic) var-cov matrix:
- print( vcov(fit2) )
 
- fitI <- fitMvdc(x, gMvd.I, start = c(3, 2),
-                 optim.control=list(trace= TRUE, REPORT= 2))
- print(coef(summary(fitI)))
- print(fitI)
+## Default:     hideWarnings = FALSE .. i.e. show warnings here
+fit2 <- fitMvdc(x, gMvd2, start = c(1,1, 2))
+summary(fit2)
+## The (estimated, asymptotic) var-cov matrix:
+vcov(fit2)
 
-  ## a wrong starting value can already be *the* problem:
-  f2 <- try(fitMvdc(x, gMvd.I, start = c(1, 1),
-	            optim.control=list(trace= TRUE, REPORT= 2)))
-  ##--> Error in optim( ... ) : non-finite finite-difference value [2]
+## with even more output for the "identical margin" case:
+fitI <- fitMvdc(x, gMvd.I, start = c(3, 2),
+                optim.control=list(trace= TRUE, REPORT= 2))
+summary(fitI)
+coef(fitI, SE = TRUE)
+stopifnot(is.matrix(coef(fitI, SE = TRUE)))
 
-  ##==> "Solution" :  Using a more robust (but slower) optim() method:
-  fI.2 <- fitMvdc(x, gMvd.I, start = c(1, 1), method = "Nelder",
-		  optim.control=list(trace= TRUE))
+## a wrong starting value can already be *the* problem:
+f2 <- try(fitMvdc(x, gMvd.I, start = c(1, 1),
+           optim.control=list(trace= TRUE, REPORT= 2)))
+##--> Error in optim( ... ) : non-finite finite-difference value [2]
 
- ## The (estimated, asymptotic) var-cov matrix:
- print( vcov(fit2) )
- str(sfI <- summary(fitI))
- stopifnot(is.matrix(coef(sfI)))
+##==> "Solution" :  Using a more robust (but slower) optim() method:
+fI.2 <- fitMvdc(x, gMvd.I, start = c(1, 1), method = "Nelder",
+                optim.control=list(trace= TRUE))
+fI.2
 \dontshow{
- stopifnot(all.equal(coef(sfI),
-		     coef(summary(fI.2)),    tolerance = 2e-4),
+ stopifnot(all.equal(coef(fitI, SE = TRUE),
+		     coef(fI.2, SE = TRUE),  tolerance = 2e-4),
 	   all.equal(coef(fitI), coef(fI.2), tolerance = 1e-4))
 }%dont...
-}% if(..doExtras())
+
 }
 \keyword{models}
 \keyword{multivariate}
