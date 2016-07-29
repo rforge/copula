@@ -88,6 +88,8 @@ summary.fitMvdc <- function(object, ...) {
                  coefficients = coef.fittedMV(object, SE = TRUE)))
 }
 
+## NB: print.summary.fitMvdc() via  printSummary.fittedMV() [ ./fitCopula.R ]
+
 setMethod("show", signature("fitMvdc"), function(object) print.fitMvdc(object))
 
 

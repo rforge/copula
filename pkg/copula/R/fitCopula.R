@@ -69,8 +69,9 @@ summary.fitCopula <- function(object, ...) {
                    coefficients = coef.fittedMV(object, SE = TRUE)))
 }
 
+## Used both "as"  'print.summary.fitCopula()' and 'print.summary.fitMvdc()'
 ## Now print(summary(<fitCopula>)) *does* show a bit more than print(<fitCopula>)
-print.summary.fitCopula <- function(x, ...) {
+printSummary.fittedMV <- function(x, ...) {
     print(x$fitC, ..., showMore = TRUE)
     invisible(x)
 }
@@ -130,10 +131,6 @@ loglikCopula <- function(param, u, copula) {
         ## FIXME-JY: param range check is only part of validity check
         sum(dCopula(u, copula=copula, log=TRUE, checkPar=FALSE))
     } else -Inf
-    ## stopifnot(length(param) == nFree(copula@parameters))
-    ## setparam <- try(freeParam(copula) <- param)
-    ## if (inherits(setparam, "try-error")) -Inf ## not admissible
-    ## else sum(dCopula(u, copula=copula, log=TRUE, checkPar=FALSE))
 }
 
 ##' @title Computing Initial Values for fitCopula.ml()
