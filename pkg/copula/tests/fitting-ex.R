@@ -35,21 +35,31 @@ stopifnot(identical(f1, fit1(tCopula(df.fixed=TRUE),
 ## did not work with data.frame before 2012-08-12
 
 ## for df.fixed=FALSE, have 2 parameters ==> cannot use "fit1":
-(f2.t <- fitCopula(tCopula(), uu, method="itau"))#
+(f2.t <- fitCopula(tCopula(), uu, method="itau"))# (+ warning: ... 'df.fixed=TRUE' )
 if(FALSE) ## 14.Jan.2016: irho(<tCopula>) has been "non-sense" -> now erronous:
     f2.r <- fitCopula(tCopula(), uu, method="irho")
-if(doExtras) {
-    print(f2.m <- fitCopula(tCopula(), uu, method=  "ml"))# gives SE for 'df' {from optim()}
-    print(f2.M <- fitCopula(tCopula(), uu, method= "mpl"))# no SE for 'df' (for now ..)
-}
 showProc.time()
+if(doExtras) {
+    print(f2.m <- fitCopula(tCopula(), uu, method=  "ml"))
+    print(f2.M <- fitCopula(tCopula(), uu, method= "mpl"))
+    print(summary(f2.m)) # gives SE for 'df' {from optim()}
+    print(summary(f2.M)) # no SE for 'df' (for now ..)
+    stopifnot(all.equal(coef(f2.m), coef(f2.M)))
+    showProc.time()
+}
 
 ## d = 3 : -------------
 ## ok with df.fixed
-tC3f <- tCopula(c(.2,.7, .8), dim=3, dispstr="un", df.fixed=TRUE)
-tC3  <- tCopula(c(.2,.7, .8), dim=3, dispstr="un")
-print(f3 <- fitCopula(tC3f, u3, method="itau"))
-(f3.t <- fitCopula(tC3, u3, method="itau"))# warning: coercing to df.fixed=TRUE
+tC3f <- tCopula(dim=3, dispstr="un", df.fixed=TRUE)
+tC3  <- tCopula(dim=3, dispstr="un")
+f3   <- fitCopula(tC3f, u3, method="itau")
+f3.t <- fitCopula(tC3 , u3, method="itau") # warning: coercing to df.fixed=TRUE
+summary(f3.t)
+cf3 <- coef(f3, SE = TRUE)
+stopifnot(all.equal(unname(cf3), cbind(c(0.374607, 0.309017, 0.374607),
+                                       c(0.386705, 0.325995, 0.405493)),
+                    tol = 5e-5), # seen 6e-7
+          all.equal(coef(f3), coef(f3.t)))
 if(FALSE) ## Error: iRho() method for class "tCopula" not yet implemented
 (f3.r  <- fitCopula(tC3, u3, method="irho"))
 showProc.time()
@@ -115,10 +125,10 @@ print(tc.mpl <- fitCopula(tCopula(dim=3, dispstr="un"),
 ## Without 'start'
 tc.mp. <- fitCopula(tCopula(dim=3, dispstr="un"), x, estimate.variance=FALSE)
 print(tc.mp.)
-noC <- function(x) { x@fitting.stats$counts <- NULL ; x }
+noC <- function(x) { x@fitting.stats$counts <- NULL; x@call <- quote(dummy()); x }
 
-assert.EQ(noC(tc.ml) , noC(tc.ml.), tol= .005)
-assert.EQ(noC(tc.mpl), noC(tc.mp.), tol= .100, giveRE=TRUE)
+assert.EQ(noC(tc.ml) , noC(tc.ml.), tol= .005) # nothing
+assert.EQ(noC(tc.mpl), noC(tc.mp.), tol= .100, giveRE=TRUE) # shows diff
 
 ## The same t copula but with df.fixed=TRUE (=> use the same data!)
 tC3u5 <- tCopula(dim=3, dispstr="un", df=5, df.fixed=TRUE)
