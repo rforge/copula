@@ -850,4 +850,3 @@ setMethod("splom2", signature(x = "matrix"),     splom2MatrixDf)
 setMethod("splom2", signature(x = "data.frame"), splom2MatrixDf)
 setMethod("splom2", signature(x = "Copula"),     splom2Copula)
 setMethod("splom2", signature(x = "mvdc"),       splom2Mvdc)
-

@@ -97,7 +97,9 @@
     should work with \code{cCopula()} instead.
 
     \item Various improvements in data visualization tools such as
-    \code{pairs2()}, \code{splom2()}, etc.
+    \code{contour()}, \code{persp()}, \code{contourplot2()},
+    \code{pairs2()}, \code{wireframe2()}, \code{cloud2()} and
+    \code{splom2()}.
 
     \item \code{qK()} gets \code{log.p} option.
   }
