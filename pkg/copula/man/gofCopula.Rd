@@ -27,13 +27,14 @@
   \code{simulation} either calls \code{gofPB()} or \code{gofMB()}.
 }
 \usage{
-## Generic [and "rotCopula" method] :
+## Generic [and "rotCopula" method] ------ Main function ------
 gofCopula(copula, x, \dots)
 \S4method{gofCopula}{copula}(copula, x, N = 1000,
           method = c("Sn", "SnB", "SnC", "Rn"),
           estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
           simulation = c("pb", "mult"), verbose = interactive(), \dots)
 
+## Internal 'helper' functions : ---
 gofPB(copula, x, N, method = c("Sn", "SnB", "SnC"),
       estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
       trafo.method = c("none", "cCopula", "htrafo"),
