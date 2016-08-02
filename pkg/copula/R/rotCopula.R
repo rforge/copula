@@ -35,9 +35,13 @@ setClass("rotCopula", contains = "xcopula",
 ##'        the copula is "rotated" wrt the axis x_i = 0.5;
 ##'        the default value is all TRUE which gives the survival copula
 ##' @return a new "rotCopula" object; see above
-##' @author Ivan Kojadinovic
+##' @author Ivan Kojadinovic (and Martin Maechler)
 rotCopula <- function(copula, flip = TRUE) {
-    new("rotCopula", copula = copula, flip = flip)
+    if(inherits(copula, "rotCopula")) {
+	copula@flip <- flip
+	copula
+    } else
+	new("rotCopula", copula = copula, flip = flip)
 }
 
 ## Internal. swicth u[,i] to 1 - u[,i] according to flip
