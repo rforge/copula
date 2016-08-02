@@ -17,57 +17,59 @@ require(copula)
 
 (doExtras <- copula:::doExtras())
 
-if (doExtras)
-{
-    ## A two-dimensional example: a "rotated" Clayton copula
-    rc <- rotCopula(claytonCopula(3), flip = c(TRUE, FALSE))
+## A two-dimensional example: a "rotated" Clayton copula
+rc3 <- rotCopula(claytonCopula(3), flip = c(TRUE, FALSE))
 
-    ## contour(rc, dCopula, nlevels = 20)
-    ## contour(rc, pCopula, nlevels = 20)
-    rho(rc)
-    tau(rc)
+if(!dev.interactive(orNone=TRUE)) pdf("rotCopula-tst.pdf")
+contourplot2(rc3, dCopula, nlevels = if(doExtras) 32 else 8)
+contourplot2(rc3, pCopula, nlevels = if(doExtras) 32 else 8)
 
-    n <- 1000
-    u <- rCopula(n, rc)
-    rho.n <- cor(u[,1], u[,2], method = "spearman")
-    tau.n <- cor(u[,1], u[,2], method = "kendall")
+stopifnot(
+    all.equal(rho(rc3), -0.78649216),
+    all.equal(tau(rc3), -0.6))
 
-    iRho(rotCopula(claytonCopula(), flip = c(TRUE, FALSE)), rho.n)
-    iTau(rotCopula(claytonCopula(), flip = c(TRUE, FALSE)), tau.n)
+n <- if(doExtras) 1000 else 64 # for speed
+set.seed(19)
+u <- rCopula(n, rc3)
+(rho.n <- cor(u[,1], u[,2], method = "spearman"))
+(tau.n <- cor(u[,1], u[,2], method = "kendall" ))
 
-    ## Fitting
-    fitCopula(rotCopula(claytonCopula(), flip = c(TRUE, FALSE)), pobs(u),
-              method = "irho")
-    fitCopula(rotCopula(claytonCopula(), flip = c(TRUE, FALSE)), pobs(u),
-              method = "itau")
-    fitCopula(rotCopula(claytonCopula(), flip = c(TRUE, FALSE)), pobs(u),
-              method = "mpl")
+rC <- rotCopula(claytonCopula(), flip = c(TRUE, FALSE))
+stopifnot(
+    all.equal(iRho(rC, rho.n), if(doExtras) 2.877466 else 2.166027, tol=1e-6),
+    all.equal(iTau(rC, tau.n), if(doExtras) 2.908705 else 2.056338, tol=1e-6))
 
-    ## Goodness-of-fit testing
-    ## gofCopula(rotCopula(claytonCopula(), flip = c(TRUE, FALSE)), u)
-    gofCopula(rotCopula(claytonCopula(), flip = c(TRUE, FALSE)), u,
-              sim = "mult")
+## Fitting
+system.time(f.iR  <- fitCopula(rC, pobs(u), method = "irho")); summary(f.iR)
+system.time(f.iT  <- fitCopula(rC, pobs(u), method = "itau")); summary(f.iT)
+system.time(f.mpl <- fitCopula(rC, pobs(u), method = "mpl" )); summary(f.mpl)
 
-    ## A four-dimensional example: a "rotated" Frank copula
-    rf <- rotCopula(frankCopula(10, dim = 4),
-                    flip = c(TRUE, FALSE, TRUE, FALSE))
+## Goodness-of-fit testing
+if(doExtras >= 2)# [slow!]
+    print(gC <- gofCopula(rC, u))
 
-    n <- 1000
-    u <- rCopula(n, rf)
-    pairs(u)
+(gCmult <- gofCopula(rC, u, sim = "mult"))
 
-    pCopula(c(0.6,0.7,0.6,0.8), rf)
-    C.n(matrix(c(0.6,0.7,0.6,0.8), 1, 4), u)
 
-    ## Fitting: itau and irho should not be used (FIXME?)
-    fitCopula(rotCopula(frankCopula(dim=4),
-                        flip = c(TRUE, FALSE, TRUE, FALSE)), pobs(u))
+### A four-dimensional example: a "rotated" Frank copula ---------------------
+rF4 <- rotCopula(frankCopula(dim = 4), flip = c(TRUE, FALSE, TRUE, FALSE))
+rF10.d4 <- setTheta(rF4, 10)
 
-    ## Goodness-of-fit testing
-    ## gofCopula(rotCopula(frankCopula(dim=4),
-    ##                    flip = c(TRUE, FALSE, TRUE, FALSE)), pobs(u))
-    gofCopula(rotCopula(frankCopula(dim=4),
-                        flip = c(TRUE, FALSE, TRUE, FALSE)), pobs(u),
-          sim = "mult")
-}
+n <- if(doExtras) 1000 else 64 # for speed
+set.seed(2209)
+u <- rCopula(n, rF10.d4)
+splom2(u)
+
+pCopula(   c(0.6,0.7,0.6,0.8), rF10.d4) # [NaN warning - fix?]
+C.n(matrix(c(0.6,0.7,0.6,0.8), 1, 4), u)
+
+## Fitting: itau and irho should not be used (FIXME?)
+f.f4 <- fitCopula(rF4, pobs(u))
+summary(f.f4)
+
+## Goodness-of-fit testing
+if(doExtras)
+    gofCopula(rF4, pobs(u))
+
+gofCopula(rF4, pobs(u), sim = "mult")
 
