@@ -127,8 +127,8 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
                    trafo.method = c("none", "cCopula", "htrafo"),
                    trafoArgs = list(), verbose = interactive(), useR = FALSE, ...) # IK: added useR
 {
-    ## Checks
-    stopifnot(is(copula, "copula"), N >= 1)
+    ## Checks -- NB: let the *generic* fitCopula() check 'copula'
+    stopifnot(N >= 1)
     if(!is.matrix(x)) {
         warning("coercing 'x' to a matrix.")
         stopifnot(is.matrix(x <- as.matrix(x)))
@@ -212,7 +212,7 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
 ### The multiplier bootstrap (for computing different goodness-of-fit tests) ###
 
 ##' @title J-score \hat{J}_{\theta_n} for the multiplier bootstrap
-##' @param copula An object of type 'copula'
+##' @param copula An 'copula' (or 'parCopula' or ..)
 ##' @param u An (n, d)-matrix of (pseudo-)observations
 ##' @param method "mpl" or one of "itau", "irho"
 ##' @return A p by n matrix containing \hat{J}_{\theta_n}
@@ -229,7 +229,7 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
 Jscore <- function(copula, u, method)
 {
     ## Checks
-    stopifnot(is(copula, "copula"))
+    stopifnot(is(copula, "Copula"))# and let methods below check more
     if(!is.matrix(u)) {
         warning("coercing 'u' to a matrix.")
         stopifnot(is.matrix(u <- as.matrix(u)))
@@ -245,7 +245,7 @@ Jscore <- function(copula, u, method)
            ## Integrals computed from n realizations by Monte Carlo
            influ0 <- dlogcdtheta(copula, u) # (n, p)-matrix
            derArg <- dlogcdu    (copula, u) # (n, d)-matrix
-           influ <- lapply(1:copula@dimension, function(i) influ0*derArg[,i])
+           influ <- lapply(1:d, function(i) influ0*derArg[,i])
            p <- nFree(copula@parameters)
            S <- matrix(0, n, p)
            for(j in 1:d) {
@@ -265,12 +265,12 @@ Jscore <- function(copula, u, method)
        },
            "itau"=
        { # See page 849 in Kojadinovic, Yan, and Holmes (2011)
-           stopifnot(dim(copula)==2)
+           stopifnot(d == 2)
            (4/dTau(copula)) * ( 2*pCopula(u, copula) - rowSums(u) + (1-tau(copula))/2 )
        },
            "irho"=
        { # See Equation (3.5) on page 847 in Kojadinovic, Yan, and Holmes (2011)
-           stopifnot(dim(copula)==2)
+           stopifnot(d == 2)
            i1 <- order(u[,1], decreasing=TRUE)
            i2 <- order(u[,2], decreasing=TRUE)
            n <- nrow(u)
@@ -300,8 +300,8 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
                   verbose = interactive(), useR = FALSE, m = 1/2,
                   zeta.m = 0, b = 1/sqrt(nrow(x)), ...)
 {
-    ## Checks
-    stopifnot(is(copula, "copula"), N>=1)
+    ## Checks -- NB: let the *generic* fitCopula() check 'copula'
+    stopifnot(N >= 1)
     if(!is.matrix(x)) {
         warning("coercing 'x' to a matrix.")
         stopifnot(is.matrix(x <- as.matrix(x)))
@@ -430,7 +430,7 @@ gofCopulaCopula <- function(copula, x, N=1000, method = c("Sn", "SnB", "SnC", "R
                             verbose = interactive(), ...) # print.every=NULL, ...)
 {
     ## Checks
-    stopifnot(is(copula, "copula"), N >= 1)
+    stopifnot(N >= 1)
     if(!is.matrix(x)) {
         warning("coercing 'x' to a matrix.")
         stopifnot(is.matrix(x <- as.matrix(x)))
