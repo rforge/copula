@@ -1363,6 +1363,11 @@ setMethod("setTheta", "ellipCopula",
 	  x
       })
 
+setMethod("setTheta", "xcopula", ## set parameter for  daughter copula
+	  function(x, value, ...) {
+	      x@copula <- setTheta(x@copula, value, ...)
+	      x
+	  })
 
 ##' Construct "paraConstr" function from an "interval"
 ##'

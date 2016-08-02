@@ -275,7 +275,7 @@ dCdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-1), ..
         freeParam(copula) <- theta
         log(pCopula(u, copula))
     }
-    theta <- getParam(copula)
+    theta <- getParam(copula, attr=TRUE)
     p <- length(theta)
     lb <- attr(theta, "param.lowbnd")
     ub <- attr(theta, "param.upbnd" )
@@ -484,7 +484,7 @@ dlogcdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-5),
         freeParam(copula) <- theta
         dCopula(u, copula, log = TRUE)
     }
-    theta <- getParam(copula)
+    theta <- getParam(copula, attr = TRUE)
     p <- length(theta)
     lb <- attr(theta, "param.lowbnd")
     ub <- attr(theta, "param.upbnd" )

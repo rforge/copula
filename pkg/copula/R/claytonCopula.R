@@ -69,7 +69,7 @@ claytonCopula <- function(param = NA_real_, dim = 2L,
       param.names = "param",
       param.lowbnd = if(dim == 2) -1 else 0,
       param.upbnd = Inf,
-      fullname = "Clayton copula family; Archimedean copula")
+      fullname = "_DEPRECATED slot_  Clayton (Archimedean) copula")
 }
 
 rclaytonBivCopula <- function(n, alpha) {

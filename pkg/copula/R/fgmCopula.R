@@ -82,9 +82,15 @@ fgmCopula <- function(param = NA_real_, dim = 2L) {
         param.names = paste0("param",subsets.char[(dim+2):2^dim]),
         param.lowbnd = rep(-1, 2^dim - dim - 1),
         param.upbnd = rep(1, 2^dim - dim - 1),
-        fullname = "Farlie-Gumbel-Morgenstern copula family")
+        fullname = "_DEPRECATED slot_  Farlie-Gumbel-Morgenstern copula family")
 }
 
+setMethod(describeCop, "fgmCopula", function(x, kind) {
+    d <- x@dimension
+    paste(
+        "Farlie-Gumbel-Morgenstern (FGM) copula, dim. d =", d, "\n param.:",
+        capture.output(str(x@parameters, give.head=FALSE)))
+    })
 
 ### random number generation ###################################################
 

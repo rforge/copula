@@ -17,8 +17,8 @@
 ##' show method
 print.copula <- function(x, digits = getOption("digits"), ...) {
   validObject(x)
-  cat(x@fullname, "\n")
-  cat("Dimension: ", x@dimension, "\n")
+  cat(describeCop(x, kind="very short"), "\n")
+  cat("Dimension: ", (d <- dim(x)), "\n")
   if (length(par <- x@parameters) > 0) {
     hasFx <- !is.null(.fixed <- attr(par, "fixed")) && any(.fixed)
     cat(sprintf("Parameters%s:\n",

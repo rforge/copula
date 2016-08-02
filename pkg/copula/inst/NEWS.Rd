@@ -14,6 +14,8 @@
       matrix of \code{NA}s).
       \item \code{fitCopula(joeCopula(), *, method = "itau")} gave an
       error instead of warning.
+      \item \code{setTheta(<rotCopula>, <par>)} now works.
+      \item \code{xvCopula(<rotCopula>, <data>)} now works.
     }
   }
   \subsection{New Features}{

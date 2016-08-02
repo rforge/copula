@@ -61,8 +61,9 @@ print.fitMvdc <- function(x, digits = max(3, getOption("digits") - 3),
                  printCf(idx1[i]:idx2[i])
              }
     }
-    cat(if(showMore) sprintf("Copula: '%s'\n", cop@fullname)
-        else "Copula:\n")
+    cat(if(showMore) describeCop(cop, "short") # as 'parameters' are separate
+        else "Copula:", "\n")
+## or	else paste("Copula:", class(x)), "\n")
     copParIdx <- seq_along(cop@parameters)
     printCf(copParIdx + if(margid) marNpar[1] else sum(marNpar))
     if (!is.na(ll <- x@loglik))

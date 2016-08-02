@@ -24,12 +24,14 @@
   case of that considered in Liebscher (2008).
 }
 \usage{
-khoudrajiCopula(copula1 = indepCopula(), copula2 = indepCopula(),
+khoudrajiCopula(copula1 = indepCopula(), copula2 = indepCopula(dim = d),
                 shapes = rep(NA_real_, dim(copula1)))
 }
 \arguments{
-  \item{copula1, copula2}{each a \code{\linkS4class{copula}}, of the
-    same dimension \eqn{d}.}
+  \item{copula1, copula2}{each a \code{\linkS4class{copula}} (possibly
+    generalized, e.g., also a \code{"\linkS4class{rotCopula}"}) of the
+    same dimension \eqn{d}.  By default independence copulas, where
+    \code{copula2} gets the dimension from \code{copula1}.}
   \item{shapes}{\code{\link{numeric}} vector of length \eqn{d},
     with values in \eqn{[0,1]}.}
 }
@@ -39,7 +41,7 @@ khoudrajiCopula(copula1 = indepCopula(), copula2 = indepCopula(),
   they are exchangeable and \eqn{d}-dimensional with \eqn{d > 2}, and if
   they have explicit p.d.f. and c.d.f. expressions, an object of class
   \code{"\linkS4class{khoudrajiExplicitCopula}"} will be
-  constructed. For the latter two classes, density evaluation is implemented,
+  constructed.  For the latter two classes, density evaluation is implemented,
   and fitting and goodness-of-fit testing can be attempted. If \eqn{d >
   2} but one of the argument copulas does not have explicit p.d.f. and
   c.d.f. expressions, or is not exchangeable, an object of class

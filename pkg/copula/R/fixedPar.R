@@ -67,23 +67,29 @@ nFree <- function(param) {
 ##' @param free logical: TRUE = free; FALSE = fixed
 ##' @return A numeric vector of parameters with attributes
 ##'         param.names, param.lowbnd, and param.upbnd.
-##' @author Jun Yan
-getParam <- function(copula, freeOnly = TRUE) {
+##' @author Jun Yan and Martin Maechler
+getParam <- function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
     par <- copula@parameters
     if (length(par) == 0) return(par) ## no parameters (e.g., indepCopula)
     fixed <- attr(par, "fixed")
     sel <- if (!is.null(fixed) && freeOnly) !fixed else TRUE
     ## no selected parameter
     if (!any(sel)) ## = all(!sel), but faster
-        numeric(0)
-    else
-        ## store the three param.* as  attributes :
-        structure(par[sel],
-                  param.names  = copula@param.names[sel],
-                  param.lowbnd = copula@param.lowbnd[sel],
-                  param.upbnd  = copula@param.upbnd[sel])
+	numeric(0)
+    else {
+	par <- if(named) setNames(par[sel], copula@param.names[sel])
+	       else par[sel]
+	if(!attr)
+	    par
+	else ## 'attr' i.e., with the param.* as attributes :
+	    structure(par,
+		      param.lowbnd = copula@param.lowbnd[sel],
+		      param.upbnd  = copula@param.upbnd[sel])
+    }
 }
 
+## "FIXME": have the exported *generic* function  setTheta() (for years)
+##  -----   whereas this is currently hidden :
 ##' @title Set or Modify Values of the Free Parameters of a Copula
 ##' @param copula a copula object
 ##' @param value a numeric vector to be set for the parameters

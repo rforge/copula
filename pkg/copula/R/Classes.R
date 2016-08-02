@@ -23,7 +23,7 @@ setClass("copula", contains = c("parCopula", "VIRTUAL"),
                    param.lowbnd = "numeric",
                    param.upbnd = "numeric",
                    ## TODO: "a vector" of intervals" paraInterval = "maybeInterval", # [.,.]  (.,.], etc ..
-                   fullname = "character"), ## <- to be replaced (by .. methods, see ../TODO)
+                   fullname = "character"), ## <- DEPRECATED for describeCop(): see ../TODO
          prototype = prototype(dimension = 2L, parameters = NA_real_),
          validity = ##' Check validity of "copula"
          function(object) {

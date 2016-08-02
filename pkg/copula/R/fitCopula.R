@@ -32,7 +32,8 @@ print.fitCopula <- function(x, digits = max(3, getOption("digits") - 3),
 	"Fit based on \"%s\" and %d %d-dimensional observations.\n",
 	x@method, x@nsample, d))
     ## FIXME show more via print.copula() / printCop(.) utility; but do *not* show the parameters
-    cat("Copula: ", if(showMore) cop@fullname else class(cop), "\n")
+    cat(if(showMore) describeCop(cop, "short") # as 'parameters' are separate
+	else paste("Copula:", class(x)), "\n")
     if(showMore) {
 	coefs <- coef.fittedMV(x, SE = TRUE)
 	printCoefmat(coefs, digits=digits, signif.stars=signif.stars,
@@ -118,6 +119,7 @@ fitCor <- function(cop, x, method = c("itau", "irho"),
 ##' @param copula Copula object
 ##' @return Log-likelihood of the given copula at param given the data x
 loglikCopula <- function(param, u, copula) {
+    ## FIXME: use getParam() only; *not*  @parameters slot, nor @param.(lowbnd|upbnd)
     stopifnot((l <- length(param)) == nFree(copula@parameters)) # sanity check
     freeParam(copula) <- param
     free <- isFree(copula@parameters)
@@ -139,7 +141,7 @@ loglikCopula <- function(param, u, copula) {
 ##' @param default The default initial values
 ##' @param ... Additional arguments passed to fitCopula.icor()
 ##' @return Initial value for fitCopula.ml()
-fitCopStart <- function(copula, u, default=getParam(copula), ...)
+fitCopStart <- function(copula, u, default = getParam(copula), ...)
 {
     clc <- class(copula)
     ## start <-
@@ -634,12 +636,6 @@ fitCopula_dflt <- function(copula, data,
     }
     method <- match.arg(method)
     cl <- match.call()
-    if(inherits(copula, "rotCopula")) {
-        fit <- fitCopula(copula@copula, data = apply.flip(data, copula@flip),
-                         method=method, start=start, lower=lower, upper=upper, ...)
-        fit@copula <- copula # instead of copula@copula
-        return(fit)
-    }
     if(method == "mpl" || method == "ml") { # "mpl" or "ml"
         (if(hideWarnings) suppressWarnings else identity)(
         fitCopula.ml(copula, u=data, method=method,

@@ -101,7 +101,7 @@ KhoudFn <-
 ##' or a khoudrajCopula object
 ##' @author Jun Yan and Ivan Kojadinovic
 ##'
-khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
+khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(dim=d),
                             shapes = rep(NA_real_, dim(copula1))) {
 
     ## checks
@@ -146,7 +146,7 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
             param.upbnd  = c(copula1@param.upbnd,  copula2@param.upbnd,  rep(1, d)),
             copula1 = copula1,
             copula2 = copula2,
-            fullname = paste("Khoudraji copula constructed from: [",
+            fullname = paste("_Deprecated!__use describeCop()__ Khoudraji copula from: [",
                              copula1@fullname, "] and: [", copula2@fullname, "]"))
     else {
 
@@ -183,7 +183,7 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
         cdf <- parse(text = c("(", cdf1, ") * (", cdf2, ")"))
         ## cdf <- substitute((F1) * (F2), list(F1 = cdf1, F2 = cdf2))
         cdf.algr <- deriv(cdf, "nothing")
-        
+
         ## The following block handles pdf
         ##'' @title Get pdf expression by differentiating the cdf with D iteratively
         ##'' @param cdf Expression of cdf
@@ -207,7 +207,7 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
         exprdist <- c(cdf, pdf)
         attr(exprdist, "cdfalgr") <- cdf.algr
         attr(exprdist, "pdfalgr") <- pdf.algr
-        
+
         ## The following block handles the partial derivatives of a component copula cdf
         ## needed in the density
         ## derExprs: get the derivatives of cdf of order 1 to n
@@ -239,7 +239,7 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(),
             copula2 = copula2,
             exprdist = exprdist,
             derExprs1 = derExprs1, derExprs2 = derExprs2,
-            fullname = paste("Khoudraji copula constructed from: [",
+            fullname = paste("_Deprecated!__use describeCop()__ Khoudraji copula from: [",
                              copula1@fullname, "] and: [", copula2@fullname, "]"))
     }
 }
@@ -519,6 +519,6 @@ dKhoudrajiExplicitCopula <- function(u, copula, log = FALSE, ...) {
     }
     if(log) log(dens) else dens
 }
-  
+
 
 

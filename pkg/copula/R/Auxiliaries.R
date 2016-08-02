@@ -106,3 +106,34 @@ formatCall <- function(cal, className, sep = "\n", collapse = "\n") {
 	names(cal)[2L] <- ""
     paste(deparse(cal), sep=sep, collapse=collapse)
 }
+
+##' A  (generic!) Function with methods to replace the 'fullname' slot :
+setGeneric("describeCop", function(x, kind = c("short", "very short", "long"))
+    standardGeneric("describeCop"))
+
+setMethod("describeCop", c("copula", "missing"),
+	  function(x, kind) describeCop(x, "short"))
+
+setMethod("describeCop", c("copula", "character"),
+          function(x, kind = c("short", "very short", "long")) {
+              kind <- match.arg(kind)
+	      if(kind == "very short") # e.g. for show() which has more parts
+                  return(paste(class(x), "copula"))
+              ## else
+	      d <- dim(x)
+              ch <- paste(class(x), "copula, dim. d =", d)
+	      switch(kind <- match.arg(kind),
+		     short = ch,
+		     long = paste0(ch, "\n param.: ",
+				   capture.output(str(x@parameters,
+						      give.head=FALSE))),
+		     stop("invalid 'kind': ", kind))
+	  })
+
+
+setMethod("describeCop", "xcopula",
+	  function(x, kind) {
+	      paste(class(x), "copula: ", describeCop(x@copula, kind=kind))
+	  })
+
+## *Specific* describeCop() methods in the class  ./<copClass>.R  files

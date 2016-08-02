@@ -51,10 +51,10 @@ MM: (2016-05-03):
 ** TODO [MM]: bug? library(copula); pCopula(0.4, copula = normalCopula(param = 0.5, dim = 3)) is *random* !??!!
 ** TODO need a "getTheta" analogously to "setTheta"
 which extracts the parameter (vector) from any copula object
-** TODO Clarify C.n() argument issues
-     - most likely, we should rename 'X' to 'data' (as is used often; sometimes
-       not, though (like gofCopula()) => but clarify).  MM: I strongly *prefer* 'X' to 'data'
-     - the same probably applies to dCn()
+*** DONE partly: we have  getParam() but not exported; should think of name(s)
+*** TODO *Could* replace  new.x <- setTheta(x, value)  by param(new.x) <- value
+  but that only make sense when setTheta() has no extra arguments, but it has.
+** DONE Clarify C.n() argument issues -- Decision: keep 'X' ('data' not better!!)
 ** TODO Make rosenblatt() and iRosenblatt() faster by avoiding 'archmCopula' class conversion to 'acopula' and back (see email from 2016-04-20); see the TODO in ./R/gofTrafos.R
 ** TODO [MM] Is it possible to generate (inheritance) tree class structure with methods automatically from the code ?
 ** TODO [JY] Clean-up/document "old" copula files (such as ellip*/archm*/ev* copula files); write documentation a la 'Marius' (with Roxygen)
