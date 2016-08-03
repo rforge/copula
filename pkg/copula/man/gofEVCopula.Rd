@@ -16,8 +16,7 @@
 gofEVCopula(copula, x, N = 1000,
             method = c("mpl", "ml", "itau", "irho"),
             estimator = c("CFG", "Pickands"), m = 1000,
-            verbose = interactive(),
-            optim.method = "BFGS")
+            verbose = interactive(), \dots)
 }
 \arguments{
   \item{copula}{ object of class \code{"\linkS4class{evCopula}"}
@@ -37,10 +36,11 @@ gofEVCopula(copula, x, N = 1000,
     compute the test statistic numerically.}
   \item{verbose}{a logical specifying if progress of the bootstrap
     should be displayed via \code{\link[utils]{txtProgressBar}}.}
-  \item{optim.method}{a string, the \code{method} for
-    \code{\link{optim}()}.  In \pkg{copula} versions \code{0.999-14} and
-    earlier, the default was \code{"Nelder-Mead"}, but now is set to the
-    same as for \code{\link{fitCopula}()}.}
+  \item{\dots}{further optional arguments, passed to
+    \code{\link{fitCopula}()}, notably \code{optim.method}, the
+    \code{method} for \code{\link{optim}()}.  In \pkg{copula} versions
+    \code{0.999-14} and earlier, the default for that was
+    \code{"Nelder-Mead"}, but now is the same as for \code{fitCopula().}
 %% Notably, that gave tons of warnings
 %%  one-dimensional optimization by Nelder-Mead is unreliable: use "Brent" or optimize() directly
 }
