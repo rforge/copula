@@ -19,12 +19,12 @@ normalCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex") {
     stopifnot((pdim <- length(param)) >= 1)
     if(pdim == 1 && is.na(param)) ## extend it (rho)
 	pdim <- length(param <- rep(param, length.out = npar.ellip(dim, dispstr)))
-  new("normalCopula",
+  new("normalCopula", # validRho() in ./Classes.R checks 'dispstr' and more:
       dispstr = dispstr,
       dimension = as.integer(dim),
       parameters = param,
       param.names = paste("rho", 1:pdim, sep="."),
-      param.lowbnd = rep(-1, pdim),
+      param.lowbnd = lowbnd.rho.ellip(dim, dispstr, pdim),
       param.upbnd = rep(1, pdim),
       fullname = "Normal copula family",
       getRho = function(obj) obj@parameters)

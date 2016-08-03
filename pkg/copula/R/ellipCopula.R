@@ -21,13 +21,26 @@
 ##' @param df.fixed [for tCopula():] logical indicating if 'df' is fixed or a parameter
 ##' @return integer
 ##' @author Martin Maechler
-## NOTE: This is related to  validRho() in ./Classes.R
+## NOTE: This is related to  validRho() (== validityMethod for "ellipCopula") in ./Classes.R
 npar.ellip <- function(dim, dispstr, df.fixed = TRUE) {
     (!df.fixed) + # add 1 if 'df' is not fixed
     switch(dispstr, ## also checking for correct 'dispstr'
-	   "ar1" =, "ex" = 1 ,
+	   "ar1" =,
+           "ex" = 1 ,
 	   "un" = dim * (dim - 1) / 2,
 	   "toep" = dim - 1,
+	   ## otherwise
+	   return("'dispstr' not supported (yet)"))
+}
+
+## Lower bound for the rho_j
+lowbnd.rho.ellip <- function(dim, dispstr, pdim = npar.ellip(dim, dispstr)) {
+    switch(dispstr, ## also checking for correct 'dispstr'
+	   "ex" = rep( - 1 / (dim-1), pdim),
+	   "ar1"= rep( -1, pdim),
+	   ## These bounds are not at all tight, but not simple box-constraints anyway:
+	   "un" = ,
+	   "toep" = rep(-1, pdim),#
 	   ## otherwise
 	   return("'dispstr' not supported (yet)"))
 }

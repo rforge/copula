@@ -38,11 +38,11 @@ tCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex",
 	pdim <- length(param <- rep(param, length.out = npar.ellip(dim, dispstr)))
     parameters <- c(param, df) ## df is another parameter __at end__
     param.names <- c(paste("rho", seq_len(pdim), sep="."), "df")
-    param.lowbnd <- c(rep.int(-1, pdim), 1e-6)
-    param.upbnd	 <- c(rep.int( 1, pdim), Inf)
+    param.lowbnd <- c(lowbnd.rho.ellip(dim, dispstr, pdim), 1e-6)
+    param.upbnd	 <- c(rep.int( 1, pdim),                     Inf)
     attr(parameters, "fixed") <- c(isFixedP(param), df.fixed)
 
-    new("tCopula",
+    new("tCopula", # validRho() in ./Classes.R checks 'dispstr' and more:
 	dispstr = dispstr,
 	dimension = dim,
 	parameters = parameters,
