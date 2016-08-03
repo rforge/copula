@@ -126,8 +126,10 @@ getParam <- function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
 ##' @return A copula object with parameters set to be param
 ##' @author Jun Yan
 `fixedParam<-` <- function(copula, value) {
-    stopifnot(length(copula@parameters) == length(value), is.logical(value))
+    stopifnot(is.logical(value),
+              length(value) %in% c(1L, length(copula@parameters)))
     if (anyNA(copula@parameters[value])) stop("Fixed parameters cannot be NA.")
-    attr(copula@parameters, "fixed") <- value
+    attr(copula@parameters, "fixed") <-
+	if(identical(value, FALSE) || !any(value)) NULL else value
     copula
 }

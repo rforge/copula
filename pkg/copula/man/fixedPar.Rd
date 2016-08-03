@@ -35,7 +35,8 @@ fixedParam(copula) <- value
 %% }
 \seealso{
   \code{\link{fitCopula}} for fitting;
-  %% FIXME  t-copulas (\code{\link{tCopula}}) ...
+  t-copulas, \code{\link{tCopula}(*, df.fixed=TRUE)} now uses parameter
+  fixing for \code{"df"}.
 }
 \examples{
 nc1 <- normalCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, FALSE,FALSE)),
@@ -44,6 +45,14 @@ nc1
 nc13 <- nc12 <- nc1
 fixedParam(nc12) <- c(TRUE, TRUE, FALSE) ; nc12
 fixedParam(nc13) <- c(TRUE, FALSE, TRUE) ; nc13
+set.seed(17); x <- rCopula(100, nc1)
+summary(f.13 <- fitCopula(nc13, x, method = "ml"))
+f.13@copula  # 'rho.2' is estimated; the others kept fixed
+
+## Setting to 'FALSE' (removes the "fixed" parts completely):
+nc0 <- nc13; fixedParam(nc0) <- FALSE
+nc0
+stopifnot(is.null(attributes(nc0@parameters)))
 }
 \keyword{manip}
 \keyword{utilities}
