@@ -85,7 +85,7 @@ fgmCopula <- function(param = NA_real_, dim = 2L) {
         fullname = "_DEPRECATED slot_  Farlie-Gumbel-Morgenstern copula family")
 }
 
-setMethod(describeCop, "fgmCopula", function(x, kind) {
+setMethod(describeCop, c("fgmCopula", "character"), function(x, kind) {
     d <- x@dimension
     paste(
         "Farlie-Gumbel-Morgenstern (FGM) copula, dim. d =", d, "\n param.:",

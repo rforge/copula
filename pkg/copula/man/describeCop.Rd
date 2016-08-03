@@ -2,12 +2,12 @@
 \title{Copula Short Description as String}
 \alias{describeCop}
 \alias{describeCop-methods}
-\alias{describeCop,archmCopula,ANY-method}
-\alias{describeCop,copula,character-method}
-\alias{describeCop,copula,missing-method}
-\alias{describeCop,ellipCopula,character-method}
-\alias{describeCop,fgmCopula,ANY-method}
 \alias{describeCop,xcopula,ANY-method}
+\alias{describeCop,copula,missing-method}
+\alias{describeCop,archmCopula,character-method}
+\alias{describeCop,copula,character-method}
+\alias{describeCop,ellipCopula,character-method}
+\alias{describeCop,fgmCopula,character-method}
 \docType{methods}
 \description{
   Describe a \code{\linkS4class{copula}} object, i.e., its basic
