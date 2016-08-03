@@ -166,7 +166,7 @@ export(F.n, C.n, dCn)# .Fn
 
 ## fitting copula
 export(loglikCopula, loglikMvdc)
-export(fitCopula, fitMvdc)
+export(fitCopula, fitMvdc, optimMeth)
 exportClasses(fittedMV, fitCopula, fitMvdc)
 
 ## some parameters can be fixed ( ./R/fixedPar.R ) :

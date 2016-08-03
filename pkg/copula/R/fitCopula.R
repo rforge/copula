@@ -33,7 +33,7 @@ print.fitCopula <- function(x, digits = max(3, getOption("digits") - 3),
 	x@method, x@nsample, d))
     ## FIXME show more via print.copula() / printCop(.) utility; but do *not* show the parameters
     cat(if(showMore) describeCop(cop, "short") # as 'parameters' are separate
-	else paste("Copula:", class(x)), "\n")
+	else paste("Copula:", class(cop)), "\n")
     if(showMore) {
 	coefs <- coef.fittedMV(x, SE = TRUE)
 	printCoefmat(coefs, digits=digits, signif.stars=signif.stars,
@@ -295,6 +295,7 @@ var.icor <- function(cop, u, method=c("itau", "irho"))
         v %*% L %*% cop@parameters[1]
     } else {
         ## Check if variance can be computed
+        ## FIXME: "string" version of 'dCor' should not be needed !
         dCor <- switch(method,
                        "itau" = "dTau",
                        "irho" = "dRho")
@@ -625,7 +626,8 @@ fitCopula_dflt <- function(copula, data,
                            method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
                            posDef = is(copula, "ellipCopula"),
                            start=NULL, lower=NULL, upper=NULL,
-                           optim.method = "BFGS", optim.control = list(maxit=1000),
+                           optim.method = optimMeth(copula, method),
+                           optim.control = list(maxit=1000),
                            estimate.variance = NA, hideWarnings = FALSE, ...)
 {
     stopifnot(any(isFree(copula@parameters)),
@@ -662,6 +664,21 @@ fitCopula_dflt <- function(copula, data,
         )
     }
 }
+
+##' Default optim() method for  fitCopula() [and hence gofCopula(), xvCopula(),..]
+optimMeth <- function(copula, method) {
+    ## Till Aug.2016, this was implicitly always "BFGS"
+    cld <- getClass(class(copula))
+    ellip <- extends(cld, "ellipCopula")
+    if(ellip && copula@dispstr %in% c("ex", "ar1"))
+        "L-BFGS-B"
+    else if(extends(cld, "archmCopula"))
+        "L-BFGS-B"
+    else # "by default" -- was *the* only default till Aug. 2016:
+        "BFGS"
+    ## FIXME:  "Nelder-Mead" is sometimes better
+}
+
 
 setGeneric("fitCopula", function(copula, data, ...) standardGeneric("fitCopula"))
 setMethod( "fitCopula", signature("copula"), fitCopula_dflt)

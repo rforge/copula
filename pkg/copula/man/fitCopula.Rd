@@ -5,6 +5,7 @@
 \alias{fitCopula,copula-method}
 \alias{fitCopula,rotCopula-method}
 \alias{loglikCopula}
+\alias{optimMeth}
 \description{
   Parameter estimation of copulas, i.e., fitting of a copula model to
   multivariate (possibly \dQuote{pseudo}) observations.
@@ -14,32 +15,36 @@ loglikCopula(param, u, copula)
 
 ## Generic [and "rotCopula" method] :
 fitCopula(copula, data, \dots)
-\S4method{fitCopula}{copula}(copula, data, method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
+\S4method{fitCopula}{copula}(copula, data,
+          method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
           posDef = is(copula, "ellipCopula"),
           start = NULL, lower = NULL, upper = NULL,
-          optim.method = "BFGS", optim.control = list(maxit=1000),
+          optim.method = optimMeth(copula, method),
+          optim.control = list(maxit=1000),
           estimate.variance = NA, hideWarnings = FALSE, \dots)
+
+optimMeth(copula, method)
 }
 \arguments{
   \item{param}{vector of parameter values.}
   \item{u}{\eqn{n\times d}{n x d}-matrix of (pseudo-)observations in
     \eqn{[0,1]^d} for computing the copula log-likelihood, where \eqn{n} denotes
-    the sample size and \eqn{d} the dimension. Consider applying the function
+    the sample size and \eqn{d} the dimension.  Consider applying the function
     \code{\link{pobs}()} first in order to obtain such data.}
   \item{data}{as \eqn{u}, an \eqn{n\times d}{n x d}-matrix of data.  For
     \code{method} being \code{"mpl"}, \code{"ml"} or \code{"itau.mpl"},
-    this has to be data in \eqn{[0,1]^d}. For \code{method} being
+    this has to be data in \eqn{[0,1]^d}.  For \code{method} being
     \code{"itau"} or \code{"irho"}, it can either be data in \eqn{[0,1]^d}
     or in the whole \eqn{d}-dimensional space.}
   \item{copula}{a \code{"\linkS4class{copula}"} object.}
   \item{method}{a \code{\link{character}} string specifying the copula
-    parameter estimator used. This can be one of:
+    parameter estimator used.  This can be one of:
     \describe{
       \item{"mpl"}{Maximum pseudo-likelihood estimator (based on
 	\dQuote{pseudo-observations} in \eqn{[0,1]^d}, typical obtained
 	via \code{\link{pobs}()}).}
       \item{"ml"}{As \code{"mpl"} just with a different variance
-	estimator. For this to be correct (thus giving the true MLE),
+	estimator.  For this to be correct (thus giving the true MLE),
 	\code{data} are assumed to be observations from the true
 	underlying copula whose parameter is to be estimated.}
       \item{"itau"}{Inversion of Kendall's tau estimator. \code{data}
@@ -63,8 +68,14 @@ fitCopula(copula, data, \dots)
     optimization methods \code{"Brent"} or \code{"L-BFGS-B"}.}
   \item{optim.control}{a \code{\link{list}} of control parameters
     passed to \code{\link{optim}(*, control=optim.control)}.}
-  \item{optim.method}{The optimization method; see
-    \code{\link{optim}()}'s \code{method}.}
+  \item{optim.method}{a character string specify the optimization
+    method, see \code{\link{optim}()}'s \code{method}; only used when
+    \code{method = "mpl"} or \code{"ml"}.
+
+    The default has been changed (for \pkg{copula} 0.999-16, in
+    Aug. 2016) from \code{"BFGS"} to the result of
+    \code{optimMeth(copula, method)} which is often \code{"L-BFGS-B"}.}
+
   \item{estimate.variance}{a \code{\link{logical}} indicating whether
     the estimator's asymptotic variance is computed (if available for
     the given \code{copula}; the default \code{NA} computes it for the
@@ -152,7 +163,7 @@ fitCopula(copula, data, \dots)
   parameter space is bounded, using \code{optim.method="Brent"} is
   likely to give less warnings.  Furthermore, from experience,
   \code{optim.method="Nelder-Mead"} is sometimes a more robust
-  alternative to \code{optim.method="BFGS"}.
+  alternative to \code{optim.method="BFGS"} or \code{"L-BFGS-B"}.
 
   There are methods for \code{\link{vcov}()}, \code{\link{coef}()},
   \code{\link{logLik}()}, and \code{\link{nobs}()}.
