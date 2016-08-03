@@ -40,8 +40,8 @@ gofEVCopula(copula, x, N = 1000,
     \code{\link{fitCopula}()}, notably \code{optim.method}, the
     \code{method} for \code{\link{optim}()}.  In \pkg{copula} versions
     \code{0.999-14} and earlier, the default for that was
-    \code{"Nelder-Mead"}, but now is the same as for \code{fitCopula().}
-%% Notably, that gave tons of warnings
+    \code{"Nelder-Mead"}, but now is the same as for \code{fitCopula()}.}
+%% Notably, "Nelder-Mead" gave tons of warnings
 %%  one-dimensional optimization by Nelder-Mead is unreliable: use "Brent" or optimize() directly
 }
 \details{
