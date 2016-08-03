@@ -29,6 +29,7 @@ u3 <- cbind(uu, round(runif(10),2))
 
 ### t-copula instead of normal -- minimal set for testing here:
 ## d = 2
+## fit1() here catches the error: "irho" not available for "tCopula":
 (f1 <- fit1(tCopula(df.fixed=TRUE), x = uu))
 stopifnot(identical(f1, fit1(tCopula(df.fixed=TRUE),
 			     x = data.frame(uu))))# *WITH* a warning
@@ -36,8 +37,8 @@ stopifnot(identical(f1, fit1(tCopula(df.fixed=TRUE),
 
 ## for df.fixed=FALSE, have 2 parameters ==> cannot use "fit1":
 (f2.t <- fitCopula(tCopula(), uu, method="itau"))# (+ warning: ... 'df.fixed=TRUE' )
-if(FALSE) ## 14.Jan.2016: irho(<tCopula>) has been "non-sense" -> now erronous:
-    f2.r <- fitCopula(tCopula(), uu, method="irho")
+tools::assertError( ## 14.Jan.2016: irho(<tCopula>) has been "non-sense" -> now erronous:
+    fitCopula(tCopula(), uu, method="irho"))
 showProc.time()
 if(doExtras) {
     print(f2.m <- fitCopula(tCopula(), uu, method=  "ml"))
@@ -235,6 +236,7 @@ msg <- tryCatch(fitCopula(gumbelCopula(), data = u), error=function(e)e$message)
 ## check error message __FIXME__ want "negative correlation not possible"
 ## or NO ERROR and a best fit to tau=0 [and the same for other Archimedean families!]
 msg
+showProc.time()
 
 
 ## Date: Sat, 14 Nov 2015 20:21:27 -0500
@@ -265,6 +267,7 @@ system.time(fit <- fitCopula(ellipCopula("t", dim=d, dispstr="un"),
 ## ... so R crashes (this also happens if the data is much 'closer' to a
 ## t-copula than my data above, so that's not the problem). I'm wondering
 ## about the following.
+showProc.time()
 
 ## 4) Implement: first estimating (via pairwise inversion of
 ## Kendall's tau) the dispersion matrix and then estimating the d.o.f.
@@ -287,6 +290,38 @@ fG <- fitCopula(gumbelCopula(), x)
 	xv.5   = xvCopula(gumbelCopula(), x, k = 5)))# 5-fold CV
 stopifnot(all.equal(unname(v), c(32.783677, 32.835744, 32.247463),
 		    tolerance = 1e-7))
+# now also with rotCopula:
+xvR <- xvCopula(rotCopula(claytonCopula()), x, k = 8)
+stopifnot(all.equal(xvR, 21.050569, tolerance = 1e-6))
+## Now 'copula2 = indepCopula(..) gets 'dim = 3' from the first:
+kh.C <- khoudrajiCopula(claytonCopula(2.5, dim=3), shapes = (1:3)/4)
+kh.C
+copula:::getParam(kh.C, attr=TRUE) # bounds look good
+x3 <- cbind(x, x[,1]^2 + runif(nrow(x)))
+u3 <- pobs(x3)
+if(FALSE) # Error:  "non-finite finite-difference [3]"
+xvK <- xvCopula(kh.C, u3, k = 8)
+if(FALSE) # fails (same Error)
+fK <- fitCopula(kh.C, u3)
+## "works" :
+p1 <- (1:20)/2
+l1 <- sapply(p1, function(th1) loglikCopula(c(th1, (1:3)/4), u3, kh.C))
+plot(p1, l1, type = "b") # nice maximum at around 6.xx
+
+## works two:
+fixedParam(kh.C) <- c(FALSE, FALSE, TRUE,TRUE)
+summary(fK12 <- fitCopula(kh.C, u3))
+fixedParam(kh.C) <- FALSE # all free now
+fK4 <- fitCopula(kh.C, u3, start = c(coef(fK12), 0.3, 0.5),
+                 optim.method = "L-BFGS-B")
+summary(fK4)
+## -> shape1 ~= shape2 ~= 0
+
+if(FALSE) ## FIXME !! --
+kh.r.C <- khoudrajiCopula(rotCopula(claytonCopula()), shapes = c(1,3)/4)
+## xvK.R <- xvCopula(
+
+##                   )
 
 ## From: Ivan, 27 Jul 2016 08:58
 u <- pobs(rCopula(300, joeCopula(4)))

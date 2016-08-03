@@ -29,7 +29,7 @@
 ##' @param df.fixed logical, TRUE = df fixed
 ##' @return an object of tCopula
 tCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex",
-		    df = 4, df.fixed = FALSE)
+		    df = 4, df.fixed = FALSE, df.min = 0.01)
 {
     dim <- as.integer(dim)
     if(!is.numeric(param)) storage.mode(param) <- "double" # for NA, keeping attributes!
@@ -38,7 +38,7 @@ tCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex",
 	pdim <- length(param <- rep(param, length.out = npar.ellip(dim, dispstr)))
     parameters <- c(param, df) ## df is another parameter __at end__
     param.names <- c(paste("rho", seq_len(pdim), sep="."), "df")
-    param.lowbnd <- c(lowbnd.rho.ellip(dim, dispstr, pdim), 1e-6)
+    param.lowbnd <- c(lowbnd.rho.ellip(dim, dispstr, pdim), df.min)
     param.upbnd	 <- c(rep.int( 1, pdim),                     Inf)
     attr(parameters, "fixed") <- c(isFixedP(param), df.fixed)
 
@@ -46,8 +46,8 @@ tCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex",
 	dispstr = dispstr,
 	dimension = dim,
 	parameters = parameters,
-	## df = df, ## JY: need to deprecate this in the future
-	df.fixed = df.fixed,
+	## df = df, # (no longer)
+	df.fixed = df.fixed, # redundant; useful for quick access
 	param.names = param.names,
 	param.lowbnd = param.lowbnd,
 	param.upbnd = param.upbnd,
@@ -75,7 +75,7 @@ as.df.fixed <- function(copula, classDef = getClass(class(copula))) {
         fixed <- c(rep(FALSE, length(copula@parameters) - 1L), TRUE)
     }
     attr(copula@parameters, "fixed") <- fixed
-    copula@df.fixed <- TRUE # (to be deprecated)
+    copula@df.fixed <- TRUE
     copula
 }
 
