@@ -34,10 +34,10 @@ gofCopula(copula, x, \dots)
           estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
           simulation = c("pb", "mult"), verbose = interactive(), \dots)
 
-## Internal 'helper' functions : ---
+## Internal 'helper' functions : --- % keep on help page, even if hidden !
 gofPB(copula, x, N, method = c("Sn", "SnB", "SnC"),
       estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
-      trafo.method = c("none", "cCopula", "htrafo"),
+      trafo.method = if(method == "Sn") "none" else c("cCopula", "htrafo"),
       trafoArgs = list(), verbose = interactive(), useR = FALSE, \dots)
 
 gofMB(copula, x, N, method = c("Sn", "Rn"),
@@ -75,11 +75,11 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
     \code{hideWarnings}, and
     \code{optim.method}, \code{optim.control}, \code{lower},
     or \code{upper} depending on the \code{optim.method}.}
-  \item{trafo.method}{only for the parametric bootstrap.
+  \item{trafo.method}{only for the parametric bootstrap (\code{"pb"}):
     String specifying the transformation to
     \eqn{U[0,1]^d}; either \code{"none"} or one of \code{"cCopula"},
     see \code{\link{cCopula}()}, or \code{"htrafo"}, see
-      \code{\link{htrafo}()}. If \code{method != "Sn"}, one needs to set
+      \code{\link{htrafo}()}.  If \code{method != "Sn"}, one needs to set
       \code{trafo.method != "none"}.}
   \item{trafoArgs}{only for the parametric bootstrap.
     A \code{\link{list}} of optional arguments passed

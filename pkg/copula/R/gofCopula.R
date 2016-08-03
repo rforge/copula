@@ -113,7 +113,7 @@ gofTstat <- function(u, method = c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
 ### The parametric bootstrap (for computing different goodness-of-fit tests) ###
 gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
                   estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
-                  trafo.method = c("none", "cCopula", "htrafo"),
+		  trafo.method = if(method == "Sn") "none" else c("cCopula", "htrafo"),
 		  trafoArgs = list(), verbose = interactive(), useR = FALSE, ...) # IK: added useR
 {
     .Deprecated("gofCopula(*, simulation = \"pb\")")
@@ -121,10 +121,11 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
            trafo.method= trafo.method, trafoArgs=list(), verbose = interactive(), ...)
 }
 
-##' revert to  gofPB()  once it is hidden
+
+##' revert to call  gofPB()  once that is gone
 .gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
                    estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
-                   trafo.method = c("none", "cCopula", "htrafo"),
+		   trafo.method = if(method == "Sn") "none" else c("cCopula", "htrafo"),
                    trafoArgs = list(), verbose = interactive(), useR = FALSE, ...) # IK: added useR
 {
     ## Checks -- NB: let the *generic* fitCopula() check 'copula'
@@ -136,7 +137,8 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
     stopifnot((d <- ncol(x)) > 1, (n <- nrow(x)) > 0, dim(copula) == d)
     method <- match.arg(method)
     estim.method <- match.arg(estim.method)
-    trafo.method <- match.arg(trafo.method)
+    if(method != "Sn")
+	trafo.method <- match.arg(trafo.method, c("cCopula", "htrafo"))
     if(trafo.method == "htrafo") {
 	if(!is(copula, "outer_nacopula"))
 	    stop("'trafo.method' = \"htrafo\" only implemented for copula objects of type 'outer_nacopula'")
@@ -199,14 +201,21 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
     }, NA_real_)
 
     ## 5) Return result object
+    tr.string <- if (trafo.method == "none") ""
+                 else sprintf(", 'trafo.method'=\"%s\"", trafo.method)
     structure(class = "htest",
-	      list(method = if (trafo.method == "none")
-                                sprintf("Parametric bootstrap goodness-of-fit test with 'method'=\"%s\", 'estim.method'=\"%s\"", method, estim.method) else sprintf("Parametric bootstrap goodness-of-fit test with 'method'=\"%s\", 'estim.method'=\"%s\", 'trafo.method'=\"%s\"", method, estim.method, trafo.method),
+	      list(method = paste0(.gofTstr("Parametric", copula),
+				   sprintf(", with 'method'=\"%s\", 'estim.method'=\"%s\"%s:",
+					   method, estim.method, tr.string)),
                    parameter = c(parameter = getParam(C.th.n)),
                    statistic = c(statistic = T),
                    p.value = (sum(T0 >= T) + 0.5) / (N + 1), # typical correction => p-values in (0, 1)
                    data.name = deparse(substitute(x))))
 }
+
+.gofTstr <- function(type, copula)
+    paste(type, "bootstrap goodness-of-fit test of",
+          describeCop(copula, kind="short"))
 
 
 ### The multiplier bootstrap (for computing different goodness-of-fit tests) ###
@@ -294,7 +303,7 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
            verbose=verbose, useR=useR, m=m, zeta.m=zeta.m, b=b, ...)
 }
 
-##' revert to  gofMB()  once it is hidden
+##' revert to call  gofMB()  once that is gone
 .gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
                   estim.method = c("mpl", "ml", "itau", "irho"),
                   verbose = interactive(), useR = FALSE, m = 1/2,
@@ -322,15 +331,15 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
 
     ## 3) Compute the realized test statistic
     C.th.n. <- pCopula(u., C.th.n) # n-vector
-    denom <- rep(1, n) # Sn
-    if (method == "Rn") # Rn
-        denom <- (C.th.n.*(1-C.th.n.) + zeta.m)^m # n-vector
+    denom <-
+        if (method == "Rn") # Rn
+            (C.th.n.*(1-C.th.n.) + zeta.m)^m # n-vector
+        else ##  "Sn"
+            rep(1, n) # Sn
     Cn. <- F.n(u., u.) # n-vector
     T <- sum( ((Cn. - C.th.n.)/denom)^2 ) # test statistic Sn or Rn
 
-    if (useR)
-    {
-        ## R version ################################################
+    if (useR) { ## R version ################################################
 
         ## Obtain approximate realizations of the test statistic under H_0
 
@@ -398,9 +407,9 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
 
     ## Return result object
     structure(class = "htest",
-	      list(method = sprintf(
-                       "Multiplier bootstrap goodness-of-fit test with 'method'=\"%s\", 'estim.method'=\"%s\"",
-                       method, estim.method),
+	      list(method = paste0(.gofTstr("Multiplier", copula),
+				   sprintf(", with 'method'=\"%s\", 'estim.method'=\"%s\":",
+					  method, estim.method)),
                    parameter = c(parameter = getParam(C.th.n)),
                    statistic = c(statistic = T),
                    p.value = (sum(T0 >= T) + 0.5) / (N + 1), # typical correction =>  p-values in (0, 1)

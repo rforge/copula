@@ -119,7 +119,7 @@ gNM <- gofCopula(claytonCopula(), x, N=10, verbose=FALSE, optim.method="Nelder")
 showProc.time()
 
 stopifnot(all.equal(vapply(gofL, `[[`, 0., "statistic"),
-		    setNames(c(0.01355167, 0.01355167, 0.01201136, 0.01257382),
+		    setNames(c(0.01355175, 0.01355175, 0.01201136, 0.01257382),
 			     fMeth), tolerance = 1e-6),
 	  all.equal(vapply(gofL, `[[`, 0., "p.value"),
 		    setNames(c(0.4090909, 0.3181818, 0.4090909, 0.8636364),
@@ -142,7 +142,6 @@ for(fitMeth in c("mpl", "itau", "irho")) {
     print(gofCopula(claytonCopula(), x, N = 10, verbose=FALSE,
 		    estim.method = fitMeth, simulation="mult",
                     method="Rn"))
-
 }
 warnings()
 
@@ -155,7 +154,6 @@ t.cop  <- tCopula(dim = 3, dispstr = "un", df.fixed=TRUE)
 t.copV <- tCopula(dim = 3, dispstr = "un", df.fixed=FALSE)
 
 showProc.time()
-warnings()
 
 ## NOTE: takes a while...
 if(doExtras)
@@ -183,7 +181,7 @@ for(meth in eval(formals(gofPB)$method)) {
   }
   showProc.time()
 }
-warnings()
+if(doExtras) warnings()
 
 ## The same using the multiplier approach -- "ml" is not allowed in general;
 ##  "itau" and "irho"  only  for  d = 2	 (for now !)
@@ -258,37 +256,34 @@ for(d in if(doExtras) 2:4 else 3) {
 }
 warnings()
 
-if(FALSE) {
-    ## fails with:
-    ## Error in optim(start, loglikCopula, lower = lower, upper = upper, method = method,  (from #10) :
-    ## non-finite finite-difference value [1]
-    cop <- archmCopula("Clayton", param=2, dim=d)
-    for(met in gofMeth) {
-        catn("\n gof-method: ", met, ":\n---------")
-        nBoot <- switch(met,
-                        "SnB" = 1,
-                        "SnC" = 2,
-                        ## the rest:
-                        7)
-        if(doExtras) nBoot <- 8 * nBoot
-        set.seed(7)
-        st <- system.time( ## "SnB" is relatively slow - shorten here:
-                          gn <- gofCopula(cop, x = u, N = nBoot,
-                                          method = met, estim.method = "mpl",
-                                          simulation = "pb", verbose = FALSE))
-        print(gn)
-        print(st)
-        catn("=================================================")
-    }
-    showProc.time()
+## Now (have default "L-BFGS-B"), works :
+cop <- archmCopula("Clayton", param=2, dim=d)
+for(met in gofMeth) {
+    catn("\n gof-method: ", met, ":\n---------")
+    nBoot <- switch(met,
+                    "SnB" = 1,
+                    "SnC" = 2,
+                    ## the rest:
+                    7)
+    if(doExtras) nBoot <- 8 * nBoot
+    set.seed(7)
+    st <- system.time( ## "SnB" is relatively slow - shorten here:
+        gn <- gofCopula(cop, x = u, N = nBoot,
+                        method = met, estim.method = "mpl",
+                        simulation = "pb", verbose = FALSE))
+    print(gn)
+    print(st)
+    catn("=================================================")
 }
+showProc.time()
+
 
 ## Test parametric-bootstrap with all statistics
 ## for Clayton, Gumbel, danube and rdj data sets
 if(doExtras >= 2) {
 
-    meths  <- c("Sn",    "SnB",     "SnC",    "AnChisq", "AnGamma")
-    trafos <- c("none", "cCopula", "cCopula", "cCopula", "cCopula")
+    meths  <- c("Sn",    "SnB",     "SnC") ## for "pb" (= default)
+    trafos <- c("none", "cCopula", "cCopula")
 
     stopifnot(length(meths) == length(trafos))
     doGOFTests <- function(cop, x, N) {
@@ -301,40 +296,36 @@ if(doExtras >= 2) {
     x <- rCopula(300,claytonCopula(4))
 
     ## Clayton should not be rejected
-    doGOFTests(claytonCopula(), x, N=100)
+    print( doGOFTests(claytonCopula(), x, N=100) )
 
     ## Gumbel should be rejected
-    doGOFTests(gumbelCopula(), x, N=100)
+    print( doGOFTests(gumbelCopula(), x, N=100) )
 
     ### Gumbel #############################
     x <- rCopula(300,gumbelCopula(4))
 
     ## Clayton should be rejected
-    doGOFTests(claytonCopula(), x, N=100)
+    print( doGOFTests(claytonCopula(), x, N=100) )
 
     ## Gumbel should not be rejected
-    doGOFTests(gumbelCopula(), x, N=100)
+    print( doGOFTests(gumbelCopula(), x, N=100) )
 
     ### danube -- skip if lcopula is not available ##########################
     if(!inherits(try(data(danube, package = "lcopula")), "try-error")) {
         x <- as.matrix(danube)
-
         ## Clayton should be rejected
-        doGOFTests(claytonCopula(), x, N=100)
-
+        print( doGOFTests(claytonCopula(), x, N=100) )
         ## Gumbel should not be (too strongly) rejected
-        doGOFTests(gumbelCopula(), x, N=100)
+        print( doGOFTests( gumbelCopula(), x, N=100) )
     }
 
     ### rdj ###############################
     data(rdj)
     x <- as.matrix(rdj[,2:4])
-
     ## Clayton should be rejected
-    doGOFTests(claytonCopula(dim = 3), x, N=50)
+    print( doGOFTests(claytonCopula(dim = 3), x, N=50) )
 
     ## t with df=10 should not be rejected
     cop <- tCopula(dim = 3, dispstr = "un", df = 10, df.fixed = TRUE)
-    doGOFTests(cop, x, N=50)
-
+    print( doGOFTests(cop, x, N=50) )
 }
