@@ -64,7 +64,9 @@ nFree <- function(param) {
 
 ##' @title Get the Free or Fixed Parameters of a Copula
 ##' @param copula 'copula' object
-##' @param free logical: TRUE = free; FALSE = fixed
+##' @param freeOnly logical: TRUE = free; FALSE = fixed
+##' @param attr logical indicating if lower and upper bound attributes should be returned.
+##' @param named logical indicating if parameter \code{\link{names}} should be returned.
 ##' @return A numeric vector of parameters with attributes
 ##'         param.names, param.lowbnd, and param.upbnd.
 ##' @author Jun Yan and Martin Maechler
