@@ -1,0 +1,5 @@
+import(copula)
+
+## export those not starting with a ".":
+exportPattern("^[^\\.]")
+

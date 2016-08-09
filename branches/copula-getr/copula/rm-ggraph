@@ -1,0 +1,42 @@
+#!/bin/sh
+
+# remove the ggraph parts -- for CRAN release "for now"
+if [ ! -f DESCRIPTION ]
+then echo '** not inside "copula" directory -- exit' ; fi
+mv DESCRIPTION DESCRIPTION+gg
+sed '/ggraph/d; /wrapper/d' DESCRIPTION+gg > DESCRIPTION
+mv NAMESPACE NAMESPACE+gg
+sed '/ggraph/d' NAMESPACE+gg > NAMESPACE
+##
+mv demo/00Index demo/00Index+gg
+sed '/gof_graph/d' demo/00Index+gg > demo/00Index
+##
+mkdir -p gg
+mv R/wrapper.R R/ggraph-* man/ggraph* gg
+mv .Rbuildignore gg
+cp -p .Rbuildignore-gg .Rbuildignore
+mkdir -p gg/demo
+mv demo/gof_graph.R gg/demo
+##
+echo 'Now, you must do (something like) the following:
+ mkdir TMP
+ cd TMP
+ rm -rf copula
+ svn co svn://svn.r-forge.r-project.org/svnroot/nacopula/pkg/copula
+ cd copula
+ ./rm-ggraph
+ ###########
+ ## Martin only:
+ for f in nacopula-pkg.pdf Frank-Rmpfr.pdf
+ do \cp -p /tmp/copula.Rcheck/vign_test/copula/inst/doc/$f inst/doc/ ; done
+
+ (cd ..; R CMD build copula)
+
+
+## to check:
+
+## look for the  inst/doc/*.pdf :
+(cd ..; tar tfvz copula_0.999-5.tar.gz )
+
+(cd ..; R-devel CMD check copula_0.999-5.tar.gz )
+'

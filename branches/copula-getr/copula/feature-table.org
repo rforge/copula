@@ -1,0 +1,50 @@
+| Method        | Needed for                 | Old name                      | Current name | Suggested name | Ellip | EV | archm    | ac | nAC     |
+|---------------+----------------------------+-------------------------------+--------------+----------------+-------+----+----------+----+---------|
+| tau           | pedagogy                   | kendallsTau                   | tau          | tau            | I     | I  | I        | I  |         |
+| rho           | pedagogy                   | spearmansRho                  | rho          | rho            | I     | I  | I        | I  |         |
+| lambdaU,L     | pedagogy                   | tailIndex, lambda{U,L} (th) ? | lambda       | lambda (! tdc) | I     |    |          | I  |         |
+| lambda[UL]Inv | fitting, pedagogy          | lambda{U,L}Inv                |              | iLambda        |       |    |          | I  |         |
+| C(u,u)/u  x2  | pedagogy                   |                               |              | tdcFun (?)     | I     | I  | I        | I  |         |
+| itau          | fitting                    | calibKendallsTau, tauInv      | iTau         | iTau           | I     | I  |          | I  |         |
+| irho          | fitting                    | calibSpearmansRho             | iRho         | iRho           | I     | I  | I ex amh |    |         |
+| tau'          | itau fitting std err (se)  | tauDer                        | dTau         | dTau           | I     | I  |          |    |         |
+| rho'          | irho fitting std err       | rhoDer                        | dRho         | dRho           | I     | I  |          |    |         |
+| beta_n        | ibeta fitting              | beta.hat                      | betan        | betan          |       |    |          |    |         |
+| C             | gof pb and mult            | pcopula                       | pCopula      | pCopula        | I     | I  | I        | I  | I       |
+| c             | fitting ml mpl             | dcopula                       | dCopula      | dCopula        | I     | I  | I        | I  | P(demo) |
+| C'param       | gof mult                   | derCdfWrtParams               | dCdtheta     | dCdtheta       | I     |    | I ex amh |    |         |
+| C'args        | gof mult, cov emp cop proc | derCdfWrtArgs                 | dCdu         | dCdu           | I     |    | I ex amh | P  |         |
+| c'param / c   | ml se, mpl se, gof mult    |                               | dlogcdtheta  | dlogcdtheta    | I     |    |          | I  |         |
+| c'args / c    | ml se, mpl se, gof mult    |                               | dlogcdu      | dlogcdu        | I     |    |          |    |         |
+| sampling      | gof pb                     | rcopula                       | rCopula      | rCopula        | I     |    |          | I  | I       |
+| psi           | Archimedean                | genInv                        | psi          | psi            |       |    | I        | P  |         |
+| psi^{(d)}     | Archimedean                | (-1)^d*psiDabs                |              | dPsi           |       |    | P        | P  |         |
+| "             | Archimedean                | psiDabs *slot* to stay        |              | dPsi           |       |    | P        | P  |         |
+| psiInv^{(d)}  | Archimedean                | genFunDer{1,2}                | diPsi        | diPsi          |       |    | P        | P  |         |
+| psiInv        | Archimedean                | genFun                        | iPsi         | iPsi           |       |    | I        | P  |         |
+| psiInv'       | Archimedean                | -psiInvD1abs, genFunDer1      | diPsi        | diPsi          |       |    | P        | P  |         |
+| A             | EV                         | Afun                          | A            | A              |       | I  |          |    |         |
+| A'args        | EV                         | AfunDer                       | dAdu         | dAdu           |       | I  |          |    |         |
+| A''args       | EV                         | AfunDer                       | dAdu         | dAdu           |       | I  |          |    |         |
+| A'param       | EV mpl se, gof mult        | derAfunWrtParam               |              | dAdtheta       |       | ?  |          |    |         |
+| A''param      | EV mpl se, gof mult        | derAfunWrtParam               |              | dAdtheta       |       | ?  |          |    |         |
+| A_n or A^     | EV                         | Anfun                         | An, An.biv   | An             |       | I  |          |    |         |
+| C             | pb and mult                | pmvdc                         | pMvdc        | pMvdc          | I     | I  | I        | I  |         |
+| c             | fitting ml mpl             | dmvdc                         | dMvdc        | dMvdc          | I     | I  | I        | I  |         |
+| sampling      | pb                         | rmvdc                         | rMvdc        | rMvdc          | I     |    |          | I  |         |
+
+I means "Implemented"
+P means "Partially implemented"
+
+* Notes on future EV copulas
+- add EV copulas classes corresponding to max-stable processes
+- make composite likelihood work (need only bivariate margins)
+- import rng from SpatialExtremes
+
+* Notes / Questions to decide - for book as well:
+- Gumbel-Hougaard or just Gumbel
+- HuslerReiss  or just Huesler
+  + Jürg Hüsler is in Berne, MM knows him well
+  as "Mächler" becomes "Maechler",    (ä -> ae)
+     "Hüsler" should become "Huesler" (ü -> ue)
+

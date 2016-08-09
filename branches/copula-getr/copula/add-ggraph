@@ -1,0 +1,20 @@
+#!/bin/sh
+# re-add the ggraph parts which were removed by ./rm-ggraph:
+if [ -f DESCRIPTION+gg ]
+then
+ cp -p DESCRIPTION+gg DESCRIPTION
+ cp -p NAMESPACE+gg NAMESPACE
+ cp -p demo/00Index+gg demo/00Index
+ mv .Rbuildignore .Rb ; sed '/^gg/,$d' .Rb > .Rbuildignore ; mv .Rb .Rbuildignore-gg
+ if [ -d gg ]
+ then
+   mv gg/*.Rd     man/
+   mv gg/*.R      R/
+   mv gg/demo/*.R demo/
+ else
+   echo '** no  ./gg/  sub-directory -- OOPS! -- exit'
+ fi
+else
+ echo '** not inside "copula" directory or
+  no "DESCRIPTION+gg" (i.e. no *need* to re-add'
+fi
