@@ -56,8 +56,7 @@ isFixedP <- function(param)
 ##' @return Length of free parameter
 ##' @author Jun Yan
 nFree <- function(param) {
-    fixed <- attr(param, "fixed")
-    length(if (is.null(fixed)) param else param[!fixed])
+    length(param[isFree(param)]) # GETR
 }
 
 ### get and set free/fixed parameters, needed in fitCopula #####################
@@ -70,7 +69,9 @@ nFree <- function(param) {
 ##' @return A numeric vector of parameters with attributes
 ##'         param.names, param.lowbnd, and param.upbnd.
 ##' @author Jun Yan and Martin Maechler
-getParam <- function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
+setMethod("getParam", signature("copula", "logicalOrMissing", "logicalOrMissing",
+                                "logicalOrMissing"),
+          function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
     par <- copula@parameters
     if (length(par) == 0) return(par) ## no parameters (e.g., indepCopula)
     fixed <- attr(par, "fixed")
@@ -88,7 +89,7 @@ getParam <- function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
 		      param.lowbnd = copula@param.lowbnd[sel],
 		      param.upbnd  = copula@param.upbnd[sel])
     }
-}
+})
 
 ## "FIXME": have the exported *generic* function  setTheta() (for years)
 ##  -----   whereas this is currently hidden :
@@ -97,8 +98,7 @@ getParam <- function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
 ##' @param value a numeric vector to be set for the parameters
 ##' @return A copula object with parameters set to be param
 ##' @author Jun Yan
-`freeParam<-` <- function(copula, value) {
-    stopifnot(is.numeric(value))
+setMethod("freeParam<-", signature("copula", "numeric"), function(copula, value) { # GETR
     oldpar <- copula@parameters
     fixed <- attr(oldpar, "fixed")
     if (is.null(fixed) || !any(fixed)) {
@@ -120,18 +120,32 @@ getParam <- function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
     ## if (validObject(copula)) copula
     ## else stop("Invalid copula object.")
     copula
-}
+})
 
 ##' @title Set or Modify "Fixedness" of Copula Parameters
 ##' @param copula a copula object
 ##' @param value a logical vector to be set for the fixed attribute
 ##' @return A copula object with parameters set to be param
 ##' @author Jun Yan
-`fixedParam<-` <- function(copula, value) {
-    stopifnot(is.logical(value),
-              length(value) %in% c(1L, length(copula@parameters)))
+setMethod("fixedParam<-", signature("copula", "logical"), function(copula, value) { # GETR
+    stopifnot(length(value) %in% c(1L, length(copula@parameters)))
     if (anyNA(copula@parameters[value])) stop("Fixed parameters cannot be NA.")
     attr(copula@parameters, "fixed") <-
 	if(identical(value, FALSE) || !any(value)) NULL else value
     copula
-}
+})
+
+
+## BEGIN GETR
+## logical indicating which parameters are free
+setMethod("free", signature("copula"), function(copula) isFree(copula@parameters))
+
+## logical indicating which parameters are fixed
+setMethod("fixed", signature("copula"), function(copula) isFixedP(copula@parameters))
+
+## number of free parameters
+setMethod("nFreeParam", signature("copula"), function(copula) nFree(copula@parameters))
+
+## number of parameters
+setMethod("nParam", signature("copula"), function(copula) length(copula@parameters))
+## END GETR

@@ -255,7 +255,7 @@ Jscore <- function(copula, u, method)
            influ0 <- dlogcdtheta(copula, u) # (n, p)-matrix
            derArg <- dlogcdu    (copula, u) # (n, d)-matrix
            influ <- lapply(1:d, function(i) influ0*derArg[,i])
-           p <- nFree(copula@parameters)
+           p <- nFreeParam(copula) # GETR
            S <- matrix(0, n, p)
            for(j in 1:d) {
                ij <- order(u[,j], decreasing=TRUE)
@@ -480,5 +480,5 @@ gofCopulaCopula <- function(copula, x, N=1000, method = c("Sn", "SnB", "SnC", "R
     stop("Invalid simulation method ", simulation))
 }
 
-setMethod("gofCopula", signature("copula"), gofCopulaCopula)
+setMethod("gofCopula", signature("parCopula"), gofCopulaCopula)
 

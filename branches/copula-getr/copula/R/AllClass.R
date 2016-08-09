@@ -26,6 +26,25 @@ setClass("xcopula", contains = c("parCopula", "VIRTUAL"),
 setGeneric("paramNames", function(x) standardGeneric("paramNames"))
 setMethod("paramNames", "xcopula", function(x) paramNames(x@copula))
 
+## BEGIN GETR
+## get parameters
+setClassUnion("logicalOrMissing", c("logical", "missing"))
+setGeneric("getParam", function(copula, freeOnly = TRUE, attr = FALSE, named = attr)
+    standardGeneric("getParam"))
+## assign free parameters
+setGeneric("freeParam<-", function(copula, value) standardGeneric("freeParam<-"))
+## set or modify "fixedness" of parameters
+setGeneric("fixedParam<-", function(copula, value) standardGeneric("fixedParam<-"))
+## logical vector indicating which parameters are free
+setGeneric("free", function(copula) standardGeneric("free"))
+## logical vector indicating which parameters are fixed
+setGeneric("fixed", function(copula) standardGeneric("fixed"))
+## number of parameters
+setGeneric("nParam", function(copula) standardGeneric("nParam"))
+## number of free parameters
+setGeneric("nFreeParam", function(copula) standardGeneric("nFreeParam"))
+## END GETR
+
 ## This has advantage that arithmetic with scalars works "for free" already:
 setClass("interval", contains = "numeric", # of length 2
 	 slots = c(open  = "logical"),# of length 2

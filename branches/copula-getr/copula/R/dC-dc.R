@@ -63,7 +63,7 @@ dCduCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-1), ...) {
     warning("Function dCdu() not implemented for copulas of class '", class(copula),
             "'; numerical differentiation used")
     logC <- function(x) log(pCopula(x, copula))
-    dim <- copula@dimension
+    dim <- dim(copula) # GETR
     res <- t(apply(u, 1, function(u.)
         grad(logC, u., side = sides(u., dim, method.args$d, 0, 1),
              method.args = method.args))) * pCopula(u, copula)
@@ -122,7 +122,7 @@ dCduIndepCopula <- function(copula, u, ...) {
   mat
 }
 
-setMethod("dCdu", signature("copula"), dCduCopulaNum)
+setMethod("dCdu", signature("parCopula"), dCduCopulaNum) # GETR
 setMethod("dCdu", signature("joeCopula"), dCduCopulaNum)
 setMethod("dCdu", signature("archmCopula"), dCduExplicitCopula)
 setMethod("dCdu", signature("plackettCopula"), dCduExplicitCopula)
@@ -310,7 +310,7 @@ dCdthetaEvCopula <- function(copula, u, ...) {
   as.matrix(pCopula(u, copula) * loguv * dAdtheta(copula, w))
 }
 
-setMethod("dCdtheta", signature("copula"), dCdthetaCopulaNum)
+setMethod("dCdtheta", signature("parCopula"), dCdthetaCopulaNum) # GETR
 setMethod("dCdtheta", signature("joeCopula"), dCdthetaCopulaNum)
 setMethod("dCdtheta", signature("tevCopula"), dCdthetaCopulaNum)
 setMethod("dCdtheta", signature("archmCopula"), dCdthetaExplicitCopula)
@@ -412,7 +412,7 @@ dlogcduCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-5), ...
     warning("Function dlogcdu() not implemented for copulas of class '",
             class(copula), "'; numerical differentiation used")
     logc <- function(x) dCopula(x, copula, log = TRUE)
-    dim <- copula@dimension
+    dim <- dim(copula) # GETR
     t(apply(u, 1, function(u.)
         grad(logc, u., side = sides(u., dim, method.args$d, 0, 1),
              method.args = method.args)))
@@ -437,7 +437,7 @@ dlogcduExplicitCopula <- function(copula, u, ...) {
     mat / dCopula(u, copula)
 }
 
-setMethod("dlogcdu", signature("copula"), dlogcduCopulaNum)
+setMethod("dlogcdu", signature("parCopula"), dlogcduCopulaNum) # GETR
 setMethod("dlogcdu", signature("joeCopula"), dlogcduCopulaNum)
 setMethod("dlogcdu", signature("tevCopula"), dlogcduCopulaNum)
 setMethod("dlogcdu", signature("archmCopula"), dlogcduExplicitCopula)
@@ -507,7 +507,7 @@ dlogcdthetaExplicitCopula <- function(copula, u, ...) {
     }
 }
 
-setMethod("dlogcdtheta", signature("copula"), dlogcdthetaCopulaNum)
+setMethod("dlogcdtheta", signature("parCopula"), dlogcdthetaCopulaNum) # GETR
 setMethod("dlogcdtheta", signature("joeCopula"), dlogcdthetaCopulaNum)
 setMethod("dlogcdtheta", signature("tevCopula"), dlogcdthetaCopulaNum)
 setMethod("dlogcdtheta", signature("archmCopula"), dlogcdthetaExplicitCopula)

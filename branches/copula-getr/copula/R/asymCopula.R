@@ -17,7 +17,7 @@
 ### Virtual class of asymmetric copulas
 ##################################################################################
 
-setClass("asymCopula", contains = c("copula", "VIRTUAL"))
+setClass("asymCopula", contains = c("parCopula", "VIRTUAL"))
 
 ##################################################################################
 ### Virtual class of asymmetric copulas constructed from two d-dimensional copulas
@@ -25,14 +25,17 @@ setClass("asymCopula", contains = c("copula", "VIRTUAL"))
 
 setClass("asym2Copula", contains = c("asymCopula", "VIRTUAL"),
 	 slots = c(
-             copula1 = "copula",
-             copula2 = "copula"
+             copula1 = "parCopula",
+             copula2 = "parCopula",
+             shapes = "numeric"
          ),
 	 validity = function(object) {
-	     if(object@copula1@dimension != object@copula2@dimension)
-		 "The argument copulas are not of the same dimension"
-	     else TRUE
-         })
+    if(dim(object@copula1) != dim(object@copula2))
+        "The argument copulas are not of the same dimension"
+    else if(dim(object@copula1) != length(object@shapes))
+        "The length of 'shapes' is not equal to the dimension of the copulas"
+    else TRUE
+})
 
 ##################################################################################
 ### Potentially asymmetric d-dimensional copulas of the form C(u^{1-a}) * D(u^a)
@@ -49,10 +52,10 @@ setClass("khoudrajiCopula", contains = c("asym2Copula"))
 
 setClass("khoudrajiBivCopula", contains = "khoudrajiCopula",
 	 validity = function(object)
-	     if(object@copula1@dimension != 2)
-		 "The argument copulas must be of dimension two"
-	     else TRUE
-	 )
+    if(dim(object@copula1) != 2)
+        "The argument copulas must be of dimension two"
+    else TRUE
+    )
 
 ################################################################################
 ### Khoudraji *explicit* copulas
@@ -70,6 +73,93 @@ setClass("khoudrajiExplicitCopula", contains = "khoudrajiCopula",
          ##     ## TODO: check exprdist, derExprs[12]
          ## },
          )
+##################################################################################
+### Basic methods
+##################################################################################
+
+## dimension
+setMethod("dim", signature("khoudrajiCopula"), function(x) dim(x@copula1))
+
+## logical indicating which parameters are free
+setMethod("free", signature("khoudrajiCopula"), function(copula)
+    c(free(copula@copula1), free(copula@copula2), isFree(copula@shapes)))
+
+## logical indicating which parameters are fixed
+setMethod("fixed", signature("khoudrajiCopula"), function(copula)
+    c(fixed(copula@copula1), fixed(copula@copula2), isFixedP(copula@shapes)))
+
+## number of parameters
+setMethod("nParam", signature("khoudrajiCopula"), function(copula)
+    nParam(copula@copula1) + nParam(copula@copula2) + length(copula@shapes))
+
+## number of free parameters
+setMethod("nFreeParam", signature("khoudrajiCopula"), function(copula)
+    nFreeParam(copula@copula1) + nFreeParam(copula@copula2) + nFree(copula@shapes))
+
+## parameter names
+setMethod("paramNames", "khoudrajiCopula", function(x) {
+    c(if (nFreeParam(x@copula1) > 0L) paste0("c1.", paramNames(x@copula1)) else NULL,
+      if (nFreeParam(x@copula2) > 0L) paste0("c2.", paramNames(x@copula2)) else NULL,
+      paste0("shape", 1:dim(x))[isFree(x@shapes)])
+})
+
+## get parameters
+setMethod("getParam", signature("khoudrajiCopula", "logicalOrMissing", "logicalOrMissing",
+                                "logicalOrMissing"),
+          function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
+    par1 <- getParam(copula@copula1, freeOnly = freeOnly, attr = attr, named = named)
+    par2 <- getParam(copula@copula2, freeOnly = freeOnly, attr = attr, named = named)
+    fixed <- attr(copula@shapes, "fixed")
+    nf <- nFree(copula@shapes)
+    sel <- if (!is.null(fixed) && freeOnly) !fixed else TRUE
+    par <- if (named) c(par1, par2, setNames(copula@shapes[sel], paste0("shape", 1:dim(copula))[sel])) else c(par1, par2, copula@shapes[sel])
+    if (!attr)
+        par
+    else
+        structure(par,
+                  param.lowbnd = c(attr(par1, "param.lowbnd"),
+                                   attr(par2, "param.lowbnd"), rep(0, nf)),
+                  param.upbnd  = c(attr(par1, "param.upbnd"),
+                                   attr(par2, "param.upbnd"), rep(1, nf)))
+
+})
+
+## set free parameters
+setMethod("freeParam<-", signature("khoudrajiCopula", "numeric"),
+          function(copula, value) {
+    n1 <- nFreeParam(copula@copula1)
+    n2 <- nFreeParam(copula@copula2)
+    ns <- nFree(copula@shapes)
+    if (n1 + n2 + ns != length(value))
+        stop("the length of 'value' is not equal to the number of free parameters")
+    if (n1 > 0L) freeParam(copula@copula1) <- value[1:n1]
+    if (n2 > 0L) freeParam(copula@copula2) <- value[n1 + 1:n2]
+    if (ns > 0L) {
+        fixed <- isFixedP(copula@shapes)
+        copula@shapes[!fixed] <- value[n1 + n2 + 1:ns]
+    }
+    copula
+})
+
+## set or modify "fixedness" of parameters
+setMethod("fixedParam<-", signature("khoudrajiCopula", "logical"),
+          function(copula, value) {
+    stopifnot(length(value) %in% c(1L, nParam(copula)))
+    if (anyNA(getParam(copula)[value])) stop("Fixed parameters cannot be NA.")
+    n1 <- nParam(copula@copula1)
+    n2 <- nParam(copula@copula2)
+    ns <- length(copula@shapes)
+    if (n1 > 0L) fixedParam(copula@copula1) <- value[1:n1]
+    if (n2 > 0L) fixedParam(copula@copula1) <- value[n1 + 1:n2]
+    if (ns > 0L) attr(copula@parameters, "fixed") <- value[n1 + n2 + 1:ns]
+    copula
+})
+
+## describe copula
+setMethod(describeCop, c("khoudrajiCopula", "character"), function(x, kind) {
+    paste0("Khoudraji copula constructed from\n", describeCop(x@copula1),
+          "and\n", describeCop(x@copula1, kind))
+})
 
 ##################################################################################
 ### Generators for Khoudraji copulas
@@ -104,14 +194,7 @@ KhoudFn <-
 khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(dim=d),
                             shapes = rep(NA_real_, dim(copula1))) {
 
-    ## checks
-    stopifnot((d <- dim(copula1)) == length(shapes))
-
-    ## deal with possibly fixed attributes
-    parameters <- c(copula1@parameters, copula2@parameters, shapes)
-    attr(parameters, "fixed") <- c(isFixedP(copula1@parameters),
-                                   isFixedP(copula2@parameters),
-                                   isFixedP(shapes))
+    d <- dim(copula1)
 
     ## if d==2, create a khoudrajiBivCopula object
     ## if d > 2
@@ -135,19 +218,9 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(dim=d
     ## d == 2 or non-explicit Khourdraji copulas
     if (d == 2 || !areBothExplicit)
         new(if (d == 2) "khoudrajiBivCopula" else "khoudrajiCopula",
-            dimension = d,
-            parameters = parameters,
-            param.names = c(if (length(copula1@parameters) > 0)
-                                paste0("c1.", copula1@param.names) else character(0),
-                            if (length(copula2@parameters) > 0)
-                                paste0("c2.", copula2@param.names) else character(0),
-                            paste0("shape", 1:d)),
-            param.lowbnd = c(copula1@param.lowbnd, copula2@param.lowbnd, rep(0, d)),
-            param.upbnd  = c(copula1@param.upbnd,  copula2@param.upbnd,  rep(1, d)),
             copula1 = copula1,
             copula2 = copula2,
-            fullname = paste("_Deprecated!__use describeCop()__ Khoudraji copula from: [",
-                             copula1@fullname, "] and: [", copula2@fullname, "]"))
+            shapes = shapes)
     else {
 
         ## Explicit Khourdraji copulas
@@ -226,21 +299,12 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(dim=d
         derExprs2 <- derExprs(F2, d)
 
         new("khoudrajiExplicitCopula",
-            dimension = d,
-            parameters = parameters,
-            param.names = c(if (length(copula1@parameters) > 0)
-                                paste0("c1.", copula1@param.names) else character(0),
-                            if (length(copula2@parameters) > 0)
-                                paste0("c2.", copula2@param.names) else character(0),
-                            paste0("shape", 1:d)),
-            param.lowbnd = c(copula1@param.lowbnd, copula2@param.lowbnd, rep(0, d)),
-            param.upbnd  = c(copula1@param.upbnd,  copula2@param.upbnd,  rep(1, d)),
             copula1 = copula1,
             copula2 = copula2,
+            shapes = shapes,
             exprdist = exprdist,
-            derExprs1 = derExprs1, derExprs2 = derExprs2,
-            fullname = paste("_Deprecated!__use describeCop()__ Khoudraji copula from: [",
-                             copula1@fullname, "] and: [", copula2@fullname, "]"))
+            derExprs1 = derExprs1,
+            derExprs2 = derExprs2)
     }
 }
 
@@ -252,42 +316,15 @@ asymExplicitCopula <- function(shapes, copula1, copula2) {
 }
 
 ##################################################################################
-### Utility function for Khoudraji copulas
-##################################################################################
-
-## Returns shapes, copula1 and copula2 from any khoudrajiCopula object
-getKhoudrajiCopulaComps <- function(object) {
-    copula1 <- object@copula1
-    copula2 <- object@copula2
-    p1 <- length(copula1@parameters)
-    p2 <- length(copula2@parameters)
-    d <- object@dimension
-    fixed <- attr(object@parameters, "fixed")
-    shapes <- object@parameters[(p1 + p2) + 1:d]
-    attr(shapes, "fixed") <- fixed[(p1 + p2) + 1:d]
-    if (p1 > 0) {
-        copula1@parameters <- object@parameters[1:p1]
-        attr(copula1@parameters, "fixed") <- fixed[1:p1]
-    }
-    if (p2 > 0) {
-        copula2@parameters <- object@parameters[p1 + 1:p2]
-        attr(copula2@parameters, "fixed") <- fixed[p1 + 1:p2]
-    }
-    list(copula1 = copula1, copula2 = copula2, shapes = shapes)
-}
-
-
-##################################################################################
 ### Methods for all Khoudraji copulas
 ##################################################################################
 
 ## pCopula: for all Khoudraji copulas
 pKhoudrajiCopula <- function(u, copula) {
-    d <- copula@dimension
+    d <- dim(copula)
     tu <- if(is.matrix(u)) t(u) else matrix(u, nrow = d)
-    comps <- getKhoudrajiCopulaComps(copula)
-    p1 <- pCopula(t(tu^(1 - comps$shapes)), comps$copula1)
-    p2 <- pCopula(t(tu^comps$shapes), comps$copula2)
+    p1 <- pCopula(t(tu^(1 - copula@shapes)), copula@copula1)
+    p2 <- pCopula(t(tu^copula@shapes), copula@copula2)
     p1 * p2
 }
 
@@ -297,17 +334,13 @@ setMethod("pCopula", signature("matrix", "khoudrajiCopula"),  pKhoudrajiCopula)
 ## rCopula: for all Khoudraji copulas
 setMethod("rCopula", signature("numeric", "khoudrajiCopula"),
           function(n, copula) {
-    comps <- getKhoudrajiCopulaComps(copula)
-    copula1 <- comps$copula1
-    copula2 <- comps$copula2
-    shapes <- comps$shapes
-    u <- rCopula(n, copula1)
-    v <- rCopula(n, copula2)
-    d <- copula@dimension
+    u <- rCopula(n, copula@copula1)
+    v <- rCopula(n, copula@copula2)
+    d <- dim(copula)
     x <- matrix(NA, n, d)
     ig <- KhoudFn$ig
     for (i in seq_len(d)) {
-        x[,i] <- pmax(ig(u[,i], 1 - shapes[i]), ig(v[,i], shapes[i]))
+        x[,i] <- pmax(ig(u[,i], 1 - copula@shapes[i]), ig(v[,i], copula@shapes[i]))
     }
     x
 })
@@ -318,27 +351,26 @@ setMethod("rCopula", signature("numeric", "khoudrajiCopula"),
 
 ## dCopula: Restricted to *bivariate*  copulas
 dKhoudrajiBivCopula <- function(u, copula, log = FALSE, ...) {
-    comps <- getKhoudrajiCopulaComps(copula)
-    a1 <- comps$shapes[1]
-    a2 <- comps$shapes[2]
-    copula1 <- comps$copula1
-    copula2 <- comps$copula2
+    a1 <- copula@shapes[1]
+    a2 <- copula@shapes[2]
+
 
     ## the density can be computed only if dCdu is implemented for argument copulas
-    if (!hasMethod(dCdu, class(copula1)) || !hasMethod(dCdu, class(copula2)))
+    if (!hasMethod(dCdu, class(copula@copula1)) ||
+        !hasMethod(dCdu, class(copula@copula2)))
         stop("The argument copulas must both have the 'dCdu()' method implemented")
 
     g <- KhoudFn$g ; dgdu <- KhoudFn$dgdu
     gu1 <- cbind(g(u[,1], 1 - a1), g(u[,2], 1 - a2))
     gu2 <- cbind(g(u[,1], a1), g(u[,2], a2))
-    dC1du <- dCdu(copula1, gu1)
-    dC2du <- dCdu(copula2, gu2)
-    part1 <- dCopula(gu1, copula1) *
+    dC1du <- dCdu(copula@copula1, gu1)
+    dC2du <- dCdu(copula@copula2, gu2)
+    part1 <- dCopula(gu1, copula@copula1) *
         dgdu(u[,1], 1 - a1) * dgdu(u[,2], 1 - a2) *
-        pCopula(gu2, copula2)
+        pCopula(gu2, copula@copula2)
     part2 <- dC1du[,1] * dgdu(u[,1], 1 - a1) * dgdu(u[,2], a2) * dC2du[,2]
     part3 <- dC1du[,2] * dgdu(u[,2], 1 - a2) * dgdu(u[,1], a1) * dC2du[,1]
-    part4 <- pCopula(gu1, copula1) * dCopula(gu2, copula2) *
+    part4 <- pCopula(gu1, copula@copula1) * dCopula(gu2, copula@copula2) *
         dgdu(u[,2], a2) * dgdu(u[,1], a1)
 
     ## FIXME: use lsum() and similar to get much better numerical accuracy for log - case
@@ -353,41 +385,36 @@ setMethod("dCopula", signature("matrix", "khoudrajiBivCopula"), dKhoudrajiBivCop
 ## A: Restricted to *bivariate* Khoudraji copulas
 ## A: Pickands dependence function only if copula1 and copula2 are extreme-value
 setMethod("A", signature("khoudrajiBivCopula"), function(copula, w) {
-    comps <- getKhoudrajiCopulaComps(copula)
-    copula1 <- comps$copula1
-    copula2 <- comps$copula2
 
     ## the A function can be computed only if the argument copulas are extreme-value copulas
-    stopifnot(is(copula1, "evCopula"), is(copula2, "evCopula"))
+    stopifnot(is(copula@copula1, "evCopula"), is(copula@copula2, "evCopula"))
 
-    a1 <- comps$shapes[1];  a2 <- comps$shapes[2]
+    a1 <- copula@shapes[1];  a2 <- copula@shapes[2]
     den1 <- (1 - a1) * (1 - w) + (1 - a2) * w
     den2 <- a1 * (1 - w) + a2 * w
     t1 <- (1 - a2) * w / den1; t1 <- ifelse(is.na(t1), 1, t1)
     t2 <- a2 * w / den2; t2 <- ifelse(is.na(t2), 1, t2)
-    den1 * A(copula1, t1) + den2 * A(copula2, t2)
+    den1 * A(copula@copula1, t1) + den2 * A(copula@copula2, t2)
 })
 
 ## dCdu: Restricted to *bivariate* Khoudraji copulas
 setMethod("dCdu", signature("khoudrajiBivCopula"),
           function(copula, u, ...) {
-    comps <- getKhoudrajiCopulaComps(copula)
-    a1 <- comps$shapes[1]
-    a2 <- comps$shapes[2]
-    copula1 <- comps$copula1
-    copula2 <- comps$copula2
+    a1 <- copula@shapes[1]
+    a2 <- copula@shapes[2]
 
     ## dCdu can be computed only if dCdu is implemented for argument copulas
-    if (!hasMethod(dCdu, class(copula1)) || !hasMethod(dCdu, class(copula2)))
+    if (!hasMethod(dCdu, class(copula@copula1)) ||
+        !hasMethod(dCdu, class(copula@copula2)))
         stop("The argument copulas must both have the 'dCdu()' method implemented")
 
     g <- KhoudFn$g ; dgdu <- KhoudFn$dgdu
     gu1 <- cbind(g(u[,1], 1 - a1), g(u[,2], 1 - a2))
     gu2 <- cbind(g(u[,1], a1), g(u[,2], a2))
-    dC1du <- dCdu(copula1, gu1)
-    dC2du <- dCdu(copula2, gu2)
-    pC1gu1 <- pCopula(gu1, copula1)
-    pC2gu2 <- pCopula(gu2, copula2)
+    dC1du <- dCdu(copula@copula1, gu1)
+    dC2du <- dCdu(copula@copula2, gu2)
+    pC1gu1 <- pCopula(gu1, copula@copula1)
+    pC2gu2 <- pCopula(gu2, copula@copula2)
     cbind(dgdu(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 +
           pC1gu1 * dgdu(u[,1], a1) * dC2du[,1],
           dgdu(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
@@ -397,29 +424,25 @@ setMethod("dCdu", signature("khoudrajiBivCopula"),
 ## dCdtheta: Restricted to *bivariate* Khoudraji copulas
 setMethod("dCdtheta", signature("khoudrajiBivCopula"),
           function(copula, u, ...) {
-    comps <- getKhoudrajiCopulaComps(copula)
-    a1 <- comps$shapes[1]
-    a2 <- comps$shapes[2]
-    copula1 <- comps$copula1
-    copula2 <- comps$copula2
-
+    a1 <- copula@shapes[1]
+    a2 <- copula@shapes[2]
     ## dCdu can be computed only if dCdu is implemented for argument copulas
-    if (!hasMethod(dCdu, class(copula1)) || !hasMethod(dCdu, class(copula2)))
+    if (!hasMethod(dCdu, class(copula@copula1)) ||
+        !hasMethod(dCdu, class(copula@copula2)))
         stop("The argument copulas must both have the 'dCdu()' method implemented")
-
-    shapes <- comps$shapes
+    free <- isFree(copula@shapes)
     g <- KhoudFn$g
     gu1 <- cbind(g(u[,1], 1 - a1), g(u[,2], 1 - a2))
     gu2 <- cbind(g(u[,1], a1), g(u[,2], a2))
-    dC1du <- dCdu(copula1, gu1)
-    dC2du <- dCdu(copula2, gu2)
-    pC1gu1 <- pCopula(gu1, copula1)
-    pC2gu2 <- pCopula(gu2, copula2)
-    cbind(if (nFree(copula1@parameters) > 0) dCdtheta(copula1, gu1) * pC2gu2 else NULL,
-          if (nFree(copula2@parameters) > 0) pC1gu1 * dCdtheta(copula2, gu2) else NULL,
-          if (isFree(shapes)[1]) -log(u[,1]) * g(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 +
+    dC1du <- dCdu(copula@copula1, gu1)
+    dC2du <- dCdu(copula@copula2, gu2)
+    pC1gu1 <- pCopula(gu1, copula@copula1)
+    pC2gu2 <- pCopula(gu2, copula@copula2)
+    cbind(if (nFreeParam(copula@copula1) > 0) dCdtheta(copula@copula1, gu1) * pC2gu2 else NULL,
+          if (nFreeParam(copula@copula2) > 0) pC1gu1 * dCdtheta(copula@copula2, gu2) else NULL,
+          if (free[1]) -log(u[,1]) * g(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 +
           pC1gu1 * log(u[,1]) * g(u[,1], a1) * dC2du[,1] else NULL,
-          if (isFree(shapes)[2]) -log(u[,2]) * g(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
+          if (free[2]) -log(u[,2]) * g(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
           pC1gu1 * log(u[,2]) * g(u[,2], a2) * dC2du[,2] else NULL)
 })
 
@@ -429,18 +452,16 @@ setMethod("dCdtheta", signature("khoudrajiBivCopula"),
 
 ## This function uses the algorithmic expressions stored in the class object
 dKhoudrajiExplicitCopula.algr <- function(u, copula, log=FALSE, ...) {
-    dim <- copula@dimension
+    dim <- dim(copula)
     stopifnot(!is.null(d <- ncol(u)), dim == d)
-    comps <- getKhoudrajiCopulaComps(copula)
-    copula1 <- comps$copula1
-    copula2 <- comps$copula2
+
     for (i in 1:dim) {
         assign(paste0("u", i), u[,i])
-        assign(paste0("shp", i), comps$shapes[i])
+        assign(paste0("shp", i), copula@shapes[i])
     }
     ## WARNING: assuming one parameter (or no-parameter) copula components
-    c1alpha <- copula1@parameters
-    c2alpha <- copula2@parameters
+    c1alpha <- copula@copula1@parameters
+    c2alpha <- copula@copula2@parameters
     dens <- c(eval(attr(copula@exprdist, "pdfalgr")))
     if(log) log(dens) else dens
 }

@@ -119,15 +119,12 @@ fitCor <- function(cop, x, method = c("itau", "irho"),
 ##' @param copula Copula object
 ##' @return Log-likelihood of the given copula at param given the data x
 loglikCopula <- function(param, u, copula) {
-    ## FIXME: use getParam() only; *not*  @parameters slot, nor @param.(lowbnd|upbnd)
-    stopifnot((l <- length(param)) == nFree(copula@parameters)) # sanity check
+    ## BEGIN GETR
     freeParam(copula) <- param
-    free <- isFree(copula@parameters)
-    lower <- copula@param.lowbnd[free]
-    if(length(lower) != l) return(-Inf)
-    upper <- copula@param.upbnd[free]
-    if(length(upper) != l) return(-Inf)
-    cop.param <- getParam(copula)
+    cop.param <- getParam(copula, freeOnly = TRUE, attr = TRUE)
+    lower <- attr(cop.param, "param.lowbnd")
+    upper <- attr(cop.param, "param.upbnd")
+    ## END GETR
     admissible <- !(any(is.na(cop.param) | cop.param > upper | cop.param < lower))
     if (admissible) {
         ## FIXME-JY: param range check is only part of validity check
@@ -168,9 +165,9 @@ fitCopStart <- function(copula, u, default = getParam(copula), ...)
 ##' @return L
 getL <- function(copula) {
     ## for ellipCopula only!
-    dim <- copula@dimension
+    dim <- dim(copula) # GETR
     dd <- dim * (dim - 1) / 2
-    free <- isFree(copula@parameters)
+    free <- free(copula) # GETR
     if (.hasSlot(copula, "df.fixed")) free <- free[-length(free)]
 
     dgidx <- outer(1:dim, 1:dim, "-")
@@ -203,11 +200,11 @@ getL <- function(copula) {
 ##' @param copula Copula object
 ##' @return dd by p Design matrix for method-of-moments estimators via lm()
 getXmat <- function(copula) { ## FIXME(?) only works for "copula" objects, but not rotCopula, mixed*, ...
-    dim <- copula@dimension
+    dim <- dim(copula) # GETR
     dd <- dim * (dim - 1) / 2
     xmat <-
     if (!is(copula, "ellipCopula")) # one-parameter non-elliptical copula
-	if((n.th <- nFree(copula@parameters)) == 1L)
+	if((n.th <- nFreeParam(copula)) == 1L) # GETR
 	    matrix(1, nrow=dd, ncol=1)
 	else stop(gettextf( ## should not happen currently, but s
 		 "getXmat() not yet implemented for non-elliptical copulas with %d parameters",
@@ -229,7 +226,7 @@ getXmat <- function(copula) { ## FIXME(?) only works for "copula" objects, but n
                },
                stop("Not implemented yet for the dispersion structure ", copula@dispstr))
     }
-    free <- isFree(copula@parameters) ## the last one is for df and not needed
+    free <- free(copula) # GETR ## the last one is for df and not needed
     if (.hasSlot(copula, "df.fixed")) free <- free[-length(free)]
     xmat[, free, drop=FALSE]
 }
@@ -249,9 +246,9 @@ var.icor <- function(cop, u, method=c("itau", "irho"))
 {
     ## Check if variance can be computed
     method <- match.arg(method)
-    dim <- cop@dimension
+    dim <- dim(cop) # GETR
     dd <- dim * (dim - 1) / 2
-    free <- isFree(cop@parameters)
+    free <- free(cop) # GETR
     n <- nrow(u)
     v <- matrix(0, n, dd)
 
@@ -310,7 +307,7 @@ var.icor <- function(cop, u, method=c("itau", "irho"))
         v %*% L %*% D
     }
     ## FIXME: can be made more efficient by extracting L and D
-    ## free <- isFree(cop@parameters)
+    ## free <- free(cop)
     ## v <- v[free, free, drop = FALSE]
     var(v) * if(method=="itau") 16 else 144
 }
@@ -322,8 +319,10 @@ var.icor <- function(cop, u, method=c("itau", "irho"))
 var.mpl <- function(cop, u)
 {
     ## Checks
-    p <- nFree(cop@parameters) # parameter space dimension p
-    dim <- cop@dimension # copula dimension d
+    ## BEGIN GETR
+    p <- nFreeParam(cop) # parameter space dimension p
+    dim <- dim(cop) # copula dimension d
+    ## END GETR
     ans <- matrix(NA_real_, p, p) # matrix(NA_real_, 0, 0)
     ccl <- getClass(clc <- class(cop))
     isEll <- extends(ccl, "ellipCopula")
@@ -375,7 +374,7 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
             warning("\"", method, "\" fitting ==> copula coerced to 'df.fixed=TRUE'")
         copula <- as.df.fixed(copula, classDef = ccl)
     }
-    stopifnot(any(free <- isFree(copula@parameters)))
+    stopifnot(any(free <- free(copula))) # GETR
     if(missing(call)) call <- match.call()
     if (.hasSlot(copula, "df.fixed")) free <- free[-length(free)]
     icor <- fitCor(copula, x, method=method, posDef=posDef, matrix=FALSE, ...)
@@ -432,7 +431,7 @@ fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
                                estimate.variance, tol=.Machine$double.eps^0.25,
                                traceOpt = FALSE, call, ...)
 {
-    stopifnot(any(free <- isFree(copula@parameters)))
+    stopifnot(any(free <- free(copula))) # GETR
     if(any(u < 0) || any(u > 1))
         stop("'u' must be in [0,1] -- probably rather use pobs(.)")
     ## Note: We require dispstr = "un" as it is a) the method of Mashal, Zeevi (2002) and
@@ -442,7 +441,7 @@ fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
         stop("method \"itau.mpl\" is only applicable for \"tCopula\" with 'dispstr=\"un\"'")
     if(copula@df.fixed) stop("Use method=\"itau\" for 'tCopula' with 'df.fixed=TRUE'")
     stopifnot(is.numeric(d <- ncol(u)), d >= 2)
-    if (copula@dimension != d)
+    if (dim(copula) != d) # GETR
         stop("The dimension of the data and copula do not match")
     if(missing(call)) call <- match.call()
     if(is.null(lower)) lower <- 0  # <=>  df=Inf <=> Gaussian
@@ -521,20 +520,19 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
                          optim.method, optim.control, estimate.variance,
                          bound.eps=.Machine$double.eps^0.5, call, ...)
 {
-    stopifnot(any(free <- isFree(copula@parameters)),
+    stopifnot((q <- nFreeParam(copula)) > 0L, # GETR
 	      is.list(optim.control) || is.null(optim.control),
 	      is.character(optim.method), length(optim.method) == 1)
     chk.s(...) # 'check dots'
     if(any(u < 0) || any(u > 1))
         stop("'u' must be in [0,1] -- probably rather use pobs(.)")
     stopifnot(is.numeric(d <- ncol(u)), d >= 2)
-    if (copula@dimension != d)
+    if (dim(copula) != d) # GETR
         stop("The dimension of the data and copula do not match")
     if(missing(call)) call <- match.call()
     if(is.null(start))
         start <- fitCopStart(copula, u=u)
     if(any(is.na(start))) stop("'start' contains NA values")
-    q <- nFree(copula@parameters)
     if (q != length(start))
         stop(gettextf("The lengths of 'start' (= %d) and the number of free copula parameters (=%d) differ",
                       length(start), q), domain=NA)
@@ -545,10 +543,16 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
     ## unneeded, possibly wrong (why not keep a 'special = NULL' ?):
     ## control <- control[!vapply(control, is.null, NA)]
     meth.has.bounds <- optim.method %in% c("Brent","L-BFGS-B")
+
+    ## BEGIN GETR
+    cop.param <- getParam(copula, freeOnly = TRUE, attr = TRUE)
+    param.lowbnd <- attr(cop.param, "param.lowbnd")
+    param.upbnd <- attr(cop.param, "param.upbnd")
     if (is.null(lower))
-        lower <- if(meth.has.bounds) copula@param.lowbnd[free] + bound.eps else -Inf
+        lower <- if(meth.has.bounds) param.lowbnd + bound.eps else -Inf
     if (is.null(upper))
-        upper <- if(meth.has.bounds) copula@param.upbnd[free]  - bound.eps else Inf
+        upper <- if(meth.has.bounds) param.upbnd  - bound.eps else Inf
+    ## END GETR
 
     ## Maximize the likelihood
     fit <- optim(start, loglikCopula, lower=lower, upper=upper,
@@ -630,7 +634,7 @@ fitCopula_dflt <- function(copula, data,
                            optim.control = list(maxit=1000),
                            estimate.variance = NA, hideWarnings = FALSE, ...)
 {
-    stopifnot(any(isFree(copula@parameters)),
+    stopifnot(any(free(copula)), # GETR
 	      is.list(optim.control) || is.null(optim.control))
     if(!is.matrix(data)) {
         warning("coercing 'data' to a matrix.")
@@ -681,6 +685,6 @@ optimMeth <- function(copula, method) {
 
 
 setGeneric("fitCopula", function(copula, data, ...) standardGeneric("fitCopula"))
-setMethod( "fitCopula", signature("copula"), fitCopula_dflt)
+setMethod( "fitCopula", signature("parCopula"), fitCopula_dflt)
 
 ## --> ./rotCopula.R :  "rotCopula"  has its own method
