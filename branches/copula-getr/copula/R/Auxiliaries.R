@@ -116,20 +116,19 @@ setMethod("describeCop", c("copula", "missing"),
 
 setMethod("describeCop", c("copula", "character"),
           function(x, kind = c("short", "very short", "long")) {
-              kind <- match.arg(kind)
-	      if(kind == "very short") # e.g. for show() which has more parts
-                  return(paste(class(x), "copula"))
-              ## else
-	      d <- dim(x)
-              ch <- paste(class(x), "copula, dim. d =", d)
-	      switch(kind <- match.arg(kind),
-		     short = ch,
-		     long = paste0(ch, "\n param.: ",
-				   capture.output(str(x@parameters,
-						      give.head=FALSE))),
-		     stop("invalid 'kind': ", kind))
-	  })
-
+    kind <- match.arg(kind)
+    if(kind == "very short") # e.g. for show() which has more parts
+        return(paste(class(x), "copula"))
+    ## else
+    d <- dim(x)
+    ch <- paste(class(x), "copula, dim. d =", d)
+    switch(kind <- match.arg(kind),
+           short = ch,
+           long = paste0(ch, "\n param.: ",
+                         capture.output(str(x@parameters,
+                                            give.head=FALSE))),
+           stop("invalid 'kind': ", kind))
+})
 
 setMethod("describeCop", "xcopula",
 	  function(x, kind) {

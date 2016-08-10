@@ -44,6 +44,56 @@ rotCopula <- function(copula, flip = TRUE) {
 	new("rotCopula", copula = copula, flip = flip)
 }
 
+##################################################################################
+### Basic methods
+##################################################################################
+
+## dimension
+setMethod("dim", signature("rotCopula"), function(x) dim(x@copula))
+
+## logical indicating which parameters are free
+setMethod("free", signature("rotCopula"), function(copula)
+    free(copula@copula))
+
+## logical indicating which parameters are fixed
+setMethod("fixed", signature("rotCopula"), function(copula)
+    fixed(copula@copula))
+
+## number of parameters
+setMethod("nParam", signature("rotCopula"), function(copula) nParam(copula@copula))
+
+## number of free parameters
+setMethod("nFreeParam", signature("rotCopula"), function(copula)
+    nFreeParam(copula@copula1))
+
+## parameter names
+setMethod("paramNames", "rotCopula", function(x) paramNames(x@copula))
+
+## get parameters
+setMethod("getParam", signature("rotCopula", "logicalOrMissing", "logicalOrMissing",
+                                "logicalOrMissing"),
+          function(copula, freeOnly = TRUE, attr = FALSE, named = attr)
+    getParam(copula@copula, freeOnly = freeOnly, attr = attr, named = named))
+
+## set free parameters
+setMethod("freeParam<-", signature("rotCopula", "numeric"),
+          function(copula, value) freeParam(copula@copula) <- value)
+
+## set or modify "fixedness" of parameters
+setMethod("fixedParam<-", signature("rotCopula", "logical"),
+          function(copula, value) {
+    fixedParam(copula@copula) <- value
+    copula
+})
+
+## describe copula
+setMethod(describeCop, c("rotCopula", "character"), function(x, kind)
+    paste0("Rotated copula constructed from\n", describeCop(x@copula, kind)))
+
+##################################################################################
+### Methods for rotated copulas
+##################################################################################
+
 ## Internal. swicth u[,i] to 1 - u[,i] according to flip
 apply.flip <- function(u, flip) {
     if(identical(flip, TRUE))

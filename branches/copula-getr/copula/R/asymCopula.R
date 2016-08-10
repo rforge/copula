@@ -110,17 +110,19 @@ setMethod("getParam", signature("khoudrajiCopula", "logicalOrMissing", "logicalO
     par1 <- getParam(copula@copula1, freeOnly = freeOnly, attr = attr, named = named)
     par2 <- getParam(copula@copula2, freeOnly = freeOnly, attr = attr, named = named)
     fixed <- attr(copula@shapes, "fixed")
-    nf <- nFree(copula@shapes)
+    d <- dim(copula)
+    ns <- if (freeOnly) nFree(copula@shapes) else d
     sel <- if (!is.null(fixed) && freeOnly) !fixed else TRUE
-    par <- if (named) c(par1, par2, setNames(copula@shapes[sel], paste0("shape", 1:dim(copula))[sel])) else c(par1, par2, copula@shapes[sel])
+    par <- if (named) c(par1, par2, setNames(copula@shapes[sel], paste0("shape", 1:d)[sel]))
+           else c(par1, par2, copula@shapes[sel])
     if (!attr)
         par
     else
         structure(par,
                   param.lowbnd = c(attr(par1, "param.lowbnd"),
-                                   attr(par2, "param.lowbnd"), rep(0, nf)),
+                                   attr(par2, "param.lowbnd"), rep(0, ns)),
                   param.upbnd  = c(attr(par1, "param.upbnd"),
-                                   attr(par2, "param.upbnd"), rep(1, nf)))
+                                   attr(par2, "param.upbnd"), rep(1, ns)))
 
 })
 
@@ -145,20 +147,34 @@ setMethod("freeParam<-", signature("khoudrajiCopula", "numeric"),
 setMethod("fixedParam<-", signature("khoudrajiCopula", "logical"),
           function(copula, value) {
     stopifnot(length(value) %in% c(1L, nParam(copula)))
-    if (anyNA(getParam(copula)[value])) stop("Fixed parameters cannot be NA.")
+    if (identical(value, FALSE) || !any(value))
+        copula
+    if (anyNA(getParam(copula, freeOnly = FALSE)[value])) stop("Fixed parameters cannot be NA.")
     n1 <- nParam(copula@copula1)
     n2 <- nParam(copula@copula2)
-    ns <- length(copula@shapes)
-    if (n1 > 0L) fixedParam(copula@copula1) <- value[1:n1]
-    if (n2 > 0L) fixedParam(copula@copula1) <- value[n1 + 1:n2]
-    if (ns > 0L) attr(copula@parameters, "fixed") <- value[n1 + n2 + 1:ns]
+    if (identical(value, FALSE) || !any(value)) {
+         if (n1 > 0L) fixedParam(copula@copula1) <- FALSE
+         if (n2 > 0L) fixedParam(copula@copula2) <- FALSE
+         attr(copula@shapes, "fixed") <- NULL
+    } else if (identical(value, TRUE) || all(value)) {
+         if (n1 > 0L) fixedParam(copula@copula1) <- TRUE
+         if (n2 > 0L) fixedParam(copula@copula2) <- TRUE
+         attr(copula@shapes, "fixed") <- TRUE
+    } else {
+        if (n1 > 0L) fixedParam(copula@copula1) <- value[1:n1]
+        if (n2 > 0L) fixedParam(copula@copula2) <- value[n1 + 1:n2]
+        ns <- length(copula@shapes)
+        attr(copula@shapes, "fixed") <-
+            if (!any(value[n1 + n2 + 1:ns])) NULL
+            else if (all(value[n1 + n2 + 1:ns])) TRUE else value[n1 + n2 + 1:ns]
+    }
     copula
 })
 
 ## describe copula
 setMethod(describeCop, c("khoudrajiCopula", "character"), function(x, kind) {
-    paste0("Khoudraji copula constructed from\n", describeCop(x@copula1),
-          "and\n", describeCop(x@copula1, kind))
+    paste0("Khoudraji copula constructed from\n", describeCop(x@copula1, kind),
+          "\nand\n", describeCop(x@copula2, kind))
 })
 
 ##################################################################################

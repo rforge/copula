@@ -146,6 +146,15 @@ kd3
 class(kd3) # this should be a khoudrajiCopula, not a khoudrajiExplicitCopula
 ## as second argument copula is not symmetric (and in practice is not archmCopula)
 
+## GETR
+## A Khoudraji copula constructed from the survival Clayton
+krc <- khoudrajiCopula(copula2 = rotCopula(claytonCopula(6)),
+                      shapes = c(0.4, 0.95))
+krc
+#contour(krc, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
+u <- rCopula(n, krc)
+splom2(u)
+
 ### fitting ###########################################################
 n <- 300
 set.seed(17)
@@ -158,16 +167,19 @@ if (doExtras)
                      start = c(1.1, 0.5, 0.5), data = pobs(u),
                      optim.method = "Nelder-Mead", optim.control = list(trace = TRUE))
     fk1
+    summary(fk1)
 
     ## kcf : second shape parameter fixed to 0.95
     fkN <- fitCopula(kcf,
                      start = c(1.1, 0.5), data = pobs(u),
                      optim.method = "Nelder-Mead", optim.control = list(trace = TRUE))
     fkN
+    summary(fkN)
     fkB <- fitCopula(kcf,
                      start = c(1.1, 0.5), data = pobs(u),
                      optim.method = "BFGS", optim.control = list(trace = TRUE))
     fkB
+    summary(fkB)
     stopifnot(
         all.equal(coef(fk1), c(c2.param = 5.42332, shape1 = 0.364467, shape2 = 0.868297),
                   tol = 1e-4), # seen 2.7e-7
