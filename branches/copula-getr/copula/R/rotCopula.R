@@ -21,7 +21,7 @@ setClass("rotCopula", contains = "xcopula",
 	 slots = c(flip = "logical"), # plus "copula"
 	 validity =
 	     function(object) {
-		 d <- object@copula@dimension
+		 d <- dim(object@copula)
 		 if((lfl <- length(object@flip)) != 1L && lfl != d)
 		     "'length(flip)' must be one or match the copula dimension"
 		 else if(anyNA(object@flip))
@@ -64,7 +64,7 @@ setMethod("nParam", signature("rotCopula"), function(copula) nParam(copula@copul
 
 ## number of free parameters
 setMethod("nFreeParam", signature("rotCopula"), function(copula)
-    nFreeParam(copula@copula1))
+    nFreeParam(copula@copula))
 
 ## parameter names
 setMethod("paramNames", "rotCopula", function(x) paramNames(x@copula))
@@ -77,7 +77,10 @@ setMethod("getParam", signature("rotCopula", "logicalOrMissing", "logicalOrMissi
 
 ## set free parameters
 setMethod("freeParam<-", signature("rotCopula", "numeric"),
-          function(copula, value) freeParam(copula@copula) <- value)
+          function(copula, value) {
+    freeParam(copula@copula) <- value
+    copula
+})
 
 ## set or modify "fixedness" of parameters
 setMethod("fixedParam<-", signature("rotCopula", "logical"),
@@ -136,7 +139,7 @@ sign.rot2C <- function(flip)
 
 ## rho
 setMethod("rho", signature("rotCopula"), function(copula) {
-    stopifnot(copula@copula@dimension == 2)
+    stopifnot(dim(copula@copula) == 2)
     sign.rot2C(copula@flip) * rho(copula@copula)
 })
 
@@ -156,7 +159,7 @@ setMethod("iTau", signature("rotCopula"), function(copula, tau) {
 
 ## lambda
 setMethod("lambda", signature("rotCopula"), function(copula) {
-    stopifnot(copula@copula@dimension == 2)
+    stopifnot(dim(copula@copula) == 2)
     sm <- sum(rep(copula@flip, length.out = 2))
     if (sm == 1) {
         warning("lambda() method for copula class 'rotCopula' not implemented yet")
@@ -170,6 +173,27 @@ setMethod("lambda", signature("rotCopula"), function(copula) {
         else ## sm == 2
             c(lower = ti[2], upper = ti[1])
     }
+})
+
+## dCdu: Restricted to *bivariate* rotated copulas
+## Needed for Khoudraji copula density evaluation
+setMethod("dCdu", signature("rotCopula"),
+          function(copula, u, ...) {
+    if (dim(copula) > 2)
+        stop("method 'dCdu' not implemented for 'rotCopula' objects in dimension higher than two")
+    if (length(copula@flip) == 1L)
+        apply.flip(dCdu(copula@copula, apply.flip(u, copula@flip)), copula@flip)
+    else
+        apply.flip(dCdu(copula@copula, apply.flip(u, copula@flip)), copula@flip[2:1])
+})
+
+## dCdtheta: Restricted to *bivariate* rotated copulas
+## Needed for Khoudraji copulas
+setMethod("dCdtheta", signature("rotCopula"),
+          function(copula, u, ...) {
+    if (dim(copula) > 2)
+        stop("method 'dCdtheta' not implemented for 'rotCopula' objects in dimension higher than two")
+    sign.rot2C(copula@flip) * dCdtheta(copula@copula, apply.flip(u, copula@flip))
 })
 
 ## fitCopula
