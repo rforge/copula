@@ -48,11 +48,12 @@ max(abs(copula:::dCduCopulaNum(kc, v) - copula:::dCdu(kc, v)))
 max(abs(copula:::dCdthetaCopulaNum(kc, v) - copula:::dCdtheta(kc, v)))
 
 ## tau, rho, lambda not supposed to work
-try(tau(kc))
-try(rho(kc))
-try(iTau(kc, 0.5))
-try(iRho(kc, 0.5))
-try(lambda(kc))
+assertError <- tools::assertError
+assertError(tau(kc))
+assertError(rho(kc))
+assertError(iTau(kc, 0.5))
+assertError(iRho(kc, 0.5))
+assertError(lambda(kc))
 
 ## A Khoudraji-Clayton copula with one fixed shape parameter
 kcf <- khoudrajiCopula(copula2 = claytonCopula(6),
@@ -83,18 +84,29 @@ kncf <- khoudrajiCopula(copula1 = normalCopula(fixParam(-0.7, TRUE)),
 kncf
 
 ## True versus numerical derivatives
-max(abs(copula:::dCduCopulaNum(kncf, v) - copula:::dCdu(knc, v)))
-max(abs(copula:::dCdthetaCopulaNum(kncf, v) - copula:::dCdtheta(kncf, v)))
-
+err <- c(
+dCdu = max(abs(copula:::dCduCopulaNum(kncf, v) - copula:::dCdu(knc, v))),
+dCdth= max(abs(copula:::dCdthetaCopulaNum(kncf, v) - copula:::dCdtheta(kncf, v))))
+err
+##         dCdu        dCdth
+## 1.186238e-03 6.439294e-15
+stopifnot(abs(err[["dCdu" ]]) < 2e-3,
+	  abs(err[["dCdth"]]) < 1e-12)
 
 ## A "nested" Khoudraji bivariate copula
 kgkcf <- khoudrajiCopula(copula1 = gumbelCopula(3),
-                         copula2 = kcf,
-                         shapes = c(0.7, 0.25))
+			 copula2 = kcf,
+			 shapes = c(0.7, 0.25))
 kgkcf
 contour(kgkcf, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
-max(abs(copula:::dCduCopulaNum(kgkcf, v) - copula:::dCdu(kgkcf, v)))
-max(abs(copula:::dCdthetaCopulaNum(kgkcf, v) - copula:::dCdtheta(kgkcf, v)))
+err <- c(
+dCdu = max(abs(copula:::dCduCopulaNum(kgkcf, v) - copula:::dCdu(kgkcf, v))),
+dCdth= max(abs(copula:::dCdthetaCopulaNum(kgkcf, v) - copula:::dCdtheta(kgkcf, v))))
+err
+##         dCdu        dCdth
+## 1.340428e-03 8.121975e-14
+stopifnot(abs(err[["dCdu" ]]) < 3e-3,
+	  abs(err[["dCdth"]]) < 1e-12)
 
 ## A three dimensional Khoudraji-Clayton copula
 kcd3 <- khoudrajiCopula(copula1 = indepCopula(dim=3),
@@ -107,7 +119,7 @@ n <- 300
 u <- rCopula(n, kcd3)
 v <- matrix(runif(15), 5, 3)
 splom2(u)
-dCopula(v, kcd3)
+dCopula(v, kcd3) ## TODO: check value
 
 ## check density: special case where we know the answer
 kd3a <- khoudrajiCopula(copula1 = indepCopula(dim=3),
@@ -117,7 +129,6 @@ kd3a <- khoudrajiCopula(copula1 = indepCopula(dim=3),
 kd3b <- khoudrajiCopula(copula1 = gumbelCopula(4, dim=3),
                         copula2 = indepCopula(dim=3),
                         shapes = c(0, 0, 0))
-
 stopifnot(all.equal(dCopula(v, kd3a), dCopula(v, claytonCopula(6, dim=3))))
 stopifnot(all.equal(dCopula(v, kd3b), dCopula(v, gumbelCopula(4, dim=3))))
 
@@ -131,7 +142,7 @@ class(knd4) ## "khoudrajiCopula"
 u <- rCopula(n, knd4)
 splom2(u)
 v <- matrix(runif(20), 5, 4)
-try(dCopula(v, knd4)) ## should fail
+assertError(dCopula(v, knd4)) ## should fail
 
 ## a nested Khoudraji copula whose construction should result
 ## in a khoudrajiCopula object, but not a khoudrajiExplicitCopula object
@@ -141,9 +152,9 @@ kd3 <- khoudrajiCopula(copula1 = khoudrajiCopula(copula1 = gumbelCopula(4, dim=3
                                                  shapes = c(.4, 0.95, 0.95)),
                        copula2 = frankCopula(10, dim=3),
                        shapes = c(.4, 0.95, 0.95))
-
 kd3
-class(kd3) # this should be a khoudrajiCopula, not a khoudrajiExplicitCopula
+stopifnot(identical(as.character(class(kd3)),
+                    "khoudrajiCopula"))#  not a khoudrajiExplicitCopula
 ## as second argument copula is not symmetric (and in practice is not archmCopula)
 
 ### fitting ###########################################################
@@ -158,19 +169,18 @@ if (doExtras)
                      start = c(1.1, 0.5, 0.5), data = pobs(u),
                      optim.method = "Nelder-Mead", optim.control = list(trace = TRUE))
     fk1
-    summary(fk1)
+    print( summary(fk1) )
 
     ## kcf : second shape parameter fixed to 0.95
     fkN <- fitCopula(kcf,
                      start = c(1.1, 0.5), data = pobs(u),
                      optim.method = "Nelder-Mead", optim.control = list(trace = TRUE))
     fkN
-    summary(fkN)
+    print( summary(fkN) )
     fkB <- fitCopula(kcf,
                      start = c(1.1, 0.5), data = pobs(u),
                      optim.method = "BFGS", optim.control = list(trace = TRUE))
-    fkB
-    summary(fkB)
+    print( summary(fkB) )
     stopifnot(
         all.equal(coef(fk1), c(c2.param = 5.42332, shape1 = 0.364467, shape2 = 0.868297),
                   tol = 1e-4), # seen 2.7e-7
@@ -202,58 +212,55 @@ if (doExtras)
     set.seed(11); u <- rCopula(n, gumbelCopula(4))
     ## gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS")
     gA <- try(gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS", sim = "mult"))
-    ## optim(*, "BFGS") sometimes not converging, but the above ex. does and  "Nelder-Mead" does:
+    ## optim(*, "BFGS") sometimes not converging, but the above ex. does:
+    stopifnot(inherits(gA, "htest"))
+    ## and  "Nelder-Mead" does:
     set.seed(17)
     g2 <- gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "Nelder-M", sim = "mult")
     stopifnot(inherits(g2, "htest"),
 	      all.equal(g2$p.value, 0.0004995005, tol = 1e-4))# seen 1e-9
-
 }
 
-### With rotated copula ###################################################
+### "Same" With rotated copula ###################################################
  ## GETR
 if (doExtras)
 {
+
     ## check density: special case where we know the answer
     kd2a <- khoudrajiCopula(copula1 = indepCopula(),
                             copula2 = rotCopula(claytonCopula(6)),
                             shapes = c(1, 1))
-
     kd2b <- khoudrajiCopula(copula1 = rotCopula(gumbelCopula(4)),
                             copula2 = indepCopula(),
                             shapes = c(0, 0))
-
     v <- matrix(runif(10), 5, 2)
-
     stopifnot(all.equal(dCopula(v, kd2a), dCopula(v, rotCopula(claytonCopula(6)))))
     stopifnot(all.equal(dCopula(v, kd2b), dCopula(v, rotCopula(gumbelCopula(4)))))
 
     ## same with a different flip
+    T.F. <- c(TRUE, FALSE)
     kd2a <- khoudrajiCopula(copula1 = indepCopula(),
-                            copula2 = rotCopula(claytonCopula(6), flip = c(T,F)),
+                            copula2 = rotCopula(claytonCopula(6), flip = T.F.),
                             shapes = c(1, 1))
-
-    kd2b <- khoudrajiCopula(copula1 = rotCopula(gumbelCopula(4), flip = c(T,F)),
+    kd2b <- khoudrajiCopula(copula1 = rotCopula(gumbelCopula(4), flip = T.F.),
                             copula2 = indepCopula(),
                             shapes = c(0, 0))
-
     v <- matrix(runif(10), 5, 2)
-
     stopifnot(all.equal(dCopula(v, kd2a),
-                        dCopula(v, rotCopula(claytonCopula(6), flip = c(T,F)))))
+                        dCopula(v, rotCopula(claytonCopula(6), flip = T.F.))))
     stopifnot(all.equal(dCopula(v, kd2b),
-                        dCopula(v, rotCopula(gumbelCopula(4), flip = c(T,F)))))
+                        dCopula(v, rotCopula(gumbelCopula(4), flip = T.F.))))
 
     ## other basic checks
-    krc <- khoudrajiCopula(copula1 = rotCopula(claytonCopula(6), flip = c(F,T)),
+    F.T. <- c(FALSE, TRUE)
+    krc <- khoudrajiCopula(copula1 = rotCopula(claytonCopula(6), flip = F.T.),
                            shapes = c(0, 0))
     contour(krc, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
-
     rkc <- rotCopula(khoudrajiCopula(copula2 = claytonCopula(6),
-                     shapes = c(1, 1)), flip = c(F,T))
+                     shapes = c(1, 1)), flip = F.T.)
     contour(rkc, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
-
-    stopifnot(all.equal(dCopula(v, krc), dCopula(v, rkc)))
+    stopifnot(all.equal(dCopula(v, krc), dCopula(v, rkc)),
+	      all.equal(pCopula(v, krc), pCopula(v, rkc)))
 
 
     ## Fitting
@@ -270,45 +277,40 @@ if (doExtras)
     fk1 <- fitCopula(khoudrajiCopula(copula2 = rotCopula(claytonCopula())),
                      start = c(1.1, 0.5, 0.5), data = pobs(u),
                      optim.method = "Nelder-Mead", optim.control = list(trace = TRUE))
-    fk1
-    summary(fk1)
+    print( summary(fk1) )
 
 
     ## second shape parameter fixed to 0.95
     fixedParam(krc) <- c(FALSE, FALSE, TRUE)
-
     fkN <- fitCopula(krc,
                      start = c(1.1, 0.5), data = pobs(u),
                      optim.method = "Nelder-Mead", optim.control = list(trace = TRUE))
-    fkN
-    summary(fkN)
+    print( summary(fkN) )
     fkB <- fitCopula(krc,
                      start = c(1.1, 0.5), data = pobs(u),
                      optim.method = "BFGS", optim.control = list(trace = TRUE))
-    fkB
-    summary(fkB)
-    ## TODO: update
-    ## stopifnot(
-    ##     all.equal(coef(fk1), c(c2.param = 5.42332, shape1 = 0.364467, shape2 = 0.868297),
-    ##               tol = 1e-4), # seen 2.7e-7
-    ##     all.equal(coef(fkN), c(c2.param = 4.40525, shape1 = 0.389693), tol = 1e-4), # seen 3e-7
-    ##     all.equal(coef(fkN), coef(fkB), tol = 1e-3) # seen 1.19e-4
-    ## )
+    print( summary(fkB) )
+    stopifnot(
+        all.equal(coef(fk1), c(c2.param = 4.328559, shape1 = 0.5109215, shape2 = 0.9653532),
+                  tol = 1e-4) # seen 9.2e-8
+       , all.equal(coef(fkN), c(c2.param = 4.372715, shape1 = 0.5042553), tol = 1e-4)# seen 3e-8
+       , all.equal(coef(fkN), coef(fkB), tol = 4e-4) # seen 4.11e-5
+    )
 
     ## GOF example
     ## takes too long:
-    ## gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS")
+    ## gofCopula(krc, x = u, start = c(1.1, 0.5), optim.method = "BFGS")
     set.seed(12)
-    g.kcf <- gofCopula(krc, x = u, start = c(1.1, 0.5), optim.method = "BFGS", sim = "mult")
-    g.kcf
-    stopifnot(inherits(g.kcf, "htest"),
-              all.equal(g.kcf$p.value, 0.05544456, tol = 1e-3) # seen 8.2e-8
+    g.krc <- gofCopula(krc, x = u, start = c(1.1, 0.5), optim.method = "BFGS", sim = "mult")
+    g.krc
+    stopifnot(inherits(g.krc, "htest"),
+              all.equal(g.krc$p.value, 0.32317682, tol = 1e-4) # seen 8.8e-9
               )
 
     ## check size of mult GOF test briefly
     ## do1 <- function() {
     ##     u <- rCopula(n, kc)
-    ##     gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "Nelder-Mead",
+    ##     gofCopula(krc, x = u, start = c(1.1, 0.5), optim.method = "Nelder-Mead",
     ##               sim = "mult")$p.value
     ## }
     ## M <- 1000
@@ -317,65 +319,65 @@ if (doExtras)
 
     ## under the alternative
     set.seed(11); u <- rCopula(n, gumbelCopula(4))
-    ## gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "BFGS")
+    ## gofCopula(krc, x = u, start = c(1.1, 0.5), optim.method = "BFGS")
     gA <- try(gofCopula(krc, x = u, start = c(1.1, 0.5), optim.method = "BFGS", sim = "mult"))
-    ## optim(*, "BFGS") sometimes not converging, but the above ex. does and  "Nelder-Mead" does:
+    ## does not converge
     set.seed(17)
     g2 <- gofCopula(krc, x = u, start = c(1.1, 0.5), optim.method = "Nelder-M", sim = "mult")
-    ## TODO: update
-    ## stopifnot(inherits(g2, "htest"),
-    ##           all.equal(g2$p.value, 0.0004995005, tol = 1e-4))# seen 1e-9
-
+    stopifnot(inherits(g2, "htest"),
+              all.equal(g2$p.value, 0.0014985015, tol = 1e-4)# seen 1e-9
+              )
 }
 
-if (FALSE)
+if (FALSE) ## too time consuming .. NB 'estimate.variance'
 {
     ##############################################################################
     ## Testing density / fitting
 
-    n <- 500
-    N <- 50
-
-    fitest <- function(n, cop, N) {
-
-        ## one fitting
-        u <- rCopula(n, cop)
-        print(summary(fitCopula(cop, start = c(1.1, rep(0.5, dim(cop))), data = pobs(u),
-                                optim.method = "Nelder-Mead")))
-
-
-        ## bias and stderr
-        do1 <- function() {
+    fitest <- function(n, cop, N)
+    {
+        stopifnot(N >= 2)
+        st1 <- function(fc) cbind(estim = coef(fc), sd.err = sqrt(diag(fc@var.est)))
+        do1 <- function(stat.only = TRUE) {
             u <- rCopula(n, cop)
             fit <- fitCopula(cop, start = c(1.1, rep(0.5, dim(cop))), data = pobs(u),
                              optim.method = "Nelder-Mead", estimate.variance = TRUE)
-            c(fit@estimate, sqrt(diag(fit@var.est)))
+            if(stat.only) st1(fit) else fit
         }
-        res <- replicate(N, do1())
-        print(apply(res,1,mean))
-        print(apply(res,1,sd))
+        ## Fit one:
+        re1 <- do1(stat.only=FALSE)
+        print(summary(re1))
+
+        ## bias and stderr
+        rr <- replicate(N-1, do1())
+        ## here and below, I'd like abind():
+        res <- array(c(st1(re1), rr), dim = dim(rr) + c(0L,0:1), dimnames=dimnames(rr))
+        m <- apply(res, 1:2, mean)
+        s <- apply(res, 1:2, sd)
+        array(c(m,s), dim = c(2, dim(m)), dimnames = c(list(c("Mean","SD")), dimnames(m)))
     }
 
 
+    n <- 128 # want speed
     ##############################################################################
     ## Testing bivariate rotated / khoudraji
 
-    set.seed(1251)
     cop <- rotCopula(khoudrajiCopula(copula1 = indepCopula(),
-                                    copula2 = claytonCopula(6),
-                                    shapes = c(0.4, 0.95)))
-
-    fitest(n=n, cop=cop, N=N)
+                                     copula2 = claytonCopula(6),
+                                     shapes = c(0.4, 0.95)))
+    set.seed(1251)
+    system.time(fi2KC <- fitest(n=n, cop=cop, N=4))
+    print(      fi2KC)
 
     ##############################################################################
     ## Testing bivariate khoudraji / rotated
 
     set.seed(1251)
     cop <- khoudrajiCopula(copula1 = indepCopula(),
-                          copula2 = rotCopula(gumbelCopula(6)),
-                          shapes = c(0.4, 0.95))
-
-    fitest(n=n, cop=cop, N=N)
+                           copula2 = rotCopula(gumbelCopula(6)),
+                           shapes = c(0.4, 0.95))
+    system.time(fi2KrC <- fitest(n=n, cop=cop, N=4))
+    print(      fi2KrC)
 
 
     ##############################################################################
@@ -385,15 +387,15 @@ if (FALSE)
     cop <- khoudrajiCopula(copula1 = indepCopula(dim=3),
                            copula2 = claytonCopula(6, dim=3),
                            shapes = c(0.4, 0.95, 0.95))
-
-    fitest(n=n, cop=cop, N=N)
+    system.time(fi3KC <- fitest(n=n, cop=cop, N=4))
+    print(fi3KC)
 
     ## A three dimensional Khoudraji-Gumbel copula
     cop <- khoudrajiCopula(copula1 = indepCopula(dim=3),
                            copula2 = gumbelCopula(6, dim=3),
                            shapes = c(0.4, 0.95, 0.95))
-
-    fitest(n=n, cop=cop, N=N)
+    system.time(fi3KG <- fitest(n=n, cop=cop, N=4))
+    print(fi3KG)
 }
 
 ## All 'copula' subclasses
