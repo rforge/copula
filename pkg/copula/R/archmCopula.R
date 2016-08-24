@@ -42,7 +42,7 @@ setMethod("tau", signature("archmCopula"), tauArchmCopula)
 setMethod(describeCop, c("archmCopula", "character"), function(x, kind) {
     d <- x@dimension
     if(kind == "very short") # e.g. for show() which has more parts
-        return(paste0(getAname(x), "(d =", d,")"))
+        return(paste(getAname(x), "copula"))
     ch <- paste(getAname(x), "copula, dim. d =", d)
     switch(kind <- match.arg(kind),
 	   short = ch,

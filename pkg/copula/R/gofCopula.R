@@ -114,7 +114,8 @@ gofTstat <- function(u, method = c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
 gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
                   estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
 		  trafo.method = if(method == "Sn") "none" else c("cCopula", "htrafo"),
-		  trafoArgs = list(), verbose = interactive(), useR = FALSE, ...) # IK: added useR
+		  trafoArgs = list(), verbose = interactive(), useR = FALSE,
+                  ties = FALSE, ...) # IK: added useR
 {
     .Deprecated("gofCopula(*, simulation = \"pb\")")
     .gofPB(copula, x, N, method=method, estim.method=estim.method,
@@ -126,7 +127,8 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
 .gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
                    estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
 		   trafo.method = if(method == "Sn") "none" else c("cCopula", "htrafo"),
-                   trafoArgs = list(), verbose = interactive(), useR = FALSE, ...) # IK: added useR
+                   trafoArgs = list(), verbose = interactive(), useR = FALSE,
+                   ties = FALSE, ...) # IK: added useR
 {
     ## Checks -- NB: let the *generic* fitCopula() check 'copula'
     stopifnot(N >= 1)
@@ -180,9 +182,25 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
     if(verbose) setTxtProgressBar(pb, 1) # update progress bar
 
     ## 4) Simulate the test statistic under H_0
+
+    ## If ties, get tie structure from x
+    if (ties)
+        r <- apply(x, 2, function(y) sort(rank(y, ties.method = "max")))
+
+
     T0 <- vapply(1:N, function(k) {
         ## 4.1) Sample the fitted copula
-        Uhat <- pobs( rCopula(n, C.th.n) )
+        Uhat <- if (!ties) pobs( rCopula(n, C.th.n) )
+                else { ## Sample x has ties
+                    U <- rCopula(n, C.th.n)
+                    ## Reproduce tie structure of x
+                    for (i in 1:d) {
+                        o <- order(U[,i])
+                        U <- U[o,]
+                        U[,i] <- U[r[,i],i]
+                    }
+                    pobs(U)
+                }
 
         ## 4.2) Fit the copula
         C.th.n. <- fitCopula(copula, Uhat, method=estim.method,
@@ -255,7 +273,7 @@ Jscore <- function(copula, u, method)
            influ0 <- dlogcdtheta(copula, u) # (n, p)-matrix
            derArg <- dlogcdu    (copula, u) # (n, d)-matrix
            influ <- lapply(1:d, function(i) influ0*derArg[,i])
-           p <- nFree(copula@parameters)
+           p <- nFreeParam(copula) # GETR
            S <- matrix(0, n, p)
            for(j in 1:d) {
                ij <- order(u[,j], decreasing=TRUE)
@@ -480,5 +498,5 @@ gofCopulaCopula <- function(copula, x, N=1000, method = c("Sn", "SnB", "SnC", "R
     stop("Invalid simulation method ", simulation))
 }
 
-setMethod("gofCopula", signature("copula"), gofCopulaCopula)
+setMethod("gofCopula", signature("parCopula"), gofCopulaCopula)
 
