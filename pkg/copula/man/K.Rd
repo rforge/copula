@@ -72,11 +72,12 @@ rK(n, copula, d)
     }
   }
   \item{u.grid}{(for \code{method="discrete"}:) the grid on which
-  \eqn{K} is evaluated, a \code{\link{numeric}} vector.}
+    \eqn{K} is evaluated, a \code{\link{numeric}} vector.}
   \item{\dots}{additional arguments passed to \code{\link{uniroot}} (for
     \code{method="default"}, \code{method="simple"}, \code{method="sort"}, and
     \code{method="monoH.FC"}) or \code{\link{findInterval}} (for
-    \code{method="discrete"}).}
+    \code{method="discrete"}), notably \code{tol}
+    (\code{\link{uniroot}}) for increased accuracy.}
   \item{n}{sample size for \code{rK}.}
 }
 \details{
@@ -98,7 +99,9 @@ rK(n, copula, d)
   distribution function \eqn{K(.)}, its quantile function, density, and random
   number generator.}
 %\author{Marius Hofert (and Martin Maechler)}
-\note{Currently, \code{qK()} is not very accurate
+\note{Currently, the \code{"default"} method of \code{qK()} is fast but
+  not very accurate, see the \sQuote{Examples} for more accuracy (with
+  more cpu effort).
 }
 \references{
   Barbe, P., Genest, C., Ghoudi, K., and R\enc{é}{e}millard, B. (1996),
@@ -168,6 +171,17 @@ lines(u, Ku, col="black")  # strictly  monotone:
 stopifnot(diff(Ku) >= 0)
 legend(.25, .75, expression(F[n], K[MC](u), K(u)),
        col=c("blue" , "red", "black"), lty=1, lwd = 1.5, bty="n")
+
+if(require("Rmpfr")) { # pK() now also works with high precision numbers:
+ uM <- mpfr(0:255, 99)/256
+ if(FALSE) {
+   # not yet, now fails in  polyG() :
+   KuM <- pK(uM, copula = cop@copula, d = d)
+  ##  debug(copula:::.pK)
+  debug(copula:::polyG)
+ }
+}# if( Rmpfr )
+
 
 ## Testing qK
 pexpr <- quote( 0:63/63 );  p <- eval(pexpr)

@@ -504,7 +504,7 @@ polyG <- function(lx, alpha, d, method= c("default", "default2012", "default2011
                   verboseUsingRmpfr = isTRUE(getOption("copula:verboseUsingRmpfr")),
                   log=FALSE)
 {
-    stopifnot(length(alpha)==1, 0 < alpha, alpha <= 1,
+    stopifnot(length(alpha) == 1L, 0 < alpha, alpha <= 1,
               d == as.integer(d), d >= 1)
     k <- 1:d
     allMeths <- eval(formals()[["method"]])
@@ -552,11 +552,15 @@ polyG <- function(lx, alpha, d, method= c("default", "default2012", "default2011
 	       }
 	       else "dsSib.Rmpfr"
 	   }
+           ix <- seq_along(lx)
 	   ## Each lx can -- in principle -- ask for another method ... --> split() by method
-	   meth.lx <- vapply(lx, function(lx) meth2012(d, alpha, lx), "")
+	   meth.lx <- tryCatch(## when lx is "mpfr", vapply() currently (2016-08) fails
+               vapply(lx, function(lx) meth2012(d, alpha, lx), ""),
+               error = { ch <- character(length(lx))
+                   for (i in ix) ch[i] <- meth2012(d, alpha, lx[[i]]); ch })
 	   if(verboseUsingRmpfr && (lg <- length(grep("Rmpfr$", meth.lx))))
 	       message("Default method chose 'Rmpfr' ", if(lg > 1) paste(lg,"times") else "once")
-	   i.m <- split(seq_along(lx), factor(meth.lx))
+	   i.m <- split(ix, factor(meth.lx))
 	   r <- lapply(names(i.m), function(meth)
 		       polyG(lx[i.m[[meth]]], alpha = alpha, d = d, method = meth, log = log))
 	   lx[unlist(i.m, use.names=FALSE)] <- unlist(r, use.names=FALSE)

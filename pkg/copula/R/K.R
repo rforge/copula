@@ -59,7 +59,7 @@ pK <- function(u, copula, d, n.MC = 0, log.p = FALSE)
 {
     ## limiting cases
     n <- length(u)
-    res <- numeric(n)
+    res <- u # hence keeping attributes, even ok for 'mpfr'
     res[is0 <- u == 0] <- if(log.p) -Inf else 0
     res[is1 <- u == 1] <- if(log.p) 0 else 1
     not01 <- seq_len(n)[!(is0 | is1)]
