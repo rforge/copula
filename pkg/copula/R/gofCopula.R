@@ -115,11 +115,12 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
                   estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
 		  trafo.method = if(method == "Sn") "none" else c("cCopula", "htrafo"),
 		  trafoArgs = list(), verbose = interactive(), useR = FALSE,
-                  ties = FALSE, ...) # IK: added useR
+                  ties = FALSE, ...)
 {
     .Deprecated("gofCopula(*, simulation = \"pb\")")
     .gofPB(copula, x, N, method=method, estim.method=estim.method,
-           trafo.method= trafo.method, trafoArgs=list(), verbose = interactive(), ...)
+           trafo.method=trafo.method, trafoArgs=trafoArgs, verbose=verbose,
+           useR=useR, ties=ties, ...)
 }
 
 
@@ -128,7 +129,7 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
                    estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
 		   trafo.method = if(method == "Sn") "none" else c("cCopula", "htrafo"),
                    trafoArgs = list(), verbose = interactive(), useR = FALSE,
-                   ties = FALSE, ...) # IK: added useR
+                   ties = FALSE, ...)
 {
     ## Checks -- NB: let the *generic* fitCopula() check 'copula'
     stopifnot(N >= 1)
@@ -183,24 +184,20 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
 
     ## 4) Simulate the test statistic under H_0
 
-    ## If ties, get tie structure from x
+    ## If ties, get tie structure from x  (FIXME?: what if 'x' has no ties, but 'ties = TRUE' ?? )
     if (ties)
-        r <- apply(x, 2, function(y) sort(rank(y, ties.method = "max")))
-
+        ir <- apply(x, 2, function(y) sort(rank(y, ties.method = "max")))
 
     T0 <- vapply(1:N, function(k) {
         ## 4.1) Sample the fitted copula
-        Uhat <- if (!ties) pobs( rCopula(n, C.th.n) )
-                else { ## Sample x has ties
-                    U <- rCopula(n, C.th.n)
-                    ## Reproduce tie structure of x
-                    for (i in 1:d) {
-                        o <- order(U[,i])
-                        U <- U[o,]
-                        U[,i] <- U[r[,i],i]
-                    }
-                    pobs(U)
-                }
+        U <- rCopula(n, C.th.n)
+        if(ties) { ## Sample x may have ties -- Reproduce tie structure of x
+            for (i in 1:d) {
+                U <- U[order(U[,i]),]
+                U[,i] <- U[ir[,i], i]
+            }
+        }
+        Uhat <- pobs(U)
 
         ## 4.2) Fit the copula
         C.th.n. <- fitCopula(copula, Uhat, method=estim.method,

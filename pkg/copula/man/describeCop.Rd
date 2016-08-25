@@ -1,5 +1,5 @@
 \name{describeCop}
-\title{Copula Short Description as String}
+\title{Copula (Short) Description as String}
 \alias{describeCop}
 \alias{describeCop-methods}
 \alias{describeCop,xcopula,ANY-method}
@@ -8,6 +8,9 @@
 \alias{describeCop,copula,character-method}
 \alias{describeCop,ellipCopula,character-method}
 \alias{describeCop,fgmCopula,character-method}
+\alias{describeCop,indepCopula,character-method}
+\alias{describeCop,khoudrajiCopula,character-method}
+\alias{describeCop,rotCopula,character-method}
 \docType{methods}
 \description{
   Describe a \code{\linkS4class{copula}} object, i.e., its basic

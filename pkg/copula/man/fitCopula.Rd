@@ -3,6 +3,7 @@
 \alias{fitCopula}
 \alias{fitCopula-methods}
 \alias{fitCopula,copula-method}
+\alias{fitCopula,parCopula-method}
 \alias{fitCopula,rotCopula-method}
 \alias{loglikCopula}
 \alias{optimMeth}

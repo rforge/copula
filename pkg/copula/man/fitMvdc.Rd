@@ -107,18 +107,18 @@ fitMvdc(data, mvdc, start, optim.control = list(), method = "BFGS",
   For fitting univariate marginals, \code{\link[MASS]{fitdistr}()}.
 }
 \examples{
-gumbel.cop <- gumbelCopula(3, dim=2)
-gMvd2 <- mvdc(gumbel.cop, c("exp","exp"),
-              list(list(rate=2), list(rate=4)))
+G3 <- gumbelCopula(3, dim=2)
+gMvd2  <- mvdc(G3, c("exp","exp"),
+               param = list(list(rate=2), list(rate=4)))
+## with identical margins:
+gMvd.I <- mvdc(G3, "exp",
+               param = list(rate=3), marginsIdentical=TRUE)
 
 (Xtras <- copula:::doExtras()) # determine whether examples will be extra (long)
 n <- if(Xtras) 10000 else 200 # sample size (realistic vs short for example)
 
 set.seed(11)
 x <- rMvdc(n, gMvd2)
-## with identical margins:
-gMvd.I <- mvdc(gumbel.cop, "exp", param = list(rate=3), marginsIdentical=TRUE)
-
 ## Default:     hideWarnings = FALSE .. i.e. show warnings here
 fit2 <- fitMvdc(x, gMvd2, start = c(1,1, 2))
 fit2

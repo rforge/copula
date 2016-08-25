@@ -1,8 +1,10 @@
 \name{rotCopula}
 \title{Construction and Class of "Rotated" Copulas}
+\concept{survival copula}
 \alias{rotCopula}
 \alias{rotCopula-class}
-\concept{survival copula}
+%
+\alias{dim,rotCopula-method}
 \description{
   Constructs a rotated copula from an initial copula and a vector of
   logicals indicating which dimension to \dQuote{flip}.
@@ -15,10 +17,15 @@ rotCopula(copula, flip = TRUE)
   \item{flip}{\code{\link{logical}} vector (of length 1 or
     \code{dim(copula)}) indicating which dimension should be
     \dQuote{flipped}; by default, all the components are flipped,
-    implying that the rotated copula is the \emph{\dQuote{survival copula}}.}
+    implying that the resulting copula is the \emph{\dQuote{survival copula}}.}
 }
 \value{
-  A rotated copula object of class \code{"rotCopula"}.
+  A \dQuote{rotated} copula object of class \code{"rotCopula"}.
+}
+\note{Only when there are an even number of flips, the resulting copula
+  can be seen as a \emph{rotated} version of \code{copula}.  In the
+  other cases, e.g., \code{flip = c(FALSE,TRUE)} in 2d, it is rather a
+  \dQuote{mirrored} copula.
 }
 \section{Slots}{
   of a \code{"rotCopula"} object
@@ -35,7 +42,7 @@ rotCopula(copula, flip = TRUE)
       (component wise) bounds for each of the parameters.}
     \item{\code{param.names}:}{\code{\link{character}} vector (of same
       length as \code{parameters}) with parameter names.}
-    \item{\code{fullname}:}{a \code{character} string describing the
+    \item{\code{fullname}:}{\bold{deprecated}; a \code{character} string describing the
       rotated copula.}
   }
 }

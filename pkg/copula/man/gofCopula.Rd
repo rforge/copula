@@ -3,6 +3,7 @@
 \alias{gofCopula}
 \alias{gofCopula-methods}
 \alias{gofCopula,copula-method}
+\alias{gofCopula,parCopula-method}
 \alias{gofCopula,rotCopula-method}
 \alias{gofMB}
 \alias{gofPB}
@@ -38,7 +39,8 @@ gofCopula(copula, x, \dots)
 gofPB(copula, x, N, method = c("Sn", "SnB", "SnC"),
       estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
       trafo.method = if(method == "Sn") "none" else c("cCopula", "htrafo"),
-      trafoArgs = list(), verbose = interactive(), useR = FALSE, \dots)
+      trafoArgs = list(), verbose = interactive(),
+      useR = FALSE, ties = FALSE, \dots)
 
 gofMB(copula, x, N, method = c("Sn", "Rn"),
       estim.method = c("mpl", "ml", "itau", "irho"),
@@ -85,6 +87,8 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
     A \code{\link{list}} of optional arguments passed
     to the transformation method (see \code{trafo.method} above).}
   \item{useR}{logical indicating whether an \R or C implementation is used.}
+  \item{ties}{(only for \code{"pb"}) logical indicating ties in (any
+    coordinate of) \code{x} should be dealt with, in the simulations.}% FIXME: ok?? -- untested; <= example ?
   \item{m, zeta.m}{only for the multiplier with \code{method = "Rn"}.
     \code{m} is the power and \code{zeta.m} is the adjustment
     parameter \eqn{\zeta_m}{zeta.m} for the denominator of the test

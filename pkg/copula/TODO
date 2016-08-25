@@ -1,5 +1,7 @@
 ##-*- org -*-->  Emacs .. [Tab] key + [Org] menu; C-c C-o to follow links
 * Short Term (before 1.0.0):
+** TODO [IK] gofPB(*, ties=TRUE) is *never* tested, *nor* documented (man/gofCopula.Rd); see FIXME, what if x has no ties?
+** TODO [MM] warnings about numDeriv() should only be displayed once per R session (and be suppressible).
 ** TODO [MM] copula@fullname: *abolish* (deprecate) and replace by a function (i.e. a method) !!!!
 *** TODO [MM] copula@fullname: is used in print() method; Want also use for plotting -- hence urgent for book!
 - want to use "it" by default, e.g.,  `main = copula@fullname` in persp() etc, *HOWEVER*

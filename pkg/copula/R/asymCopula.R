@@ -356,7 +356,8 @@ setMethod("rCopula", signature("numeric", "khoudrajiCopula"),
     x <- matrix(NA, n, d)
     ig <- KhoudFn$ig
     for (i in seq_len(d)) {
-        x[,i] <- pmax(ig(u[,i], 1 - copula@shapes[i]), ig(v[,i], copula@shapes[i]))
+        x[,i] <- pmax(ig(u[,i], 1 - copula@shapes[i]),
+                      ig(v[,i],     copula@shapes[i]))
     }
     x
 })
@@ -370,7 +371,6 @@ dKhoudrajiBivCopula <- function(u, copula, log = FALSE, ...) {
     a1 <- copula@shapes[1]
     a2 <- copula@shapes[2]
 
-
     ## the density can be computed only if dCdu is implemented for argument copulas
     if (!hasMethod(dCdu, class(copula@copula1)) ||
         !hasMethod(dCdu, class(copula@copula2)))
@@ -378,16 +378,18 @@ dKhoudrajiBivCopula <- function(u, copula, log = FALSE, ...) {
 
     g <- KhoudFn$g ; dgdu <- KhoudFn$dgdu
     gu1 <- cbind(g(u[,1], 1 - a1), g(u[,2], 1 - a2))
-    gu2 <- cbind(g(u[,1], a1), g(u[,2], a2))
+    gu2 <- cbind(g(u[,1],     a1), g(u[,2],     a2))
     dC1du <- dCdu(copula@copula1, gu1)
     dC2du <- dCdu(copula@copula2, gu2)
-    part1 <- dCopula(gu1, copula@copula1) *
-        dgdu(u[,1], 1 - a1) * dgdu(u[,2], 1 - a2) *
+    ddu1_ <- dgdu(u[,1], 1 - a1)
+    ddu1  <- dgdu(u[,1],     a1)
+    ddu2_ <- dgdu(u[,2], 1 - a2)
+    ddu2  <- dgdu(u[,2],     a2)
+    part1 <- dCopula(gu1, copula@copula1) * ddu1_ * ddu2_ *
         pCopula(gu2, copula@copula2)
-    part2 <- dC1du[,1] * dgdu(u[,1], 1 - a1) * dgdu(u[,2], a2) * dC2du[,2]
-    part3 <- dC1du[,2] * dgdu(u[,2], 1 - a2) * dgdu(u[,1], a1) * dC2du[,1]
-    part4 <- pCopula(gu1, copula@copula1) * dCopula(gu2, copula@copula2) *
-        dgdu(u[,2], a2) * dgdu(u[,1], a1)
+    part2 <- dC1du[,1] * ddu1_ * ddu2 * dC2du[,2]
+    part3 <- dC1du[,2] * ddu2_ * ddu1 * dC2du[,1]
+    part4 <- pCopula(gu1, copula@copula1) * dCopula(gu2, copula@copula2) * ddu2 * ddu1
 
     ## FIXME: use lsum() and similar to get much better numerical accuracy for log - case
     if(log)
@@ -408,8 +410,8 @@ setMethod("A", signature("khoudrajiBivCopula"), function(copula, w) {
     a1 <- copula@shapes[1];  a2 <- copula@shapes[2]
     den1 <- (1 - a1) * (1 - w) + (1 - a2) * w
     den2 <- a1 * (1 - w) + a2 * w
-    t1 <- (1 - a2) * w / den1; t1 <- ifelse(is.na(t1), 1, t1)
-    t2 <- a2 * w / den2; t2 <- ifelse(is.na(t2), 1, t2)
+    t1 <- (1 - a2) * w / den1; t1[is.na(t1)] <- 1
+    t2 <-      a2  * w / den2; t2[is.na(t2)] <- 1
     den1 * A(copula@copula1, t1) + den2 * A(copula@copula2, t2)
 })
 
@@ -426,15 +428,13 @@ setMethod("dCdu", signature("khoudrajiBivCopula"),
 
     g <- KhoudFn$g ; dgdu <- KhoudFn$dgdu
     gu1 <- cbind(g(u[,1], 1 - a1), g(u[,2], 1 - a2))
-    gu2 <- cbind(g(u[,1], a1), g(u[,2], a2))
+    gu2 <- cbind(g(u[,1],     a1), g(u[,2],     a2))
     dC1du <- dCdu(copula@copula1, gu1)
     dC2du <- dCdu(copula@copula2, gu2)
     pC1gu1 <- pCopula(gu1, copula@copula1)
     pC2gu2 <- pCopula(gu2, copula@copula2)
-    cbind(dgdu(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 +
-          pC1gu1 * dgdu(u[,1], a1) * dC2du[,1],
-          dgdu(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
-          pC1gu1 * dgdu(u[,2], a2) * dC2du[,2])
+    cbind(dgdu(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 + pC1gu1 * dgdu(u[,1], a1) * dC2du[,1],
+          dgdu(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 + pC1gu1 * dgdu(u[,2], a2) * dC2du[,2])
 })
 
 ## dCdtheta: Restricted to *bivariate* Khoudraji copulas

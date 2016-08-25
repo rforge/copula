@@ -2,6 +2,10 @@
 \title{Fix a Subset of a Copula Parameter Vector}
 \alias{fixParam}
 \alias{fixedParam<-}
+\alias{fixedParam<-,copula,logical-method}
+\alias{fixedParam<-,khoudrajiCopula,logical-method}
+\alias{fixedParam<-,rotCopula,logical-method}
+
 \description{
   It is sometimes useful to keep fixed some components of a copula
   parameter vector whereas the others are \dQuote{free} and will be
@@ -24,7 +28,8 @@ fixedParam(copula) <- value
   or vector of the same length as \code{param}) to indicate which
   components of \code{param} are to be held fixed or not.
 
-  \code{fixedParam<-} returns a \code{"\linkS4class{copula}"} object
+  \code{fixedParam<-}, a generic function, returns a
+  \code{"\linkS4class{copula}"} object
   with a partly fixed parameter (slot), i.e., corresponding to
   \code{fixParam()} above.
 }

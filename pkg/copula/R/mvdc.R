@@ -66,7 +66,7 @@ setMethod("dim", "mvdc", function(x) x@copula@dimension)
 ##' @return character vector of "the correct" length
 ##' @author Martin Maechler
 margpnames <- function(mv) {
-    nMar <- vapply(mv@paramMargins, length, 1L)
+    nMar <- lengths(mv@paramMargins) # or vapply(mv@paramMargins, nFree, 1L)
     p <- mv@copula@dimension
     pnms <- unlist(lapply(mv@paramMargins, names)) # maybe NULL
     if (sum(nMar) == 0) character()

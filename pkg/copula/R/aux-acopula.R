@@ -14,8 +14,19 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-## if(getRversion() < "2.15")
-## paste0 <- function(...) paste(..., sep="")
+if((Rv <- getRversion()) < "3.2.1") {
+    lengths <- function (x, use.names = TRUE) vapply(x, length, 1L, USE.NAMES = use.names)
+    ## now have  Depends: R (>= 3.1.0)
+    ## if(Rv < "3.1.0") {
+    ##     anyNA <- function(x) any(is.na(x))
+    ##     if(Rv < "3.0.0") {
+    ##         rep_len <- function(x, length.out) rep(x, length.out=length.out)
+    ##         if(Rv < "2.15")
+    ##             paste0 <- function(...) paste(..., sep = '')
+    ##     }
+    ## }
+} ## R < 3.2.1
+
 
 #### Functions and Methods for "acopula" objects
 #### class definition in ./AllClass.R

@@ -90,7 +90,7 @@ dCdth= max(abs(copula:::dCdthetaCopulaNum(kncf, v) - copula:::dCdtheta(kncf, v))
 err
 ##         dCdu        dCdth
 ## 1.186238e-03 6.439294e-15
-stopifnot(abs(err[["dCdu" ]]) < 2e-3,
+stopifnot(abs(err[["dCdu" ]]) < 0.004, # seen 2e-3
 	  abs(err[["dCdth"]]) < 1e-12)
 
 ## A "nested" Khoudraji bivariate copula
@@ -119,8 +119,12 @@ n <- 300
 u <- rCopula(n, kcd3)
 v <- matrix(runif(15), 5, 3)
 splom2(u)
-dCopula(v, kcd3) ## TODO: check value
-
+(f.v <- dCopula(v, kcd3))
+stopifnot(
+    all.equal(f.v,
+              c(0.23661418, 2.3571216, 0.13311822, 0.0051837845, 0.056044199),
+              tol = 1e-7)# seen 1.69e-8
+)
 ## check density: special case where we know the answer
 kd3a <- khoudrajiCopula(copula1 = indepCopula(dim=3),
                         copula2 = claytonCopula(6, dim=3),
@@ -177,6 +181,7 @@ if (doExtras)
                      optim.method = "Nelder-Mead", optim.control = list(trace = TRUE))
     fkN
     print( summary(fkN) )
+    print( cN <- confint(fkN) )
     fkB <- fitCopula(kcf,
                      start = c(1.1, 0.5), data = pobs(u),
                      optim.method = "BFGS", optim.control = list(trace = TRUE))
@@ -186,6 +191,9 @@ if (doExtras)
                   tol = 1e-4), # seen 2.7e-7
         all.equal(coef(fkN), c(c2.param = 4.40525, shape1 = 0.389693), tol = 1e-4), # seen 3e-7
         all.equal(coef(fkN), coef(fkB), tol = 1e-3) # seen 1.19e-4
+        ,
+	all.equal(c(cN), c(2.246888, 0.2798682,
+			   6.563614, 0.4995171), tol = 1e-5)# 5.4e-8
     )
 
     ## GOF example
