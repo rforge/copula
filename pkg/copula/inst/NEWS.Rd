@@ -16,10 +16,17 @@
       error instead of warning.
       \item \code{setTheta(<rotCopula>, <par>)} now works.
       \item \code{xvCopula(<rotCopula>, <data>)} now works.
+
+      \item \code{fitMvdc()} now works again for a \dQuote{df.fixed-tCopula}.
     }
   }
   \subsection{New Features}{
     \itemize{
+      \item Adding an abstraction level, using (currently hidden) "setr"
+      and "getr" methods, allows to simplify class definition for
+      \code{"khoudrajiCopula"} and \code{fitCopula()} now to also work
+      e.g. for \code{rotCopula(khoudrajiCopula(.), ..)}.
+
       \item The \code{coef()} method for \code{fitCopula()} or
       \code{fitMvdc()} results can get the matrix of parameters
       \emph{and} their standard errors by the new option \code{SE = TRUE}.

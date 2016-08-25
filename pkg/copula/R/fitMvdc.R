@@ -18,7 +18,7 @@ setClass("fitMvdc", contains = "fittedMV", #-> ./Classes.R
 	 ## FIXME , validity = function(object) TRUE
 	 )
 
-paramNmsMvdc <- function(mv) c(margpnames(mv), mv@copula@param.names)
+paramNmsMvdc <- function(mv) c(margpnames(mv), paramNames(mv@copula))
 ## not exported, but used ..
 setMethod("paramNames", "fitMvdc", function(x) paramNmsMvdc(x@mvdc))
 
@@ -47,7 +47,7 @@ print.fitMvdc <- function(x, digits = max(3, getOption("digits") - 3),
         coefs <- coef.fittedMV(x) # vector of "hat(theta)"
         printCf <- function(ind) print(coefs[ind], digits=digits, ...)
     }
-    marNpar <- vapply(x@mvdc@paramMargins, length, 1L)
+    marNpar <- lengths(x@mvdc@paramMargins)# or  vapply(x@mvdc@paramMargins, nFree, 1L)
     idx2 <- cumsum(marNpar)
     idx1 <- idx2 - marNpar + 1
     margid <- x@mvdc@marginsIdentical
@@ -64,7 +64,7 @@ print.fitMvdc <- function(x, digits = max(3, getOption("digits") - 3),
     cat(if(showMore) describeCop(cop, "short") # as 'parameters' are separate
         else "Copula:", "\n")
 ## or	else paste("Copula:", class(x)), "\n")
-    copParIdx <- seq_along(cop@parameters)
+    copParIdx <- seq_len(nFree(cop@parameters))
     printCf(copParIdx + if(margid) marNpar[1] else sum(marNpar))
     if (!is.na(ll <- x@loglik))
 	cat("The maximized loglikelihood is", format(ll, digits=digits), "\n")
@@ -96,12 +96,16 @@ setMethod("show", signature("fitMvdc"), function(object) print.fitMvdc(object))
 
 ################################################################################
 
-setMvdcPar <- function(mvdc, param) {
-    marNpar <- vapply(mvdc@paramMargins, length, 1L)
+##' @title Set / Update the free (non-fixed) parameters of an MVDC
+##' @param mvdc an \code{mvdc} object
+##' @param param numeric vector of free parameters
+##' @return modified \code{mvdc} object
+setMvdcPar <- function(mvdc, param, noCheck = FALSE) {
+    marNpar <- lengths(mvdc@paramMargins)# or  vapply(mvdc@paramMargins, nFree, 1L)
     idx2 <- cumsum(marNpar)
     idx1 <- idx2 - marNpar + 1
     margid <- mvdc@marginsIdentical
-    d <- mvdc@copula@dimension
+    d <- dim(mvdc@copula)
 
     for (i in 1:d) {
         if (marNpar[i] > 0) {
@@ -113,14 +117,17 @@ setMvdcPar <- function(mvdc, param) {
             for (j in 1:marNpar[i]) mvdc@paramMargins[[i]][j] <- par[j]
         }
     }
-    mvdc@copula@parameters <-
-        if (idx2[d] == 0)               # no marginal parameters
-            param else param[- (if(margid) 1:idx2[1] else 1:rev(idx2)[1])]
+    mvdc@copula <-
+        setTheta(mvdc@copula,
+                 value =
+                     if (idx2[d] == 0) param # no marginal parameters
+                     else param[- (if(margid) 1:idx2[1] else 1:rev(idx2)[1])],
+                 noCheck = TRUE)
     mvdc
 }
 
 loglikMvdc <- function(param, x, mvdc) {
-  mvdc <- setMvdcPar(mvdc, param)
+  mvdc <- setMvdcPar(mvdc, param, noCheck=TRUE)
   loglik <- tryCatch(sum(log(dMvdc(x, mvdc))), error = function(e) e)
   if(is(loglik, "error")) {
       warning("error in loglik computation: ", loglik$message)
@@ -137,10 +144,10 @@ fitMvdc <- function(data, mvdc, start,
     if (copula@dimension != ncol(data))
         stop("The dimensions of the data and copula do not match.")
     cl <- match.call()
-    marNpar <- vapply(mvdc@paramMargins, length, 1L)
+    marNpar <- lengths(mvdc@paramMargins)# or  vapply(mvdc@paramMargins, nFree, 1L)
     margid <- mvdc@marginsIdentical
     q <- length(start)
-    if(q != length(copula@parameters) + (if(margid) marNpar[1] else sum(marNpar)))
+    if(q != nFreeParam(copula) + (if(margid) marNpar[1] else sum(marNpar)))
 	stop("The lengths of 'start' and mvdc parameters do not match.")
     mvdCheckM(mvdc@margins, "p")
     control <- c(optim.control, fnscale=-1)

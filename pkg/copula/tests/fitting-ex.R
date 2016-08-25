@@ -146,6 +146,31 @@ print(tcF.mp. <- fitCopula(tC3u5, u, method="mpl", estimate.variance=FALSE))
 assert.EQ(noC(tcF.mpl), noC(tcF.mp.), tol = 1e-5)
 } # end Xtras
 
+## fitMvdc() -- first 2 D -- from Yiyun Shou's bug report: ---------------------
+
+ct.2 <- tCopula(param=0.2, dim=2, dispstr = "ex", df.fixed=TRUE)
+mvt.2.ne <- mvdc(copula = ct.2, margins = c("norm", "exp"),
+                 paramMargins = list(list(mean = 0, sd = 2), list(rate = 2)))
+mvt.2.ne ## --> four free parameters in total: rho, mean, sd, and rate:
+
+if(FALSE) ## FIXME
+copula:::getParam(mvt.2.ne, attr = TRUE)
+
+## simulate data and fit:
+set.seed(17); x.samp <- rMvdc(250, mvt.2.ne)
+fit2ne <- fitMvdc(x.samp, mvt.2.ne, start= c(1,1,1, rho = 0.5),
+                  optim.control = list(trace = TRUE, maxit = 2000), hideWarnings=FALSE)
+summary(fit2ne)
+(confint(fit2ne) -> ci.2ne)
+stopifnot(
+    all.equal(coef(fit2ne),
+              c(m1.mean=0.061359521, m1.sd=2.0769423,
+                m2.rate=2.0437937, rho.1 = 0.15074002), tol=1e-7)# seen 1.48e-8
+   ,
+    all.equal(c(ci.2ne),
+              c(-0.18309, 1.9064, 1.8019, 0.012286,
+                 0.30581, 2.2474, 2.2857, 0.28919), tol = 4e-4) # seen 1.65e-5
+)
 
 
 
@@ -166,8 +191,13 @@ persp  (gMvGam, dMvdc, xlim = c(0,4), ylim=c(0,8)) ## almost discrete ????
 contour(gMvGam, dMvdc, xlim = c(0,2), ylim=c(0,8))
 points(X, pch = ".", cex = 2, col=adjustcolor("blue", 0.5))
 
-if(FALSE)# unfinished --- TODO maybe move below ('doExtras')!
-fMv <- fitMvdc(X, gMvGam) # needs 'start' ...
+if(doExtras) {
+    st <- system.time(
+        fMv <- fitMvdc(X, gMvGam, start = c(1,1,1,1, 1.3),# method="BFGS",
+                       optim.control= list(trace=TRUE)))
+    print(st) # ~ 59 sec. (lynne 2015)
+    print(summary(fMv))
+}
 
 pFoo <- function(x, lower.tail=TRUE, log.p=FALSE)
      pnorm((x - 5)/20, lower.tail=lower.tail, log.p=log.p)
