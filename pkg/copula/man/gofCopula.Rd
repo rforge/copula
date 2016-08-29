@@ -40,7 +40,7 @@ gofPB(copula, x, N, method = c("Sn", "SnB", "SnC"),
       estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
       trafo.method = if(method == "Sn") "none" else c("cCopula", "htrafo"),
       trafoArgs = list(), verbose = interactive(),
-      useR = FALSE, ties = FALSE, \dots)
+      useR = FALSE, ties = NULL, \dots)
 
 gofMB(copula, x, N, method = c("Sn", "Rn"),
       estim.method = c("mpl", "ml", "itau", "irho"),
@@ -87,8 +87,11 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
     A \code{\link{list}} of optional arguments passed
     to the transformation method (see \code{trafo.method} above).}
   \item{useR}{logical indicating whether an \R or C implementation is used.}
-  \item{ties}{(only for \code{"pb"}) logical indicating ties in (any
-    coordinate of) \code{x} should be dealt with, in the simulations.}% FIXME: ok?? -- untested; <= example ?
+  \item{ties}{only for the parametric bootstrap. Logical indicating
+      whether a version of the parametric boostrap adapted to the
+      presence of ties in any of the coordinate samples of \code{x}
+      should be used; the default value of \code{NA} indicates that the
+      presence/absence of ties will be checked for automatically.}
   \item{m, zeta.m}{only for the multiplier with \code{method = "Rn"}.
     \code{m} is the power and \code{zeta.m} is the adjustment
     parameter \eqn{\zeta_m}{zeta.m} for the denominator of the test
@@ -184,11 +187,13 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
   Wiley.
 }
 \note{
-  These tests were derived under the assumption of continuous margins,
-  which implies that ties occur with probability zero. The
-  presence of ties in the data might substantially affect the
-  approximate p-values. One way of dealing with ties was suggested in the
-  Journal of Statistical Software reference.
+  These tests were theoretically studied and implemented under the
+  assumption of continuous margins, which implies that ties in the
+  component samples occur with probability zero. The presence of ties in
+  the data might substantially affect the approximate p-values. Through
+  argument \code{ties}, the user can however select a version of the
+  parametric bootstrap adapted to the presence of ties. No such adaption
+  exists for the multiplier for the moment.
 
   %% Since \R is widely used by practitioners, a word of warning concerning
   %% goodness-of-fit tests \emph{in general} is also advisable.

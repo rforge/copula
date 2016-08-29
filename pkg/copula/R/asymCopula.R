@@ -97,7 +97,7 @@ setMethod("nFreeParam", signature("khoudrajiCopula"), function(copula)
     nFreeParam(copula@copula1) + nFreeParam(copula@copula2) + nFree(copula@shapes))
 
 ## parameter names
-setMethod("paramNames", "khoudrajiCopula", function(x) {
+setMethod("paramNames", signature("khoudrajiCopula"), function(x) {
     c(if (nFreeParam(x@copula1) > 0L) paste0("c1.", paramNames(x@copula1)) else NULL,
       if (nFreeParam(x@copula2) > 0L) paste0("c2.", paramNames(x@copula2)) else NULL,
       paste0("shape", 1:dim(x))[isFree(x@shapes)])
