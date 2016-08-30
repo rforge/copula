@@ -128,11 +128,13 @@ setMvdcPar <- function(mvdc, param, noCheck = FALSE) {
 
 loglikMvdc <- function(param, x, mvdc) {
   mvdc <- setMvdcPar(mvdc, param, noCheck=TRUE)
-  loglik <- tryCatch(sum(log(dMvdc(x, mvdc))), error = function(e) e)
-  if(is(loglik, "error")) {
-      warning("error in loglik computation: ", loglik$message)
-      (-Inf) # was NaN
-  } else loglik
+  tryCatch(
+      ## log likelihood :
+      sum(log(dMvdc(x, mvdc))),
+      error = function(e) {
+	  warning("error in loglik computation: ", conditionMessage(e))
+	  (-Inf) # was NaN
+      })
 }
 
 fitMvdc <- function(data, mvdc, start,
