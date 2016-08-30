@@ -53,23 +53,22 @@ mixCopula <- function(coplist, w = NULL) {
 setMethod("dim", signature("mixCopula"), function(x) dim(x@cops[[1]]))
 
 ## get parameters
-setMethod("getParam", signature("mixCopula", "logicalOrMissing", "logicalOrMissing",
-				"logicalOrMissing"),
+setMethod("getParam", "mixCopula",
 	  function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
 	      d <- dim(copula)
+	      parC <- lapply(copula@cops, getParam,
+			     freeOnly=freeOnly, attr=TRUE, named=named)
+	      m <- length(w <- copula@w)
+	      ## FIXME re-parametrize 'w' a la nor1mix:: (??)
 	      if(attr) { # more structured result
-		  parC <- lapply(copula@cops, getParam,
-				 freeOnly=freeOnly, attr=TRUE, named=named)
 		  ## need attr(*, "param.(up|low)bnd") for for loglikCopula()
 		  lowb <- lapply(parC, attr, "param.lowbnd")
 		  uppb <- lapply(parC, attr, "param.upbnd")
-		  structure(unlist(parC),
-			    param.lowbnd = unlist(lowb),
-			    param.upbnd  = unlist(uppb))
+		  structure(c(unlist(parC),                    w),
+			    param.lowbnd = c(unlist(lowb), rep(0, m)),
+			    param.upbnd  = c(unlist(uppb), rep(1, m)))
 	      } else {
-		  parC <- unlist(lapply(copula@cops, getParam,
-					freeOnly=freeOnly, attr=FALSE, named=named))
-		  c(parC, copula@w) ## <<- FIXME re-parametrize a la nor1mix:: (??)
+		  c(unlist(parC), w)
 	      }
 	  })
 
@@ -97,6 +96,23 @@ setMethod("freeParam<-", signature("mixCopula", "numeric"),
 		  copula@w[iF.w] <- value[n. + seq_len(nw)]
 	      copula
 	  })
+
+## logical indicating which parameters are free
+setMethod("free", signature("mixCopula"), function(copula)
+    c(unlist(lapply(copula@cops, free)), isFree(copula@w))) # FIXME reparametrize 'w'
+
+## logical indicating which parameters are fixed
+setMethod("fixed", signature("mixCopula"), function(copula)
+    c(unlist(lapply(copula@cops, fixed)), isFixedP(copula@w))) # FIXME reparametrize 'w'
+
+## number of parameters
+setMethod("nParam", signature("mixCopula"), function(copula)
+    sum(vapply(copula@cops, nParam, 1)) + length(copula@w)) # FIXME reparametrize 'w'
+
+## number of free parameters
+setMethod("nFreeParam", signature("mixCopula"), function(copula)
+    sum(vapply(copula@cops, nFreeParam, 1)) + nFree(copula@w)) # FIXME reparametrize 'w'
+
 
 setMethod(describeCop, c("mixCopula", "character"), function(x, kind) {
     m <- length(x@w)
