@@ -62,10 +62,19 @@ if (Xtras) {
   lines(df., ll.df(df., rho = 0.77), type = "b", col="dark green")
 }
 
-try( ## FIXME
-ff <- fitCopula(mC, uM, optim.method = "Nelder-Mead", optim.control = list(trace = TRUE))
-)
+optCtrl <- list(maxit = 1000, trace = TRUE)
+if (Xtras) { # slowish
+  st1 <- system.time(
+	   ff <- fitCopula(mC, uM, optim.method = "Nelder-Mead", optim.control=optCtrl))
+  print(st1)
+  str(ff) ## FIXME summary(ff)
 
+  st2 <- system.time(
+	   f2 <- fitCopula(mC, uM, optim.method = "L-BFGS-B",    optim.control=optCtrl))
+  print(st2)
+  str(f2) # FIXME summary(f2)
 }
+
+}% {examples}
 \keyword{distribution}
 \keyword{multivariate}
