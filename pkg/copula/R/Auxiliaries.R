@@ -107,9 +107,8 @@ formatCall <- function(cal, className, sep = "\n", collapse = "\n") {
     paste(deparse(cal), sep=sep, collapse=collapse)
 }
 
-##' A  (generic!) Function with methods to replace the 'fullname' slot :
-setGeneric("describeCop", function(x, kind = c("short", "very short", "long"))
-    standardGeneric("describeCop"))
+## describeCop() -- generic in ./AllGeneric.R
+## =============
 
 setMethod("describeCop", c("copula", "missing"),
 	  function(x, kind) describeCop(x, "short"))
@@ -136,3 +135,12 @@ setMethod("describeCop", "xcopula",
 	  })
 
 ## *Specific* describeCop() methods in the class  ./<copClass>.R  files
+
+## FIXME: dput(*, control = "namedVector")  could do this
+dputNamed <- function(x, add.c=FALSE, ...) {
+    x <- format(x, ...)
+    stopifnot(is.character(x), is.vector(x))
+    if(!is.null(nx <- names(x)))
+        x <- paste(nx, x, sep = " = ")
+    paste0(if(add.c) "c", "(", paste(x, collapse=", "), ")")
+}

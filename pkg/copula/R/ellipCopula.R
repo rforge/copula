@@ -63,9 +63,7 @@ setMethod(describeCop, c("ellipCopula", "character"), function(x, kind) {
     ch <- paste(cl, "copula, dim. d =", d)
     switch(kind <- match.arg(kind),
 	   short = ch,
-	   long = paste0(ch, "\n param.: ",
-			 capture.output(str(getParam(x, named=TRUE),
-					    give.head=FALSE))),
+	   long = paste0(ch, "\n param.: ", dputNamed(getParam(x, named=TRUE))),
 	   stop("invalid 'kind': ", kind))
 })
 
