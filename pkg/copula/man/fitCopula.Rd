@@ -70,7 +70,9 @@ optimMeth(copula, method)
   \item{optim.control}{a \code{\link{list}} of control parameters
     passed to \code{\link{optim}(*, control=optim.control)}.}
   \item{optim.method}{a character string specify the optimization
-    method, see \code{\link{optim}()}'s \code{method}; only used when
+    method \emph{or} a \code{\link{function}} which when called with
+    arguments \code{(copula, method)} will return such a character string,
+    see \code{\link{optim}()}'s \code{method}; only used when
     \code{method = "mpl"} or \code{"ml"}.
 
     The default has been changed (for \pkg{copula} 0.999-16, in

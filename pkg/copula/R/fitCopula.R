@@ -119,12 +119,10 @@ fitCor <- function(cop, x, method = c("itau", "irho"),
 ##' @param copula Copula object
 ##' @return Log-likelihood of the given copula at param given the data x
 loglikCopula <- function(param, u, copula) {
-    ## BEGIN GETR
     freeParam(copula) <- param
     cop.param <- getParam(copula, freeOnly = TRUE, attr = TRUE)
     lower <- attr(cop.param, "param.lowbnd")
     upper <- attr(cop.param, "param.upbnd")
-    ## END GETR
     admissible <- !(any(is.na(cop.param) | cop.param > upper | cop.param < lower))
     if (admissible) {
         ## FIXME-JY: param range check is only part of validity check
@@ -643,6 +641,8 @@ fitCopula_dflt <- function(copula, data,
     method <- match.arg(method)
     cl <- match.call()
     if(method == "mpl" || method == "ml") { # "mpl" or "ml"
+	if(is.function(optim.method)) ## << flexibility for the user !
+	    optim.method <- optim.method(copula, method)
         (if(hideWarnings) suppressWarnings else identity)(
         fitCopula.ml(copula, u=data, method=method,
                      start=start, lower=lower, upper=upper,
@@ -683,8 +683,6 @@ optimMeth <- function(copula, method) {
     ## FIXME:  "Nelder-Mead" is sometimes better
 }
 
-
-setGeneric("fitCopula", function(copula, data, ...) standardGeneric("fitCopula"))
 setMethod( "fitCopula", signature("parCopula"), fitCopula_dflt)
 
 ## --> ./rotCopula.R :  "rotCopula"  has its own method
