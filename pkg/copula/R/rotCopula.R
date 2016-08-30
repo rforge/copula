@@ -70,10 +70,9 @@ setMethod("nFreeParam", signature("rotCopula"), function(copula)
 setMethod("paramNames", "rotCopula", function(x) paramNames(x@copula))
 
 ## get parameters
-setMethod("getParam", signature("rotCopula", "logicalOrMissing", "logicalOrMissing",
-                                "logicalOrMissing"),
-          function(copula, freeOnly = TRUE, attr = FALSE, named = attr)
-    getParam(copula@copula, freeOnly = freeOnly, attr = attr, named = named))
+setMethod("getParam", "rotCopula",
+	  function(copula, freeOnly = TRUE, attr = FALSE, named = attr)
+	      getParam(copula@copula, freeOnly=freeOnly, attr=attr, named=named))
 
 ## set free parameters
 setMethod("freeParam<-", signature("rotCopula", "numeric"),

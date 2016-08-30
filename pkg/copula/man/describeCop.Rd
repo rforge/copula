@@ -2,14 +2,15 @@
 \title{Copula (Short) Description as String}
 \alias{describeCop}
 \alias{describeCop-methods}
-\alias{describeCop,xcopula,ANY-method}
-\alias{describeCop,copula,missing-method}
-\alias{describeCop,archmCopula,character-method}
+\alias{describeCop,Copula,missing-method}
 \alias{describeCop,copula,character-method}
+\alias{describeCop,xcopula,ANY-method}
+\alias{describeCop,archmCopula,character-method}
 \alias{describeCop,ellipCopula,character-method}
 \alias{describeCop,fgmCopula,character-method}
 \alias{describeCop,indepCopula,character-method}
 \alias{describeCop,khoudrajiCopula,character-method}
+\alias{describeCop,mixCopula,character-method}
 \alias{describeCop,rotCopula,character-method}
 \docType{methods}
 \description{

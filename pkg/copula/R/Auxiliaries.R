@@ -129,7 +129,7 @@ setMethod("describeCop", c("copula", "character"),
            stop("invalid 'kind': ", kind))
 })
 
-setMethod("describeCop", "xcopula",
+setMethod("describeCop", "xcopula", # "ANY"
 	  function(x, kind) {
 	      paste(class(x), "copula: ", describeCop(x@copula, kind=kind))
 	  })

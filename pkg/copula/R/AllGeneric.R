@@ -21,7 +21,7 @@ setMethod("paramNames", "xcopula", function(x) paramNames(x@copula))
 
 ## get parameters
 setGeneric("getParam", function(copula, freeOnly = TRUE, attr = FALSE, named = attr)
-    standardGeneric("getParam"))
+    standardGeneric("getParam"), signature = "copula")
 ## assign free parameters
 setGeneric("freeParam<-", function(copula, value) standardGeneric("freeParam<-"))
 ## set or modify "fixedness" of parameters
