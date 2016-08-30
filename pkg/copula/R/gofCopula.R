@@ -115,7 +115,7 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
                   estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
 		  trafo.method = if(method == "Sn") "none" else c("cCopula", "htrafo"),
 		  trafoArgs = list(), verbose = interactive(), useR = FALSE,
-                  ties = NULL, ...)
+                  ties = NA, ...)
 {
     .Deprecated("gofCopula(*, simulation = \"pb\")")
     .gofPB(copula, x, N, method=method, estim.method=estim.method,
@@ -155,10 +155,9 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
     if (method == "Sn" && trafo.method != "none")
         stop(sprintf("'trafo.method' must be \"none\" with 'method'=\"%s\"", method))
 
-    ## Check 'ties' argument
-    stopifnot(is.logical(ties))
-    if (is.na(ties))
-        ties <- if (any(apply(x, 2, function(x) length(unique(x))) < nrow(x))) TRUE else FALSE
+    ## ties: by default, if at least one column has at least one duplicated entry
+    if (is.na(ties <- as.logical(ties)))
+	ties <- any(apply(x, 2, anyDuplicated))
 
     ## Progress bar
     if(verbose) {

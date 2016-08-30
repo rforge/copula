@@ -40,7 +40,7 @@ gofPB(copula, x, N, method = c("Sn", "SnB", "SnC"),
       estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
       trafo.method = if(method == "Sn") "none" else c("cCopula", "htrafo"),
       trafoArgs = list(), verbose = interactive(),
-      useR = FALSE, ties = NULL, \dots)
+      useR = FALSE, ties = NA, \dots)
 
 gofMB(copula, x, N, method = c("Sn", "Rn"),
       estim.method = c("mpl", "ml", "itau", "irho"),
@@ -81,24 +81,25 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
     String specifying the transformation to
     \eqn{U[0,1]^d}; either \code{"none"} or one of \code{"cCopula"},
     see \code{\link{cCopula}()}, or \code{"htrafo"}, see
-      \code{\link{htrafo}()}.  If \code{method != "Sn"}, one needs to set
-      \code{trafo.method != "none"}.}
-  \item{trafoArgs}{only for the parametric bootstrap.
-    A \code{\link{list}} of optional arguments passed
-    to the transformation method (see \code{trafo.method} above).}
-  \item{useR}{logical indicating whether an \R or C implementation is used.}
-  \item{ties}{only for the parametric bootstrap. Logical indicating
-      whether a version of the parametric boostrap adapted to the
-      presence of ties in any of the coordinate samples of \code{x}
-      should be used; the default value of \code{NA} indicates that the
-      presence/absence of ties will be checked for automatically.}
+    \code{\link{htrafo}()}.  If \code{method != "Sn"}, one needs to set
+    \code{trafo.method != "none"}.}
+  \item{trafoArgs}{only for the parametric bootstrap.  A
+    \code{\link{list}} of optional arguments passed to the
+    transformation method (see \code{trafo.method} above).}
+  \item{useR}{logical indicating whether an \R or C implementation is
+    used.}
+  \item{ties}{only for the parametric bootstrap.  Logical indicating
+    whether a version of the parametric boostrap adapted to the
+    presence of ties in any of the coordinate samples of \code{x}
+    should be used; the default value of \code{NA} indicates that the
+    presence/absence of ties will be checked for automatically.}
   \item{m, zeta.m}{only for the multiplier with \code{method = "Rn"}.
     \code{m} is the power and \code{zeta.m} is the adjustment
     parameter \eqn{\zeta_m}{zeta.m} for the denominator of the test
     statistic.}
-  \item{b}{only for the multiplier. \code{b} is the
-    bandwidth required for the estimation
-    of the first-order partial derivatives based on the empirical copula.}
+  \item{b}{only for the multiplier.  \code{b} is the bandwidth required
+    for the estimation of the first-order partial derivatives based on
+    the empirical copula.}
 }
 \details{
   If the parametric bootstrap is used, the dependence parameters of
