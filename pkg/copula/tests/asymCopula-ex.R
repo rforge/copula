@@ -74,24 +74,31 @@ knc
 contour(knc, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
 
 ## True versus numerical derivatives
-max(abs(copula:::dCduCopulaNum(knc, v) - copula:::dCdu(knc, v)))
-max(abs(copula:::dCdthetaCopulaNum(knc, v) - copula:::dCdtheta(knc, v)))
+er.nc <- c(
+dCdu = max(abs(copula:::dCduCopulaNum(knc, v) - copula:::dCdu(knc, v))),
+dCdth= max(abs(copula:::dCdthetaCopulaNum(knc, v) - copula:::dCdtheta(knc, v))))
+er.nc
+##         dCdu        dCdth
+## 0.0018449990 0.0001717451
+stopifnot(abs(er.nc[["dCdu" ]]) < 0.004 ,
+	  abs(er.nc[["dCdth"]]) < 0.0008)
+
 
 ## A Khoudraji-normal-Clayton copula with fixed params
 kncf <- khoudrajiCopula(copula1 = normalCopula(fixParam(-0.7, TRUE)),
-                        copula2 = claytonCopula(6),
-                        shapes = fixParam(c(0.4, 0.95), c(FALSE, TRUE)))
+			copula2 = claytonCopula(6),
+			shapes = fixParam(c(0.4, 0.95), c(FALSE, TRUE)))
 kncf
 
 ## True versus numerical derivatives
-err <- c(
+er.ncf <- c(
 dCdu = max(abs(copula:::dCduCopulaNum(kncf, v) - copula:::dCdu(knc, v))),
 dCdth= max(abs(copula:::dCdthetaCopulaNum(kncf, v) - copula:::dCdtheta(kncf, v))))
-err
+er.ncf
 ##         dCdu        dCdth
 ## 1.186238e-03 6.439294e-15
-stopifnot(abs(err[["dCdu" ]]) < 0.004, # seen 2e-3
-	  abs(err[["dCdth"]]) < 1e-12)
+stopifnot(abs(er.ncf[["dCdu" ]]) < 0.004, # seen 2e-3
+	  abs(er.ncf[["dCdth"]]) < 1e-12)
 
 ## A "nested" Khoudraji bivariate copula
 kgkcf <- khoudrajiCopula(copula1 = gumbelCopula(3),
@@ -99,14 +106,14 @@ kgkcf <- khoudrajiCopula(copula1 = gumbelCopula(3),
 			 shapes = c(0.7, 0.25))
 kgkcf
 contour(kgkcf, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
-err <- c(
+erN <- c(
 dCdu = max(abs(copula:::dCduCopulaNum(kgkcf, v) - copula:::dCdu(kgkcf, v))),
 dCdth= max(abs(copula:::dCdthetaCopulaNum(kgkcf, v) - copula:::dCdtheta(kgkcf, v))))
-err
+erN
 ##         dCdu        dCdth
 ## 1.340428e-03 8.121975e-14
-stopifnot(abs(err[["dCdu" ]]) < 3e-3,
-	  abs(err[["dCdth"]]) < 1e-12)
+stopifnot(abs(erN[["dCdu" ]]) < 3e-3,
+	  abs(erN[["dCdth"]]) < 1e-12)
 
 ## A three dimensional Khoudraji-Clayton copula
 kcd3 <- khoudrajiCopula(copula1 = indepCopula(dim=3),
