@@ -336,7 +336,7 @@ asymExplicitCopula <- function(shapes, copula1, copula2) {
 ##################################################################################
 
 ## pCopula: for all Khoudraji copulas
-pKhoudrajiCopula <- function(u, copula) {
+pKhoudrajiCopula <- function(u, copula, ...) {
     d <- dim(copula)
     tu <- if(is.matrix(u)) t(u) else matrix(u, nrow = d)
     p1 <- pCopula(t(tu^(1 - copula@shapes)), copula@copula1)

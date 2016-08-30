@@ -439,8 +439,6 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
 
 ### Wrapper ####################################################################
 
-setGeneric("gofCopula", function(copula, x, ...) standardGeneric("gofCopula"))
-
 ##' @title Goodness-of-fit test wrapper function
 ##' @param copula An object of type 'copula' representing the H_0 copula
 ##' @param x An (n, d)-matrix containing the data

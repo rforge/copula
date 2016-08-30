@@ -110,7 +110,7 @@ apply.flip <- function(u, flip) {
 }
 
 ## pCopula
-pRotCopula <- function(u, copula) {
+pRotCopula <- function(u, copula, ...) {
     apply(apply.flip(u, copula@flip), 1L, # TODO: vectorize prob ?
           function(x) prob(copula@copula,
                            l = pmin(x, copula@flip),
@@ -118,7 +118,7 @@ pRotCopula <- function(u, copula) {
 }
 
 setMethod("pCopula", signature("numeric", "rotCopula"), pRotCopula)
-setMethod("pCopula", signature("matrix", "rotCopula"), pRotCopula)
+setMethod("pCopula", signature("matrix",  "rotCopula"), pRotCopula)
 
 ## dCopula
 dRotCopula <- function(u, copula, log = FALSE, ...) {
@@ -126,7 +126,7 @@ dRotCopula <- function(u, copula, log = FALSE, ...) {
 }
 
 setMethod("dCopula", signature("numeric", "rotCopula"), dRotCopula)
-setMethod("dCopula", signature("matrix", "rotCopula"), dRotCopula)
+setMethod("dCopula", signature("matrix",  "rotCopula"), dRotCopula)
 
 ## rCopula
 setMethod("rCopula", signature("numeric", "rotCopula"),

@@ -1289,7 +1289,8 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC,
 
 ### Non-numerics ###############################################################
 
-
+### setTheta() --- generic and all methods here ---------
+### ----------
 setGeneric("setTheta", function(x, value, ...) standardGeneric("setTheta"))
 
 ##' @title Setting the parameter in a copula

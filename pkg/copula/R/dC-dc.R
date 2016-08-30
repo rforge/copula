@@ -17,8 +17,6 @@
 ### Partial derivatives of the CDF wrt arguments
 ##################################################################################
 
-setGeneric("dCdu", function(copula, u, ...) standardGeneric("dCdu"))
-
 ##' @title List of control arguments for grad() / jacobian() in package numDeriv
 ##' @param eps see ?grad
 ##' @param d see ?grad
