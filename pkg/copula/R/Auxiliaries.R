@@ -110,7 +110,7 @@ formatCall <- function(cal, className, sep = "\n", collapse = "\n") {
 ## describeCop() -- generic in ./AllGeneric.R
 ## =============
 
-setMethod("describeCop", c("copula", "missing"),
+setMethod("describeCop", c("Copula", "missing"), # -> default kind = "short"
 	  function(x, kind) describeCop(x, "short"))
 
 setMethod("describeCop", c("copula", "character"),

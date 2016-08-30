@@ -124,3 +124,8 @@ setMethod("dPsi", "acopula",
 
 ## Methods for 'xcopula': extended copulas defined by mainly *one* copula slot
 setMethod("dim", signature("xcopula"), function(x) x@copula@dimension)
+
+## paramNames() methods: further provided separately for "fitCopula", "fitMvdc"
+setMethod("paramNames", "copula", function(x) x@param.names[isFree(x@parameters)])
+
+

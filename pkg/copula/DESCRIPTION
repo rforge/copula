@@ -32,10 +32,12 @@ Description: Classes (S4) of commonly used elliptical, Archimedean, extreme
 License: GPL (>= 3) | file LICENCE
 ByteCompile: yes
 VignetteBuilder: knitr
-Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R special-func.R
-	 cop_objects.R nacopula.R
-	 dC-dc.R amhCopula.R amhExpr.R An.R
-         archmCopula.R asymCopula.R cCopula.R claytonCopula.R
+Collate: AllClass.R Classes.R AllGeneric.R Copula.R Auxiliaries.R aux-acopula.R
+	 special-func.R cop_objects.R nacopula.R
+	 dC-dc.R
+	 asymCopula.R mixCopula.R rotCopula.R
+	 amhCopula.R amhExpr.R An.R
+         archmCopula.R cCopula.R claytonCopula.R
          claytonExpr.R ellipCopula.R empcop.R empPsi.R acR.R
 	 estimation.R evCopula.R evTests.R
          exchTests.R fgmCopula.R fitCopula.R fitLambda.R fitMvdc.R
@@ -47,7 +49,7 @@ Collate: AllClass.R Classes.R Copula.R Auxiliaries.R aux-acopula.R special-func.
          huslerReissCopula.R huslerReissExpr.R indepCopula.R
          indepTests.R joeCopula.R K.R logseries.R mvdc.R matrix_tools.R normalCopula.R
 	 opower.R plackettCopula.R plackettExpr.R
-	 rotCopula.R rstable1.R safeUroot.R
+	 rstable1.R safeUroot.R
 	 schlatherCopula.R stable.R
 	 timing.R
          tCopula.R tawnCopula.R tawnExpr.R tevCopula.R
