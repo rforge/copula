@@ -6,16 +6,23 @@
   bivariate copula based on the empirical copula.
   The test statistics are defined in the first two references.
   Approximate p-values for the test statistics are obtained
-  by means of a \emph{multiplier} technique.
+  by means of a \emph{multiplier} technique if there are no ties in the
+  component series of the bivariate data, or by means of an appropriate
+  bootstrap otherwise.
 }
 \usage{
-exchTest(x, N = 1000, m = 0)
+exchTest(x, N = 1000, ties = NA, m = 0)
 }
 \arguments{
   \item{x}{ a data matrix that will be transformed to pseudo-observations.}
-  \item{N}{ number of multiplier iterations to be used to
+  \item{N}{ number of multiplier or boostrap iterations to be used to
     simulate realizations of the test statistic under the null
     hypothesis.}
+  \item{ties}{ logical; if \code{FALSE}, approximate p-values are computed by
+    means of multiplier bootstrap; if \code{TRUE}, a boostrap adapted to the
+    presence of ties in any of the coordinate samples of \code{x}
+    is used; the default value of \code{NA} indicates that the
+    presence/absence of ties will be checked for automatically.}
   \item{m}{ if \code{m=0}, integration in the Cramér--von Mises
     statistic is carried out with respect to the empirical copula; if
   \code{m > 0}, integration is carried out with respect to the Lebesgue
@@ -44,13 +51,13 @@ exchTest(x, N = 1000, m = 0)
   with Continuous Margins Using the copula R Package. \emph{Journal of
   Statistical Software}, 34(9), pages 1-20.
 }
-\note{
-  This test was derived under the assumption of continuous margins,
-  which implies that ties occur with probability zero. The
-  presence of ties in the data might substantially affect the
-  approximate p-value. One way of dealing with ties was suggested in the
-  last reference.
-}
+%% \note{
+%%   This test was derived under the assumption of continuous margins,
+%%   which implies that ties occur with probability zero. The
+%%   presence of ties in the data might substantially affect the
+%%   approximate p-value. One way of dealing with ties was suggested in the
+%%   last reference.
+%% }
 \seealso{ \code{\link{exchEVTest}}, \code{\link{gofCopula}}. }
 \examples{
 ## Data from an exchangeable copulas

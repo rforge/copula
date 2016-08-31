@@ -9,20 +9,29 @@
 
   The test statistic is defined in the second reference.
   An approximate p-value for the test statistic is obtained
-  by means of a \emph{multiplier} technique.
+  by means of a \emph{multiplier} technique if there are no ties in the
+  component series of the bivariate data, or by means of an appropriate
+  bootstrap otherwise.
 }
 \usage{
 exchEVTest(x, N = 1000,  estimator = c("CFG", "Pickands"),
-           derivatives = c("Cn", "An"), m = 100)
+           ties = NA, m = 100, derivatives = c("Cn", "An"))
 }
 \arguments{
-  \item{x}{a data matrix that will be transformed to pseudo-observations.}
-  \item{N}{number of multiplier iterations to be used to simulate
-    realizations of the test statistic under the null hypothesis.}
+  \item{x}{a data matrix that will be transformed to
+    pseudo-observations.}
+  \item{N}{number of multiplier or boostrap iterations to be used to
+    simulate realizations of the test statistic under the null
+    hypothesis.}
   \item{estimator}{string specifying which nonparametric estimator of
     the Pickands dependence function \eqn{A()} to use; can be either
     \code{"CFG"} or \code{"Pickands"}; see Genest and Segers (2009).}
-  \item{derivatives}{a string specifying how the derivatives of the
+  \item{ties}{logical; if \code{FALSE}, approximate p-values are computed by
+    means of multiplier bootstrap; if \code{TRUE}, a boostrap adapted to the
+    presence of ties in any of the coordinate samples of \code{x}
+    is used; the default value of \code{NA} indicates that the
+    presence/absence of ties will be checked for automatically.}
+   \item{derivatives}{a string specifying how the derivatives of the
     unknown copula are estimated; can be either \code{"An"} or \code{"Cn"}.
     The former should be used under the assumption of extreme-value
     dependence.  The latter is faster; see the second reference.}
