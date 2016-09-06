@@ -2,6 +2,9 @@
 
 fitCopula_methods <- eval(formals(fitCopula_dflt)$method)
 
+.copulaEnv <- new.env(parent = emptyenv(), hash = FALSE)#  e.g., for  once-per-session warnings
+
+
 if(FALSE) { ## <<--- 2016-07-28 --- The following kills  hasMethod(<genfun>, <signature>)
 
 ## the generics for which we may want to have "bail out" methods:

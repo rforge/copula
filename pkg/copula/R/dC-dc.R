@@ -58,8 +58,13 @@ sides <- function(x, dimx, d, lb, ub) {
 ##' @return partial derivatives of the copula wrt arguments at u
 ##' @author Ivan Kojadinovic
 dCduCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-1), ...) {
-    warning("Function dCdu() not implemented for copulas of class '", class(copula),
-            "'; numerical differentiation used")
+    cl <- class(copula)[[1]]
+    if(is.null(W <- get0("warned.dCdu", .copulaEnv)) || is.na(match(cl, W))) {
+	assign("warned.dCdu", if(is.null(W)) cl else c(W, cl), envir = .copulaEnv)
+	warning(gettextf(
+	"Function %s() not implemented for %s copulas; numerical differentiation used",
+	"dCdu", dQuote(cl)), domain=NA)
+    }
     logC <- function(x) log(pCopula(x, copula))
     dim <- dim(copula) # GETR
     res <- t(apply(u, 1, function(u.)
@@ -267,8 +272,13 @@ setGeneric("dCdtheta", function(copula, u, ...) standardGeneric("dCdtheta"))
 ##' @return n by p, partial derivatives of the copula wrt parameters at u
 ##' @author Ivan Kojadinovic
 dCdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-1), ...) {
-    warning("Function dCdtheta() not implemented for copulas of class '",
-            class(copula), "'; numerical differentiation used")
+    cl <- class(copula)[[1]]
+    if(is.null(W <- get0("warned.dCdtheta", .copulaEnv)) || is.na(match(cl, W))) {
+	assign("warned.dCdtheta", if(is.null(W)) cl else c(W, cl), envir = .copulaEnv)
+	warning(gettextf(
+	"Function %s() not implemented for %s copulas; numerical differentiation used",
+	"dCdtheta", dQuote(cl)), domain=NA)
+    }
     logC <- function(theta) {
         freeParam(copula) <- theta
         log(pCopula(u, copula))
@@ -407,8 +417,13 @@ setGeneric("dlogcdu", function(copula, u, ...) standardGeneric("dlogcdu"))
 ##' @return partial derivatives of the log copula density wrt arguments at u
 ##' @author Ivan Kojadinovic
 dlogcduCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-5), ...) {
-    warning("Function dlogcdu() not implemented for copulas of class '",
-            class(copula), "'; numerical differentiation used")
+    cl <- class(copula)[[1]]
+    if(is.null(W <- get0("warned.dlogcdu", .copulaEnv)) || is.na(match(cl, W))) {
+	assign("warned.dlogcdu", if(is.null(W)) cl else c(W, cl), envir = .copulaEnv)
+	warning(gettextf(
+	"Function %s() not implemented for %s copulas; numerical differentiation used",
+	"dlogcdu", dQuote(cl)), domain=NA)
+    }
     logc <- function(x) dCopula(x, copula, log = TRUE)
     dim <- dim(copula) # GETR
     t(apply(u, 1, function(u.)
@@ -476,8 +491,13 @@ setGeneric("dlogcdtheta", function(copula, u, ...) standardGeneric("dlogcdtheta"
 ##' @return partial derivatives of the log copula density wrt parameters at u
 ##' @author Ivan Kojadinovic
 dlogcdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-5), ...) {
-    warning("Function dlogcdtheta() not implemented for copulas of class '",
-            class(copula), "'; numerical differentiation used")
+    cl <- class(copula)[[1]]
+    if(is.null(W <- get0("warned.dlogcdtheta", .copulaEnv)) || is.na(match(cl, W))) {
+	assign("warned.dlogcdtheta", if(is.null(W)) cl else c(W, cl), envir = .copulaEnv)
+	warning(gettextf(
+	"Function %s() not implemented for %s copulas; numerical differentiation used",
+	"dlogcdtheta", dQuote(cl)), domain=NA)
+    }
     logc <- function(theta) {
         freeParam(copula) <- theta
         dCopula(u, copula, log = TRUE)

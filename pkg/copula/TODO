@@ -1,12 +1,13 @@
 ##-*- org -*-->  Emacs .. [Tab] key + [Org] menu; C-c C-o to follow links
 * Short Term (before 1.0.0):
 ** TODO [IK] gofPB(*, ties=TRUE) is *never* tested, *nor* documented (man/gofCopula.Rd); see FIXME, what if x has no ties?
-** TODO [MM] warnings about numDeriv() should only be displayed once per R session (and be suppressible).
-** TODO [MM] copula@fullname: *abolish* (deprecate) and replace by a function (i.e. a method) !!!!
-*** TODO [MM] copula@fullname: is used in print() method; Want also use for plotting -- hence urgent for book!
+** DONE [MM] warnings about `numDeriv()` to be displayed once per R session and could be suppressed.
+** TODO [MM] copula@fullname: *abolish* (deprecate) and replace by function _describeCop()_ generic & methods
+*** DONE [MM] copula@fullname: is used in print() method; Want also use for plotting -- hence urgent for book!
 - want to use "it" by default, e.g.,  `main = copula@fullname` in persp() etc, *HOWEVER*
   it is too long / ugly, e.g.,  "Gumbel copula family; Archimedean copula; Extreme value copula"
   contains "copula" *3* times !
+*** TODO describeCop() is not good enough for all copulas.
 ** TODO [MM,MH] qK(p, method="default") is quite inaccurate.  Change default; be smart about "close to 0".
 ** TODO R/dC-dc.R : switch(class(copula)[1], "normalCopula" = , ....) does *NOT* work when class(copula) *extends*,
  e.g., setClass('nrmCopula', contains="normalCopula")  ... also in othe R/*.R files ?

@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-16 (2016-08-.., svn r14..)}{
+\section{Changes in version 0.999-16 (2016-09-.., svn r14..)}{
   \subsection{Bug Fixes}{
     \itemize{
       \item \code{pK(u, log.p=TRUE)} now correctly checks \code{u}.
@@ -40,6 +40,9 @@
 
       \item improved documentation about \code{pK()} and \code{qK()}.
 
+      \item \code{mixCopula()} and \code{"mixCopula"} class for
+      arbitrary finite mixtures of copulas.
+      %% FIXME:  fixCopula() is *NOT* ok [sum(w) == 1] -- need reparametrization
 %% TODO \item qK() gets a more accurate (still quite fast) default method
     }
   }

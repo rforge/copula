@@ -120,8 +120,7 @@ kcf2 <- khoudrajiCopula(copula2 = claytonCopula(),
                         shapes = fixParam(c(NA_real_, 0.95), c(FALSE, TRUE)))
 system.time(
 f.ICf <- fitCopula(kcf2, start = c(1.1, 0.5), data = pobs(u),
-                   optim.method = "Nelder-Mead",
-                   hideWarnings = TRUE)# (as long as warnings about num.deriv.)
+                   optim.method = "Nelder-Mead")
 ) # ~ 7-8 sec
 confint(f.ICf) # !
 coef(f.ICf, SE=TRUE)
@@ -129,7 +128,7 @@ coef(f.ICf, SE=TRUE)
 ## With a different optimization method
 system.time(
 f.IC2 <- fitCopula(kcf2, start = c(1.1, 0.5), data = pobs(u),
-                   optim.method = "BFGS", hideWarnings=TRUE)
+                   optim.method = "BFGS")
 )
 printCoefmat(coef(f.IC2, SE=TRUE), digits = 3) # w/o unuseful extra digits
 
