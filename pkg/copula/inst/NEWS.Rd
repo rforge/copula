@@ -2,7 +2,7 @@
 %  news(db = tools:::.build_news_db_from_package_NEWS_Rd("~/R/Pkgs/copula/inst/NEWS.Rd"))
 \name{NEWS}
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
-\newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
+\newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
 \section{Changes in version 0.999-16 (2016-09-.., svn r14..)}{
   \subsection{Bug Fixes}{

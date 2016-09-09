@@ -274,7 +274,7 @@ particular focus is put on nested Archimedean copulas. The \R\ package
 \pkg{nacopula} had been the first \R\ package dealing with these functions,
 and is now part of the \R\ package \pkg{copula}.
 It is available from the Comprehensive R Archive Network at
-\url{http://CRAN.R-project.org/package=copula}.
+\url{https://CRAN.R-project.org/package=copula}.
 
 \section{Archimedean copulas}
 \subsection{Archimedean copulas and their properties}
