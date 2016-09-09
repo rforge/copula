@@ -25,6 +25,11 @@ mixCopula(coplist, w = NULL)
 \value{
   an object of \code{\link{class}} \code{\linkS4class{mixCopula}}
 }
+\details{
+  It easy to see that the tail dependencies \code{\link{lambda}()} and
+  Spearman's rank correlation \code{\link{rho}()} can be computed as
+  mixture of the individual measures.% but Kendall's tau cannot !
+}
 % \author{ Martin Maechler }
 \seealso{
  \code{\link{khoudrajiCopula}}, \code{\link{rotCopula}} also create new
@@ -43,6 +48,12 @@ uM <- rCopula(600, mC)
 splom2(uM, main = "mixCopula( (gumbel, clayton, t-Cop) )")
 d.uM <- dCopula(uM, mC)
 p.uM <- pCopula(uM, mC)
+
+## mix a Gumbel with a rotated Gumbel (with equal weights 1/2):
+mGG <- mixCopula(list(gumbelCopula(2), rotCopula(gumbelCopula(1.5))))
+rho(mGG)   # 0.57886
+lambda(mGG)# both lower and upper tail dependency
+
 
 loglikCopula(c(2.5, pi, rho.1=0.7, df = 4, w = c(2,2,4)/8),
                     u = uM, copula = mC)

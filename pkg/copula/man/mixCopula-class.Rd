@@ -2,6 +2,8 @@
 \title{Class \code{"mixCopula"} of Copula Mixtures}
 \alias{mixCopula-class}
 \alias{dim,mixCopula-method}
+\alias{lambda,mixCopula-method}
+\alias{rho,mixCopula-method}
 \Rdversion{1.1}
 \docType{class}
 \description{
@@ -27,6 +29,11 @@ Class \code{"\linkS4class{Copula}"}, by class "parCopula", distance 2.
 \section{Methods}{
   \describe{
     \item{dim}{\code{signature(x = "mixCopula")}: dimension of copula.}
+    \item{rho}{\code{signature(x = "mixCopula")}: Spearman's rho of
+      copula \code{x}.}
+    \item{lambda}{\code{signature(x = "mixCopula")}: lower and upper
+      tail dependecies \code{\link{lambda}}, \eqn{(\lambda[L],\lambda[U])},
+      of the mixture copula.}
   }
 }
 \seealso{

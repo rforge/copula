@@ -165,3 +165,10 @@ setMethod("rCopula", signature("numeric", "mixCopula"),
 		  do.call(rbind, U)[sample.int(n), ]
 	      }
 	  })
+
+setMethod("lambda", "mixCopula", function(copula, ...)
+    c(vapply(copula@cops, lambda, numeric(2)) %*% copula@w))
+
+setMethod("rho", "mixCopula", function(copula, ...)
+    c(vapply(copula@cops, rho, 1.1) %*% copula@w))
+
