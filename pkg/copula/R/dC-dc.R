@@ -396,7 +396,7 @@ dCdthetaEllipCopula <- function(copula, u, ...) {
                       copula@dispstr)
         }
     }
-    free <- isFree(copula@parameters)
+    free <- isFreeP(copula@parameters)
     if (.hasSlot(copula, "df.fixed")) free <- free[-length(free)]
     val[, free, drop = FALSE]
 }
@@ -621,7 +621,7 @@ dlogcdthetaEllipCopula <- function(copula, u, ...) {
             else stop("Not implemented yet for the dispersion structure ", copula@dispstr)
         }
     } ## dim >= 3
-    free <- isFree(copula@parameters)
+    free <- isFreeP(copula@parameters)
     if (.hasSlot(copula, "df.fixed")) free <- free[-length(free)]
     val[, free, drop = FALSE]
 }

@@ -84,7 +84,7 @@ tevCopula <- function(param = NA_real_, df = 4, df.fixed = FALSE) {
   ##       df.fixed)
 
   ## IK: new version
-  attr(parameters, "fixed") <- c(isFixedP(param), df.fixed)
+  attr(parameters, "fixed") <- c(!isFreeP(param), df.fixed)
 
   new("tevCopula",
              dimension = dim,

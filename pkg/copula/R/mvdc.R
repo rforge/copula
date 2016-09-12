@@ -58,8 +58,7 @@ mvdc <- function(copula, margins, paramMargins, marginsIdentical = FALSE,
 	marginsIdentical = marginsIdentical)
 }
 
-setMethod("dim", "mvdc", function(x) x@copula@dimension)
-
+## "dim": via "xcopula" method
 
 ##' @title Parameter names of the margins of an "mvdc" object
 ##' @param mv

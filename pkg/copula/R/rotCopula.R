@@ -48,23 +48,8 @@ rotCopula <- function(copula, flip = TRUE) {
 ### Basic methods
 ##################################################################################
 
-## dimension
-setMethod("dim", signature("rotCopula"), function(x) dim(x@copula))
+## dimension setMethod("dim", signature("rotCopula"), ...) : via "xcopula"
 
-## logical indicating which parameters are free
-setMethod("free", signature("rotCopula"), function(copula)
-    free(copula@copula))
-
-## logical indicating which parameters are fixed
-setMethod("fixed", signature("rotCopula"), function(copula)
-    fixed(copula@copula))
-
-## number of parameters
-setMethod("nParam", signature("rotCopula"), function(copula) nParam(copula@copula))
-
-## number of free parameters
-setMethod("nFreeParam", signature("rotCopula"), function(copula)
-    nFreeParam(copula@copula))
 
 ## parameter names
 setMethod("paramNames", "rotCopula", function(x) paramNames(x@copula))

@@ -76,10 +76,10 @@ setMethod("freeParam<-", signature("mixCopula", "numeric"),
 	  function(copula, value) {
 	      cops <- copula@cops
 	      m <- length(cops)
-	      nj <- vapply(cops, nFreeParam, 1)
+	      nj <- vapply(cops, nParam, 1, freeOnly=TRUE)
 	      ## FIXME re-parametrize a la nor1mix::nM2par / .par2nM
 	      ## ----- i.e. value would only contain  qlogis(w[-1])  !!
-	      nw <- length(iF.w <- isFree(w <- copula@w))
+	      nw <- length(iF.w <- isFreeP(w <- copula@w))
 	      if (sum(nj) + nw != length(value))
 		  stop(sprintf(
 		  "length(value) = %d  !=  %d, the number of free parameters",
@@ -98,20 +98,14 @@ setMethod("freeParam<-", signature("mixCopula", "numeric"),
 	  })
 
 ## logical indicating which parameters are free
-setMethod("free", signature("mixCopula"), function(copula)
-    c(unlist(lapply(copula@cops, free)), isFree(copula@w))) # FIXME reparametrize 'w'
+setMethod("isFree", signature("mixCopula"), function(copula)
+    c(unlist(lapply(copula@cops, isFree)), isFreeP(copula@w))) # FIXME reparametrize 'w'
 
-## logical indicating which parameters are fixed
-setMethod("fixed", signature("mixCopula"), function(copula)
-    c(unlist(lapply(copula@cops, fixed)), isFixedP(copula@w))) # FIXME reparametrize 'w'
+## number of (free / all) parameters :
+setMethod("nParam", signature("mixCopula"), function(copula, freeOnly=FALSE)
+    sum(vapply(copula@cops, nParam, 1, freeOnly=freeOnly)) +
+    (if(freeOnly) nFree else length)(copula@w)) # FIXME reparametrize 'w'
 
-## number of parameters
-setMethod("nParam", signature("mixCopula"), function(copula)
-    sum(vapply(copula@cops, nParam, 1)) + length(copula@w)) # FIXME reparametrize 'w'
-
-## number of free parameters
-setMethod("nFreeParam", signature("mixCopula"), function(copula)
-    sum(vapply(copula@cops, nFreeParam, 1)) + nFree(copula@w)) # FIXME reparametrize 'w'
 
 
 setMethod(describeCop, c("mixCopula", "character"), function(x, kind) {

@@ -27,12 +27,10 @@ setGeneric("freeParam<-", function(copula, value) standardGeneric("freeParam<-")
 ## set or modify "fixedness" of parameters
 setGeneric("fixedParam<-", function(copula, value) standardGeneric("fixedParam<-"))
 ## logical vector indicating which parameters are free
-setGeneric("free", function(copula) standardGeneric("free"))
-## logical vector indicating which parameters are fixed
-setGeneric("fixed", function(copula) standardGeneric("fixed"))
-## number of parameters
-setGeneric("nParam", function(copula) standardGeneric("nParam"))
-## number of free parameters
-setGeneric("nFreeParam", function(copula) standardGeneric("nFreeParam"))
+setGeneric("isFree", function(copula) standardGeneric("isFree"))
+
+## number of (all/free) parameters
+setGeneric("nParam", function(copula, freeOnly = FALSE) standardGeneric("nParam"),
+           signature = "copula")
 
 

@@ -81,26 +81,20 @@ setClass("khoudrajiExplicitCopula", contains = "khoudrajiCopula",
 setMethod("dim", signature("khoudrajiCopula"), function(x) dim(x@copula1))
 
 ## logical indicating which parameters are free
-setMethod("free", signature("khoudrajiCopula"), function(copula)
-    c(free(copula@copula1), free(copula@copula2), isFree(copula@shapes)))
+setMethod("isFree", signature("khoudrajiCopula"), function(copula)
+    c(isFree(copula@copula1), isFree(copula@copula2), isFreeP(copula@shapes)))
 
-## logical indicating which parameters are fixed
-setMethod("fixed", signature("khoudrajiCopula"), function(copula)
-    c(fixed(copula@copula1), fixed(copula@copula2), isFixedP(copula@shapes)))
-
-## number of parameters
-setMethod("nParam", signature("khoudrajiCopula"), function(copula)
-    nParam(copula@copula1) + nParam(copula@copula2) + length(copula@shapes))
-
-## number of free parameters
-setMethod("nFreeParam", signature("khoudrajiCopula"), function(copula)
-    nFreeParam(copula@copula1) + nFreeParam(copula@copula2) + nFree(copula@shapes))
+## number of (free / all) parameters :
+setMethod("nParam", signature("khoudrajiCopula"), function(copula, freeOnly=FALSE)
+    nParam(copula@copula1, freeOnly=freeOnly) +
+    nParam(copula@copula2, freeOnly=freeOnly) +
+    (if(freeOnly) nFree else length)(copula@shapes))
 
 ## parameter names
 setMethod("paramNames", signature("khoudrajiCopula"), function(x) {
-    c(if (nFreeParam(x@copula1) > 0L) paste0("c1.", paramNames(x@copula1)) else NULL,
-      if (nFreeParam(x@copula2) > 0L) paste0("c2.", paramNames(x@copula2)) else NULL,
-      paste0("shape", 1:dim(x))[isFree(x@shapes)])
+    c(if (nParam(x@copula1, freeOnly=TRUE) > 0L) paste0("c1.", paramNames(x@copula1)) else NULL,
+      if (nParam(x@copula2, freeOnly=TRUE) > 0L) paste0("c2.", paramNames(x@copula2)) else NULL,
+      paste0("shape", 1:dim(x))[isFreeP(x@shapes)])
 })
 
 ## get parameters
@@ -128,15 +122,15 @@ setMethod("getParam", "khoudrajiCopula",
 ## set free parameters
 setMethod("freeParam<-", signature("khoudrajiCopula", "numeric"),
           function(copula, value) {
-    n1 <- nFreeParam(copula@copula1)
-    n2 <- nFreeParam(copula@copula2)
+    n1 <- nParam(copula@copula1, freeOnly=TRUE)
+    n2 <- nParam(copula@copula2, freeOnly=TRUE)
     ns <- nFree(copula@shapes)
     if (n1 + n2 + ns != length(value))
         stop("the length of 'value' is not equal to the number of free parameters")
     if (n1 > 0L) freeParam(copula@copula1) <- value[1:n1]
     if (n2 > 0L) freeParam(copula@copula2) <- value[n1 + 1:n2]
     if (ns > 0L) {
-        fixed <- isFixedP(copula@shapes)
+        fixed <- !isFreeP(copula@shapes)
         copula@shapes[!fixed] <- value[n1 + n2 + 1:ns]
     }
     copula
@@ -445,7 +439,7 @@ setMethod("dCdtheta", signature("khoudrajiBivCopula"),
     if (!hasMethod(dCdu, class(copula@copula1)) ||
         !hasMethod(dCdu, class(copula@copula2)))
         stop("The argument copulas must both have the 'dCdu()' method implemented")
-    free <- isFree(copula@shapes)
+    free <- isFreeP(copula@shapes)
     g <- KhoudFn$g
     gu1 <- cbind(g(u[,1], 1 - a1), g(u[,2], 1 - a2))
     gu2 <- cbind(g(u[,1], a1), g(u[,2], a2))
@@ -453,12 +447,12 @@ setMethod("dCdtheta", signature("khoudrajiBivCopula"),
     dC2du <- dCdu(copula@copula2, gu2)
     pC1gu1 <- pCopula(gu1, copula@copula1)
     pC2gu2 <- pCopula(gu2, copula@copula2)
-    cbind(if (nFreeParam(copula@copula1) > 0) dCdtheta(copula@copula1, gu1) * pC2gu2 else NULL,
-          if (nFreeParam(copula@copula2) > 0) pC1gu1 * dCdtheta(copula@copula2, gu2) else NULL,
+    cbind(if(nParam(copula@copula1, freeOnly=TRUE) > 0) dCdtheta(copula@copula1, gu1) * pC2gu2,# else NULL
+          if(nParam(copula@copula2, freeOnly=TRUE) > 0) pC1gu1 * dCdtheta(copula@copula2, gu2),#  "    "
           if (free[1]) -log(u[,1]) * g(u[,1], 1 - a1) * dC1du[,1] * pC2gu2 +
-          pC1gu1 * log(u[,1]) * g(u[,1], a1) * dC2du[,1] else NULL,
+          pC1gu1 * log(u[,1]) * g(u[,1], a1) * dC2du[,1],
           if (free[2]) -log(u[,2]) * g(u[,2], 1 - a2) * dC1du[,2] * pC2gu2 +
-          pC1gu1 * log(u[,2]) * g(u[,2], a2) * dC2du[,2] else NULL)
+          pC1gu1 * log(u[,2]) * g(u[,2], a2) * dC2du[,2])
 })
 
 ##################################################################################

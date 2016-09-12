@@ -165,7 +165,7 @@ getL <- function(copula) {
     ## for ellipCopula only!
     dim <- dim(copula) # GETR
     dd <- dim * (dim - 1) / 2
-    free <- free(copula) # GETR
+    free <- isFree(copula) # GETR
     if (.hasSlot(copula, "df.fixed")) free <- free[-length(free)]
 
     dgidx <- outer(1:dim, 1:dim, "-")
@@ -202,7 +202,7 @@ getXmat <- function(copula) { ## FIXME(?) only works for "copula" objects, but n
     dd <- dim * (dim - 1) / 2
     xmat <-
     if (!is(copula, "ellipCopula")) # one-parameter non-elliptical copula
-	if((n.th <- nFreeParam(copula)) == 1L) # GETR
+	if((n.th <- nParam(copula, freeOnly=TRUE)) == 1L) # GETR
 	    matrix(1, nrow=dd, ncol=1)
 	else stop(gettextf( ## should not happen currently, but s
 		 "getXmat() not yet implemented for non-elliptical copulas with %d parameters",
@@ -224,7 +224,7 @@ getXmat <- function(copula) { ## FIXME(?) only works for "copula" objects, but n
                },
                stop("Not implemented yet for the dispersion structure ", copula@dispstr))
     }
-    free <- free(copula) # GETR ## the last one is for df and not needed
+    free <- isFree(copula) # GETR ## the last one is for df and not needed
     if (.hasSlot(copula, "df.fixed")) free <- free[-length(free)]
     xmat[, free, drop=FALSE]
 }
@@ -246,7 +246,7 @@ var.icor <- function(cop, u, method=c("itau", "irho"))
     method <- match.arg(method)
     dim <- dim(cop) # GETR
     dd <- dim * (dim - 1) / 2
-    free <- free(cop) # GETR
+    free <- isFree(cop) # GETR
     n <- nrow(u)
     v <- matrix(0, n, dd)
 
@@ -305,7 +305,7 @@ var.icor <- function(cop, u, method=c("itau", "irho"))
         v %*% L %*% D
     }
     ## FIXME: can be made more efficient by extracting L and D
-    ## free <- free(cop)
+    ## free <- isFree(cop)
     ## v <- v[free, free, drop = FALSE]
     var(v) * if(method=="itau") 16 else 144
 }
@@ -317,10 +317,8 @@ var.icor <- function(cop, u, method=c("itau", "irho"))
 var.mpl <- function(cop, u)
 {
     ## Checks
-    ## BEGIN GETR
-    p <- nFreeParam(cop) # parameter space dimension p
+    p <- nParam(cop, freeOnly=TRUE) # parameter space dimension p
     dim <- dim(cop) # copula dimension d
-    ## END GETR
     ans <- matrix(NA_real_, p, p) # matrix(NA_real_, 0, 0)
     ccl <- getClass(clc <- class(cop))
     isEll <- extends(ccl, "ellipCopula")
@@ -372,7 +370,7 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
             warning("\"", method, "\" fitting ==> copula coerced to 'df.fixed=TRUE'")
         copula <- as.df.fixed(copula, classDef = ccl)
     }
-    stopifnot(any(free <- free(copula))) # GETR
+    stopifnot(any(free <- isFree(copula))) # GETR
     if(missing(call)) call <- match.call()
     if (.hasSlot(copula, "df.fixed")) free <- free[-length(free)]
     icor <- fitCor(copula, x, method=method, posDef=posDef, matrix=FALSE, ...)
@@ -429,7 +427,7 @@ fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
                                estimate.variance, tol=.Machine$double.eps^0.25,
                                traceOpt = FALSE, call, ...)
 {
-    stopifnot(any(free <- free(copula))) # GETR
+    stopifnot(any(free <- isFree(copula))) # GETR
     if(any(u < 0) || any(u > 1))
         stop("'u' must be in [0,1] -- probably rather use pobs(.)")
     ## Note: We require dispstr = "un" as it is a) the method of Mashal, Zeevi (2002) and
@@ -518,7 +516,7 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
                          optim.method, optim.control, estimate.variance,
                          bound.eps=.Machine$double.eps^0.5, call, ...)
 {
-    stopifnot((q <- nFreeParam(copula)) > 0L, # GETR
+    stopifnot((q <- nParam(copula, freeOnly=TRUE)) > 0L, # GETR
 	      is.list(optim.control) || is.null(optim.control),
 	      is.character(optim.method), length(optim.method) == 1)
     chk.s(...) # 'check dots'
@@ -632,7 +630,7 @@ fitCopula_dflt <- function(copula, data,
                            optim.control = list(maxit=1000),
                            estimate.variance = NA, hideWarnings = FALSE, ...)
 {
-    stopifnot(any(free(copula)), # GETR
+    stopifnot(any(isFree(copula)), # GETR
 	      is.list(optim.control) || is.null(optim.control))
     if(!is.matrix(data)) {
         warning("coercing 'data' to a matrix.")

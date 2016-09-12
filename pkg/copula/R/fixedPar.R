@@ -32,32 +32,15 @@ fixParam <- function(param, fixed = TRUE) {
 ##' @param param Numeric parameter vector, possibly with "fixed" attribute
 ##' @return A vector of logicals, TRUE = free
 ##' @author Jun Yan
-isFree <- function(param)
+isFreeP <- function(param)
     if (is.null(fixed <- attr(param, "fixed"))) rep(TRUE, length(param)) else !fixed
-
-##' @title Return the attribute "fixed" even if it does not explicitly exist
-##' @param param Numeric parameter vector, possibly with "fixed" attribute
-##' @return A vector of logicals, FALSE = fixed
-##' @author Ivan Kojadinovic
-isFixedP <- function(param)
-    if (is.null(fixed <- attr(param, "fixed"))) rep(FALSE, length(param)) else fixed
-
-
-##' @title Whether or not the copula has "fixed" attr in parameters
-##' @param copula A 'copula' object
-##' @return TRUE if has, otherwise FALSE
-##' @author Jun Yan
-## unused
-## hasFixedPar <- function(copula) !is.null(attr(copula, "fixed"))
-### This to be used in place when npar is needed ###############################
 
 ##' @title Number of Free Parameters of a Vector
 ##' @param x A numeric parameter vector with possible attribute "fixed"
 ##' @return Length of free parameter
 ##' @author Jun Yan
-nFree <- function(param) {
-    length(param[isFree(param)]) # GETR
-}
+nFree <- function(param) length(param[isFreeP(param)])
+
 
 ### get and set free/fixed parameters, needed in fitCopula #####################
 
@@ -135,16 +118,9 @@ setMethod("fixedParam<-", signature("copula", "logical"), function(copula, value
 })
 
 
-## BEGIN GETR
 ## logical indicating which parameters are free
-setMethod("free", signature("copula"), function(copula) isFree(copula@parameters))
+setMethod("isFree", signature("copula"), function(copula) isFreeP(copula@parameters))
 
-## logical indicating which parameters are fixed
-setMethod("fixed", signature("copula"), function(copula) isFixedP(copula@parameters))
-
-## number of free parameters
-setMethod("nFreeParam", signature("copula"), function(copula) nFree(copula@parameters))
-
-## number of parameters
-setMethod("nParam", signature("copula"), function(copula) length(copula@parameters))
-## END GETR
+## number of (free / all) parameters :
+setMethod("nParam", signature("copula"), function(copula, freeOnly=FALSE)
+    (if(freeOnly) nFree else length)(copula@parameters))

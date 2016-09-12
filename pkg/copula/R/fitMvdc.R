@@ -149,7 +149,7 @@ fitMvdc <- function(data, mvdc, start,
     marNpar <- lengths(mvdc@paramMargins)# or  vapply(mvdc@paramMargins, nFree, 1L)
     margid <- mvdc@marginsIdentical
     q <- length(start)
-    if(q != nFreeParam(copula) + (if(margid) marNpar[1] else sum(marNpar)))
+    if(q != nParam(copula, freeOnly=TRUE) + (if(margid) marNpar[1] else sum(marNpar)))
 	stop("The lengths of 'start' and mvdc parameters do not match.")
     mvdCheckM(mvdc@margins, "p")
     control <- c(optim.control, fnscale=-1)

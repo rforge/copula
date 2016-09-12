@@ -274,7 +274,7 @@ Jscore <- function(copula, u, method)
            influ0 <- dlogcdtheta(copula, u) # (n, p)-matrix
            derArg <- dlogcdu    (copula, u) # (n, d)-matrix
            influ <- lapply(1:d, function(i) influ0*derArg[,i])
-           p <- nFreeParam(copula) # GETR
+           p <- nParam(copula, freeOnly=TRUE)
            S <- matrix(0, n, p)
            for(j in 1:d) {
                ij <- order(u[,j], decreasing=TRUE)

@@ -40,7 +40,7 @@ tCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex",
     param.names <- c(paste("rho", seq_len(pdim), sep="."), "df")
     param.lowbnd <- c(lowbnd.rho.ellip(dim, dispstr, pdim), df.min)
     param.upbnd	 <- c(rep.int( 1, pdim),                     Inf)
-    attr(parameters, "fixed") <- c(isFixedP(param), df.fixed)
+    attr(parameters, "fixed") <- c(!isFreeP(param), df.fixed)
 
     new("tCopula", # validRho() in ./Classes.R checks 'dispstr' and more:
 	dispstr = dispstr,
