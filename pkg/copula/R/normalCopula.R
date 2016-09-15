@@ -40,7 +40,7 @@ pnormalCopula <- function(u, copula, ...) {
   ## stopifnot(is.matrix(u), ncol(u) == dim) # <- as called from pCopula()
   i.lower <- rep.int(-Inf, dim)
   sigma <- getSigma(copula)
-  apply(qnorm(u), 1, function(x) if(any(is.na(x))) NA_real_ else
+  apply(qnorm(u), 1, function(x) if(anyNA(x)) NA_real_ else
         pmvnorm(lower = i.lower, upper = x, sigma = sigma, ...))
 }
 
@@ -49,7 +49,7 @@ dnormalCopula <- function(u, copula, log=FALSE, ...) {
   sigma <- getSigma(copula)
   if(!is.matrix(u)) u <- matrix(u, ncol = dim)
   r <- numeric(nrow(u)) # i.e. 0  by default (i.e. "outside")
-  ok <- !apply(u, 1, function(x) any(is.na(x)))
+  ok <- !apply(u, 1, anyNA)
   x <- qnorm(u[ok, , drop=FALSE])
   ## work in log-scale [less over-/under-flow, then (maybe) transform:
   r[ok] <- dmvnorm(x, sigma = sigma, log=TRUE) - rowSums(dnorm(x, log=TRUE))

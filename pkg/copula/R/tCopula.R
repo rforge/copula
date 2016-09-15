@@ -124,7 +124,7 @@ ptCopula <- function(u, copula, ...) {
   if(!(df==Inf || df == as.integer(df)))
       stop("'df' is not integer (or Inf); therefore, pCopula() cannot be computed yet")
   ## more checks now  pCopula() *generic*
-  apply(u, 1, function(x) if(any(is.na(x))) NA_real_ else
+  apply(u, 1, function(x) if(anyNA(x)) NA_real_ else
 	pmvt(lower = i.lower, upper = qt(x, df = df), sigma = sigma, df = df, ...))
 }
 

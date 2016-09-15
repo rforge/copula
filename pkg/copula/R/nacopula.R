@@ -465,7 +465,7 @@ setMethod("rCopula", signature("numeric", "nacopula"), rnacopula)
 setMethod("lambda", "acopula",
 	  function(copula, ...) {
 	      th <- copula@theta
-	      if(any(is.na(th)))
+	      if(anyNA(th))
 		  warning("'theta' is NA -- maybe rather apply to setTheta(.)")
 	      c(copula@lambdaL(th), copula@lambdaU(th))
 	  })

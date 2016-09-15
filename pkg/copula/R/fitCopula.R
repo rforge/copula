@@ -528,7 +528,7 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
     if(missing(call)) call <- match.call()
     if(is.null(start))
         start <- fitCopStart(copula, u=u)
-    if(any(is.na(start))) stop("'start' contains NA values")
+    if(anyNA(start)) stop("'start' contains NA values")
     if (q != length(start))
         stop(gettextf("The lengths of 'start' (= %d) and the number of free copula parameters (=%d) differ",
                       length(start), q), domain=NA)
