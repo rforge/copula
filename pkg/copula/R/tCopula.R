@@ -135,10 +135,12 @@ dtCopula <- function(u, copula, log = FALSE, ...) {
   ## more checks now  dCopula() *generic*
   r <- numeric(nrow(u)) # i.e. 0  by default (i.e. "outside")
   ok <- u.in.01(u)
-  x <- qt(u[ok, , drop=FALSE], df)
-  ## work in log-scale [less over-/under-flow, then (maybe) transform]:
-  r[ok] <- dmvt(x, delta = rep.int(0, dim), sigma = sigma, df = df, log = TRUE) -
-      rowSums(dt(x, df = df, log=TRUE))
+  if(any(ok)) { # <- needed for R <= 3.4.0, and e.g., u = c(1,0,..,0,0)
+      x <- qt(u[ok, , drop=FALSE], df)
+      ## work in log-scale [less over-/under-flow, then (maybe) transform]:
+      r[ok] <- dmvt(x, delta = rep.int(0, dim), sigma = sigma, df = df, log = TRUE) -
+	  rowSums(dt(x, df = df, log=TRUE))
+  }
   if(log) r else exp(r)
 }
 
@@ -165,9 +167,10 @@ lambdaTCopula <- function(copula)
 setMethod("rCopula", signature("numeric", "tCopula"), rtCopula)
 
 setMethod("pCopula", signature("matrix", "tCopula"), ptCopula)
-setMethod("pCopula", signature("numeric", "tCopula"),ptCopula)
 setMethod("dCopula", signature("matrix", "tCopula"), dtCopula)
-setMethod("dCopula", signature("numeric", "tCopula"),dtCopula)
+## pCopula() and dCopula() *generic* already deal with non-matrix case!
+## setMethod("pCopula", signature("numeric", "tCopula"),ptCopula)
+## setMethod("dCopula", signature("numeric", "tCopula"),dtCopula)
 
 setMethod("show", signature("tCopula"), showTCopula)
 
