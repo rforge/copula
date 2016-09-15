@@ -47,22 +47,16 @@ setMethod("A", signature("indepCopula"), function(copula, w) rep.int(1, length(w
 setMethod("rCopula", signature("numeric", "indepCopula"),
           function(n, copula) matrix(runif(n * copula@dimension), nrow = n))
 
-pindepCopula <- function(u, copula, log.p=FALSE) {
-  stopifnot(ncol(u) == copula@dimension)
-  if(log.p) rowSums(log(u)) else apply(u, 1, prod)
-}
-
-setMethod("pCopula", signature("numeric", "indepCopula"),pindepCopula)
-setMethod("pCopula", signature("matrix", "indepCopula"), pindepCopula)
-
-dindepCopula <- function(u, copula, log=FALSE, ...) {
-  stopifnot(ncol(u) == copula@dimension)
-  rep.int(if(log) 0 else 1, nrow(u))
-}
-
-setMethod("dCopula", signature("numeric", "indepCopula"),dindepCopula)
-setMethod("dCopula", signature("matrix", "indepCopula"), dindepCopula)
-
+setMethod("pCopula", signature("matrix", "indepCopula"),
+	  function(u, copula, log.p=FALSE) {
+	      stopifnot(ncol(u) == copula@dimension)
+	      if(log.p) rowSums(log(u)) else apply(u, 1, prod)
+	  })
+setMethod("dCopula", signature("matrix", "indepCopula"),
+	  function(u, copula, log=FALSE, ...) {
+	      stopifnot(ncol(u) == copula@dimension)
+	      rep.int(if(log) 0 else 1, nrow(u))
+	  })
 
 setMethod("tau", "indepCopula", function(copula, ...) 0)
 setMethod("rho", "indepCopula", function(copula, ...) 0)

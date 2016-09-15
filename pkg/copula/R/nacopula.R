@@ -451,14 +451,15 @@ nacPairthetas <- function(x) {
 ###-- methods - glue  former "copula" <--> former "nacopula" ---------
 
 setMethod("pCopula", signature("matrix", "nacopula"), .pnacopula)
-setMethod("pCopula", signature("numeric", "nacopula"),
-	  function(u, copula, ...)
-	  .pnacopula(rbind(u, deparse.level = 0L), copula))
-
 setMethod("dCopula", signature("matrix", "nacopula"), .dnacopula)
-setMethod("dCopula", signature("numeric", "nacopula"),
-	  function(u, copula, log=FALSE, ...)
-	  .dnacopula(rbind(u, deparse.level = 0L), copula, log=log))
+
+## pCopula() and dCopula() *generic* already deal with non-matrix case!
+## setMethod("pCopula", signature("numeric", "nacopula"),
+## 	  function(u, copula, ...)
+## 	  .pnacopula(rbind(u, deparse.level = 0L), copula))
+## setMethod("dCopula", signature("numeric", "nacopula"),
+## 	  function(u, copula, log=FALSE, ...)
+## 	  .dnacopula(rbind(u, deparse.level = 0L), copula, log=log))
 
 setMethod("rCopula", signature("numeric", "nacopula"), rnacopula)
 

@@ -240,9 +240,7 @@ dRhoTevCopula <- function(copula) {
 
 ################################################################################
 
-setMethod("pCopula", signature("numeric", "tevCopula"),ptevCopula)
 setMethod("pCopula", signature("matrix", "tevCopula"), ptevCopula)
-setMethod("dCopula", signature("numeric", "tevCopula"),dtevCopula)
 setMethod("dCopula", signature("matrix", "tevCopula"), dtevCopula)
 
 

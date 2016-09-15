@@ -158,10 +158,7 @@ dRhoTawnCopula <- function(copula) {
 ################################################################################
 
 setMethod("pCopula", signature("matrix", "tawnCopula"), ptawnCopula)
-setMethod("pCopula", signature("numeric", "tawnCopula"),ptawnCopula)
 setMethod("dCopula", signature("matrix", "tawnCopula"), dtawnCopula)
-setMethod("dCopula", signature("numeric", "tawnCopula"),dtawnCopula)
-
 
 setMethod("A", signature("tawnCopula"), ATawn)
 setMethod("dAdu", signature("tawnCopula"), dAduTawn)

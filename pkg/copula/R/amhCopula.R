@@ -172,15 +172,17 @@ dMatAmh <- function (u, copula, log = FALSE, checkPar=TRUE, ...) {
 
 setMethod("rCopula", signature("numeric", "amhCopula"), ramhCopula)
 
-setMethod("pCopula", signature("numeric", "amhCopula"),
-	  function (u, copula, ...)
-          pMatAmh(matrix(u, ncol = dim(copula)), copula, ...))
 setMethod("pCopula", signature("matrix", "amhCopula"), pMatAmh)
-
-setMethod("dCopula", signature("numeric", "amhCopula"),
-	  function (u, copula, log=FALSE, ...)
-	  dMatAmh(matrix(u, ncol = dim(copula)), copula, log=log, ...))
 setMethod("dCopula", signature("matrix", "amhCopula"), dMatAmh)
+
+## pCopula() and dCopula() *generic* already deal with non-matrix case!
+## setMethod("pCopula", signature("numeric", "amhCopula"),
+## 	  function (u, copula, ...)
+##           pMatAmh(matrix(u, ncol = dim(copula)), copula, ...))
+## setMethod("dCopula", signature("numeric", "amhCopula"),
+## 	  function (u, copula, log=FALSE, ...)
+## 	  dMatAmh(matrix(u, ncol = dim(copula)), copula, log=log, ...))
+
 
 setMethod("iPsi", signature("amhCopula"),
 	  function(copula, u) copAMH@iPsi(u, theta=copula@parameters))

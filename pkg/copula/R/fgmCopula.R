@@ -199,10 +199,9 @@ iRhoFgmCopula <- function(copula, rho) {
 
 setMethod("rCopula", signature("numeric", "fgmCopula"), rfgmCopula)
 
-setMethod("pCopula", signature("numeric", "fgmCopula"),pfgmCopula)
 setMethod("pCopula", signature("matrix", "fgmCopula"), pfgmCopula)
-setMethod("dCopula", signature("numeric", "fgmCopula"),dfgmCopula)
 setMethod("dCopula", signature("matrix", "fgmCopula"), dfgmCopula)
+## pCopula() and dCopula() *generic* already deal with non-matrix case!
 
 setMethod("tau", signature("fgmCopula"), tauFgmCopula)
 setMethod("rho", signature("fgmCopula"), rhoFgmCopula)

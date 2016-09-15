@@ -129,7 +129,6 @@ pMixCopula <- function(u, copula, ...) {
 	copula@w)
 }
 
-setMethod("pCopula", signature("numeric", "mixCopula"), pMixCopula)
 setMethod("pCopula", signature("matrix",  "mixCopula"), pMixCopula)
 
 ##' The  c() function :
@@ -140,7 +139,6 @@ dMixCopula <- function(u, copula, log = FALSE, ...) {
 	copula@w)
 }
 
-setMethod("dCopula", signature("numeric", "mixCopula"), dMixCopula)
 setMethod("dCopula", signature("matrix",  "mixCopula"), dMixCopula)
 
 ## Random Number Generation

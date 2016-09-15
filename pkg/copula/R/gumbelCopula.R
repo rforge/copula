@@ -216,18 +216,19 @@ setMethod("rCopula", signature("numeric", "gumbelCopula"), rgumbelCopula)
 setMethod("pCopula", signature("matrix", "gumbelCopula"),
 	  ## was  pgumbelCopula
 	  function(u, copula, ...) .pacopula(u, copGumbel, theta=copula@parameters))
-setMethod("pCopula", signature("numeric", "gumbelCopula"),
-	  ## was  pgumbelCopula
-	  function(u, copula, ...) pacopula(u, copGumbel, theta=copula@parameters))
-
 setMethod("dCopula", signature("matrix", "gumbelCopula"),
 	  ## was  dgumbelCopula.pdf
 	  function (u, copula, log = FALSE, checkPar=TRUE, ...)
 	  copGumbel@dacopula(u, theta=copula@parameters, log=log, checkPar=checkPar, ...))
-setMethod("dCopula", signature("numeric", "gumbelCopula"),
-	  function (u, copula, log = FALSE, checkPar=TRUE, ...)
-	  copGumbel@dacopula(rbind(u, deparse.level=0L), theta=copula@parameters,
-			     log=log, ...))
+## pCopula() and dCopula() *generic* already deal with non-matrix case!
+## setMethod("pCopula", signature("numeric", "gumbelCopula"),
+## 	  ## was  pgumbelCopula
+## 	  function(u, copula, ...) pacopula(u, copGumbel, theta=copula@parameters))
+
+## setMethod("dCopula", signature("numeric", "gumbelCopula"),
+## 	  function (u, copula, log = FALSE, checkPar=TRUE, ...)
+## 	  copGumbel@dacopula(rbind(u, deparse.level=0L), theta=copula@parameters,
+## 			     log=log, ...))
 
 
 setMethod("A", signature("gumbelCopula"), AGumbel)

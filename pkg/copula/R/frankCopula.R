@@ -215,15 +215,17 @@ dMatFrank <- function (u, copula, log = FALSE, checkPar=TRUE, ...) {
 }
 setMethod("rCopula", signature("numeric", "frankCopula"), rfrankCopula)
 
-setMethod("pCopula", signature("numeric", "frankCopula"),
-	  function (u, copula, ...)
-	  pMatFrank(matrix(u, ncol = dim(copula)), copula, ...))
 setMethod("pCopula", signature("matrix", "frankCopula"), pMatFrank)
-
-setMethod("dCopula", signature("numeric", "frankCopula"),
-	  function (u, copula, log=FALSE, ...)
-	  dMatFrank(matrix(u, ncol = dim(copula)), copula, log=log, ...))
 setMethod("dCopula", signature("matrix", "frankCopula"), dMatFrank)
+
+
+## pCopula() and dCopula() *generic* already deal with non-matrix case!
+## setMethod("pCopula", signature("numeric", "frankCopula"),
+## 	  function (u, copula, ...)
+## 	  pMatFrank(matrix(u, ncol = dim(copula)), copula, ...))
+## setMethod("dCopula", signature("numeric", "frankCopula"),
+## 	  function (u, copula, log=FALSE, ...)
+## 	  dMatFrank(matrix(u, ncol = dim(copula)), copula, log=log, ...))
 
 setMethod("iPsi", signature("frankCopula"), iPsiFrank)
 setMethod("psi",  signature("frankCopula"),  psiFrank)

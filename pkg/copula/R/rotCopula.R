@@ -101,16 +101,14 @@ pRotCopula <- function(u, copula, ...) {
                            u = pmax(x, copula@flip)))
 }
 
-setMethod("pCopula", signature("numeric", "rotCopula"), pRotCopula)
-setMethod("pCopula", signature("matrix",  "rotCopula"), pRotCopula)
-
 ## dCopula
 dRotCopula <- function(u, copula, log = FALSE, ...) {
     dCopula(apply.flip(u, copula@flip), copula@copula, log = log, ...)
 }
 
-setMethod("dCopula", signature("numeric", "rotCopula"), dRotCopula)
+setMethod("pCopula", signature("matrix",  "rotCopula"), pRotCopula)
 setMethod("dCopula", signature("matrix",  "rotCopula"), dRotCopula)
+## pCopula() and dCopula() *generic* already deal with non-matrix case!
 
 ## rCopula
 setMethod("rCopula", signature("numeric", "rotCopula"),

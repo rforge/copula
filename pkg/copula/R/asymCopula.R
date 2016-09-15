@@ -337,8 +337,7 @@ pKhoudrajiCopula <- function(u, copula, ...) {
     p1 * p2
 }
 
-setMethod("pCopula", signature("numeric", "khoudrajiCopula"), pKhoudrajiCopula)
-setMethod("pCopula", signature("matrix", "khoudrajiCopula"),  pKhoudrajiCopula)
+setMethod("pCopula", signature("matrix", "khoudrajiCopula"), pKhoudrajiCopula)
 
 ## rCopula: for all Khoudraji copulas
 setMethod("rCopula", signature("numeric", "khoudrajiCopula"),
@@ -390,8 +389,8 @@ dKhoudrajiBivCopula <- function(u, copula, log = FALSE, ...) {
     else    part1 + part2 + part3 + part4
 }
 
-setMethod("dCopula", signature("numeric", "khoudrajiBivCopula"), dKhoudrajiBivCopula)
-setMethod("dCopula", signature("matrix", "khoudrajiBivCopula"), dKhoudrajiBivCopula)
+setMethod("dCopula", signature("matrix", "khoudrajiBivCopula"),
+          dKhoudrajiBivCopula)
 
 ## A: Restricted to *bivariate* Khoudraji copulas
 ## A: Pickands dependence function only if copula1 and copula2 are extreme-value
@@ -475,5 +474,4 @@ dKhoudrajiExplicitCopula.algr <- function(u, copula, log=FALSE, ...) {
     if(log) log(dens) else dens
 }
 
-setMethod("dCopula", signature("numeric", "khoudrajiExplicitCopula"), dKhoudrajiExplicitCopula.algr)
 setMethod("dCopula", signature("matrix",  "khoudrajiExplicitCopula"), dKhoudrajiExplicitCopula.algr)

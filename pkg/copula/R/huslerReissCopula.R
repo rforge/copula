@@ -197,11 +197,11 @@ huslerReissdRho <- function(alpha) {
 
 ################################################################################
 
-setMethod("pCopula", signature("numeric", "huslerReissCopula"),phuslerReissCopula)
 setMethod("pCopula", signature("matrix", "huslerReissCopula"), phuslerReissCopula)
-
-setMethod("dCopula", signature("numeric", "huslerReissCopula"),dhuslerReissCopula)
 setMethod("dCopula", signature("matrix", "huslerReissCopula"), dhuslerReissCopula)
+## pCopula() and dCopula() *generic* already deal with non-matrix case!
+## setMethod("dCopula", signature("numeric", "huslerReissCopula"),dhuslerReissCopula)
+
 
 ## inherits from "evCopula" --> revCopula() in ./evCopula.R :
 ## setMethod("rCopula", signature("numeric", "huslerReissCopula"), rhuslerReissCopula)

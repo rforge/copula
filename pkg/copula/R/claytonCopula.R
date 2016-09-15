@@ -222,18 +222,9 @@ dMatClayton <- function (u, copula, log = FALSE, checkPar=TRUE, ...) {
 }
 
 setMethod("rCopula", signature("numeric", "claytonCopula"), rclaytonCopula)
-
-setMethod("pCopula", signature("numeric", "claytonCopula"),
-	  function (u, copula, ...)
-	  ## was  pclaytonCopula
-          pMatClayton(matrix(u, ncol = dim(copula)), copula, ...))
 setMethod("pCopula", signature("matrix", "claytonCopula"), pMatClayton)
-
-setMethod("dCopula", signature("numeric", "claytonCopula"),
-	  function (u, copula, log=FALSE, ...)
-	  dMatClayton(matrix(u, ncol = dim(copula)), copula, log=log, ...))
 setMethod("dCopula", signature("matrix", "claytonCopula"), dMatClayton)
-
+## pCopula() and dCopula() *generic* already deal with non-matrix case!
 
 setMethod("iPsi", signature("claytonCopula"), iPsiClayton)
 setMethod("psi",  signature("claytonCopula"), psiClayton)

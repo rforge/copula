@@ -110,9 +110,10 @@ lambdaNormalCopula <- function(copula) {
 setMethod("rCopula", signature("numeric", "normalCopula"), rnormalCopula)
 
 setMethod("pCopula", signature("matrix", "normalCopula"), pnormalCopula)
-setMethod("pCopula", signature("numeric", "normalCopula"),pnormalCopula)
 setMethod("dCopula", signature("matrix", "normalCopula"), dnormalCopula)
-setMethod("dCopula", signature("numeric", "normalCopula"),dnormalCopula)
+## pCopula() and dCopula() *generic* already deal with non-matrix case!
+## setMethod("pCopula", signature("numeric", "normalCopula"),pnormalCopula)
+## setMethod("dCopula", signature("numeric", "normalCopula"),dnormalCopula)
 
 setMethod("show", signature("normalCopula"), showNormalCopula)
 

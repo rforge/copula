@@ -39,18 +39,20 @@ setMethod("rCopula", signature("numeric", "joeCopula"),
 	  function (n, copula, ...)
 	  racopula(n, copJoe, theta=copula@parameters, d = copula@dimension))
 
-setMethod("pCopula", signature("numeric", "joeCopula"),
-	  function(u, copula, ...) pacopula(u, copJoe, theta=copula@parameters))
 setMethod("pCopula", signature("matrix", "joeCopula"),
 	  function(u, copula, ...) .pacopula(u, copJoe, theta=copula@parameters))
 
 setMethod("dCopula" , signature("matrix", "joeCopula"),
 	  function (u, copula, log = FALSE, ...)
 	  copJoe@dacopula(u, theta=copula@parameters, log=log, ...))
-setMethod("dCopula", signature("numeric", "joeCopula"),
-	  function (u, copula, log = FALSE, ...)
-	  copJoe@dacopula(rbind(u, deparse.level=0L),
-			  theta=copula@parameters, log=log, ...))
+
+## pCopula() and dCopula() *generic* already deal with non-matrix case!
+## setMethod("pCopula", signature("numeric", "joeCopula"),
+## 	  function(u, copula, ...) pacopula(u, copJoe, theta=copula@parameters))
+## setMethod("dCopula", signature("numeric", "joeCopula"),
+## 	  function (u, copula, log = FALSE, ...)
+## 	  copJoe@dacopula(rbind(u, deparse.level=0L),
+## 			  theta=copula@parameters, log=log, ...))
 
 setMethod("psi", signature("joeCopula"),
 	  function(copula, s) copJoe@psi(t=s, theta=copula@parameters))

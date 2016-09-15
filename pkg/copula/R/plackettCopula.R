@@ -132,10 +132,8 @@ rhoPlackettCopula <- function(copula) {
 
 
 setMethod("pCopula", signature("matrix", "plackettCopula"), pplackettCopula)
-setMethod("pCopula", signature("numeric", "plackettCopula"),pplackettCopula)
-
 setMethod("dCopula", signature("matrix", "plackettCopula"), dplackettCopula)
-setMethod("dCopula", signature("numeric", "plackettCopula"),dplackettCopula)
+## pCopula() and dCopula() *generic* already deal with non-matrix case!
 
 setMethod("rCopula", signature("numeric", "plackettCopula"), rplackettCopula)
 
