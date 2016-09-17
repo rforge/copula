@@ -26,10 +26,9 @@ binom.sum <- function(n,k) sum(choose(n, 0:k))
 ##' @param m up to subsets of cardinality m
 ##' @param N number of simulations
 ##' @param verbose display progress bar if TRUE
-##' @param print.every is deprecated
 ##' @return an object of class 'indepTestDist'
 ##' @author Ivan Kojadinovic
-indepTestSim <- function(n, p, m=p, N=1000, verbose = interactive(), print.every = NULL)
+indepTestSim <- function(n, p, m=p, N=1000, verbose = interactive())
 {
     if (!is.numeric(n) || (n <- as.integer(n)) < 2)
         stop("n should be an integer greater than 2")
@@ -41,10 +40,6 @@ indepTestSim <- function(n, p, m=p, N=1000, verbose = interactive(), print.every
 	stop("N should be an integer greater than 5")
     if(N < 100 && getOption("copula:warn.idTS", TRUE))
 	warning("N should be at least 100")
-    if (!is.null(print.every)) {
-        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead.")
-        verbose <- print.every > 0
-    }
 
     sb <- binom.sum(p,m)
 
@@ -159,10 +154,9 @@ indepTest <- function(x, d, alpha=0.05)
 ##' @param m subsets of cardinality up to m
 ##' @param N number of simulations
 ##' @param verbose display progress bar if TRUE
-##' @param print.every is deprecated
 ##' @return an object of class 'serialIndepTestDist'
 ##' @author Ivan Kojadinovic
-serialIndepTestSim <- function(n, lag.max, m=lag.max+1, N=1000, verbose = interactive(), print.every = NULL)
+serialIndepTestSim <- function(n, lag.max, m=lag.max+1, N=1000, verbose = interactive())
 {
     if (!is.numeric(n) || (n <- as.integer(n)) < 2)
         stop("n should be an integer greater than 2")
@@ -180,11 +174,6 @@ serialIndepTestSim <- function(n, lag.max, m=lag.max+1, N=1000, verbose = intera
     if(N < 100) warning("N should be at least 100")
     if (!is.numeric(lag.max) || (p <- as.integer(lag.max) + 1) <= 1 || n-p+1 < 2)
       stop("wrong number of lags")
-    if (!is.null(print.every)) {
-        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead.")
-        verbose <- print.every > 0
-    }
-
 
     sb <- binom.sum(p-1,m-1)
 
@@ -299,11 +288,10 @@ serialIndepTest <- function(x, d, alpha=0.05)
 ##' @param N number of bootstrap replicates
 ##' @param alpha asymptotic nominal level
 ##' @param verbose display progress bar if TRUE
-##' @param print.every is deprecated
 ##' @return an object of class 'indepTest'
 ##' @author Ivan Kojadinovic
 multIndepTest <- function(x, d, m=length(d), N=1000, alpha=0.05,
-                          verbose = interactive(), print.every = NULL)
+                          verbose = interactive())
 {
     if (!is.numeric(x <- as.matrix(x)))
         stop("data should be numerical")
@@ -323,10 +311,6 @@ multIndepTest <- function(x, d, m=length(d), N=1000, alpha=0.05,
     if(N < 100) warning("N should be at least 100")
     if (!is.numeric(alpha) || alpha <= 0 || alpha >= 1)
         stop("the significance level alpha is not properly set")
-    if (!is.null(print.every)) {
-        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead.")
-        verbose <- print.every > 0
-    }
 
     ## transform data to pseudo-observations
     x <- apply(x,2,rank)/n
@@ -397,11 +381,10 @@ multIndepTest <- function(x, d, m=length(d), N=1000, alpha=0.05,
 ##' @param N number of permutations
 ##' @param alpha asymptotic level of the test
 ##' @param verbose display progress bar if TRUE
-##' @param print.every is deprecated
 ##' @return an object of class 'indepTest'
 ##' @author Ivan Kojadinovic
 multSerialIndepTest <- function(x, lag.max, m=lag.max+1, N=1000, alpha=0.05,
-                                verbose = interactive(), print.every = NULL)
+                                verbose = interactive())
 {
     if (!is.numeric(x <- as.matrix(x)))
         stop("data should be numerical")
@@ -418,10 +401,6 @@ multSerialIndepTest <- function(x, lag.max, m=lag.max+1, N=1000, alpha=0.05,
     if(N < 100) warning("N should be at least 100")
     if (!is.numeric(alpha) || alpha <= 0 || alpha >= 1)
         stop("the significance level alpha is not properly set")
-    if (!is.null(print.every)) {
-        warning("Argument 'print.every' is deprecated. Please use 'verbose' instead.")
-        verbose <- print.every > 0
-    }
 
     q <- ncol(x)
 

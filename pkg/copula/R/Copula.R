@@ -133,6 +133,6 @@ setMethod("nParam", signature("rotCopula"), function(copula, freeOnly=FALSE)
     nParam(copula@copula, freeOnly=freeOnly))
 
 ## paramNames() methods: further provided separately for "fitCopula", "fitMvdc"
-setMethod("paramNames", "copula", function(x) x@param.names[isFreeP(x@parameters)])
+setMethod("paramNames", signature("copula"), function(x) x@param.names[isFreeP(x@parameters)])
 
 

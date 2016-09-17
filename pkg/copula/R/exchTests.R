@@ -55,8 +55,11 @@ exchEVTest <- function(x, N = 1000, estimator = c("CFG", "Pickands"),
             stat = double(1))$stat
 
     ## Ties: by default, if at least one column has at least one duplicated entry
-    if (is.na(ties <- as.logical(ties)))
+    if (is.na(ties <- as.logical(ties))) {
 	ties <- any(apply(x, 2, anyDuplicated))
+        if (ties)
+            warning("argument 'ties' set to TRUE")
+    }
 
 
     ## Compute approximate realizations under the null
@@ -170,8 +173,11 @@ exchTest <- function(x, N = 1000, ties = NA, m = 0) {
             stat = double(1))$stat
 
     ## Ties: by default, if at least one column has at least one duplicated entry
-    if (is.na(ties <- as.logical(ties)))
+    if (is.na(ties <- as.logical(ties))) {
 	ties <- any(apply(x, 2, anyDuplicated))
+        if (ties)
+            warning("argument 'ties' set to TRUE")
+    }
 
     ## Compute approximate realizations under the null
     ## If there are ties, use an adapted bootstrap

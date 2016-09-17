@@ -39,10 +39,11 @@ exchEVTest(x, N = 1000,  estimator = c("CFG", "Pickands"),
     statistic.}
 }
 \details{
-  More details are available in the first two references.
+  More details are available in the references.
 }
 \value{
-  Returns a list whose attributes are:
+  An object of \code{\link{class}} \code{htest} which is a list,
+  some of the components of which are
   \item{statistic}{ value of the test statistic. }
   \item{pvalue}{ corresponding approximate p-value. }
 }
@@ -55,20 +56,7 @@ exchEVTest(x, N = 1000,  estimator = c("CFG", "Pickands"),
   Kojadinovic, I. and Yan, J. (2012)
   A nonparametric test of exchangeability for extreme-value and left-tail
   decreasing bivariate copulas.
-  \emph{The Scandinavian Journal of Statistics}. In press.
-
-  Kojadinovic, I. and Yan, J. (2010).
-  Modeling Multivariate Distributions with Continuous Margins Using the
-  copula R Package.
-  \emph{Journal of Statistical Software} \bold{34}(9), 1--20.
-  \url{http://www.jstatsoft.org/v34/i09/}.
-}
-\note{
-  This test was derived under the assumption of continuous margins,
-  which implies that ties occur with probability zero.  The
-  presence of ties in the data might substantially affect the
-  approximate p-value.  One way of dealing with ties was suggested in the
-  last reference.
+  \emph{The Scandinavian Journal of Statistics} \bold{39:3}, 480--496.
 }
 \seealso{ \code{\link{exchTest}}, \code{\link{gofCopula}}.
 }

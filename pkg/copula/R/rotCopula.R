@@ -52,10 +52,10 @@ rotCopula <- function(copula, flip = TRUE) {
 
 
 ## parameter names
-setMethod("paramNames", "rotCopula", function(x) paramNames(x@copula))
+setMethod("paramNames", signature("rotCopula"), function(x) paramNames(x@copula))
 
 ## get parameters
-setMethod("getParam", "rotCopula",
+setMethod("getParam", signature("rotCopula"),
 	  function(copula, freeOnly = TRUE, attr = FALSE, named = attr)
 	      getParam(copula@copula, freeOnly=freeOnly, attr=attr, named=named))
 

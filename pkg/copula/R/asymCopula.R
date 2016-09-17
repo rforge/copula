@@ -98,7 +98,7 @@ setMethod("paramNames", signature("khoudrajiCopula"), function(x) {
 })
 
 ## get parameters
-setMethod("getParam", "khoudrajiCopula",
+setMethod("getParam", signature("khoudrajiCopula"),
           function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
     par1 <- getParam(copula@copula1, freeOnly = freeOnly, attr = attr, named = named)
     par2 <- getParam(copula@copula2, freeOnly = freeOnly, attr = attr, named = named)

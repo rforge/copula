@@ -155,9 +155,12 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
     if (method == "Sn" && trafo.method != "none")
         stop(sprintf("'trafo.method' must be \"none\" with 'method'=\"%s\"", method))
 
-    ## ties: by default, if at least one column has at least one duplicated entry
-    if (is.na(ties <- as.logical(ties)))
+    ## Ties: by default, if at least one column has at least one duplicated entry
+    if (is.na(ties <- as.logical(ties))) {
 	ties <- any(apply(x, 2, anyDuplicated))
+        if (ties)
+            warning("argument 'ties' set to TRUE")
+    }
 
     ## Progress bar
     if(verbose) {
@@ -233,7 +236,7 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
 }
 
 .gofTstr <- function(type, copula)
-    paste(type, "bootstrap goodness-of-fit test of",
+    paste(type, "bootstrap-based goodness-of-fit test of",
           describeCop(copula, kind="short"))
 
 
