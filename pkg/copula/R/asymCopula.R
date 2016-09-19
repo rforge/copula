@@ -235,8 +235,8 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(dim=d
             shapes = shapes)
     else {
         khoudrajiExplicitCopula(copula1, copula2, shapes)
-        
-               
+
+
        ##  ## Explicit Khourdraji copulas
 
        ##  F1 <- copula1@exprdist$cdf
@@ -265,7 +265,7 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(dim=d
        ##  }
 
        ##  ## FIXME: work with expressions F1 / F2, not chars...
-       ##  cdf1 <- gsub("alpha", "c1alpha", getcdfchar(F1, om=TRUE))        
+       ##  cdf1 <- gsub("alpha", "c1alpha", getcdfchar(F1, om=TRUE))
        ##  cdf2 <- gsub("alpha", "c2alpha", getcdfchar(F2, om=FALSE))
        ##  cdf <- parse(text = c("(", cdf1, ") * (", cdf2, ")"))
        ##  ## cdf <- substitute((F1) * (F2), list(F1 = cdf1, F2 = cdf2))
@@ -323,7 +323,7 @@ prepKhoudrajiCdfExpr <- function(copula, prefix, om = FALSE) {
     cdf <- copula@exprdist$cdf
     ## originally, explicit copula expressions have alpha as parameter
     cdf <- do.call(substitute, list(cdf, list(alpha = quote(param))))
-    oldParNames <- copula:::paramNames(copula)
+    oldParNames <- paramNames(copula)
     npar <- length(oldParNames)
     ## replace parameters
     if (npar > 0) {
@@ -380,7 +380,7 @@ khoudrajiExplicitCopula <- function(copula1 = indepCopula(),
         copula1 = copula1,
         copula2 = copula2,
         shapes = shapes,
-        exprdist = exprdist)  
+        exprdist = exprdist)
 }
 
 ## In CRAN's copula up to 0.999-14 i.e  mid-2016: --> deprecated now
@@ -526,8 +526,9 @@ setMethod("dCdtheta", signature("khoudrajiBivCopula"),
 
 ## This function uses the algorithmic expressions stored in the class object
 
-## cdf is used only for testing with dim = 2
-pKhoudrajiExplicitCopula.algr <- function(u, copula, log=FALSE, ...) {
+## cdf is used only for *testing* with dim = 2
+
+.KhoudrajiExplicitCopula.algr <- function(u, copula, log=FALSE, algoNm, ...) {
     dim <- dim(copula)
     stopifnot(!is.null(d <- ncol(u)), dim == d)
 
@@ -536,30 +537,19 @@ pKhoudrajiExplicitCopula.algr <- function(u, copula, log=FALSE, ...) {
         assign(paste0("shape", i), copula@shapes[i])
     }
 
-    params <- copula:::getParam(copula, named = TRUE)
+    params <- getParam(copula, named = TRUE)
     parNames <- names(params)
-    for (i in 1:length(params)) assign(parNames[i], params[i])
-    
+    for (i in seq_along(params)) assign(parNames[i], params[i])
+
     dens <- c(eval(attr(copula@exprdist, "cdfalgr")))
     if(log) log(dens) else dens
 }
 
-dKhoudrajiExplicitCopula.algr <- function(u, copula, log=FALSE, ...) {
-    dim <- dim(copula)
-    stopifnot(!is.null(d <- ncol(u)), dim == d)
+pKhoudrajiExplicitCopula.algr <- function(u, copula, log=FALSE, ...)
+    .KhoudrajiExplicitCopula.algr(u, copula=copula, log=log, algoNm = "cdfalgr", ...)
 
-    for (i in 1:dim) {
-        assign(paste0("u", i), u[,i])
-        assign(paste0("shape", i), copula@shapes[i])
-    }
-
-    params <- copula:::getParam(copula, named = TRUE)
-    parNames <- names(params)
-    for (i in 1:length(params)) assign(parNames[i], params[i])
-    
-    dens <- c(eval(attr(copula@exprdist, "pdfalgr")))
-    if(log) log(dens) else dens
-}
+dKhoudrajiExplicitCopula.algr <- function(u, copula, log=FALSE, ...)
+    .KhoudrajiExplicitCopula.algr(u, copula=copula, log=log, algoNm = "pdfalgr", ...)
 
 setMethod("dCopula", signature("matrix",  "khoudrajiExplicitCopula"), dKhoudrajiExplicitCopula.algr)
 
