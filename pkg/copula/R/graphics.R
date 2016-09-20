@@ -92,8 +92,8 @@ Kplot <- function(x, plot = TRUE, ...) {
     invisible(cbind(H, W))
 }
 
-if(FALSE) {
-    ## Note: They are not exported yet
+if(FALSE) { ## Examples for help file
+    ## For now,  ":::" because they are not exported yet
     x <- c(-2.224, -1.538, -0.807, 0.024, 0.052, 1.324)
     y <- c(0.431, 1.035, 0.586, 1.465, 1.115, -0.847)
     copula:::chiPlot(cbind(x, y))
@@ -765,7 +765,7 @@ setMethod("cloud2", signature(x = "mvdc"),       cloud2Mvdc)
 
 ### 3.4 splom() methods ########################################################
 
-##' @title A Scatter-plot Matrix with Nice Defaults
+##' @title A Scatter-plot Matrix (SPLOM) with Nice Defaults
 ##' @param x A numeric matrix or as.matrix(.)able
 ##' @param varnames The variable names, typically unspecified
 ##' @param varnames.null.lab A character string to determine 'varnames'
@@ -785,31 +785,27 @@ splom2MatrixDf <- function(x, varnames = NULL,
     if(is.null(varnames)) {
         stopifnot(length(varnames.null.lab) == 1, is.character(varnames.null.lab))
         colnms <- colnames(x)
-        varnames <- if(sum(nzchar(colnms)) != d) {
-            do.call(expression,
-                    lapply(1:d, function(j)
-                        substitute(v[I], list(v = as.name(varnames.null.lab), I = 0+j))))
-        } else # 'x' has column names => parse them
-            parse(text = colnms)
+	varnames <- if(sum(nzchar(colnms)) != d) {
+			vNm <- as.name(varnames.null.lab)
+			do.call(expression, lapply(1:d, function(j)
+			    substitute(v[I], list(v = vNm, I = j))))
+		    } else # 'x' has column names => parse them
+			parse(text = colnms)
     }
     n <- nrow(x)
-    if(is.null(col.mat)) {
-        new.plot.symbol <- trellis.par.get("plot.symbol")
-        new.plot.symbol$col <- "black" # default of base graphics
-        trellis.par.set("plot.symbol", new.plot.symbol)
-        col.mat <- matrix(trellis.par.get("plot.symbol")$col, nrow = n, ncol = d)
-    }
+    if(is.null(col.mat))
+        col.mat <- matrix(trellis.par.get("plot.symbol")$col, n, d)
+    else if(length(col.mat) == 1) # for full matrix
+        col.mat <- matrix(col.mat, n, d)
     if(is.null(bg.col.mat))
-        bg.col.mat <- matrix(trellis.par.get("background")$col, nrow = n, ncol = d)
-    ## From Deepayan Sarkar, working around missing feature
-    ##		(which should be in next release) of lattice
-    my.diag.panel <- function(x, varname, ...)
-        diag.panel.splom(x, varname=parse(text=varname), ...)
-    ## splom
-    splom(~x[,1:d], varnames = varnames, diag.panel = my.diag.panel, xlab="",
+        bg.col.mat <- matrix(trellis.par.get("background")$col, n, d)
+    else if(length(bg.col.mat) == 1)
+        bg.col.mat <- matrix(bg.col.mat, n, d)
+
+    splom( ~ x, varnames = varnames, xlab = xlab,
           panel = function(x, y, i, j, ...) {
               panel.fill(bg.col.mat[i,j])
-              panel.splom(x, y, col=col.mat[i,j], ...)
+              panel.splom(x, y, col = col.mat[i,j], ...)
           }, ...)
 }
 

@@ -43,7 +43,12 @@
       \item \code{mixCopula()} and \code{"mixCopula"} class for
       arbitrary finite mixtures of copulas.
       %% FIXME:  fixCopula() is *NOT* ok [sum(w) == 1] -- need reparametrization
-%% TODO \item qK() gets a more accurate (still quite fast) default method
+
+      \item \code{splom2()} now works when a single \dQuote{global}
+      color is specified.
+
+      %% TODO \item qK() gets a more accurate (still quite fast) default
+      %% method
     }
   }
 }
