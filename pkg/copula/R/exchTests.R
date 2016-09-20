@@ -155,7 +155,7 @@ exchTest <- function(x, N = 1000, ties = NA, m = 0) {
     ## Make grid
     if (m > 0L) {
         xis <- yis <- seq(1/m, 1 - 1/m, len = m)
-        g <- as.matrix(expand.grid(xis, yis))
+        g <- as.matrix(expand.grid(xis, yis, KEEP.OUT.ATTRS = FALSE))
         ng <- m^2
     } else {
         g <- u

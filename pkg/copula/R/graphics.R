@@ -131,7 +131,7 @@ perspCopula <- function(x, FUN, n.grid = 26, delta = 0,
     stopifnot(length(n.grid) == 2, 0 <= delta, delta < 1/2)
     x. <- seq(0 + delta, 1 - delta, length.out = n.grid[1])
     y. <- seq(0 + delta, 1 - delta, length.out = n.grid[2])
-    grid <- as.matrix(expand.grid(x = x., y = y.))
+    grid <- as.matrix(expand.grid(x = x., y = y., KEEP.OUT.ATTRS = FALSE))
     z.mat <- matrix(if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid), ncol = n.grid[2])
     T <- persp(x = x., y = y., z = z.mat,
                xlab = xlab, ylab = ylab, zlab = zlab,
@@ -165,7 +165,7 @@ perspMvdc <- function(x, FUN, xlim, ylim, n.grid = 26,
     stopifnot(length(n.grid) == 2)
     x. <- seq(xlim[1], xlim[2], length.out = n.grid[1])
     y. <- seq(xlim[1], xlim[2], length.out = n.grid[2])
-    grid <- as.matrix(expand.grid(x = x., y = y.))
+    grid <- as.matrix(expand.grid(x = x., y = y., KEEP.OUT.ATTRS = FALSE))
     z.mat <- matrix(if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid), ncol = n.grid[2])
     T <- persp(x = x., y = y., z = z.mat,
                xlab = xlab, ylab = ylab, zlab = zlab,
@@ -193,7 +193,7 @@ contourCopula <- function(x, FUN, n.grid = 26, delta = 0,
     stopifnot(length(n.grid) == 2, 0 <= delta, delta < 1/2)
     x. <- seq(0 + delta, 1 - delta, length.out = n.grid[1])
     y. <- seq(0 + delta, 1 - delta, length.out = n.grid[2])
-    grid <- as.matrix(expand.grid(x = x., y = y.))
+    grid <- as.matrix(expand.grid(x = x., y = y., KEEP.OUT.ATTRS = FALSE))
     z.mat <- matrix(if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid), ncol = n.grid[2])
     contour(x = x., y = y., z = z.mat, xlab = xlab, ylab = ylab, ...)
     if(box01) rect(0, 0, 1, 1, border = "gray40", lty = 2)
@@ -218,10 +218,10 @@ contourMvdc <- function(x, FUN, xlim, ylim, n.grid = 26,
 {
     stopifnot(n.grid >= 2)
     if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)
-    stopifnot(length(n.grid) == 2)
+    else stopifnot(length(n.grid) == 2)
     x. <- seq(xlim[1], xlim[2], length.out = n.grid[1])
-    y. <- seq(xlim[1], xlim[2], length.out = n.grid[2])
-    grid <- as.matrix(expand.grid(x = x., y = y.))
+    y. <- seq(ylim[1], ylim[2], length.out = n.grid[2])
+    grid <- as.matrix(expand.grid(x = x., y = y., KEEP.OUT.ATTRS = FALSE))
     z.mat <- matrix(if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid), ncol = n.grid[2])
     contour(x = x., y = y., z = z.mat, xlab = xlab, ylab = ylab, ...)
     if(box01) rect(0, 0, 1, 1, border = "gray40", lty = 2)
@@ -486,7 +486,7 @@ contourplot2Copula <- function(x, FUN, n.grid = 26, xlim = 0:1, ylim = 0:1,
     stopifnot(length(n.grid) == 2)
     x. <- seq(xlim[1], xlim[2], length.out = n.grid[1])
     y. <- seq(ylim[1], ylim[2], length.out = n.grid[2])
-    grid <- as.matrix(expand.grid(x = x., y = y.))
+    grid <- as.matrix(expand.grid(x = x., y = y., KEEP.OUT.ATTRS = FALSE))
     z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
     val <- cbind(grid, z = z)
     contourplot2MatrixDf(val, xlim = xlim, ylim = ylim,
@@ -513,7 +513,7 @@ contourplot2Mvdc <- function(x, FUN, n.grid = 26, xlim, ylim,
     stopifnot(length(n.grid) == 2)
     x. <- seq(xlim[1], xlim[2], length.out = n.grid[1])
     y. <- seq(ylim[1], ylim[2], length.out = n.grid[2])
-    grid <- as.matrix(expand.grid(x = x., y = y.))
+    grid <- as.matrix(expand.grid(x = x., y = y., KEEP.OUT.ATTRS = FALSE))
     z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
     val <- cbind(grid, z = z)
     contourplot2MatrixDf(val, xlim = xlim, ylim = ylim,
@@ -605,7 +605,7 @@ wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
     stopifnot(length(n.grid) == 2, 0 <= delta, delta < 1/2)
     x. <- seq(xlim[1] + delta, xlim[2] - delta, length.out = n.grid[1])
     y. <- seq(xlim[1] + delta, xlim[2] - delta, length.out = n.grid[2])
-    grid <- as.matrix(expand.grid(x = x., y = y.))
+    grid <- as.matrix(expand.grid(x = x., y = y., KEEP.OUT.ATTRS = FALSE))
     z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
     if(is.null(zlim)) zlim <- range(z, finite = TRUE)
     val <- cbind(grid, z = z)
@@ -636,7 +636,7 @@ wireframe2Mvdc <- function(x, FUN, n.grid = 26,
     stopifnot(length(n.grid) == 2)
     x. <- seq(xlim[1], xlim[2], length.out = n.grid[1])
     y. <- seq(xlim[1], xlim[2], length.out = n.grid[2])
-    grid <- as.matrix(expand.grid(x = x., y = y.))
+    grid <- as.matrix(expand.grid(x = x., y = y., KEEP.OUT.ATTRS = FALSE))
     z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
     if(is.null(zlim)) zlim <- range(z, finite = TRUE)
     val <- cbind(grid, z = z)
