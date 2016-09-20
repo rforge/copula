@@ -659,7 +659,7 @@ copGumbel <-
                   lmlu <- log(mlu) # log(-log(u))
                   ## may overflow to Inf: t <- rowSums(C.@iPsi(u., theta))
                   l.iP <- C.@iPsi(u., theta, log=TRUE)
-                  ln.t <- copula:::lsum(t(l.iP))
+                  ln.t <- lsum(t(l.iP))
                   ## main part
                   if(n.MC > 0) { # Monte Carlo
                       V <- C.@V0(n.MC, theta)
