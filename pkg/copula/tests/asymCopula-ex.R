@@ -156,9 +156,8 @@ splom2(u)
 v <- matrix(runif(20), 5, 4)
 assertError(dCopula(v, knd4)) ## should fail
 
-## a nested Khoudraji copula whose construction should result
-## in a khoudrajiCopula object, but not a khoudrajiExplicitCopula object
 
+## a nested explicit Khourdaji copula
 kd3 <- khoudrajiCopula(copula1 = khoudrajiCopula(copula1 = gumbelCopula(4, dim=3),
                                                  copula2 = claytonCopula(6, dim=3),
                                                  shapes = c(.4, 0.95, 0.95)),
@@ -166,8 +165,21 @@ kd3 <- khoudrajiCopula(copula1 = khoudrajiCopula(copula1 = gumbelCopula(4, dim=3
                        shapes = c(.4, 0.95, 0.95))
 kd3
 stopifnot(identical(as.character(class(kd3)),
-                    "khoudrajiCopula"))#  not a khoudrajiExplicitCopula
-## as second argument copula is not symmetric (and in practice is not archmCopula)
+                    "khoudrajiExplicitCopula"))#  a khoudrajiExplicitCopula
+
+
+## a nested Khoudraji copula whose construction should result
+## in a khoudrajiCopula object, but not a khoudrajiExplicitCopula object
+
+kd3kn <- khoudrajiCopula(copula1 = khoudrajiCopula(copula1 = gumbelCopula(4, dim=3),
+                                                 copula2 = claytonCopula(6, dim=3),
+                                                 shapes = c(.4, 0.95, 0.95)),
+                         copula2 = normalCopula(.5, dim=3),
+                         shapes = c(.4, 0.95, 0.95))
+kd3kn
+stopifnot(identical(as.character(class(kd3kn)),
+                    "khoudrajiCopula"))  ## not a khoudrajiExplicitCopula
+
 
 ### fitting ###########################################################
 n <- 300
