@@ -18,6 +18,9 @@
       \item \code{xvCopula(<rotCopula>, <data>)} now works.
 
       \item \code{fitMvdc()} now works again for a \dQuote{df.fixed-tCopula}.
+
+      \item \code{"mvdc"} methods for \code{contour()}, \code{persp()}
+      and \code{wireframe2()} now use \code{ylim} correctly.
     }
   }
   \subsection{New Features}{
