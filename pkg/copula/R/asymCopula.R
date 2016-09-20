@@ -208,13 +208,12 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(dim=d
 
     d <- dim(copula1)
 
-    ## if d==2, create a khoudrajiBivCopula object
-    ## if d > 2
-    ##          if copula1 and copula2 are explicit copulas
-    ##               create a khoudrajiExplicitCopula object
-    ##               (for which pdrCopula will work)
-    ##          else create a khoudrajiCopula object
-    ##               (for which only prCopula will work)
+    ## if both explicit, creat a khoudrajiExplicitCopula object
+    ##    (for which pdrCopula will work)
+    ## else if d==2, create a khoudrajiBivCopula object
+    ##         (for which pdrCopula will work)
+    ##      else (d > 2) create a khoudrajiCopula object
+    ##         (for which only prCopula will work)
 
 
     ## check if copula1 and copula2 have 'exprdist' slots
@@ -223,12 +222,8 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(dim=d
                              !is.language(F1 <- copula1@exprdist$cdf) ||
                              !is.language(F2 <- copula2@exprdist$cdf)) TRUE else FALSE
 
-    ## for the moment, check if copula1 and copula2 are archmCopula, which,
-    ## for the moment, implies that copula1 and copula2 have 'exprdist' slots
-    ## areBothExplicit <- is(copula1, "archmCopula") && is(copula2, "archmCopula")
-
-    ## d == 2 or non-explicit Khourdraji copulas
-    if (d == 2 || areNotBothExplicit) 
+    ## non-explicit Khourdraji copulas
+    if (areNotBothExplicit) 
         new(if (d == 2) "khoudrajiBivCopula" else "khoudrajiCopula",
             copula1 = copula1,
             copula2 = copula2,
@@ -249,7 +244,7 @@ prepKhoudrajiCdfExpr <- function(copula, prefix, om = FALSE) {
     cdf <- copula@exprdist$cdf
     ## originally, explicit copula expressions have alpha as parameter
     cdf <- do.call(substitute, list(cdf, list(alpha = quote(param))))
-    oldParNames <- paramNames(copula)
+    oldParNames <- names(getParam(copula, freeOnly=FALSE, named=TRUE)) # paramNames(copula)
     npar <- length(oldParNames)
     ## replace parameters
     if (npar > 0) {
@@ -461,7 +456,7 @@ setMethod("dCdtheta", signature("khoudrajiBivCopula"),
         assign(paste0("shape", i), copula@shapes[i])
     }
 
-    params <- getParam(copula, named = TRUE)
+    params <- getParam(copula, freeOnly = FALSE, named = TRUE)
     parNames <- names(params)
     for (i in seq_along(params)) assign(parNames[i], params[i])
 
