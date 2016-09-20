@@ -228,87 +228,13 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(dim=d
     ## areBothExplicit <- is(copula1, "archmCopula") && is(copula2, "archmCopula")
 
     ## d == 2 or non-explicit Khourdraji copulas
-    if (d == 2 || areNotBothExplicit) # !areBothExplicit)
+    if (d == 2 || areNotBothExplicit) 
         new(if (d == 2) "khoudrajiBivCopula" else "khoudrajiCopula",
             copula1 = copula1,
             copula2 = copula2,
             shapes = shapes)
-    else {
+    else { ## both components are explicit
         khoudrajiExplicitCopula(copula1, copula2, shapes)
-
-
-       ##  ## Explicit Khourdraji copulas
-
-       ##  F1 <- copula1@exprdist$cdf
-       ##  F2 <- copula2@exprdist$cdf
-
-       ##  ## FIXME: not characters and parse(text=), rather expressions, substitute() ...
-
-       ##  ## The following block handles the cdf
-       ##  ##'' @title Replace ui with (ui^shp) for each ui in a cdf expression
-       ##  ##'' @param cdf cdf expression of a copula
-       ##  ##'' @param om logical, TRUE = use 1 - shp in place of shp
-       ##  ##'' @return a string of cdf expression with (ui^shp) or (ui^(1 - shp)) in place of ui
-       ##  getcdfchar <- function(cdf, om=FALSE) {
-       ##      ## FIXME: this only works up to dim 9; e.g., u10 could be replaced with u1^shp1
-       ##      ## -----  TODO: be smarter in gsub() --- rather do *NOT* use characters at all !!
-       ##      if (d >= 10) stop("The maximum implemented dim is 9.")
-       ##      cdf <- deparse(cdf)
-       ##      for (i in 1:d) {
-       ##          ui <- paste0("u", i)
-       ##          shpi <- paste0("shp", i)
-       ##          if (om) shpi <- paste("(1 - ", shpi, ")")
-       ##          replacement <- paste("(", ui, "^", shpi, ")")
-       ##          cdf <- gsub(ui, replacement, cdf)
-       ##      }
-       ##      cdf
-       ##  }
-
-       ##  ## FIXME: work with expressions F1 / F2, not chars...
-       ##  cdf1 <- gsub("alpha", "c1alpha", getcdfchar(F1, om=TRUE))
-       ##  cdf2 <- gsub("alpha", "c2alpha", getcdfchar(F2, om=FALSE))
-       ##  cdf <- parse(text = c("(", cdf1, ") * (", cdf2, ")"))
-       ##  ## cdf <- substitute((F1) * (F2), list(F1 = cdf1, F2 = cdf2))
-       ##  cdf.algr <- deriv(cdf, "nothing")
-
-
-       ##  pdf <-
-       ##      if (d <= 6)
-       ##          cdfExpr2pdfExpr(cdf, d)
-       ##      else {
-       ##          warning("The pdf is only available for dim 6 or lower.")
-       ##          NULL
-       ##      }
-       ##  pdf.algr <- deriv(pdf, "nothing")
-       ##  exprdist <- c(cdf = cdf, pdf = pdf)
-       ##  attr(exprdist, "cdfalgr") <- cdf.algr
-       ##  attr(exprdist, "pdfalgr") <- pdf.algr
-
-       ##  ## The following block handles the partial derivatives of a component copula cdf
-       ##  ## needed in the density
-       ##  ## derExprs: get the derivatives of cdf of order 1 to n
-       ##  ## That is: dC/du1, d2C/(du1 du2), d3C / (du1 du2 du3), ...
-       ##  ## WARNING: This is assuming exchangeable copula so that
-       ##  ## the ordering of arguments does not matter
-       ##  derExprs <- function(cdf, n) {
-       ##      val <- rep(as.expression(cdf), n + 1) ## the first one is cdf itself
-       ##      for (i in 1:n) {
-       ##          val[i + 1] <- as.expression(D(val[i], paste0("u", i)))
-       ##          ## FIXME: why is this as.expression necessary? Martin may know.
-       ##      }
-       ##      val
-       ##  }
-       ##  derExprs1 <- derExprs(F1, d)
-       ##  derExprs2 <- derExprs(F2, d)
-
-       ##  new("khoudrajiExplicitCopula",
-       ##      copula1 = copula1,
-       ##      copula2 = copula2,
-       ##      shapes = shapes,
-       ##      exprdist = exprdist)
-       ## ## ,
-       ## ##      derExprs1 = derExprs1,
-       ## ##      derExprs2 = derExprs2)
     }
 }
 
@@ -526,8 +452,6 @@ setMethod("dCdtheta", signature("khoudrajiBivCopula"),
 
 ## This function uses the algorithmic expressions stored in the class object
 
-## cdf is used only for *testing* with dim = 2
-
 .KhoudrajiExplicitCopula.algr <- function(u, copula, log=FALSE, algoNm, ...) {
     dim <- dim(copula)
     stopifnot(!is.null(d <- ncol(u)), dim == d)
@@ -541,10 +465,11 @@ setMethod("dCdtheta", signature("khoudrajiBivCopula"),
     parNames <- names(params)
     for (i in seq_along(params)) assign(parNames[i], params[i])
 
-    dens <- c(eval(attr(copula@exprdist, "cdfalgr")))
+    dens <- c(eval(attr(copula@exprdist, algoNm)))
     if(log) log(dens) else dens
 }
 
+## cdf is used only for *testing* with dim = 2
 pKhoudrajiExplicitCopula.algr <- function(u, copula, log=FALSE, ...)
     .KhoudrajiExplicitCopula.algr(u, copula=copula, log=log, algoNm = "cdfalgr", ...)
 
