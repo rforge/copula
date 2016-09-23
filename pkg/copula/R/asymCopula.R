@@ -219,8 +219,8 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(dim=d
     ## check if copula1 and copula2 have 'exprdist' slots
     areNotBothExplicit <- if(is.na(match("exprdist", slotNames(copula1))) ||
                              is.na(match("exprdist", slotNames(copula2))) ||
-                             !is.language(F1 <- copula1@exprdist$cdf) ||
-                             !is.language(F2 <- copula2@exprdist$cdf)) TRUE else FALSE
+                             !is.language(copula1@exprdist$cdf) ||
+                             !is.language(copula2@exprdist$cdf)) TRUE else FALSE
 
     ## non-explicit Khourdraji copulas
     if (areNotBothExplicit) 
@@ -453,7 +453,7 @@ setMethod("dCdtheta", signature("khoudrajiBivCopula"),
 
     for (i in 1:dim) {
         assign(paste0("u", i), u[,i])
-        assign(paste0("shape", i), copula@shapes[i])
+        ## assign(paste0("shape", i), copula@shapes[i])
     }
 
     params <- getParam(copula, freeOnly = FALSE, named = TRUE)

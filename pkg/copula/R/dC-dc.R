@@ -96,20 +96,36 @@ dCduArchmCopula <- function(copula, u, ...) {
 ## For copulas with explicit cdf
 ## Warning: This function assumes symmetry in u
 dCduExplicitCopula <- function(copula, u, ...) {
-    dim <- copula@dimension
-    mat <- matrix(NA_real_, nrow(u), dim)
+    d <- dim(copula)
+    mat <- matrix(NA_real_, nrow(u), d)
     algNm <- paste(class(copula)[1], "cdfDerWrtArg.algr", sep=".")
     ## FIXME: fails if class(copula) *extends* (but is not identical to) say "normalCopula"
-    if(exists(algNm)) {
+    if (exists(algNm)) {
 	alpha <- copula@parameters # typically used in 'eval(der.cdf.u, *)' below
-        der.cdf.u <- get(algNm)[dim]
-        unames0 <- paste0("u",1:dim)
-        for (j in 1:dim) {
+        der.cdf.u <- get(algNm)[d]
+        unames0 <- paste0("u",1:d)
+        for (j in 1:d) {
             unames <- unames0; unames[1] <- unames0[j]; unames[j] <- unames0[1]
             colnames(u) <- unames
             mat[,j] <- eval(der.cdf.u, data.frame(u))
         }
-    } else warning("Function dCdu() not implemented for copulas of class '",
+    } else if (.hasSlot(copula, "exprdist") && is.language(cdf <- copula@exprdist$cdf)) {
+        ## symbolic derivatives of explicit cdf expressions
+        params <- getParam(copula, freeOnly = FALSE, named = TRUE)
+        parNames <- names(params)
+        ## prepare environment for evaluating der.algr 
+        for (i in seq_along(params)) assign(parNames[i], params[i])
+        ## for (i in 1:d) assign(paste0("u", i), u[,i])
+        colnames(u) <- paste0("u", 1:d)
+        u.df <- data.frame(u)
+        ## construct der.algr and evaluate 
+        for (i in 1:d) {
+            der <- D(cdf, paste0("u", i))
+            der.algr <- deriv(der, "nothing")
+            mat[, i] <- eval(der.algr, u.df)
+        }
+    }
+    else warning("Function dCdu() not implemented for copulas of class '",
                    class(copula), "'")
     mat
 }
@@ -125,6 +141,7 @@ dCduIndepCopula <- function(copula, u, ...) {
   mat
 }
 
+
 setMethod("dCdu", signature("parCopula"), dCduCopulaNum) # GETR
 setMethod("dCdu", signature("joeCopula"), dCduCopulaNum)
 setMethod("dCdu", signature("archmCopula"), dCduExplicitCopula)
@@ -132,6 +149,8 @@ setMethod("dCdu", signature("plackettCopula"), dCduExplicitCopula)
 setMethod("dCdu", signature("evCopula"), dCduExplicitCopula)
 setMethod("dCdu", signature("gumbelCopula"), dCduExplicitCopula)
 setMethod("dCdu", signature("indepCopula"), dCduIndepCopula)
+
+setMethod("dCdu", signature("khoudrajiExplicitCopula"), dCduExplicitCopula)
 
 ## For ellipCopula objects
 dCduEllipCopula <- function(copula, u, ...) {
@@ -293,19 +312,36 @@ dCdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-1), ..
 
 ## For copulas with explicit cdf
 dCdthetaExplicitCopula <- function(copula, u, ...) {
-    dim <- copula@dimension
+    d <- dim(copula)
     algNm <- paste(class(copula)[1], "cdfDerWrtPar.algr", sep=".")
     alpha <- getParam(copula) # typically used in 'eval(*)' below
-    ## JY: alpha is a scalar parameter
-    if(exists(algNm)) {
-        der.cdf.alpha <- get(algNm)[dim]
-        colnames(u) <- paste0("u", 1:dim)
-        as.matrix(eval(der.cdf.alpha, data.frame(u)))
+    mat <- matrix(NA_real_, nrow(u), nParam(copula))
+
+    if (exists(algNm)) {    ## JY: alpha is a scalar parameter
+        der.cdf.alpha <- get(algNm)[d]
+        colnames(u) <- paste0("u", 1:d)
+        mat <- as.matrix(eval(der.cdf.alpha, data.frame(u)))
+    } else if (.hasSlot(copula, "exprdist") && is.language(cdf <- copula@exprdist$cdf)) {
+        ## symbolic derivatives of explicit cdf expressions
+        params <- getParam(copula, freeOnly = FALSE, named = TRUE)
+        parNames <- names(params)
+        ## prepare environment for evaluating der.algr
+        for (i in seq_along(params)) assign(parNames[i], params[i])
+        ## for (i in 1:d) assign(paste0("u", i), u[,i])
+        colnames(u) <- paste0("u", 1:d)
+        u.df <- data.frame(u)
+        ## construct der.algr and evaluate
+        for (i in seq_along(params)) {
+            der <- D(cdf, parNames[i])
+            der.algr <- deriv(der, "nothing")
+            mat[, i] <- eval(der.algr, u.df)
+        }
     } else {
         warning("Function dCdtheta() not implemented for copulas of class '",
                 class(copula), "'")
-        matrix(NA_real_, nrow(u), length(alpha)) # copula@parameters))
+        ## matrix(NA_real_, nrow(u), length(alpha)) # copula@parameters))
     }
+    mat
 }
 
 ## For evCopula objects
@@ -325,6 +361,8 @@ setMethod("dCdtheta", signature("archmCopula"), dCdthetaExplicitCopula)
 setMethod("dCdtheta", signature("plackettCopula"), dCdthetaExplicitCopula)
 setMethod("dCdtheta", signature("evCopula"), dCdthetaExplicitCopula)
 setMethod("dCdtheta", signature("gumbelCopula"), dCdthetaExplicitCopula)
+
+setMethod("dCdtheta", signature("khoudrajiExplicitCopula"), dCdthetaExplicitCopula)
 
 ## For ellipCopula objects
 dCdthetaEllipCopula <- function(copula, u, ...) {
@@ -433,17 +471,32 @@ dlogcduCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-5), ...
 
 ## For copulas with explicit densities
 dlogcduExplicitCopula <- function(copula, u, ...) {
-    dim <- copula@dimension
+    d <- dim(copula)
     algNm <- paste(class(copula)[1], "pdfDerWrtArg.algr", sep=".")
-    mat <- matrix(NA_real_, nrow(u), dim)
+    mat <- matrix(NA_real_, nrow(u), d)
     if(exists(algNm)) {
-        der.pdf.u <- get(algNm)[dim]
+        der.pdf.u <- get(algNm)[d]
 	alpha <- copula@parameters # typically used in eval() # JY: scalar alpha
-        unames0 <- paste0("u", 1:dim)
-        for (j in 1:dim) {
+        unames0 <- paste0("u", 1:d)
+        for (j in 1:d) {
             unames <- unames0; unames[1] <- unames0[j]; unames[j] <- unames0[1]
             colnames(u) <- unames
             mat[,j] <- eval(der.pdf.u, data.frame(u))
+        }
+    } else if (.hasSlot(copula, "exprdist") && is.language(pdf <- copula@exprdist$pdf)) {
+        ## symbolic derivatives of explicit cdf expressions
+        params <- getParam(copula, freeOnly = FALSE, named = TRUE)
+        parNames <- names(params)
+        ## prepare environment for evaluating der.algr 
+        for (i in seq_along(params)) assign(parNames[i], params[i])
+        ## for (i in 1:d) assign(paste0("u", i), u[,i])
+        colnames(u) <- paste0("u", 1:d)
+        u.df <- data.frame(u)
+        ## construct der.algr and evaluate 
+        for (i in 1:d) {
+            der <- D(pdf, paste0("u", i))
+            der.algr <- deriv(der, "nothing")
+            mat[, i] <- eval(der.algr, u.df)
         }
     } else warning("Function dlogcdu() not implemented for copulas of class '",
                    class(copula), "'")
@@ -456,6 +509,8 @@ setMethod("dlogcdu", signature("tevCopula"), dlogcduCopulaNum)
 setMethod("dlogcdu", signature("archmCopula"), dlogcduExplicitCopula)
 setMethod("dlogcdu", signature("evCopula"), dlogcduExplicitCopula)
 setMethod("dlogcdu", signature("plackettCopula"), dlogcduExplicitCopula)
+
+setMethod("dlogcdu", signature("khoudrajiExplicitCopula"), dlogcduExplicitCopula)
 
 ## For normalCopula objects
 dlogcduNormalCopula <- function(copula, u, ...) {
@@ -512,17 +567,34 @@ dlogcdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-5),
 
 ## For copulas with explicit densities
 dlogcdthetaExplicitCopula <- function(copula, u, ...) {
-    dim <- copula@dimension
+    d <- dim(copula)
     algNm <- paste(class(copula)[1], "pdfDerWrtPar.algr", sep=".")
+    mat <- matrix(NA_real_, nrow(u), nParam(copula))
     if(exists(algNm) && !is.null((der.pdf.alpha <- get(algNm)[dim])[[1]])) {
 	alpha <- copula@parameters # typically used in val(.)
-        colnames(u) <- paste0("u", 1:dim)
-        as.matrix(eval(der.pdf.alpha, data.frame(u))) / dCopula(u, copula)
+        colnames(u) <- paste0("u", 1:d)
+        mat <- as.matrix(eval(der.pdf.alpha, data.frame(u))) / dCopula(u, copula)
+    } else if (.hasSlot(copula, "exprdist") && is.language(pdf <- copula@exprdist$pdf)) {
+        ## symbolic derivatives of explicit cdf expressions
+        params <- getParam(copula, freeOnly = FALSE, named = TRUE)
+        parNames <- names(params)
+        ## prepare environment for evaluating der.algr
+        for (i in seq_along(params)) assign(parNames[i], params[i])
+        ## for (i in 1:d) assign(paste0("u", i), u[,i])
+        colnames(u) <- paste0("u", 1:d)
+        u.df <- data.frame(u)
+        ## construct der.algr and evaluate
+        for (i in seq_along(params)) {
+            der <- D(pdf, parNames[i])
+            der.algr <- deriv(der, "nothing")
+            mat[, i] <- eval(der.algr, u.df)
+        }
+        mat <- mat / dCopula(u, copula)
     } else {
         warning("Function dlogcdtheta() not implemented for copulas of class '",
                 class(copula), "'")
-        matrix(NA_real_, nrow(u), nFree(copula@parameters))
     }
+    mat
 }
 
 setMethod("dlogcdtheta", signature("parCopula"), dlogcdthetaCopulaNum) # GETR
@@ -531,6 +603,8 @@ setMethod("dlogcdtheta", signature("tevCopula"), dlogcdthetaCopulaNum)
 setMethod("dlogcdtheta", signature("archmCopula"), dlogcdthetaExplicitCopula)
 setMethod("dlogcdtheta", signature("plackettCopula"), dlogcdthetaExplicitCopula)
 setMethod("dlogcdtheta", signature("evCopula"), dlogcdthetaExplicitCopula)
+
+setMethod("dlogcdtheta", signature("khoudrajiExplicitCopula"), dlogcdthetaExplicitCopula)
 
 ## For ellipCopula objects
 dlogcdthetaEllipCopula <- function(copula, u, ...) {
