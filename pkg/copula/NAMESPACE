@@ -203,10 +203,15 @@ export(exchEVTest, exchTest)
 
 
 
+## For some, have S3 print() and S4 show() .. MM is not convinced
 S3method(print, copula)
+S3method(print, tCopula)
+S3method(print, normalCopula)
+S3method(print, fitCopula)
+##
 S3method(print, mvdc)
 S3method(print, indepTest)
-S3method(print, fitCopula)
+
 S3method(summary, fitCopula)
 S3method(print, fitMvdc)
 S3method(summary, fitMvdc)

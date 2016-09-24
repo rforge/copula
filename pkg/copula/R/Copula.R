@@ -14,8 +14,8 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-##' show method
-print.copula <- function(x, digits = getOption("digits"), ...) {
+##' print() / show() method, _or_ ("tCopula", e.g.) an auxiliary for that :
+printCopula <- function(x, digits = getOption("digits"), ...) {
   validObject(x)
   cat(describeCop(x, kind="very short"), "\n")
   cat("Dimension: ", (d <- dim(x)), "\n")
@@ -34,7 +34,9 @@ print.copula <- function(x, digits = getOption("digits"), ...) {
   invisible(x)
 }
 
-setMethod("show", "copula", function(object) print.copula(object))
+## default print() and show() method for copulas:
+print.copula <- printCopula
+setMethod("show", "copula", function(object) printCopula(object))
 
 
 ### numerical computation of association measures

@@ -144,12 +144,18 @@ dtCopula <- function(u, copula, log = FALSE, ...) {
   if(log) r else exp(r)
 }
 
-showTCopula <- function(object) {
-  print.copula(object)
-  if (object@dimension > 2) cat("dispstr: ", object@dispstr, "\n")
-  if (object@df.fixed) cat("df is fixed at", getdf(object), "\n")
-  invisible(object)
+
+printTCopula <- function(x, ...) {
+  printCopula(x, ...)
+  if (x@dimension > 2) cat("dispstr: ", x@dispstr, "\n")
+  if (x@df.fixed) cat("df is fixed at", getdf(x), "\n")
+  invisible(x)
 }
+
+## as long we think we need print.copula(), we also need this:
+print.tCopula <- printTCopula
+setMethod("show", signature("tCopula"), function(object) printTCopula(object))
+
 
 lambdaTCopula <- function(copula)
 {
@@ -172,7 +178,6 @@ setMethod("dCopula", signature("matrix", "tCopula"), dtCopula)
 ## setMethod("pCopula", signature("numeric", "tCopula"),ptCopula)
 ## setMethod("dCopula", signature("numeric", "tCopula"),dtCopula)
 
-setMethod("show", signature("tCopula"), showTCopula)
 
 setMethod("tau", "tCopula",
           function(copula) 2 * asin(copula@getRho(copula)) / pi)

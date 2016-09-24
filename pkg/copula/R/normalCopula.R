@@ -95,11 +95,15 @@ dmvnorm <- function (x, mean, sigma, log=FALSE)
 
 
 
-showNormalCopula <- function(object) {
-  print.copula(object)
-  if (object@dimension > 2) cat("dispstr: ", object@dispstr, "\n")
-  invisible(object)
+printNormalCopula <- function(x, ...) {
+  printCopula(x, ...)
+  if (x@dimension > 2) cat("dispstr: ", x@dispstr, "\n")
+  invisible(x)
 }
+
+## as long we think we need print.copula(), we also need this:
+print.normalCopula <- printNormalCopula
+setMethod("show", signature("normalCopula"), function(object) printNormalCopula(object))
 
 
 lambdaNormalCopula <- function(copula) {
@@ -114,8 +118,6 @@ setMethod("dCopula", signature("matrix", "normalCopula"), dnormalCopula)
 ## pCopula() and dCopula() *generic* already deal with non-matrix case!
 ## setMethod("pCopula", signature("numeric", "normalCopula"),pnormalCopula)
 ## setMethod("dCopula", signature("numeric", "normalCopula"),dnormalCopula)
-
-setMethod("show", signature("normalCopula"), showNormalCopula)
 
 ## rho := copula@parameters
 setMethod("tau", "normalCopula", function(copula) 2 * asin(copula@parameters) /pi)
