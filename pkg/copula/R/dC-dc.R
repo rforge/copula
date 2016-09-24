@@ -549,7 +549,7 @@ dlogcdthetaExplicitCopula <- function(copula, u, ...) {
     d <- dim(copula)
     algNm <- paste(class(copula)[1], "pdfDerWrtPar.algr", sep=".")
     mat <- matrix(NA_real_, nrow(u), nParam(copula))
-    if(exists(algNm) && !is.null((der.pdf.alpha <- get(algNm)[dim])[[1]])) {
+    if(exists(algNm) && !is.null((der.pdf.alpha <- get(algNm)[d])[[1]])) {
 	alpha <- copula@parameters # typically used in val(.)
         colnames(u) <- paste0("u", 1:d)
         mat <- as.matrix(eval(der.pdf.alpha, data.frame(u))) / dCopula(u, copula)
