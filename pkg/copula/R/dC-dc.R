@@ -319,7 +319,7 @@ dCdthetaExplicitCopula <- function(copula, u, ...) {
         params <- getParam(copula, freeOnly = FALSE, named = TRUE)
         colnames(u) <- unames <- paste0("u", 1:d)
         u.df <- data.frame(u)
-        der <- deriv(cdf, names(params))
+        der <- deriv(cdf, names(params)[isFree(copula)])
         mat <- attr(eval(der, c(u.df, params)), "gradient")
         attr(mat, "dimnames") <- NULL
     } else {
@@ -558,7 +558,7 @@ dlogcdthetaExplicitCopula <- function(copula, u, ...) {
         params <- getParam(copula, freeOnly = FALSE, named = TRUE)
         colnames(u) <- unames <- paste0("u", 1:d)
         u.df <- data.frame(u)
-        der <- deriv(pdf, names(params))
+        der <- deriv(pdf, names(params)[isFree(copula)])
         mat <- attr(eval(der, c(u.df, params)), "gradient")
         attr(mat, "dimnames") <- NULL
         mat <- mat / dCopula(u, copula)
