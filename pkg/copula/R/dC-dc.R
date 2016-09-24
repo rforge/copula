@@ -112,18 +112,11 @@ dCduExplicitCopula <- function(copula, u, ...) {
     } else if (.hasSlot(copula, "exprdist") && is.language(cdf <- copula@exprdist$cdf)) {
         ## symbolic derivatives of explicit cdf expressions
         params <- getParam(copula, freeOnly = FALSE, named = TRUE)
-        parNames <- names(params)
-        ## prepare environment for evaluating der.algr 
-        for (i in seq_along(params)) assign(parNames[i], params[i])
-        ## for (i in 1:d) assign(paste0("u", i), u[,i])
-        colnames(u) <- paste0("u", 1:d)
+        colnames(u) <- unames <- paste0("u", 1:d)
         u.df <- data.frame(u)
-        ## construct der.algr and evaluate 
-        for (i in 1:d) {
-            der <- D(cdf, paste0("u", i))
-            der.algr <- deriv(der, "nothing")
-            mat[, i] <- eval(der.algr, u.df)
-        }
+        der <- deriv(cdf, unames)
+        mat <- attr(eval(der, c(u.df, params)), "gradient")
+        attr(mat, "dimnames") <- NULL                    
     }
     else warning("Function dCdu() not implemented for copulas of class '",
                    class(copula), "'")
@@ -324,18 +317,11 @@ dCdthetaExplicitCopula <- function(copula, u, ...) {
     } else if (.hasSlot(copula, "exprdist") && is.language(cdf <- copula@exprdist$cdf)) {
         ## symbolic derivatives of explicit cdf expressions
         params <- getParam(copula, freeOnly = FALSE, named = TRUE)
-        parNames <- names(params)
-        ## prepare environment for evaluating der.algr
-        for (i in seq_along(params)) assign(parNames[i], params[i])
-        ## for (i in 1:d) assign(paste0("u", i), u[,i])
-        colnames(u) <- paste0("u", 1:d)
+        colnames(u) <- unames <- paste0("u", 1:d)
         u.df <- data.frame(u)
-        ## construct der.algr and evaluate
-        for (i in seq_along(params)) {
-            der <- D(cdf, parNames[i])
-            der.algr <- deriv(der, "nothing")
-            mat[, i] <- eval(der.algr, u.df)
-        }
+        der <- deriv(cdf, names(params))
+        mat <- attr(eval(der, c(u.df, params)), "gradient")
+        attr(mat, "dimnames") <- NULL
     } else {
         warning("Function dCdtheta() not implemented for copulas of class '",
                 class(copula), "'")
@@ -484,20 +470,13 @@ dlogcduExplicitCopula <- function(copula, u, ...) {
             mat[,j] <- eval(der.pdf.u, data.frame(u))
         }
     } else if (.hasSlot(copula, "exprdist") && is.language(pdf <- copula@exprdist$pdf)) {
-        ## symbolic derivatives of explicit cdf expressions
+        ## symbolic derivatives of explicit pdf expressions
         params <- getParam(copula, freeOnly = FALSE, named = TRUE)
-        parNames <- names(params)
-        ## prepare environment for evaluating der.algr 
-        for (i in seq_along(params)) assign(parNames[i], params[i])
-        ## for (i in 1:d) assign(paste0("u", i), u[,i])
-        colnames(u) <- paste0("u", 1:d)
+        colnames(u) <- unames <- paste0("u", 1:d)
         u.df <- data.frame(u)
-        ## construct der.algr and evaluate 
-        for (i in 1:d) {
-            der <- D(pdf, paste0("u", i))
-            der.algr <- deriv(der, "nothing")
-            mat[, i] <- eval(der.algr, u.df)
-        }
+        der <- deriv(pdf, unames)
+        mat <- attr(eval(der, c(u.df, params)), "gradient")
+        attr(mat, "dimnames") <- NULL
     } else warning("Function dlogcdu() not implemented for copulas of class '",
                    class(copula), "'")
     mat / dCopula(u, copula)
@@ -575,20 +554,13 @@ dlogcdthetaExplicitCopula <- function(copula, u, ...) {
         colnames(u) <- paste0("u", 1:d)
         mat <- as.matrix(eval(der.pdf.alpha, data.frame(u))) / dCopula(u, copula)
     } else if (.hasSlot(copula, "exprdist") && is.language(pdf <- copula@exprdist$pdf)) {
-        ## symbolic derivatives of explicit cdf expressions
+        ## symbolic derivatives of explicit pdf expressions
         params <- getParam(copula, freeOnly = FALSE, named = TRUE)
-        parNames <- names(params)
-        ## prepare environment for evaluating der.algr
-        for (i in seq_along(params)) assign(parNames[i], params[i])
-        ## for (i in 1:d) assign(paste0("u", i), u[,i])
-        colnames(u) <- paste0("u", 1:d)
+        colnames(u) <- unames <- paste0("u", 1:d)
         u.df <- data.frame(u)
-        ## construct der.algr and evaluate
-        for (i in seq_along(params)) {
-            der <- D(pdf, parNames[i])
-            der.algr <- deriv(der, "nothing")
-            mat[, i] <- eval(der.algr, u.df)
-        }
+        der <- deriv(pdf, names(params))
+        mat <- attr(eval(der, c(u.df, params)), "gradient")
+        attr(mat, "dimnames") <- NULL
         mat <- mat / dCopula(u, copula)
     } else {
         warning("Function dlogcdtheta() not implemented for copulas of class '",
