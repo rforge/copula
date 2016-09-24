@@ -451,16 +451,11 @@ setMethod("dCdtheta", signature("khoudrajiBivCopula"),
     dim <- dim(copula)
     stopifnot(!is.null(d <- ncol(u)), dim == d)
 
-    for (i in 1:dim) {
-        assign(paste0("u", i), u[,i])
-        ## assign(paste0("shape", i), copula@shapes[i])
-    }
-
+    colnames(u) <- unames <- paste0("u", 1:dim)
+    u.df <- data.frame(u)
     params <- getParam(copula, freeOnly = FALSE, named = TRUE)
-    parNames <- names(params)
-    for (i in seq_along(params)) assign(parNames[i], params[i])
 
-    dens <- c(eval(attr(copula@exprdist, algoNm)))
+    dens <- c(eval(attr(copula@exprdist, algoNm), c(u.df, params)))
     if(log) log(dens) else dens
 }
 
