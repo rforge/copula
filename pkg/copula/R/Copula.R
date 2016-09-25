@@ -19,13 +19,13 @@ printCopula <- function(x, digits = getOption("digits"), ...) {
   validObject(x)
   cat(describeCop(x, kind="very short"), "\n")
   cat("Dimension: ", (d <- dim(x)), "\n")
-  if (length(par <- x@parameters) > 0) {
+  if (length(par <- getParam(x, freeOnly=FALSE, attr = TRUE)) > 0) {
     hasFx <- !is.null(.fixed <- attr(par, "fixed")) && any(.fixed)
     cat(sprintf("Parameters%s:\n",
 		if(hasFx) " (partly fixed, see ':==')" else ""))
     ## FIXME:  for the d=400  ellipsCopula with dispstr = "un": do *not* print all!
-    pnms <- format(x@param.names) # padding
-    pars <- format(par, digits=digits)
+    pnms <- format(names(par)) # padding
+    pars <- format(as.vector(par), digits=digits)
     for (i in seq_along(par))
       cat(sprintf("  %s %3s %s\n",
 		  pnms[i], if(hasFx && .fixed[i]) ":==" else " = ",
@@ -35,8 +35,8 @@ printCopula <- function(x, digits = getOption("digits"), ...) {
 }
 
 ## default print() and show() method for copulas:
-print.copula <- printCopula
-setMethod("show", "copula", function(object) printCopula(object))
+print.parCopula <- printCopula
+setMethod("show", "parCopula", function(object) printCopula(object))
 
 
 ### numerical computation of association measures

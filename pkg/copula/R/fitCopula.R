@@ -31,7 +31,7 @@ print.fitCopula <- function(x, digits = max(3, getOption("digits") - 3),
     cat(sprintf(
 	"Fit based on \"%s\" and %d %d-dimensional observations.\n",
 	x@method, x@nsample, d))
-    ## FIXME show more via print.copula() / printCop(.) utility; but do *not* show the parameters
+    ## FIXME show more via printCopula() utility; but do *not* show the parameters
     cat(if(showMore) describeCop(cop, "short") # as 'parameters' are separate
 	else paste("Copula:", class(cop)), "\n")
     if(showMore) {

@@ -116,7 +116,7 @@ dCduExplicitCopula <- function(copula, u, ...) {
         u.df <- data.frame(u)
         der <- deriv(cdf, unames)
         mat <- attr(eval(der, c(u.df, params)), "gradient")
-        attr(mat, "dimnames") <- NULL                    
+        attr(mat, "dimnames") <- NULL
     }
     else warning("Function dCdu() not implemented for copulas of class '",
                    class(copula), "'")
@@ -317,7 +317,7 @@ dCdthetaExplicitCopula <- function(copula, u, ...) {
     } else if (.hasSlot(copula, "exprdist") && is.language(cdf <- copula@exprdist$cdf)) {
         ## symbolic derivatives of explicit cdf expressions
         params <- getParam(copula, freeOnly = FALSE, named = TRUE)
-        colnames(u) <- unames <- paste0("u", 1:d)
+        colnames(u) <- paste0("u", 1:d)
         u.df <- data.frame(u)
         der <- deriv(cdf, names(params)[isFree(copula)])
         mat <- attr(eval(der, c(u.df, params)), "gradient")
@@ -556,7 +556,7 @@ dlogcdthetaExplicitCopula <- function(copula, u, ...) {
     } else if (.hasSlot(copula, "exprdist") && is.language(pdf <- copula@exprdist$pdf)) {
         ## symbolic derivatives of explicit pdf expressions
         params <- getParam(copula, freeOnly = FALSE, named = TRUE)
-        colnames(u) <- unames <- paste0("u", 1:d)
+        colnames(u) <- paste0("u", 1:d)
         u.df <- data.frame(u)
         der <- deriv(pdf, names(params)[isFree(copula)])
         mat <- attr(eval(der, c(u.df, params)), "gradient")

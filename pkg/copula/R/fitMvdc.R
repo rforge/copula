@@ -34,7 +34,7 @@ print.fitMvdc <- function(x, digits = max(3, getOption("digits") - 3),
     cat(sprintf(
 	"Maximum Likelihood estimation based on %d %d-dimensional observations.\n",
 	x@nsample, d))
-    ## FIXME show more via print.copula() / printCop(.) utility; but do *not* show the parameters
+    ## FIXME show more via printCopula() utility; but do *not* show the parameters
     cat("Copula: ", class(cop), "\n")
     if(showMore) { ## coefficient *matrix*, incl. std.errs
         coefs <- coef.fittedMV(x, SE = TRUE)

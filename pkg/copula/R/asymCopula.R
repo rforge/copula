@@ -451,7 +451,7 @@ setMethod("dCdtheta", signature("khoudrajiBivCopula"),
     dim <- dim(copula)
     stopifnot(!is.null(d <- ncol(u)), dim == d)
 
-    colnames(u) <- unames <- paste0("u", 1:dim)
+    colnames(u) <- paste0("u", 1:dim)
     u.df <- data.frame(u)
     params <- getParam(copula, freeOnly = FALSE, named = TRUE)
 
