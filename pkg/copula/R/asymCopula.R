@@ -30,9 +30,9 @@ setClass("asym2Copula", contains = c("asymCopula", "VIRTUAL"),
              shapes  = "numeric"
          ),
 	 validity = function(object) {
-             if(dim(object@copula1) != dim(object@copula2))
+             if((d <- dim(object@copula1)) != dim(object@copula2))
                  "The argument copulas are not of the same dimension"
-             else if(dim(object@copula1) != length(object@shapes))
+             else if(d != length(object@shapes))
                  "The length of 'shapes' is not equal to the dimension of the copulas"
              else TRUE
          })
@@ -42,7 +42,7 @@ setClass("asym2Copula", contains = c("asymCopula", "VIRTUAL"),
 ### This construction is known as Khoudraji's device
 ##################################################################################
 
-setClass("khoudrajiCopula", contains = c("asym2Copula"))
+setClass("khoudrajiCopula", contains = "asym2Copula")
 ## slots *and* validity currently from 'asym2Copula' !
 
 ##################################################################################
@@ -107,19 +107,19 @@ setMethod("getParam", signature("khoudrajiCopula"),
     d <- dim(copula)
     ns <- if (freeOnly) nFree(copula@shapes) else d
     sel <- if (!is.null(fixed) && freeOnly) !fixed else TRUE
-    par <- if (named) c(
-        if (length(par1) > 0) setNames(par1, paste0("c1.", names(par1))) else NULL,
-        if (length(par2) > 0) setNames(par2, paste0("c2.", names(par2))) else NULL,
-        setNames(copula@shapes[sel], paste0("shape", 1:d)[sel]))
-           else c(par1, par2, copula@shapes[sel])
+    par <- if (named)
+	       c(if (length(par1) > 0) setNames(par1, paste0("c1.", names(par1))) else NULL,
+		 if (length(par2) > 0) setNames(par2, paste0("c2.", names(par2))) else NULL,
+		 setNames(copula@shapes[sel], paste0("shape", 1:d)[sel]))
+	   else c(par1, par2, copula@shapes[sel])
     if (!attr)
-        par
+	par
     else
-        structure(par,
-                  param.lowbnd = c(attr(par1, "param.lowbnd"),
-                      attr(par2, "param.lowbnd"), rep(0, ns)),
-                  param.upbnd  = c(attr(par1, "param.upbnd"),
-                      attr(par2, "param.upbnd"), rep(1, ns)))
+	structure(par,
+		  param.lowbnd = c(attr(par1, "param.lowbnd"),
+				   attr(par2, "param.lowbnd"), rep(0, ns)),
+		  param.upbnd  = c(attr(par1, "param.upbnd"),
+				   attr(par2, "param.upbnd"), rep(1, ns)))
 })
 
 ## set free parameters
@@ -161,8 +161,8 @@ setMethod("fixedParam<-", signature("khoudrajiCopula", "logical"),
         if (n2 > 0L) fixedParam(copula@copula2) <- value[n1 + 1:n2]
         ns <- length(copula@shapes)
         attr(copula@shapes, "fixed") <-
-            if (!any(value[n1 + n2 + 1:ns])) NULL
-            else if (all(value[n1 + n2 + 1:ns])) TRUE else value[n1 + n2 + 1:ns]
+            if (!any(v12 <- value[n1 + n2 + 1:ns])) NULL
+            else if (all(v12)) TRUE else v12
     }
     copula
 })
@@ -217,13 +217,14 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(dim=d
 
 
     ## check if copula1 and copula2 have 'exprdist' slots
-    areNotBothExplicit <- if(is.na(match("exprdist", slotNames(copula1))) ||
-                             is.na(match("exprdist", slotNames(copula2))) ||
-                             !is.language(copula1@exprdist$cdf) ||
-                             !is.language(copula2@exprdist$cdf)) TRUE else FALSE
+    areNotBothExplicit <-
+        is.na(match("exprdist", slotNames(copula1))) ||
+        is.na(match("exprdist", slotNames(copula2))) ||
+        !is.language(copula1@exprdist$cdf) ||
+        !is.language(copula2@exprdist$cdf)
 
     ## non-explicit Khourdraji copulas
-    if (areNotBothExplicit) 
+    if (areNotBothExplicit)
         new(if (d == 2) "khoudrajiBivCopula" else "khoudrajiCopula",
             copula1 = copula1,
             copula2 = copula2,
@@ -263,18 +264,17 @@ prepKhoudrajiCdfExpr <- function(copula, prefix, om = FALSE) {
                               if (om) "1 - shape" else "shape", 1:d, ") )",
                               collapse = ", "),
                        ")"))
-    cdf <- do.call(substitute, list(cdf, eval(rep.l)))
-    cdf
+    ## return cdf
+    do.call(substitute, list(cdf, eval(rep.l)))
 }
 
 
-##'' @title Get pdf expression by differentiating the cdf with D iteratively
-##'' @param cdf Expression of cdf
-##'' @param n dimension
-##'' @return Expression of pdf
-cdfExpr2pdfExpr <- function(cdf, n) {
-    ## This function returns the pdf expression by differentiating the cdf
-    for (i in 1:n)
+##' @title Get c(.) (expression) by differentiating C(.) wrt to u1, u2, .., u<d>
+##' @param cdf expression of cdf C(.)
+##' @param d dimension
+##' @return Expression of pdf c(.)
+cdfExpr2pdfExpr <- function(cdf, d) {
+    for (i in seq_len(d))
         cdf <- D(cdf, paste0("u", i))
     cdf
 }
@@ -285,18 +285,16 @@ khoudrajiExplicitCopula <- function(copula1 = indepCopula(),
                                     shapes = rep(NA_real_, dim(copula1))) {
     d <- dim(copula1)
     cdf <- as.expression(substitute( (part1) * (part2),
-        list(part1 = prepKhoudrajiCdfExpr(copula1, "c1.", TRUE),
-             part2 = prepKhoudrajiCdfExpr(copula2, "c2.", FALSE))))
-    cdf.algr <- deriv(cdf, "nothing")
+        list(part1 = prepKhoudrajiCdfExpr(copula1, "c1.", TRUE),    # C_1(u)^ s
+             part2 = prepKhoudrajiCdfExpr(copula2, "c2.", FALSE)))) # C_2(u)^(1-s)
     pdf <- if (d <= 6) cdfExpr2pdfExpr(cdf, d)
            else {
                warning("The pdf is only available for dim 6 or lower.")
                NULL
            }
-    pdf.algr <- deriv(pdf, "nothing")
-    exprdist <- c(cdf = cdf, pdf = pdf)
-    attr(exprdist, "cdfalgr") <- cdf.algr
-    attr(exprdist, "pdfalgr") <- pdf.algr
+    exprdist <- structure(c(cdf = cdf, pdf = pdf),
+			  cdfalgr = deriv(cdf, "nothing"), # <-- FIXME; far from "optimal"
+			  pdfalgr = deriv(pdf, "nothing")) # <--     (ditto)
     new("khoudrajiExplicitCopula",
         copula1 = copula1,
         copula2 = copula2,
@@ -384,7 +382,9 @@ setMethod("dCopula", signature("matrix", "khoudrajiBivCopula"),
 setMethod("A", signature("khoudrajiBivCopula"), function(copula, w) {
 
     ## the A function can be computed only if the argument copulas are extreme-value copulas
-    stopifnot(is(copula@copula1, "evCopula"), is(copula@copula2, "evCopula"))
+    if(!is(copula@copula1, "evCopula") ||
+       !is(copula@copula2, "evCopula"))
+        stop("For Pickands A(<khoudrajiBivCop.>) both component copulas must be extreme-value ones")
 
     a1 <- copula@shapes[1];  a2 <- copula@shapes[2]
     den1 <- (1 - a1) * (1 - w) + (1 - a2) * w
