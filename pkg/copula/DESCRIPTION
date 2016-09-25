@@ -1,7 +1,7 @@
 Package: copula
 Version: 0.999-16
 VersionNote: Last CRAN: 0.999-15 on 2016-07-25
-Date: 2016-09-12
+Date: 2016-09-25
 Title: Multivariate Dependence with Copulas
 Author: Marius Hofert <marius.hofert@uwaterloo.ca>,
  Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>,
@@ -13,8 +13,8 @@ Depends: R (>= 3.1.0)
 Imports: stats, graphics, methods, stats4, Matrix, lattice, colorspace,
  gsl, ADGofTest, stabledist (>= 0.6-4), mvtnorm, pcaPP, pspline, numDeriv
 Suggests: MASS, KernSmooth, sfsmisc, scatterplot3d, Rmpfr, bbmle, knitr,
- parallel, lcopula, mvnormtest, partitions, polynom, randtoolbox, rugarch,
- Runuran, tseries, VGAM, VineCopula, zoo
+ parallel, gridExtra, lcopula, mvnormtest, partitions, polynom, qrng,
+ randtoolbox, rugarch, Runuran, tseries, VGAM, VineCopula, zoo
 SuggestsNote: the last lines' packages {parallel, ..., zoo} are only used
  in vignettes, demos and few tests.
 Enhances: nor1mix
