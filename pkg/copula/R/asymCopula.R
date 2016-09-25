@@ -217,14 +217,10 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(dim=d
 
 
     ## check if copula1 and copula2 have 'exprdist' slots
-    areNotBothExplicit <-
-        is.na(match("exprdist", slotNames(copula1))) ||
-        is.na(match("exprdist", slotNames(copula2))) ||
-        !is.language(copula1@exprdist$cdf) ||
-        !is.language(copula2@exprdist$cdf)
+    areBothExplicit <- isExplicit(copula1) & isExplicit(copula2)
 
     ## non-explicit Khourdraji copulas
-    if (areNotBothExplicit)
+    if (!areBothExplicit) 
         new(if (d == 2) "khoudrajiBivCopula" else "khoudrajiCopula",
             copula1 = copula1,
             copula2 = copula2,
@@ -232,6 +228,15 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(dim=d
     else { ## both components are explicit
         khoudrajiExplicitCopula(copula1, copula2, shapes)
     }
+}
+
+
+##' @title Check if a copula is explicit
+##' @param copula A copula object
+##' @return TRUE if explicit FALSE otherwise
+##' @author Jun Yan
+isExplicit <- function(copula) {
+    .hasSlot(copula, "exprdist") && is.language(copula@exprdist)
 }
 
 
@@ -447,7 +452,7 @@ setMethod("dCdtheta", signature("khoudrajiBivCopula"),
 
 ## This function uses the algorithmic expressions stored in the class object
 
-.KhoudrajiExplicitCopula.algr <- function(u, copula, log=FALSE, algoNm, ...) {
+.ExplicitCopula.algr <- function(u, copula, log=FALSE, algoNm, ...) {
     dim <- dim(copula)
     stopifnot(!is.null(d <- ncol(u)), dim == d)
 
@@ -460,11 +465,11 @@ setMethod("dCdtheta", signature("khoudrajiBivCopula"),
 }
 
 ## cdf is used only for *testing* with dim = 2
-pKhoudrajiExplicitCopula.algr <- function(u, copula, log=FALSE, ...)
-    .KhoudrajiExplicitCopula.algr(u, copula=copula, log=log, algoNm = "cdfalgr", ...)
+pExplicitCopula.algr <- function(u, copula, log=FALSE, ...)
+    .ExplicitCopula.algr(u, copula=copula, log=log, algoNm = "cdfalgr", ...)
 
-dKhoudrajiExplicitCopula.algr <- function(u, copula, log=FALSE, ...)
-    .KhoudrajiExplicitCopula.algr(u, copula=copula, log=log, algoNm = "pdfalgr", ...)
+dExplicitCopula.algr <- function(u, copula, log=FALSE, ...)
+    .ExplicitCopula.algr(u, copula=copula, log=log, algoNm = "pdfalgr", ...)
 
-setMethod("dCopula", signature("matrix",  "khoudrajiExplicitCopula"), dKhoudrajiExplicitCopula.algr)
+setMethod("dCopula", signature("matrix",  "khoudrajiExplicitCopula"), dExplicitCopula.algr)
 
