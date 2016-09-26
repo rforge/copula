@@ -384,8 +384,8 @@ setMethod("dCopula", signature("matrix", "khoudrajiBivCopula"),
 
 ## A: Restricted to *bivariate* Khoudraji copulas
 ## A: Pickands dependence function only if copula1 and copula2 are extreme-value
-setMethod("A", signature("khoudrajiBivCopula"), function(copula, w) {
-
+# setMethod("A", signature("khoudrajiBivCopula"), function(copula, w) {
+setMethod("A", signature("khoudrajiCopula"), function(copula, w) {
     ## the A function can be computed only if the argument copulas are extreme-value copulas
     if(!is(copula@copula1, "evCopula") ||
        !is(copula@copula2, "evCopula"))

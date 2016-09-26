@@ -53,7 +53,7 @@ rotCopula <- function(copula, flip = TRUE) {
         rotExplicitCopula(copula, flip)
     else {
         if (inherits(copula, "rotCopula")) {
-            copula@flip <- flip
+            copula@flip <- copula@flip != flip
             copula
         } else
             new("rotCopula", copula = copula, flip = flip)   

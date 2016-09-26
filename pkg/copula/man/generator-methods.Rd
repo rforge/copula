@@ -48,7 +48,8 @@
 \alias{A,huslerReissCopula-method}
 \alias{A,tawnCopula-method}
 \alias{A,tevCopula-method}
-\alias{A,khoudrajiBivCopula-method}
+% \alias{A,khoudrajiBivCopula-method} 
+\alias{A,khoudrajiCopula-method} % TODO: need to have higher dim A function
 \alias{A,indepCopula-method}
 % dAdu
 \alias{AfunDer}%deprecated

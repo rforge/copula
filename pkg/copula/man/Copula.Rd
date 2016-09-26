@@ -25,6 +25,7 @@
 \alias{dCopula,matrix,khoudrajiBivCopula-method}
 \alias{dCopula,matrix,khoudrajiExplicitCopula-method}
 \alias{dCopula,matrix,rotCopula-method}
+\alias{dCopula,matrix,rotExplicitCopula-method}
 \alias{dCopula,matrix,mixCopula-method}
 %\alias{dCopula,matrix,nacopula-method}-> ./dnacopula.Rd
 %
@@ -64,6 +65,7 @@
 \alias{pCopula,matrix,indepCopula-method}
 \alias{pCopula,matrix,khoudrajiCopula-method}
 \alias{pCopula,matrix,rotCopula-method}
+\alias{pCopula,matrix,rotExplicitCopula-method}
 \alias{pCopula,matrix,mixCopula-method}
 %\alias{pCopula,matrix,nacopula-method}-> ./pnacopula.Rd
 %
