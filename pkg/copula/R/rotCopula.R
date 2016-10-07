@@ -73,7 +73,7 @@ rotExplicitCopula <- function(copula, flip = TRUE) {
     d <- dim(copula)
     if (length(flip) == 1) flip <- rep(flip, d)
    
-    ## preparatino for cdf    
+    ## preparation for cdf    
     cdf <- copula@exprdist$cdf
     cdf <- do.call(substitute, list(cdf, list(alpha = quote(param))))
     ## TODO: if (inherits(copula, "rotExplicitCopula")) then ...

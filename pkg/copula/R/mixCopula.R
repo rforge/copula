@@ -34,8 +34,14 @@ setClass("mixCopula", contains = "parCopula",
 	     if((n1 <- length(object@w)) != (n2 <- length(object@cops)))
 		 return(paste("length of weights and copula list differ:",
 			      paste(n1, "!=", n2)))
+             
 	     TRUE
 	 })
+
+##' A Mixture of Explicit Copulas
+setClass("mixExplicitCopula", contains = "mixCopula",
+         slot = c("exprdist" = "expression")
+         )
 
 
 mixCopula <- function(coplist, w = NULL) {
@@ -44,10 +50,65 @@ mixCopula <- function(coplist, w = NULL) {
 	stop("a mixCopula must have at least one copula component")
     if (is.null(w)) # default: equal weights
 	w <- rep.int(1/m, m)
+    areAllExplicit <- all(unlist(lapply(coplist, isExplicit)))
+    
     ## now the validity methods check:
-    new("mixCopula",
-	w = as(w, "mixWeights"),
-	cops = as(coplist, "parClist"))
+    if (!areAllExplicit) 
+        new("mixCopula",
+            w = as(w, "mixWeights"),
+            cops = as(coplist, "parClist"))
+    else { ## mixExplicitCopula
+        mixCdf <- mixPdf <- parse(text = paste0("pcdf", 1L:m, " * ", "p", 1L:m,
+                                      collapse = " + "))
+        exprdist <- c(cdf = mixCdf, pdf = mixPdf)
+        cdfL <- lapply(coplist, function(x) x@exprdist$cdf)
+        pdfL <- lapply(coplist, function(x) x@exprdist$pdf)
+        for (i in 1:m) {
+            ## original 6 basic families have alpha in expressions
+            cdfL[[i]] <- do.call(substitute, list(cdfL[[i]], list(alpha = quote(param))))
+            pdfL[[i]] <- do.call(substitute, list(pdfL[[i]], list(alpha = quote(param))))
+            ## rename the parameters with a prefix of 'm<i>.'
+            oldParNames <- names(getParam(coplist[[i]], freeOnly=FALSE, named=TRUE))
+            npar <- length(oldParNames)
+            if (npar > 0) {
+                prefix <- paste0("m", i, ".")
+                newParNames <- paste0(prefix, oldParNames)
+                rep.l <- parse(text = paste0(
+                                   "list(",
+                                   paste0(oldParNames, " = quote(", newParNames, ")",
+                                          collapse = ", "),
+                                   ")"))
+                cdfL[[i]] <- do.call(substitute, list(cdfL[[i]], eval(rep.l)))
+                pdfL[[i]] <- do.call(substitute, list(pdfL[[i]], eval(rep.l)))
+            }
+        }
+        cdfL <- as.expression(cdfL)
+        pdfL <- as.expression(pdfL)
+        cdf.repl <- parse(text = paste0("list(",
+                              paste0("pcdf", 1:m, " = quote(", cdfL, ")", collapse = ", "),
+                              ")"))
+        pdf.repl <- parse(text = paste0("list(",
+                              paste0("pcdf", 1:m, " = quote(", pdfL, ")", collapse = ", "),
+                              ")"))
+        ## why this does not work? what happened when they were put together with c?
+        ## mixCdf <- do.call(substitute, list(mixCdf, eval(cdf.repl)))
+        ## mixPdf <- do.call(substitute, list(mixPdf, eval(pdf.repl)))
+        mixCdf <- do.call(substitute, list(exprdist$cdf, eval(cdf.repl)))
+        mixPdf <- do.call(substitute, list(exprdist$pdf, eval(pdf.repl)))
+        
+        cdf <- as.expression(mixCdf)
+        cdf.algr <- deriv(cdf, "nothing")
+        pdf <- as.expression(mixPdf)
+        pdf.algr <- deriv(pdf, "nothing")
+        exprdist <- c(cdf = cdf, pdf = pdf)
+        attr(exprdist, "cdfalgr") <- cdf.algr
+        attr(exprdist, "pdfalgr") <- pdf.algr
+            
+        new("mixExplicitCopula",
+            w = as(w, "mixWeights"),
+            cops = as(coplist, "parClist"),
+            exprdist = exprdist)
+    }
 }
 
 setMethod("dim", signature("mixCopula"), function(x) dim(x@cops[[1]]))
@@ -59,6 +120,13 @@ setMethod("getParam", "mixCopula",
 	      parC <- lapply(copula@cops, getParam,
 			     freeOnly=freeOnly, attr=TRUE, named=named)
 	      m <- length(w <- copula@w)
+              if(named) {
+                  parC <- sapply(1:m, function(i) {
+                      if (length(parC[[i]]) > 0) setNames(parC[[i]], paste0("m", i, ".", names(parC[[i]])))
+                  })        
+                  attr(w, "names") <- paste0("p", 1L:m)
+              }
+
 	      ## FIXME re-parametrize 'w' a la nor1mix:: (??)
 	      if(attr) { # more structured result
 		  ## need attr(*, "param.(up|low)bnd") for for loglikCopula()
@@ -71,6 +139,7 @@ setMethod("getParam", "mixCopula",
 		  c(unlist(parC), w)
 	      }
 	  })
+
 
 setMethod("freeParam<-", signature("mixCopula", "numeric"),
 	  function(copula, value) {

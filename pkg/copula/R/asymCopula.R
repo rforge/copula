@@ -225,9 +225,8 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(dim=d
             copula1 = copula1,
             copula2 = copula2,
             shapes = shapes)
-    else { ## both components are explicit
+    else ## both components are explicit
         khoudrajiExplicitCopula(copula1, copula2, shapes)
-    }
 }
 
 
