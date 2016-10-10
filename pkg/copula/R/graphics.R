@@ -477,15 +477,16 @@ contourplot2MatrixDf <- function(x, aspect = 1,
 ##' @param ... Additional arguments passed to contourplot2MatrixDf()
 ##' @return A contourplot() object
 ##' @author Marius Hofert
-contourplot2Copula <- function(x, FUN, n.grid = 26, xlim = 0:1, ylim = 0:1,
+contourplot2Copula <- function(x, FUN, n.grid = 26, delta = 0,
+                               xlim = 0:1, ylim = 0:1,
                                xlab = expression(u[1]), ylab = expression(u[2]),
                                ...)
 {
     stopifnot(dim(x) == 2, n.grid >= 2)
     if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)
-    stopifnot(length(n.grid) == 2)
-    x. <- seq(xlim[1], xlim[2], length.out = n.grid[1])
-    y. <- seq(ylim[1], ylim[2], length.out = n.grid[2])
+    stopifnot(length(n.grid) == 2, 0 <= delta, delta < 1/2)
+    x. <- seq(xlim[1] + delta, xlim[2] - delta, length.out = n.grid[1])
+    y. <- seq(ylim[1] + delta, ylim[2] - delta, length.out = n.grid[2])
     grid <- as.matrix(expand.grid(x = x., y = y., KEEP.OUT.ATTRS = FALSE))
     z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
     val <- cbind(grid, z = z)
