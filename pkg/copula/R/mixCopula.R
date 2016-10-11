@@ -16,14 +16,15 @@ setClass("parClist",  contains = "list",
 	     TRUE
 	 })
 
-##' Mixture Weights
-setClass("mixWeights",  contains = "numeric",
+##' Mixture Weights (not yet exported)
+setClass("mixWeights", contains = "numeric",
 	 validity = function(object) {
 	     if(any(object < 0))
 		 return("mixture weights must not be negative")
 	     s <- sum(object)
-	     if(abs(s - 1) > 10*.Machine$double.eps)
-		 return("mixture weights add to one")
+	     if(abs(s - 1) > 64*.Machine$double.eps)
+		 return(paste("mixture weights do not add to one, but to 1 -",
+			      formatC(1-s)))
 	     TRUE
 	 })
 
@@ -34,7 +35,6 @@ setClass("mixCopula", contains = "parCopula",
 	     if((n1 <- length(object@w)) != (n2 <- length(object@cops)))
 		 return(paste("length of weights and copula list differ:",
 			      paste(n1, "!=", n2)))
-             
 	     TRUE
 	 })
 
@@ -50,10 +50,10 @@ mixCopula <- function(coplist, w = NULL) {
 	stop("a mixCopula must have at least one copula component")
     if (is.null(w)) # default: equal weights
 	w <- rep.int(1/m, m)
-    areAllExplicit <- all(unlist(lapply(coplist, isExplicit)))
-    
+    allExplicit <- all(vapply(coplist, isExplicit, NA))
+
     ## now the validity methods check:
-    if (!areAllExplicit) 
+    if (!allExplicit)
         new("mixCopula",
             w = as(w, "mixWeights"),
             cops = as(coplist, "parClist"))
@@ -95,7 +95,7 @@ mixCopula <- function(coplist, w = NULL) {
         ## mixPdf <- do.call(substitute, list(mixPdf, eval(pdf.repl)))
         mixCdf <- do.call(substitute, list(exprdist$cdf, eval(cdf.repl)))
         mixPdf <- do.call(substitute, list(exprdist$pdf, eval(pdf.repl)))
-        
+
         cdf <- as.expression(mixCdf)
         cdf.algr <- deriv(cdf, "nothing")
         pdf <- as.expression(mixPdf)
@@ -103,7 +103,7 @@ mixCopula <- function(coplist, w = NULL) {
         exprdist <- c(cdf = cdf, pdf = pdf)
         attr(exprdist, "cdfalgr") <- cdf.algr
         attr(exprdist, "pdfalgr") <- pdf.algr
-            
+
         new("mixExplicitCopula",
             w = as(w, "mixWeights"),
             cops = as(coplist, "parClist"),
@@ -123,7 +123,7 @@ setMethod("getParam", "mixCopula",
               if(named) {
                   parC <- sapply(1:m, function(i) {
                       if (length(parC[[i]]) > 0) setNames(parC[[i]], paste0("m", i, ".", names(parC[[i]])))
-                  })        
+                  })
                   attr(w, "names") <- paste0("p", 1L:m)
               }
 
