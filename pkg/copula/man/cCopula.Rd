@@ -2,9 +2,9 @@
 \alias{cacopula}
 \alias{rtrafo}
 \alias{cCopula}
-\title{Conditional Copula Function and Its Inverse}
+\title{Conditional Distributions and Their Inverses from Copulas}
 \description{
-  Compute the conditional distribution aka conditional copula function,
+  Compute the conditional distribution function
   \eqn{C(u_d\,|\,u_1,\dots, u_{d-1})}{C(u[d] | u[1],..., u[d-1])}
   of \eqn{u_d}{u[d]} given \eqn{u_1,\dots,u_{d-1}}{u[1],..., u[d-1]}.
 }
@@ -50,7 +50,8 @@ cacopula(u, cop, n.MC = 0, log = FALSE)
   for all \eqn{j} in \code{indices}.
 }
 \details{
-  By default, \code{cCopula()} computes the Rosenblatt
+  By default and if fed with a sample of the corresponding copula,
+  \code{cCopula()} computes the Rosenblatt
   transform; see Rosenblatt (1952). The involved high-order derivatives
   for Archimedean copulas were derived in Hofert et al. (2012).
 
@@ -84,7 +85,7 @@ cacopula(u, cop, n.MC = 0, log = FALSE)
   \code{\link{htrafo}}; \code{\link{acopula-families}}.
 }
 \examples{
-## 1) Sampling a conditional Clayton copula given u_1
+## 1) Sampling from a conditional distribution of a Clayton copula given u_1
 
 ## Define the copula
 tau <- 0.5
