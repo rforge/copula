@@ -139,6 +139,35 @@ setMethod("freeParam<-", signature("khoudrajiCopula", "numeric"),
     copula
 })
 
+## set parameters
+setMethod("setTheta", "khoudrajiCopula",
+          function(x, value, na.ok = TRUE, noCheck = FALSE, ...) {
+    stopifnot(is.numeric(value) | (ina <- is.na(value)))
+    if(any(ina)) {
+        if(!na.ok) stop("NA value, but 'na.ok' is not TRUE")
+        ## vectorized (and partial)  value <- NA_real_
+        if(!is.double(value)) storage.mode(value) <- "double"
+    }
+    n1 <- nParam(x@copula1, freeOnly=FALSE)
+    n2 <- nParam(x@copula2, freeOnly=FALSE)
+    ns <- length(x@shapes)
+    if (n1 + n2 + ns != length(value))
+        stop("the length of 'value' is not equal to the number of parameters")
+    if (n1 > 0L) x@copula1 <- setTheta(x@copula1, value[1:n1],
+                                       na.ok = na.ok, noCheck = noCheck, ...)
+    if (n2 > 0L) x@copula2 <- setTheta(x@copula2, value[n1 + 1:n2],
+                                       na.ok = na.ok, noCheck = noCheck, ...)
+    valshapes <- value[n1 + n2 + 1:ns]
+    if(all(is.na(valshapes)) || noCheck || {
+        all(is.na(valshapes) | (0 <= valshapes & valshapes <= 1))
+    }) ## parameter constraints are fulfilled
+        x@shapes[seq_along(valshapes)] <- valshapes
+    else
+        stop(gettextf("shapes (=%s) are not between 0 and 1",
+                      format(valshapes)), domain=NA)
+    x
+})
+
 ## set or modify "fixedness" of parameters
 setMethod("fixedParam<-", signature("khoudrajiCopula", "logical"),
           function(copula, value) {
@@ -220,7 +249,7 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(dim=d
     areBothExplicit <- isExplicit(copula1) & isExplicit(copula2)
 
     ## non-explicit Khourdraji copulas
-    if (!areBothExplicit) 
+    if (!areBothExplicit)
         new(if (d == 2) "khoudrajiBivCopula" else "khoudrajiCopula",
             copula1 = copula1,
             copula2 = copula2,
