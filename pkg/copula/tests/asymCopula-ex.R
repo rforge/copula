@@ -91,6 +91,10 @@ kncf <- khoudrajiCopula(copula1 = normalCopula(fixParam(-0.7, TRUE)),
 			shapes = fixParam(c(0.4, 0.95), c(FALSE, TRUE)))
 kncf
 
+## Test setTheta
+kncf2 <- setTheta(kncf, value = c(0.5, 4, 0.2, 0.8))
+kncf2
+
 ## True versus numerical derivatives
 er.ncf <- c(
 dCdu = max(abs(copula:::dCduCopulaNum(kncf, v) - copula:::dCdu(knc, v))),
@@ -382,7 +386,7 @@ if (FALSE) ## too time consuming .. NB 'estimate.variance'
         res <- array(c(st1(re1), rr), dim = dim(rr) + c(0L,0:1), dimnames=dimnames(rr))
         m <- apply(res, 1:2, mean)
         s <- apply(res, 1:2, sd)
-        array(c(m,s), dim = c(2, dim(m)), dimnames = c(list(c("Mean","SD")), dimnames(m)))
+        array(c(t(m),t(s)), dim = c(2, dim(m)), dimnames = c(list(c("Mean","SD")), dimnames(m)))
     }
 
 
