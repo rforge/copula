@@ -164,7 +164,7 @@ dMatAmh <- function (u, copula, log = FALSE, checkPar=TRUE, ...) {
     ## was  damhCopula
     stopifnot(!is.null(d <- ncol(u)), d == copula@dimension)
     th <- copula@parameters
-    if(d == 2 && !copAMH@paraConstr(th)) # for now, .. to support negative tau
+    if(d == 2 && th < 0) # for now, .. to support negative tau
         damhCopula(u, copula, log=log)
     else
         copAMH@dacopula(u, theta=copula@parameters, log=log, checkPar=checkPar, ...)
