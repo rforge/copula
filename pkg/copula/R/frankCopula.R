@@ -198,7 +198,7 @@ pMatFrank <- function (u, copula, ...) {
     ## was  pfrankCopula
     stopifnot(!is.null(d <- ncol(u)), d == copula@dimension)
     th <- copula@parameters
-    if(d == 2 && !copFrank@paraConstr(th)) # for now, .. to support negative tau
+    if(d == 2 && th < 0) # for now, .. to support negative tau
         pfrankCopula(copula, u=u)
     else
         pacopula(u, copFrank, theta=copula@parameters, ...)

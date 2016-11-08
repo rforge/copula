@@ -42,9 +42,10 @@ rosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, ...)
             if(j == 1) {
                 if(log) log(u[,1]) else u[,1]
             } else {
-                P. <- P[j, 1:(j-1), drop = FALSE] %*% solve(P[1:(j-1), 1:(j-1), drop = FALSE]) # (1, j-1) %*% (j-1, j-1) = (1, j-1)
-                mu.cond <- as.numeric(P. %*% t(x[, 1:(j-1), drop = FALSE])) # (1, j-1) %*% (j-1, n) = (1, n) = n
-                P.cond <- P[j,j] - P. %*% P[1:(j-1), j, drop = FALSE] # (1, 1) - (1, j-1) %*% (j-1, 1) = (1, 1)
+                ij1 <- seq_len(j - 1L)
+                P. <- P[j, ij1, drop = FALSE] %*% solve(P[ij1, ij1, drop = FALSE]) # (1, j-1) %*% (j-1, j-1) = (1, j-1)
+                mu.cond <- as.numeric(P. %*% t(x[, ij1, drop = FALSE])) # (1, j-1) %*% (j-1, n) = (1, n) = n
+                P.cond <- P[j,j] - P. %*% P[ij1, j, drop = FALSE] # (1, 1) - (1, j-1) %*% (j-1, 1) = (1, 1)
                 pnorm(x[,j], mean = mu.cond, sd = sqrt(P.cond), log.p = log)
             }
         }
@@ -73,7 +74,8 @@ rosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, ...)
             }
         }
 
-    } else if((NAC <- is(copula, "outer_nacopula")) || is(copula, "archmCopula")) { # (nested) Archimedean copulas
+    } else if((NAC <- is(copula, "outer_nacopula")) ||
+              is(copula, "archmCopula")) { # (nested) Archimedean copulas
 
         ## Dealing with NACs and the two classes of Archimedean copulas
 	if(NAC) {
@@ -86,7 +88,7 @@ rosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, ...)
 	    th <- copula@parameters
 	    cop <- getAcop(copula) # => class(cop) = "acopula" but without parameter or dim
 	}
-	stopifnot(cop@paraConstr(th))
+	stopifnot(cop@paraConstr(th, dim(copula)))
 
         ## Compute conditional probabilities C_{j|1,..,j-1}(u_j | u_1,..,u_{j-1})
 	psiI  <- cop@iPsi(u, theta = th) # (n, d) matrix of psi^{-1}(u)
@@ -174,7 +176,8 @@ iRosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, ...)
             }
         }
 
-    } else if((NAC <- is(copula, "outer_nacopula")) || is(copula, "archmCopula")) { # (nested) Archimedean copulas
+    } else if((NAC <- is(copula, "outer_nacopula")) ||
+              is(copula, "archmCopula")) { # (nested) Archimedean copulas
 
         ## Dealing with NACs and the two classes of Archimedean copulas
         if(NAC) {
@@ -187,7 +190,7 @@ iRosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, ...)
 	    th <- copula@parameters
 	    cop <- getAcop(copula) # => class(cop) = "acopula" but without parameter or dim
 	}
-	stopifnot(cop@paraConstr(th))
+	stopifnot(cop@paraConstr(th, dim(copula)))
 
         ## Compute conditional quantiles C^-_{j|1,..,j-1}(u_j | u_1,..,u_{j-1})
         U <- u # u's are supposedly U[0,1]^d

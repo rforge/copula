@@ -154,7 +154,7 @@ pMatAmh <- function (u, copula, ...) {
     ## was pamhCopula
     stopifnot(!is.null(d <- ncol(u)), d == copula@dimension)
     th <- copula@parameters
-    if(d == 2 && !copAMH@paraConstr(th)) # for now, .. to support negative tau
+    if(d == 2 && th < 0) # for now, .. to support negative tau
         pamhCopula(copula, u)
     else
         pacopula(u, copAMH, theta=copula@parameters, ...)

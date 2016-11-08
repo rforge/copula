@@ -206,7 +206,7 @@ dTauClaytonCopula <- function(copula) {
 pMatClayton <- function (u, copula, ...) {
     stopifnot(!is.null(d <- ncol(u)), d == copula@dimension)
     th <- copula@parameters
-    if(d == 2 && !copClayton@paraConstr(th)) # for now, .. to support negative tau
+    if(d == 2 && th < 0) # for now, .. to support negative tau
         pclaytonCopula(copula, u=u)
     else
         pacopula(u, copClayton, theta=copula@parameters, ...)

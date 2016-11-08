@@ -1393,16 +1393,16 @@ setMethod("setTheta", "xcopula", ## set parameter for  daughter copula
 ##' @author Martin Maechler
 mkParaConstr <- function(int) {
     stopifnot(is(int, "interval")) # for now
+    eL <- substitute(LL <= theta, list(LL = int[1]))
+    eR <- substitute(theta <= RR, list(RR = int[2]))
     is.o <- int@open
-    eL <- substitute(LL <= theta, list(LL = int[1])); if(is.o[1]) eL[[1]] <-
-        as.symbol("<")
-    eR <- substitute(theta <= RR, list(RR = int[2])); if(is.o[2]) eR[[1]] <-
-        as.symbol("<")
+    if(is.o[1]) eL[[1]] <- quote(`<`) # instead of '<='
+    if(is.o[2]) eR[[1]] <- quote(`<`)
     bod <- substitute(length(theta) == 1 && LEFT && RIGHT,
                       list(LEFT = eL, RIGHT= eR))
-    as.function(c(alist(theta=), bod), parent.env(environment()))
+    as.function(c(alist(theta=, dim=), bod), parent.env(environment()))
     ## which is a fast version of
-    ## r <- function(theta) {}
+    ## r <- function(theta, dim) {}
     ## environment(r) <- parent.env(environment())
     ## body(r) <- bod
     ## r
@@ -1480,6 +1480,7 @@ printNacopula <-
 }
 
 setMethod(show, "nacopula", function(object) printNacopula(object))
+## and S3method(print, nacopula, printNacopula)  ---> in ../NAMESPACE
 
 
 ##' (hidden) utility for getAname() and getAcop()

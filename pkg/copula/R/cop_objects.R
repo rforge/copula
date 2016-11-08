@@ -33,7 +33,11 @@ copAMH <-
                       if(log) log(res) else res
 		  },
 		  ## parameter interval
-		  paraInterval = interval("[0,1)"),
+		  ## For d = 2: paraInterval = interval("[-1,1)"),
+		  ## --- d > 2: paraInterval = interval("[ 0,1)"),
+		  paraInterval = interval("[0,1)"),#  smaller one, (d > 2)
+		  paraConstr = function (theta, dim = 2)
+		      length(theta) == 1 && (if(dim == 2) -1 else 0) <= theta && theta < 1,
 		  ## absolute value of generator derivatives
 		  absdPsi = function(t, theta, degree = 1, n.MC = 0, log = FALSE,
 				     is.log.t = FALSE,
@@ -89,7 +93,7 @@ copAMH <-
 		  ## if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
                   n <- nrow(u)
-		  if(d > 2 && !C.@paraConstr(theta)) {
+		  if(!C.@paraConstr(theta, d)) {
 		      if(checkPar) stop("theta is outside its defined interval")
 		      return(rep.int(if(log) -Inf else 0, n))
 		  }
@@ -121,7 +125,7 @@ copAMH <-
 		  score = function(u, theta) {
 		      if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-		      if(d > 2) stopifnot(C.@paraConstr(theta))
+		      stopifnot(C.@paraConstr(theta, d))
 		      omu <- 1-u
 		      b <- rowSums(omu/(1-theta*omu))
 		      h <- theta*apply(u/(1-theta*omu), 1, prod)
@@ -139,7 +143,7 @@ copAMH <-
                       (1-theta) / (u*(1-theta*omu)) * (theta*exp(Li.md1-Li.md) - 1)
                   },
 		  ## nesting constraint
-		  nestConstr = function(theta0,theta1) {
+		  nestConstr = function(theta0,theta1) { ## FIXME constraints dim==2 / dim!=2
 		      C.@paraConstr(theta0) &&
 		      C.@paraConstr(theta1) && theta1 >= theta0
 		  },
@@ -220,7 +224,11 @@ copClayton <-
                       if(log) log(res) else res
 		  },
 		  ## parameter interval
-		  paraInterval = interval("(0,Inf)"),
+		  ## For d = 2: paraInterval = interval("[-1, Inf)"),
+		  ## --- d > 2: paraInterval = interval("[ 0, Inf)"),
+		  paraInterval = interval("[0, Inf)"), # smaller one, (d > 2)
+		  paraConstr = function (theta, dim = 2)
+		      length(theta) == 1 && (if(dim == 2) -1 else 0) <= theta && theta < Inf,
 		  ## absolute value of generator derivatives
 		  absdPsi = function(t, theta, degree=1, n.MC=0, log=FALSE) {
                       if(n.MC > 0) {
@@ -254,7 +262,7 @@ copClayton <-
 		      ## if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
 		      n <- nrow(u)
-		      if(d > 2 && !C.@paraConstr(theta)) {
+		      if(!C.@paraConstr(theta, d)) {
 			  if(checkPar) stop("theta is outside its defined interval")
 			  return(rep.int(if(log) -Inf else 0, n))
 		      }
@@ -287,7 +295,7 @@ copClayton <-
 		  score = function(u, theta) {
 		      if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-		      if(d > 2) stopifnot(C.@paraConstr(theta))
+		      stopifnot(C.@paraConstr(theta, d))
 		      lu <- log(u)
 		      t <- rowSums(C.@iPsi(u, theta=theta))
 		      ltp1 <- log(1+t)
@@ -307,7 +315,7 @@ copClayton <-
                       tht*u^(-t1)-t1/u
                   },
 		  ## nesting constraint
-		  nestConstr = function(theta0,theta1) {
+		  nestConstr = function(theta0,theta1) { ## FIXME constraints dim==2 / dim!=2
 		      C.@paraConstr(theta0) &&
 		      C.@paraConstr(theta1) && theta1 >= theta0
 		  },
@@ -381,7 +389,11 @@ copFrank <-
                       if(log) log(r) else r
 		  },
 		  ## parameter interval
-		  paraInterval = interval("(0,Inf)"),
+		  ## For d = 2: paraInterval = interval("(-Inf, Inf)"),
+		  ## --- d > 2: paraInterval = interval("[  0, Inf)"),
+                  paraInterval = interval("[0, Inf)"), # smaller one, (d > 2)
+		  paraConstr = function (theta, dim = 2) # no constraints if d==2 :
+		      length(theta) == 1 && is.finite(theta) && (dim == 2 || 0 <= theta),
 		  ## absolute value of generator derivatives
 		  absdPsi = function(t, theta, degree = 1, n.MC = 0, log = FALSE, is.log.t = FALSE,
 				     method = "negI-s-Eulerian", Li.log.arg = TRUE)
@@ -435,7 +447,7 @@ copFrank <-
 		  ## if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		  if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
 		  n <- nrow(u)
-		  if(d > 2 && !C.@paraConstr(theta)) {
+		  if(!C.@paraConstr(theta, d)) {
 		      if(checkPar) stop("theta is outside its defined interval")
 		      return(rep.int(if(log) -Inf else 0, n))
 		  }
@@ -471,7 +483,7 @@ copFrank <-
 		  score = function(u, theta) {
 		      if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-		      if(d > 2) stopifnot(C.@paraConstr(theta))
+		      stopifnot(C.@paraConstr(theta, d))
 		      e <- exp(-theta)
 		      Ie <- -expm1(-theta) # == 1 - e == 1-e^{-theta}
 		      etu <- exp(mtu <- -theta*u) # exp(-theta*u)
@@ -495,7 +507,7 @@ copFrank <-
                       factor * (exp(Li.md+log(h)-theta*u - Li.mdm1) - 1)
                   },
 		  ## nesting constraint
-		  nestConstr = function(theta0,theta1) {
+		  nestConstr = function(theta0,theta1) { ## FIXME constraints dim==2 / dim!=2
 		      C.@paraConstr(theta0) &&
 		      C.@paraConstr(theta1) && theta1 >= theta0
 		  },
@@ -899,7 +911,7 @@ copJoe <-
                   ## if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
                   if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
 		  n <- nrow(u)
-		  if(d > 2 && !C.@paraConstr(theta)) {
+		  if(!C.@paraConstr(theta)) {
 		      if(checkPar) stop("theta is outside its defined interval")
 		      return(rep.int(if(log) -Inf else 0, n))
 		  }
@@ -936,7 +948,7 @@ copJoe <-
 		  score = function(u, theta, method=eval(formals(polyJ)$method)) {
 		      if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
 		      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
-		      if(d > 2) stopifnot(C.@paraConstr(theta))
+		      stopifnot(C.@paraConstr(theta))
 		      l1_u <- rowSums(log1p(-u)) # log(1-u)
 		      u.th <- (1-u)^theta # (1-u)^theta
 		      lh <- rowSums(log1p(-u.th)) # rowSums(log(1-(1-u)^theta)) = log(h)

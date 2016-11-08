@@ -114,7 +114,7 @@ advantage outweighs the drawbacks... What do you think?
 ** DONE [IK] Document dC-dc.R
 ** DONE [IK] Implement copula rotations (rotCopula()); mostly done incl tests/rotCopula-ex.R
 ** TODO [IK] Write test code for mult gof Sn, Rn
-** TODO [IK] Implement copula mixtures (mixCopula()) with sufficiently flexible structure so that we can maybe estimate the probability weights in the future
+** DONE Implement copula mixtures (mixCopula()) with sufficiently flexible structure so that we can maybe estimate the probability weights in the future
 ** DONE [JY] document getL() a bit more in fitCopula.R (what is it for?); there's a TODO there as well (in the header of getL())
 ** TODO introduce "empiricalCopula" (or "empCopula") as new subclass of "Copula" (not "copula")
    and maybe *additionally* "empiricalDist" / "empMvdc", inheriting from

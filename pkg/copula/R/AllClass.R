@@ -47,7 +47,7 @@ setClass("acopula",
                    paraInterval = "maybeInterval", # [.,.]  (.,.], etc .. parameter interval
                    absdPsi = "function",     # of (t, theta, degree=1, n.MC=0, log=FALSE) -- (-1)^d * the degree-th generator derivative
                    theta = "numeric",        # value of theta or  'NA'  (for unspecified)
-                   paraConstr = "function",  # of (theta) ; constr(theta) |--> TRUE: "fulfilled"
+                   paraConstr = "function",  # of (theta, dim = .) ; constr(theta) |--> TRUE: "fulfilled"
                    absdiPsi = "function", # of (t, theta, log=FALSE) -- absolute value of first derivative of iPsi
                    dDiag = "function",       # of (u, theta, log=FALSE) -- compute the density of the diagonal
                    dacopula = "function",	  # of (u, theta, n.MC=0, log=FALSE) -- computes the (log-)density of the Archimedean
@@ -100,7 +100,7 @@ setClass("acopula",
              if(!isTRUE(tt <- checkFun("psi", 2)))	return(tt)
              if(!isTRUE(tt <- checkFun("iPsi", 2)))	return(tt)
              if(!isTRUE(tt <- checkFun("tau", 1)))	return(tt)
-             if(!isTRUE(tt <- checkFun("paraConstr", 1, chkVect=FALSE))) return(tt)
+             if(!isTRUE(tt <- checkFun("paraConstr", 2, chkVect=FALSE))) return(tt)
              if(!isTRUE(tt <- checkFun("nestConstr", 2, chkVect=FALSE))) return(tt)
 
              ## ...
