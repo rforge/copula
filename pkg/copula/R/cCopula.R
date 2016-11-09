@@ -101,10 +101,16 @@ rosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, ...)
             if(j == 1) {
                 if(log) log(u[,1]) else u[,1]
             } else {
-                logD <- cop@absdPsi(as.vector(psiI.[, c(j, j-1)]), theta = th,
-                                    degree = j-1, log = TRUE)
-                res <- logD[1:n]-logD[(n+1):(2*n)]
-                if(log) res else exp(res)
+		tt <- as.vector(psiI.[, c(j, j-1)])
+		if(th < 0) { ## allowed for dim==2 and  {AMH, Clayton, Frank}:
+		    D <- cop@absdPsi(tt, theta = th, degree = j-1, log = FALSE)
+		    rat <- D[1:n] / D[(n+1):(2*n)]
+		    if(log) log(rat) else rat
+		} else {
+		    logD <- cop@absdPsi(tt, theta = th, degree = j-1, log = TRUE)
+		    res <- logD[1:n]-logD[(n+1):(2*n)]
+		    if(log) res else exp(res)
+		}
             }
         }
 
@@ -112,8 +118,8 @@ rosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, ...)
 	stop("Not yet implemented for copula class ", class(copula))
     }
 
-    ## Return
-    drop(vapply(indices, C.j, numeric(n))) # if arg is a 1-col matrix, a vector is returned
+    ## Return; drop(): if arg is a 1-col matrix, a vector is returned
+    drop(vapply(indices, C.j, numeric(n)))
 }
 
 

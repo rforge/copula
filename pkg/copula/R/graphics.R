@@ -129,11 +129,19 @@ perspCopula <- function(x, FUN, n.grid = 26, delta = 0,
     stopifnot(n.grid >= 2)
     if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)
     stopifnot(length(n.grid) == 2, 0 <= delta, delta < 1/2)
+    xName <- deparse(substitute(x))
+    fName <- deparse(substitute(FUN))
     x. <- seq(0 + delta, 1 - delta, length.out = n.grid[1])
     y. <- seq(0 + delta, 1 - delta, length.out = n.grid[2])
     grid <- as.matrix(expand.grid(x = x., y = y., KEEP.OUT.ATTRS = FALSE))
     z.mat <- matrix(if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid), ncol = n.grid[2])
-    T <- persp(x = x., y = y., z = z.mat,
+    zl <- range(z.mat, na.rm = TRUE)
+    if(diff(zl) == 0) # persp.default would stop() --> better error message here :
+	stop(gettextf(
+		"The non-NA values of '%s' are all equal to %g.  Not allowed for persp()",
+	        paste0(fName,"(xy, ",xName,")"), zl[1]),
+            call. = FALSE, domain = NA)
+    T <- persp(x = x., y = y., z = z.mat, zlim = zl,
                xlab = xlab, ylab = ylab, zlab = zlab,
                theta = theta, phi = phi, expand = expand, ticktype = ticktype, ...)
     invisible(list(x = x., y = y., z = z.mat, persp = T))

@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-16 (2016-11-.., svn r14..)}{
+\section{Changes in version 0.999-16 (2016-11-09, svn r1539)}{
   \subsection{Bug Fixes}{
     \itemize{
       \item \code{pK(u, log.p=TRUE)} now correctly checks \code{u}.

@@ -426,5 +426,22 @@ chkPsi(claytonCopula(-1/8))
 chkPsi(claytonCopula(-2^-10))
 
 ## AMH:
+tAMH <- c((5 - 8*log(2))/ 3, -1/8, 0, 1/8, 1/3)
+(th.t <- vapply(tAMH, function(tau) iTau(amhCopula(), tau), 1.))
+stopifnot(-1 <= th.t, th.t <= 1,
+          all.equal(th.t[c(1,3,5)], c(-1,0,1)))
+## rho: --> ../vignettes/rhoAMH-dilog.Rnw
 
-## --> ../vignettes/rhoAMH-dilog.Rnw
+## cCopula() for all three "negative" tau families:
+u <- cbind((1:7)/8, 1/2)
+cA <- cCopula(u,     amhCopula(iTau(    amhCopula(), -0.18)))[,2]
+cC <- cCopula(u, claytonCopula(iTau(claytonCopula(), -0.18)))[,2]
+cF <- cCopula(u,   frankCopula(iTau(  frankCopula(), -0.18)))[,2]
+## AMH and Frank "failed" because cop(AMH|Frank) @ absdPsi(*, log=TRUE) gave NaN
+(cACF <- rbind(cA, cC, cF))
+stopifnot(is.finite(cACF), !apply(cACF, 1, is.unsorted),
+	  0.348 <= cACF, cACF <= 0.663,
+          ## *are* somewhat similar as they have same tau:
+	  all.equal(cA, cF, tol = 0.03),
+	  all.equal(cC, cF, tol = 0.075))
+

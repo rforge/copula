@@ -41,9 +41,8 @@ copAMH <-
 		  ## absolute value of generator derivatives
 		  absdPsi = function(t, theta, degree = 1, n.MC = 0, log = FALSE,
 				     is.log.t = FALSE,
-				     method = "negI-s-Eulerian", Li.log.arg=TRUE)
+				     method = "negI-s-Eulerian", Li.log.arg = (theta > 0))
 	      {
-		  lth <- log(theta)
 		  if(n.MC > 0) {
 		      if(is.log.t) t <- exp(t) # very cheap for now
 		      absdPsiMC(t, family="AMH", theta=theta, degree=degree,
@@ -54,6 +53,7 @@ copAMH <-
 
 		      ## Note: absdPsi(0, ...) is correct, namely (1-theta)/theta * polylog(theta, s=-degree)
 		      if(theta == 0) return(if(log) -t else exp(-t)) # independence
+		      if(log || Li.log.arg) lth <- log(theta)
 		      Li.arg <- if(Li.log.arg) lth - t else theta*exp(-t)
 		      Li. <- polylog(Li.arg, s = -degree, method=method, is.log.z = Li.log.arg, log=log)
 		      if(log)
@@ -396,7 +396,7 @@ copFrank <-
 		      length(theta) == 1 && is.finite(theta) && (dim == 2 || 0 <= theta),
 		  ## absolute value of generator derivatives
 		  absdPsi = function(t, theta, degree = 1, n.MC = 0, log = FALSE, is.log.t = FALSE,
-				     method = "negI-s-Eulerian", Li.log.arg = TRUE)
+				     method = "negI-s-Eulerian", Li.log.arg = (theta > 0))
               {
                   if(n.MC > 0) {
                       absdPsiMC(t, family="Frank", theta=theta, degree=degree,
