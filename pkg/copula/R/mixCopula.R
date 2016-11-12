@@ -225,10 +225,12 @@ setMethod("rCopula", signature("numeric", "mixCopula"),
 		  ## bind rows, and permute finally:
 		  do.call(rbind, U)[sample.int(n), ]
 	      }
-	  })
+})
 
 setMethod("lambda", "mixCopula", function(copula, ...)
-    c(vapply(copula@cops, lambda, numeric(2)) %*% copula@w))
+    setNames(c(vapply(copula@cops, lambda, numeric(2)) %*% copula@w),
+             c("lower", "upper")))
+
 
 setMethod("rho", "mixCopula", function(copula, ...)
     c(vapply(copula@cops, rho, 1.1) %*% copula@w))
