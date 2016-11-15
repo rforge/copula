@@ -31,9 +31,9 @@ amhCopula <- function(param = NA_real_, dim = 2L,
       }
   }
   ## get expressions of cdf and pdf
-  cdfExpr <- function(n) {
+  cdfExpr <- function(d) {
     expr <-   "log((1 - alpha * (1 - u1)) / u1)"
-    for (i in 2:n) {
+    for (i in 2:d) {
       ui <- paste0("u", i)
       cur <- gsub("u1", ui, expr)
       expr <- paste(expr, cur, sep=" + ")
@@ -42,9 +42,9 @@ amhCopula <- function(param = NA_real_, dim = 2L,
     parse(text = expr)
   }
 
-  pdfExpr <- function(cdf, n) {
+  pdfExpr <- function(cdf, d) {
     val <- cdf
-    for (i in 1:n) val <- D(val, paste0("u", i))
+    for (i in 1:d) val <- D(val, paste0("u", i))
     val
   }
 

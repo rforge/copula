@@ -69,9 +69,9 @@ gumbelCopula <- function(param = NA_real_, dim = 2L,
   }
 
   ## get expressions of cdf and pdf
-  cdfExpr <- function(n) {
+  cdfExpr <- function(d) {
     expr <- "( - log(u1))^alpha"
-    for (i in 2:n) {
+    for (i in 2:d) {
       cur <- paste0( "(-log(u", i, "))^alpha")
       expr <- paste(expr, cur, sep=" + ")
     }
@@ -79,24 +79,24 @@ gumbelCopula <- function(param = NA_real_, dim = 2L,
     parse(text = expr)
   }
 
-  pdfExpr <- function(cdf, n) {
+  pdfExpr <- function(cdf, d) {
     val <- cdf
-    for (i in 1:n) {
+    for (i in 1:d) {
       val <- D(val, paste0("u", i))
     }
     val
   }
 
   cdf <- cdfExpr((dim <- as.integer(dim)))
-  pdf <- if (dim <= 6) pdfExpr(cdf, dim) else NULL
+  pdf <- if (dim <= 6) pdfExpr(cdf, dim) # else NULL
   new("gumbelCopula",
-             dimension = dim,
-             parameters = param,
-             exprdist = c(cdf = cdf, pdf = pdf),
-             param.names = "param",
-             param.lowbnd = 1,
-             param.upbnd = Inf,
-             fullname = "Gumbel copula family; Archimedean copula; Extreme value copula")
+      dimension = dim,
+      parameters = param,
+      exprdist = c(cdf = cdf, pdf = pdf),
+      param.names = "param",
+      param.lowbnd = 1,
+      param.upbnd = Inf,
+      fullname = "Gumbel copula family; Archimedean copula; Extreme value copula")
 }
 
 
@@ -124,7 +124,7 @@ pgumbelCopula <- function(copula, u) {
   if(!is.matrix(u)) u <- matrix(u, ncol = dim)
   for (i in 1:dim) assign(paste0("u", i), u[,i])
   alpha <- copula@parameters[1] # needed in eval():
-  pmax(0, eval(copula@exprdist$cdf))
+  pmax(eval(copula@exprdist$cdf), 0)
 }
 
 dgumbelCopula <- function(u, copula, log=FALSE, ...) {

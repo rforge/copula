@@ -17,15 +17,12 @@
 ## NB: For  d = dim = 2,   -1 <= param = theta = alpha < 0 is allowed
 ## --  psi() and iPsi() now ok
 
-iPsiClayton <- function(copula, u) .iPsiClayton(u, copula@parameters[1])
-.iPsiClayton <- function(u, alpha)   sign(alpha) * (u^(-alpha) - 1)
-## (u^(-alpha) - 1) / alpha ## <<- Nelson Table 4.1:  alpha in denom is wrong
+.iPsiClayton <- function(u, theta)   sign(theta) * (u^(-theta) - 1)
+## (u^(-theta) - 1) / theta ## <<- Nelson Table 4.1:  theta in denom is wrong
 
-psiClayton <- function(copula, s) .psiClayton(s, copula@parameters[1])
-.psiClayton <- function(s, alpha) {
-  ## formally, from iPsi(.):  (1 - sign(alpha)*s) ^ (-1/a)
-  (if(alpha < 0) pmax(0, 1-s) else 1+s)^(-1/alpha)
-}
+.psiClayton <- function(t, theta) pmax(1 + sign(theta)*t, 0)^(-1/theta)
+## formally, from iPsi(.), psi(t) = (1 + sign(theta)*t) ^ (-1/a)
+## NB:  pmax(*, 0) keeps attributes of '*'
 
 
 claytonCopula <- function(param = NA_real_, dim = 2L,
@@ -42,9 +39,9 @@ claytonCopula <- function(param = NA_real_, dim = 2L,
       }
   }
   ## get expressions of cdf and pdf
-  cdfExpr <- function(n) {
+  cdfExpr <- function(d) {
     expr <- "u1^(-alpha) - 1"
-    for (i in 2:n) {
+    for (i in 2:d) {
       cur <- paste0("u", i, "^(-alpha) - 1")
       expr <- paste(expr, cur, sep=" + ")
     }
@@ -52,9 +49,9 @@ claytonCopula <- function(param = NA_real_, dim = 2L,
     parse(text = expr)
   }
 
-  pdfExpr <- function(cdf, n) {
+  pdfExpr <- function(cdf, d) {
     val <- cdf
-    for (i in 1:n) {
+    for (i in 1:d) {
       val <- D(val, paste0("u", i))
     }
     val
@@ -131,7 +128,7 @@ dclaytonCopula <- function(copula, u, ...) {
   if(log) log(val) else val
 }
 
-## now only used for dim = d = 2  (for negative tau)
+## now only used for dim = d = 2  (for negative tau <=> negative alpha | theta)
 dclaytonCopula.pdf <- function(u, copula, log=FALSE) {
   dim <- copula@dimension
   if (dim > 10) stop("Clayton copula PDF not implemented for dimension > 10.")
@@ -226,9 +223,10 @@ setMethod("pCopula", signature("matrix", "claytonCopula"), pMatClayton)
 setMethod("dCopula", signature("matrix", "claytonCopula"), dMatClayton)
 ## pCopula() and dCopula() *generic* already deal with non-matrix case!
 
-setMethod("iPsi", signature("claytonCopula"), iPsiClayton)
-setMethod("psi",  signature("claytonCopula"), psiClayton)
-
+setMethod("iPsi", signature("claytonCopula"),
+          function(copula, u) .iPsiClayton(u, copula@parameters[1]))
+setMethod("psi",  signature("claytonCopula"),
+          function(copula, s) .psiClayton(s, copula@parameters[1]))
 
 setMethod("diPsi", signature("claytonCopula"),
 	  function(copula, u, degree=1, log=FALSE, ...)

@@ -1,7 +1,7 @@
 Package: copula
 Version: 0.999-16
 VersionNote: Last CRAN: 0.999-15 on 2016-07-25
-Date: 2016-11-09
+Date: 2016-11-14
 Title: Multivariate Dependence with Copulas
 Author: Marius Hofert <marius.hofert@uwaterloo.ca>,
  Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>,
@@ -33,15 +33,15 @@ License: GPL (>= 3) | file LICENCE
 ByteCompile: yes
 VignetteBuilder: knitr
 Collate: AllClass.R Classes.R AllGeneric.R Copula.R Auxiliaries.R aux-acopula.R
-	 special-func.R cop_objects.R nacopula.R
-	 dC-dc.R
+	 special-func.R amhCopula.R claytonCopula.R frankCopula.R cop_objects.R
+	 nacopula.R dC-dc.R
 	 asymCopula.R mixCopula.R rotCopula.R
-	 amhCopula.R amhExpr.R An.R
-         archmCopula.R cCopula.R claytonCopula.R
+	 amhExpr.R An.R
+         archmCopula.R cCopula.R
          claytonExpr.R ellipCopula.R empcop.R empPsi.R acR.R
 	 estimation.R evCopula.R evTests.R
          exchTests.R fgmCopula.R fitCopula.R fitLambda.R fitMvdc.R
-	 fixedPar.R frankCopula.R
+	 fixedPar.R
          frankExpr.R galambosCopula.R galambosExpr-math.R galambosExpr.R
 	 ggraph-tools.R pairsRosenblatt.R prob.R
 	 gofTrafos.R gofEVTests.R gofCopula.R

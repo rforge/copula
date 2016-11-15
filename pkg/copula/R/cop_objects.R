@@ -218,9 +218,9 @@ copClayton <-
     (function() { ## to get an environment where  C.  itself is accessible
 	C. <- new("acopula", name = "Clayton",
 		  ## generator
-		  psi = function(t, theta) { (1+t)^(-1/theta) },
+		  psi = .psiClayton, # ./claytonCopula.R - also for *negative* theta
 		  iPsi = function(u, theta, log=FALSE) {
-                      res <- u^(-theta) - 1
+                      res <- .iPsiClayton(u, theta) # -> ./claytonCopula.R
                       if(log) log(res) else res
 		  },
 		  ## parameter interval
@@ -237,12 +237,21 @@ copClayton <-
                       } else {
                           ## Note: absdPsi(0, ...) is correct, namely gamma(d+1/theta)/gamma(1/theta)
                           alpha <- 1/theta
-                          res <- lgamma(degree+alpha)-lgamma(alpha)-(degree+alpha)*log1p(t)
-                          if(log) res else exp(res)
+                          if(theta > 0) {
+                              res <- lgamma(degree+alpha)-lgamma(alpha)-(degree+alpha)*log1p(t)
+                              if(log) res else exp(res)
+                          } else { ## for *negative* theta, have negative 't', possibly even t < -1
+                              ## and for odd 'degree' a sign flip
+                              res <- lgamma(degree+alpha) - lgamma(alpha)
+                              if(degree %% 2 == 1) res <- -res
+                              res <- res - (degree+alpha)*log1p(-t)
+                              if(log) res else exp(res)
+                          }
                       }
                   },
                   ## derivatives of the generator inverse
 		  absdiPsi = function(u, theta, degree=1, log=FALSE) {
+                      if(theta < 0) stop("theta < 0  not yet implemented")
 		      switch(degree,
 			     ## 1 :
 			     if(log) log(theta)-(1+theta)*log(u) else theta*u^(-(1+theta)),
@@ -273,7 +282,9 @@ copClayton <-
 		      ## auxiliary results
 		      u. <- u[n01,, drop=FALSE]
 		      lu <- rowSums(log(u.))
-		      t <- rowSums(C.@iPsi(u., theta))
+		      t <- rowSums(.iPsiClayton(u., theta))
+### FIXME for negative theta .. should not be hard
+if(theta < 0) stop("theta < 0  not yet implemented")
 		      ## main part
 		      if(n.MC > 0) { # Monte Carlo
 			  lu.mat <- matrix(rep(lu, n.MC), nrow=n.MC, byrow=TRUE)
@@ -361,33 +372,8 @@ copFrank <-
     (function() { ## to get an environment where  C.  itself is accessible
 	C. <- new("acopula", name = "Frank",
 		  ## generator
-		  psi = function(t, theta) {
-                      ## = -log(1-(1-exp(-theta))*exp(-t))/theta
-		      ## -log1p(expm1(-theta)*exp(0-t))/theta # fails really small t, theta > 38
-		      -log1mexp(t-log1mexp(theta))/theta
-		  },
-		  iPsi = function(u, theta, log=FALSE) {
-		      ## == -log( (exp(-theta*u)-1) / (exp(-theta)-1) )
-		      thu <- u*theta # (-> recycling args)
-		      if(!length(thu)) return(thu) # {just for numeric(0) ..hmm}
-		      et1 <- expm1(-theta) # e^{-th} - 1 < 0
-		      ## FIXME ifelse() is not quite efficient
-		      ## FIXME(2): the "> c* th" is pi*Handgelenk
-### FIXME: use  delta = exp(-thu)*(1 - exp(thu-th)/ (-et1) =
-###                   = exp(-thu)* expm1(thu-theta)/et1   (4)
-
-###-- do small Rmpfr-study to find the best form -- (4) above and the three forms below
-
-		      r <- ifelse(abs(thu) > .01*abs(theta), # thu = u*th > .01*th <==> u > 0.01
-                              {   e.t <- exp(-theta)
-                                  ifelse(e.t > 0 & abs(theta - thu) < 1/2,# th -th*u = th(1-u) < 1/2
-                                         -log1p(e.t * expm1(theta - thu)/et1),
-                                         -log1p((exp(-thu)- e.t) / et1))
-                              },
-                                  ## for small u (u < 0.01) :
-                                  -log(expm1(-thu)/et1))
-                      if(log) log(r) else r
-		  },
+		  psi = .psiFrank,
+		  iPsi = .iPsiFrank,
 		  ## parameter interval
 		  ## For d = 2: paraInterval = interval("(-Inf, Inf)"),
 		  ## --- d > 2: paraInterval = interval("[  0, Inf)"),
