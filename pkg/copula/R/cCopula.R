@@ -25,8 +25,8 @@
 ##'         distributed realizations (or the log of
 ##'         the result if log = TRUE)
 ##' @author Marius Hofert and Martin Maechler
-##' @note Call this via cCopula() (for having arguments tested)
-rosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, ...)
+##' @note Hidden; call via public cCopula() (for having arguments tested)
+rosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, drop = TRUE, ...)
 {
     if (!is.matrix(u)) # minimal checking here!
         u <- rbind(u, deparse.level = 0L)
@@ -108,7 +108,7 @@ rosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, ...)
 		    if(log) log(rat) else rat
 		} else {
 		    logD <- cop@absdPsi(tt, theta = th, degree = j-1, log = TRUE)
-		    res <- logD[1:n]-logD[(n+1):(2*n)]
+		    res <- logD[1:n] - logD[(n+1):(2*n)]
 		    if(log) res else exp(res)
 		}
             }
@@ -119,7 +119,14 @@ rosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, ...)
     }
 
     ## Return; drop(): if arg is a 1-col matrix, a vector is returned
-    drop(vapply(indices, C.j, numeric(n)))
+    ## if(drop)
+    ##     drop(vapply(indices, C.j, numeric(n)))
+    ## else
+    ##     vapply(indices, C.j, numeric(n))
+    if(drop || n > 1)
+	vapply(indices, C.j, numeric(n))
+    else # n == 1, !drop
+	rbind(vapply(indices, C.j, 1.))#, deparse.level = 0L)
 }
 
 
@@ -134,7 +141,7 @@ rosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, ...)
 ##'         (or the log of the result if log = TRUE)
 ##' @author Marius Hofert and Martin Maechler
 ##' @note Call this via cCopula() (for having arguments tested)
-iRosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, ...)
+iRosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, drop = TRUE, ...)
 {
     if (!is.matrix(u)) # minimal checking here!
         u <- rbind(u, deparse.level = 0L)
@@ -219,7 +226,7 @@ iRosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, ...)
             ## f(x) := C_{j|1,..,j-1}(x | u_{i1},..,u_{i j-1}) - u_{ij}
             if(max.ind >= 2) {
                 f <- function(x, U.i1_to_jm1, u.ij)
-                    rosenblatt(c(U.i1_to_jm1, x), copula = arCop, indices = j) - u.ij
+                    rosenblatt(c(U.i1_to_jm1, x), copula = arCop, indices = j, drop=TRUE) - u.ij
                 for(j in 2:max.ind) {
                     ## Precompute quantities from the jth column so that uniroot() is faster
                     U..1_to_jm1 <- U[, seq_len(j-1L), drop = FALSE] # matrix U_{., 1:(j-1)}
@@ -238,15 +245,15 @@ iRosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, ...)
     }
 
     ## Return
-    U[, indices]
+    U[, indices, drop=drop]
 }
 
 
 ##' @title Conditional Copulas and Their Inverses
 ##' @param u A data matrix in [0,1]^(n, d) of U[0,1]^d samples if inverse = FALSE
 ##'        and ((pseudo-/copula-)observations if inverse = TRUE
-##' @param copula An object of class Copula
-##' @param indices A vector of indices j in {1,..,dim(copula)} for which
+##' @param copula object of class Copula
+##' @param indices vector of indices j in {1,..,dim(copula)} for which
 ##'        C_{j|1,..,j-1}(u_j | u_1,..,u_{j-1}) (or its inverse
 ##'        C^-_{j|1,..,j-1}(u_j | u_1,..,u_{j-1}) if inverse = TRUE) is computed.
 ##' @param inverse logical indicating whether the inverse
@@ -257,11 +264,11 @@ iRosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, ...)
 ##'         rosenblatt() and iRosenblatt()
 ##' @return An (n, d) matrix U of supposedly U[0,1]^d realizations
 ##'         or copula samples [or the log of the result if log = TRUE]
-##' @author Marius Hofert
+##' @author Marius Hofert and Martin Maechler ('drop')
 ##' @note This is just a wrapper (including argument testing) of rosenblatt()
-##'       and iRosenblatt(); see ./gofTrafos.R
+##'       and iRosenblatt();   ___HELP___ in ../man/cCopula.Rd
 cCopula <-  function(u, copula, indices = 1:dim(copula), inverse = FALSE,
-                     log = FALSE, ...)
+                     log = FALSE, drop = FALSE, ...)
 {
     ## Argument checks
     if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
@@ -270,13 +277,13 @@ cCopula <-  function(u, copula, indices = 1:dim(copula), inverse = FALSE,
               is.logical(inverse), is.logical(log))
     if(1 > indices || indices > dim(copula))
         stop("'indices' have to be between 1 and the copula dimension.")
-    if(any(diff(indices) <= 0))
+    if(is.unsorted(indices))
         stop("'indices' have to be unique and given in increasing order.")
     if(tail(indices, n = 1) > d)
         stop("The maximal index must be less than or equal to the number of columns of 'u'")
 
     ## Call work horses
     if(inverse)
-        iRosenblatt(u, copula = copula, indices = indices, log = log, ...)
-    else rosenblatt(u, copula = copula, indices = indices, log = log, ...)
+        iRosenblatt(u, copula=copula, indices=indices, log=log, drop=drop, ...)
+    else rosenblatt(u, copula=copula, indices=indices, log=log, drop=drop, ...)
 }
