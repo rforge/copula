@@ -24,6 +24,10 @@
 
       \item \code{cCopula(<archmCopula>)} failed for 2-dimensional AMH,
       Clayton, and Frank in the \emph{negative}-\eqn{\tau} case.
+
+      Also, \code{cCopula()} sometimes returned a vector instead of an
+      \eqn{n \times k}{n * k} matrix (which \code{?cCopula} has promised
+      always).
     }
   }
   \subsection{New Features}{
@@ -40,7 +44,7 @@
       \item \code{summary(fitCopula(*))} and \code{summary(fitMvdc(*))}
       have a nicer \code{print()} method and print \emph{more} than just
       printing the fitted objects.  Note that
-      \item Printing \code{fitCopula(*)} or  \code{fitMvdc(*)} no longer
+      \item printing \code{fitCopula(*)} or  \code{fitMvdc(*)} no longer
       computes and prints standard errors (\code{"Std. Error"}), but
       printing \code{summary(fit..(*))} does (see above).
 

@@ -183,7 +183,7 @@ rhoFgmCopula <- function(copula) {
 iTauFgmCopula <- function(copula, tau) {
   if (any(tau < -2/9 | tau > 2/9))
     warning("tau is out of the range [-2/9, 2/9]")
-  pmax(-1, pmin(1, 9 * tau / 2))
+  pmax(pmin(9 * tau / 2, 1), -1)
 }
 
 ## calibration via rho
@@ -191,7 +191,7 @@ iTauFgmCopula <- function(copula, tau) {
 iRhoFgmCopula <- function(copula, rho) {
   if (any(rho < -1/3 | rho > 1/3))
     warning("rho is out of the range [-1/3, 1/3]")
-  pmax(-1, pmin(1, 3 * rho))
+  pmax(pmin(3 * rho, 1), -1)
 }
 
 

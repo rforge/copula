@@ -96,7 +96,7 @@ pK <- function(u, copula, d, n.MC = 0, log.p = FALSE)
             lx <- (if(n==1) lx else t(lx)) + tcrossprod(j, lpsiI.) - lfac.j # (d-1) x n matrix
             ## lsum( < d x n matrix containing the logarithms of the summands of K> ) :
             ls <- lsum(rbind(log(uN01), lx)) # log(K(u))
-            if(log.p) ls else pmin(1, exp(ls)) # ensure we are in [0,1] {numerical inaccuracy}
+            if(log.p) ls else pmin(exp(ls), 1) # ensure we are in [0,1] {numerical inaccuracy}
 
             ## NB: AMH, Clayton, Frank are numerically not quite monotone near one;
             ## --  this does not change that {but maybe slightly *more* accurate}:

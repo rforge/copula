@@ -986,7 +986,7 @@ dsumSibuya <- function(x, n, alpha,
         -0.0115467115092516 * ldk + -0.236630339094924 * la + 6.84638655885601 * sa +
             -7.59637383430576 * alpha + -0.529181206860549 * ldk * sa +
                 0.579077302168194 * ldk * alpha + 4.07566657020875 * la * alpha
-    pmax(64, exp(yhat + 0.18))
+    pmax(exp(yhat + 0.18), 64)
 }
 
 .dsSib.mpfr.prec <- function(d, k, alpha)

@@ -72,9 +72,9 @@ joeCopula(param = NA_real_, dim = 2,
   bivariate case is available; however \code{\link{copAMH}} has no such
   limitation.
 
-  The maximum dimension for which the expression of the pdf is available
-  is 6 for the Clayton, Gumbel and Frank families. The cdf expression is
-  always available.
+  The maximum dimension for which the expression of the density (pdf) is
+  available is 6 for the Clayton, Gumbel and Frank families.  The
+  cumulative distribution (cdf) expression is always available.
 
   % The maximum dimension for which \code{"dCopula"} can be evaluated is
   % 10 for the Clayton and Gumbel families, and 6 for the Frank family.
