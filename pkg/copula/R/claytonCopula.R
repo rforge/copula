@@ -98,7 +98,8 @@ rclaytonCopula <- function(n, copula) {
 }
 
 
-## now only used for dim = d = 2  (for negative tau)
+## unused now: it is *CLEARLY WRONG* for negative tau, since pmax(*, 0) is "in the wrong place"
+if(FALSE)
 pclaytonCopula <- function(copula, u) {
   dim <- copula@dimension
   stopifnot(!is.null(d <- ncol(u)), dim == d)
@@ -129,6 +130,7 @@ dclaytonCopula <- function(copula, u, ...) {
 }
 
 ## now only used for dim = d = 2  (for negative tau <=> negative alpha | theta)
+## --- but it is *wrong* there "almost surely" exactly for the negative alpha | theta
 dclaytonCopula.pdf <- function(u, copula, log=FALSE) {
   dim <- copula@dimension
   if (dim > 10) stop("Clayton copula PDF not implemented for dimension > 10.")
@@ -200,26 +202,41 @@ dTauClaytonCopula <- function(copula) {
   return( 2 / (copula@parameters+2)^2 )
 }
 
+if(FALSE) # unused
 pMatClayton <- function (u, copula, ...) {
     stopifnot(!is.null(d <- ncol(u)), d == copula@dimension)
     th <- copula@parameters
-    if(d == 2 && th < 0) # for now, .. to support negative tau
-        pclaytonCopula(copula, u=u)
-    else
-        pacopula(u, copClayton, theta=copula@parameters, ...)
+    ## if(d == 2 && th < 0) # for now, .. to support negative tau
+    ##     pclaytonCopula(copula, u=u)
+    ## else
+    pacopula(u, copClayton, theta=th, ...)
 }
 
 dMatClayton <- function (u, copula, log = FALSE, checkPar=TRUE, ...) {
     stopifnot(!is.null(d <- ncol(u)), d == copula@dimension)
     th <- copula@parameters
-    if(d == 2 && th < 0) # for now, .. to support negative tau
-        dclaytonCopula.pdf(u, copula, log=log)
-    else
+    if(d == 2 && th < 0) { # for now, to support negative tau-- TODO/FIXME: put into copClayton
+        ## wrong(!): dclaytonCopula.pdf(u, copula, log=log)
+        u_th <- u^-th
+        pt <- rowSums(u_th) - 1 # p-term pt = u1^-th + u2^-th - 1
+        r <- if(log) rep_len(-Inf, length(pt)) else numeric(length(pt))# = value for pt <= 0
+        pos <- pt > 0
+        u <- u[pos, , drop=FALSE]
+        r[pos] <-
+            if(log) {
+                l.u <- log(u)
+                log1p(th) -(th+1)*rowSums(l.u) - (1/th + 2) * log(pt[pos])
+            }
+            else
+                (1+th) * (u[,1]*u[,2])^-(th+1)  * pt^(-1/th - 2)
+        r
+    } else
         copClayton@dacopula(u, theta=copula@parameters, log=log, checkPar=checkPar, ...)
 }
 
 setMethod("rCopula", signature("numeric", "claytonCopula"), rclaytonCopula)
-setMethod("pCopula", signature("matrix", "claytonCopula"), pMatClayton)
+setMethod("pCopula", signature("matrix", "claytonCopula"),
+          function(u, copula, ...) pacopula(u, copClayton, theta=copula@parameters))
 setMethod("dCopula", signature("matrix", "claytonCopula"), dMatClayton)
 ## pCopula() and dCopula() *generic* already deal with non-matrix case!
 

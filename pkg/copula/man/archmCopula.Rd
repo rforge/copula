@@ -1,11 +1,11 @@
 \name{archmCopula}
+\title{Construction of Archimedean Copula Class Object}
 \alias{archmCopula}
 \alias{claytonCopula}
 \alias{frankCopula}
 \alias{gumbelCopula}
 \alias{amhCopula}
 \alias{joeCopula}
-\title{Construction of Archimedean Copula Class Object}
 \description{
   Constructs an Archimedean copula class object with its corresponding
   parameter and dimension.

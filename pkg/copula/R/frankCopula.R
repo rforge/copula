@@ -56,15 +56,17 @@ iPsiFrank <- function(copula, u, log=FALSE)
     ## and (not yet in the above vignette):
     ## iPsi.3 <- function(u,theta) -log1p(exp(-theta) * expm1(theta - u*theta)/ expm1(-theta))
     r <- uth
+    ok <- if(anyNA(r)) !is.na(r) else TRUE
     et1 <- rep(et1, length.out = length(uth))
-    if(any(sml.u <- abs(uth) <= .01*abs(theta)))
+    if(any(sml.u <- ok & abs(uth) <= .01*abs(theta)))
         r[sml.u] <- ## for small u (u <= 0.01)
             -log(expm1(-uth[sml.u])/et1[sml.u])  # == iPsi.1(u,theta)
     ## else:  uth = u*theta > .01*theta <==> u > 0.01
     e.t <- rep(exp(-theta), length.out = length(uth))
-    if(any(i.th <- !sml.u & (med.th <- e.t > 0 & abs(theta - uth) < 1/2))) # theta - theta*u = theta(1-u) < 1/2
+    notS <- ok & !sml.u
+    if(any(i.th <- notS & (med.th <- e.t > 0 & abs(theta - uth) < 1/2))) # theta - theta*u = theta(1-u) < 1/2
         r[i.th] <- -log1p(e.t[i.th] * expm1((theta - uth)[i.th])/et1[i.th])
-    if(any(i.th <- !sml.u & !med.th))
+    if(any(i.th <- notS & !med.th))
         r[i.th] <- -log1p((exp(-uth[i.th])- e.t[i.th]) / et1[i.th]) # == iPsi.2(u,theta)
 
     if(log) log(r) else r
@@ -282,7 +284,6 @@ setMethod("lambda", signature("frankCopula"), function(copula) c(lower=0, upper=
 
 setMethod("iTau", signature("frankCopula"),
 	  function(copula, tau, tol = 1e-7) copFrank@iTau(tau, tol=tol))
-setMethod("iRho", signature("frankCopula"), iRhoCopula)
 
 setMethod("dRho", signature("frankCopula"), dRhoFrankCopula)
 setMethod("dTau", signature("frankCopula"), dTauFrankCopula)

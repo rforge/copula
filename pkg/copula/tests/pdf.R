@@ -41,7 +41,7 @@ umat <- Exp.grid(u1=u1, u2=u2)
 ## all copulas give the same tau except galambos, amh
 tau <- 0.5
 
-pdf("densCop_2d.pdf")
+if(!dev.interactive(orNone=TRUE)) pdf("densCop_2d.pdf")
 
 fCols <- colorRampPalette(c("red", "white", "blue"), space = "Lab")
 
@@ -184,7 +184,6 @@ tTau <- suppressWarnings(
     sapply(tau.s, function(tau)
                sapply(copObs, iTau, tau = tau)) )
 tTau["joeCopula", "tau=-.1"] <- 1 # ugly hack
-
 set.seed(12)
 u <- matrix(mku(1000), ncol= 2)# d = 2 required in the copula objects
 

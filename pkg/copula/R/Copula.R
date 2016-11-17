@@ -95,19 +95,19 @@ iTauCopula <- function(copula, tau, bound.eps = .Machine$double.eps^.5, tol = 1e
 iRhoCopula <- function(copula, rho, bound.eps = 0, tol = 1e-7, ...) {
   stopifnot(length(bound.eps) == 1, is.finite(bound.eps), 0 <= bound.eps,
 	    2*bound.eps < copula@param.upbnd - copula@param.lowbnd)
-  myfun <- function(theta) {
+  d_rho <- function(theta) {
     copula@parameters <- theta
     rho(copula) - rho
   }
   lower <- pmax(-sqrt(.Machine$double.xmax), copula@param.lowbnd + bound.eps)
   upper <- pmin( sqrt(.Machine$double.xmax), copula@param.upbnd  - bound.eps)
-  uniroot(myfun, interval=c(lower, upper), tol=tol, ...)$root
+  uniroot(d_rho, interval = c(lower, upper), tol=tol, ...)$root
 }
 
-## From Ivan: do not make these the default methods as some copulas have
-## more than one parameter
-## setMethod("iTau", signature("copula"), iTauCopula)
-## setMethod("iRho", signature("copula"), iRhoCopula)
+## From Ivan: do not make these the default methods for *all* copulas, as
+## some have more than one parameter
+setMethod("iTau", signature("archmCopula"), iTauCopula)
+setMethod("iRho", signature("archmCopula"), iRhoCopula)
 
 
 ###-- "Copula" methods + glue  former "copula" <--> former "nacopula" ---------

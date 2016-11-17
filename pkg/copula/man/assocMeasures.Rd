@@ -78,6 +78,7 @@
 \alias{iTau,ellipCopula-method}
 \alias{iTau,normalCopula-method}
 \alias{iTau,tCopula-method}
+\alias{iTau,archmCopula-method}
 \alias{iTau,amhCopula-method}
 \alias{iTau,claytonCopula-method}
 \alias{iTau,frankCopula-method}
@@ -99,6 +100,7 @@
 \alias{iRho,ellipCopula-method}
 \alias{iRho,normalCopula-method}
 \alias{iRho,tCopula-method}
+\alias{iRho,archmCopula-method}
 \alias{iRho,claytonCopula-method}
 \alias{iRho,frankCopula-method}
 \alias{iRho,gumbelCopula-method}

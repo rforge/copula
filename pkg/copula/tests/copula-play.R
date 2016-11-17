@@ -192,7 +192,7 @@ tstCop <- function(cop, theta1 = cop@theta, thetavec = cop@theta, i10 = 1:10,
     CT <- c(CT, list(cCopula. = system.time(
 			 cac <- cCopula(cbind(u01, rev(u01)), copula = cop., indices = 2))))
     stopifnot(identical(dim(cac), c(length(u01),1L)), 0 <= cac, cac <= 1)
-    print(cac)
+    print(c(cac))
 
     ### (6) dCopula (log = TRUE) {was dnacopula()}
 

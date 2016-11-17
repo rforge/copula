@@ -251,7 +251,8 @@ copClayton <-
                   },
                   ## derivatives of the generator inverse
 		  absdiPsi = function(u, theta, degree=1, log=FALSE) {
-                      if(theta < 0) stop("theta < 0  not yet implemented")
+                      if(theta < 0) stop(if(NCOL(u) == 2) "theta < 0  not yet implemented"
+                                         else "theta < 0 is invalid for d > 2")
 		      switch(degree,
 			     ## 1 :
 			     if(log) log(theta)-(1+theta)*log(u) else theta*u^(-(1+theta)),
@@ -262,9 +263,11 @@ copClayton <-
 			     stop("not yet implemented for degree > 2"))
 		  },
 		  ## density of the diagonal
-		  dDiag = function(u, theta, d, log=FALSE){
-                      if(log) log(d)-(1+1/theta)*log(1+(d-1)*(1-u^theta)) else
-                      d*(1+(d-1)*(1-u^theta))^(-(1+1/theta))
+		  dDiag = function(u, theta, d, log=FALSE) {
+                      if(log)
+                          log(d)-(1+1/theta)*log1p((d-1)*(1-u^theta))
+                      else
+                          d*(1+(d-1)*(1-u^theta))^(-(1+1/theta))
                   },
 		  ## density  Clayton
 		  dacopula = function(u, theta, n.MC=0, log=FALSE, checkPar=TRUE) {
@@ -278,28 +281,38 @@ copClayton <-
 		      ## f() := NaN outside and on the boundary of the unit hypercube
 		      res <- rep.int(NaN, n)
 		      n01 <- u.in.01(u)## indices for which density has to be evaluated
-		      ## if(!any(n01)) return(res)
-		      ## auxiliary results
-		      u. <- u[n01,, drop=FALSE]
-		      lu <- rowSums(log(u.))
-		      t <- rowSums(.iPsiClayton(u., theta))
-### FIXME for negative theta .. should not be hard
-if(theta < 0) stop("theta < 0  not yet implemented")
-		      ## main part
-		      if(n.MC > 0) { # Monte Carlo
-			  lu.mat <- matrix(rep(lu, n.MC), nrow=n.MC, byrow=TRUE)
-			  V <- C.@V0(n.MC, theta)
-			  ## stably compute log(colMeans(exp(lx)))
-			  lx <- d*(log(theta) + log(V)) - log(n.MC) - (1+theta)*lu.mat - V %*% t(t) # matrix of exponents; dimension n.MC x n ["V x u"]
-			  ## note: smle goes wrong if:
-			  ##       (1) d*log(theta*V) [old code]
-			  ##       (2) U is small (simultaneously)
-			  ##       (3) theta is large
-			  res[n01] <- lsum(lx)
-		      } else { # explicit
-			  res[n01] <- sum(log1p(theta*(0:(d-1)))) - (1+theta)*lu -
-                              (d+1/theta)*log1p(t)
-		      }
+                      if(!any(n01)) return(res) # all NaN
+                      if(theta == 0) {
+                          res[n01] <- if(log) 0 else 1
+                      } else {
+                          ## auxiliary results
+                          u. <- u[n01,, drop=FALSE]
+                          lu <- rowSums(log(u.))
+                          t <- rowSums(.iPsiClayton(u., theta))
+                          ## main part
+                          if(n.MC > 0) { # Monte Carlo
+                              ## FIXME for negative theta .. should not be hard(?)
+                              if(theta < 0) stop("theta < 0  not yet implemented for MC")
+                              lu.mat <- matrix(rep(lu, n.MC), nrow=n.MC, byrow=TRUE)
+                              V <- C.@V0(n.MC, theta)
+                              ## stably compute log(colMeans(exp(lx)))
+                              lx <- d*(log(theta) + log(V)) - log(n.MC) - (1+theta)*lu.mat - V %*% t(t) # matrix of exponents; dimension n.MC x n ["V x u"]
+                              ## note: smle goes wrong if:
+                              ##       (1) d*log(theta*V) [old code]
+                              ##       (2) U is small (simultaneously)
+                              ##       (3) theta is large
+                              res[n01] <- lsum(lx)
+                          } else if(theta < 0) { ## ==> d = 2
+                              posT <- t < 1 ## <==> T := (u1^-th + u2^-th -1) > 0
+                              i01 <- which(n01)
+                              res[i01[ posT]] <-
+                                  log1p(theta) - (1+theta) * lu[posT] - (d+1/theta) * log1p(-t[posT])
+                              res[i01[!posT]] <- -Inf # density == 0 "outside circle"
+                          } else { # theta > 0 (as theta == 0 has been treated above)
+                              res[n01] <- sum(log1p(theta*seq_len(d-1))) - (1+theta)*lu -
+                                  (d+1/theta)*log1p(t)
+                          }
+                      }
 		      if(log) res else exp(res)
 		  },
 		  ## score function
