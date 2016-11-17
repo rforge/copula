@@ -154,10 +154,10 @@ C.n.diag <- function(u) C.n(do.call(cbind, rep(list(u), d)), X=X) # diagonal of 
 C.diag <- function(u) pCopula(do.call(cbind, rep(list(u), d)), cop) # diagonal of C
 curve(C.n.diag, from=0, to=1, # empirical copula diagonal
       main=paste("True vs empirical diagonal of a", family, "copula"),
-      xlab="u", ylab=expression("True C(u,..,u) and empirical"~C[n](u,..,u)))
+      xlab="u", ylab=quote("True C(u,..,u) and empirical"~C[n](u,..,u)))
 curve(C.diag, lty=2, add=TRUE) # add true copula diagonal
 legend("bottomright", lty=2:1, bty="n", inset=0.02,
-       legend=c("C", expression(C[n])))
+       legend = expression(C, C[n]))
 
 ## Approximate partial derivatives w.r.t. the 2nd and 3rd component
 j.ind <- 2:3 # indices w.r.t. which the partial derivatives are computed

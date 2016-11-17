@@ -31,9 +31,9 @@
       col.regions = gray(seq(0.4, 1, length.out = 100)))
 \S4method{contourplot2}{Copula}(x, FUN, n.grid = 26, delta = 0,
       xlim = 0:1, ylim = 0:1,
-      xlab = expression(u[1]), ylab = expression(u[2]), \dots)
+      xlab = quote(u[1]), ylab = quote(u[2]), \dots)
 \S4method{contourplot2}{mvdc}(x, FUN, n.grid = 26, xlim, ylim,
-      xlab = expression(x[1]), ylab = expression(x[2]), \dots)
+      xlab = quote(x[1]), ylab = quote(x[2]), \dots)
 }
 \arguments{
   \item{x}{a \code{"\linkS4class{matrix}"},

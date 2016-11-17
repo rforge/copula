@@ -136,7 +136,7 @@ K.sample <- pCopula(U, copula = cop)
 u <- seq(0, 1, length.out=256)
 edfK <- ecdf(K.sample)
 plot(u, edfK(u), type="l", ylim=c(0,1),
-     xlab=expression(italic(u)), ylab=expression(K[n](italic(u)))) # simulated
+     xlab=quote(italic(u)), ylab=quote(K[n](italic(u)))) # simulated
 K.n <- Kn(u, x=X)
 lines(u, K.n, col="royalblue3") # Kn
 ## Difference at 0
@@ -162,8 +162,8 @@ W <- rK(n, copula = cop)
 ## and the corresponding theoretical Kendall distribution function
 ## (exact and via Monte Carlo)
 plot(ecdf(W), col="blue", xlim=c(0,1), verticals=TRUE,
-     main = expression("Empirical"~ F[n]( C(U) ) ~
-                       "and its Kendall distribution"~ K(u)),
+     main = quote("Empirical"~ F[n](C(U)) ~
+                     "and its Kendall distribution" ~ K(u)),
      do.points=FALSE, asp=1)
 abline(0,1, lty=2); abline(h=0:1, v=0:1, lty=3, col="gray")
 lines(u, Ku.MC, col="red") # not quite monotone

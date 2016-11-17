@@ -102,12 +102,12 @@ set.seed(271)
 ## A small u_1
 u1 <- 0.05
 U <- cCopula(cbind(u1, runif(n)), copula = cc, inverse = TRUE)
-plot(U[,2], ylab = expression(U[2]))
+plot(U[,2], ylab = quote(U[2]))
 
 ## A large u_1
 u1 <- 0.95
 U <- cCopula(cbind(u1, runif(n)), copula = cc, inverse = TRUE)
-plot(U[,2], ylab = expression(U[2]))
+plot(U[,2], ylab = quote(U[2]))
 
 
 ## 2) Sample via conditional distribution method and then apply the

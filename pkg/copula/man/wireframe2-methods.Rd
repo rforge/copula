@@ -9,8 +9,9 @@
 \docType{methods}
 \description{
   Generic function and methods \code{wireframe2()} to draw
-  \code{\link[lattice]{wireframe}} (aka \dQuote{perspective}) plots of
-  three dimensional distributions from package \pkg{copula}.
+  (\CRANpkg{lattice}) \code{\link[lattice]{wireframe}} (aka
+  \dQuote{perspective}) plots of two-dimensional distributions from
+  package \pkg{copula}.
 }
 \usage{
 \S4method{wireframe2}{matrix}(x,
@@ -29,10 +30,10 @@
       par.settings = standard.theme(color = FALSE), \dots)
 \S4method{wireframe2}{Copula}(x, FUN, n.grid = 26, delta = 0,
       xlim = 0:1, ylim = 0:1, zlim = NULL,
-      xlab = expression(u[1]), ylab = expression(u[2]),
+      xlab = quote(u[1]), ylab = quote(u[2]),
       zlab = list(deparse(substitute(FUN))[1], rot = 90), \dots)
 \S4method{wireframe2}{mvdc}(x, FUN, n.grid = 26, xlim, ylim, zlim = NULL,
-      xlab = expression(x[1]), ylab = expression(x[2]),
+      xlab = quote(x[1]), ylab = quote(x[2]),
       zlab = list(deparse(substitute(FUN))[1], rot = 90), \dots)
 }
 \arguments{
@@ -55,7 +56,9 @@
     influencing the evaluation boundaries. The x- and y- vectors will
     have the range \code{[0+delta, 1-delta]}, the default being \code{[0,1]}.}
   \item{\dots}{additional arguments passed to the underlying
-    \code{\link{wireframe}()}.}
+    \code{\link{wireframe}()}, i.e., typically
+    \code{\link{panel.3dwire}}, from the \CRANpkg{lattice} package,
+    such as \code{shade}, \code{drape}, \code{aspect}, etc.}
 }
 \section{Methods}{
   Wireframe plots for objects of class \code{"\linkS4class{matrix}"} ,
@@ -79,15 +82,19 @@ W <- function(u) pmax(0, rowSums(u)-1) # lower bound W
 M <- function(u) apply(u, 1, min) # upper bound M
 x.W <- cbind(grid, "W(u[1],u[2])" = W(grid)) # evaluate W on 'grid'
 x.M <- cbind(grid, "M(u[1],u[2])" = M(grid)) # evaluate M on 'grid'
-wireframe2(x.W) # plot of W
-wireframe2(x.M) # plot of M
+wireframe2(x.W)
+wireframe2(x.W, shade = TRUE) # plot of W
+wireframe2(x.M, drape = TRUE) # plot of M
 
 ## For 'Copula' objects
 cop <- frankCopula(-4)
 wireframe2(cop, pCopula) # the copula
-wireframe2(cop, pCopula, xlab = expression(x[1])) # adjusting an axis label
+wireframe2(cop, pCopula, shade = TRUE) # ditto, "shaded"
+wireframe2(cop, pCopula, shade = TRUE, col = "gray60") # ditto, "shaded"+grid
+wireframe2(cop, pCopula, drape = TRUE, xlab = quote(x[1])) # adjusting an axis label
 wireframe2(cop, dCopula, delta=0.01) # the density
 wireframe2(cop, dCopula) # => the density is set to 0 on the margins
+
 
 ## For 'mvdc' objects
 mvNN <- mvdc(gumbelCopula(3), c("norm", "norm"),

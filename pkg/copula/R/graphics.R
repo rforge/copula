@@ -193,7 +193,7 @@ perspMvdc <- function(x, FUN, xlim, ylim, n.grid = 26,
 ##' @return invisible()
 ##' @author Marius Hofert (based on Ivan's/Jun's code)
 contourCopula <- function(x, FUN, n.grid = 26, delta = 0,
-                          xlab = expression(u[1]), ylab = expression(u[2]),
+                          xlab = quote(u[1]), ylab = quote(u[2]),
                           box01 = TRUE, ...)
 {
     stopifnot(n.grid >= 2)
@@ -221,7 +221,7 @@ contourCopula <- function(x, FUN, n.grid = 26, delta = 0,
 ##' @return invisible()
 ##' @author Marius Hofert
 contourMvdc <- function(x, FUN, xlim, ylim, n.grid = 26,
-                        xlab = expression(x[1]), ylab = expression(x[2]),
+                        xlab = quote(x[1]), ylab = quote(x[2]),
                         box01 = FALSE, ...)
 {
     stopifnot(n.grid >= 2)
@@ -283,11 +283,11 @@ setMethod("contour", signature = signature("mvdc"),   definition = contourMvdc)
 ##'         bootstrapped ones
 qqplot2 <- function(x, qF, log="", qqline.args=if(log=="x" || log=="y") list(untf=TRUE) else list(),
                     rug.args=list(tcl=-0.6*par("tcl")),
-                    alpha=0.05, CI.args=list(col="gray40"),
+                    alpha=0.05, CI.args = list(col="gray40"),
                     CI.mtext=list(text=paste0("Pointwise asymptotic ", 100*(1-alpha),
                                   "% confidence intervals"), side=4,
                                   cex=0.6*par("cex.main"), adj=0, col="gray40"),
-                    main=expression(bold(italic(F)~~"Q-Q plot")),
+                    main = quote(bold(italic(F) ~~ "Q-Q plot")),
                     main.args=list(text=main, side=3, line=1.1,
                                    cex=par("cex.main"), font=par("font.main"),
                                    adj=par("adj"), xpd=NA),
@@ -303,7 +303,8 @@ qqplot2 <- function(x, qF, log="", qqline.args=if(log=="x" || log=="y") list(unt
     doPDF <- nchar(file)
     if(doPDF) pdf(file=file, width=width, height=height)
     plot(q, x., xlab=xlab, ylab=ylab, log=log, ...) # empirical vs. theoretical quantiles
-    if(nchar(main)) do.call(mtext, main.args)
+    if(length(main) && !identical(main, ""))
+        do.call(mtext, main.args, quote = any(vapply(main.args, is.language, NA)))
 
     ## Plot the line (overplots points, but that's good for the eye!)
     if(!is.null(qqline.args))
@@ -313,15 +314,20 @@ qqplot2 <- function(x, qF, log="", qqline.args=if(log=="x" || log=="y") list(unt
     ## Note: abline(..., untf=TRUE) displays a curve (proper line in log-space)
     ##       *unless* both axes are in log-scale
         else {
-            if(log=="xy") do.call(qqline, args=c(list(y=log10(x.),
-                                                 distribution=function(p) log10(qF(p))),
-                                          qqline.args))
-            else do.call(qqline, args=c(list(y=x., distribution=qF), qqline.args))
+            do.call(qqline,
+                    args = c(if(log=="xy")
+                                 list(y = log10(x.),
+                                      distribution = function(p) log10(qF(p)))
+                             else
+                                 list(y = x., distribution = qF),
+                             qqline.args),
+                    quote = any(vapply(qqline.args, is.language, NA)))
         }
     ## Rugs
     if(!is.null(rug.args)) {
-        do.call(rug, c(list(q, side=1), rug.args))
-        do.call(rug, c(list(x., side=2), rug.args))
+        doQ <- any(vapply(rug.args, is.language, NA))
+        do.call(rug, c(list(q,  side=1), rug.args), quote=doQ)
+        do.call(rug, c(list(x., side=2), rug.args), quote=doQ)
     }
     ## Confidence intervals
     if(!is.null(CI.args)) {
@@ -345,10 +351,12 @@ qqplot2 <- function(x, qF, log="", qqline.args=if(log=="x" || log=="y") list(unt
         up.y <- quantile(x., probs=up[iup]) # F_n^{-1}(0<up<1)
         up.x <- q[iup] # corresponding theoretical quantile at each ppoint
         ## Draw lines
-        do.call(lines, c(list(low.x, low.y), CI.args))
-        do.call(lines, c(list(up.x, up.y), CI.args))
+        doQ <- any(vapply(CI.args, is.language, NA))
+        do.call(lines, c(list(low.x, low.y), CI.args), quote=doQ)
+        do.call(lines, c(list( up.x,  up.y), CI.args), quote=doQ)
         ## Info
-        if(!is.null(CI.mtext)) do.call(mtext, CI.mtext)
+        if(!is.null(CI.mtext))
+            do.call(mtext, CI.mtext, quote=any(vapply(CI.mtext, is.language, NA)))
     }
     if(doPDF) dev.off()
     invisible()
@@ -364,7 +372,7 @@ qqplot2 <- function(x, qF, log="", qqline.args=if(log=="x" || log=="y") list(unt
 ##' @return invisible()
 ##' @author Marius Hofert
 plotCopula <- function(x, n, xlim = 0:1, ylim = 0:1,
-                       xlab = expression(U[1]), ylab = expression(U[2]), ...)
+                       xlab = quote(U[1]), ylab = quote(U[2]), ...)
 {
     stopifnot(n >= 1)
     if(dim(x) != 2)
@@ -380,7 +388,7 @@ plotCopula <- function(x, n, xlim = 0:1, ylim = 0:1,
 ##' @return invisible()
 ##' @author Marius Hofert
 plotMvdc <- function(x, n, xlim = NULL, ylim = NULL,
-                     xlab = expression(X[1]), ylab = expression(X[2]), ...)
+                     xlab = quote(X[1]), ylab = quote(X[2]), ...)
 {
     stopifnot(n >= 1)
     if(dim(x) != 2)
@@ -413,12 +421,12 @@ pairs2 <- function(x, labels = NULL, labels.null.lab = "U", ...)
    if(is.null(labels)) {
        stopifnot(length(labels.null.lab) == 1, is.character(labels.null.lab))
        colnms <- colnames(x)
-       labels <- if(sum(nzchar(colnms)) != d) {
-           do.call(expression,
-                   lapply(1:d, function(i)
-                       substitute(v[I], list(v = as.name(labels.null.lab), I = 0+i))))
-       } else # 'x' has column names => parse them
-           parse(text = colnms)
+       labels <-
+           if(sum(nzchar(colnms)) != d)
+               as.expression(lapply(1:d, function(i)
+                   substitute(v[I], list(v = as.name(labels.null.lab), I = 0+i))))
+           else # 'x' has column names => parse them
+               as.symbol(colnms)
    }
    pairs(x, gap = 0, labels = labels, ...)
 }
@@ -461,10 +469,8 @@ contourplot2MatrixDf <- function(x, aspect = 1,
 
     ## Labels
     colnms <- colnames(x)
-    if(is.null(xlab))
-        xlab <- if(is.null(colnms)) "" else parse(text = colnms[1])
-    if(is.null(ylab))
-        ylab <- if(is.null(colnms)) "" else parse(text = colnms[2])
+    if(is.null(xlab)) xlab <- if(is.null(colnms)) "" else as.symbol(colnms[1])
+    if(is.null(ylab)) ylab <- if(is.null(colnms)) "" else as.symbol(colnms[2])
 
     ## Contour plot
     contourplot(x[,3] ~ x[,1] * x[,2], aspect = aspect,
@@ -487,7 +493,7 @@ contourplot2MatrixDf <- function(x, aspect = 1,
 ##' @author Marius Hofert
 contourplot2Copula <- function(x, FUN, n.grid = 26, delta = 0,
                                xlim = 0:1, ylim = 0:1,
-                               xlab = expression(u[1]), ylab = expression(u[2]),
+                               xlab = quote(u[1]), ylab = quote(u[2]),
                                ...)
 {
     stopifnot(dim(x) == 2, n.grid >= 2)
@@ -514,7 +520,7 @@ contourplot2Copula <- function(x, FUN, n.grid = 26, delta = 0,
 ##' @return A contourplot() object
 ##' @author Marius Hofert
 contourplot2Mvdc <- function(x, FUN, n.grid = 26, xlim, ylim,
-                             xlab = expression(x[1]), ylab = expression(x[2]),
+                             xlab = quote(x[1]), ylab = quote(x[2]),
                              ...)
 {
     stopifnot(dim(x) == 2, n.grid >= 2)
@@ -562,8 +568,8 @@ wireframe2MatrixDf <- function(x,
                                ylim = range(x[,2], finite = TRUE),
                                zlim = range(x[,3], finite = TRUE),
                                xlab = NULL, ylab = NULL, zlab = NULL,
-                               alpha.regions = 0.5, scales = list(arrows = FALSE,
-                                                                  col = "black"),
+			       alpha.regions = 0.5,
+			       scales = list(arrows = FALSE, col = "black"),
                                par.settings = standard.theme(color = FALSE), ...)
 {
     ## Checking
@@ -572,13 +578,14 @@ wireframe2MatrixDf <- function(x,
 
     ## Labels
     colnms <- colnames(x)
-    if(is.null(xlab))
-        xlab <- if(is.null(colnms)) "" else parse(text = colnms[1])
-    if(is.null(ylab))
-        ylab <- if(is.null(colnms)) "" else parse(text = colnms[2])
-    if(is.null(zlab))
-        zlab <- list(if(is.null(colnms)) "" else parse(text = colnms[3]),
-                     rot = 90)
+    if(is.null(xlab)) xlab <- if(is.null(colnms)) "" else as.symbol(colnms[1])
+    if(is.null(ylab)) ylab <- if(is.null(colnms)) "" else as.symbol(colnms[2])
+    if(is.null(zlab)) zlab <- list(if(is.null(colnms)) "" else as.symbol(colnms[3]),
+				   rot = 90)
+    ## workaround buglet in lattice [e-mailed Deepayan, 2016-11-16]:
+    if(is.language(xlab)) xlab <- as.expression(xlab)
+    if(is.language(ylab)) ylab <- as.expression(ylab)
+    if(is.language(zlab[[1]])) zlab[[1]] <- as.expression(zlab[[1]])
 
     ## Wireframe plot
     wireframe(x[,3] ~ x[,1] * x[,2], xlim = xlim, ylim = ylim, zlim = zlim,
@@ -606,7 +613,7 @@ wireframe2MatrixDf <- function(x,
 ##' @author Marius Hofert
 wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
                              xlim = 0:1, ylim = 0:1, zlim = NULL,
-                             xlab = expression(u[1]), ylab = expression(u[2]),
+                             xlab = quote(u[1]), ylab = quote(u[2]),
                              zlab = list(deparse(substitute(FUN))[1], rot = 90), ...)
 {
     stopifnot(dim(x) == 2, n.grid >= 2)
@@ -637,7 +644,7 @@ wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
 ##' @author Marius Hofert
 wireframe2Mvdc <- function(x, FUN, n.grid = 26,
                            xlim, ylim, zlim = NULL,
-                           xlab = expression(x[1]), ylab = expression(x[2]),
+                           xlab = quote(x[1]), ylab = quote(x[2]),
                            zlab = list(deparse(substitute(FUN))[1], rot = 90), ...)
 {
     stopifnot(dim(x) == 2, n.grid >= 2)
@@ -664,6 +671,8 @@ setMethod("wireframe2", signature(x = "mvdc"),       wireframe2Mvdc)
 
 ### 3.3 cloud() methods ########################################################
 
+## --> ../man/cloud2-methods.Rd
+##            =================
 ##' @title Cloud Plot Method for Classes "matrix" and "data.frame"
 ##' @param x A numeric matrix or as.matrix(.)able
 ##' @param xlim The x-axis limits
@@ -675,7 +684,7 @@ setMethod("wireframe2", signature(x = "mvdc"),       wireframe2Mvdc)
 ##' @param scales See ?cloud
 ##' @param par.settings Additional arguments passed to 'par.settings' (some are set)
 ##' @param ... Further arguments passed to cloud()
-##' @return A cloud() object
+##' @return A "trellis" object, as returned from cloud()
 ##' @author Marius Hofert
 cloud2MatrixDf <- function(x,
                            xlim = range(x[,1], finite = TRUE),
@@ -691,12 +700,13 @@ cloud2MatrixDf <- function(x,
 
     ## Labels
     colnms <- colnames(x)
-    if(is.null(xlab))
-        xlab <- if(is.null(colnms)) "" else parse(text = colnms[1])
-    if(is.null(ylab))
-        ylab <- if(is.null(colnms)) "" else parse(text = colnms[2])
-    if(is.null(zlab))
-        zlab <- if(is.null(colnms)) "" else parse(text = colnms[3])
+    if(is.null(xlab)) xlab <- if(is.null(colnms)) "" else as.symbol(colnms[1])
+    if(is.null(ylab)) ylab <- if(is.null(colnms)) "" else as.symbol(colnms[2])
+    if(is.null(zlab)) zlab <- if(is.null(colnms)) "" else as.symbol(colnms[3])
+    ## workaround buglet in lattice [e-mailed Deepayan, 2016-11-16]:
+    if(is.language(xlab)) xlab <- as.expression(xlab)
+    if(is.language(ylab)) ylab <- as.expression(ylab)
+    if(is.language(zlab)) zlab <- as.expression(zlab)
 
     ## Cloud plot
     cloud(x[,3] ~ x[,1] * x[,2],
@@ -724,8 +734,8 @@ cloud2MatrixDf <- function(x,
 ##' @author Marius Hofert
 cloud2Copula <- function(x, n,
                          xlim = 0:1, ylim = 0:1, zlim = 0:1,
-                         xlab = expression(U[1]), ylab = expression(U[2]),
-                         zlab = expression(U[3]), ...)
+			 xlab = quote(U[1]), ylab = quote(U[2]), zlab = quote(U[3]),
+			 ...)
 {
     stopifnot(n >= 1)
     if(dim(x) != 3)
@@ -749,8 +759,8 @@ cloud2Copula <- function(x, n,
 ##' @author Marius Hofert
 cloud2Mvdc <- function(x, n,
                        xlim = NULL, ylim = NULL, zlim = NULL,
-                       xlab = expression(X[1]), ylab = expression(X[2]),
-                       zlab = expression(X[3]), ...)
+		       xlab = quote(X[1]), ylab = quote(X[2]), zlab = quote(X[3]),
+		       ...)
 {
     stopifnot(n >= 1)
     if(dim(x) != 3)
@@ -796,10 +806,10 @@ splom2MatrixDf <- function(x, varnames = NULL,
         colnms <- colnames(x)
 	varnames <- if(sum(nzchar(colnms)) != d) {
 			vNm <- as.name(varnames.null.lab)
-			do.call(expression, lapply(1:d, function(j)
+			as.expression(lapply(1:d, function(j)
 			    substitute(v[I], list(v = vNm, I = j))))
 		    } else # 'x' has column names => parse them
-			parse(text = colnms)
+			as.symbol(colnms)
     }
     n <- nrow(x)
     if(is.null(col.mat))
