@@ -222,6 +222,7 @@ dMatClayton <- function (u, copula, log = FALSE, checkPar=TRUE, ...) {
         r <- if(log) rep_len(-Inf, length(pt)) else numeric(length(pt))# = value for pt <= 0
         pos <- pt > 0
         u <- u[pos, , drop=FALSE]
+        pt <- pt[pos]
         r[pos] <-
             if(log) {
                 l.u <- log(u)

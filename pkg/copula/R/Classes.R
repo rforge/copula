@@ -50,6 +50,7 @@ setClass("copula", contains = c("parCopula", "VIRTUAL"),
 	     TRUE
          })
 
+
 ## general methods for copula
 setGeneric("dCopula", function(u, copula, log=FALSE, ...) {
     if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
