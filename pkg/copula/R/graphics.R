@@ -421,12 +421,12 @@ pairs2 <- function(x, labels = NULL, labels.null.lab = "U", ...)
    if(is.null(labels)) {
        stopifnot(length(labels.null.lab) == 1, is.character(labels.null.lab))
        colnms <- colnames(x)
-       labels <-
+       labels <- as.expression(
            if(sum(nzchar(colnms)) != d)
-               as.expression(lapply(1:d, function(i)
-                   substitute(v[I], list(v = as.name(labels.null.lab), I = 0+i))))
+	       lapply(1:d, function(i)
+		   substitute(v[I], list(v = as.name(labels.null.lab), I = 0+i)))
            else # 'x' has column names => parse them
-               as.symbol(colnms)
+	       lapply(colnms, as.symbol))
    }
    pairs(x, gap = 0, labels = labels, ...)
 }
@@ -804,12 +804,13 @@ splom2MatrixDf <- function(x, varnames = NULL,
     if(is.null(varnames)) {
         stopifnot(length(varnames.null.lab) == 1, is.character(varnames.null.lab))
         colnms <- colnames(x)
-	varnames <- if(sum(nzchar(colnms)) != d) {
-			vNm <- as.name(varnames.null.lab)
-			as.expression(lapply(1:d, function(j)
-			    substitute(v[I], list(v = vNm, I = j))))
-		    } else # 'x' has column names => parse them
-			as.symbol(colnms)
+	varnames <- as.expression(
+	    if(sum(nzchar(colnms)) != d) {
+		vNm <- as.name(varnames.null.lab)
+		lapply(1:d, function(j)
+		    substitute(v[I], list(v = vNm, I = j)))
+	    } else # 'x' has column names => use them
+		lapply(colnms, as.symbol))
     }
     n <- nrow(x)
     if(is.null(col.mat))

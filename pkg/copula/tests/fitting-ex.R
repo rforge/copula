@@ -408,6 +408,8 @@ showProc.time()
 
 data(rdj)
 rdj <- rdj[,2:4]
+splom2(rdj, cex=0.4, ## this gave an error for a day or so:
+       col.mat = matrix(adjustcolor("black", 0.5), nrow(rdj), 3))
 dim(u <- pobs(rdj))# 1262 3
 fc <- frankCopula(dim=3)
 ffc <- fitCopula(fc, u) ## (failed in 0.999-4 {param constraints})
