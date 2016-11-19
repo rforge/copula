@@ -49,16 +49,8 @@ claytonCopula <- function(param = NA_real_, dim = 2L,
     parse(text = expr)
   }
 
-  pdfExpr <- function(cdf, d) {
-    val <- cdf
-    for (i in 1:d) {
-      val <- D(val, paste0("u", i))
-    }
-    val
-  }
-
   cdf <- cdfExpr(dim)
-  pdf <- if (dim <= 6) pdfExpr(cdf, dim) # else NULL
+  pdf <- if (dim <= 6) cdfExpr2pdfExpr(cdf, dim) # else NULL
   new("claytonCopula",
       dimension = dim,
       parameters = param,

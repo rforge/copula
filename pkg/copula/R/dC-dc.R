@@ -136,7 +136,7 @@ dCduIndepCopula <- function(copula, u, ...) {
 
 
 setMethod("dCdu", signature("parCopula"), dCduCopulaNum) # GETR
-setMethod("dCdu", signature("joeCopula"), dCduCopulaNum)
+setMethod("dCdu", signature("joeCopula"), dCduExplicitCopula)
 setMethod("dCdu", signature("archmCopula"), dCduExplicitCopula)
 setMethod("dCdu", signature("plackettCopula"), dCduExplicitCopula)
 setMethod("dCdu", signature("evCopula"), dCduExplicitCopula)
@@ -274,8 +274,6 @@ setMethod("plackettFormula", signature("tCopula"), plackettFormulaTCopula)
 ### Partial derivatives of the CDF wrt parameters
 ##################################################################################
 
-setGeneric("dCdtheta", function(copula, u, ...) standardGeneric("dCdtheta"))
-
 ##' @title Basic implementation of dCdtheta based on numerical differentiation
 ##' @param copula an object of class "copula"
 ##' @param u evaluation point in [0,1]^d or matrix of evaluation points
@@ -341,7 +339,7 @@ dCdthetaEvCopula <- function(copula, u, ...) {
 }
 
 setMethod("dCdtheta", signature("parCopula"), dCdthetaCopulaNum) # GETR
-setMethod("dCdtheta", signature("joeCopula"), dCdthetaCopulaNum)
+setMethod("dCdtheta", signature("joeCopula"), dCdthetaExplicitCopula)
 setMethod("dCdtheta", signature("tevCopula"), dCdthetaCopulaNum)
 setMethod("dCdtheta", signature("archmCopula"), dCdthetaExplicitCopula)
 setMethod("dCdtheta", signature("plackettCopula"), dCdthetaExplicitCopula)
@@ -431,8 +429,6 @@ setMethod("dCdtheta", signature("ellipCopula"), dCdthetaEllipCopula)
 ### Partial derivatives of the log PDF wrt arguments
 ##################################################################################
 
-setGeneric("dlogcdu", function(copula, u, ...) standardGeneric("dlogcdu"))
-
 ##' @title Basic implementation of dlogcdu based on numerical differentiation
 ##' @param copula an object of class "copula"
 ##' @param u evaluation point in [0,1]^d or matrix of evaluation points
@@ -483,7 +479,7 @@ dlogcduExplicitCopula <- function(copula, u, ...) {
 }
 
 setMethod("dlogcdu", signature("parCopula"), dlogcduCopulaNum) # GETR
-setMethod("dlogcdu", signature("joeCopula"), dlogcduCopulaNum)
+setMethod("dlogcdu", signature("joeCopula"), dlogcduExplicitCopula)
 setMethod("dlogcdu", signature("tevCopula"), dlogcduCopulaNum)
 setMethod("dlogcdu", signature("archmCopula"), dlogcduExplicitCopula)
 setMethod("dlogcdu", signature("evCopula"), dlogcduExplicitCopula)
@@ -514,8 +510,6 @@ setMethod("dlogcdu", signature("tCopula"), dlogcduTCopula)
 ##################################################################################
 ### Partial derivatives of the log PDF wrt parameters
 ##################################################################################
-
-setGeneric("dlogcdtheta", function(copula, u, ...) standardGeneric("dlogcdtheta"))
 
 ##' @title Basic implementation of dlogcdu based on numerical differentiation
 ##' @param copula an object of class "copula"
@@ -570,7 +564,7 @@ dlogcdthetaExplicitCopula <- function(copula, u, ...) {
 }
 
 setMethod("dlogcdtheta", signature("parCopula"), dlogcdthetaCopulaNum) # GETR
-setMethod("dlogcdtheta", signature("joeCopula"), dlogcdthetaCopulaNum)
+setMethod("dlogcdtheta", signature("joeCopula"), dlogcdthetaExplicitCopula)
 setMethod("dlogcdtheta", signature("tevCopula"), dlogcdthetaCopulaNum)
 setMethod("dlogcdtheta", signature("archmCopula"), dlogcdthetaExplicitCopula)
 setMethod("dlogcdtheta", signature("plackettCopula"), dlogcdthetaExplicitCopula)

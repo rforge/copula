@@ -11,6 +11,11 @@ setGeneric("describeCop", function(x, kind = c("short", "very short", "long"))
 ## This could go back to ./dC-dc.R  if all "dCdu" methods also go there
 ##                       ~~~~~~~~~
 setGeneric("dCdu", function(copula, u, ...) standardGeneric("dCdu"))
+setGeneric("dCdtheta", function(copula, u, ...) standardGeneric("dCdtheta"))
+setGeneric("dlogcdu", function(copula, u, ...) standardGeneric("dlogcdu"))
+setGeneric("dlogcdtheta", function(copula, u, ...) standardGeneric("dlogcdtheta"))
+
+
 
 setGeneric("fitCopula", function(copula, data, ...) standardGeneric("fitCopula"))
 

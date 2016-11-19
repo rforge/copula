@@ -19,16 +19,28 @@ joeCopula <- function(param = NA_real_, dim = 2L,
 {
   stopifnot(length(param) == 1)
   if(!is.na(param) && param == 1) {
-      use.indepC <- match.arg(use.indepC)
-      if(!identical(use.indepC, "FALSE")) {
-	  if(identical(use.indepC, "message"))
-	      message("parameter at boundary ==> returning indepCopula()")
-	  return( indepCopula(dim=dim) )
-      }
+    use.indepC <- match.arg(use.indepC)
+    if(!identical(use.indepC, "FALSE")) {
+      if(identical(use.indepC, "message"))
+        message("parameter at boundary ==> returning indepCopula()")
+      return( indepCopula(dim=dim) )
+    }
   }
+  ## cdf expression
+  cdfExpr <- function(d) {
+    term <- paste0("(1 - (1 - ", paste0("u", 1:d), ")^param)", collapse = " * ")
+    cdf <- parse(text=paste0("1 - (1 - ", term, ")^(1 / param)"))
+  }
+  cdf <- cdfExpr(dim)
+  pdf <- if (dim <= 6) cdfExpr2pdfExpr(cdf, dim)
+  exprdist <- structure(c(cdf = cdf, pdf = pdf),
+                        cdfalgr = if (!is.null(cdf)) deriv(cdf, "nothing"), # <-- FIXME: far from optimal
+                        pdfalgr = if (!is.null(pdf)) deriv(pdf, "nothing")) # <-- FIXME: ditto
+  
   new("joeCopula",
       dimension = as.integer(dim),
       parameters = param[1],
+      exprdist = exprdist,
       param.names = "param",
       param.lowbnd = 1, # 0.238733989880086 for tau >= -1 -- is NOT valid
       param.upbnd = Inf,
@@ -82,3 +94,4 @@ setMethod("iTau", signature("joeCopula"),
 ## "TODO"
 ## setMethod("dRho", signature("joeCopula"), ...)
 ## setMethod("dTau", signature("joeCopula"), ...)
+

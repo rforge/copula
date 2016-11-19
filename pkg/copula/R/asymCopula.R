@@ -301,18 +301,6 @@ prepKhoudrajiCdfExpr <- function(copula, prefix, om = FALSE) {
     do.call(substitute, list(cdf, eval(rep.l)))
 }
 
-
-##' @title Get c(.) (expression) by differentiating C(.) wrt to u1, u2, .., u<d>
-##' @param cdf expression of cdf C(.)
-##' @param d dimension
-##' @return Expression of pdf c(.)
-cdfExpr2pdfExpr <- function(cdf, d) {
-    for (i in seq_len(d))
-        cdf <- D(cdf, paste0("u", i))
-    cdf
-}
-
-
 khoudrajiExplicitCopula <- function(copula1 = indepCopula(),
                                     copula2 = indepCopula(dim = d),
                                     shapes = rep(NA_real_, dim(copula1))) {
@@ -477,20 +465,6 @@ setMethod("dCdtheta", signature("khoudrajiBivCopula"),
 ##################################################################################
 ### pCopula and dCopula method for Explicit Khoudraji copulas
 ##################################################################################
-
-## This function uses the algorithmic expressions stored in the class object
-
-.ExplicitCopula.algr <- function(u, copula, log=FALSE, algoNm, ...) {
-    dim <- dim(copula)
-    stopifnot(!is.null(d <- ncol(u)), dim == d)
-
-    colnames(u) <- paste0("u", 1:dim)
-    u.df <- data.frame(u)
-    params <- getParam(copula, freeOnly = FALSE, named = TRUE)
-
-    dens <- c(eval(attr(copula@exprdist, algoNm), c(u.df, params)))
-    if(log) log(dens) else dens
-}
 
 ## cdf is used only for *testing* with dim = 2
 pExplicitCopula.algr <- function(u, copula, log=FALSE, ...)
