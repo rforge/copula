@@ -149,7 +149,18 @@ fitCopStart <- function(copula, u, default = getParam(copula), ...)
 	if(.par.df) # add starting value for 'df'
 	    start <- c(start, getdf(copula))
 	if(is.finite(loglikCopula(start, u=u, copula=copula))) start
-        else default
+        else {
+            if (is(copula, "claytonCopula") && dim(copula) == 2) {
+                ## The support of bivariate claytonCopula with negative parameter is not
+                ## the full unit square; the far from 0, the more restricted.
+                while (start < .0) {
+                    start <- start + .2
+                    if (is.finite(loglikCopula(start, u=u, copula=copula))) break
+                }
+                start
+            } else
+            default
+        }
     } else default
 }
 
