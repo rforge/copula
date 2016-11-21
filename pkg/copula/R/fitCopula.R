@@ -525,7 +525,7 @@ fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
 ##' @return The fitted copula object
 fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
                          optim.method, optim.control, estimate.variance,
-                         bound.eps=.Machine$double.eps^0.5, call, ...)
+                         bound.eps=.Machine$double.eps^0.5, call, traceOpt = FALSE, ...)
 {
     stopifnot((q <- nParam(copula, freeOnly=TRUE)) > 0L, # GETR
 	      is.list(optim.control) || is.null(optim.control),
@@ -549,20 +549,33 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
     control <- c(as.list(optim.control), fnscale = -1) # fnscale < 0 => maximization
     ## unneeded, possibly wrong (why not keep a 'special = NULL' ?):
     ## control <- control[!vapply(control, is.null, NA)]
-    meth.has.bounds <- optim.method %in% c("Brent","L-BFGS-B")
+    if((meth.has.bounds <- optim.method %in% c("Brent","L-BFGS-B")))
+	asFinite <- function(x)
+	    if(is.finite(x)) x else sign(x) * .Machine$double.xmax
 
-    ## BEGIN GETR
     cop.param <- getParam(copula, freeOnly = TRUE, attr = TRUE)
     param.lowbnd <- attr(cop.param, "param.lowbnd")
     param.upbnd <- attr(cop.param, "param.upbnd")
     if (is.null(lower))
-        lower <- if(meth.has.bounds) param.lowbnd + bound.eps else -Inf
+	lower <- if(meth.has.bounds) asFinite(param.lowbnd + bound.eps) else -Inf
     if (is.null(upper))
-        upper <- if(meth.has.bounds) param.upbnd  - bound.eps else Inf
-    ## END GETR
+	upper <- if(meth.has.bounds) asFinite(param.upbnd  - bound.eps) else Inf
 
+    logL <-
+	if(traceOpt) {
+	    function(param, u, copula) {
+		r <- loglikCopula(param, u, copula)
+		if(length(param) <= 1)
+		    cat(sprintf("param=%14.9g => logL=%12.8g\n", param, r))
+		else
+		    cat(sprintf("param= %s => logL=%12.8g\n",
+				paste(format(param, digits=9), collapse=", "), r))
+		r
+	    }
+	} else
+	    loglikCopula
     ## Maximize the likelihood
-    fit <- optim(start, loglikCopula, lower=lower, upper=upper,
+    fit <- optim(start, logL, lower=lower, upper=upper,
                  method = optim.method, control=control,
                  copula = copula, u = u)
 
@@ -637,7 +650,7 @@ fitCopula_dflt <- function(copula, data,
                            method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
                            posDef = is(copula, "ellipCopula"),
                            start=NULL, lower=NULL, upper=NULL,
-                           optim.method = optimMeth(copula, method),
+                           optim.method = optimMeth(copula, method, dim = d),
                            optim.control = list(maxit=1000),
                            estimate.variance = NA, hideWarnings = FALSE, ...)
 {
@@ -649,9 +662,10 @@ fitCopula_dflt <- function(copula, data,
     }
     method <- match.arg(method)
     cl <- match.call()
+    d <- ncol(data)
     if(method == "mpl" || method == "ml") { # "mpl" or "ml"
-	if(is.function(optim.method)) ## << flexibility for the user !
-	    optim.method <- optim.method(copula, method)
+	if(is.function(optim.method)) ## << force(.) + flexibility for the user
+	    optim.method <- optim.method(copula, method, dim=d)
         (if(hideWarnings) suppressWarnings else identity)(
         fitCopula.ml(copula, u=data, method=method,
                      start=start, lower=lower, upper=upper,
@@ -679,15 +693,20 @@ fitCopula_dflt <- function(copula, data,
 }
 
 ##' Default optim() method for  fitCopula() [and hence gofCopula(), xvCopula(),..]
-optimMeth <- function(copula, method) {
+optimMeth <- function(copula, method, dim) {
     ## Till Aug.2016, this was implicitly always "BFGS"
     cld <- getClass(class(copula))
     ellip <- extends(cld, "ellipCopula")
     if(ellip && copula@dispstr %in% c("ex", "ar1"))
         "L-BFGS-B"
-    else if(extends(cld, "archmCopula"))
-        "L-BFGS-B"
-    else # "by default" -- was *the* only default till Aug. 2016:
+    else if(extends(cld, "archmCopula")) {
+	if(nParam(copula, freeOnly=TRUE) == 1) # all 5 of our own families
+	    "Brent"
+	## else if(class(copula) %in% archm.neg.tau && dim == 2)
+	##     "Nelder-Mead" # for many theta, lik. L() = 0 (<==> log L() = -Inf)
+	else
+	    "L-BFGS-B"
+    } else # "by default" -- was *the* only default till Aug. 2016:
         "BFGS"
     ## FIXME:  "Nelder-Mead" is sometimes better
 }

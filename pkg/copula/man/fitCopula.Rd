@@ -20,11 +20,11 @@ fitCopula(copula, data, \dots)
           method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
           posDef = is(copula, "ellipCopula"),
           start = NULL, lower = NULL, upper = NULL,
-          optim.method = optimMeth(copula, method),
+          optim.method = optimMeth(copula, method, dim = d),
           optim.control = list(maxit=1000),
           estimate.variance = NA, hideWarnings = FALSE, \dots)
 
-optimMeth(copula, method)
+optimMeth(copula, method, dim)
 }
 \arguments{
   \item{param}{vector of parameter values.}
@@ -71,13 +71,15 @@ optimMeth(copula, method)
     passed to \code{\link{optim}(*, control=optim.control)}.}
   \item{optim.method}{a character string specify the optimization
     method \emph{or} a \code{\link{function}} which when called with
-    arguments \code{(copula, method)} will return such a character string,
+    arguments \code{(copula, method, dim)} will return such a character string,
     see \code{\link{optim}()}'s \code{method}; only used when
     \code{method = "mpl"} or \code{"ml"}.
 
     The default has been changed (for \pkg{copula} 0.999-16, in
     Aug. 2016) from \code{"BFGS"} to the result of
-    \code{optimMeth(copula, method)} which is often \code{"L-BFGS-B"}.}
+    \code{optimMeth(copula, method, dim)} which is often
+    \code{"L-BFGS-B"}.}
+  \item{dim}{integer, the data and copula dimension, \eqn{d \ge 2}{d >= 2}.}
 
   \item{estimate.variance}{a \code{\link{logical}} indicating whether
     the estimator's asymptotic variance is computed (if available for
@@ -91,7 +93,9 @@ optimMeth(copula, method)
     evaluated at invalid parameter values).}
   \item{\dots}{additional arguments passed to \code{method} specific auxiliary
     functions, e.g., \code{traceOpt = TRUE} for tracing
-    \code{\link{optimize}} for method \code{"itau.mpl"}.}
+    \code{\link{optimize}} for method \code{"itau.mpl"}, and for
+    \dQuote{"manual"} tracing with method \code{"ml"} or \code{"mpl"}
+    (notably for \code{optim.method="Brent"}).}
 }
 \value{
   \code{loglikCopula()} returns the copula log-likelihood evaluated at the

@@ -174,6 +174,11 @@ setClass("amhCopula", contains = "archmCopula")
 ## Joe copula
 setClass("joeCopula", contains = "archmCopula")
 
+## These can have negative tau for d=2 only:
+## setClassUnion(..) # <- over kill?; should be enough:
+archm.neg.tau <- c("amhCopula", "claytonCopula", "frankCopula")
+
+
 ## methods for archmCopulas
 setGeneric("psi", function(copula, s) standardGeneric("psi"))
 ##FIXME 'log' compulsory:
