@@ -59,10 +59,12 @@ mixCopula <- function(coplist, w = NULL) {
             cops = as(coplist, "parClist"))
     else { ## mixExplicitCopula
         mixCdf <- mixPdf <- parse(text = paste0("pcdf", 1L:m, " * ", "p", 1L:m,
-                                      collapse = " + "))
+                                                collapse = " + "))
         exprdist <- c(cdf = mixCdf, pdf = mixPdf)
         cdfL <- lapply(coplist, function(x) x@exprdist$cdf)
         pdfL <- lapply(coplist, function(x) x@exprdist$pdf)
+        ListExpr <- function(nm1, nm2) # ((uglyness in one place))
+            parse(text = paste0("list(", paste0(nm1, "= quote(",nm2,")", collapse= ", "), ")"))
         for (i in 1:m) {
             ## original 6 basic families have alpha in expressions
             cdfL[[i]] <- do.call(substitute, list(cdfL[[i]], list(alpha = quote(param))))
@@ -73,23 +75,16 @@ mixCopula <- function(coplist, w = NULL) {
             if (npar > 0) {
                 prefix <- paste0("m", i, ".")
                 newParNames <- paste0(prefix, oldParNames)
-                rep.l <- parse(text = paste0(
-                                   "list(",
-                                   paste0(oldParNames, " = quote(", newParNames, ")",
-                                          collapse = ", "),
-                                   ")"))
+                rep.l <- ListExpr(oldParNames, newParNames)
                 cdfL[[i]] <- do.call(substitute, list(cdfL[[i]], eval(rep.l)))
                 pdfL[[i]] <- do.call(substitute, list(pdfL[[i]], eval(rep.l)))
             }
         }
         cdfL <- as.expression(cdfL)
         pdfL <- as.expression(pdfL)
-        cdf.repl <- parse(text = paste0("list(",
-                              paste0("pcdf", 1:m, " = quote(", cdfL, ")", collapse = ", "),
-                              ")"))
-        pdf.repl <- parse(text = paste0("list(",
-                              paste0("pcdf", 1:m, " = quote(", pdfL, ")", collapse = ", "),
-                              ")"))
+        pcdfs <- paste0("pcdf", 1:m)
+        cdf.repl <- ListExpr(pcdfs, cdfL)
+        pdf.repl <- ListExpr(pcdfs, pdfL)
         ## why this does not work? what happened when they were put together with c?
         ## mixCdf <- do.call(substitute, list(mixCdf, eval(cdf.repl)))
         ## mixPdf <- do.call(substitute, list(mixPdf, eval(pdf.repl)))
