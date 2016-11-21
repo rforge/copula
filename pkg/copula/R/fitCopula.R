@@ -525,11 +525,15 @@ fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
 ##' @return The fitted copula object
 fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
                          optim.method, optim.control, estimate.variance,
-                         bound.eps=.Machine$double.eps^0.5, call, traceOpt = FALSE, ...)
+                         bound.eps=.Machine$double.eps^0.5, call, traceOpt = FALSE,
+			 need.finite = any(optim.method == c("Brent", "L-BFGS-B")),
+			 finiteLARGE = .Machine$double.xmax,
+			 ...)
 {
     stopifnot((q <- nParam(copula, freeOnly=TRUE)) > 0L, # GETR
 	      is.list(optim.control) || is.null(optim.control),
-	      is.character(optim.method), length(optim.method) == 1)
+	      is.character(optim.method), length(optim.method) == 1,
+              is.finite(finiteLARGE), length(finiteLARGE) == 1, finiteLARGE > 0)
     chk.s(...) # 'check dots'
     if(any(u < 0) || any(u > 1))
         stop("'u' must be in [0,1] -- probably rather use pobs(.)")
@@ -549,21 +553,24 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
     control <- c(as.list(optim.control), fnscale = -1) # fnscale < 0 => maximization
     ## unneeded, possibly wrong (why not keep a 'special = NULL' ?):
     ## control <- control[!vapply(control, is.null, NA)]
-    if((meth.has.bounds <- optim.method %in% c("Brent","L-BFGS-B")))
-	asFinite <- function(x)
-	    if(is.finite(x)) x else sign(x) * .Machine$double.xmax
-
-    cop.param <- getParam(copula, freeOnly = TRUE, attr = TRUE)
-    param.lowbnd <- attr(cop.param, "param.lowbnd")
-    param.upbnd <- attr(cop.param, "param.upbnd")
+    if((meth.has.bounds <- optim.method %in% c("Brent","L-BFGS-B"))) {
+	asFinite <- function(x) { # as finite - vectorized in 'x';  NA/NaN basically unchanged
+	    if(any(nifi <- !is.finite(x)))
+		x[nifi] <- sign(x[nifi]) * finiteLARGE
+	    x
+	}
+        cop.param <- getParam(copula, freeOnly = TRUE, attr = TRUE)
+        p.lowbnd <- attr(cop.param, "param.lowbnd")
+        p.upbnd  <- attr(cop.param, "param.upbnd")
+    }
     if (is.null(lower))
-	lower <- if(meth.has.bounds) asFinite(param.lowbnd + bound.eps) else -Inf
+	lower <- if(meth.has.bounds) asFinite(p.lowbnd + bound.eps*abs(p.lowbnd)) else -Inf
     if (is.null(upper))
-	upper <- if(meth.has.bounds) asFinite(param.upbnd  - bound.eps) else Inf
+	upper <- if(meth.has.bounds) asFinite(p.upbnd  - bound.eps*abs(p.upbnd )) else Inf
 
     logL <-
 	if(traceOpt) {
-	    function(param, u, copula) {
+	    LL <- function(param, u, copula) {
 		r <- loglikCopula(param, u, copula)
 		if(length(param) <= 1)
 		    cat(sprintf("param=%14.9g => logL=%12.8g\n", param, r))
@@ -572,8 +579,16 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
 				paste(format(param, digits=9), collapse=", "), r))
 		r
 	    }
-	} else
+            if(need.finite) {
+                nb <- length(body(LL))
+                body(LL)[[nb]] <- do.call(substitute, list(body(LL)[[nb]], list(r = quote(asFinite(r)))))
+            }
+            LL
+	} else if(need.finite) {
+            function(param, u, copula) asFinite(loglikCopula(param, u, copula))
+        } else
 	    loglikCopula
+
     ## Maximize the likelihood
     fit <- optim(start, logL, lower=lower, upper=upper,
                  method = optim.method, control=control,
@@ -601,7 +616,7 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
         ## MM{FIXME}: This should be done only by 'vcov()' and summary() !
         if(estimate.variance) {
             fit.last <- optim(fit$par, # copula@@parameters
-                              loglikCopula, lower=lower, upper=upper,
+                              logL, lower=lower, upper=upper,
                               method=optim.method, copula=copula, u=u,
                               control=c(control, maxit=0), hessian=TRUE)
             vcov <- tryCatch(solve(-fit.last$hessian), error = function(e) e)
@@ -700,12 +715,13 @@ optimMeth <- function(copula, method, dim) {
     if(ellip && copula@dispstr %in% c("ex", "ar1"))
         "L-BFGS-B"
     else if(extends(cld, "archmCopula")) {
-	if(nParam(copula, freeOnly=TRUE) == 1) # all 5 of our own families
-	    "Brent"
-	## else if(class(copula) %in% archm.neg.tau && dim == 2)
-	##     "Nelder-Mead" # for many theta, lik. L() = 0 (<==> log L() = -Inf)
-	else
-	    "L-BFGS-B"
+	## if(nParam(copula, freeOnly=TRUE) == 1) # all 5 of our own families
+	##     "Brent"
+        ## "Brent" with "finite" bounds (almost Inf) --> quickly goes berserk
+	## ## else if(class(copula) %in% archm.neg.tau && dim == 2)
+	## ##     "Nelder-Mead" # for many theta, lik. L() = 0 (<==> log L() = -Inf)
+	## else
+        "L-BFGS-B"
     } else # "by default" -- was *the* only default till Aug. 2016:
         "BFGS"
     ## FIXME:  "Nelder-Mead" is sometimes better
