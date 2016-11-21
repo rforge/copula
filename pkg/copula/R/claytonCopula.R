@@ -218,7 +218,7 @@ dMatClayton <- function (u, copula, log = FALSE, checkPar=TRUE, ...) {
         r[pos] <-
             if(log) {
                 l.u <- log(u)
-                log1p(th) -(th+1)*rowSums(l.u) - (1/th + 2) * log(pt[pos])
+		log1p(th) -(th+1)*rowSums(l.u) - (1/th + 2) * log(pt)
             }
             else
                 (1+th) * (u[,1]*u[,2])^-(th+1)  * pt^(-1/th - 2)
