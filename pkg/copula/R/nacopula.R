@@ -87,7 +87,7 @@ dacopulaG <- function(acop, u, n.MC=0, log = FALSE) {
 ##' @title Evaluation of nested Archimedean copula
 ##' @param u argument of the copula x (can be a matrix)
 ##' @param copula nacopula
-##' @return f_x(u)
+##' @return F_x(u)
 ##' @author Marius Hofert, Martin Maechler
 .pnacopula <- function(u, copula, ...) {
     stopifnot(ncol(u) >= dim(copula)) # will be larger for children
@@ -96,7 +96,9 @@ dacopulaG <- function(acop, u, n.MC=0, log = FALSE) {
     C@psi(rowSums(## use u[,j, drop=FALSE] for the direct components 'comp':
 		  cbind(C@iPsi(u[,copula@comp, drop=FALSE], theta=th),
 			## and recurse down for the children:
-			C@iPsi(unlist(lapply(copula@childCops, .pnacopula, u=u)),
+			C@iPsi(do.call(cbind,
+				       c(lapply(copula@childCops, .pnacopula, u=u),
+					 deparse.level = 0L)),
 			       theta=th))),
 	  theta=th)
 }

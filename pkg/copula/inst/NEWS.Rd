@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-16 (2016-11-09, svn r1539)}{
+\section{Changes in version 0.999-16 (2016-11-21, svn r1552)}{
   \subsection{Bug Fixes}{
     \itemize{
       \item \code{pK(u, log.p=TRUE)} now correctly checks \code{u}.
@@ -28,6 +28,9 @@
       Also, \code{cCopula()} sometimes returned a vector instead of an
       \eqn{n \times k}{n * k} matrix (which \code{?cCopula} has promised
       always).
+
+      \item \code{pCopula()} was wrong (but gave a warning) for some
+      (unbalanced) nested archimedean copulas.
     }
   }
   \subsection{New Features}{
