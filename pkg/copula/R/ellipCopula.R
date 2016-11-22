@@ -53,17 +53,18 @@ ellipCopula <- function(family = c("normal", "t"), param = NA_real_, dim = 2L,
          "t" =           tCopula(param, dim = dim, dispstr = dispstr, df = df, ...))
 }
 
-setMethod(describeCop, c("ellipCopula", "character"), function(x, kind) {
+setMethod(describeCop, c("ellipCopula", "character"), function(x, kind, prefix="", ...) {
     kind <- match.arg(kind)
     cl <- sub("Copula$", "", class(x)) # -> "t" / "normal"
+    if (cl == "normal") cl <- "Normal"
     if(kind == "very short") # e.g. for show() which has more parts
-        return(paste(cl, "copula"))
+        return(paste0(prefix, cl, " copula"))
     ## else
     d <- dim(x)
-    ch <- paste(cl, "copula, dim. d =", d)
+    ch <- paste(prefix, cl, " copula, dim. d =", d)
     switch(kind <- match.arg(kind),
 	   short = ch,
-	   long = paste0(ch, "\n param.: ", dputNamed(getParam(x, named=TRUE))),
+	   long = paste0(ch, "\n", prefix, "param.: ", dputNamed(getParam(x, named=TRUE))),
 	   stop("invalid 'kind': ", kind))
 })
 

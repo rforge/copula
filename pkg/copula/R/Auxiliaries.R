@@ -111,27 +111,37 @@ formatCall <- function(cal, className, sep = "\n", collapse = "\n") {
 ## =============
 
 setMethod("describeCop", c("Copula", "missing"), # -> default kind = "short"
-	  function(x, kind) describeCop(x, "short"))
+	  function(x, kind, prefix="", ...) describeCop(x, "short", prefix, ...))
+
+## FIXME: This table can be extended to cover more atomic copulas
+.copulaNameTab <- matrix(c("galambosCopula",     "Galambos",
+                           "gumbelCopula",       "Gumbel",
+                           "huslerReissCopula",  "Husler-Reiss",
+                           "tawnCopula",         "Tawn",
+                           "tevCopula",          "t-ev"), byrow = TRUE, ncol = 2)
+
 
 setMethod("describeCop", c("copula", "character"),
-          function(x, kind = c("short", "very short", "long")) {
+          function(x, kind = c("short", "very short", "long"), prefix = "", ...) {
     kind <- match.arg(kind)
+    cl <- class(x)
+    if(!is.na(idx <- match(cl, .copulaNameTab[,1]))) cl <- .copulaNameTab[idx, 2]
     if(kind == "very short") # e.g. for show() which has more parts
-        return(paste(class(x), "copula"))
+        return(paste0(prefix, cl, " copula"))
     ## else
     d <- dim(x)
-    ch <- paste(class(x), "copula, dim. d =", d)
+    ch <- paste0(prefix, cl, " copula, dim. d = ", d)
     switch(kind <- match.arg(kind),
            short = ch,
-           long = paste0(ch, "\n param.: ",
+           long = paste0(ch, "\n", prefix, " param.: ",
                          capture.output(str(x@parameters,
                                             give.head=FALSE))),
            stop("invalid 'kind': ", kind))
 })
 
 setMethod("describeCop", "xcopula", # "ANY"
-	  function(x, kind) {
-	      paste(class(x), "copula: ", describeCop(x@copula, kind=kind))
+	  function(x, kind, prefix = "", ...) {
+	      paste(class(x), "copula: ", describeCop(x@copula, kind=kind, prefix=prefix, ...))
 	  })
 
 ## *Specific* describeCop() methods in the class  ./<copClass>.R  files

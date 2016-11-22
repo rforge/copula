@@ -172,13 +172,13 @@ setMethod("nParam", signature("mixCopula"), function(copula, freeOnly=FALSE)
 
 
 
-setMethod(describeCop, c("mixCopula", "character"), function(x, kind) {
+setMethod(describeCop, c("mixCopula", "character"), function(x, kind, prefix="", ...) {
     m <- length(x@w)
     c1 <- paste("mixCopula from", m, "components")
     if(kind == "very short")
         return(c1)
     ## else
-    dC <- vapply(x@cops, describeCop, "", kind="very short")
+    dC <- vapply(x@cops, describeCop, "", kind="very short", prefix=" ")
     paste0(c1, "\n",
 	   dputNamed(if(kind == "short") unname(vapply(dC, abbreviate, "")) else dC),
 	   "  with weights:\n", dputNamed(x@w))

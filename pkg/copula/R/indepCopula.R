@@ -65,13 +65,13 @@ setMethod("lambda", "indepCopula",
 
 ## GETR
 setMethod("describeCop", c("indepCopula", "character"),
-          function(x, kind = c("short", "very short", "long")) {
+          function(x, kind = c("short", "very short", "long"), prefix = "", ...) {
     kind <- match.arg(kind)
     if(kind == "very short") # e.g. for show() which has more parts
-        return("independence copula")
+        return(paste0(prefix, "Independence copula"))
     ## else
     d <- dim(x)
-    ch <- paste("independence copula, dim. d =", d)
+    ch <- paste0(prefix, "Independence copula, dim. d = ", d)
     switch(kind <- match.arg(kind),
            short = ch,
            long = ch,

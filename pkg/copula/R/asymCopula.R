@@ -197,9 +197,11 @@ setMethod("fixedParam<-", signature("khoudrajiCopula", "logical"),
 })
 
 ## describe copula
-setMethod(describeCop, c("khoudrajiCopula", "character"), function(x, kind) {
-    paste0("Khoudraji copula constructed from\n", describeCop(x@copula1, kind),
-          "\nand\n", describeCop(x@copula2, kind))
+setMethod(describeCop, c("khoudrajiCopula", "character"), function(x, kind, prefix="", ...) {
+    paste0(prefix, "Khoudraji copula constructed from\n",
+           prefix, describeCop(x@copula1, kind, paste0(prefix, " ")),
+           "\n", ## "\nand\n",
+           prefix, describeCop(x@copula2, kind, paste0(prefix, " ")))
 })
 
 ##################################################################################
