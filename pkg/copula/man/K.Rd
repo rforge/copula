@@ -7,8 +7,8 @@
 \alias{rK}
 \alias{K}% Defunct
 \description{
-  The distribution function of the \emph{Kendall distribution} of an Archimedean
-  copula is defined as
+  The \emph{Kendall distribution} of an Archimedean
+  copula is defined by
   \deqn{K(u) = P(C(U_1,U_2,\dots,U_d) \le u),}{K(u) = P(C(U[1], U[2], \dots, U[d]) <= u),}
   where \eqn{u \in [0,1]}{u in [0,1]}, and the \eqn{d}-dimensional
   \eqn{(U_1,U_2,\dots,U_d)}{(U[1],U[2],\dots,U[d])} is distributed according
@@ -19,44 +19,42 @@
   \eqn{d \ge 2}{d >= 2}.
 
   \code{Kn()} computes the empirical Kendall distribution function,
-  \code{pK()}, \code{qK()}, \code{dK()}, and \code{rK()} provide the
-  distribution function, quantile function, density, and random number
-  generator, respectively, for the Kendall distribution of an
-  Archimedean copula.
-
-  Note that \R function \code{pK()} provides the \eqn{K()} function.
+  \code{pK()} the distribution function (so \eqn{K()} itself),
+  \code{qK()} the quantile function, \code{dK()} the density, and
+  \code{rK()} random number generation from \eqn{K()} for an Archimedean
+  copula.
 }
 \usage{
 % K(u, copula, d, n.MC=0, log.p=FALSE) # is deprecated
-Kn(u, x)
-pK(u, copula, d, n.MC=0, log.p=FALSE)
-qK(p, copula, d, n.MC=0, log.p=FALSE,
-   method=c("default", "simple", "sort", "discrete", "monoH.FC"),
+Kn(u, x) # empirical Kendall distribution function
+dK(u, copula, d, n.MC = 0, log.p = FALSE) # density
+pK(u, copula, d, n.MC = 0, log.p = FALSE) # df
+qK(p, copula, d, n.MC = 0, log.p = FALSE, # quantile function
+   method = c("default", "simple", "sort", "discrete", "monoH.FC"),
    u.grid, \dots)
-dK(u, copula, d, n.MC=0, log.p=FALSE)
-rK(n, copula, d)
+rK(n, copula, d) # random number generation
 }
 \arguments{
-  \item{u}{evaluation point(s) (have to be in \eqn{[0,1]}).}
-  \item{x}{data (in the \eqn{d}-dimensional space) based on which the
+  \item{u}{The evaluation point(s) (in \eqn{[0,1]}).}
+  \item{x}{The data (in the \eqn{d}-dimensional space) based on which the
     Kendall distribution function is estimated.}
-  \item{copula}{\code{\linkS4class{acopula}} with specified parameter, or
+  \item{copula}{The \code{\linkS4class{acopula}} with specified parameter, or
     (currently for \code{rK} only) a \code{\linkS4class{outer_nacopula}}.}
-  \item{d}{dimension (not used when \code{copula} is an
+  \item{d}{The dimension (not used when \code{copula} is an
     \code{\linkS4class{outer_nacopula}}).}
-  \item{n.MC}{\code{\link{integer}}, if positive, a Monte Carlo approach
+  \item{n.MC}{An \code{\link{integer}}, if positive, a Monte Carlo approach
     is applied with sample size equal to \code{n.MC} to evaluate the
     generator derivatives involved; otherwise
-    (\code{n.MC=0}) the exact formula is used based on the generator
+    (\code{n.MC = 0}) the exact formula is used based on the generator
     derivatives as found by Hofert et al. (2012).}
-  \item{log.p}{\code{\link{logical}}; if \code{TRUE}, probabilities
+  \item{log.p}{A \code{\link{logical}}; if \code{TRUE}, probabilities
     \eqn{p} are given as \eqn{\log p}{log(p)}.}
-  \item{p}{probabilities or log-probabilities if \code{log.p} is true.}
-  \item{method}{string for the method to compute the quantile function
-    of \eqn{K}.  Currently, one of
+  \item{p}{Probabilities or log-probabilities if \code{log.p} is true.}
+  \item{method}{A string for the method to compute the quantile function
+    of \eqn{K}. Currently, one of
     \describe{
-      \item{"default"}{The default method.  Currently chooses
-	\code{method="monoH.FC"} with \code{u.grid = 0:128/128}.  This
+      \item{"default"}{The default method. Currently chooses
+	\code{method="monoH.FC"} with \code{u.grid = 0:128/128}. This
 	is fast but not too accurate (see example).}
       \item{"simple"}{Straightforward root finding based on
 	\code{\link{uniroot}}.}
@@ -71,9 +69,9 @@ rK(n, copula, d)
 	\code{\link{uniroot}}.}
     }
   }
-  \item{u.grid}{(for \code{method="discrete"}:) the grid on which
+  \item{u.grid}{(For \code{method="discrete"}:) The grid on which
     \eqn{K} is evaluated, a \code{\link{numeric}} vector.}
-  \item{\dots}{additional arguments passed to \code{\link{uniroot}} (for
+  \item{\dots}{Additional arguments passed to \code{\link{uniroot}} (for
     \code{method="default"}, \code{method="simple"}, \code{method="sort"}, and
     \code{method="monoH.FC"}) or \code{\link{findInterval}} (for
     \code{method="discrete"}), notably \code{tol}
@@ -95,13 +93,15 @@ rK(n, copula, d)
   The empirical Kendall distribution function is computed as in Genest,
   G. \enc{Nešlehová}{Neslehova}, Ziegel (2011).
 }
-\value{The empirical Kendall distribution function \eqn{K_n}, the Kendall
-  distribution function \eqn{K(.)}, its quantile function, density, and random
-  number generator.}
+\value{
+  The empirical Kendall distribution function, density, distribution
+  function, quantile function and random number generator.
+}
 %\author{Marius Hofert (and Martin Maechler)}
-\note{Currently, the \code{"default"} method of \code{qK()} is fast but
+\note{
+  Currently, the \code{"default"} method of \code{qK()} is fast but
   not very accurate, see the \sQuote{Examples} for more accuracy (with
-  more cpu effort).
+  more CPU effort).
 }
 \references{
   Barbe, P., Genest, C., Ghoudi, K., and R\enc{é}{e}millard, B. (1996),
@@ -127,23 +127,23 @@ tau <- 0.5
 d <- 20
 (cop <- onacopulaL("Gumbel", list(theta,1:d)))
 
-## Basic check empirical Kendall distribution function
+## Basic check of the empirical Kendall distribution function
 set.seed(271)
 n <- 1000
 U <- rCopula(n, copula = cop)
 X <- qnorm(U)
 K.sample <- pCopula(U, copula = cop)
-u <- seq(0, 1, length.out=256)
+u <- seq(0, 1, length.out = 256)
 edfK <- ecdf(K.sample)
-plot(u, edfK(u), type="l", ylim=c(0,1),
-     xlab=quote(italic(u)), ylab=quote(K[n](italic(u)))) # simulated
-K.n <- Kn(u, x=X)
-lines(u, K.n, col="royalblue3") # Kn
+plot(u, edfK(u), type = "l", ylim = 0:1,
+     xlab = quote(italic(u)), ylab = quote(K[n](italic(u)))) # simulated
+K.n <- Kn(u, x = X)
+lines(u, K.n, col = "royalblue3") # Kn
 ## Difference at 0
 edfK(0) # edf of K at 0
 K.n[1] # K_n(0); this is > 0 since K.n is the edf of a discrete distribution
 ## => therefore, Kn(K.sample, x=X) is not uniform
-plot(Kn(K.sample, x=X), ylim=c(0,1))
+plot(Kn(K.sample, x = X), ylim = 0:1)
 ## Note: Kn(0) -> 0 for n -> Inf
 
 ## Compute Kendall distribution function
@@ -161,16 +161,16 @@ W <- rK(n, copula = cop)
 ## Plot empirical distribution function based on W
 ## and the corresponding theoretical Kendall distribution function
 ## (exact and via Monte Carlo)
-plot(ecdf(W), col="blue", xlim=c(0,1), verticals=TRUE,
+plot(ecdf(W), col = "blue", xlim = 0:1, verticals=TRUE,
      main = quote("Empirical"~ F[n](C(U)) ~
                      "and its Kendall distribution" ~ K(u)),
-     do.points=FALSE, asp=1)
-abline(0,1, lty=2); abline(h=0:1, v=0:1, lty=3, col="gray")
-lines(u, Ku.MC, col="red") # not quite monotone
-lines(u, Ku, col="black")  # strictly  monotone:
+     do.points = FALSE, asp = 1)
+abline(0,1, lty = 2); abline(h = 0:1, v = 0:1, lty = 3, col = "gray")
+lines(u, Ku.MC, col = "red") # not quite monotone
+lines(u, Ku, col = "black")  # strictly  monotone:
 stopifnot(diff(Ku) >= 0)
 legend(.25, .75, expression(F[n], K[MC](u), K(u)),
-       col=c("blue" , "red", "black"), lty=1, lwd = 1.5, bty="n")
+       col=c("blue" , "red", "black"), lty = 1, lwd = 1.5, bty = "n")
 
 if(require("Rmpfr")) { # pK() now also works with high precision numbers:
  uM <- mpfr(0:255, 99)/256
