@@ -35,43 +35,43 @@ qK(p, copula, d, n.MC = 0, log.p = FALSE, # quantile function
 rK(n, copula, d) # random number generation
 }
 \arguments{
-  \item{u}{The evaluation point(s) (in \eqn{[0,1]}).}
-  \item{x}{The data (in the \eqn{d}-dimensional space) based on which the
+  \item{u}{evaluation point(s) (in \eqn{[0,1]}).}
+  \item{x}{data (in the \eqn{d}-dimensional space) based on which the
     Kendall distribution function is estimated.}
-  \item{copula}{The \code{\linkS4class{acopula}} with specified parameter, or
+  \item{copula}{\code{\linkS4class{acopula}} with specified parameter, or
     (currently for \code{rK} only) a \code{\linkS4class{outer_nacopula}}.}
-  \item{d}{The dimension (not used when \code{copula} is an
+  \item{d}{dimension (not used when \code{copula} is an
     \code{\linkS4class{outer_nacopula}}).}
-  \item{n.MC}{An \code{\link{integer}}, if positive, a Monte Carlo approach
+  \item{n.MC}{\code{\link{integer}}, if positive, a Monte Carlo approach
     is applied with sample size equal to \code{n.MC} to evaluate the
     generator derivatives involved; otherwise
     (\code{n.MC = 0}) the exact formula is used based on the generator
     derivatives as found by Hofert et al. (2012).}
-  \item{log.p}{A \code{\link{logical}}; if \code{TRUE}, probabilities
+  \item{log.p}{\code{\link{logical}}; if \code{TRUE}, probabilities
     \eqn{p} are given as \eqn{\log p}{log(p)}.}
-  \item{p}{Probabilities or log-probabilities if \code{log.p} is true.}
-  \item{method}{A string for the method to compute the quantile function
+  \item{p}{probabilities or log-probabilities if \code{log.p} is true.}
+  \item{method}{string for the method to compute the quantile function
     of \eqn{K}. Currently, one of
     \describe{
-      \item{"default"}{The default method. Currently chooses
+      \item{"default"}{default method. Currently chooses
 	\code{method="monoH.FC"} with \code{u.grid = 0:128/128}. This
 	is fast but not too accurate (see example).}
-      \item{"simple"}{Straightforward root finding based on
+      \item{"simple"}{straightforward root finding based on
 	\code{\link{uniroot}}.}
-      \item{"sort"}{Root finding based on \code{\link{uniroot}} but
+      \item{"sort"}{root finding based on \code{\link{uniroot}} but
 	first sorting \code{u}.}
-      \item{"discrete"}{First, \eqn{K} is evaluated at the given grid
+      \item{"discrete"}{first, \eqn{K} is evaluated at the given grid
 	points \code{u.grid} (which should contain 0 and 1). Based on these
 	probabilities, quantiles are computed with \code{\link{findInterval}}.}
-      \item{"monoH.FC"}{First, \eqn{K} is evaluated at the given grid points
+      \item{"monoH.FC"}{first, \eqn{K} is evaluated at the given grid points
 	\code{u.grid}.  A monotone spline is then used to approximate \eqn{K}.
 	Based on this approximation, quantiles are computed with
 	\code{\link{uniroot}}.}
     }
   }
-  \item{u.grid}{(For \code{method="discrete"}:) The grid on which
+  \item{u.grid}{(for \code{method="discrete"}:) The grid on which
     \eqn{K} is evaluated, a \code{\link{numeric}} vector.}
-  \item{\dots}{Additional arguments passed to \code{\link{uniroot}} (for
+  \item{\dots}{additional arguments passed to \code{\link{uniroot}} (for
     \code{method="default"}, \code{method="simple"}, \code{method="sort"}, and
     \code{method="monoH.FC"}) or \code{\link{findInterval}} (for
     \code{method="discrete"}), notably \code{tol}
