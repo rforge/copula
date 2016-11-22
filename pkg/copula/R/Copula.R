@@ -20,7 +20,10 @@ printCopula <- function(x, digits = getOption("digits"), ...) {
   cat(describeCop(x, kind="very short"), "\n")
   cat("Dimension: ", (d <- dim(x)), "\n")
   if (length(par <- getParam(x, freeOnly=FALSE, attr = TRUE)) > 0) {
-    hasFx <- !is.null(.fixed <- attr(par, "fixed")) && any(.fixed)
+    ## hasFx <- !is.null(.fixed <- attr(par, "fixed")) && any(.fixed)
+    ## JY: no attribute "fixed" is available from getParam
+    .fixed <- !isFree(x); hasFx <- any(.fixed)
+    hasFx <- any(!isFree(x))
     cat(sprintf("Parameters%s:\n",
 		if(hasFx) " (partly fixed, see ':==')" else ""))
     ## FIXME:  for the d=400  ellipsCopula with dispstr = "un": do *not* print all!
