@@ -200,7 +200,7 @@ export(pairsColList, pairsRosenblatt, .pairsCond) # R/pairsRosenblatt.R
 ## other nonparametric tests
 export(evTestC, evTestA, evTestK)
 export(exchEVTest, exchTest)
-
+export(radSymTest)
 
 
 ## For some, have S3 print() and S4 show() .. MM is not convinced

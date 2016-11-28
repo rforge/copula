@@ -37,6 +37,9 @@ evTestK(x, method = c("fsample","asymptotic","jackknife"), ties = NA, N = 100)
   Ghorbal, M. B., Genest, C., and G. \enc{Nešlehová}{Neslehova}, J. (2009)
   On the test of Ghoudi, Khoudraji, and Rivest for extreme-value dependence.
   \emph{The Canadian Journal of Statistics} \bold{37}, 1--9.
+
+  Kojadinovic, I. (2016). Some copula inference procedures adapted to
+  the presence of ties. \url{http://arxiv.org/abs/1609.05519}.
 }
 \seealso{ \code{\link{evTestC}}, \code{\link{evTestA}}, \code{\link{evCopula}},
   \code{\link{gofEVCopula}}, \code{\link{An}}.

@@ -237,3 +237,92 @@ exchTest <- function(x, N = 1000, ties = NA, m = 0) {
                    p.value = (sum(s0 >= s) + 0.5) / (N + 1),
                    data.name = deparse(substitute(x))))
 }
+
+
+##' Test of radial symmetry based on the empirical copula
+##'
+##' @title Test of radial symmetry based on Cn
+##' @param x the data
+##' @param N number of multiplier replications
+##' @param ties logical indicating whether ties are present
+##' @return an object of class 'htest'
+##' @author Ivan Kojadinovic
+radSymTest <- function(x, N = 1000, ties = NA) {
+
+    ## Checks
+    stopifnot(N >= 1L)
+    if(!is.matrix(x)) {
+        warning("coercing 'x' to a matrix.")
+        stopifnot(is.matrix(x <- as.matrix(x)))
+    }
+
+    n <- nrow(x)
+    p <- ncol(x)
+
+    ## Make pseudo-observations
+    u <- pobs(x)
+
+    ## Make grid
+    #g <- u
+    #ng <- n
+
+    ## Compute the test statistic
+    s <- .C(radsymtestCn_stat,
+            as.double(u),
+            as.integer(n),
+            as.integer(p),
+            as.double(u),
+            as.integer(n),
+            stat = double(1))$stat
+
+    ## Ties: by default, if at least one column has at least one duplicated entry
+    if (is.na(ties <- as.logical(ties))) {
+	ties <- any(apply(x, 2, anyDuplicated))
+        if (ties)
+            warning("argument 'ties' set to TRUE")
+    }
+
+    ## If ties, get ties structure from initial sample
+    if (ties)
+        ir <- apply(u, 2, function(y) sort(rank(y, ties.method = "max")))
+
+    ## One replication
+    one <- function() {
+
+        ## The bootstrapped sample
+        u.b <- u
+        sel <- (runif(n) < 0.5)
+        u.b[sel,] <- 1 - u[sel,]
+
+        if (ties)
+            ## Apply tie structure
+            for (i in 1:p) {
+                u.b <- u.b[order(u.b[,i]),]
+                u.b[,i] <- u.b[ir[,i], i]
+            }
+
+        ## Compute pseudo-observations
+        u.b <- pobs(u.b)
+
+        ## Make grid
+        #g <- u.b
+
+        ## Compute the test statistic from the bootstrapped sample
+        .C(radsymtestCn_stat,
+           as.double(u.b),
+           as.integer(n),
+           as.integer(p),
+           as.double(u.b),
+           as.integer(n),
+           stat = double(1))$stat
+    }
+
+    ## N replications
+    s0 <- replicate(N, one())
+
+    structure(class = "htest",
+              list(method = "Test of radial symmetry based on the empirical copula",
+                   statistic = c(statistic = s),
+                   p.value = (sum(s0 >= s) + 0.5) / (N + 1),
+                   data.name = deparse(substitute(x))))
+}

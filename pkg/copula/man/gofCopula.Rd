@@ -183,6 +183,9 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
   \emph{Journal of Statistical Software} \bold{34}(9), 1--20.
   \url{http://www.jstatsoft.org/v34/i09/}.
 
+  Kojadinovic, I. (2016). Some copula inference procedures adapted to
+  the presence of ties. \url{http://arxiv.org/abs/1609.05519}.
+
   Pesarin, F. (2001).
   \emph{Multivariate Permutation Tests: With Applications in Biostatistics}.
   Wiley.

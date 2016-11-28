@@ -57,8 +57,11 @@ exchEVTest(x, N = 1000,  estimator = c("CFG", "Pickands"),
   A nonparametric test of exchangeability for extreme-value and left-tail
   decreasing bivariate copulas.
   \emph{The Scandinavian Journal of Statistics} \bold{39:3}, 480--496.
+
+  Kojadinovic, I. (2016). Some copula inference procedures adapted to
+  the presence of ties. \url{http://arxiv.org/abs/1609.05519}.
 }
-\seealso{ \code{\link{exchTest}}, \code{\link{gofCopula}}.
+\seealso{ \code{\link{exchTest}}, \code{\link{radSymTest}}, \code{\link{gofCopula}}.
 }
 \examples{
 ## Data from an exchangeable left-tail decreasing copulas

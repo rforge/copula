@@ -49,8 +49,11 @@ exchTest(x, N = 1000, ties = NA, m = 0)
   exchangeability for extreme-value and left-tail
   decreasing bivariate copulas. \emph{The Scandinavian Journal of
     Statistics} \bold{39:3}, 480--496.
+
+  Kojadinovic, I. (2016). Some copula inference procedures adapted to
+  the presence of ties. \url{http://arxiv.org/abs/1609.05519}.
 }
-\seealso{ \code{\link{exchEVTest}}, \code{\link{gofCopula}}. }
+\seealso{ \code{\link{radSymTest}}, \code{\link{exchEVTest}}, \code{\link{gofCopula}}. }
 \examples{
 ## Data from an exchangeable copulas
 exchTest(rCopula(200,  gumbelCopula(3)))
