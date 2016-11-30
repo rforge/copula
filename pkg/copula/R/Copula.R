@@ -31,7 +31,7 @@ printCopula <- function(x, digits = getOption("digits"), ...) {
     pars <- format(as.vector(par), digits=digits)
     for (i in seq_along(par))
       cat(sprintf("  %s %3s %s\n",
-		  pnms[i], if(hasFx && .fixed[i]) ":==" else " = ",
+		  pnms[i], if(hasFx && .fixed[i]) ":=" else " =",
 		  pars[i]))
   }
   invisible(x)
