@@ -32,8 +32,12 @@ fixParam <- function(param, fixed = TRUE) {
 ##' @param param Numeric parameter vector, possibly with "fixed" attribute
 ##' @return A vector of logicals, TRUE = free
 ##' @author Jun Yan
-isFreeP <- function(param)
-    if (is.null(fixed <- attr(param, "fixed"))) rep(TRUE, length(param)) else !fixed
+isFreeP <- function(param) {
+    if (is.null(fixed <- attr(param, "fixed"))) rep(TRUE, length(param))
+    else if(identical(fixed, TRUE)) rep(FALSE, length(param))
+    else !fixed
+}
+
 
 ##' @title Number of Free Parameters of a Vector
 ##' @param x A numeric parameter vector with possible attribute "fixed"
