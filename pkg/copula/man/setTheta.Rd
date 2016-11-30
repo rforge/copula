@@ -7,7 +7,7 @@
 \alias{setTheta,ellipCopula,ANY-method}
 \alias{setTheta,xcopula,ANY-method}
 \alias{setTheta,khoudrajiCopula,ANY-method}
-% \alias{setTheta,mixCopula,ANY-method} TODO
+\alias{setTheta,mixCopula,ANY-method}
 \description{
   Set or change the parameter \eqn{\theta}{theta} (\code{theta}) of
   a copula.  The name \sQuote{theta} has been from its use in (nested)
@@ -24,7 +24,7 @@ setTheta(x, value, \dots)
 \S4method{setTheta}{xcopula,ANY}(x, value, \dots)
 \S4method{setTheta}{outer_nacopula,numeric}(x, value, na.ok = TRUE, noCheck = FALSE, \dots)
 \S4method{setTheta}{khoudrajiCopula,ANY}(x, value, na.ok = TRUE, noCheck = FALSE, \dots)
-% \S4method{setTheta}{mixCopula,ANY}(x, value, \dots) TODO
+\S4method{setTheta}{mixCopula,ANY}(x, value, na.ok = TRUE, noCheck = FALSE, \dots)
 }
 \arguments{
   \item{x}{an \R object of class \code{\linkS4class{Copula}}, i.e., any

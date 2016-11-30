@@ -4,6 +4,7 @@
 \alias{fixedParam<-}
 \alias{fixedParam<-,copula,logical-method}
 \alias{fixedParam<-,khoudrajiCopula,logical-method}
+\alias{fixedParam<-,mixCopula,logical-method}
 \alias{fixedParam<-,rotCopula,logical-method}
 
 \description{

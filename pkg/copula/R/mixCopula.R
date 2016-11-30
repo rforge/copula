@@ -134,9 +134,12 @@ setMethod("nParam", signature("mixCopula"), function(copula, freeOnly=FALSE)
 
 ## parameter names for freeOnly parameters
 setMethod("paramNames", signature("mixCopula"), function(x) {
-    c(vapply(x@cops, function(cop) {
-        if (nParam(cop, freeOnly=TRUE) > 0L) paste0("m1.", paramNames(cop)) else NULL
-    }, NA),
+    cops <- x@cops
+    m <- length(cops)
+    nj <- vapply(cops, nParam, 1, freeOnly=TRUE)
+    c(unlist(lapply(1:m, function(i) {
+        if (nj[i] > 0L) paste0("m", i, ".", paramNames(cops[[i]])) else NULL
+    })),
     paste0("p", 1:length(x@cops))[isFreeP(x@w)])
 })
 
@@ -145,13 +148,15 @@ setMethod("getParam", "mixCopula",
 function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
     d <- dim(copula)
     parC <- lapply(copula@cops, getParam,
-                   freeOnly=freeOnly, attr=TRUE, named=named)
+                   freeOnly=freeOnly, attr=attr, named=named)
     m <- length(w <- copula@w)
+    wFree <- isFreeP(w)
+    if(freeOnly) w <- w[wFree]
     if(named) {
-        parC <- sapply(1:m, function(i) {
+        parC <- sapply(1L:m, function(i) {
             if (length(parC[[i]]) > 0) setNames(parC[[i]], paste0("m", i, ".", names(parC[[i]])))
         })
-        attr(w, "names") <- paste0("p", 1L:m)
+        attr(w, "names") <- if(freeOnly) paste0("p", 1L:m)[wFree] else paste0("p", 1L:m)
     }
     ## FIXME re-parametrize 'w' a la nor1mix:: (??)
     if(attr) { # more structured result
@@ -159,8 +164,8 @@ function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
         lowb <- lapply(parC, attr, "param.lowbnd")
         uppb <- lapply(parC, attr, "param.upbnd")
         structure(c(unlist(parC),                    w),
-                  param.lowbnd = c(unlist(lowb), rep(0, m)),
-                  param.upbnd  = c(unlist(uppb), rep(1, m)))
+                  param.lowbnd = c(unlist(lowb), rep(0, length(w))),
+                  param.upbnd  = c(unlist(uppb), rep(1, length(w))))
     } else {
         c(unlist(parC), w)
     }

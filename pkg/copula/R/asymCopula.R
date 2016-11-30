@@ -91,11 +91,11 @@ setMethod("nParam", signature("khoudrajiCopula"), function(copula, freeOnly=FALS
     nParam(copula@copula2, freeOnly=freeOnly) +
     (if(freeOnly) nFree else length)(copula@shapes))
 
-## parameter names
+## parameter names for freeOnly parameters
 setMethod("paramNames", signature("khoudrajiCopula"), function(x) {
     c(if (nParam(x@copula1, freeOnly=TRUE) > 0L) paste0("c1.", paramNames(x@copula1)) else NULL,
       if (nParam(x@copula2, freeOnly=TRUE) > 0L) paste0("c2.", paramNames(x@copula2)) else NULL,
-      paste0("shape", 1:dim(x))[isFreeP(x@shapes)])
+      paste0("shape", 1L:dim(x))[isFreeP(x@shapes)])
 })
 
 ## get parameters
@@ -170,10 +170,11 @@ setMethod("setTheta", "khoudrajiCopula",
 
 ## set or modify "fixedness" of parameters
 setMethod("fixedParam<-", signature("khoudrajiCopula", "logical"),
-          function(copula, value) {
+function(copula, value) {
     stopifnot(length(value) %in% c(1L, nParam(copula)))
-    if (identical(value, FALSE) || !any(value))
-        copula
+    ## JY: seems not needed?
+    ## if (identical(value, FALSE) || !any(value))
+    ##    copula
     if (anyNA(getParam(copula, freeOnly = FALSE)[value])) stop("Fixed parameters cannot be NA.")
     n1 <- nParam(copula@copula1)
     n2 <- nParam(copula@copula2)

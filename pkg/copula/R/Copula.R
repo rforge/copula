@@ -25,7 +25,7 @@ printCopula <- function(x, digits = getOption("digits"), ...) {
     .fixed <- !isFree(x); hasFx <- any(.fixed)
     hasFx <- any(!isFree(x))
     cat(sprintf("Parameters%s:\n",
-		if(hasFx) " (partly fixed, see ':==')" else ""))
+		if(hasFx) " (partly fixed, see ':=')" else ""))
     ## FIXME:  for the d=400  ellipsCopula with dispstr = "un": do *not* print all!
     pnms <- format(names(par)) # padding
     pars <- format(as.vector(par), digits=digits)
