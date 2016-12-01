@@ -1,4 +1,5 @@
 \name{setTheta}
+
 \title{Specify the Parameter(s) of a Copula}
 \alias{setTheta}
 \alias{setTheta,acopula,ANY-method}
@@ -20,7 +21,7 @@
 \usage{
 setTheta(x, value, \dots)
 \S4method{setTheta}{acopula,ANY}(x, value, na.ok = TRUE, noCheck = FALSE, \dots)
-\S4method{setTheta}{copula,ANY} (x, value, na.ok = TRUE, noCheck = FALSE, \dots)
+\S4method{setTheta}{copula, ANY}(x, value, na.ok = TRUE, noCheck = FALSE, \dots)
 \S4method{setTheta}{xcopula,ANY}(x, value, \dots)
 \S4method{setTheta}{outer_nacopula,numeric}(x, value, na.ok = TRUE, noCheck = FALSE, \dots)
 \S4method{setTheta}{khoudrajiCopula,ANY}(x, value, na.ok = TRUE, noCheck = FALSE, \dots)
