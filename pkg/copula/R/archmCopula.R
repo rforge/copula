@@ -44,7 +44,7 @@ setMethod(describeCop, c("archmCopula", "character"), function(x, kind, prefix="
     d <- x@dimension
     if(kind == "very short") # e.g. for show() which has more parts
         return(paste0(prefix, getAname(x), " copula"))
-    ch <- paste0(prefix, getAname(x), " copula, dim. d =", d)
+    ch <- paste0(prefix, getAname(x), " copula, dim. d = ", d)
     switch(kind <- match.arg(kind),
 	   short = ch,
 	   long = paste0(ch, "\n", prefix, " param.: ",
