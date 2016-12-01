@@ -53,7 +53,7 @@ setClass("mixExplicitCopula", contains = "mixCopula",
 ##' @param coplist a list of copulas of the same dimension
 ##' @param w a numeric vector of the same length as coplist for the mixing weights
 ##' @return a new mixCopula or mixExplicitcopula object
-##' 
+##'
 mixCopula <- function(coplist, w = NULL) {
     stopifnot(is.list(coplist))
     if((m <- length(coplist)) == 0)
@@ -137,10 +137,12 @@ setMethod("paramNames", signature("mixCopula"), function(x) {
     cops <- x@cops
     m <- length(cops)
     nj <- vapply(cops, nParam, 1, freeOnly=TRUE)
-    c(unlist(lapply(1:m, function(i) {
-        if (nj[i] > 0L) paste0("m", i, ".", paramNames(cops[[i]])) else NULL
-    })),
-    paste0("p", 1:length(x@cops))[isFreeP(x@w)])
+    ic <- seq_along(cops)# 1:m
+    c(vapply(ic,
+             function(i) if(nj[i] > 0L)
+                             paste0("m", i, ".", paramNames(cops[[i]])) else "",
+             "<name>"),
+      paste0("p", ic)[isFreeP(x@w)])
 })
 
 ## get parameters
@@ -153,10 +155,10 @@ function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
     wFree <- isFreeP(w)
     if(freeOnly) w <- w[wFree]
     if(named) {
-        parC <- sapply(1L:m, function(i) {
-            if (length(parC[[i]]) > 0) setNames(parC[[i]], paste0("m", i, ".", names(parC[[i]])))
-        })
-        attr(w, "names") <- if(freeOnly) paste0("p", 1L:m)[wFree] else paste0("p", 1L:m)
+        ic <- seq_along(w)
+        for(i in ic[lengths(parC) > 0])
+            names(parC[[i]]) <- paste0("m", i, ".", names(parC[[i]]))
+        attr(w, "names") <- if(freeOnly) paste0("p", ic)[wFree] else paste0("p", ic)
     }
     ## FIXME re-parametrize 'w' a la nor1mix:: (??)
     if(attr) { # more structured result
@@ -200,7 +202,7 @@ function(copula, value) {
 
 ## set parameters
 setMethod("setTheta", "mixCopula",
-function(x, value, na.ok = TRUE, nocheck = FALSE, ...) {
+function(x, value, na.ok = TRUE, noCheck = FALSE, ...) {
     stopifnot(is.numeric(value) | (ina <- is.na(value)))
     if(any(ina)) {
         if(!na.ok) stop("NA value, but 'na.ok' is not TRUE")
@@ -227,7 +229,8 @@ function(x, value, na.ok = TRUE, nocheck = FALSE, ...) {
         x@cops <- cops
     if(nw) ## FIXME: how to ensure w sums to 1?
         x@w[iF.w] <- value[n. + seq_len(nw)]
-    ## stopifnot(validObject(x))
+    if(!noCheck)
+        stopifnot(validObject(x))
     x
 })
 
@@ -237,19 +240,19 @@ function(copula, value) {
     stopifnot(length(value) %in% c(1L, nParam(copula)))
     if (anyNA(getParam(copula, freeOnly = FALSE)[value])) stop("Fixed parameters cannot be NA.")
     cops <- copula@cops
-    m <- length(cops)
+    ic <- seq_along(cops) # "1:m"
     nj <- vapply(cops, nParam, 1, freeOnly=FALSE)
     if (identical(value, FALSE) || !any(value)) {
-        for(j in seq_len(m))
+        for(j in ic)
             if (nj[j] > 0L) fixedParam(copula@cops[[j]]) <- FALSE
         attr(copula@w, "fixed") <- NULL
     } else if (identical(value, TRUE) || all(value)) {
-        for(j in seq_len(m)) 
+        for(j in ic)
             if (nj[j] > 0L) fixedParam(copula@cops[[j]]) <- TRUE
         attr(copula@w, "fixed") <- TRUE
     } else {
         n. <- 0L
-        for (j in seq_len(m)) {
+        for (j in ic) {
             n.j <- nj[j]
             if (n.j > 0L) fixedParam(copula@cops[[j]]) <- value[n. + seq_len(n.j)]
             n. <- n. + n.j
