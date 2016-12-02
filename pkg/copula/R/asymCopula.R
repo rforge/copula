@@ -199,10 +199,24 @@ function(copula, value) {
 
 ## describe copula
 setMethod(describeCop, c("khoudrajiCopula", "character"), function(x, kind, prefix="", ...) {
-    paste0(prefix, "Khoudraji copula constructed from\n",
-           prefix, describeCop(x@copula1, kind, paste0(prefix, " ")),
-           "\n", ## "\nand\n",
-           prefix, describeCop(x@copula2, kind, paste0(prefix, " ")))
+    switch(kind <- match.arg(kind),
+           "very short" = paste0(prefix, "Khoudraji copula constructed from\n",
+                                 prefix, describeCop(x@copula1, "very short",
+                                                     paste0(prefix, " ")),
+                                 "\n", ## "\nand\n",
+                                 prefix, describeCop(x@copula2, "very short",
+                                                     paste0(prefix, " "))),
+           "short" = paste0(prefix, "Khoudraji copula, dim. d = ", dim(x),
+                            ", constructed from\n",
+                            prefix, describeCop(x@copula1, "very short",
+                                                paste0(prefix, " ")),
+                            "\n", ## "\nand\n",
+                            prefix, describeCop(x@copula2, "very short",
+                                                paste0(prefix, " "))),
+           "long" = paste0(prefix, "Khoudraji copula constructed from\n",
+                           prefix, describeCop(x@copula1, kind, paste0(prefix, " ")),
+                           "\n", ## "\nand\n",
+                           prefix, describeCop(x@copula2, kind, paste0(prefix, " "))))
 })
 
 ##################################################################################
