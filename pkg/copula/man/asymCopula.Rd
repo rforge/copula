@@ -83,7 +83,8 @@ contour(kc, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
 ## A Khoudraji-Clayton copula with second shape parameter fixed
 kcf <- khoudrajiCopula(copula2 = claytonCopula(6),
                        shapes = fixParam(c(0.4, 0.95), c(FALSE, TRUE)))
-validObject(kcf)
+kcf. <- setTheta(kcf, c(3, 0.2)) # (change *free* param's only)
+validObject(kcf) & validObject(kcf.)
 
 ## A "nested" Khoudraji bivariate copula
 kgkcf <- khoudrajiCopula(copula1 = gumbelCopula(3),

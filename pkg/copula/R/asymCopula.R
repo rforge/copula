@@ -148,22 +148,22 @@ setMethod("setTheta", "khoudrajiCopula",
         ## vectorized (and partial)  value <- NA_real_
         if(!is.double(value)) storage.mode(value) <- "double"
     }
-    n1 <- nParam(x@copula1, freeOnly=FALSE)
-    n2 <- nParam(x@copula2, freeOnly=FALSE)
-    ns <- length(x@shapes)
+    n1 <- nParam(x@copula1, freeOnly=TRUE)
+    n2 <- nParam(x@copula2, freeOnly=TRUE)
+    ns <- nFree(x@shapes)
     if (n1 + n2 + ns != length(value))
-        stop("the length of 'value' is not equal to the number of parameters")
+        stop("the length of 'value' is not equal to the number of free parameters")
     if (n1 > 0L) x@copula1 <- setTheta(x@copula1, value[1:n1],
                                        na.ok = na.ok, noCheck = noCheck, ...)
     if (n2 > 0L) x@copula2 <- setTheta(x@copula2, value[n1 + 1:n2],
                                        na.ok = na.ok, noCheck = noCheck, ...)
     valshapes <- value[n1 + n2 + 1:ns]
-    if(all(is.na(valshapes)) || noCheck || {
-        all(is.na(valshapes) | (0 <= valshapes & valshapes <= 1))
-    }) ## parameter constraints are fulfilled
+    if(all(ina.s <- is.na(valshapes)) || noCheck ||
+       all(ina.s | (0 <= valshapes & valshapes <= 1)))
+        ## parameter constraints are fulfilled
         x@shapes[seq_along(valshapes)] <- valshapes
     else
-        stop(gettextf("shapes (=%s) are not between 0 and 1",
+        stop(gettextf("some shapes (=%s) are not between 0 and 1",
                       format(valshapes)), domain=NA)
     x
 })
