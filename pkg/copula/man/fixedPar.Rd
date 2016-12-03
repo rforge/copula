@@ -43,6 +43,9 @@ fixedParam(copula) <- value
   \code{\link{fitCopula}} for fitting;
   t-copulas, \code{\link{tCopula}(*, df.fixed=TRUE)} now uses parameter
   fixing for \code{"df"}.
+
+  \code{\link{setTheta}()} for setting or \emph{changing} the
+  \emph{non-fixed} parameter values.
 }
 \examples{
 nc1 <- normalCopula(dim = 3, fixParam(c(.6,.3,.2), c(TRUE, FALSE,FALSE)),

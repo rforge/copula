@@ -84,16 +84,19 @@ er.nc
 stopifnot(abs(er.nc[["dCdu" ]]) < 0.004 ,
 	  abs(er.nc[["dCdth"]]) < 0.0008)
 
-
 ## A Khoudraji-normal-Clayton copula with fixed params
 kncf <- khoudrajiCopula(copula1 = normalCopula(fixParam(-0.7, TRUE)),
 			copula2 = claytonCopula(6),
 			shapes = fixParam(c(0.4, 0.95), c(FALSE, TRUE)))
 kncf
 
-## Test setTheta
-kncf2 <- setTheta(kncf, value = c(0.5, 4, 0.2, 0.8))
-kncf2
+## Test setTheta(): change the *non*-fixed parameters (only)
+(kncf2 <- setTheta(kncf, value = c(4, 0.2)))
+stopifnot(
+    all.equal(getTheta(kncf),  c(6, 0.4)),
+    all.equal(getTheta(kncf2), c(4, 0.2)),
+    all.equal(getTheta(kncf, freeOnly=FALSE), c(-0.7, 6, 0.4, 0.95)),
+    all.equal(getTheta(kncf2,freeOnly=FALSE), c(-0.7, 4, 0.2, 0.95)))
 
 ## True versus numerical derivatives
 er.ncf <- c(

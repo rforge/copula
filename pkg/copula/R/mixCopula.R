@@ -80,7 +80,7 @@ mixCopula <- function(coplist, w = NULL) {
             cdfL[[i]] <- do.call(substitute, list(cdfL[[i]], list(alpha = quote(param))))
             pdfL[[i]] <- do.call(substitute, list(pdfL[[i]], list(alpha = quote(param))))
             ## rename the parameters with a prefix of 'm<i>.'
-            oldParNames <- names(getParam(coplist[[i]], freeOnly=FALSE, named=TRUE))
+            oldParNames <- names(getTheta(coplist[[i]], freeOnly=FALSE, named=TRUE))
             npar <- length(oldParNames)
             if (npar > 0) {
                 prefix <- paste0("m", i, ".")
@@ -146,10 +146,10 @@ setMethod("paramNames", signature("mixCopula"), function(x) {
 })
 
 ## get parameters
-setMethod("getParam", "mixCopula",
+setMethod("getTheta", "mixCopula",
 function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
     d <- dim(copula)
-    parC <- lapply(copula@cops, getParam,
+    parC <- lapply(copula@cops, getTheta,
                    freeOnly=freeOnly, attr=attr, named=named)
     m <- length(w <- copula@w)
     wFree <- isFreeP(w)
@@ -202,7 +202,7 @@ function(copula, value) {
 
 ## set parameters
 setMethod("setTheta", "mixCopula",
-function(x, value, na.ok = TRUE, noCheck = FALSE, ...) {
+function(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, ...) {
     stopifnot(is.numeric(value) | (ina <- is.na(value)))
     if(any(ina)) {
         if(!na.ok) stop("NA value, but 'na.ok' is not TRUE")
@@ -238,7 +238,7 @@ function(x, value, na.ok = TRUE, noCheck = FALSE, ...) {
 setMethod("fixedParam<-", signature("mixCopula", "logical"),
 function(copula, value) {
     stopifnot(length(value) %in% c(1L, nParam(copula)))
-    if (anyNA(getParam(copula, freeOnly = FALSE)[value])) stop("Fixed parameters cannot be NA.")
+    if (anyNA(getTheta(copula, freeOnly = FALSE)[value])) stop("Fixed parameters cannot be NA.")
     cops <- copula@cops
     ic <- seq_along(cops) # "1:m"
     nj <- vapply(cops, nParam, 1, freeOnly=FALSE)

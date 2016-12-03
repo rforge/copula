@@ -175,8 +175,8 @@ cdfExpr2pdfExpr <- function(cdf, d) {
 
     colnames(u) <- paste0("u", 1:dim)
     u.df <- data.frame(u)
-    params <- getParam(copula, freeOnly = FALSE, named = TRUE)
-    
+    params <- getTheta(copula, freeOnly = FALSE, named = TRUE)
+
     target <- c(eval(attr(copula@exprdist, algoNm), c(u.df, params)))
     if(log) log(target) else target
 }

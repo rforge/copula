@@ -83,6 +83,8 @@ P <- c(r[2], r[1], r[1], r[1], # upper triangle (w/o diagonal) of corr.matrix
                    r[3], r[3],
                          r[3])
 assertError( setTheta(ec4, value = P) )
+validObject(ex4. <- setTheta(ec4, value = 0.8)) # set the only (non-fixed) parameter
+## TODO "check" getTheta(ex4., ...)
 ## rather need "un" dispersion: Now with smarter tCopula():
 (uc4 <- tCopula(dim=d, df=nu, disp = "un", df.fixed=FALSE))
 validObject(uc4p <- setTheta(uc4, value = c(P, df=nu)))
@@ -154,7 +156,7 @@ mvt.2.ne <- mvdc(copula = ct.2, margins = c("norm", "exp"),
 mvt.2.ne ## --> four free parameters in total: rho, mean, sd, and rate:
 
 if(FALSE) ## FIXME
-copula:::getParam(mvt.2.ne, attr = TRUE)
+copula:::getTheta(mvt.2.ne, attr = TRUE)
 
 ## simulate data and fit:
 set.seed(17); x.samp <- rMvdc(250, mvt.2.ne)
@@ -326,7 +328,7 @@ stopifnot(all.equal(xvR, 21.050569, tolerance = 1e-6))
 ## Now 'copula2 = indepCopula(..) gets 'dim = 3' from the first:
 kh.C <- khoudrajiCopula(claytonCopula(2.5, dim=3), shapes = (1:3)/4)
 kh.C
-copula:::getParam(kh.C, attr=TRUE) # bounds look good
+copula:::getTheta(kh.C, attr=TRUE) # bounds look good
 x3 <- cbind(x, x[,1]^2 + runif(nrow(x)))
 u3 <- pobs(x3)
 if(FALSE) # Error:  "non-finite finite-difference [3]"

@@ -56,7 +56,7 @@ nFree <- function(param) length(param[isFreeP(param)])
 ##' @return A numeric vector of parameters with attributes
 ##'         param.names, param.lowbnd, and param.upbnd.
 ##' @author Jun Yan and Martin Maechler
-setMethod("getParam", "copula",
+setMethod("getTheta", "copula",
           function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
     par <- copula@parameters
     if (length(par) == 0) return(par) ## no parameters (e.g., indepCopula)

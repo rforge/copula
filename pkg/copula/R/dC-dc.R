@@ -111,7 +111,7 @@ dCduExplicitCopula <- function(copula, u, ...) {
         }
     } else if (.hasSlot(copula, "exprdist") && is.language(cdf <- copula@exprdist$cdf)) {
         ## symbolic derivatives of explicit cdf expressions
-        params <- getParam(copula, freeOnly = FALSE, named = TRUE)
+        params <- getTheta(copula, freeOnly = FALSE, named = TRUE)
         colnames(u) <- unames <- paste0("u", 1:d)
         u.df <- data.frame(u)
         der <- deriv(cdf, unames)
@@ -293,7 +293,7 @@ dCdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-1), ..
         freeParam(copula) <- theta
         log(pCopula(u, copula))
     }
-    theta <- getParam(copula, attr=TRUE)
+    theta <- getTheta(copula, attr=TRUE)
     p <- length(theta)
     lb <- attr(theta, "param.lowbnd")
     ub <- attr(theta, "param.upbnd" )
@@ -305,7 +305,7 @@ dCdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-1), ..
 dCdthetaExplicitCopula <- function(copula, u, ...) {
     d <- dim(copula)
     algNm <- paste(class(copula)[1], "cdfDerWrtPar.algr", sep=".")
-    alpha <- getParam(copula) # typically used in 'eval(*)' below
+    alpha <- getTheta(copula) # typically used in 'eval(*)' below
     mat <- matrix(NA_real_, nrow(u), nParam(copula))
 
     if (exists(algNm)) {    ## JY: alpha is a scalar parameter
@@ -314,7 +314,7 @@ dCdthetaExplicitCopula <- function(copula, u, ...) {
         mat <- as.matrix(eval(der.cdf.alpha, data.frame(u)))
     } else if (.hasSlot(copula, "exprdist") && is.language(cdf <- copula@exprdist$cdf)) {
         ## symbolic derivatives of explicit cdf expressions
-        params <- getParam(copula, freeOnly = FALSE, named = TRUE)
+        params <- getTheta(copula, freeOnly = FALSE, named = TRUE)
         colnames(u) <- paste0("u", 1:d)
         u.df <- data.frame(u)
         der <- deriv(cdf, names(params)[isFree(copula)])
@@ -467,7 +467,7 @@ dlogcduExplicitCopula <- function(copula, u, ...) {
         }
     } else if (.hasSlot(copula, "exprdist") && is.language(pdf <- copula@exprdist$pdf)) {
         ## symbolic derivatives of explicit pdf expressions
-        params <- getParam(copula, freeOnly = FALSE, named = TRUE)
+        params <- getTheta(copula, freeOnly = FALSE, named = TRUE)
         colnames(u) <- unames <- paste0("u", 1:d)
         u.df <- data.frame(u)
         der <- deriv(pdf, unames)
@@ -530,7 +530,7 @@ dlogcdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-5),
         freeParam(copula) <- theta
         dCopula(u, copula, log = TRUE)
     }
-    theta <- getParam(copula, attr = TRUE)
+    theta <- getTheta(copula, attr = TRUE)
     p <- length(theta)
     lb <- attr(theta, "param.lowbnd")
     ub <- attr(theta, "param.upbnd" )
@@ -549,7 +549,7 @@ dlogcdthetaExplicitCopula <- function(copula, u, ...) {
         mat <- as.matrix(eval(der.pdf.alpha, data.frame(u))) / dCopula(u, copula)
     } else if (.hasSlot(copula, "exprdist") && is.language(pdf <- copula@exprdist$pdf)) {
         ## symbolic derivatives of explicit pdf expressions
-        params <- getParam(copula, freeOnly = FALSE, named = TRUE)
+        params <- getTheta(copula, freeOnly = FALSE, named = TRUE)
         colnames(u) <- paste0("u", 1:d)
         u.df <- data.frame(u)
         der <- deriv(pdf, names(params)[isFree(copula)])

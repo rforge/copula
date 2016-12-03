@@ -1289,19 +1289,15 @@ psiDabsMC <- function(t, family, theta, degree=1, n.MC,
 
 ### Non-numerics ###############################################################
 
-### setTheta() --- generic and all methods here ---------
-### ----------
-setGeneric("setTheta", function(x, value, ...) standardGeneric("setTheta"))
+setMethod("getTheta", "acopula",
+	  function(copula, freeOnly = TRUE, attr = FALSE, named = attr)
+              ## FIXME fixedPar not yet implemented for 'acopula'
+	      copula@theta)
 
-##' @title Setting the parameter in a copula
-##' @param x acopula
-##' @param value parameter value
-##' @param na.ok logical indicating if NA values are ok for theta
-##' @param noCheck logical indicating if parameter constraints should be checked
-##' @return acopula with theta set to value
-##' @author Martin Maechler
+### setTheta() --- "standard" and "acopula" related methods here ---------
+### ----------
 setMethod("setTheta", "acopula",
-	  function(x, value, na.ok = TRUE, noCheck = FALSE, ...)
+	  function(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, ...)
       {
 	  stopifnot(is.numeric(value) | (ina <- is.na(value)))
 	  if(ina) {
@@ -1315,8 +1311,8 @@ setMethod("setTheta", "acopula",
 	  x
       })
 setMethod("setTheta", signature(x="outer_nacopula", value="numeric"),
-	  function(x, value, na.ok = TRUE, noCheck = FALSE, ...) {
-	      x@copula <- setTheta(x@copula, value, na.ok=na.ok, noCheck=noCheck)
+	  function(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, ...) {
+	      x@copula <- setTheta(x@copula, value, na.ok=na.ok, noCheck=noCheck, freeOnly=freeOnly)
 	      x
 	  })
 
@@ -1327,7 +1323,7 @@ setMethod("setTheta", signature(x="outer_nacopula", value="numeric"),
 ##           })
 
 setMethod("setTheta", "copula",
-	  function(x, value, na.ok = TRUE, noCheck = FALSE, ...)
+	  function(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, ...)
       {
 	  stopifnot(is.numeric(value) | (ina <- is.na(value)))
 	  if(any(ina)) {
@@ -1356,7 +1352,7 @@ setMethod("setTheta", "copula",
 
 ## NB:  for tCopula(df.fixed = FALSE), value now is (rho,df)
 setMethod("setTheta", "ellipCopula",
-	  function(x, value, na.ok = TRUE, noCheck = FALSE, ...)
+	  function(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, ...)
       {
 	  stopifnot(is.numeric(value) | (ina <- is.na(value)))
 	  if(any(ina)) {
@@ -1379,11 +1375,6 @@ setMethod("setTheta", "ellipCopula",
 	  x
       })
 
-setMethod("setTheta", "xcopula", ## set parameter for  daughter copula
-	  function(x, value, ...) {
-	      x@copula <- setTheta(x@copula, value, ...)
-	      x
-	  })
 
 ##' Construct "paraConstr" function from an "interval"
 ##'

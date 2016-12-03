@@ -99,10 +99,10 @@ setMethod("paramNames", signature("khoudrajiCopula"), function(x) {
 })
 
 ## get parameters
-setMethod("getParam", signature("khoudrajiCopula"),
+setMethod("getTheta", signature("khoudrajiCopula"),
           function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
-    par1 <- getParam(copula@copula1, freeOnly = freeOnly, attr = attr, named = named)
-    par2 <- getParam(copula@copula2, freeOnly = freeOnly, attr = attr, named = named)
+    par1 <- getTheta(copula@copula1, freeOnly = freeOnly, attr = attr, named = named)
+    par2 <- getTheta(copula@copula2, freeOnly = freeOnly, attr = attr, named = named)
     fixed <- attr(copula@shapes, "fixed")
     d <- dim(copula)
     ns <- if (freeOnly) nFree(copula@shapes) else d
@@ -141,27 +141,30 @@ setMethod("freeParam<-", signature("khoudrajiCopula", "numeric"),
 
 ## set parameters
 setMethod("setTheta", "khoudrajiCopula",
-          function(x, value, na.ok = TRUE, noCheck = FALSE, ...) {
+          function(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly=TRUE, ...) {
     stopifnot(is.numeric(value) | (ina <- is.na(value)))
     if(any(ina)) {
         if(!na.ok) stop("NA value, but 'na.ok' is not TRUE")
         ## vectorized (and partial)  value <- NA_real_
         if(!is.double(value)) storage.mode(value) <- "double"
     }
-    n1 <- nParam(x@copula1, freeOnly=TRUE)
-    n2 <- nParam(x@copula2, freeOnly=TRUE)
-    ns <- nFree(x@shapes)
+    n1 <- nParam(x@copula1, freeOnly=freeOnly)
+    n2 <- nParam(x@copula2, freeOnly=freeOnly)
+    ns <- (if(freeOnly) nFree else length)(x@shapes)
     if (n1 + n2 + ns != length(value))
-        stop("the length of 'value' is not equal to the number of free parameters")
+        stop(if(freeOnly)
+                 "'length(value)' is not equal to the number of free parameters"
+             else
+                 "'length(value)' is not equal to the number of parameters")
     if (n1 > 0L) x@copula1 <- setTheta(x@copula1, value[1:n1],
-                                       na.ok = na.ok, noCheck = noCheck, ...)
+                                       na.ok = na.ok, noCheck = noCheck, freeOnly = freeOnly, ...)
     if (n2 > 0L) x@copula2 <- setTheta(x@copula2, value[n1 + 1:n2],
-                                       na.ok = na.ok, noCheck = noCheck, ...)
+                                       na.ok = na.ok, noCheck = noCheck, freeOnly = freeOnly, ...)
     valshapes <- value[n1 + n2 + 1:ns]
     if(all(ina.s <- is.na(valshapes)) || noCheck ||
        all(ina.s | (0 <= valshapes & valshapes <= 1)))
         ## parameter constraints are fulfilled
-        x@shapes[seq_along(valshapes)] <- valshapes
+        x@shapes[if(freeOnly) isFreeP(x@shapes) else seq_along(valshapes)] <- valshapes
     else
         stop(gettextf("some shapes (=%s) are not between 0 and 1",
                       format(valshapes)), domain=NA)
@@ -175,7 +178,7 @@ function(copula, value) {
     ## JY: seems not needed?
     ## if (identical(value, FALSE) || !any(value))
     ##    copula
-    if (anyNA(getParam(copula, freeOnly = FALSE)[value])) stop("Fixed parameters cannot be NA.")
+    if (anyNA(getTheta(copula, freeOnly = FALSE)[value])) stop("Fixed parameters cannot be NA.")
     n1 <- nParam(copula@copula1)
     n2 <- nParam(copula@copula2)
     if (identical(value, FALSE) || !any(value)) {
@@ -295,7 +298,7 @@ prepKhoudrajiCdfExpr <- function(copula, prefix, om = FALSE) {
     cdf <- copula@exprdist$cdf
     ## originally, explicit copula expressions have alpha as parameter
     cdf <- do.call(substitute, list(cdf, list(alpha = quote(param))))
-    oldParNames <- names(getParam(copula, freeOnly=FALSE, named=TRUE)) # paramNames(copula)
+    oldParNames <- names(getTheta(copula, freeOnly=FALSE, named=TRUE)) # paramNames(copula)
     npar <- length(oldParNames)
     ## replace parameters
     if (npar > 0) {

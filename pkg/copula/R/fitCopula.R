@@ -120,7 +120,7 @@ fitCor <- function(cop, x, method = c("itau", "irho"),
 ##' @return Log-likelihood of the given copula at param given the data x
 loglikCopula <- function(param, u, copula) {
     freeParam(copula) <- param
-    cop.param <- getParam(copula, freeOnly = TRUE, attr = TRUE)
+    cop.param <- getTheta(copula, freeOnly = TRUE, attr = TRUE)
     lower <- attr(cop.param, "param.lowbnd")
     upper <- attr(cop.param, "param.upbnd")
     admissible <- !(any(is.na(cop.param) | cop.param > upper | cop.param < lower))
@@ -136,7 +136,7 @@ loglikCopula <- function(param, u, copula) {
 ##' @param default The default initial values
 ##' @param ... Additional arguments passed to fitCopula.icor()
 ##' @return Initial value for fitCopula.ml()
-fitCopStart <- function(copula, u, default = getParam(copula), ...)
+fitCopStart <- function(copula, u, default = getTheta(copula), ...)
 {
     clc <- class(copula)
     ## start <-
@@ -559,7 +559,7 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
 		x[nifi] <- sign(x[nifi]) * finiteLARGE
 	    x
 	}
-        cop.param <- getParam(copula, freeOnly = TRUE, attr = TRUE)
+        cop.param <- getTheta(copula, freeOnly = TRUE, attr = TRUE)
         p.lowbnd <- attr(cop.param, "param.lowbnd")
         p.upbnd  <- attr(cop.param, "param.upbnd")
     }

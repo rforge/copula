@@ -19,9 +19,9 @@ printCopula <- function(x, digits = getOption("digits"), ...) {
   validObject(x)
   cat(describeCop(x, kind="very short"), "\n")
   cat("Dimension: ", (d <- dim(x)), "\n")
-  if (length(par <- getParam(x, freeOnly=FALSE, attr = TRUE)) > 0) {
+  if (length(par <- getTheta(x, freeOnly=FALSE, attr = TRUE)) > 0) {
     ## hasFx <- !is.null(.fixed <- attr(par, "fixed")) && any(.fixed)
-    ## JY: no attribute "fixed" is available from getParam
+    ## JY: no attribute "fixed" is available from getTheta
     .fixed <- !isFree(x); hasFx <- any(.fixed)
     hasFx <- any(!isFree(x))
     cat(sprintf("Parameters%s:\n",

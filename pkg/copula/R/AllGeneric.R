@@ -25,12 +25,37 @@ setGeneric("gofCopula", function(copula, x, ...) standardGeneric("gofCopula"))
 setGeneric("paramNames", function(x) standardGeneric("paramNames"))
 setMethod("paramNames", "xcopula", function(x) paramNames(x@copula))
 
+##' @title Setting the parameter in a copula/Copula
+##' @param x (general) copula
+##' @param value parameter value
+##' @param na.ok logical indicating if NA values are ok for theta
+##' @param noCheck logical indicating if parameter constraints should be checked
+##' @return a copula of the same class as \code{x} with theta set to \code{value}
+##' @author Martin Maechler
+setGeneric("setTheta", function(x, value,
+                                na.ok = TRUE, noCheck = FALSE, freeOnly=TRUE, ...)
+    standardGeneric("setTheta"), signature = c("x", "value"))
+
+setMethod("setTheta", "xcopula", ## set parameter for  daughter copula
+	  function(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly=TRUE, ...) {
+	      x@copula <- setTheta(x@copula, value, na.ok=na.ok, noCheck=noCheck,
+                                   freeOnly=freeOnly, ...)
+	      x
+	  })
+
+
 ## get parameters
-setGeneric("getParam", function(copula, freeOnly = TRUE, attr = FALSE, named = attr)
-    standardGeneric("getParam"), signature = "copula")
-## assign free parameters
+setGeneric("getTheta", function(copula, freeOnly = TRUE, attr = FALSE, named = attr)
+    standardGeneric("getTheta"), signature = "copula")
+setMethod("getTheta", "xcopula", ## from  daughter copula
+	  function(copula, freeOnly = TRUE, attr = FALSE, named = attr)
+	      getTheta(copula@copula, freeOnly=freeOnly, attr=attr, named=named))
+
+
+## assign free parameter *value*s:
+## __NOT_exported__ <= "inconsistent" with 'fixedParam<-'
 setGeneric("freeParam<-", function(copula, value) standardGeneric("freeParam<-"))
-## set or modify "fixedness" of parameters
+## set or modify "fixedness" of parameters (TRUE/FALSE) __exported__
 setGeneric("fixedParam<-", function(copula, value) standardGeneric("fixedParam<-"))
 ## logical vector indicating which parameters are free
 setGeneric("isFree", function(copula) standardGeneric("isFree"))

@@ -64,7 +64,7 @@ setMethod(describeCop, c("ellipCopula", "character"), function(x, kind, prefix="
     ch <- paste(prefix, cl, " copula, dim. d =", d)
     switch(kind <- match.arg(kind),
 	   short = ch,
-	   long = paste0(ch, "\n", prefix, "param.: ", dputNamed(getParam(x, named=TRUE))),
+	   long = paste0(ch, "\n", prefix, "param.: ", dputNamed(getTheta(x, named=TRUE))),
 	   stop("invalid 'kind': ", kind))
 })
 

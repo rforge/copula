@@ -229,7 +229,7 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
 	      list(method = paste0(.gofTstr("Parametric", copula),
 				   sprintf(", with 'method'=\"%s\", 'estim.method'=\"%s\"%s:",
 					   method, estim.method, tr.string)),
-                   parameter = c(parameter = getParam(C.th.n)),
+                   parameter = c(parameter = getTheta(C.th.n)),
                    statistic = c(statistic = T),
                    p.value = (sum(T0 >= T) + 0.5) / (N + 1), # typical correction => p-values in (0, 1)
                    data.name = deparse(substitute(x))))
@@ -432,7 +432,7 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
 	      list(method = paste0(.gofTstr("Multiplier", copula),
 				   sprintf(", with 'method'=\"%s\", 'estim.method'=\"%s\":",
 					  method, estim.method)),
-                   parameter = c(parameter = getParam(C.th.n)),
+                   parameter = c(parameter = getTheta(C.th.n)),
                    statistic = c(statistic = T),
                    p.value = (sum(T0 >= T) + 0.5) / (N + 1), # typical correction =>  p-values in (0, 1)
                    data.name = deparse(substitute(x))))

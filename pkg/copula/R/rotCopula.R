@@ -38,7 +38,7 @@ setClass("rotExplicitCopula", contains = "rotCopula",
          ##     else "The copula is not an explicit copula."
          ## }
          )
-         
+
 
 
 ##' @title Rotated Copulas Created from an Existing Copula and a Mask of Logicals
@@ -49,14 +49,14 @@ setClass("rotExplicitCopula", contains = "rotCopula",
 ##' @return a new "rotCopula" object; see above
 ##' @author Ivan Kojadinovic (and Martin Maechler)
 rotCopula <- function(copula, flip = TRUE) {
-    if (isExplicit(copula)) 
+    if (isExplicit(copula))
         rotExplicitCopula(copula, flip)
     else {
         if (inherits(copula, "rotCopula")) {
             copula@flip <- copula@flip != flip
             copula
         } else
-            new("rotCopula", copula = copula, flip = flip)   
+            new("rotCopula", copula = copula, flip = flip)
     }
 }
 
@@ -72,8 +72,8 @@ rotExplicitCopula <- function(copula, flip = TRUE) {
     stopifnot(isExplicit(copula))
     d <- dim(copula)
     if (length(flip) == 1) flip <- rep(flip, d)
-   
-    ## preparation for cdf    
+
+    ## preparation for cdf
     cdf <- copula@exprdist$cdf
     cdf <- do.call(substitute, list(cdf, list(alpha = quote(param))))
     ## TODO: if (inherits(copula, "rotExplicitCopula")) then ...
@@ -115,12 +115,12 @@ rotExplicitCopula <- function(copula, flip = TRUE) {
     cdf <- as.expression(rotCdf)
     cdf.algr <- deriv(cdf, "nothing")
 
-    ## preparation for pdf 
+    ## preparation for pdf
     ## if (inherits(copula, "rotExplicitCopula")) {
     ##     u <- paste0("u", 1L:d)
     ##     omu <- paste0("1 - u", 1L:d) ## one minus u
     ##     oldu <- ifelse( copula@flip, omu, u)[flip]
-    ##     newu <- ifelse(!copula@flip, u, omu)[flip]            
+    ##     newu <- ifelse(!copula@flip, u, omu)[flip]
     ## } else {
     ## }
     pdf <- copula@exprdist$pdf
@@ -130,7 +130,7 @@ rotExplicitCopula <- function(copula, flip = TRUE) {
 
     exprdist <- c(cdf = cdf, pdf = pdf)
     attr(exprdist, "cdfalgr") <- cdf.algr
-    attr(exprdist, "pdfalgr") <- pdf.algr            
+    attr(exprdist, "pdfalgr") <- pdf.algr
     new("rotExplicitCopula", copula = copula, flip = flip,
         exprdist = exprdist)
 }
@@ -147,9 +147,9 @@ rotExplicitCopula <- function(copula, flip = TRUE) {
 setMethod("paramNames", signature("rotCopula"), function(x) paramNames(x@copula))
 
 ## get parameters
-setMethod("getParam", signature("rotCopula"),
+setMethod("getTheta", signature("rotCopula"),
 	  function(copula, freeOnly = TRUE, attr = FALSE, named = attr)
-	      getParam(copula@copula, freeOnly=freeOnly, attr=attr, named=named))
+	      getTheta(copula@copula, freeOnly=freeOnly, attr=attr, named=named))
 
 ## set free parameters
 setMethod("freeParam<-", signature("rotCopula", "numeric"),

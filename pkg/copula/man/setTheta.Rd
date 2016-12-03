@@ -20,23 +20,28 @@
 }
 \usage{
 setTheta(x, value, \dots)
-\S4method{setTheta}{acopula,ANY}(x, value, na.ok = TRUE, noCheck = FALSE, \dots)
-\S4method{setTheta}{copula, ANY}(x, value, na.ok = TRUE, noCheck = FALSE, \dots)
-\S4method{setTheta}{xcopula,ANY}(x, value, \dots)
-\S4method{setTheta}{outer_nacopula,numeric}(x, value, na.ok = TRUE, noCheck = FALSE, \dots)
-\S4method{setTheta}{khoudrajiCopula,ANY}(x, value, na.ok = TRUE, noCheck = FALSE, \dots)
-\S4method{setTheta}{mixCopula,ANY}(x, value, na.ok = TRUE, noCheck = FALSE, \dots)
+\S4method{setTheta}{acopula,ANY}(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, \dots)
+\S4method{setTheta}{copula, ANY}(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, \dots)
+\S4method{setTheta}{xcopula,ANY}(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, \dots)
+\S4method{setTheta}{outer_nacopula,numeric}(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, \dots)
+\S4method{setTheta}{khoudrajiCopula,ANY}(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, \dots)
+\S4method{setTheta}{mixCopula,ANY}(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, \dots)
 }
 \arguments{
   \item{x}{an \R object of class \code{\linkS4class{Copula}}, i.e., any
     copula from package \pkg{copula}.}
   \item{value}{parameter value or vector, \code{\link{numeric}} or
-    \code{\link{NA}} (when \code{na.ok} is true.)}
+    \code{\link{NA}} (when \code{na.ok} is true), corresponding to the
+    \emph{\dQuote{free}} parameters.}
   \item{\dots}{further arguments for methods.}
   \item{na.ok}{logical indicating if \code{\link{NA}} values are ok for
     \code{theta}.}
   \item{noCheck}{logical indicating if parameter constraint checks should
     be skipped.}
+  \item{freeOnly}{logical indicating that only non-fixed aka
+    \dQuote{free} parameters are to be set.  If true as by default,
+    \code{setTheta()} modifies only the free parameters of the copula;
+    see also \code{\link{fixParam}}.}
 }
 \value{
   an \R object of the same class as \code{x}, with the main parameter (vector)
@@ -44,10 +49,8 @@ setTheta(x, value, \dots)
 %% FIXME: be more explicit about outer_nacopula  case
 }
 \seealso{
-  the \dQuote{inverse} function, a \dQuote{getter} method, is currently
-  called \code{getParam()} but not yet exported.
-% notably because we should be sure we like the *name*
-% --> "getTheta" in ../TODO
+  the \dQuote{inverse} function, a \dQuote{getter} method, is
+  \code{\link{getTheta}()}.
 }
 %\author{Martin Maechler}
 \examples{
