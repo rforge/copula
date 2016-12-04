@@ -325,6 +325,15 @@ dCdthetaExplicitCopula <- function(copula, u, ...) {
                 class(copula), "'")
         ## matrix(NA_real_, nrow(u), length(alpha)) # copula@parameters))
     }
+    ## JY: For some rotated explicit copula, dCdtheta returns NA:
+    ## copula:::dCdtheta(khoudrajiCopula(indepCopula(), rotCopula(gumbelCopula(2)), shapes = c(.4, .95)), as.matrix(expand.grid(1:4/5, 1:4/5)))
+    ## In this case, fall back on the numerical version
+    col.na <- apply(mat, 2, function(x) any(is.na(x)))
+    if (any(col.na)) {
+        warning("dCdtheta() returned NaN in column(s) ", (1:ncol(mat))[col.na], " for this explicit copula; falling back to numeric derivative for those columns")
+        mat.num <- dCdthetaCopulaNum(copula, u, ...)
+        mat[,col.na] <- mat.num[,col.na]
+    }
     mat
 }
 
@@ -559,6 +568,15 @@ dlogcdthetaExplicitCopula <- function(copula, u, ...) {
     } else {
         warning("Function dlogcdtheta() not implemented for copulas of class '",
                 class(copula), "'")
+    }
+    ## JY: For some rotated explicit copula, dCdtheta returns NA:
+    ## copula:::dlogcdtheta(khoudrajiCopula(indepCopula(), rotCopula(gumbelCopula(2)), shapes = c(.4, .95)), as.matrix(expand.grid(1:4/5, 1:4/5)))
+    ## In this case, fall back on the numerical version
+    col.na <- apply(mat, 2, function(x) any(is.na(x)))
+    if (any(col.na)) {
+        warning("dlogcdtheta() returned NaN in column(s) ", (1:ncol(mat))[col.na], " for this explicit copula; falling back to numeric derivative for those columns")
+        mat.num <- dlogcdthetaCopulaNum(copula, u, ...)
+        mat[,col.na] <- mat.num[,col.na]
     }
     mat
 }
