@@ -172,7 +172,7 @@ function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
     }
 })
 
-## set free parameters
+## set free parameters [hidden, must be fast for loglikCopula <= fitCopula.ml]:
 setMethod("freeParam<-", signature("mixCopula", "numeric"),
 function(copula, value) {
     cops <- copula@cops
@@ -210,7 +210,7 @@ function(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, ...) {
     }
     cops <- x@cops
     m <- length(cops)
-    nj <- vapply(cops, nParam, 1, freeOnly=FALSE)
+    nj <- vapply(cops, nParam, 1, freeOnly=freeOnly)
     ## FIXME re-parametrize a la nor1mix::nM2par / .par2nM
     ## ----- i.e. value would only contain  qlogis(w[-1])  !!
     nw <- length(iF.w <- isFreeP(w <- x@w))

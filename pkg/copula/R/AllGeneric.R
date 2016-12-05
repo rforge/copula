@@ -22,6 +22,7 @@ setGeneric("fitCopula", function(copula, data, ...) standardGeneric("fitCopula")
 
 setGeneric("gofCopula", function(copula, x, ...) standardGeneric("gofCopula"))
 
+## parameter names of _free_ parameters:
 setGeneric("paramNames", function(x) standardGeneric("paramNames"))
 setMethod("paramNames", "xcopula", function(x) paramNames(x@copula))
 

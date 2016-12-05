@@ -1362,6 +1362,14 @@ setMethod("setTheta", "ellipCopula",
 	  }
           df.f <- if(is(x, "tCopula")) x@df.fixed else TRUE
           p <- npar.ellip(x@dimension, dispstr = x@dispstr, df.fixed = df.f)
+          fixed <- attr(x@parameters, "fixed")
+          if(freeOnly && !is.null(fixed) && any(fixed) &&
+	     ## fixed par.s apart from possibly 'df' via 'df.fixed':
+	     !(sum(fixed) == 1L && which(fixed) == length(fixed))) {
+### FIXME; not really hard (see 'fixedPar<-' in ./fixedPar.R )
+      stop("setTheta(<ellipCop>, freeOnly=TRUE) not yet implemented for partially fixed par")
+
+          }
           if(length(value) != p)
               stop(gettextf("'length(value)' must be %d for this elliptical copula (dim=%d, dispstr=\"%s\")",
                             p, x@dimension, x@dispstr), domain=NA)

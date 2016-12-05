@@ -130,12 +130,12 @@ loglikCopula <- function(param, u, copula) {
     } else -Inf
 }
 
-##' @title Computing Initial Values for fitCopula.ml()
+##' @title Computing Initial Parameter Values for fitCopula.ml()
 ##' @param copula The copula to be fitted
 ##' @param u The data in [0,1]^d
 ##' @param default The default initial values
 ##' @param ... Additional arguments passed to fitCopula.icor()
-##' @return Initial value for fitCopula.ml()
+##' @return Initial parameter value for fitCopula.ml()
 fitCopStart <- function(copula, u, default = getTheta(copula), ...)
 {
     clc <- class(copula)
@@ -148,7 +148,8 @@ fitCopStart <- function(copula, u, default = getTheta(copula), ...)
                                 warn.df=FALSE, ...)@estimate # fitCopula.icor(, method="itau")
 	if(.par.df) # add starting value for 'df'
 	    start <- c(start, getdf(copula))
-	if(is.finite(loglikCopula(start, u=u, copula=copula))) start
+	if(is.finite(loglikCopula(start, u=u, copula=copula)))
+            start
         else {
             if (is(copula, "claytonCopula") && dim(copula) == 2) {
                 ## The support of bivariate claytonCopula with negative parameter is not
@@ -158,8 +159,9 @@ fitCopStart <- function(copula, u, default = getTheta(copula), ...)
                     if (is.finite(loglikCopula(start, u=u, copula=copula))) break
                 }
                 start
-            } else
-            default
+            }
+            else
+                default
         }
     } else default
 }
@@ -526,7 +528,7 @@ fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
 fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
                          optim.method, optim.control, estimate.variance,
                          bound.eps=.Machine$double.eps^0.5, call, traceOpt = FALSE,
-			 need.finite = any(optim.method == c("Brent", "L-BFGS-B")),
+			 need.finite = any(optim.method == c("Brent", "L-BFGS-B", "BFGS")),
 			 finiteLARGE = .Machine$double.xmax,
 			 ...)
 {
@@ -553,12 +555,15 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
     control <- c(as.list(optim.control), fnscale = -1) # fnscale < 0 => maximization
     ## unneeded, possibly wrong (why not keep a 'special = NULL' ?):
     ## control <- control[!vapply(control, is.null, NA)]
-    if((meth.has.bounds <- optim.method %in% c("Brent","L-BFGS-B"))) {
+    meth.has.bounds <- optim.method %in% c("Brent","L-BFGS-B")
+    if(meth.has.bounds || need.finite)
 	asFinite <- function(x) { # as finite - vectorized in 'x';  NA/NaN basically unchanged
 	    if(any(nifi <- !is.finite(x)))
 		x[nifi] <- sign(x[nifi]) * finiteLARGE
 	    x
 	}
+
+    if(meth.has.bounds) {
         cop.param <- getTheta(copula, freeOnly = TRUE, attr = TRUE)
         p.lowbnd <- attr(cop.param, "param.lowbnd")
         p.upbnd  <- attr(cop.param, "param.upbnd")
@@ -581,7 +586,9 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
 	    }
             if(need.finite) {
                 nb <- length(body(LL))
-                body(LL)[[nb]] <- do.call(substitute, list(body(LL)[[nb]], list(r = quote(asFinite(r)))))
+                body(LL)[[nb]] <- do.call(substitute,
+                                          list(body(LL)[[nb]],
+                                               list(r = quote(asFinite(r)))))
             }
             LL
 	} else if(need.finite) {

@@ -78,7 +78,8 @@ setMethod("getTheta", "copula",
 })
 
 ## "FIXME": have the exported *generic* function  setTheta() (for years)
-##  -----   whereas this is currently hidden :
+##  ----- where this is hidden - but used in logLikCopula() <- fitCopula.ml()
+## ==> this should be as fast as possible; setTheta() user-friendly
 ##' @title Set or Modify Values of the Free Parameters of a Copula
 ##' @param copula a copula object
 ##' @param value a numeric vector to be set for the parameters

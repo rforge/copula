@@ -331,11 +331,10 @@ vcov.fittedMV <- function(object, ...) {
 }
 
 logLik.fittedMV <- function(object, ...) {
-    val <- object@loglik
-    attr(val, "nobs") <- object@nsample
-    attr(val, "df") <- length(object@estimate)
-    class(val) <- "logLik"
-    val
+    structure(object@loglik,
+	      nobs = object@nsample,
+	      df = length(object@estimate), # == #{free param.}
+	      class = "logLik")
 }
 
 

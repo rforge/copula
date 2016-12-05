@@ -40,7 +40,7 @@ lowbnd.rho.ellip <- function(dim, dispstr, pdim = npar.ellip(dim, dispstr)) {
 	   "ar1"= rep( -1, pdim),
 	   ## These bounds are not at all tight, but not simple box-constraints anyway:
 	   "un" = ,
-	   "toep" = rep(-1, pdim),#
+	   "toep" = rep(-1, pdim),# -> ~/R/MM/NUMERICS/toeplitz-posdef.R for some bounds
 	   ## otherwise
 	   return("'dispstr' not supported (yet)"))
 }

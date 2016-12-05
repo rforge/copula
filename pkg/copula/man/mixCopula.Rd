@@ -35,7 +35,7 @@ mixCopula(coplist, w = NULL)
  \code{\link{khoudrajiCopula}}, \code{\link{rotCopula}} also create new
  copula models from existing ones.
 }
-\examples{
+\examples{%% FIXME: need ../tests/ !   validObject(mC) ..
 mC <- mixCopula(list(gumbelCopula(2.5, dim=3),
                      claytonCopula(pi, dim=3),
                      tCopula(0.7, dim=3)),
@@ -73,18 +73,8 @@ if (Xtras) {
   lines(df., ll.df(df., rho = 0.77), type = "b", col="dark green")
 }
 
-optCtrl <- list(maxit = 1000, trace = TRUE)
-if (Xtras) { # slowish
-  st1 <- system.time(
-	   ff <- fitCopula(mC, uM, optim.method = "Nelder-Mead", optim.control=optCtrl))
-  print(st1)
-  str(ff) ## FIXME summary(ff)
+## TODO: fitCopula() example with "fixed weights"
 
-  st2 <- system.time(
-	   f2 <- fitCopula(mC, uM, optim.method = "L-BFGS-B",    optim.control=optCtrl))
-  print(st2)
-  str(f2) # FIXME summary(f2)
-}
 
 }% {examples}
 \keyword{distribution}

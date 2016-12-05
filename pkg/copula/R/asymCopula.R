@@ -93,8 +93,8 @@ setMethod("nParam", signature("khoudrajiCopula"), function(copula, freeOnly=FALS
 
 ## parameter names for freeOnly parameters
 setMethod("paramNames", signature("khoudrajiCopula"), function(x) {
-    c(if (nParam(x@copula1, freeOnly=TRUE) > 0L) paste0("c1.", paramNames(x@copula1)) else NULL,
-      if (nParam(x@copula2, freeOnly=TRUE) > 0L) paste0("c2.", paramNames(x@copula2)) else NULL,
+    c(if(nParam(x@copula1, freeOnly=TRUE) > 0L) paste0("c1.", paramNames(x@copula1)),
+      if(nParam(x@copula2, freeOnly=TRUE) > 0L) paste0("c2.", paramNames(x@copula2)),
       paste0("shape", 1L:dim(x))[isFreeP(x@shapes)])
 })
 
