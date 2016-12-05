@@ -1,4 +1,4 @@
-## Copyright (C) 2012-2017 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
+## Copyright (C) 2016 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -16,6 +16,7 @@
 ## Khoudraji Copula
 
 library(copula)
+isExplicit <- copula:::isExplicit
 (doExtras <- copula:::doExtras())
 
 ## if(!dev.interactive(orNone=TRUE)) pdf("khoudraji-ex.pdf")
@@ -26,11 +27,13 @@ library(copula)
 kcf <- khoudrajiCopula(copula2 = claytonCopula(6),
                        shapes = fixParam(c(0.4, 0.95), c(FALSE, TRUE)))
 kcf
-getTheta(kcf, freeOnly = FALSE, named = TRUE)
-getTheta(kcf, named = TRUE)
+stopifnot(
+    all.equal(getTheta(kcf, freeOnly = FALSE, named = TRUE) -> th.,
+              c(c2.param = 6, shape1 = 0.4, shape2 = 0.95)),
+    identical(getTheta(kcf, named = TRUE), th.[1:2]))
 
 ## kcf@exprdist$cdf
-stopifnot(copula:::isExplicit(kcf))
+stopifnot(isExplicit(kcf))
 
 set.seed(123)
 u <- rCopula(20, kcf)
@@ -44,7 +47,7 @@ max(abs(dCopula(u, kcf) - copula:::dKhoudrajiBivCopula(u, kcf)))
 k_kcf_g <- khoudrajiCopula(kcf, gumbelCopula(2),
                            shapes = fixParam(c(.2, .9), c(TRUE, TRUE)))
 k_kcf_g
-copula:::isExplicit(k_kcf_g)
+stopifnot(isExplicit(k_kcf_g))
 getTheta(k_kcf_g, freeOnly = FALSE, named = TRUE)
 getTheta(k_kcf_g, named = TRUE)
 
@@ -65,10 +68,12 @@ max(abs(dCopula(u, k_kcf_g) / c(kde$z) - 1)) ## relative difference < 0.13
 ## one more nesting: kcf and k_kcf_g
 monster <- khoudrajiCopula(kcf, k_kcf_g,
                            shapes = fixParam(c(.9, .1), c(TRUE, FALSE)))
-monster
-copula:::isExplicit(monster)
-getTheta(monster, freeOnly = FALSE, named = TRUE)
-getTheta(monster, named = TRUE)
+monster; validObject(monster)
+stopifnot(isExplicit(monster))
+
+(th.mA <- getTheta(monster, freeOnly = FALSE, named = TRUE))
+(th.m <- getTheta(monster, named = TRUE))
+stopifnot(identical(th.m, th.mA[copula:::isFree(monster)]))
 
 set.seed(488)
 U <- rCopula(100000, monster)
@@ -84,8 +89,8 @@ kcd3 <- khoudrajiCopula(copula1 = indepCopula(dim=3),
                         copula2 = claytonCopula(6, dim=3),
                         shapes = c(0.4, 0.95, 0.95))
 kcd3
-copula:::isExplicit(kcd3)
-class(kcd3) ## "khoudrajiExplicitCopula"
+stopifnot(isExplicit(kcd3),
+          inherits(kcd3, "khoudrajiExplicitCopula"))
 
 set.seed(1712)
 U <- rCopula(100000, kcd3)
@@ -117,7 +122,7 @@ kcgcd3
 u <- rCopula(10, kcgcd3)
 dCopula(u, kcgcd3)
 
-## dCdu 
+## dCdu
 all.equal(copula:::dCdu(kcgcd3, u), copula:::dCduCopulaNum(kcgcd3, u))
 ## dCdtheta
 all.equal(copula:::dCdtheta(kcgcd3, u), copula:::dCdthetaCopulaNum(kcgcd3, u))
