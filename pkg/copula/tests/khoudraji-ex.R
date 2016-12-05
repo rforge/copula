@@ -16,6 +16,9 @@
 ## Khoudraji Copula
 
 library(copula)
+(doExtras <- copula:::doExtras())
+
+## if(!dev.interactive(orNone=TRUE)) pdf("khoudraji-ex.pdf")
 
 ################################################################################
 ## An explicit Khoudraji copula constructed from claytonCopula and indepCoula
@@ -41,7 +44,7 @@ max(abs(dCopula(u, kcf) - copula:::dKhoudrajiBivCopula(u, kcf)))
 k_kcf_g <- khoudrajiCopula(kcf, gumbelCopula(2),
                            shapes = fixParam(c(.2, .9), c(TRUE, TRUE)))
 k_kcf_g
-isExplicit(k_kcf_g)
+copula:::isExplicit(k_kcf_g)
 getTheta(k_kcf_g, freeOnly = FALSE, named = TRUE)
 getTheta(k_kcf_g, named = TRUE)
 
@@ -63,7 +66,7 @@ max(abs(dCopula(u, k_kcf_g) / c(kde$z) - 1)) ## relative difference < 0.13
 monster <- khoudrajiCopula(kcf, k_kcf_g,
                            shapes = fixParam(c(.9, .1), c(TRUE, FALSE)))
 monster
-isExplicit(monster)
+copula:::isExplicit(monster)
 getTheta(monster, freeOnly = FALSE, named = TRUE)
 getTheta(monster, named = TRUE)
 
@@ -81,7 +84,7 @@ kcd3 <- khoudrajiCopula(copula1 = indepCopula(dim=3),
                         copula2 = claytonCopula(6, dim=3),
                         shapes = c(0.4, 0.95, 0.95))
 kcd3
-isExplicit(kcd3)
+copula:::isExplicit(kcd3)
 class(kcd3) ## "khoudrajiExplicitCopula"
 
 set.seed(1712)
@@ -127,8 +130,8 @@ all.equal(copula:::dlogcdtheta(kcgcd3, u), copula:::dlogcdthetaCopulaNum(kcgcd3,
 ## fitting checking
 
 do1 <- function(n, cop) {
-    U <- rCopula(n, cop)
-    fit <- try(fitCopula(cop, U))
+    U <- pobs(rCopula(n, cop))
+    fit <- try(fitCopula(cop, U, method = "mpl"))
     p <- copula:::nParam(cop, freeOnly=TRUE)
     if (inherits(fit, "try-error")) rep(NA_real_, 2 * p)
     else c(coef(fit), sqrt(diag(vcov(fit))))
@@ -141,10 +144,13 @@ sumsim <- function(sim) {
     data.frame(estimate = mm[1:p], ese = ss[1:p], ase = mm[p + 1:p])
 }
 
-set.seed(123)
-nrep <- 50
-n <- 1000
+if (doExtras) {
+    set.seed(123)
+    nrep <- 50
+    n <- 1000
 
-sim <- replicate(nrep, do1(n, kcg))
-sumsim(sim)
-cbind(true = getTheta(kcg), sumsim(sim)) ## the average se is greater than empirical; need more digging
+    sim <- replicate(nrep, do1(n, kcg))
+    sumsim(sim)
+    cbind(true = getTheta(kcg), sumsim(sim))
+    ## the average se is greater than empirical for the shape parameters; need more investigation
+}
