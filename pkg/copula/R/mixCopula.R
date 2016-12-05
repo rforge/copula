@@ -138,11 +138,10 @@ setMethod("paramNames", signature("mixCopula"), function(x) {
     m <- length(cops)
     nj <- vapply(cops, nParam, 1, freeOnly=TRUE)
     ic <- seq_along(cops)# 1:m
-    c(vapply(ic,
+    c(unlist(lapply(ic,
              function(i) if(nj[i] > 0L)
-                             paste0("m", i, ".", paramNames(cops[[i]])) else "",
-             "<name>"),
-      paste0("p", ic)[isFreeP(x@w)])
+                             paste0("m", i, ".", paramNames(cops[[i]])))),
+      paste0("w", ic)[isFreeP(x@w)])
 })
 
 ## get parameters
@@ -151,14 +150,14 @@ function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
     d <- dim(copula)
     parC <- lapply(copula@cops, getTheta,
                    freeOnly=freeOnly, attr=attr, named=named)
-    m <- length(w <- copula@w)
+    w <- copula@w
     wFree <- isFreeP(w)
     if(freeOnly) w <- w[wFree]
     if(named) {
         ic <- seq_along(w)
         for(i in ic[lengths(parC) > 0])
             names(parC[[i]]) <- paste0("m", i, ".", names(parC[[i]]))
-        attr(w, "names") <- if(freeOnly) paste0("p", ic)[wFree] else paste0("p", ic)
+        attr(w, "names") <- paste0("w", ic)[if(freeOnly) wFree else TRUE]
     }
     ## FIXME re-parametrize 'w' a la nor1mix:: (??)
     if(attr) { # more structured result
@@ -250,16 +249,15 @@ function(copula, value) {
         for(j in ic)
             if (nj[j] > 0L) fixedParam(copula@cops[[j]]) <- TRUE
         attr(copula@w, "fixed") <- TRUE
-    } else {
+    } else { # "typically", some fixed, some free:
         n. <- 0L
         for (j in ic) {
             n.j <- nj[j]
             if (n.j > 0L) fixedParam(copula@cops[[j]]) <- value[n. + seq_len(n.j)]
             n. <- n. + n.j
         }
-        nw <- length(copula@w)
         attr(copula@w, "fixed") <-
-            if (!any(vw <- value[n. + 1:nw])) NULL
+            if (!any(vw <- value[n. + ic])) NULL
             else if (all(vw)) TRUE else vw
     }
     copula
