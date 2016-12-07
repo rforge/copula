@@ -29,10 +29,9 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 <a href="/"><img src="<?php echo $themeroot; ?>/images/logo.png" border="0" alt="R-Forge Logo" /> </a> </td> </tr>
 </table>
 
+<!-- own website starts here, .. "MM was here :-) " -->
 
 <!-- get project title  -->
-<!-- own website starts here, the following may be changed as you like -->
-
 <?php if ($handle=fopen('http://'.$domain.'/export/projtitl.php?group_name='.$group_name,'r')){
 $contents = '';
 while (!feof($handle)) {
@@ -51,7 +50,14 @@ echo $contents; } ?>
 	<em>Journal of Statistical Software</em> <b>39</b>, issue 9.
 </p>
 
-<p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
+<p> The <strong>project summary page</strong> you can find
+    <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>.
+</p>
+
+<p> Typically you install the package from
+    <a href="https://cran.r-project.org/package=copula">CRAN</a>,
+    where you also find the manuals, vignettes, etc
+</p>
 
 </body>
 </html>
