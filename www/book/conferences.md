@@ -2,16 +2,16 @@
 title: Conferences
 ---
 
-The R project actively supports two conference series, organized regularly by members from the R community: 
+The R project actively supports two conference series, organized regularly by members from the R community:
 
 * useR!, providing a forum to the R user community.
-* DSC, a platform for developers of statistical software. 
+* DSC, a platform for developers of statistical software.
 
 A rough outline of the format for the respective conferences is given below; both conference formats were developed by the [Austrian Association for Statistical Computing (AASC)](http://www.aasc.or.at/) in cooperation with the [R Foundation for Statistical Computing](https://www.r-project.org/foundation).
 
 R-related conferences are coordinated by the *"R Foundation Conference Committee"* (RFCC) currently consisting of [Torsten Hothorn (Universität Zürich)](http://user.math.uzh.ch/hothorn/) and [Achim Zeileis (Universität Innsbruck)](http://statmath.wu.ac.at/~zeileis/) plus ex officio [secretary and treasurer](foundation/board.html) of the R Foundation. The RFCC can be contacted by email at <R-conferences@r-project.org>.
 
-The R Foundation has a policy requiring [codes of conduct at R conferences](/behaviour.html).
+The R Foundation has a policy requiring [codes of conduct at R conferences](behaviour.html).
 
 ## useR! --- International R User Conference
 
@@ -69,7 +69,7 @@ DSC has had two different incarnations. The first was a biennial conference seri
 <!-- * [DSC 2016](dsc/2016), Stanford, USA. -->
 
 * [R Summit 2015](http://info.cbs.dk/rsummit2015), Copenhagen, Denmark
-  
+
 * [DSC 2014](http://www.huber.embl.de/dsc/), Bressanone-Brixen, Italy.
 
 * [DSC 2009](https://www.r-project.org/dsc-2009/), Copenhagen, Denmark
