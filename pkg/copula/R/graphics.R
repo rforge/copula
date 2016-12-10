@@ -597,24 +597,43 @@ wireframe2MatrixDf <- function(x,
               ...)
 }
 
+##' wireframe panel additionally drawing "the" 4-line-segments of every pCopula()
+panel.3dwire.4 <- function(x, y, z, rot.mat, distance,
+                           xlim.scaled, ylim.scaled, zlim.scaled,
+                           col.4 = adjustcolor("green4", 0.5), lwd.4 = 5, lty.4 = "82", ...)
+{
+    panel.3dwire(x, y, z, rot.mat, distance,
+                 xlim.scaled=xlim.scaled, ylim.scaled=ylim.scaled, zlim.scaled=zlim.scaled,
+                 ...)
+    X <- xlim.scaled; x0 <- X[1]; x1 <- X[2]
+    Y <- ylim.scaled; y0 <- Y[1]; y1 <- Y[2]
+    Z <- zlim.scaled; z0 <- Z[1]; z1 <- Z[2]
+    segs <- list(rbind(X,  y0, z0), # X-axis
+                 rbind(x0,  Y, z0), # Y-axis
+                 rbind(x1,  Y,  Z), # Y-Z diagonal (at x1)
+                 rbind( X, y1,  Z)) # X-Z diagonal (at y1)
+    for(seg in segs) {
+        m <- ltransform3dto3d(seg, rot.mat, distance)
+        lsegments(x0= m[1,1], y0= m[2,1], col = col.4,
+                  x1= m[1,2], y1= m[2,2], lwd = lwd.4, lty = lty.4)
+    }
+}
+
 ##' @title Wireframe Plot Method for Class "Copula"
 ##' @param x An object of class "Copula"
 ##' @param FUN A function like dCopula or pCopula
 ##' @param n.grid The (vector of) number(s) of grid points in each dimension
 ##' @param delta Distance from the boundary of [0,1]^2
-##' @param xlim The x-axis limits
-##' @param ylim The y-axis limits
-##' @param zlim The z-axis limits
-##' @param xlab The x-axis label
-##' @param ylab The y-axis label
-##' @param zlab The z-axis label
-##' @param ... Additional arguments passed to wireframe2MatrixDf()
+##' @param xlim,ylim, zlim  The x-, y-, and z-axis limits
+##' @param xlab,ylab, zlab  The x-, y-, and z-axis label
+##' ##' @param ... Additional arguments passed to wireframe2MatrixDf()
 ##' @return A wireframe() object
 ##' @author Marius Hofert
 wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
                              xlim = 0:1, ylim = 0:1, zlim = NULL,
                              xlab = quote(u[1]), ylab = quote(u[2]),
-                             zlab = list(deparse(substitute(FUN))[1], rot = 90), ...)
+                             zlab = list(deparse(substitute(FUN))[1], rot = 90),
+                             draw.4.pCoplines = identical(FUN, pCopula), ...)
 {
     stopifnot(dim(x) == 2, n.grid >= 2)
     if(length(n.grid) == 1) n.grid <- rep(n.grid, 2)
@@ -624,9 +643,11 @@ wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
     grid <- as.matrix(expand.grid(x = x., y = y., KEEP.OUT.ATTRS = FALSE))
     z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
     if(is.null(zlim)) zlim <- range(z, finite = TRUE)
-    val <- cbind(grid, z = z)
-    wireframe2MatrixDf(val, xlim = xlim, ylim = ylim, zlim = zlim,
-                       xlab = xlab, ylab = ylab, zlab = zlab, ...)
+    wireframe2MatrixDf(cbind(grid, z = z), xlim = xlim, ylim = ylim, zlim = zlim,
+                       xlab = xlab, ylab = ylab, zlab = zlab,
+                       panel.3d.wireframe = if(draw.4.pCoplines) panel.3dwire.4
+                                            else panel.3dwire,
+                       ...)
 }
 
 ##' @title Wireframe Plot Method for Class "mvdc"

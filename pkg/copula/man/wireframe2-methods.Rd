@@ -31,7 +31,8 @@
 \S4method{wireframe2}{Copula}(x, FUN, n.grid = 26, delta = 0,
       xlim = 0:1, ylim = 0:1, zlim = NULL,
       xlab = quote(u[1]), ylab = quote(u[2]),
-      zlab = list(deparse(substitute(FUN))[1], rot = 90), \dots)
+      zlab = list(deparse(substitute(FUN))[1], rot = 90),
+      draw.4.pCoplines = identical(FUN, pCopula), \dots)
 \S4method{wireframe2}{mvdc}(x, FUN, n.grid = 26, xlim, ylim, zlim = NULL,
       xlab = quote(x[1]), ylab = quote(x[2]),
       zlab = list(deparse(substitute(FUN))[1], rot = 90), \dots)
@@ -55,10 +56,11 @@
   \item{delta}{a small number in \eqn{[0, \frac 1 2)}{[0, 1/2)}
     influencing the evaluation boundaries. The x- and y- vectors will
     have the range \code{[0+delta, 1-delta]}, the default being \code{[0,1]}.}
-  \item{\dots}{additional arguments passed to the underlying
-    \code{\link{wireframe}()}, i.e., typically
-    \code{\link{panel.3dwire}}, from the \CRANpkg{lattice} package,
-    such as \code{shade}, \code{drape}, \code{aspect}, etc.}
+  \item{draw.4.pCoplines}{logical indicating if the 4 known border
+    segments of a copula df (i.e., \code{\link{pCopula}}) should be drawn.}
+  \item{\dots}{additional arguments passed to the underlying \code{\link{wireframe}()},
+    such as \code{shade}, \code{drape}, \code{aspect}, etc., or
+    \code{\link{panel.3dwire}} from the \CRANpkg{lattice} package.}
 }
 \section{Methods}{
   Wireframe plots for objects of class \code{"\linkS4class{matrix}"} ,
@@ -68,7 +70,7 @@
 \value{
   An object of class \dQuote{trellis} as returned by \code{\link[lattice]{wireframe}()}.
 }
-%\author{Marius Hofert}
+%\author{Marius Hofert; tweaks by Martin Maechler}
 \seealso{
   The \code{\link{persp-methods}} for drawing perspective plots via base graphics.
 }
