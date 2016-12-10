@@ -35,7 +35,7 @@ mixCopula(coplist, w = NULL)
  \code{\link{khoudrajiCopula}}, \code{\link{rotCopula}} also create new
  copula models from existing ones.
 }
-\examples{%% FIXME: need ../tests/ !   validObject(mC) ..
+\examples{%% NB: Now also have ../tests/mixCop-tst.R
 mC <- mixCopula(list(gumbelCopula(2.5, dim=3),
                      claytonCopula(pi, dim=3),
                      tCopula(0.7, dim=3)),
@@ -54,23 +54,26 @@ mGG <- mixCopula(list(gumbelCopula(2), rotCopula(gumbelCopula(1.5))))
 rho(mGG)   # 0.57886
 lambda(mGG)# both lower and upper tail dependency
 
-
 loglikCopula(c(2.5, pi, rho.1=0.7, df = 4, w = c(2,2,4)/8),
                     u = uM, copula = mC)
 ll.df <- Vectorize(function(df, rho)
                    loglikCopula(c(2.5, pi, rho.1=rho, df=df, w = c(2,2,4)/8),
                                 uM, mC))
 (df. <- 1/rev(seq(1/8, 1/2, length=21)))# in [2, 8] equidistant in 1/. scale
+
 ll. <- ll.df(df., rho = 0.7)
-plot(df., ll., type = "b", main = "loglikCopula((.,.,., df, .,.,.), u, <mixCopula>)")
+plot(df., ll., type = "b", ylim = extendrange(ll., f = 0.10),
+     main = "loglikCopula((.,.,., df, .,.,.), u, <mixCopula>)")
 
 if(!exists("Xtras")) Xtras <- copula:::doExtras() ; cat("Xtras: ", Xtras,"\n")
 if (Xtras) {
-  lines(df., ll.df(df., rho = 0.75), type = "b", col=2)
-  lines(df., ll.df(df., rho = 0.65), type = "b", col=4)
-  lines(df., ll.df(df., rho = 0.72), type = "b", col="tomato")
-  lines(df., ll.df(df., rho = 0.78), type = "b", col="forest green")
-  lines(df., ll.df(df., rho = 0.77), type = "b", col="dark green")
+%%% FIXME: use a grid of 'Rhos' and then use  persp() or wireframe2() 
+  Rhos <- c(0.7, 0.75, 0.65, 0.72, 0.78, 0.77)
+  Cols <- c(palette()[c(1,2,4)], "tomato", "forest green", "dark green")
+  for(k in 2:length(Rhos))
+    lines(df., ll.df(df., rho = Rhos[k]), type = "b", col=Cols[k])
+  legend("bottom", pch = 1, lwd = 1, col = Cols, bty = "n",
+       as.expression(lapply(Rhos, function(.) substitute(rho == R., list(R. = .)))))
 }
 
 ## TODO: fitCopula() example with "fixed weights"

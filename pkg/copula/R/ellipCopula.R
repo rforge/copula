@@ -57,11 +57,12 @@ setMethod(describeCop, c("ellipCopula", "character"), function(x, kind, prefix="
     kind <- match.arg(kind)
     cl <- sub("Copula$", "", class(x)) # -> "t" / "normal"
     if (cl == "normal") cl <- "Normal"
+    clNam <- paste0(prefix, cl, if(nchar(cl) <= 2) "-" else " ", "copula")
     if(kind == "very short") # e.g. for show() which has more parts
-        return(paste0(prefix, cl, " copula"))
+        return(clNam)
     ## else
     d <- dim(x)
-    ch <- paste(prefix, cl, " copula, dim. d =", d)
+    ch <- paste(paste0(clNam, ", dim. d ="), d)
     switch(kind <- match.arg(kind),
 	   short = ch,
 	   long = paste0(ch, "\n", prefix, "param.: ", dputNamed(getTheta(x, named=TRUE))),

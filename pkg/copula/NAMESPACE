@@ -34,7 +34,7 @@ importFrom("utils", head, tail, capture.output, modifyList,
 	   str, setTxtProgressBar, txtProgressBar)
 
 importFrom("grDevices", col2rgb, dev.flush, dev.hold, dev.off, pdf, extendrange,
-           gray)
+           gray, adjustcolor)
 importFrom("graphics", Axis, abline, axis, box, contour, curve
          , layout.show, layout, lcm, lines, mtext
          , par, persp, pairs
@@ -58,7 +58,8 @@ importMethodsFrom("stats4",
 
 importFrom("lattice", trellis.par.get, trellis.par.set,
 	   splom, wireframe, contourplot, cloud,
-           standard.theme, panel.fill, panel.splom, diag.panel.splom)
+           standard.theme, panel.fill, panel.splom, diag.panel.splom,
+           panel.3dwire, ltransform3dto3d, lsegments)
 
 importFrom("Matrix", nearPD)
 ## NB: "Dangerous" to not also depend on Matrix; as 'methods' for Matrixclasses are not seen.

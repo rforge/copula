@@ -266,7 +266,7 @@ khoudrajiCopula <- function(copula1 = indepCopula(), copula2 = indepCopula(dim=d
 
 
     ## check if copula1 and copula2 have 'exprdist' slots
-    areBothExplicit <- isExplicit(copula1) & isExplicit(copula2)
+    areBothExplicit <- isExplicit(copula1) && isExplicit(copula2)
 
     ## non-explicit Khourdraji copulas
     if (!areBothExplicit)

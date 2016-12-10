@@ -1,12 +1,11 @@
 \name{setTheta}
-
 \title{Specify the Parameter(s) of a Copula}
 \alias{setTheta}
 \alias{setTheta,acopula,ANY-method}
-\alias{setTheta,outer_nacopula,numeric-method}
 \alias{setTheta,copula,ANY-method}
-\alias{setTheta,ellipCopula,ANY-method}
 \alias{setTheta,xcopula,ANY-method}
+\alias{setTheta,outer_nacopula,numeric-method}
+\alias{setTheta,ellipCopula,ANY-method}
 \alias{setTheta,khoudrajiCopula,ANY-method}
 \alias{setTheta,mixCopula,ANY-method}
 \description{
@@ -19,9 +18,10 @@
   \code{\link{onacopula}()}, or also \code{\link{gofCopula}}.
 }
 \usage{
-setTheta(x, value, \dots)
+setTheta(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, \dots)
+
 \S4method{setTheta}{acopula,ANY}(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, \dots)
-\S4method{setTheta}{copula, ANY}(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, \dots)
+\S4method{setTheta}{copula,ANY}(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, \dots)
 \S4method{setTheta}{xcopula,ANY}(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, \dots)
 \S4method{setTheta}{outer_nacopula,numeric}(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, \dots)
 \S4method{setTheta}{khoudrajiCopula,ANY}(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, \dots)

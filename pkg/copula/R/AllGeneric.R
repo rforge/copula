@@ -7,7 +7,7 @@
 ##' A  (generic!) Function with methods to replace the 'fullname' slot :
 setGeneric("describeCop", function(x, kind = c("short", "very short", "long"),
                                    prefix = "", ...)
-    standardGeneric("describeCop"))
+    standardGeneric("describeCop"), signature = c("x", "kind"))
 
 ## This could go back to ./dC-dc.R  if all "dCdu" methods also go there
 ##                       ~~~~~~~~~

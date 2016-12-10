@@ -15,9 +15,11 @@
 
 
 ##' print() / show() method, _or_ ("tCopula", e.g.) an auxiliary for that :
-printCopula <- function(x, digits = getOption("digits"), ...) {
+printCopula <- function(x, digits = getOption("digits"),
+                        descr.kind = c("short", "very short", "long"), ...) {
   validObject(x)
-  cat(describeCop(x, kind="very short"), "\n")
+  descr.kind <- match.arg(descr.kind)
+  cat(describeCop(x, kind = descr.kind), "\n")
   cat("Dimension: ", (d <- dim(x)), "\n")
   if (length(par <- getTheta(x, freeOnly=FALSE, attr = TRUE)) > 0) {
     ## hasFx <- !is.null(.fixed <- attr(par, "fixed")) && any(.fixed)
