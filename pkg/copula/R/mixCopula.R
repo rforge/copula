@@ -68,7 +68,7 @@ mixCopula <- function(coplist, w = NULL) {
             w = as(w, "mixWeights"),
             cops = as(coplist, "parClist"))
     else { ## mixExplicitCopula
-        mixCdf <- mixPdf <- parse(text = paste0("pcdf", 1L:m, " * ", "p", 1L:m,
+        mixCdf <- mixPdf <- parse(text = paste0("pcdf", 1L:m, " * ", "w", 1L:m,
                                                 collapse = " + "))
         exprdist <- c(cdf = mixCdf, pdf = mixPdf)
         cdfL <- lapply(coplist, function(x) x@exprdist$cdf)
@@ -267,7 +267,7 @@ function(copula, value) {
 ## describe copula
 setMethod(describeCop, c("mixCopula", "character"), function(x, kind, prefix="", ...) {
     m <- length(x@w)
-    c1 <- paste("mixCopula from", m, "components")
+    c1 <- paste0(prefix, "mixCopula from ", m, " components")
     if(kind == "very short")
         return(c1)
     ## else

@@ -131,7 +131,7 @@ all.equal(copula:::dlogcdu(kcgcd3, u), copula:::dlogcduCopulaNum(kcgcd3, u))
 ## dlogcdtheta
 all.equal(copula:::dlogcdtheta(kcgcd3, u), copula:::dlogcdthetaCopulaNum(kcgcd3, u))
 
-#########################################################################################
+#############################################################################
 ## fitting checking
 
 do1 <- function(n, cop) {

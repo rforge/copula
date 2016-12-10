@@ -144,6 +144,8 @@ setMethod("dCdu", signature("gumbelCopula"), dCduExplicitCopula)
 setMethod("dCdu", signature("indepCopula"), dCduIndepCopula)
 
 setMethod("dCdu", signature("khoudrajiExplicitCopula"), dCduExplicitCopula)
+setMethod("dCdu", signature("mixExplicitCopula"),       dCduExplicitCopula)
+setMethod("dCdu", signature("rotExplicitCopula"),       dCduExplicitCopula)
 
 ## For ellipCopula objects
 dCduEllipCopula <- function(copula, u, ...) {
@@ -356,6 +358,9 @@ setMethod("dCdtheta", signature("evCopula"), dCdthetaExplicitCopula)
 setMethod("dCdtheta", signature("gumbelCopula"), dCdthetaExplicitCopula)
 
 setMethod("dCdtheta", signature("khoudrajiExplicitCopula"), dCdthetaExplicitCopula)
+setMethod("dCdtheta", signature("mixExplicitCopula"),       dCdthetaExplicitCopula)
+setMethod("dCdtheta", signature("rotExplicitCopula"),       dCdthetaExplicitCopula)
+
 
 ## For ellipCopula objects
 dCdthetaEllipCopula <- function(copula, u, ...) {
@@ -495,6 +500,8 @@ setMethod("dlogcdu", signature("evCopula"), dlogcduExplicitCopula)
 setMethod("dlogcdu", signature("plackettCopula"), dlogcduExplicitCopula)
 
 setMethod("dlogcdu", signature("khoudrajiExplicitCopula"), dlogcduExplicitCopula)
+setMethod("dlogcdu", signature("mixExplicitCopula"),       dlogcduExplicitCopula)
+setMethod("dlogcdu", signature("rotExplicitCopula"),       dlogcduExplicitCopula)
 
 ## For normalCopula objects
 dlogcduNormalCopula <- function(copula, u, ...) {
@@ -589,6 +596,8 @@ setMethod("dlogcdtheta", signature("plackettCopula"), dlogcdthetaExplicitCopula)
 setMethod("dlogcdtheta", signature("evCopula"), dlogcdthetaExplicitCopula)
 
 setMethod("dlogcdtheta", signature("khoudrajiExplicitCopula"), dlogcdthetaExplicitCopula)
+setMethod("dlogcdtheta", signature("mixExplicitCopula"),       dlogcdthetaExplicitCopula)
+setMethod("dlogcdtheta", signature("rotExplicitCopula"),       dlogcdthetaExplicitCopula)
 
 ## For ellipCopula objects
 dlogcdthetaEllipCopula <- function(copula, u, ...) {

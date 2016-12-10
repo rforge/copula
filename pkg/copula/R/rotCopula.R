@@ -167,7 +167,7 @@ setMethod("fixedParam<-", signature("rotCopula", "logical"),
 
 ## describe copula
 setMethod(describeCop, c("rotCopula", "character"), function(x, kind, prefix="", ...)
-    paste0("Rotated copula constructed from\n", describeCop(x@copula, kind, prefix, ...)))
+    paste0(prefix, "Rotated copula constructed from\n", prefix, describeCop(x@copula, kind, prefix, ...)))
 
 ##################################################################################
 ### Methods for rotated copulas
