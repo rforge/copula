@@ -54,9 +54,11 @@ stopifnot(all.equal(dCopula(u, mC.surv), dCopula(1 - u, mC)))
 stopifnot(all.equal(dCopula(u, rotCopula(mC.surv)), dCopula(u, mC)))
 
 ## derivatives
-## head(cbind(copula:::dCdu(mC.surv, u),    copula:::dCdtheta(mC.surv, u),
-##            copula:::dlogcdu(mC.surv, u), copula:::dlogcdtheta(mC.surv, u)))
+head(cbind(copula:::dCdu(mC.surv, u),    copula:::dCdtheta(mC.surv, u),
+           copula:::dlogcdu(mC.surv, u), copula:::dlogcdtheta(mC.surv, u)))
 
+head(cbind(copula:::dCduCopulaNum(mC.surv, u),    copula:::dCdthetaCopulaNum(mC.surv, u),
+           copula:::dlogcduCopulaNum(mC.surv, u), copula:::dlogcdthetaCopulaNum(mC.surv, u)))
 
 ## nest the survival copula in a khoudraji Copula
 k.mC.g <- khoudrajiCopula(mC.surv, gumbelCopula(3, dim = 2), c(.2, .9))
@@ -74,6 +76,15 @@ require(MASS)
 kde <- kde2d(U[,1], U[,2], n = 9, lims = c(0.1, 0.9, 0.1, 0.9))
 max(abs(dCopula(u, k.mC.g) / c(kde$z) - 1)) ## relative difference < 0.185
 
+## detivatives
+head(cbind(copula:::dCdu(k.mC.g, u),    copula:::dCdtheta(k.mC.g, u),
+           copula:::dlogcdu(k.mC.g, u), copula:::dlogcdtheta(k.mC.g, u)))
+
+head(cbind(copula:::dCduCopulaNum(k.mC.g, u),    copula:::dCdthetaCopulaNum(k.mC.g, u),
+           copula:::dlogcduCopulaNum(k.mC.g, u), copula:::dlogcdthetaCopulaNum(k.mC.g, u)))
+
+
+
 ## nest k.mC.g and mC in a mixture copula
 m.k.m <- mixCopula(list(mC, k.mC.g), c(.5, .5))
 m.k.m
@@ -86,6 +97,14 @@ monster
 U <- rCopula(10000, monster)
 stopifnot(max(abs(pCopula(u, monster) - C.n(u, U))) < 0.007)
 
+## detivatives
+head(cbind(copula:::dCdu(monster, u),    copula:::dCdtheta(monster, u),
+           copula:::dlogcdu(monster, u), copula:::dlogcdtheta(monster, u)))
+
+head(cbind(copula:::dCduCopulaNum(monster, u),    copula:::dCdthetaCopulaNum(monster, u),
+           copula:::dlogcduCopulaNum(monster, u), copula:::dlogcdthetaCopulaNum(monster, u)))
+
+
 ## rotate the monster
 rM <- rotCopula(monster, flip=c(TRUE, FALSE))
 isExplicit(rM)
@@ -93,8 +112,13 @@ rM
 
 U <- rCopula(10000, rM)
 max(abs(pCopula(u, rM) - C.n(u, U))) # < 0.005
-
 stopifnot(identical(dCopula(u, rM), dCopula(cbind(1 - u[,1], u[,2]), monster)))
+## detivatives
+head(cbind(copula:::dCdu(rM, u),    copula:::dCdtheta(rM, u),
+           copula:::dlogcdu(rM, u), copula:::dlogcdtheta(rM, u)))
+
+head(cbind(copula:::dCduCopulaNum(rM, u),    copula:::dCdthetaCopulaNum(rM, u),
+           copula:::dlogcduCopulaNum(rM, u), copula:::dlogcdthetaCopulaNum(rM, u)))
 
 
 ##########################################################
