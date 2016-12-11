@@ -54,8 +54,8 @@ stopifnot(all.equal(dCopula(u, mC.surv), dCopula(1 - u, mC)))
 stopifnot(all.equal(dCopula(u, rotCopula(mC.surv)), dCopula(u, mC)))
 
 ## derivatives
-head(cbind(copula:::dCdu(mC.surv, u),    copula:::dCdtheta(mC.surv, u),
-           copula:::dlogcdu(mC.surv, u), copula:::dlogcdtheta(mC.surv, u)))
+## head(cbind(copula:::dCdu(mC.surv, u),    copula:::dCdtheta(mC.surv, u),
+##            copula:::dlogcdu(mC.surv, u), copula:::dlogcdtheta(mC.surv, u)))
 
 
 ## nest the survival copula in a khoudraji Copula

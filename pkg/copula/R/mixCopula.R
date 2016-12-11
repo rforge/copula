@@ -154,7 +154,7 @@ function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
     wFree <- isFreeP(w)
     if(freeOnly) w <- w[wFree]
     if(named) {
-        ic <- seq_along(w)
+        ic <- seq_along(parC) ## not w because w can be free only
         for(i in ic[lengths(parC) > 0])
             names(parC[[i]]) <- paste0("m", i, ".", names(parC[[i]]))
         attr(w, "names") <- paste0("w", ic)[if(freeOnly) wFree else TRUE]
