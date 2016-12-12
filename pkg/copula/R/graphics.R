@@ -585,7 +585,9 @@ wireframe2MatrixDf <- function(x,
     ## workaround buglet in lattice [e-mailed Deepayan, 2016-11-16]:
     if(is.language(xlab)) xlab <- as.expression(xlab)
     if(is.language(ylab)) ylab <- as.expression(ylab)
-    if(is.language(zlab[[1]])) zlab[[1]] <- as.expression(zlab[[1]])
+    if(is.list(zlab) && is.language(zlab[[1]]))
+        zlab[[1]] <- as.expression(zlab[[1]])
+    else if(is.language(zlab)) zlab <- as.expression(zlab)
 
     ## Wireframe plot
     wireframe(x[,3] ~ x[,1] * x[,2], xlim = xlim, ylim = ylim, zlim = zlim,
