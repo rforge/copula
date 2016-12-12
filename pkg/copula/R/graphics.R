@@ -426,7 +426,7 @@ pairs2 <- function(x, labels = NULL, labels.null.lab = "U", ...)
 	       lapply(1:d, function(i)
 		   substitute(v[I], list(v = as.name(labels.null.lab), I = 0+i)))
            else # 'x' has column names => parse them
-	       lapply(colnms, as.symbol))
+               parse(text = colnms)
    }
    pairs(x, gap = 0, labels = labels, ...)
 }
@@ -454,14 +454,14 @@ pairs2 <- function(x, labels = NULL, labels.null.lab = "U", ...)
 ##' @author Marius Hofert
 ##' @note Note that '...' has to come before 'col.regions', otherwise 'col = "red"'
 ##'       is interpreted as 'col.regions = "red"'
-contourplot2MatrixDf <- function(x, aspect = 1,
-                                 xlim = range(x[,1], finite = TRUE),
-                                 ylim = range(x[,2], finite = TRUE),
-                                 xlab = NULL, ylab = NULL,
-                                 cuts = 16, labels = !region,
-                                 scales = list(alternating = c(1,1), tck = c(1,0)),
-                                 region = TRUE, ...,
-                                 col.regions = gray(seq(0.4, 1, length.out = 100)))
+contourplot2Matrix <- function(x, aspect = 1,
+                               xlim = range(x[,1], finite = TRUE),
+                               ylim = range(x[,2], finite = TRUE),
+                               xlab = NULL, ylab = NULL,
+                               cuts = 16, labels = !region,
+                               scales = list(alternating = c(1,1), tck = c(1,0)),
+                               region = TRUE, ...,
+                               col.regions = gray(seq(0.4, 1, length.out = 100)))
 {
     ## Checking
     if(!is.matrix(x)) x <- as.matrix(x)
@@ -469,8 +469,8 @@ contourplot2MatrixDf <- function(x, aspect = 1,
 
     ## Labels
     colnms <- colnames(x)
-    if(is.null(xlab)) xlab <- if(is.null(colnms)) "" else as.symbol(colnms[1])
-    if(is.null(ylab)) ylab <- if(is.null(colnms)) "" else as.symbol(colnms[2])
+    if(is.null(xlab)) xlab <- if(is.null(colnms)) "" else parse(text = colnms[1])
+    if(is.null(ylab)) ylab <- if(is.null(colnms)) "" else parse(text = colnms[2])
 
     ## Contour plot
     contourplot(x[,3] ~ x[,1] * x[,2], aspect = aspect,
@@ -488,7 +488,7 @@ contourplot2MatrixDf <- function(x, aspect = 1,
 ##' @param ylim The y-axis limits
 ##' @param xlab The x-axis label
 ##' @param ylab The y-axis label
-##' @param ... Additional arguments passed to contourplot2MatrixDf()
+##' @param ... Additional arguments passed to contourplot2Matrix()
 ##' @return A contourplot() object
 ##' @author Marius Hofert
 contourplot2Copula <- function(x, FUN, n.grid = 26, delta = 0,
@@ -504,8 +504,8 @@ contourplot2Copula <- function(x, FUN, n.grid = 26, delta = 0,
     grid <- as.matrix(expand.grid(x = x., y = y., KEEP.OUT.ATTRS = FALSE))
     z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
     val <- cbind(grid, z = z)
-    contourplot2MatrixDf(val, xlim = xlim, ylim = ylim,
-                         xlab = xlab, ylab = ylab, ...)
+    contourplot2Matrix(val, xlim = xlim, ylim = ylim,
+                       xlab = xlab, ylab = ylab, ...)
 }
 
 ##' @title Contourplot Plot Method for Class "mvdc"
@@ -516,7 +516,7 @@ contourplot2Copula <- function(x, FUN, n.grid = 26, delta = 0,
 ##' @param ylim The y-axis limits
 ##' @param xlab The x-axis label
 ##' @param ylab The y-axis label
-##' @param ... Additional arguments passed to contourplot2MatrixDf()
+##' @param ... Additional arguments passed to contourplot2Matrix()
 ##' @return A contourplot() object
 ##' @author Marius Hofert
 contourplot2Mvdc <- function(x, FUN, n.grid = 26, xlim, ylim,
@@ -531,22 +531,22 @@ contourplot2Mvdc <- function(x, FUN, n.grid = 26, xlim, ylim,
     grid <- as.matrix(expand.grid(x = x., y = y., KEEP.OUT.ATTRS = FALSE))
     z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
     val <- cbind(grid, z = z)
-    contourplot2MatrixDf(val, xlim = xlim, ylim = ylim,
-                         xlab = xlab, ylab = ylab, ...)
+    contourplot2Matrix(val, xlim = xlim, ylim = ylim,
+                       xlab = xlab, ylab = ylab, ...)
 }
 
 ## Define contourplot2() methods for objects of various classes
 ## Note: 'x' is a "matrix", "data.frame", "Copula" or "mvdc" object
 setGeneric("contourplot2", function(x, ...) standardGeneric("contourplot2"))
-setMethod("contourplot2", signature(x = "matrix"),     contourplot2MatrixDf)
-setMethod("contourplot2", signature(x = "data.frame"), contourplot2MatrixDf)
+setMethod("contourplot2", signature(x = "matrix"),     contourplot2Matrix)
+setMethod("contourplot2", signature(x = "data.frame"), contourplot2Matrix)
 setMethod("contourplot2", signature(x = "Copula"),     contourplot2Copula)
 setMethod("contourplot2", signature(x = "mvdc"),       contourplot2Mvdc)
 
 
 ### 3.2 wireframe() methods ####################################################
 
-##' @title Wireframe Plot Method for Classes "matrix" and "data.frame"
+##' @title Wireframe Plot Method for Classes "matrix" (and "data.frame")
 ##' @param x A numeric matrix or as.matrix(.)able
 ##' @param xlim The x-axis limits
 ##' @param ylim The y-axis limits
@@ -563,14 +563,14 @@ setMethod("contourplot2", signature(x = "mvdc"),       contourplot2Mvdc)
 ##' @note - axis.line makes the outer box disappear
 ##'       - 'col = "black"' in scales is required to make the ticks visible again
 ##'       - 'clip' is set to off to avoid axis labels being clipped
-wireframe2MatrixDf <- function(x,
-                               xlim = range(x[,1], finite = TRUE),
-                               ylim = range(x[,2], finite = TRUE),
-                               zlim = range(x[,3], finite = TRUE),
-                               xlab = NULL, ylab = NULL, zlab = NULL,
-			       alpha.regions = 0.5,
-			       scales = list(arrows = FALSE, col = "black"),
-                               par.settings = standard.theme(color = FALSE), ...)
+wireframe2Matrix <- function(x,
+                             xlim = range(x[,1], finite = TRUE),
+                             ylim = range(x[,2], finite = TRUE),
+                             zlim = range(x[,3], finite = TRUE),
+                             xlab = NULL, ylab = NULL, zlab = NULL,
+                             alpha.regions = 0.5,
+                             scales = list(arrows = FALSE, col = "black"),
+                             par.settings = standard.theme(color = FALSE), ...)
 {
     ## Checking
     if(!is.matrix(x)) x <- as.matrix(x)
@@ -578,16 +578,15 @@ wireframe2MatrixDf <- function(x,
 
     ## Labels
     colnms <- colnames(x)
-    if(is.null(xlab)) xlab <- if(is.null(colnms)) "" else as.symbol(colnms[1])
-    if(is.null(ylab)) ylab <- if(is.null(colnms)) "" else as.symbol(colnms[2])
-    if(is.null(zlab)) zlab <- list(if(is.null(colnms)) "" else as.symbol(colnms[3]),
-				   rot = 90)
-    ## workaround buglet in lattice [e-mailed Deepayan, 2016-11-16]:
-    if(is.language(xlab)) xlab <- as.expression(xlab)
-    if(is.language(ylab)) ylab <- as.expression(ylab)
-    if(is.list(zlab) && is.language(zlab[[1]]))
-        zlab[[1]] <- as.expression(zlab[[1]])
-    else if(is.language(zlab)) zlab <- as.expression(zlab)
+    if(is.null(xlab)) xlab <- if(is.null(colnms)) "" else parse(text = colnms[1])
+    else ## workaround buglet in lattice [e-mailed Deepayan, 2016-11-16]:
+        if(is.language(xlab) && !is.expression(xlab)) xlab <- as.expression(xlab)
+    if(is.null(ylab)) ylab <- if(is.null(colnms)) "" else parse(text = colnms[2])
+    else if(is.language(ylab) && !is.expression(ylab)) ylab <- as.expression(ylab)
+    if(is.null(zlab)) zlab <- list(
+                          if(is.null(colnms)) "" else parse(text = colnms[3]),
+                          rot = 90)
+    else if(is.language(zlab) && !is.expression(zlab)) zlab <- as.expression(zlab)
 
     ## Wireframe plot
     wireframe(x[,3] ~ x[,1] * x[,2], xlim = xlim, ylim = ylim, zlim = zlim,
@@ -628,7 +627,7 @@ panel.3dwire.4 <- function(x, y, z, rot.mat, distance,
 ##' @param delta Distance from the boundary of [0,1]^2
 ##' @param xlim,ylim, zlim  The x-, y-, and z-axis limits
 ##' @param xlab,ylab, zlab  The x-, y-, and z-axis label
-##' ##' @param ... Additional arguments passed to wireframe2MatrixDf()
+##' ##' @param ... Additional arguments passed to wireframe2Matrix()
 ##' @return A wireframe() object
 ##' @author Marius Hofert
 wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
@@ -645,11 +644,11 @@ wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
     grid <- as.matrix(expand.grid(x = x., y = y., KEEP.OUT.ATTRS = FALSE))
     z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
     if(is.null(zlim)) zlim <- range(z, finite = TRUE)
-    wireframe2MatrixDf(cbind(grid, z = z), xlim = xlim, ylim = ylim, zlim = zlim,
-                       xlab = xlab, ylab = ylab, zlab = zlab,
-                       panel.3d.wireframe = if(draw.4.pCoplines) panel.3dwire.4
-                                            else panel.3dwire,
-                       ...)
+    wireframe2Matrix(cbind(grid, z = z), xlim = xlim, ylim = ylim, zlim = zlim,
+                     xlab = xlab, ylab = ylab, zlab = zlab,
+                     panel.3d.wireframe = if(draw.4.pCoplines) panel.3dwire.4
+                                          else panel.3dwire,
+                     ...)
 }
 
 ##' @title Wireframe Plot Method for Class "mvdc"
@@ -662,7 +661,7 @@ wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
 ##' @param xlab The x-axis label
 ##' @param ylab The y-axis label
 ##' @param zlab The z-axis label
-##' @param ... Additional arguments passed to wireframe2MatrixDf()
+##' @param ... Additional arguments passed to wireframe2Matrix()
 ##' @return A wireframe() object
 ##' @author Marius Hofert
 wireframe2Mvdc <- function(x, FUN, n.grid = 26,
@@ -679,15 +678,15 @@ wireframe2Mvdc <- function(x, FUN, n.grid = 26,
     z <- if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid)
     if(is.null(zlim)) zlim <- range(z, finite = TRUE)
     val <- cbind(grid, z = z)
-    wireframe2MatrixDf(val, xlim = xlim, ylim = ylim, zlim = zlim,
-                       xlab = xlab, ylab = ylab, zlab = zlab, ...)
+    wireframe2Matrix(val, xlim = xlim, ylim = ylim, zlim = zlim,
+                     xlab = xlab, ylab = ylab, zlab = zlab, ...)
 }
 
 ## Define wireframe2() methods for objects of various classes
 ## Note: 'x' is a "matrix", "data.frame", "Copula" or "mvdc" object
 setGeneric("wireframe2", function(x, ...) standardGeneric("wireframe2"))
-setMethod("wireframe2", signature(x = "matrix"),     wireframe2MatrixDf)
-setMethod("wireframe2", signature(x = "data.frame"), wireframe2MatrixDf)
+setMethod("wireframe2", signature(x = "matrix"),     wireframe2Matrix)
+setMethod("wireframe2", signature(x = "data.frame"), wireframe2Matrix)
 setMethod("wireframe2", signature(x = "Copula"),     wireframe2Copula)
 setMethod("wireframe2", signature(x = "mvdc"),       wireframe2Mvdc)
 
@@ -709,13 +708,13 @@ setMethod("wireframe2", signature(x = "mvdc"),       wireframe2Mvdc)
 ##' @param ... Further arguments passed to cloud()
 ##' @return A "trellis" object, as returned from cloud()
 ##' @author Marius Hofert
-cloud2MatrixDf <- function(x,
-                           xlim = range(x[,1], finite = TRUE),
-                           ylim = range(x[,2], finite = TRUE),
-                           zlim = range(x[,3], finite = TRUE),
-                           xlab = NULL, ylab = NULL, zlab = NULL,
-                           scales = list(arrows = FALSE, col = "black"),
-                           par.settings = standard.theme(color = FALSE), ...)
+cloud2Matrix <- function(x,
+                         xlim = range(x[,1], finite = TRUE),
+                         ylim = range(x[,2], finite = TRUE),
+                         zlim = range(x[,3], finite = TRUE),
+                         xlab = NULL, ylab = NULL, zlab = NULL,
+                         scales = list(arrows = FALSE, col = "black"),
+                         par.settings = standard.theme(color = FALSE), ...)
 {
     ## Checking
     if(!is.matrix(x)) x <- as.matrix(x)
@@ -723,13 +722,13 @@ cloud2MatrixDf <- function(x,
 
     ## Labels
     colnms <- colnames(x)
-    if(is.null(xlab)) xlab <- if(is.null(colnms)) "" else as.symbol(colnms[1])
-    if(is.null(ylab)) ylab <- if(is.null(colnms)) "" else as.symbol(colnms[2])
-    if(is.null(zlab)) zlab <- if(is.null(colnms)) "" else as.symbol(colnms[3])
-    ## workaround buglet in lattice [e-mailed Deepayan, 2016-11-16]:
-    if(is.language(xlab)) xlab <- as.expression(xlab)
-    if(is.language(ylab)) ylab <- as.expression(ylab)
-    if(is.language(zlab)) zlab <- as.expression(zlab)
+    if(is.null(xlab)) xlab <- if(is.null(colnms)) "" else parse(text=colnms[1])
+    else ## workaround buglet in lattice [e-mailed Deepayan, 2016-11-16]:
+        if(is.language(xlab) && !is.expression(xlab)) xlab <- as.expression(xlab)
+    if(is.null(ylab)) ylab <- if(is.null(colnms)) "" else parse(text=colnms[2])
+    else if(is.language(ylab) && !is.expression(ylab)) ylab <- as.expression(ylab)
+    if(is.null(zlab)) zlab <- if(is.null(colnms)) "" else parse(text=colnms[3])
+    else if(is.language(zlab) && !is.expression(zlab)) zlab <- as.expression(zlab)
 
     ## Cloud plot
     cloud(x[,3] ~ x[,1] * x[,2],
@@ -752,7 +751,7 @@ cloud2MatrixDf <- function(x,
 ##' @param xlab The x-axis label
 ##' @param ylab The y-axis label
 ##' @param zlab The z-axis label
-##' @param ... Additional arguments passed to cloud2MatrixDf()
+##' @param ... Additional arguments passed to cloud2Matrix()
 ##' @return A cloud() object
 ##' @author Marius Hofert
 cloud2Copula <- function(x, n,
@@ -764,8 +763,8 @@ cloud2Copula <- function(x, n,
     if(dim(x) != 3)
         stop("The copula needs to be of dimension 3.")
     U <- rCopula(n, copula = x)
-    cloud2MatrixDf(U, xlim = xlim, ylim = ylim, zlim = zlim,
-                   xlab = xlab, ylab = ylab, zlab = zlab, ...)
+    cloud2Matrix(U, xlim = xlim, ylim = ylim, zlim = zlim,
+                 xlab = xlab, ylab = ylab, zlab = zlab, ...)
 }
 
 ##' @title Cloud Plot Method for Class "mvdc"
@@ -777,7 +776,7 @@ cloud2Copula <- function(x, n,
 ##' @param xlab The x-axis label
 ##' @param ylab The y-axis label
 ##' @param zlab The z-axis label
-##' @param ... Additional arguments passed to cloud2MatrixDf()
+##' @param ... Additional arguments passed to cloud2Matrix()
 ##' @return A cloud() object
 ##' @author Marius Hofert
 cloud2Mvdc <- function(x, n,
@@ -792,15 +791,15 @@ cloud2Mvdc <- function(x, n,
     if(is.null(xlim)) xlim <- range(X[,1], finite = TRUE)
     if(is.null(ylim)) ylim <- range(X[,2], finite = TRUE)
     if(is.null(zlim)) zlim <- range(X[,3], finite = TRUE)
-    cloud2MatrixDf(X, xlim = xlim, ylim = ylim, zlim = zlim,
-                   xlab = xlab, ylab = ylab, zlab = zlab, ...)
+    cloud2Matrix(X, xlim = xlim, ylim = ylim, zlim = zlim,
+                 xlab = xlab, ylab = ylab, zlab = zlab, ...)
 }
 
 ## Define cloud2() methods for objects of various classes
 ## Note: 'x' is a "matrix", "data.frame", "Copula" or "mvdc" object
 setGeneric("cloud2", function(x, ...) standardGeneric("cloud2"))
-setMethod("cloud2", signature(x = "matrix"),     cloud2MatrixDf)
-setMethod("cloud2", signature(x = "data.frame"), cloud2MatrixDf)
+setMethod("cloud2", signature(x = "matrix"),     cloud2Matrix)
+setMethod("cloud2", signature(x = "data.frame"), cloud2Matrix)
 setMethod("cloud2", signature(x = "Copula"),     cloud2Copula)
 setMethod("cloud2", signature(x = "mvdc"),       cloud2Mvdc)
 
@@ -818,9 +817,9 @@ setMethod("cloud2", signature(x = "mvdc"),       cloud2Mvdc)
 ##' @param ... Further arguments passed to splom()
 ##' @return An splom() object
 ##' @author Martin Maechler and Marius Hofert
-splom2MatrixDf <- function(x, varnames = NULL,
-                           varnames.null.lab = "U", xlab = "",
-                           col.mat = NULL, bg.col.mat = NULL, ...)
+splom2Matrix <- function(x, varnames = NULL,
+                         varnames.null.lab = "U", xlab = "",
+                         col.mat = NULL, bg.col.mat = NULL, ...)
 {
     if(!is.matrix(x)) x <- as.matrix(x)
     stopifnot((d <- ncol(x)) >= 1)
@@ -833,7 +832,7 @@ splom2MatrixDf <- function(x, varnames = NULL,
 		lapply(1:d, function(j)
 		    substitute(v[I], list(v = vNm, I = j)))
 	    } else # 'x' has column names => use them
-		lapply(colnms, as.symbol))
+		parse(text = colnms)
     }
     n <- nrow(x)
     if(is.null(col.mat))
@@ -855,7 +854,7 @@ splom2MatrixDf <- function(x, varnames = NULL,
 ##' @title Scatter-Plot Matrix Method for Class "Copula"
 ##' @param x An object of class "Copula"
 ##' @param n The sample size
-##' @param ... Additional arguments passed to splom2MatrixDf()
+##' @param ... Additional arguments passed to splom2Matrix()
 ##' @return An splom() object
 ##' @author Marius Hofert
 splom2Copula <- function(x, n, ...)
@@ -864,13 +863,13 @@ splom2Copula <- function(x, n, ...)
     if(dim(x) <= 2)
         stop("The copula needs to be of dimension >= 3.")
     U <- rCopula(n, copula = x)
-    splom2MatrixDf(U, ...)
+    splom2Matrix(U, ...)
 }
 
 ##' @title Scatter-Plot Matrix Method for Class "mvdc"
 ##' @param x An object of class "mvdc"
 ##' @param n The sample size
-##' @param ... Additional arguments passed to splom2MatrixDf()
+##' @param ... Additional arguments passed to splom2Matrix()
 ##' @return An splom() object
 ##' @author Marius Hofert
 splom2Mvdc <- function(x, n, varnames.null.lab = "X", ...)
@@ -879,13 +878,13 @@ splom2Mvdc <- function(x, n, varnames.null.lab = "X", ...)
     if(dim(x) <= 2)
         stop("The multivariate distribution needs to be of dimension >= 3.")
     X <- rMvdc(n, mvdc = x)
-    splom2MatrixDf(X, varnames.null.lab = varnames.null.lab, ...)
+    splom2Matrix(X, varnames.null.lab = varnames.null.lab, ...)
 }
 
 ## Define splom2() methods for objects of various classes
 ## Note: 'x' is a "matrix", "data.frame", "Copula" or "mvdc" object
 setGeneric("splom2", function(x, ...) standardGeneric("splom2"))
-setMethod("splom2", signature(x = "matrix"),     splom2MatrixDf)
-setMethod("splom2", signature(x = "data.frame"), splom2MatrixDf)
+setMethod("splom2", signature(x = "matrix"),     splom2Matrix)
+setMethod("splom2", signature(x = "data.frame"), splom2Matrix)
 setMethod("splom2", signature(x = "Copula"),     splom2Copula)
 setMethod("splom2", signature(x = "mvdc"),       splom2Mvdc)
