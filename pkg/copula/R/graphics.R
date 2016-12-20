@@ -625,9 +625,11 @@ panel.3dwire.4 <- function(x, y, z, rot.mat, distance,
 ##' @param FUN A function like dCopula or pCopula
 ##' @param n.grid The (vector of) number(s) of grid points in each dimension
 ##' @param delta Distance from the boundary of [0,1]^2
-##' @param xlim,ylim, zlim  The x-, y-, and z-axis limits
-##' @param xlab,ylab, zlab  The x-, y-, and z-axis label
-##' ##' @param ... Additional arguments passed to wireframe2Matrix()
+##' @param xlim, ylim, zlim  The x-, y-, and z-axis limits
+##' @param xlab, ylab, zlab  The x-, y-, and z-axis label
+##' @param draw.4.pCoplines logical indicating whether the four boundary
+##'        lines are displayed
+##' @param ... Additional arguments passed to wireframe2Matrix()
 ##' @return A wireframe() object
 ##' @author Marius Hofert
 wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
