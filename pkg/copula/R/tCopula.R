@@ -148,7 +148,8 @@ dtCopula <- function(u, copula, log = FALSE, ...) {
 printTCopula <- function(x, ...) {
   printCopula(x, ...)
   if (x@dimension > 2) cat("dispstr: ", x@dispstr, "\n")
-  if (x@df.fixed) cat("df is fixed at", getdf(x), "\n")
+  ## redundant now with := in params
+  ## if (x@df.fixed) cat("df is fixed at", getdf(x), "\n")
   invisible(x)
 }
 
