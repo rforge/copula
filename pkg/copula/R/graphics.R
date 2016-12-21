@@ -548,15 +548,13 @@ setMethod("contourplot2", signature(x = "mvdc"),       contourplot2Mvdc)
 
 ##' @title Wireframe Plot Method for Classes "matrix" (and "data.frame")
 ##' @param x A numeric matrix or as.matrix(.)able
-##' @param xlim The x-axis limits
-##' @param ylim The y-axis limits
-##' @param zlim The z-axis limits
-##' @param xlab The x-axis label
-##' @param ylab The y-axis label
-##' @param zlab The z-axis label
+##' @param xlim, ylim, zlim  The x-, y-, and z-axis limits
+##' @param xlab, ylab, zlab  The x-, y-, and z-axis label
 ##' @param alpha.regions See ?wireframe
 ##' @param scales See ?wireframe
 ##' @param par.settings Additional arguments passed to 'par.settings' (some are set)
+##' @param draw.4.pCoplines logical indicating whether the four boundary
+##'        lines are displayed
 ##' @param ... Further arguments passed to wireframe()
 ##' @return A wireframe() object
 ##' @author Marius Hofert
@@ -570,7 +568,8 @@ wireframe2Matrix <- function(x,
                              xlab = NULL, ylab = NULL, zlab = NULL,
                              alpha.regions = 0.5,
                              scales = list(arrows = FALSE, col = "black"),
-                             par.settings = standard.theme(color = FALSE), ...)
+                             par.settings = standard.theme(color = FALSE),
+			     draw.4.pCoplines = FALSE, ...)
 {
     ## Checking
     if(!is.matrix(x)) x <- as.matrix(x)
@@ -587,21 +586,28 @@ wireframe2Matrix <- function(x,
                           if(is.null(colnms)) "" else parse(text = colnms[3]),
                           rot = 90)
     else if(is.language(zlab) && !is.expression(zlab)) zlab <- as.expression(zlab)
-
-    ## Wireframe plot
-    wireframe(x[,3] ~ x[,1] * x[,2], xlim = xlim, ylim = ylim, zlim = zlim,
-              xlab = xlab, ylab = ylab, zlab = zlab,
-              alpha.regions = alpha.regions, scales = scales,
-              par.settings = modifyList(par.settings,
-                                        list(axis.line = list(col = "transparent"),
-                                             clip = list(panel = "off"))),
-              ...)
+    par.settings <- modifyList(par.settings,
+                               list(axis.line = list(col = "transparent"),
+                                    clip = list(panel = "off")))
+    ## Return wireframe() object :
+    if(is.function(list(...)$panel.3d.wireframe)) ## use it from ... => do *not* set it:
+        wireframe(x[,3] ~ x[,1] * x[,2], xlim = xlim, ylim = ylim, zlim = zlim,
+                  xlab = xlab, ylab = ylab, zlab = zlab,
+                  alpha.regions = alpha.regions, scales = scales,
+                  par.settings = par.settings, ...)
+    else
+        wireframe(x[,3] ~ x[,1] * x[,2], xlim = xlim, ylim = ylim, zlim = zlim,
+                  xlab = xlab, ylab = ylab, zlab = zlab,
+                  alpha.regions = alpha.regions, scales = scales,
+                  panel.3d.wireframe = if(draw.4.pCoplines) panel.3dwire.4 else panel.3dwire,
+                  par.settings = par.settings, ...)
 }
 
 ##' wireframe panel additionally drawing "the" 4-line-segments of every pCopula()
 panel.3dwire.4 <- function(x, y, z, rot.mat, distance,
                            xlim.scaled, ylim.scaled, zlim.scaled,
-                           col.4 = adjustcolor("green4", 0.5), lwd.4 = 5, lty.4 = "82", ...)
+                           ## NB: These are *documented* in ../man/wireframe2-methods.Rd
+                           col.4 = "#668b5580", lwd.4 = 5, lty.4 = "82", ...)
 {
     panel.3dwire(x, y, z, rot.mat, distance,
                  xlim.scaled=xlim.scaled, ylim.scaled=ylim.scaled, zlim.scaled=zlim.scaled,
@@ -620,18 +626,8 @@ panel.3dwire.4 <- function(x, y, z, rot.mat, distance,
     }
 }
 
-##' @title Wireframe Plot Method for Class "Copula"
-##' @param x An object of class "Copula"
+##' @title Wireframe Plot Method for Class "Copula" ---> ../man/wireframe2-methods.Rd
 ##' @param FUN A function like dCopula or pCopula
-##' @param n.grid The (vector of) number(s) of grid points in each dimension
-##' @param delta Distance from the boundary of [0,1]^2
-##' @param xlim, ylim, zlim  The x-, y-, and z-axis limits
-##' @param xlab, ylab, zlab  The x-, y-, and z-axis label
-##' @param draw.4.pCoplines logical indicating whether the four boundary
-##'        lines are displayed
-##' @param ... Additional arguments passed to wireframe2Matrix()
-##' @return A wireframe() object
-##' @author Marius Hofert
 wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
                              xlim = 0:1, ylim = 0:1, zlim = NULL,
                              xlab = quote(u[1]), ylab = quote(u[2]),
@@ -648,24 +644,11 @@ wireframe2Copula <- function(x, FUN, n.grid = 26, delta = 0,
     if(is.null(zlim)) zlim <- range(z, finite = TRUE)
     wireframe2Matrix(cbind(grid, z = z), xlim = xlim, ylim = ylim, zlim = zlim,
                      xlab = xlab, ylab = ylab, zlab = zlab,
-                     panel.3d.wireframe = if(draw.4.pCoplines) panel.3dwire.4
-                                          else panel.3dwire,
-                     ...)
+                     draw.4.pCoplines = draw.4.pCoplines, ...)
 }
 
-##' @title Wireframe Plot Method for Class "mvdc"
-##' @param x An object of class "mvdc"
-##' @param FUN A function like dCopula or pCopula
-##' @param n.grid The (vector of) number(s) of grid points in each dimension
-##' @param xlim The x-axis limits
-##' @param ylim The y-axis limits
-##' @param zlim The z-axis limits
-##' @param xlab The x-axis label
-##' @param ylab The y-axis label
-##' @param zlab The z-axis label
-##' @param ... Additional arguments passed to wireframe2Matrix()
-##' @return A wireframe() object
-##' @author Marius Hofert
+##' @title Wireframe Plot Method for Class "mvdc"   --->  ../man/wireframe2-methods.Rd
+##' @param FUN A function like dMvdc or pMvdc
 wireframe2Mvdc <- function(x, FUN, n.grid = 26,
                            xlim, ylim, zlim = NULL,
                            xlab = quote(x[1]), ylab = quote(x[2]),

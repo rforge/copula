@@ -20,19 +20,17 @@
       zlim = range(x[,3], finite = TRUE),
       xlab = NULL, ylab = NULL, zlab = NULL,
       alpha.regions = 0.5, scales = list(arrows = FALSE, col = "black"),
-      par.settings = standard.theme(color = FALSE), \dots)
-\S4method{wireframe2}{data.frame}(x,
-      xlim = range(x[,1], finite = TRUE),
-      ylim = range(x[,2], finite = TRUE),
-      zlim = range(x[,3], finite = TRUE),
-      xlab = NULL, ylab = NULL, zlab = NULL,
-      alpha.regions = 0.5, scales = list(arrows = FALSE, col = "black"),
-      par.settings = standard.theme(color = FALSE), \dots)
+      par.settings = standard.theme(color = FALSE),
+      draw.4.pCoplines = FALSE, \dots)
+
+## _identical_ method for  'data.frame' instead of 'matrix'
+
 \S4method{wireframe2}{Copula}(x, FUN, n.grid = 26, delta = 0,
       xlim = 0:1, ylim = 0:1, zlim = NULL,
       xlab = quote(u[1]), ylab = quote(u[2]),
       zlab = list(deparse(substitute(FUN))[1], rot = 90),
       draw.4.pCoplines = identical(FUN, pCopula), \dots)
+
 \S4method{wireframe2}{mvdc}(x, FUN, n.grid = 26, xlim, ylim, zlim = NULL,
       xlab = quote(x[1]), ylab = quote(x[2]),
       zlab = list(deparse(substitute(FUN))[1], rot = 90), \dots)
@@ -47,8 +45,9 @@
   \item{scales}{a \code{\link{list}} determining how the axes are drawn;
     see \code{\link{wireframe}()}.}
   \item{par.settings}{See \code{\link{wireframe}()}.}
-  \item{FUN}{the \code{\link{function}} to be plotted; typically
-    \code{\link{dCopula}} or \code{\link{pCopula}}.}
+  \item{FUN}{the \code{\link{function}} to be plotted; for a "copula", typically
+    \code{\link{dCopula}} or \code{\link{pCopula}}; for an "mvdc",
+    rather \code{\link{dMvdc}}, etc.}
   \item{n.grid}{the number of grid points used in each dimension.  This
     can be a vector of length two, giving the number of grid points used
     in x- and y-direction, respectively; the function \code{FUN} will be
@@ -57,10 +56,16 @@
     influencing the evaluation boundaries. The x- and y- vectors will
     have the range \code{[0+delta, 1-delta]}, the default being \code{[0,1]}.}
   \item{draw.4.pCoplines}{logical indicating if the 4 known border
-    segments of a copula df (i.e., \code{\link{pCopula}}) should be drawn.}
+    segments of a copula distribution function, i.e., \code{\link{pCopula}},
+    should be drawn.  If true, the line segments are drawn with
+    \code{col.4 = "#668b5580"}, \code{lwd.4 = 5}, and \code{lty.4 = "82"}
+    which you can modify (via the \code{\dots} below).  Applies only
+    when you do \emph{not} set \code{panel.3d.wireframe} (via the \code{\dots}).}
   \item{\dots}{additional arguments passed to the underlying \code{\link{wireframe}()},
-    such as \code{shade}, \code{drape}, \code{aspect}, etc., or
-    \code{\link{panel.3dwire}} from the \CRANpkg{lattice} package.}
+    such as \code{shade}, \code{drape}, \code{aspect}, etc., or (if you
+    do not specify \code{panel.3d.wireframe} differently), to the
+    function \code{\link{panel.3dwire}} from the \CRANpkg{lattice}
+    package.}
 }
 \section{Methods}{
   Wireframe plots for objects of class \code{"\linkS4class{matrix}"} ,
