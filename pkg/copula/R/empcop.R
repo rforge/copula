@@ -33,7 +33,10 @@ Cn <- function(x,w) {
 ##' @return empirical CDF / copula of X at x
 ##' @author Ivan Kojadinovic, Marius Hofert and Martin (C.n -> F.n; re-organisation)
 ##' Note: See ../man/empcop.Rd for a nice graphical check with the Kendall function
-F.n <- function(x, X, offset=0, method=c("C", "R"))
+
+## Internal function
+.Fn <- function(x, X, type=c("indicator", "beta", "checkerboard"),
+                offset=0, method=c("C", "R"))
 ## {
 ##     if(!is.matrix(x)) x <- rbind(x, deparse.level=0L)
 ##     if(!is.matrix(X)) X <- rbind(X, deparse.level=0L)
@@ -49,6 +52,8 @@ F.n <- function(x, X, offset=0, method=c("C", "R"))
 	vapply(x, function(x.) sum(X <= x.), NA_real_) / (n+offset)
     else { ## d > 1
 	method <- match.arg(method)
+        type <- match.arg(type)
+        int.type <- which(type == c("indicator", "beta", "checkerboard"))
 	switch(method,
 	       "C"={
 		   m <- nrow(x)
@@ -59,23 +64,40 @@ F.n <- function(x, X, offset=0, method=c("C", "R"))
 		      as.double(x),
 		      as.integer(m),
 		      ec=double(m),
-		      as.double(offset))$ec
+		      as.double(offset),
+                      as.integer(int.type))$ec
 	       },
 	       "R"={
-		   ## == apply(x, 1, function(x.) sum(colSums(t(X)<=x.)==d)/(n+offset) )
-		   ## but vapply is slightly faster (says MH)
-		   tX <- t(X)
-		   vapply(1:nrow(x), function(k) sum(colSums(tX <= x[k,]) == d),
-		       NA_real_) / (n + offset)
-	       },
-	       stop("wrong 'method': ", method))
+                   ## == apply(x, 1, function(x.) sum(colSums(t(X)<=x.)==d)/(n+offset) )
+                   ## but vapply is slightly faster (says MH)
+                   tX <- t(X)
+                   switch(type,
+                          "indicator"={
+                             vapply(1:nrow(x), function(k) sum(colSums(tX <= x[k,]) == d),
+                                    NA_real_) / (n + offset)
+                          },
+                          "beta"={
+                             stop("no R implementation for 'type': ", type)
+                          },
+                          "checkerboard"={
+                             stop("no R implementation for 'type': ", type)
+                          },
+                          stop("wrong 'type': ", type)
+                          )
+               },
+               stop("wrong 'method': ", method)
+               )
     }
 }
 
-C.n <- function(u, X, offset=0, method = c("C", "R")) {
+F.n <- function(x, X, offset=0, method=c("C", "R"))
+    .Fn(x=x, X=X, offset=offset, method=method, type="indicator")
+
+C.n <- function(u, X, type=c("indicator", "beta", "checkerboard"),
+                offset=0, method = c("C", "R")) {
     if(any(u < 0, 1 < u))
         stop("'u' must be in [0,1].")
-    F.n(u, pobs(X), offset=offset, method=method)
+    .Fn(u, pobs(X), offset=offset, method=method, type=type)
 }
 
 ##' @title Estimated Partial Derivatives of a Copula Given the Empirical Copula

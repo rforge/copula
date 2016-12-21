@@ -43,8 +43,8 @@ static R_NativePrimitiveArgType mult_A_t[8] = {
 };
 
 // ./empcop.c ///////////////////////////////////////////////////////////////////
-static R_NativePrimitiveArgType Cn_C_t[7] = {
-	REALSXP, INTSXP, INTSXP, REALSXP, INTSXP, REALSXP, REALSXP
+static R_NativePrimitiveArgType Cn_C_t[8] = {
+	REALSXP, INTSXP, INTSXP, REALSXP, INTSXP, REALSXP, REALSXP, INTSXP
 };
 
 // ./fgm.c /////////////////////////////////////////////////////////////////////
