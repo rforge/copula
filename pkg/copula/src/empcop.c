@@ -83,6 +83,7 @@ double der2bivCn(const double U[], const double V[], int n, double u, double v) 
 /**
  * Wrapper of the beta df for the empirical beta copula
  * See Segers, Sibuya, Tsukahara, JMVA 2016+
+ * u assumed to be rank/(n+1)
  **/
 double emp_beta_cop(double u, double v, int n) {
     return pbeta(v, u * (n + 1), (n + 1) * (1.0 - u), TRUE, FALSE);
@@ -91,6 +92,7 @@ double emp_beta_cop(double u, double v, int n) {
 /**
  * For the empirical checkerboard (multilinear extension) copula
  * See Segers, Sibuya, Tsukahara, JMVA 2016+
+ * u assumed to be rank/(n+1)
  **/
 double emp_mult_lin_cop(double u, double v, int n) {
     return fmin2(fmax2(n * v - (n + 1) * u + 1.0 , 0.0), 1.0);
@@ -132,6 +134,7 @@ double Cn_f(const double U[], int n, int p, const double V[], int m, int k,
     return sumprod / (n + offset);
 }
 
+/* The classical multivariate empirical copula */
 double multCn(const double U[], int n, int p, const double V[], int m, int k,
 	      double offset) {
     return Cn_f(U, n, p, V, m, k, offset, emp_cop);
@@ -167,6 +170,7 @@ double der_multCn(const double U[], int n, int p,
  * @param m "number of lines" of V
  * @param ec values of the empirical copula at the lines of V
  * @param offset offset to be used for scaling
+ * @param type: 1 = empirical, 2 = beta, 3 = checkerboard
  * @author Ivan Kojadinovic
  */
 void Cn_C(double *U, int *n, int *p, double *V, int *m, double *ec, double *offset,
