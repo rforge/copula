@@ -18,12 +18,11 @@
   of the unknown copula using the empirical copula.
 
   The function \code{F.n()} computes the empirical distribution function
-  of a multivariate sample.  %Note that \code{C.n(u, X,
-   % type="indicator", *)} simply calls
-  %\code{F.n(u, pobs(X), *)} after checking \code{u}.
+  of a multivariate sample.  Note that \code{C.n(u, X, smoothing="none",
+  *)} simply calls \code{F.n(u, pobs(X), *)} after checking \code{u}.
 }
 \usage{
-C.n(u, X, type=c("indicator", "beta", "checkerboard"),
+C.n(u, X, smoothing=c("none", "beta", "checkerboard"),
     offset=0, method=c("C", "R"))
 dCn(u, U, j.ind=1:d, b=1/sqrt(nrow(U)), ...)
 
@@ -45,10 +44,10 @@ Cn(x, w) ## <-- deprecated!  use  C.n(w, x) instead!
       d)}-\code{\link{matrix}} with the same number \eqn{d} of columns as
     \code{x}.  Recall that a multivariate random sample \code{X} can be
     transformed to an appropriate \code{U} via \code{\link{pobs}()}.}
-  \item{type}{\code{\link{character}} string specifying whether
-    the empirical copula (\code{type="indicator"}), the empirical beta
-    copula (\code{type="beta"}) or the empirical checkerboard
-    copula (\code{type="checkerboard"}) is computed.}
+  \item{smoothing}{\code{\link{character}} string specifying whether
+    the empirical copula (\code{smoothing="none"}), the empirical beta
+    copula (\code{smoothing="beta"}) or the empirical checkerboard
+    copula (\code{smoothing="checkerboard"}) is computed.}
   \item{j.ind}{\code{\link{integer}} vector of indices \eqn{j} between 1
     and \eqn{d} indicating the dimensions with respect to which
     first-order partial derivatives are approximated.}
@@ -91,17 +90,20 @@ Cn(x, w) ## <-- deprecated!  use  C.n(w, x) instead!
   had its two arguments \emph{reversed} compared to \code{C.n()}, and is
   deprecated now.  You \bold{must} swap its arguments to transform to
   new code.
+
+  The use of the two smoothed versions assumes implicitly no
+  ties in the component samples of the data.
 }
 \details{
   There are several asymptotically equivalent definitions of the
   empirical copula. As mentioned above, the empirical copula
-  \code{C.n(, type = "indicator")} is simply defined as the empirical distribution function
+  \code{C.n(, smoothing = "none")} is simply defined as the empirical distribution function
   computed from the pseudo-observations, that is,
   \deqn{C_n(\bm{u})=\frac{1}{n}\sum_{i=1}^n\mathbf{1}_{\{\hat{\bm{U}}_i\le\bm{u}\}},}{(1/n)
   sum(I_{U_i<=u}, i=1, .., n),}
   where \eqn{\hat{\bm{U}}_i}{U_i}, \eqn{i\in\{1,\dots,n\}}{i=1,..,n},
   denote the pseudo-observations (rows in \code{U}) and \eqn{n} the
-  sample size. Internally, \code{C.n(,type = "indicator")} is just a wrapper for
+  sample size. Internally, \code{C.n(,smoothing = "none")} is just a wrapper for
   \code{F.n()} and is expected to be fed with the pseudo-observations.
 
   The approximation for the \eqn{j}th partial derivative of the unknown
@@ -159,9 +161,9 @@ pc <- pCopula(u, copula=cop)
 mean(abs(pc - ec)) # ~= 0.012 -- increase n to decrease this error
 
 ## The same for the two smoothed versions
-beta <- C.n(u, X, type = "beta")
+beta <- C.n(u, X, smoothing = "beta")
 mean(abs(pc - beta))
-check <- C.n(u, X, type = "checkerboard")
+check <- C.n(u, X, smoothing = "checkerboard")
 mean(abs(pc - check))
 
 ## Compare the empirical copula with F.n(pobs())
