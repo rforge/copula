@@ -122,14 +122,15 @@ kcgcd3
 u <- rCopula(10, kcgcd3)
 dCopula(u, kcgcd3)
 
+##--- or use comparederiv() from  ../inst/Rsource/utils.R   via source(..)
 ## dCdu
-all.equal(copula:::dCdu(kcgcd3, u), copula:::dCduCopulaNum(kcgcd3, u))
+all.equal(copula:::dCdu(kcgcd3, u), copula:::dCduNumer(kcgcd3, u, may.warn=FALSE))
 ## dCdtheta
-all.equal(copula:::dCdtheta(kcgcd3, u), copula:::dCdthetaCopulaNum(kcgcd3, u))
+all.equal(copula:::dCdtheta(kcgcd3, u), copula:::dCdthetaNumer(kcgcd3, u, may.warn=FALSE))
 ## dlogcdu
-all.equal(copula:::dlogcdu(kcgcd3, u), copula:::dlogcduCopulaNum(kcgcd3, u))
+all.equal(copula:::dlogcdu(kcgcd3, u), copula:::dlogcduNumer(kcgcd3, u, may.warn=FALSE))
 ## dlogcdtheta
-all.equal(copula:::dlogcdtheta(kcgcd3, u), copula:::dlogcdthetaCopulaNum(kcgcd3, u))
+all.equal(copula:::dlogcdtheta(kcgcd3, u), copula:::dlogcdthetaNumer(kcgcd3, u, may.warn=FALSE))
 
 #############################################################################
 ## fitting checking

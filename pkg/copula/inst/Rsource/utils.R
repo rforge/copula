@@ -51,8 +51,22 @@ nCorrDigits <- function(target, current, zeroDigs = 16) {
     r
 }
 
+## FIXME?  setTheta() alone should work nowadays
 setPar <- function(cop, par) {
     if((is(cop, "tCopula") || is(cop, "tevCopula")) && !cop@df.fixed)
 	par <- c(par, df = cop@parameters[length(cop@parameters)])
     setTheta(cop, par, noCheck=TRUE)
+}
+
+##' Compare true and numerical derivatives
+##' @return max error of d_C_d*() and d_logc_d*() :
+comparederiv <- function(cop, u) {
+    c(dCdu = max(abs((copula:::dCdu     (cop, u) -
+                      copula:::dCduNumer(cop, u, may.warn=FALSE)))),
+      dCdtheta = max(abs(copula:::dCdtheta     (cop, u) -
+                         copula:::dCdthetaNumer(cop, u, may.warn=FALSE))),
+      dlogcdu = max(abs(copula:::dlogcdu     (cop, u) -
+                        copula:::dlogcduNumer(cop, u, may.warn=FALSE))),
+      dlogcdtheta = max(abs(copula:::dlogcdtheta     (cop, u) -
+                            copula:::dlogcdthetaNumer(cop, u, may.warn=FALSE))))
 }

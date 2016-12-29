@@ -57,9 +57,9 @@ sides <- function(x, dimx, d, lb, ub) {
 ##' @param ...
 ##' @return partial derivatives of the copula wrt arguments at u
 ##' @author Ivan Kojadinovic
-dCduCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-1), ...) {
+dCduNumer <- function(copula, u, method.args = gradControl(d = 0.1), may.warn=TRUE, ...) {
     cl <- class(copula)[[1]]
-    if(is.null(W <- get0("warned.dCdu", .copulaEnv)) || is.na(match(cl, W))) {
+    if(may.warn && (is.null(W <- get0("warned.dCdu", .copulaEnv)) || is.na(match(cl, W)))) {
 	assign("warned.dCdu", if(is.null(W)) cl else c(W, cl), envir = .copulaEnv)
 	warning(gettextf(
 	"Function %s() not implemented for %s copulas; numerical differentiation used",
@@ -95,7 +95,7 @@ dCduArchmCopula <- function(copula, u, ...) {
 
 ## For copulas with explicit cdf
 ## Warning: This function assumes symmetry in u
-dCduExplicitCopula <- function(copula, u, ...) {
+dCduExplicit <- function(copula, u, ...) {
     d <- dim(copula)
     mat <- matrix(NA_real_, nrow(u), d)
     algNm <- paste(class(copula)[1], "cdfDerWrtArg.algr", sep=".")
@@ -135,17 +135,17 @@ dCduIndepCopula <- function(copula, u, ...) {
 }
 
 
-setMethod("dCdu", signature("parCopula"), dCduCopulaNum) # GETR
-setMethod("dCdu", signature("joeCopula"), dCduExplicitCopula)
-setMethod("dCdu", signature("archmCopula"), dCduExplicitCopula)
-setMethod("dCdu", signature("plackettCopula"), dCduExplicitCopula)
-setMethod("dCdu", signature("evCopula"), dCduExplicitCopula)
-setMethod("dCdu", signature("gumbelCopula"), dCduExplicitCopula)
+setMethod("dCdu", signature("parCopula"), dCduNumer) # GETR
+setMethod("dCdu", signature("joeCopula"), dCduExplicit)
+setMethod("dCdu", signature("archmCopula"), dCduExplicit)
+setMethod("dCdu", signature("plackettCopula"), dCduExplicit)
+setMethod("dCdu", signature("evCopula"), dCduExplicit)
+setMethod("dCdu", signature("gumbelCopula"), dCduExplicit)
 setMethod("dCdu", signature("indepCopula"), dCduIndepCopula)
 
-setMethod("dCdu", signature("khoudrajiExplicitCopula"), dCduExplicitCopula)
-setMethod("dCdu", signature("mixExplicitCopula"),       dCduExplicitCopula)
-setMethod("dCdu", signature("rotExplicitCopula"),       dCduExplicitCopula)
+setMethod("dCdu", signature("khoudrajiExplicitCopula"), dCduExplicit)
+setMethod("dCdu", signature("mixExplicitCopula"),       dCduExplicit)
+setMethod("dCdu", signature("rotExplicitCopula"),       dCduExplicit)
 
 ## For ellipCopula objects
 dCduEllipCopula <- function(copula, u, ...) {
@@ -283,9 +283,9 @@ setMethod("plackettFormula", signature("tCopula"), plackettFormulaTCopula)
 ##' @param ...
 ##' @return n by p, partial derivatives of the copula wrt parameters at u
 ##' @author Ivan Kojadinovic
-dCdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-1), ...) {
+dCdthetaNumer <- function(copula, u, method.args = gradControl(d = 0.1), may.warn=TRUE, ...) {
     cl <- class(copula)[[1]]
-    if(is.null(W <- get0("warned.dCdtheta", .copulaEnv)) || is.na(match(cl, W))) {
+    if(may.warn && (is.null(W <- get0("warned.dCdtheta", .copulaEnv)) || is.na(match(cl, W)))) {
 	assign("warned.dCdtheta", if(is.null(W)) cl else c(W, cl), envir = .copulaEnv)
 	warning(gettextf(
 	"Function %s() not implemented for %s copulas; numerical differentiation used",
@@ -304,7 +304,7 @@ dCdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-1), ..
 }
 
 ## For copulas with explicit cdf
-dCdthetaExplicitCopula <- function(copula, u, ...) {
+dCdthetaExplicit <- function(copula, u, ...) {
     d <- dim(copula)
     algNm <- paste(class(copula)[1], "cdfDerWrtPar.algr", sep=".")
     alpha <- getTheta(copula) # typically used in 'eval(*)' below
@@ -323,17 +323,20 @@ dCdthetaExplicitCopula <- function(copula, u, ...) {
         mat <- attr(eval(der, c(u.df, params)), "gradient")
         attr(mat, "dimnames") <- NULL
     } else {
-        warning("Function dCdtheta() not implemented for copulas of class '",
-                class(copula), "'")
+	warning(gettextf(
+            "Function %s() not implemented for copulas of class '%s'",
+            "dCdtheta", class(copula)), domain = NA)
         ## matrix(NA_real_, nrow(u), length(alpha)) # copula@parameters))
     }
     ## JY: For some rotated explicit copula, dCdtheta returns NA:
     ## copula:::dCdtheta(khoudrajiCopula(indepCopula(), rotCopula(gumbelCopula(2)), shapes = c(.4, .95)), as.matrix(expand.grid(1:4/5, 1:4/5)))
     ## In this case, fall back on the numerical version
-    col.na <- apply(mat, 2, function(x) any(is.na(x)))
+    col.na <- apply(mat, 2, anyNA)
     if (any(col.na)) {
-        warning("dCdtheta() returned NaN in column(s) ", (1:ncol(mat))[col.na], " for this explicit copula; falling back to numeric derivative for those columns")
-        mat.num <- dCdthetaCopulaNum(copula, u, ...)
+        warning("dCdtheta() returned NaN in column(s) ", paste(which(col.na), collapse=", "),
+                " for this explicit copula; falling back to numeric derivative for those columns")
+        ## FIXME: computing for all columns, but need only 'col.na'
+	mat.num <- dCdthetaNumer(copula, u, may.warn=FALSE, ...)# warned above
         mat[,col.na] <- mat.num[,col.na]
     }
     mat
@@ -349,17 +352,17 @@ dCdthetaEvCopula <- function(copula, u, ...) {
   as.matrix(pCopula(u, copula) * loguv * dAdtheta(copula, w))
 }
 
-setMethod("dCdtheta", signature("parCopula"), dCdthetaCopulaNum) # GETR
-setMethod("dCdtheta", signature("joeCopula"), dCdthetaExplicitCopula)
-setMethod("dCdtheta", signature("tevCopula"), dCdthetaCopulaNum)
-setMethod("dCdtheta", signature("archmCopula"), dCdthetaExplicitCopula)
-setMethod("dCdtheta", signature("plackettCopula"), dCdthetaExplicitCopula)
-setMethod("dCdtheta", signature("evCopula"), dCdthetaExplicitCopula)
-setMethod("dCdtheta", signature("gumbelCopula"), dCdthetaExplicitCopula)
+setMethod("dCdtheta", signature("parCopula"), dCdthetaNumer) # GETR
+setMethod("dCdtheta", signature("joeCopula"), dCdthetaExplicit)
+setMethod("dCdtheta", signature("tevCopula"), dCdthetaNumer)
+setMethod("dCdtheta", signature("archmCopula"), dCdthetaExplicit)
+setMethod("dCdtheta", signature("plackettCopula"), dCdthetaExplicit)
+setMethod("dCdtheta", signature("evCopula"), dCdthetaExplicit)
+setMethod("dCdtheta", signature("gumbelCopula"), dCdthetaExplicit)
 
-setMethod("dCdtheta", signature("khoudrajiExplicitCopula"), dCdthetaExplicitCopula)
-setMethod("dCdtheta", signature("mixExplicitCopula"),       dCdthetaExplicitCopula)
-setMethod("dCdtheta", signature("rotExplicitCopula"),       dCdthetaExplicitCopula)
+setMethod("dCdtheta", signature("khoudrajiExplicitCopula"), dCdthetaExplicit)
+setMethod("dCdtheta", signature("mixExplicitCopula"),       dCdthetaExplicit)
+setMethod("dCdtheta", signature("rotExplicitCopula"),       dCdthetaExplicit)
 
 
 ## For ellipCopula objects
@@ -450,9 +453,9 @@ setMethod("dCdtheta", signature("ellipCopula"), dCdthetaEllipCopula)
 ##' @param ...
 ##' @return partial derivatives of the log copula density wrt arguments at u
 ##' @author Ivan Kojadinovic
-dlogcduCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-5), ...) {
+dlogcduNumer <- function(copula, u, method.args = gradControl(d=1e-5), may.warn = TRUE, ...) {
     cl <- class(copula)[[1]]
-    if(is.null(W <- get0("warned.dlogcdu", .copulaEnv)) || is.na(match(cl, W))) {
+    if(may.warn && (is.null(W <- get0("warned.dlogcdu", .copulaEnv)) || is.na(match(cl, W)))) {
 	assign("warned.dlogcdu", if(is.null(W)) cl else c(W, cl), envir = .copulaEnv)
 	warning(gettextf(
 	"Function %s() not implemented for %s copulas; numerical differentiation used",
@@ -466,7 +469,7 @@ dlogcduCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-5), ...
 }
 
 ## For copulas with explicit densities
-dlogcduExplicitCopula <- function(copula, u, ...) {
+dlogcduExplicit <- function(copula, u, ...) {
     d <- dim(copula)
     algNm <- paste(class(copula)[1], "pdfDerWrtArg.algr", sep=".")
     mat <- matrix(NA_real_, nrow(u), d)
@@ -487,21 +490,22 @@ dlogcduExplicitCopula <- function(copula, u, ...) {
         der <- deriv(pdf, unames)
         mat <- attr(eval(der, c(u.df, params)), "gradient")
         attr(mat, "dimnames") <- NULL
-    } else warning("Function dlogcdu() not implemented for copulas of class '",
-                   class(copula), "'")
+    } else warning(gettextf(
+               "Function %s() not implemented for copulas of class '%s'",
+               "dlogcdu", class(copula)), domain=NA)
     mat / dCopula(u, copula)
 }
 
-setMethod("dlogcdu", signature("parCopula"), dlogcduCopulaNum) # GETR
-setMethod("dlogcdu", signature("joeCopula"), dlogcduExplicitCopula)
-setMethod("dlogcdu", signature("tevCopula"), dlogcduCopulaNum)
-setMethod("dlogcdu", signature("archmCopula"), dlogcduExplicitCopula)
-setMethod("dlogcdu", signature("evCopula"), dlogcduExplicitCopula)
-setMethod("dlogcdu", signature("plackettCopula"), dlogcduExplicitCopula)
+setMethod("dlogcdu", signature("parCopula"), dlogcduNumer) # GETR
+setMethod("dlogcdu", signature("joeCopula"), dlogcduExplicit)
+setMethod("dlogcdu", signature("tevCopula"), dlogcduNumer)
+setMethod("dlogcdu", signature("archmCopula"), dlogcduExplicit)
+setMethod("dlogcdu", signature("evCopula"), dlogcduExplicit)
+setMethod("dlogcdu", signature("plackettCopula"), dlogcduExplicit)
 
-setMethod("dlogcdu", signature("khoudrajiExplicitCopula"), dlogcduExplicitCopula)
-setMethod("dlogcdu", signature("mixExplicitCopula"),       dlogcduExplicitCopula)
-setMethod("dlogcdu", signature("rotExplicitCopula"),       dlogcduExplicitCopula)
+setMethod("dlogcdu", signature("khoudrajiExplicitCopula"), dlogcduExplicit)
+setMethod("dlogcdu", signature("mixExplicitCopula"),       dlogcduExplicit)
+setMethod("dlogcdu", signature("rotExplicitCopula"),       dlogcduExplicit)
 
 ## For normalCopula objects
 dlogcduNormalCopula <- function(copula, u, ...) {
@@ -534,9 +538,10 @@ setMethod("dlogcdu", signature("tCopula"), dlogcduTCopula)
 ##' @param ...
 ##' @return partial derivatives of the log copula density wrt parameters at u
 ##' @author Ivan Kojadinovic
-dlogcdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-5), ...) {
+dlogcdthetaNumer <- function(copula, u, method.args = gradControl(d=1e-5), may.warn = TRUE, ...) {
     cl <- class(copula)[[1]]
-    if(is.null(W <- get0("warned.dlogcdtheta", .copulaEnv)) || is.na(match(cl, W))) {
+    if(may.warn &&
+       (is.null(W <- get0("warned.dlogcdtheta", .copulaEnv)) || is.na(match(cl, W)))) {
 	assign("warned.dlogcdtheta", if(is.null(W)) cl else c(W, cl), envir = .copulaEnv)
 	warning(gettextf(
 	"Function %s() not implemented for %s copulas; numerical differentiation used",
@@ -555,10 +560,9 @@ dlogcdthetaCopulaNum <- function(copula, u, method.args = gradControl(d = 1e-5),
 }
 
 ## For copulas with explicit densities
-dlogcdthetaExplicitCopula <- function(copula, u, ...) {
+dlogcdthetaExplicit <- function(copula, u, ...) {
     d <- dim(copula)
     algNm <- paste(class(copula)[1], "pdfDerWrtPar.algr", sep=".")
-    mat <- matrix(NA_real_, nrow(u), nParam(copula))
     if(exists(algNm) && !is.null((der.pdf.alpha <- get(algNm)[d])[[1]])) {
 	alpha <- copula@parameters # typically used in val(.)
         colnames(u) <- paste0("u", 1:d)
@@ -573,31 +577,35 @@ dlogcdthetaExplicitCopula <- function(copula, u, ...) {
         attr(mat, "dimnames") <- NULL
         mat <- mat / dCopula(u, copula)
     } else {
-        warning("Function dlogcdtheta() not implemented for copulas of class '",
-                class(copula), "'")
+	warning(gettextf(
+            "Function %s() not implemented for copulas of class '%s'",
+            "dlogcdtheta", class(copula)), domain = NA)
+        mat <- matrix(NA_real_, nrow(u), nParam(copula))
     }
     ## JY: For some rotated explicit copula, dCdtheta returns NA:
     ## copula:::dlogcdtheta(khoudrajiCopula(indepCopula(), rotCopula(gumbelCopula(2)), shapes = c(.4, .95)), as.matrix(expand.grid(1:4/5, 1:4/5)))
     ## In this case, fall back on the numerical version
-    col.na <- apply(mat, 2, function(x) any(is.na(x)))
+    col.na <- apply(mat, 2, anyNA)
     if (any(col.na)) {
-        warning("dlogcdtheta() returned NaN in column(s) ", (1:ncol(mat))[col.na], " for this explicit copula; falling back to numeric derivative for those columns")
-        mat.num <- dlogcdthetaCopulaNum(copula, u, ...)
+        warning("dlogcdtheta() returned NaN in column(s) ", paste(which(col.na), collapse=", "),
+                " for this explicit copula; falling back to numeric derivative for those columns")
+        ## FIXME: computing for all columns, but need only 'col.na'
+        mat.num <- dlogcdthetaNumer(copula, u, may.warn=FALSE, ...)# warned above
         mat[,col.na] <- mat.num[,col.na]
     }
     mat
 }
 
-setMethod("dlogcdtheta", signature("parCopula"), dlogcdthetaCopulaNum) # GETR
-setMethod("dlogcdtheta", signature("joeCopula"), dlogcdthetaExplicitCopula)
-setMethod("dlogcdtheta", signature("tevCopula"), dlogcdthetaCopulaNum)
-setMethod("dlogcdtheta", signature("archmCopula"), dlogcdthetaExplicitCopula)
-setMethod("dlogcdtheta", signature("plackettCopula"), dlogcdthetaExplicitCopula)
-setMethod("dlogcdtheta", signature("evCopula"), dlogcdthetaExplicitCopula)
+setMethod("dlogcdtheta", signature("parCopula"), dlogcdthetaNumer) # GETR
+setMethod("dlogcdtheta", signature("joeCopula"), dlogcdthetaExplicit)
+setMethod("dlogcdtheta", signature("tevCopula"), dlogcdthetaNumer)
+setMethod("dlogcdtheta", signature("archmCopula"), dlogcdthetaExplicit)
+setMethod("dlogcdtheta", signature("plackettCopula"), dlogcdthetaExplicit)
+setMethod("dlogcdtheta", signature("evCopula"), dlogcdthetaExplicit)
 
-setMethod("dlogcdtheta", signature("khoudrajiExplicitCopula"), dlogcdthetaExplicitCopula)
-setMethod("dlogcdtheta", signature("mixExplicitCopula"),       dlogcdthetaExplicitCopula)
-setMethod("dlogcdtheta", signature("rotExplicitCopula"),       dlogcdthetaExplicitCopula)
+setMethod("dlogcdtheta", signature("khoudrajiExplicitCopula"), dlogcdthetaExplicit)
+setMethod("dlogcdtheta", signature("mixExplicitCopula"),       dlogcdthetaExplicit)
+setMethod("dlogcdtheta", signature("rotExplicitCopula"),       dlogcdthetaExplicit)
 
 ## For ellipCopula objects
 dlogcdthetaEllipCopula <- function(copula, u, ...) {

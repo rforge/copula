@@ -275,9 +275,8 @@ instead of hand made function header documentation.
 ** TODO Write a function "checkTheta" or "thetaConstr"(param_vector, Copula): checks if the parameters are all admissible.
 ** TODO iTau(): must use tau.checker() [R/estimation.R]
 ** TODO t / normal : allow  "block" dispersion structure {including  fitCopula() working}
-
-**** --> e-mail and example: /u/maechler/R/MM/Pkg-ex/copula/mvdc-ex.R
-** TODO pCopula() should also accept a 'log.p = FALSE' argument
+**** --> e-mail and example: /u/maechler/R/MM/Pkg-ex/copula/mvdc-ex.R {but is not there ??}
+** TODO pCopula() should accept a 'log.p = FALSE' argument - see log(pCopula(.)) for deriv!!!
  and provide more accurate results in the lower tail for log.p=TRUE.
 ** TODO nice little function that provides confidence intervals for tau and lambda's (from \theta_{MLE})
 ** TODO [IK] d-dimensional versions of rank-based estimators of the Pickands dependence function

@@ -71,12 +71,13 @@ rotCopula <- function(copula, flip = TRUE) {
 rotExplicitCopula <- function(copula, flip = TRUE) {
     stopifnot(isExplicit(copula))
     d <- dim(copula)
+    ## TODO: if (inherits(copula, "rotExplicitCopula")) then just "flip the flips"
     if (length(flip) == 1) flip <- rep(flip, d)
+    else if(length(flip) != d) stop("length(flip) must be 1 or d")
 
     ## preparation for cdf
     cdf <- copula@exprdist$cdf
     cdf <- do.call(substitute, list(cdf, list(alpha = quote(param))))
-    ## TODO: if (inherits(copula, "rotExplicitCopula")) then ...
     unames <- paste0("u", 1L:d)
     lo <- ifelse(flip, unames, 0L)
     up <- ifelse(flip, 1L, unames)

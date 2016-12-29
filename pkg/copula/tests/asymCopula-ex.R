@@ -17,6 +17,11 @@ require(copula)
 
 (doExtras <- copula:::doExtras())
 
+d.dCdu  <- function(cop, u) copula:::dCduNumer    (cop, u, may.warn=FALSE) -
+                                copula:::dCdu(cop, u)
+d.dCdth <- function(cop, u) copula:::dCdthetaNumer(cop, u, may.warn=FALSE) -
+                                copula:::dCdtheta(cop, u)
+
 if(!dev.interactive(orNone=TRUE)) pdf("asymCopula-ex.pdf")
 
 ### some constructions ###########################################################
@@ -45,8 +50,8 @@ stopifnot(all.equal(dCopula(v, kd2b), dCopula(v, gumbelCopula(4))))
 
 ## True versus numerical derivatives
 v <- matrix(runif(6), 3, 2)
-max(abs(copula:::dCduCopulaNum(kc, v) - copula:::dCdu(kc, v)))
-max(abs(copula:::dCdthetaCopulaNum(kc, v) - copula:::dCdtheta(kc, v)))
+summary(abs(d.dCdu (kc, v)))
+summary(abs(d.dCdth(kc, v)))
 
 ## tau, rho, lambda not supposed to work
 assertError <- tools::assertError
@@ -64,8 +69,8 @@ kcf
 
 ## True versus numerical derivatives
 v <- matrix(runif(6), 3, 2)
-max(abs(copula:::dCduCopulaNum(kcf, v) - copula:::dCdu(kcf, v)))
-max(abs(copula:::dCdthetaCopulaNum(kcf, v) - copula:::dCdtheta(kcf, v)))
+summary(abs(d.dCdu (kcf, v)))
+summary(abs(d.dCdth(kcf, v)))
 
 ## A Khoudraji-normal-Clayton copula
 knc <- khoudrajiCopula(copula1 = normalCopula(-0.7),
@@ -76,8 +81,8 @@ contour(knc, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
 
 ## True versus numerical derivatives
 er.nc <- c(
-dCdu = max(abs(copula:::dCduCopulaNum(knc, v) - copula:::dCdu(knc, v))),
-dCdth= max(abs(copula:::dCdthetaCopulaNum(knc, v) - copula:::dCdtheta(knc, v))))
+    dCdu = max(abs(d.dCdu (knc, v))),
+    dCdth= max(abs(d.dCdth(knc, v))))
 er.nc
 ##         dCdu        dCdth
 ## 0.0018449990 0.0001717451
@@ -100,8 +105,8 @@ stopifnot(
 
 ## True versus numerical derivatives
 er.ncf <- c(
-dCdu = max(abs(copula:::dCduCopulaNum(kncf, v) - copula:::dCdu(knc, v))),
-dCdth= max(abs(copula:::dCdthetaCopulaNum(kncf, v) - copula:::dCdtheta(kncf, v))))
+    dCdu = max(abs(d.dCdu (kncf, v))),
+    dCdth= max(abs(d.dCdth(kncf, v))))
 er.ncf
 ##         dCdu        dCdth
 ## 1.186238e-03 6.439294e-15
@@ -115,8 +120,8 @@ kgkcf <- khoudrajiCopula(copula1 = gumbelCopula(3),
 kgkcf
 contour(kgkcf, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
 erN <- c(
-dCdu = max(abs(copula:::dCduCopulaNum(kgkcf, v) - copula:::dCdu(kgkcf, v))),
-dCdth= max(abs(copula:::dCdthetaCopulaNum(kgkcf, v) - copula:::dCdtheta(kgkcf, v))))
+    dCdu = max(abs(d.dCdu (kgkcf, v))),
+    dCdth= max(abs(d.dCdth(kgkcf, v))))
 erN
 ##         dCdu        dCdth
 ## 1.340428e-03 8.121975e-14
