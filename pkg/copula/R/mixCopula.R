@@ -310,7 +310,7 @@ setMethod("pCopula", signature("matrix",  "mixCopula"), pMixCopula)
 dMixCopula <- function(u, copula, log = FALSE, ...) {
     n <- nrow(u) ## stopifnot(is.numeric(n))
     fu <- vapply(copula@cops, dCopula, FUN.VALUE=numeric(n), u=u, log=log, ...)
-    if(n == 1L) dim(fu) <- dim(u)# vapply() gave p-vector instead of (1,p) matrix
+    if(n == 1L) dim(fu) <- c(n, length(fu))# vapply() gave p-vector instead of (1,p) matrix
     w <- as.numeric(copula@w)
     if(log)
 	lsum(t(fu) + log(w)) ## = log(colSums(exp(t(fu) + log(w))))
