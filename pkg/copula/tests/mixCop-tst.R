@@ -45,6 +45,7 @@ uM  <- rCopula( 600, mC)
 uGG <- rCopula(1000, mGG)
 ## Check  dCopula(*, log= TRUE) ## --- this was __wrong__ for many days (not on CRAN)
 stopifnot(
+    length(dCopula(uM[1,,drop=FALSE], mC, log=TRUE)) == 1,# was wrong
     all.equal(log(dCopula(uM,  mC)),
 		  dCopula(uM,  mC,  log=TRUE), tol = 1e-12),
     all.equal(log(dCopula(uGG, mGG)),

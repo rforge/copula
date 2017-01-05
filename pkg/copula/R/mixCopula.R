@@ -145,7 +145,7 @@ setMethod("nParam", signature("mixCopula"), function(copula, freeOnly=FALSE)
 ## parameter names for freeOnly parameters
 setMethod("paramNames", signature("mixCopula"), function(x) {
     cops <- x@cops
-    m <- length(cops)
+    ## m <- length(cops)
     nj <- vapply(cops, nParam, 1, freeOnly=TRUE)
     ic <- seq_along(cops)# 1:m
     c(unlist(lapply(ic,
@@ -157,7 +157,6 @@ setMethod("paramNames", signature("mixCopula"), function(x) {
 ## get parameters
 setMethod("getTheta", "mixCopula",
 function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
-    d <- dim(copula)
     parC <- lapply(copula@cops, getTheta,
                    freeOnly=freeOnly, attr=attr, named=named)
     w <- copula@w
@@ -206,6 +205,7 @@ function(copula, value) {
     if(nw) { ## Ensuring that w sums to one (!)
 	I. <- 1 - sum(w[!iF.w]) # == target sum(<free w>)
 	w. <- value[n. + seq_len(nw)]
+	if(any(w. < 0)) stop("mixCopula weights must not become negative")
 	copula@w[iF.w] <- I. * w. / sum(w.)
     }
     if(getOption("copula:checkMix", FALSE))
@@ -240,8 +240,12 @@ function(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, ...) {
         }
     if(n.)
         x@cops <- cops
-    if(nw) ## FIXME: how to ensure w sums to 1?
-        x@w[iF.w] <- value[n. + seq_len(nw)]
+    if(nw) { ## Ensuring that w sums to one
+	I. <- 1 - sum(w[!iF.w]) # == target sum(<free w>)
+	w. <- value[n. + seq_len(nw)]
+	if(any(w. < 0)) stop("mixCopula weights must not become negative")
+	x@w[iF.w] <- I. * w. / sum(w.)
+    }
     if(!noCheck)
         stopifnot(validObject(x))
     x
@@ -306,6 +310,7 @@ setMethod("pCopula", signature("matrix",  "mixCopula"), pMixCopula)
 dMixCopula <- function(u, copula, log = FALSE, ...) {
     n <- nrow(u) ## stopifnot(is.numeric(n))
     fu <- vapply(copula@cops, dCopula, FUN.VALUE=numeric(n), u=u, log=log, ...)
+    if(n == 1L) dim(fu) <- dim(u)# vapply() gave p-vector instead of (1,p) matrix
     w <- as.numeric(copula@w)
     if(log)
 	lsum(t(fu) + log(w)) ## = log(colSums(exp(t(fu) + log(w))))
