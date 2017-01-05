@@ -125,7 +125,7 @@ loglikCopula <- function(param, u, copula) {
     upper <- attr(cop.param, "param.upbnd")
     admissible <- !(any(is.na(cop.param) | cop.param > upper | cop.param < lower))
     if (admissible) {
-        ## FIXME-JY: param range check is only part of validity check
+        ## FIXME-JY: param range check is only a *part* of validity check
         sum(dCopula(u, copula=copula, log=TRUE, checkPar=FALSE))
     } else -Inf
 }

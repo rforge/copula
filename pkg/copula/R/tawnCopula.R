@@ -53,7 +53,7 @@ tawnCopula <- function(param = NA_real_) {
              param.names = "param",
              param.lowbnd = 0,
              param.upbnd = 1,
-             fullname = "Tawn copula family; Extreme value copula")
+             fullname = "<deprecated slot>")# "Tawn copula family; Extreme value copula"
 }
 
 ptawnCopula <- function(u, copula) {

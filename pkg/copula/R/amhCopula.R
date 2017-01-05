@@ -58,7 +58,7 @@ amhCopula <- function(param = NA_real_, dim = 2L,
       param.names = "param",
       param.lowbnd = -1,# 0 for tau >= 0
       param.upbnd = 1,
-      fullname = "Amh copula family; Archimedean copula")
+      fullname = "<deprecated slot>")# "Amh copula family; Archimedean copula"
 }
 
 

@@ -36,7 +36,7 @@ joeCopula <- function(param = NA_real_, dim = 2L,
   exprdist <- structure(c(cdf = cdf, pdf = pdf),
                         cdfalgr = if (!is.null(cdf)) deriv(cdf, "nothing"), # <-- FIXME: far from optimal
                         pdfalgr = if (!is.null(pdf)) deriv(pdf, "nothing")) # <-- FIXME: ditto
-  
+
   new("joeCopula",
       dimension = as.integer(dim),
       parameters = param[1],
@@ -44,7 +44,7 @@ joeCopula <- function(param = NA_real_, dim = 2L,
       param.names = "param",
       param.lowbnd = 1, # 0.238733989880086 for tau >= -1 -- is NOT valid
       param.upbnd = Inf,
-      fullname = "Joe copula family; Archimedean copula")
+      fullname = "<deprecated slot>")# "Joe copula family; Archimedean copula"
 }
 
 setMethod("rCopula", signature("numeric", "joeCopula"),

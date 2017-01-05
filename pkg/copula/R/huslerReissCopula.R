@@ -85,7 +85,7 @@ huslerReissCopula <- function(param = NA_real_) {
       param.names = "param",
       param.lowbnd = 0,
       param.upbnd = Inf,
-      fullname = "Husler-Reiss copula family; Extreme value copula")
+      fullname = "<deprecated slot>")# "Husler-Reiss copula family; Extreme value copula")
 }
 
 

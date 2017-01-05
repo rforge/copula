@@ -26,7 +26,7 @@ normalCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex") {
       param.names = paste("rho", 1:pdim, sep="."),
       param.lowbnd = lowbnd.rho.ellip(dim, dispstr, pdim),
       param.upbnd = rep(1, pdim),
-      fullname = "Normal copula family",
+      fullname = "<deprecated slot>", # "Normal copula family"
       getRho = function(obj) obj@parameters)
 }
 

@@ -51,7 +51,7 @@ tCopula <- function(param = NA_real_, dim = 2L, dispstr = "ex",
 	param.names = param.names,
 	param.lowbnd = param.lowbnd,
 	param.upbnd = param.upbnd,
-	fullname = paste("t copula family", if(df.fixed) paste("df fixed at", df)),
+	fullname = "<deprecated slot>",#paste("t copula family", if(df.fixed) paste("df fixed at", df)),
 	getRho = function(obj) {
 	    par <- obj@parameters
             par[-length(par)]

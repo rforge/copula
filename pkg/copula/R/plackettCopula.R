@@ -28,7 +28,7 @@ plackettCopula <- function(param = NA_real_) {
              param.names = "param",
              param.lowbnd = 0,
              param.upbnd = Inf,
-             fullname = "Plackett copula family")
+             fullname = "<deprecated slot>")# "Plackett copula family"
 }
 
 pplackettCopula <- function(u, copula) {

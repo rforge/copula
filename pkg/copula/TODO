@@ -3,7 +3,7 @@
 ** TODO [JY] Set up dispexpr (cdf, pdf) for rotExplicitCopula, mixExplicitCopula such that they and khoudrajiCopula woth with each other.
 ** TODO [IK] gofPB(*, ties=TRUE) is *never* tested, *nor* documented (man/gofCopula.Rd); see FIXME, what if x has no ties?
 ** DONE [MM] warnings about `numDeriv()` to be displayed once per R session and could be suppressed.
-** TODO [MM] copula@fullname: *abolish* (deprecate) and replace by function _describeCop()_ generic & methods
+** DONE [MM] copula@fullname: *abolish*, i.e., for now *deprecate* and replace by function _describeCop()_ generic & methods
 *** DONE [MM] copula@fullname: is used in print() method; Want also use for plotting -- hence urgent for book!
 - want to use "it" by default, e.g.,  `main = copula@fullname` in persp() etc, *HOWEVER*
   it is too long / ugly, e.g.,  "Gumbel copula family; Archimedean copula; Extreme value copula"
@@ -54,10 +54,10 @@ MM: (2016-05-03):
 ** TODO Improve error message: tCopula(c(rep(0.5, 3), 4), dim = 3, dispstr = "un", df = 4) => should rather say that the *length* of 'param' is not correct (in case one accidentally adds the d.o.f. parameter there as so often)
 ** TODO [JY]: once 'fixed' stuff added, rewrite/adapt tCopula, tevCopula (so that the 'df.fixed' stuff uses the new 'fixed' stuff) ?
 ** TODO [MM]: bug? library(copula); pCopula(0.4, copula = normalCopula(param = 0.5, dim = 3)) is *random* !??!!
-** TODO need a "getTheta" analogously to "setTheta"
-which extracts the parameter (vector) from any copula object
+** DONE [MM]  need a "getTheta" analogously to "setTheta"
+ which extracts the parameter (vector) from any copula object
 *** DONE partly: we have  getParam() but not exported; should think of name(s)
-*** TODO *Could* replace  new.x <- setTheta(x, value)  by param(new.x) <- value
+*** no: setTheta() has more optional args! *Could* replace  new.x <- setTheta(x, value)  by param(new.x) <- value
   but that only make sense when setTheta() has no extra arguments, but it has.
 ** DONE Clarify C.n() argument issues -- Decision: keep 'X' ('data' not better!!)
 ** TODO Make rosenblatt() and iRosenblatt() faster by avoiding 'archmCopula' class conversion to 'acopula' and back (see email from 2016-04-20); see the TODO in ./R/gofTrafos.R
@@ -147,6 +147,12 @@ doesn't.  Note the 2nd  "clayton", i.e. as arg to archmCopula(.) it _does_ work.
 *** TODO nparam() "wrapper" for  length(.@parameters)
 *** no longer TODO: dTau() = tau'(), rho() and dRho() = rho'() -- to get std.err. for  "itau" and "irho"
 **** these are *one* of the things where IJ-archmCopula' are better
+*** TODO loglikCopula() --- try(), hidemessages should "go" eventually
+*** TODO varPL(): TODO's there
+*** TODO dTau() = tau'() and dRho() = rho'() -- to get S.Err. for  "itau" and "irho"
+these are *one* of the things where IJ-archmCopula' are better
+*** TODO dAduGalambos() and similar: Use  list() instead of data.frame() as return value  (?)
+*** TODO dCdthetaEvCopula() cannot work (as dAdtheta() has no methods) and is used nowhere
 ** TODO Exporting/Documenting of "internal" functions:
 *** DONE => C.n(). JY: Ivan, I think we should export an empCopula function. I always
 thought it was unnecessary because it can be obtained with R package mecdf.
@@ -158,13 +164,6 @@ More ev copulas will come from max-stable processes.
 ** TODO fitCopula() should encompass all methods of enacopula() (similar to fitCopula.itau.mpl)
 ** DONE [MM] data(rdj) should have a "Date" in column 1, not a factor !
 ** TODO [MM + MH] implement estimation of standard error for fitCopula.itau.mpl
-** TODO Deprecation of Old Stuff / more consistency / Cleanup
-*** TODO loglikCopula() --- try(), hidemessages should "go" eventually
-*** TODO varPL(): TODO's there
-*** TODO dTau() = tau'() and dRho() = rho'() -- to get S.Err. for  "itau" and "irho"
-these are *one* of the things where IJ-archmCopula' are better
-*** TODO dAduGalambos() and similar: Use  list() instead of data.frame() as return value  (?)
-*** TODO dCdthetaEvCopula() cannot work (as dAdtheta() has no methods) and is used nowhere
 ** TODO see TODO in R/tCopula.R : npar.ellip() function;-> nparam(); test pos.def.
 ** TODO tCopula() / normalCopula() allow alternative specification of cor.matrix at least for the "un" dispersion structure
 ** TODO opower() and GIG --> either produce acopula with parameter *vector*, or

@@ -121,7 +121,7 @@ frankCopula <- function(param = NA_real_, dim = 2L,
       param.names = "param",
       param.lowbnd = if(dim == 2) -Inf else 0,
       param.upbnd = Inf,
-      fullname = "Frank copula family; Archimedean copula")
+      fullname = "<deprecated slot>")# "Frank copula family; Archimedean copula"
 }
 
 rfrankBivCopula <- function(n, alpha) {

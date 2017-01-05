@@ -96,7 +96,7 @@ gumbelCopula <- function(param = NA_real_, dim = 2L,
       param.names = "param",
       param.lowbnd = 1,
       param.upbnd = Inf,
-      fullname = "Gumbel copula family; Archimedean copula; Extreme value copula")
+      fullname = "<deprecated slot>")# "Gumbel copula family; Archimedean copula; Extreme value copula"
 }
 
 

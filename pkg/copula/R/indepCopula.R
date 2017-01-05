@@ -39,7 +39,7 @@ indepCopula <- function(dim = 2L) {
              param.names = character(0),
              param.lowbnd = double(0),
              param.upbnd = double(0),
-             fullname = "Independence copula")
+             fullname = "<deprecated slot>")# "Independence copula"
 }
 
 setMethod("A", signature("indepCopula"), function(copula, w) rep.int(1, length(w)))
