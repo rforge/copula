@@ -152,9 +152,9 @@ iRosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, drop = 
         U <- u # consider u as U[0,1]^d
         max.ind <- tail(indices, n = 1) # maximal index
         x <- qnorm(u[, 1:max.ind, drop = FALSE]) # will be updated
-        for(j in 1:max.ind) {
-            if(j == 1 && log) {
-                U[,1] <- log(U[,1]) # adjust the first column for 'log'
+        for(j in seq_len(max.ind)) {
+            if(j == 1) {
+                if(log) U[,1] <- log(U[,1]) # adjust the first column for 'log'
             } else {
                 P. <- P[j, 1:(j-1), drop = FALSE] %*% solve(P[1:(j-1), 1:(j-1), drop = FALSE]) # (1, j-1) %*% (j-1, j-1) = (1, j-1)
                 mu.cond <- as.numeric(P. %*% t(x[, 1:(j-1), drop = FALSE])) # (1, j-1) %*% (j-1, n) = (1, n) = n
@@ -172,9 +172,9 @@ iRosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, drop = 
         n <- nrow(u) # sample size
         max.ind <- tail(indices, n = 1) # maximal index
         x <- qt(u[, 1:max.ind, drop = FALSE], df = nu) # will be updated
-        for(j in 1:max.ind) {
-            if(j == 1 && log) {
-                U[, 1] <- log(U[, 1]) # adjust the first column for 'log'
+        for(j in seq_len(max.ind)) {
+            if(j == 1) {
+                if(log) U[,1] <- log(U[,1]) # adjust the first column for 'log'
             } else {
                 P1.inv <- solve(P[1:(j-1), 1:(j-1), drop = FALSE])
                 x1 <- x[, 1:(j-1), drop = FALSE]
