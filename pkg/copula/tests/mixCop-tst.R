@@ -43,13 +43,20 @@ mGG # 4 parameters
 set.seed(17)
 uM  <- rCopula( 600, mC)
 uGG <- rCopula(1000, mGG)
+## Check  dCopula(*, log= TRUE) ## --- this was __wrong__ for many days (not on CRAN)
+stopifnot(
+    all.equal(log(dCopula(uM,  mC)),
+		  dCopula(uM,  mC,  log=TRUE), tol = 1e-12),
+    all.equal(log(dCopula(uGG, mGG)),
+		  dCopula(uGG, mGG, log=TRUE), tol = 1e-12)
+)
 (llGG1 <- loglikCopula(c(2.5, 1., w = c(2,4)/6), u=uGG, copula = mGG))
 (llMC <-  loglikCopula(c(2.5, pi, rho.1=0.7, df = 4, w = c(2,2,4)/8), u = uM, copula = mC))
-## FIXME - discrepancy 32 bit <-> 64 bit
+## FIXME - discrepancy 32 bit <-> 64 bit --- still, *after* dMixCopula() bug fix ?!
 stopifnot(
-    all.equal(llGG1, 37.04012, ## 32 bit (Windows, Linux(FC 24)): 50.43308
+    all.equal(llGG1, 177.452426, ## 32 bit (Windows, Linux(FC 24)): ....
               tol = if(isSun || isMac || is32) 0.4 else 7e-7),
-    all.equal(llMC, 398.66745, ## 32 bit: 420.2089
+    all.equal(llMC,  532.8757887, ## 32 bit: .....
               tol = if(isSun || isMac || is32) 0.1 else 7e-7)
 )
 

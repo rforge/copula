@@ -28,6 +28,15 @@ setClass("mixWeights", contains = "numeric",
 	     TRUE
 	 })
 
+setAs("numeric", "mixWeights", function(from) {
+    if(any(neg <- from < 0)) {
+        warning("negative mixture weights set to 0")
+        from[neg] <- 0
+    }
+    new("mixWeights", from / sum(from)) # coerce sum(.) == 1
+})
+
+
 ##' A Mixture of Copulas
 setClass("mixCopula", contains = "parCopula",
 	 slots = c("w" = "mixWeights", "cops" = "parClist"),
@@ -42,6 +51,7 @@ setClass("mixCopula", contains = "parCopula",
 setClass("mixExplicitCopula", contains = "mixCopula",
          slot = c("exprdist" = "expression")
          )
+
 
 ##################################################################################
 ### Constructor of mixed copulas
@@ -186,16 +196,20 @@ function(copula, value) {
             "length(value) = %d  !=  %d, the number of free parameters",
             length(value), sum(nj) + nw))
     n. <- 0L
-    for(j in seq_len(m))
+    for(j in seq_len(m)) # set parameters for component copulas
         if ((n.j <- nj[j])) {
             freeParam(cops[[j]]) <- value[n.+ seq_len(n.j)]
             n. <- n. + n.j
         }
     if(n.)
         copula@cops <- cops
-    if(nw) ## FIXME: how to ensure w sums to one?
-        copula@w[iF.w] <- value[n. + seq_len(nw)]
-    ## stopifnot(validObject(copula))
+    if(nw) { ## Ensuring that w sums to one (!)
+	I. <- 1 - sum(w[!iF.w]) # == target sum(<free w>)
+	w. <- value[n. + seq_len(nw)]
+	copula@w[iF.w] <- I. * w. / sum(w.)
+    }
+    if(getOption("copula:checkMix", FALSE))
+	stopifnot(validObject(copula))
     copula
 })
 
@@ -290,10 +304,13 @@ setMethod("pCopula", signature("matrix",  "mixCopula"), pMixCopula)
 
 ##' The  c() function :
 dMixCopula <- function(u, copula, log = FALSE, ...) {
-    as.vector(
-	vapply(copula@cops, dCopula, FUN.VALUE=numeric(nrow(u)), u=u, log=log, ...)
-	%*%
-	copula@w)
+    n <- nrow(u) ## stopifnot(is.numeric(n))
+    fu <- vapply(copula@cops, dCopula, FUN.VALUE=numeric(n), u=u, log=log, ...)
+    w <- as.numeric(copula@w)
+    if(log)
+	lsum(t(fu) + log(w)) ## = log(colSums(exp(t(fu) + log(w))))
+    else
+	as.numeric(fu %*% w) # as.*(): drop dimension
 }
 
 setMethod("dCopula", signature("matrix",  "mixCopula"), dMixCopula)
