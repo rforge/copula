@@ -76,8 +76,7 @@ khoudrajiCopula(copula1 = indepCopula(), copula2 = indepCopula(dim = d),
 kc <- khoudrajiCopula(copula2 = claytonCopula(6),
                       shapes = c(0.4, 0.95))
 class(kc) # "kh..._Biv_Copula"
-
-kc ## FIXME: too long 'fullname'
+kc
 contour(kc, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
 
 ## A Khoudraji-Clayton copula with second shape parameter fixed

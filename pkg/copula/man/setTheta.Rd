@@ -25,7 +25,9 @@ setTheta(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, \dots)
 \S4method{setTheta}{xcopula,ANY}(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, \dots)
 \S4method{setTheta}{outer_nacopula,numeric}(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, \dots)
 \S4method{setTheta}{khoudrajiCopula,ANY}(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, \dots)
-\S4method{setTheta}{mixCopula,ANY}(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, \dots)
+
+\S4method{setTheta}{mixCopula,ANY}(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE,
+         treat.negative = c("set.0", "warn.set0", "stop"), \dots)
 }
 \arguments{
   \item{x}{an \R object of class \code{\linkS4class{Copula}}, i.e., any
@@ -42,6 +44,10 @@ setTheta(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, \dots)
     \dQuote{free} parameters are to be set.  If true as by default,
     \code{setTheta()} modifies only the free parameters of the copula;
     see also \code{\link{fixParam}}.}
+  \item{treat.negative}{a \code{\link{character}} string indicating how
+    negative mixture weights should be handled.  If not \code{"stop"}
+    which produces an error via \code{\link{stop}}, negative mixture
+    weights are replaced by zero.}
 }
 \value{
   an \R object of the same class as \code{x}, with the main parameter (vector)

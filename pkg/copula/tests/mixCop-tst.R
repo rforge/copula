@@ -67,23 +67,32 @@ if (doExtras) { # slowish
  try({
     st0 <- system.time(
         f. <- fitCopula(mC, uM, optim.method = "BFGS", optim.control=optCtrl, traceOpt=TRUE))
-    ## fails: non-finite finite-difference value [7]
+    ## converges, but then ( vcov computation ?),
+    ## fails with Error in  solve.default(Sigma.n, t(dlogcdtheta(copula, u) - S)) :
+    ##            system is computationally singular: reciprocal condition number = 3.88557e-17
+### FIXME: allow to *catch* this, and return anyway with a warning
     print(st0) #
     print(lf. <- logLik(f.))
     print(summary(f.))
  })
 
+ try({
     st1 <- system.time(
         ff <- fitCopula(mC, uM, optim.method = "Nelder-Mead", optim.control=optCtrl))
-    ## warning: ... possible convergence problem: optim() gave code=1
+    ## converges, then Error in solve(..)... (rec.cond.number 4.783e-17)
     print(st1) # 11 sec
     print(lff <- logLik(ff))
     print(summary(ff))
+ })
 
+ try({
     st2 <- system.time(
         f2 <- fitCopula(mC, uM, optim.method = "L-BFGS-B",    optim.control=optCtrl))
+    ## converges, then Error in solve(..)... (rec.cond.number 3.691e-17)
     print(st2) # 28 sec
     print(lf2 <- logLik(f2))
     print(summary(f2))
+ })
+
 }
 

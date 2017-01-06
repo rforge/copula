@@ -119,7 +119,9 @@ fitCor <- function(cop, x, method = c("itau", "irho"),
 ##' @param copula Copula object
 ##' @return Log-likelihood of the given copula at param given the data x
 loglikCopula <- function(param, u, copula) {
-    freeParam(copula) <- param
+    r <- tryCatch(freeParam(copula) <- param, error = function(e) NULL)
+    if(is.null(r)) # param was presumably "out-of-bound" (TODO? look at error, maybe warn?)
+        return(-Inf)
     cop.param <- getTheta(copula, freeOnly = TRUE, attr = TRUE)
     lower <- attr(cop.param, "param.lowbnd")
     upper <- attr(cop.param, "param.upbnd")

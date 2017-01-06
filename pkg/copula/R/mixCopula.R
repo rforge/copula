@@ -215,7 +215,8 @@ function(copula, value) {
 
 ## set parameters
 setMethod("setTheta", "mixCopula",
-function(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, ...) {
+          function(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE,
+                   treat.negative = c("set.0", "warn.set0", "stop"), ...) {
     stopifnot(is.numeric(value) | (ina <- is.na(value)))
     if(any(ina)) {
         if(!na.ok) stop("NA value, but 'na.ok' is not TRUE")
@@ -243,7 +244,16 @@ function(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, ...) {
     if(nw) { ## Ensuring that w sums to one
 	I. <- 1 - sum(w[!iF.w]) # == target sum(<free w>)
 	w. <- value[n. + seq_len(nw)]
-	if(any(w. < 0)) stop("mixCopula weights must not become negative")
+	if(any(wN <- w. < 0)) {
+	    switch(match.arg(treat.negative),
+		   "stop" =
+		       stop("mixCopula weights must not become negative"),
+		   "warn.set0" =
+		       warning("negative mixCopula weights set to 0"))
+	    ## if not stopped above,
+	    w.[wN] <- 0
+	    ## if(sum(w.) == 0) ... what exactly?
+        }
 	x@w[iF.w] <- I. * w. / sum(w.)
     }
     if(!noCheck)
