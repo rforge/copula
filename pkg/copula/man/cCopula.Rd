@@ -145,19 +145,27 @@ n <- 1000
 U <- rCopula(n, copula = cc)
 X <- qnorm(U) # X now follows a meta-Clayton model with N(0,1) marginals
 U <- pobs(X) # build pseudo-observations
+
 fN <- fitCopula(normalCopula(dim = d), data = U) # fit a Gauss copula
 U.RN <- cCopula(U, copula = fN@copula)
 splom2(U.RN, cex = 0.2) # visible but not so clearly
+
 f.t <- fitCopula(tCopula(dim = d), U)
-tc <- f.t@copula
-U.Rt <- cCopula(U, copula = tc) # transform with a fitted t copula
+U.Rt <- cCopula(U, copula = f.t@copula) # transform with a fitted t copula
 splom2(U.Rt, cex = 0.2) # still visible but not so clear
+
+## Inverse (and check consistency)
+U.N <- cCopula(U.RN, copula = fN @copula, inverse = TRUE)
+U.t <- cCopula(U.Rt, copula = f.t@copula, inverse = TRUE)
+
 tol <- 1e-14
 stopifnot(
+    all.equal(U, U.N),
+    all.equal(U, U.t),
     all.equal(log(U.RN),
-              cCopula(U, copula = fN@copula, log = TRUE), tolerance = tol),
+              cCopula(U, copula = fN @copula, log = TRUE), tolerance = tol),
     all.equal(log(U.Rt),
-              cCopula(U, copula = tc, log = TRUE), tolerance = tol),
-    TRUE)
+              cCopula(U, copula = f.t@copula, log = TRUE), tolerance = tol)
+ )
 }
 \keyword{distribution}
