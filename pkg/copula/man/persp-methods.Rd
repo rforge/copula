@@ -11,7 +11,7 @@
 \usage{
 \S4method{persp}{Copula}(x, FUN, n.grid = 26, delta = 0,
       xlab = "u1", ylab = "u2",
-      zlab = deparse(substitute(FUN))[1],
+      zlab = deparse(substitute(FUN))[1], zlim = NULL,
       theta = -30, phi = 30, expand = 0.618,
       ticktype = "detail", \dots)
 \S4method{persp}{mvdc}(x, FUN, xlim, ylim, n.grid = 26,
@@ -32,7 +32,7 @@
     have the range \code{[0+delta, 1-delta]}, the default being \code{[0,1]}.}
   \item{xlim, ylim}{The \code{\link{range}} of the x and
     y variables, respectively.}
-  \item{xlab, ylab, zlab, theta, phi, expand, ticktype, \dots}{Arguments
+  \item{xlab, ylab, zlab, zlim, theta, phi, expand, ticktype, \dots}{Arguments
     for (the default method of) \code{\link{persp}()}, the ones
     enumerated here all with \emph{different} defaults than there.}
 }
@@ -57,6 +57,7 @@
 \examples{
 persp(claytonCopula(2),   pCopula, main = "CDF of claytonCopula(2)")
 persp(  frankCopula(1.5), dCopula, main = "Density of frankCopula(1.5)")
+persp(  frankCopula(1.5), dCopula, main = "c_[frank(1.5)](.)", zlim = c(0,2))
 
 ## Examples with negative tau:
 (th1 <- iTau(amhCopula(), -0.1))

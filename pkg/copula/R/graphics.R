@@ -123,7 +123,7 @@ if(FALSE) { ## Examples for help file
 ##' @note *ARGHHHHHHHH...* persp() doesn't allow for plotmath x-/y-labels!
 perspCopula <- function(x, FUN, n.grid = 26, delta = 0,
                         xlab = "u1", ylab = "u2",
-                        zlab = deparse(substitute(FUN))[1],
+                        zlab = deparse(substitute(FUN))[1], zlim = NULL,
                         theta = -30, phi = 30, expand = 0.618, ticktype = "detail", ...)
 {
     stopifnot(n.grid >= 2)
@@ -135,13 +135,15 @@ perspCopula <- function(x, FUN, n.grid = 26, delta = 0,
     y. <- seq(0 + delta, 1 - delta, length.out = n.grid[2])
     grid <- as.matrix(expand.grid(x = x., y = y., KEEP.OUT.ATTRS = FALSE))
     z.mat <- matrix(if(chkFun(FUN)) FUN(grid, x) else FUN(x, grid), ncol = n.grid[2])
-    zl <- range(z.mat, na.rm = TRUE)
-    if(diff(zl) == 0) # persp.default would stop() --> better error message here :
-	stop(gettextf(
+    if(is.null(zlim)) {
+	zlim <- range(z.mat, na.rm = TRUE)
+	if(diff(zlim) == 0) # persp.default would stop() --> better error message here :
+	    stop(gettextf(
 		"The non-NA values of '%s' are all equal to %g.  Not allowed for persp()",
-	        paste0(fName,"(xy, ",xName,")"), zl[1]),
-            call. = FALSE, domain = NA)
-    T <- persp(x = x., y = y., z = z.mat, zlim = zl,
+		paste0(fName,"(xy, ",xName,")"), zl[1]),
+		call. = FALSE, domain = NA)
+    }
+    T <- persp(x = x., y = y., z = z.mat, zlim = zlim,
                xlab = xlab, ylab = ylab, zlab = zlab,
                theta = theta, phi = phi, expand = expand, ticktype = ticktype, ...)
     invisible(list(x = x., y = y., z = z.mat, persp = T))
