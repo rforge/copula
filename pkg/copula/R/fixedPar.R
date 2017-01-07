@@ -21,16 +21,18 @@
 ##' @title Fix a Subset of a Parameter Vector --> ../man/fixedPar.Rd
 fixParam <- function(param, fixed = TRUE) {
     stopifnot(length(fixed) %in% c(1L, length(param)), is.logical(fixed))
-    if(identical(fixed, FALSE)) attr(param, "fixed") <- NULL
-    stopifnot(isTRUE(fixed) || length(param) == length(fixed), is.logical(fixed))
-    if(!any(fixed)) attr(param, "fixed") <- NULL
-    attr(param, "fixed") <- fixed
+    if(identical(fixed, FALSE))
+	attr(param, "fixed") <- NULL
+    else {
+	stopifnot(isTRUE(fixed) || length(param) == length(fixed), is.logical(fixed))
+	attr(param, "fixed") <- if(any(fixed)) fixed else NULL # remove "fixed" attr
+    }
     param
 }
 
 ##' @title Whether Each Component of a Parameter is free
-##' @param param Numeric parameter vector, possibly with "fixed" attribute
-##' @return A vector of logicals, TRUE = free
+##' @param param numeric parameter vector, possibly with "fixed" attribute
+##' @return vector of logicals, TRUE = free
 ##' @author Jun Yan
 isFreeP <- function(param) {
     if (is.null(fixed <- attr(param, "fixed"))) rep(TRUE, length(param))

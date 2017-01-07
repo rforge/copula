@@ -125,7 +125,7 @@ loglikCopula <- function(param, u, copula) {
     cop.param <- getTheta(copula, freeOnly = TRUE, attr = TRUE)
     lower <- attr(cop.param, "param.lowbnd")
     upper <- attr(cop.param, "param.upbnd")
-    admissible <- !(any(is.na(cop.param) | cop.param > upper | cop.param < lower))
+    admissible <- !any(is.na(cop.param) | cop.param > upper | cop.param < lower)
     if (admissible) {
         ## FIXME-JY: param range check is only a *part* of validity check
         sum(dCopula(u, copula=copula, log=TRUE, checkPar=FALSE))
@@ -135,10 +135,10 @@ loglikCopula <- function(param, u, copula) {
 ##' @title Computing Initial Parameter Values for fitCopula.ml()
 ##' @param copula The copula to be fitted
 ##' @param u The data in [0,1]^d
-##' @param default The default initial values
+##' @param default The default initial values for _free_ parameters
 ##' @param ... Additional arguments passed to fitCopula.icor()
 ##' @return Initial parameter value for fitCopula.ml()
-fitCopStart <- function(copula, u, default = getTheta(copula), ...)
+fitCopStart <- function(copula, u, default = getTheta(copula, freeOnly = TRUE), ...)
 {
     clc <- class(copula)
     ## start <-
@@ -608,7 +608,9 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
     loglik <- fit$val
     has.conv <- fit[["convergence"]] == 0
     if (is.na(estimate.variance))
-        estimate.variance <- has.conv
+        estimate.variance <- has.conv && ## for now:
+	    (if(is(copula,"mixCopula"))
+                 !is.null(wf <- attr(copula@w, "fixed")) && all(wf) else TRUE)
     if(!has.conv)
         warning("possible convergence problem: optim() gave code=",
                 fit$convergence)

@@ -61,23 +61,38 @@ ll.df <- Vectorize(function(df, rho)
                                 uM, mC))
 (df. <- 1/rev(seq(1/8, 1/2, length=21)))# in [2, 8] equidistant in 1/. scale
 
-ll. <- ll.df(df., rho = 0.7)
-plot(df., ll., type = "b", ylim = extendrange(ll., f = 0.10),
-     main = "loglikCopula((.,.,., df, .,.,.), u, <mixCopula>)")
+ll. <- ll.df(df., rho = (rh1 <- 0.7))
+plot(df., ll., type = "b", main = "loglikCopula((.,.,rho = 0.7, df, ..), u, <mixCopula>)")
 
 if(!exists("Xtras")) Xtras <- copula:::doExtras() ; cat("Xtras: ", Xtras,"\n")
 if (Xtras) {
-%%% FIXME: use a grid of 'Rhos' and then use  persp() or wireframe2() 
-  Rhos <- c(0.7, 0.75, 0.65, 0.72, 0.78, 0.77)
-  Cols <- c(palette()[c(1,2,4)], "tomato", "forest green", "dark green")
-  for(k in 2:length(Rhos))
-    lines(df., ll.df(df., rho = Rhos[k]), type = "b", col=Cols[k])
-  legend("bottom", pch = 1, lwd = 1, col = Cols, bty = "n",
-       as.expression(lapply(Rhos, function(.) substitute(rho == R., list(R. = .)))))
+  Rhos <- seq(0.55, 0.70, by = 0.01)
+  ll.m <- matrix(NA, nrow=length(df.), ncol=length(Rhos))
+  for(k in seq_along(Rhos)) ll.m[,k] <- ll.df(df., rho = Rhos[k])
+  tit <- "loglikelihood(<tCop>, true param. for rest)"
+  persp         (df., Rhos, ll.m, phi=30, theta = 50, ticktype="detailed", main = tit)
+  filled.contour(df., Rhos, ll.m, xlab="df", ylab = "rho", main = tit)
 }
 
-## TODO: fitCopula() example with "fixed weights"
+## fitCopula() example with "fixed weights" -- (only these are "ok" !!) -------------
 
+(mNt <- mixCopula(list(normalCopula(0.95), tCopula(-0.7)), w = c(1, 2) / 3))
+set.seed(1452) ; U <- pobs(rCopula(1000, mNt))
+(m1 <- mixCopula(list(normalCopula(), tCopula()), w = mNt@w))
+
+getTheta(m1, freeOnly = TRUE, attr = TRUE)
+getTheta(m1, named=TRUE)
+copula:::isFree(m1)
+fixedParam(m1) <- fx <- c(FALSE, FALSE, FALSE, TRUE, TRUE)
+stopifnot(identical(copula:::isFree(m1), !fx))
+
+if (Xtras) { ## time
+  print(system.time(
+    fit <- fitCopula(m1, start = c(0, 0, 10), data = U)))
+  ## 16 sec (nb-mm4)
+  print( fit )
+  print( summary(fit) )#-> incl  'Std.Error' (which seems small for rho1 !)
+} #{Xtras}
 
 }% {examples}
 \keyword{distribution}

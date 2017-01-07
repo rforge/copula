@@ -140,7 +140,10 @@ setMethod("isFree", signature("mixCopula"), function(copula)
 ## number of (free / all) parameters :
 setMethod("nParam", signature("mixCopula"), function(copula, freeOnly=FALSE)
     sum(vapply(copula@cops, nParam, 1, freeOnly=freeOnly)) +
-    (if(freeOnly) nFree else length)(copula@w)) # FIXME reparametrize 'w'
+    (if(freeOnly) nFree else length)(copula@w))
+## FIXME reparametrize 'w'
+## pmax(0, (if(freeOnly) nFree else length)(copula@w) - 1L))
+##                                                     ==== "first" = 1 - sum(<others>)
 
 ## parameter names for freeOnly parameters
 setMethod("paramNames", signature("mixCopula"), function(x) {
@@ -151,17 +154,19 @@ setMethod("paramNames", signature("mixCopula"), function(x) {
     c(unlist(lapply(ic,
              function(i) if(nj[i] > 0L)
                              paste0("m", i, ".", paramNames(cops[[i]])))),
-      paste0("w", ic)[isFreeP(x@w)])
+      paste0("w", ic)[isFreeP(x@w)]) # FIXME reparametrize: -> theta
 })
 
-## get parameters
+## get parameters -- used in loglikCopula()
 setMethod("getTheta", "mixCopula",
 function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
     parC <- lapply(copula@cops, getTheta,
                    freeOnly=freeOnly, attr=attr, named=named)
     w <- copula@w
-    wFree <- isFreeP(w)
-    if(freeOnly) w <- w[wFree]
+    if(freeOnly) {
+	wFree <- isFreeP(w)
+	w <- w[wFree]
+    }
     if(named) {
         ic <- seq_along(parC) ## not w because w can be free only
         for(i in ic[lengths(parC) > 0])
@@ -177,7 +182,7 @@ function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
                   param.lowbnd = c(unlist(lowb), rep(0, length(w))),
                   param.upbnd  = c(unlist(uppb), rep(1, length(w))))
     } else {
-        c(unlist(parC), w)
+        c(unlist(parC), w) # FIXME reparametrize: -> theta
     }
 })
 
