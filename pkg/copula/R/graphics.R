@@ -140,7 +140,7 @@ perspCopula <- function(x, FUN, n.grid = 26, delta = 0,
 	if(diff(zlim) == 0) # persp.default would stop() --> better error message here :
 	    stop(gettextf(
 		"The non-NA values of '%s' are all equal to %g.  Not allowed for persp()",
-		paste0(fName,"(xy, ",xName,")"), zl[1]),
+		paste0(fName,"(xy, ",xName,")"), zlim[1]),
 		call. = FALSE, domain = NA)
     }
     T <- persp(x = x., y = y., z = z.mat, zlim = zlim,
