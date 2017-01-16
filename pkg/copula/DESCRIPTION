@@ -18,17 +18,18 @@ Suggests: MASS, KernSmooth, sfsmisc, scatterplot3d, Rmpfr, bbmle, knitr,
 SuggestsNote: the last lines' packages {parallel, ..., zoo} are only used
  in vignettes, demos and few tests.
 Enhances: nor1mix
-Description: Classes (S4) of commonly used elliptical, Archimedean, extreme
- value and some more copula families.  Methods for density, distribution,
- random number generation, bivariate dependence measures, perspective and
- contour plots.  Fitting copula models including variance estimates.
- Independence and serial (univariate and multivariate) independence tests,
- and other copula related tests. Empirical copula and multivariate CDF.
- Goodness-of-fit tests for copulas based on multipliers, the parametric
- bootstrap with several transformation options.
- Merged former package 'nacopula' for nested Archimedean copulas: Efficient
- sampling algorithms, various estimators, goodness-of-fit tests and related
- tools and special functions.
+Description: Classes (S4) of commonly used elliptical, Archimedean,
+ extreme-value and other copula families, as well as their rotations,
+ mixtures and asymmetrizations. Nested Archimedean copulas, related
+ tools and special functions. Methods for density, distribution, random
+ number generation, bivariate dependence measures, Rosenblatt transform,
+ Kendall distribution function, perspective and contour plots. Fitting of
+ copula models with potentially partly fixed parameters, including
+ standard errors. Serial independence tests, copula specification tests
+ (independence, exchangeability, radial symmetry, extreme-value
+ dependence, goodness-of-fit) and model selection based on
+ cross-validation. Empirical copula, smoothed versions, and
+ non-parametric estimators of the Pickands dependence function.
 License: GPL (>= 3) | file LICENCE
 ByteCompile: yes
 VignetteBuilder: knitr
