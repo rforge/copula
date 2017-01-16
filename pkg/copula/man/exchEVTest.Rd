@@ -15,7 +15,8 @@
 }
 \usage{
 exchEVTest(x, N = 1000,  estimator = c("CFG", "Pickands"),
-           ties = NA, m = 100, derivatives = c("Cn", "An"))
+           ties = NA, ties.method = eval(formals(rank)$ties.method),
+           m = 100, derivatives = c("Cn", "An"))
 }
 \arguments{
   \item{x}{a data matrix that will be transformed to
@@ -31,6 +32,9 @@ exchEVTest(x, N = 1000,  estimator = c("CFG", "Pickands"),
     presence of ties in any of the coordinate samples of \code{x}
     is used; the default value of \code{NA} indicates that the
     presence/absence of ties will be checked for automatically.}
+   \item{ties.method}{string specifying how ranks should be computed if
+     there are ties in any of the coordinate samples of \code{x}; passed
+     to \code{\link{pobs}}.}
    \item{derivatives}{a string specifying how the derivatives of the
     unknown copula are estimated; can be either \code{"An"} or \code{"Cn"}.
     The former should be used under the assumption of extreme-value

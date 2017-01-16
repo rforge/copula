@@ -6,13 +6,15 @@
 }
 \usage{
 pobs(x, na.last = "keep",
-     ties.method = , lower.tail = TRUE)
+     ties.method = eval(formals(rank)$ties.method), lower.tail = TRUE)
 }
 \arguments{
   \item{x}{\eqn{n\times d}{n x d}-matrix (or \eqn{d}-vector) of random
     variates to be converted to pseudo-observations.}
-  \item{na.last, ties.method}{strings, passed to \code{\link{rank}}; see
-    there.}
+  \item{na.last}{string passed to \code{\link{rank}}; see there.}
+  \item{ties.method}{string specifying how ranks should be computed if
+     there are ties in any of the coordinate samples of \code{x}; passed
+     to \code{\link{rank}}.}
   \item{lower.tail}{\code{\link{logical}} which, if \code{FALSE},
     returns the pseudo-observations when applying the
     empirical marginal survival functions.}
@@ -27,10 +29,11 @@ pobs(x, na.last = "keep",
   the pseudo-observations are defined via \eqn{u_{ij}=r_{ij}/(n+1)} for
   \eqn{i\in\{1,\dots,n\}}{i in {1,...,n}} and \eqn{j\in\{1,\dots,d\}}{j in
     {1,...,d}}, where \eqn{r_{ij}} denotes the rank of \eqn{x_{ij}} among all
-  \eqn{x_{kj}}, \eqn{k\in\{1,\dots,n\}}{k in {1,...,n}}.  The
+  \eqn{x_{kj}}, \eqn{k\in\{1,\dots,n\}}{k in {1,...,n}}.  When there are
+  no ties in any of the coordinate samples of \code{x}, the
   pseudo-observations can thus also be computed by component-wise applying the
-  empirical distribution functions to the data and scaling the result by
-  \eqn{n/(n+1)}.  This asymptotically negligible scaling factor is used to
+  marginal empirical distribution functions to the data and scaling the result by
+  \eqn{n/(n+1)}. This asymptotically negligible scaling factor is used to
   force the variates to fall inside the open unit hypercube, for example, to
   avoid problems with density evaluation at the boundaries. Note that
   \code{pobs(, lower.tail=FALSE)} simply returns \code{1-pobs()}.

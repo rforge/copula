@@ -33,19 +33,23 @@ gofCopula(copula, x, \dots)
 \S4method{gofCopula}{copula}(copula, x, N = 1000,
           method = c("Sn", "SnB", "SnC", "Rn"),
           estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
-          simulation = c("pb", "mult"), verbose = interactive(), \dots)
+          simulation = c("pb", "mult"), verbose = interactive(),
+          ties.method = c("max", "average", "min"),
+          fit.ties.meth = c("average", "max", "min"), \dots)
 
 ## Internal 'helper' functions : --- % keep on help page, even if hidden !
 gofPB(copula, x, N, method = c("Sn", "SnB", "SnC"),
       estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
       trafo.method = if(method == "Sn") "none" else c("cCopula", "htrafo"),
-      trafoArgs = list(), verbose = interactive(),
-      useR = FALSE, ties = NA, \dots)
+      trafoArgs = list(), verbose = interactive(), useR = FALSE,
+      ties = NA, ties.method = c("max", "average", "min"),
+      fit.ties.meth = c("average", "max", "min"), \dots)
 
 gofMB(copula, x, N, method = c("Sn", "Rn"),
       estim.method = c("mpl", "ml", "itau", "irho"),
       verbose = interactive(), useR = FALSE, m = 1/2, zeta.m = 0,
-      b = 1/sqrt(nrow(x)), \dots)
+      b = 1/sqrt(nrow(x)), ties.method = c("max", "average", "min"),
+      fit.ties.meth = c("average", "max", "min"), \dots)
 }
 \arguments{
   \item{copula}{object of class \code{"\linkS4class{copula}"} representing the
@@ -88,6 +92,12 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
     transformation method (see \code{trafo.method} above).}
   \item{useR}{logical indicating whether an \R or C implementation is
     used.}
+  \item{ties.method}{string specifying how ranks should be computed,
+      except for fitting, if there are ties in any of the coordinate
+      samples of \code{x}; passed to \code{\link{pobs}}.}
+  \item{fit.ties.meth}{string specifying how ranks should be computed
+    when fitting by maximum pseudo-likelihood if there are ties in any
+    of the coordinate samples of \code{x}; passed to \code{\link{pobs}}.}
   \item{ties}{only for the parametric bootstrap.  Logical indicating
     whether a version of the parametric boostrap adapted to the
     presence of ties in any of the coordinate samples of \code{x}

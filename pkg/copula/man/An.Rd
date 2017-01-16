@@ -9,8 +9,9 @@
   Genest and Segers (2009) and Gudendorf and Segers (2011).
 }
 \usage{
-An.biv(x, w, estimator = c("CFG", "Pickands"), corrected = TRUE)
-An(x, w)
+An.biv(x, w, estimator = c("CFG", "Pickands"), corrected = TRUE,
+       ties.method = eval(formals(rank)$ties.method))
+An(x, w, ties.method = eval(formals(rank)$ties.method))
 }
 \arguments{
   \item{x}{ a data matrix that will be transformed to
@@ -29,6 +30,10 @@ An(x, w)
     \code{"Pickands"}.}
   \item{corrected}{ TRUE means that the bivariate estimators will be
     corrected to ensure that their value at 0 and 1 is 1.}
+  \item{ties.method}{\code{\link{character}} string specifying how ranks
+    should be computed if
+    there are ties in any of the coordinate samples of \code{x}; passed
+    to \code{\link{pobs}}.}
 }
 \value{
   \code{An.biv()} returns a vector containing the values of the
