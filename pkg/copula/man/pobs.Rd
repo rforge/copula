@@ -55,7 +55,11 @@ x <- MASS::mvrnorm(n, mu = rep(0, d), Sigma = P)
 ## copula with correlation matrix P)
 u <- pobs(x)
 plot(u[,5],u[,10], xlab=quote(italic(U)[1]), ylab=quote(italic(U)[2]))
-
+\dontshow{% but check
+ z <- zoo::zoo(x)
+ uz <- pobs(z)
+ stopifnot( uz == u, identical(dim(uz), dim(u)), inherits(uz, "zoo"))
+}
 ## All components: pairwise plot
 pairs(u, gap=0, pch=".", labels =
       as.expression( lapply(1:d, function(j) bquote(italic(U[.(j)]))) ))
