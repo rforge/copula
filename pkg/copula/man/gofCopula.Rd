@@ -33,23 +33,24 @@ gofCopula(copula, x, \dots)
 \S4method{gofCopula}{copula}(copula, x, N = 1000,
           method = c("Sn", "SnB", "SnC", "Rn"),
           estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
-          simulation = c("pb", "mult"), verbose = interactive(),
-          ties.method = c("max", "average", "min"),
-          fit.ties.meth = c("average", "max", "min"), \dots)
+          simulation = c("pb", "mult"), verbose = interactive(), ties = NA,
+          ties.method = c("max", "average", "first", "last", "random", "min"),
+          fit.ties.meth = eval(formals(rank)$ties.method), \dots)
 
 ## Internal 'helper' functions : --- % keep on help page, even if hidden !
 gofPB(copula, x, N, method = c("Sn", "SnB", "SnC"),
       estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
       trafo.method = if(method == "Sn") "none" else c("cCopula", "htrafo"),
-      trafoArgs = list(), verbose = interactive(), useR = FALSE,
-      ties = NA, ties.method = c("max", "average", "min"),
-      fit.ties.meth = c("average", "max", "min"), \dots)
+      trafoArgs = list(), verbose = interactive(), useR = FALSE, ties = NA,
+      ties.method = c("max", "average", "first", "last", "random", "min"),
+      fit.ties.meth = eval(formals(rank)$ties.method), \dots)
 
 gofMB(copula, x, N, method = c("Sn", "Rn"),
       estim.method = c("mpl", "ml", "itau", "irho"),
       verbose = interactive(), useR = FALSE, m = 1/2, zeta.m = 0,
-      b = 1/sqrt(nrow(x)), ties.method = c("max", "average", "min"),
-      fit.ties.meth = c("average", "max", "min"), \dots)
+      b = 1/sqrt(nrow(x)),
+      ties.method = c("max", "average", "first", "last", "random", "min"),
+      fit.ties.meth = eval(formals(rank)$ties.method), \dots)
 }
 \arguments{
   \item{copula}{object of class \code{"\linkS4class{copula}"} representing the

@@ -17,8 +17,8 @@ gofEVCopula(copula, x, N = 1000,
             method = c("mpl", "ml", "itau", "irho"),
             estimator = c("CFG", "Pickands"), m = 1000,
             verbose = interactive(),
-            ties.method = c("max", "average", "min"),
-            fit.ties.meth = c("average", "max", "min"), \dots)
+            ties.method = c("max", "average", "first", "last", "random", "min"),
+            fit.ties.meth = eval(formals(rank)$ties.method), \dots)
 }
 \arguments{
   \item{copula}{ object of class \code{"\linkS4class{evCopula}"}

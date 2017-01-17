@@ -115,8 +115,8 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
                   estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
 		  trafo.method = if(method == "Sn") "none" else c("cCopula", "htrafo"),
 		  trafoArgs = list(), verbose = interactive(), useR = FALSE,
-                  ties = NA, ties.method = c("max", "average", "min"),
-                  fit.ties.meth = c("average", "max", "min"), ...)
+                  ties = NA, ties.method = c("max", "average", "first", "last", "random", "min"),
+                  fit.ties.meth = eval(formals(rank)$ties.method), ...)
 {
     .Deprecated("gofCopula(*, simulation = \"pb\")")
     .gofPB(copula, x, N, method=method, estim.method=estim.method,
@@ -131,8 +131,8 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
                    estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
 		   trafo.method = if(method == "Sn") "none" else c("cCopula", "htrafo"),
                    trafoArgs = list(), verbose = interactive(), useR = FALSE,
-                   ties = NA, ties.method = c("max", "average", "min"),
-                   fit.ties.meth = c("average", "max", "min"), ...)
+                   ties = NA, ties.method = c("max", "average", "first", "last", "random", "min"),
+                   fit.ties.meth = eval(formals(rank)$ties.method), ...)
 {
     ## Checks -- NB: let the *generic* fitCopula() check 'copula'
     stopifnot(N >= 1)
@@ -328,8 +328,8 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
                   estim.method = c("mpl", "ml", "itau", "irho"),
                   verbose = interactive(), useR = FALSE, m = 1/2,
                   zeta.m = 0, b = 1/sqrt(nrow(x)),
-                  ties.method = c("max", "average", "min"),
-                  fit.ties.meth = c("average", "max", "min"), ...)
+                  ties.method = c("max", "average", "first", "last", "random", "min"),
+                  fit.ties.meth = eval(formals(rank)$ties.method), ...)
 {
     .Deprecated("gofCopula(*, simulation = \"mult\")")
     .gofMB(copula, x, N, method=method, estim.method=estim.method,
@@ -342,8 +342,8 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
                   estim.method = c("mpl", "ml", "itau", "irho"),
                   verbose = interactive(), useR = FALSE, m = 1/2,
                   zeta.m = 0, b = 1/sqrt(nrow(x)),
-                  ties.method = c("max", "average", "min"),
-                  fit.ties.meth = c("average", "max", "min"), ...)
+                  ties.method = c("max", "average", "first", "last", "random", "min"),
+                  fit.ties.meth = eval(formals(rank)$ties.method), ...)
 {
     ## Checks -- NB: let the *generic* fitCopula() check 'copula'
     stopifnot(N >= 1)
@@ -473,8 +473,9 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
 gofCopulaCopula <- function(copula, x, N=1000, method = c("Sn", "SnB", "SnC", "Rn"),
                             estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
                             simulation = c("pb", "mult"), verbose = interactive(),
-                            ties.method = c("max", "average", "min"),
-                            fit.ties.meth = c("average", "max", "min"), ...)
+                            ties = NA,
+                            ties.method = c("max", "average", "first", "last", "random", "min"),
+                            fit.ties.meth = eval(formals(rank)$ties.method), ...)
 {
     ## Checks
     stopifnot(N >= 1)
@@ -511,7 +512,7 @@ gofCopulaCopula <- function(copula, x, N=1000, method = c("Sn", "SnB", "SnC", "R
     switch(simulation,
     "pb" = { ## parametric bootstrap
        .gofPB(copula, x, N=N, method=method, estim.method=estim.method,
-              verbose = verbose, ties.method = ties.method,
+              verbose = verbose, ties = ties, ties.method = ties.method,
               fit.ties.meth = fit.ties.meth, ...)
     },
     "mult" = { ## multiplier bootstrap

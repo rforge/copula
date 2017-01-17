@@ -24,7 +24,7 @@
 \usage{
 C.n(u, X, smoothing=c("none", "beta", "checkerboard"),
     offset=0, method=c("C", "R"),
-    ties.method = c("max", "average", "min"))
+    ties.method = c("max", "average", "first", "last", "random", "min"))
 dCn(u, U, j.ind=1:d, b=1/sqrt(nrow(U)), ...)
 
 F.n(x, X, offset=0, method=c("C", "R"))
