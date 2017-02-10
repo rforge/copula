@@ -1361,21 +1361,25 @@ setMethod("setTheta", "ellipCopula",
 	      if(!is.double(value)) storage.mode(value) <- "double"
 	  }
           df.f <- if(is(x, "tCopula")) x@df.fixed else TRUE
+          ## npar.ellip(): 'df' is only counted as parameter if "free, for df.f FALSE
           p <- npar.ellip(x@dimension, dispstr = x@dispstr, df.fixed = df.f)
           fixed <- attr(x@parameters, "fixed")
-          if(freeOnly && !is.null(fixed) && any(fixed) &&
-	     ## fixed par.s apart from possibly 'df' via 'df.fixed':
-	     !(sum(fixed) == 1L && which(fixed) == length(fixed))) {
+	  if(freeOnly) {
+	      if(is.null(fixed)) fixed <- FALSE
+	      if(any(fixed) && ## fixed par.s apart from possibly 'df' via 'df.fixed':
+                 !(sum(fixed) == 1L && which(fixed) == length(fixed))) {
 ### FIXME; not really hard (see 'fixedPar<-' in ./fixedPar.R )
-      stop("setTheta(<ellipCop>, freeOnly=TRUE) not yet implemented for partially fixed par")
-
-          }
-          if(length(value) != p)
+                  stop("setTheta(<ellipCop>, freeOnly=TRUE) not yet implemented for partially fixed par")
+	      }
+	  }
+          if(length(value) != p + if(freeOnly) 0 else 1)
               stop(gettextf("'length(value)' must be %d for this elliptical copula (dim=%d, dispstr=\"%s\")",
                             p, x@dimension, x@dispstr), domain=NA)
 	  if(all(ina) || noCheck || {
-	      all(is.na(value) | (x@param.lowbnd <= value & value <= x@param.upbnd))
-	  }) ## parameter constraints are fulfilled
+	      sel <- if(freeOnly) !fixed else TRUE
+	      all(is.na(value) |
+		  (x@param.lowbnd[sel] <= value & value <= x@param.upbnd[sel])) })
+	      ## parameter constraints are fulfilled
 	      x@parameters[seq_along(value)] <- value
 	  else
 	      stop(gettextf("theta (=%s) is not inside parameter bounds",

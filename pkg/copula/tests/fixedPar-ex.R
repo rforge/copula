@@ -21,6 +21,19 @@ showProc.time()
 (doExtras <- copula:::doExtras())
 
 
+tC2.F <- tCopula(df=2, df.fixed=TRUE)
+(cm <- setTheta(tC2.F, value=-0.5, freeOnly=TRUE)) ## setTheta() had failed
+(cp <- setTheta(tC2.F, value= 0.5, freeOnly=TRUE))
+(c2 <- setTheta(tC2.F, value=c(0.5,3), freeOnly=FALSE)) ## had failed
+stopifnot(all.equal(getTheta(cm), -0.5), all.equal(getTheta(cp), +0.5),
+          all.equal(getTheta(cm, freeOnly=FALSE, named=TRUE),
+                    c(rho.1 = -0.5, df = 2)),
+          all.equal(getTheta(cp, freeOnly=FALSE), c(0.5, 2)),
+          all.equal(getTheta(c2, freeOnly=FALSE, named=TRUE),
+                    c(rho.1 = 0.5, df = 3)))
+
+
+
 ### TEST FITTING ##########################################################
 
     n <- 100

@@ -4,7 +4,29 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-16 (2016-11-21, svn r1552)}{
+\section{Changes in version 0.999-17 (2017-02-__, svn r1____)}{
+  \subsection{New Features}{
+    \itemize{
+      \item \code{C.n()} and several GOF tests now get an optional
+      argument (\code{ties.method} or similar) to specify what happens
+      with ties.
+    }
+  }
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item In the case of \emph{ties}, several GOF tests now use a
+      better default method for dealing with ties in their calls to
+      \code{pobs()}.
+
+      \item \code{pobs(<zoo>, .)} continues working
+
+      \item \code{setTheta(<tCopula>, ..)} now works correctly with
+      free/non-free parts of the parameters.
+    }
+  }
+}
+
+\section{Changes in version 0.999-16 (2017-01-07, svn r1611)}{
   \subsection{Bug Fixes}{
     \itemize{
       \item \code{pK(u, log.p=TRUE)} now correctly checks \code{u}.
@@ -55,7 +77,7 @@
 
       \item \code{mixCopula()} and \code{"mixCopula"} class for
       arbitrary finite mixtures of copulas.
-      %% FIXME:  fixCopula() is *NOT* ok [sum(w) == 1] -- need reparametrization
+      %% FIXME: fitCopula() is *NOT* ok [sum(w) == 1] -- need reparametrization
 
       \item \code{splom2()} now works when a single \dQuote{global}
       color is specified.

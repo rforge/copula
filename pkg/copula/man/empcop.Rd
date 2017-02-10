@@ -22,8 +22,8 @@
   *)} simply calls \code{F.n(u, pobs(X), *)} after checking \code{u}.
 }
 \usage{
-C.n(u, X, smoothing=c("none", "beta", "checkerboard"),
-    offset=0, method=c("C", "R"),
+C.n(u, X, smoothing = c("none", "beta", "checkerboard"),
+    offset = 0, method = c("C", "R"),
     ties.method = c("max", "average", "first", "last", "random", "min"))
 dCn(u, U, j.ind=1:d, b=1/sqrt(nrow(U)), ...)
 
