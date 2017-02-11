@@ -4,12 +4,15 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-17 (2017-02-__, svn r1____)}{
+\section{Changes in version 0.999-17 (2017-02-11, svn r1617)}{
   \subsection{New Features}{
     \itemize{
       \item \code{C.n()} and several GOF tests now get an optional
       argument (\code{ties.method} or similar) to specify what happens
       with ties.
+
+      \item \code{setTheta(cop, val)} now also works for a partially
+      fixed parameter elliptical copula.
     }
   }
   \subsection{Bug Fixes}{

@@ -75,8 +75,8 @@ gofEVCopula <- function(copula, x, N = 1000,
 
     ## simulation of the null distribution
     s0 <- matrix(NA, N, 2)
-    if (verbose) {
-	pb <- txtProgressBar(max = N, style = if(isatty(stdout())) 3 else 1) # setup progress bar
+    if (verbose) { # setup progress bar:
+	pb <- txtProgressBar(max = N, style = if(isatty(stdout())) 3 else 1)
 	on.exit(close(pb)) # and close it on exit
     }
     for (i in 1:N) {
@@ -101,13 +101,14 @@ gofEVCopula <- function(copula, x, N = 1000,
 
     ## corrected version only
     structure(class = "htest",
-              list(method = paste("Parametric bootstrap based GOF test for EV copulas with argument 'method' set to '",
-                                  method, "' and argument 'estimator' set to '", estimator, "'", sep = ""),
+              list(method = paste0(
+   "Parametric bootstrap based GOF test for EV copulas with argument 'method' set to ",
+                                   sQuote(method), " and argument 'estimator' set to ",
+                                   sQuote(estimator)),
                    parameter = c(parameter = fcop@parameters),
                    statistic = c(statistic = s[1]),
                    p.value=(sum(s0[,1] >= s[1])+0.5)/(N+1),
                    data.name = deparse(substitute(x))))
-
 }
 
 

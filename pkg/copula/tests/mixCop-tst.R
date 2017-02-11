@@ -53,12 +53,12 @@ stopifnot(
 )
 (llGG1 <- loglikCopula(c(2.5, 1., w = c(2,4)/6), u=uGG, copula = mGG))
 (llMC <-  loglikCopula(c(2.5, pi, rho.1=0.7, df = 4, w = c(2,2,4)/8), u = uM, copula = mC))
-## FIXME - discrepancy 32 bit <-> 64 bit --- still, *after* dMixCopula() bug fix ?!
+## discrepancy 32 bit <-> 64 bit --- still (after dMixCopula() bug fix):
 stopifnot(
-    all.equal(llGG1, 177.452426, ## 32 bit (Windows, Linux(FC 24)): ....
-              tol = if(isSun || isMac || is32) 0.4 else 7e-7),
-    all.equal(llMC,  532.8757887, ## 32 bit: .....
-              tol = if(isSun || isMac || is32) 0.1 else 7e-7)
+    all.equal(llGG1, 177.452426, ## 32 bit (Windows, Linux(FC 24)): 188.0358
+              tol = if(isSun || isMac || is32) 0.08 else 7e-7),
+    all.equal(llMC,  532.8757887, ## 32 bit: 551.8439
+              tol = if(isSun || isMac || is32) 0.05 else 7e-7)
 )
 
 ## "free" weights --- estimation == FIXME: will change after re-parametrization
