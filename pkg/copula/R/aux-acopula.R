@@ -1361,8 +1361,6 @@ setMethod("setTheta", "ellipCopula",
 	      if(!is.double(value)) storage.mode(value) <- "double"
 	  }
           is.t <- is(x, "tCopula")
-          df.f <- if(is.t) x@df.fixed else TRUE
-          ## npar.ellip(): 'df' is only counted as parameter if "free, for df.f FALSE
           p <- npar.ellip(x@dimension, dispstr = x@dispstr) +  as.integer(is.t) # 1_[if t-Cop]
           par <- x@parameters
           stopifnot(length(par) == p) # normal- / t-, df fixed or not
