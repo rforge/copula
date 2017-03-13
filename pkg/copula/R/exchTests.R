@@ -154,7 +154,7 @@ exchTest <- function(x, N = 1000, ties = NA, m = 0) {
 
     ## Make pseudo-observations
     n <- nrow(x)
-    u <- pobs(x) # ties.method should not matter
+    u <- pobs(x)
 
     ## Make grid
     if (m > 0L) {
@@ -205,7 +205,7 @@ exchTest <- function(x, N = 1000, ties = NA, m = 0) {
                 u.b[,i] <- u.b[ir[,i], i]
             }
             ## Compute pseudo-observations
-            u.b <- pobs(u.b) # ties.method should not matter
+            u.b <- pobs(u.b)
 
             ## Make grid if necessary
             if (m == 0L)
@@ -264,7 +264,7 @@ radSymTest <- function(x, N = 1000, ties = NA) {
     p <- ncol(x)
 
     ## Make pseudo-observations
-    u <- pobs(x) # ties.method should not matter
+    u <- pobs(x)
 
     ## Make grid
     #g <- u
@@ -307,7 +307,7 @@ radSymTest <- function(x, N = 1000, ties = NA) {
             }
 
         ## Compute pseudo-observations
-        u.b <- pobs(u.b) # ties.method should not matter
+        u.b <- pobs(u.b)
 
         ## Make grid
         #g <- u.b

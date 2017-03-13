@@ -57,7 +57,9 @@ An(x, w, ties.method = eval(formals(rank)$ties.method))
   \emph{Annals of Statistics} \bold{37}, 2990--3022.
 
   G. Gudendorf and J. Segers (2011). Nonparametric estimation of
-  multivariate extreme-value copulas. \emph{arXiv:1107.2410v1}.
+  multivariate extreme-value copulas. \emph{Journal of Statistical
+  Planning and Inference} \bold{142}, 3073--3085.
+  
 }
 \seealso{\code{\link{evCopula}}, \code{\link{A}}, and \code{\link{evTestA}}.
   Further, \code{\link{evTestC}}, \code{\link{evTestK}},
