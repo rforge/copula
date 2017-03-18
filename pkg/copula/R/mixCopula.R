@@ -157,7 +157,7 @@ setMethod("paramNames", signature("mixCopula"), function(x) {
       paste0("w", ic)[isFreeP(x@w)]) # FIXME reparametrize: -> theta
 })
 
-## get parameters -- used in loglikCopula()
+## get parameters -- used in loglikCopula() [in ./fitCopula.R ]
 setMethod("getTheta", "mixCopula",
 function(copula, freeOnly = TRUE, attr = FALSE, named = attr) {
     parC <- lapply(copula@cops, getTheta,

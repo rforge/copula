@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-17 (2017-02-11, svn r1617)}{
+\section{Changes in version 0.999-17 (2017-03-17, svn r1620)}{
   \subsection{New Features}{
     \itemize{
       \item \code{C.n()} and several GOF tests now get an optional
@@ -13,6 +13,9 @@
 
       \item \code{setTheta(cop, val)} now also works for a partially
       fixed parameter elliptical copula.
+
+      \item Export the (formerly hidden) utilities \code{isFree()},
+      \code{isFreeP()}, and \code{nParam()}.
     }
   }
   \subsection{Bug Fixes}{

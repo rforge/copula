@@ -73,7 +73,7 @@ stopifnot(isExplicit(monster))
 
 (th.mA <- getTheta(monster, freeOnly = FALSE, named = TRUE))
 (th.m <- getTheta(monster, named = TRUE))
-stopifnot(identical(th.m, th.mA[copula:::isFree(monster)]))
+stopifnot(identical(th.m, th.mA[isFree(monster)]))
 
 set.seed(488)
 U <- rCopula(100000, monster)
@@ -138,7 +138,7 @@ all.equal(copula:::dlogcdtheta(kcgcd3, u), copula:::dlogcdthetaNumer(kcgcd3, u, 
 do1 <- function(n, cop) {
     U <- pobs(rCopula(n, cop))
     fit <- try(fitCopula(cop, U, method = "mpl"))
-    p <- copula:::nParam(cop, freeOnly=TRUE)
+    p <- nParam(cop, freeOnly=TRUE)
     if (inherits(fit, "try-error")) rep(NA_real_, 2 * p)
     else c(coef(fit), sqrt(diag(vcov(fit))))
 }

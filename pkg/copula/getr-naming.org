@@ -11,20 +11,23 @@ proposed action :
 |--------------+-----------------------+---------+--------+--------------------+-------------|
 | dim          | =                     | G       | yes    | (x)                | int(1)      |
 |--------------+-----------------------+---------+--------+--------------------+-------------|
-| free         | isFree                | G       |        | (cop.)             | logi(p)     |
+| free         | isFree                | G       | _yes_  | (cop.)             | logi(p)     |
 | fixed        | ! isFree              | G       |        | (cop.)             | logi(p)     |
-| isFree       | isFreeP               | .       |        | (p.)               | logi(p)     |
+| isFree       | isFreeP               | .       | _yes_  | (p.)               | logi(p)     |
 | isFixedP     | ! isFreeP             | .       |        | (p.)               | logi(p)     |
 | fixParam     |                       | .       | yes    | (p.,fixed=TRUE)    | par+fx.attr |
 | freeParam<-  |                       | G       |        | frP(cop.) <- numb. | copula      |
 | fixedParam<- |                       | G       | yes    | fiP(cop.) <- logic | copula      |
 |--------------+-----------------------+---------+--------+--------------------+-------------|
-| nParam       | =                     | G       |        |                    | int(1)      |
+| nParam       | =                     | G       | _yes_  | (cop, freeOnly= T) | int(1)      |
 | nFreeParam   | nParam(*, freeOnly=T) | G       |        |                    | int(1)      |
 | nFree        | =                     | .       |        |                    | int(1)      |
 |--------------+-----------------------+---------+--------+--------------------+-------------|
 | setTheta     | =                     | G       | yes    | (x, value, ..)     | copula      |
-| getParam     | =                     | G       |        |                    | numeric     |
-| paramNames   | getParam(*, named=T)  | G       |        |                    | character   |
+| getParam     | getTheta(copula,      | G       | yes    | (copula, ...)      | numeric ++  |
+| paramNames   | getTheta(*, named=T)  | G       |        |                    | character   |
 |--------------+-----------------------+---------+--------+--------------------+-------------|
 
+--> man/fixedPar.Rd  [ fixParam() and  fixedParam<- ]
+--> man/setTheta.Rd : setTheta(x, value, na.ok = TRUE, noCheck = FALSE, freeOnly = TRUE, ...)
+--> man/getTheta.Rd : getTheta(copula, freeOnly = TRUE, attr = FALSE, named = attr)

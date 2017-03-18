@@ -34,7 +34,7 @@ gofCopula(copula, x, \dots)
           ties.method = c("max", "average", "first", "last", "random", "min"),
           fit.ties.meth = eval(formals(rank)$ties.method), \dots)
 
-## Internal 'helper' functions : --- % keep on help page, even if hidden !
+## Internal 'helper' functions : ---
 gofPB(copula, x, N, method = c("Sn", "SnB", "SnC"),
       estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
       trafo.method = if(method == "Sn") "none" else c("cCopula", "htrafo"),
@@ -48,7 +48,7 @@ gofMB(copula, x, N, method = c("Sn", "Rn"),
       b = 1/sqrt(nrow(x)),
       ties.method = c("max", "average", "first", "last", "random", "min"),
       fit.ties.meth = eval(formals(rank)$ties.method), \dots)
-}
+} % NB: keep internal helper functions on this help page, even if hidden !
 \arguments{
   \item{copula}{object of class \code{"\linkS4class{copula}"} representing the
     hypothesized copula family.}

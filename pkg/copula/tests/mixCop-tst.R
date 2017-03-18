@@ -94,3 +94,23 @@ if (doExtras) { # slowish
     print(summary(f2))
 }
 
+## partially fixed
+
+(tX4 <- tCopula( 0.2, df = 5, df.fixed=TRUE))
+(tn3 <- tCopula(-0.5, df = 3))
+getTheta(tX4, attr = TRUE) # freeOnly = TRUE is default
+## --> *not* showing df=5 as it is fixed
+(m3 <- mixCopula(list(normalCopula(0.4), tX4, tn3), w = (1:3)/6))
+                                        # -> shows 'm2.df := 5' as fixed !
+th. <- getTheta(m3, attr = TRUE)# ditto
+(th <- getTheta(m3, named= TRUE))
+trueAt <- function(i, n) { r <- logical(n); r[i] <- TRUE; r }
+stopifnot(
+    identical(th, structure(th., param.lowbnd=NULL, param.upbnd=NULL)),
+    identical(names(th), c("m1.rho.1", "m2.rho.1", "m3.rho.1", "m3.df",
+                           paste0("w", 1:3)))
+    ,
+    identical(isFree(m3), !trueAt(3, n=8))# free every but at [3]
+)
+
+fixedParam(m3) <- trueAt(c(3, 8), n=8)
