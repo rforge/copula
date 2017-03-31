@@ -19,8 +19,8 @@ pobs(x, na.last = "keep",
     returns the pseudo-observations when applying the
     empirical marginal survival functions.}
 }
-\value{matrix (or vector) of the same dimensions as \code{x} containing the
-  pseudo-observations.
+\value{\code{\link{matrix}} (or \code{\link{vector}}) of the same
+  dimensions as \code{x} containing the pseudo-observations.
 }
 \details{
   Given \eqn{n} realizations

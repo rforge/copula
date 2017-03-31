@@ -55,6 +55,7 @@ Collate: AllClass.R Classes.R AllGeneric.R
 	 schlatherCopula.R stable.R
 	 timing.R
          tCopula.R tawnCopula.R tawnExpr.R tevCopula.R
+	 varianceReduction.R
          wrapper.R xvCopula.R zzz.R
 Encoding: UTF-8
 URL: http://copula.r-forge.r-project.org/

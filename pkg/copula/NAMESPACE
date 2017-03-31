@@ -204,6 +204,9 @@ export(evTestC, evTestA, evTestK)
 export(exchEVTest, exchTest)
 export(radSymTest)
 
+## variance reduction
+export(rAntitheticVariates)
+export(rLatinHypercube)
 
 ## For some, have S3 print() and S4 show() .. MM is not convinced
 S3method(print, parCopula)
