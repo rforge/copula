@@ -47,6 +47,8 @@ rLatinHypercube(u, ...)
   \emph{Journal of Computational Finance} \bold{13}(3), 81--111.
 }
 \examples{
+### 1 Basic plots ##############################################################
+
 ## Generate data from a Gumbel copula
 cop <- gumbelCopula(iTau(gumbelCopula(), tau = 0.5))
 n <- 1e4
@@ -71,6 +73,56 @@ layout(rbind(1:2))
 plot(U.AV[,,1], xlab = expression(U[1]), ylab = expression(U[2]), pch = ".")
 plot(U.AV[,,2], xlab = expression(U[1]), ylab = expression(U[2]), pch = ".")
 layout(1) # reset layout
+
+
+### 2 Small variance-reduction study for exceedance probabilities ##############
+
+## Auxiliary function for approximately computing P(U_1 > u_1,..., U_d > u_d) by
+## Monte Carlo simulation based on pseudo-sampling and Latin hypercube sampling
+survival_prob <- function(n, copula, u = rep(0.99, dim(copula)))
+{
+    d <- length(u)
+    stopifnot(n >= 1, inherits(copula, "Copula"), 0 < u, u < 1, d == dim(copula))
+    ## Pseudo-sampling
+    U  <- rCopula(n, copula = copula)
+    prob <- mean(rowSums(U > rep(u, each = n)) == d)
+    ## Latin hypercube sampling
+    U. <- rLatinHypercube(U)
+    prob. <- mean(rowSums(U. > rep(u, each = n)) == d)
+    ## Return
+    c(PRNG = prob, LHS = prob.)
+}
+
+## Simulate the probabilities of falling in (u_1,1] x ... x (u_d,1].
+B <- 500 # number of replications
+n <- 1000 # sample size
+d <- 2 # dimension
+u <- rep(0.99, d) # lower-left endpoint of the considered cube
+nu <- 3 # degrees of freedom
+th <- iTau(tCopula(df = nu), tau = 0.5) # correlation parameter
+cop <- tCopula(param = th, dim = d, df = nu) # t copula
+set.seed(271) # for reproducibility
+system.time(res <- lapply(1:B, function(b) survival_prob(n, copula = cop, u = u)))
+
+## Grab out the values
+PRNG <- sapply(res, function(x) x[["PRNG"]])
+LHS  <- sapply(res, function(x) x[["LHS"]])
+
+## Compute the variance-reduction factor and % improvement
+(vrf <- var(PRNG) / var(LHS)) # estimated variance reduction factor
+(pim <- (var(PRNG) - var(LHS)) / var(PRNG) * 100) # % improvement
+
+## Boxplot
+boxplot(list(PRNG = PRNG, LHS = LHS),
+        sub = substitute("Variance-reduction factor"~v~
+                         "corresponding to an improvement of"~p*"\%",
+                         list(v = round(vrf, 2), p = round(pim, 2))),
+        main = substitute("Simulated exceedance probabilities"~
+                          P(bold(U) > bold(u))~"for a"~t[nu.]~"copula",
+                          list(nu. = nu)))
+lab <- substitute("Based on B ="~B.~"replications with n ="~n.~"and d ="~d.,
+                  list(B. = B, n. = n, d. = d))
+mtext(lab, side = 4, line = 1, adj = 0)
 }
 \keyword{distribution}
 \keyword{methods}
