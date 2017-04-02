@@ -77,52 +77,65 @@ layout(1) # reset layout
 
 ### 2 Small variance-reduction study for exceedance probabilities ##############
 
-## Auxiliary function for approximately computing P(U_1 > u_1,..., U_d > u_d) by
-## Monte Carlo simulation based on pseudo-sampling and Latin hypercube sampling
-survival_prob <- function(n, copula, u = rep(0.99, dim(copula)))
+## Auxiliary function for approximately computing P(U_1 > u_1,..., U_d > u_d)
+## by Monte Carlo simulation based on pseudo-random numbers, Latin hypercube
+## sampling and quasi-random numbers.
+sProb <- function(n, copula, u)
 {
     d <- length(u)
-    stopifnot(n >= 1, inherits(copula, "Copula"), 0 < u, u < 1, d == dim(copula))
-    ## Pseudo-sampling
-    U  <- rCopula(n, copula = copula)
-    prob <- mean(rowSums(U > rep(u, each = n)) == d)
-    ## Latin hypercube sampling
+    stopifnot(n >= 1, inherits(copula, "Copula"), 0 < u, u < 1,
+              d == dim(copula))
+    umat <- rep(u, each = n)
+    ## Pseudo-random numbers
+    U <- rCopula(n, copula = copula)
+    PRNG <- mean(rowSums(U > umat) == d)
+    ## Latin hypercube sampling (based on the recycled 'U')
     U. <- rLatinHypercube(U)
-    prob. <- mean(rowSums(U. > rep(u, each = n)) == d)
+    LHS <- mean(rowSums(U. > umat) == d)
+    ## Quasi-random numbers
+    U.. <- cCopula(sobol(n, d = d, randomize = TRUE), copula = copula,
+                   inverse = TRUE)
+    QRNG <- mean(rowSums(U.. > umat) == d)
     ## Return
-    c(PRNG = prob, LHS = prob.)
+    c(PRNG = PRNG, LHS = LHS, QRNG = QRNG)
 }
 
-## Simulate the probabilities of falling in (u_1,1] x ... x (u_d,1].
+## Simulate the probabilities of falling in (u_1,1] x ... x (u_d,1]
+library(qrng) # for quasi-random numbers
 B <- 500 # number of replications
 n <- 1000 # sample size
-d <- 2 # dimension
-u <- rep(0.99, d) # lower-left endpoint of the considered cube
+d <- 2 # dimension; note: for d > 2, the true value depends on the seed
 nu <- 3 # degrees of freedom
 th <- iTau(tCopula(df = nu), tau = 0.5) # correlation parameter
 cop <- tCopula(param = th, dim = d, df = nu) # t copula
-set.seed(271) # for reproducibility
-system.time(res <- lapply(1:B, function(b) survival_prob(n, copula = cop, u = u)))
+u <- rep(0.99, d) # lower-left endpoint of the considered cube
+set.seed(42) # for reproducibility
+true <- prob(cop, l = u, u = rep(1, d)) # true exceedance probability
+system.time(res <- lapply(1:B, function(b) sProb(n, copula = cop, u = u)))
 
 ## Grab out the values
 PRNG <- sapply(res, function(x) x[["PRNG"]])
 LHS  <- sapply(res, function(x) x[["LHS"]])
+QRNG <- sapply(res, function(x) x[["QRNG"]])
 
-## Compute the variance-reduction factor and % improvement
-(vrf <- var(PRNG) / var(LHS)) # estimated variance reduction factor
-(pim <- (var(PRNG) - var(LHS)) / var(PRNG) * 100) # % improvement
+## Compute the variance-reduction factors and % improvements
+vrf  <- var(PRNG) / var(LHS) # variance reduction factor w.r.t. LHS
+vrf. <- var(PRNG) / var(QRNG) # variance reduction factor w.r.t. QRNG
+pim  <- (var(PRNG) - var(LHS))  / var(PRNG) * 100 # improvement w.r.t. LHS
+pim. <- (var(PRNG) - var(QRNG)) / var(PRNG) * 100 # improvement w.r.t. QRNG
 
 ## Boxplot
-boxplot(list(PRNG = PRNG, LHS = LHS),
-        sub = substitute("Variance-reduction factor"~v~
-                         "corresponding to an improvement of"~p*"\%",
-                         list(v = round(vrf, 2), p = round(pim, 2))),
+boxplot(list(PRNG = PRNG, LHS = LHS, QRNG = QRNG), sub = substitute(
+        "Variance-reduction factors and \% improvements:"~v1~"("*p1*"\%"*"),"~v2~"("*p2*"\%)",
+        list(v1 = round(vrf, 1), v2 = round(vrf., 1),
+             p1 = round(pim), p2 = round(pim.))),
         main = substitute("Simulated exceedance probabilities"~
                           P(bold(U) > bold(u))~"for a"~t[nu.]~"copula",
                           list(nu. = nu)))
-lab <- substitute("Based on B ="~B.~"replications with n ="~n.~"and d ="~d.,
+abline(h = true, lty = 3) # true value
+lab <- substitute("B ="~B.~"replications with n ="~n.~"and d ="~d.,
                   list(B. = B, n. = n, d. = d))
-mtext(lab, side = 4, line = 1, adj = 0)
+mtext(lab, side = 4, line = 1, adj = 0, las = 0)
 }
 \keyword{distribution}
 \keyword{methods}
