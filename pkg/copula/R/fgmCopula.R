@@ -30,26 +30,27 @@ fgmCopula <- function(param = NA_real_, dim = 2L) {
                    as.integer(dim),
                    as.integer(dim),
                    subsets = integer(2^dim))$subsets
-    ## power set in character vector: {}, {1}, {2}, ..., {1,2}, ..., {1,...,dim}
-    subsets.char <-  .C(k_power_set_char,
-                        as.integer(dim),
-                        as.integer(2^dim),
-                        as.integer(subsets),
-                        sc = character(2^dim))$sc
+    ## power set in character vector( {}, {1}, {2}, ..., {1,2}, ..., {1,...,dim} )
+    ## transformed into an R "syntactically valid" character vector without singeltons
+    subsets.char <- gsub(",", ".", gsub("([{}])", "",
+                                        .C(k_power_set_char,
+                                           as.integer(dim),
+                                           as.integer(2^dim),
+                                           as.integer(subsets),
+                                           sc = character(2^dim))$sc[(dim+2):2^dim]))
 
     ## expression of the cdf
-    cdfExpr <- function(n,sc) {
+    cdfExpr <- function(n, sc) {
 
         expr1 <- "u1"
         for (i in 2:n)
             expr1 <- paste0(expr1, " * u", i)
 
         expr2 <- "1"
-        for (i in (dim + 2):2^dim)
+        for (i in 1:(2^dim-dim-1))
         {
-            expr3 <- paste0("alpha",i)
-            sub <- substr(sc[i],2,nchar(sc[i])-1)
-            for (j in eval(strsplit(sub,",")[[1]]))
+            expr3 <- paste0("alpha",sc[i])
+            for (j in eval(strsplit(sc[i],".",fixed=TRUE)[[1]]))
                 expr3 <- paste0(expr3, " * (1 - u", j, ")")
             expr2 <- paste(expr2,"+",expr3)
         }
@@ -59,28 +60,28 @@ fgmCopula <- function(param = NA_real_, dim = 2L) {
     }
 
     ## expression of the pdf
-    pdfExpr <- function(n,sc) {
+    pdfExpr <- function(n, sc) {
         expr2 <- "1"
-        for (i in (dim + 2):2^dim)
+        for (i in 1:(2^dim-dim-1))
         {
-            expr3 <- paste0("alpha",i)
-            sub <- substr(sc[i],2,nchar(sc[i])-1)
-            for (j in eval(strsplit(sub,",")[[1]]))
+            expr3 <- paste0("alpha",sc[i])
+            for (j in eval(strsplit(sc[i],".",fixed=TRUE)[[1]]))
                 expr3 <- paste0(expr3, " * (1 - 2 * u", j, ")")
             expr2 <- paste(expr2,"+",expr3)
         }
         parse(text = expr2)
     }
 
-    cdf <- cdfExpr(dim,subsets.char)
-    pdf <- pdfExpr(dim,subsets.char)
+    cdf <- cdfExpr(dim, subsets.char)
+    pdf <- pdfExpr(dim, subsets.char)
 
     ## create new object
     new("fgmCopula",
         dimension = dim,
         parameters = param,
         exprdist = c(cdf = cdf, pdf = pdf),
-        param.names = paste0("param",subsets.char[(dim+2):2^dim]),
+        subsets.char = subsets.char,
+        param.names = paste0("alpha",subsets.char),
         param.lowbnd = rep(-1, 2^dim - dim - 1),
         param.upbnd = rep(1, 2^dim - dim - 1),
         fullname = "<deprecated slot>") # "Farlie-Gumbel-Morgenstern copula family"
@@ -145,8 +146,9 @@ pfgmCopula <- function(u, copula) {
     dim <- copula@dimension
     param <- copula@parameters
     cdf <- copula@exprdist$cdf
+    sc <- copula@subsets.char
     for (i in 1:dim) assign(paste0("u", i), u[,i])
-    for (i in (dim + 2):2^dim) assign(paste0("alpha", i), param[i - dim - 1])
+    for (i in 1:(2^dim-dim-1)) assign(paste0("alpha", sc[i]), param[i])
     eval(cdf)
 }
 
@@ -159,8 +161,9 @@ dfgmCopula <- function(u, copula, log=FALSE, ...) {
     dim <- copula@dimension
     param <- copula@parameters
     pdf <- copula@exprdist$pdf
+    sc <- copula@subsets.char
     for (i in 1:dim) assign(paste0("u", i), u[,i])
-    for (i in (dim + 2):2^dim) assign(paste0("alpha", i), param[i - dim - 1])
+    for (i in 1:(2^dim-dim-1)) assign(paste0("alpha", sc[i]), param[i])
     ## FIXME: improve log-case
     if(log) log(eval(pdf)) else eval(pdf)
 }

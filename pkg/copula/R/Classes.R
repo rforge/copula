@@ -232,7 +232,8 @@ setClass("indepCopula", contains = c("evCopula", "archmCopula"))
 ### Other copulas ##############################################################
 
 ## Farlie-Gumbel-Morgenstern multivariate copula
-setClass("fgmCopula", contains = "copula", slots = c(exprdist = "expression"),
+setClass("fgmCopula", contains = "copula", slots = c(exprdist = "expression",
+                                                     subsets.char = "character"),
          ## verify that the pdf is positive at each vertex of [0,1]^dim
          validity = function(object) {
              dim <- object@dimension
