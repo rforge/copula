@@ -3,6 +3,6 @@ title: Errata
 author: Marius Hofert, Ivan Kojadinovic, Martin Mächler, Jun Yan
 ---
 
-## Errata
+## List of corrections
 
 - 2017-04-12: none (yet).
