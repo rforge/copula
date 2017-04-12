@@ -1,7 +1,7 @@
 ## TODO: check that pandoc is installed
 ## TODO: check that pandoc is of a minimally sufficient version
 
-HTML_FILES := $(patsubst %.md, %.html, $(shell find . -name '*.md'  \! -name 'navbar.md'))
+HTML_FILES := $(patsubst %.md, %.html, $(shell find . -name '*.md' \! -name 'navbar.md'))
 
 all: $(HTML_FILES)
 
