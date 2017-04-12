@@ -9,7 +9,6 @@
 * [Documentation](doc.html)
 * [Reporting bugs](bugs.html)
 * [Errata](errata.html)
-* [Downloads](downloads.html)
 * [Chapter 2](02_copulas.html)
 * [Chapter 3](03_classes_sampling.html)
 * [Chapter 4](04_fitting.html)

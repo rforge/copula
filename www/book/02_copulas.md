@@ -1,7 +1,10 @@
 ---
-title: R script for Chapter 2 of Elements of Copula Modeling with R
+title: Code from Chapter 2
 author: Marius Hofert, Ivan Kojadinovic, Martin Mächler, Jun Yan
 ---
+
+Below is the R code from Chapter 2 of the book "Elements of Copula Modeling
+with R". The code is also available as an [R script](scripts/02_copula.R).
 
 <!-- Copy script here and indent everything by 4 columns -->
 

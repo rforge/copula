@@ -3,10 +3,10 @@ title: About
 author: Marius Hofert, Ivan Kojadinovic, Martin Mächler, Jun Yan
 ---
 
-## About the R package copula
+## The R package copula
 
 TODO
 
-## About the copula book
+## The copula book
 
 TODO
