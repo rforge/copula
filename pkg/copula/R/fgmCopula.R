@@ -185,17 +185,17 @@ rhoFgmCopula <- function(copula) {
 ## calibration via tau
 
 iTauFgmCopula <- function(copula, tau) {
-  if (any(tau < -2/9 | tau > 2/9))
-    warning("tau is out of the range [-2/9, 2/9]")
-  pmax(pmin(9 * tau / 2, 1), -1)
+    if (any(tau < -2/9 | tau > 2/9))
+        warning("For the FGM copula, tau must be in [-2/9, 2/9]. Replacing too small (large) values by lower (upper) bound.")
+    pmax(pmin(9 * tau / 2, 1), -1)
 }
 
 ## calibration via rho
 
 iRhoFgmCopula <- function(copula, rho) {
-  if (any(rho < -1/3 | rho > 1/3))
-    warning("rho is out of the range [-1/3, 1/3]")
-  pmax(pmin(3 * rho, 1), -1)
+    if (any(rho < -1/3 | rho > 1/3))
+        warning("For the FGM copula, rho must be in [-1/3, 1/3]. Replacing too small (large) values by lower (upper) bound.")
+    pmax(pmin(3 * rho, 1), -1)
 }
 
 

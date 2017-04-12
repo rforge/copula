@@ -1035,7 +1035,8 @@ copJoe <-
 		  tau = tauJoe,
 		  iTau = function(tau, tol = .Machine$double.eps^0.25, ...) {
 		      sapply(tau,function(tau) {
-			  r <- safeUroot(function(th) C.@tau(th) - tau,
+                          if (tau < 0) return(1) # smallest possible theta
+                          r <- safeUroot(function(th) C.@tau(th) - tau,
 					 interval = c(1, 98),
 					 Sig = +1, tol=tol, check.conv=TRUE, ...)
 			  r$root
