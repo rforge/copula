@@ -1,6 +1,8 @@
 ---
-title: R package copula and copula book
+title: Errata
 author: Marius Hofert, Ivan Kojadinovic, Martin Mächler, Jun Yan
 ---
 
-TODO
+## Errata
+
+- 2017-04-12: none (yet).

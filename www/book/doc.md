@@ -1,12 +1,8 @@
 ---
-title: About
+title: Documentation
 author: Marius Hofert, Ivan Kojadinovic, Martin Mächler, Jun Yan
 ---
 
-## About the R package copula
-
-TODO
-
-## About the copula book
+## Documentation
 
 TODO

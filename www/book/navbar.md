@@ -1,38 +1,20 @@
 <div class="row">
 <div class="col-xs-6 col-sm-12">
 
-<a href="/"><img src="/Rlogo.png" width="100" height="78" alt = "R" /></a>
+<a href="/"><img src = "/Rlogo.png" width = "100" height = "78" alt = "R" /></a>
 
 <small>[[Home]](http://copula.r-forge.r-project.org/book)</small>
 
-## Copula Book - Website
-
-* [About R](about.html)
-* [Contributors](contributors.html)
-* [What's New?](news.html)
-* [Reporting Bugs](bugs.html)
-* [Conferences](conferences.html)
-* [Search](search.html)
-</div>
-
-<div class="col-xs-6 col-sm-12">
-
-## R Foundation
-
-* [Foundation](foundation/)
-* [Board](foundation/board.html)
-* [Members](foundation/members.html)
-* [Donors](foundation/donors.html)
-* [Donate](foundation/donations.html)
-
-
-### Help With R
-
-* [Getting Help](help.html)
-
-### Documentation
-
-* [Other](other-docs.html)
+* [About](about.html)
+* [Documentation](doc.html)
+* [Reporting bugs](bugs.html)
+* [Errata](errata.html)
+* [Downloads](downloads.html)
+* [Chapter 2](02_copulas.html)
+* [Chapter 3](03_classes_sampling.html)
+* [Chapter 4](04_fitting.html)
+* [Chapter 5](05_gof.html)
+* [Chapter 6](06_misc.html)
 
 </div>
 </div>
