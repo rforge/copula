@@ -17,8 +17,10 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 
   <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<title><?php echo $group_name; ?></title>
-	<link href="<?php echo $themeroot; ?>styles/estilo1.css" rel="stylesheet" type="text/css" />
+	<title><?php echo $group_name; ?></title>	    
+	<link href="book/css/bootstrap.min.css" rel="stylesheet">	
+        <link href="book/css/R.css" rel="stylesheet">			
+
   </head>
 
 <body>
