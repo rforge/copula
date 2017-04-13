@@ -1,7 +1,7 @@
 <div class="row">
 <div class="col-xs-6 col-sm-12">
 
-<a href="/"><img src = "/Rlogo.png" width = "100" height = "78" alt = "R" /></a>
+<a href="/"><img src = "./contents/R_logo.png" width = "100" height = "78" alt = "R" /></a>
 
 <small>[[Home]](http://copula.r-forge.r-project.org/book)</small>
 
