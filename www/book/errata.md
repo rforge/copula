@@ -1,8 +1,8 @@
 ---
-title: Errata
+title: Elements of Copula Modeling with R
 author: Marius Hofert, Ivan Kojadinovic, Martin Mächler, Jun Yan
 ---
 
-## List of corrections
+## Errata
 
 - 2017-04-12: none (yet).
