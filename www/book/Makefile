@@ -10,5 +10,5 @@ navbar.html: navbar.md
 
 .PHONY: clean
 clean:
-	$(RM) $(HTML_FILES)
+	$(RM) $(HTML_FILES) navbar.html
 
