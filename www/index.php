@@ -29,35 +29,15 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 <a href="/"><img src="<?php echo $themeroot; ?>/images/logo.png" border="0" alt="R-Forge Logo" /> </a> </td> </tr>
 </table>
 
-<!-- own website starts here, .. "MM was here :-) " -->
+<!-- own website starts here -->
 
-<!-- get project title  -->
-<?php if ($handle=fopen('http://'.$domain.'/export/projtitl.php?group_name='.$group_name,'r')){
-$contents = '';
-while (!feof($handle)) {
-	$contents .= fread($handle, 8192);
-}
-fclose($handle);
-echo $contents; } ?>
+     <br />	 	 
+     <h1 align="center">The R-Forge R package copula project</h1> 
+     <br />   
+    
+    <p>
+Details and documentation about the <a href="https://cran.r-project.org/package=copula">R package copula</a> can be found on its webpage. The main features of the package are also described in the book <a href="http://copula.r-forge.r-project.org/book/">Elements of Copula Modeling with R</a>.
+    </p>      
 
-<!-- end of project description -->
-
-<p> Note the package vignette a version of which was published on JSS:
-<br>
-    Marius Hofert and Martin Maechler (2011)<br>
-    <a href="http://www.jstatsoft.org/v39/i09">Nested Archimedean Copulas Meet R:
-    The nacopula Package</a>,
-	<em>Journal of Statistical Software</em> <b>39</b>, issue 9.
-</p>
-
-<p> The <strong>project summary page</strong> you can find
-    <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>.
-</p>
-
-<p> Typically you install the package from
-    <a href="https://cran.r-project.org/package=copula">CRAN</a>,
-    where you also find the manuals, vignettes, etc
-</p>
-
-</body>
+</body>	      
 </html>
