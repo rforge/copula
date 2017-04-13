@@ -3,9 +3,7 @@
 
 <a href="/"><img src = "./contents/R_logo.png" width = "100" height = "78" alt = "R" /></a>
 
-<!-- <small>[[Home]](http://copula.r-forge.r-project.org/book)</small> -->
-
-* [Home](home.html)
+* [Home](index.html)
 * [Book features](book.html)
 * [Errata](errata.html)
 * [Reporting bugs](bugs.html)

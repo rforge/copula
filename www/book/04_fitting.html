@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>R: Code from Chapter 4</title>
+
+    <link rel="icon" type="image/png" href="./contents/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="./contents/favicon-16x16.png" sizes="16x16" />
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/R.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container page">
+      <div class="row">
+        <div class="col-xs-12 col-sm-offset-1 col-sm-2 sidebar" role="navigation">
+<div class="row">
+<div class="col-xs-6 col-sm-12">
+<p><a href="/"><img src = "./contents/R_logo.png" width = "100" height = "78" alt = "R" /></a></p>
+<ul>
+<li><a href="index.html">Home</a></li>
+<li><a href="book.html">Book features</a></li>
+<li><a href="errata.html">Errata</a></li>
+<li><a href="bugs.html">Reporting bugs</a></li>
+</ul>
+<h2 id="r-code-from">R code from:</h2>
+<ul>
+<li><a href="02_copulas.html">Chapter 2</a></li>
+<li><a href="03_classes_sampling.html">Chapter 3</a></li>
+<li><a href="04_fitting.html">Chapter 4</a></li>
+<li><a href="05_gof.html">Chapter 5</a></li>
+<li><a href="06_misc.html">Chapter 6</a></li>
+</ul>
+</div>
+</div>
+        </div>
+        <div class="col-xs-12 col-sm-7">
+        <h1>Code from Chapter 4</h1>
+<p>Below is the R code from Chapter 4 of the book “Elements of Copula Modeling with R”. The code is also available as an <a href="scripts/04_fitting.R">R script</a>.</p>
+<!-- Copy script here and indent everything by 4 columns -->
+<pre><code>## By Marius Hofert, Ivan Kojadinovic, Martin Maechler, Jun Yan
+
+## R script for Chapter 4 of Elements of Copula Modeling with R
+
+
+### 4.1 Estimation under a parametric assumption on the copula #################
+
+### 4.1.1 Parametrically estimated margins #####################################
+
+### Estimation of copula parameters via the MLE
+
+## The &quot;unknown&quot; copula (a 2-dim. Clayton copula with parameter 3)
+cc &lt;- claytonCopula(3)
+## The &quot;unknown&quot; distribution (N(0,1), Exp(1) margins)
+mcc &lt;- mvdc(cc, margins = c(&quot;norm&quot;, &quot;exp&quot;),
+            paramMargins = list(list(mean = 0, sd = 1),
+                                list(rate = 1)))
+## Generate the &quot;observed&quot; sample
+set.seed(712)
+X &lt;- rMvdc(1000, mvdc = mcc)
+## The function fitMvdc() estimates all the parameters of the mvdc object
+## mcc (whose parameter values are not used). Starting values need to be
+## provided.
+start &lt;- c(mu0 = mean(X[,1]), sig0 = sd(X[,1]), lam0 = 1 / mean(X[,2]),
+           th0 = 2)
+(mle &lt;- fitMvdc(X, mvdc = mcc, start = start))
+
+summary(mle)
+
+
+### Estimation of copula parameters via the IFME
+
+## Parametric pseudo-observations obtained from X by method-of-moments
+U &lt;- cbind(pnorm(X[,1], mean = mean(X[,1]), sd = sd(X[,1])),
+           pexp(X[,2], rate = 1 / mean(X[,2])))
+ifme &lt;- fitCopula(claytonCopula(), data = U, method = &quot;ml&quot;)
+summary(ifme)
+
+
+### 4.1.2 Non-parametrically estimated margins #################################
+
+### Pseudo-observations of daily log-returns
+
+data(rdj) # &#39;head(rdj)&#39; for looking at the first six observations
+splom2(rdj[,2:4], cex = 0.4, col.mat = adjustcolor(&quot;black&quot;, 0.5))
+
+U &lt;- pobs(rdj[,2:4])
+splom2(U, cex = 0.4, col.mat = &quot;black&quot;)
+
+
+### Estimation of copula parameters via the method of moments based on Kendall&#39;s tau
+
+## The &quot;unknown&quot; copula (a 2-dim. Gumbel-Hougaard copula with parameter 3)
+gc &lt;- gumbelCopula(3)
+## The &quot;unknown&quot; distribution (N(0,1) margins)
+mgc &lt;- mvdc(gc, margins = c(&quot;norm&quot;, &quot;norm&quot;),
+            paramMargins = list(list(mean = 0, sd = 1),
+                                list(mean = 0, sd = 1)))
+## Generate the &quot;observed&quot; sample
+set.seed(49)
+X &lt;- rMvdc(1000, mvdc = mgc)
+## The sample version of Kendall&#39;s tau
+tau.n &lt;- cor(X[,1], X[,2], method = &quot;kendall&quot;)
+## The corresponding copula parameter estimate
+(itau &lt;- iTau(gc, tau = tau.n))
+
+stopifnot(all.equal(itau, 1 / (1 - tau.n))) # the same
+## The same but with a standard error
+summary(fitCopula(gumbelCopula(), data = pobs(X), method = &quot;itau&quot;))
+
+
+### Estimation of copula parameters via the method of moments based on Spearman&#39;s rho
+
+## The &quot;unknown&quot; copula (a 2-dim. normal copula with parameter 0.5)
+nc &lt;- normalCopula(0.5)
+## Generate the &quot;observed&quot; sample
+set.seed(314)
+X &lt;- rCopula(1000, nc)
+## The sample estimate of Kendall&#39;s tau
+rho.n &lt;- cor(X[,1], X[,2], method = &quot;spearman&quot;)
+## The corresponding copula parameter estimate
+(irho &lt;- iRho(nc, rho = rho.n))
+
+stopifnot(all.equal(irho, 2 * sin(pi * rho.n / 6))) # the same
+## The same but with a standard error
+summary(fitCopula(normalCopula(), data = pobs(X), method = &quot;irho&quot;))
+
+
+### Estimation of copula parameters via the method of moments based on Kendall&#39;s tau
+
+data(danube, package = &quot;lcopula&quot;) # already pseudo-observations
+U &lt;- as.matrix(danube)
+plot(U, xlab = &quot;Donau&quot;, ylab = &quot;Inn&quot;)
+
+fitCopula(gumbelCopula(), data = U, method = &quot;itau&quot;)
+
+fitCopula(plackettCopula(), data = U, method = &quot;itau&quot;)
+
+fitCopula(normalCopula(), data = U, method = &quot;itau&quot;)
+
+
+### Estimation of copula parameters via the MPLE
+
+## The &quot;unknown&quot; copula (a 2-dim. Frank copula with parameter 3)
+fc &lt;- frankCopula(3)
+## Generate the &quot;observed&quot; sample
+set.seed(271)
+U &lt;- rCopula(1000, fc)
+## Compute the MPLE and its standard error
+summary(fitCopula(frankCopula(), data = pobs(U), method = &quot;mpl&quot;))
+
+
+### Estimation of copula parameters via the MPLE
+
+U &lt;- pobs(rdj[,2:4]) # compute the pseudo-observations
+## MPLE for the normal copula
+summary(fitCopula(normalCopula(dim = 3, dispstr = &quot;un&quot;), data = U))
+
+## MPLE for the t copula
+summary(fitCopula(tCopula(dim = 3, dispstr = &quot;un&quot;), data = U))
+
+
+### 4.1.3 Estimators of elliptical copula parameters ###########################
+
+### Estimation of the normal copula parameters via the method-of-moments
+
+## Load the data, compute the log-returns and the pseudo-observations
+data(SMI.12)
+X &lt;- diff(log(SMI.12)) # compute log-returns
+U &lt;- pobs(X) # compute pseudo-observations
+d &lt;- ncol(U) # 20 dimensions
+f.irho &lt;- fitCopula(normalCopula(dim = d, dispstr = &quot;un&quot;), data = U,
+                    method = &quot;irho&quot;)
+f.itau &lt;- fitCopula(normalCopula(dim = d, dispstr = &quot;un&quot;), data = U,
+          method = &quot;itau&quot;)
+## The estimated parameters as correlation matrices
+P.irho &lt;- p2P(f.irho@estimate, d = d)
+P.itau &lt;- p2P(f.itau@estimate, d = d)
+
+
+### Estimation of the t copula parameters using the method of Mashal, Zeevi (2002)
+
+fit &lt;- fitCopula(tCopula(dim = d, dispstr = &quot;un&quot;), data = U,
+                 method = &quot;itau.mpl&quot;)
+
+
+### 4.1.5 Estimation of copula models with partly fixed parameters #############
+
+### Estimation of elliptical copulas with partly fixed parameters
+
+## The &quot;unknown&quot; copula (a 3-dim. normal copula)
+nc  &lt;- normalCopula(param = c(0.6, 0.3, 0.2), dim = 3, dispstr = &quot;un&quot;)
+## Generate the &quot;observed&quot; sample and compute corresponding pobs
+set.seed(981)
+U &lt;- pobs(rCopula(1000, nc))
+## A trivariate normal copula whose first parameter is fixed to 0.6
+(ncf &lt;- normalCopula(param = fixParam(c(0.6, NA_real_, NA_real_),
+                                      c(TRUE, FALSE, FALSE)),
+                     dim = 3, dispstr = &quot;un&quot;))
+
+fitCopula(ncf, data = U) # MPLE
+
+fitCopula(ncf, data = U, method = &quot;itau&quot;)
+
+fitCopula(ncf, data = U, method = &quot;irho&quot;)
+
+fixedParam(nc) &lt;- c(TRUE, FALSE, FALSE)
+nc
+
+## The &quot;unknown&quot; copula (a 3-dim. t copula)
+tc  &lt;- tCopula(param = c(0.6, 0.3, 0.2), dim = 3, dispstr = &quot;un&quot;)
+## Generate the &quot;observed&quot; sample and compute corresponding pobs
+set.seed(314)
+U &lt;- pobs(rCopula(1000, tc))
+## A trivariate t copula whose first two parameters are fixed to 0.6 and 0.3
+(tcf &lt;- tCopula(param = fixParam(c(0.6, 0.3, NA_real_),
+                                 c(TRUE, TRUE, FALSE)),
+                dim = 3, dispstr = &quot;un&quot;))
+
+fitCopula(tcf, data = U) # MPLE
+
+fitCopula(tcf, data = U, method = &quot;itau.mpl&quot;)
+
+## A trivariate t copula whose first correlation parameter is fixed to 0.6
+## and whose number of degrees of freedom is fixed to 4 (default value)
+(tcf2 &lt;- tCopula(param = fixParam(c(0.6, NA_real_, NA_real_),
+                                  c(TRUE, FALSE, FALSE)),
+                 dim = 3, dispstr = &quot;un&quot;, df.fixed = TRUE))
+
+fitCopula(tcf2, data = U) # MPLE
+
+fitCopula(tcf2, data = U, method = &quot;itau&quot;)
+
+
+### Estimation of Khoudraji-Clayton copulas with partly fixed parameters
+
+## The &quot;unknown&quot; copula (a 2-dim. Khoudraji-Clayton copula)
+kc &lt;- khoudrajiCopula(copula2 = claytonCopula(6), shapes = c(0.4, 1))
+set.seed(1307)
+U &lt;- pobs(rCopula(1000, kc))
+
+try(fitCopula(khoudrajiCopula(copula2 = claytonCopula()),
+              start = c(1.1, 0.5, 0.5), data = U))
+
+fitCopula(khoudrajiCopula(copula2 = claytonCopula()),
+          start = c(1.1, 0.5, 0.5), data = U,
+          optim.method = &quot;Nelder-Mead&quot;)
+
+kcf &lt;- khoudrajiCopula(copula2 = claytonCopula(),
+                       shapes = fixParam(c(NA_real_, 1),
+                                         c(FALSE, TRUE)))
+fitCopula(kcf, start = c(1.1, 0.5), data = U)
+
+
+### 4.2 Non-parametric estimation of the copula ################################
+
+### 4.2.1 The empirical copula #################################################
+
+### Non-parametric estimation by the empirical copula
+
+## The &quot;unknown&quot; copula (a 3-dim. Clayton copula with parameter 3)
+d &lt;- 3
+cc &lt;- claytonCopula(3, dim = d)
+n &lt;- 1000
+## Generate a sample of size n from the copula, which will be transformed
+## to pseudo-observations in &#39;C.n()&#39;
+set.seed(65)
+U &lt;- rCopula(n, copula = cc)
+## Generate random points where to evaluate the empirical copula
+v &lt;- matrix(runif(n * d), nrow = n, ncol = d)
+ec &lt;- C.n(v, X = U)
+## Compare with the true copula; increase n to decrease the error
+true &lt;- pCopula(v, copula = cc)
+round(mean(abs(true - ec) / true) * 100, 2) # mean relative error (in %)
+
+
+### The empirical beta and checkerboard copulas
+
+## The &quot;unknown&quot; copula (a 3-dim. Gumbel-Hougaard copula with parameter 4)
+d &lt;- 3
+gc &lt;- gumbelCopula(4, dim = d)
+## The comparison function (returning mean relative errors in %)
+compareEmpCops &lt;- function(n) {
+    U &lt;- rCopula(n, copula = gc) # a sample from the true copula
+    v &lt;- matrix(runif(n * d), nrow = n, ncol = d) # random evaluation points
+    ec    &lt;- C.n(v, X = U) # the empirical copula values
+    beta  &lt;- C.n(v, X = U, smoothing = &quot;beta&quot;) # the emp. beta cop. values
+    check &lt;- C.n(v, X = U, smoothing = &quot;checkerboard&quot;) # emp. check. cop. val
+    true &lt;- pCopula(v, copula = gc) # the true copula values
+    c(ec    = mean(abs(true - ec) / true),
+      beta  = mean(abs(true - beta) / true),
+      check = mean(abs(true - check) / true)) * 100 # mean rel. error in %
+}
+
+set.seed(2013)
+round(rowMeans(replicate(100, compareEmpCops(30))), 2)
+
+n &lt;- 30 # sample size
+set.seed(2008)
+U &lt;- rCopula(n, copula = gc) # a sample from the true copula
+m &lt;- 100 # number of evaluation points
+v &lt;- runif(m) # random points where to eval. the first margin of the est.
+w &lt;- cbind(v, matrix(1, m, d-1)) # corresp. eval. points of the estimators
+stopifnot(all.equal(C.n(w, X = U, smoothing = &quot;beta&quot;), v)) # check
+stopifnot(all.equal(C.n(w, X = U, smoothing = &quot;checkerboard&quot;), v)) # check
+
+
+### 4.2.2 Under extreme-value dependence #######################################
+
+### Non-parametric estimation of the Pickands dependence function
+
+## The &quot;unknown&quot; copula (a 2-dim. extreme-value copula)
+kg &lt;- khoudrajiCopula(copula1 = indepCopula(),
+                      copula2 = gumbelCopula(3),
+                      shapes = c(0.6, 0.95))
+## Generate a sample from this copula transformed to pseudo-observations
+set.seed(172)
+U &lt;- pobs(rCopula(100, copula = kg))
+
+## Graphs of the Pickands dependence function A and of its two estimates
+curve(An.biv(U, x, estimator = &quot;Pickands&quot;), from = 0, to = 1, col = 1,
+      lwd = 2, ylim = c(0.5, 1), xlab = &quot;t&quot;, ylab = &quot;A(t)&quot;)
+curve(An.biv(U, x, estimator = &quot;CFG&quot;), 0, 1, add = TRUE, lwd = 2, col = 2)
+curve(A(kg, w = x), 0, 1, add = TRUE, lwd = 2, col = 3)
+lines(c(0, 0.5, 1), c(1, 0.5, 1), lty = 2)
+lines(c(0, 1),      c(1, 1),      lty = 2)
+legend(&quot;bottomright&quot;, bty = &quot;n&quot;, lwd = 2, col = 1:3,
+       legend = expression({A[list(n,c)]^{P}}(t),
+                           {A[list(n,c)]^{CFG}}(t),
+                           {A[theta]^{KGH}}(t)),
+       inset = 0.02, y.intersp = 1.2)</code></pre>
+        </div>
+      </div>
+      <div class="raw footer">
+        &copy; Marius Hofert, Ivan Kojadinovic, Martin Mächler, Jun Yan
+      </div>
+    </div>
+  </body>
+</html>

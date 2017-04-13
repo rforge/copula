@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>R: Code from Chapter 6</title>
+
+    <link rel="icon" type="image/png" href="./contents/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="./contents/favicon-16x16.png" sizes="16x16" />
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/R.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container page">
+      <div class="row">
+        <div class="col-xs-12 col-sm-offset-1 col-sm-2 sidebar" role="navigation">
+<div class="row">
+<div class="col-xs-6 col-sm-12">
+<p><a href="/"><img src = "./contents/R_logo.png" width = "100" height = "78" alt = "R" /></a></p>
+<ul>
+<li><a href="index.html">Home</a></li>
+<li><a href="book.html">Book features</a></li>
+<li><a href="errata.html">Errata</a></li>
+<li><a href="bugs.html">Reporting bugs</a></li>
+</ul>
+<h2 id="r-code-from">R code from:</h2>
+<ul>
+<li><a href="02_copulas.html">Chapter 2</a></li>
+<li><a href="03_classes_sampling.html">Chapter 3</a></li>
+<li><a href="04_fitting.html">Chapter 4</a></li>
+<li><a href="05_gof.html">Chapter 5</a></li>
+<li><a href="06_misc.html">Chapter 6</a></li>
+</ul>
+</div>
+</div>
+        </div>
+        <div class="col-xs-12 col-sm-7">
+        <h1>Code from Chapter 6</h1>
+<p>Below is the R code from Chapter 6 of the book “Elements of Copula Modeling with R”. The code is also available as an <a href="scripts/06_misc.R">R script</a>.</p>
+<!-- Copy script here and indent everything by 4 columns -->
+<pre><code>## By Marius Hofert, Ivan Kojadinovic, Martin Maechler, Jun Yan
+
+## R script for Chapter 6 of Elements of Copula Modeling with R
+
+
+### 6.1 Non-stationarity #######################################################
+
+### Test of stationarity based on S_n^H
+
+data(rdj)
+library(xts)
+Xrdj &lt;- xts(rdj[,2:4], order.by = rdj[,1])
+
+plot.zoo(Xrdj, main = &quot;&quot;, xlab = &quot;&quot;, mar = c(0, 7, 0, 2.1))
+
+library(npcp)
+set.seed(981)
+(res &lt;- withTime( cpTestFn(Xrdj, b = NULL) ))
+## =&gt; test result (component value) and run time (component sys.time)
+
+out &lt;- res$value # the output of the test only
+rdj[which(out$cvm == out$statistic), 1]
+
+plot(out$cvm, type = &quot;l&quot;, xlab = &quot;k&quot;, ylab = quote({S^H}[list(n,k)]))
+
+data(gasoil) # oil and gas prices
+Rgasoil &lt;- apply(log(gasoil[,-1]), 2, diff) # bivariate daily log-returns
+Xgasoil &lt;- xts(Rgasoil, order.by = gasoil[-1, 1]) # corresponding xts object
+
+plot.zoo(Xgasoil, main = &quot;&quot;, xlab = &quot;&quot;, mar = c(0, 7, 0, 2.1))
+
+set.seed(292); withTime( cpTestFn(Xgasoil, b = NULL) )
+
+
+### Test of stationarity based on S_n^C
+
+set.seed(314)
+withTime( cpTestCn(Xrdj, b = NULL, method = &quot;nonseq&quot;) )
+
+set.seed(137)
+withTime( cpTestCn(Xgasoil, b = NULL, method = &quot;nonseq&quot;) )
+
+
+### 6.2 Serial dependence ######################################################
+
+### Correlogram and Ljung-Box test of serial independence
+
+acf(Xgasoil^2, main = &quot;&quot;, ci.col = 1)
+text(c(8, 23.4, 6, 25.2), c(1.095, 1.09, 0.26, 0.26),
+     labels = c(&quot;Oil&quot;, &quot;Oil and gas&quot;, &quot;Gas and oil&quot;, &quot;Gas&quot;))
+
+Box.test(Xgasoil[,1]^2, lag =  5, type = &quot;Ljung-Box&quot;)
+
+Box.test(Xgasoil[,2]^2, lag =  5, type = &quot;Ljung-Box&quot;)
+
+Box.test(Xgasoil[,1]^2, lag = 20, type = &quot;Ljung-Box&quot;)
+
+Box.test(Xgasoil[,2]^2, lag = 20, type = &quot;Ljung-Box&quot;)
+
+
+### Ljung-Box tests can be too liberal
+
+pvalBox &lt;- function(n) {
+    x &lt;- rt(n, df=4)
+    c(lag5  = Box.test(x^2, type = &quot;Ljung-Box&quot;, lag =  5)$p.value,
+      lag20 = Box.test(x^2, type = &quot;Ljung-Box&quot;, lag = 20)$p.value)
+}
+
+set.seed(3298)
+pv &lt;- replicate(10000, pvalBox(500))
+alpha &lt;- c(0.01, 0.05, 0.1) # nominal levels
+## Empirical levels
+rbind(nom.level = alpha,
+      emp.level.lag5  = ecdf(pv[&quot;lag5&quot;, ])(alpha),
+      emp.level.lag20 = ecdf(pv[&quot;lag20&quot;,])(alpha))
+
+
+### Tests of serial independence based on S_n^s
+
+set.seed(137)
+sI.d &lt;- withTime( serialIndepTestSim(nrow(Xgasoil), lag.max = 5) )
+sI.d$sys.time # the run time
+
+serialIndepTest(Xgasoil[,1]^2, d = sI.d$value)
+
+serialIndepTest(Xgasoil[,2]^2, d = sI.d$value)
+
+
+### 6.3 Filtering ##############################################################
+
+### Filtering based on ARMA-GARCH models
+
+library(rugarch)
+## Specify ARMA(1,1)-GARCH(1,1) model with Student t innovations
+meanModel &lt;- list(armaOrder = c(1,1)) # ARMA(1,1)
+varModel  &lt;- list(model = &quot;sGARCH&quot;, garchOrder = c(1,1)) # GARCH(1,1)
+uspec &lt;- ugarchspec(varModel, mean.model = meanModel,
+                    distribution.model = &quot;std&quot;) # Student t
+
+## Fit marginal ARMA-GARCH models
+fit &lt;- apply(Xgasoil, 2, function(x) ugarchfit(uspec, data = x))
+## Extract the standardized residuals and build the pseudo-observations
+Z &lt;- sapply(fit, residuals, standardize = TRUE) # standardized residuals
+(nus &lt;- sapply(fit, function(x) x@fit$coef[[&quot;shape&quot;]])) # fitted d.o.f.
+
+U &lt;- pobs(Z) # pseudo-observations from the residuals Z
+plot(U, xlab = expression(U[1]), ylab = expression(U[2])) # pseudo-obs.
+
+## Fit a t copula to the innovations
+fitcop &lt;- fitCopula(tCopula(), data = U, method = &quot;mpl&quot;)
+fitcop@estimate # estimated correlation parameter rho and d.o.f. nu
+
+cop &lt;- fitcop@copula # fitted t copula
+
+## Simulate from the bivariate model
+## 1) Simulate from the fitted copula
+set.seed(271) # set seed
+n.sim &lt;- 260 # sample size
+m.sim &lt;- 1000 # number of paths
+U. &lt;- rCopula(n.sim * m.sim, cop) # simulate from the fitted copula
+## 2) Quantile-transform the corresponding innovations
+##    Note: The innovations Z have to be standardized (mean 0, variance 1)
+##          for ugarchsim()
+Z. &lt;- sapply(1:2, function(j)
+    sqrt((nus[j]-2)/nus[j]) * qt(U.[,j], df = nus[j]))
+## 3) Feed the (cross-sec. dependent) innovations to the marginal ARMA-GARCH
+##    models and simulate from them
+sim &lt;- lapply(1:2, function(j)
+    ugarchsim(fit[[j]], # fitted marginal ARMA-GARCH model
+              n.sim = n.sim, # sample size
+              m.sim = m.sim, # number of trajectories/paths
+              custom.dist = list(name = &quot;sample&quot;, # our innovations
+                                 distfit = matrix(Z.[,j], ncol = m.sim))))
+## 4) Extract the simulated (cross-sec. dependent) series X_t and build the
+##    corresponding (predicted/simulated) oil and gas prices
+X. &lt;- lapply(sim, function(x) fitted(x)) # equal to seriesSim in x@simulation
+S.t &lt;- as.numeric(tail(gasoil, n = 1)[,2:3]) # last available prices S_t
+library(qrmtools) # for log_returns()
+S. &lt;- lapply(1:2, function(j) # predicted prices
+    log_returns(X.[[j]], inverse = TRUE, start = rep(S.t[j], m.sim)))
+S.T &lt;- sapply(1:2, function(j) tail(S.[[j]], n = 1)) # pick out prices at T
+
+library(MASS)
+pred.dens &lt;- kde2d(S.T[,1], S.T[,2], n = 300, lims = c(0, 200, 0, 15))
+image(pred.dens, xlab = &quot;Oil price&quot;, ylab = &quot;Gas price&quot;,
+      col = gray(seq(1, 0, length.out = 100)))
+
+
+### 6.4 Ties ###################################################################
+
+### Computing ranks in the presence of ties
+
+set.seed(1979)
+(U &lt;- runif(8))
+
+rank(U) # does not depend on the setting of `ties.method&#39;
+
+b &lt;- 10 # number of bins
+(U.ties &lt;- cut(U, breaks = 0:b/b, labels = 0.5:(b - 0.5)/b)) # a factor
+
+rank(U.ties)
+
+rank(U.ties, ties.method = &quot;max&quot;)
+
+rank(U.ties, ties.method = &quot;min&quot;)
+
+set.seed(8)
+rank(U.ties, ties.method = &quot;random&quot;)
+
+set.seed(46)
+rank(U.ties, ties.method = &quot;random&quot;)
+
+
+### Effect of ties on multivariate scaled ranks
+
+n &lt;- 200
+set.seed(4809)
+U &lt;- rCopula(n, claytonCopula(5))
+b &lt;- 10 # number of bins
+U.ties &lt;- apply(U, 2, cut, breaks = 0:b/b, labels =  0.5:(b - 0.5)/ b)
+
+ties.method &lt;- &quot;max&quot; # can be changed to &quot;min&quot;, &quot;average&quot; or &quot;random&quot;
+stopifnot(all.equal(pobs(U.ties, ties.method = ties.method),
+                    apply(U.ties, 2, rank, ties.method = ties.method) /
+                    (nrow(U.ties) + 1))) # check
+
+plot(pobs(U), xlab = &quot;&quot;, ylab = &quot;&quot;)
+plot(pobs(U.ties), xlim = 0:1, ylim = 0:1, xlab = &quot;&quot;, ylab = &quot;&quot;)
+set.seed(732)
+plot(pobs(U.ties, ties.method = &quot;random&quot;), xlab = &quot;&quot;, ylab = &quot;&quot;)
+
+a &lt;- runif(1, min = 0, max = 1/(2 * b))
+set.seed(732)
+V &lt;- pobs(matrix(as.numeric(U.ties) + runif(2 * n, min = -a, max = a),
+                 nrow = n, ncol = 2))
+set.seed(732)
+stopifnot(all.equal(V, pobs(U.ties, ties.method = &quot;random&quot;))) # check
+
+
+### Estimation of copula parameters in the presence of ties
+
+myCopula &lt;- frankCopula # a one-parameter copula
+d &lt;- 2 # dimension
+tau &lt;- 0.25 # strength of dependence
+theta &lt;- iTau(myCopula(), tau = tau) # corresponding copula parameter
+
+## The discretizing function; returns a matrix of real numbers
+discretize &lt;- function(U, b)
+    matrix(as.numeric(apply(U,2, cut, breaks = 0:b/b,
+                            labels = 0.5:(b - 0.5)/ b)), nrow = nrow(U))
+b &lt;- 10 # number of bins
+
+optim.method &lt;- &quot;BFGS&quot; # the numerical optimization method for MPLE
+
+m &lt;- 30 # number of times randomization is done for one discretized sample
+## Function returning the average of estimates over m randomizations
+## when performing fitting based on random ranks from one discrete sample
+fitCopulaRan &lt;- function(U.ties, method) {
+    oneFitRan &lt;- function() {
+        V &lt;- pobs(U.ties, ties.method = &quot;random&quot;) # break ties at random
+        fitCopula(myCopula(dim = d), data = V, method = method,
+                  optim.method = optim.method)@estimate # return param. est.
+    }
+    mean(replicate(m, oneFitRan())) # average of est. over m randomizations
+}
+
+oneFit &lt;- function(n) {
+    U &lt;- rCopula(n, copula = myCopula(theta, dim = d)) # a sample of size n
+    ## Rank-based fitting from the continuous sample
+    V &lt;- pobs(U) # pseudo-observations (no ties)
+    mpl &lt;- fitCopula(myCopula(dim = d), data = V,
+                     optim.method = optim.method)@estimate # MPLE
+    itau &lt;- fitCopula(myCopula(dim = d), data = V,
+                      method = &quot;itau&quot;)@estimate # tau inversion
+    ## Fitting from the discretized sample based on average ranks
+    U.ties &lt;- discretize(U, b = b) # discretized sample
+    W &lt;- pobs(U.ties) # corresponding pseudo-observations (average ranks)
+    mpl.ave &lt;- fitCopula(myCopula(dim = d), data = W,
+                         optim.method = optim.method)@estimate # MPLE
+    itau.ave &lt;- fitCopula(myCopula(dim = d), data = W,
+                          method = &quot;itau&quot;)@estimate # tau inversion
+    ## Fitting from the discretized sample based on random ranks
+    mpl.ran &lt;-  fitCopulaRan(U.ties, method = &quot;mpl&quot;) # MPLE
+    itau.ran &lt;- fitCopulaRan(U.ties, method = &quot;itau&quot;) # tau inversion
+    ## The different estimates of theta
+    theta.n &lt;- c(mpl, mpl.ave, mpl.ran, itau, itau.ave, itau.ran)
+    names(theta.n) &lt;- c(&quot;mpl&quot;, &quot;mpl.ave&quot;, &quot;mpl.ran&quot;,
+                        &quot;itau&quot;, &quot;itau.ave&quot;, &quot;itau.ran&quot;)
+    theta.n
+}
+
+set.seed(2010); est &lt;- withTime( replicate(100, oneFit(n = 100)) )
+
+sumSims &lt;- function() {
+    cat(describeCop(myCopula(), kind = &quot;very short&quot;),
+        &quot;with a Kendall&#39;s tau of&quot;, tau, &quot;\n&quot;)
+    print(est$sys.time) # run time
+    ## Estimates on Kendall&#39;s tau scale
+    tau.n.s &lt;- apply(est$value, c(1, 2), function(x) tau(myCopula(x)))
+    ## Relative biases on Kendall&#39;s tau scale
+    bias &lt;- (rowMeans(tau.n.s) - tau) / tau
+    ## Standard deviations of estimates on Kendall&#39;s tau scale
+    std &lt;- apply(tau.n.s, 1, sd)
+    ## Root mean square errors on Kendall&#39;s tau scale
+    rmse &lt;- sqrt(rowMeans((tau.n.s - tau)^2))
+    round(rbind(bias = bias, std = std, rmse = rmse) * 100, 2)
+}
+sumSims()
+
+tau &lt;- 0.5; theta &lt;- iTau(myCopula(), tau = tau)
+set.seed(2010); est &lt;- withTime( replicate(100, oneFit(n = 100)) )
+sumSims()
+
+tau &lt;- 0.75; theta &lt;- iTau(myCopula(), tau = tau)
+set.seed(2010); est &lt;- withTime( replicate(100, oneFit(n = 100)) )
+sumSims()
+
+
+### Tests not adapted to the presence of ties
+
+tau &lt;- 0.5 # strength of dependence
+theta &lt;- iTau(gumbelCopula(), tau = tau) # corresponding copula parameter
+b &lt;- 10 # number of bins for discretization
+## Function which applies the four tests to data generated from
+## a Gumbel-Hougaard copula and then discretized
+pvalTies &lt;- function(n) {
+    U &lt;- rCopula(n, copula = gumbelCopula(theta))
+    U.ties &lt;- discretize(U, b = b)
+    res &lt;- c(exchTest(U.ties, ties = FALSE)$p.value,
+             evTestC(U.ties)$p.value,
+             gofCopula(gumbelCopula(), x = U.ties, estim.method = &quot;itau&quot;,
+                       ties = FALSE)$p.value, # pb
+             gofCopula(gumbelCopula(), x = U.ties, estim.method = &quot;itau&quot;,
+                       sim = &quot;mult&quot;)$p.value)
+    names(res) &lt;- c(&quot;exch&quot;, &quot;ev&quot;, &quot;pb.GH&quot;, &quot;mult.GH&quot;)
+    res
+}
+
+set.seed(4478)
+pv &lt;- withTime( replicate(100, pvalTies(n = 100)) )
+
+pv$sys.time
+
+round(apply(pv$value, 1, max), 4) # largest p-values
+
+
+### Tests of exchangeability, radial symmetry and extreme-value dependence for ties
+
+## Function which applies the two tests to data generated from
+## a Gumbel-Hougaard copula and then discretized
+pvalExchEV &lt;- function(n) {
+    U &lt;- rCopula(n, copula = gumbelCopula(theta))
+    U.ties &lt;- discretize(U, b = b)
+    res &lt;- c(exchTest(U.ties, ties = TRUE)$p.value,
+             evTestK(U.ties, ties = TRUE)$p.value)
+    names(res) &lt;- c(&quot;exch&quot;, &quot;ev&quot;)
+    res
+}
+
+set.seed(8848)
+pv &lt;- withTime( replicate(1000, pvalExchEV(n = 100)) )
+pv$sys.time # run time
+
+alpha &lt;- c(0.01, 0.05, 0.1) # nominal levels
+rbind(nom.level = alpha,
+      emp.level.exch = ecdf(pv$value[&quot;exch&quot;,])(alpha),
+      emp.level.ev = ecdf(pv$value[&quot;ev&quot;,])(alpha))
+
+myCopula &lt;- frankCopula # a one-parameter radially symmetric copula
+tau &lt;- 0.5 # strength of dependence
+d &lt;- 2 # dimension
+theta &lt;- iTau(myCopula(), tau = tau) # corresponding copula parameter
+b &lt;- 10 # number of bins
+## Function which applies the tests to data generated from
+## the copula &#39;myCopula&#39; and then discretized
+pvalSym &lt;- function(n) {
+    U &lt;- rCopula(n, copula = myCopula(theta, dim = d))
+    U.ties &lt;- discretize(U, b = b)
+    radSymTest(U.ties, ties = TRUE)$p.value
+}
+
+set.seed(3298)
+pv &lt;- withTime( replicate(1000, pvalSym(n = 100)) )
+pv$sys.time # run time
+
+rbind(nom.level = alpha, emp.level = ecdf(pv$value)(alpha)) # levels
+
+
+### Parametric bootstrap-based goodness-of-fit test adapted to ties
+
+myCopula &lt;- gumbelCopula # a one-parameter bivariate copula
+tau &lt;- 0.5 # strength of dependence
+theta &lt;- iTau(myCopula(), tau = tau) # corresponding copula parameter
+b &lt;- 10 # number of bins
+## Function which applies the parametric goodness-of-fit test to data
+## generated under the null hypothesis and returns the p-value
+pvalPB &lt;- function(n) {
+    U &lt;- rCopula(n, copula = myCopula(theta))
+    U.ties &lt;- discretize(U, b = b)
+    gofCopula(myCopula(), x = U.ties, estim.method = &quot;itau&quot;,
+              ties = TRUE)$p.value
+}
+
+set.seed(32); pv &lt;- withTime( replicate(1000, pvalPB(n = 100)) )
+pv$sys.time # run time
+
+alpha &lt;- c(0.01, 0.05, 0.1) # nominal levels
+rbind(nom.level = alpha, emp.level = ecdf(pv$value)(alpha)) # levels
+
+discretize &lt;- function(U, b)
+    matrix(as.numeric(apply(U, 2, cut,
+                            breaks = (0:b)^2/b^2,
+                            labels =  0.5:(b - 0.5)/ b)), nrow = nrow(U))
+set.seed(32); pv &lt;- withTime( replicate(1000, pvalPB(n = 100)) )
+
+rbind(nom.level = alpha, emp.level = ecdf(pv$value)(alpha))
+
+discretize &lt;- function(U, b)
+    cbind(U[,1], as.numeric(cut(U[,2], breaks = 0:b/b,
+                                labels = 0.5:(b - 0.5)/b)))
+set.seed(32); pv &lt;- withTime( replicate(1000, pvalPB(n = 100)) )
+
+rbind(nom.level = alpha, emp.level = ecdf(pv$value)(alpha))
+
+discretize &lt;- function(U, b) U
+set.seed(32); pv &lt;- withTime( replicate(1000, pvalPB(n = 100)) )
+
+rbind(nom.level = alpha, emp.level = ecdf(pv$value)(alpha))
+
+
+### Effect of ties on cross-validation
+
+myCopula &lt;- claytonCopula # a one-parameter bivariate copula
+tau &lt;- 0.5 # strength of dependence
+theta &lt;- iTau(myCopula(), tau = tau) # corresponding copula parameter
+b &lt;- 20 # number of bins
+## The discretizing function
+discretize &lt;- function(U, b)
+    matrix(as.numeric(apply(U, 2, cut, breaks = 0:b/b,
+                            labels =  0.5:(b - 0.5)/ b)), nrow = nrow(U))
+optim.method &lt;- &quot;BFGS&quot; # the numerical optimization method for MPLE
+## 10-fold cross-validation
+## Returns the label of the copula with the highest xv score
+xv &lt;- function(n) {
+    U &lt;- rCopula(n, copula = myCopula(theta))
+    U.ties &lt;- discretize(U, b = b)
+    score &lt;- c(xvCopula(claytonCopula(), x = U.ties, k = 10,
+                        optim.method = optim.method),
+               xvCopula(gumbelCopula(), x = U.ties, k = 10,
+                        optim.method = optim.method),
+               xvCopula(frankCopula(), x = U.ties, k = 10,
+                        optim.method = optim.method))
+    c(&quot;C&quot;, &quot;GH&quot;, &quot;F&quot;)[which(score == max(score))]
+}
+
+set.seed(2885)
+withTime( summary(as.factor(replicate(100, xv(n = 100)))) )
+
+myCopula &lt;- gumbelCopula
+theta &lt;- iTau(myCopula(), tau = tau)
+set.seed(2885)
+withTime( summary(as.factor(replicate(100, xv(n = 100)))) )
+
+myCopula &lt;- frankCopula
+theta &lt;- iTau(myCopula(), tau = tau)
+set.seed(2885)
+withTime( summary(as.factor(replicate(100, xv(n = 100)))) )
+
+
+### Analysis of the loss insurance data
+
+data(loss)
+X &lt;- as.matrix(subset(loss, censored == 0, select = c(&quot;loss&quot;, &quot;alae&quot;)))
+
+apply(X, 2, function(x) length(unique(x)))
+
+plot(pobs(X), xlab = &quot;loss&quot;, ylab = &quot;alae&quot;)
+plot(qnorm(pobs(X)), xlab = &quot;loss&quot;, ylab = &quot;alae&quot;)
+
+set.seed(3070)
+withTime(
+    round(c(exchTest(X, ties = TRUE)$p.value,
+            radSymTest(X, ties = TRUE)$p.value,
+            evTestK(X, ties = TRUE)$p.value), 4)
+)
+
+## Goodness-of-fit testing
+set.seed(4634)
+withTime(
+    round(c(gofCopula(gumbelCopula(), x = X, ties = TRUE,
+                      estim.method = &quot;itau&quot;)$p.value,
+            gofCopula(rotCopula(claytonCopula()), x = X, ties = TRUE,
+                      estim.method = &quot;itau&quot;)$p.value,
+            gofCopula(frankCopula(), x = X, ties = TRUE,
+                      estim.method = &quot;itau&quot;)$p.value,
+            gofCopula(plackettCopula(), x = X, ties = TRUE,
+                      estim.method = &quot;itau&quot;)$p.value,
+            gofCopula(normalCopula(), x = X, ties = TRUE,
+                      estim.method = &quot;itau&quot;)$p.value), 4)
+)
+
+## Model selection
+set.seed(4807)
+k &lt;- 50 # for k-fold cross-validation
+optim.method &lt;- &quot;BFGS&quot; # the numerical optimization method for MPLE
+withTime(
+    round(c(xvCopula(gumbelCopula(), x = X, k = k,
+                     optim.method = optim.method),
+            xvCopula(rotCopula(claytonCopula()), x = X, k = k,
+                     optim.method = optim.method),
+            xvCopula(frankCopula(), x = X, k = k,
+                     optim.method = optim.method),
+            xvCopula(plackettCopula(), x = X, k = k,
+                     optim.method = optim.method),
+            xvCopula(normalCopula(), x = X, k = k,
+                     optim.method = optim.method)), 1)
+)
+
+withTime( gofCopula(gumbelCopula(), x = X, ties = FALSE,
+                    estim.method = &quot;itau&quot;) )</code></pre>
+        </div>
+      </div>
+      <div class="raw footer">
+        &copy; Marius Hofert, Ivan Kojadinovic, Martin Mächler, Jun Yan
+      </div>
+    </div>
+  </body>
+</html>
