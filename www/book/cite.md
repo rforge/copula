@@ -17,7 +17,3 @@ The [R package copula](https://cran.r-project.org/package=copula) can be cited
       note = {R package version 0.999-15},
       url = {http://cran.r-project.org/package=copula}
     }
-
-
-
-
