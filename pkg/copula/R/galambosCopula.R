@@ -107,7 +107,7 @@ galambosCopula <- function(param = NA_real_) {
              dimension = dim,
              exprdist = c(cdf = cdf, pdf = pdf),
              parameters = param[1],
-             param.names = "param",
+             param.names = "alpha",
              param.lowbnd = 0,
              param.upbnd = Inf,
              fullname = "<deprecated slot>")# "Galambos copula family; Extreme value copula"

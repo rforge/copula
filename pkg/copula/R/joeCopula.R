@@ -28,8 +28,8 @@ joeCopula <- function(param = NA_real_, dim = 2L,
   }
   ## cdf expression
   cdfExpr <- function(d) {
-    term <- paste0("(1 - (1 - ", paste0("u", 1:d), ")^param)", collapse = " * ")
-    cdf <- parse(text=paste0("1 - (1 - ", term, ")^(1 / param)"))
+    term <- paste0("(1 - (1 - ", paste0("u", 1:d), ")^alpha)", collapse = " * ")
+    cdf <- parse(text=paste0("1 - (1 - ", term, ")^(1 / alpha)"))
   }
   cdf <- cdfExpr(dim)
   pdf <- if (dim <= 6) cdfExpr2pdfExpr(cdf, dim)
@@ -41,7 +41,7 @@ joeCopula <- function(param = NA_real_, dim = 2L,
       dimension = as.integer(dim),
       parameters = param[1],
       exprdist = exprdist,
-      param.names = "param",
+      param.names = "alpha",
       param.lowbnd = 1, # 0.238733989880086 for tau >= -1 -- is NOT valid
       param.upbnd = Inf,
       fullname = "<deprecated slot>")# "Joe copula family; Archimedean copula"

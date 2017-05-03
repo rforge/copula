@@ -50,7 +50,7 @@ tawnCopula <- function(param = NA_real_) {
              dimension = dim,
              exprdist = c(cdf = cdf, pdf = pdf),
              parameters = param[1],
-             param.names = "param",
+             param.names = "alpha",
              param.lowbnd = 0,
              param.upbnd = 1,
              fullname = "<deprecated slot>")# "Tawn copula family; Extreme value copula"

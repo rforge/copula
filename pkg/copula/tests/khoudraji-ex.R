@@ -29,7 +29,7 @@ kcf <- khoudrajiCopula(copula2 = claytonCopula(6),
 kcf
 stopifnot(
     all.equal(getTheta(kcf, freeOnly = FALSE, named = TRUE) -> th.,
-              c(c2.param = 6, shape1 = 0.4, shape2 = 0.95)),
+              c(c2.alpha = 6, shape1 = 0.4, shape2 = 0.95)),
     identical(getTheta(kcf, named = TRUE), th.[1:2]))
 
 ## kcf@exprdist$cdf
