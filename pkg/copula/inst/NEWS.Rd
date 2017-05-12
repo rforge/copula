@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-17 (2017-03-17, svn r1620)}{
+\section{Changes in version 0.999-17 (2017-05-12, svn r1650)}{
   \subsection{New Features}{
     \itemize{
       \item \code{C.n()} and several GOF tests now get an optional
@@ -16,6 +16,11 @@
 
       \item Export the (formerly hidden) utilities \code{isFree()},
       \code{isFreeP()}, and \code{nParam()}.
+
+      \item new \code{rLatinHypercube()} and \code{rAntitheticVariates()} utilities
+
+      \item \code{dCopula(u, copula, *)} now signals an error if
+      \code{ncol(u)} and \code{dim(copula)} differ.
     }
   }
   \subsection{Bug Fixes}{
@@ -28,6 +33,8 @@
 
       \item \code{setTheta(<tCopula>, ..)} now works correctly with
       free/non-free parts of the parameters.
+
+      \item ... TODO  Ivan
     }
   }
 }

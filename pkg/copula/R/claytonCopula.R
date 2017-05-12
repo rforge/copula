@@ -207,22 +207,23 @@ pMatClayton <- function (u, copula, ...) {
 dMatClayton <- function (u, copula, log = FALSE, checkPar=TRUE, ...) {
     stopifnot(!is.null(d <- ncol(u)), d == copula@dimension)
     th <- copula@parameters
-    if(d == 2 && th < 0) { # for now, to support negative tau-- TODO/FIXME: put into copClayton
-        ## wrong(!): dclaytonCopula.pdf(u, copula, log=log)
-        u_th <- u^-th
-        pt <- rowSums(u_th) - 1 # p-term pt = u1^-th + u2^-th - 1
-        r <- if(log) rep_len(-Inf, length(pt)) else numeric(length(pt))# = value for pt <= 0
-        pos <- pt > 0
-        u <- u[pos, , drop=FALSE]
-        pt <- pt[pos]
-        r[pos] <-
-	    if(log)
-		log1p(th) -(th+1)*rowSums(log(u)) - (1/th + 2) * log(pt)
-            else
-                (1+th) * (u[,1]*u[,2])^-(th+1)  * pt^(-1/th - 2)
-        r
-    } else
-        copClayton@dacopula(u, theta=copula@parameters, log=log, checkPar=checkPar, ...)
+    ##_ now _all_ this should happen in copClayton@dacopula():
+    ##_ if(d == 2 && th < 0) { # for now, to support negative tau-- TODO/FIXME: put into copClayton
+    ##_     ## wrong(!): dclaytonCopula.pdf(u, copula, log=log)
+    ##_     u_th <- u^-th
+    ##_     pt <- rowSums(u_th) - 1 # p-term pt = u1^-th + u2^-th - 1
+    ##_     r <- if(log) rep_len(-Inf, length(pt)) else numeric(length(pt))# = value for pt <= 0
+    ##_     pos <- pt > 0
+    ##_     u <- u[pos, , drop=FALSE]
+    ##_     pt <- pt[pos]
+    ##_     r[pos] <-
+    ##_         if(log)
+    ##_     	log1p(th) -(th+1)*rowSums(log(u)) - (1/th + 2) * log(pt)
+    ##_         else
+    ##_             (1+th) * (u[,1]*u[,2])^-(th+1)  * pt^(-1/th - 2)
+    ##_     r
+    ##_ } else
+    copClayton@dacopula(u, theta=th, log=log, checkPar=checkPar, ...)
 }
 
 setMethod("rCopula", signature("numeric", "claytonCopula"), rclaytonCopula)
