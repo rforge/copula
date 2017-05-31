@@ -7,7 +7,7 @@
 \section{Changes in version 0.999-17 (2017-05-12, svn r1650)}{
   \subsection{New Features}{
     \itemize{
-      \item \code{C.n()} and several GOF tests now get an optional
+      \item \code{C.n()} and several tests now get an optional
       argument (\code{ties.method} or similar) to specify what happens
       with ties.
 
@@ -17,7 +17,7 @@
       \item Export the (formerly hidden) utilities \code{isFree()},
       \code{isFreeP()}, and \code{nParam()}.
 
-      \item new \code{rLatinHypercube()} and \code{rAntitheticVariates()} utilities
+      \item New \code{rLatinHypercube()} and \code{rAntitheticVariates()} utilities.
 
       \item \code{dCopula(u, copula, *)} now signals an error if
       \code{ncol(u)} and \code{dim(copula)} differ.
@@ -29,12 +29,16 @@
       better default method for dealing with ties in their calls to
       \code{pobs()}.
 
-      \item \code{pobs(<zoo>, .)} continues working
+      \item \code{pobs(<zoo>, .)} continues working.
 
       \item \code{setTheta(<tCopula>, ..)} now works correctly with
       free/non-free parts of the parameters.
 
-      \item ... TODO  Ivan
+      \item \code{fgmCopula()} fixed to work with \code{rotCopula()}.
+
+      \item \code{iTau()} fixed for \code{joeCopula()}.
+
+      \item Improved warning messages in \code{iTau()} and \code{iRho()}.
     }
   }
 }
