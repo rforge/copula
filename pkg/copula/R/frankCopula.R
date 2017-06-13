@@ -142,8 +142,13 @@ rfrankCopula <- function(n, copula) {
 ##   if (abs(alpha) <= .Machine$double.eps^.9)
 ##     return (matrix(runif(n * dim), nrow = n))
   if (dim == 2) return (rfrankBivCopula(n, alpha))
-  ## the frailty is a log series distribution with a = 1 - exp(-alpha)
-  fr <- rlogseries(n, -expm1(-alpha))
+  ## the frailty is a  log(a)  series distribution with a = 1 - exp(-alpha) = - expm1(-alpha)
+  ##  log(1 - a) =: h =  -alpha
+  ##
+  if(log1mexp(alpha) == 0) ## alpha is too large: cannot use the rlogseries.ln1p()
+      return(matrix(1, n, dim))
+  ## else, this should work :
+  fr <- rlogseries.ln1p(n, -alpha) # >> ./logseries.R
   fr <- matrix(fr, nrow = n, ncol = dim)
   U <- matrix(runif(dim * n), nrow = n)
   psi(copula, - log(U) / fr)

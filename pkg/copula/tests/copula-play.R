@@ -457,3 +457,33 @@ stopifnot(is.finite(cACF), !apply(cACF, 1, is.unsorted),
 u1. <- c(0, 1e-100, 1e-20, 1e-10, 1e-5, 1e-4, 1e-3, .01)
 cCneg(-0.18, u1 = u1.)
 
+###---- Large Tau  Random NUmbers -------------------------------------
+
+taus <- c(.80, .85, .90, .95, .98, .99, .993, .995, .996, .997, .998, .999)
+namT <- paste0("tau=", formatC(taus))
+
+archCops <- list(C = claytonCopula,
+                 F = frankCopula,
+                 G = gumbelCopula,
+                 ## A = amhCopula, ## max tau = 1/3 = 0.33333
+                 J = joeCopula)
+thC <- lapply(archCops, function(Cop) setNames(iTau(Cop(), taus), namT))
+simplify2array(thC)
+
+Cops <- lapply(names(thC), function(nm) lapply(thC[[nm]], function(th) archCops[[nm]](th, dim=3)))
+uC <- lapply(setNames(,names(thC)), function(nm)
+          lapply(thC[[nm]], function(th) rCopula(n = 100, archCops[[nm]](th, dim=3))))
+
+(aU <- simplify2array(uC))
+mima <- t(sapply(aU, range))
+stopifnot(!vapply(aU, anyNA, NA), # no NA's
+          0 <= mima[,1], mima[,1] <= mima[,2], mima[,2] <= 1)
+
+lapply(uC, function(Fam) lapply(names(archCops) summary)
+
+dim(rrFs) # 300 x 9
+stopifnot(!anyNA(rrFs), 0 <= rrFs, rrFs <= 1)
+
+summary(rrFs) ## now "ok" (problem at 0.99); all 1 for tau >= 0.995
+sFs <- apply(rrFs, 2, summary)
+matplot(t(sFs), type="b") # 'ok'  (repeat the random sample)

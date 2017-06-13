@@ -10,14 +10,14 @@ rAntitheticVariates(u)
 rLatinHypercube(u, ...)
 }
 \arguments{
-  \item{u}{\eqn{n\times d}{n x d}-\code{\link{matrix}} (or \eqn{d}-\code{\link{vector}}) of random
-    variates in the unit hypercube.}
+  \item{u}{a \eqn{n\times d}{n x d}-\code{\link{matrix}} (or
+    \eqn{d}-\code{\link{vector}}) of random variates in the unit hypercube.}
   \item{\dots}{additional arguments passed to the underlying \code{\link{rank}()}.}
 }
 \value{
   \describe{
     \item{\code{rAntitheticVariates()}}{\code{\link{array}} of dimension
-    \eqn{n\times d\times 2}{n x d x 2}, where the last component being 1
+      \eqn{n\times d\times 2}{n x d x 2}, where the last component being 1
       contains the original sample \code{u} and the last component being
       2 contains the sample \code{1-u}.}
     \item{\code{rLatinHypercube()}}{\code{\link{matrix}} of the same
@@ -119,24 +119,21 @@ LHS  <- sapply(res, function(x) x[["LHS"]])
 QRNG <- sapply(res, function(x) x[["QRNG"]])
 
 ## Compute the variance-reduction factors and % improvements
-vrf  <- var(PRNG) / var(LHS) # variance reduction factor w.r.t. LHS
+vrf  <- var(PRNG) / var(LHS)  # variance reduction factor w.r.t. LHS
 vrf. <- var(PRNG) / var(QRNG) # variance reduction factor w.r.t. QRNG
 pim  <- (var(PRNG) - var(LHS))  / var(PRNG) * 100 # improvement w.r.t. LHS
 pim. <- (var(PRNG) - var(QRNG)) / var(PRNG) * 100 # improvement w.r.t. QRNG
 
 ## Boxplot
-boxplot(list(PRNG = PRNG, LHS = LHS, QRNG = QRNG), sub = substitute(
-        "Variance-reduction factors and \% improvements:"~v1~"("*p1*"\%"*"),"~v2~"("*p2*"\%)",
-        list(v1 = round(vrf, 1), v2 = round(vrf., 1),
-             p1 = round(pim), p2 = round(pim.))),
-        main = substitute("Simulated exceedance probabilities"~
-                          P(bold(U) > bold(u))~"for a"~t[nu.]~"copula",
-                          list(nu. = nu)))
+boxplot(list(PRNG = PRNG, LHS = LHS, QRNG = QRNG), notch = TRUE,
+        main = substitute("Simulated exceedance probabilities" ~
+                              P(bold(U) > bold(u))~~ "for a" ~ t[nu.]~"copula",
+                          list(nu. = nu)),
+        sub = sprintf(
+           "Variance-reduction factors and \%\% improvements: \%.1f (\%.0f\%\%), \%.1f (\%.0f\%\%)",
+            vrf, pim, vrf., pim.))
 abline(h = true, lty = 3) # true value
-lab <- substitute("B ="~B.~"replications with n ="~n.~"and d ="~d.,
-                  list(B. = B, n. = n, d. = d))
-mtext(lab, side = 4, line = 1, adj = 0, las = 0)
+mtext(sprintf("B = \%d replications with n = \%d and d = \%d", B, n, d), side = 3)
 }
 \keyword{distribution}
 \keyword{methods}
-

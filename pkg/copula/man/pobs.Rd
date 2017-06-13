@@ -42,7 +42,7 @@ pobs(x, na.last = "keep",
 \examples{
 ## Simple definition of the function:
 pobs
-
+%packageDescription("Matrix")% for debugging checks / Matrix
 ## Draw from a multivariate normal distribution
 d <- 10
 set.seed(1)

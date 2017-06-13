@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-17 (2017-05-12, svn r1650)}{
+\section{Changes in version 0.999-17 (2017-06-13, svn r1650)}{
   \subsection{New Features}{
     \itemize{
       \item \code{C.n()} and several tests now get an optional
@@ -39,6 +39,9 @@
       \item \code{iTau()} fixed for \code{joeCopula()}.
 
       \item Improved warning messages in \code{iTau()} and \code{iRho()}.
+
+      \item \code{rCopula(<frankCopula>)} now also works for the case of
+      large tau and \eqn{d > 2} (via re-parametrized log series distribution).
     }
   }
 }
@@ -354,4 +357,3 @@
     for "nacopula".
   }
 }
-
