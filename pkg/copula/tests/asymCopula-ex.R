@@ -18,9 +18,9 @@ require(copula)
 (doExtras <- copula:::doExtras())
 
 d.dCdu  <- function(cop, u) copula:::dCduNumer    (cop, u, may.warn=FALSE) -
-                                copula:::dCdu(cop, u)
+                            copula:::dCdu         (cop, u)
 d.dCdth <- function(cop, u) copula:::dCdthetaNumer(cop, u, may.warn=FALSE) -
-                                copula:::dCdtheta(cop, u)
+                            copula:::dCdtheta     (cop, u)
 
 if(!dev.interactive(orNone=TRUE)) pdf("asymCopula-ex.pdf")
 
@@ -85,8 +85,9 @@ er.nc <- c(
     dCdth= max(abs(d.dCdth(knc, v))))
 er.nc
 ##         dCdu        dCdth
-## 0.0018449990 0.0001717451
-stopifnot(abs(er.nc[["dCdu" ]]) < 0.004 ,
+## 1.240119e-13 1.767306e-04  -- dCdu has become __much__ better,
+## was 0.001844999 before
+stopifnot(abs(er.nc[["dCdu" ]]) < 2e-12,
 	  abs(er.nc[["dCdth"]]) < 0.0008)
 
 ## A Khoudraji-normal-Clayton copula with fixed params
@@ -109,8 +110,8 @@ er.ncf <- c(
     dCdth= max(abs(d.dCdth(kncf, v))))
 er.ncf
 ##         dCdu        dCdth
-## 1.186238e-03 6.439294e-15
-stopifnot(abs(er.ncf[["dCdu" ]]) < 0.004, # seen 2e-3
+## 1.240119e-13 1.021405e-14
+stopifnot(abs(er.ncf[["dCdu" ]]) < 1e-12, # much better, too!
 	  abs(er.ncf[["dCdth"]]) < 1e-12)
 
 ## A "nested" Khoudraji bivariate copula
@@ -124,8 +125,8 @@ erN <- c(
     dCdth= max(abs(d.dCdth(kgkcf, v))))
 erN
 ##         dCdu        dCdth
-## 1.340428e-03 8.121975e-14
-stopifnot(abs(erN[["dCdu" ]]) < 3e-3,
+## 9.348078e-14 6.704012e-14
+stopifnot(abs(erN[["dCdu" ]]) < 1e-12,
 	  abs(erN[["dCdth"]]) < 1e-12)
 
 ## A three dimensional Khoudraji-Clayton copula
@@ -199,25 +200,26 @@ set.seed(17)
 u <- rCopula(n, kc)
 plot(u)
 
-if (doExtras)
-{
+(doExtras <- doExtras && getRversion() >= "3.4") # so have withAutoprint(.)
+if (doExtras) withAutoprint({
+
     fk1 <- fitCopula(khoudrajiCopula(copula2 = claytonCopula()),
                      start = c(1.1, 0.5, 0.5), data = pobs(u),
                      optim.method = "Nelder-Mead", optim.control = list(trace = TRUE))
     fk1
-    print( summary(fk1) )
+    summary(fk1)
 
     ## kcf : second shape parameter fixed to 0.95
     fkN <- fitCopula(kcf,
                      start = c(1.1, 0.5), data = pobs(u),
                      optim.method = "Nelder-Mead", optim.control = list(trace = TRUE))
     fkN
-    print( summary(fkN) )
-    print( cN <- confint(fkN) )
+    summary(fkN)
+    (cN <- confint(fkN))
     fkB <- fitCopula(kcf,
                      start = c(1.1, 0.5), data = pobs(u),
                      optim.method = "BFGS", optim.control = list(trace = TRUE))
-    print( summary(fkB) )
+    summary(fkB)
     stopifnot(
         all.equal(coef(fk1), c(c2.alpha = 5.42332, shape1 = 0.364467, shape2 = 0.868297),
                   tol = 1e-4), # seen 2.7e-7
@@ -259,12 +261,11 @@ if (doExtras)
     g2 <- gofCopula(kcf, x = u, start = c(1.1, 0.5), optim.method = "Nelder-M", sim = "mult")
     stopifnot(inherits(g2, "htest"),
 	      all.equal(g2$p.value, 0.0004995005, tol = 1e-4))# seen 1e-9
-}
+})
 
 ### "Same" With rotated copula ###################################################
  ## GETR
-if (doExtras)
-{
+if (doExtras) withAutoprint({
 
     ## check density: special case where we know the answer
     kd2a <- khoudrajiCopula(copula1 = indepCopula(),
@@ -313,11 +314,10 @@ if (doExtras)
     set.seed(17)
     u <- rCopula(n, krc)
     plot(u)
-
     fk1 <- fitCopula(khoudrajiCopula(copula2 = rotCopula(claytonCopula())),
                      start = c(1.1, 0.5, 0.5), data = pobs(u),
                      optim.method = "Nelder-Mead", optim.control = list(trace = TRUE))
-    print( summary(fk1) )
+    summary(fk1)
 
 
     ## second shape parameter fixed to 0.95
@@ -325,11 +325,11 @@ if (doExtras)
     fkN <- fitCopula(krc,
                      start = c(1.1, 0.5), data = pobs(u),
                      optim.method = "Nelder-Mead", optim.control = list(trace = TRUE))
-    print( summary(fkN) )
+    summary(fkN)
     fkB <- fitCopula(krc,
                      start = c(1.1, 0.5), data = pobs(u),
                      optim.method = "BFGS", optim.control = list(trace = TRUE))
-    print( summary(fkB) )
+    summary(fkB)
     stopifnot(
         all.equal(coef(fk1), c(c2.alpha = 4.328559, shape1 = 0.5109215, shape2 = 0.9653532),
                   tol = 1e-4) # seen 9.2e-8
@@ -367,7 +367,8 @@ if (doExtras)
     stopifnot(inherits(g2, "htest"),
               all.equal(g2$p.value, 0.0014985015, tol = 1e-4)# seen 1e-9
               )
-}
+})
+
 
 if (FALSE) ## too time consuming .. NB 'estimate.variance'
 {
