@@ -219,9 +219,9 @@ if (doExtras)
                      optim.method = "BFGS", optim.control = list(trace = TRUE))
     print( summary(fkB) )
     stopifnot(
-        all.equal(coef(fk1), c(c2.param = 5.42332, shape1 = 0.364467, shape2 = 0.868297),
+        all.equal(coef(fk1), c(c2.alpha = 5.42332, shape1 = 0.364467, shape2 = 0.868297),
                   tol = 1e-4), # seen 2.7e-7
-        all.equal(coef(fkN), c(c2.param = 4.40525, shape1 = 0.389693), tol = 1e-4), # seen 3e-7
+        all.equal(coef(fkN), c(c2.alpha = 4.40525, shape1 = 0.389693), tol = 1e-4), # seen 3e-7
         all.equal(coef(fkN), coef(fkB), tol = 1e-3) # seen 1.19e-4
         ,
 	all.equal(c(cN), c(2.246888, 0.2798682,
@@ -331,9 +331,9 @@ if (doExtras)
                      optim.method = "BFGS", optim.control = list(trace = TRUE))
     print( summary(fkB) )
     stopifnot(
-        all.equal(coef(fk1), c(c2.param = 4.328559, shape1 = 0.5109215, shape2 = 0.9653532),
+        all.equal(coef(fk1), c(c2.alpha = 4.328559, shape1 = 0.5109215, shape2 = 0.9653532),
                   tol = 1e-4) # seen 9.2e-8
-       , all.equal(coef(fkN), c(c2.param = 4.372715, shape1 = 0.5042553), tol = 1e-4)# seen 3e-8
+       , all.equal(coef(fkN), c(c2.alpha = 4.372715, shape1 = 0.5042553), tol = 1e-4)# seen 3e-8
        , all.equal(coef(fkN), coef(fkB), tol = 4e-4) # seen 4.11e-5
     )
 
