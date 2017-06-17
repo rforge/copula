@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-17 (2017-06-13, svn r1658)}{
+\section{Changes in version 0.999-17 (2017-06-17, svn r1661)}{
   \subsection{New Features}{
     \itemize{
       \item \code{C.n()} and several tests now get an optional
