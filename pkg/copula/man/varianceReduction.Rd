@@ -17,9 +17,9 @@ rLatinHypercube(u, ...)
 \value{
   \describe{
     \item{\code{rAntitheticVariates()}}{\code{\link{array}} of dimension
-      \eqn{n\times d\times 2}{n x d x 2}, where the last component being 1
-      contains the original sample \code{u} and the last component being
-      2 contains the sample \code{1-u}.}
+      \eqn{n\times d\times 2}{n x d x 2}, say \code{r}, where \code{r[,,1]}
+      contains the original sample \code{u} and \code{r[,,2]} contains
+      the sample \code{1-u}.}
     \item{\code{rLatinHypercube()}}{\code{\link{matrix}} of the same
       dimensions as \code{u}.}
   }
@@ -61,17 +61,19 @@ U.LH <- rLatinHypercube(U)
 ## Plot
 ## Note: The 'variance-reducing property' is barely visible, but that's okay
 layout(rbind(1:2))
-plot(U,    xlab = expression(U[1]), ylab = expression(U[2]), pch = ".")
-plot(U.LH, xlab = expression(U[1]), ylab = expression(U[2]), pch = ".")
+plot(U,    xlab = quote(U[1]), ylab = quote(U[2]), pch = ".", main = "U")
+plot(U.LH, xlab = quote(U[1]), ylab = quote(U[2]), pch = ".", main = "U.LH")
 layout(1) # reset layout
 
 ## Transform the sample to an Antithetic variate sample
 U.AV <- rAntitheticVariates(U)
+stopifnot(identical(U.AV[,,1],  U ),
+          identical(U.AV[,,2], 1-U))
 
 ## Plot original sample and its corresponding (componentwise) antithetic variates
 layout(rbind(1:2))
-plot(U.AV[,,1], xlab = expression(U[1]), ylab = expression(U[2]), pch = ".")
-plot(U.AV[,,2], xlab = expression(U[1]), ylab = expression(U[2]), pch = ".")
+plot(U.AV[,,1], xlab = quote(U[1]), ylab = quote(U[2]), pch=".", main= "U")
+plot(U.AV[,,2], xlab = quote(U[1]), ylab = quote(U[2]), pch=".", main= "1 - U")
 layout(1) # reset layout
 
 
@@ -102,8 +104,9 @@ sProb <- function(n, copula, u)
 
 ## Simulate the probabilities of falling in (u_1,1] x ... x (u_d,1]
 library(qrng) # for quasi-random numbers
-B <- 500 # number of replications
-n <- 1000 # sample size
+(Xtras <- copula:::doExtras()) # determine whether examples will be extra (long)
+B <- if(Xtras)  500 else 100 # number of replications
+n <- if(Xtras) 1000 else 200 # sample size
 d <- 2 # dimension; note: for d > 2, the true value depends on the seed
 nu <- 3 # degrees of freedom
 th <- iTau(tCopula(df = nu), tau = 0.5) # correlation parameter
@@ -111,18 +114,18 @@ cop <- tCopula(param = th, dim = d, df = nu) # t copula
 u <- rep(0.99, d) # lower-left endpoint of the considered cube
 set.seed(42) # for reproducibility
 true <- prob(cop, l = u, u = rep(1, d)) # true exceedance probability
-system.time(res <- lapply(1:B, function(b) sProb(n, copula = cop, u = u)))
+system.time(res <- replicate(B, sProb(n, copula = cop, u = u)))
 
-## Grab out the values
-PRNG <- sapply(res, function(x) x[["PRNG"]])
-LHS  <- sapply(res, function(x) x[["LHS"]])
-QRNG <- sapply(res, function(x) x[["QRNG"]])
+## "abbreviations":
+PRNG <- res["PRNG",]
+LHS  <- res["LHS" ,]
+QRNG <- res["QRNG",]
 
-## Compute the variance-reduction factors and % improvements
-vrf  <- var(PRNG) / var(LHS)  # variance reduction factor w.r.t. LHS
-vrf. <- var(PRNG) / var(QRNG) # variance reduction factor w.r.t. QRNG
-pim  <- (var(PRNG) - var(LHS))  / var(PRNG) * 100 # improvement w.r.t. LHS
-pim. <- (var(PRNG) - var(QRNG)) / var(PRNG) * 100 # improvement w.r.t. QRNG
+## Compute the variance-reduction factors and \% improvements
+vrf  <- var(PRNG) / var(LHS)                    # variance reduction factor w.r.t. LHS
+vrf. <- var(PRNG) / var(QRNG)                   # variance reduction factor w.r.t. QRNG
+pim  <- (var(PRNG) - var(LHS)) / var(PRNG) *100 # improvement w.r.t. LHS
+pim. <- (var(PRNG) - var(QRNG))/ var(PRNG) *100 # improvement w.r.t. QRNG
 
 ## Boxplot
 boxplot(list(PRNG = PRNG, LHS = LHS, QRNG = QRNG), notch = TRUE,
