@@ -124,6 +124,8 @@ export(dMvdc, pMvdc, rMvdc)
 export(tau, rho, lambda)
 export(iTau, iRho)
 
+export(corKendall)
+
 ## archmCopula methods
 export(psi, iPsi, diPsi)
 
