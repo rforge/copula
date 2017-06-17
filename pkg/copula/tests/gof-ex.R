@@ -82,7 +82,13 @@ RR <- sapply(gofTraf, simplify="array", function(gt)
                                    # checkFamilies=setdiff(copula:::c_longNames, "AMH")) # default
          })
 showProc.time()
-str(RR, vec.len=8)
+if(interactive()) {
+    str(RR, vec.len=8)
+} else { ## for reproducibility (comparing): *not* showing time
+    cat("dim(RR): (", format(dim(RR),collapse=","),")\n")
+    str(dimnames(RR))
+}
+
 
 ## Now print RR
 options(digits=5)
