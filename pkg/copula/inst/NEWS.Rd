@@ -4,6 +4,20 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
+\section{Changes in version 0.999-18 (2017-..-.., svn r....)}{
+  \subsection{New Features}{
+    \itemize{
+      \item \code{contourplot2()} now gets argument \code{pretty}, to be
+      passed on, with a better (but not back-compatible) default (\code{!labels}).
+    }
+  }
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item ..
+    }
+  }
+}
+
 \section{Changes in version 0.999-17 (2017-06-17, svn r1661)}{
   \subsection{New Features}{
     \itemize{
