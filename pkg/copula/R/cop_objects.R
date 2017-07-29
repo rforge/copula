@@ -283,7 +283,7 @@ copClayton <-
 		      n01 <- u.in.01(u)## indices for which density has to be evaluated
                       if(!any(n01)) return(res) # all NaN
                       if(theta == 0) {
-                          res[n01] <- if(log) 0 else 1
+			  res[n01] <- 0
                       } else {
                           ## auxiliary results
                           u. <- u[n01,, drop=FALSE]
