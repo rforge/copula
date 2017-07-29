@@ -20,6 +20,7 @@ require(copula)
 ## library(fCopulae)
 
 source(system.file("Rsource", "utils.R", package="copula", mustWork=TRUE))
+## tryCatch.W.E() etc
 ## All non-virtual copula classes:
 source(system.file("Rsource", "cops.R", package="copula", mustWork=TRUE))
 ## --> copcl, copObs, copBnds,  excl.2 , copO.2, copBnd.2
@@ -139,7 +140,7 @@ filled.contour(u1, u2, dcop, color.palette = fCols,
 round(dcop, 3)
 
 showProc.time()
-dev.off()
+if(!dev.interactive()) dev.off()
 
 ### d > 2 ######################################################################
 
@@ -188,28 +189,89 @@ set.seed(12)
 u <- matrix(mku(1000), ncol= 2)# d = 2 required in the copula objects
 
 
+##' == function(u) copula:::outside.01(u, strictly = FALSE) --- used in dCopula()
 u.outside.01 <- function(u) apply(u, 1, function(x) any(x <= 0, 1 <= x))
 u.out <- u.outside.01(u) # has NAs
-u.ina <- apply(u, 1, function(x) any(is.na(x)))
+u.ina <- apply(u, 1, anyNA)
+u.iNA <- is.na(u.out)
+table(u.ina, u.out, exclude={})
+##        u.out
+## u.ina   FALSE TRUE <NA>
+##   FALSE   384   67    0
+##   TRUE      0    7   42
 u.OUT <- u.out & !u.ina  # no  NAs
+## NB:  f(u) = 0 if some u_j is outside (0,1) - even when another u_k is NA
 
-for(cNam in names(copObs)) {
-    cat(cNam, paste0(":\n", paste(rep("-",nchar(cNam)), collapse=""), "\n\n"))
-    for(th in unique(tTau[cNam,])) {
-        cat(sprintf(" -- theta: %8.5g\n", th))
-        cop <- setPar(copObs[[cNam]], th)
-try({### FIXME!
-        fu <- dCopula(u, cop); fu.na <- fu[u.ina]
-        Fu <- pCopula(u, cop); Fu.na <- Fu[u.ina]
-        stopifnot(fu[u.OUT] == 0,
-		  all.equal(fu, exp(dCopula(u, cop, log=TRUE)), tolerance = 1e-15),
-                  0 <= Fu[!u.ina], Fu[!u.ina] <= 1,
-                  is.na(fu.na) | (0 <= fu.na),
-                  is.na(Fu.na) | (0 <= Fu.na & Fu.na <= 1))
-})### FIXME
-    }
+copsT <- lapply(setNames(,names(copObs)), # so have *named* list
+                 function(cN)
+                     lapply(unique(tTau[cN,]), function(th) setPar(copObs[[cN]], th)))
+copsTh <- unlist(copsT, recursive=FALSE)
+## --> a list of 72 parametrized copulas
+okC <- lapply(copsTh, validObject, test=TRUE)
+(inOk <- which(notOk <- !sapply(okC, isTRUE)))
+## joeCopula2
+##         43
+if(length(inOk)) { # maybe no longer in future
+    stopifnot(identical(inOk, c(joeCopula2 = 43L)))
+    jp <- copsTh[[inOk]]@parameters
+    print(jp - 1) # -3.41e-10
+    stopifnot(all.equal(jp, 1))
+    ## now fix it up:
+    copsTh[[inOk]]@parameters <- 1
+    validObject(copsTh[[inOk]])
 }
 
 
 
-showProc.time()
+## now using  ( u[], u.ina, u.OUT ):
+op <- options(warn = 1) # immediate
+## ==>  *all* Huessler-Reiss  produce warnings  such as  << FIXME eventually
+##  Warning in log(u1p/u2p) : NaNs produced
+## all other copulas give no warning !
+errH <- if(getRversion() < "3.5.0") identity else function(e) {e$call <- NULL ;  e}
+copChk <- lapply(copsTh, function(cop) {
+    show(cop)
+    fu <- dCopula(u, cop)
+    Fu <- pCopula(u, cop)
+    lfu <- dCopula(u, cop, log=TRUE)
+    ## lfu. <- lfu[!u.ina]
+    cat("-----------\n")
+    tryCatch(
+        stopifnot(fu[u.OUT] == 0,
+		  all.equal(fu, exp(lfu), tolerance = 1e-15),
+                  0 <= fu[!u.ina],
+                  0 <= Fu[!u.ina], Fu[!u.ina] <= 1,
+                  is.finite(lfu[!u.ina]) | lfu[!u.ina] == -Inf,
+                  is.na(fu[u.iNA]), is.na(Fu[u.ina]), is.na(lfu[u.iNA]))
+       , error = errH)
+    })
+options(op)
+
+### FIXME:  Should see nothing below ( <==> length(ccc) == 0) ! ------------------------------
+
+ccc <- unlist(copChk) # ==> drop all those that have NULL, i.e. *no* error above :
+names(ccc) <- sub(".message$", "", names(ccc))
+structure(as.list(ccc), class="simple.list")
+
+stopifnot(length(ccc) <= 17)
+
+## claytonCopula2     is.na(Fu[u.ina]) are not all TRUE  ((indepCopula case; progress already))
+## frankCopula2       0 <= Fu[!u.ina] are not all TRUE   ((indepCopula case; fix?
+
+## galambosCopula1    is.na(fu[u.iNA]) are not all TRUE  ((indepCopula case; progress already))
+## galambosCopula2    0 <= Fu[!u.ina] are not all TRUE
+## galambosCopula3    0 <= Fu[!u.ina] are not all TRUE
+## galambosCopula4    0 <= Fu[!u.ina] are not all TRUE
+## galambosCopula5    0 <= Fu[!u.ina] are not all TRUE
+
+## huslerReissCopula1 0 <= Fu[!u.ina] are not all TRUE
+## huslerReissCopula2 0 <= Fu[!u.ina] are not all TRUE
+## huslerReissCopula3 0 <= Fu[!u.ina] are not all TRUE
+## huslerReissCopula4 0 <= Fu[!u.ina] are not all TRUE
+## huslerReissCopula5 0 <= Fu[!u.ina] are not all TRUE
+
+## tawnCopula1        is.na(Fu[u.ina]) are not all TRUE
+## tawnCopula2        is.na(Fu[u.ina]) are not all TRUE
+## tawnCopula3        is.na(Fu[u.ina]) are not all TRUE
+## tawnCopula4        is.na(Fu[u.ina]) are not all TRUE
+## tawnCopula5        is.na(Fu[u.ina]) are not all TRUE
