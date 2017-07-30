@@ -18,22 +18,32 @@ stopifnot(length(unique(dat$POPID)) == 377) # now as in paper
 
 ## Renaming of some of the variables
 dat <- within(dat, {
-    ID        <- POPID
+    ID        <- factor(POPID)
     Rate      <- Rate1
     LnNumBed  <- LNF681
     LnSqrFoot <- LNF39
-    CRYear    <- CRYEAR # => Year = CRYear - 1994
-    TaxExempt <- NP
-    SelfIns   <- F23
-    MCert     <- F26
+    CRYear    <- factor(CRYEAR, ordered = TRUE) # => Year = CRYear - 1994
+    TaxExempt <- factor(NP)
+    SelfIns   <- factor(F23)
+    MCert     <- factor(F26)
+    Pro <- factor(Pro)
+    Urban <- factor(Urban)
 })
 
 ## Grab out those we work with
 dat <- dat[, c("ID", "Rate", "LnNumBed", "LnSqrFoot", "CRYear",
                "Pro", "TaxExempt", "SelfIns", "MCert", "Urban")]
+str(dat)
 
 
-### 2 Reproducing Table 1 and 2 of Sun et al. (2008) ###########################
+### 2 Save the cleaned data ####################################################
+
+nursingHomes <- dat
+str(nursingHomes)
+save(nursingHomes, file = "nursingHomes.rda", compress = "xz")
+
+
+### 3 Reproducing Table 1 and 2 of Sun et al. (2008) ###########################
 
 ## Table 1
 tab1 <- ddply(dat, .(CRYear), summarize,
@@ -65,8 +75,3 @@ ddply(dat, .(Urban), summarize,
       Median     = median(Rate))
 
 
-### 3 Save the cleaned data ####################################################
-
-nursingHomes <- dat
-str(nursingHomes)
-save(nursingHomes, file = "nursingHomes.rda", compress = "xz")
