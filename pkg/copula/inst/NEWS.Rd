@@ -9,6 +9,9 @@
     \itemize{
       \item \code{contourplot2()} now gets argument \code{pretty}, to be
       passed on, with a better (but not back-compatible) default (\code{!labels}).
+
+      \item new \code{margCopula()} constructor of marginal copulas,
+      currently for normal-, t-, and Archimedean copulas only.
     }
   }
   \subsection{Bug Fixes}{
