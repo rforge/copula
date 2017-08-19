@@ -9,7 +9,7 @@
   restriction of \eqn{C} on a subset of the the coordinate (directions) \eqn{u_1,\dots,u_d}.
 }
 \usage{
-martCopula(copula, keep)
+margCopula(copula, keep)
 }
 \arguments{
   \item{copula}{a \code{"\linkS4class{copula}"} (\R object) of
