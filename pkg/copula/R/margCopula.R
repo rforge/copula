@@ -6,15 +6,14 @@
 ##' @author Jun Yan
 
 setGeneric("margCopula", function(copula, keep) {
-    stopifnot(length(keep) == copula@dimension)
-    stopifnot(sum(keep) >= 2)
-    stopifnot(is(copula, "tCopula") || is(copula, "normalCopula") || is(copula, "archmCopula"))
+    stopifnot(length(keep) == copula@dimension, sum(keep) >= 2,
+              is(copula, "tCopula") || is(copula, "normalCopula") || is(copula, "archmCopula"))
     standardGeneric("margCopula")
 })
 
 margNormalCopula <- function(copula, keep) {
     dim <- sum(keep)
-    if (copula@dispstr == "ex") 
+    if (copula@dispstr == "ex")
         normalCopula(getTheta(copula), dim = dim, dispstr = "ex")
     else { # ar1, toep, and un all become un
         sigma <- getSigma(copula)[keep, keep]
@@ -25,14 +24,14 @@ margNormalCopula <- function(copula, keep) {
 
 margTCopula <- function(copula, keep) {
     dim <- sum(keep)
-    if (copula@dispstr == "ex") 
+    if (copula@dispstr == "ex")
         tCopula(copula@getRho(copula), dim = dim, dispstr = "ex",
-                df = copula:::getdf(copula), df.fixed = copula@df.fixed)
+                df = getdf(copula), df.fixed = copula@df.fixed)
     else { # ar1, toep, and un all become un
         sigma <- getSigma(copula)[keep, keep]
         param <- sigma[lower.tri(sigma)]
         tCopula(param, dim = dim, dispstr = "un",
-                df = copula:::getdf(copula), df.fixed = copula@df.fixed)
+                df = getdf(copula), df.fixed = copula@df.fixed)
     }
 }
 
