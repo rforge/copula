@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-18 (2017-..-.., svn r....)}{
+\section{Changes in version 0.999-18 (2017-09-.., svn r....)}{
   \subsection{New Features}{
     \itemize{
       \item \code{contourplot2()} now gets argument \code{pretty}, to be
@@ -16,7 +16,8 @@
   }
   \subsection{Bug Fixes}{
     \itemize{
-      \item ..
+      \item \code{cCopula(*, inverse=TRUE)} now also works for
+      non-Clayton Archmedean copulas.
     }
   }
 }
