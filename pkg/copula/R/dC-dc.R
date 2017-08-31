@@ -75,7 +75,7 @@ dCduNumer <- function(copula, u, method.args = gradControl(d = 0.1), may.warn=TR
     res
 }
 
-## For archmCopula objects
+## For archmCopula objects {FIXME not yet used}
 dCduArchmCopula <- function(copula, u, ...) {
     ## TODO: For ACs, the following is better than 'fixed formulas' => use it
     ## require(copula)
@@ -87,10 +87,13 @@ dCduArchmCopula <- function(copula, u, ...) {
     ## cop <- onacopulaL(family, nacList=list(th, seq_len(d)))
     ## iPsi.u <- cop@copula@iPsi(u, theta=th)
     iPsi.u <- iPsi(copula, u)
+    sumiPsi.u <- rowSums(iPsi.u)
     d <- copula@dimension
-    j <- ceiling(d/2)
+    ## j <- ceiling(d/2)
     ## NEED function absdPsi to make below work for any Archimedean copula in the same way that iPsi exists
-    ## dCdu <- sapply(seq_len(d), function(j) exp(cop@copula@absdPsi(rowSums(iPsi.u), theta=th, degree=1, log=TRUE) - cop@copula@absdPsi(iPsi.u[,j], theta=th, degree=1, log=TRUE)))
+    sapply(seq_len(d), function(j)
+        exp(cop@copula@absdPsi(sumiPsi.u , theta=th, degree=1, log=TRUE) -
+            cop@copula@absdPsi(iPsi.u[,j], theta=th, degree=1, log=TRUE)))
 }
 
 ## For copulas with explicit cdf

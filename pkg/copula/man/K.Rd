@@ -31,7 +31,7 @@ dK(u, copula, d, n.MC = 0, log.p = FALSE) # density
 pK(u, copula, d, n.MC = 0, log.p = FALSE) # df
 qK(p, copula, d, n.MC = 0, log.p = FALSE, # quantile function
    method = c("default", "simple", "sort", "discrete", "monoH.FC"),
-   u.grid, \dots)
+   u.grid, xtraChecks = FALSE, \dots)
 rK(n, copula, d) # random number generation
 }
 \arguments{
@@ -80,6 +80,8 @@ rK(n, copula, d) # random number generation
   }
   \item{u.grid}{(for \code{method="discrete"}:) The grid on which
     \eqn{K} is evaluated, a \code{\link{numeric}} vector.}
+  \item{xtraChecks}{\emph{experimental} logical indicating if extra
+    checks should be done before calling \code{\link{uniroot}()} in some cases.}
   \item{\dots}{additional arguments passed to \code{\link{uniroot}} (for
     \code{method="default"}, \code{method="simple"}, \code{method="sort"}, and
     \code{method="monoH.FC"}) or \code{\link{findInterval}} (for

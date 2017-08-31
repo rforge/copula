@@ -617,7 +617,7 @@ panel.3dwire.4 <- function(x, y, z, rot.mat, distance,
                  ...)
     X <- xlim.scaled; x0 <- X[1]; x1 <- X[2]
     Y <- ylim.scaled; y0 <- Y[1]; y1 <- Y[2]
-    Z <- zlim.scaled; z0 <- Z[1]; z1 <- Z[2]
+    Z <- zlim.scaled; z0 <- Z[1]# z1 <- Z[2]
     segs <- list(rbind(X,  y0, z0), # X-axis
                  rbind(x0,  Y, z0), # Y-axis
                  rbind(x1,  Y,  Z), # Y-Z diagonal (at x1)

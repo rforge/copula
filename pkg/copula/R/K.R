@@ -145,7 +145,7 @@ pK <- function(u, copula, d, n.MC = 0, log.p = FALSE)
 ##'         but even for d = 2, there is no explicit formula for K^{-1}(p) known.
 qK <- function(p, copula, d, n.MC = 0, log.p = FALSE,
                method = c("default", "simple", "sort", "discrete", "monoH.FC"),
-               u.grid, ...)
+               u.grid, xtraChecks=FALSE, ...)
 {
     stopifnot(is(copula, "acopula"))
     if(log.p) stopifnot(p <= 0) else stopifnot(0 <= p, p <= 1)
@@ -207,7 +207,7 @@ qK <- function(p, copula, d, n.MC = 0, log.p = FALSE,
                    for(i in 2:lnot01){
                        lower <- p0
                        upper <- min(pN01o[i], q[i-1]+eps)
-                       if(FALSE){       # checks for debugging
+                       if(xtraChecks) { # checks for debugging
                            if(lower >= upper) stop("lower=", lower, ", upper=", upper)
                            f.lower <- f(lower, pN01o[i])
                            f.upper <- f(upper, pN01o[i])
