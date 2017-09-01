@@ -3,7 +3,7 @@
 \title{Wisconsin Nursing Homes Utilization Data}
 \description{
   Data set containing the occupancy rate (utilization) and
-  covariates of 377 nursing homes in Wisconsin from 1995 to 2001.
+  covariates of 377 nursing homes in Wisconsin between 1995 and 2001.
 }
 \usage{
 data("nursingHomes")
