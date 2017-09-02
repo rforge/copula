@@ -6,7 +6,7 @@
 
 ### 1 Cleaning #################################################################
 
-## Read the (raw) data from Ed Frees
+## Read the (raw) data from Jed's website
 raw <- read.csv("2017-09-02_data_NELS_random_984.csv")
 str(raw)
 stopifnot(length(unique(raw$schoolid)) == 489)
@@ -45,3 +45,4 @@ table(rowSums(urban.rural))
 NELS88 <- dat
 str(NELS88)
 save(NELS88, file = "NELS88.rda", compress = "xz")
+
