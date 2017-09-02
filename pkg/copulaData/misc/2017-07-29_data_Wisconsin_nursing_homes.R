@@ -1,14 +1,13 @@
+## By Marius Hofert
+
 ## Data preparation for the Wisconsin nursing homes utilization data of
 ## Sun, Frees, Rosenberg (2008, "Heavy-tailed longitudinal data modeling using copulas")
-
-
-library(plyr)
 
 
 ### 1 Cleaning #################################################################
 
 ## Read the (raw) data from J. Sun
-raw <- read.table(bzfile("data_Wisconsin_nursing_homes_raw.dat.bz2"),
+raw <- read.table(bzfile("2017-07-29_data_Wisconsin_nursing_homes_raw.dat.bz2"),
                   sep = "", header = TRUE, na.string = ".")
 stopifnot(length(unique(raw$POPID)) == 402)
 dat <- subset(raw, !(POPID %in% c(577, 222, 234)))
@@ -16,7 +15,7 @@ dat <- subset(dat, CRYEAR >= 1995 & CRYEAR <= 2002)
 dat <- subset(dat, F39 > 0)
 stopifnot(length(unique(dat$POPID)) == 377) # now as in paper
 
-## Renaming of some of the variables
+## Converting to the variables we want (are 'appended')
 dat <- within(dat, {
     ID        <- factor(POPID)
     Rate      <- Rate1
@@ -44,6 +43,8 @@ save(nursingHomes, file = "nursingHomes.rda", compress = "xz")
 
 
 ### 3 Reproducing Table 1 and 2 of Sun et al. (2008) ###########################
+
+library(plyr)
 
 ## Table 1
 tab1 <- ddply(dat, .(CRYear), summarize,
