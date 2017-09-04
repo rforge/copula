@@ -7,9 +7,9 @@
 ### 1 Cleaning #################################################################
 
 ## Read the (raw) data from Jed's website
-raw <- read.csv("2017-09-02_data_NELS_random_984.csv")
+raw <- read.csv("2017-09-02_data_NELS_random_1000.csv")
 str(raw)
-stopifnot(length(unique(raw$schoolid)) == 489)
+stopifnot(length(unique(raw$schoolid)) == 501)
 
 ## Converting to the variables we want (are 'appended')
 dat <- raw
@@ -25,7 +25,6 @@ dat <- within(dat, {
     Size     <- schoolsize
     Urban    <- factor(urban)
     Rural    <- factor(rural)
-    Filter   <- factor(filter_.) # => omitted later
 })
 
 ## Grab out those we work with

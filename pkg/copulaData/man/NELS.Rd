@@ -2,7 +2,7 @@
 \alias{NELS88}
 \title{National Education Longitudinal Study Data}
 \description{
-  Random sample of size 984 from the US National Education Longitudinal
+  Random sample of size 1000 from the US National Education Longitudinal
   Study (NELS) data containing the mathematics, science and reading scores,
   together with covariates, of 8th graders in 1988.
 }
