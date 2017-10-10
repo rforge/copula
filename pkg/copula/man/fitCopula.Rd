@@ -54,11 +54,14 @@ optimMeth(copula, method, dim)
       \item{"irho"}{As \code{"itau"} just with Spearman's rho instead of
 	Kendall's tau.}
       \item{"itau.mpl"}{This is the estimator of \eqn{t} copula
-	parameters suggested by Mashal and Zeevi (2002) (see also
-	Demarta and McNeil (2005)) based on the
-	given \code{data} in \eqn{[0,1]^d} (true or pseudo-observations of
-	the underlying copula to be estimated).  Note that it requires
-	\code{dispstr = "un"}.}
+	parameters suggested by Mashal and Zeevi (2002) based on the
+	idea of inverting Kendall's tau for estimating the correlation
+	matrix as introduced in a RiskLab report in 2001 later published
+	as Embrechts et al. (2003); see also
+	Demarta and McNeil (2005). The
+	given \code{data} has to be in \eqn{[0,1]^d} (either true or
+	pseudo-observations of the underlying copula to be estimated).
+	Note that this method requires \code{dispstr = "un"}.}
     }
   }
   \item{posDef}{a \code{\link{logical}} indicating whether a proper
