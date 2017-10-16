@@ -24,8 +24,8 @@ data("NELS88")
   factor indicating whether the student is female (\code{Female}), a
   factor indicating whether the school is publicly funded
   (\code{Public}), the size of the student's school (\code{Size}),
-  a factor indicating whether the school is in an urban environment
-  (\code{Urban}) and a factor indicating whether the school is in a
+  a factor indicating whether the school is located in an urban environment
+  (\code{Urban}) and a factor indicating whether the school is located in a
   rural environment (\code{Rural}).
 }
 \source{
