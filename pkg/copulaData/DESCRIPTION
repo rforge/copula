@@ -8,7 +8,9 @@ Author: Marius Hofert <marius.hofert@uwaterloo.ca>,
 Maintainer: Marius Hofert <marius.hofert@uwaterloo.ca>
 Depends: R (>= 3.1.0)
 Description: Data sets used for copula modeling in addition to those in
- the package 'copula'.
+ the package 'copula'. These include a random subsample from the US National
+ Education Longitudinal Study (NELS) of 1988 and nursing home data from
+ Wisconsin.
 License: GPL (>= 3) | file LICENCE
 NeedsCompilation: no
 Encoding: UTF-8
