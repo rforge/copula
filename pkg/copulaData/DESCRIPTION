@@ -1,5 +1,5 @@
 Package: copulaData
-Version: 0.0-1
+Version: 0.0-2
 Title: Data Sets for Copula Modeling
 Author: Marius Hofert <marius.hofert@uwaterloo.ca>,
  Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>,
@@ -8,7 +8,7 @@ Author: Marius Hofert <marius.hofert@uwaterloo.ca>,
 Maintainer: Marius Hofert <marius.hofert@uwaterloo.ca>
 Depends: R (>= 3.1.0)
 Description: Data sets used for copula modeling in addition to those in
- the R package copula.
+ the package 'copula'.
 License: GPL (>= 3) | file LICENCE
 NeedsCompilation: no
 Encoding: UTF-8
