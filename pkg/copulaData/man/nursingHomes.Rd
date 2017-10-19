@@ -22,8 +22,9 @@ data("nursingHomes")
   (\code{Urban}); see Sun et al. (2008, Table 2).
 }
 \source{
+  Edward W. Frees,
   Wisconsin Department of Health and Family Services (by now named
-  Wisconsin Department of Health Services)
+  \dQuote{Wisconsin Department of Health Services})
 }
 \references{
   Sun, J., Frees, E. W. and Rosenberg, M. A. (2008)

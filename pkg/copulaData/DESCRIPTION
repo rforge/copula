@@ -1,14 +1,17 @@
 Package: copulaData
-Version: 0.0-1
+Version: 0.0-2
 Title: Data Sets for Copula Modeling
-Author: Marius Hofert <marius.hofert@uwaterloo.ca>,
- Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>,
- Martin Maechler <maechler@stat.math.ethz.ch>, and
- Jun Yan <jun.yan@uconn.edu>
-Maintainer: Marius Hofert <marius.hofert@uwaterloo.ca>
+Authors@R: c(
+	   person("Marius", "Hofert", role=c("aut","cre"), email = "marius.hofert@uwaterloo.ca")
+	 , person("Ivan", "Kojadinovic", role = "aut", email = "ivan.kojadinovic@univ-pau.fr")
+	 , person("Martin", "Maechler", role = "aut", email = "maechler@stat.math.ethz.ch")
+	 , person("Jun", "Yan", rol = "aut", email = "jun.yan@uconn.edu")
+	 , person(c("Edward","W."), "Frees", role = "dtc", comment = "NELS and nursingHomes")
+	 )
 Depends: R (>= 3.1.0)
+Enhances: copula
 Description: Data sets used for copula modeling in addition to those in
- the package 'copula'. These include a random subsample from the US National
+ the R package 'copula'.  These include a random subsample from the US National
  Education Longitudinal Study (NELS) of 1988 and nursing home data from
  Wisconsin.
 License: GPL (>= 3) | file LICENCE
