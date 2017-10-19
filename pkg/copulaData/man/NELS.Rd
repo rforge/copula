@@ -29,13 +29,27 @@ data("NELS88")
   rural environment (\code{Rural}).
 }
 \source{
-  \url{https://sites.google.com/a/wisc.edu/jed-frees/multivariate-regression-using-copulas}
-}
-\references{
+  Edward W. Frees, \sQuote{Student Achievement Data} in
+  \url{https://sites.google.com/a/wisc.edu/jed-frees/multivariate-regression-using-copulas}.
+
+  Originally, the National Center for Education Statistics page,
   \url{https://nces.ed.gov/surveys/nels88/}
 }
+%% \references{%% publications
+%% }
 \examples{
 data("NELS88")
 str(NELS88)
+ftable(xtabs(~ Urban+Rural + Public, NELS88))#
+## Add more sensible variable, ordered factor rural < agglo < urban
+NELS88. <- within(NELS88, {
+       UR <- factor(Urban:Rural, labels = c("agglo", "rural", "urban"))
+      Urbanity <- ordered(UR, levels = c("rural", "agglo", "urban"))
+      rm(UR) })
+unique(NELS88.[, c("Urban","Rural", "Urbanity")]) # indeed, just 3 combination cases
+
+xtabs(~ Minority+Urbanity, NELS88.) # (_not_ independent)
+ftable(xtabs(~ Public+Urbanity+Female+Minority, NELS88.) -> tab.)
+summary(tab.) # very very clearly not independent
 }
 \keyword{datasets}
