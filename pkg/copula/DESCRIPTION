@@ -1,23 +1,24 @@
 Package: copula
 Version: 0.999-18
 VersionNote: Last CRAN: 0.999-17 on 2017-06-17
-Date: 2017-08-31
+Date: 2017-10-19
 Title: Multivariate Dependence with Copulas
-Author: Marius Hofert <marius.hofert@uwaterloo.ca>,
- Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>,
- Martin Maechler <maechler@stat.math.ethz.ch>, and
- Jun Yan <jun.yan@uconn.edu>
-Maintainer: Ivan Kojadinovic <ivan.kojadinovic@univ-pau.fr>
-Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
+Authors@R: c(
+	   person("Marius", "Hofert", role = "aut", email = "marius.hofert@uwaterloo.ca")
+	 , person("Ivan", "Kojadinovic", role = "aut", email = "ivan.kojadinovic@univ-pau.fr")
+	 , person("Martin","Maechler", role=c("aut","cre"), email = "maechler@stat.math.ethz.ch")
+	 , person("Jun", "Yan", rol = "aut", email = "jun.yan@uconn.edu")
+	 , person(c("Johanna", "G."), "Nešlehová", role = "ctb", comment = "evTestK()")
+	 )
 Depends: R (>= 3.1.0)
 Imports: stats, graphics, methods, stats4, Matrix, lattice, colorspace,
- gsl, ADGofTest, stabledist (>= 0.6-4), mvtnorm, pcaPP, pspline, numDeriv
+	gsl, ADGofTest, stabledist (>= 0.6-4), mvtnorm, pcaPP, pspline, numDeriv
 Suggests: MASS, KernSmooth, sfsmisc, scatterplot3d, Rmpfr, bbmle, knitr,
- parallel, gridExtra, lcopula, mvnormtest, partitions, polynom, qrng,
- randtoolbox, rugarch, Runuran, tseries, VGAM, VineCopula, zoo
+	parallel, gridExtra, lcopula, mvnormtest, partitions, polynom, qrng,
+	randtoolbox, rugarch, Runuran, tseries, VGAM, VineCopula, zoo
 SuggestsNote: the last lines' packages {parallel, ..., zoo} are only used
- in vignettes, demos and few tests.
-Enhances: nor1mix
+	in vignettes, demos and few tests. 
+Enhances: nor1mix, copulaData
 Description: Classes (S4) of commonly used elliptical, Archimedean,
  extreme-value and other copula families, as well as their rotations,
  mixtures and asymmetrizations. Nested Archimedean copulas, related
