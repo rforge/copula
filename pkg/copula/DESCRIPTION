@@ -17,7 +17,7 @@ Suggests: MASS, KernSmooth, sfsmisc, scatterplot3d, Rmpfr, bbmle, knitr,
 	parallel, gridExtra, lcopula, mvnormtest, partitions, polynom, qrng,
 	randtoolbox, rugarch, Runuran, tseries, VGAM, VineCopula, zoo
 SuggestsNote: the last lines' packages {parallel, ..., zoo} are only used
-	in vignettes, demos and few tests. 
+	in vignettes, demos and few tests.
 Enhances: nor1mix, copulaData
 Description: Classes (S4) of commonly used elliptical, Archimedean,
  extreme-value and other copula families, as well as their rotations,
