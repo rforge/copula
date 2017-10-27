@@ -8,8 +8,6 @@ Authors@R: c(person("Marius", "Hofert", role = "aut", email = "marius.hofert@uwa
 	   , person("Martin","Maechler", role=c("aut","cre"), email = "maechler@stat.math.ethz.ch")
 	   , person("Jun", "Yan", rol = "aut", email = "jun.yan@uconn.edu")
 	   , person(c("Johanna", "G."), "Nešlehová", role = "ctb", comment = "evTestK()"))
-Author: Marius Hofert [aut], Ivan Kojadinovic [aut], Martin Maechler [aut, cre], Jun Yan[aut]
-Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Depends: R (>= 3.1.0)
 Imports: stats, graphics, methods, stats4, Matrix, lattice, colorspace,
 	gsl, ADGofTest, stabledist (>= 0.6-4), mvtnorm, pcaPP, pspline, numDeriv
