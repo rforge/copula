@@ -3,13 +3,13 @@ Version: 0.999-18
 VersionNote: Last CRAN: 0.999-17 on 2017-06-17
 Date: 2017-10-19
 Title: Multivariate Dependence with Copulas
-Authors@R: c(
-	   person("Marius", "Hofert", role = "aut", email = "marius.hofert@uwaterloo.ca")
-	 , person("Ivan", "Kojadinovic", role = "aut", email = "ivan.kojadinovic@univ-pau.fr")
-	 , person("Martin","Maechler", role=c("aut","cre"), email = "maechler@stat.math.ethz.ch")
-	 , person("Jun", "Yan", rol = "aut", email = "jun.yan@uconn.edu")
-	 , person(c("Johanna", "G."), "Nešlehová", role = "ctb", comment = "evTestK()")
-	 )
+Authors@R: c(person("Marius", "Hofert", role = "aut", email = "marius.hofert@uwaterloo.ca")
+	   , person("Ivan", "Kojadinovic", role = "aut", email = "ivan.kojadinovic@univ-pau.fr")
+	   , person("Martin","Maechler", role=c("aut","cre"), email = "maechler@stat.math.ethz.ch")
+	   , person("Jun", "Yan", rol = "aut", email = "jun.yan@uconn.edu")
+	   , person(c("Johanna", "G."), "Nešlehová", role = "ctb", comment = "evTestK()"))
+Author: Marius Hofert [aut], Ivan Kojadinovic [aut], Martin Maechler [aut, cre], Jun Yan[aut]
+Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Depends: R (>= 3.1.0)
 Imports: stats, graphics, methods, stats4, Matrix, lattice, colorspace,
 	gsl, ADGofTest, stabledist (>= 0.6-4), mvtnorm, pcaPP, pspline, numDeriv
