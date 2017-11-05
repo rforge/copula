@@ -44,7 +44,7 @@ book may also be used for teaching a course on copula modeling.
 * Tackles the estimation of copulas from a parametric, semi-parametric and
   non-parametric perspective.
 * Discusses graphical diagnostics, statistical tests and model selection.
-* Addresses more advanced topics such as the handling of non-stationarity,
-  serial dependence, filtering and ties.
-* Illustrates the presented concepts by stand-alone and reproducible R
-  examples involving either synthetic or real data.
+* Addresses more advanced topics such as the handling of ties, time series and
+  covariates (in a regression-like setting).
+* Illustrates the presented concepts by stand-alone and reproducible R examples
+  involving either synthetic or real data.
