@@ -5,10 +5,10 @@
 
 ## Overview
 * [Home](index.html)
-* [Book features](features.html)
+* [Features](features.html)
 * [Citation](cite.html)
 * [Errata](errata.html)
-* [Reporting bugs](bugs.html)
+* [Bugs](bugs.html)
 
 ## R code
 * [Chapter 2](02_copulas.html)
