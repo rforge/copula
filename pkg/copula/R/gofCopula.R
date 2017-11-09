@@ -281,7 +281,7 @@ Jscore <- function(copula, u, method)
            "mpl"=
        {   ## See page 7 in Kojadinovic and Yan (2011)
            if(has.par.df(copula))
-               stop("Jscore() cannot be computed for df.fixed = FALSE")
+               stop("Jscore() cannot be computed for 'df.fixed = FALSE'")
            ## Integrals computed from n realizations by Monte Carlo
            influ0 <- dlogcdtheta(copula, u) # (n, p)-matrix
            derArg <- dlogcdu    (copula, u) # (n, d)-matrix
