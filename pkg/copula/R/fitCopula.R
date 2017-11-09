@@ -352,7 +352,7 @@ var.mpl <- function(cop, u)
     ## If df.fixed = FALSE, Jscore() cannot be computed
     if(has.par.df(cop, ccl, isEll)) {
         cop <- as.df.fixed(cop, classDef = ccl)
-        warning("the asymptotic covariance matrix of the estimator is computed as if 'df.fixed = TRUE' with df = ",getdf(cop))
+        warning("the covariance matrix of the parameter estimates is computed as if 'df.fixed = TRUE' with df = ",getdf(cop))
         ans[-p, -p] <- var(t(Jscore(cop, u, method = "mpl")))
         ans
     } else
