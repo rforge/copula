@@ -10,5 +10,5 @@ R". The code is also available as an
 [R script](R/03_classes.R). Please [cite](cite.html) the book or
 package when using the code; in particular, in publications.
 
-```{include=03_classes.R}
+```{include=R/03_classes.R}
 ```

@@ -7,8 +7,8 @@ author: Marius Hofert, Ivan Kojadinovic, Martin Mächler, Jun Yan
 
 Below is the R code from Chapter 6 of the book "Elements of Copula
 Modeling with R". The code is also available as an [R
-script](R/06_misc_code.R).  Please [cite](cite.html) the book or
+script](R/06_misc.R).  Please [cite](cite.html) the book or
 package when using the code; in particular, in publications.
 
-```{include=06_misc.R}
+```{include=R/06_misc.R}
 ```
