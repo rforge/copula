@@ -2,6 +2,8 @@
 
 ## R script for Chapter 4 of Elements of Copula Modeling with R
 
+source("00_preliminaries.R")
+
 
 ### 4.1 Estimation under a parametric assumption on the copula #################
 
@@ -17,7 +19,8 @@ mcc <- mvdc(cc, margins = c("norm", "exp"),
                                 list(rate = 1)))
 ## Generate the "observed" sample
 set.seed(712)
-X <- rMvdc(1000, mvdc = mcc)
+n <- 1000
+X <- rMvdc(n, mvdc = mcc)
 ## The function fitMvdc() estimates all the parameters of the mvdc object
 ## mcc (whose parameter values are not used). Starting values need to be
 ## provided.
@@ -30,11 +33,14 @@ summary(mle)
 
 ### Estimation of copula parameters via the IFME
 
-## Parametric pseudo-observations obtained from X by method-of-moments
-U <- cbind(pnorm(X[,1], mean = mean(X[,1]), sd = sd(X[,1])),
+## Parametric pseudo-observations obtained from X by marginal MLE
+U <- cbind(pnorm(X[,1], mean = mean(X[,1]),
+                 sd = sqrt((n - 1) / n) * sd(X[,1])),
            pexp(X[,2], rate = 1 / mean(X[,2])))
 ifme <- fitCopula(claytonCopula(), data = U, method = "ml")
 summary(ifme)
+
+optimMeth(claytonCopula(), method = "ml", dim = 2)
 
 
 ### 4.1.2 Non-parametrically estimated margins #################################
@@ -86,17 +92,17 @@ stopifnot(all.equal(irho, 2 * sin(pi * rho.n / 6))) # the same
 summary(fitCopula(normalCopula(), data = pobs(X), method = "irho"))
 
 
-### Estimation of copula parameters via the method of moments based on Kendall's tau
+### Application of the estimation via the method of moments based on Kendall's tau
 
 data(danube, package = "lcopula") # already pseudo-observations
 U <- as.matrix(danube)
 plot(U, xlab = "Donau", ylab = "Inn")
 
-fitCopula(gumbelCopula(), data = U, method = "itau")
+summary(fitCopula(gumbelCopula(), data = U, method = "itau"))
 
-fitCopula(plackettCopula(), data = U, method = "itau")
+summary(fitCopula(plackettCopula(), data = U, method = "itau"))
 
-fitCopula(normalCopula(), data = U, method = "itau")
+summary(fitCopula(normalCopula(), data = U, method = "itau"))
 
 
 ### Estimation of copula parameters via the MPLE
@@ -109,8 +115,10 @@ U <- rCopula(1000, fc)
 ## Compute the MPLE and its standard error
 summary(fitCopula(frankCopula(), data = pobs(U), method = "mpl"))
 
+optimMeth(frankCopula(), method = "mpl", dim = 2)
 
-### Estimation of copula parameters via the MPLE
+
+### Application of the estimation via the MPLE
 
 U <- pobs(rdj[,2:4]) # compute the pseudo-observations
 ## MPLE for the normal copula
@@ -122,26 +130,87 @@ summary(fitCopula(tCopula(dim = 3, dispstr = "un"), data = U))
 
 ### 4.1.3 Estimators of elliptical copula parameters ###########################
 
-### Estimation of the normal copula parameters via the method-of-moments
+### Estimation of normal copula parameters via method-of-moments
 
-## Load the data, compute the log-returns and the pseudo-observations
-data(SMI.12)
-X <- diff(log(SMI.12)) # compute log-returns
+data(SMI.12) # load the SMI constituent data
+library(qrmtools)
+X <- returns(SMI.12) # compute log-returns
 U <- pobs(X) # compute pseudo-observations
 d <- ncol(U) # 20 dimensions
+
 f.irho <- fitCopula(normalCopula(dim = d, dispstr = "un"), data = U,
                     method = "irho")
 f.itau <- fitCopula(normalCopula(dim = d, dispstr = "un"), data = U,
-          method = "itau")
-## The estimated parameters as correlation matrices
+                    method = "itau")
+
 P.irho <- p2P(f.irho@estimate, d = d)
 P.itau <- p2P(f.itau@estimate, d = d)
 
 
-### Estimation of the t copula parameters using the method of Mashal, Zeevi (2002)
+### Estimation of t copula parameters using the method of Mashal and Zeevi
 
 fit <- fitCopula(tCopula(dim = d, dispstr = "un"), data = U,
                  method = "itau.mpl")
+
+
+### Linear correlation vs Kendall's tau for estimating $t$ distributions
+
+##' @title Compute (repeated) parameter estimates for the bivariate t
+##' @param nu degrees of freedom parameter
+##' @param rho correlation parameter
+##' @param B number of replications
+##' @param n sample size
+##' @return (B, 2)-matrix containing the B estimates computed
+##'         via Pearson's rho and Kendall's tau
+estimates <- function(nu, rho, B, n)
+{
+    ## Generate data (B-list of (n, 2)-matrices)
+    tc <- tCopula(rho, df = nu) # define the corresponding t copula
+    X <- lapply(1:B, function(i) qt(rCopula(n, copula = tc), df = nu))
+    ## For each of the B data sets, estimate the correlation parameter of the
+    ## t distribution via Pearson's rho and Kendall's tau.
+    pea <- vapply(X, function(x) cor(x[,1], x[,2]), numeric(1))
+    ken <- iTau(tCopula(, df = nu),
+                tau = sapply(X, function(x) cor(x, method = "kendall")[2,1]))
+    ## Return
+    cbind(Pearson = pea, Kendall = ken) # (B, 2)-matrix
+}
+
+set.seed(271) # for reproducibility
+nu <- 3 # degrees of freedom
+rho <- 0.5 # correlation parameter
+r <- estimates(nu, rho = rho, B = 3000, n = 90) # (B, 2)-matrix
+varP <- var(r[,"Pearson"]) # variance of sample linear correlation
+varK <- var(r[,"Kendall"]) # variance of inverting Kendall's tau
+VRF <- varP / varK # variance reduction factor
+PIM <- (varP - varK) / varP * 100 # % improvement
+boxplot(r, names = c("Sample linear correlation", "Inverting Kendall's tau"),
+        ylab = substitute("Estimates of"~rho~"of a"
+                          ~t[nu.]~"distribution with"~rho==rho.,
+                          list(nu. = nu, rho. = rho)))
+mtext(substitute("VRF (% improvement):"~~v~"("*i*"%)",
+                 list(v = round(VRF, 2), i = round(PIM))),
+      side = 4, line = 1, adj = 0, las = 0)
+
+## Estimate variance reduction factor for various nu and rho
+nu. <- 2 + 2^seq(-2, 7, by = 0.5) # degrees of freedom to consider
+rho. <- c(-0.99, -0.8, 0, 0.8, 0.99) # correlations to consider
+res <- lapply(nu., function(nu..)
+    lapply(rho., function(rho..) estimates(nu.., rho = rho.., B = 3000, n = n)))
+vars <- lapply(res, function(r) lapply(r, function(r.)
+               var(r.[,"Pearson"])/var(r.[,"Kendall"])))
+VRF. <- matrix(unlist(vars), nrow = length(rho.), ncol = length(nu.),
+               dimnames = list(rho = rho., nu = nu.))
+ylim <- range(VRF.)
+lrho <- length(rho.)
+plot(nu., VRF.[1,], type = "l", log = "xy", ylim = ylim, col = 1,
+     xlab = "Degrees of freedom",
+     ylab = "VRF (correlation over inverting Kendall's tau)")
+for(k in 2:lrho) lines(nu., VRF.[k,], col = k)
+abline(h = 1, lty = 2)
+legend("topright", bty = "n", lty = rep(1, lrho), col = 1:lrho,
+       legend = as.expression(lapply(1:lrho, function(k)
+           substitute(rho == rho., list(rho. = rho.[k])))))
 
 
 ### 4.1.5 Estimation of copula models with partly fixed parameters #############
@@ -151,7 +220,7 @@ fit <- fitCopula(tCopula(dim = d, dispstr = "un"), data = U,
 ## The "unknown" copula (a 3-dim. normal copula)
 nc  <- normalCopula(param = c(0.6, 0.3, 0.2), dim = 3, dispstr = "un")
 ## Generate the "observed" sample and compute corresponding pobs
-set.seed(981)
+set.seed(819)
 U <- pobs(rCopula(1000, nc))
 ## A trivariate normal copula whose first parameter is fixed to 0.6
 (ncf <- normalCopula(param = fixParam(c(0.6, NA_real_, NA_real_),
@@ -167,7 +236,7 @@ fitCopula(ncf, data = U, method = "irho")
 fixedParam(nc) <- c(TRUE, FALSE, FALSE)
 nc
 
-## The "unknown" copula (a 3-dim. t copula)
+## The "unknown" copula is a 3-dim. t copula (with 4 d.o.f. by default)
 tc  <- tCopula(param = c(0.6, 0.3, 0.2), dim = 3, dispstr = "un")
 ## Generate the "observed" sample and compute corresponding pobs
 set.seed(314)
@@ -198,6 +267,9 @@ fitCopula(tcf2, data = U, method = "itau")
 kc <- khoudrajiCopula(copula2 = claytonCopula(6), shapes = c(0.4, 1))
 set.seed(1307)
 U <- pobs(rCopula(1000, kc))
+## The default optimization method for fitting bivariate copulas
+## constructed with Khoudraji's device by MPLE
+optimMeth(khoudrajiCopula(), method = "mpl", dim = 2)
 
 try(fitCopula(khoudrajiCopula(copula2 = claytonCopula()),
               start = c(1.1, 0.5, 0.5), data = U))
@@ -221,9 +293,9 @@ fitCopula(kcf, start = c(1.1, 0.5), data = U)
 ## The "unknown" copula (a 3-dim. Clayton copula with parameter 3)
 d <- 3
 cc <- claytonCopula(3, dim = d)
-n <- 1000
-## Generate a sample of size n from the copula, which will be transformed
+## Generate a sample from the copula, which will be transformed
 ## to pseudo-observations in 'C.n()'
+n <- 1000
 set.seed(65)
 U <- rCopula(n, copula = cc)
 ## Generate random points where to evaluate the empirical copula
@@ -236,31 +308,34 @@ round(mean(abs(true - ec) / true) * 100, 2) # mean relative error (in %)
 
 ### The empirical beta and checkerboard copulas
 
-## The "unknown" copula (a 3-dim. Gumbel-Hougaard copula with parameter 4)
-d <- 3
-gc <- gumbelCopula(4, dim = d)
-## The comparison function (returning mean relative errors in %)
-compareEmpCops <- function(n) {
-    U <- rCopula(n, copula = gc) # a sample from the true copula
+gc <- gumbelCopula(4, dim = 3) # the 'unknown' copula
+##' @title Mean relative error in % (for empirical copula, empirical beta
+##'        copula and empirical checkerboard copula)
+##' @param n sample size
+##' @param cop copula
+##' @return mean relative errors in %
+compareEmpCops <- function(n, cop)
+{
+    d <- dim(cop)
+    U <- rCopula(n, copula = cop) # a sample from the true copula
     v <- matrix(runif(n * d), nrow = n, ncol = d) # random evaluation points
     ec    <- C.n(v, X = U) # the empirical copula values
     beta  <- C.n(v, X = U, smoothing = "beta") # the emp. beta cop. values
     check <- C.n(v, X = U, smoothing = "checkerboard") # emp. check. cop. val
-    true <- pCopula(v, copula = gc) # the true copula values
+    true <- pCopula(v, copula = cop) # the true copula values
     c(ec    = mean(abs(true - ec) / true),
       beta  = mean(abs(true - beta) / true),
       check = mean(abs(true - check) / true)) * 100 # mean rel. error in %
 }
 
 set.seed(2013)
-round(rowMeans(replicate(100, compareEmpCops(30))), 2)
+round(rowMeans(replicate(100, compareEmpCops(30, cop = gc))), 2)
 
-n <- 30 # sample size
 set.seed(2008)
-U <- rCopula(n, copula = gc) # a sample from the true copula
+U <- rCopula(30, copula = gc) # a sample from the true copula
 m <- 100 # number of evaluation points
 v <- runif(m) # random points where to eval. the first margin of the est.
-w <- cbind(v, matrix(1, m, d-1)) # corresp. eval. points of the estimators
+w <- cbind(v, matrix(1, nrow = m, ncol = dim(gc) - 1)) # evaluation points
 stopifnot(all.equal(C.n(w, X = U, smoothing = "beta"), v)) # check
 stopifnot(all.equal(C.n(w, X = U, smoothing = "checkerboard"), v)) # check
 
@@ -285,8 +360,7 @@ curve(A(kg, w = x), 0, 1, add = TRUE, lwd = 2, col = 3)
 lines(c(0, 0.5, 1), c(1, 0.5, 1), lty = 2)
 lines(c(0, 1),      c(1, 1),      lty = 2)
 legend("bottomright", bty = "n", lwd = 2, col = 1:3,
-       legend = expression({A[list(n,c)]^{P}}(t),
-                           {A[list(n,c)]^{CFG}}(t),
+       legend = expression({A[list(n,c)]^{P}}(t), {A[list(n,c)]^{CFG}}(t),
                            {A[theta]^{KGH}}(t)),
        inset = 0.02, y.intersp = 1.2)
 

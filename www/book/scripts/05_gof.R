@@ -2,6 +2,8 @@
 
 ## R script for Chapter 5 of Elements of Copula Modeling with R
 
+source("00_preliminaries.R")
+
 
 ### 5.1 Basic graphical diagnostics ############################################
 
@@ -30,13 +32,12 @@ cpJ <- contourplot2(fj@copula, FUN = pCopula, region = FALSE,
                                text = list(c("Fitted Joe copula",
                                              "Empirical copula"))))
 ## Compute the contours of the empirical copula
-n.grid <- 16
-u <- seq(0, 1, length.out = n.grid)
+u <- seq(0, 1, length.out = 16)
 grid <- as.matrix(expand.grid(u1 = u, u2 = u))
 val <- cbind(grid, z = C.n(grid, X = U))
 cpCn <- contourplot2(val, region = FALSE, labels = FALSE, col = 2)
 ## Plots (lattice objects)
-library(latticeExtra) # for adding layers of plots
+library(latticeExtra)
 cpG + cpCn
 cpJ + cpCn
 
@@ -83,17 +84,16 @@ cor.test(danube[,1], danube[,2], method = "kendall")
 
 ### A fallacy of a test of uncorrelatedness
 
-n <- 200
 set.seed(1515)
-x <- rnorm(n)
+x <- rnorm(200)
 y <- x^2
 cor.test(x, y, method = "kendall")
 
 
 ### Test of independence based on S_n^Pi
 
-d <- 3
 n <- 100
+d <- 3
 set.seed(1969)
 U <- rCopula(n, frankCopula(2, dim = d))
 
@@ -105,28 +105,33 @@ indepTest(U, d = dist)
 
 ### Test of exchangeability based on S_n^{ex_C}
 
-set.seed(1453); exchTest(as.matrix(danube))
+set.seed(1453)
+exchTest(as.matrix(danube))
 
 
 ### Test of exchangeability based on S_n^{ex_A}
 
-withTime <- function(expr, ...) {
+withTime <- function(expr, ...)
+{
     st <- system.time(r <- expr, ...)
     list(value = r,  sys.time = st)
 }
 
-set.seed(1492); withTime( exchEVTest(as.matrix(danube)) )
+set.seed(1492)
+withTime(exchEVTest(as.matrix(danube)))
 
 
 ### 5.2.3 A test of radial symmetry ############################################
 
 ### Test of radial symmetry based on S_n^sym
 
-set.seed(1453); withTime( radSymTest(as.matrix(danube)) )
+set.seed(1453)
+withTime(radSymTest(as.matrix(danube)))
 
 data(rdj)
 Xrdj <- as.matrix(rdj[,-1]) # omitting component 'Date'
-set.seed(1389); withTime( radSymTest(Xrdj) )
+set.seed(1389)
+withTime(radSymTest(Xrdj))
 
 
 ### 5.2.4 Tests of extreme-value dependence ####################################
@@ -139,12 +144,14 @@ evTestK(as.matrix(danube))
 
 ### Test of extreme-value dependence based on S_n^{ev_A}
 
-set.seed(1815);  withTime( evTestA(as.matrix(danube)) )
+set.seed(1815)
+withTime(evTestA(as.matrix(danube)))
 
 
 ### Test of extreme-value dependence based on S_n^{ev_C}
 
-set.seed(1905);  withTime( evTestC(Xrdj) )
+set.seed(1905)
+withTime(evTestC(Xrdj))
 
 
 ### 5.2.5 Goodness-of-fit tests ################################################
@@ -152,13 +159,13 @@ set.seed(1905);  withTime( evTestC(Xrdj) )
 ### Parametric bootstrap-based tests
 
 set.seed(1598)
-withTime( gofCopula(claytonCopula(dim = 3), x = Xrdj, optim.method="BFGS") )
+withTime(gofCopula(claytonCopula(dim = 3), x = Xrdj, optim.method="BFGS"))
 
 
 ### Multiplier goodness-of-fit tests
 
 set.seed(1610)
-withTime( gofCopula(claytonCopula(dim = 3), x = Xrdj, simulation = "mult") )
+withTime(gofCopula(claytonCopula(dim = 3), x = Xrdj, simulation = "mult"))
 
 set.seed(1685)
 gofCopula(normalCopula(dim = 3, dispstr = "un"), x = Xrdj,
@@ -171,18 +178,21 @@ gofCopula(tCopula(dim = 3, dispstr = "un", df.fixed = TRUE, df = 10),
 
 ### Empirical levels of the multiplier goodness-of-fit test for the Joe family
 
-tau <- 0.5 # strength of dependence
-theta <- iTau(joeCopula(), tau = tau) # corresponding parameter
-## Applies the multiplier goodness-of-fit once on data
-## generated under the null hypothesis and returns the p-value
-pvalMult <- function(n) {
+theta <- iTau(joeCopula(), tau = 0.5) # Joe copula parameter
+##' @title P-value of multiplier goodness-of-fit test on data
+##'        generated under the null hypothesis
+##' @param n sample size
+##' @param theta Joe copula parameter
+##' @return p-value of the multiplier goodness-of-fit test
+pvalMult <- function(n, theta)
+{
     U <- rCopula(n, copula = joeCopula(theta))
     gofCopula(joeCopula(), x = pobs(U), simulation = "mult",
               optim.method = "BFGS")$p.value
 }
 
 set.seed(1940)
-pv <- withTime( replicate(1000, pvalMult(n = 100)) )
+pv <- withTime(replicate(1000, pvalMult(n = 100, theta = theta)))
 
 pv$sys.time # the run time
 
@@ -227,8 +237,9 @@ withTime(
 ### A mixture of graphical and formal goodness-of-fit test
 
 ## Load the data, compute the log-returns and the pseudo-observations
-data(SMI.12)
-X <- diff(log(SMI.12)) # compute log-returns
+data(SMI.12) # load the SMI constituent data
+library(qrmtools)
+X <- returns(SMI.12) # compute log-returns
 U <- pobs(X) # compute pseudo-observations
 d <- ncol(U) # 20 dimensions
 
@@ -245,7 +256,7 @@ nu <- fit@estimate[len] # degrees of freedom nu
 cop.t <- ellipCopula("t", df = nu, param = p, dim = d, dispstr = "un")
 ## Build the array of pairwise H_0-transformed data columns
 cu.u.t <- pairwiseCcop(U, cop.t, df = nu)
-## Compute pairwise matrix (d x d) of p-values and corresponding colors
+## Compute pairwise matrix (d by d) of p-values and corresponding colors
 set.seed(1389) # for reproducibility
 pw.indep.t <- pairwiseIndepTest(cu.u.t, N = 256, verbose = FALSE)
 p.val.t <- pviTest(pw.indep.t) # matrix of p-values
@@ -265,9 +276,9 @@ pairsRosenblatt(cu.u.t, pvalueMat = p.val.t, method = "QQchisq", pch=".",
 ### Cross-validation for the danube data set
 
 Xdan <- as.matrix(danube)
-withTime( xvCopula(joeCopula(), x = Xdan) )
+withTime(xvCopula(joeCopula(), x = Xdan))
 
-withTime( xvCopula(gumbelCopula(), x = Xdan) )
+withTime(xvCopula(gumbelCopula(), x = Xdan))
 
 withTime(
     xvCopula(khoudrajiCopula(copula2 = gumbelCopula(),
@@ -277,9 +288,11 @@ withTime(
 )
 
 k <- 50
-set.seed(7) ; withTime( xvCopula(joeCopula(), x = Xdan, k = k) )
+set.seed(7)
+withTime(xvCopula(joeCopula(), x = Xdan, k = k))
 
-set.seed(13) ; withTime( xvCopula(gumbelCopula(), x = Xdan, k = k) )
+set.seed(13)
+withTime(xvCopula(gumbelCopula(), x = Xdan, k = k))
 
 set.seed(14)
 withTime(
@@ -293,7 +306,7 @@ withTime(
 
 ### Cross-validation for the rdj data set
 
-withTime( xvCopula(normalCopula(dim = 3, dispstr = "un"), x = Xrdj) )
+withTime(xvCopula(normalCopula(dim = 3, dispstr = "un"), x = Xrdj))
 
 withTime(
     xvCopula(tCopula(dim = 3, dispstr = "un", df = 10, df.fixed = TRUE),
@@ -301,14 +314,14 @@ withTime(
 )
 
 set.seed(22)
-withTime( xvCopula(normalCopula(dim = 3, dispstr = "un"), x = Xrdj, k = k) )
+withTime(xvCopula(normalCopula(dim = 3, dispstr = "un"), x = Xrdj, k = k))
 
 set.seed(4)
-withTime( xvCopula(tCopula(dim = 3, dispstr = "un", df = 10, df.fixed=TRUE),
-                   x = Xrdj, k = k) )
+withTime(xvCopula(tCopula(dim = 3, dispstr = "un", df = 10, df.fixed=TRUE),
+                  x = Xrdj, k = k))
 
 set.seed(1980)
-withTime( xvCopula(tCopula(dim = 3, dispstr = "un"), x = Xrdj, k = k) )
+withTime(xvCopula(tCopula(dim = 3, dispstr = "un"), x = Xrdj, k = k))
 
 fit.t <- fitCopula(tCopula(dim = 3, dispstr = "un"), data = pobs(Xrdj))
 summary(fit.t)
