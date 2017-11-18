@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>R: Elements of Copula Modeling with R</title>
+
+    <link rel="icon" type="image/png" href="./contents/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="./contents/favicon-16x16.png" sizes="16x16" />
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/R.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container page">
+      <div class="row">
+        <div class="col-xs-12 col-sm-offset-1 col-sm-2 sidebar" role="navigation">
+<div class="row">
+<div class="col-xs-6 col-sm-12">
+<p><a href="/"><img src = "./contents/R_logo.png" width = "100" height = "78" alt = "R" /></a></p>
+<h2 id="overview">Overview</h2>
+<ul>
+<li><a href="index.html">Home</a></li>
+<li><a href="features.html">Features</a></li>
+<li><a href="cite.html">Citation</a></li>
+<li><a href="errata.html">Errata</a></li>
+<li><a href="bugs.html">Bugs</a></li>
+</ul>
+<h2 id="r-code">R code</h2>
+<ul>
+<li><a href="02_copulas.html">Chapter 2</a></li>
+<li><a href="03_classes_sampling.html">Chapter 3</a></li>
+<li><a href="04_fitting.html">Chapter 4</a></li>
+<li><a href="05_gof.html">Chapter 5</a></li>
+<li><a href="06_misc.html">Chapter 6</a></li>
+</ul>
+</div>
+</div>
+        </div>
+        <div class="col-xs-12 col-sm-7">
+        <h1>Elements of Copula Modeling with R</h1>
+<h2 id="code-from-chapter-3">Code from Chapter 3</h2>
+<p>Below is the R code from Chapter 3 of the book “Elements of Copula Modeling with R”. The code is also available as an <a href="R/03_classes.R">R script</a>. Please <a href="cite.html">cite</a> the book or package when using the code; in particular, in publications.</p>
+<pre><code>## By Marius Hofert, Ivan Kojadinovic, Martin Maechler, Jun Yan
+
+## R script for Chapter 3 of Elements of Copula Modeling with R
+
+source(&quot;00_preliminaries.R&quot;)
+
+
+### 3.1 Elliptical copulas #####################################################
+
+### Construction of elliptical distributions and sampling
+
+## Stepwise generation of a sample from a bivariate t distribution
+## via the (general) stochastic representation of elliptical distributions
+n &lt;- 1000 # sample size
+d &lt;- 2 # dimension
+mu &lt;- c(1, 3) # location vector
+Sigma &lt;- matrix(c(16, 4,
+                   4, 2), ncol = 2, byrow = TRUE) # scale matrix
+nu &lt;- 3.5 # degrees of freedom
+set.seed(271) # set a seed (for reproducibility)
+R &lt;- sqrt(d * rf(n, df1 = d, df2 = nu)) # sample R for a t_nu
+A &lt;- t(chol(Sigma)) # Cholesky factor
+Z &lt;- matrix(rnorm(n * d), ncol = d) # N_d(0,I_d)
+S &lt;- Z/sqrt(rowSums(Z^2)) # uniform distribution on unit sphere (= Z/||Z||)
+X &lt;- rep(mu, each = n) + R * t(A %*% t(S)) # X = mu + R A S
+plot(S, xlab = quote(S[1]), ylab = quote(S[2]))
+plot(t(A %*% t(S)), xlab = quote((AS)[1]), ylab = quote((AS)[2]))
+xlim &lt;- range(X[,1], X[,1] - mu[1])
+ylim &lt;- range(X[,2], X[,2] - mu[2])
+plot(R * t(A %*% t(S)), xlab = quote(R(AS)[1]), ylab = quote(R(AS)[2]),
+     xlim = xlim, ylim = ylim)
+plot(X, xlab = quote(X[1]), ylab = quote(X[2]),
+     xlim = xlim, ylim = ylim)
+
+## 2-point distribution for R and corresponding X
+R.2pt &lt;- 1 + rbinom(n, size = 1, prob = 2/3) # prob. 1/3 to be 1, 2/3 to be 2
+X.2pt &lt;- rep(mu, each = n) + R.2pt * t(A %*% t(S)) # compute X
+## Bounded distribution for R and corresponding X
+pR &lt;- function(q) pf(q^2/d, df1 = d, df2 = nu) # df of R for a t_nu
+qR &lt;- function(p) sqrt(d * qf(p, df1 = d, df2 = nu)) # quantile function
+a &lt;- 1; b &lt;- 3 # [a, b]
+R.bdd &lt;- qR(pR(a) + runif(n) * (pR(b) - pR(a))) # sample R on [a,b]
+X.bdd &lt;- rep(mu, each = n) + R.bdd * t(A %*% t(S)) # compute X
+plot(X.2pt, xlab = quote(X[1]), ylab = quote(X[2]))
+plot(X.bdd, xlab = quote(X[1]), ylab = quote(X[2]))
+
+
+### Normal copula
+
+nc &lt;- normalCopula(iTau(normalCopula(), tau = 0.5))
+set.seed(271)
+U &lt;- rCopula(1000, copula = nc) # sample from the normal copula
+wireframe2(nc, FUN = dCopula, delta = 0.025) # density
+contourplot2(nc, FUN = pCopula) # copula
+contourplot2(nc, FUN = dCopula, n.grid = 42, cuts = 33, lwd = 1/2) # density
+plot(U, xlab = quote(U[1]), ylab = quote(U[2])) # scatter plot
+
+
+### t copula
+
+nu &lt;- 4 # needs to be an integer here (only) because of pCopula()
+tc &lt;- tCopula(iTau(tCopula(, df = nu), tau = 0.5), df = nu)
+set.seed(271)
+U &lt;- rCopula(1000, copula = tc) # sample from the t copula
+wireframe2(tc, FUN = dCopula, delta = 0.025) # density
+contourplot2(tc, FUN = pCopula) # copula
+contourplot2(tc, FUN = dCopula, n.grid = 42, cuts = 27) # density
+plot(U, xlab = quote(U[1]), ylab = quote(U[2])) # scatter plot
+
+## Setup
+n &lt;- 1000
+d &lt;- 5
+nu &lt;- 3.5
+rho &lt;- iTau(tCopula(, df = nu), tau = 0.5)
+P &lt;- matrix(rho, nrow = d, ncol = d)
+diag(P) &lt;- 1
+## Method 1: Directly using rmvt() from &#39;mvtnorm&#39;
+library(mvtnorm)
+set.seed(271)
+X &lt;- rmvt(n, sigma = P, df = nu)
+U &lt;- pt(X, df = nu)
+## Method 2: Reproducing rmvt()
+set.seed(271)
+eig &lt;- eigen(P, symmetric = TRUE) # eigenvalue (instead of Cholesky) decomp.
+A &lt;- t(eig$vectors %*% (t(eig$vectors) * sqrt(eig$values)))
+X.norm &lt;- matrix(rnorm(n * d), nrow = n, byrow = TRUE) %*% A
+X.t &lt;- X.norm / sqrt(rchisq(n, nu) / nu)
+U.rmvt &lt;- pt(X.t, df = nu)
+stopifnot(all.equal(U.rmvt, U))
+## Method 3: rCopula()
+set.seed(271)
+U.cop &lt;- rCopula(n, copula = tCopula(rho, dim = d, df = nu))
+stopifnot(all.equal(U.cop, U.rmvt))
+
+X.meta &lt;- cbind(qt(U[,1], df = 2), qt(U[,2], df = 10))
+plot(X, xlab = quote(X[1]), ylab = quote(X[2]))
+plot(X.meta, xlab = quote(X[1]), ylab = quote(X[2]))
+
+
+### Marginal inconsistency and its implications
+
+##&#39; @title Random number generator for the exponential power family
+##&#39; @param n sample size
+##&#39; @param d integer parameter d &gt;= 1
+##&#39; @param s numeric parameter s &gt; 0
+##&#39; @param gamma numeric parameter gamma &gt; 0
+##&#39; @param mu location
+##&#39; @param A Cholesky factor of the scale matrix
+##&#39; @return Sample from an exponential power family
+rExpPow &lt;- function(n, d, s, gamma, mu = rep(0, d), A = diag(d))
+{
+    R &lt;- (rgamma(n, d / 2 / s) / gamma)^(1 / 2 / s)
+    Z &lt;- matrix(rnorm(n * d), ncol = d)
+    S &lt;- Z / sqrt(rowSums(Z^2))
+    rep(mu, each = n) + R * t(A %*% t(S))
+}
+## Setup
+set.seed(271) # set a seed (for reproducibility)
+X.2d &lt;- rExpPow(100000, d = 2, s = 1/2, gamma = 1) # sample for d = 2
+X.8d &lt;- rExpPow(100000, d = 8, s = 1/2, gamma = 1) # sample for d = 8
+## As the following plot shows, the first univariate margins differ
+plot(density(X.2d[,1]), #  est. of 1st univ. marg. of 2-dim. df
+     xlim = c(-10, 10), ylim = c(0, 0.35), main = &quot;&quot;, xlab = &quot;&quot;)
+lines(density(X.8d[,1]), col = 2) # est. of 1st univ. marg. of 8-dim. df
+legend(&quot;topright&quot;, bty = &quot;n&quot;,
+       lty = c(1,1), lwd = c(2, 2), col = 1:2,
+       legend = expression(&quot;Kernel density estimate of&quot;~X[1]~&quot;(d = 2)&quot;,
+                           &quot;Kernel density estimate of&quot;~X[1]~&quot;(d = 8)&quot;))
+## Empirical marg. prob. trans. followed by quant. trans. to N(0,1)
+Z.2d &lt;- qnorm(pobs(X.2d))
+Z.8d &lt;- qnorm(pobs(X.8d))
+## Kernel est. (on norm. scale) of the copulas of the first bivariate marg.
+library(MASS)
+dens2d &lt;- kde2d(Z.2d[,1], Z.2d[,2], n = 300)
+dens8d &lt;- kde2d(Z.8d[,1], Z.8d[,2], n = 300)
+image(dens2d, xlim = c(-2, 2), ylim = c(-2, 2), xlab = quote(Z[1]),
+      ylab = quote(Z[2]), col = gray(seq(1, 0, length.out = 100)))
+image(dens8d, xlim = c(-2, 2), ylim = c(-2, 2), xlab = quote(Z[1]),
+      ylab = quote(Z[2]), col = gray(seq(1, 0, length.out = 100)))
+
+
+### Grouped normal variance mixture copulas
+
+## Sample from a grouped t copula
+d. &lt;- 1:4 # sector dimensions
+d &lt;- sum(d.) # total dimension
+nu &lt;- rep(4^seq(2, -1), times = d.) # d.o.f. for each sector copula
+n &lt;- 1000 # sample size
+set.seed(271) # set seed (for reproducibility)
+Z &lt;- matrix(rnorm(n * d), ncol = n) # (d, n)-matrix
+P &lt;- matrix(0.5, nrow = d, ncol = d) # correlation matrix
+diag(P) &lt;- 1 # fix diagonal
+A &lt;- t(chol(P)) # Cholesky factor A (s.th. AA^T = P)
+Y &lt;- t(A %*% Z) # (n, d) matrix containing n d-vectors following N_d(0, P)
+U. &lt;- runif(n) # n-vector of U(0,1) random variates
+W &lt;- sapply(nu, function(nu.) 1/qgamma(U., shape = nu./2, rate = nu./2))
+X &lt;- sqrt(W) * Y # (n, d)-matrix
+U &lt;- sapply(1:d, function(j) pt(X[,j], df = nu[j])) # (n, d)-matrix sample
+## Build matrix of colors
+cols &lt;- matrix(1, nrow = d, ncol = d) # colors
+start &lt;- c(1, cumsum(head(d., n = -1)) + 1) # block start indices
+end &lt;- cumsum(d.) # block end indices
+for(j in seq_along(d.)) cols[start[j]:end[j], start[j]:end[j]] &lt;- j # colors
+diag(cols) &lt;- NA # remove colors corresponding to diagonal entries
+splom2(U, pch = &quot;.&quot;, pscales = 0, col.mat = cols) # plot sample
+
+
+### 3.2 Archimedean copulas ####################################################
+
+### Graphs of selected Archimedean generators
+
+copClayton@psi # generator of the Clayton family
+
+t &lt;- seq(0, 2, length.out = 257) # evaluation points
+tau &lt;- 0.5 # Kendall&#39;s tau
+psi. &lt;- cbind(Pi = exp(-t), # Pi generator
+              C  = copClayton@psi(t, theta = iTau(claytonCopula(), tau)),
+              F  = copFrank@psi  (t, theta = iTau(frankCopula(),   tau)),
+              GH = copGumbel@psi (t, theta = iTau(gumbelCopula(),  tau)),
+              J  = copJoe@psi    (t, theta = iTau(joeCopula(),     tau)))
+plot(t, psi.[,1], type = &quot;l&quot;, lwd = 2,
+     xlim = range(t), ylim = range(psi.), col = 1, ylab = &quot;&quot;,
+     xlab = quote(psi(t)~&quot;as a function of t&quot;))
+for(j in 2:ncol(psi.)) lines(t, psi.[,j], col = j, lwd = 2)
+legend(&quot;topright&quot;, bty = &quot;n&quot;, lty = 1, lwd = 2, col = 1:ncol(psi.),
+       legend = c(&quot;Independence&quot;, &quot;Clayton&quot;, &quot;Frank&quot;,
+                  &quot;Gumbel-Hougaard&quot;, &quot;Joe&quot;))
+
+
+### Sampling from a Gumbel-Hougaard copula
+
+## Setup
+n &lt;- 1000 # sample size
+d &lt;- 5 # dimension
+family &lt;- &quot;Gumbel&quot; # copula family
+th &lt;- iTau(archmCopula(family), 0.5) # copula parameter
+## Version 1: manually
+set.seed(271) # set seed (for reproducibility)
+cop &lt;- getAcop(family) # define the Archimedean copula to sample from
+V &lt;- cop@V0(n, theta = th) # generate frailties V from F
+E &lt;- matrix(-log(runif(n*d)), ncol = d) # sample independent Exp(1)
+U.man &lt;- cop@psi(E/V, theta = th) # construct U
+## Version 2: via rCopula()
+cop &lt;- archmCopula(family, param = th, dim = d) # define the copula to sample
+set.seed(271) # set seed (for reproducibility)
+U &lt;- rCopula(n, cop) # sample
+## Check
+stopifnot(all.equal(U.man, U))
+
+
+### Graphs of |psi^(d)| for the Gumbel-Hougaard generator
+
+t &lt;- 10^seq(-2, 2, by = 0.05) # evaluation points
+th &lt;- iTau(gumbelCopula(), 0.5) # corresponding GH parameter theta
+d &lt;- c(2, 5, 10, 20, 50) # order of the derivatives
+dPsi. &lt;- sapply(d, function(d.) # (length(t), length(d))-mat. of derivatives
+    copGumbel@absdPsi(t, theta = th, degree = d.))
+plot(t, dPsi.[,1], type = &quot;l&quot;, log = &quot;y&quot;, lwd = 2,
+     xlim = range(t), ylim = range(dPsi.), col = 1, ylab = &quot;&quot;,
+     xlab = quote(bgroup(&quot;|&quot;,{psi^(d)}(t),&quot;|&quot;)~&quot;as a function of t&quot;))
+for(j in 2:length(d)) lines(t, dPsi.[,j], col = j, lwd = 2)
+legend(&quot;topright&quot;, bty = &quot;n&quot;, lty = 1, lwd = 2, col = 1:length(d),
+       legend = as.expression(lapply(1:length(d), function(j)
+           substitute(d==d., list(d.=d[j])))))
+
+
+### Negative log-likelihood and profile likelihood of a Gumbel-Hougaard copula
+
+## Generate a sample from a Gumbel-Hougaard copula
+n &lt;- 100 # sample size
+d &lt;- 100 # dimension
+tau &lt;- 0.5 # Kendall&#39;s tau
+family &lt;- &quot;Gumbel&quot; # copula family
+th0 &lt;- iTau(archmCopula(family), tau = tau) # true copula parameter
+cop &lt;- archmCopula(family, param = th0, dim = d) # define copula
+set.seed(271) # set seed (for reproducibility)
+U &lt;- rCopula(n, cop) # sample
+## Maximum likelihood estimation (MLE)
+nLL &lt;- function(th) -loglikCopula(th, u = U, copula = cop) # -log-likelihood
+ii &lt;- initOpt(family) # initial interval
+iv &lt;- initOpt(family, interval = FALSE, u = U) # initial value
+library(bbmle)
+mle &lt;- mle2(minuslogl = nLL, optimizer = &quot;optim&quot;, method = &quot;L-BFGS-B&quot;,
+            start = list(th = iv), lower = ii[1], upper = ii[2]) # optimize
+stopifnot(mle@details$convergence == 0) # check convergence
+th.hat &lt;- mle@coef # estimate
+## Confidence intervals (CIs)
+CI &lt;- confint(mle, quietly = TRUE)
+stopifnot(CI[1] &lt;= th0, th0 &lt;= CI[2]) # check if theta_0 is in the CI
+prof &lt;- profile(mle) # profile likelihood (see bbmle&#39;s vignette &#39;mle2&#39;)
+## nLL plot
+th.bds &lt;- iTau(archmCopula(family), tau = c(tau-0.015, tau+0.015)) # bounds
+th. &lt;- seq(th.bds[1], th.bds[2], length.out = 101) # x values
+nLL. &lt;- unlist(lapply(th., nLL)) # y values
+plot(th., nLL., type = &quot;l&quot;, xlab = quote(theta), ylab = &quot;&quot;)
+abline(v = th0, lty = 2)
+abline(v = CI[1], lty = 3)
+abline(v = CI[2], lty = 3)
+abline(v = th.hat, lty = 4)
+legend(&quot;bottomright&quot;, bty = &quot;n&quot;, y.intersp = 1.1, lty = 1:4,
+       legend = c(quote(- &quot;log-likelihood&quot;),
+                  substitute(&quot;True&quot;~theta[0]==T0, list(T0 = th0)),
+                  &quot;95% CIs&quot;, expression(&quot;Estimate&quot;~hat(theta)[n])))
+mtext(substitute(&quot;GH copula,&quot;~~n==N*&quot;,&quot;~~d==D, list(N = n, D = d)),
+      side = 4, line = 0.6, adj = 0, las = 0) # label
+## Profile-likelihood plot for theta
+plot(prof, xaxt = &quot;n&quot;, main = &quot;&quot;,
+     col.prof = &quot;black&quot;, col.minval = &quot;black&quot;, col.conf = &quot;black&quot;,
+     xlabs = expression(theta), # a *vector*
+     ylab = quote(&quot;Profile likelihood for&quot;~theta * (abs(z)==sqrt(deviance))))
+axis(side = 1, at = c(1.96, 1.98, th.hat, th0, 2.02, 2.04),
+     labels = c(&quot;1.96&quot;,&quot;1.98&quot;, quote(hat(theta)[n]),
+                expression(theta[0]), &quot;2.02&quot;, &quot;2.04&quot;),
+     padj = c(0.13, 0.13, 0.24, 0.35, 0.13, 0.13))
+
+
+### Outer power Archimedean copulas
+
+## Setup
+th.C &lt;- copClayton@iTau(0.3) # Clayton parameter s.t. tau = 0.3
+op.C &lt;- opower(copClayton, thetabase = th.C) # define an opC copula family
+## Define two opC copulas (tau = 0.5 and 0.8)
+th &lt;- sapply(c(0.5, 0.7), op.C@iTau) # choose parameter according to taus
+opC  &lt;- onacopulaL(op.C, list(th[1], 1:2)) # define the opC copula
+opC. &lt;- onacopulaL(op.C, list(th[2], 1:2))
+## Sample
+set.seed(271) # set seed (for reproducibility)
+U  &lt;- rCopula(1000, copula = opC)
+U. &lt;- rCopula(1000, copula = opC.)
+plot(U,  xlab = quote(U[1]), ylab = quote(U[2])) # opC sample
+plot(U., xlab = quote(U[1]), ylab = quote(U[2])) # opC sample
+
+
+### Archimedean copulas with d-monotone generators, Liouville copulas
+
+## Setup
+n &lt;- 1000 # sample size
+d &lt;- 2 # dimension
+th &lt;- 1 # Pareto parameter
+set.seed(271) # set seed (for reproducibility)
+R &lt;- runif(n)^(-1/th) # sample radial part (here: Pareto on [1,Inf))
+## Sample from a so-called Pareto-simplex copula
+E &lt;- matrix(rexp(n * d), nrow = n, ncol = d) # unit exponentials
+S &lt;- E / matrix(rowSums(E), nrow = n, ncol = d) # S uniformly on unit simplex
+incBeta &lt;- function(x, a, b) pbeta(x, a, b) * beta(a, b) # incomplete beta
+psi &lt;- function(t, th) t^(-1/th) * incBeta(pmin(1,t), a = 1/th, b = d) / th
+U &lt;- psi(R * S, th = th)
+plot(U, xlab = quote(U[1]), ylab = quote(U[2])) # Pareto-simplex sample
+
+## (Approximately) sample from a so-called Pareto-Liouville copula
+alpha &lt;- c(0.5, 2) # Dirichlet parameters
+G &lt;- vapply(alpha, function(a) rgamma(n, a), numeric(n)) # Gamma variables
+D &lt;- G / rowSums(G) # Dirichlet distribution on unit simplex
+U. &lt;- 1 - pobs(R * D) # empirical marginal survival functions
+plot(U., xlab = quote(U[1]), ylab = quote(U[2])) # Pareto-Liouville sample
+
+
+### Nested Archimedean copulas
+
+## Define a nested Gumbel-Hougaard copula
+family &lt;- &quot;Gumbel&quot; # copula family
+tau &lt;- c(0.2, 0.4, 0.6, 0.8) # Kendall&#39;s tau
+th &lt;- iTau(archmCopula(family), tau = tau) # corresponding parameters
+nlist &lt;- list(th[1], 1, list(list(th[2], 2:3), # NAC structure
+                             list(th[3], 4, list(list(th[4], 5:7)))))
+NAC &lt;- onacopulaL(family, nacList = nlist) # NAC copula
+## Sample
+set.seed(271) # set seed (for reproducibility)
+U &lt;- rCopula(1000, copula = NAC) # sample
+## Build matrix of colors
+cols &lt;- matrix(1, nrow = 7, ncol = 7)
+cols[2, 3] &lt;- 2
+cols[4, 5:7] &lt;- 3
+cols[5:7, 5:7] &lt;- 4
+cols[lower.tri(cols)] &lt;- t(cols)[lower.tri(cols)]
+diag(cols) &lt;- NA
+splom2(U, pch = &quot;.&quot;, pscales = 0, col.mat = cols) # plot sample
+
+
+### 3.3 Extreme-value copulas ##################################################
+
+### Exchangeable extreme-value copulas
+
+## Parameter values corresponding to a Kendall&#39;s tau of 0.25, 0.5 and 0.75
+th.25 &lt;- iTau(gumbelCopula(), tau = 0.25)
+th.50 &lt;- iTau(gumbelCopula(), tau = 0.50)
+th.75 &lt;- iTau(gumbelCopula(), tau = 0.75)
+## Graphs of the corresponding Pickands dependence functions A
+curve(A(gumbelCopula(th.25), w = x), from = 0, to = 1, ylim = c(0.5 ,1),
+      xlab = &quot;t&quot;, ylab = expression({A[theta]^{GH}}(t)), col = 1, lwd = 2)
+curve(A(gumbelCopula(th.50), w = x), add = TRUE, col = 2, lwd = 2)
+curve(A(gumbelCopula(th.75), w = x), add = TRUE, col = 3, lwd = 2)
+## Every bivariate Pickands dependence function is convex
+## and its graph is necessarily in the &quot;triangle&quot; plotted below
+lines(c(0, 1), c(1, 1), lty = 2)
+lines(c(0, 0.5, 1), c(1, 0.5, 1), lty = 2)
+legend(&quot;bottomright&quot;, bty = &quot;n&quot;, lwd = 2, col = 1:3,
+       legend = expression(tau == 0.25, tau == 0.5, tau == 0.75),
+       inset = 0.02, y.intersp = 1.2)
+
+## Draw the Pickands dependence function of the independence copula
+## which is the same as &quot;lines(c(0, 1), c(1, 1), lty = 2)&quot;
+curve(A(indepCopula(), w = x), from = 0, to = 1, ylim = c(0.5, 1),
+      xlab = &quot;t&quot;, ylab = quote({A[theta]}(t)), lty = 2)
+## Add the constraint related to the monotonicity copula
+lines(c(0, 0.5, 1), c(1, 0.5, 1), lty = 2)
+## Set Kendall&#39;s tau and color
+tau &lt;- 0.25
+col &lt;- adjustcolor(1, alpha.f = 0.25)
+## And the utility A() curve plot function
+curveA &lt;- function(x, Cop) # using  global (tau, col)
+  curve(A(Cop(iTau(Cop(), tau)), w = x), add = TRUE, col = col, lwd = 2)
+
+curveA(x, galambosCopula)
+curveA(x, gumbelCopula)
+curveA(x, huslerReissCopula)
+curveA(x, tevCopula)
+if(tau &lt; 0.4184) curveA(x, tawnCopula) # no tawnCopula for larger tau!
+
+
+### 3.4 Selected copula transformations and constructions ######################
+
+### 3.4.1 Rotated copulas ######################################################
+
+### A rotated bivariate Clayton copula
+
+## The vector r is represented by a vector of logicals
+rc &lt;- rotCopula(claytonCopula(4), flip = c(TRUE, FALSE))
+wireframe2(rc, FUN = pCopula, # wireframe plot (copula)
+           draw.4.pCoplines = FALSE)
+wireframe2(rc, FUN = dCopula, delta = 0.025) # wireframe plot (density)
+contourplot2(rc, FUN = pCopula, n.grid = 64) # contour plot (copula)
+contourplot2(rc, FUN = dCopula, n.grid = 64, cuts = 30,
+             pretty = FALSE, lwd = 1/2) # contour plot (density)
+
+
+### A rotated four-dimensional Frank copula
+
+## The logical representing vector r
+flip &lt;- c(TRUE, FALSE, TRUE, FALSE)
+rf &lt;- rotCopula(frankCopula(10, dim = 4), flip = flip)
+n &lt;- 1000
+set.seed(2016)
+U &lt;- rCopula(n, copula = rf)
+set.seed(2016)
+V &lt;- rCopula(n, frankCopula(10, dim = 4))
+## &quot;Flip&quot; the relevant components
+V[, flip] &lt;- 1 - V[, flip]
+stopifnot(all.equal(U, V)) # check
+
+splom2(U, cex = 0.3, col.mat = &quot;black&quot;)
+
+
+### 3.4.2 Khoudraji&#39;s device ###################################################
+
+### Non-exchangeable Khoudraji-Clayton copulas
+
+(kc &lt;- khoudrajiCopula(copula2 = claytonCopula(6), shapes = c(0.2, 0.95)))
+
+n &lt;- 5000
+plot(rCopula(n, copula = kc),
+     cex = 0.5, xlab = quote(U[1]), ylab = quote(U[2]))
+plot(rCopula(n, copula = setTheta(kc, value = c(6, 0.4, 0.95))),
+     cex = 0.5, xlab = quote(U[1]), ylab = quote(U[2]))
+plot(rCopula(n, copula = setTheta(kc, value = c(6, 0.6, 0.95))),
+     cex = 0.5, xlab = quote(U[1]), ylab = quote(U[2]))
+plot(rCopula(n, copula = setTheta(kc, value = c(6, 0.8, 0.95))),
+     cex = 0.5, xlab = quote(U[1]), ylab = quote(U[2]))
+
+plot(rCopula(n, copula = setTheta(kc, value = c(6, 0.95, 0.6))),
+     cex = 0.5, xlab = quote(U[1]), ylab = quote(U[2]))
+
+plot(rCopula(n, copula = khoudrajiCopula(copula1 = claytonCopula(6),
+                                         shapes = c(0.6, 0.95))),
+     cex = 0.5, xlab = quote(U[1]), ylab = quote(U[2]))
+
+plot(rCopula(n, copula = khoudrajiCopula(copula1 = claytonCopula(6),
+                                         shapes = c(1 - 0.6, 1 - 0.95))),
+     cex = 0.5, xlab = quote(U[1]), ylab = quote(U[2]))
+
+
+### Non-exchangeable Khoudraji-Gumbel-Hougaard-Clayton copulas
+
+## The setup
+s &lt;- c(0.6, 0.95)
+copula1 &lt;- gumbelCopula
+copula2 &lt;- claytonCopula
+## A utility function to obtain the parameter values of C_1 and C_2
+param &lt;- function(tau) c(iTau(copula1(), tau), iTau(copula2(), tau))
+## The corresponding Khoudraji-Gumbel-Hougaard-Clayton copula
+(kho &lt;- khoudrajiCopula(copula1 = copula1(param(0.65)[1]),
+                        copula2 = copula2(param(0.65)[2]),
+                        shapes = s))
+
+n &lt;- 5000
+U &lt;- rCopula(n, copula = kho)
+plot(U, cex = 0.5, xlab = quote(U[1]), ylab = quote(U[2]))
+V &lt;- rCopula(n, copula = setTheta(kho, value = c(param(0.8), s)))
+plot(V, cex = 0.5, xlab = quote(V[1]), ylab = quote(V[2]))
+W &lt;- rCopula(n, copula = setTheta(kho, value = c(param(0.95), s)))
+plot(W, cex = 0.5, xlab = quote(W[1]), ylab = quote(W[2]))
+
+c(cor(U, method = &quot;kendall&quot;)[1,2], cor(V, method = &quot;kendall&quot;)[1,2],
+  cor(W, method = &quot;kendall&quot;)[1,2])
+
+
+### A non-exchangeable extreme-value family
+
+kg &lt;- khoudrajiCopula(copula2 = gumbelCopula(4), shapes = c(0.2, 0.95))
+curve(A(kg, w = x), from = 0, to = 1, ylim = c(0.5, 1),
+      xlab = &quot;t&quot;, ylab = expression({A[theta]^{KGH}}(t)), col = 1, lwd = 2)
+curve(A(setTheta(kg, value = c(4, 0.4, 0.95)), w = x), add = TRUE, lwd = 2,
+      col = 2)
+curve(A(setTheta(kg, value = c(4, 0.6, 0.95)), w = x), add = TRUE, lwd = 2,
+      col = 3)
+curve(A(setTheta(kg, value = c(4, 0.8, 0.95)), w = x), add = TRUE, lwd = 2,
+      col = 4)
+lines(c(0, 1),      c(1, 1),      lty = 2)
+lines(c(0, 0.5, 1), c(1, 0.5, 1), lty = 2)
+legend(&quot;bottomright&quot;, bty = &quot;n&quot;, lwd = 2,, col = 1:4,
+       legend = expression(s[1] == 0.2, s[1] == 0.4,
+                           s[1] == 0.6, s[1] == 0.8))
+
+
+### Higher-dimensional Khoudraji copulas
+
+kgsc &lt;- khoudrajiCopula(copula1 = gumbelCopula(2, dim=3),
+                        copula2 = rotCopula(claytonCopula(6, dim=3)),
+                        shapes = c(.6, 0.7, 0.95))
+## Random points in the unit hypercube where to evaluate the density
+set.seed(42)
+v &lt;- matrix(runif(15), 5, 3)
+dCopula(v, copula = kgsc)
+
+kgn &lt;- khoudrajiCopula(copula1 = gumbelCopula(2, dim=3),
+                       copula2 = normalCopula(0.9, dim=3),
+                       shapes = c(.6, 0.7, 0.95))
+try( dCopula(v, copula = kgn) ) # not implemented
+
+
+### 3.4.3 Mixtures of copulas ##################################################
+
+### A mixture of Clayton and Gumbel-Hougaard copulas
+
+cc &lt;- claytonCopula(iTau(claytonCopula(), tau = 0.75)) # the first component
+gc &lt;- gumbelCopula(iTau(gumbelCopula(),   tau = 0.75)) # the second component
+weights &lt;- c(1/3, 2/3) # the corresponding weights
+(mcg &lt;- mixCopula(list(cc, gc), w = weights)) # the mixture copula
+
+stopifnot(all.equal(rho(mcg), weights[1] * rho(cc) + weights[2] * rho(gc)))
+lambda(mcg)
+
+stopifnot(all.equal(lambda(mcg),
+                    weights[1] * lambda(cc) + weights[2] * lambda(gc)))
+
+set.seed(127)
+U &lt;- rCopula(1000, copula = mcg) # sample from the mixture
+wireframe2(mcg, FUN = dCopula, delta = 0.025) # density
+contourplot2(mcg, FUN = pCopula) # copula
+contourplot2(mcg, FUN = dCopula, cuts = 32, # density
+             n.grid = 50, pretty = FALSE,
+             col = adjustcolor(1, 1/3), alpha.regions = 3/4)
+plot(U, xlab = quote(U[1]), ylab = quote(U[2])) # scatter plot
+
+</code></pre>
+        </div>
+      </div>
+      <div class="raw footer">
+        &copy; Marius Hofert, Ivan Kojadinovic, Martin Mächler, Jun Yan
+      </div>
+    </div>
+  </body>
+</html>
