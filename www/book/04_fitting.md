@@ -5,10 +5,10 @@ author: Marius Hofert, Ivan Kojadinovic, Martin Mächler, Jun Yan
 
 ## Code from Chapter 4
 
-Below is the R code from Chapter 4 of the book "Elements of Copula Modeling with
-R". The code is also available as an [R script](scripts/04_fitting.R).  Please
-[cite](cite.html) the book or package when using the code; in particular, in
-publications.
+Below is the R code from Chapter 4 of the book "Elements of Copula
+Modeling with R". The code is also available as an [R
+script](scripts/04_fitting_code.R).  Please [cite](cite.html) the book
+or package when using the code; in particular, in publications.
 
 <!-- Copy script here and indent everything by 4 columns -->
 
