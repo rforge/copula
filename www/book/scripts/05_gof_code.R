@@ -2,8 +2,6 @@
 
 ## R script for Chapter 5 of Elements of Copula Modeling with R
 
-source("00_preliminaries.R")
-
 
 ### 5.1 Basic graphical diagnostics ############################################
 

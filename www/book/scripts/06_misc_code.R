@@ -2,8 +2,6 @@
 
 ## R script for Chapter 6 of Elements of Copula Modeling with R
 
-source("00_preliminaries.R")
-
 
 ### 6.1 Ties ###################################################################
 

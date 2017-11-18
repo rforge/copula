@@ -2,8 +2,6 @@
 
 ## R script for Chapter 3 of Elements of Copula Modeling with R
 
-source("00_preliminaries.R")
-
 
 ### 3.1 Elliptical copulas #####################################################
 

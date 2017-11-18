@@ -2,8 +2,6 @@
 
 ## R script for Chapter 2 of Elements of Copula Modeling with R
 
-source("00_preliminaries.R")
-
 
 ### 2.1 Definition and characterization ########################################
 

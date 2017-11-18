@@ -2,8 +2,6 @@
 
 ## R script for Chapter 4 of Elements of Copula Modeling with R
 
-source("00_preliminaries.R")
-
 
 ### 4.1 Estimation under a parametric assumption on the copula #################
 
