@@ -2,8 +2,6 @@
 
 ## R script for Chapter 6 of Elements of Copula Modeling with R
 
-source("00_preliminaries.R")
-
 
 ### 6.1 Ties ###################################################################
 
@@ -177,11 +175,11 @@ discrFirst <- function(U, b)
 pvalTies <- function(n, cop, discretize, b)
 {
     U.ties <- discretize(rCopula(n, cop), b = b) # binned samples
-    c(exch    = exchTest(U.ties, ties = FALSE)$p.value,
-      ev      = evTestC(U.ties)$p.value,
-      pb.GH   = gofCopula(cop, U.ties, optim.method = "BFGS",
+    c(exch = exchTest(U.ties, ties = FALSE)$p.value,
+      ev   = evTestC(U.ties)$p.value,
+      pb   = gofCopula(cop, U.ties, optim.method = "BFGS",
                           ties = FALSE)$p.value,
-      mult.GH = gofCopula(cop, U.ties, optim.method = "BFGS",
+      mult = gofCopula(cop, U.ties, optim.method = "BFGS",
                           sim = "mult")$p.value)
 }
 
@@ -194,12 +192,12 @@ pv$sys.time # user time
 
 alpha <- c(0.01, 0.05, 0.1) # nominal levels
 rbind(nom.level = alpha,
-      emp.level.exch    = ecdf(pv$value["exch",   ])(alpha),
-      emp.level.ev      = ecdf(pv$value["ev",     ])(alpha),
-      emp.level.pb.GH   = ecdf(pv$value["pb.GH",  ])(alpha),
-      emp.level.mult.GH = ecdf(pv$value["mult.GH",])(alpha))
+      emp.level.exch = ecdf(pv$value["exch",   ])(alpha),
+      emp.level.ev   = ecdf(pv$value["ev",     ])(alpha),
+      emp.level.pb   = ecdf(pv$value["pb",  ])(alpha),
+      emp.level.mult = ecdf(pv$value["mult",])(alpha))
 
-summary(pv$value["mult.GH",])
+summary(pv$value["mult",])
 
 
 ### Parametric bootstrap-based goodness-of-fit test adapted for ties
@@ -528,7 +526,7 @@ math.glm <- glm(Math ~ Minority + SES + Female + Public + Size +
 ## Minimizing the marginal conditional negative log-likelihood
 ## using the previously obtained estimates as initial values
 res <- optim(ts.math, nmLL, x = nels[,"Math"], z = z, method = "BFGS")
-## Compare GLM and ML estimates
+## Compare GLM and ML estimates: change is small
 stopifnot(all.equal(ts.math, res$par, tolerance = 1e-3))
 
 ## Science score

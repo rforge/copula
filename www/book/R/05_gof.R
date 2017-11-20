@@ -2,8 +2,6 @@
 
 ## R script for Chapter 5 of Elements of Copula Modeling with R
 
-source("00_preliminaries.R")
-
 
 ### 5.1 Basic graphical diagnostics ############################################
 
@@ -15,7 +13,7 @@ plot(U, xlab = "Donau", ylab = "Inn")
 plot(qnorm(U), xlab = "Donau", ylab = "Inn")
 
 
-### Fitting the Joe, Gumbel-Hougaard and Khoudraji-Gumbel-Hougaard families
+### Comparing (non-)parametric estimates of the copula
 
 ## Fit a Gumbel-Hougaard copula and compute the contours
 fg <- fitCopula(gumbelCopula(), data = U)
@@ -67,7 +65,7 @@ lines(c(0, 0.5, 1), c(1, 0.5, 1), lty = 2)
 lines(c(0, 1),      c(1, 1),      lty = 2)
 legend("bottomright", bty = "n", lwd = 2, col=1:3,
        legend = expression({A[theta[n]]^{GH}}(t),
-                           {A[theta[n]]^{KGH}}(t),
+                           {A[bold(theta)[n]]^{KGH}}(t),
                            {A[list(n,c)]^{CFG}}(t)),
        inset = 0.02, y.intersp = 1.2)
 
@@ -308,21 +306,18 @@ withTime(
 
 withTime(xvCopula(normalCopula(dim = 3, dispstr = "un"), x = Xrdj))
 
-withTime(
-    xvCopula(tCopula(dim = 3, dispstr = "un", df = 10, df.fixed = TRUE),
-             x = Xrdj)
-)
+withTime(xvCopula(tCopula(dim = 3, dispstr = "un", df = 10, df.fixed = TRUE),
+                  x = Xrdj))
 
 set.seed(22)
 withTime(xvCopula(normalCopula(dim = 3, dispstr = "un"), x = Xrdj, k = k))
 
 set.seed(4)
-withTime(xvCopula(tCopula(dim = 3, dispstr = "un", df = 10, df.fixed=TRUE),
+withTime(xvCopula(tCopula(dim = 3, dispstr = "un", df = 10, df.fixed = TRUE),
                   x = Xrdj, k = k))
 
 set.seed(1980)
 withTime(xvCopula(tCopula(dim = 3, dispstr = "un"), x = Xrdj, k = k))
 
-fit.t <- fitCopula(tCopula(dim = 3, dispstr = "un"), data = pobs(Xrdj))
-summary(fit.t)
+summary(fitCopula(tCopula(dim = 3, dispstr = "un"), data = pobs(Xrdj)))
 

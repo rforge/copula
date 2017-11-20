@@ -2,8 +2,6 @@
 
 ## R script for Chapter 2 of Elements of Copula Modeling with R
 
-source("00_preliminaries.R")
-
 
 ### 2.1 Definition and characterization ########################################
 
@@ -163,7 +161,7 @@ nu <- 3 # degrees of freedom
 x. <- qt(u, df = nu)
 pmvt(upper = x., corr = P, df = nu) # evaluate the t copula at u
 
-try( pmvt(upper = x., corr = P, df = 3.5) )
+try(pmvt(upper = x., corr = P, df = 3.5))
 
 tc <- tCopula(rho, dim = d, df = nu)
 pCopula(u, copula = tc) # value of the copula at u
