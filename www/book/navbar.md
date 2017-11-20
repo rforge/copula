@@ -12,7 +12,7 @@
 
 ## R code
 * [Chapter 2](02_copulas.html)
-* [Chapter 3](03_classes_sampling.html)
+* [Chapter 3](03_classes.html)
 * [Chapter 4](04_fitting.html)
 * [Chapter 5](05_gof.html)
 * [Chapter 6](06_misc.html)

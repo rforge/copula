@@ -5,4 +5,4 @@ author: Marius Hofert, Ivan Kojadinovic, Martin Mächler, Jun Yan
 
 ## Errata
 
-- 2017-04-12: none (yet).
+- 2018-11-20: none (yet).
