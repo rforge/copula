@@ -46,8 +46,6 @@
 
 ## R script for Chapter 4 of Elements of Copula Modeling with R
 
-source(&quot;00_preliminaries.R&quot;)
-
 
 ### 4.1 Estimation under a parametric assumption on the copula #################
 
@@ -214,7 +212,7 @@ estimates &lt;- function(nu, rho, B, n)
     ## For each of the B data sets, estimate the correlation parameter of the
     ## t distribution via Pearson&#39;s rho and Kendall&#39;s tau.
     pea &lt;- vapply(X, function(x) cor(x[,1], x[,2]), numeric(1))
-    ken &lt;- iTau(tCopula(, df = nu),
+    ken &lt;- iTau(tCopula(df = nu),
                 tau = sapply(X, function(x) cor(x, method = &quot;kendall&quot;)[2,1]))
     ## Return
     cbind(Pearson = pea, Kendall = ken) # (B, 2)-matrix

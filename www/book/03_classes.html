@@ -46,8 +46,6 @@
 
 ## R script for Chapter 3 of Elements of Copula Modeling with R
 
-source(&quot;00_preliminaries.R&quot;)
-
 
 ### 3.1 Elliptical copulas #####################################################
 
@@ -103,7 +101,7 @@ plot(U, xlab = quote(U[1]), ylab = quote(U[2])) # scatter plot
 ### t copula
 
 nu &lt;- 4 # needs to be an integer here (only) because of pCopula()
-tc &lt;- tCopula(iTau(tCopula(, df = nu), tau = 0.5), df = nu)
+tc &lt;- tCopula(iTau(tCopula(df = nu), tau = 0.5), df = nu)
 set.seed(271)
 U &lt;- rCopula(1000, copula = tc) # sample from the t copula
 wireframe2(tc, FUN = dCopula, delta = 0.025) # density
@@ -115,7 +113,7 @@ plot(U, xlab = quote(U[1]), ylab = quote(U[2])) # scatter plot
 n &lt;- 1000
 d &lt;- 5
 nu &lt;- 3.5
-rho &lt;- iTau(tCopula(, df = nu), tau = 0.5)
+rho &lt;- iTau(tCopula(df = nu), tau = 0.5)
 P &lt;- matrix(rho, nrow = d, ncol = d)
 diag(P) &lt;- 1
 ## Method 1: Directly using rmvt() from &#39;mvtnorm&#39;
@@ -332,7 +330,7 @@ set.seed(271) # set seed (for reproducibility)
 U  &lt;- rCopula(1000, copula = opC)
 U. &lt;- rCopula(1000, copula = opC.)
 plot(U,  xlab = quote(U[1]), ylab = quote(U[2])) # opC sample
-plot(U., xlab = quote(U[1]), ylab = quote(U[2])) # opC sample
+plot(U., xlab = quote(U[1]), ylab = quote(U[2])) # opC. sample
 
 
 ### Archimedean copulas with d-monotone generators, Liouville copulas
@@ -406,7 +404,7 @@ legend(&quot;bottomright&quot;, bty = &quot;n&quot;, lwd = 2, col = 1:3,
 ## which is the same as &quot;lines(c(0, 1), c(1, 1), lty = 2)&quot;
 curve(A(indepCopula(), w = x), from = 0, to = 1, ylim = c(0.5, 1),
       xlab = &quot;t&quot;, ylab = quote({A[theta]}(t)), lty = 2)
-## Add the constraint related to the monotonicity copula
+## Add the constraint related to the comonotone copula
 lines(c(0, 0.5, 1), c(1, 0.5, 1), lty = 2)
 ## Set Kendall&#39;s tau and color
 tau &lt;- 0.25
@@ -539,7 +537,7 @@ dCopula(v, copula = kgsc)
 kgn &lt;- khoudrajiCopula(copula1 = gumbelCopula(2, dim=3),
                        copula2 = normalCopula(0.9, dim=3),
                        shapes = c(.6, 0.7, 0.95))
-try( dCopula(v, copula = kgn) ) # not implemented
+try(dCopula(v, copula = kgn)) # not implemented
 
 
 ### 3.4.3 Mixtures of copulas ##################################################

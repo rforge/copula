@@ -46,8 +46,6 @@
 
 ## R script for Chapter 6 of Elements of Copula Modeling with R
 
-source(&quot;00_preliminaries.R&quot;)
-
 
 ### 6.1 Ties ###################################################################
 
@@ -221,11 +219,11 @@ discrFirst &lt;- function(U, b)
 pvalTies &lt;- function(n, cop, discretize, b)
 {
     U.ties &lt;- discretize(rCopula(n, cop), b = b) # binned samples
-    c(exch    = exchTest(U.ties, ties = FALSE)$p.value,
-      ev      = evTestC(U.ties)$p.value,
-      pb.GH   = gofCopula(cop, U.ties, optim.method = &quot;BFGS&quot;,
+    c(exch = exchTest(U.ties, ties = FALSE)$p.value,
+      ev   = evTestC(U.ties)$p.value,
+      pb   = gofCopula(cop, U.ties, optim.method = &quot;BFGS&quot;,
                           ties = FALSE)$p.value,
-      mult.GH = gofCopula(cop, U.ties, optim.method = &quot;BFGS&quot;,
+      mult = gofCopula(cop, U.ties, optim.method = &quot;BFGS&quot;,
                           sim = &quot;mult&quot;)$p.value)
 }
 
@@ -238,12 +236,12 @@ pv$sys.time # user time
 
 alpha &lt;- c(0.01, 0.05, 0.1) # nominal levels
 rbind(nom.level = alpha,
-      emp.level.exch    = ecdf(pv$value[&quot;exch&quot;,   ])(alpha),
-      emp.level.ev      = ecdf(pv$value[&quot;ev&quot;,     ])(alpha),
-      emp.level.pb.GH   = ecdf(pv$value[&quot;pb.GH&quot;,  ])(alpha),
-      emp.level.mult.GH = ecdf(pv$value[&quot;mult.GH&quot;,])(alpha))
+      emp.level.exch = ecdf(pv$value[&quot;exch&quot;,   ])(alpha),
+      emp.level.ev   = ecdf(pv$value[&quot;ev&quot;,     ])(alpha),
+      emp.level.pb   = ecdf(pv$value[&quot;pb&quot;,  ])(alpha),
+      emp.level.mult = ecdf(pv$value[&quot;mult&quot;,])(alpha))
 
-summary(pv$value[&quot;mult.GH&quot;,])
+summary(pv$value[&quot;mult&quot;,])
 
 
 ### Parametric bootstrap-based goodness-of-fit test adapted for ties
@@ -572,7 +570,7 @@ math.glm &lt;- glm(Math ~ Minority + SES + Female + Public + Size +
 ## Minimizing the marginal conditional negative log-likelihood
 ## using the previously obtained estimates as initial values
 res &lt;- optim(ts.math, nmLL, x = nels[,&quot;Math&quot;], z = z, method = &quot;BFGS&quot;)
-## Compare GLM and ML estimates
+## Compare GLM and ML estimates: change is small
 stopifnot(all.equal(ts.math, res$par, tolerance = 1e-3))
 
 ## Science score
