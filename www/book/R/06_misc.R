@@ -192,8 +192,8 @@ pv$sys.time # user time
 
 alpha <- c(0.01, 0.05, 0.1) # nominal levels
 rbind(nom.level = alpha,
-      emp.level.exch = ecdf(pv$value["exch",   ])(alpha),
-      emp.level.ev   = ecdf(pv$value["ev",     ])(alpha),
+      emp.level.exch = ecdf(pv$value["exch",])(alpha),
+      emp.level.ev   = ecdf(pv$value["ev",  ])(alpha),
       emp.level.pb   = ecdf(pv$value["pb",  ])(alpha),
       emp.level.mult = ecdf(pv$value["mult",])(alpha))
 
@@ -227,8 +227,8 @@ pvFirst <- withTime(replicate(100, pvalPB(n = 100, cop = gc,
 pvFirst$sys.time # run time
 
 alpha <- c(0.01, 0.05, 0.1) # nominal levels
-rbind(nom.level = alpha, emp.level.both = ecdf(pvAll$value)(alpha),
-      emp.level.one = ecdf(pvFirst$value)(alpha))
+rbind(nom.level = alpha, emp.level.all = ecdf(pvAll$value)(alpha),
+      emp.level.first = ecdf(pvFirst$value)(alpha))
 
 
 ### Effect of ties on cross-validation
