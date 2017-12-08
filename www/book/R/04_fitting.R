@@ -193,8 +193,8 @@ mtext(substitute("VRF (% improvement):"~~v~"("*i*"%)",
 ## Estimate variance reduction factor for various nu and rho
 nu. <- 2 + 2^seq(-2, 7, by = 0.5) # degrees of freedom to consider
 rho. <- c(-0.99, -0.8, 0, 0.8, 0.99) # correlations to consider
-res <- lapply(nu., function(nu..)
-    lapply(rho., function(rho..) estimates(nu.., rho = rho.., B = 3000, n = n)))
+res <- lapply(nu., function(nu..) lapply(rho., function(rho..)
+              estimates(nu.., rho = rho.., B = 3000, n = n)))
 vars <- lapply(res, function(r) lapply(r, function(r.)
                var(r.[,"Pearson"])/var(r.[,"Kendall"])))
 VRF. <- matrix(unlist(vars), nrow = length(rho.), ncol = length(nu.),
@@ -329,13 +329,19 @@ compareEmpCops <- function(n, cop)
 set.seed(2013)
 round(rowMeans(replicate(100, compareEmpCops(30, cop = gc))), 2)
 
+set.seed(2013)
+round(rowMeans(replicate(100, compareEmpCops(300, cop = gc))), 2)
+
 set.seed(2008)
 U <- rCopula(30, copula = gc) # a sample from the true copula
 m <- 100 # number of evaluation points
-v <- runif(m) # random points where to eval. the first margin of the est.
-w <- cbind(v, matrix(1, nrow = m, ncol = dim(gc) - 1)) # evaluation points
-stopifnot(all.equal(C.n(w, X = U, smoothing = "beta"), v)) # check
-stopifnot(all.equal(C.n(w, X = U, smoothing = "checkerboard"), v)) # check
+v <- runif(m) # random points where to evaluate the margins of the estimators
+w1 <- cbind(v, matrix(1, nrow = m, ncol = dim(gc) - 1)) # eval. pts. margin 1
+w2 <- cbind(matrix(1, nrow = m, ncol = dim(gc) - 1), v) # eval. pts. margin 2
+stopifnot(all.equal(C.n(w1, X = U, smoothing = "beta"), v)) # check
+stopifnot(all.equal(C.n(w2, X = U, smoothing = "beta"), v)) # check
+stopifnot(all.equal(C.n(w1, X = U, smoothing = "checkerboard"), v)) # check
+stopifnot(all.equal(C.n(w2, X = U, smoothing = "checkerboard"), v)) # check
 
 
 ### 4.2.2 Under extreme-value dependence #######################################
