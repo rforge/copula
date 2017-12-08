@@ -531,8 +531,7 @@ image(pred.dens, xlab = &quot;Oil price&quot;, ylab = &quot;Gas price&quot;,
 
 ### Conditional modeling based on marginal gamma GLMs
 
-library(copulaData)
-data(NELS88)
+data(NELS88, package = &quot;copulaData&quot;)
 nels &lt;- subset(NELS88, select = -ID) # remove school ID
 
 nels$Size &lt;- scale(nels$Size) # mean 0, standard deviation 1

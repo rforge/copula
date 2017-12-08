@@ -512,7 +512,7 @@ p.n &lt;- 0
 for(i in 1:(n-1)) # number of concordant pairs (obviously inefficient)
     for(j in (i+1):n)
         if(prod(apply(U[c(i,j),], 2, diff)) &gt; 0) p.n &lt;- p.n + 1
-tau.def &lt;- 4 * p.n / (n * (n - 1)) - 1   # Kendall&#39;s tau manually (slow!)
+tau.def &lt;- 4 * p.n / (n * (n - 1)) - 1   # Kendall&#39;s tau manually
 tau.R &lt;- cor(U, method = &quot;kendall&quot;)[1,2] # Kendall&#39;s tau from R
 stopifnot(all.equal(tau.def, tau.R)) # the same
 tau.R # close to -0.5

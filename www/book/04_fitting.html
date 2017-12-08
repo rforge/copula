@@ -237,8 +237,8 @@ mtext(substitute(&quot;VRF (% improvement):&quot;~~v~&quot;(&quot;*i*&quot;%)&qu
 ## Estimate variance reduction factor for various nu and rho
 nu. &lt;- 2 + 2^seq(-2, 7, by = 0.5) # degrees of freedom to consider
 rho. &lt;- c(-0.99, -0.8, 0, 0.8, 0.99) # correlations to consider
-res &lt;- lapply(nu., function(nu..)
-    lapply(rho., function(rho..) estimates(nu.., rho = rho.., B = 3000, n = n)))
+res &lt;- lapply(nu., function(nu..) lapply(rho., function(rho..)
+              estimates(nu.., rho = rho.., B = 3000, n = n)))
 vars &lt;- lapply(res, function(r) lapply(r, function(r.)
                var(r.[,&quot;Pearson&quot;])/var(r.[,&quot;Kendall&quot;])))
 VRF. &lt;- matrix(unlist(vars), nrow = length(rho.), ncol = length(nu.),
@@ -373,13 +373,19 @@ compareEmpCops &lt;- function(n, cop)
 set.seed(2013)
 round(rowMeans(replicate(100, compareEmpCops(30, cop = gc))), 2)
 
+set.seed(2013)
+round(rowMeans(replicate(100, compareEmpCops(300, cop = gc))), 2)
+
 set.seed(2008)
 U &lt;- rCopula(30, copula = gc) # a sample from the true copula
 m &lt;- 100 # number of evaluation points
-v &lt;- runif(m) # random points where to eval. the first margin of the est.
-w &lt;- cbind(v, matrix(1, nrow = m, ncol = dim(gc) - 1)) # evaluation points
-stopifnot(all.equal(C.n(w, X = U, smoothing = &quot;beta&quot;), v)) # check
-stopifnot(all.equal(C.n(w, X = U, smoothing = &quot;checkerboard&quot;), v)) # check
+v &lt;- runif(m) # random points where to evaluate the margins of the estimators
+w1 &lt;- cbind(v, matrix(1, nrow = m, ncol = dim(gc) - 1)) # eval. pts. margin 1
+w2 &lt;- cbind(matrix(1, nrow = m, ncol = dim(gc) - 1), v) # eval. pts. margin 2
+stopifnot(all.equal(C.n(w1, X = U, smoothing = &quot;beta&quot;), v)) # check
+stopifnot(all.equal(C.n(w2, X = U, smoothing = &quot;beta&quot;), v)) # check
+stopifnot(all.equal(C.n(w1, X = U, smoothing = &quot;checkerboard&quot;), v)) # check
+stopifnot(all.equal(C.n(w2, X = U, smoothing = &quot;checkerboard&quot;), v)) # check
 
 
 ### 4.2.2 Under extreme-value dependence #######################################
