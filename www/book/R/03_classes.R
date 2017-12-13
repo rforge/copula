@@ -482,16 +482,16 @@ legend("bottomright", bty = "n", lwd = 2,, col = 1:4,
 
 ### Higher-dimensional Khoudraji copulas
 
-kgsc <- khoudrajiCopula(copula1 = gumbelCopula(2, dim=3),
-                        copula2 = rotCopula(claytonCopula(6, dim=3)),
+kgsc <- khoudrajiCopula(copula1 = gumbelCopula(2, dim = 3),
+                        copula2 = rotCopula(claytonCopula(6, dim = 3)),
                         shapes = c(.6, 0.7, 0.95))
 ## Random points in the unit hypercube where to evaluate the density
 set.seed(42)
 v <- matrix(runif(15), 5, 3)
 dCopula(v, copula = kgsc)
 
-kgn <- khoudrajiCopula(copula1 = gumbelCopula(2, dim=3),
-                       copula2 = normalCopula(0.9, dim=3),
+kgn <- khoudrajiCopula(copula1 = gumbelCopula(2, dim = 3),
+                       copula2 = normalCopula(0.9, dim = 3),
                        shapes = c(.6, 0.7, 0.95))
 try(dCopula(v, copula = kgn)) # not implemented
 

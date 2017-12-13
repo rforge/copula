@@ -146,7 +146,7 @@ plot(U, xlab = quote(U[1]), ylab = quote(U[2]))
 
 library(mvtnorm)
 d <- 2 # dimension
-rho <- 0.7 # off-diagonal entry of the correlation matrix  P
+rho <- 0.7 # off-diagonal entry of the correlation matrix P
 P <- matrix(rho, nrow = d, ncol = d) # build the correlation matrix P
 diag(P) <- 1
 set.seed(64)
@@ -208,7 +208,7 @@ th <- 2.5 # Pareto parameter
 m <- 10 # mean of the lognormal
 v <- 20 # variance of the lognormal
 s <- 4 # shape of the underlying gamma
-r <- 5 # scale of the underlying gamma
+r <- 5 # rate of the underlying gamma
 ## Define list of marginal dfs
 qF <- list(qPar = function(p) (1 - p)^(-1/th) - 1,
            qLN  = function(p) qlnorm(p, meanlog = log(m)-log(1+v/m^2)/2,
@@ -220,7 +220,7 @@ X <- sapply(qF, function(mqf) mqf(runif(2500))) # (2500, 3)-matrix
 
 ##' @title Non-parametric VaR estimate under a t copula
 ##' @param X loss matrix
-##' @param alpha confidence level
+##' @param alpha confidence level(s)
 ##' @param rho correlation parameter of the t copula
 ##' @param df degrees of freedom parameter of the t copula
 ##' @return Non-parametric VaR estimate under the t copula (numeric)
@@ -707,7 +707,7 @@ ex.prob.norm <- pCopula(rep(1 - u, d), copula = normalCopula(rho, dim = d))
 
 ## Joint exceedance probability under the t copula model with 3 df
 ## 1) Via scaling of the probability obtained from the normal copula
-## Note that the scaling factor was read off from the previous plot
+##    Note that the scaling factor was read off from the previous plot
 1 / (2600 * ex.prob.norm) # ~ 5.17 years
 
 ## 2) Directly using the t copula
