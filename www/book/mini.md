@@ -3,7 +3,7 @@ title: Elements of Copula Modeling with R
 author: Marius Hofert, Ivan Kojadinovic, Martin Mächler, Jun Yan
 ---
 
-## CRoNoS Winter Course
+## CRoNoS Winter Course and Tutorial
 
 The slides used for teaching the CRoNoS Winter Course and Tutorial on Copula-based
 modeling with R (London, 2017) can be downloaded [here](contents/slides.pdf).
