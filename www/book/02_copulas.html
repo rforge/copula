@@ -190,7 +190,7 @@ plot(U, xlab = quote(U[1]), ylab = quote(U[2]))
 
 library(mvtnorm)
 d &lt;- 2 # dimension
-rho &lt;- 0.7 # off-diagonal entry of the correlation matrix  P
+rho &lt;- 0.7 # off-diagonal entry of the correlation matrix P
 P &lt;- matrix(rho, nrow = d, ncol = d) # build the correlation matrix P
 diag(P) &lt;- 1
 set.seed(64)
@@ -247,16 +247,16 @@ contourplot2(H.obj.m, FUN = dMvdc, xlim = range(X[,1]), ylim = range(X[,2]),
 
 ### Risk aggregation
 
-## Define parameters of the margins
+## Define parameters of the three margins
 th &lt;- 2.5 # Pareto parameter
 m &lt;- 10 # mean of the lognormal
 v &lt;- 20 # variance of the lognormal
-s &lt;- 4 # shape of the underlying gamma
-r &lt;- 5 # scale of the underlying gamma
+s &lt;- 4 # shape of the gamma underlying the loggamma
+r &lt;- 5 # rate of the gamma underlying the loggamma
 ## Define list of marginal dfs
 qF &lt;- list(qPar = function(p) (1 - p)^(-1/th) - 1,
            qLN  = function(p) qlnorm(p, meanlog = log(m)-log(1+v/m^2)/2,
-                                     sdlog = sqrt(log(1+v/m^2))),
+                                          sdlog = sqrt(log(1+v/m^2))),
            qLG  = function(p) exp(qgamma(p, shape = s, rate = r)))
 ## Generate the data
 set.seed(271) # for reproducibility
@@ -264,7 +264,7 @@ X &lt;- sapply(qF, function(mqf) mqf(runif(2500))) # (2500, 3)-matrix
 
 ##&#39; @title Non-parametric VaR estimate under a t copula
 ##&#39; @param X loss matrix
-##&#39; @param alpha confidence level
+##&#39; @param alpha confidence level(s)
 ##&#39; @param rho correlation parameter of the t copula
 ##&#39; @param df degrees of freedom parameter of the t copula
 ##&#39; @return Non-parametric VaR estimate under the t copula (numeric)
@@ -351,24 +351,24 @@ plot(U,  xlab = quote(U[1]), ylab = quote(U[2]))
 
 ### From a multivariate t distribution to a t copula to a meta-t model
 
-Y &lt;- qnorm(U) # transform U (t copula) to normal margins
-ind &lt;- c(A = 725, B = 351, C = 734) # use &#39;plot(X); identify(X)&#39; to find them
-## Plot function highlighting A, B, C
-plotABC &lt;- function(x, col = adjustcolor(&quot;black&quot;, 1/2), pch = 19, ...)
+## Plot function highlighting three points
+plotABC &lt;- function(x, ind3, col = adjustcolor(&quot;black&quot;, 1/2), pch = 19, ...)
 {
     cols &lt;- adjustcolor(c(&quot;red&quot;,&quot;blue&quot;,&quot;magenta&quot;), offset = -c(1,1,1,1.5)/4)
     par(pty = &quot;s&quot;)
     plot(x, col = col, asp = 1,...)
-    xy &lt;- x[ind, , drop = FALSE]
+    xy &lt;- x[ind3, , drop = FALSE]
     points(xy, pch = pch, col = cols)
-    text(xy, label = names(ind), adj = c(0.5, -0.6), col = cols, font = 2)
+    text(xy, label = names(ind3), adj = c(0.5, -0.6), col = cols, font = 2)
 }
+ind3 &lt;- c(A = 725, B = 351, C = 734) # found via &#39;plot(X); identify(X)&#39;
 ## Scatter plot of observations from the multivariate t distribution
-plotABC(X, xlab = quote(X[1]), ylab = quote(X[2]))
+plotABC(X, ind3 = ind3, xlab = quote(X[1]), ylab = quote(X[2]))
 ## Scatter plot of observations from the corresponding t copula
-plotABC(U, xlab = quote(U[1]), ylab = quote(U[2]))
+plotABC(U, ind3 = ind3, xlab = quote(U[1]), ylab = quote(U[2]))
 ## Scatter plot of observations from the meta-t distribution
-plotABC(Y, xlab = quote(Y[1]), ylab = quote(Y[2]))
+Y &lt;- qnorm(U) # transform U (t copula) to normal margins
+plotABC(Y, ind3 = ind3, xlab = quote(Y[1]), ylab = quote(Y[2]))
 
 
 ### Verifying the invariance principle
@@ -559,26 +559,18 @@ axis(2, at = c(-mdiff, -0.01, 0, 0.01, mdiff),
 
 ## Kendall&#39;s tau and corresponding copula parameters
 tau &lt;- 0.7
-theta.n &lt;- iTau(normalCopula(),  tau = tau)
-theta.t &lt;- iTau(tCopula(df = 3), tau = tau)
-theta.c &lt;- iTau(claytonCopula(), tau = tau)
-theta.g &lt;- iTau(gumbelCopula(),  tau = tau)
+th.n &lt;- iTau(normalCopula(),  tau = tau)
+th.t &lt;- iTau(tCopula(df = 3), tau = tau)
+th.c &lt;- iTau(claytonCopula(), tau = tau)
+th.g &lt;- iTau(gumbelCopula(),  tau = tau)
 ## Samples from the corresponding &#39;mvdc&#39; objects
 set.seed(271)
 n &lt;- 10000
-N01.marg &lt;- list(list(mean = 0, sd = 1), list(mean = 0, sd = 1))
-## For the normal copula
-h.n &lt;- mvdc(normalCopula(theta.n), c(&quot;norm&quot;, &quot;norm&quot;), N01.marg)
-X.n &lt;- rMvdc(n, mvdc = h.n)
-## For the t copula
-h.t &lt;- mvdc(tCopula(theta.t, df = 3), c(&quot;norm&quot;, &quot;norm&quot;), N01.marg)
-X.t &lt;- rMvdc(n, mvdc = h.t)
-## For the Clayton copula
-h.c &lt;- mvdc(claytonCopula(theta.c), c(&quot;norm&quot;, &quot;norm&quot;), N01.marg)
-X.c &lt;- rMvdc(n, mvdc = h.c)
-## For the Gumbel-Hougaard copula
-h.g &lt;- mvdc(gumbelCopula(theta.g), c(&quot;norm&quot;, &quot;norm&quot;), N01.marg)
-X.g &lt;- rMvdc(n, mvdc = h.g)
+N01m &lt;- list(list(mean = 0, sd = 1), list(mean = 0, sd = 1)) # margins
+X.n &lt;- rMvdc(n, mvdc = mvdc(normalCopula(th.n),    c(&quot;norm&quot;, &quot;norm&quot;), N01m))
+X.t &lt;- rMvdc(n, mvdc = mvdc(tCopula(th.t, df = 3), c(&quot;norm&quot;, &quot;norm&quot;), N01m))
+X.c &lt;- rMvdc(n, mvdc = mvdc(claytonCopula(th.c),   c(&quot;norm&quot;, &quot;norm&quot;), N01m))
+X.g &lt;- rMvdc(n, mvdc = mvdc(gumbelCopula(th.g),    c(&quot;norm&quot;, &quot;norm&quot;), N01m))
 ##&#39; @title Function for producing one scatter plot
 ##&#39; @param X data
 ##&#39; @param qu (lower and upper) quantiles to consider
@@ -751,7 +743,7 @@ ex.prob.norm &lt;- pCopula(rep(1 - u, d), copula = normalCopula(rho, dim = d))
 
 ## Joint exceedance probability under the t copula model with 3 df
 ## 1) Via scaling of the probability obtained from the normal copula
-## Note that the scaling factor was read off from the previous plot
+##    Note that the scaling factor was read off from the previous plot
 1 / (2600 * ex.prob.norm) # ~ 5.17 years
 
 ## 2) Directly using the t copula
@@ -900,7 +892,6 @@ mtext(substitute(&quot;Simulated&quot;~~P(bold(U) &gt; bold(u))~~
 mtext(sprintf(&quot;VRFs (%% improvements): %.1f (%.0f%%), %.1f (%.0f%%)&quot;,
               VRF.L, PIM.L, VRF.Q, PIM.Q),
       side = 4, line = 1, adj = 0, las = 0)
-
 </code></pre>
         </div>
       </div>

@@ -47,6 +47,9 @@
 ## R script for Chapter 3 of Elements of Copula Modeling with R
 
 
+library(copula)
+
+
 ### 3.1 Elliptical copulas #####################################################
 
 ### Construction of elliptical distributions and sampling
@@ -436,16 +439,16 @@ contourplot2(rc, FUN = dCopula, n.grid = 64, cuts = 30,
              pretty = FALSE, lwd = 1/2) # contour plot (density)
 
 
-### A rotated four-dimensional Frank copula
+### A rotated four-dimensional Gumbel--Hougaard copula
 
 ## The logical representing vector r
 flip &lt;- c(TRUE, FALSE, TRUE, FALSE)
-rf &lt;- rotCopula(frankCopula(10, dim = 4), flip = flip)
+rg &lt;- rotCopula(gumbelCopula(3, dim = 4), flip = flip)
 n &lt;- 1000
 set.seed(2016)
-U &lt;- rCopula(n, copula = rf)
+U &lt;- rCopula(n, copula = rg)
 set.seed(2016)
-V &lt;- rCopula(n, frankCopula(10, dim = 4))
+V &lt;- rCopula(n, gumbelCopula(3, dim = 4))
 ## &quot;Flip&quot; the relevant components
 V[, flip] &lt;- 1 - V[, flip]
 stopifnot(all.equal(U, V)) # check
@@ -526,16 +529,16 @@ legend(&quot;bottomright&quot;, bty = &quot;n&quot;, lwd = 2,, col = 1:4,
 
 ### Higher-dimensional Khoudraji copulas
 
-kgsc &lt;- khoudrajiCopula(copula1 = gumbelCopula(2, dim=3),
-                        copula2 = rotCopula(claytonCopula(6, dim=3)),
+kgsc &lt;- khoudrajiCopula(copula1 = gumbelCopula(2, dim = 3),
+                        copula2 = rotCopula(claytonCopula(6, dim = 3)),
                         shapes = c(.6, 0.7, 0.95))
 ## Random points in the unit hypercube where to evaluate the density
 set.seed(42)
 v &lt;- matrix(runif(15), 5, 3)
 dCopula(v, copula = kgsc)
 
-kgn &lt;- khoudrajiCopula(copula1 = gumbelCopula(2, dim=3),
-                       copula2 = normalCopula(0.9, dim=3),
+kgn &lt;- khoudrajiCopula(copula1 = gumbelCopula(2, dim = 3),
+                       copula2 = normalCopula(0.9, dim = 3),
                        shapes = c(.6, 0.7, 0.95))
 try(dCopula(v, copula = kgn)) # not implemented
 
@@ -563,7 +566,6 @@ contourplot2(mcg, FUN = dCopula, cuts = 32, # density
              n.grid = 50, pretty = FALSE,
              col = adjustcolor(1, 1/3), alpha.regions = 3/4)
 plot(U, xlab = quote(U[1]), ylab = quote(U[2])) # scatter plot
-
 </code></pre>
         </div>
       </div>

@@ -47,6 +47,9 @@
 ## R script for Chapter 4 of Elements of Copula Modeling with R
 
 
+library(copula)
+
+
 ### 4.1 Estimation under a parametric assumption on the copula #################
 
 ### 4.1.1 Parametrically estimated margins #####################################
@@ -181,9 +184,9 @@ U &lt;- pobs(X) # compute pseudo-observations
 d &lt;- ncol(U) # 20 dimensions
 
 f.irho &lt;- fitCopula(normalCopula(dim = d, dispstr = &quot;un&quot;), data = U,
-                    method = &quot;irho&quot;)
+                    method = &quot;irho&quot;) # or use data = X
 f.itau &lt;- fitCopula(normalCopula(dim = d, dispstr = &quot;un&quot;), data = U,
-                    method = &quot;itau&quot;)
+                    method = &quot;itau&quot;) # or use data = X
 
 P.irho &lt;- p2P(f.irho@estimate, d = d)
 P.itau &lt;- p2P(f.itau@estimate, d = d)
@@ -238,7 +241,7 @@ mtext(substitute(&quot;VRF (% improvement):&quot;~~v~&quot;(&quot;*i*&quot;%)&qu
 nu. &lt;- 2 + 2^seq(-2, 7, by = 0.5) # degrees of freedom to consider
 rho. &lt;- c(-0.99, -0.8, 0, 0.8, 0.99) # correlations to consider
 res &lt;- lapply(nu., function(nu..) lapply(rho., function(rho..)
-              estimates(nu.., rho = rho.., B = 3000, n = n)))
+              estimates(nu.., rho = rho.., B = 3000, n = 90)))
 vars &lt;- lapply(res, function(r) lapply(r, function(r.)
                var(r.[,&quot;Pearson&quot;])/var(r.[,&quot;Kendall&quot;])))
 VRF. &lt;- matrix(unlist(vars), nrow = length(rho.), ncol = length(nu.),
@@ -380,12 +383,15 @@ set.seed(2008)
 U &lt;- rCopula(30, copula = gc) # a sample from the true copula
 m &lt;- 100 # number of evaluation points
 v &lt;- runif(m) # random points where to evaluate the margins of the estimators
-w1 &lt;- cbind(v, matrix(1, nrow = m, ncol = dim(gc) - 1)) # eval. pts. margin 1
-w2 &lt;- cbind(matrix(1, nrow = m, ncol = dim(gc) - 1), v) # eval. pts. margin 2
+w1 &lt;- cbind(v, 1, 1) # evaluations points margin 1
+w2 &lt;- cbind(1, v, 1) # evaluations points margin 2
+w3 &lt;- cbind(1, 1, v) # evaluations points margin 3
 stopifnot(all.equal(C.n(w1, X = U, smoothing = &quot;beta&quot;), v)) # check
-stopifnot(all.equal(C.n(w2, X = U, smoothing = &quot;beta&quot;), v)) # check
-stopifnot(all.equal(C.n(w1, X = U, smoothing = &quot;checkerboard&quot;), v)) # check
-stopifnot(all.equal(C.n(w2, X = U, smoothing = &quot;checkerboard&quot;), v)) # check
+stopifnot(all.equal(C.n(w2, X = U, smoothing = &quot;beta&quot;), v))
+stopifnot(all.equal(C.n(w3, X = U, smoothing = &quot;beta&quot;), v))
+stopifnot(all.equal(C.n(w1, X = U, smoothing = &quot;checkerboard&quot;), v))
+stopifnot(all.equal(C.n(w2, X = U, smoothing = &quot;checkerboard&quot;), v))
+stopifnot(all.equal(C.n(w3, X = U, smoothing = &quot;checkerboard&quot;), v))
 
 
 ### 4.2.2 Under extreme-value dependence #######################################
