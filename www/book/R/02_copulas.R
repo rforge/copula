@@ -203,16 +203,16 @@ contourplot2(H.obj.m, FUN = dMvdc, xlim = range(X[,1]), ylim = range(X[,2]),
 
 ### Risk aggregation
 
-## Define parameters of the margins
+## Define parameters of the three margins
 th <- 2.5 # Pareto parameter
 m <- 10 # mean of the lognormal
 v <- 20 # variance of the lognormal
-s <- 4 # shape of the underlying gamma
-r <- 5 # rate of the underlying gamma
+s <- 4 # shape of the gamma underlying the loggamma
+r <- 5 # rate of the gamma underlying the loggamma
 ## Define list of marginal dfs
 qF <- list(qPar = function(p) (1 - p)^(-1/th) - 1,
            qLN  = function(p) qlnorm(p, meanlog = log(m)-log(1+v/m^2)/2,
-                                     sdlog = sqrt(log(1+v/m^2))),
+                                          sdlog = sqrt(log(1+v/m^2))),
            qLG  = function(p) exp(qgamma(p, shape = s, rate = r)))
 ## Generate the data
 set.seed(271) # for reproducibility
@@ -307,24 +307,24 @@ plot(U,  xlab = quote(U[1]), ylab = quote(U[2]))
 
 ### From a multivariate t distribution to a t copula to a meta-t model
 
-Y <- qnorm(U) # transform U (t copula) to normal margins
-ind <- c(A = 725, B = 351, C = 734) # use 'plot(X); identify(X)' to find them
-## Plot function highlighting A, B, C
-plotABC <- function(x, col = adjustcolor("black", 1/2), pch = 19, ...)
+## Plot function highlighting three points
+plotABC <- function(x, ind3, col = adjustcolor("black", 1/2), pch = 19, ...)
 {
     cols <- adjustcolor(c("red","blue","magenta"), offset = -c(1,1,1,1.5)/4)
     par(pty = "s")
     plot(x, col = col, asp = 1,...)
-    xy <- x[ind, , drop = FALSE]
+    xy <- x[ind3, , drop = FALSE]
     points(xy, pch = pch, col = cols)
-    text(xy, label = names(ind), adj = c(0.5, -0.6), col = cols, font = 2)
+    text(xy, label = names(ind3), adj = c(0.5, -0.6), col = cols, font = 2)
 }
+ind3 <- c(A = 725, B = 351, C = 734) # found via 'plot(X); identify(X)'
 ## Scatter plot of observations from the multivariate t distribution
-plotABC(X, xlab = quote(X[1]), ylab = quote(X[2]))
+plotABC(X, ind3 = ind3, xlab = quote(X[1]), ylab = quote(X[2]))
 ## Scatter plot of observations from the corresponding t copula
-plotABC(U, xlab = quote(U[1]), ylab = quote(U[2]))
+plotABC(U, ind3 = ind3, xlab = quote(U[1]), ylab = quote(U[2]))
 ## Scatter plot of observations from the meta-t distribution
-plotABC(Y, xlab = quote(Y[1]), ylab = quote(Y[2]))
+Y <- qnorm(U) # transform U (t copula) to normal margins
+plotABC(Y, ind3 = ind3, xlab = quote(Y[1]), ylab = quote(Y[2]))
 
 
 ### Verifying the invariance principle
@@ -515,26 +515,18 @@ axis(2, at = c(-mdiff, -0.01, 0, 0.01, mdiff),
 
 ## Kendall's tau and corresponding copula parameters
 tau <- 0.7
-theta.n <- iTau(normalCopula(),  tau = tau)
-theta.t <- iTau(tCopula(df = 3), tau = tau)
-theta.c <- iTau(claytonCopula(), tau = tau)
-theta.g <- iTau(gumbelCopula(),  tau = tau)
+th.n <- iTau(normalCopula(),  tau = tau)
+th.t <- iTau(tCopula(df = 3), tau = tau)
+th.c <- iTau(claytonCopula(), tau = tau)
+th.g <- iTau(gumbelCopula(),  tau = tau)
 ## Samples from the corresponding 'mvdc' objects
 set.seed(271)
 n <- 10000
-N01.marg <- list(list(mean = 0, sd = 1), list(mean = 0, sd = 1))
-## For the normal copula
-h.n <- mvdc(normalCopula(theta.n), c("norm", "norm"), N01.marg)
-X.n <- rMvdc(n, mvdc = h.n)
-## For the t copula
-h.t <- mvdc(tCopula(theta.t, df = 3), c("norm", "norm"), N01.marg)
-X.t <- rMvdc(n, mvdc = h.t)
-## For the Clayton copula
-h.c <- mvdc(claytonCopula(theta.c), c("norm", "norm"), N01.marg)
-X.c <- rMvdc(n, mvdc = h.c)
-## For the Gumbel-Hougaard copula
-h.g <- mvdc(gumbelCopula(theta.g), c("norm", "norm"), N01.marg)
-X.g <- rMvdc(n, mvdc = h.g)
+N01m <- list(list(mean = 0, sd = 1), list(mean = 0, sd = 1)) # margins
+X.n <- rMvdc(n, mvdc = mvdc(normalCopula(th.n),    c("norm", "norm"), N01m))
+X.t <- rMvdc(n, mvdc = mvdc(tCopula(th.t, df = 3), c("norm", "norm"), N01m))
+X.c <- rMvdc(n, mvdc = mvdc(claytonCopula(th.c),   c("norm", "norm"), N01m))
+X.g <- rMvdc(n, mvdc = mvdc(gumbelCopula(th.g),    c("norm", "norm"), N01m))
 ##' @title Function for producing one scatter plot
 ##' @param X data
 ##' @param qu (lower and upper) quantiles to consider
@@ -856,4 +848,3 @@ mtext(substitute("Simulated"~~P(bold(U) > bold(u))~~
 mtext(sprintf("VRFs (%% improvements): %.1f (%.0f%%), %.1f (%.0f%%)",
               VRF.L, PIM.L, VRF.Q, PIM.Q),
       side = 4, line = 1, adj = 0, las = 0)
-

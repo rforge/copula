@@ -3,13 +3,16 @@
 ## R script for Chapter 5 of Elements of Copula Modeling with R
 
 
+library(copula)
+
+
 ### 5.1 Basic graphical diagnostics ############################################
 
 ### Pseudo-observations and normal scores
 
 data(danube, package = "lcopula")
 U <- as.matrix(danube)
-plot(U, xlab = "Donau", ylab = "Inn")
+plot(U,        xlab = "Donau", ylab = "Inn")
 plot(qnorm(U), xlab = "Donau", ylab = "Inn")
 
 
@@ -157,7 +160,7 @@ withTime(evTestC(Xrdj))
 ### Parametric bootstrap-based tests
 
 set.seed(1598)
-withTime(gofCopula(claytonCopula(dim = 3), x = Xrdj, optim.method="BFGS"))
+withTime(gofCopula(claytonCopula(dim = 3), x = Xrdj, optim.method = "BFGS"))
 
 
 ### Multiplier goodness-of-fit tests
@@ -214,14 +217,14 @@ gofCopula(joeCopula(), x = Xd, estim.method = "itau")
 
 ### Goodness of fit of the Khoudraji-Gumbel-Hougaard family
 
-set.seed(1969) ## Parametric bootstrap-based test
+set.seed(1969) # Parametric bootstrap-based test
 withTime(
     gofCopula(khoudrajiCopula(copula2 = gumbelCopula(),
                           shapes = fixParam(c(NA_real_, 1), c(FALSE, TRUE))),
               start = c(1.1, 0.5), x = Xd, optim.method = "Nelder-Mead")
 )
 
-set.seed(1969) ## Multiplier-based test
+set.seed(1969) # Multiplier-based test
 withTime(
     gofCopula(khoudrajiCopula(copula2 = gumbelCopula(),
                           shapes = fixParam(c(NA_real_, 1), c(FALSE, TRUE))),

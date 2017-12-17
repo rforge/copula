@@ -3,6 +3,9 @@
 ## R script for Chapter 3 of Elements of Copula Modeling with R
 
 
+library(copula)
+
+
 ### 3.1 Elliptical copulas #####################################################
 
 ### Construction of elliptical distributions and sampling
@@ -392,16 +395,16 @@ contourplot2(rc, FUN = dCopula, n.grid = 64, cuts = 30,
              pretty = FALSE, lwd = 1/2) # contour plot (density)
 
 
-### A rotated four-dimensional Frank copula
+### A rotated four-dimensional Gumbel--Hougaard copula
 
 ## The logical representing vector r
 flip <- c(TRUE, FALSE, TRUE, FALSE)
-rf <- rotCopula(frankCopula(10, dim = 4), flip = flip)
+rg <- rotCopula(gumbelCopula(3, dim = 4), flip = flip)
 n <- 1000
 set.seed(2016)
-U <- rCopula(n, copula = rf)
+U <- rCopula(n, copula = rg)
 set.seed(2016)
-V <- rCopula(n, frankCopula(10, dim = 4))
+V <- rCopula(n, gumbelCopula(3, dim = 4))
 ## "Flip" the relevant components
 V[, flip] <- 1 - V[, flip]
 stopifnot(all.equal(U, V)) # check
@@ -519,4 +522,3 @@ contourplot2(mcg, FUN = dCopula, cuts = 32, # density
              n.grid = 50, pretty = FALSE,
              col = adjustcolor(1, 1/3), alpha.regions = 3/4)
 plot(U, xlab = quote(U[1]), ylab = quote(U[2])) # scatter plot
-
