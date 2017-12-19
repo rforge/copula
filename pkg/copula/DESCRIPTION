@@ -12,8 +12,8 @@ Depends: R (>= 3.1.0)
 Imports: stats, graphics, methods, stats4, Matrix, lattice, colorspace,
 	gsl, ADGofTest, stabledist (>= 0.6-4), mvtnorm, pcaPP, pspline, numDeriv
 Suggests: MASS, KernSmooth, sfsmisc, scatterplot3d, Rmpfr, bbmle, knitr,
-	parallel, gridExtra, lcopula, mvnormtest, partitions, polynom, qrng,
-	randtoolbox, rugarch, Runuran, tseries, VGAM, VineCopula, zoo
+	abind, gridExtra, lcopula, mev, mvnormtest, parallel, partitions, polynom,
+	qrng, randtoolbox, rugarch, Runuran, tseries, VGAM, VineCopula, zoo
 SuggestsNote: the last lines' packages {parallel, ..., zoo} are only used
 	in vignettes, demos and few tests.
 Enhances: nor1mix, copulaData
