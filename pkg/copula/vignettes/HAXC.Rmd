@@ -295,8 +295,8 @@ mypairs(U.HAXC.HEVC.same)
 ### 2.6 HAXC (hierarchical Clayton frailties and HEVC, different hierarchical structure)
 
 Sampling from a HAXC (recycling realizations from 2.5) for which the hierarchical
-structures of the hierarchical frailties (sector sizes 3 and 2, respectively) and of the
-HEVC (sector sizes 2 and 3, respectively) differ.
+structures of the frailties (sector sizes 3 and 2, respectively) and of the
+HEVC (sector sizes 2 and 3, respectively) differ in this case.
 ```{r,fig.align = "center", fig.width = 6, fig.height = 6}
 ## Construct samples
 U.NAXC.HEVC.dffr <- cbind(cop.N@psi(E.HEVC[,1:d..[1]]/V01,     theta = th.N[2]), # first three components get V01
