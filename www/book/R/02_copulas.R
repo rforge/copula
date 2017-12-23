@@ -848,3 +848,4 @@ mtext(substitute("Simulated"~~P(bold(U) > bold(u))~~
 mtext(sprintf("VRFs (%% improvements): %.1f (%.0f%%), %.1f (%.0f%%)",
               VRF.L, PIM.L, VRF.Q, PIM.Q),
       side = 4, line = 1, adj = 0, las = 0)
+

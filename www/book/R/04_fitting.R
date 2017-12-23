@@ -140,9 +140,9 @@ U <- pobs(X) # compute pseudo-observations
 d <- ncol(U) # 20 dimensions
 
 f.irho <- fitCopula(normalCopula(dim = d, dispstr = "un"), data = U,
-                    method = "irho") # or use data = X
+                    method = "irho")
 f.itau <- fitCopula(normalCopula(dim = d, dispstr = "un"), data = U,
-                    method = "itau") # or use data = X
+                    method = "itau")
 
 P.irho <- p2P(f.irho@estimate, d = d)
 P.itau <- p2P(f.itau@estimate, d = d)
@@ -342,7 +342,8 @@ v <- runif(m) # random points where to evaluate the margins of the estimators
 w1 <- cbind(v, 1, 1) # evaluations points margin 1
 w2 <- cbind(1, v, 1) # evaluations points margin 2
 w3 <- cbind(1, 1, v) # evaluations points margin 3
-stopifnot(all.equal(C.n(w1, X = U, smoothing = "beta"), v)) # check
+## Checks
+stopifnot(all.equal(C.n(w1, X = U, smoothing = "beta"), v))
 stopifnot(all.equal(C.n(w2, X = U, smoothing = "beta"), v))
 stopifnot(all.equal(C.n(w3, X = U, smoothing = "beta"), v))
 stopifnot(all.equal(C.n(w1, X = U, smoothing = "checkerboard"), v))
