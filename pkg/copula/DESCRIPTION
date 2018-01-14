@@ -47,7 +47,7 @@ Collate: AllClass.R Classes.R AllGeneric.R
 	 ggraph-tools.R pairsRosenblatt.R prob.R
 	 gofTrafos.R gofEVTests.R gofCopula.R
 	 graphics.R gumbelCopula.R gumbelExpr.R
-         huslerReissCopula.R huslerReissExpr.R indepCopula.R
+         huslerReissCopula.R huslerReissExpr.R indepCopula.R frechetHoeffding.R
          indepTests.R joeCopula.R K.R logseries.R mvdc.R
 	 margCopula.R
 	 matrix_tools.R normalCopula.R

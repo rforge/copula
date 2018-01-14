@@ -126,6 +126,12 @@ export(iTau, iRho)
 
 export(corKendall)
 
+## Frechet--Hoeffding bounds
+exportClasses(W)
+exportClasses(M)
+export(W)
+export(M)
+
 ## archmCopula methods
 export(psi, iPsi, diPsi)
 
