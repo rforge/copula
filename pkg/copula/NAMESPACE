@@ -175,7 +175,7 @@ exportClasses(mixCopula) # , parClist , mixWeights  (TODO, notably 'parClist' ??
 export(p2P, P2p, getSigma, extremePairs)
 
 ## empirical copula
-export(F.n, C.n, dCn)# .Fn
+export(F.n, dCn, C.n) # .Fn
 
 ## fitting copula
 export(loglikCopula, loglikMvdc)

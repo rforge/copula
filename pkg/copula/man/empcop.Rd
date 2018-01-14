@@ -1,7 +1,7 @@
 \name{C.n}
 \title{The Empirical Copula}
 \alias{C.n}
-\alias{Cn}% <- deprecated, but of course keep here
+\alias{Cn}% <- deprecated, but of course kept here
 \alias{F.n}
 %% \alias{.Fn}
 \alias{dCn}
@@ -26,9 +26,9 @@
 C.n(u, X, smoothing = c("none", "beta", "checkerboard"),
     offset = 0, method = c("C", "R"),
     ties.method = c("max", "average", "first", "last", "random", "min"))
-dCn(u, U, j.ind=1:d, b=1/sqrt(nrow(U)), ...)
+dCn(u, U, j.ind = 1:d, b = 1/sqrt(nrow(U)), ...)
 
-F.n(x, X, offset=0, method=c("C", "R"))
+F.n(x, X, offset = 0, method = c("C", "R"))
 
 Cn(x, w) ## <-- deprecated!  use  C.n(w, x) instead!
 }
