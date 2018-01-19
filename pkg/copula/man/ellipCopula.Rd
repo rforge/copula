@@ -9,8 +9,9 @@
 }
 \usage{
 ellipCopula (family, param, dim = 2, dispstr = "ex", df = 4, ...)
+
 normalCopula(param, dim = 2, dispstr = "ex")
-    tCopula (param, dim = 2, dispstr = "ex", df = 4, df.fixed = FALSE, df.min = 0.01)
+     tCopula(param, dim = 2, dispstr = "ex", df = 4, df.fixed = FALSE, df.min = 0.01)
 }
 \arguments{
   \item{family}{a character string specifying the family of an

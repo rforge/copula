@@ -64,7 +64,7 @@ aCt2 <- unlist(lapply(taus, function(TAU) {
 
 ## copcl (etc) from ../inst/Rsource/cops.R
 stopList <- c("khoudrajiCopula", #"khoudrajiBivCopula",  "khoudrajiExplicitCopula",
-              "indepCopula", "W", "M", "rotCopula")
+              "indepCopula", "rotCopula", "lowfhCopula", "upfhCopula")
 copcl <- copcl[is.na(match(copcl, stopList))]
 str(cfn <- sapply(copcl, get, pkg, simplify=FALSE))
 str(th.25 <- lapply(cfn, function(F) iTau(F(), 0.25)))

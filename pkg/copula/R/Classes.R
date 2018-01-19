@@ -101,11 +101,14 @@ tailIndex <- function(copula) { .Deprecated("lambda"); lambda(copula) } # mid 20
 
 ### Frechet--Hoeffding bounds ##################################################
 
+setClass("fhCopula", contains = c("copula", "VIRTUAL"),
+         slots = c(exprdist = "expression"))
+
 ## Lower Frechet--Hoeffding bound W
-setClass("W", contains = "copula", slots = c(exprdist = "expression"))
+setClass("lowfhCopula", contains = "fhCopula")
 
 ## Upper Frechet--Hoeffding bound M
-setClass("M", contains = "copula", slots = c(exprdist = "expression"))
+setClass("upfhCopula", contains = "fhCopula")
 
 
 ### Elliptical copulas (normalCopula, tCopula) #################################

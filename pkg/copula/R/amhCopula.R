@@ -61,7 +61,6 @@ amhCopula <- function(param = NA_real_, dim = 2L,
       fullname = "<deprecated slot>")# "Amh copula family; Archimedean copula"
 }
 
-
 pamhCopula <- function(copula, u) {
   alpha <- copula@parameters[1]
   if (abs(alpha) <= .Machine$double.eps^.9) return (apply(u, 1, prod))
@@ -71,7 +70,6 @@ pamhCopula <- function(copula, u) {
   u2 <- u[,2]
   u1 * u2 / (1 - alpha * (1 - u1) * (1 - u2))
 }
-
 
 damhCopula <- function(u, copula, log = FALSE, ...) {
   alpha <- copula@parameters[1]
@@ -83,7 +81,6 @@ damhCopula <- function(u, copula, log = FALSE, ...) {
       (-1 + alpha*(-1 + u1)*(-1 + u2))^3
   if(log) log(r) else r
 }
-
 
 ramhCopula <- function(n, copula) {
   dim <- copula@dimension
@@ -169,7 +166,6 @@ dMatAmh <- function (u, copula, log = FALSE, checkPar=TRUE, ...) {
 }
 
 setMethod("rCopula", signature("numeric", "amhCopula"), ramhCopula)
-
 setMethod("pCopula", signature("matrix", "amhCopula"), pMatAmh)
 setMethod("dCopula", signature("matrix", "amhCopula"), dMatAmh)
 
@@ -195,9 +191,7 @@ setMethod("diPsi", signature("amhCopula"),
 
 
 setMethod("tau", signature("amhCopula"), function(copula) tauAMH(copula@parameters[1]))
-
 setMethod("rho", signature("amhCopula"), rhoAmhCopula)
 setMethod("lambda", signature("amhCopula"), function(copula) c(lower=0, upper=0))
-
 setMethod("iTau", signature("amhCopula"), iTauAmhCopula)
 ## iRho() uses default method:  uniroot(rho(.) - rh)

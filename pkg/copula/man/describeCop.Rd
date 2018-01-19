@@ -12,6 +12,7 @@
 \alias{describeCop,khoudrajiCopula,character-method}
 \alias{describeCop,mixCopula,character-method}
 \alias{describeCop,rotCopula,character-method}
+\alias{describeCop,fhCopula,character-method}
 \docType{methods}
 \description{
   Describe a \code{\linkS4class{copula}} object, i.e., its basic

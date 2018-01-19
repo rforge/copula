@@ -118,6 +118,25 @@ exportMethods(## for "other" (i.e. non copula-package !) generics:
 
 ## Part I: Mainly former copula ----------------------------------------
 
+exportClasses(mvdc)
+exportClasses(Copula, parCopula, xcopula, copula, # virtual classes
+	      ellipCopula, archmCopula, evCopula, fhCopula)
+exportClasses(normalCopula, tCopula)
+exportClasses(claytonCopula, frankCopula, gumbelCopula, amhCopula, joeCopula)
+exportClasses(galambosCopula, huslerReissCopula, tawnCopula, tevCopula)
+exportClasses(fgmCopula, plackettCopula)
+exportClasses(indepCopula)
+exportClasses(lowfhCopula, upfhCopula)
+
+export(mvdc)
+export(ellipCopula, archmCopula, evCopula, fhCopula)
+export(normalCopula, tCopula)
+export(claytonCopula, frankCopula, gumbelCopula, amhCopula, joeCopula)
+export(galambosCopula, huslerReissCopula, tawnCopula, tevCopula)
+export(fgmCopula, plackettCopula)
+export(indepCopula)
+export(lowfhCopula, upfhCopula)
+
 export(dCopula, pCopula, rCopula)
 export(cCopula)
 export(dMvdc, pMvdc, rMvdc)
@@ -126,35 +145,11 @@ export(iTau, iRho)
 
 export(corKendall)
 
-## Frechet--Hoeffding bounds
-exportClasses(W)
-exportClasses(M)
-export(W)
-export(M)
-
 ## archmCopula methods
 export(psi, iPsi, diPsi)
 
 ## evCopula methods
 export(A, dAdu, An.biv, An)
-
-exportClasses(mvdc)
-exportClasses(Copula, parCopula, xcopula, copula, # virtual classes
-	      ellipCopula, archmCopula, evCopula)
-exportClasses(indepCopula)
-exportClasses(normalCopula, tCopula)
-exportClasses(claytonCopula, frankCopula, gumbelCopula, amhCopula, joeCopula)
-exportClasses(galambosCopula, huslerReissCopula, tawnCopula, tevCopula)
-exportClasses(fgmCopula, plackettCopula)
-
-export(mvdc)
-export(ellipCopula, archmCopula, evCopula)
-export(normalCopula, tCopula)
-export(indepCopula)
-export(claytonCopula, frankCopula, gumbelCopula, amhCopula, joeCopula)
-export(galambosCopula, huslerReissCopula, tawnCopula, tevCopula)
-export(plackettCopula)
-export(fgmCopula)
 
 ## generic utilities:
 export(describeCop) # generic & methods
