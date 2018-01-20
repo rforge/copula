@@ -16,19 +16,19 @@
 
 plackettCopula <- function(param = NA_real_) {
     ## get expressions of cdf and pdf
-  cdfExpr <- parse(text = "0.5 / (alpha - 1) * (1 + (alpha - 1) * (u1 + u2) - ((1 + (alpha - 1) * (u1 + u2))^2 - 4 * alpha * (alpha - 1) * u1 * u2)^0.5)")
+    cdfExpr <- parse(text = "0.5 / (alpha - 1) * (1 + (alpha - 1) * (u1 + u2) - ((1 + (alpha - 1) * (u1 + u2))^2 - 4 * alpha * (alpha - 1) * u1 * u2)^0.5)")
 
-  pdfExpr <- parse(text = "((1 + (alpha - 1) * (u1 + u2))^2 - 4 * alpha * (alpha - 1) * u1 * u2)^(- 3/2) * alpha * (1 + (alpha - 1) * (u1 + u2 - 2 * u1 * u2))")
+    pdfExpr <- parse(text = "((1 + (alpha - 1) * (u1 + u2))^2 - 4 * alpha * (alpha - 1) * u1 * u2)^(- 3/2) * alpha * (1 + (alpha - 1) * (u1 + u2 - 2 * u1 * u2))")
 
-  dim <- 2L
-  new("plackettCopula",
-             dimension = dim,
-             parameters = param[1],
-             exprdist = c(cdf = cdfExpr, pdf = pdfExpr),
-             param.names = "alpha",
-             param.lowbnd = 0,
-             param.upbnd = Inf,
-             fullname = "<deprecated slot>")# "Plackett copula family"
+    dim <- 2L
+    new("plackettCopula",
+        dimension = dim,
+        parameters = param[1],
+        exprdist = c(cdf = cdfExpr, pdf = pdfExpr),
+        param.names = "alpha",
+        param.lowbnd = 0,
+        param.upbnd = Inf,
+        fullname = "<deprecated slot>")# "Plackett copula family"
 }
 
 pplackettCopula <- function(u, copula) {

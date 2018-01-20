@@ -111,6 +111,18 @@ setClass("lowfhCopula", contains = "fhCopula")
 setClass("upfhCopula", contains = "fhCopula")
 
 
+### Empirical copula ###########################################################
+
+setClass("empCopula", contains = "copula",
+         slots = c(X = "matrix", smoothing = "character",
+                   offset = "numeric", ties.method = "character"),
+         ## additional validity here (sanity check)
+         validity = function(object) {
+            X <- object@X
+            all(0 <= X, X <= 1)
+         })
+
+
 ### Elliptical copulas (normalCopula, tCopula) #################################
 
 ## NOTE: This is related to npar.ellip() in ./ellipCopula.R

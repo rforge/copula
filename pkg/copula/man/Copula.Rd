@@ -23,6 +23,7 @@
 \alias{dCopula,matrix,fgmCopula-method}
 \alias{dCopula,matrix,indepCopula-method}
 \alias{dCopula,matrix,fhCopula-method}
+\alias{dCopula,matrix,empCopula-method}
 \alias{dCopula,matrix,khoudrajiBivCopula-method}
 \alias{dCopula,matrix,khoudrajiExplicitCopula-method}
 \alias{dCopula,matrix,rotCopula-method}
@@ -44,8 +45,8 @@
 \alias{dCopula,numeric,plackettCopula-method}
 \alias{dCopula,numeric,fgmCopula-method}
 \alias{dCopula,numeric,indepCopula-method}
-\alias{dCopula,numeric,lowfhCopula-method}
-\alias{dCopula,numeric,upfhCopula-method}
+\alias{dCopula,numeric,fhCopula-method}
+\alias{dCopula,numeric,empCopula-method}
 \alias{dCopula,numeric,khoudrajiBivCopula-method}
 \alias{dCopula,numeric,khoudrajiExplicitCopula-method}
 \alias{dCopula,numeric,rotCopula-method}
@@ -68,6 +69,7 @@
 \alias{pCopula,matrix,indepCopula-method}
 \alias{pCopula,matrix,lowfhCopula-method}
 \alias{pCopula,matrix,upfhCopula-method}
+\alias{pCopula,matrix,empCopula-method}
 \alias{pCopula,matrix,khoudrajiCopula-method}
 \alias{pCopula,matrix,rotCopula-method}
 \alias{pCopula,matrix,rotExplicitCopula-method}
@@ -90,6 +92,7 @@
 \alias{pCopula,numeric,indepCopula-method}
 \alias{pCopula,numeric,lowfhCopula-method}
 \alias{pCopula,numeric,upfhCopula-method}
+\alias{pCopula,numeric,empCopula-method}
 \alias{pCopula,numeric,khoudrajiCopula-method}
 \alias{pCopula,numeric,rotCopula-method}
 \alias{pCopula,numeric,mixCopula-method}
@@ -110,6 +113,7 @@
 \alias{rCopula,numeric,indepCopula-method}
 \alias{rCopula,numeric,lowfhCopula-method}
 \alias{rCopula,numeric,upfhCopula-method}
+\alias{rCopula,numeric,empCopula-method}
 \alias{rCopula,numeric,khoudrajiCopula-method}
 \alias{rCopula,numeric,rotCopula-method}
 \alias{rCopula,numeric,mixCopula-method}

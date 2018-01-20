@@ -35,14 +35,14 @@
 
   Note that the virtual class \code{"Copula"}, is simply the union (see
   \code{\link{setClassUnion}}) of the two classes \code{"copula"} and
-  \code{"\linkS4class{nacopula}"}.
+  \code{\linkS4class{nacopula}}.
 }
 \section{Slots}{
   Class \code{"copula"} (and all its subclasses) have slots
   \describe{
     \item{\code{dimension}:}{an \code{"integer"} (of length 1), the
       copula dimension \eqn{d}.}
-    \item{\code{parameters}:}{\code{"\link{numeric}"} vector of
+    \item{\code{parameters}:}{\code{\link{numeric}} vector of
       parameter values, can be NA (i.e., \code{\link{NA_real_}}).}
     \item{\code{param.names}:}{\code{"character"} vector of parameter
       names (and hence of the same length as \code{parameters}).}
@@ -56,12 +56,12 @@
 }
 \note{
   The \code{"copula"} class is extended by the
-  \code{"\linkS4class{evCopula}"}, \code{"\linkS4class{archmCopula}"},
-  and \code{"\linkS4class{ellipCopula}"} classes.  Instances of
+  \code{\linkS4class{evCopula}}, \code{\linkS4class{archmCopula}},
+  and \code{\linkS4class{ellipCopula}} classes.  Instances of
   such copulas can be created via functions \code{\link{evCopula}},
   \code{\link{archmCopula}} and \code{\link{ellipCopula}}.
 
-  \code{"plackettCopula"} and \code{"\linkS4class{fgmCopula}"} are
+  \code{"plackettCopula"} and \code{\linkS4class{fgmCopula}} are
   special types of copulas which do not belong to either one of the
   three classes above.
 }

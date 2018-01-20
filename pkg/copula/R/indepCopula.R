@@ -25,7 +25,6 @@ indepCopula <- function(dim = 2L)
         expr <- paste(uis, collapse="*")
         parse(text = expr)
     }
-
     pdfExpr <- function(cdf, d) {
         val <- cdf
         for (i in 1:d) {
@@ -37,8 +36,8 @@ indepCopula <- function(dim = 2L)
     pdf <- pdfExpr(cdf, d = dim)
 
     new("indepCopula",
-        dimension = dim,
-        exprdist = c(cdf=cdf, pdf=pdf),
+        dimension = as.integer(dim),
+        exprdist = c(cdf = cdf, pdf = pdf),
         parameters = double(0),
         param.names = character(0),
         param.lowbnd = double(0),

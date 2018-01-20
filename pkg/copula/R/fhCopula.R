@@ -46,7 +46,7 @@ setMethod(describeCop, c("fhCopula", "character"), function(x, kind, prefix="", 
 ## dCopula method (other *Copula() methods are W/M specific)
 setMethod("dCopula", signature("matrix", "fhCopula"),
 	  function(u, copula, log = FALSE, ...) {
-              stop("The Frechet-Hoeffding bounds do not have densities")
+              stop("Frechet-Hoeffding bounds do not have densities")
               ## Alternatively:
     	      ## stopifnot(ncol(u) == copula@dimension)
 	      ## rep.int(if(log) -Inf else 0, nrow(u)) # or even Inf or NA on the diagonal
