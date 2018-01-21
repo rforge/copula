@@ -14,7 +14,7 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-### Upper Frechet--Hoeffding bound copula M ####################################
+### Upper Frechet--Hoeffding bound copula class ################################
 
 ## Constructor
 upfhCopula <- function(dim = 2L)
@@ -39,15 +39,15 @@ upfhCopula <- function(dim = 2L)
 
 ### Methods ####################################################################
 
-setMethod("rCopula", signature("numeric", "upfhCopula"),
-          function(n, copula) matrix(runif(n), nrow = n, ncol = copula@dimension))
+## for dCopula(), see fhCopula.R
 setMethod("pCopula", signature("matrix", "upfhCopula"),
 	  function(u, copula, log.p = FALSE) {
               stopifnot(ncol(u) == copula@dimension)
               res <- apply(u, 1, min)
 	      if(log.p) log(res) else res
 	  })
-## for dCopula(), see fhCopula.R
+setMethod("rCopula", signature("numeric", "upfhCopula"),
+          function(n, copula) matrix(runif(n), nrow = n, ncol = copula@dimension))
 
 setMethod("tau", signature("upfhCopula"), function(copula) 1)
 setMethod("rho", signature("upfhCopula"), function(copula) 1)

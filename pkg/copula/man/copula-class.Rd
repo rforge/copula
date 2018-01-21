@@ -5,8 +5,6 @@
 \alias{Copula-class}
 \alias{parCopula-class}
 \alias{xcopula-class}
-%
-\alias{plackettCopula-class}% the only "actual" class also on this help page
 % methods
 \alias{dim,copula-method}
 \alias{dim,xcopula-method}

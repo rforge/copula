@@ -52,7 +52,7 @@ Collate: AllClass.R Classes.R AllGeneric.R
          indepTests.R joeCopula.R K.R logseries.R mvdc.R
 	 margCopula.R
 	 matrix_tools.R normalCopula.R
-	 opower.R plackettCopula.R plackettExpr.R
+	 opower.R plackettCopula.R plackettExpr.R moCopula.R
 	 rstable1.R safeUroot.R
 	 schlatherCopula.R stable.R
 	 timing.R

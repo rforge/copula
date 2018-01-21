@@ -14,7 +14,7 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-### Lower Frechet--Hoeffding bound copula W ####################################
+### Lower Frechet--Hoeffding bound copula class ################################
 
 ## Constructor
 lowfhCopula <- function(dim = 2L)
@@ -41,11 +41,7 @@ lowfhCopula <- function(dim = 2L)
 
 ### Methods ####################################################################
 
-setMethod("rCopula", signature("numeric", "lowfhCopula"),
-          function(n, copula) {
-              U <- runif(n)
-              cbind(U, 1-U)
-          })
+## for dCopula(), see fhCopula.R
 setMethod("pCopula", signature("matrix", "lowfhCopula"),
 	  function(u, copula, log.p = FALSE) {
               d <- ncol(u)
@@ -53,7 +49,11 @@ setMethod("pCopula", signature("matrix", "lowfhCopula"),
               res <- pmax(rowSums(u) - d + 1, 0)
 	      if(log.p) log(res) else res
 })
-## for dCopula(), see fhCopula.R
+setMethod("rCopula", signature("numeric", "lowfhCopula"),
+          function(n, copula) {
+              U <- runif(n)
+              cbind(U, 1-U)
+          })
 
 setMethod("tau", signature("lowfhCopula"), function(copula) -1)
 setMethod("rho", signature("lowfhCopula"), function(copula) -1)

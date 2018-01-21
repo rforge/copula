@@ -8,6 +8,7 @@
 \alias{describeCop,archmCopula,character-method}
 \alias{describeCop,ellipCopula,character-method}
 \alias{describeCop,fgmCopula,character-method}
+\alias{describeCop,moCopula,character-method}
 \alias{describeCop,indepCopula,character-method}
 \alias{describeCop,khoudrajiCopula,character-method}
 \alias{describeCop,mixCopula,character-method}

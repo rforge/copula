@@ -246,6 +246,9 @@ setGeneric("dAdtheta", function(copula, w) standardGeneric("dAdtheta"))
 
 ### Other copulas ##############################################################
 
+## Marshall--Olkin copula
+setClass("moCopula", contains = "copula", slots = c(exprdist = "expression"))
+
 ## Farlie-Gumbel-Morgenstern copula
 setClass("fgmCopula", contains = "copula", slots = c(exprdist = "expression",
                                                      subsets.char = "character"),

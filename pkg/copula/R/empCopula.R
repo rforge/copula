@@ -257,6 +257,6 @@ setMethod("pCopula", signature("matrix", "empCopula"),
 })
 
 ## Measures of association (unclear what their values are for smoothing = "beta" or "checkerboard"
-## setMethod("tau", signature("empCopula"), function(copula) ) # uncle
+## setMethod("tau", signature("empCopula"), function(copula) ) # unclear
 ## setMethod("rho", signature("empCopula"), function(copula) )
 ## setMethod("lambda", signature("empCopula"), function(copula) )

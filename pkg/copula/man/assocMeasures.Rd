@@ -28,6 +28,7 @@
 \alias{tau,tCopula-method}
 \alias{tau,fgmCopula-method}
 \alias{tau,plackettCopula-method}
+\alias{tau,moCopula-method}
 \alias{tau,galambosCopula-method}
 \alias{tau,huslerReissCopula-method}
 \alias{tau,tawnCopula-method}
@@ -48,6 +49,7 @@
 \alias{rho,amhCopula-method}
 \alias{rho,fgmCopula-method}
 \alias{rho,plackettCopula-method}
+\alias{rho,moCopula-method}
 \alias{rho,galambosCopula-method}
 \alias{rho,huslerReissCopula-method}
 \alias{rho,indepCopula-method}
@@ -73,6 +75,7 @@
 \alias{lambda,amhCopula-method}
 \alias{lambda,joeCopula-method}
 \alias{lambda,plackettCopula-method}
+\alias{lambda,moCopula-method}
 \alias{lambda,normalCopula-method}
 \alias{lambda,tCopula-method}
 \alias{lambda,acopula-method}
