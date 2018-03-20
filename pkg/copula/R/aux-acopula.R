@@ -248,6 +248,13 @@ rlogR <- function(n, p, Ip = 1-p) {
     vec
 }
 
+## FIXME: rlog() is called only once, in  copFrank@V0 ( . )  as
+## -----  rlog(n, -expm1(-theta), exp(-theta))
+## now for really large |theta|,  to evade heavy cancellation,
+## we should rather pass 'theta = - log(Ip)' to rlog()
+ 
+
+
 ### state-of-the art: sampling a logarithmic distribution, C version
 
 ##' Random number generator for a Log(p) distribution with the algorithm "LK" of

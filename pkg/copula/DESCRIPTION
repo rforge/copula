@@ -1,7 +1,7 @@
 Package: copula
 Version: 0.999-19
 VersionNote: Last CRAN: 0.999-18 on 2017-08-31
-Date: 2017-11-11
+Date: 2018-03-20
 Title: Multivariate Dependence with Copulas
 Authors@R: c(person("Marius", "Hofert", role = "aut", email = "marius.hofert@uwaterloo.ca")
 	   , person("Ivan", "Kojadinovic", role = "aut", email = "ivan.kojadinovic@univ-pau.fr")
@@ -14,7 +14,7 @@ Imports: stats, graphics, methods, stats4, Matrix, lattice, colorspace,
 Suggests: MASS, KernSmooth, sfsmisc, scatterplot3d, Rmpfr, bbmle, knitr,
 	abind, crop, gridExtra, lcopula, mev, mvnormtest, parallel, partitions,
 	polynom, qrng, randtoolbox, rugarch, Runuran, tseries, VGAM, VineCopula, zoo
-SuggestsNote: the last lines' packages {parallel, ..., zoo} are only used
+SuggestsNote: the last lines' packages {abind, ..., zoo} are only used
 	in vignettes, demos and few tests.
 Enhances: nor1mix, copulaData
 Description: Classes (S4) of commonly used elliptical, Archimedean,
