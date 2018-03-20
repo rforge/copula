@@ -69,7 +69,8 @@ copAMH <-
 			     if(log) log1p(-theta)-log(u)-log1p(theta*(u-1))
 			     else (1-theta)/(u*(1-theta*(1-u))),
 			     ## 2 :
-			     if(log) log1p(-theta)+ log1p(1 + theta * (2*u - 1)) -2*(log(u)+log1p(theta*(u-1)))
+			     if(log) log1p(-theta)+ log1p(1 + theta * (2*u - 1)) -
+                                     2*(log(u)+log1p(theta*(u-1)))
 			     else (1-theta) * (1 + theta * (2*u - 1)) / (u*(1 + theta * (u-1)))^2,
 			     ## >= 3:
 			     stop("not yet implemented for degree > 2"))
@@ -77,7 +78,7 @@ copAMH <-
 		  ## density of the diagonal
 		  dDiag = function(u, theta, d, log=FALSE) {
                       x <- (1-(1-u)*theta)/u
-		      if(any(iI <- is.infinite(x))) { ## for u == 0 (seems unneeded for small u << 1 ?)
+		      if(any(iI <- is.infinite(x))) { ## for u == 0 (unneeded for small u << 1 ?)
 			  u[iI] <- if(log) -Inf else 0
 			  ok <- !iI
 			  u[ok] <- C.@dDiag(u[ok], theta, d=d, log=log)
@@ -115,8 +116,10 @@ copAMH <-
                       if(log) log(res) else res
                   } else { # explicit
                       Li.arg <-
-                          if(Li.log.arg) log(theta) + sum. - sumIu else theta* apply(u./(1+tIu), 1, prod)
-                      Li. <- polylog(Li.arg, s = -d, method=method, is.log.z = Li.log.arg, log=TRUE)
+                          if(Li.log.arg) log(theta) + sum. - sumIu
+                          else theta* apply(u./(1+tIu), 1, prod)
+                      Li. <- polylog(Li.arg, s = -d, method=method,
+                                     is.log.z = Li.log.arg, log=TRUE)
                       res[n01] <- (d+1)*log1p(-theta)-log(theta)+ Li. -sum. -sumIu
                       if(log) res else exp(res)
                   }
@@ -135,7 +138,7 @@ copAMH <-
 		  },
                   ## uscore function
                   uscore = function(u, theta, d, method = "negI-s-Eulerian") {
-                      if((d <- ncol(u)) < 2) stop("u should be at least bivariate") # check that d >= 2
+                      if((d <- ncol(u)) < 2) stop("u should be at least bivariate")
                       omu <- 1-u
                       h <- theta*apply(u/(1-theta*omu), 1, prod)
                       Li.md1 <- polylog(h, s=-(d+1), method=method, log=TRUE)
@@ -150,9 +153,8 @@ copAMH <-
 		  ## V0 with density dV0 and V01 with density dV01 corresponding to
 		  ## LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
 		  V0 = function(n,theta, log=FALSE) {
-                      if(log) stop("'log=TRUE' not yet implemented")
-                      else
-                          rgeom(n, 1-theta) + 1
+                      if(log) log1p(rgeom(n, 1-theta))
+                      else rgeom(n, 1-theta) + 1
                   },
 		  dV0 = function(x,theta,log = FALSE) dgeom(x-1, 1-theta, log),
                   V01 = function(V0,theta0,theta1) {
@@ -237,16 +239,15 @@ copClayton <-
                       } else {
                           ## Note: absdPsi(0, ...) is correct, namely gamma(d+1/theta)/gamma(1/theta)
                           alpha <- 1/theta
-                          if(theta > 0) {
-                              res <- lgamma(degree+alpha)-lgamma(alpha)-(degree+alpha)*log1p(t)
-                              if(log) res else exp(res)
-                          } else { ## for *negative* theta, have negative 't', possibly even t < -1
-                              ## and for odd 'degree' a sign flip
-                              res <- lgamma(degree+alpha) - lgamma(alpha)
-                              if(degree %% 2 == 1) res <- -res
-                              res <- res - (degree+alpha)*log1p(-t)
-                              if(log) res else exp(res)
-                          }
+                          res <- if(theta > 0) {
+                                     lgamma(degree+alpha)-lgamma(alpha)-(degree+alpha)*log1p(t)
+                                 } else { ## for *negative* theta, have negative 't', possibly even t < -1
+                                     ## and for odd 'degree' a sign flip
+                                     res <- lgamma(degree+alpha) - lgamma(alpha)
+                                     if(degree %% 2 == 1) res <- -res
+                                     res - (degree+alpha)*log1p(-t)
+                                 }
+                          if(log) res else exp(res)
                       }
                   },
                   ## derivatives of the generator inverse
@@ -518,10 +519,11 @@ copFrank <-
 		  ## V0 (algorithm of Kemp (1981)) with density dV0 and V01 with density
 		  ## dV01 corresponding to LS^{-1}[exp(-V_0psi_0^{-1}(psi_1(t)))]
 		  V0 = function(n,theta, log=FALSE) {
-                      if(log) stop("'log=TRUE' not yet implemented")
+                      if(log) stop("'log=TRUE' not yet implemented")# <=> "better rlog"
                       else {
                           if(-theta < .Machine$double.min.exp*log(2))
-                              stop("'theta' is too large in Frank's V0();  maybe use log=TRUE")
+                              stop("'theta' is too large in Frank's V0()")
+                          ## TODO: smarter rlog(), allowing to work with '-theta'
                           rlog(n, -expm1(-theta), exp(-theta))
                       }
                   },
