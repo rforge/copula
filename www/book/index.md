@@ -38,3 +38,4 @@ As the [R statistical environment](http://www.r-project.org), and most free
 software, the [R package copula](https://cran.r-project.org/package=copula)
 comes with no warranty. It is distributed with the hope that it can be useful to
 others.
+
