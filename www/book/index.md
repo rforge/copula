@@ -3,11 +3,13 @@ title: Elements of Copula Modeling with R
 author: Marius Hofert, Ivan Kojadinovic, Martin Mächler, Jun Yan
 ---
 
-## Welcome to the R copula book web page
+<img src = "https://images.springer.com/sgw/books/medium/9783319896342.jpg" alt = "Book logo" style = "float: right; margin: 0px 0px 8px 8px;"/>
 
-<!-- TODO: Include picture of the book cover here -->
-<!-- TODO: Include link to Springer + where to buy book -->
+## Welcome
+<!-- <img src = "https://images.springer.com/sgw/books/medium/9783319896342.jpg" alt = "Book logo" style = "display: block; margin-left: auto; margin-right: auto; width: 35%;"/> -->
 
+Welcome to the R copula book webpage; you can find the official Use R! Springer
+book page [here](http://www.springer.com/de/book/9783319896342).
 In a nutshell, the aim of the book is to show how some of the main steps
 involved in the statistical modeling of continuous multivariate distributions
 using copulas can be carried out in the
@@ -16,7 +18,7 @@ using copulas can be carried out in the
 
 The current stable version of the package can be found on
 [CRAN](http://cran.r-project.org/package=copula) and the latest development version
-can be found on [R-Forge](https://r-forge.r-project.org/projects/copula/).
+is on [R-Forge](https://r-forge.r-project.org/projects/copula/).
 
 ## Disclaimer
 
