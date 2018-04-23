@@ -28,15 +28,21 @@ tau <- 0.5
 d <- 2
 u <- pobs(matrix(runif(d * m), m, d))
 
-## each with  4  warnings  "... numerical differentiation used":
-comparederiv(claytonCopula (iTau(claytonCopula(), tau)), u)
-comparederiv(gumbelCopula  (iTau(gumbelCopula(),  tau)), u)
-comparederiv(frankCopula   (iTau(frankCopula(),   tau)), u)
-comparederiv(plackettCopula(iTau(plackettCopula(),tau)), u)
-comparederiv(normalCopula  (iTau(normalCopula(),  tau)), u)
-comparederiv(tCopula(iTau(tCopula(), tau), df.fixed = TRUE), u)
-
+## (Warnings suppressed now via default may.warn=FALSE)
+cDer <- rbind(
+    clayton = comparederiv(claytonCopula (iTau(claytonCopula(), tau)), u),
+    gumbel  = comparederiv(gumbelCopula  (iTau(gumbelCopula(),  tau)), u),
+    frank   = comparederiv(frankCopula   (iTau(frankCopula(),   tau)), u),
+    plackett= comparederiv(plackettCopula(iTau(plackettCopula(),tau)), u),
+    normal  = comparederiv(normalCopula  (iTau(normalCopula(),  tau)), u),
+    tC.fixed= comparederiv(tCopula       (iTau(tCopula(), tau), df.fixed = TRUE), u))
+cDer
+stopifnot(cDer[,"dCdu"      ] <= 0.002, # max: clayton  = 0.00195
+          cDer[,"dCdtheta"  ] <= 8e-14, # max: tC.fixed = 5.23e-14
+          cDer[,"dlogcdu"   ] <= 7e-8 , # max: plackett = 4.14e-8
+          cDer[,"dlogcdtheta"] <= 9e-9) # max: normal   = 5.48e-9
 showProc.time()
+
 
 if (doExtras)
 {
