@@ -16,7 +16,6 @@ copula models; see also Cambou et al. (2016, ``Quasi-random numbers for copula m
 library(lattice)
 library(copula)
 library(VGAM)
-library(VineCopula)
 library(gridExtra)
 library(qrng)
 library(randtoolbox)
@@ -170,7 +169,8 @@ grid.arrange(p1, p2, ncol = 2)
 ```
 
 ### 3d R-Vine copula
-As another example, consider a three-dimensional R-vine copula.
+As another example, consider a three-dimensional R-vine copula. Note that this
+is not run here to avoid a cyclic dependency (since VineCopula imports copula).
 <!-- Note: RVineSim() [in RVineSim.R] -> SimulateRVine() [in rvine.c] -> Hinv1() [in hfunc.c] -> Hinv() -->
 <!--       0: Pi (fine) -->
 <!--       1: Ga (uses pnorm/qnorm -- should be fine, too) -->
@@ -179,37 +179,34 @@ As another example, consider a three-dimensional R-vine copula.
 <!--       4: G  (numerical inversion!) -->
 <!--       5: F  (should be fine) -->
 <!--       6: J  (numerical inversion!) -->
-```{r}
-M <- matrix(c(3, 1, 2,
-              0, 2, 1,
-              0, 0, 1), ncol = 3) # R-vine tree structure matrix
-family <- matrix(c(0, 3, 3, # C, C
-                   0, 0, 3, #    C
-                   0, 0, 0), ncol = 3) # R-vine pair-copula family matrix (0 = Pi)
-param <- matrix(c(0, 1, 1,
-                  0, 0, 1,
-                  0, 0, 0), ncol = 3) # R-vine pair-copula parameter matrix
-param. <- matrix(0, nrow = 3, ncol = 3) # 2nd R-vine pair-copula parameter matrix
-RVM <- RVineMatrix(Matrix = M, family = family, par = param, par2 = param.) # RVineMatrix object
-```
-
-First the pseudo-random version.
 ```{r, fig.align="center", fig.width=6, fig.height=6}
-U <- RVineSim(n, RVM) # PRNG
-par(pty = "s")
-pairs(U, labels = as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ),
-      gap = 0, cex = 0.3)
+if(FALSE) {
+    library(VineCopula)
+    M <- matrix(c(3, 1, 2,
+                  0, 2, 1,
+                  0, 0, 1), ncol = 3) # R-vine tree structure matrix
+    family <- matrix(c(0, 3, 3, # C, C
+                       0, 0, 3, #    C
+                       0, 0, 0), ncol = 3) # R-vine pair-copula family matrix (0 = Pi)
+    param <- matrix(c(0, 1, 1,
+                      0, 0, 1,
+                      0, 0, 0), ncol = 3) # R-vine pair-copula parameter matrix
+    param. <- matrix(0, nrow = 3, ncol = 3) # 2nd R-vine pair-copula parameter matrix
+    RVM <- RVineMatrix(Matrix = M, family = family, par = param, par2 = param.) # RVineMatrix object
+    ## First the pseudo-random version
+    U <- RVineSim(n, RVM) # PRNG
+    par(pty = "s")
+    pairs(U, labels = as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ),
+          gap = 0, cex = 0.3)
+    ## Now the quasi-random version
+    U. <- RVineSim(n, RVM, U = halton(n, d = 3)) # QRNG
+    par(pty = "s")
+    pairs(U., labels = as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ),
+          gap = 0, cex = 0.3)
+    ## Similarly to the 3d *t* copula case (because of the projections to pairs),
+    ## not all pairs appear to be 'quasi-random'.
+}
 ```
-
-Now the quasi-random version.
-```{r, fig.align="center", fig.width=6, fig.height=6}
-U. <- RVineSim(n, RVM, U = halton(n, d = 3)) # QRNG
-par(pty = "s")
-pairs(U., labels = as.expression( sapply(1:3, function(j) bquote(italic(U[.(j)]))) ),
-      gap = 0, cex = 0.3)
-```
-Similarly to the 3d *t* copula case (because of the projections to pairs),
-not all pairs appear to be 'quasi-random'.
 
 
 ## 2 Quasi-random numbers for copula models via stochastic representations
