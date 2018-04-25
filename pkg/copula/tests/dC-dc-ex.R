@@ -20,9 +20,9 @@ showProc.time()
 
 (doExtras <- copula:::doExtras())
 
-
 m <- 10 # number of random points
 tau <- 0.5
+set.seed(47)
 
 ## bivariate comparisons
 d <- 2
@@ -37,24 +37,26 @@ cDer <- rbind(
     normal  = comparederiv(normalCopula  (iTau(normalCopula(),  tau)), u),
     tC.fixed= comparederiv(tCopula       (iTau(tCopula(), tau), df.fixed = TRUE), u))
 cDer
-stopifnot(cDer[,"dCdu"      ] <= 0.002, # max: clayton  = 0.00195
-          cDer[,"dCdtheta"  ] <= 8e-14, # max: tC.fixed = 5.23e-14
-          cDer[,"dlogcdu"   ] <= 7e-8 , # max: plackett = 4.14e-8
-          cDer[,"dlogcdtheta"] <= 9e-9) # max: normal   = 5.48e-9
+stopifnot(cDer[,"dCdu"      ] <= 0.004, # max: normal   = 0.002166
+          cDer[,"dCdtheta"  ] <= 11e-14,# max: tC.fixed = 5.537e-14
+          cDer[,"dlogcdu"   ] <= 15e-8, # max: normal   = 7.51e-8
+          cDer[,"dlogcdtheta"]<= 6e-9)  # max: normal   = 2.92e-9
 showProc.time()
 
 
 if (doExtras)
 {
     ## d-dimensional
-    d <- 4
+    d <- 4 ; set.seed(44)
     u <- pobs(matrix(runif(d * m), m, d))
 
     nC4 <- normalCopula(rep(iTau(normalCopula(), tau), d * (d-1)/2), dim=d, dispstr = "un")
-    comparederiv(nC4, u)
-
-    tC4 <- tCopula(rep(iTau(tCopula(), tau), d * (d-1)/2), dim=d, dispstr = "un", df.fixed = TRUE)
-    comparederiv(tC4, u)
+    tC4 <- tCopula     (rep(iTau(tCopula(),      tau), d * (d-1)/2), dim=d, dispstr = "un",
+                        df.fixed = TRUE)
+    cD <- rbind(comparederiv(nC4, u),
+                comparederiv(tC4, u))
+    print(cD, digits = 5)
+    stopifnot(apply(cD, 2, max) < c(0.42, 0.18, 2.1e-07, 1.6e-08))
     showProc.time()
 }
 
