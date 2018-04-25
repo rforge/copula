@@ -150,7 +150,8 @@ fitCopStart <- function(copula, u, default = getTheta(copula, freeOnly = TRUE), 
                                 warn.df=FALSE, ...)@estimate # fitCopula.icor(, method="itau")
 	if(.par.df) # add starting value for 'df'
 	    start <- c(start, getdf(copula))
-	if(is.finite(loglikCopula(start, u=u, copula=copula)))
+	ll <- loglikCopula(start, u=u, copula=copula)
+	if(is.finite(ll))
             start
         else {
             if (is(copula, "claytonCopula") && dim(copula) == 2) {
@@ -162,8 +163,8 @@ fitCopStart <- function(copula, u, default = getTheta(copula, freeOnly = TRUE), 
                 }
                 start
             }
-            else
-                default
+            else if(!is.na(ll) && ll == +Inf) start # e.g. for perfectly correlated data
+            else default
         }
     } else default
 }

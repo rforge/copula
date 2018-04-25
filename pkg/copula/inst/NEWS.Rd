@@ -8,6 +8,15 @@
   \subsection{New Features}{
     \itemize{
       \item \code{exchTest()} gets new argument \code{ties.method}.
+
+      \item In the case where \code{loglikCopula(start, u=u,
+	copula=copula)} is \code{+Inf}, as e.g., in the case of data with
+      duplicate columns (perfect correlation), the internal
+      \code{fitCopStart()} and hence \code{fitCopula()} tries harder to
+      work with the iTau()-generated \code{start} values.
+
+      The \code{plot()} method for copula objects uses a somewhat
+      experimental smart default for the \code{main} title.
     }
   }
   \subsection{Bug Fixes}{

@@ -374,13 +374,16 @@ qqplot2 <- function(x, qF, log="", qqline.args=if(log=="x" || log=="y") list(unt
 ##' @return invisible()
 ##' @author Marius Hofert
 plotCopula <- function(x, n, xlim = 0:1, ylim = 0:1,
-                       xlab = quote(U[1]), ylab = quote(U[2]), ...)
+                       xlab = quote(U[1]), ylab = quote(U[2]), main=NULL, ...)
 {
     stopifnot(n >= 1)
     if(dim(x) != 2)
         stop("The copula needs to be bivariate.")
     U <- rCopula(n, copula = x)
-    plot(U, xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab, ...)
+    xnam <- deparse(substitute(x, parent.frame())) # parent: as called from plot()
+    if(isTRUE(main) || (is.null(main) && grepl("[Cc]opula\\b", xnam)))
+	main <- xnam
+    plot(U, xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, main=main, ...)
 }
 
 ##' @title Scatter Plot Method for Class "mvdc"

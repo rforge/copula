@@ -131,11 +131,11 @@ optimMeth(copula, method, dim)
   \code{start} is not assigned a value, estimates obtained from method
   \code{"itau"} are used as initial values in the optimization. Standard
   errors are computed as explained in Genest, Ghoudi and Rivest (1995);
-  see also Kojadinovic and Yan (2010, Section 3). Their estimation
+  see also Kojadinovic and Yan (2010, Section 3).  Their estimation
   requires the computation of certain partial derivatives of the (log)
-  density. These have been implemented for six copula families thus far:
+  density.  These have been implemented for six copula families thus far:
   the Clayton, Gumbel-Hougaard, Frank, Plackett, normal and \eqn{t} copula
-  families. For other families, numerical differentiation based on
+  families.  For other families, numerical differentiation based on
   \code{\link[numDeriv]{grad}()} from package \CRANpkg{numDeriv}
   is used (and a warning message is displayed).
 
