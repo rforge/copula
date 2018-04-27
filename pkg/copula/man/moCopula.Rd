@@ -16,15 +16,23 @@ moCopula(param = NA_real_, dim = 2L)
   \code{moCopula()} is the constructor for objects of class
   \code{\linkS4class{moCopula}}.
 }
-\details{
-  Note that Marshall-Olkin copulas are only implemented for \code{dim = 2L}.
+\note{
+  Marshall-Olkin copulas are only implemented for \code{dim = 2L}.
+}
+%% \references{
+%% }
+\seealso{
+  The \code{"\linkS4class{moCopula}"} class, its mathematical
+  definition, etc.
 }
 %\author{Marius Hofert}
 \examples{
-alpha <- c(0.2, 0.8)
+alpha <- c(0.2, 0.7)
 MO <- moCopula(alpha)
-tau(MO)
+tau(MO) # 0.18
 lambda(MO)
+stopifnot(all.equal(lambda(MO),
+                    c(lower = 0, upper = 0.2)))
 wireframe2(MO, FUN = pCopula) # if you look carefully, you can see the kink
 set.seed(271)
 plot(rCopula(1000, MO))

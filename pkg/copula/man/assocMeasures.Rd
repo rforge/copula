@@ -163,7 +163,7 @@ iRho (copula, rho, \dots)
   Understanding relationships using copulas.
   \emph{North American Actuarial Journal} \bold{2}, 1--25.
 
-  Iwan Kojadinovic and Jun Yan (2010)
+  Iwan Kojadinovic and Jun Yan (2010) %% <--> numerical approximations
   Comparison of three semiparametric methods for estimating dependence
   parameters in copula models.
   \emph{Insurance: Mathematics and Economics} \bold{47}, 52--63.
