@@ -4,10 +4,24 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-19 (2018-03-.., svn r17..)}{
+\section{Changes in version 0.999-19 (2018-04-28, svn r17..)}{
   \subsection{New Features}{
     \itemize{
+      \item contributors now are all mentioned in \file{DESCRIPTION}.
+
       \item \code{exchTest()} gets new argument \code{ties.method}.
+
+      \item a new vignette \file{HAXC} on Hierarchical Archimax Copulas.
+
+      \item New simple classes and constructor \code{fhCopula()} for
+      lower an upper Frechet--Hoeffding bounds (\eqn{W} and \eqn{M}),
+      see \code{?fhCopula}.
+
+      \item Empirical copulas now get an explicit class and constructor
+      \code{empCopula()}.
+
+      \item Marshall-Olkin copulas for the bivariate case (\eqn{d = 2})
+      get a class representation and are constructed via \code{moCopula()}.
 
       \item In the case where \code{loglikCopula(start, u=u,
 	copula=copula)} is \code{+Inf}, as e.g., in the case of data with
@@ -15,13 +29,14 @@
       \code{fitCopStart()} and hence \code{fitCopula()} tries harder to
       work with the iTau()-generated \code{start} values.
 
-      The \code{plot()} method for copula objects uses a somewhat
+      \item The \code{plot()} method for copula objects uses a somewhat
       experimental smart default for the \code{main} title.
     }
   }
   \subsection{Bug Fixes}{
     \itemize{
-      \item (none)
+      \item Better error messages when copula parameters are \code{NA}
+      (and hence, e.g. \code{pCopula()} gives an error).
     }
   }
 }
