@@ -183,7 +183,9 @@ stopifnot(identical(ec, F.n(u, X = pobs(U)))) # even identical
 
 ## Compare the empirical copula based on U at U with the Kendall distribution
 ## Note: Theoretically, C(U) ~ K, so K(C_n(U, U = U)) should approximately be U(0,1)
-plot(pK(C.n(U, X), cop = cop@copula, d = d))
+plot(ecdf(Ks), main = "ecdf(pK(C.n(U, X), ..))", asp = 1, xaxs="i", yaxs="i")
+segments(0,0, 1,1, col=adjustcolor("blue",1/3), lwd=5, lty = 2)
+abline(v=0:1, col="gray70", lty = 2)
 
 ## Compare the empirical copula and the true copula on the diagonal
 C.n.diag <- function(u) C.n(do.call(cbind, rep(list(u), d)), X = X) # diagonal of C_n
