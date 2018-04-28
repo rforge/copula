@@ -104,13 +104,12 @@ myAnalysis <- function(u, verbose=TRUE) {
     est = fit.g@estimate, se = sqrt(fit.g@var.est))
 }
 
-system.time(print(
+system.time(print(round(
 if(doExtras) {
     ##was myReps <- t(replicate(100, myAnalysis(myLoss)))
     myReps <- t(replicate(12, myAnalysis(myLoss)))
-    round(apply(myReps, 2, summary),3)
-} else round(myAnalysis(myLoss), 3)
-))
+    apply(myReps, 2, summary)
+} else myAnalysis(myLoss), 3)))
 ###################################################
 ### lossGof3
 ###################################################

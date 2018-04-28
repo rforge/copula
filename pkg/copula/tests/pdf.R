@@ -21,9 +21,11 @@ require(copula)
 
 source(system.file("Rsource", "utils.R", package="copula", mustWork=TRUE))
 ## tryCatch.W.E() etc
-## All non-virtual copula classes:
+## All non-virtual copula classes: ../inst/Rsource/cops.R
 source(system.file("Rsource", "cops.R", package="copula", mustWork=TRUE))
 ## --> copcl, copObs, copBnds,  excl.2 , copO.2, copBnd.2
+(doExtras <- copula:::doExtras())
+
 
 ### preparation for a grid
 n1 <- 17
@@ -39,12 +41,15 @@ Exp.grid <- function(...)
 
 umat <- Exp.grid(u1=u1, u2=u2)
 
-## all copulas give the same tau except galambos, amh
+## all copulas give the same tau except amh (TODO: *range* of tau's ??)
 tau <- 0.5
 
 if(!dev.interactive(orNone=TRUE)) pdf("densCop_2d.pdf")
 
 fCols <- colorRampPalette(c("red", "white", "blue"), space = "Lab")
+
+options(width = 125)# -> nicer table printing
+showProc.time()
 
 
 ## frankCopula
@@ -128,6 +133,18 @@ filled.contour(u1, u2, dcop, color.palette = fCols,
                main=sprintf("Density( galambosCopula(%.4g) )", theta))
 round(dcop, 3)
 
+## plackettCopula
+#
+(theta <- iTau(plackettCopula(), tau))
+stopifnot(all.equal(tau, tau(plackettCopula(theta)), tolerance = 1e-5))
+dcop <- matrix(dCopula(umat, plackettCopula(param=theta)),
+               n1, n2)
+filled.contour(u1, u2, log(dcop), color.palette = fCols,
+               main=sprintf("log Density( plackettCopula(%.4g) )", theta))
+filled.contour(u1, u2, dcop, color.palette = fCols,
+               main=sprintf("Density( plackettCopula(%.4g) )", theta))
+round(dcop, 3)
+
 
 ## amhCopula
 tau <- 0.3 ## -- to be in range for AMH
@@ -141,6 +158,7 @@ round(dcop, 3)
 
 showProc.time()
 if(!dev.interactive()) dev.off()
+
 
 ### d > 2 ######################################################################
 
@@ -181,13 +199,12 @@ mku <- function(n, fr = 1/20, sd = 1/10) {
 ## This is from ./moments.R --- keep in sync! ---
 tau.s <- c(       -.1, 0, 0.05805, (1:2)/9, 0.3)
 names(tau.s) <- paste0("tau=", sub("0[.]", ".", formatC(tau.s)))
-tTau <- suppressWarnings(
-    sapply(tau.s, function(tau)
-               sapply(copObs, iTau, tau = tau)) )
-tTau["joeCopula", "tau=-.1"] <- 1 # ugly hack
+suppressWarnings(
+    tTau <- sapply(tau.s, function(tau) vapply(copObs, iTau, numeric(1), tau = tau))
+) # tTau is printed in moments.R
+
 set.seed(12)
 u <- matrix(mku(1000), ncol= 2)# d = 2 required in the copula objects
-
 
 ##' == function(u) copula:::outside.01(u, strictly = FALSE) --- used in dCopula()
 u.outside.01 <- function(u) apply(u, 1, function(x) any(x <= 0, 1 <= x))
@@ -275,3 +292,51 @@ stopifnot(length(ccc) <= 17)
 ## tawnCopula3        is.na(Fu[u.ina]) are not all TRUE
 ## tawnCopula4        is.na(Fu[u.ina]) are not all TRUE
 ## tawnCopula5        is.na(Fu[u.ina]) are not all TRUE
+
+###-------------- "Unit" Tests for specific cases: ------------------------------
+
+n.c <- as.integer(if(doExtras) 1001 else 101)
+
+##== plackettCopula:  density log(dCopula()) vs "better"  dCopula(*, log=TRUE) ----- _UNFINISHED_ TODO
+
+##' difference   log(c(..)) -  c(.., log=TRUE)
+mkDfn <- function(u) {
+    stopifnot(is.numeric(u), length(u) == 2 || (is.matrix(u) && ncol(u) == 2))
+    Vectorize(function(alp) { C <- plackettCopula(alp); log(dCopula(u,C)) - dCopula(u,C,log=TRUE) })
+}
+Df <- mkDfn(u = c(.01,.99))
+curve(Df, 0.99, 1.01, n=n.c) # alpha ~= 1 -- log=TRUE should be better -- but difference seem random!
+curve(Df, 0,    2,    n=n.c) # to my surprise, alpha ~= 0 makes big difference
+curve(Df, 1e-9, .01, log="x")
+curve(abs(Df(x)), 1e-14, .1, log="xy")# and which one is more accurate ??
+# another u[]
+Df <- mkDfn(u = c(.1,.2))
+curve(Df, 0.99, 1.01, n=n.c) # alpha ~= 1 -- log=TRUE: diff. larger for 1+eps than 1-eps
+curve(Df, 0,    2,    n=n.c) # all very small
+
+# and another
+curve(mkDfn(u = c(.01,.02 ))(x), 0,  2,   n=n.c) # all very small
+curve(mkDfn(u = c(.98,.999))(x), 0,  2,   n=n.c) # growing with alpha
+curve(mkDfn(u = c(.98,.999))(x), .1, 1e4, n=n.c, log="x") # growing with alpha, still |.| < 6e-12
+curve(mkDfn(u = c(.01,.001))(x), .01,1e8, n=n.c, log="x") # (growing) still small: |.| < 6e-15
+
+##' 2-dim u[] in the low-density corner
+mku <- function(n, one. = 0.999, eps = c(4^-(2:n2), b.n^-((n-n2):n))) {
+    ## find basis for eps for very small eps
+    stopifnot(n >= 2)
+    n2 <- n %/% 2
+    R.n <- - .Machine$double.min.exp / n
+    b.n <- trunc(100*(2^R.n + 0.05))/100
+    stopifnot(.5 > eps, eps > 0, 0.9 <= one., one. <= 1)
+    cbind(one., eps, deparse.level = 0L)
+}
+if(doExtras) withAutoprint({
+    alpha <- 1e6 ## <- large alpha
+    (cop <- plackettCopula(alpha))
+    summary(u <- mku(64))
+    d1 <- dCopula(u, cop, log=TRUE)
+    d2 <- log(dCopula(u, cop))
+    summary(d1-d2)
+    all.equal(d1,d2, tol=0)
+})
+
