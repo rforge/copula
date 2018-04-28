@@ -37,7 +37,8 @@ copAMH <-
 		  ## --- d > 2: paraInterval = interval("[ 0,1)"),
 		  paraInterval = interval("[0,1)"),#  smaller one, (d > 2)
 		  paraConstr = function (theta, dim = 2)
-		      length(theta) == 1 && (if(dim == 2) -1 else 0) <= theta && theta < 1,
+		      length(theta) == 1 && !is.na(theta) &&
+                      (if(dim == 2) -1 else 0) <= theta && theta < 1,
 		  ## absolute value of generator derivatives
 		  absdPsi = function(t, theta, degree = 1, n.MC = 0, log = FALSE,
 				     is.log.t = FALSE,
@@ -230,7 +231,7 @@ copClayton <-
 		  ## --- d > 2: paraInterval = interval("[ 0, Inf)"),
 		  paraInterval = interval("[0, Inf)"), # smaller one, (d > 2)
 		  paraConstr = function (theta, dim = 2)
-		      length(theta) == 1 && (if(dim == 2) -1 else 0) <= theta && theta < Inf,
+		      length(theta) == 1 && !is.na(theta) && (if(dim == 2) -1 else 0) <= theta && theta < Inf,
 		  ## absolute value of generator derivatives
 		  absdPsi = function(t, theta, degree=1, n.MC=0, log=FALSE) {
                       if(n.MC > 0) {
@@ -986,7 +987,8 @@ copJoe <-
                       ## compute log(P'(log(h/(1-h))))
                       ## Note: this is similar to polyJ() (see there for the comments!)
                       k <- 2:d # 2:d instead of 1:d
-                      l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha) # log(a_{dk}(theta)*(k+1)), k = 1,..,d; note: these are not the a's of Hofert, Maechler, McNeil (2013); see polyJ()
+                      l.a.k <- log(Stirling2.all(d)) + lgamma(k-alpha) - lgamma(1-alpha) # log(a_{dk}(theta)*(k+1)), k = 1,..,d;
+                      ## Note: these are *not* the a's of Hofert, Maechler, McNeil (2013); see polyJ()
                       l.a.k. <- log(k-1) + l.a.k
                       B <- l.a.k. + (k-2) %*% t(lh_l1_h) # new: new l.a.k. and k-2 instead of k-1
                       ## the following part is taken from polyJ() (but only the log cases)
