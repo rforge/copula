@@ -14,6 +14,9 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
+## NB: Mother classes "Copula" (and "parCopula") are in ./AllClass.R
+##							  ~~~~~~~~~~
+
 ### Basic copula class #########################################################
 
 setClass("copula", contains = c("parCopula", "VIRTUAL"),
@@ -33,11 +36,11 @@ setClass("copula", contains = c("parCopula", "VIRTUAL"),
              param <- object@parameters
              upper <- object@param.upbnd
              lower <- object@param.lowbnd
-             lp <- length(param)
-             if (lp != length(upper) && length(upper) != 1)
-                 return("Parameter and upper bound have non-equal length")
-             if (lp != length(lower) && length(lower) != 1)
-                 return("Parameter and lower bound have non-equal length")
+             lp <- length(param) # if that is > 1, we allow |upper| or |lower| = 1
+             if(!(lp == length(upper) || (lp > 1L && length(upper) == 1L)))
+		 return("Parameter and upper bound have non-equal length")
+             if(!(lp == length(lower) || (lp > 1L && length(lower) == 1L)))
+		 return("Parameter and lower bound have non-equal length")
              intervChk <- ## TODO: mkParaConstr(object@paraInterval)
                  function(par) all(is.na(param) | (lower <= param & param <= upper))
              ina.p <- is.na(param)
@@ -45,8 +48,7 @@ setClass("copula", contains = c("parCopula", "VIRTUAL"),
 		 ##if(any(ina.p)) return("some (but not all) parameter values are  NA")
                  if(!intervChk(param)) return("Parameter value(s) out of bound")
              }
-
-	     ## want to allow (all) NA parameters:
+	     ## to allow (all) NA parameters: "not-yet-parametrized"
 	     TRUE
          })
 
@@ -176,12 +178,19 @@ setClass("tCopula", contains = "ellipCopula",
 ### Archimedean copulas (AMH, Clayton, Frank, Gumbel, Joe) #####################
 
 setClass("archmCopula", contains = c("copula", "VIRTUAL"),
-         slots = c(exprdist = "expression"))
+         slots = c(exprdist = "expression"),
+         ## extra check in addition to "copula" validity:
+         validity = function(object) {
+	     if(length(object@parameters) != 1 && !inherits(object, "indepCopula"))
+		 "Our Archimedean copulas must currently have a 1-dimensional parameter"
+	     else
+		 TRUE
+         })
 
 ## Clayton
 setClass("claytonCopula", contains = "archmCopula")
 
-## Gumbel (also an EVC)
+## Gumbel (also an evCopula) --> see below
 
 ## Frank
 setClass("frankCopula", contains = "archmCopula")
@@ -209,9 +218,14 @@ setGeneric("diPsi", function(copula, u, degree=1, log=FALSE, ...) standardGeneri
 
 setClass("evCopula", contains = c("copula", "VIRTUAL"))
 
-## It should contain all three *virtual* superclasses,
+## It should contain the *virtual* superclasses (==> has to be defined here *after* evCopula),
 ## but we don't want it to inherit "funny slots"
-setClass("indepCopula", contains = c("evCopula", "archmCopula")) # has to be defined here (*after* evCopula)
+setClass("indepCopula", contains = c("evCopula", "archmCopula"),
+	 validity = function(object) {
+	     if(length(object@parameters) != 0L)
+		 "The independence copula has no, i.e., a 0-length parameter"
+	     else TRUE
+	 })
 
 ## Galambos
 setClass("galambosCopula", contains = "evCopula",
@@ -253,20 +267,21 @@ setClass("moCopula", contains = "copula", slots = c(exprdist = "expression"))
 setClass("fgmCopula", contains = "copula", slots = c(exprdist = "expression",
                                                      subsets.char = "character"),
          ## verify that the pdf is positive at each vertex of [0,1]^dim
-         validity = function(object) {
-             dim <- object@dimension
-             if (dim == 2)
-                 return(TRUE)
-             param <- object@parameters
-             valid <- .C(validity_fgm,
-                         as.integer(dim),
-                         as.double(c(rep(0,dim+1),param)),
-                         valid = integer(1))$valid
-             if (valid == 0)
-                 return("Bad vector of parameters")
-             else
-                 return(TRUE)
-         })
+	 validity = function(object) {
+	     dim <- object@dimension
+	     if (dim < 2)
+		 "must be 2-dimensional"
+	     else if (dim == 2)
+		 TRUE
+	     else { # dim >= 3
+		 param <- object@parameters
+		 valid <- .C(validity_fgm,
+			     as.integer(dim),
+			     as.double(c(rep(0,dim+1),param)),
+			     valid = integer(1))$valid
+		 if (valid == 0) "Bad vector of parameters" else TRUE
+	     }
+	 })
 
 ## Plackett copula
 setClass("plackettCopula", contains = "copula", slots = c(exprdist = "expression"))
