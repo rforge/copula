@@ -28,7 +28,7 @@ lowfhCopula(dim = 2L)
   \code{upfhCopula()}.
 
   The \code{\link{dCopula}()} method will simply return an error
-  for these copulas (as their density does not exist). Also,
+  for these copulas (as their density does not exist).  Also,
   since the Fr\enc{é}{e}chet-Hoeffding bound copulas are not
   parametric, certain methods available for parametric copulas are
   not available.

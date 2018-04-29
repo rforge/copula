@@ -24,16 +24,10 @@ upfhCopula <- function(dim = 2L)
         expr <- paste0("min(", uis, ")")
         parse(text = expr)
     }
-    cdf <- cdfExpr(dim)
     new("upfhCopula",
         dimension = as.integer(dim),
-        exprdist = c(cdf = cdf,
-                     pdf = expression()),
-        parameters = double(0),
-        param.names = character(0),
-        param.lowbnd = double(0),
-        param.upbnd = double(0),
-        fullname = "<deprecated slot>")
+        exprdist = c(cdf = cdfExpr(dim),
+                     pdf = expression())) # FIXME? empty pdf disappears !?
 }
 
 

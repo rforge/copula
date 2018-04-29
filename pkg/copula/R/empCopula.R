@@ -186,26 +186,23 @@ C.n <- function(u, X, smoothing = c("none", "beta", "checkerboard"),
 empCopula <- function(X, smoothing = c("none", "beta", "checkerboard"), offset = 0,
                       ties.method = c("max", "average", "first", "last", "random", "min"))
 {
-    stopifnot(is.matrix(X) || is.data.frame(X), 0 <= X, X <= 1, 0 <= offset, offset <= 1)
+    if(is.data.frame(X) || !is.matrix(X)) X <- as.matrix(X)
+    stopifnot(is.matrix(X), 0 <= X, X <= 1,
+              0 <= offset, offset <= 1) # <- offset = -1 ?!
     smoothing <- match.arg(smoothing)
     ties.method <- match.arg(ties.method)
     ## Construct object
     new("empCopula",
-	dimension = as.integer(ncol(X)),
-	X = X, # 'parameters' so to say
+	X = X,
         smoothing = smoothing, # a 'parameter' so to say
         offset = offset,
-        ties.method = ties.method,
-        ## require to pass validity as a 'copula' object ('exprdist' not required)
-        parameters = double(0),
-        param.names = character(0),
-        param.lowbnd = double(0),
-        param.upbnd = double(0),
-	fullname = "<deprecated slot>")
+        ties.method = ties.method)
 }
 
 
 ### Methods ####################################################################
+
+setMethod(dim, "empCopula", function(x) ncol(x@X))
 
 ## describe method
 setMethod(describeCop, c("empCopula", "character"), function(x, kind, prefix="", ...) {
@@ -225,13 +222,16 @@ setMethod(describeCop, c("empCopula", "character"), function(x, kind, prefix="",
 setMethod("dCopula", signature("matrix", "empCopula"),
 	  function(u, copula, log = FALSE, ...) {
     if(copula@smoothing == "beta") {
-        R <- apply(copula@X, 2, rank, ties.method = copula@ties.method) # (n, d) matrix of ranks
-        n <- nrow(copula@X)
+        X <- copula@X
+        R <- apply(X, 2L, rank, ties.method = copula@ties.method) # (n, d) matrix of ranks
+        n <- nrow(X)
         if(!is.matrix(u)) u <- rbind(u) # (m, d) matrix of evaluation points
         m <- nrow(u)
-        d <- copula@dimension
-        f <- vapply(1:m, FUN = function(k) dbeta(u[k,], shape1 = R, shape2 = n+1-R, log = log, ...),
-                    FUN.VALUE = matrix(NA_real_, nrow = n, ncol = d)) # (n, d, m) array containing all f_{n,R_{ij}}(u_{kj}) (see copula book)
+        d <- ncol(X) # = dim(copula)
+        f <- vapply(1:m, FUN = function(k)
+            dbeta(u[k,], shape1 = R, shape2 = n+1-R, log = log, ...),
+            FUN.VALUE = matrix(NA_real_, nrow = n, ncol = d))
+        ##-> (n, d, m) array containing all f_{n,R_{ij}}(u_{kj}) (see copula book)
         offset <- copula@offset
         apply(f, 3, function(f.) {
             if(log) {

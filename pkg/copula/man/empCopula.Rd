@@ -225,7 +225,7 @@ ecop.check <- empCopula(X, smoothing = "checkerboard")
 wireframe2(ecop.orig,  FUN = pCopula, draw.4.pCoplines = FALSE)
 wireframe2(ecop.beta,  FUN = pCopula)
 wireframe2(ecop.check, FUN = pCopula)
-## Density (only exists in case smoothing = "beta")
+## Density (only exists when smoothing = "beta")
 wireframe2(ecop.beta,  FUN = dCopula)
 }
 \keyword{multivariate}

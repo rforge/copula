@@ -19,9 +19,8 @@
 
 ### Basic copula class #########################################################
 
-setClass("copula", contains = c("parCopula", "VIRTUAL"),
-         slots = c(dimension = "integer", # as for "nacopula"
-                   parameters = "numeric",
+setClass("copula", contains = c("dimCopula", "parCopula", "VIRTUAL"),
+         slots = c(parameters = "numeric",
                    param.names = "character",
                    param.lowbnd = "numeric",
                    param.upbnd = "numeric",
@@ -103,8 +102,8 @@ tailIndex <- function(copula) { .Deprecated("lambda"); lambda(copula) } # mid 20
 
 ### Frechet--Hoeffding bounds ##################################################
 
-setClass("fhCopula", contains = c("copula", "VIRTUAL"),
-         slots = c(exprdist = "expression"))
+setClass("fhCopula", contains = c("dimCopula", "VIRTUAL"),
+         slots = c(exprdist = "expression")) # -> used in dC-dc.R
 
 ## Lower Frechet--Hoeffding bound W
 setClass("lowfhCopula", contains = "fhCopula")
@@ -112,17 +111,26 @@ setClass("lowfhCopula", contains = "fhCopula")
 ## Upper Frechet--Hoeffding bound M
 setClass("upfhCopula", contains = "fhCopula")
 
+##-> fhCopula.R, lowfhCopula.R, upfhCopula.R  for implementation
+##   ~~~~~~~~~~  ~~~~~~~~~~~~~  ~~~~~~~~~~~~
 
 ### Empirical copula ###########################################################
 
-setClass("empCopula", contains = "copula",
-         slots = c(X = "matrix", smoothing = "character",
-                   offset = "numeric", ties.method = "character"),
-         ## additional validity here (sanity check)
-         validity = function(object) {
-            X <- object@X
-            all(0 <= X, X <= 1)
-         })
+setClass("empCopula", contains = "Copula",
+         slots = c(X = "matrix",
+		   smoothing = "character",
+		   offset = "numeric",
+		   ties.method = "character"),
+	 ## validity methods must return TRUE or string
+	 validity = function(object) {
+	    X <- object@X
+	    if(ncol(X) < 2L)
+		"X must have at least 2 columns"
+	    else if(anyNA(X) || any(X < 0) || any(X > 1))
+		"All entries of X[] must be in [0,1]"
+	    else
+		TRUE
+	 })
 
 
 ### Elliptical copulas (normalCopula, tCopula) #################################

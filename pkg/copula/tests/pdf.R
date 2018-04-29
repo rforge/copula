@@ -48,7 +48,7 @@ if(!dev.interactive(orNone=TRUE)) pdf("densCop_2d.pdf")
 
 fCols <- colorRampPalette(c("red", "white", "blue"), space = "Lab")
 
-options(width = 125)# -> nicer table printing
+options(width = 137)# -> nicer table printing
 showProc.time()
 
 

@@ -31,6 +31,10 @@
 
       \item The \code{plot()} method for copula objects uses a somewhat
       experimental smart default for the \code{main} title.
+
+      \item The \code{"copula"} class now gets its \code{dimension} slot
+      from the new virtual class \code{"dimCopula"} which contains all
+      copulas with an explicit \code{dimension} slot.
     }
   }
   \subsection{Bug Fixes}{
