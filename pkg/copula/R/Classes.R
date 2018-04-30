@@ -17,6 +17,11 @@
 ## NB: Mother classes "Copula" (and "parCopula") are in ./AllClass.R
 ##							  ~~~~~~~~~~
 
+## The independence copula; don't want it to inherit "funny slots" =>
+setClass("indepCopula", contains = c("dimCopula", "parCopula"),
+         slots = c(exprdist = "expression"))
+# no validity needed anymore: have no 'parameters'
+
 ### Basic copula class #########################################################
 
 setClass("copula", contains = c("dimCopula", "parCopula", "VIRTUAL"),
@@ -102,7 +107,7 @@ tailIndex <- function(copula) { .Deprecated("lambda"); lambda(copula) } # mid 20
 
 ### Frechet--Hoeffding bounds ##################################################
 
-setClass("fhCopula", contains = c("dimCopula", "VIRTUAL"),
+setClass("fhCopula", contains = c("dimCopula", "parCopula", "VIRTUAL"),
          slots = c(exprdist = "expression")) # -> used in dC-dc.R
 
 ## Lower Frechet--Hoeffding bound W
@@ -189,7 +194,7 @@ setClass("archmCopula", contains = c("copula", "VIRTUAL"),
          slots = c(exprdist = "expression"),
          ## extra check in addition to "copula" validity:
          validity = function(object) {
-	     if(length(object@parameters) != 1 && !inherits(object, "indepCopula"))
+	     if(length(object@parameters) != 1)
 		 "Our Archimedean copulas must currently have a 1-dimensional parameter"
 	     else
 		 TRUE
@@ -225,15 +230,6 @@ setGeneric("diPsi", function(copula, u, degree=1, log=FALSE, ...) standardGeneri
 ### Extreme value copulas (Galambos, Husler--Reiss, Gumbel, Tawn, tEV) #########
 
 setClass("evCopula", contains = c("copula", "VIRTUAL"))
-
-## It should contain the *virtual* superclasses (==> has to be defined here *after* evCopula),
-## but we don't want it to inherit "funny slots"
-setClass("indepCopula", contains = c("evCopula", "archmCopula"),
-	 validity = function(object) {
-	     if(length(object@parameters) != 0L)
-		 "The independence copula has no, i.e., a 0-length parameter"
-	     else TRUE
-	 })
 
 ## Galambos
 setClass("galambosCopula", contains = "evCopula",

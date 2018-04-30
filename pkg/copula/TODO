@@ -116,8 +116,8 @@ advantage outweighs the drawbacks... What do you think?
 ** TODO [IK] Write test code for mult gof Sn, Rn
 ** DONE Implement copula mixtures (mixCopula()) with sufficiently flexible structure so that we can maybe estimate the probability weights in the future
 ** DONE [JY] document getL() a bit more in fitCopula.R (what is it for?); there's a TODO there as well (in the header of getL())
-** TODO DONE partly:  introduce "empiricalCopula" (or "empCopula") as new subclass of "Copula" (not "copula")
-   and maybe *additionally* "empiricalDist" / "empMvdc", inheriting from
+** DONE introduce "empCopula" as new subclass of "Copula" (-> "dimCopula" was created), not "copula".
+** TODO maybe *additionally* "empMvdc" (representing a general multivariate sample), inheriting from
    new "Mvdc" which would contain "mvdc" and "empMvdc".
    -> nice persp() {and maybe contour()} method via perspCopula(*, fun=C.n, ....) and
       perspMvdc(*, fun=F.n, ....). ---> man/Mvdc.Rd and R/graphics.R

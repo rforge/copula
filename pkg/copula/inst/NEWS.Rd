@@ -35,6 +35,10 @@
       \item The \code{"copula"} class now gets its \code{dimension} slot
       from the new virtual class \code{"dimCopula"} which contains all
       copulas with an explicit \code{dimension} slot.
+
+      \item the \code{"indepCopula"} now extends only \code{"dimCopula"}
+      and \code{"parCopula"} and hence no longer has unuseful slots such
+      as \code{parameter}.
     }
   }
   \subsection{Bug Fixes}{

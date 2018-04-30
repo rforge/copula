@@ -33,16 +33,8 @@ indepCopula <- function(dim = 2L)
         val
     }
     cdf <- cdfExpr((dim <- as.integer(dim)))
-    pdf <- pdfExpr(cdf, d = dim)
-
-    new("indepCopula",
-        dimension = as.integer(dim),
-        exprdist = c(cdf = cdf, pdf = pdf),
-        parameters = double(0),
-        param.names = character(0),
-        param.lowbnd = double(0),
-        param.upbnd = double(0),
-        fullname = "<deprecated slot>")# "Independence copula"
+    new("indepCopula", dimension = dim,
+        exprdist = c(cdf = cdf, pdf = pdfExpr(cdf, d = dim)))
 }
 
 

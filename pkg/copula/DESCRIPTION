@@ -1,7 +1,7 @@
 Package: copula
 Version: 0.999-19
 VersionNote: Last CRAN: 0.999-18 on 2017-08-31
-Date: 2018-04-25
+Date: 2018-04-30
 Title: Multivariate Dependence with Copulas
 Authors@R: c(person("Marius", "Hofert", role = "aut", email = "marius.hofert@uwaterloo.ca")
 	   , person("Ivan", "Kojadinovic", role = "aut", email = "ivan.kojadinovic@univ-pau.fr")
