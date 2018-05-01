@@ -1,4 +1,4 @@
-## Copyright (C) 2012 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
+## Copyright (C) 2018 Marius Hofert, Ivan Kojadinovic, Martin Maechler, and Jun Yan
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -13,8 +13,8 @@
 ## You should have received a copy of the GNU General Public License along with
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
-### Miscellaneous tests for 'copula' package
-### -------------------      ======
+### Miscellaneous regression tests for 'copula' package
+### ------------------------------      ======
 
 require(copula)
 source(system.file("Rsource", "utils.R",     package="copula", mustWork=TRUE))
@@ -42,4 +42,12 @@ stopifnot(all.equal(Kplt[,"H"], c(0, 0, 2, 2, 6, 6)/10),
                           lambda=c(1, -0.36, 0.04, 1, 0.36, -1))),
           TRUE)
 
+
+## Testing  A(<khoudraj>) -- failed after svn c1770, copula book, ch.3:
+kg <- khoudrajiCopula(copula2 = gumbelCopula(4), shapes = c(0.2, 0.95))
+Akg <- A(kg, w = (0:8)/8)
+stopifnot(Akg[c(1,9)] == 1,
+    all.equal(Akg, tolerance = 6e-6,
+	      c(1, 0.88987, 0.85893, 0.87634, 0.90023, 0.92504, 0.95, 0.975, 1))
+    )
 
