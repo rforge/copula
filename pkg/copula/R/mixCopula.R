@@ -338,18 +338,13 @@ setMethod("dCopula", signature("matrix",  "mixCopula"), dMixCopula)
 ## Random Number Generation
 setMethod("rCopula", signature("numeric", "mixCopula"),
 	  function(n, copula) {
-	      m <- length(w <- copula@w)
-	      if(n == 1) {
-		  j <- sample(m, size = 1, prob = w)
-		  rCopula(1, copula@cops[[j]])
-	      } else {
-		  nj <- as.vector(rmultinom(n=1, size = n, prob = w))
-		  ## sample nj from j-th copula
-		  U <- lapply(seq(along=nj),
-			      function(j) rCopula(nj[j], copula@cops[[j]]))
-		  ## bind rows, and permute finally:
-		  do.call(rbind, U)[sample.int(n), ]
-	      }
+    ## Determine number of samples from each copula
+    nj <- as.vector(rmultinom(n = 1, size = n, prob = copula@w))
+    ## Draw nj samples from the jth copula
+    U <- lapply(seq(along = nj),
+                function(j) if(nj[j] > 0) rCopula(nj[j], copula@cops[[j]]) else NULL) # fix to work with do.call() if nj == 0
+    ## Bind rows together and randomly permute the entries
+    do.call(rbind, U)[sample.int(n), ]
 })
 
 setMethod("lambda", "mixCopula", function(copula, ...)

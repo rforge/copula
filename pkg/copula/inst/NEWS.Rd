@@ -45,6 +45,8 @@
     \itemize{
       \item Better error messages when copula parameters are \code{NA}
       (and hence, e.g. \code{pCopula()} gives an error).
+      \item Bugfix in \code{rCopula(, copula = mixCopula())} if the
+	weights are unit vectors.
     }
   }
 }
