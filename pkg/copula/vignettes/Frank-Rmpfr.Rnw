@@ -75,7 +75,7 @@
 \usepackage{amssymb}%sophisticated mathematical symbols with amstex (includes \mathbb{})
 % \usepackage{amsthm}%theorem environments
 \usepackage{bm}%for bold math symbols: \bm (= bold math)
-\usepackage{enumitem}%for automatic numbering of new enumerate environments
+% \usepackage{enumitem}%for automatic numbering of new enumerate environments
 
 % This is already in jss above -- but withOUT the  fontsize=\small part !!
 \DefineVerbatimEnvironment{Sinput}{Verbatim}{fontsize=\small,fontshape=sl}
