@@ -242,8 +242,9 @@ stopifnot(all.equal(sum(probs.Pi), 1), all.equal(probs.Pi, probs.M))
 ```
 
 Perhaps the most interesting plot is the one of the mass distributions themselves.
-```{r, fig.align = "center", fig.width = 6, fig.height = 6, fig.show = "hold"}
-## Plot the mass distributions
+To this end, consider the following plot function.
+```{r}
+## Plot function for the mass distributions
 plot_mass <- function(U, probs, p, text)
 {
     plot(U, pch = ".", xlab = expression(U[1]), ylab = expression(U[2]))
@@ -254,6 +255,11 @@ plot_mass <- function(U, probs, p, text)
     text(1-p[1] + p[1]/2, (1-p[2])/2, labels = sprintf("%1.4f", probs[3]), font = 2, col = "royalblue3")
     text(1-p[1] + p[1]/2, 1-p[2] + p[2]/2, labels = sprintf("%1.4f", probs[4]), font = 2, col = "royalblue3")
 }
+```
+
+Now apply the function to the two mass distributions.
+```{r, fig.align = "center", fig.width = 6, fig.height = 6, fig.show = "hold"}
+## Plot the mass distributions with probabilities of falling in the four regions
 opar <- par(pty = "s")
 plot_mass(U.Pi, probs = probs.Pi, p = p, text = expression("Independent"~Lambda*"'s"))
 plot_mass(U.M,  probs = probs.M,  p = p, text = expression("Comonotone"~Lambda*"'s"))
