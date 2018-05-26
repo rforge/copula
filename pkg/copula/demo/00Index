@@ -1,5 +1,4 @@
 fitting-tests       Tests of fitCopula
-empirical_copulas   R implementation and visualization of empirical copulas
 estimation.gof	    Estimation and goodness-of-fit capabilities
 estimation_via_HAC  Estimation procedure from the HAC package
 gofCopula	    Goodness-of-fit test for copula models
