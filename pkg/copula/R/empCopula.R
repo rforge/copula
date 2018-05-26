@@ -23,81 +23,66 @@ Cn <- function(x, w) {
 
 ### Empirical distribution function ############################################
 
-##' @title Empirical distribution function with smoothing
-##' @param x (m, d) matrix of evaluation points
+##' @title Empirical distribution function
+##' @param x (m, d) matrix of evaluation points; should be in [0,1]^d if
+##'        smoothing != "none"
 ##' @param X (n, d) matrix of data based on which the empirical distribution
-##'        function is computed
-##' @param smoothing smoothing method
+##'        function is computed; should be in [0,1]^d if smoothing != "none"
 ##' @param offset scaling factor of the empirical distribution function (= n/(n + offset))
-##' @param method method string ("C" for C code; "R" for R code)
+##' @param smoothing usual (empirical df), beta or checkerboard empirical copula
 ##' @return empirical distribution function of X at x
 ##' @author Ivan Kojadinovic and Marius Hofert
-.Fn <- function(x, X, smoothing = c("none", "beta", "checkerboard"),
-                offset = 0, method = c("C", "R"))
-## {
-##     if(!is.matrix(x)) x <- rbind(x, deparse.level=0L)
-##     if(!is.matrix(X)) X <- rbind(X, deparse.level=0L)
-##     structure(class = "mvFn", x=x, X=X, ## <- so the result can be plotted/printed ..
-##               .Fn(x, X, offset=offset, method=method))
-## }
-## .Fn <- function(x, X, offset=0, method=c("C", "R"))
+##' @note Use 'smoothing != "none"' with care: Only makes sense if 'X' are
+##'       copula (pseudo-)observations (in [0,1]^d) and 'x' are evaluation points
+##'       in [0,1]^d) (see also the C code under ../src/empcop.c)
+F.n <- function(x, X, offset = 0, smoothing = c("none", "beta", "checkerboard"))
 {
-    stopifnot(is.numeric(d <- ncol(X)), is.matrix(x), d == ncol(x))
+    if(!is.matrix(x)) x <- rbind(x)
+    stopifnot(is.numeric(d <- ncol(X)), d == ncol(x), d >= 2, 0 <= offset, offset <= 1)
     n <- nrow(X)
-    if(d == 1)
-	vapply(x, function(x.) sum(X <= x.), NA_real_) / (n + offset)
-    else { # d > 1
-	method <- match.arg(method)
-        smoothing <- match.arg(smoothing)
-        type <- which(smoothing == c("none", "beta", "checkerboard"))
-	switch(method,
-	       "C" = {
-		   m <- nrow(x)
-		   .C(Cn_C, # see ../src/empcop.c
-		      as.double(X),
-		      as.integer(n),
-		      as.integer(d),
-		      as.double(x),
-		      as.integer(m),
-		      ec=double(m),
-		      as.double(offset),
-                      as.integer(type))$ec
-	       },
-	       "R" = {
-                   ## == apply(x, 1, function(x.) sum(colSums(t(X)<=x.)==d)/(n+offset) )
-                   ## but vapply is slightly faster (says MH)
-                   tX <- t(X)
-                   switch(smoothing,
-                          "none"={
-                             vapply(1:nrow(x), function(k) sum(colSums(tX <= x[k,]) == d),
-                                    NA_real_) / (n + offset)
-                          },
-                          "beta"={
-                             stop("no R implementation for 'smoothing': ", smoothing)
-                          },
-                          "checkerboard"={
-                             stop("no R implementation for 'smoothing': ", smoothing)
-                          },
-                          stop("wrong 'smoothing': ", smoothing)
-                          )
-               },
-               stop("wrong 'method': ", method))
-    }
+    smoothing <- match.arg(smoothing)
+    m <- nrow(x)
+    type <- which(smoothing == c("none", "beta", "checkerboard"))
+    .C(Cn_C, # see ../src/empcop.c
+       as.double(X),
+       as.integer(n),
+       as.integer(d),
+       as.double(x),
+       as.integer(m),
+       ec=double(m),
+       as.double(offset),
+       as.integer(type))$ec
+    ## In R:
+    ## smoothing = "none":
+    ## vapply(1:nrow(x), function(k) sum(colSums(t(X) <= x[k,]) == d),
+    ##        NA_real_) / (n + offset)
+    ## ... which equals apply(x, 1, function(x.) sum(colSums(t(X)<=x.)==d)/(n+offset) )
+    ## but vapply is slightly faster (says MH)
 }
 
-##' @title Empirical distribution function
+
+### Empirical copula ###########################################################
+
+##' @title Empirical CDF and hence copula of X at x
 ##' @param x (m, d) matrix of evaluation points
-##' @param X (n, d) matrix of data based on which the empirical distribution
-##'        function is computed
-##' @param smoothing smoothing method
+##' @param X (n, d) matrix of pseudo-data based on which the empirical copula
+##'        is computed
+##' @param smoothing usual, beta or checkerboard empirical copula
 ##' @param offset scaling factor of the empirical distribution function (= n/(n + offset))
-##' @param method method string ("C" for C code; "R" for R code)
-##' @return empirical distribution function of X at x
-##' @author Ivan Kojadinovic and Marius Hofert
-##' @note We should actually remove this and call the above function F.n()
-##'       (thus also making 'smoothing' available to F.n())
-F.n <- function(x, X, offset = 0, method = c("C", "R"))
-    .Fn(x = x, X = X, smoothing = "none", offset = offset, method = method)
+##' @param ties.method passed to pobs()
+##' @return empirical copula of X at x
+##' @author Ivan Kojadinovic, Marius Hofert and Martin Maechler (C.n -> F.n; re-organisation)
+##' @note See ../man/empcop.Rd for a nice graphical check with the Kendall function
+C.n <- function(u, X, smoothing = c("none", "beta", "checkerboard"),
+                offset = 0, ties.method = c("max", "average", "first",
+                                            "last", "random", "min"))
+{
+    if(any(u < 0, 1 < u))
+        stop("'u' must be in [0,1].")
+    ties.method <- match.arg(ties.method)
+    F.n(u, X = pobs(X, ties.method = ties.method),
+        offset = offset, smoothing = smoothing)
+}
 
 
 ### Estimated partial derivatives of a copula ##################################
@@ -107,7 +92,7 @@ F.n <- function(x, X, offset = 0, method = c("C", "R"))
 ##' @param U (n, d)-matrix of pseudo-observations
 ##' @param j.ind dimensions for which the partial derivatives should be estimated
 ##' @param b bandwidth in (0, 1/2) for the approximation
-##' @param ... additional arguments passed to .Fn()
+##' @param ... additional arguments passed to F.n()
 ##' @return (m, length(j.ind))-matrix containing the estimated partial
 ##'         derivatives with index j.ind of the empirical copula of U at u
 ##' @author Marius Hofert
@@ -139,44 +124,19 @@ dCn <- function(u, U, j.ind = 1:d, b = 1/sqrt(nrow(U)), ...)
         ## Build the two evaluation matrices for Cn (matrix similar to u with
         ## column j replaced). Note, this is slightly inefficient for those u < b
         ## but at least we can "matricize" the problem.
-        ## 1) compute .Fn(u.up)
+        ## 1) compute F.n(u.up)
         u.up <- u
         u.up[,j] <- adj.u.up(u.up[,j])
-        Cn.up <- .Fn(u.up, U, ...)
-        ## 2) compute .Fn(u.low)
+        Cn.up <- F.n(u.up, X = U, ...)
+        ## 2) compute F.n(u.low)
         u.low <- u
         u.low[,j] <- adj.u.low(u.low[,j])
-        Cn.low <- .Fn(u.low, U, ...)
+        Cn.low <- F.n(u.low, X = U, ...)
         ## 3) compute difference quotient
         (Cn.up - Cn.low) / (2*b)
     }, numeric(m))
     res <- pmin(pmax(res, 0), 1) # adjust (only required for small sample sizes)
     if(length(j.ind)==1) as.vector(res) else res
-}
-
-
-### Empirical copula ###########################################################
-
-##' @title Empirical CDF and hence copula of X at x
-##' @param x (m, d) matrix of evaluation points
-##' @param X (n, d) matrix of pseudo-data based on which the empirical copula
-##'        is computed
-##' @param smoothing usual, beta or checkerboard empirical copula
-##' @param offset scaling factor of the empirical distribution function (= n/(n + offset))
-##' @param method method string ("C" for C code; "R" for R code)
-##' @param ties.method passed to pobs()
-##' @return empirical copula of X at x
-##' @author Ivan Kojadinovic, Marius Hofert and Martin Maechler (C.n -> F.n; re-organisation)
-##' @note See ../man/empcop.Rd for a nice graphical check with the Kendall function
-C.n <- function(u, X, smoothing = c("none", "beta", "checkerboard"),
-                offset = 0, method = c("C", "R"),
-                ties.method = c("max", "average", "first", "last", "random", "min"))
-{
-    if(any(u < 0, 1 < u))
-        stop("'u' must be in [0,1].")
-    ties.method <- match.arg(ties.method)
-    .Fn(u, pobs(X, ties.method = ties.method),
-        offset = offset, method = method, smoothing = smoothing)
 }
 
 

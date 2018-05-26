@@ -11,18 +11,19 @@
 \usage{
 empCopula(X, smoothing = c("none", "beta", "checkerboard"), offset = 0,
           ties.method = c("max", "average", "first", "last", "random", "min"))
-C.n(u, X, smoothing = c("none", "beta", "checkerboard"),
-    offset = 0, method = c("C", "R"),
+C.n(u, X, smoothing = c("none", "beta", "checkerboard"), offset = 0,
     ties.method = c("max", "average", "first", "last", "random", "min"))
 dCn(u, U, j.ind = 1:d, b = 1/sqrt(nrow(U)), ...)
-F.n(x, X, offset = 0, method = c("C", "R"))
+F.n(x, X, offset = 0, smoothing = c("none", "beta", "checkerboard"))
 Cn(x, w) ## <-- deprecated!  use  C.n(w, x) instead!
 }
 \arguments{
-  \item{X}{an \eqn{(n,
-      d)}-\code{\link{matrix}} of pseudo-observations with \eqn{d} columns (as
-    \code{x} or \code{u}). Recall that a multivariate random sample can be
-    transformed to pseudo-observations via \code{\link{pobs}()}.}
+  \item{X}{an \eqn{(n, d)}-\code{\link{matrix}} of pseudo-observations
+    with \eqn{d} columns (as \code{x} or \code{u}). Recall that a
+    multivariate random sample can be transformed to pseudo-observations
+    via \code{\link{pobs}()}. For \code{F.n()} and if \code{smoothing !=
+      "none"}, \code{X} can also be a general, multivariate sample,
+    in which case the empirical distribution function is computed.}
   \item{u,w}{an \eqn{(m, d)}-\code{\link{matrix}} with elements in
     \eqn{[0,1]} whose rows contain the evaluation points of the
     empirical copula.}
@@ -30,11 +31,14 @@ Cn(x, w) ## <-- deprecated!  use  C.n(w, x) instead!
     pseudo-observations (elements in \eqn{[0,1]}, same number \eqn{d} of columns as
     \code{u}).}
   \item{x}{an \eqn{(m, d)}-\code{\link{matrix}} whose rows
-    contain the evaluation points of the empirical distribution function.}
+    contain the evaluation points of the empirical distribution function
+    (if \code{smoothing = "none"}) or copula (if \code{smoothing != "none"}).}
   \item{smoothing}{\code{\link{character}} string specifying whether
-    the empirical copula (\code{smoothing="none"}), the empirical beta
-    copula (\code{smoothing="beta"}) or the empirical checkerboard
-    copula (\code{smoothing="checkerboard"}) is computed.}
+    the empirical distribution function (for \code{F.n()}) or copula
+    (for \code{C.n()}) is computed (if \code{smoothing = "none"}),
+    or whether the empirical beta copula (\code{smoothing = "beta"})
+    or the empirical checkerboard  copula (\code{smoothing =
+      "checkerboard"}) is computed.}
   \item{ties.method}{\code{\link{character}} string specifying how ranks should be computed if
     there are ties in any of the coordinate samples of \code{x}; passed
     to \code{\link{pobs}}.}
@@ -45,11 +49,6 @@ Cn(x, w) ## <-- deprecated!  use  C.n(w, x) instead!
     first-order partial derivatives.}
   \item{offset}{used in scaling the result which is of the form
     \code{sum(....)/(n+offset)}; defaults to zero.}
-  \item{method}{\code{\link{character}} string indicating which method
-    is applied to compute the empirical cumulative distribution function
-    or the empirical copula.
-    \code{method="C"} uses a an implementation in C,
-    \code{method="R"} uses a pure \R implementation.}
   \item{\dots}{additional arguments passed to \code{dCn()}.}
 }
 \value{
@@ -70,8 +69,11 @@ Cn(x, w) ## <-- deprecated!  use  C.n(w, x) instead!
   the approximated first-order partial derivatives of the unknown
   copula at \code{u} with respect to the arguments in \code{j.ind}.
 
-  \code{F.n()} returns the empirical distribution function of \code{X} evaluated at
-  \code{x}.
+  \code{F.n()} returns the empirical distribution function of \code{X}
+  evaluated at \code{x} if \code{smoothing = "none"}, the empirical beta
+  copula evaluated at \code{x} if \code{smoothing = "beta"} and the empirical
+  checkerboard copula evaluated at \code{x} if \code{smoothing =
+    "checkerboard"}.
   %% The result is slightly wrapped as \code{"mvFn"} (S3) class object,
   %% with a \code{\link{persp}} and \code{\link{print}} method, but behaves
   %% otherwise a simple \code{\link{numeric}} vector.
