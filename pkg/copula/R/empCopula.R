@@ -188,19 +188,37 @@ setMethod("dCopula", signature("matrix", "empCopula"),
         if(!is.matrix(u)) u <- rbind(u) # (m, d) matrix of evaluation points
         m <- nrow(u)
         d <- ncol(X) # = dim(copula)
-        f <- vapply(1:m, FUN = function(k)
-            dbeta(u[k,], shape1 = R, shape2 = n+1-R, log = log, ...),
-            FUN.VALUE = matrix(NA_real_, nrow = n, ncol = d))
-        ##-> (n, d, m) array containing all f_{n,R_{ij}}(u_{kj}) (see copula book)
         offset <- copula@offset
-        apply(f, 3, function(f.) {
-            if(log) {
-                lx <- rowSums(f.)
-                lsum(lx) - log(n + offset)
-            } else {
-                sum(apply(f., 1, prod)) / (n + offset)
-            }
-        })
+        ## OLD CODE: WRONG!
+        ## f <- vapply(1:m, FUN = function(k)
+        ##     dbeta(u[k,], shape1 = R, shape2 = n+1-R, log = log, ...),
+        ##     FUN.VALUE = matrix(NA_real_, nrow = n, ncol = d))
+        ## ##-> (n, d, m) array containing all f_{n,R_{ij}}(u_{kj}) (see copula book)
+        ## apply(f, 3, function(f.) {
+        ##     if(log) {
+        ##         lx <- rowSums(f.)
+        ##         lsum(lx) - log(n + offset)
+        ##     } else {
+        ##         sum(apply(f., 1, prod)) / (n + offset)
+        ##     }
+        ## })
+        if(log) {
+            vapply(seq_len(m), function(k) { # iterate over rows k of u
+                lsum( # lsum() over i
+                    vapply(seq_len(n), function(i) {
+                        ## k and i are fixed now
+                        lx.k.i <- sum( dbeta(u[k,], shape1 = R[i,], shape2 = n + 1 - R[i,], log = TRUE) ) # log(prod()) = sum(log()) over j for fixed k and i
+                    },
+                    NA_real_)) - log(n + offset)
+            }, NA_real_)
+        } else { # as for 'pbeta', just with dbeta()
+            vapply(seq_len(m), function(k) { # iterate over rows k of u
+                sum( # sum() over i
+                    vapply(seq_len(n), function(i)
+                        prod( dbeta(u[k,], shape1 = R[i,], shape2 = n + 1 - R[i,]) ), # prod() over j
+                        NA_real_)) / (n + offset)
+            }, NA_real_)
+        }
     } else stop("Empirical copula only has a density for smoothing = 'beta'")
 })
 
