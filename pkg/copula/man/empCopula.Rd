@@ -5,8 +5,10 @@
 \alias{C.n}
 \alias{empCopula}
 \alias{Cn}% <- deprecated, but of course kept here
+\alias{toEmpMargins}
 \description{
-  Computes the empirical copula (according to a provided method).
+  Computes the empirical copula (according to a provided method) and
+  auxiliary tools.
 }
 \usage{
 empCopula(X, smoothing = c("none", "beta", "checkerboard"), offset = 0,
@@ -16,6 +18,7 @@ C.n(u, X, smoothing = c("none", "beta", "checkerboard"), offset = 0,
 dCn(u, U, j.ind = 1:d, b = 1/sqrt(nrow(U)), ...)
 F.n(x, X, offset = 0, smoothing = c("none", "beta", "checkerboard"))
 Cn(x, w) ## <-- deprecated!  use  C.n(w, x) instead!
+toEmpMargins(U, x, ...)
 }
 \arguments{
   \item{X}{an \eqn{(n, d)}-\code{\link{matrix}} of pseudo-observations
@@ -27,11 +30,12 @@ Cn(x, w) ## <-- deprecated!  use  C.n(w, x) instead!
   \item{u,w}{an \eqn{(m, d)}-\code{\link{matrix}} with elements in
     \eqn{[0,1]} whose rows contain the evaluation points of the
     empirical copula.}
-  \item{U}{for \code{dCN()} only: an \eqn{(n,d)}-\code{\link{matrix}} of
-    pseudo-observations (elements in \eqn{[0,1]}, same number \eqn{d} of columns as
-    \code{u}).}
+  \item{U}{an \eqn{(n,d)}-\code{\link{matrix}} of
+    pseudo- (or copula-)observations (elements in \eqn{[0,1]},
+    same number \eqn{d} of columns as \code{u} (for \code{dCn()}))
+    or \code{x} (for \code{toEmpMargins()}).}
   \item{x}{an \eqn{(m, d)}-\code{\link{matrix}} whose rows
-    contain the evaluation points of the empirical distribution function
+    contain the evaluation points of the empirical distribution< function
     (if \code{smoothing = "none"}) or copula (if \code{smoothing != "none"}).}
   \item{smoothing}{\code{\link{character}} string specifying whether
     the empirical distribution function (for \code{F.n()}) or copula
@@ -49,7 +53,8 @@ Cn(x, w) ## <-- deprecated!  use  C.n(w, x) instead!
     first-order partial derivatives.}
   \item{offset}{used in scaling the result which is of the form
     \code{sum(....)/(n+offset)}; defaults to zero.}
-  \item{\dots}{additional arguments passed to \code{dCn()}.}
+  \item{\dots}{additional arguments passed to \code{dCn()} or
+    \code{sort()} underlying \code{toEmpMargins()}.}
 }
 \value{
   \code{empCopula()} is the constructor for objects of class
@@ -79,6 +84,9 @@ Cn(x, w) ## <-- deprecated!  use  C.n(w, x) instead!
   %% otherwise a simple \code{\link{numeric}} vector.
   %% As pure computational tool, \code{.Fn()} returns the same raw numeric
   %% vector.
+
+  \code{toEmpMargins()} transforms the copula sample \code{U} to the
+  empirical margins based on the sample \code{x}.
 }
 \note{
   The first version of our empirical copula implementation, \code{Cn()},
@@ -229,5 +237,12 @@ wireframe2(ecop.beta,  FUN = pCopula)
 wireframe2(ecop.check, FUN = pCopula)
 ## Density (only exists when smoothing = "beta")
 wireframe2(ecop.beta,  FUN = dCopula)
+
+## Transform a copula sample to empirical margins
+set.seed(271)
+X <- qexp(rCopula(1000, copula = claytonCopula(2))) # multivariate distribution
+U <- rCopula(917, copula = gumbelCopula(2)) # new copula sample
+X. <- toEmpMargins(U, x = X) # tranform U to the empirical margins of X
+plot(X.) # Gumbel sample with empirical margins of X
 }
 \keyword{multivariate}

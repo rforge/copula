@@ -21,6 +21,27 @@ Cn <- function(x, w) {
 }
 
 
+### Transform a copula sample to empirical margins #############################
+
+##' @title Transform a copula sample to empirical margins
+##' @param U (n, d)-matrix of copula samples (in [0,1]^d)
+##' @param x (m, d)-matrix of samples (in IR^d)
+##' @param ... additional arguments passed to the underlying sort()
+##' @return (n, d)-matrix of samples 'U' marginally transformed with the empirical
+##'         quantile functions based on 'x'
+##' @author Marius Hofert
+toEmpMargins <- function(U, x, ...)
+{
+    if(!is.matrix(x)) x <- rbind(x)
+    if(!is.matrix(U)) U <- rbind(U)
+    d <- ncol(x)
+    stopifnot(ncol(U) == d)
+    ind <- ceiling(nrow(x) * U) # columnwise in {1,...,nrow(x)}
+    x.sort <- apply(x, 2, sort, ...)
+    sapply(seq_len(d), function(j) x.sort[ind[,j],j])
+}
+
+
 ### Empirical distribution function ############################################
 
 ##' @title Empirical distribution function
@@ -238,3 +259,4 @@ setMethod("pCopula", signature("matrix", "empCopula"),
 ## setMethod("tau", signature("empCopula"), function(copula) ) # unclear
 ## setMethod("rho", signature("empCopula"), function(copula) )
 ## setMethod("lambda", signature("empCopula"), function(copula) )
+
