@@ -232,7 +232,7 @@ setMethod("dCopula", signature("matrix", "empCopula"),
                     },
                     NA_real_)) - log(n + offset)
             }, NA_real_)
-        } else { # as for 'pbeta', just with dbeta()
+        } else { # as for df based on pbeta(), just with dbeta()
             vapply(seq_len(m), function(k) { # iterate over rows k of u
                 sum( # sum() over i
                     vapply(seq_len(n), function(i)
