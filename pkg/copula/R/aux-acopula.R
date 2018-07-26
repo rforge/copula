@@ -14,7 +14,7 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-if((Rv <- getRversion()) < "3.2.1") {
+if((Rv <- getRversion()) < "3.2.0") {
     lengths <- function (x, use.names = TRUE) vapply(x, length, 1L, USE.NAMES = use.names)
     ## now have  Depends: R (>= 3.1.0)
     ## if(Rv < "3.1.0") {
@@ -25,7 +25,7 @@ if((Rv <- getRversion()) < "3.2.1") {
     ##             paste0 <- function(...) paste(..., sep = '')
     ##     }
     ## }
-} ## R < 3.2.1
+} ## R < 3.2.0
 
 
 #### Functions and Methods for "acopula" objects

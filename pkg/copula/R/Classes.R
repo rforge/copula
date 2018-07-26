@@ -294,7 +294,7 @@ setClass("plackettCopula", contains = "copula", slots = c(exprdist = "expression
 ### Multivariate distibutions via copulas ######################################
 
 validMvdc <- function(object) {
-    dim <- object@copula@dimension
+    dim <- dim(object@copula) # @dimension may not exist
     if(!is.finite(dim) || dim < 2)
 	return("'dimension' must be integer >= 2")
     if(dim != length(object@margins))

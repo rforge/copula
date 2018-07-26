@@ -73,3 +73,8 @@ if(doExtras)
 
 gofCopula(rF4, pobs(u), sim = "mult")
 
+## mvdc()  ex. from Johanna & Marius
+rc <- rotCopula(claytonCopula(1.719))
+mvcl <- mvdc(rc, c("norm", "norm"),
+             list(list(mean = 0, sd = 3), list(mean = 0)))
+## gave an error about @dimension previously

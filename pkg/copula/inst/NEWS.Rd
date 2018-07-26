@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-19 (2018-04-28, svn r17..)}{
+\section{Changes in version 0.999-19 (2018-07-.., svn r177.)}{
   \subsection{New Features}{
     \itemize{
       \item contributors now are all mentioned in \file{DESCRIPTION}.
@@ -14,7 +14,7 @@
       \item a new vignette \file{HAXC} on Hierarchical Archimax Copulas.
 
       \item New simple classes and constructor \code{fhCopula()} for
-      lower an upper Frechet--Hoeffding bounds (\eqn{W} and \eqn{M}),
+      lower and upper Frechet--Hoeffding bounds (\eqn{W} and \eqn{M}),
       see \code{?fhCopula}.
 
       \item Empirical copulas now get an explicit class and constructor
@@ -49,6 +49,7 @@
       (and hence, e.g. \code{pCopula()} gives an error).
       \item Bugfix in \code{rCopula(, copula = mixCopula())} if the
       weights are unit vectors.
+      \item \code{mvdc(<rotCopula>, *)} now works, too.
     }
   }
 }
