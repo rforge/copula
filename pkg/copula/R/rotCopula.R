@@ -141,7 +141,7 @@ rotExplicitCopula <- function(copula, flip = TRUE) {
 ##################################################################################
 
 ## dimension
-setMethod("dim", signature("rotCopula"), function(x) dim(x@copula))
+## setMethod("dim", signature("rotCopula"), function(x) dim(x@copula))
 
 ## parameter names
 setMethod("paramNames", signature("rotCopula"), function(x) paramNames(x@copula))
