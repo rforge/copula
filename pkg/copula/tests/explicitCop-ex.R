@@ -122,8 +122,8 @@ U <- rCopula(100000, k.mC.g)
 ## check cdf with C.n
 
 ## Must work for d=1 [e.g. in 'gofCopula::gofKendallCvM()]:
-u <- as.matrix((0:7)/7)
-Cuu <- C.n(u,u) ## <- did not work for 1-dim. u[] matrix for a while
+u1 <- as.matrix((0:7)/7)
+Cuu <- C.n(u1,u1) ## <- did not work for 1-dim. u[] matrix for a while
 stopifnot(all.equal(Cuu, c(0:3,5:8)/8, tol = 1e-15))
 ## NOTE(MM): From the above result I think the finite-sample definition of C.n()
 ## ----      "sucks": It is not equidistant when u[] is.
