@@ -51,3 +51,20 @@ stopifnot(Akg[c(1,9)] == 1,
 	      c(1, 0.88987, 0.85893, 0.87634, 0.90023, 0.92504, 0.95, 0.975, 1))
     )
 
+if(!copula:::doExtras())
+    q("no")
+
+## Only for package maintainer etc -- not in standard tests :
+
+use <- baseenv()[[paste0("re", "quire")]]
+
+## Failure in 'copuladaes' :
+if(use("copulaedas")) {
+### From example  CEDA-class:
+    UMDA <- CEDA(copula = "indep", margin = "norm",
+                 popSize = 200, fEval = 0, fEvalTol = 1e-03)
+    UMDA@name <- "Univariate Marginal Distribution Algorithm"
+    resultsUMDA <- edaRun(UMDA, fSphere, rep(-600, 5), rep(600, 5))
+    ##   Error in edaLearn(eda, gen, model, selectedPop, selectedEval, lower, upper) :
+    ## no slot of name "parameters" for this object of class "indepCopula"
+}

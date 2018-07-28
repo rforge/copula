@@ -59,7 +59,7 @@ toEmpMargins <- function(U, x, ...)
 F.n <- function(x, X, offset = 0, smoothing = c("none", "beta", "checkerboard"))
 {
     if(!is.matrix(x)) x <- rbind(x)
-    stopifnot(is.numeric(d <- ncol(X)), d == ncol(x), d >= 2, 0 <= offset, offset <= 1)
+    stopifnot(is.numeric(d <- ncol(X)), d == ncol(x), d >= 1, 0 <= offset, offset <= 1)
     n <- nrow(X)
     smoothing <- match.arg(smoothing)
     m <- nrow(x)
