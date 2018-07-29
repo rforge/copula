@@ -11,6 +11,7 @@ vignette: >
 ---
 In this vignette, we present some findings around quasi-random numbers for
 copula models; see also Cambou et al. (2016, ``Quasi-random numbers for copula models'').
+Note that not all plots are displayed (to keep the tarball small).
 
 ```{r, message=FALSE}
 library(lattice)
@@ -25,9 +26,9 @@ library(randtoolbox)
 
 ### Independence copula
 
-Let's start with something know, the independence case.
+Let's start with something known, the independence case.
 
-```{r, fig.align="center", fig.width=12, fig.height=6}
+```{r, fig.align="center", fig.width=12, fig.height=6, fig.show="hide"}
 n <- 1000 # sample size
 set.seed(271) # set the seed (for reproducibility)
 U <- matrix(runif(n*2), ncol = 2) # pseudo-random numbers
@@ -41,6 +42,25 @@ Let's check if the more equally spaced points (less gaps, less clusters)
 are preserved in the copula world when determined with one-to-one
 transformations (such as the conditional distribution method (CDM); this can be
 obtained via `cCopula(, inverse=TRUE)`).
+
+### Clayton copula
+
+Consider a Clayton copula.
+
+```{r}
+family <- "Clayton"
+tau <- 0.5
+th <- iTau(getAcop(family), tau)
+cop <- onacopulaL(family, nacList = list(th, 1:2))
+```
+
+```{r, fig.align="center", fig.width=12, fig.height=6}
+U.C  <- cCopula(U,  copula = cop, inverse = TRUE) # via PRNG
+U.C. <- cCopula(U., copula = cop, inverse = TRUE) # via QRNG
+par(pty = "s", mfrow = 1:2)
+plot(U.C,  xlab = expression(italic(U)[1]), ylab = expression(italic(U)[2]), cex = 0.4)
+plot(U.C., xlab = expression(italic(U)[1]), ylab = expression(italic(U)[2]), cex = 0.4)
+```
 
 ### $t$ copula with three degrees of freedom
 
@@ -58,30 +78,14 @@ cop <- ellipCopula(family, param = th, df = nu)
 U.t  <- cCopula(U,  copula = cop, inverse = TRUE) # via PRNG
 U.t. <- cCopula(U., copula = cop, inverse = TRUE) # via QRNG
 par(pty = "s", mfrow = 1:2)
-plot(U.t,  xlab = expression(italic(U)[1]), ylab = expression(italic(U)[2]))
-plot(U.t., xlab = expression(italic(U)[1]), ylab = expression(italic(U)[2]))
-```
-
-
-### Clayton copula
-
-```{r}
-family <- "Clayton"
-tau <- 0.5
-th <- iTau(getAcop(family), tau)
-cop <- onacopulaL(family, nacList = list(th, 1:2))
-```
-
-```{r, fig.align="center", fig.width=12, fig.height=6}
-U.C  <- cCopula(U,  copula = cop, inverse = TRUE) # via PRNG
-U.C. <- cCopula(U., copula = cop, inverse = TRUE) # via QRNG
-par(pty = "s", mfrow = 1:2)
-plot(U.C,  xlab = expression(italic(U)[1]), ylab = expression(italic(U)[2]))
-plot(U.C., xlab = expression(italic(U)[1]), ylab = expression(italic(U)[2]))
+plot(U.t,  xlab = expression(italic(U)[1]), ylab = expression(italic(U)[2]), cex = 0.4)
+plot(U.t., xlab = expression(italic(U)[1]), ylab = expression(italic(U)[2]), cex = 0.4)
 ```
 
 
 ### Marshall--Olkin copula
+
+Now something more fancy, a Marshall--Olkin copula.
 
 ```{r}
 alpha <- c(0.25, 0.75)
@@ -113,8 +117,8 @@ inv_cond_cop_MO <- function(u, alpha)
 U.MO  <- inv_cond_cop_MO(U,  alpha = alpha)
 U.MO. <- inv_cond_cop_MO(U., alpha = alpha)
 par(pty = "s", mfrow = 1:2)
-plot(U.MO,  xlab = expression(italic(U)[1]), ylab = expression(italic(U)[2]))
-plot(U.MO., xlab = expression(italic(U)[1]), ylab = expression(italic(U)[2]))
+plot(U.MO,  xlab = expression(italic(U)[1]), ylab = expression(italic(U)[2]), cex = 0.4)
+plot(U.MO., xlab = expression(italic(U)[1]), ylab = expression(italic(U)[2]), cex = 0.4)
 ```
 
 
@@ -130,7 +134,7 @@ cop <- ellipCopula(family, param = th, dim = 3, df = nu)
 ```
 
 First the pseudo-random version.
-```{r, fig.align="center", fig.width=6, fig.height=6}
+```{r, fig.align="center", fig.width=6, fig.height=6, fig.show="hide"}
 U.3d <- matrix(runif(n*3), ncol = 3)
 U.t.3d <- cCopula(U.3d, copula = cop, inverse = TRUE)
 par(pty = "s")
@@ -139,7 +143,7 @@ pairs(U.t.3d, gap = 0,
 ```
 
 Now the quasi-random version.
-```{r, fig.align="center", fig.width=6, fig.height=6}
+```{r, fig.align="center", fig.width=6, fig.height=6, fig.show="hide"}
 U.3d. <- halton(n, dim = 3)
 U.t.3d. <- cCopula(U.3d., copula = cop, inverse = TRUE)
 par(pty = "s")
@@ -152,7 +156,7 @@ Note that projections (here: to pairs) can appear not to be
 seen bivariate projections and 'quasi-randomness' is also not easily visible
 from a 3d cloud plot.
 
-```{r, fig.align="center", fig.width=12, fig.height=6, results="hide"}
+```{r, fig.align="center", fig.width=12, fig.height=6, results="hide", fig.show="hide"}
 p1 <- cloud(U.t.3d[,3]~U.t.3d[,1]+U.t.3d[,2], scales = list(col = 1, arrows = FALSE),
             col = 1, xlab = expression(italic(U)[1]), ylab = expression(italic(U)[2]),
             zlab = expression(italic(U[3])),
@@ -179,7 +183,7 @@ is not run here to avoid a cyclic dependency (since VineCopula imports copula).
 <!--       4: G  (numerical inversion!) -->
 <!--       5: F  (should be fine) -->
 <!--       6: J  (numerical inversion!) -->
-```{r, fig.align="center", fig.width=6, fig.height=6}
+```{r, fig.align="center", fig.width=6, fig.height=6, fig.show="hide"}
 if(FALSE) {
     library(VineCopula)
     M <- matrix(c(3, 1, 2,
@@ -253,15 +257,19 @@ col.[apply(U >= 0.5, 1, all)] <- "royalblue3"
 #### Colorized scatter plot (quasi-random numbers and CDM)
 ```{r, fig.align="center", fig.width=12, fig.height=6}
 par(pty = "s", mfrow = 1:2)
-plot(U[,1:2], xlab = expression(italic(U)[1]*"'"), ylab = expression(italic(U)[2]*"'"), col = col)
-plot(U_CDM,   xlab = expression(italic(U)[1]), ylab = expression(italic(U)[2]), col = col)
+plot(U[,1:2], xlab = expression(italic(U)[1]*"'"), ylab = expression(italic(U)[2]*"'"),
+     col = col, cex = 0.4)
+plot(U_CDM,   xlab = expression(italic(U)[1]), ylab = expression(italic(U)[2]),
+     col = col, cex = 0.4)
 ```
 
 #### Colorized scatter plots (quasi-random numbers and MO)
 ```{r, fig.align="center", fig.width=12, fig.height=6}
 par(pty = "s", mfrow = 1:2)
-plot(U[,2:3], xlab = expression(italic(U)[2]*"'"), ylab = expression(italic(U)[3]*"'"), col = col.)
-plot(U_MO, xlab = expression(italic(U)[1]), ylab = expression(italic(U)[2]), col = col.)
+plot(U[,2:3], xlab = expression(italic(U)[2]*"'"), ylab = expression(italic(U)[3]*"'"),
+     col = col., cex = 0.4)
+plot(U_MO, xlab = expression(italic(U)[1]), ylab = expression(italic(U)[2]),
+     col = col., cex = 0.4)
 ```
 
 ### 2.2 A variance-reduction example
