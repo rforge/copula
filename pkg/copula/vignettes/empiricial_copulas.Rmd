@@ -141,29 +141,6 @@ stopifnot(all.equal(lemp.cop.dbeta, log(emp.cop.dbeta))) # sanity check
 emp.cop.chck   <- empirical_copula(u,  U = U, smoothing = "checkerboard")
 ```
 
-As a check, plot the empirical copulas and compare each with its
-implementation in `copula`.
-```{r, fig.align = "center", fig.width = 6, fig.height = 6, fig.show = "hold"}
-## Empirical copula
-wireframe2(cbind(u, "Empirical~copula" = emp.cop.none))
-wireframe2(empCopula(U), FUN = pCopula, draw.4.pCoplines = FALSE)
-```
-```{r, fig.align = "center", fig.width = 6, fig.height = 6, fig.show = "hold"}
-## Empirical beta copula
-wireframe2(cbind(u, "Empirical~'beta'~copula" = emp.cop.pbeta))
-wireframe2(empCopula(U, smoothing = "beta"), FUN = pCopula, draw.4.pCoplines = FALSE)
-```
-```{r, fig.align = "center", fig.width = 6, fig.height = 6, fig.show = "hold"}
-## Empirical beta copula density
-wireframe2(cbind(u., "Empirical~'beta'~copula~density" = emp.cop.dbeta))
-wireframe2(empCopula(U, smoothing = "beta"), FUN = dCopula, delta = delta, draw.4.pCoplines = FALSE)
-```
-```{r, fig.align = "center", fig.width = 6, fig.height = 6, fig.show = "hold"}
-## Empirical checkerboard copula
-wireframe2(cbind(u, "Empirical~checkerboard~copula" = emp.cop.chck))
-wireframe2(empCopula(U, smoothing = "checkerboard"), FUN = pCopula, draw.4.pCoplines = FALSE)
-```
-
 
 ## 3 Application to show non-uniqueness of Sklar's Theorem for Bernoulli margins
 
@@ -215,9 +192,9 @@ U.Pi <- sapply(1:2, function(j) F(X[,j], Lambda = Lambda.Pi[,j], p = p[j]))
 U.M  <- sapply(1:2, function(j) F(X[,j], Lambda = Lambda.M [,j], p = p[j]))
 ```
 
-As a basic test, let us check whether the mass distributions have indeed
-standard uniform margins.
-```{r, fig.align = "center", fig.width = 6, fig.height = 6, fig.show = "hold"}
+As a basic test, one could visually check whether the mass distributions
+have indeed standard uniform margins.
+```{r, fig.align = "center", fig.width = 6, fig.height = 6, fig.show = "hide"}
 ## Check margins
 opar <- par(pty = "s")
 plot(U.Pi[,1], pch = ".", ylab = expression(U[1]~"under independent"~Lambda*"'s"))
