@@ -179,6 +179,7 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
     ## 2) Fit the copula
     C.th.n <- fitCopula(copula, uhat.fit, method = estim.method,
 			estimate.variance = FALSE, ...)@copula
+
     ## 3) Compute the realized test statistic
     doTrafo <- (method != "Sn" && trafo.method != "none") # (only) transform if method != "Sn" and trafo.method given
     u <- if(doTrafo) {
@@ -202,6 +203,7 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
         ir <- apply(x, 2, function(y) rank(sort(y)))
 
     T0 <- vapply(1:N, function(k) {
+
         ## 4.1) Sample the fitted copula
         U <- rCopula(n, C.th.n)
         if(ties) { ## Sample x may have ties -- Reproduce tie structure of x
@@ -214,10 +216,11 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
         Uhat.fit <- if (ties == FALSE || ties.method == fit.ties.meth) Uhat
                     else pobs(U, ties.method = fit.ties.meth)
 
-
         ## 4.2) Fit the copula
         C.th.n. <- fitCopula(copula, Uhat.fit, method=estim.method,
+
                              estimate.variance=FALSE, ...)@copula
+
         ## 4.3) Compute the test statistic
         u. <- if(doTrafo) { # (no checks needed; all done above)
 	    switch(trafo.method,
