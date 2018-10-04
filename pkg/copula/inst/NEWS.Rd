@@ -7,6 +7,8 @@
 \section{Changes in version 0.999-19 (2018-07-28, svn r1785)}{
   \subsection{New Features}{
     \itemize{
+      \item \code{gofCopula()} gets new argument \code{test.method}.
+
       \item contributors now are all mentioned in \file{DESCRIPTION}.
 
       \item \code{exchTest()} gets new argument \code{ties.method}.

@@ -114,7 +114,8 @@ gofTstat <- function(u, method = c("Sn", "SnB", "SnC", "AnChisq", "AnGamma"),
 gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
                   estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
 		  trafo.method = if(method == "Sn") "none" else c("cCopula", "htrafo"),
-		  trafoArgs = list(), verbose = interactive(), useR = FALSE,
+		  trafoArgs = list(), test.method = c("family", "single"),
+                  verbose = interactive(), useR = FALSE,
                   ties = NA, ties.method = c("max", "average", "first", "last", "random", "min"),
                   fit.ties.meth = eval(formals(rank)$ties.method), ...)
 {
@@ -259,12 +260,12 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
 }
 
 ## Auxiliary function for informative output
-.gofTstr <- function(type, copula, test = c("family", "single")) {
+.gofTstr <- function(type, copula, test) {
     if(test == "family") {
         paste(type, "bootstrap-based goodness-of-fit test of",
-              describeCop(copula, kind="short"), "family")
+              describeCop(copula, kind = "short"), "family")
     } else {
-        paste(type, "bootstrap-based goodness-of-fit test of single",
+        paste(type, "bootstrap-based goodness-of-fit test of a single",
               describeCop(copula, kind="short"))
     }
 }
@@ -347,6 +348,7 @@ Jscore <- function(copula, u, method)
 
 gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
                   estim.method = c("mpl", "ml", "itau", "irho"),
+                  test.method = c("family", "single"),
                   verbose = interactive(), useR = FALSE, m = 1/2,
                   zeta.m = 0, b = 1/sqrt(nrow(x)),
                   ties.method = c("max", "average", "first", "last", "random", "min"),
@@ -360,11 +362,12 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
 
 ##' revert to call  gofMB()  once that is gone
 .gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
-                  estim.method = c("mpl", "ml", "itau", "irho"),
-                  verbose = interactive(), useR = FALSE, m = 1/2,
-                  zeta.m = 0, b = 1/sqrt(nrow(x)),
-                  ties.method = c("max", "average", "first", "last", "random", "min"),
-                  fit.ties.meth = eval(formals(rank)$ties.method), ...)
+                   estim.method = c("mpl", "ml", "itau", "irho"),
+                   test.method = c("family", "single"),
+                   verbose = interactive(), useR = FALSE, m = 1/2,
+                   zeta.m = 0, b = 1/sqrt(nrow(x)),
+                   ties.method = c("max", "average", "first", "last", "random", "min"),
+                   fit.ties.meth = eval(formals(rank)$ties.method), ...)
 {
     ## Checks -- NB: let the *generic* fitCopula() check 'copula'
     stopifnot(N >= 1)
@@ -375,6 +378,7 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
     stopifnot((d <- ncol(x)) > 1, (n <- nrow(x)) > 0, dim(copula) == d)
     method <- match.arg(method)
     estim.method <- match.arg(estim.method)
+    test.method <- match.arg(test.method)
     if(estim.method == "ml") stop("estim.method='ml' not available")
     if(estim.method %in% c("irho", "itau") && d > 2)
         stop("only bivariate case possible for estim.method='irho' or ='itau'")
@@ -384,8 +388,15 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
     u.fit <- if (ties.method == fit.ties.meth) u.
              else pobs(x, ties.method = fit.ties.meth)
 
-    ## 2) Fit the copula (copula is the H_0 copula; C.th.n = C_{\theta_n}(.))
-    C.th.n <- fitCopula(copula, u.fit, method=estim.method, estimate.variance=FALSE, ...)@copula
+    ## 2) Fit the copula
+    ##    ('copula' is the H_0 copula; C.th.n = C_{\theta_n}(.)
+    ##     unless 'test.method = "single"' in which case it is the
+    ##     provided 'copula'; see Step 2) of .gofPB())
+    C.th.n <- if(test.method == "family") {
+                  fitter <- function(..., test.method)
+                      fitCopula(copula, u.fit, method=estim.method, estimate.variance=FALSE, ...)@copula
+                  fitter(...)
+              } else copula
 
     ## 3) Compute the realized test statistic
     C.th.n. <- pCopula(u., C.th.n) # n-vector
@@ -465,7 +476,7 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
 
     ## Return result object
     structure(class = "htest",
-	      list(method = paste0(.gofTstr("Multiplier", copula),
+	      list(method = paste0(.gofTstr("Multiplier", copula, test.method),
 				   sprintf(", with 'method'=\"%s\", 'estim.method'=\"%s\":",
 					  method, estim.method)),
                    parameter = c(parameter = getTheta(C.th.n)),
@@ -493,9 +504,9 @@ gofMB <- function(copula, x, N, method = c("Sn", "Rn"),
 ##' @author Ivan Kojadinovic, Marius Hofert
 gofCopulaCopula <- function(copula, x, N=1000, method = c("Sn", "SnB", "SnC", "Rn"),
                             estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
-                            simulation = c("pb", "mult"), verbose = interactive(),
-                            ties = NA,
-                            ties.method = c("max", "average", "first", "last", "random", "min"),
+                            simulation = c("pb", "mult"), test.method = c("family", "single"),
+                            verbose = interactive(),
+                            ties = NA, ties.method = c("max", "average", "first", "last", "random", "min"),
                             fit.ties.meth = eval(formals(rank)$ties.method), ...)
 {
     ## Checks
@@ -508,6 +519,7 @@ gofCopulaCopula <- function(copula, x, N=1000, method = c("Sn", "SnB", "SnC", "R
     method <- match.arg(method)
     estim.method <- match.arg(estim.method)
     simulation <- match.arg(simulation)
+    test.method <- match.arg(test.method)
     ties.method <- match.arg(ties.method)
     fit.ties.meth <- match.arg(fit.ties.meth)
 
@@ -531,17 +543,18 @@ gofCopulaCopula <- function(copula, x, N=1000, method = c("Sn", "SnB", "SnC", "R
 
     ## Distinguish the methods
     switch(simulation,
-    "pb" = { ## parametric bootstrap
-       .gofPB(copula, x, N=N, method=method, estim.method=estim.method,
-              verbose = verbose, ties = ties, ties.method = ties.method,
-              fit.ties.meth = fit.ties.meth, ...)
-    },
-    "mult" = { ## multiplier bootstrap
-       .gofMB(copula, x=x, N=N, method=method, estim.method=estim.method,
-              verbose = verbose, ties.method = ties.method,
-              fit.ties.meth = fit.ties.meth, ...)
-    },
-    stop("Invalid simulation method ", simulation))
+           "pb" = { ## parametric bootstrap
+               .gofPB(copula, x, N = N, method = method, estim.method = estim.method,
+                      test.method = test.method, verbose = verbose,
+                      ties = ties, ties.method = ties.method,
+                      fit.ties.meth = fit.ties.meth, ...)
+           },
+           "mult" = { ## multiplier bootstrap
+               .gofMB(copula, x = x, N = N, method = method, estim.method = estim.method,
+                      test.method = test.method, verbose = verbose,
+                      ties.method = ties.method, fit.ties.meth = fit.ties.meth, ...)
+           },
+           stop("Invalid simulation method ", simulation))
 }
 
 setMethod("gofCopula", signature("parCopula"), gofCopulaCopula)
