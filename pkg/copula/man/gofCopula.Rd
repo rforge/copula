@@ -34,7 +34,7 @@ gofCopula(copula, x, \dots)
           ties.method = c("max", "average", "first", "last", "random", "min"),
           fit.ties.meth = eval(formals(rank)$ties.method), \dots)
 
-## Internal 'helper' functions : ---
+## (Deprecated) internal 'helper' functions : ---
 gofPB(copula, x, N, method = c("Sn", "SnB", "SnC"),
       estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
       trafo.method = if(method == "Sn") "none" else c("cCopula", "htrafo"),
@@ -231,6 +231,7 @@ n <- 200; N <- 1000 # realistic (but too large for interactive use)
 n <-  60; N <-  200 # (time (and tree !) saving ...)
 
 ## A two-dimensional data example ----------------------------------
+set.seed(271)
 x <- rCopula(n, claytonCopula(3))
 
 ## Does the Gumbel family seem to be a good choice (statistic "Sn")?

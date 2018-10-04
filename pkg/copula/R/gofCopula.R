@@ -126,11 +126,12 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
 }
 
 
-##' revert to call  gofPB()  once that is gone
+##' revert to call gofPB() once that is gone
 .gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
                    estim.method = c("mpl", "ml", "itau", "irho", "itau.mpl"),
 		   trafo.method = if(method == "Sn") "none" else c("cCopula", "htrafo"),
-                   trafoArgs = list(), verbose = interactive(), useR = FALSE,
+                   trafoArgs = list(), test.method = c("family", "single"),
+                   verbose = interactive(), useR = FALSE,
                    ties = NA, ties.method = c("max", "average", "first", "last", "random", "min"),
                    fit.ties.meth = eval(formals(rank)$ties.method), ...)
 {
@@ -143,6 +144,7 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
     stopifnot((d <- ncol(x)) > 1, (n <- nrow(x)) > 0, dim(copula) == d)
     method <- match.arg(method)
     estim.method <- match.arg(estim.method)
+    test.method <- match.arg(test.method)
     if(method != "Sn")
 	trafo.method <- match.arg(trafo.method, c("cCopula", "htrafo"))
     if(trafo.method == "htrafo") {
@@ -177,8 +179,14 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
                 else pobs(x, ties.method = fit.ties.meth)
 
     ## 2) Fit the copula
-    C.th.n <- fitCopula(copula, uhat.fit, method = estim.method,
-			estimate.variance = FALSE, ...)@copula
+    ##    (if test.method = "family", otherwise take the provided copula; this
+    ##     is useful for testing random number generators)
+    C.th.n <- if(test.method == "family") {
+                  fitter <- function(..., test.method)
+                      fitCopula(copula, uhat.fit, method = estim.method,
+                                estimate.variance = FALSE, ...)@copula
+                  fitter(...) # avoids passing on 'test.method' to optim() [can be omitted if 'test.method' is a formal arg of gofCopula()]; see https://stackoverflow.com/questions/7028385/can-i-remove-an-element-in-dot-dot-dot-and-pass-it-on
+              } else copula
 
     ## 3) Compute the realized test statistic
     doTrafo <- (method != "Sn" && trafo.method != "none") # (only) transform if method != "Sn" and trafo.method given
@@ -204,7 +212,7 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
 
     T0 <- vapply(1:N, function(k) {
 
-        ## 4.1) Sample the fitted copula
+        ## 4.1) Sample the fitted (if test.method = "family") copula
         U <- rCopula(n, C.th.n)
         if(ties) { ## Sample x may have ties -- Reproduce tie structure of x
             for (i in 1:d) {
@@ -216,10 +224,13 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
         Uhat.fit <- if (ties == FALSE || ties.method == fit.ties.meth) Uhat
                     else pobs(U, ties.method = fit.ties.meth)
 
-        ## 4.2) Fit the copula
-        C.th.n. <- fitCopula(copula, Uhat.fit, method=estim.method,
-
-                             estimate.variance=FALSE, ...)@copula
+        ## 4.2) Fit the copula (if test.method = "family"; see Step 2))
+        C.th.n. <- if(test.method == "family") {
+                       fitter <- function(..., test.method)
+                           fitCopula(copula, Uhat.fit, method = estim.method,
+                                     estimate.variance = FALSE, ...)@copula
+                       fitter(...) # see Step 2)
+                   } else copula
 
         ## 4.3) Compute the test statistic
         u. <- if(doTrafo) { # (no checks needed; all done above)
@@ -238,7 +249,7 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
     tr.string <- if (trafo.method == "none") ""
                  else sprintf(", 'trafo.method'=\"%s\"", trafo.method)
     structure(class = "htest",
-	      list(method = paste0(.gofTstr("Parametric", copula),
+	      list(method = paste0(.gofTstr("Parametric", copula, test.method),
 				   sprintf(", with 'method'=\"%s\", 'estim.method'=\"%s\"%s:",
 					   method, estim.method, tr.string)),
                    parameter = c(parameter = getTheta(C.th.n)),
@@ -247,9 +258,16 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
                    data.name = deparse(substitute(x))))
 }
 
-.gofTstr <- function(type, copula)
-    paste(type, "bootstrap-based goodness-of-fit test of",
-          describeCop(copula, kind="short"))
+## Auxiliary function for informative output
+.gofTstr <- function(type, copula, test = c("family", "single")) {
+    if(test == "family") {
+        paste(type, "bootstrap-based goodness-of-fit test of",
+              describeCop(copula, kind="short"), "family")
+    } else {
+        paste(type, "bootstrap-based goodness-of-fit test of single",
+              describeCop(copula, kind="short"))
+    }
+}
 
 
 ### The multiplier bootstrap (for computing different goodness-of-fit tests) ###
