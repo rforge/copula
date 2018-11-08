@@ -63,7 +63,7 @@ cpK + cpCn
 curve(A(fg@copula, x), from = 0, to = 1, ylim = c(0.5, 1),
       lwd = 2, xlab = "t", ylab = "A(t)", col = 1) # parametric
 curve(A(fk2@copula, x), 0,1, lwd = 2, add = TRUE, col = 2) # parametric
-curve(An.biv(U, x),     0,1, lwd = 2, add = TRUE, col = 3) # non-parametric
+curve(An.biv(U, x),     0,1, lwd = 2, add = TRUE, col = 3) # nonparametric
 lines(c(0, 0.5, 1), c(1, 0.5, 1), lty = 2)
 lines(c(0, 1),      c(1, 1),      lty = 2)
 legend("bottomright", bty = "n", lwd = 2, col=1:3,
@@ -247,11 +247,11 @@ d <- ncol(U) # 20 dimensions
 fit <- fitCopula(tCopula(dim = d, dispstr = "un"), data = U,
                  method = "itau.mpl")
 ## Extract parameter estimates
-len <- length(fit@estimate)
+len <- length(coef(fit))
 stopifnot(len == d*(d-1)/2 + 1) # sanity check
-p <- fit@estimate[seq_len(len-1)] # correlations
+p <- coef(fit)[seq_len(len-1)] # correlations
 ## Note: The estimated correlation matrix can be obtained via p2P(p, d = d)
-nu <- fit@estimate[len] # degrees of freedom nu
+nu <- coef(fit)[len] # degrees of freedom nu
 
 ## Define the H_0 copula
 cop.t <- ellipCopula("t", df = nu, param = p, dim = d, dispstr = "un")

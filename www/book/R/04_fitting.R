@@ -44,7 +44,7 @@ summary(ifme)
 optimMeth(claytonCopula(), method = "ml", dim = 2)
 
 
-### 4.1.2 Non-parametrically estimated margins #################################
+### 4.1.2 Nonparametrically estimated margins #################################
 
 ### Pseudo-observations of daily log-returns
 
@@ -144,8 +144,8 @@ f.irho <- fitCopula(normalCopula(dim = d, dispstr = "un"), data = U,
 f.itau <- fitCopula(normalCopula(dim = d, dispstr = "un"), data = U,
                     method = "itau")
 
-P.irho <- p2P(f.irho@estimate, d = d)
-P.itau <- p2P(f.itau@estimate, d = d)
+P.irho <- p2P(coef(f.irho), d = d)
+P.itau <- p2P(coef(f.itau), d = d)
 
 
 ### Estimation of t copula parameters using the method of Mashal and Zeevi
@@ -285,11 +285,11 @@ kcf <- khoudrajiCopula(copula2 = claytonCopula(),
 fitCopula(kcf, start = c(1.1, 0.5), data = U)
 
 
-### 4.2 Non-parametric estimation of the copula ################################
+### 4.2 Nonparametric estimation of the copula ################################
 
 ### 4.2.1 The empirical copula #################################################
 
-### Non-parametric estimation by the empirical copula
+### Nonparametric estimation by the empirical copula
 
 ## The "unknown" copula (a 3-dim. Clayton copula with parameter 3)
 d <- 3
@@ -353,7 +353,7 @@ stopifnot(all.equal(C.n(w3, X = U, smoothing = "checkerboard"), v))
 
 ### 4.2.2 Under extreme-value dependence #######################################
 
-### Non-parametric estimation of the Pickands dependence function
+### Nonparametric estimation of the Pickands dependence function
 
 ## The "unknown" copula (a 2-dim. extreme-value copula)
 kg <- khoudrajiCopula(copula1 = indepCopula(),

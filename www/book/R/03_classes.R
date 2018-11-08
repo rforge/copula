@@ -94,7 +94,7 @@ U.cop <- rCopula(n, copula = tCopula(rho, dim = d, df = nu))
 stopifnot(all.equal(U.cop, U.rmvt))
 
 X.meta <- cbind(qt(U[,1], df = 2), qt(U[,2], df = 10))
-plot(X, xlab = quote(X[1]), ylab = quote(X[2]))
+plot(X,      xlab = quote(X[1]), ylab = quote(X[2]))
 plot(X.meta, xlab = quote(X[1]), ylab = quote(X[2]))
 
 
@@ -312,7 +312,7 @@ plot(U, xlab = quote(U[1]), ylab = quote(U[2])) # Pareto-simplex sample
 alpha <- c(0.5, 2) # Dirichlet parameters
 G <- vapply(alpha, function(a) rgamma(n, a), numeric(n)) # Gamma variables
 D <- G / rowSums(G) # Dirichlet distribution on unit simplex
-U. <- 1 - pobs(R * D) # empirical marginal survival functions
+U. <- 1 - pobs(R * D) # use empirical marginal survival functions
 plot(U., xlab = quote(U[1]), ylab = quote(U[2])) # Pareto-Liouville sample
 
 
@@ -487,7 +487,7 @@ legend("bottomright", bty = "n", lwd = 2,, col = 1:4,
 
 kgsc <- khoudrajiCopula(copula1 = gumbelCopula(2, dim = 3),
                         copula2 = rotCopula(claytonCopula(6, dim = 3)),
-                        shapes = c(.6, 0.7, 0.95))
+                        shapes = c(0.6, 0.7, 0.95))
 ## Random points in the unit hypercube where to evaluate the density
 set.seed(42)
 v <- matrix(runif(15), 5, 3)
@@ -495,7 +495,7 @@ dCopula(v, copula = kgsc)
 
 kgn <- khoudrajiCopula(copula1 = gumbelCopula(2, dim = 3),
                        copula2 = normalCopula(0.9, dim = 3),
-                       shapes = c(.6, 0.7, 0.95))
+                       shapes = c(0.6, 0.7, 0.95))
 try(dCopula(v, copula = kgn)) # not implemented
 
 
@@ -505,14 +505,13 @@ try(dCopula(v, copula = kgn)) # not implemented
 
 cc <- claytonCopula(iTau(claytonCopula(), tau = 0.75)) # the first component
 gc <- gumbelCopula(iTau(gumbelCopula(),   tau = 0.75)) # the second component
-weights <- c(1/3, 2/3) # the corresponding weights
-(mcg <- mixCopula(list(cc, gc), w = weights)) # the mixture copula
+wts <- c(1/3, 2/3) # the corresponding weights
+(mcg <- mixCopula(list(cc, gc), w = wts)) # the mixture copula
 
-stopifnot(all.equal(rho(mcg), weights[1] * rho(cc) + weights[2] * rho(gc)))
+stopifnot(
+    all.equal(   rho(mcg), wts[1] *    rho(cc) + wts[2] *    rho(gc)),
+    all.equal(lambda(mcg), wts[1] * lambda(cc) + wts[2] * lambda(gc)))
 lambda(mcg)
-
-stopifnot(all.equal(lambda(mcg),
-                    weights[1] * lambda(cc) + weights[2] * lambda(gc)))
 
 set.seed(127)
 U <- rCopula(1000, copula = mcg) # sample from the mixture

@@ -449,7 +449,7 @@ plot(U, xlab = expression(U[1]), ylab = expression(U[2]))
 
 ## Fit a t copula to the estimated standardized residuals
 fitcop <- fitCopula(tCopula(), data = U, method = "mpl")
-fitcop@estimate # estimated correlation parameter rho and d.o.f. nu
+coef(fitcop) # estimated correlation parameter rho and d.o.f. nu
 
 cop <- fitcop@copula # fitted t copula
 
@@ -515,7 +515,7 @@ nmLL <- function(beta.m, x, z, pobs = FALSE)
 
 ## Build the design matrix
 z <- model.matrix(~ Minority + SES + Female + Public + Size +
-                      Urban + Rural, data = nels)
+                  Urban + Rural, data = nels)
 p <- ncol(z) + 1 # number of parameters per margin
 
 math.glm <- glm(Math ~ Minority + SES + Female + Public + Size +
@@ -613,7 +613,7 @@ nfLL <- function(par, x, z, copula)
          nmLL.1$nLL + nmLL.2$nLL + nmLL.3$nLL
 }
 
-res.g <- optim(c(ts.g@estimate, ts.math, ts.sci, ts.read), nfLL,
+res.g <- optim(c(coef(ts.g), ts.math, ts.sci, ts.read), nfLL,
                x = nels, z = z, copula = gumbelCopula(dim = 3),
                method = "BFGS", control = list(maxit = 1e6), hessian = TRUE)
 stopifnot(res.g$convergence == 0) # the optimization has converged
@@ -621,13 +621,13 @@ stopifnot(res.g$convergence == 0) # the optimization has converged
 
 ## Maximization of the full conditional likelihood function using
 ## as initial values the estimates obtained with the two-stage approach
-res.f <- optim(c(ts.f@estimate, ts.math, ts.sci, ts.read), nfLL,
+res.f <- optim(c(coef(ts.f), ts.math, ts.sci, ts.read), nfLL,
                x = nels, z = z, copula = frankCopula(dim = 3),
                method = "BFGS", control = list(maxit = 1e6), hessian = TRUE)
 stopifnot(res.f$convergence == 0) # the optimization has converged
 -res.f$value # the maximized likelihood
 
-res.n <- optim(c(ts.n.ex@estimate, ts.math, ts.sci, ts.read), nfLL,
+res.n <- optim(c(coef(ts.n.ex), ts.math, ts.sci, ts.read), nfLL,
                x = nels, z = z, copula = normalCopula(dim = 3),
                method = "BFGS", control = list(maxit = 1e6), hessian = TRUE)
 stopifnot(res.n$convergence == 0) # the optimization has converged
@@ -639,7 +639,7 @@ full.sci  <- res.n$par[p+1 + 1:p] # param. est. of the 2nd marginal model
 full.read <- res.n$par[2*p+1 + 1:p] # param. est. of the 3rd marg. model
 
 ## Comparison of the estimated copula param. (two-stage vs full likelihood)
-c(ts.n.ex@estimate, full.n.ex)
+c(coef(ts.n.ex), full.n.ex)
 
 ## Comparison of the estimated parameters of the three marginal models
 round(cbind(ts.math, full.math, ts.sci, full.sci, ts.read, full.read), 3)
