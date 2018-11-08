@@ -1,13 +1,13 @@
 Package: copula
 Version: 0.999-19
 VersionNote: Last CRAN: 0.999-18 on 2017-08-31
-Date: 2018-07-28
+Date: 2018-11-06
 Title: Multivariate Dependence with Copulas
-Authors@R: c(person("Marius", "Hofert", role = "aut", email = "marius.hofert@uwaterloo.ca")
-	   , person("Ivan", "Kojadinovic", role = "aut", email = "ivan.kojadinovic@univ-pau.fr")
-	   , person("Martin","Maechler", role=c("aut","cre"), email = "maechler@stat.math.ethz.ch")
-	   , person("Jun", "Yan", rol = "aut", email = "jun.yan@uconn.edu")
-	   , person(c("Johanna", "G."), "Nešlehová", role = "ctb", comment = "evTestK()"))
+Authors@R: c(person("Marius", "Hofert", role = "aut", email = "marius.hofert@uwaterloo.ca",       comment = c(ORCID = "0000-0001-8009-4665"))
+	   , person("Ivan", "Kojadinovic", role = "aut", email = "ivan.kojadinovic@univ-pau.fr",  comment = c(ORCID = "0000-0002-2903-1543"))
+	   , person("Martin","Maechler", role=c("aut","cre"), email="maechler@stat.math.ethz.ch", comment = c(ORCID = "0000-0002-8685-9910"))
+	   , person("Jun", "Yan", rol = "aut", email = "jun.yan@uconn.edu",                       comment = c(ORCID = "0000-0003-4401-7296"))
+	   , person(c("Johanna", "G."), "Nešlehová", role = "ctb", comment = c("evTestK()", ORCID = "0000-0001-9634-4796")))
 Depends: R (>= 3.1.0)
 Imports: stats, graphics, methods, stats4, Matrix, lattice, colorspace,
 	gsl, ADGofTest, stabledist (>= 0.6-4), mvtnorm, pcaPP, pspline, numDeriv

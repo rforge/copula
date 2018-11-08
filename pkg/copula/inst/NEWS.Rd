@@ -4,12 +4,13 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-19 (2018-07-28, svn r1785)}{
+\section{Changes in version 0.999-19 (2018-11-06, svn r1785)}{
   \subsection{New Features}{
     \itemize{
       \item \code{gofCopula()} gets new argument \code{test.method}.
 
-      \item contributors now are all mentioned in \file{DESCRIPTION}.
+      \item contributors now are all mentioned in \file{DESCRIPTION};
+      and all are listed including their ORCID's.
 
       \item \code{exchTest()} gets new argument \code{ties.method}.
 
@@ -46,7 +47,7 @@
   \subsection{Bug Fixes}{
     \itemize{
       \item Bugfix in \code{dCopula()} method of
-      \code{empCopula(, smoothing = "beta")}.
+      \code{empCopula(*, smoothing = "beta")}.
       \item Better error messages when copula parameters are \code{NA}
       (and hence, e.g. \code{pCopula()} gives an error).
       \item Bugfix in \code{rCopula(, copula = mixCopula())} if the
