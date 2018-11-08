@@ -261,13 +261,11 @@ gofPB <- function(copula, x, N, method = c("Sn", "SnB", "SnC"),
 
 ## Auxiliary function for informative output
 .gofTstr <- function(type, copula, test) {
-    if(test == "family") {
-        paste(type, "bootstrap-based goodness-of-fit test of",
-              describeCop(copula, kind = "short"), "family")
-    } else {
-        paste(type, "bootstrap-based goodness-of-fit test of a single",
-              describeCop(copula, kind="short"))
-    }
+    paste(type,
+          "bootstrap-based goodness-of-fit test of",
+          if(test == "single") "a single", # single: *the* exception;
+          ## strongly recommended default "family": not mentioned (if only for back-compatib.)
+          describeCop(copula, kind = "short"))
 }
 
 
