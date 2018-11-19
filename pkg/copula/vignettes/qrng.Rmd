@@ -10,7 +10,7 @@ vignette: >
   %\VignetteIndexEntry{Quasi-Random Numbers for Copula Models}
 ---
 In this vignette, we present some findings around quasi-random numbers for
-copula models; see also Cambou et al. (2016, ``Quasi-random numbers for copula models'').
+copula models; see also Cambou et al. (2016, "Quasi-random numbers for copula models").
 Note that not all plots are displayed (to keep the tarball small).
 
 ```{r, message=FALSE}
@@ -406,8 +406,8 @@ quasi-random numbers for copula models can reduce the standard deviations (or
 variances), and this holds not only for one-to-one transformations such as the
 conditional distribution method but also for well-known stochastic
 representations such as Marshall--Olkin's. Note that the results are more
-pronounced for larger sample sizes; see also Cambou et al. (2016, ``Quasi-random
-numbers for copula models'').
+pronounced for larger sample sizes; see also Cambou et al. (2016, "Quasi-random
+numbers for copula models").
 ```{r, fig.align="center", fig.width=6, fig.height=6}
 plot(n, res[,"CDM","runif"], xlab = "n", type = "b", log = "xy", ylim = range(res, y.p, y.q),
      ylab = substitute("Standard deviation estimates of"~ES[a]~"for"~d==d.~"and"~tau==tau.,
