@@ -297,7 +297,7 @@ function(copula, value) {
 })
 
 
-## describe copula
+## Describe copula
 setMethod(describeCop, c("mixCopula", "character"), function(x, kind, prefix="", ...) {
     m <- length(x@w)
     c1 <- paste0(prefix, "mixCopula from ", m, " components")
@@ -310,8 +310,7 @@ setMethod(describeCop, c("mixCopula", "character"), function(x, kind, prefix="",
 	   "  with weights:\n", dputNamed(x@w))
 })
 
-
-##' The  C() function :
+## The copula
 pMixCopula <- function(u, copula, ...) {
     as.vector(
 	vapply(copula@cops, pCopula, FUN.VALUE=numeric(nrow(u)), u=u, ...)
@@ -321,7 +320,7 @@ pMixCopula <- function(u, copula, ...) {
 
 setMethod("pCopula", signature("matrix",  "mixCopula"), pMixCopula)
 
-##' The c() function :
+## The density
 dMixCopula <- function(u, copula, log = FALSE, ...) {
     n <- nrow(u) ## stopifnot(is.numeric(n))
     fu <- vapply(copula@cops, dCopula, FUN.VALUE=numeric(n), u=u, log=log, ...)
@@ -332,7 +331,6 @@ dMixCopula <- function(u, copula, log = FALSE, ...) {
     else
 	as.numeric(fu %*% w) # as.*(): drop dimension
 }
-
 setMethod("dCopula", signature("matrix",  "mixCopula"), dMixCopula)
 
 ## Random Number Generation
@@ -345,13 +343,32 @@ setMethod("rCopula", signature("numeric", "mixCopula"),
                 function(j) if(nj[j] > 0) rCopula(nj[j], copula@cops[[j]]) else NULL) # fix to work with do.call() if nj == 0
     ## Bind rows together and randomly permute the entries
     do.call(rbind, U)[sample.int(n), ]
-})
+          })
 
+## Conditional copulas in the bivariate case
+cMixCopula <- function(u, copula, ...) {
+    d <- ncol(u)
+    stopifnot(d == dim(copula))
+    if(d != 2)
+        stop("cCopula() is currently only available for bivariate 'mixCopula' objects")
+    ## For d > 2, note that Schmitz' formula for conditional copulas is a
+    ## fraction of weighted sums of copulas and thus not equal to a weighted
+    ## sum of fractions (unless d = 2 in which case the denominators are all 1).
+    as.vector(
+	vapply(copula@cops, cCopula, FUN.VALUE=numeric(nrow(u)), u=u, ...)
+	%*%
+	copula@w)
+}
+setMethod("cCopula", signature("matrix",  "mixCopula"), cMixCopula)
+
+## Tail dependence
 setMethod("lambda", "mixCopula", function(copula, ...)
     setNames(c(vapply(copula@cops, lambda, numeric(2)) %*% copula@w),
              c("lower", "upper")))
 
-
-setMethod("rho", "mixCopula", function(copula, ...)
+## Spearman's rho
+setMethod("rho", "mixCopula", function(copula, ...) # note: Kendall's tau non-trivial
     c(vapply(copula@cops, rho, 1.1) %*% copula@w))
+
+
 
