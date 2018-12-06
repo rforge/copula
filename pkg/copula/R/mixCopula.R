@@ -321,7 +321,7 @@ pMixCopula <- function(u, copula, ...) {
 
 setMethod("pCopula", signature("matrix",  "mixCopula"), pMixCopula)
 
-##' The  c() function :
+##' The c() function :
 dMixCopula <- function(u, copula, log = FALSE, ...) {
     n <- nrow(u) ## stopifnot(is.numeric(n))
     fu <- vapply(copula@cops, dCopula, FUN.VALUE=numeric(n), u=u, log=log, ...)
