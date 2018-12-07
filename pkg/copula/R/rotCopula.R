@@ -104,9 +104,9 @@ rotExplicitCopula <- function(copula, flip = TRUE) {
         term <- do.call(substitute, list(cdf, eval(rep.l)))
         rotCdf <- substitute(a + sgn * b, list(a = rotCdf, b = term, sgn = Sign[i]))
     }
-    oldu <- paste0("u", 1:d)[flip]
+    oldu <- paste0("u", 1:d)[flip] # TODO: is character(0) if flip = rep(FALSE, ...); probably needs if(any(flip)) ... else ...
     newu <- paste0("1 - ", oldu)
-    flip.l <- parse(text = paste0(
+    flip.l <- parse(text = paste0( # TODO: fails for 'oldu' = character(0) (if flip = c(FALSE, FALSE))
                         "list(",
                         paste0(oldu, " = quote(", newu, ")", collapse = ", "),
                         ")"))

@@ -7,6 +7,9 @@
 \section{Changes in version 0.999-19 (2018-11-06, svn r1785)}{
   \subsection{New Features}{
     \itemize{
+      \item \code{cCopula()} now works for \code{rotCopula} objects
+      and bivariate \code{mixCopula} objects.
+
       \item \code{gofCopula()} gets new argument \code{test.method}.
 
       \item contributors now are all mentioned in \file{DESCRIPTION};

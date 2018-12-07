@@ -345,22 +345,6 @@ setMethod("rCopula", signature("numeric", "mixCopula"),
     do.call(rbind, U)[sample.int(n), ]
           })
 
-## Conditional copulas in the bivariate case
-cMixCopula <- function(u, copula, ...) {
-    d <- ncol(u)
-    stopifnot(d == dim(copula))
-    if(d != 2)
-        stop("cCopula() is currently only available for bivariate 'mixCopula' objects")
-    ## For d > 2, note that Schmitz' formula for conditional copulas is a
-    ## fraction of weighted sums of copulas and thus not equal to a weighted
-    ## sum of fractions (unless d = 2 in which case the denominators are all 1).
-    as.vector(
-	vapply(copula@cops, cCopula, FUN.VALUE=numeric(nrow(u)), u=u, ...)
-	%*%
-	copula@w)
-}
-setMethod("cCopula", signature("matrix",  "mixCopula"), cMixCopula)
-
 ## Tail dependence
 setMethod("lambda", "mixCopula", function(copula, ...)
     setNames(c(vapply(copula@cops, lambda, numeric(2)) %*% copula@w),
