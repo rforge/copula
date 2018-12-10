@@ -4,17 +4,9 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-19 (2018-11-06, svn r1785)}{
+\section{Changes in version 0.999-19 (2018-12-10, svn r1806)}{
   \subsection{New Features}{
     \itemize{
-      \item \code{cCopula()} now works for \code{rotCopula} objects
-      and bivariate \code{mixCopula} objects.
-
-      \item \code{gofCopula()} gets new argument \code{test.method}.
-
-      \item contributors now are all mentioned in \file{DESCRIPTION};
-      and all are listed including their ORCID's.
-
       \item \code{exchTest()} gets new argument \code{ties.method}.
 
       \item a new vignette \file{HAXC} on Hierarchical Archimax Copulas.
@@ -45,6 +37,14 @@
       \item the \code{"indepCopula"} now extends only \code{"dimCopula"}
       and \code{"parCopula"} and hence no longer has unuseful slots such
       as \code{parameter}.
+
+      \item contributors now are all mentioned in \file{DESCRIPTION};
+      and all are listed including their ORCID's.
+
+      \item \code{gofCopula()} gets new argument \code{test.method}.
+
+      \item \code{cCopula()} now works for \code{rotCopula} objects
+      and bivariate \code{mixCopula} objects.
     }
   }
   \subsection{Bug Fixes}{
