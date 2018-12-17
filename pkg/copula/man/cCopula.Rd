@@ -171,9 +171,8 @@ stopifnot(
 ## 4) cCopula() for a more sophisticated mixture copula (bivariate case only!)
 
 tau <- 0.5
-nu <- 4
 cc <- claytonCopula(iTau(claytonCopula(), tau = tau)) # first mixture component
-tc <- tCopula(iTau(tCopula(), tau = tau), df = nu) # t copula
+tc <- tCopula(iTau(tCopula(), tau = tau), df = 3) # t_3 copula
 tc90 <- rotCopula(tc, flip = c(TRUE, FALSE)) # t copula rotated by 90 degrees
 wts <- c(1/2, 1/2) # mixture weights
 mc <- mixCopula(list(cc, tc90), w = wts) # mixture copula with one copula rotated
