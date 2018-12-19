@@ -331,7 +331,7 @@ cCopula <-  function(u, copula, indices = 1:dim(copula), inverse = FALSE,
     d <- ncol(u)
     stopifnot(0 <= u, u <= 1, d >= 2, is(copula, "Copula"),
               is.logical(inverse), is.logical(log))
-    if(1 > indices || indices > dim(copula))
+    if(!all(1 <= indices && indices <= dim(copula)))
         stop("'indices' have to be between 1 and the copula dimension.")
     if(is.unsorted(indices))
         stop("'indices' have to be unique and given in increasing order.")
