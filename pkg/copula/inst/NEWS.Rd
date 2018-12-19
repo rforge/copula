@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-19 (2018-12-10, svn r1806)}{
+\section{Changes in version 0.999-19 (2018-12-19, svn r1808)}{
   \subsection{New Features}{
     \itemize{
       \item \code{exchTest()} gets new argument \code{ties.method}.
@@ -56,6 +56,7 @@
       \item Bugfix in \code{rCopula(, copula = mixCopula())} if the
       weights are unit vectors.
       \item \code{mvdc(<rotCopula>, *)} now works, too.
+      \item fixed thinko in internal \code{chkFun()} called e.g., by \code{perspMvdc()}.
     }
   }
 }

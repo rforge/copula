@@ -25,7 +25,7 @@ chkFun <- function(FUN)
     if(!is.function(FUN)) stop("the 'FUN' argument is not even a function")
     isObj <- function(nm) any(nm == c("copula", "mvdc")) ## [pdq][Cc]opula
     nf <- names(formals(FUN))
-    if(isObj(nf[2]) || nf[1:2] == c("x","X")) ## || is F.n()
+    if(isObj(nf[2]) || all(nf[1:2] == c("x","X"))) ## || is F.n()
         TRUE
     else if(isObj(nf[1])) FALSE
     else NA # and the caller will produce an error eventually
