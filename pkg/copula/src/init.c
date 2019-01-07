@@ -94,11 +94,16 @@ static R_NativePrimitiveArgType evtest_t[] = {
 static R_NativePrimitiveArgType evtestA_t[] = {REALSXP, REALSXP, INTSXP, REALSXP, REALSXP,
 	     INTSXP, INTSXP, INTSXP, REALSXP};
 
-static R_NativePrimitiveArgType evtestA_derA_t[] = {REALSXP, REALSXP, INTSXP, REALSXP, REALSXP,
-		  INTSXP, INTSXP, INTSXP, REALSXP};
-
-static R_NativePrimitiveArgType evtestA_stat_t[] = {REALSXP, REALSXP, INTSXP, REALSXP, REALSXP, INTSXP,
-		  INTSXP, REALSXP, REALSXP};
+static R_NativePrimitiveArgType evtestA_derA_t[] = {
+    REALSXP, REALSXP, INTSXP,
+    REALSXP, REALSXP, INTSXP,
+    INTSXP, INTSXP, REALSXP
+};
+static R_NativePrimitiveArgType evtestA_stat_t[] = {
+    REALSXP, REALSXP, INTSXP,
+    REALSXP, REALSXP, INTSXP,
+    INTSXP, REALSXP, REALSXP
+};
 
 // ./exchtest.c ////////////////////////////////////////////////////////////////
 
