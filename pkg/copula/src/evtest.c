@@ -413,7 +413,7 @@ double intgr(double x, double termUt, double termVt, double powUt, double powVt,
 void vec_intgr(double *x, int n, void *ex)
 {
   int i;
-  double *arg = ex;
+  double *arg = (double *) ex;
   for (i = 0; i < n; i++)
     x[i] = intgr(x[i], arg[0], arg[1], arg[2], arg[3],
 		 arg[4], arg[5], arg[6], arg[7]);
