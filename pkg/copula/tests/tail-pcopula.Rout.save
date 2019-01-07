@@ -37,10 +37,12 @@ Loading required package: tools
 > ##-> assertError()
 > 
 > ## fCopulae: don't do on CRAN, and really "can not" suggest fCopulae
-> tryfCop <- TRUE # for interactive convenience
-> ## when run as BATCH:
-> tryfCop <- nzchar(Sys.getenv("R_copula_check_fCop")) ||
-+     identical("true", unname(Sys.getenv("R_MM_PKG_CHECKING")))
+> (tryfCop <- if(interactive())
++                TRUE # for interactive convenience
++             else ## when run as BATCH:
++                nzchar(Sys.getenv("R_copula_check_fCop")) ||
++                    identical("true", unname(Sys.getenv("R_MM_PKG_CHECKING"))))
+[1] TRUE
 > 
 > if(tryfCop) { ## will only "work" if not "--as-cran"
 +     .r <- require
@@ -200,11 +202,66 @@ Parameters:
 +     )
 + }
 > 
+> ###----------------- Compare with fitLambda() , both methods: --------------
+> 
+> set.seed(101)
+> U.7.3 <- rCopula(n = 2^15, t.7.3) # pretty large n .. still
+> U.9.2 <- rCopula(n = 2^15, t.9.2)
+> 
+> system.time(fL.7.3 <- fitLambda(U.7.3))              # 0.03 sec
+   user  system elapsed 
+  0.031   0.000   0.031 
+> system.time(fL.9.2 <- fitLambda(U.9.2))              #  "
+   user  system elapsed 
+  0.030   0.000   0.029 
+> system.time(fLt7.3 <- fitLambda(U.7.3, method="t"))  # 2.25 sec
+   user  system elapsed 
+  2.167   0.009   2.180 
+> fL.7.3
+        [,1]    [,2]
+[1,] 1.00000 0.40137
+[2,] 0.40137 1.00000
+> stopifnot(
++     all.equal(fL.7.3[1,2], 0.401369993)
++     ,
++     all.equal(fL.9.2[1,2], 0.89522363)
++     ,
++     names(fLt7.3) == c("Lambda", "P", "Nu")
++     ,
++     all.equal(fLt7.3$Lambda[1,2], 0.447410146)
++ )
+> (doExtras <- copula:::doExtras() && getRversion() >= "3.4") # so have withAutoprint(.)
+[1] TRUE
+> if(doExtras) withAutoprint({
++     system.time(fLt9.2 <- fitLambda(U.9.2, method="t"))
++     fLt9.2
++     stopifnot(all.equal(fLt9.2$Lambda[1,2], 0.719807333))
++ })
+> system.time(fLt9.2 <- fitLambda(U.9.2, method = "t"))
+   user  system elapsed 
+  2.283   0.006   2.292 
+> fLt9.2
+$Lambda
+          [,1]      [,2]
+[1,] 1.0000000 0.7198073
+[2,] 0.7198073 1.0000000
+
+$P
+          [,1]      [,2]
+[1,] 1.0000000 0.8987356
+[2,] 0.8987356 1.0000000
+
+$Nu
+         [,1]     [,2]
+[1,]       NA 1.926772
+[2,] 1.926772       NA
+
+> stopifnot(all.equal(fLt9.2$Lambda[1, 2], 0.719807333))
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ''statistical reasons''
-Time elapsed:  0.755 0.13 1.029 0.001 0.002 
+Time elapsed:  5.772 0.109 5.887 0.001 0.002 
 > 
 > proc.time()
    user  system elapsed 
-  0.756   0.132   1.029 
+  5.773   0.111   5.887 
