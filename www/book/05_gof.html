@@ -107,7 +107,7 @@ cpK + cpCn
 curve(A(fg@copula, x), from = 0, to = 1, ylim = c(0.5, 1),
       lwd = 2, xlab = &quot;t&quot;, ylab = &quot;A(t)&quot;, col = 1) # parametric
 curve(A(fk2@copula, x), 0,1, lwd = 2, add = TRUE, col = 2) # parametric
-curve(An.biv(U, x),     0,1, lwd = 2, add = TRUE, col = 3) # non-parametric
+curve(An.biv(U, x),     0,1, lwd = 2, add = TRUE, col = 3) # nonparametric
 lines(c(0, 0.5, 1), c(1, 0.5, 1), lty = 2)
 lines(c(0, 1),      c(1, 1),      lty = 2)
 legend(&quot;bottomright&quot;, bty = &quot;n&quot;, lwd = 2, col=1:3,
@@ -291,11 +291,11 @@ d &lt;- ncol(U) # 20 dimensions
 fit &lt;- fitCopula(tCopula(dim = d, dispstr = &quot;un&quot;), data = U,
                  method = &quot;itau.mpl&quot;)
 ## Extract parameter estimates
-len &lt;- length(fit@estimate)
+len &lt;- length(coef(fit))
 stopifnot(len == d*(d-1)/2 + 1) # sanity check
-p &lt;- fit@estimate[seq_len(len-1)] # correlations
+p &lt;- coef(fit)[seq_len(len-1)] # correlations
 ## Note: The estimated correlation matrix can be obtained via p2P(p, d = d)
-nu &lt;- fit@estimate[len] # degrees of freedom nu
+nu &lt;- coef(fit)[len] # degrees of freedom nu
 
 ## Define the H_0 copula
 cop.t &lt;- ellipCopula(&quot;t&quot;, df = nu, param = p, dim = d, dispstr = &quot;un&quot;)

@@ -262,12 +262,12 @@ qF &lt;- list(qPar = function(p) (1 - p)^(-1/th) - 1,
 set.seed(271) # for reproducibility
 X &lt;- sapply(qF, function(mqf) mqf(runif(2500))) # (2500, 3)-matrix
 
-##&#39; @title Non-parametric VaR estimate under a t copula
+##&#39; @title Nonparametric VaR estimate under a t copula
 ##&#39; @param X loss matrix
 ##&#39; @param alpha confidence level(s)
 ##&#39; @param rho correlation parameter of the t copula
 ##&#39; @param df degrees of freedom parameter of the t copula
-##&#39; @return Non-parametric VaR estimate under the t copula (numeric)
+##&#39; @return Nonparametric VaR estimate under the t copula (numeric)
 VaR &lt;- function(X, alpha, rho, df = 3.5)
 {
     stopifnot(is.matrix(X), 0 &lt;= rho, rho &lt;= 1, length(rho) == 1,
@@ -280,7 +280,7 @@ VaR &lt;- function(X, alpha, rho, df = 3.5)
     ## Note: We can set the seed here as we can estimate VaR for all
     ##       confidence levels based on the same copula sample. We
     ##       even *should* set the seed here to minimize the variance
-    ##       of the estimation and make the results more comparable.
+    ##       of the estimator and make the results more comparable.
     set.seed(271)
     U &lt;- rCopula(n, copula = tCopula(rho, dim = d, df = df))
     rk &lt;- apply(U, 2, rank)
@@ -290,7 +290,7 @@ VaR &lt;- function(X, alpha, rho, df = 3.5)
     ## Build row sums to mimic a sample from the distribution of the
     ## sum under the corresponding t copula.
     S &lt;- rowSums(Y)
-    ## Non-parametrically estimate VaR for all confidence levels alpha
+    ## Nonparametrically estimate VaR for all confidence levels alpha
     ## Note: We use the mathematical definition (&#39;type = 1&#39;) of a
     ##       quantile function here
     quantile(S, probs = alpha, type = 1, names = FALSE)
@@ -759,12 +759,12 @@ ex.prob.t3 &lt;- pCopula(rep(1 - u, d), copula = tCopula(rho, dim = d, df = 3))
 nu &lt;- 3.5
 theta &lt;- iTau(tCopula(df = nu), tau = 0.5)
 tc &lt;- tCopula(theta, df = nu)
-## Evaluate the df C(.|u_1) for several u_1
+## Evaluate the df C(.|u_1) at u for several u_1
 u &lt;- c(0.05, 0.3, 0.7, 0.95)
 u2 &lt;- seq(0, 1, by = 0.01)
 ccop &lt;- sapply(u, function(u.)
     cCopula(cbind(u., u2), copula = tc, indices = 2))
-## Evaluate the function C(u_2|.) for several u_2
+## Evaluate the function C(u_2|.) at u for several u_2
 u1 &lt;- seq(0, 1, by = 0.01)
 ccop. &lt;- sapply(u, function(u.)
     cCopula(cbind(u1, u.), copula = tc, indices = 2))
@@ -811,7 +811,7 @@ U. &lt;- cCopula(U, copula = gc)
 ## Apply the transformation R_C with a wrong copula
 gc. &lt;- setTheta(gc, value = 4) # larger theta
 U.. &lt;- cCopula(U, copula = gc.)
-plot(U., xlab = quote(U*&quot;&#39;&quot;[1]), ylab = quote(U*&quot;&#39;&quot;[2]))
+plot(U.,  xlab = quote(U*&quot;&#39;&quot;[1]), ylab = quote(U*&quot;&#39;&quot;[2]))
 plot(U.., xlab = quote(U*&quot;&#39;&quot;[1]), ylab = quote(U*&quot;&#39;&quot;[2]))
 
 
@@ -842,7 +842,7 @@ plot(U.cc.quasi,  xlab = quote(U[1]),     ylab = quote(U[2]))
 ##&#39; @param u lower-left endpoint (u_1,..., u_d) of the evaluation point
 ##&#39; @return Estimates of P(U_1 &gt; u_1,..., U_d &gt; u_d) by
 ##&#39;         pseudo-random numbers, Latin hypercube sampling and
-##&#39;         quasi-random numbers.
+##&#39;         randomized quasi-random numbers.
 sProb &lt;- function(n, copula, u) # sample size, copula, lower-left endpoint
 {
     d &lt;- length(u)
