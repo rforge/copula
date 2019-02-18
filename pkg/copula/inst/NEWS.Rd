@@ -9,6 +9,9 @@
     \itemize{
       \item \code{evTestA()} got new options \code{trace.lev} and
       \code{report.err} for reporting numerical intergration problems.
+
+      \item \code{gofT2stat()} implements the two-sample test statistic
+      of R\enc{é}{e}millard and Scaillet (2009).
     }
   }
   \subsection{Bug Fixes}{
