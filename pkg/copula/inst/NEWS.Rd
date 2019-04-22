@@ -16,7 +16,8 @@
   }
   \subsection{Bug Fixes}{
     \itemize{
-      \item ..
+      \item \code{rCopula()} of an \code{empCopula} object failed
+      because sampling was done without \code{replace = TRUE}.
     }
   }
 }
