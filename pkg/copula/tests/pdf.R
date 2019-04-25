@@ -203,7 +203,7 @@ suppressWarnings(
     tTau <- sapply(tau.s, function(tau) vapply(copObs, iTau, numeric(1), tau = tau))
 ) # tTau is printed in moments.R
 
-set.seed(12)
+suppressWarnings(RNGversion("3.5.0")) ; set.seed(12)
 u <- matrix(mku(1000), ncol= 2)# d = 2 required in the copula objects
 
 ##' == function(u) copula:::outside.01(u, strictly = FALSE) --- used in dCopula()

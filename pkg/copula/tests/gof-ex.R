@@ -74,6 +74,7 @@ tools::assertError(
                    checkFamilies = c("Clayton", "Gumbel"))
 )
 
+suppressWarnings(RNGversion("3.5.0")) # => sample() "biased" --> warning --> *remove* in future!
 set.seed(1) # set seed
 ## note: this might (still) take a while...
 RR <- sapply(gofTraf, simplify="array", function(gt)

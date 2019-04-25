@@ -41,7 +41,7 @@ kd2b <- khoudrajiCopula(copula1 = gumbelCopula(4),
                         copula2 = indepCopula(),
                         shapes = c(0, 0))
 
-set.seed(12)
+suppressWarnings(RNGversion("3.5.0")) ; set.seed(12)
 v <- matrix(runif(10), 5, 2)
 
 stopifnot(all.equal(dCopula(v, kd2a), dCopula(v, claytonCopula(6))))
