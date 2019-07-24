@@ -196,7 +196,11 @@ iRosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, drop = 
     if (!is.matrix(u)) # minimal checking here!
         u <- rbind(u, deparse.level = 0L)
     n <- nrow(u) # sample size
-    if(is(copula, "normalCopula")) { # Gauss copula (see, e.g., Cambou, Hofert, Lemieux)
+    if(is(copula, "indepCopula")) {
+
+        U <- if(log) log(u) else u
+
+    } else if(is(copula, "normalCopula")) { # Gauss copula (see, e.g., Cambou, Hofert, Lemieux)
 
         P <- getSigma(copula) # (d, d)-matrix, always symmetric
         U <- u # consider u as U[0,1]^d
@@ -299,7 +303,7 @@ iRosenblatt <- function(u, copula, indices = 1:dim(copula), log = FALSE, drop = 
     }
 
     ## Return
-    U[, indices, drop=drop]
+    U[, indices, drop = drop]
 }
 
 
