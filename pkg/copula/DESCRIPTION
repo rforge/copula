@@ -1,7 +1,7 @@
 Package: copula
 Version: 0.999-20
 VersionNote: Last CRAN: 0.999-19 on 2018-12-19
-Date: 2019-04-25
+Date: 2019-11-04
 Title: Multivariate Dependence with Copulas
 Authors@R: c(person("Marius", "Hofert", role = "aut", email = "marius.hofert@uwaterloo.ca",       comment = c(ORCID = "0000-0001-8009-4665"))
 	   , person("Ivan", "Kojadinovic", role = "aut", email = "ivan.kojadinovic@univ-pau.fr",  comment = c(ORCID = "0000-0002-2903-1543"))
@@ -16,6 +16,7 @@ Suggests: MASS, KernSmooth, sfsmisc, scatterplot3d, Rmpfr, bbmle, knitr,
 	polynom, qrng, randtoolbox, rugarch, Runuran, tseries, VGAM, VineCopula, zoo
 SuggestsNote: packages {abind, ..., zoo} (last lines above) are only used
 	in vignettes, demos and a few tests.
+VignetteBuilder: knitr
 Enhances: nor1mix, copulaData
 Description: Classes (S4) of commonly used elliptical, Archimedean,
  extreme-value and other copula families, as well as their rotations,
@@ -31,7 +32,6 @@ Description: Classes (S4) of commonly used elliptical, Archimedean,
  non-parametric estimators of the Pickands dependence function.
 License: GPL (>= 3) | file LICENCE
 ByteCompile: yes
-VignetteBuilder: knitr
 Collate: AllClass.R Classes.R AllGeneric.R
 	 Auxiliaries.R aux-acopula.R
 	 asymCopula.R mixCopula.R rotCopula.R Copula.R

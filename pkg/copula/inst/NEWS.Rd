@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-20 (2019-01-07, svn r....)}{
+\section{Changes in version 0.999-20 (2019-11-04, svn r....)}{
   \subsection{New Features}{
     \itemize{
       \item \code{evTestA()} got new options \code{trace.lev} and
