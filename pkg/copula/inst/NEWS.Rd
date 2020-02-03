@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 0.999-20 (2019-11-04, svn r1827)}{
+\section{Changes in version 0.999-20 (2020-02-03, svn r1832)}{
   \subsection{New Features}{
     \itemize{
       \item \code{evTestA()} got new options \code{trace.lev} and
@@ -21,6 +21,9 @@
 
       \item \code{cCopula()} now should work for \code{indepCopula()} and
       \code{"moCopula"} objects (via internal \code{rosenblatt()}.
+
+      \item fix \file{src/empcop.h} and \file{man/fgmCopula.Rd}
+      inconsistencies, found by latest checks on CRAN.
     }
   }
 }
