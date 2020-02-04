@@ -154,9 +154,9 @@ set.seed(101)
 U.7.3 <- rCopula(n = 2^15, t.7.3) # pretty large n .. still
 U.9.2 <- rCopula(n = 2^15, t.9.2)
 
-system.time(fL.7.3 <- fitLambda(U.7.3))              # 0.03 sec
-system.time(fL.9.2 <- fitLambda(U.9.2))              #  "
-system.time(fLt7.3 <- fitLambda(U.7.3, method="t"))  # 2.25 sec
+showSys.time(fL.7.3 <- fitLambda(U.7.3))              # 0.03 sec
+showSys.time(fL.9.2 <- fitLambda(U.9.2))              #  "
+showSys.time(fLt7.3 <- fitLambda(U.7.3, method="t"))  # 2.25 sec
 fL.7.3
 stopifnot(
     all.equal(fL.7.3[1,2], 0.401369993)
@@ -169,7 +169,7 @@ stopifnot(
 )
 (doExtras <- copula:::doExtras() && getRversion() >= "3.4") # so have withAutoprint(.)
 if(doExtras) withAutoprint({
-    system.time(fLt9.2 <- fitLambda(U.9.2, method="t"))
+    showSys.time(fLt9.2 <- fitLambda(U.9.2, method="t"))
     fLt9.2
     stopifnot(all.equal(fLt9.2$Lambda[1,2], 0.719807333))
 })

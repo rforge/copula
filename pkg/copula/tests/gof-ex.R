@@ -262,8 +262,8 @@ for(d in if(doExtras) 2:4 else 3) {
     u <- matrix(runif(n*d), ncol=d)
     showProc.time()
     ##
-    system.time(B. <- gofTstat(u, method="SnB"))
-    system.time(C. <- gofTstat(u, method="SnC"))
+    showSys.time(B. <- gofTstat(u, method="SnB"))
+    showSys.time(C. <- gofTstat(u, method="SnC"))
     stopifnot(all.equal(B., gofTstatSimple(u, method="SnB")),
               all.equal(C., gofTstatSimple(u, method="SnC")))
     print(c(SnB = B., SnC = C.))
