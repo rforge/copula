@@ -297,7 +297,7 @@ summary(fit.mpl)
 coef(fit.mpl) # named vector
 coef(fit.mpl, SE = TRUE) # the matrix, with SE
 ## Maximum likelihood (use 'x', not 'u' !)
-fit.ml <- fitCopula(normalCopula(dim=3, dispstr="un"), x, method="ml")
+fit.ml <- fitCopula(normalCopula(dim=3, dispstr="un"), x, method="ml", traceOpt=TRUE)
 summary(fit.ml)
 confint(fit.ml)
 confint(fit.ml, level = 0.999) # clearly non-0
@@ -307,7 +307,8 @@ param <- c(.6, .3, NA_real_)
 attr(param, "fixed") <- c(TRUE, FALSE, FALSE)
 ncp <- normalCopula(param = param, dim = 3, dispstr = "un")
 fixedParam(ncp) <- c(TRUE, TRUE, FALSE)
-summary(Fxf.mpl <- fitCopula(ncp, u, method = "mpl"))
+## 'traceOpt = 5': showing every 5-th log likelihood evaluation:
+summary(Fxf.mpl <- fitCopula(ncp, u, method = "mpl", traceOpt = 5))
 Fxf.mpl@copula # reminding of the fixed param. values
 
 ## With dispstr = "toep" :

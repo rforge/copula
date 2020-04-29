@@ -512,14 +512,16 @@ fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
 	    function(Inu) {
 		r <- loglikCopula(c(P, df=1/Inu)[free], u=u, copula=copula) # IK: [free]
                 if(numTrace) iTr <<- iTr+1L
-                if(!numTrace || (iTr %% traceOpt == 0L))
-                    cat(sprintf("1/nu=%14.9g => nu=%9.4f; logL=%12.8g\n", Inu, 1/Inu, r))
+                if(!numTrace || iTr == 1L || (iTr %% traceOpt == 0L))
+                    cat(sprintf("%s1/nu=%14.9g => nu=%9.4f; logL=%12.8g\n",
+                                if(numTrace) sprintf("%3d: ", iTr) else "",
+                                Inu, 1/Inu, r))
 		r
 	    }
 	} else
 	    function(Inu) loglikCopula(c(P, df=1/Inu)[free], u=u, copula=copula) # IK: [free]
 
-    if(numTrace) iTr <- 0L
+    if(traceOpt && numTrace) iTr <- 0L
     fit <- optimize(logL, interval=c(lower, upper), tol=tol, maximum = TRUE)
 
     ## Extract the fitted parameters
@@ -683,11 +685,12 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
                           loglikMixCop(param, u, copula)
                      else loglikCopula(param, u, copula)
                 if(numTrace) iTr <<- iTr+1L
-                if(!numTrace || (iTr %% traceOpt == 0L)) {
+                if(!numTrace || iTr == 1L || (iTr %% traceOpt == 0L)) {
+                    chTr <- if(numTrace) sprintf("%3d:", iTr) else ""
                     if(length(param) <= 1)
-                        cat(sprintf("param=%14.9g => logL=%12.8g\n", param, r))
+                        cat(sprintf("%s param=%14.9g => logL=%12.8g\n", chTr, param, r))
                     else
-                        cat(sprintf("param= %s => logL=%12.8g\n",
+                        cat(sprintf("%s param= %s => logL=%12.8g\n", chTr,
                                     paste(format(param, digits=9), collapse=", "), r))
                 }
 		r
@@ -709,7 +712,7 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
         } else
 	    loglikCopula
 
-    if(numTrace) iTr <- 0L
+    if(traceOpt && numTrace) iTr <- 0L
     ## Maximize the (log) likelihood
     fit <- optim(start, logL, lower=lower, upper=upper,
                  method = optim.method, control=control,
