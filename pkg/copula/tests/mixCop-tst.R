@@ -153,6 +153,7 @@ getTheta(tX4, attr = TRUE) # freeOnly = TRUE is default
 (th. <- getTheta(m3, attr = TRUE))# ditto
 (th  <- getTheta(m3, named= TRUE))
 ##' an inverse function of which(.) :
+##' an inverse function of which(.) :
 trueAt <- function(i, n) { r <- logical(n); r[i] <- TRUE; r }
 ## Functionality check of trueAt() :
 set.seed(17); summary(Ns <- rpois(1000,3))

@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 1.0-0 (2020-04-29, svn r1834)}{
+\section{Changes in version 1.0-0 (2020-05-19, svn r1839)}{
   \subsection{New Features}{
     \itemize{
       \item \code{mixCopula()} objects can now be fit (by
