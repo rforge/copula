@@ -70,10 +70,12 @@ norm.cop <- normalCopula(c(0.5, 0.6, 0.7), dim = 3, dispstr = "un")
 t.cop <- tCopula(c(0.5, 0.3), dim = 3, dispstr = "toep",
                  df = 2, df.fixed = TRUE)
 getSigma(t.cop) # P matrix (with diagonal = 1)
+stopifnot(all.equal(toeplitz(c(1, .5, .3)), getSigma(t.cop)))
 
 ## dispersion "AR1" :
 nC.7 <- normalCopula(0.8, dim = 7, dispstr = "ar1")
-getSigma(nC.7) ##-> toeplitz( (1  0.8  0.8^2  0.8^3  ... 0.8^6) ) matrix
+getSigma(nC.7)
+stopifnot(all.equal(toeplitz(.8^(0:6)), getSigma(nC.7)))
 
 ## from the wrapper
 norm.cop <- ellipCopula("normal", param = c(0.5, 0.6, 0.7),

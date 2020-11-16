@@ -75,7 +75,9 @@ if (Xtras) withAutoprint({
   filled.contour(df., Rhos, ll.m, xlab="df", ylab = "rho", main = tit)
 })
 
-## fitCopula() example with "fixed weights" -- (only these are "ok" !!) -------------
+## fitCopula() example -----------------------------------------------------
+
+## 1) with "fixed" weights :
 
 (mNt <- mixCopula(list(normalCopula(0.95), tCopula(-0.7)), w = c(1, 2) / 3))
 set.seed(1452) ; U <- pobs(rCopula(1000, mNt))
@@ -83,9 +85,9 @@ set.seed(1452) ; U <- pobs(rCopula(1000, mNt))
 
 getTheta(m1, freeOnly = TRUE, attr = TRUE)
 getTheta(m1, named=TRUE)
-copula:::isFree(m1) # all of them; --> now fix the weights :
+isFree(m1) # all of them; --> now fix the weights :
 fixedParam(m1) <- fx <- c(FALSE, FALSE, FALSE, TRUE, TRUE)
-stopifnot(identical(copula:::isFree(m1), !fx))
+stopifnot(identical(isFree(m1), !fx))
 
 if(Xtras) withAutoprint({ ## time
   system.time( # ~ 16 sec (nb-mm4) :
@@ -94,6 +96,8 @@ if(Xtras) withAutoprint({ ## time
   fit
   summary(fit) #-> incl  'Std.Error' (which seems small for rho1 !)
 })
+
+## 2) with "free" weights (possible since copula 1.0-0):
 
 }% {examples}
 \keyword{distribution}
