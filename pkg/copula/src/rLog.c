@@ -84,7 +84,7 @@ SEXP rLog_vec_c(SEXP n_, SEXP p_, SEXP Ip_) {
 	error(_("invalid 'n'"));
     n = (R_xlen_t) dn;
 #else
-    n = asInteger(lengthArgument);
+    n = asInteger(n_);
     if (n == NA_INTEGER || n < 0)
 	error(_("invalid 'n'"));
 #endif
