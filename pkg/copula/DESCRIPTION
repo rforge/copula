@@ -1,7 +1,7 @@
 Package: copula
-Version: 1.0-0
-VersionNote: Last CRAN: 0.999-20 on 2020-02-04
-Date: 2020-05-19
+Version: 1.0-1
+VersionNote: Last CRAN: 1.0-0 on 2020-05-19
+Date: 2020-11-20
 Title: Multivariate Dependence with Copulas
 Authors@R: c(person("Marius", "Hofert", role = "aut", email = "marius.hofert@uwaterloo.ca",       comment = c(ORCID = "0000-0001-8009-4665"))
 	   , person("Ivan", "Kojadinovic", role = "aut", email = "ivan.kojadinovic@univ-pau.fr",  comment = c(ORCID = "0000-0002-2903-1543"))
@@ -10,7 +10,7 @@ Authors@R: c(person("Marius", "Hofert", role = "aut", email = "marius.hofert@uwa
 	   , person(c("Johanna", "G."), "Nešlehová", role = "ctb", comment = c("evTestK()", ORCID = "0000-0001-9634-4796"))
 	   , person("Rebecca", "Morger", role = "ctb", comment = "fitCopula.ml(): code for free mixCopula weight parameters")
 	   )
-Depends: R (>= 3.4.0)
+Depends: R (>= 3.5.0)
 Imports: stats, graphics, methods, stats4, Matrix, lattice, colorspace,
 	gsl, ADGofTest, stabledist (>= 0.6-4), mvtnorm, pcaPP, pspline, numDeriv
 Suggests: MASS, KernSmooth, sfsmisc, scatterplot3d, Rmpfr, bbmle, knitr,

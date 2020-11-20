@@ -348,7 +348,7 @@ var.icor <- function(cop, u, method=c("itau", "irho"))
                        "irho" = "dRho")
         if (!hasMethod(dCor, class(cop))) {
             warning("The variance estimate cannot be computed for a copula of class ", class(cop))
-	    return(matrix(NA_real_, 0, 0)) # instead of potentiall large (n x dd)
+	    return(matrix(numeric(), 0, 0)) # instead of potentiall large (n x dd)
         }
 
         dCor <- if(method=="itau") dTau else dRho
@@ -446,7 +446,7 @@ fitCopula.icor <- function(copula, x, estimate.variance, method=c("itau", "irho"
     freeParam(copula) <- estimate
     var.est <- if (is.na(estimate.variance) || estimate.variance) {
         var.icor(copula, x, method=method)/nrow(x)
-    } else matrix(NA_real_, 0, 0)
+    } else matrix(numeric(), 0, 0)
     new("fitCopula",
         estimate = estimate,
         var.est = var.est,
@@ -539,7 +539,7 @@ fitCopula.itau.mpl <- function(copula, u, posDef=TRUE, lower=NULL, upper=NULL,
         ## TODO: if (d <= 20) or so ... or  if( q < n / 5 ) then
         ## use one/zero step of fitCopula.ml(*...., method="mpl", maxit=0) to get full vcov()
         stop("Cannot estimate var-cov matrix currently for method \"itau.mpl\"")
-    var.est <- matrix(NA_real_, 0, 0) # length 0  <==> not-estimated / not-available
+    var.est <- matrix(numeric(), 0, 0) # length 0  <==> not-estimated / not-available
 
     ## Return
     new("fitCopula",
@@ -586,8 +586,8 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
 {
     q <- nParam(copula, freeOnly=TRUE)
     stopifnot(q > 0L,
-	      is.list(optim.control) || is.null(optim.control),
-	      is.character(optim.method), length(optim.method) == 1,
+              is.list(optim.control) || is.null(optim.control),
+              is.character(optim.method), length(optim.method) == 1,
               is.finite(finiteLARGE), length(finiteLARGE) == 1, finiteLARGE > 0)
     chk.s(...) # 'check dots'
     if(any(u < 0) || any(u > 1))
@@ -624,11 +624,11 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
     ## control <- control[!vapply(control, is.null, NA)]
     meth.has.bounds <- optim.method %in% c("Brent","L-BFGS-B")
     if(meth.has.bounds || need.finite)
-	asFinite <- function(x) { # as finite - vectorized in 'x';  NA/NaN basically unchanged
-	    if(any(nifi <- !is.finite(x)))
-		x[nifi] <- sign(x[nifi]) * finiteLARGE
-	    x
-	}
+        asFinite <- function(x) { # as finite - vectorized in 'x';  NA/NaN basically unchanged
+            if(any(nifi <- !is.finite(x)))
+                x[nifi] <- sign(x[nifi]) * finiteLARGE
+            x
+        }
 
     if(meth.has.bounds) {
         cop.param <- getTheta(copula, freeOnly = TRUE, attr = TRUE)
@@ -636,9 +636,9 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
         p.upbnd  <- attr(cop.param, "param.upbnd")
     }
     if (is.null(lower))
-	lower <- if(meth.has.bounds) asFinite(p.lowbnd + bound.eps*abs(p.lowbnd)) else -Inf
+        lower <- if(meth.has.bounds) asFinite(p.lowbnd + bound.eps*abs(p.lowbnd)) else -Inf
     if (is.null(upper))
-	upper <- if(meth.has.bounds) asFinite(p.upbnd  - bound.eps*abs(p.upbnd )) else Inf
+        upper <- if(meth.has.bounds) asFinite(p.upbnd  - bound.eps*abs(p.upbnd )) else Inf
 
     if(ismixC) {
         ## m <- length(is.freeW) # == length(copula@w)
@@ -677,11 +677,11 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
     } # if(ismixC)
 
     logL <-
-	if(traceOpt) {
+        if(traceOpt) {
             numTrace <- (is.numeric(traceOpt) && (traceOpt <- as.integer(traceOpt)) > 0)
             ## if(numTrace) "print every traceOpt iteration"
-	    LL <- function(param, u, copula) {
-		r <- if(ismixC)
+            LL <- function(param, u, copula) {
+                r <- if(ismixC)
                           loglikMixCop(param, u, copula)
                      else loglikCopula(param, u, copula)
                 if(numTrace) iTr <<- iTr+1L
@@ -693,8 +693,8 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
                         cat(sprintf("%s param= %s => logL=%12.8g\n", chTr,
                                     paste(format(param, digits=9), collapse=", "), r))
                 }
-		r
-	    }
+                r
+            }
             if(need.finite) {
                 nb <- length(body(LL))
                 body(LL)[[nb]] <- do.call(substitute,
@@ -702,7 +702,7 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
                                                list(r = quote(asFinite(r)))))
             }
             LL
-	} else if(need.finite) {
+        } else if(need.finite) {
             if(ismixC)
                  function(param, u, copula) asFinite(loglikMixCop(param, u, copula))
             else function(param, u, copula) asFinite(loglikCopula(param, u, copula))
@@ -710,7 +710,7 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
             ## loglikCopula with inverse transformed lambdas, i.e., the original 'w's:
             loglikMixCop
         } else
-	    loglikCopula
+            loglikCopula
 
     if(traceOpt && numTrace) iTr <- 0L
     ## Maximize the (log) likelihood
@@ -729,36 +729,39 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
     has.conv <- fit[["convergence"]] == 0
     if (is.na(estimate.variance))
         estimate.variance <- has.conv && ## for now:
-	    (if(ismixC)
+            (if(ismixC)
                  !is.null(wf <- attr(copula@w, "fixed")) && all(wf) else TRUE)
     if(!has.conv)
         warning("possible convergence problem: optim() gave code=",
                 fit$convergence)
 
     ## Estimate the variance of the estimator
-    var.est <- switch(method,
-    "mpl" = {
-        if(estimate.variance)
-            var.mpl(copula, u) / nrow(u)
-        else
-            matrix(NA_real_, 0, 0) #matrix(NA_real_, q, q)
-    },
-    "ml" = {
-        ## MM{FIXME}: This should be done only by 'vcov()' and summary() !
-        if(estimate.variance) {
-            fit.last <- optim(fit$par, # == freeParam(copula)
-                              logL, lower=lower, upper=upper,
-                              method=optim.method, copula=copula, u=u,
-                              control=c(control, maxit=0), hessian=TRUE)
-            vcov <- tryCatch(solve(-fit.last$hessian), error = function(e) e)
-            if(is(vcov, "error")) {
-                warning("Hessian matrix not invertible: ", vcov$message)
-                matrix(NA_real_, 0, 0) #matrix(NA_real_, q, q)
-            } else vcov ## ok
-        } else matrix(NA_real_, 0, 0) #matrix(NA_real_, q, q)
-    },
-    stop("Wrong 'method'"))
-
+    varNO <- matrix(numeric(), 0, 0) #matrix(NA_real_, q, q)
+    var.est <- switch(
+        method,
+        "mpl" = {
+            if(estimate.variance)
+                var.mpl(copula, u) / nrow(u)
+            else
+                varNO
+        },
+        "ml" = {
+            ## FIXME: should be done additionally / only by 'vcov()' and summary()
+            if(estimate.variance) {
+                if(traceOpt)
+                    cat("--- estimate.variance=TRUE ==> optim(*, hessian=TRUE) iterations ---\n")
+                fit.last <- optim(fit$par, # == freeParam(copula)
+                                  logL, lower=lower, upper=upper,
+                                  method=optim.method, copula=copula, u=u,
+                                  control=c(control, maxit=0), hessian=TRUE)
+                vcov <- tryCatch(solve(-fit.last$hessian), error = function(e) e)
+                if(inherits(vcov, "error")) {
+                    warning("Hessian matrix not invertible: ", vcov$message)
+                    varNO
+                } else vcov ## ok
+            } else varNO
+        },
+        stop("Wrong 'method'"))
     ## Return the fitted copula object
     new("fitCopula",
         estimate = fit$par,

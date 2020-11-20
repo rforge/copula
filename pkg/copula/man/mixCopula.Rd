@@ -99,6 +99,18 @@ if(Xtras) withAutoprint({ ## time
 
 ## 2) with "free" weights (possible since copula 1.0-0):
 
+(mNt2 <- mixCopula(list(normalCopula(0.9), tCopula(-0.8)), w = c(1, 3) / 4))
+set.seed(1959) ; U2 <- pobs(rCopula(2000, mNt2))
+if(Xtras) withAutoprint({ ## time
+  m2 <- mixCopula(list(normalCopula(), tCopula()), w = mNt@w)
+  system.time( # ~ 13.5 sec (lynne) :
+    f2 <- fitCopula(m2, start = c(0, 0, 10, c(1/2, 1/2)), data = U2)
+  )
+  f2
+  summary(f2) #-> incl  'Std.Error' (which seems small for rho1 !)
+})
+
+
 }% {examples}
 \keyword{distribution}
 \keyword{multivariate}

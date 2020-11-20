@@ -18,18 +18,22 @@ require(copula)
 sessionInfo() # will change often.. but if we need the info, get it here
 
 ## Regression Tests -- n=1 failed till 2012-07-15
-u1 <- pobs(rbind(1:4))
+u1 <- pobs(rbind(1:4)) # = (1/2 1/2 1/2 1/2)
 cG <- gumbelCopula(2, d=4)
 ocG<- onacopula("Gumbel", C(2., 1:4))
 (rtG  <- cCopula(u1, copula = ocG))
 (rtGI <- cCopula(u1, copula = ocG, inverse=TRUE))
+(IrtG <- cCopula(rtG , copula = cG, inverse=TRUE, drop=TRUE))
+(rtG..<- cCopula(rtGI, copula = cG, inverse=TRUE, drop=TRUE))
 ## failed with  " object 'n' not found " in 0.999.17
-stopifnot(TRUE
-    , all.equal(rtG,  cCopula(u1, copula = cG), tolerance = 1e-15)
-    , all.equal(rtG,  rbind(c(0.5, 0.530633, 0.4852854, 0.4567624)), tol = 7e-7)# seen 6.97e-8
-    , all.equal(rtGI, cCopula(u1, copula = cG, inverse=TRUE), tol = 1e-15)
-    , all.equal(rtGI, rbind(c(0.5, 0.4797781, 0.4997766, 0.5174252)),tol = 5e-7)# seen 4.97e-8
-)
+stopifnot(exprs = {
+    all.equal(rtG,  cCopula(u1, copula = cG), tolerance = 1e-15)
+    all.equal(rtG,  rbind(c(0.5, 0.530633, 0.4852854, 0.4567624)), tol = 7e-7)# seen 6.97e-8
+    all.equal(rtGI, cCopula(u1, copula = cG, inverse=TRUE), tol = 1e-15)
+    all.equal(rtGI, rbind(c(0.5, 0.4797781, 0.4997766, 0.5174252)),tol = 5e-7)# seen 4.97e-8
+    all.equal(u1, IrtG, tol = 1e-4) # see 5.28e-5
+    all.equal(cCopula(rtG.., copula = cG), rtGI, tol = 1e-4) # see 2.0e-5
+})
 
 ### A faster, more checking version of demo(estimation.gof)
 ### that is, of ../demo/estimation.gof.R

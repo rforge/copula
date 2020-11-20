@@ -17,10 +17,21 @@ require(copula)
 
 (doExtras <- copula:::doExtras())
 
-d.dCdu  <- function(cop, u) copula:::dCduNumer    (cop, u, may.warn=FALSE) -
-                            copula:::dCdu         (cop, u)
-d.dCdth <- function(cop, u) copula:::dCdthetaNumer(cop, u, may.warn=FALSE) -
-                            copula:::dCdtheta     (cop, u)
+## alternatively, use comparederiv() from  ../inst/Rsource/utils.R   via source(..)
+all.equal.dCdu  <- function(cop, u,
+                            tol = sqrt(.Machine$double.eps),# default. 1.49e-8
+                            ...)
+    all.equal.numeric(copula:::dCdu     (cop, u),
+                      copula:::dCduNumer(cop, u, may.warn=FALSE),
+                      countEQ = TRUE, tolerance = tol, ...)
+
+all.equal.dCdth  <- function(cop, u,
+                            tol = sqrt(.Machine$double.eps),# default. 1.49e-8
+                            ...)
+    all.equal.numeric(copula:::dCdtheta     (cop, u),
+                      copula:::dCdthetaNumer(cop, u, may.warn=FALSE),
+                      countEQ = TRUE, tolerance = tol, ...)
+
 
 if(!dev.interactive(orNone=TRUE)) pdf("asymCopula-ex.pdf")
 
@@ -41,7 +52,7 @@ kd2b <- khoudrajiCopula(copula1 = gumbelCopula(4),
                         copula2 = indepCopula(),
                         shapes = c(0, 0))
 
-suppressWarnings(RNGversion("3.5.0")) ; set.seed(12)
+set.seed(12)
 v <- matrix(runif(10), 5, 2)
 
 stopifnot(all.equal(dCopula(v, kd2a), dCopula(v, claytonCopula(6))))
@@ -50,8 +61,10 @@ stopifnot(all.equal(dCopula(v, kd2b), dCopula(v, gumbelCopula(4))))
 
 ## True versus numerical derivatives
 v <- matrix(runif(6), 3, 2)
-summary(abs(d.dCdu (kc, v)))
-summary(abs(d.dCdth(kc, v)))
+stopifnot(exprs= {
+    all.equal.dCdu (kc, v, tol = 1e-12)# seen 6.54e-14
+    all.equal.dCdth(kc, v, tol = 0.001)# seen 0.000418
+})
 
 ## tau, rho, lambda not supposed to work
 assertError <- tools::assertError
@@ -69,8 +82,10 @@ kcf
 
 ## True versus numerical derivatives
 v <- matrix(runif(6), 3, 2)
-summary(abs(d.dCdu (kcf, v)))
-summary(abs(d.dCdth(kcf, v)))
+stopifnot(exprs= {
+    all.equal.dCdu (kcf, v, tol = 1e-12)# seen 7.04e-14
+    all.equal.dCdth(kcf, v, tol = 1e-11)# seen 2.048e-13
+})
 
 ## A Khoudraji-normal-Clayton copula
 knc <- khoudrajiCopula(copula1 = normalCopula(-0.7),
@@ -80,15 +95,10 @@ knc
 contour(knc, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
 
 ## True versus numerical derivatives
-er.nc <- c(
-    dCdu = max(abs(d.dCdu (knc, v))),
-    dCdth= max(abs(d.dCdth(knc, v))))
-er.nc
-##         dCdu        dCdth
-## 1.240119e-13 1.767306e-04  -- dCdu has become __much__ better,
-## was 0.001844999 before
-stopifnot(abs(er.nc[["dCdu" ]]) < 2e-12,
-	  abs(er.nc[["dCdth"]]) < 0.0008)
+stopifnot(exprs= {
+    all.equal.dCdu (knc, v, tol = 1e-9)# seen 2.111e-10
+    all.equal.dCdth(knc, v, tol = .001)# seen 0.0006938
+})
 
 ## A Khoudraji-normal-Clayton copula with fixed params
 kncf <- khoudrajiCopula(copula1 = normalCopula(fixParam(-0.7, TRUE)),
@@ -98,21 +108,19 @@ kncf
 
 ## Test setTheta(): change the *non*-fixed parameters (only)
 (kncf2 <- setTheta(kncf, value = c(4, 0.2)))
-stopifnot(
-    all.equal(getTheta(kncf),  c(6, 0.4)),
-    all.equal(getTheta(kncf2), c(4, 0.2)),
-    all.equal(getTheta(kncf, freeOnly=FALSE), c(-0.7, 6, 0.4, 0.95)),
-    all.equal(getTheta(kncf2,freeOnly=FALSE), c(-0.7, 4, 0.2, 0.95)))
+stopifnot(exprs= {
+    all.equal(getTheta(kncf),  c(6, 0.4))
+    all.equal(getTheta(kncf2), c(4, 0.2))
+    all.equal(getTheta(kncf, freeOnly=FALSE), c(-0.7, 6, 0.4, 0.95))
+    all.equal(getTheta(kncf2,freeOnly=FALSE), c(-0.7, 4, 0.2, 0.95))
+    ##
+    ## True versus numerical derivatives (same numbers as above)
+    all.equal.dCdu (kncf,  v, tol = 1e-9)
+    all.equal.dCdth(kncf,  v, tol = 1e-9)
+    all.equal.dCdu (kncf2, v, tol = 1e-9)
+    all.equal.dCdth(kncf2, v, tol = 1e-9)
+})
 
-## True versus numerical derivatives
-er.ncf <- c(
-    dCdu = max(abs(d.dCdu (kncf, v))),
-    dCdth= max(abs(d.dCdth(kncf, v))))
-er.ncf
-##         dCdu        dCdth
-## 1.240119e-13 1.021405e-14
-stopifnot(abs(er.ncf[["dCdu" ]]) < 1e-12, # much better, too!
-	  abs(er.ncf[["dCdth"]]) < 1e-12)
 
 ## A "nested" Khoudraji bivariate copula
 kgkcf <- khoudrajiCopula(copula1 = gumbelCopula(3),
@@ -120,14 +128,10 @@ kgkcf <- khoudrajiCopula(copula1 = gumbelCopula(3),
 			 shapes = c(0.7, 0.25))
 kgkcf
 contour(kgkcf, dCopula, nlevels = 20, main = "dCopula(<khoudrajiBivCopula>)")
-erN <- c(
-    dCdu = max(abs(d.dCdu (kgkcf, v))),
-    dCdth= max(abs(d.dCdth(kgkcf, v))))
-erN
-##         dCdu        dCdth
-## 9.348078e-14 6.704012e-14
-stopifnot(abs(erN[["dCdu" ]]) < 1e-12,
-	  abs(erN[["dCdth"]]) < 1e-12)
+stopifnot(exprs= { ## True versus numerical derivatives
+    all.equal.dCdu (kgkcf, v, tol = 1e-9)# seen 2.111e-10
+    all.equal.dCdth(kgkcf, v, tol = 1e-9)# seen 2.039e-10
+})
 
 ## A three dimensional Khoudraji-Clayton copula
 kcd3 <- khoudrajiCopula(copula1 = indepCopula(dim=3),
