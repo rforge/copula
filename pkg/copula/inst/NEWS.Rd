@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 1.0-1 (2020-11-20, svn r1845)}{
+\section{Changes in version 1.0-1 (2020-11-26, svn r1846)}{
   \subsection{New Features}{
     \itemize{
       \item The \code{pCopula()} methods for normal- and t-copulas now
@@ -15,6 +15,9 @@
 
       Such a default algorithm is also used in the (internal) derivative
       for normal- and t-copulas, (\code{dCdu()} calling \code{dCduEllipCopula()}).
+
+      \item invisible improvement in internal \code{Jscore()}
+      for internal \code{var.mpl()} computations.
     }
   }
   \subsection{Bug Fixes}{
