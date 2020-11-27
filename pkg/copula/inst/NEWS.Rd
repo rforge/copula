@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 1.0-1 (2020-11-26, svn r1846)}{
+\section{Changes in version 1.0-1 (2020-11-27, svn r1848)}{
   \subsection{New Features}{
     \itemize{
       \item The \code{pCopula()} methods for normal- and t-copulas now
@@ -26,9 +26,19 @@
       \eqn{0 x 0} matrix as slot \code{@ var.est} in all cases.
 
       \item tweaks some of the regression tests.
+
+      \item For mixture copulas (\code{mixCopula(.)}) estimation by
+      \code{fm <- fitCopula(*, estimate.variance=TRUE)} now is more reasonable:
+      \code{summary(fm)} and \code{vcov(fm)} still stay in the w-space and
+      currently return a warning about not-yet implemented Jacobian
+      delta-method.
+      \code{coef()}, \code{vcov()}, and \code{summary(fm)} now all have an
+      optional argument \code{orig = TRUE}, which when set to false will
+      provide results on the \sQuote{l-scale} aka \sQuote{lambda-scale}
+      (instead of the original \sQuote{w-scale}) for the weights, such that
+      inference on the \sQuote{l-scale} is available.
     }
   }
-
 }
 
 \section{Changes in version 1.0-0 (2020-05-19, svn r1839)}{

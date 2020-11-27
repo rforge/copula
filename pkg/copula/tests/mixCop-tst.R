@@ -33,12 +33,16 @@ stopifnot(dim(mC) == 3, inherits(mC, "mixCopula"))
 
 ## mix a Gumbel with a rotated Gumbel (with equal weights 1/2):
 mGG <- mixCopula(list(gumbelCopula(2), rotCopula(gumbelCopula(1.5))))
-stopifnot(dim(mGG) == 2, inherits(mGG, "mixCopula"),
-    all.equal(   rho(mGG), 0.57886340158, tol=1e-10) ,
+mGG # 4 parameters
+stopifnot(exprs = {
+    dim(mGG) == 2
+    inherits(mGG, "mixCopula")
+    is(mGG,"mixExplicitCopula") # ==> Jscore() works  ==> var.mpl()
+    all.equal(   rho(mGG), 0.57886340158, tol=1e-10)
     all.equal(lambda(mGG), c(lower = 0.206299474016,
                              upper = 0.292893218813), tol = 1e-10)
-)
-mGG # 4 parameters
+})
+
 
 RNGversion("3.5.0") # for sample() -- "biased" --> warning ---> *remove* in future!
 set.seed(17)
@@ -101,6 +105,28 @@ if(doExtras) withAutoprint({
     })
 })
 
+if(doExtras) withAutoprint({
+    stG <- system.time(
+        fGG <- fitCopula(mGG, uGG, method = "ml", estimate.variance=TRUE, traceOpt=1))
+    stG # 3.7 (lynne, 2020)
+    coef(fGG) ; logLik(fGG)
+    stopifnot(exprs = {
+        all.equal( ## dput(signif(*, 8)):
+            c(m1.alpha = 2.0551924, m2.alpha = 1.5838548, w1 = 0.50994422, w2 = 0.49005578),
+            coef(fGG), tol = 1e-7)
+        all.equal(structure(256.799629, nobs = 1000L, df = 4L, class = "logLik"),
+                  logLik(fGG), tol = 8e-8) # 9.67 e-10)
+    })
+    ## these two now work with "cheating" warning :
+    summary(fGG)
+    vcov(fGG) 
+    ## these now use 'l' aka 'lambda'-space :
+    summary(fGG, orig=FALSE)
+    (vcov(fGG, orig=FALSE) -> vGG) # "l-space"
+    cov2cor(vGG)
+    coef(fGG, orig=FALSE) # "l-space"
+})
+
 
 if(doExtras) withAutoprint({ # slowish
     st1 <- system.time(
@@ -152,7 +178,6 @@ getTheta(tX4, attr = TRUE) # freeOnly = TRUE is default
                                         # -> shows 'm2.df := 5' as fixed !
 (th. <- getTheta(m3, attr = TRUE))# ditto
 (th  <- getTheta(m3, named= TRUE))
-##' an inverse function of which(.) :
 ##' an inverse function of which(.) :
 trueAt <- function(i, n) { r <- logical(n); r[i] <- TRUE; r }
 ## Functionality check of trueAt() :
