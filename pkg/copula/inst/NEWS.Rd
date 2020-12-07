@@ -18,6 +18,9 @@
 
       \item invisible improvement in internal \code{Jscore()}
       for internal \code{var.mpl()} computations.
+
+      \item For \code{mixCopula}s, the default \code{optimMethod()} for
+      \code{fitCopula()} is now \code{"L-BFGS-B"}.
     }
   }
   \subsection{Bug Fixes}{

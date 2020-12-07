@@ -869,7 +869,7 @@ optimMeth <- function(copula, method, dim) {
     ellip <- extends(cld, "ellipCopula")
     if(ellip && copula@dispstr %in% c("ex", "ar1"))
         "L-BFGS-B"
-    else if(extends(cld, "archmCopula")) {
+    else if(extends(cld, "archmCopula") || extends(cld, "mixCopula") ) {
 	## if(nParam(copula, freeOnly=TRUE) == 1) # all 5 of our own families
 	##     "Brent"
         ## "Brent" with "finite" bounds (almost Inf) --> quickly goes berserk

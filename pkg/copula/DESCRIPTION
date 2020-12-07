@@ -20,6 +20,7 @@ SuggestsNote: packages {abind, ..., zoo} (last lines above) are only used
 	in vignettes, demos and a few tests.
 VignetteBuilder: knitr
 Enhances: nor1mix, copulaData
+SystemRequirements: pdfcrop (part of TexLive) is required to rebuild the vignettes.
 Description: Classes (S4) of commonly used elliptical, Archimedean,
  extreme-value and other copula families, as well as their rotations,
  mixtures and asymmetrizations. Nested Archimedean copulas, related
