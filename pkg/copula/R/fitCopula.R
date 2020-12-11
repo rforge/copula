@@ -655,10 +655,22 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
         cop.param <- getTheta(copula, freeOnly = TRUE, attr = TRUE)
         p.lowbnd <- attr(cop.param, "param.lowbnd")
         p.upbnd  <- attr(cop.param, "param.upbnd")
+        ## _Correct_bounds_  >>>> not-yet__see_*more*_problems__gofCopula(normalCopula()..)
+        ## if (is.null(lower)) {
+        ##     notI <- !is.infinite(p.lowbnd)
+        ##     p.lowbnd[notI] <- p.lowbnd[notI] + bound.eps*abs(p.lowbnd[notI])
+        ## }
+        ## if (is.null(upper)) {
+        ##     notI <- !is.infinite(p.upbnd)
+        ##     p.upbnd [notI] <- p.upbnd [notI] - bound.eps*abs(p.upbnd [notI])
+        ## }
     }
     if (is.null(lower))
+        ## _Correct_bounds_ lower <- if(meth.has.bounds) asFinite(p.lowbnd) else -Inf
         lower <- if(meth.has.bounds) asFinite(p.lowbnd + bound.eps*abs(p.lowbnd)) else -Inf
+
     if (is.null(upper))
+        ## _Correct_bounds_ upper <- if(meth.has.bounds) asFinite(p.upbnd ) else Inf
         upper <- if(meth.has.bounds) asFinite(p.upbnd  - bound.eps*abs(p.upbnd )) else Inf
 
     if(ismixC) {
@@ -677,6 +689,15 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
         in2 <- i1:q
         start[in1] <- clr1(start[in2] / sumfreew)
         length(start) <- l # cutoff last one
+        ## similarly transform lower[], upper[] for the 'w' -> 'l' transformation:
+        if(meth.has.bounds) {
+            ## --- fails --- as "weights don't add to 1" ---
+            ## lower[in1] <- clr1(lower[in2] / sumfreew); length(lower) <- l
+            ## upper[in1] <- clr1(upper[in2] / sumfreew); length(upper) <- l
+            lower[in1] <- -Inf; length(lower) <- l
+            upper[in1] <- +Inf; length(upper) <- l
+        }
+        ##
         rm(l, i1, q) # not used below, whereas (in1, in2, sumfreew) *are* needed
 
         ## the last nfree.w   elements of the vector 'start' correspond to the
@@ -750,30 +771,40 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
                 fit$convergence)
 
     ## Estimate the variance of the estimator
-    varNO <- matrix(numeric(), 0, 0) #matrix(NA_real_, q, q)
+    Var0  <- matrix(numeric(), 0, 0)
+    VarNA <- matrix(NA_real_, length(start), length(start))
     var.est <- switch(
         method,
         "mpl" = {
-            if(estimate.variance)
+            if(estimate.variance) ## FIXME?  use tryCatch() as in "ml" case ??
                 var.mpl(copula, u) / nrow(u)
             else
-                varNO
+                Var0
         },
         "ml" = {
             ## FIXME: should be done additionally / only by 'vcov()' and summary()
             if(estimate.variance) {
                 if(traceOpt)
                     cat("--- estimate.variance=TRUE ==> optim(*, hessian=TRUE) iterations ---\n")
-                fit.last <- optim(fitp0, # typically == freeParam(copula)
-                                  logL, lower=lower, upper=upper,
-                                  method=optim.method, copula=copula, u=u,
-                                  control=c(control, maxit=0), hessian=TRUE)
-                vcov <- tryCatch(solve(-fit.last$hessian), error = function(e) e)
-                if(inherits(vcov, "error")) {
-                    warning("Hessian matrix not invertible: ", vcov$message)
-                    varNO
-                } else vcov ## ok
-            } else varNO
+                fit.last <- tryCatch(
+                    optim(fitp0, # typically == freeParam(copula)
+                          logL, lower=lower, upper=upper,
+                          method=optim.method, copula=copula, u=u,
+                          control=c(control, maxit=0), hessian=TRUE),
+                    error = function(e) e)
+                if(inherits(fit.last, "error")) {
+                    msg <- .makeMessage("optim(*, hessian=TRUE) failed: ", fit.last$message)
+                    warning(msg)
+                    structure(VarNA, msg = msg)
+                } else {
+                    vcov <- tryCatch(solve(-fit.last$hessian), error = function(e) e)
+                    if(inherits(vcov, "error")) {
+                        msg <- .makeMessage("Hessian matrix not invertible: ", vcov$message)
+                        warning(msg)
+                        structure(VarNA, msg = msg)
+                    } else vcov ## ok
+                }
+            } else Var0
         },
         stop("Wrong 'method'"))
     ## Return the fitted copula object

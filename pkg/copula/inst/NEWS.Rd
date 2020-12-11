@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\section{Changes in version 1.0-1 (2020-11-27, svn r1848)}{
+\section{Changes in version 1.0-1 (2020-12-07, svn r1850)}{
   \subsection{New Features}{
     \itemize{
       \item The \code{pCopula()} methods for normal- and t-copulas now
@@ -21,6 +21,13 @@
 
       \item For \code{mixCopula}s, the default \code{optimMethod()} for
       \code{fitCopula()} is now \code{"L-BFGS-B"}.
+
+      \item When \code{fitCopula(*, estimate.variance=TRUE)} fails during
+      \code{optim(*, hessian=TRUE)}, a \code{warning()} is signalled, and
+      kept as attribute of the \code{NA}-valued vcov matrix.
+
+      Similarly when the hessian inversion fails, the warning message is
+      now returned with the \code{NA}-valued vcov matrix.
     }
   }
   \subsection{Bug Fixes}{

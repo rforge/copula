@@ -107,7 +107,9 @@ if(Xtras) withAutoprint({ ## time
     f2 <- fitCopula(m2, start = c(0, 0, 10, c(1/2, 1/2)), data = U2)
   )
   f2
-  summary(f2) #-> incl  'Std.Error' (which seems small for rho1 !)
+  summary(f2) # NA for 'Std. Error' as did *not* estimate.variance
+  summary(f2, orig=FALSE) # default 'orig=TRUE': w-scale;  whereas
+     coef(f2, orig=FALSE) # 'orig=FALSE' => shows 'l-scale' instead
 })
 
 

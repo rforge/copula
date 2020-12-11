@@ -80,6 +80,7 @@ if(doExtras) withAutoprint({
     ##            system is computationally singular: reciprocal condition number = 3.88557e-17
     st0 # was 4.4, now 9.3 sec (nb-mm4)
     coef(f.) ; logLik(f.)
+    coef(f., orig=FALSE) # -> l-scale
     summary(f.)
     stopifnot(exprs = {
         all.equal(logLik(f.), structure(536.93419, nobs = 600L, df = 7L, class = "logLik"),
@@ -98,7 +99,7 @@ if(doExtras) withAutoprint({
 
    ## MM: Note that 0.999 is not legal for a gumbelCopula (-> gives Error --> -Inf )
     coef(f.w); logLik(f.w)
-    print(summary(f.w))
+    summary(f.w)
     stopifnot(exprs = {
         all.equal(  coef(f.),   coef(f.w), tol=0.0006) # seen 0.000187
         all.equal(logLik(f.), logLik(f.w), tol= 4e-8)  # seen 1.89e-9
@@ -119,7 +120,7 @@ if(doExtras) withAutoprint({
     })
     ## these two now work with "cheating" warning :
     summary(fGG)
-    vcov(fGG) 
+    vcov(fGG)
     ## these now use 'l' aka 'lambda'-space :
     summary(fGG, orig=FALSE)
     (vcov(fGG, orig=FALSE) -> vGG) # "l-space"
@@ -132,7 +133,7 @@ if(doExtras) withAutoprint({ # slowish
     st1 <- system.time(
         ff <- fitCopula(mC, uM, optim.method = "Nelder-Mead", optim.control=optCtrl))
     ## converges (vcov : Error in solve(..)... (rec.cond.number 4.783e-17)
-    st1 # 11 sec
+    st1 # 11 sec (then lynne, 2020: 4.8'')
     logLik(ff)
     summary(ff)
     ## now using 'mC.' : -----
@@ -151,17 +152,19 @@ if(doExtras) withAutoprint({ # slowish
     system.time( # 28 sec
         f2 <- fitCopula(mC, uM, optim.method = "L-BFGS-B",    optim.control=optCtrl))
     ## converges (vcov: Error in solve(..)... (rec.cond.number 3.691e-17)
-    coef(f2) ; logLik(f2)
+    coef(f2) ; coef(f2, orig=FALSE); logLik(f2)
     summary(f2)
 
     ## now using 'mC.' : -----
     system.time(
         f2.w <- fitCopula(mC., uM, optim.method = "Nelder-Mead", optim.control=optCtrl))
-    coef(f2.w) ; logLik(f2.w)
+    coef(f2.w) ; coef(f2.w, orig=FALSE) ; logLik(f2.w)
     summary(f2.w)
-    stopifnot(exprs = { ## quite different, f2 was "poor" :
-        all.equal(  coef(f2),   coef(f2.w), tol=0.07) # seen 0.0389
-        all.equal(logLik(f2), logLik(f2.w), tol=0.002)# seen 0.000747
+    stopifnot(exprs = { ## different, f2 was "poor" :
+        all.equal(  coef(f2),   coef(f2.w), tol=0.004) # seen 0.00159
+        all.equal(coef(f2  , orig=FALSE),
+                  coef(f2.w, orig=FALSE),   tol=0.004) # 0.001639
+        all.equal(logLik(f2), logLik(f2.w), tol=0.002) # seen 2.26e-7
     })
 })
 
