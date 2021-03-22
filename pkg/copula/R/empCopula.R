@@ -256,11 +256,11 @@ setMethod("rCopula", signature("numeric", "empCopula"),
                      },
                      "beta" = {
                          ## See Segers, Sibuya, Tsukahara (2016, "The Empirical Beta Copula", page 3)
-                         X.ranks <- apply(copula@X, 2, rank, ties.method = "random") # get the X-ranks ('R' in reference)
+                         X.ranks <- apply(copula@X, 2, rank, ties.method = "random") # get the ranks ('R' in reference)
                          W <- matrix(runif(N * d), ncol = d) # sample iid U(0,1)
-                         W.ranks <- apply(W, 2, rank) # get the W-ranks ('V' in reference)
-                         V.tilde <- sapply(1:d, function(j) W.ranks[X.ranks[,j],j]) # use the X-ranks to index the W-ranks
-                         V.tilde[ii,] / (N+1) # randomly index (and scale; note: the scaling factor is not mentioned in the reference)
+                         W.ordered <- apply(W, 2, sort) # sort the W's ('V' in reference)
+                         V.tilde <- sapply(1:d, function(j) W.ordered[X.ranks[,j],j]) # use the X ranks to index the sorted Ws
+                         V.tilde[ii,] # randomly index
                      },
                      "checkerboard" = {
                          ## See Cuberus et al. (2019, "Copulas checker-type approximations:
