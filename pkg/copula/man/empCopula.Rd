@@ -236,7 +236,6 @@ m <- 50
 U.orig  <-  rCopula(m, copula = ecop.orig)
 U.beta  <-  rCopula(m, copula = ecop.beta)
 U.check <-  rCopula(m, copula = ecop.check)
-## Note: They all obviously just resample from the original n = 10 observations
 
 ## Plot
 wireframe2(ecop.orig,  FUN = pCopula, draw.4.pCoplines = FALSE)
