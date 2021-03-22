@@ -28,6 +28,9 @@
 
       Similarly when the hessian inversion fails, the warning message is
       now returned with the \code{NA}-valued vcov matrix.
+
+      \item Smoothed \code{empCopula()} objects now have the right
+      sampling methods.
     }
   }
   \subsection{Bug Fixes}{

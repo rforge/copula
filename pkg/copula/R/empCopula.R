@@ -246,7 +246,34 @@ setMethod("dCopula", signature("matrix", "empCopula"),
 
 ## rCopula method
 setMethod("rCopula", signature("numeric", "empCopula"),
-	  function(n, copula) copula@X[sample(1:nrow(copula@X), size = n, replace = TRUE), ])
+	  function(n, copula) {
+              N <- nrow(copula@X) # number of copula observations
+              d <- dim(copula)
+              ii <- sample(1:N, size = n, replace = TRUE) # random row indices
+              switch(copula@smoothing,
+                     "none" = {
+                         copula@X[ii,] # resample from the original copula data
+                     },
+                     "beta" = {
+                         ## See Segers, Sibuya, Tsukahara (2016, "The Empirical Beta Copula", page 3)
+                         X.ranks <- apply(copula@X, 2, rank, ties.method = "random") # get the X-ranks ('R' in reference)
+                         W <- matrix(runif(N * d), ncol = d) # sample iid U(0,1)
+                         W.ranks <- apply(W, 2, rank) # get the W-ranks ('V' in reference)
+                         V.tilde <- sapply(1:d, function(j) W.ranks[X.ranks[,j],j]) # use the X-ranks to index the W-ranks
+                         V.tilde[ii,] / (N+1) # randomly index (and scale; note: the scaling factor is not mentioned in the reference)
+                     },
+                     "checkerboard" = {
+                         ## See Cuberus et al. (2019, "Copulas checker-type approximations:
+                         ## Application to quantiles estimation of sums of dependent random variables")
+                         ## or Genest, Neslehova (2007, "A primer on copulas for count data")
+                         ## The empirical checkerboard copula uses uniform mass in each
+                         ## d-box \prod_{j=1}^d ((i_j-1)/N, i_j/N] for each (i_1,..,i_d)
+                         ## in {1,...,N}^d. As such, this is equivalent to Latin Hypercube Sampling.
+                         V <- rLatinHypercube(copula@X, ties.method = "random")
+                         V[ii,] # randomly index
+                     },
+                     stop("Wrong 'smoothing'"))
+          })
 
 ## pCopula method
 setMethod("pCopula", signature("matrix", "empCopula"),
