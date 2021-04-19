@@ -15,7 +15,7 @@
 loglikCopula(param = getTheta(copula), u, copula,
              error = c("-Inf", "warn-Inf", "let-it-be"))
 
-## Generic [and "rotCopula" method] :
+## Generic [and "rotCopula" method] : %- ../R/fitCopula.R
 fitCopula(copula, data, \dots)
 \S4method{fitCopula}{copula}(copula, data,
           method = c("mpl", "ml", "itau", "irho", "itau.mpl"),

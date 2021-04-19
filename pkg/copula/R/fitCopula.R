@@ -588,7 +588,7 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
                          optim.method, optim.control, estimate.variance,
                          bound.eps=.Machine$double.eps^0.5, call, traceOpt = FALSE,
 			 need.finite = any(optim.method == c("Brent", "L-BFGS-B", "BFGS")),
-			 finiteLARGE = .Machine$double.xmax,
+			 finiteLARGE = .Machine$double.xmax / 8, tol.solve = 1e-7,
 			 ...)
 {
     q <- nParam(copula, freeOnly=TRUE)
@@ -644,7 +644,8 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
     ## unneeded, possibly wrong (why not keep a 'special = NULL' ?):
     ## control <- control[!vapply(control, is.null, NA)]
     meth.has.bounds <- optim.method %in% c("Brent","L-BFGS-B")
-    if(meth.has.bounds || need.finite)
+    if((has.asFinite <- (meth.has.bounds || need.finite ||
+                         (method == "ml" && !isFALSE(estimate.variance)))))
         asFinite <- function(x) { # as finite - vectorized in 'x';  NA/NaN basically unchanged
             if(any(nifi <- !is.finite(x)))
                 x[nifi] <- sign(x[nifi]) * finiteLARGE
@@ -729,22 +730,36 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
                 }
                 r
             }
-            if(need.finite) {
+            if(has.asFinite) {
                 nb <- length(body(LL))
+                if(!need.finite)
+                    LogLsimp <- LL # before making it asFinite(.)
                 body(LL)[[nb]] <- do.call(substitute,
                                           list(body(LL)[[nb]],
                                                list(r = quote(asFinite(r)))))
             }
             LL
-        } else if(need.finite) {
-            if(ismixC)
-                 function(param, u, copula) asFinite(loglikMixCop(param, u, copula))
-            else function(param, u, copula) asFinite(loglikCopula(param, u, copula))
-        } else if(ismixC) {
-            ## loglikCopula with inverse transformed lambdas, i.e., the original 'w's:
-            loglikMixCop
-        } else
-            loglikCopula
+        } else { # no tracing
+            if(has.asFinite)
+                logLfin <-
+                    if(ismixC)
+                        function(param, u, copula) asFinite(loglikMixCop(param, u, copula))
+                    else function(param, u, copula) asFinite(loglikCopula(param, u, copula))
+            if(need.finite)
+                logLfin
+            else if(ismixC)
+                ## loglikCopula with inverse transformed lambdas, i.e., the original 'w's:
+                loglikMixCop
+            else
+                loglikCopula
+        }
+    if(traceOpt && has.asFinite && !need.finite) {
+        logLfin <- logL
+        logL <- logLsimp
+    }
+    ## else if(!traceOpt && has.asFinite & !need.finite) {
+    ##     ## use  logLfin() and logL()  each where needed
+    ## }
 
     if(traceOpt && numTrace) iTr <- 0L
     ## Maximize the (log) likelihood
@@ -763,9 +778,9 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
     loglik <- fit$val
     has.conv <- fit[["convergence"]] == 0
     if (is.na(estimate.variance))
-        estimate.variance <- has.conv && ## for now:
-            (if(ismixC)
-                 !is.null(wf <- attr(copula@w, "fixed")) && all(wf) else TRUE)
+        estimate.variance <- has.conv
+    ## up to copula 1.0-1 had  "FALSE if not all weights fixed"
+    ##  && (if(ismixC) !is.null(wf <- attr(copula@w, "fixed")) && all(wf) else TRUE)
     if(!has.conv)
         warning("possible convergence problem: optim() gave code=",
                 fit$convergence)
@@ -785,7 +800,10 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
             ## FIXME: should be done additionally / only by 'vcov()' and summary()
             if(estimate.variance) {
                 if(traceOpt)
-                    cat("--- estimate.variance=TRUE ==> optim(*, hessian=TRUE) iterations ---\n")
+                    cat("--- estimate.variance=TRUE ==> optim(*, hessian=TRUE) ", sep="",
+                        if(has.asFinite && !need.finite) "asFinite(logL(.)) ", "iterations ---\n")
+                if(has.asFinite && !need.finite) ## to forbid -Inf here :
+                    logL <- logLfin
                 fit.last <- tryCatch(
                     optim(fitp0, # typically == freeParam(copula)
                           logL, lower=lower, upper=upper,
@@ -797,7 +815,8 @@ fitCopula.ml <- function(copula, u, method=c("mpl", "ml"), start, lower, upper,
                     warning(msg)
                     structure(VarNA, msg = msg)
                 } else {
-                    vcov <- tryCatch(solve(-fit.last$hessian), error = function(e) e)
+                    vcov <- tryCatch(solve.default(-fit.last$hessian, tol = tol.solve),
+                                     error = function(e) e)
                     if(inherits(vcov, "error")) {
                         msg <- .makeMessage("Hessian matrix not invertible: ", vcov$message)
                         warning(msg)

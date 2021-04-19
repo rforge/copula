@@ -4,6 +4,18 @@
 \title{News for \R Package \pkg{copula}}% MM: look into ../svn-log-from.all
 \newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
+\section{Changes in version 1.0-2 (2021-02-10, svn r....)}{
+  \subsection{New Features}{
+    \itemize{
+      \item \code{fitCopula(<mixCopula>)} now by default uses
+      \code{estimate.variance = TRUE} also with \emph{free} mixture
+      weights.
+
+      \item \code{fitLambda()} gets new method \code{"Schmidt.Stadtmueller"}.
+    }
+  }
+}
+
 \section{Changes in version 1.0-1 (2020-12-07, svn r1850)}{
   \subsection{New Features}{
     \itemize{
